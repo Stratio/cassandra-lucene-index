@@ -1,0 +1,105 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.stratio.cassandra.lucene</groupId>
+    <artifactId>cassandra-lucene-index</artifactId>
+    <packaging>jar</packaging>
+    <version>1.0-SNAPSHOT</version>
+    <name>cassandra-lucene-index</name>
+    <url>http://maven.apache.org</url>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0t</url>
+        </license>
+    </licenses>
+
+    <scm>
+        <url>https://github.com/Stratio/cassandra-lucene-index</url>
+        <connection>scm:git:git:@github.com:Stratio/cassandra-lucene-index.git</connection>
+        <developerConnection>scm:git:git@github.com:Stratio/cassandra-lucene-index.git</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
+
+    <developers>
+        <developer>
+            <id>adelapena</id>
+            <name>Andrés de la Peña</name>
+            <email>adelapena at stratio dot com</email>
+        </developer>
+    </developers>
+
+    <properties>
+        <cassandra.version>2.1.5-SNAPSHOT</cassandra.version>
+        <lucene.version>5.1.0</lucene.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.cassandra</groupId>
+            <artifactId>cassandra-all</artifactId>
+            <version>${cassandra.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-core</artifactId>
+            <version>${lucene.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-analyzers-common</artifactId>
+            <version>${lucene.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-spatial</artifactId>
+            <version>${lucene.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-queryparser</artifactId>
+            <version>${lucene.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3.2</version>
+                <configuration>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>2.3</version>
+                <configuration>
+                    <artifactSet>
+                        <includes>
+                            <include>com.stratio.cassandra:*</include>
+                            <include>org.apache.lucene:*</include>
+                        </includes>
+                        <excludes>
+                            <exclude>org.apache.cassandra:*</exclude>
+                        </excludes>
+                    </artifactSet>
+                    <createDependencyReducedPom>false</createDependencyReducedPom>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
