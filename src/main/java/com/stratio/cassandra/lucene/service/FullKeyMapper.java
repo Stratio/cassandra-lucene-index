@@ -37,10 +37,10 @@ import java.nio.ByteBuffer;
 public class FullKeyMapper {
 
     /** The Lucene field name. */
-    public static final String FIELD_NAME = "_full_key"; //  The Lucene field name
+    private static final String FIELD_NAME = "_full_key"; //  The Lucene field name
 
     /** The type of the full row key, which is composed by the partition and clustering key types. */
-    public CompositeType type;
+    private final CompositeType type;
 
     /**
      * Returns a new {@link FullKeyMapper} using the specified column family metadata.
@@ -74,7 +74,7 @@ public class FullKeyMapper {
      * @param cellName     A clustering key.
      * @return The {@link ByteBuffer} representation of the full row key formed by the specified key pair.
      */
-    public ByteBuffer byteBuffer(DecoratedKey partitionKey, CellName cellName) {
+    private ByteBuffer byteBuffer(DecoratedKey partitionKey, CellName cellName) {
         return type.builder().add(partitionKey.getKey()).add(cellName.toByteBuffer()).build();
     }
 

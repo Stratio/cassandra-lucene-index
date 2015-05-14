@@ -43,19 +43,19 @@ public class RangeCondition extends SingleFieldCondition {
 
     /** The lower accepted value. Maybe null meaning no lower limit. */
     @JsonProperty("lower")
-    private Object lower;
+    private final Object lower;
 
     /** The upper accepted value. Maybe null meaning no upper limit. */
     @JsonProperty("upper")
-    private Object upper;
+    private final Object upper;
 
     /** If the lower value must be included if not null. */
     @JsonProperty("include_lower")
-    private Boolean includeLower;
+    private final boolean includeLower;
 
     /** If the upper value must be included if not null. */
     @JsonProperty("include_upper")
-    private Boolean includeUpper;
+    private final boolean includeUpper;
 
     /**
      * Constructs a query selecting all fields greater/equal than {@code lowerValue} but less/equal than {@code
@@ -68,8 +68,8 @@ public class RangeCondition extends SingleFieldCondition {
      *                     normal weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link
      *                     #DEFAULT_BOOST} is used as default.
      * @param field        The name of the field to be matched.
-     * @param lowerValue   The lower accepted value. Maybe null meaning no lower limit.
-     * @param upperValue   The upper accepted value. Maybe null meaning no upper limit.
+     * @param lowerValue   The lower accepted value. Maybe {@code null} meaning no lower limit.
+     * @param upperValue   The upper accepted value. Maybe {@code null} meaning no upper limit.
      * @param includeLower if {@code true}, the {@code lowerValue} is included in the range.
      * @param includeUpper if {@code true}, the {@code upperValue} is included in the range.
      */
@@ -80,8 +80,7 @@ public class RangeCondition extends SingleFieldCondition {
                           @JsonProperty("upper") Object upperValue,
                           @JsonProperty("include_lower") Boolean includeLower,
                           @JsonProperty("include_upper") Boolean includeUpper) {
-        super(boost);
-
+        super(boost, field);
         this.field = field;
         this.lower = lowerValue;
         this.upper = upperValue;
@@ -90,15 +89,46 @@ public class RangeCondition extends SingleFieldCondition {
     }
 
     /**
+     * Returns the lower accepted value. Maybe {@code null} meaning no lower limit.
+     *
+     * @return The lower accepted value. Maybe {@code null} meaning no lower limit.
+     */
+    public Object getLower() {
+        return lower;
+    }
+
+    /**
+     * Returns the upper accepted value. Maybe {@code null} meaning no upper limit.
+     *
+     * @return The upper accepted value. Maybe {@code null} meaning no upper limit.
+     */
+    public Object getUpper() {
+        return upper;
+    }
+
+    /**
+     * Returns {@code true} if the {@link #lower} value is included in the range, {@code false} otherwise.
+     *
+     * @return {@code true} if the {@link #lower} value is included in the range, {@code false} otherwise.
+     */
+    public Boolean getIncludeLower() {
+        return includeLower;
+    }
+
+    /**
+     * Returns {@code true} if the {@link #upper} value is included in the range, {@code false} otherwise.
+     *
+     * @return {@code true} if the {@link #upper} value is included in the range, {@code false} otherwise.
+     */
+    public Boolean getIncludeUpper() {
+        return includeUpper;
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
     public Query query(Schema schema) {
-
-        if (field == null || field.trim().isEmpty()) {
-            throw new IllegalArgumentException("Field name required");
-        }
-
         ColumnMapperSingle<?> columnMapper = getMapper(schema, field);
         Class<?> clazz = columnMapper.baseClass();
         Query query;

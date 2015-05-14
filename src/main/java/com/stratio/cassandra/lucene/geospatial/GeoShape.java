@@ -59,7 +59,7 @@ public abstract class GeoShape {
      *
      * @param longitude The longitude to be checked.
      */
-    public static void checkLongitude(Double longitude) {
+    static void checkLongitude(Double longitude) {
         if (longitude == null) {
             throw new IllegalArgumentException("Not null longitude required");
         }
@@ -74,7 +74,7 @@ public abstract class GeoShape {
      *
      * @param latitude The latitude to be checked.
      */
-    public static void checkLatitude(Double latitude) {
+    static void checkLatitude(Double latitude) {
         if (latitude == null) {
             throw new IllegalArgumentException("Not null latitude required");
         }

@@ -15,6 +15,7 @@
  */
 package com.stratio.cassandra.lucene.schema;
 
+import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.LongType;
 import org.junit.Assert;
 import org.junit.Test;
@@ -29,7 +30,7 @@ public class ColumnTest {
     @Test
     public void testCreateFromDecomposedWithoutSufix() {
         String name = "my_column";
-        LongType type = LongType.instance;
+        AbstractType<Long> type = LongType.instance;
         Long composedValue = 5L;
         ByteBuffer decomposedValue = type.decompose(composedValue);
         Column<Long> column = Column.fromDecomposed(name, decomposedValue, type, true);
@@ -45,7 +46,7 @@ public class ColumnTest {
     public void testCreateFromDecomposedWithSufix() {
         String name = "my";
         String sufix = "column";
-        LongType type = LongType.instance;
+        AbstractType<Long> type = LongType.instance;
         Long composedValue = 5L;
         ByteBuffer decomposedValue = type.decompose(composedValue);
         Column<Long> column = Column.fromDecomposed(name, sufix, decomposedValue, type, true);
@@ -60,7 +61,7 @@ public class ColumnTest {
     @Test
     public void testCreateFromComposedWithoutSufix() {
         String name = "my_column";
-        LongType type = LongType.instance;
+        AbstractType<Long> type = LongType.instance;
         Long composedValue = 5L;
         ByteBuffer decomposedValue = type.decompose(composedValue);
         Column<Long> column = Column.fromComposed(name, composedValue, type, true);
@@ -75,7 +76,7 @@ public class ColumnTest {
     @Test
     public void testCreateFromComposedWithSufix() {
         String name = "my.column";
-        LongType type = LongType.instance;
+        AbstractType<Long> type = LongType.instance;
         Long composedValue = 5L;
         ByteBuffer decomposedValue = type.decompose(composedValue);
         Column<Long> column = Column.fromComposed(name, composedValue, type, true);

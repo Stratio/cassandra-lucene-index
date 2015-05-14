@@ -16,7 +16,6 @@
 package com.stratio.cassandra.lucene.service;
 
 import com.stratio.cassandra.lucene.util.ByteBufferUtils;
-import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.db.DecoratedKey;
 import org.apache.cassandra.dht.IPartitioner;
@@ -50,8 +49,8 @@ public class TokenMapperGeneric extends TokenMapper {
     private final TokenFactory factory; // The partitioner token factory
 
     /** Returns a new {@link TokenMapperGeneric}. */
-    public TokenMapperGeneric(CFMetaData metadata) {
-        super(metadata);
+    public TokenMapperGeneric() {
+        super();
         factory = DatabaseDescriptor.getPartitioner().getTokenFactory();
     }
 

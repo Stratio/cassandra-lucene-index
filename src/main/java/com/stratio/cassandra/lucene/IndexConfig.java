@@ -21,6 +21,8 @@ import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.DatabaseDescriptor;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 
 /**
@@ -35,6 +37,7 @@ public class IndexConfig {
     public static final String REFRESH_SECONDS_OPTION = "refresh_seconds";
     public static final double DEFAULT_REFRESH_SECONDS = 60;
 
+    public static final String DIRECTORY_PATH_OPTION = "directory_path";
     public static final String INDEXES_DIR_NAME = "lucene";
 
     public static final String RAM_BUFFER_MB_OPTION = "ram_buffer_mb";
@@ -54,7 +57,7 @@ public class IndexConfig {
 
     private final Schema schema;
     private final double refreshSeconds;
-    private final String path;
+    private final Path path;
     private final int ramBufferMB;
     private final int maxMergeMB;
     private final int maxCachedMB;
@@ -69,7 +72,6 @@ public class IndexConfig {
      * @param options  The index options.
      */
     public IndexConfig(CFMetaData metadata, Map<String, String> options) {
-
         refreshSeconds = parseRefresh(options);
         ramBufferMB = parseRamBufferMB(options);
         maxMergeMB = parseMaxMergeMB(options);
@@ -77,17 +79,7 @@ public class IndexConfig {
         indexingThreads = parseIndexingThreads(options);
         indexingQueuesSize = parseIndexingQueuesSize(options);
         schema = parseSchema(options, metadata);
-
-        String[] dataFileLocations = DatabaseDescriptor.getAllDataFileLocations();
-        path = dataFileLocations[0] +
-               File.separatorChar +
-               metadata.ksName +
-               File.separatorChar +
-               metadata.cfName +
-               "-" +
-               metadata.cfId +
-               File.separatorChar +
-               INDEXES_DIR_NAME;
+        path = parsePath(options, metadata);
     }
 
     /**
@@ -105,7 +97,7 @@ public class IndexConfig {
      *
      * @return The path where the Lucene files will be stored.
      */
-    public String getPath() {
+    public Path getPath() {
         return path;
     }
 
@@ -285,6 +277,24 @@ public class IndexConfig {
         } else {
             String msg = String.format("'%s' required", SCHEMA_OPTION);
             throw new RuntimeException(msg);
+        }
+    }
+
+    private static Path parsePath(Map<String, String> options, CFMetaData metadata) {
+        String pathOption = options.get(DIRECTORY_PATH_OPTION);
+        if (pathOption == null) {
+            String pathString = DatabaseDescriptor.getAllDataFileLocations()[0] +
+                                File.separatorChar +
+                                metadata.ksName +
+                                File.separatorChar +
+                                metadata.cfName +
+                                "-" +
+                                metadata.cfId +
+                                File.separatorChar +
+                                INDEXES_DIR_NAME;
+            return Paths.get(pathString);
+        } else {
+            return Paths.get(pathOption);
         }
     }
 

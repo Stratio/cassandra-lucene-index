@@ -18,6 +18,7 @@ package com.stratio.cassandra.lucene.query;
 import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperSingle;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.NumericRangeQuery;
 import org.apache.lucene.search.Query;
@@ -53,21 +54,28 @@ public class MatchCondition extends SingleFieldCondition {
     public MatchCondition(@JsonProperty("boost") Float boost,
                           @JsonProperty("field") String field,
                           @JsonProperty("value") Object value) {
-        super(boost);
+        super(boost, field);
+
+        if (value == null || value instanceof String && StringUtils.isBlank((String) value)) {
+            throw new IllegalArgumentException("Field value required");
+        }
+
         this.field = field;
         this.value = value;
+    }
+
+    /**
+     * Returns the value of the field to be matched.
+     *
+     * @return The value of the field to be matched.
+     */
+    public Object getValue() {
+        return value;
     }
 
     /** {@inheritDoc} */
     @Override
     public Query query(Schema schema) {
-        if (field == null || field.trim().isEmpty()) {
-            throw new IllegalArgumentException("Field name required");
-        }
-        if (value == null || value instanceof String && ((String) value).trim().isEmpty()) {
-            throw new IllegalArgumentException("Field value required");
-        }
-
         ColumnMapperSingle<?> columnMapper = getMapper(schema, field);
         Class<?> clazz = columnMapper.baseClass();
         Query query;

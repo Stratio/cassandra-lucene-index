@@ -66,10 +66,10 @@ public abstract class ColumnMapper {
     static final boolean DEFAULT_SORTED = true;
 
     /** If the field must be indexed. */
-    protected final Boolean indexed;
+    final Boolean indexed;
 
     /** If the field must be sorted. */
-    protected final Boolean sorted;
+    final Boolean sorted;
 
     /** The supported Cassandra types for indexing. */
     private final AbstractType<?>[] supportedTypes;
@@ -128,7 +128,7 @@ public abstract class ColumnMapper {
         addFields(document, name, value, isCollection);
     }
 
-    public abstract void addFields(Document document, String name, Object value, boolean isCollection);
+    protected abstract void addFields(Document document, String name, Object value, boolean isCollection);
 
     /**
      * Returns the {@link SortField} resulting from the mapping of the specified object.

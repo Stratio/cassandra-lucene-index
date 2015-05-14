@@ -25,7 +25,7 @@ import com.stratio.cassandra.lucene.query.Condition;
 public abstract class ConditionBuilder<T extends Condition, K extends ConditionBuilder<T, K>> implements Builder<T> {
 
     /** The boost for the {@link Condition} to be built. */
-    protected Float boost;
+    Float boost;
 
     /**
      * Sets the boost for the {@link Condition} to be built. Documents matching this condition will (in addition to the

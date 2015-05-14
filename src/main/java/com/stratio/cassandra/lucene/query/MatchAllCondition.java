@@ -27,7 +27,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
  *
  * @author Andres de la Pena <adelapena@stratio.com>
  */
-public class MatchAllCondition extends SingleFieldCondition {
+public class MatchAllCondition extends Condition {
 
     /**
      * Constructor without field arguments.

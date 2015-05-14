@@ -50,11 +50,9 @@ public class TokenMapperMurmur extends TokenMapper {
 
     /**
      * Builds a new {@link TokenMapperMurmur} using the specified {@link CFMetaData}.
-     *
-     * @param metadata A column family metadata.
      */
-    public TokenMapperMurmur(CFMetaData metadata) {
-        super(metadata);
+    public TokenMapperMurmur() {
+        super();
     }
 
     /** {@inheritDoc} */

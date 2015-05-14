@@ -64,23 +64,19 @@ public class ClusteringKeyMapper {
     public static final String FIELD_NAME = "_clustering_key";
 
     /** The column family meta data */
-    protected final CFMetaData metadata;
+    private final CFMetaData metadata;
 
     /** The type of the clustering key, which is the type of the column names */
-    protected final CellNameType cellNameType;
-
-    /** The clustering key type as composite */
-    protected final CompositeType compositeType;
+    private final CellNameType cellNameType;
 
     /**
      * Returns a new {@code ClusteringKeyMapper} according to the specified column family meta data.
      *
      * @param metadata The column family meta data.
      */
-    protected ClusteringKeyMapper(CFMetaData metadata) {
+    private ClusteringKeyMapper(CFMetaData metadata) {
         this.metadata = metadata;
         this.cellNameType = metadata.comparator;
-        this.compositeType = (CompositeType) cellNameType.asAbstractType();
     }
 
     /**
@@ -98,7 +94,7 @@ public class ClusteringKeyMapper {
      *
      * @return The clustering key validation type.
      */
-    public final CellNameType getType() {
+    public CellNameType getType() {
         return cellNameType;
     }
 
@@ -108,7 +104,7 @@ public class ClusteringKeyMapper {
      * @param document The document where the clustering key is going to be added.
      * @param cellName A cell name containing the clustering key to be added.
      */
-    public final void addFields(Document document, CellName cellName) {
+    public void addFields(Document document, CellName cellName) {
         String serializedKey = ByteBufferUtils.toString(cellName.toByteBuffer());
         BytesRef bytesRef = new BytesRef(serializedKey);
         document.add(new StringField(FIELD_NAME, serializedKey, Field.Store.YES));
@@ -122,7 +118,7 @@ public class ClusteringKeyMapper {
      * @param columnFamily A column family.
      * @return The first clustering key contained in the specified {@link ColumnFamily}.
      */
-    public final CellName clusteringKey(ColumnFamily columnFamily) {
+    public CellName clusteringKey(ColumnFamily columnFamily) {
         Iterator<Cell> iterator = columnFamily.iterator();
         return iterator.hasNext() ? clusteringKey(iterator.next().name()) : null;
     }
@@ -133,7 +129,7 @@ public class ClusteringKeyMapper {
      * @param columnFamily A storage engine {@link ColumnFamily}.
      * @return The common clustering keys of the specified column family.
      */
-    public final List<CellName> clusteringKeys(ColumnFamily columnFamily) {
+    public List<CellName> clusteringKeys(ColumnFamily columnFamily) {
         List<CellName> clusteringKeys = new ArrayList<>();
         CellName lastClusteringKey = null;
         for (Cell cell : columnFamily) {
@@ -149,7 +145,7 @@ public class ClusteringKeyMapper {
         return sort(clusteringKeys);
     }
 
-    protected final CellName extractClusteringKey(CellName cellName) {
+    private CellName extractClusteringKey(CellName cellName) {
         int numClusteringColumns = metadata.clusteringColumns().size();
         ByteBuffer[] components = new ByteBuffer[numClusteringColumns + 1];
         for (int i = 0; i < numClusteringColumns; i++) {
@@ -159,7 +155,7 @@ public class ClusteringKeyMapper {
         return cellNameType.makeCellName((Object[]) components);
     }
 
-    protected final boolean isStatic(CellName cellName) {
+    private boolean isStatic(CellName cellName) {
         int numClusteringColumns = metadata.clusteringColumns().size();
         for (int i = 0; i < numClusteringColumns; i++) {
             if (ByteBufferUtils.isEmpty(cellName.get(i))) {
@@ -220,7 +216,7 @@ public class ClusteringKeyMapper {
      * @param cellName A {@link CellName}.
      * @return The clustering key contained in the specified {@link CellName}.
      */
-    public final CellName clusteringKey(CellName cellName) {
+    private CellName clusteringKey(CellName cellName) {
         CBuilder builder = cellNameType.builder();
         for (int i = 0; i < metadata.clusteringColumns().size(); i++) {
             ByteBuffer component = cellName.get(i);
@@ -236,7 +232,7 @@ public class ClusteringKeyMapper {
      * @param cellName A storage engine cell name.
      * @return The first column name of for {@code clusteringKey}.
      */
-    public final Composite start(CellName cellName) {
+    private Composite start(CellName cellName) {
         CBuilder builder = cellNameType.builder();
         for (int i = 0; i < cellName.clusteringSize(); i++) {
             ByteBuffer component = cellName.get(i);
@@ -251,7 +247,7 @@ public class ClusteringKeyMapper {
      * @param cellName A storage engine cell name.
      * @return The first column name of for {@code clusteringKey}.
      */
-    public final Composite end(CellName cellName) {
+    private Composite end(CellName cellName) {
         return start(cellName).withEOC(Composite.EOC.END);
     }
 
@@ -309,7 +305,7 @@ public class ClusteringKeyMapper {
      * @param clusteringKeys The list of clustering keys to be sorted.
      * @return The specified list of clustering keys sorted according to the table cell name comparator.
      */
-    public final List<CellName> sort(List<CellName> clusteringKeys) {
+    private List<CellName> sort(List<CellName> clusteringKeys) {
         List<CellName> result = new ArrayList<>(clusteringKeys);
         Collections.sort(result, new Comparator<CellName>() {
             @Override

@@ -19,13 +19,12 @@ import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.ColumnMapper;
 import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperBoolean;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
+import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.Query;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static com.stratio.cassandra.lucene.query.builder.SearchBuilders.filter;
@@ -43,16 +42,13 @@ public class PhraseConditionTest extends AbstractConditionTest {
         map.put("name", new ColumnMapperBoolean(null, null));
         Schema mappers = new Schema(map, null, EnglishAnalyzer.class.getName());
 
-        List<String> values = new ArrayList<>();
-        values.add("hola");
-        values.add("adios");
-
+        String[] values = new String[]{"hola", "adios"};
         PhraseCondition phraseCondition = new PhraseCondition(0.5f, "name", values, 2);
         Query query = phraseCondition.query(mappers);
         Assert.assertNotNull(query);
-        Assert.assertEquals(org.apache.lucene.search.PhraseQuery.class, query.getClass());
-        org.apache.lucene.search.PhraseQuery luceneQuery = (org.apache.lucene.search.PhraseQuery) query;
-        Assert.assertEquals(values.size(), luceneQuery.getTerms().length);
+        Assert.assertEquals(PhraseQuery.class, query.getClass());
+        PhraseQuery luceneQuery = (PhraseQuery) query;
+        Assert.assertEquals(values.length, luceneQuery.getTerms().length);
         Assert.assertEquals(2, luceneQuery.getSlop());
         Assert.assertEquals(0.5f, query.getBoost(), 0);
     }

@@ -37,18 +37,18 @@ public class Search {
 
     /** he {@link Condition} for querying, maybe {@code null} meaning no querying. */
     @JsonProperty("query")
-    private Condition queryCondition;
+    private final Condition queryCondition;
 
     /** The {@link Condition} for filtering, maybe {@code null} meaning no filtering. */
     @JsonProperty("filter")
-    private Condition filterCondition;
+    private final Condition filterCondition;
 
     /**
      * The {@link Sort} for the query. Note that is the order in which the data will be read before querying, not the
      * order of the results after querying.
      */
     @JsonProperty("sort")
-    private Sort sort;
+    private final Sort sort;
 
     /**
      * Returns a new {@link Search} composed by the specified querying and filtering conditions.

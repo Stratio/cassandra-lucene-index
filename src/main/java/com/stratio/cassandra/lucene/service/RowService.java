@@ -15,16 +15,16 @@
  */
 package com.stratio.cassandra.lucene.service;
 
-import java.nio.ByteBuffer;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-
+import com.stratio.cassandra.lucene.IndexConfig;
+import com.stratio.cassandra.lucene.query.Search;
+import com.stratio.cassandra.lucene.schema.Column;
+import com.stratio.cassandra.lucene.schema.Columns;
+import com.stratio.cassandra.lucene.schema.Schema;
+import com.stratio.cassandra.lucene.util.Log;
+import com.stratio.cassandra.lucene.util.TaskQueue;
+import com.stratio.cassandra.lucene.util.TimeCounter;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
-import org.apache.cassandra.cql3.ColumnIdentifier;
 import org.apache.cassandra.db.ArrayBackedSortedColumns;
 import org.apache.cassandra.db.Cell;
 import org.apache.cassandra.db.ColumnFamily;
@@ -40,14 +40,12 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.Sort;
 
-import com.stratio.cassandra.lucene.IndexConfig;
-import com.stratio.cassandra.lucene.query.Search;
-import com.stratio.cassandra.lucene.schema.Column;
-import com.stratio.cassandra.lucene.schema.Columns;
-import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.util.Log;
-import com.stratio.cassandra.lucene.util.TaskQueue;
-import com.stratio.cassandra.lucene.util.TimeCounter;
+import java.nio.ByteBuffer;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Class for mapping rows between Cassandra and Lucene.
@@ -56,20 +54,17 @@ import com.stratio.cassandra.lucene.util.TimeCounter;
  */
 public abstract class RowService {
 
-    protected final ColumnFamilyStore baseCfs;
-    protected final RowMapper rowMapper;
-    protected final CFMetaData metadata;
-    protected final ColumnIdentifier indexedColumnName;
-    protected final Schema schema;
-    protected final LuceneIndex luceneIndex;
-
-    /**
-     * The max number of rows to be read per iteration
-     */
+    /** The max number of rows to be read per iteration. */
     private static final int MAX_PAGE_SIZE = 100000;
     private static final int FILTERING_PAGE_SIZE = 1000;
 
-    private TaskQueue indexQueue;
+    final ColumnFamilyStore baseCfs;
+    final RowMapper rowMapper;
+    final CFMetaData metadata;
+    final LuceneIndex luceneIndex;
+
+    private final Schema schema;
+    private final TaskQueue indexQueue;
 
     /**
      * Returns a new {@code RowService}.
@@ -81,7 +76,6 @@ public abstract class RowService {
 
         this.baseCfs = baseCfs;
         this.metadata = baseCfs.metadata;
-        this.indexedColumnName = columnDefinition.name;
 
         IndexConfig config = new IndexConfig(metadata, columnDefinition.getIndexOptions());
 
@@ -355,18 +349,18 @@ public abstract class RowService {
         AbstractType<?> validator = def.type;
         int comparison = validator.compare(actualValue, expectedValue);
         switch (expression.operator) {
-        case EQ:
-            return comparison == 0;
-        case GTE:
-            return comparison >= 0;
-        case GT:
-            return comparison > 0;
-        case LTE:
-            return comparison <= 0;
-        case LT:
-            return comparison < 0;
-        default:
-            throw new IllegalStateException();
+            case EQ:
+                return comparison == 0;
+            case GTE:
+                return comparison >= 0;
+            case GT:
+                return comparison > 0;
+            case LTE:
+                return comparison <= 0;
+            case LT:
+                return comparison < 0;
+            default:
+                throw new IllegalStateException();
         }
     }
 
@@ -461,13 +455,6 @@ public abstract class RowService {
         Cell cell = cf.getColumn(cellName);
         String value = UTF8Type.instance.compose(cell.value());
         return Float.parseFloat(value);
-    }
-
-    /**
-     * Optimizes the managed Lucene index. It can be a very heavy operation.
-     */
-    public void optimize() {
-        luceneIndex.optimize();
     }
 
     /**

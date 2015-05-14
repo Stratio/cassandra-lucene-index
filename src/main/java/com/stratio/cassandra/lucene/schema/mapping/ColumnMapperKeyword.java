@@ -36,7 +36,7 @@ public abstract class ColumnMapperKeyword extends ColumnMapperSingle<String> {
      * @param sorted         If the field supports sorting.
      * @param supportedTypes The supported Cassandra types for indexing.
      */
-    protected ColumnMapperKeyword(Boolean indexed, Boolean sorted, AbstractType<?>... supportedTypes) {
+    ColumnMapperKeyword(Boolean indexed, Boolean sorted, AbstractType<?>... supportedTypes) {
         super(indexed, sorted, supportedTypes);
     }
 

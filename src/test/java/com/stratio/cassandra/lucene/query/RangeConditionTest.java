@@ -315,8 +315,9 @@ public class RangeConditionTest extends AbstractConditionTest {
                                              .upper("b")
                                              .includeLower(true)
                                              .includeUpper(false)
-                                             .boost(0.5f)).filter(bool().must(match("", "").boost(2), match("", ""))
-                                                                        .should(match("", ""))
+                                             .boost(0.5f)).filter(bool().must(match("f1", "v1").boost(2),
+                                                                              match("f2", "v2"))
+                                                                        .should(match("f3", "v3"))
                                                                         .boost(0.5)).build());
     }
 

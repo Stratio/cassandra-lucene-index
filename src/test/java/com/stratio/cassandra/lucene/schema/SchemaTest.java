@@ -68,6 +68,7 @@ public class SchemaTest {
         Map<String, ColumnMapper> columnMappers = new HashMap<>();
         Schema schema = new Schema(columnMappers, null, "English");
         schema.getAnalyzer("custom");
+        schema.close();
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -75,6 +76,7 @@ public class SchemaTest {
         Map<String, ColumnMapper> columnMappers = new HashMap<>();
         Schema schema = new Schema(columnMappers, null, "English");
         schema.getAnalyzer(null);
+        schema.close();
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -82,6 +84,7 @@ public class SchemaTest {
         Map<String, ColumnMapper> columnMappers = new HashMap<>();
         Schema schema = new Schema(columnMappers, null, "English");
         schema.getAnalyzer(" \t");
+        schema.close();
     }
 
     @Test

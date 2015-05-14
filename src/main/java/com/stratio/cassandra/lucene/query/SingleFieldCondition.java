@@ -17,28 +17,46 @@ package com.stratio.cassandra.lucene.query;
 
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperSingle;
+import org.apache.commons.lang3.StringUtils;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * The abstract base class for queries.
  * <p/>
- * Known subclasses are: <ul> <li> {@link BooleanCondition} <li> {@link
- * FuzzyCondition} <li> {@link MatchCondition} <li>
- * {@link PhraseCondition} <li> {@link PrefixCondition}
- * <li> {@link RangeCondition} <li> {@link WildcardCondition}
+ * Known subclasses are: <ul> <li> {@link BooleanCondition} <li> {@link FuzzyCondition} <li> {@link MatchCondition} <li>
+ * {@link PhraseCondition} <li> {@link PrefixCondition} <li> {@link RangeCondition} <li> {@link WildcardCondition}
  * </ul>
  *
  * @author Andres de la Pena <adelapena@stratio.com>
  */
 public abstract class SingleFieldCondition extends Condition {
 
+    /** The name of the field to be matched. */
+    @JsonProperty("field")
+    protected final String field;
+
     /**
      * Abstract {@link SingleFieldCondition} builder receiving the boost to be used.
      *
      * @param boost The boost for this query clause. Documents matching this clause will (in addition to the normal
      *              weightings) have their score multiplied by {@code boost}.
+     * @param field The name of the field to be matched.
      */
-    public SingleFieldCondition(Float boost) {
+    public SingleFieldCondition(Float boost, String field) {
         super(boost);
+        if (StringUtils.isBlank(field)) {
+            throw new IllegalArgumentException("Field name required");
+        }
+        this.field = field;
+    }
+
+    /**
+     * Returns the name of the field to be matched.
+     *
+     * @return The name of the field to be matched.
+     */
+    public String getField() {
+        return field;
     }
 
     protected ColumnMapperSingle<?> getMapper(Schema schema, String field) {

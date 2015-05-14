@@ -5,11 +5,11 @@ Stratio's Cassandra Lucene Index, derived from [Stratio Cassandra](https://githu
 
 Index [relevance queries](http://en.wikipedia.org/wiki/Relevance_(information_retrieval)) allows you to retrieve the *n* more relevant results satisfying a query. The coordinator node sends the query to each node in the cluster, each node returns its *n* best results and then the coordinator combines these partial results and gives you the *n* best of them, avoiding full scan. You can also base the sorting in a combination of fields.
 
-Index filtered queries are a powerful help when analyzing the data stored in Cassandra with [MapReduce](http://es.wikipedia.org/wiki/MapReduce) frameworks as [Apache Hadoop](http://hadoop.apache.org/) or, even better, [Apache Spark](http://spark.apache.org/) through [Stratio Deep](https://github.com/Stratio/stratio-deep). Adding Lucene filters in the jobs input can dramatically reduce the amount of data to be processed, avoiding full scan.
+Index filtered queries are a powerful help when analyzing the data stored in Cassandra with [MapReduce](http://es.wikipedia.org/wiki/MapReduce) frameworks as [Apache Hadoop](http://hadoop.apache.org/) or, even better, [Apache Spark](http://spark.apache.org/). Adding Lucene filters in the jobs input can dramatically reduce the amount of data to be processed, avoiding full scan.
 
 Any cell in the tables can be indexed, including those in the primary key as well as collections. Wide rows are also supported. You can scan token/key ranges, apply additional CQL3 clauses and page on the filtered results.
 
-More detailed information is available at [Stratio's Cassandra Lucene Index documentation](doc/extended-search-in-cassandra.md) .
+More detailed information is available at [Stratio's Cassandra Lucene Index documentation](doc/extended-search-in-cassandra.md).
 
 Features
 --------

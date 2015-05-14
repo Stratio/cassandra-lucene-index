@@ -27,8 +27,8 @@ import org.codehaus.jackson.annotate.JsonProperty;
  */
 public class GeoPoint extends GeoShape {
 
-    private double longitude;
-    private double latitude;
+    private final double longitude;
+    private final double latitude;
 
     /**
      * Builds a new {@link GeoPoint} defined by the specified longitude and latitude.

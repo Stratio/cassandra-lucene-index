@@ -29,7 +29,7 @@ import java.util.Comparator;
  *
  * @author Andres de la Pena <adelapena@stratio.com>
  */
-public class RowComparatorSorting implements RowComparator {
+class RowComparatorSorting implements RowComparator {
 
     private final RowMapper rowMapper;
     private final ComparatorChain<Columns> comparatorChain;

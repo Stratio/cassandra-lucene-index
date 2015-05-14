@@ -15,9 +15,15 @@
  */
 package com.stratio.cassandra.lucene.schema.mapping;
 
+import com.stratio.cassandra.lucene.schema.Column;
 import com.stratio.cassandra.lucene.schema.Schema;
+import org.apache.cassandra.db.marshal.UTF8Type;
+import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.document.SortedDocValuesField;
+import org.apache.lucene.document.StringField;
 import org.apache.lucene.index.DocValuesType;
+import org.apache.lucene.index.IndexableField;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -192,6 +198,18 @@ public class ColumnMapperStringTest {
         ColumnMapperString mapper = new ColumnMapperString(true, true, true);
         String analyzer = mapper.getAnalyzer();
         Assert.assertEquals(ColumnMapper.KEYWORD_ANALYZER, analyzer);
+    }
+
+    @Test
+    public void testAddFields() {
+        ColumnMapperString mapper = new ColumnMapperString(null, null, null);
+        Document document = new Document();
+        Column column = Column.fromComposed("field", "value", UTF8Type.instance, false);
+        mapper.addFields(document, column);
+        IndexableField[] indexableFields = document.getFields("field");
+        Assert.assertEquals(2, indexableFields.length);
+        Assert.assertTrue(indexableFields[0] instanceof StringField);
+        Assert.assertTrue(indexableFields[1] instanceof SortedDocValuesField);
     }
 
     @Test

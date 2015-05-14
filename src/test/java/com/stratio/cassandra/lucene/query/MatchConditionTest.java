@@ -15,6 +15,7 @@
  */
 package com.stratio.cassandra.lucene.query;
 
+import com.stratio.cassandra.lucene.query.builder.SearchBuilders;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.ColumnMapper;
 import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperBlob;
@@ -24,7 +25,6 @@ import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperInet;
 import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperInteger;
 import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperLong;
 import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperString;
-import com.stratio.cassandra.lucene.query.builder.SearchBuilders;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.search.NumericRangeQuery;
 import org.apache.lucene.search.Query;

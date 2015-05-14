@@ -58,7 +58,7 @@ public class AnalysisUtilsTest {
     @Test
     public void testAnalyzeAsTokensWithNullField() {
         String text = "the lazy dog jumps over the quick brown fox";
-        List<String> analyzedText = AnalysisUtils.analyzeAsTokens(null, text, englishAnalyzer);
+        List<String> analyzedText = AnalysisUtils.instance.analyzeAsTokens(null, text, englishAnalyzer);
         List<String> expectedText = Arrays.asList("lazi", "dog", "jump", "over", "quick", "brown", "fox");
         Assert.assertEquals(expectedText, analyzedText);
     }
@@ -66,7 +66,7 @@ public class AnalysisUtilsTest {
     @Test
     public void testAnalyzeAsTokensWithField() {
         String text = "the lazy dog jumps over the quick brown fox";
-        List<String> analyzedText = AnalysisUtils.analyzeAsTokens("english", text, perFieldAnalyzer);
+        List<String> analyzedText = AnalysisUtils.instance.analyzeAsTokens("english", text, perFieldAnalyzer);
         List<String> expectedText = Arrays.asList("lazi", "dog", "jump", "over", "quick", "brown", "fox");
         Assert.assertEquals(expectedText, analyzedText);
     }
@@ -74,7 +74,7 @@ public class AnalysisUtilsTest {
     @Test
     public void testAnalyzeAsTokensWithWrongField() {
         String text = "the lazy dog jumps over the quick brown fox";
-        List<String> analyzedText = AnalysisUtils.analyzeAsTokens(null, text, perFieldAnalyzer);
+        List<String> analyzedText = AnalysisUtils.instance.analyzeAsTokens(null, text, perFieldAnalyzer);
         List<String> expectedText = Arrays.asList("lazi", "dog", "jump", "over", "quick", "brown", "fox");
         Assert.assertNotSame(expectedText, analyzedText);
     }
@@ -82,7 +82,7 @@ public class AnalysisUtilsTest {
     @Test
     public void testAnalyzeAsTokensWithoutField() {
         String text = "the lazy dog jumps over the quick brown fox";
-        List<String> analyzedText = AnalysisUtils.analyzeAsTokens(text, englishAnalyzer);
+        List<String> analyzedText = AnalysisUtils.instance.analyzeAsTokens(text, englishAnalyzer);
         List<String> expectedText = Arrays.asList("lazi", "dog", "jump", "over", "quick", "brown", "fox");
         Assert.assertEquals(expectedText, analyzedText);
     }
@@ -90,7 +90,7 @@ public class AnalysisUtilsTest {
     @Test
     public void testAnalyzeAsTextWithNullField() {
         String text = "the lazy dog jumps over the quick brown fox";
-        String analyzedText = AnalysisUtils.analyzeAsText(null, text, englishAnalyzer);
+        String analyzedText = AnalysisUtils.instance.analyzeAsText(null, text, englishAnalyzer);
         String expectedText = "lazi dog jump over quick brown fox";
         Assert.assertEquals(expectedText, analyzedText);
     }
@@ -98,7 +98,7 @@ public class AnalysisUtilsTest {
     @Test
     public void testAnalyzeAsTextWithField() {
         String text = "the lazy dog jumps over the quick brown fox";
-        String analyzedText = AnalysisUtils.analyzeAsText("english", text, perFieldAnalyzer);
+        String analyzedText = AnalysisUtils.instance.analyzeAsText("english", text, perFieldAnalyzer);
         String expectedText = "lazi dog jump over quick brown fox";
         Assert.assertEquals(expectedText, analyzedText);
     }
@@ -106,7 +106,7 @@ public class AnalysisUtilsTest {
     @Test
     public void testAnalyzeAsTextWithWrongField() {
         String text = "the lazy dog jumps over the quick brown fox";
-        String analyzedText = AnalysisUtils.analyzeAsText(null, text, perFieldAnalyzer);
+        String analyzedText = AnalysisUtils.instance.analyzeAsText(null, text, perFieldAnalyzer);
         String expectedText = "lazi dog jump over quick brown fox";
         Assert.assertNotSame(expectedText, analyzedText);
     }
@@ -114,9 +114,14 @@ public class AnalysisUtilsTest {
     @Test
     public void testAnalyzeAsTextWithoutField() {
         String text = "the lazy dog jumps over the quick brown fox";
-        String analyzedText = AnalysisUtils.analyzeAsText(text, englishAnalyzer);
+        String analyzedText = AnalysisUtils.instance.analyzeAsText(text, englishAnalyzer);
         String expectedText = "lazi dog jump over quick brown fox";
         Assert.assertEquals(expectedText, analyzedText);
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void testAnalyzeAsTokensFailing() {
+        AnalysisUtils.instance.analyzeAsTokens(null, null);
     }
 
 }

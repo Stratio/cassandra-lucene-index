@@ -157,7 +157,7 @@ public class Schema implements Closeable {
      * @param field A field name.
      * @return The {@link ColumnMapperSingle} identified by the specified field name, or {@code null} if not found.
      */
-    public ColumnMapperSingle<?> getMapperSingle(String field) {
+    public ColumnMapperSingle getMapperSingle(String field) {
         ColumnMapper columnMapper = getMapper(field);
         if (columnMapper != null && columnMapper instanceof ColumnMapperSingle<?>) {
             return (ColumnMapperSingle<?>) columnMapper;
@@ -167,8 +167,7 @@ public class Schema implements Closeable {
     }
 
     /**
-     * Adds to the specified {@link Document} the Lucene fields representing the specified {@link
-     * Columns}.
+     * Adds to the specified {@link Document} the Lucene fields representing the specified {@link Columns}.
      *
      * @param document The Lucene {@link Document} where the fields are going to be added.
      * @param columns  The {@link Columns} to be added.

@@ -25,8 +25,8 @@ import org.codehaus.jackson.annotate.JsonCreator;
  */
 public class GeoDistance {
 
-    private double value; // The quantitative distance value
-    private GeoDistanceUnit unit; // The distance unit
+    private final double value; // The quantitative distance value
+    private final GeoDistanceUnit unit; // The distance unit
 
     /**
      * Builds a new {@link GeoDistance} defined by the specified quantitative value and distance unit.
@@ -34,7 +34,7 @@ public class GeoDistance {
      * @param value The quantitative distance value.
      * @param unit  The distance unit.
      */
-    public GeoDistance(double value, GeoDistanceUnit unit) {
+    private GeoDistance(double value, GeoDistanceUnit unit) {
         this.value = value;
         this.unit = unit;
     }

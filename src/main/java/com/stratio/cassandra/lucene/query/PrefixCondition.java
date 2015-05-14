@@ -52,23 +52,28 @@ public class PrefixCondition extends SingleFieldCondition {
     public PrefixCondition(@JsonProperty("boost") Float boost,
                            @JsonProperty("field") String field,
                            @JsonProperty("value") String value) {
-        super(boost);
+        super(boost, field);
+
+        if (value == null) {
+            throw new IllegalArgumentException("Field value required");
+        }
 
         this.field = field;
         this.value = value;
     }
 
+    /**
+     * Returns the field prefix to be matched.
+     *
+     * @return The field prefix to be matched.
+     */
+    public String getValue() {
+        return value;
+    }
+
     /** {@inheritDoc} */
     @Override
     public Query query(Schema schema) {
-
-        if (field == null || field.trim().isEmpty()) {
-            throw new IllegalArgumentException("Field name required");
-        }
-        if (value == null) {
-            throw new IllegalArgumentException("Field value required");
-        }
-
         ColumnMapperSingle<?> columnMapper = getMapper(schema, field);
         Class<?> clazz = columnMapper.baseClass();
         Query query;

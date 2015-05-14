@@ -28,7 +28,7 @@ public class MatchConditionBuilder extends ConditionBuilder<MatchCondition, Matc
     private final String field;
 
     /** The value of the field to be matched. */
-    private Object value;
+    private final Object value;
 
     /**
      * Creates a new {@link MatchConditionBuilder} for the specified field and value.

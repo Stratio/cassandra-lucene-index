@@ -32,9 +32,9 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  */
 public class TaskQueue {
 
-    private NotifyingBlockingThreadPoolExecutor[] pools;
+    private final NotifyingBlockingThreadPoolExecutor[] pools;
 
-    private ReadWriteLock lock = new ReentrantReadWriteLock();
+    private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
     /**
      * Returns a new {@link TaskQueue}
@@ -85,7 +85,7 @@ public class TaskQueue {
         }
     }
 
-    private void awaitInner() throws ExecutionException, InterruptedException {
+    private void await() throws ExecutionException, InterruptedException {
         Future<?>[] futures = new Future<?>[pools.length];
         for (int i = 0; i < pools.length; i++) {
             Future<?> future = pools[i].submit(new Runnable() {
@@ -100,21 +100,6 @@ public class TaskQueue {
         }
     }
 
-    public void await() {
-        lock.writeLock().lock();
-        try {
-            awaitInner();
-        } catch (InterruptedException e) {
-            Log.error(e, "Await interrupted");
-            throw new RuntimeException(e);
-        } catch (ExecutionException e) {
-            Log.error(e, "Await failed");
-            throw new RuntimeException(e);
-        } finally {
-            lock.writeLock().unlock();
-        }
-    }
-
     /**
      * Submits a non value-returning task for synchronous execution. It waits for all synchronous tasks to be
      * completed.
@@ -124,7 +109,7 @@ public class TaskQueue {
     public void submitSynchronous(Runnable task) {
         lock.writeLock().lock();
         try {
-            awaitInner();
+            await();
             task.run();
         } catch (InterruptedException e) {
             Log.error(e, "Task queue isolated submission interrupted");

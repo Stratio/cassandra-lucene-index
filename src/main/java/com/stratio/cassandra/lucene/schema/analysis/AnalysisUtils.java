@@ -20,7 +20,6 @@ import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.util.IOUtils;
 
-import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,11 +29,13 @@ import java.util.List;
  */
 public class AnalysisUtils {
 
-    public static List<String> analyzeAsTokens(String value, Analyzer analyzer) {
+    public static final AnalysisUtils instance = new AnalysisUtils();
+
+    public List<String> analyzeAsTokens(String value, Analyzer analyzer) {
         return analyzeAsTokens(null, value, analyzer);
     }
 
-    public static List<String> analyzeAsTokens(String field, String value, Analyzer analyzer) {
+    public List<String> analyzeAsTokens(String field, String value, Analyzer analyzer) {
         List<String> result = new ArrayList<>();
         TokenStream stream = null;
         try {
@@ -43,7 +44,7 @@ public class AnalysisUtils {
             while (stream.incrementToken()) {
                 result.add(stream.getAttribute(CharTermAttribute.class).toString());
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
             IOUtils.closeWhileHandlingException(stream);
@@ -51,12 +52,12 @@ public class AnalysisUtils {
         return result;
     }
 
-    public static String analyzeAsText(String value, Analyzer analyzer) {
+    public String analyzeAsText(String value, Analyzer analyzer) {
         return analyzeAsText(null, value, analyzer);
     }
 
-    public static String analyzeAsText(String field, String value, Analyzer analyzer) {
-        List<String> tokens = AnalysisUtils.analyzeAsTokens(field, value, analyzer);
+    public String analyzeAsText(String field, String value, Analyzer analyzer) {
+        List<String> tokens = analyzeAsTokens(field, value, analyzer);
         StringBuilder result = new StringBuilder();
         for (String token : tokens) {
             result.append(token);

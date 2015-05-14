@@ -14,8 +14,10 @@ Table of Contents
 -   [Index creation](#index-creation)
 -   [Queries](#queries)
     -   [Boolean](#boolean-query)
+    -   [Contains](#contains-query)
     -   [Fuzzy](#fuzzy-query)
     -   [Match](#match-query)
+    -   [Match all](#match-all-query)
     -   [Phrase](#phrase-query)
     -   [Prefix](#prefix-query)
     -   [Range](#range-query)
@@ -33,7 +35,7 @@ Overview
 
 Lucene search technology integration into Cassandra provides:
 
--   Big data full text search
+-   Full text search
 -   Relevance scoring and sorting
 -   General top-k queries
 -   Complex boolean queries (and, or, not)
@@ -55,6 +57,46 @@ Not yet supported:
 -   Columns with TTL
 -   CQL user defined types
 -   Static columns
+
+Requirements
+------------
+
+  * Cassandra 2.1.6
+  * Java >= 1.7 (OpenJDK and Sun have been tested)
+  * Maven >= 3.0
+
+Installation
+------------
+
+Stratio's Cassandra Lucene Index is distributed as a plugin for Apache Cassandra. Thus, you just need to build a JAR containing the plugin and add it to the Cassandra's classpath:
+
+  * Build the plugin with Maven: ```mvn clean package```
+  * Copy the generated JAR to the lib folder of your comaptible Cassandra installation: ```cp lib/cassandra-lucene-index-2.1.6.0.jar <CASSANDRA_HOME>/lib/```
+  * Start/restart Cassandra as usual
+  
+Patching can also be done with this Maven profile, specifying the path of your Cassandra installation:
+
+```
+mvn clean package -Ppatch -Dcassandra_home=<CASSANDRA_HOME>
+```
+  
+Alternatively, if you don't have an installed version of Cassandra, there is a profile to let Maven download and patch the proper version of Apache Cassandra:
+
+```
+mvn clean package -Pdownload_and_patch -Dcassandra_home=<CASSANDRA_HOME>
+```
+
+Now you can run Cassandra and do some tests using the Cassandra Query Language:
+
+```
+<CASSANDRA_HOME>/bin/cassandra -f
+<CASSANDRA_HOME>/bin/cqlsh
+```
+
+The Lucene's index files will be stored in the same directories where the Cassandra's will be. The default data directory is `/var/lib/cassandra/data`, and each index is placed next to the SSTables of its indexed column family. 
+
+For more details about Apache Cassandra please see its [documentation](http://cassandra.apache.org/).
+
 
 Index Creation
 --------------
@@ -487,6 +529,12 @@ In addition to the options described in the table, all query types have a “**b
 <li><strong>value</strong>: the field value.</li>
 </ul></td>
 </tr>
+</tr>
+<tr class="even">
+<td align="left"><a href="#match-all-query">Match all</a></td>
+<td align="left">All</td>
+<td align="left"></td>
+</tr>
 <tr class="odd">
 <td align="left"><a href="#phrase-query">Phrase</a></td>
 <td align="left">bytes<br /> inet<br /> text</td>
@@ -706,6 +754,27 @@ WHERE stratio_col = '{query : {
                         type  : "match",
                         field : "date",
                         value : "2014/01/01" }}';
+```
+
+###Match all query
+
+Syntax:
+
+```sql
+SELECT ( <fields> | * )
+FROM <table>
+WHERE <magic_column> = '{ query : {
+                            type  : "match_all",
+                            field : <fieldname> ,
+                            value : <value> }}';
+```
+
+Example: will return all the indexed rows
+
+```sql
+SELECT * FROM test.users
+WHERE stratio_col = '{query : {
+                        type  : "match_all" }}';
 ```
 
 ###Phrase query

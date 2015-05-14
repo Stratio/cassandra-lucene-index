@@ -27,6 +27,16 @@ import java.io.IOException;
  */
 public class SnowballAnalyzerBuilderTest {
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testBuildNullLanguage() {
+        new SnowballAnalyzerBuilder(null, null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testBuildBlankLanguage() {
+        new SnowballAnalyzerBuilder(" ", null);
+    }
+
     @Test
     public void testBuildEnglish() {
         AnalyzerBuilder builder = new SnowballAnalyzerBuilder("English", null);
@@ -67,6 +77,12 @@ public class SnowballAnalyzerBuilderTest {
     public void testBuildGerman() {
         AnalyzerBuilder builder = new SnowballAnalyzerBuilder("German", null);
         testAnalyzer("katers", "kat", builder);
+    }
+
+    @Test
+    public void testBuildDanish() {
+        AnalyzerBuilder builder = new SnowballAnalyzerBuilder("Danish", null);
+        testAnalyzer("indtager", "indtag", builder);
     }
 
     @Test
@@ -135,7 +151,7 @@ public class SnowballAnalyzerBuilderTest {
         testAnalyzer("catalans", "catalan", builder);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = RuntimeException.class)
     public void testBuildWithWrongLanguage() {
         AnalyzerBuilder builder = new SnowballAnalyzerBuilder("abc", null);
         testAnalyzer("organization", "organ", builder);
@@ -170,7 +186,8 @@ public class SnowballAnalyzerBuilderTest {
     private void testAnalyzer(String value, String expected, AnalyzerBuilder builder) {
         Analyzer analyzer = builder.analyzer();
         Assert.assertNotNull(analyzer);
-        String actual = AnalysisUtils.analyzeAsText(value, analyzer);
+        String actual = AnalysisUtils.instance.analyzeAsText(value, analyzer);
         Assert.assertEquals(expected, actual);
+        analyzer.close();
     }
 }

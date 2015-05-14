@@ -102,6 +102,15 @@ public class SearchBuilders {
     }
 
     /**
+     * Returns a new {@link MatchAllConditionBuilder} for the specified field and value.
+     *
+     * @return A new {@link MatchAllConditionBuilder} for the specified field and value.
+     */
+    public static MatchAllConditionBuilder matchAll() {
+        return new MatchAllConditionBuilder();
+    }
+
+    /**
      * Returns a new {@link PhraseConditionBuilder} for the specified field and values.
      *
      * @param field  The name of the field to be matched.

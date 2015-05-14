@@ -28,6 +28,7 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.Sort;
 
 import java.nio.ByteBuffer;
 
@@ -38,13 +39,13 @@ import java.nio.ByteBuffer;
  */
 public abstract class RowMapper {
 
-    protected final CFMetaData metadata; // The indexed table metadata
-    protected final ColumnDefinition columnDefinition; // The indexed column definition
-    protected final Schema schema; // The indexing schema
+    final CFMetaData metadata; // The indexed table metadata
+    final ColumnDefinition columnDefinition; // The indexed column definition
+    final Schema schema; // The indexing schema
 
-    protected final TokenMapper tokenMapper; // A token mapper for the indexed table
-    protected final PartitionKeyMapper partitionKeyMapper; // A partition key mapper for the indexed table
-    protected final RegularCellsMapper regularCellsMapper; // A regular cell mapper for the indexed table
+    final TokenMapper tokenMapper; // A token mapper for the indexed table
+    final PartitionKeyMapper partitionKeyMapper; // A partition key mapper for the indexed table
+    final RegularCellsMapper regularCellsMapper; // A regular cell mapper for the indexed table
 
     /**
      * Builds a new {@link RowMapper} for the specified column family metadata, indexed column definition and {@link
@@ -58,7 +59,7 @@ public abstract class RowMapper {
         this.metadata = metadata;
         this.columnDefinition = columnDefinition;
         this.schema = schema;
-        this.tokenMapper = TokenMapper.instance(metadata);
+        this.tokenMapper = TokenMapper.instance();
         this.partitionKeyMapper = PartitionKeyMapper.instance(metadata);
         this.regularCellsMapper = RegularCellsMapper.instance(metadata);
     }
@@ -134,6 +135,13 @@ public abstract class RowMapper {
      * @return The Lucene {@link Query} to get the {@link Document}s satisfying the specified {@link DataRange}.
      */
     public abstract Query query(DataRange dataRange);
+
+    /**
+     * Returns the Lucene {@link Sort} to get {@link Document}s in the same order that is used in Cassandra.
+     *
+     * @return The Lucene {@link Sort} to get {@link Document}s in the same order that is used in Cassandra.
+     */
+    public abstract Sort sort();
 
     /**
      * Returns a {@link CellName} for the indexed column in the specified column family.

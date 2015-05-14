@@ -37,8 +37,8 @@ enum GeoDistanceUnit {
     METRES(1, "m", "metres"),
     NAUTICAL_MILES(1850, "M", "NM", "mil", "nautical_miles");
 
-    private String[] names;
-    private Double metres;
+    private final String[] names;
+    private final Double metres;
 
     /**
      * Builds the {@link GeoDistanceUnit} defined by the specified value in metres and the specified identifying names.

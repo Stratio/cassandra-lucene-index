@@ -63,7 +63,7 @@ public abstract class Condition {
 
     /** The boost to be used. */
     @JsonProperty("boost")
-    protected float boost;
+    protected final float boost;
 
     /**
      * Abstract {@link Condition} builder receiving the boost to be used.
@@ -74,6 +74,10 @@ public abstract class Condition {
     @JsonCreator
     public Condition(@JsonProperty("boost") Float boost) {
         this.boost = boost == null ? DEFAULT_BOOST : boost;
+    }
+
+    public float getBoost() {
+        return boost;
     }
 
     /**
@@ -96,7 +100,7 @@ public abstract class Condition {
 
     protected String analyze(String field, String value, Schema schema) {
         Analyzer analyzer = schema.getAnalyzer();
-        return AnalysisUtils.analyzeAsText(field, value, analyzer);
+        return AnalysisUtils.instance.analyzeAsText(field, value, analyzer);
     }
 
 }

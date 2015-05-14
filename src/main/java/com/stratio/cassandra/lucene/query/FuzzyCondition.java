@@ -18,6 +18,7 @@ package com.stratio.cassandra.lucene.query;
 import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperSingle;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.FuzzyQuery;
@@ -41,7 +42,7 @@ public class FuzzyCondition extends SingleFieldCondition {
     /** The default length of common (non-fuzzy) prefix. */
     public final static int DEFAULT_PREFIX_LENGTH = 0;
 
-    /** The default length of common (non-fuzzy) prefix. */
+    /** The default max expansions. */
     public final static int DEFAULT_MAX_EXPANSIONS = 50;
 
     /** If transpositions should be treated as a primitive edit operation by default. */
@@ -57,19 +58,19 @@ public class FuzzyCondition extends SingleFieldCondition {
 
     /** The Damerau-Levenshtein max distance. */
     @JsonProperty("max_edits")
-    private final Integer maxEdits;
+    private final int maxEdits;
 
     /** The length of common (non-fuzzy) prefix. */
     @JsonProperty("prefix_length")
-    private final Integer prefixLength;
+    private final int prefixLength;
 
     /** The length of common (non-fuzzy) prefix. */
     @JsonProperty("max_expansions")
-    private final Integer maxExpansions;
+    private final int maxExpansions;
 
     /** If transpositions should be treated as a primitive edit operation. */
     @JsonProperty("transpositions")
-    private final Boolean transpositions;
+    private final boolean transpositions;
 
     /**
      * Returns a new {@link FuzzyCondition}.
@@ -95,7 +96,20 @@ public class FuzzyCondition extends SingleFieldCondition {
                           @JsonProperty("prefix_length") Integer prefixLength,
                           @JsonProperty("max_expansions") Integer maxExpansions,
                           @JsonProperty("transpositions") Boolean transpositions) {
-        super(boost);
+        super(boost, field);
+
+        if (StringUtils.isBlank(value)) {
+            throw new IllegalArgumentException("Field value required");
+        }
+        if (maxEdits != null && (maxEdits < 0 || maxEdits > 2)) {
+            throw new IllegalArgumentException("max_edits must be between 0 and 2");
+        }
+        if (prefixLength != null && prefixLength < 0) {
+            throw new IllegalArgumentException("prefix_length must be positive.");
+        }
+        if (maxExpansions != null && maxExpansions < 0) {
+            throw new IllegalArgumentException("max_expansions must be positive.");
+        }
 
         this.field = field;
         this.value = value;
@@ -105,26 +119,54 @@ public class FuzzyCondition extends SingleFieldCondition {
         this.transpositions = transpositions == null ? DEFAULT_TRANSPOSITIONS : transpositions;
     }
 
+    /**
+     * Returns The field fuzzy value.
+     *
+     * @return The field fuzzy value.
+     */
+    public String getValue() {
+        return value;
+    }
+
+    /**
+     * Returns the max edits.
+     *
+     * @return The max edits.
+     */
+    public int getMaxEdits() {
+        return maxEdits;
+    }
+
+    /**
+     * Returns the prefix length.
+     *
+     * @return The prefix length.
+     */
+    public int getPrefixLength() {
+        return prefixLength;
+    }
+
+    /**
+     * Returns the max expansions.
+     *
+     * @return The max expansions.
+     */
+    public int getMaxExpansions() {
+        return maxExpansions;
+    }
+
+    /**
+     * Returns the max transpositions.
+     *
+     * @return The max transpositions.
+     */
+    public boolean getTranspositions() {
+        return transpositions;
+    }
+
     /** {@inheritDoc} */
     @Override
     public Query query(Schema schema) {
-
-        if (field == null || field.trim().isEmpty()) {
-            throw new IllegalArgumentException("Field name required");
-        }
-        if (value == null || value.trim().isEmpty()) {
-            throw new IllegalArgumentException("Field value required");
-        }
-        if (maxEdits < 0 || maxEdits > 2) {
-            throw new IllegalArgumentException("max_edits must be between 0 and 2");
-        }
-        if (prefixLength < 0) {
-            throw new IllegalArgumentException("prefix_length must be positive.");
-        }
-        if (maxExpansions < 0) {
-            throw new IllegalArgumentException("max_expansions must be positive.");
-        }
-
         ColumnMapperSingle<?> columnMapper = getMapper(schema, field);
         Class<?> clazz = columnMapper.baseClass();
         if (clazz == String.class) {

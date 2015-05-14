@@ -32,15 +32,7 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.search.Query;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * {@link RowService} that manages wide rows.
@@ -196,7 +188,7 @@ public class RowServiceWide extends RowService {
 
         // Avoid null
         if (queryColumnFamily == null) {
-            return null;
+            return Collections.emptyMap();
         }
 
         // Remove deleted/expired columns

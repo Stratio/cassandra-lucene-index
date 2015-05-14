@@ -40,20 +40,9 @@ public class TimeCounter {
     }
 
     /**
-     * Returns a new stopped {@link TimeCounter}.
-     *
-     * @return A new stopped {@link TimeCounter}.
-     */
-    public static TimeCounter build() {
-        return new TimeCounter();
-    }
-
-    /**
      * Starts or resumes the time count.
-     *
-     * @return This {@link TimeCounter}.
      */
-    public TimeCounter start() {
+    public void start() {
         switch (state) {
             case UNSTARTED:
                 watch.start();
@@ -64,15 +53,12 @@ public class TimeCounter {
                 watch.resume();
         }
         state = State.RUNNING;
-        return this;
     }
 
     /**
      * Stops or suspends the time count.
-     *
-     * @return This {@link TimeCounter}.
      */
-    public TimeCounter stop() {
+    public void stop() {
         switch (state) {
             case UNSTARTED:
                 throw new IllegalStateException("Not started. ");
@@ -82,7 +68,6 @@ public class TimeCounter {
                 watch.suspend();
         }
         state = State.STOPPED;
-        return this;
     }
 
     /**

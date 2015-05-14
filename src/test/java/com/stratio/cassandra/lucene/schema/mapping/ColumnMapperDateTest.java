@@ -49,7 +49,7 @@ public class ColumnMapperDateTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithWrongPattern() {
-        new ColumnMapperDate(!ColumnMapper.DEFAULT_INDEXED, !ColumnMapper.DEFAULT_SORTED, "hello");
+        new ColumnMapperDate(false, false, "hello");
     }
 
     @Test()

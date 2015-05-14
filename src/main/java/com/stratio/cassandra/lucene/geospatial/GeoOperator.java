@@ -34,8 +34,8 @@ enum GeoOperator {
     IsWithin("is_within", SpatialOperation.IsWithin),
     Overlaps("overlaps", SpatialOperation.Overlaps);
 
-    private String name;
-    private SpatialOperation spatialOperation;
+    private final String name;
+    private final SpatialOperation spatialOperation;
 
     /**
      * Builds a new {@link GeoOperator} identified by the specified {@code String} representing the specified Lucene
@@ -47,15 +47,6 @@ enum GeoOperator {
     GeoOperator(String name, SpatialOperation spatialOperation) {
         this.name = name;
         this.spatialOperation = spatialOperation;
-    }
-
-    /**
-     * Returns the identifying name.
-     *
-     * @return The identifying name.
-     */
-    public String getName() {
-        return name;
     }
 
     /**
@@ -79,7 +70,7 @@ enum GeoOperator {
             throw new IllegalArgumentException();
         }
         for (GeoOperator v : values()) {
-            if (name.equals(v.getName())) {
+            if (name.equals(v.name)) {
                 return v;
             }
         }

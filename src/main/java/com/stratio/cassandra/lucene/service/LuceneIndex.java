@@ -31,9 +31,8 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.NRTCachingDirectory;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -46,14 +45,13 @@ import java.util.Set;
 public class LuceneIndex {
 
     private final RowMapper rowMapper;
-    private final String path;
+    private final Path path;
     private final Double refreshSeconds;
     private final Integer ramBufferMB;
     private final Integer maxMergeMB;
     private final Integer maxCachedMB;
     private final Analyzer analyzer;
 
-    private File file;
     private Directory directory;
     private IndexWriter indexWriter;
     private SearcherManager searcherManager;
@@ -80,7 +78,7 @@ public class LuceneIndex {
      * @param analyzer       The default {@link Analyzer}.
      */
     public LuceneIndex(RowMapper rowMapper,
-                       String path,
+                       Path path,
                        Double refreshSeconds,
                        Integer ramBufferMB,
                        Integer maxMergeMB,
@@ -105,11 +103,8 @@ public class LuceneIndex {
         try {
             this.sort = sort;
 
-            // Get directory file
-            file = new File(path);
-
             // Open or create directory
-            FSDirectory fsDirectory = FSDirectory.open(Paths.get(path));
+            FSDirectory fsDirectory = FSDirectory.open(path);
             directory = new NRTCachingDirectory(fsDirectory, maxMergeMB, maxCachedMB);
 
             sortingMergePolicy = new SortingMergePolicy(new TieredMergePolicy(), sort);
@@ -240,7 +235,7 @@ public class LuceneIndex {
     public void delete() {
         Log.info("Removing");
         close();
-        FileUtils.deleteRecursive(file);
+        FileUtils.deleteRecursive(path.toFile());
     }
 
     /**
@@ -305,21 +300,6 @@ public class LuceneIndex {
             }
         } else {
             return searcher.searchAfter(after, query, count, sort);
-        }
-    }
-
-    /**
-     * Optimizes the index forcing merge segments leaving one single segment. This operation blocks until all merging
-     * completes.
-     */
-    public void optimize() {
-        Log.debug("Optimizing index");
-        try {
-            indexWriter.forceMerge(1, true);
-            indexWriter.commit();
-        } catch (IOException e) {
-            Log.error(e, "Error while optimizing index");
-            throw new RuntimeException(e);
         }
     }
 

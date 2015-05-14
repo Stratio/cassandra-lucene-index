@@ -44,7 +44,7 @@ import static org.apache.cassandra.cql3.Operator.EQ;
  *
  * @author Andres de la Pena <adelapena@stratio.com>
  */
-public class IndexSearcher extends SecondaryIndexSearcher {
+class IndexSearcher extends SecondaryIndexSearcher {
 
     private final Index index;
     private final RowService rowService;
@@ -211,10 +211,10 @@ public class IndexSearcher extends SecondaryIndexSearcher {
     @Override
     public String toString() {
         return Objects.toStringHelper(this)
-                          .add("index", index.getIndexName())
-                          .add("keyspace", index.getKeyspaceName())
-                          .add("table", index.getTableName())
-                          .add("column", index.getColumnName())
-                          .toString();
+                      .add("index", index.getIndexName())
+                      .add("keyspace", index.getKeyspaceName())
+                      .add("table", index.getTableName())
+                      .add("column", index.getColumnName())
+                      .toString();
     }
 }

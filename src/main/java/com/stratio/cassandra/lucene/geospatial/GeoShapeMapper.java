@@ -19,7 +19,6 @@ import com.google.common.base.Objects;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.shape.Shape;
 import com.stratio.cassandra.lucene.schema.mapping.ColumnMapper;
-import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.AsciiType;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.lucene.document.Document;
@@ -43,8 +42,8 @@ import java.util.Map;
  */
 public class GeoShapeMapper extends ColumnMapper {
 
-    public static final SpatialContext spatialContext = SpatialContext.GEO;
-    public static final int DEFAULT_MAX_LEVELS = 11;
+    private static final SpatialContext spatialContext = SpatialContext.GEO;
+    private static final int DEFAULT_MAX_LEVELS = 11;
 
     private final int maxLevels;
     private final SpatialPrefixTree grid;
@@ -58,7 +57,7 @@ public class GeoShapeMapper extends ColumnMapper {
     public GeoShapeMapper(@JsonProperty("indexed") Boolean indexed,
                           @JsonProperty("sorted") Boolean sorted,
                           @JsonProperty("max_levels") Integer maxLevels) {
-        super(indexed, sorted, new AbstractType<?>[]{AsciiType.instance, UTF8Type.instance});
+        super(indexed, sorted, AsciiType.instance, UTF8Type.instance);
         this.maxLevels = maxLevels == null ? DEFAULT_MAX_LEVELS : maxLevels;
         this.grid = new GeohashPrefixTree(spatialContext, this.maxLevels);
     }

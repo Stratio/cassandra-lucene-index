@@ -15,7 +15,6 @@
  */
 package com.stratio.cassandra.lucene.service;
 
-import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.db.DataRange;
 import org.apache.cassandra.db.DecoratedKey;
@@ -35,32 +34,19 @@ import org.apache.lucene.search.SortField;
  */
 public abstract class TokenMapper {
 
-    protected final CFMetaData metadata; // The column family metadata
-
     /**
      * Returns a new {@link TokenMapper} instance for the current partitioner using the specified column family
      * metadata.
      *
-     * @param metadata The column family metadata.
      * @return A new {@link TokenMapper} instance for the current partitioner.
      */
-    public static TokenMapper instance(CFMetaData metadata) {
+    public static TokenMapper instance() {
         IPartitioner partitioner = DatabaseDescriptor.getPartitioner();
         if (partitioner instanceof Murmur3Partitioner) {
-            return new TokenMapperMurmur(metadata);
+            return new TokenMapperMurmur();
         } else {
-            return new TokenMapperGeneric(metadata);
+            return new TokenMapperGeneric();
         }
-    }
-
-    /**
-     * Builds a new {@link TokenMapper} instance for the current partitioner using the specified column family
-     * metadata.
-     *
-     * @param metadata The column family metadata.
-     */
-    public TokenMapper(CFMetaData metadata) {
-        this.metadata = metadata;
     }
 
     /**

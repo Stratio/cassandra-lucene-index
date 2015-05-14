@@ -23,11 +23,8 @@ import org.apache.lucene.search.Query;
 import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
 
-import java.util.List;
-
 /**
- * A {@link Condition} implementation that matches documents containing a value for a
- * field.
+ * A {@link Condition} implementation that matches documents containing a value for a field.
  *
  * @author Andres de la Pena <adelapena@stratio.com>
  */
@@ -39,7 +36,7 @@ public class ContainsCondition extends SingleFieldCondition {
 
     /** The value of the field to be matched. */
     @JsonProperty("values")
-    private List<Object> values;
+    private Object[] values;
 
     /**
      * Constructor using the field name and the value to be matched.
@@ -53,22 +50,28 @@ public class ContainsCondition extends SingleFieldCondition {
     @JsonCreator
     public ContainsCondition(@JsonProperty("boost") Float boost,
                              @JsonProperty("field") String field,
-                             @JsonProperty("values") List<Object> values) {
-        super(boost);
+                             @JsonProperty("values") Object[] values) {
+        super(boost, field);
+
+        if (values == null || values.length == 0) {
+            throw new IllegalArgumentException("Field values required");
+        }
+
         this.field = field;
         this.values = values;
+    }
+
+    public String getField() {
+        return field;
+    }
+
+    public Object[] getValues() {
+        return values;
     }
 
     /** {@inheritDoc} */
     @Override
     public Query query(Schema schema) {
-        if (field == null || field.trim().isEmpty()) {
-            throw new IllegalArgumentException("Field name required");
-        }
-        if (values == null) {
-            throw new IllegalArgumentException("Field values required");
-        }
-
         BooleanQuery query = new BooleanQuery();
         for (Object value : values) {
             Condition condition = new MatchCondition(boost, field, value);

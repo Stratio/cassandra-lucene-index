@@ -104,7 +104,6 @@ public class PrefixConditionTest extends AbstractConditionTest {
 
     @Test
     public void testJson() {
-
         testJsonCondition(query(prefix("name", "aaa").boost(0.5f)));
     }
 

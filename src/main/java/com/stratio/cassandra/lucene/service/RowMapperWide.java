@@ -81,9 +81,9 @@ public class RowMapperWide extends RowMapper {
     @Override
     public Columns columns(Row row) {
         Columns columns = new Columns();
-        columns.addAll(partitionKeyMapper.columns(row));
-        columns.addAll(clusteringKeyMapper.columns(row));
-        columns.addAll(regularCellsMapper.columns(row));
+        columns.add(partitionKeyMapper.columns(row));
+        columns.add(clusteringKeyMapper.columns(row));
+        columns.add(regularCellsMapper.columns(row));
         return columns;
     }
 
@@ -105,10 +105,9 @@ public class RowMapperWide extends RowMapper {
     }
 
     /**
-     * Returns the Lucene {@link Sort} to get {@link Document}s in the same order that is used in Cassandra.
-     *
-     * @return The Lucene {@link Sort} to get {@link Document}s in the same order that is used in Cassandra.
+     * {@inheritDoc}
      */
+    @Override
     public Sort sort() {
         SortField[] partitionKeySort = tokenMapper.sortFields();
         SortField[] clusteringKeySort = clusteringKeyMapper.sortFields();
@@ -138,7 +137,7 @@ public class RowMapperWide extends RowMapper {
      * @param columnFamily A {@link ColumnFamily}.
      * @return The first clustering key contained in the specified {@link ColumnFamily}.
      */
-    public CellName clusteringKey(ColumnFamily columnFamily) {
+    private CellName clusteringKey(ColumnFamily columnFamily) {
         return clusteringKeyMapper.clusteringKey(columnFamily);
     }
 

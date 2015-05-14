@@ -15,6 +15,7 @@
  */
 package com.stratio.cassandra.lucene.schema.analysis;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.Tokenizer;
@@ -72,7 +73,7 @@ public class SnowballAnalyzerBuilder extends AnalyzerBuilder {
                                    @JsonProperty("stopwords") String stopwords) {
 
         // Check language
-        if (language == null || language.trim().isEmpty()) {
+        if (language == null || StringUtils.isBlank(language)) {
             throw new IllegalArgumentException("Language must be specified");
         }
 
@@ -83,7 +84,7 @@ public class SnowballAnalyzerBuilder extends AnalyzerBuilder {
         this.analyzer = buildAnalyzer(language, stops);
 
         // Force analysis validation
-        AnalysisUtils.analyzeAsText("test", analyzer);
+        AnalysisUtils.instance.analyzeAsText("test", analyzer);
     }
 
     /** {@inheritDoc} */

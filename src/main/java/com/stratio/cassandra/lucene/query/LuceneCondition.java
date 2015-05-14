@@ -17,6 +17,7 @@ package com.stratio.cassandra.lucene.query;
 
 import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.schema.Schema;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
@@ -56,19 +57,34 @@ public class LuceneCondition extends Condition {
                            @JsonProperty("default_field") String defaultField,
                            @JsonProperty("query") String query) {
         super(boost);
-
+        if (StringUtils.isBlank(query)) {
+            throw new IllegalArgumentException("Query statement required");
+        }
         this.query = query;
         this.defaultField = defaultField == null ? DEFAULT_FIELD : defaultField;
+    }
+
+    /**
+     * Returns the default name of the field where the clauses will be applied by default.
+     *
+     * @return The default field name.
+     */
+    public String getDefaultField() {
+        return defaultField;
+    }
+
+    /**
+     * Returns the Lucene query syntax expression.
+     *
+     * @return The Lucene query syntax expression.
+     */
+    public String getQuery() {
+        return query;
     }
 
     /** {@inheritDoc} */
     @Override
     public Query query(Schema schema) {
-
-        if (query == null) {
-            throw new IllegalArgumentException("Query statement required");
-        }
-
         try {
             Analyzer analyzer = schema.getAnalyzer();
             QueryParser queryParser = new QueryParser(defaultField, analyzer);

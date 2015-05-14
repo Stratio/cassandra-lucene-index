@@ -54,8 +54,8 @@ public class RowMapperSkinny extends RowMapper {
     @Override
     public Columns columns(Row row) {
         Columns columns = new Columns();
-        columns.addAll(partitionKeyMapper.columns(row));
-        columns.addAll(regularCellsMapper.columns(row));
+        columns.add(partitionKeyMapper.columns(row));
+        columns.add(regularCellsMapper.columns(row));
         return columns;
     }
 
@@ -73,10 +73,9 @@ public class RowMapperSkinny extends RowMapper {
     }
 
     /**
-     * Returns the Lucene {@link Sort} to get {@link Document}s in the same order that is used in Cassandra.
-     *
-     * @return The Lucene {@link Sort} to get {@link Document}s in the same order that is used in Cassandra.
+     * {@inheritDoc}
      */
+    @Override
     public Sort sort() {
         return new Sort(tokenMapper.sortFields());
     }

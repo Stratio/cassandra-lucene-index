@@ -40,7 +40,7 @@ public class GeoShapeCondition extends Condition {
     private final GeoOperator operator;
 
     /** The value of the field to be matched. */
-    private GeoShape shape;
+    private final GeoShape shape;
 
     /**
      * Constructor using the field name and the value to be matched.

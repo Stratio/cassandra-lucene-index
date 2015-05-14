@@ -17,7 +17,6 @@ package com.stratio.cassandra.lucene.query.builder;
 
 import com.stratio.cassandra.lucene.query.PhraseCondition;
 
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -31,7 +30,7 @@ public class PhraseConditionBuilder extends ConditionBuilder<PhraseCondition, Ph
     private final String field;
 
     /** The phrase terms to be matched. */
-    private final List<String> values;
+    private final String[] values;
 
     /** The number of other words permitted between words in phrase. */
     private Integer slop;
@@ -44,7 +43,7 @@ public class PhraseConditionBuilder extends ConditionBuilder<PhraseCondition, Ph
      */
     protected PhraseConditionBuilder(String field, List<String> values) {
         this.field = field;
-        this.values = values;
+        this.values = values.toArray(new String[values.size()]);
     }
 
     /**
@@ -55,7 +54,7 @@ public class PhraseConditionBuilder extends ConditionBuilder<PhraseCondition, Ph
      */
     public PhraseConditionBuilder(String field, String... values) {
         this.field = field;
-        this.values = Arrays.asList(values);
+        this.values = values;
     }
 
     /**

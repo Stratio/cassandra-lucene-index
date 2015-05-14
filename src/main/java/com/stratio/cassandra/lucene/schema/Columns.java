@@ -17,7 +17,6 @@ package com.stratio.cassandra.lucene.schema;
 
 import com.google.common.base.Objects;
 
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -54,18 +53,7 @@ public class Columns implements Iterable<Column> {
      * @param columns The {@link Column}s to be added.
      * @return this {@link Columns} with the specified {@link Column}s.
      */
-    public Columns addAll(Collection<Column> columns) {
-        this.columns.addAll(columns);
-        return this;
-    }
-
-    /**
-     * Adds the specified {@link Column}s to the existing ones.
-     *
-     * @param columns The {@link Column}s to be added.
-     * @return this {@link Columns} with the specified {@link Column}s.
-     */
-    public Columns addAll(Columns columns) {
+    public Columns add(Columns columns) {
         for (Column column : columns) {
             this.columns.add(column);
         }

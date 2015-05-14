@@ -21,7 +21,6 @@ import org.apache.cassandra.utils.ByteBufferUtil;
 import org.apache.cassandra.utils.Hex;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -46,22 +45,6 @@ public class ByteBufferUtils {
 
     public static boolean isEmpty(ByteBuffer byteBuffer) {
         return byteBuffer.remaining() == 0;
-    }
-
-    /**
-     * Returns the {@link AbstractType}s contained in {@code type}.
-     *
-     * @param type the {@link AbstractType} to be split.
-     * @return the {@link AbstractType}s contained in {@code type}.
-     */
-    public static List<AbstractType<?>> split(AbstractType<?> type) {
-        if (type instanceof CompositeType) {
-            return type.getComponents();
-        } else {
-            List<AbstractType<?>> result = new ArrayList<>(1);
-            result.add(type);
-            return result;
-        }
     }
 
     /**

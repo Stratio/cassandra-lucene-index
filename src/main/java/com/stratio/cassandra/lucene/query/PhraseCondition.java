@@ -24,8 +24,6 @@ import org.apache.lucene.search.Query;
 import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
 
-import java.util.List;
-
 /**
  * A {@link Condition} implementation that matches documents containing a particular sequence of terms.
  *
@@ -42,11 +40,11 @@ public class PhraseCondition extends SingleFieldCondition {
 
     /** The phrase terms to be matched. */
     @JsonProperty("values")
-    private final List<String> values;
+    private final String[] values;
 
     /** The number of other words permitted between words in phrase. */
     @JsonProperty("slop")
-    private Integer slop;
+    private int slop;
 
     /**
      * Constructor using the field name and the value to be matched.
@@ -61,32 +59,43 @@ public class PhraseCondition extends SingleFieldCondition {
     @JsonCreator
     public PhraseCondition(@JsonProperty("boost") Float boost,
                            @JsonProperty("field") String field,
-                           @JsonProperty("values") List<String> values,
+                           @JsonProperty("values") String[] values,
                            @JsonProperty("slop") Integer slop) {
-        super(boost);
+        super(boost, field);
+
+        if (values == null) {
+            throw new IllegalArgumentException("Field values required");
+        }
+        if (slop != null && slop < 0) {
+            throw new IllegalArgumentException("Slop must be positive");
+        }
 
         this.field = field;
         this.values = values;
         this.slop = slop == null ? DEFAULT_SLOP : slop;
     }
 
+    /**
+     * Returns the number of other words permitted between words in phrase.
+     *
+     * @return The number of other words permitted between words in phrase.
+     */
+    public int getSlop() {
+        return slop;
+    }
+
+    /**
+     * Returns The phrase terms to be matched.
+     *
+     * @return the phrase terms to be matched.
+     */
+    public String[] getValues() {
+        return values;
+    }
+
     /** {@inheritDoc} */
     @Override
     public Query query(Schema schema) {
-
-        if (field == null || field.trim().isEmpty()) {
-            throw new IllegalArgumentException("Field name required");
-        }
-        if (values == null) {
-            throw new IllegalArgumentException("Field values required");
-        }
-        if (slop == null) {
-            throw new IllegalArgumentException("Slop required");
-        }
-        if (slop < 0) {
-            throw new IllegalArgumentException("Slop must be positive");
-        }
-
         ColumnMapperSingle<?> columnMapper = getMapper(schema, field);
         Class<?> clazz = columnMapper.baseClass();
         if (clazz == String.class) {

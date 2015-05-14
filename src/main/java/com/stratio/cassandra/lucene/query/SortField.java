@@ -21,6 +21,7 @@ import com.stratio.cassandra.lucene.schema.Columns;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.ColumnMapper;
 import org.apache.cassandra.db.marshal.AbstractType;
+import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
 
@@ -48,13 +49,36 @@ public class SortField {
     /**
      * Returns a new {@link SortField}.
      *
-     * @param field   The name of field to sortFields by.
+     * @param field   The name of field to sort by.
      * @param reverse {@code true} if natural order should be reversed.
      */
     @JsonCreator
     public SortField(@JsonProperty("field") String field, @JsonProperty("reverse") Boolean reverse) {
+
+        if (field == null || StringUtils.isBlank(field)) {
+            throw new IllegalArgumentException("Field name required");
+        }
+
         this.field = field;
         this.reverse = reverse == null ? DEFAULT_REVERSE : reverse;
+    }
+
+    /**
+     * Returns the name of field to sort by.
+     *
+     * @return The name of field to sort by.
+     */
+    public String getField() {
+        return field;
+    }
+
+    /**
+     * Returns {@code true} if natural order should be reversed.
+     *
+     * @return {@code true} if natural order should be reversed.
+     */
+    public boolean isReverse() {
+        return reverse;
     }
 
     /**
@@ -64,9 +88,6 @@ public class SortField {
      * @return the Lucene {@link org.apache.lucene.search.SortField} representing this {@link SortField}.
      */
     public org.apache.lucene.search.SortField sortField(Schema schema) {
-        if (field == null || field.trim().isEmpty()) {
-            throw new IllegalArgumentException("Field name required");
-        }
         ColumnMapper columnMapper = schema.getMapper(field);
         if (columnMapper == null) {
             throw new IllegalArgumentException("No mapper found for sortFields field " + field);
@@ -91,8 +112,8 @@ public class SortField {
                     return -1;
                 }
 
-                Column column1 = o1.getColumn(field);
-                Column column2 = o2.getColumn(field);
+                Column<?> column1 = o1.getColumn(field);
+                Column<?> column2 = o2.getColumn(field);
 
                 if (column1 == null) {
                     return column2 == null ? 0 : 1;
@@ -113,5 +134,13 @@ public class SortField {
     @Override
     public String toString() {
         return Objects.toStringHelper(this).add("field", field).add("reverse", reverse).toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SortField sortField = (SortField) o;
+        return reverse == sortField.reverse && field.equals(sortField.field);
     }
 }
