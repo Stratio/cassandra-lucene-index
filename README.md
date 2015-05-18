@@ -1,5 +1,5 @@
-Stratio Cassandra
-=================
+Stratio's Cassandra Lucene Index
+================================
 
 Stratio's Cassandra Lucene Index, derived from [Stratio Cassandra](https://github.com/Stratio/stratio-cassandra), is a plugin for [Apache Cassandra](http://cassandra.apache.org/) that extends its index functionality to provide near real time search such as ElasticSearch or Solr, including [full text search](http://en.wikipedia.org/wiki/Full_text_search) capabilities and free multivariable search. It is achieved through an [Apache Lucene](http://lucene.apache.org/) based implementation of Cassandra secondary indexes, where each node of the cluster indexes its own data. Stratio's Cassandra indexes are one of the core modules on which [Stratio's BigData platform (SDS)](http://www.stratio.com/) is based.
 
