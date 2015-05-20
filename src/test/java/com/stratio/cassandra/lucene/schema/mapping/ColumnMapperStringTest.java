@@ -24,63 +24,64 @@ import org.apache.lucene.document.SortedDocValuesField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.index.DocValuesType;
 import org.apache.lucene.index.IndexableField;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.util.UUID;
+
+import static org.junit.Assert.*;
 
 public class ColumnMapperStringTest {
 
     @Test
     public void testConstructorWithoutArgs() {
         ColumnMapperString mapper = new ColumnMapperString(null, null, null);
-        Assert.assertEquals(ColumnMapper.DEFAULT_INDEXED, mapper.isIndexed());
-        Assert.assertEquals(ColumnMapper.DEFAULT_SORTED, mapper.isSorted());
-        Assert.assertEquals(ColumnMapperString.DEFAULT_CASE_SENSITIVE, mapper.isCaseSensitive());
+        assertEquals(ColumnMapper.DEFAULT_INDEXED, mapper.isIndexed());
+        assertEquals(ColumnMapper.DEFAULT_SORTED, mapper.isSorted());
+        assertEquals(ColumnMapperString.DEFAULT_CASE_SENSITIVE, mapper.isCaseSensitive());
     }
 
     @Test
     public void testConstructorWithAllArgs() {
         ColumnMapperString mapper = new ColumnMapperString(false, true, false);
-        Assert.assertFalse(mapper.isIndexed());
-        Assert.assertTrue(mapper.isSorted());
-        Assert.assertFalse(mapper.isCaseSensitive());
+        assertFalse(mapper.isIndexed());
+        assertTrue(mapper.isSorted());
+        assertFalse(mapper.isCaseSensitive());
     }
 
     @Test()
     public void testValueNull() {
         ColumnMapperString mapper = new ColumnMapperString(true, true, true);
         String parsed = mapper.base("test", null);
-        Assert.assertNull(parsed);
+        assertNull(parsed);
     }
 
     @Test
     public void testValueInteger() {
         ColumnMapperString mapper = new ColumnMapperString(true, true, true);
         String parsed = mapper.base("test", 3);
-        Assert.assertEquals("3", parsed);
+        assertEquals("3", parsed);
     }
 
     @Test
     public void testValueLong() {
         ColumnMapperString mapper = new ColumnMapperString(true, true, true);
         String parsed = mapper.base("test", 3l);
-        Assert.assertEquals("3", parsed);
+        assertEquals("3", parsed);
     }
 
     @Test
     public void testValueFloatWithoutDecimal() {
         ColumnMapperString mapper = new ColumnMapperString(true, true, true);
         String parsed = mapper.base("test", 3f);
-        Assert.assertEquals("3.0", parsed);
+        assertEquals("3.0", parsed);
     }
 
     @Test
     public void testValueFloatWithDecimalFloor() {
         ColumnMapperString mapper = new ColumnMapperString(true, true, true);
         String parsed = mapper.base("test", 3.5f);
-        Assert.assertEquals("3.5", parsed);
+        assertEquals("3.5", parsed);
 
     }
 
@@ -88,21 +89,21 @@ public class ColumnMapperStringTest {
     public void testValueFloatWithDecimalCeil() {
         ColumnMapperString mapper = new ColumnMapperString(true, true, true);
         String parsed = mapper.base("test", 3.6f);
-        Assert.assertEquals("3.6", parsed);
+        assertEquals("3.6", parsed);
     }
 
     @Test
     public void testValueDoubleWithoutDecimal() {
         ColumnMapperString mapper = new ColumnMapperString(true, true, true);
         String parsed = mapper.base("test", 3d);
-        Assert.assertEquals("3.0", parsed);
+        assertEquals("3.0", parsed);
     }
 
     @Test
     public void testValueDoubleWithDecimalFloor() {
         ColumnMapperString mapper = new ColumnMapperString(true, true, true);
         String parsed = mapper.base("test", 3.5d);
-        Assert.assertEquals("3.5", parsed);
+        assertEquals("3.5", parsed);
 
     }
 
@@ -110,7 +111,7 @@ public class ColumnMapperStringTest {
     public void testValueDoubleWithDecimalCeil() {
         ColumnMapperString mapper = new ColumnMapperString(true, true, true);
         String parsed = mapper.base("test", 3.6d);
-        Assert.assertEquals("3.6", parsed);
+        assertEquals("3.6", parsed);
 
     }
 
@@ -118,21 +119,21 @@ public class ColumnMapperStringTest {
     public void testValueStringWithoutDecimal() {
         ColumnMapperString mapper = new ColumnMapperString(true, true, true);
         String parsed = mapper.base("test", "3");
-        Assert.assertEquals("3", parsed);
+        assertEquals("3", parsed);
     }
 
     @Test
     public void testValueStringWithDecimalFloor() {
         ColumnMapperString mapper = new ColumnMapperString(true, true, true);
         String parsed = mapper.base("test", "3.2");
-        Assert.assertEquals("3.2", parsed);
+        assertEquals("3.2", parsed);
     }
 
     @Test
     public void testValueStringWithDecimalCeil() {
         ColumnMapperString mapper = new ColumnMapperString(true, true, true);
         String parsed = mapper.base("test", "3.6");
-        Assert.assertEquals("3.6", parsed);
+        assertEquals("3.6", parsed);
 
     }
 
@@ -140,64 +141,64 @@ public class ColumnMapperStringTest {
     public void testValueUUID() {
         ColumnMapperString mapper = new ColumnMapperString(true, true, true);
         String parsed = mapper.base("test", UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));
-        Assert.assertEquals("550e8400-e29b-41d4-a716-446655440000", parsed);
+        assertEquals("550e8400-e29b-41d4-a716-446655440000", parsed);
     }
 
     @Test
     public void testIndexedField() {
         ColumnMapperString mapper = new ColumnMapperString(true, true, true);
         Field field = mapper.indexedField("name", "hello");
-        Assert.assertNotNull(field);
-        Assert.assertEquals("hello", field.stringValue());
-        Assert.assertEquals("name", field.name());
-        Assert.assertEquals(false, field.fieldType().stored());
+        assertNotNull(field);
+        assertEquals("hello", field.stringValue());
+        assertEquals("name", field.name());
+        assertEquals(false, field.fieldType().stored());
     }
 
     @Test
     public void testSortedField() {
         ColumnMapperString mapper = new ColumnMapperString(true, true, true);
         Field field = mapper.sortedField("name", "hello", false);
-        Assert.assertNotNull(field);
-        Assert.assertEquals(DocValuesType.SORTED, field.fieldType().docValuesType());
+        assertNotNull(field);
+        assertEquals(DocValuesType.SORTED, field.fieldType().docValuesType());
     }
 
     @Test
     public void testSortedFieldCollection() {
         ColumnMapperString mapper = new ColumnMapperString(true, true, true);
         Field field = mapper.sortedField("name", "hello", true);
-        Assert.assertNotNull(field);
-        Assert.assertEquals(DocValuesType.SORTED_SET, field.fieldType().docValuesType());
+        assertNotNull(field);
+        assertEquals(DocValuesType.SORTED_SET, field.fieldType().docValuesType());
     }
 
     @Test
     public void testBaseCaseSensitiveDefault() {
         ColumnMapperString mapper = new ColumnMapperString(true, true, null);
         String base = mapper.base("name", "Hello");
-        Assert.assertNotNull(base);
-        Assert.assertEquals("Hello", base);
+        assertNotNull(base);
+        assertEquals("Hello", base);
     }
 
     @Test
     public void testBaseCaseSensitiveTrue() {
         ColumnMapperString mapper = new ColumnMapperString(true, true, true);
         String base = mapper.base("name", "Hello");
-        Assert.assertNotNull(base);
-        Assert.assertEquals("Hello", base);
+        assertNotNull(base);
+        assertEquals("Hello", base);
     }
 
     @Test
     public void testBaseaseSensitiveFalse() {
         ColumnMapperString mapper = new ColumnMapperString(true, true, false);
         String base = mapper.base("name", "Hello");
-        Assert.assertNotNull(base);
-        Assert.assertEquals("hello", base);
+        assertNotNull(base);
+        assertEquals("hello", base);
     }
 
     @Test
     public void testExtractAnalyzers() {
         ColumnMapperString mapper = new ColumnMapperString(true, true, true);
         String analyzer = mapper.getAnalyzer();
-        Assert.assertEquals(ColumnMapper.KEYWORD_ANALYZER, analyzer);
+        assertEquals(ColumnMapper.KEYWORD_ANALYZER, analyzer);
     }
 
     @Test
@@ -207,9 +208,9 @@ public class ColumnMapperStringTest {
         Column column = Column.fromComposed("field", "value", UTF8Type.instance, false);
         mapper.addFields(document, column);
         IndexableField[] indexableFields = document.getFields("field");
-        Assert.assertEquals(2, indexableFields.length);
-        Assert.assertTrue(indexableFields[0] instanceof StringField);
-        Assert.assertTrue(indexableFields[1] instanceof SortedDocValuesField);
+        assertEquals(2, indexableFields.length);
+        assertTrue(indexableFields[0] instanceof StringField);
+        assertTrue(indexableFields[1] instanceof SortedDocValuesField);
     }
 
     @Test
@@ -217,12 +218,11 @@ public class ColumnMapperStringTest {
         String json = "{fields:{age:{type:\"string\"}}}";
         Schema schema = Schema.fromJson(json);
         ColumnMapper columnMapper = schema.getMapper("age");
-        Assert.assertNotNull(columnMapper);
-        Assert.assertEquals(ColumnMapperString.class, columnMapper.getClass());
-        Assert.assertEquals(ColumnMapper.DEFAULT_INDEXED, columnMapper.isIndexed());
-        Assert.assertEquals(ColumnMapper.DEFAULT_SORTED, columnMapper.isSorted());
-        Assert.assertEquals(ColumnMapperString.DEFAULT_CASE_SENSITIVE,
-                            ((ColumnMapperString) columnMapper).isCaseSensitive());
+        assertNotNull(columnMapper);
+        assertEquals(ColumnMapperString.class, columnMapper.getClass());
+        assertEquals(ColumnMapper.DEFAULT_INDEXED, columnMapper.isIndexed());
+        assertEquals(ColumnMapper.DEFAULT_SORTED, columnMapper.isSorted());
+        assertEquals(ColumnMapperString.DEFAULT_CASE_SENSITIVE, ((ColumnMapperString) columnMapper).isCaseSensitive());
     }
 
     @Test
@@ -230,11 +230,11 @@ public class ColumnMapperStringTest {
         String json = "{fields:{age:{type:\"string\", indexed:\"false\", sorted:\"true\", case_sensitive:\"false\"}}}";
         Schema schema = Schema.fromJson(json);
         ColumnMapper columnMapper = schema.getMapper("age");
-        Assert.assertNotNull(columnMapper);
-        Assert.assertEquals(ColumnMapperString.class, columnMapper.getClass());
-        Assert.assertFalse(columnMapper.isIndexed());
-        Assert.assertTrue(columnMapper.isSorted());
-        Assert.assertFalse(((ColumnMapperString) columnMapper).isCaseSensitive());
+        assertNotNull(columnMapper);
+        assertEquals(ColumnMapperString.class, columnMapper.getClass());
+        assertFalse(columnMapper.isIndexed());
+        assertTrue(columnMapper.isSorted());
+        assertFalse(((ColumnMapperString) columnMapper).isCaseSensitive());
     }
 
     @Test
@@ -242,12 +242,18 @@ public class ColumnMapperStringTest {
         String json = "{fields:{}}";
         Schema schema = Schema.fromJson(json);
         ColumnMapper columnMapper = schema.getMapper("age");
-        Assert.assertNull(columnMapper);
+        assertNull(columnMapper);
     }
 
     @Test(expected = IOException.class)
     public void testParseJSONInvalid() throws IOException {
         String json = "{fields:{age:{}}";
         Schema.fromJson(json);
+    }
+
+    @Test
+    public void testToString() {
+        ColumnMapperString mapper = new ColumnMapperString(false, false, false);
+        assertEquals("ColumnMapperString{indexed=false, sorted=false, caseSensitive=false}", mapper.toString());
     }
 }

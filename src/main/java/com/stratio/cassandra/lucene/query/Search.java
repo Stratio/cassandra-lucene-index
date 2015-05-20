@@ -18,7 +18,6 @@ package com.stratio.cassandra.lucene.query;
 import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.util.JsonSerializer;
-import com.stratio.cassandra.lucene.util.Log;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.ConstantScoreQuery;
@@ -26,6 +25,8 @@ import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
 import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
+
+import java.io.IOException;
 
 /**
  * Class representing an Lucene index search. It is formed by an optional querying {@link Condition} and an optional
@@ -76,10 +77,8 @@ public class Search {
     public static Search fromJson(String json) {
         try {
             return JsonSerializer.fromString(json, Search.class);
-        } catch (Exception e) {
-            String message = String.format("Unparseable JSON search: %s", e.getMessage());
-            Log.error(e, message);
-            throw new IllegalArgumentException(message, e);
+        } catch (IOException e) {
+            throw new IllegalArgumentException(String.format("Unparseable JSON search: %s", e.getMessage()), e);
         }
     }
 
@@ -91,10 +90,8 @@ public class Search {
     public String toJson() {
         try {
             return JsonSerializer.toString(this);
-        } catch (Exception e) {
-            String message = String.format("Unformateable JSON search: %s", e.getMessage());
-            Log.error(e, message);
-            throw new IllegalArgumentException(message, e);
+        } catch (IOException e) {
+            throw new IllegalArgumentException(String.format("Unformateable JSON search: %s", e.getMessage()), e);
         }
     }
 

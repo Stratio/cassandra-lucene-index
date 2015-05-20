@@ -87,6 +87,11 @@ public class BooleanCondition extends Condition {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("must", must).add("should", should).add("not", not).toString();
+        return Objects.toStringHelper(this)
+                      .add("boost", boost)
+                      .add("must", must)
+                      .add("should", should)
+                      .add("not", not)
+                      .toString();
     }
 }

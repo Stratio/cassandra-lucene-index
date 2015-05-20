@@ -80,6 +80,10 @@ public class ColumnMapperString extends ColumnMapperKeyword {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("caseSensitive", caseSensitive).toString();
+        return Objects.toStringHelper(this)
+                      .add("indexed", indexed)
+                      .add("sorted", sorted)
+                      .add("caseSensitive", caseSensitive)
+                      .toString();
     }
 }

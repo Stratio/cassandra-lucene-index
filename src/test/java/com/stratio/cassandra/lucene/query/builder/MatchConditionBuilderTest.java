@@ -16,8 +16,10 @@
 package com.stratio.cassandra.lucene.query.builder;
 
 import com.stratio.cassandra.lucene.query.MatchCondition;
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Andres de la Pena <adelapena@stratio.com>
@@ -28,17 +30,17 @@ public class MatchConditionBuilderTest {
     public void testBuildString() {
         MatchConditionBuilder builder = new MatchConditionBuilder("field", "value");
         MatchCondition condition = builder.build();
-        Assert.assertNotNull(condition);
-        Assert.assertEquals("field", condition.getField());
-        Assert.assertEquals("value", condition.getValue());
+        assertNotNull(condition);
+        assertEquals("field", condition.getField());
+        assertEquals("value", condition.getValue());
     }
 
     @Test
     public void testBuildNumber() {
         MatchConditionBuilder builder = new MatchConditionBuilder("field", 3);
         MatchCondition condition = builder.build();
-        Assert.assertNotNull(condition);
-        Assert.assertEquals("field", condition.getField());
-        Assert.assertEquals(3, condition.getValue());
+        assertNotNull(condition);
+        assertEquals("field", condition.getField());
+        assertEquals(3, condition.getValue());
     }
 }

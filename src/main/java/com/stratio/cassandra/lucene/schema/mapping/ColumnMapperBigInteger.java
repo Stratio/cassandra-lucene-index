@@ -97,13 +97,12 @@ public class ColumnMapperBigInteger extends ColumnMapperKeyword {
         try {
             bi = new BigInteger(svalue);
         } catch (NumberFormatException e) {
-            String message = String.format("Field %s requires a base 10 integer, but found \"%s\"", name, svalue);
-            throw new IllegalArgumentException(message);
+            return error("Field '%s' requires a base 10 integer, but found '%s'", name, svalue);
         }
 
         // Check size
         if (bi.abs().toString().length() > digits) {
-            throw new IllegalArgumentException("Value has more than " + digits + " digits");
+            return error("Field '%s' with value '%s' has more than %d digits", name, value, digits);
         }
 
         // Map
@@ -124,6 +123,10 @@ public class ColumnMapperBigInteger extends ColumnMapperKeyword {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("digits", digits).toString();
+        return Objects.toStringHelper(this)
+                      .add("indexed", indexed)
+                      .add("sorted", sorted)
+                      .add("digits", digits)
+                      .toString();
     }
 }

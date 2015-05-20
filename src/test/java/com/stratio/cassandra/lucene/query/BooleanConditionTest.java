@@ -19,11 +19,11 @@ import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.analysis.PreBuiltAnalyzers;
 import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperInteger;
 import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperString;
-import junit.framework.Assert;
 import org.apache.lucene.search.BooleanQuery;
 import org.junit.Test;
 
 import static com.stratio.cassandra.lucene.query.builder.SearchBuilders.*;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -44,18 +44,32 @@ public class BooleanConditionTest extends AbstractConditionTest {
     public void testQuery() {
         Schema schema = mock(Schema.class);
         when(schema.getAnalyzer()).thenReturn(PreBuiltAnalyzers.DEFAULT.get());
-        when(schema.getMapperSingle("name")).thenReturn(new ColumnMapperString(null, null, null));
-        when(schema.getMapperSingle("color")).thenReturn(new ColumnMapperString(null, null, null));
-        when(schema.getMapperSingle("country")).thenReturn(new ColumnMapperString(null, null, null));
-        when(schema.getMapperSingle("age")).thenReturn(new ColumnMapperInteger(null, null, null));
+        when(schema.getMapper("name")).thenReturn(new ColumnMapperString(null, null, null));
+        when(schema.getMapper("color")).thenReturn(new ColumnMapperString(null, null, null));
+        when(schema.getMapper("country")).thenReturn(new ColumnMapperString(null, null, null));
+        when(schema.getMapper("age")).thenReturn(new ColumnMapperInteger(null, null, null));
         BooleanCondition condition = bool().must(match("name", "jonathan"), range("age").lower(18).includeLower(true))
                                            .should(match("color", "green"), match("color", "blue"))
                                            .not(match("country", "england"))
                                            .boost(0.4f)
                                            .build();
         BooleanQuery query = (BooleanQuery) condition.query(schema);
-        Assert.assertEquals(5, query.getClauses().length);
-        Assert.assertEquals(0.4f, query.getBoost());
+        assertEquals(5, query.getClauses().length);
+        assertEquals(0.4f, query.getBoost(), 0f);
+    }
+
+    @Test
+    public void testToString() {
+        BooleanCondition condition = bool().must(match("name", "jonathan"), match("age", 18))
+                                           .should(match("color", "green"))
+                                           .not(match("country", "england"))
+                                           .boost(0.5f)
+                                           .build();
+        assertEquals("BooleanCondition{boost=0.5, " +
+                     "must=[MatchCondition{boost=1.0, field=name, value=jonathan}, " +
+                     "MatchCondition{boost=1.0, field=age, value=18}], " +
+                     "should=[MatchCondition{boost=1.0, field=color, value=green}], " +
+                     "not=[MatchCondition{boost=1.0, field=country, value=england}]}", condition.toString());
     }
 
 }

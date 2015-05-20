@@ -130,8 +130,7 @@ public class ColumnMapperBigDecimal extends ColumnMapperKeyword {
         try {
             bd = new BigDecimal(value.toString());
         } catch (NumberFormatException e) {
-            String message = String.format("Field %s requires a base 10 decimal, but found \"%s\"", name, svalue);
-            throw new IllegalArgumentException(message);
+            return error("Field '%s' requires a base 10 decimal, but found '%s'", name, svalue);
         }
 
         // Split integer and decimal part
@@ -141,10 +140,10 @@ public class ColumnMapperBigDecimal extends ColumnMapperKeyword {
         String decimalPart = parts.length == 1 ? "0" : parts[1];
 
         if (integerPart.replaceFirst("-", "").length() > integerDigits) {
-            throw new IllegalArgumentException("Too much digits in integer part");
+            return error("Field '%s' with value '%s' has more than %d integer digits", name, value, integerDigits);
         }
         if (decimalPart.length() > decimalDigits) {
-            throw new IllegalArgumentException("Too much digits in decimal part");
+            return error("Field '%s' with value '%s' has more than %d decimal digits", name, value, decimalDigits);
         }
 
         BigDecimal complemented = bd.add(complement);
@@ -160,6 +159,8 @@ public class ColumnMapperBigDecimal extends ColumnMapperKeyword {
     @Override
     public String toString() {
         return Objects.toStringHelper(this)
+                      .add("indexed", indexed)
+                      .add("sorted", sorted)
                       .add("integerDigits", integerDigits)
                       .add("decimalDigits", decimalDigits)
                       .toString();

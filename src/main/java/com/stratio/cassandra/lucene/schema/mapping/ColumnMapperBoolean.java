@@ -61,14 +61,13 @@ public class ColumnMapperBoolean extends ColumnMapperKeyword {
                 return FALSE;
             }
         }
-        String message = String.format("Field \"%s\" requires a boolean, but found \"%s\"", name, value);
-        throw new IllegalArgumentException(message);
+        return error("Field '%s' requires a boolean, but found '%s'", name, value);
     }
 
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).toString();
+        return Objects.toStringHelper(this).add("indexed", indexed).add("sorted", sorted).toString();
     }
 
 }

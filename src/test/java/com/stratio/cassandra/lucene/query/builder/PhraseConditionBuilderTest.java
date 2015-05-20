@@ -16,11 +16,12 @@
 package com.stratio.cassandra.lucene.query.builder;
 
 import com.stratio.cassandra.lucene.query.PhraseCondition;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.List;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Andres de la Pena <adelapena@stratio.com>
@@ -33,10 +34,10 @@ public class PhraseConditionBuilderTest {
         PhraseConditionBuilder builder = new PhraseConditionBuilder("field", values);
         builder.slop(2);
         PhraseCondition condition = builder.build();
-        Assert.assertNotNull(condition);
-        Assert.assertEquals("field", condition.getField());
-        Assert.assertArrayEquals(values, condition.getValues());
-        Assert.assertEquals(2, condition.getSlop());
+        assertNotNull(condition);
+        assertEquals("field", condition.getField());
+        assertArrayEquals(values, condition.getValues());
+        assertEquals(2, condition.getSlop());
     }
 
     @Test
@@ -45,9 +46,9 @@ public class PhraseConditionBuilderTest {
         PhraseConditionBuilder builder = new PhraseConditionBuilder("field", values);
         builder.slop(2);
         PhraseCondition condition = builder.build();
-        Assert.assertNotNull(condition);
-        Assert.assertEquals("field", condition.getField());
-        Assert.assertArrayEquals(values.toArray(), condition.getValues());
-        Assert.assertEquals(2, condition.getSlop());
+        assertNotNull(condition);
+        assertEquals("field", condition.getField());
+        assertArrayEquals(values.toArray(), condition.getValues());
+        assertEquals(2, condition.getSlop());
     }
 }

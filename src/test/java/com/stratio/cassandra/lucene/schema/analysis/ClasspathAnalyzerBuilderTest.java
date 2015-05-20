@@ -18,10 +18,11 @@ package com.stratio.cassandra.lucene.schema.analysis;
 import com.stratio.cassandra.lucene.util.JsonSerializer;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Andres de la Pena <adelapena@stratio.com>
@@ -33,7 +34,7 @@ public class ClasspathAnalyzerBuilderTest {
         String className = "org.apache.lucene.analysis.en.EnglishAnalyzer";
         ClasspathAnalyzerBuilder builder = new ClasspathAnalyzerBuilder(className);
         Analyzer analyzer = builder.analyzer();
-        Assert.assertEquals(EnglishAnalyzer.class, analyzer.getClass());
+        assertEquals(EnglishAnalyzer.class, analyzer.getClass());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -46,7 +47,7 @@ public class ClasspathAnalyzerBuilderTest {
         String json = "{type:\"classpath\", class:\"org.apache.lucene.analysis.en.EnglishAnalyzer\"}";
         AnalyzerBuilder builder = JsonSerializer.fromString(json, AnalyzerBuilder.class);
         Analyzer analyzer = builder.analyzer();
-        Assert.assertEquals(EnglishAnalyzer.class, analyzer.getClass());
+        assertEquals(EnglishAnalyzer.class, analyzer.getClass());
     }
 
     @Test(expected = IOException.class)

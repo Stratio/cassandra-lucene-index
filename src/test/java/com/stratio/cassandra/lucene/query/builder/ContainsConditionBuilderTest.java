@@ -16,8 +16,9 @@
 package com.stratio.cassandra.lucene.query.builder;
 
 import com.stratio.cassandra.lucene.query.ContainsCondition;
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Andres de la Pena <adelapena@stratio.com>
@@ -29,9 +30,9 @@ public class ContainsConditionBuilderTest {
         Object[] values = new Object[]{"a", "b"};
         ContainsConditionBuilder builder = new ContainsConditionBuilder("field", values);
         ContainsCondition condition = builder.build();
-        Assert.assertNotNull(condition);
-        Assert.assertEquals("field", condition.getField());
-        Assert.assertArrayEquals(values, condition.getValues());
+        assertNotNull(condition);
+        assertEquals("field", condition.getField());
+        assertArrayEquals(values, condition.getValues());
     }
 
     @Test
@@ -39,8 +40,8 @@ public class ContainsConditionBuilderTest {
         Object[] values = new Object[]{1, 2};
         ContainsConditionBuilder builder = new ContainsConditionBuilder("field", values);
         ContainsCondition condition = builder.build();
-        Assert.assertNotNull(condition);
-        Assert.assertEquals("field", condition.getField());
-        Assert.assertArrayEquals(values, condition.getValues());
+        assertNotNull(condition);
+        assertEquals("field", condition.getField());
+        assertArrayEquals(values, condition.getValues());
     }
 }

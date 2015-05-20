@@ -61,13 +61,13 @@ public class ColumnMapperBlob extends ColumnMapperKeyword {
             byte[] bytes = Hex.hexToBytes(string);
             return Hex.bytesToHex(bytes);
         } else {
-            throw new IllegalArgumentException(String.format("Value '%s' cannot be cast to byte array", value));
+            return error("Field '%s' requires a byte array, but found '%s'", name, value);
         }
     }
 
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).toString();
+        return Objects.toStringHelper(this).add("indexed", indexed).add("sorted", sorted).toString();
     }
 }

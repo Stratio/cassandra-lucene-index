@@ -16,8 +16,10 @@
 package com.stratio.cassandra.lucene.query.builder;
 
 import com.stratio.cassandra.lucene.query.PrefixCondition;
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Andres de la Pena <adelapena@stratio.com>
@@ -28,8 +30,8 @@ public class PrefixConditionBuilderTest {
     public void testBuild() {
         PrefixConditionBuilder builder = new PrefixConditionBuilder("field", "value");
         PrefixCondition condition = builder.build();
-        Assert.assertNotNull(condition);
-        Assert.assertEquals("field", condition.getField());
-        Assert.assertEquals("value", condition.getValue());
+        assertNotNull(condition);
+        assertEquals("field", condition.getField());
+        assertEquals("value", condition.getValue());
     }
 }

@@ -23,7 +23,6 @@ import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperString;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.search.PrefixQuery;
 import org.apache.lucene.search.Query;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -31,6 +30,8 @@ import java.util.Map;
 
 import static com.stratio.cassandra.lucene.query.builder.SearchBuilders.prefix;
 import static com.stratio.cassandra.lucene.query.builder.SearchBuilders.query;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Andres de la Pena <adelapena@stratio.com>
@@ -47,12 +48,12 @@ public class PrefixConditionTest extends AbstractConditionTest {
         PrefixCondition prefixCondition = new PrefixCondition(0.5f, "name", "tr");
         Query query = prefixCondition.query(mappers);
 
-        Assert.assertNotNull(query);
-        Assert.assertEquals(PrefixQuery.class, query.getClass());
+        assertNotNull(query);
+        assertEquals(PrefixQuery.class, query.getClass());
         PrefixQuery luceneQuery = (PrefixQuery) query;
-        Assert.assertEquals("name", luceneQuery.getField());
-        Assert.assertEquals("tr", luceneQuery.getPrefix().text());
-        Assert.assertEquals(0.5f, query.getBoost(), 0);
+        assertEquals("name", luceneQuery.getField());
+        assertEquals("tr", luceneQuery.getPrefix().text());
+        assertEquals(0.5f, query.getBoost(), 0);
     }
 
     @Test(expected = UnsupportedOperationException.class)
@@ -76,12 +77,12 @@ public class PrefixConditionTest extends AbstractConditionTest {
         PrefixCondition wildcardCondition = new PrefixCondition(0.5f, "name", "192.168.");
         Query query = wildcardCondition.query(mappers);
 
-        Assert.assertNotNull(query);
-        Assert.assertEquals(PrefixQuery.class, query.getClass());
+        assertNotNull(query);
+        assertEquals(PrefixQuery.class, query.getClass());
         PrefixQuery luceneQuery = (PrefixQuery) query;
-        Assert.assertEquals("name", luceneQuery.getField());
-        Assert.assertEquals("192.168.", luceneQuery.getPrefix().text());
-        Assert.assertEquals(0.5f, query.getBoost(), 0);
+        assertEquals("name", luceneQuery.getField());
+        assertEquals("192.168.", luceneQuery.getPrefix().text());
+        assertEquals(0.5f, query.getBoost(), 0);
     }
 
     @Test
@@ -94,17 +95,23 @@ public class PrefixConditionTest extends AbstractConditionTest {
         PrefixCondition wildcardCondition = new PrefixCondition(0.5f, "name", "2001:db8:2de:0:0:0:0:e");
         Query query = wildcardCondition.query(mappers);
 
-        Assert.assertNotNull(query);
-        Assert.assertEquals(PrefixQuery.class, query.getClass());
+        assertNotNull(query);
+        assertEquals(PrefixQuery.class, query.getClass());
         PrefixQuery luceneQuery = (PrefixQuery) query;
-        Assert.assertEquals("name", luceneQuery.getField());
-        Assert.assertEquals("2001:db8:2de:0:0:0:0:e", luceneQuery.getPrefix().text());
-        Assert.assertEquals(0.5f, query.getBoost(), 0);
+        assertEquals("name", luceneQuery.getField());
+        assertEquals("2001:db8:2de:0:0:0:0:e", luceneQuery.getPrefix().text());
+        assertEquals(0.5f, query.getBoost(), 0);
     }
 
     @Test
     public void testJson() {
         testJsonCondition(query(prefix("name", "aaa").boost(0.5f)));
+    }
+
+    @Test
+    public void testToString() {
+        PrefixCondition condition = new PrefixCondition(0.5f, "name", "tr");
+        assertEquals("PrefixCondition{field=name, value=tr}", condition.toString());
     }
 
 }

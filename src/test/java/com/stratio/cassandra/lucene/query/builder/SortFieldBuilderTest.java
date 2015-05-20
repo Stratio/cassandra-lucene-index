@@ -16,8 +16,10 @@
 package com.stratio.cassandra.lucene.query.builder;
 
 import com.stratio.cassandra.lucene.query.SortField;
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Andres de la Pena <adelapena@stratio.com>
@@ -30,9 +32,9 @@ public class SortFieldBuilderTest {
         SortFieldBuilder builder = new SortFieldBuilder(field);
         builder.reverse(true);
         SortField sortField = builder.build();
-        Assert.assertNotNull(sortField);
-        Assert.assertEquals(field, sortField.getField());
-        Assert.assertEquals(true, sortField.isReverse());
+        assertNotNull(sortField);
+        assertEquals(field, sortField.getField());
+        assertEquals(true, sortField.isReverse());
     }
 
     @Test
@@ -40,8 +42,8 @@ public class SortFieldBuilderTest {
         String field = "field";
         SortFieldBuilder builder = new SortFieldBuilder(field);
         SortField sortField = builder.build();
-        Assert.assertNotNull(sortField);
-        Assert.assertEquals(field, sortField.getField());
-        Assert.assertEquals(SortField.DEFAULT_REVERSE, sortField.isReverse());
+        assertNotNull(sortField);
+        assertEquals(field, sortField.getField());
+        assertEquals(SortField.DEFAULT_REVERSE, sortField.isReverse());
     }
 }

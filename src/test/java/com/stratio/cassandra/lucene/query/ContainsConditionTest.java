@@ -25,11 +25,11 @@ import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.NumericRangeQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
 
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -46,9 +46,9 @@ public class ContainsConditionTest extends AbstractConditionTest {
         String field = "test";
         Object[] values = new Object[]{1, 2, 3};
         ContainsCondition condition = new ContainsCondition(boost, field, values);
-        Assert.assertEquals(boost, condition.getBoost(), 0);
-        Assert.assertEquals(field, condition.getField());
-        Assert.assertArrayEquals(values, condition.getValues());
+        assertEquals(boost, condition.getBoost(), 0);
+        assertEquals(field, condition.getField());
+        assertArrayEquals(values, condition.getValues());
     }
 
     @Test
@@ -58,9 +58,9 @@ public class ContainsConditionTest extends AbstractConditionTest {
         String field = "test";
         Object[] values = new Object[]{1, 2, 3};
         ContainsCondition condition = new ContainsCondition(null, field, values);
-        Assert.assertEquals(Condition.DEFAULT_BOOST, condition.getBoost(), 0);
-        Assert.assertEquals(field, condition.getField());
-        Assert.assertArrayEquals(values, condition.getValues());
+        assertEquals(Condition.DEFAULT_BOOST, condition.getBoost(), 0);
+        assertEquals(field, condition.getField());
+        assertArrayEquals(values, condition.getValues());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -100,20 +100,20 @@ public class ContainsConditionTest extends AbstractConditionTest {
 
         Schema schema = mock(Schema.class);
         when(schema.getAnalyzer()).thenReturn(new EnglishAnalyzer());
-        when(schema.getMapperSingle(field)).thenReturn(new ColumnMapperInteger(null, null, null));
+        when(schema.getMapper(field)).thenReturn(new ColumnMapperInteger(null, null, null));
 
         ContainsCondition condition = new ContainsCondition(boost, field, values);
         Query query = condition.query(schema);
-        Assert.assertNotNull(query);
+        assertNotNull(query);
 
-        Assert.assertEquals(BooleanQuery.class, query.getClass());
-        Assert.assertEquals(0.7f, query.getBoost(), 0);
+        assertEquals(BooleanQuery.class, query.getClass());
+        assertEquals(0.7f, query.getBoost(), 0);
         BooleanClause[] booleanClauses = ((BooleanQuery) query).getClauses();
-        Assert.assertEquals(values.length, booleanClauses.length);
+        assertEquals(values.length, booleanClauses.length);
         for (int i = 0; i < values.length; i++) {
             NumericRangeQuery numericRangeQuery = (NumericRangeQuery) booleanClauses[i].getQuery();
-            Assert.assertEquals(values[i], numericRangeQuery.getMin());
-            Assert.assertEquals(values[i], numericRangeQuery.getMax());
+            assertEquals(values[i], numericRangeQuery.getMin());
+            assertEquals(values[i], numericRangeQuery.getMax());
         }
     }
 
@@ -126,39 +126,45 @@ public class ContainsConditionTest extends AbstractConditionTest {
 
         Schema schema = mock(Schema.class);
         when(schema.getAnalyzer()).thenReturn(new EnglishAnalyzer());
-        when(schema.getMapperSingle(field)).thenReturn(new ColumnMapperString(null, null, null));
+        when(schema.getMapper(field)).thenReturn(new ColumnMapperString(null, null, null));
 
         ContainsCondition condition = new ContainsCondition(boost, field, values);
         Query query = condition.query(schema);
-        Assert.assertNotNull(query);
+        assertNotNull(query);
 
-        Assert.assertEquals(BooleanQuery.class, query.getClass());
-        Assert.assertEquals(0.7f, query.getBoost(), 0);
+        assertEquals(BooleanQuery.class, query.getClass());
+        assertEquals(0.7f, query.getBoost(), 0);
         BooleanClause[] booleanClauses = ((BooleanQuery) query).getClauses();
-        Assert.assertEquals("hous", ((TermQuery) booleanClauses[0].getQuery()).getTerm().bytes().utf8ToString());
-        Assert.assertEquals("cat", ((TermQuery) booleanClauses[1].getQuery()).getTerm().bytes().utf8ToString());
+        assertEquals("hous", ((TermQuery) booleanClauses[0].getQuery()).getTerm().bytes().utf8ToString());
+        assertEquals("cat", ((TermQuery) booleanClauses[1].getQuery()).getTerm().bytes().utf8ToString());
     }
 
     @Test
     public void testJsonNumbers() throws IOException {
         String in = "{type:\"contains\",boost:0.7,field:\"test\",values:[1,2,3]}";
         ContainsCondition condition = JsonSerializer.fromString(in, ContainsCondition.class);
-        Assert.assertEquals(0.7f, condition.getBoost(), 0f);
-        Assert.assertEquals("test", condition.getField());
-        Assert.assertArrayEquals(new Object[]{1, 2, 3}, condition.getValues());
+        assertEquals(0.7f, condition.getBoost(), 0f);
+        assertEquals("test", condition.getField());
+        assertArrayEquals(new Object[]{1, 2, 3}, condition.getValues());
         String out = JsonSerializer.toString(condition);
-        Assert.assertEquals(in, out);
+        assertEquals(in, out);
     }
 
     @Test
     public void testJsonStrings() throws IOException {
         String in = "{type:\"contains\",boost:0.7,field:\"test\",values:[\"a\",\"b\"]}";
         ContainsCondition condition = JsonSerializer.fromString(in, ContainsCondition.class);
-        Assert.assertEquals(0.7f, condition.getBoost(), 0f);
-        Assert.assertEquals("test", condition.getField());
-        Assert.assertArrayEquals(new Object[]{"a", "b"}, condition.getValues());
+        assertEquals(0.7f, condition.getBoost(), 0f);
+        assertEquals("test", condition.getField());
+        assertArrayEquals(new Object[]{"a", "b"}, condition.getValues());
         String out = JsonSerializer.toString(condition);
-        Assert.assertEquals(in, out);
+        assertEquals(in, out);
+    }
+
+    @Test
+    public void testToString() {
+        ContainsCondition condition = new ContainsCondition(0.7f, "field", "value1", "value2");
+        assertEquals("ContainsCondition{boost=0.7, field=field, values=[value1, value2]}", condition.toString());
     }
 
 }

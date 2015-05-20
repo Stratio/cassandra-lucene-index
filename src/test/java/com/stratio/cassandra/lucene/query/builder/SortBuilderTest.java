@@ -17,10 +17,12 @@ package com.stratio.cassandra.lucene.query.builder;
 
 import com.stratio.cassandra.lucene.query.Sort;
 import com.stratio.cassandra.lucene.query.SortField;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Arrays;
+
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Andres de la Pena <adelapena@stratio.com>
@@ -33,9 +35,9 @@ public class SortBuilderTest {
         SortFieldBuilder sortFieldBuilder2 = new SortFieldBuilder("field2").reverse(false);
         SortBuilder sortBuilder = new SortBuilder(sortFieldBuilder1, sortFieldBuilder2);
         Sort sort = sortBuilder.build();
-        Assert.assertNotNull(sort);
-        Assert.assertArrayEquals(new SortField[]{sortFieldBuilder1.build(), sortFieldBuilder2.build()},
-                                 sort.getSortFields().toArray());
+        assertNotNull(sort);
+        assertArrayEquals(new SortField[]{sortFieldBuilder1.build(), sortFieldBuilder2.build()},
+                          sort.getSortFields().toArray());
 
     }
 
@@ -45,9 +47,9 @@ public class SortBuilderTest {
         SortFieldBuilder sortFieldBuilder2 = new SortFieldBuilder("field2").reverse(false);
         SortBuilder sortBuilder = new SortBuilder(Arrays.asList(sortFieldBuilder1, sortFieldBuilder2));
         Sort sort = sortBuilder.build();
-        Assert.assertNotNull(sort);
-        Assert.assertArrayEquals(new SortField[]{sortFieldBuilder1.build(), sortFieldBuilder2.build()},
-                                 sort.getSortFields().toArray());
+        assertNotNull(sort);
+        assertArrayEquals(new SortField[]{sortFieldBuilder1.build(), sortFieldBuilder2.build()},
+                          sort.getSortFields().toArray());
 
     }
 }

@@ -20,11 +20,12 @@ import com.stratio.cassandra.lucene.util.JsonSerializer;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -41,9 +42,9 @@ public class LuceneConditionTest extends AbstractConditionTest {
         String defaultField = "field_1";
         String query = "field_2:houses";
         LuceneCondition condition = new LuceneCondition(boost, defaultField, query);
-        Assert.assertEquals(boost, condition.getBoost(), 0);
-        Assert.assertEquals(defaultField, condition.getDefaultField());
-        Assert.assertEquals(query, condition.getQuery());
+        assertEquals(boost, condition.getBoost(), 0);
+        assertEquals(defaultField, condition.getDefaultField());
+        assertEquals(query, condition.getQuery());
     }
 
     @Test
@@ -52,9 +53,9 @@ public class LuceneConditionTest extends AbstractConditionTest {
         when(schema.getAnalyzer()).thenReturn(new EnglishAnalyzer());
         String query = "field_2:houses";
         LuceneCondition condition = new LuceneCondition(null, null, query);
-        Assert.assertEquals(Condition.DEFAULT_BOOST, condition.getBoost(), 0);
-        Assert.assertEquals(LuceneCondition.DEFAULT_FIELD, condition.getDefaultField());
-        Assert.assertEquals(query, condition.getQuery());
+        assertEquals(Condition.DEFAULT_BOOST, condition.getBoost(), 0);
+        assertEquals(LuceneCondition.DEFAULT_FIELD, condition.getDefaultField());
+        assertEquals(query, condition.getQuery());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -71,11 +72,19 @@ public class LuceneConditionTest extends AbstractConditionTest {
         when(schema.getAnalyzer()).thenReturn(new EnglishAnalyzer());
         LuceneCondition condition = new LuceneCondition(0.7f, "field_1", "field_2:houses");
         Query query = condition.query(schema);
-        Assert.assertNotNull(query);
+        assertNotNull(query);
 
-        Assert.assertEquals(TermQuery.class, query.getClass());
-        Assert.assertEquals("hous", ((TermQuery) query).getTerm().bytes().utf8ToString());
-        Assert.assertEquals(0.7f, query.getBoost(), 0);
+        assertEquals(TermQuery.class, query.getClass());
+        assertEquals("hous", ((TermQuery) query).getTerm().bytes().utf8ToString());
+        assertEquals(0.7f, query.getBoost(), 0);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testQueryInvalid() {
+        Schema schema = mock(Schema.class);
+        when(schema.getAnalyzer()).thenReturn(new EnglishAnalyzer());
+        LuceneCondition condition = new LuceneCondition(0.7f, "field_1", ":");
+        condition.query(schema);
     }
 
     @Test
@@ -83,7 +92,13 @@ public class LuceneConditionTest extends AbstractConditionTest {
         String in = "{type:\"lucene\",boost:0.7,default_field:\"field_1\",query:\"field_2:houses\"}";
         LuceneCondition condition = JsonSerializer.fromString(in, LuceneCondition.class);
         String out = JsonSerializer.toString(condition);
-        Assert.assertEquals(in, out);
+        assertEquals(in, out);
+    }
+
+    @Test
+    public void testToString() {
+        LuceneCondition condition = new LuceneCondition(0.7f, "field_1", "field_2:houses");
+        assertEquals("LuceneCondition{query=field_2:houses, defaultField=field_1}", condition.toString());
     }
 
 }

@@ -68,7 +68,6 @@ public class ColumnMapperText extends ColumnMapperSingle<String> {
               BytesType.instance,
               InetAddressType.instance);
         this.analyzer = analyzer == null ? DEFAULT_ANALYZER : analyzer;
-
     }
 
     /** {@inheritDoc} */
@@ -119,6 +118,10 @@ public class ColumnMapperText extends ColumnMapperSingle<String> {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("analyzer", analyzer).toString();
+        return Objects.toStringHelper(this)
+                      .add("indexed", indexed)
+                      .add("sorted", sorted)
+                      .add("analyzer", analyzer)
+                      .toString();
     }
 }

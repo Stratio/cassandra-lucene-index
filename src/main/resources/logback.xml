@@ -1,0 +1,5 @@
+<configuration scan="false">
+
+  <logger level="INFO" name="stratio" />
+
+</configuration>

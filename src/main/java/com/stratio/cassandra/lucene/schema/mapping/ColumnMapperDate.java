@@ -106,15 +106,10 @@ public class ColumnMapperDate extends ColumnMapperSingle<Long> {
             try {
                 return concurrentDateFormat.get().parse(value.toString()).getTime();
             } catch (ParseException e) {
-                throw new IllegalArgumentException(String.format(
-                        "Field \"%s\" requires a date with format \"%s\", but found \"%s\"",
-                        name,
-                        DEFAULT_PATTERN,
-                        value));
+                // Ignore to fail below
             }
         }
-        String message = String.format("Field \"%s\" requires a date, but found \"%s\"", name, value);
-        throw new IllegalArgumentException(message);
+        return error("Field '%s' requires a date with format '%s', but found '%s'", name, pattern, value);
     }
 
     /** {@inheritDoc} */
@@ -144,6 +139,10 @@ public class ColumnMapperDate extends ColumnMapperSingle<Long> {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("pattern", pattern).toString();
+        return Objects.toStringHelper(this)
+                      .add("indexed", indexed)
+                      .add("sorted", sorted)
+                      .add("pattern", pattern)
+                      .toString();
     }
 }

@@ -36,6 +36,7 @@
     </developers>
 
     <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <cassandra.version>2.1.5-SNAPSHOT</cassandra.version>
         <lucene.version>5.1.0</lucene.version>
     </properties>
@@ -83,7 +84,6 @@
                 <configuration>
                     <source>1.7</source>
                     <target>1.7</target>
-                    <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
             <plugin>
@@ -115,6 +115,14 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>cobertura-maven-plugin</artifactId>
                 <version>2.6</version>
+                <configuration>
+                    <formats>
+                        <format>html</format>
+                        <format>xml</format>
+                    </formats>
+                    <aggregate>true</aggregate>
+                    <check/>
+                </configuration>
             </plugin>
         </plugins>
     </build>
@@ -135,10 +143,10 @@
                             <execution>
                                 <phase>package</phase>
                                 <configuration>
-                                    <tasks>
+                                    <target>
                                         <copy file="${project.build.directory}/${project.build.finalName}.jar"
                                               toFile="${cassandra_home}/lib/${project.build.finalName}.jar"/>
-                                    </tasks>
+                                    </target>
                                 </configuration>
                                 <goals>
                                     <goal>run</goal>

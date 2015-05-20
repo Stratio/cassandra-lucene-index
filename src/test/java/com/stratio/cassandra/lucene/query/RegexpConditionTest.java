@@ -24,16 +24,42 @@ import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperString;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.RegexpQuery;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 /**
  * @author Andres de la Pena <adelapena@stratio.com>
  */
 public class RegexpConditionTest extends AbstractConditionTest {
+
+    @Test
+    public void testBuild() {
+        RegexpCondition condition = new RegexpCondition(0.5f, "field", "value");
+        assertEquals(0.5f, condition.getBoost(), 0);
+        assertEquals("field", condition.getField());
+        assertEquals("value", condition.getValue());
+    }
+
+    @Test
+    public void testBuildDefaults() {
+        RegexpCondition condition = new RegexpCondition(null, "field", "value");
+        assertEquals(Condition.DEFAULT_BOOST, condition.getBoost(), 0);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testBuildNullValue() {
+        new RegexpCondition(null, "field", null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testBuildBlankValue() {
+        new RegexpCondition(null, "field", " ");
+    }
 
     @Test
     public void testString() {
@@ -45,11 +71,11 @@ public class RegexpConditionTest extends AbstractConditionTest {
         RegexpCondition condition = new RegexpCondition(0.5f, "name", "tr*");
         Query query = condition.query(mappers);
 
-        Assert.assertNotNull(query);
-        Assert.assertEquals(RegexpQuery.class, query.getClass());
+        assertNotNull(query);
+        assertEquals(RegexpQuery.class, query.getClass());
         RegexpQuery luceneQuery = (RegexpQuery) query;
-        Assert.assertEquals("name", luceneQuery.getField());
-        Assert.assertEquals(0.5f, query.getBoost(), 0);
+        assertEquals("name", luceneQuery.getField());
+        assertEquals(0.5f, query.getBoost(), 0);
     }
 
     @Test(expected = UnsupportedOperationException.class)
@@ -72,11 +98,11 @@ public class RegexpConditionTest extends AbstractConditionTest {
         RegexpCondition condition = new RegexpCondition(0.5f, "name", "192.168.*");
         Query query = condition.query(mappers);
 
-        Assert.assertNotNull(query);
-        Assert.assertEquals(RegexpQuery.class, query.getClass());
+        assertNotNull(query);
+        assertEquals(RegexpQuery.class, query.getClass());
         RegexpQuery luceneQuery = (RegexpQuery) query;
-        Assert.assertEquals("name", luceneQuery.getField());
-        Assert.assertEquals(0.5f, query.getBoost(), 0);
+        assertEquals("name", luceneQuery.getField());
+        assertEquals(0.5f, query.getBoost(), 0);
     }
 
     @Test
@@ -89,16 +115,22 @@ public class RegexpConditionTest extends AbstractConditionTest {
         RegexpCondition regexpCondition = new RegexpCondition(0.5f, "name", "2001:db8:2de:0:0:0:0:e*");
         Query query = regexpCondition.query(mappers);
 
-        Assert.assertNotNull(query);
-        Assert.assertEquals(RegexpQuery.class, query.getClass());
+        assertNotNull(query);
+        assertEquals(RegexpQuery.class, query.getClass());
         RegexpQuery luceneQuery = (RegexpQuery) query;
-        Assert.assertEquals("name", luceneQuery.getField());
-        Assert.assertEquals(0.5f, query.getBoost(), 0);
+        assertEquals("name", luceneQuery.getField());
+        assertEquals(0.5f, query.getBoost(), 0);
     }
 
     @Test
     public void testJson() {
         testJsonCondition(SearchBuilders.query(SearchBuilders.regexp("name", "aaa*").boost(0.5f)));
+    }
+
+    @Test
+    public void testToString() {
+        RegexpCondition condition = new RegexpCondition(0.5f, "name", "2001:db8:2de:0:0:0:0:e*");
+        assertEquals("RegexpCondition{boost=0.5, field=name, value=2001:db8:2de:0:0:0:0:e*}", condition.toString());
     }
 
 }

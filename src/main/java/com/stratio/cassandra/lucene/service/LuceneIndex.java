@@ -33,8 +33,8 @@ import org.apache.lucene.store.NRTCachingDirectory;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -44,7 +44,6 @@ import java.util.Set;
  */
 public class LuceneIndex {
 
-    private final RowMapper rowMapper;
     private final Path path;
     private final Double refreshSeconds;
     private final Integer ramBufferMB;
@@ -67,7 +66,6 @@ public class LuceneIndex {
     /**
      * Builds a new {@code RowDirectory} using the specified directory path and analyzer.
      *
-     * @param rowMapper      A {@link RowMapper}.
      * @param path           The analyzer to be used. The path of the directory in where the Lucene files will be
      *                       stored.
      * @param refreshSeconds The index readers refresh time in seconds. No guarantees that the writings are visible
@@ -77,14 +75,12 @@ public class LuceneIndex {
      * @param maxCachedMB    NRTCachingDirectory max cached MB.
      * @param analyzer       The default {@link Analyzer}.
      */
-    public LuceneIndex(RowMapper rowMapper,
-                       Path path,
+    public LuceneIndex(Path path,
                        Double refreshSeconds,
                        Integer ramBufferMB,
                        Integer maxMergeMB,
                        Integer maxCachedMB,
                        Analyzer analyzer) {
-        this.rowMapper = rowMapper;
         this.path = path;
         this.refreshSeconds = refreshSeconds;
         this.ramBufferMB = ramBufferMB;
@@ -249,12 +245,12 @@ public class LuceneIndex {
      * @param fieldsToLoad The name of the fields to be loaded.
      * @return The found documents, sorted according to the supplied {@link Sort} instance.
      */
-    public List<SearchResult> search(Query query,
-                                     Sort sort,
-                                     SearchResult after,
-                                     Integer count,
-                                     Set<String> fieldsToLoad,
-                                     boolean usesRelevance) {
+    public Map<Document, ScoreDoc> search(Query query,
+                                          Sort sort,
+                                          SearchResult after,
+                                          Integer count,
+                                          Set<String> fieldsToLoad,
+                                          boolean usesRelevance) {
         Log.debug("Searching by query %s", query);
         try {
             IndexSearcher searcher = searcherManager.acquire();
@@ -265,11 +261,10 @@ public class LuceneIndex {
                 ScoreDoc[] scoreDocs = topDocs.scoreDocs;
 
                 // Collect the documents from query result
-                List<SearchResult> searchResults = new ArrayList<>(scoreDocs.length);
+                Map<Document, ScoreDoc> searchResults = new LinkedHashMap<>();
                 for (ScoreDoc scoreDoc : scoreDocs) {
                     Document document = searcher.doc(scoreDoc.doc, fieldsToLoad);
-                    SearchResult searchResult = rowMapper.searchResult(document, scoreDoc);
-                    searchResults.add(searchResult);
+                    searchResults.put(document, scoreDoc);
                 }
 
                 return searchResults;

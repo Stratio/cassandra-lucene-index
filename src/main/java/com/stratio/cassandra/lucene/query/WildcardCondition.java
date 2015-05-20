@@ -96,6 +96,6 @@ public class WildcardCondition extends SingleFieldCondition {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("field", field).add("value", value).toString();
+        return Objects.toStringHelper(this).add("boost", boost).add("field", field).add("value", value).toString();
     }
 }

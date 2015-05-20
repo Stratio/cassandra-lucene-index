@@ -59,14 +59,14 @@ public class ColumnMapperUUID extends ColumnMapperKeyword {
             UUID uuid = UUID.fromString(string);
             return serialize(uuid);
         } else {
-            throw new IllegalArgumentException();
+            return error("Field '%s' requires an UUID, but found '%s'", name, value);
         }
     }
 
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).toString();
+        return Objects.toStringHelper(this).add("indexed", indexed).add("sorted", sorted).toString();
     }
 
     /**

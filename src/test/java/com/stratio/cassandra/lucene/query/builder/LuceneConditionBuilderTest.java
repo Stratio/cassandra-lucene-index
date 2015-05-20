@@ -17,8 +17,10 @@ package com.stratio.cassandra.lucene.query.builder;
 
 import com.stratio.cassandra.lucene.query.Condition;
 import com.stratio.cassandra.lucene.query.LuceneCondition;
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Andres de la Pena <adelapena@stratio.com>
@@ -31,19 +33,19 @@ public class LuceneConditionBuilderTest {
         builder.boost(0.7f);
         builder.defaultField("field");
         LuceneCondition condition = builder.build();
-        Assert.assertNotNull(condition);
-        Assert.assertEquals(0.7f, condition.getBoost(), 0);
-        Assert.assertEquals("field", condition.getDefaultField());
-        Assert.assertEquals("field:value", condition.getQuery());
+        assertNotNull(condition);
+        assertEquals(0.7f, condition.getBoost(), 0);
+        assertEquals("field", condition.getDefaultField());
+        assertEquals("field:value", condition.getQuery());
     }
 
     @Test
     public void testBuildDefaults() {
         LuceneConditionBuilder builder = new LuceneConditionBuilder("field:value");
         LuceneCondition condition = builder.build();
-        Assert.assertNotNull(condition);
-        Assert.assertEquals(Condition.DEFAULT_BOOST, condition.getBoost(), 0);
-        Assert.assertEquals(LuceneCondition.DEFAULT_FIELD, condition.getDefaultField());
-        Assert.assertEquals("field:value", condition.getQuery());
+        assertNotNull(condition);
+        assertEquals(Condition.DEFAULT_BOOST, condition.getBoost(), 0);
+        assertEquals(LuceneCondition.DEFAULT_FIELD, condition.getDefaultField());
+        assertEquals("field:value", condition.getQuery());
     }
 }

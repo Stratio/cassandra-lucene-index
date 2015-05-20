@@ -34,7 +34,7 @@ public abstract class ColumnMapperSingle<BASE> extends ColumnMapper {
      * @param sorted         If the field supports sorting.
      * @param supportedTypes The supported Cassandra types for indexing.
      */
-    ColumnMapperSingle(Boolean indexed, Boolean sorted, AbstractType<?>... supportedTypes) {
+    public ColumnMapperSingle(Boolean indexed, Boolean sorted, AbstractType<?>... supportedTypes) {
         super(indexed, sorted, supportedTypes);
     }
 
@@ -64,5 +64,9 @@ public abstract class ColumnMapperSingle<BASE> extends ColumnMapper {
      * @return The {@link Column} index value resulting from the mapping of the specified object.
      */
     public abstract BASE base(String field, Object value);
+
+    protected BASE error(String msg, Object... args) {
+        throw new IllegalArgumentException(String.format(msg, args));
+    }
 
 }

@@ -17,10 +17,12 @@ package com.stratio.cassandra.lucene.schema;
 
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.LongType;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.nio.ByteBuffer;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Andres de la Pena <adelapena@stratio.com>
@@ -34,12 +36,12 @@ public class ColumnTest {
         Long composedValue = 5L;
         ByteBuffer decomposedValue = type.decompose(composedValue);
         Column<Long> column = Column.fromDecomposed(name, decomposedValue, type, true);
-        Assert.assertEquals(name, column.getName());
-        Assert.assertEquals(name, column.getFullName());
-        Assert.assertEquals(type, column.getType());
-        Assert.assertEquals(composedValue, column.getComposedValue());
-        Assert.assertEquals(decomposedValue, column.getDecomposedValue());
-        Assert.assertTrue(column.isCollection());
+        assertEquals(name, column.getName());
+        assertEquals(name, column.getFullName());
+        assertEquals(type, column.getType());
+        assertEquals(composedValue, column.getComposedValue());
+        assertEquals(decomposedValue, column.getDecomposedValue());
+        assertTrue(column.isCollection());
     }
 
     @Test
@@ -50,12 +52,12 @@ public class ColumnTest {
         Long composedValue = 5L;
         ByteBuffer decomposedValue = type.decompose(composedValue);
         Column<Long> column = Column.fromDecomposed(name, sufix, decomposedValue, type, true);
-        Assert.assertEquals(name, column.getName());
-        Assert.assertEquals("my.column", column.getFullName());
-        Assert.assertEquals(type, column.getType());
-        Assert.assertEquals(composedValue, column.getComposedValue());
-        Assert.assertEquals(decomposedValue, column.getDecomposedValue());
-        Assert.assertTrue(column.isCollection());
+        assertEquals(name, column.getName());
+        assertEquals("my.column", column.getFullName());
+        assertEquals(type, column.getType());
+        assertEquals(composedValue, column.getComposedValue());
+        assertEquals(decomposedValue, column.getDecomposedValue());
+        assertTrue(column.isCollection());
     }
 
     @Test
@@ -65,12 +67,12 @@ public class ColumnTest {
         Long composedValue = 5L;
         ByteBuffer decomposedValue = type.decompose(composedValue);
         Column<Long> column = Column.fromComposed(name, composedValue, type, true);
-        Assert.assertEquals(name, column.getName());
-        Assert.assertEquals(name, column.getFullName());
-        Assert.assertEquals(type, column.getType());
-        Assert.assertEquals(composedValue, column.getComposedValue());
-        Assert.assertEquals(decomposedValue, column.getDecomposedValue());
-        Assert.assertTrue(column.isCollection());
+        assertEquals(name, column.getName());
+        assertEquals(name, column.getFullName());
+        assertEquals(type, column.getType());
+        assertEquals(composedValue, column.getComposedValue());
+        assertEquals(decomposedValue, column.getDecomposedValue());
+        assertTrue(column.isCollection());
     }
 
     @Test
@@ -80,12 +82,12 @@ public class ColumnTest {
         Long composedValue = 5L;
         ByteBuffer decomposedValue = type.decompose(composedValue);
         Column<Long> column = Column.fromComposed(name, composedValue, type, true);
-        Assert.assertEquals(name, column.getName());
-        Assert.assertEquals("my.column", column.getFullName());
-        Assert.assertEquals(type, column.getType());
-        Assert.assertEquals(composedValue, column.getComposedValue());
-        Assert.assertEquals(decomposedValue, column.getDecomposedValue());
-        Assert.assertTrue(column.isCollection());
+        assertEquals(name, column.getName());
+        assertEquals("my.column", column.getFullName());
+        assertEquals(type, column.getType());
+        assertEquals(composedValue, column.getComposedValue());
+        assertEquals(decomposedValue, column.getDecomposedValue());
+        assertTrue(column.isCollection());
     }
 
     @Test
@@ -95,8 +97,8 @@ public class ColumnTest {
         Long composedValue = 5L;
         ByteBuffer decomposedValue = type.decompose(composedValue);
         Column<Long> column = Column.fromDecomposed(name, decomposedValue, type, true);
-        Assert.assertEquals("Column{fullName=my_column, composedValue=5, type=LongType}", column.toString());
-        Assert.assertTrue(column.isCollection());
+        assertEquals("Column{fullName=my_column, composedValue=5, type=LongType}", column.toString());
+        assertTrue(column.isCollection());
     }
 
     @Test
@@ -107,7 +109,7 @@ public class ColumnTest {
         Long composedValue = 5L;
         ByteBuffer decomposedValue = type.decompose(composedValue);
         Column<Long> column = Column.fromDecomposed(name, sufix, decomposedValue, type, true);
-        Assert.assertEquals("Column{fullName=my.column, composedValue=5, type=LongType}", column.toString());
-        Assert.assertTrue(column.isCollection());
+        assertEquals("Column{fullName=my.column, composedValue=5, type=LongType}", column.toString());
+        assertTrue(column.isCollection());
     }
 }

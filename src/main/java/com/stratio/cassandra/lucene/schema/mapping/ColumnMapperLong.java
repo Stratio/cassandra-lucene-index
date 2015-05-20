@@ -16,7 +16,6 @@
 package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.google.common.base.Objects;
-import com.stratio.cassandra.lucene.util.Log;
 import org.apache.cassandra.db.marshal.AsciiType;
 import org.apache.cassandra.db.marshal.DecimalType;
 import org.apache.cassandra.db.marshal.DoubleType;
@@ -85,11 +84,10 @@ public class ColumnMapperLong extends ColumnMapperSingle<Long> {
             try {
                 return Double.valueOf((String) value).longValue();
             } catch (NumberFormatException e) {
-                Log.error(e, e.getMessage());
+                // Ignore to fail below
             }
         }
-        String message = String.format("Field \"%s\" requires a long, but found \"%s\"", name, value);
-        throw new IllegalArgumentException(message);
+        return error("Field '%s' requires a long, but found '%s'", name, value);
     }
 
     /** {@inheritDoc} */
@@ -121,6 +119,10 @@ public class ColumnMapperLong extends ColumnMapperSingle<Long> {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("boost", boost).toString();
+        return Objects.toStringHelper(this)
+                      .add("indexed", indexed)
+                      .add("sorted", sorted)
+                      .add("boost", boost)
+                      .toString();
     }
 }

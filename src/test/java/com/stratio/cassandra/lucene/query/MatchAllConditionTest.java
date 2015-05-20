@@ -19,11 +19,12 @@ import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.util.JsonSerializer;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -35,22 +36,22 @@ public class MatchAllConditionTest extends AbstractConditionTest {
     public void testBuild() {
         Float boost = 0.7f;
         MatchAllCondition condition = new MatchAllCondition(boost);
-        Assert.assertEquals(boost, condition.getBoost(), 0);
+        assertEquals(boost, condition.getBoost(), 0);
     }
 
     @Test
     public void testBuildWithDefaults() {
         MatchAllCondition condition = new MatchAllCondition(null);
-        Assert.assertEquals(Condition.DEFAULT_BOOST, condition.getBoost(), 0);
+        assertEquals(Condition.DEFAULT_BOOST, condition.getBoost(), 0);
     }
 
     @Test
     public void testQuery() {
         MatchAllCondition condition = new MatchAllCondition(0.7f);
         Query query = condition.query(mock(Schema.class));
-        Assert.assertNotNull(query);
-        Assert.assertEquals(MatchAllDocsQuery.class, query.getClass());
-        Assert.assertEquals(0.7f, query.getBoost(), 0);
+        assertNotNull(query);
+        assertEquals(MatchAllDocsQuery.class, query.getClass());
+        assertEquals(0.7f, query.getBoost(), 0);
     }
 
     @Test
@@ -58,7 +59,13 @@ public class MatchAllConditionTest extends AbstractConditionTest {
         String in = "{type:\"match_all\",boost:0.7}";
         MatchAllCondition condition = JsonSerializer.fromString(in, MatchAllCondition.class);
         String out = JsonSerializer.toString(condition);
-        Assert.assertEquals(in, out);
+        assertEquals(in, out);
+    }
+
+    @Test
+    public void testToString() {
+        MatchAllCondition condition = new MatchAllCondition(0.7f);
+        assertEquals("MatchAllCondition{boost=0.7}", condition.toString());
     }
 
 }

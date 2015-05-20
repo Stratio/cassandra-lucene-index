@@ -20,7 +20,6 @@ import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.analysis.es.SpanishAnalyzer;
 import org.apache.lucene.analysis.miscellaneous.PerFieldAnalyzerWrapper;
 import org.junit.AfterClass;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -28,6 +27,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 
 /**
  * @author Andres de la Pena <adelapena@stratio.com>
@@ -60,7 +62,7 @@ public class AnalysisUtilsTest {
         String text = "the lazy dog jumps over the quick brown fox";
         List<String> analyzedText = AnalysisUtils.instance.analyzeAsTokens(null, text, englishAnalyzer);
         List<String> expectedText = Arrays.asList("lazi", "dog", "jump", "over", "quick", "brown", "fox");
-        Assert.assertEquals(expectedText, analyzedText);
+        assertEquals(expectedText, analyzedText);
     }
 
     @Test
@@ -68,7 +70,7 @@ public class AnalysisUtilsTest {
         String text = "the lazy dog jumps over the quick brown fox";
         List<String> analyzedText = AnalysisUtils.instance.analyzeAsTokens("english", text, perFieldAnalyzer);
         List<String> expectedText = Arrays.asList("lazi", "dog", "jump", "over", "quick", "brown", "fox");
-        Assert.assertEquals(expectedText, analyzedText);
+        assertEquals(expectedText, analyzedText);
     }
 
     @Test
@@ -76,7 +78,7 @@ public class AnalysisUtilsTest {
         String text = "the lazy dog jumps over the quick brown fox";
         List<String> analyzedText = AnalysisUtils.instance.analyzeAsTokens(null, text, perFieldAnalyzer);
         List<String> expectedText = Arrays.asList("lazi", "dog", "jump", "over", "quick", "brown", "fox");
-        Assert.assertNotSame(expectedText, analyzedText);
+        assertNotSame(expectedText, analyzedText);
     }
 
     @Test
@@ -84,7 +86,7 @@ public class AnalysisUtilsTest {
         String text = "the lazy dog jumps over the quick brown fox";
         List<String> analyzedText = AnalysisUtils.instance.analyzeAsTokens(text, englishAnalyzer);
         List<String> expectedText = Arrays.asList("lazi", "dog", "jump", "over", "quick", "brown", "fox");
-        Assert.assertEquals(expectedText, analyzedText);
+        assertEquals(expectedText, analyzedText);
     }
 
     @Test
@@ -92,7 +94,7 @@ public class AnalysisUtilsTest {
         String text = "the lazy dog jumps over the quick brown fox";
         String analyzedText = AnalysisUtils.instance.analyzeAsText(null, text, englishAnalyzer);
         String expectedText = "lazi dog jump over quick brown fox";
-        Assert.assertEquals(expectedText, analyzedText);
+        assertEquals(expectedText, analyzedText);
     }
 
     @Test
@@ -100,7 +102,7 @@ public class AnalysisUtilsTest {
         String text = "the lazy dog jumps over the quick brown fox";
         String analyzedText = AnalysisUtils.instance.analyzeAsText("english", text, perFieldAnalyzer);
         String expectedText = "lazi dog jump over quick brown fox";
-        Assert.assertEquals(expectedText, analyzedText);
+        assertEquals(expectedText, analyzedText);
     }
 
     @Test
@@ -108,7 +110,7 @@ public class AnalysisUtilsTest {
         String text = "the lazy dog jumps over the quick brown fox";
         String analyzedText = AnalysisUtils.instance.analyzeAsText(null, text, perFieldAnalyzer);
         String expectedText = "lazi dog jump over quick brown fox";
-        Assert.assertNotSame(expectedText, analyzedText);
+        assertNotSame(expectedText, analyzedText);
     }
 
     @Test
@@ -116,7 +118,7 @@ public class AnalysisUtilsTest {
         String text = "the lazy dog jumps over the quick brown fox";
         String analyzedText = AnalysisUtils.instance.analyzeAsText(text, englishAnalyzer);
         String expectedText = "lazi dog jump over quick brown fox";
-        Assert.assertEquals(expectedText, analyzedText);
+        assertEquals(expectedText, analyzedText);
     }
 
     @Test(expected = RuntimeException.class)

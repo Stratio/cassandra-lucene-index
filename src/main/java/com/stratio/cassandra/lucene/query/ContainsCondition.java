@@ -23,6 +23,8 @@ import org.apache.lucene.search.Query;
 import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
 
+import java.util.Arrays;
+
 /**
  * A {@link Condition} implementation that matches documents containing a value for a field.
  *
@@ -50,7 +52,7 @@ public class ContainsCondition extends SingleFieldCondition {
     @JsonCreator
     public ContainsCondition(@JsonProperty("boost") Float boost,
                              @JsonProperty("field") String field,
-                             @JsonProperty("values") Object[] values) {
+                             @JsonProperty("values") Object... values) {
         super(boost, field);
 
         if (values == null || values.length == 0) {
@@ -84,6 +86,10 @@ public class ContainsCondition extends SingleFieldCondition {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("field", field).add("values", values).toString();
+        return Objects.toStringHelper(this)
+                      .add("boost", boost)
+                      .add("field", field)
+                      .add("values", Arrays.toString(values))
+                      .toString();
     }
 }

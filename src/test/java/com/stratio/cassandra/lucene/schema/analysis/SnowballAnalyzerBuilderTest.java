@@ -17,10 +17,12 @@ package com.stratio.cassandra.lucene.schema.analysis;
 
 import com.stratio.cassandra.lucene.util.JsonSerializer;
 import org.apache.lucene.analysis.Analyzer;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Andres de la Pena <adelapena@stratio.com>
@@ -185,9 +187,9 @@ public class SnowballAnalyzerBuilderTest {
 
     private void testAnalyzer(String value, String expected, AnalyzerBuilder builder) {
         Analyzer analyzer = builder.analyzer();
-        Assert.assertNotNull(analyzer);
+        assertNotNull(analyzer);
         String actual = AnalysisUtils.instance.analyzeAsText(value, analyzer);
-        Assert.assertEquals(expected, actual);
+        assertEquals(expected, actual);
         analyzer.close();
     }
 }

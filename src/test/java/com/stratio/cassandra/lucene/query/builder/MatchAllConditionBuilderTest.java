@@ -17,8 +17,10 @@ package com.stratio.cassandra.lucene.query.builder;
 
 import com.stratio.cassandra.lucene.query.Condition;
 import com.stratio.cassandra.lucene.query.MatchAllCondition;
-import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Andres de la Pena <adelapena@stratio.com>
@@ -30,15 +32,15 @@ public class MatchAllConditionBuilderTest {
         MatchAllConditionBuilder builder = new MatchAllConditionBuilder();
         builder.boost(0.7);
         MatchAllCondition condition = builder.build();
-        Assert.assertNotNull(condition);
-        Assert.assertEquals(0.7f, condition.getBoost(), 0);
+        assertNotNull(condition);
+        assertEquals(0.7f, condition.getBoost(), 0);
     }
 
     @Test
     public void testBuildDefaults() {
         MatchAllConditionBuilder builder = new MatchAllConditionBuilder();
         MatchAllCondition condition = builder.build();
-        Assert.assertNotNull(condition);
-        Assert.assertEquals(Condition.DEFAULT_BOOST, condition.getBoost(), 0);
+        assertNotNull(condition);
+        assertEquals(Condition.DEFAULT_BOOST, condition.getBoost(), 0);
     }
 }

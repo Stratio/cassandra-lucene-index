@@ -1,3 +1,18 @@
+/*
+ * Copyright 2015, Stratio.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.stratio.cassandra.lucene.schema;
 
 import com.stratio.cassandra.lucene.schema.analysis.PreBuiltAnalyzers;
@@ -6,16 +21,31 @@ import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperInteger;
 import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperString;
 import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperText;
 import com.stratio.cassandra.lucene.util.JsonSerializer;
+import org.apache.cassandra.config.CFMetaData;
+import org.apache.cassandra.db.marshal.AsciiType;
+import org.apache.cassandra.db.marshal.IntegerType;
+import org.apache.cassandra.db.marshal.LongType;
+import org.apache.cassandra.db.marshal.UTF8Type;
+import org.apache.cassandra.exceptions.ConfigurationException;
+import org.apache.cassandra.exceptions.InvalidRequestException;
+import org.apache.cassandra.thrift.CfDef;
+import org.apache.cassandra.thrift.ColumnDef;
+import org.apache.cassandra.thrift.IndexType;
+import org.apache.cassandra.utils.ByteBufferUtil;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.analysis.es.SpanishAnalyzer;
+import org.apache.lucene.document.Document;
 import org.codehaus.jackson.map.JsonMappingException;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Andres de la Pena <adelapena@stratio.com>
@@ -36,11 +66,11 @@ public class SchemaTest {
         columnMappers.put("a.b.c", columnMapper3);
 
         Schema schema = new Schema(columnMappers, null, null);
-        Assert.assertEquals(columnMapper1, schema.getMapper("a"));
-        Assert.assertEquals(columnMapper2, schema.getMapper("a.b"));
-        Assert.assertEquals(columnMapper3, schema.getMapper("a.b.c"));
-        Assert.assertEquals(columnMapper3, schema.getMapper("a.b.c.d"));
-        Assert.assertNotSame(columnMapper1, schema.getMapper("a.b.c.d"));
+        assertEquals(columnMapper1, schema.getMapper("a"));
+        assertEquals(columnMapper2, schema.getMapper("a.b"));
+        assertEquals(columnMapper3, schema.getMapper("a.b.c"));
+        assertEquals(columnMapper3, schema.getMapper("a.b.c.d"));
+        assertNotSame(columnMapper1, schema.getMapper("a.b.c.d"));
 
         schema.close();
     }
@@ -50,7 +80,7 @@ public class SchemaTest {
         Map<String, ColumnMapper> columnMappers = new HashMap<>();
         Schema schema = new Schema(columnMappers, null, "English");
         Analyzer analyzer = schema.getDefaultAnalyzer();
-        Assert.assertEquals(EnglishAnalyzer.class, analyzer.getClass());
+        assertEquals(EnglishAnalyzer.class, analyzer.getClass());
         schema.close();
     }
 
@@ -59,7 +89,7 @@ public class SchemaTest {
         Map<String, ColumnMapper> columnMappers = new HashMap<>();
         Schema schema = new Schema(columnMappers, null, null);
         Analyzer analyzer = schema.getDefaultAnalyzer();
-        Assert.assertEquals(PreBuiltAnalyzers.DEFAULT.get(), analyzer);
+        assertEquals(PreBuiltAnalyzers.DEFAULT.get(), analyzer);
         schema.close();
     }
 
@@ -109,21 +139,21 @@ public class SchemaTest {
         Schema schema = JsonSerializer.fromString(json, Schema.class);
 
         Analyzer defaultAnalyzer = schema.getDefaultAnalyzer();
-        Assert.assertTrue(defaultAnalyzer instanceof SpanishAnalyzer);
+        assertTrue(defaultAnalyzer instanceof SpanishAnalyzer);
 
         Analyzer spanishAnalyzer = schema.getAnalyzer("spanish_analyzer");
-        Assert.assertTrue(spanishAnalyzer instanceof SpanishAnalyzer);
+        assertTrue(spanishAnalyzer instanceof SpanishAnalyzer);
 
         ColumnMapper idMapper = schema.getMapper("id");
-        Assert.assertTrue(idMapper instanceof ColumnMapperInteger);
+        assertTrue(idMapper instanceof ColumnMapperInteger);
 
         ColumnMapper spanishMapper = schema.getMapper("spanish_text");
-        Assert.assertTrue(spanishMapper instanceof ColumnMapperText);
-        Assert.assertEquals("spanish_analyzer", spanishMapper.getAnalyzer());
+        assertTrue(spanishMapper instanceof ColumnMapperText);
+        assertEquals("spanish_analyzer", spanishMapper.getAnalyzer());
 
         ColumnMapper snowballMapper = schema.getMapper("snowball_text");
-        Assert.assertTrue(snowballMapper instanceof ColumnMapperText);
-        Assert.assertEquals("snowball_analyzer", snowballMapper.getAnalyzer());
+        assertTrue(snowballMapper instanceof ColumnMapperText);
+        assertEquals("snowball_analyzer", snowballMapper.getAnalyzer());
 
         schema.close();
     }
@@ -147,18 +177,18 @@ public class SchemaTest {
         Schema schema = JsonSerializer.fromString(json, Schema.class);
 
         Analyzer defaultAnalyzer = schema.getDefaultAnalyzer();
-        Assert.assertTrue(defaultAnalyzer instanceof EnglishAnalyzer);
+        assertTrue(defaultAnalyzer instanceof EnglishAnalyzer);
 
         ColumnMapper idMapper = schema.getMapper("id");
-        Assert.assertTrue(idMapper instanceof ColumnMapperInteger);
+        assertTrue(idMapper instanceof ColumnMapperInteger);
 
         ColumnMapper spanishMapper = schema.getMapper("spanish_text");
-        Assert.assertTrue(spanishMapper instanceof ColumnMapperText);
-        Assert.assertEquals(SpanishAnalyzer.class.getName(), spanishMapper.getAnalyzer());
+        assertTrue(spanishMapper instanceof ColumnMapperText);
+        assertEquals(SpanishAnalyzer.class.getName(), spanishMapper.getAnalyzer());
 
         ColumnMapper snowballMapper = schema.getMapper("snowball_text");
-        Assert.assertTrue(snowballMapper instanceof ColumnMapperText);
-        Assert.assertEquals(EnglishAnalyzer.class.getName(), snowballMapper.getAnalyzer());
+        assertTrue(snowballMapper instanceof ColumnMapperText);
+        assertEquals(EnglishAnalyzer.class.getName(), snowballMapper.getAnalyzer());
 
         schema.close();
     }
@@ -181,18 +211,18 @@ public class SchemaTest {
         Schema schema = JsonSerializer.fromString(json, Schema.class);
 
         Analyzer defaultAnalyzer = schema.getDefaultAnalyzer();
-        Assert.assertTrue(defaultAnalyzer instanceof EnglishAnalyzer);
+        assertTrue(defaultAnalyzer instanceof EnglishAnalyzer);
 
         ColumnMapper idMapper = schema.getMapper("id");
-        Assert.assertEquals(ColumnMapperInteger.class, idMapper.getClass());
+        assertEquals(ColumnMapperInteger.class, idMapper.getClass());
 
         ColumnMapper spanishMapper = schema.getMapper("spanish_text");
-        Assert.assertTrue(spanishMapper instanceof ColumnMapperText);
-        Assert.assertEquals(SpanishAnalyzer.class.getName(), spanishMapper.getAnalyzer());
+        assertTrue(spanishMapper instanceof ColumnMapperText);
+        assertEquals(SpanishAnalyzer.class.getName(), spanishMapper.getAnalyzer());
 
         ColumnMapper snowballMapper = schema.getMapper("snowball_text");
-        Assert.assertTrue(snowballMapper instanceof ColumnMapperText);
-        Assert.assertEquals(EnglishAnalyzer.class.getName(), snowballMapper.getAnalyzer());
+        assertTrue(snowballMapper instanceof ColumnMapperText);
+        assertEquals(EnglishAnalyzer.class.getName(), snowballMapper.getAnalyzer());
 
         schema.close();
     }
@@ -216,10 +246,10 @@ public class SchemaTest {
         Schema schema = JsonSerializer.fromString(json, Schema.class);
 
         Analyzer defaultAnalyzer = schema.getDefaultAnalyzer();
-        Assert.assertEquals(PreBuiltAnalyzers.DEFAULT.get(), defaultAnalyzer);
+        assertEquals(PreBuiltAnalyzers.DEFAULT.get(), defaultAnalyzer);
 
         Analyzer spanishAnalyzer = schema.getAnalyzer("spanish_analyzer");
-        Assert.assertTrue(spanishAnalyzer instanceof SpanishAnalyzer);
+        assertTrue(spanishAnalyzer instanceof SpanishAnalyzer);
 
         schema.close();
     }
@@ -228,5 +258,71 @@ public class SchemaTest {
     public void testParseJSONWithFailingDefaultAnalyzer() throws IOException {
         String json = "{default_analyzer : \"xyz\", fields : { id : {type : \"integer\"} } }'";
         JsonSerializer.fromString(json, Schema.class);
+    }
+
+    @Test
+    public void testAddColumns() {
+
+        ColumnMapperString columnMapper1 = new ColumnMapperString(true, true, null);
+        ColumnMapperInteger columnMapper2 = new ColumnMapperInteger(true, true, null);
+
+        Map<String, ColumnMapper> columnMappers = new HashMap<>();
+        columnMappers.put("field1", columnMapper1);
+        columnMappers.put("field2", columnMapper2);
+
+        Schema schema = new Schema(columnMappers, null, null);
+
+        Columns columns = new Columns().add(Column.fromComposed("field1", "value", UTF8Type.instance, false))
+                                       .add(Column.fromComposed("field2", 1L, LongType.instance, false));
+
+        Document document = new Document();
+        schema.addFields(document, columns);
+        assertEquals(4, document.getFields().size());
+        assertEquals(2, document.getFields("field1").length);
+        assertEquals(2, document.getFields("field2").length);
+
+        schema.close();
+    }
+
+    @Test
+    public void testValidate() throws InvalidRequestException, ConfigurationException {
+
+        List<ColumnDef> columnDefinitions = new ArrayList<>();
+        columnDefinitions.add(new ColumnDef(ByteBufferUtil.bytes("field1"),
+                                            UTF8Type.class.getCanonicalName()).setIndex_name("field1")
+                                                                              .setIndex_type(IndexType.KEYS));
+
+        columnDefinitions.add(new ColumnDef(ByteBufferUtil.bytes("field2"),
+                                            IntegerType.class.getCanonicalName()).setIndex_name("field2")
+                                                                                 .setIndex_type(IndexType.KEYS));
+        CfDef cfDef = new CfDef().setDefault_validation_class(AsciiType.class.getCanonicalName())
+                                 .setColumn_metadata(columnDefinitions)
+                                 .setKeyspace("Keyspace1")
+                                 .setName("Standard1");
+        CFMetaData metadata = CFMetaData.fromThrift(cfDef);
+
+        ColumnMapperString columnMapper1 = new ColumnMapperString(true, true, null);
+        ColumnMapperInteger columnMapper2 = new ColumnMapperInteger(true, true, null);
+
+        Map<String, ColumnMapper> columnMappers = new HashMap<>();
+        columnMappers.put("field1", columnMapper1);
+        columnMappers.put("field2", columnMapper2);
+
+        Schema schema = new Schema(columnMappers, null, null);
+        schema.validate(metadata);
+    }
+
+    @Test
+    public void testToString() {
+
+        ColumnMapperString columnMapper1 = new ColumnMapperString(true, true, null);
+        ColumnMapperInteger columnMapper2 = new ColumnMapperInteger(true, true, null);
+
+        Map<String, ColumnMapper> columnMappers = new HashMap<>();
+        columnMappers.put("field1", columnMapper1);
+        columnMappers.put("field2", columnMapper2);
+
+        Schema schema = new Schema(columnMappers, null, null);
+        assertNotNull(schema.toString());
     }
 }

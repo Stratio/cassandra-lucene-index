@@ -87,8 +87,7 @@ public class ColumnMapperFloat extends ColumnMapperSingle<Float> {
                 // Ignore to fail below
             }
         }
-        String message = String.format("Field \"%s\" requires a float, but found \"%s\"", name, value);
-        throw new IllegalArgumentException(message);
+        return error("Field '%s' requires a float, but found '%s'", name, value);
     }
 
     /** {@inheritDoc} */
@@ -120,7 +119,11 @@ public class ColumnMapperFloat extends ColumnMapperSingle<Float> {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("boost", boost).toString();
+        return Objects.toStringHelper(this)
+                      .add("indexed", indexed)
+                      .add("sorted", sorted)
+                      .add("boost", boost)
+                      .toString();
     }
 
 }

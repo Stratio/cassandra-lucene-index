@@ -19,6 +19,7 @@ import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.IntegerType;
 import org.apache.cassandra.db.marshal.ListType;
 import org.apache.cassandra.db.marshal.MapType;
+import org.apache.cassandra.db.marshal.ReversedType;
 import org.apache.cassandra.db.marshal.SetType;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.db.marshal.UUIDType;
@@ -96,6 +97,11 @@ public class ColumnMapperTest {
     @Test
     public void testSupportsSetNot() {
         testSupports(false, SetType.getInstance(IntegerType.instance, false), UTF8Type.instance);
+    }
+
+    @Test
+    public void testSupportsReversed() {
+        testSupports(true, ReversedType.getInstance(UTF8Type.instance), UTF8Type.instance);
     }
 
     private void testSupports(boolean expected, AbstractType<?> candidateType, AbstractType<?>... supportedTypes) {

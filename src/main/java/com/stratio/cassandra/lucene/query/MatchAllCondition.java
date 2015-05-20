@@ -52,6 +52,6 @@ public class MatchAllCondition extends Condition {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).toString();
+        return Objects.toStringHelper(this).add("boost", boost).toString();
     }
 }

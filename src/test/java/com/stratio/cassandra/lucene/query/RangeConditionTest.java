@@ -29,13 +29,13 @@ import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.search.NumericRangeQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermRangeQuery;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import static com.stratio.cassandra.lucene.query.builder.SearchBuilders.*;
+import static org.junit.Assert.*;
 
 /**
  * @author Andres de la Pena <adelapena@stratio.com>
@@ -52,14 +52,14 @@ public class RangeConditionTest extends AbstractConditionTest {
         RangeCondition rangeCondition = new RangeCondition(0.5f, "name", "alpha", "beta", true, true);
         Query query = rangeCondition.query(mappers);
 
-        Assert.assertNotNull(query);
-        Assert.assertEquals(TermRangeQuery.class, query.getClass());
-        Assert.assertEquals("name", ((TermRangeQuery) query).getField());
-        Assert.assertEquals("alpha", ((TermRangeQuery) query).getLowerTerm().utf8ToString());
-        Assert.assertEquals("beta", ((TermRangeQuery) query).getUpperTerm().utf8ToString());
-        Assert.assertEquals(true, ((TermRangeQuery) query).includesLower());
-        Assert.assertEquals(true, ((TermRangeQuery) query).includesUpper());
-        Assert.assertEquals(0.5f, query.getBoost(), 0);
+        assertNotNull(query);
+        assertEquals(TermRangeQuery.class, query.getClass());
+        assertEquals("name", ((TermRangeQuery) query).getField());
+        assertEquals("alpha", ((TermRangeQuery) query).getLowerTerm().utf8ToString());
+        assertEquals("beta", ((TermRangeQuery) query).getUpperTerm().utf8ToString());
+        assertEquals(true, ((TermRangeQuery) query).includesLower());
+        assertEquals(true, ((TermRangeQuery) query).includesUpper());
+        assertEquals(0.5f, query.getBoost(), 0);
     }
 
     @Test
@@ -72,15 +72,15 @@ public class RangeConditionTest extends AbstractConditionTest {
         RangeCondition rangeCondition = new RangeCondition(0.5f, "name", "alpha", null, true, false);
         Query query = rangeCondition.query(mappers);
 
-        Assert.assertNotNull(query);
-        Assert.assertEquals(TermRangeQuery.class, query.getClass());
-        Assert.assertEquals("name", ((TermRangeQuery) query).getField());
-        Assert.assertEquals("alpha", ((TermRangeQuery) query).getLowerTerm().utf8ToString());
-        Assert.assertEquals(null, ((TermRangeQuery) query).getUpperTerm());
-        Assert.assertNull(((TermRangeQuery) query).getUpperTerm());
-        Assert.assertEquals(true, ((TermRangeQuery) query).includesLower());
-        Assert.assertEquals(false, ((TermRangeQuery) query).includesUpper());
-        Assert.assertEquals(0.5f, query.getBoost(), 0);
+        assertNotNull(query);
+        assertEquals(TermRangeQuery.class, query.getClass());
+        assertEquals("name", ((TermRangeQuery) query).getField());
+        assertEquals("alpha", ((TermRangeQuery) query).getLowerTerm().utf8ToString());
+        assertEquals(null, ((TermRangeQuery) query).getUpperTerm());
+        assertNull(((TermRangeQuery) query).getUpperTerm());
+        assertEquals(true, ((TermRangeQuery) query).includesLower());
+        assertEquals(false, ((TermRangeQuery) query).includesUpper());
+        assertEquals(0.5f, query.getBoost(), 0);
     }
 
     @Test
@@ -93,14 +93,14 @@ public class RangeConditionTest extends AbstractConditionTest {
         RangeCondition rangeCondition = new RangeCondition(0.5f, "name", 42, 43, false, false);
         Query query = rangeCondition.query(mappers);
 
-        Assert.assertNotNull(query);
-        Assert.assertEquals(NumericRangeQuery.class, query.getClass());
-        Assert.assertEquals("name", ((NumericRangeQuery<?>) query).getField());
-        Assert.assertEquals(42, ((NumericRangeQuery<?>) query).getMin());
-        Assert.assertEquals(43, ((NumericRangeQuery<?>) query).getMax());
-        Assert.assertEquals(false, ((NumericRangeQuery<?>) query).includesMin());
-        Assert.assertEquals(false, ((NumericRangeQuery<?>) query).includesMax());
-        Assert.assertEquals(0.5f, query.getBoost(), 0);
+        assertNotNull(query);
+        assertEquals(NumericRangeQuery.class, query.getClass());
+        assertEquals("name", ((NumericRangeQuery<?>) query).getField());
+        assertEquals(42, ((NumericRangeQuery<?>) query).getMin());
+        assertEquals(43, ((NumericRangeQuery<?>) query).getMax());
+        assertEquals(false, ((NumericRangeQuery<?>) query).includesMin());
+        assertEquals(false, ((NumericRangeQuery<?>) query).includesMax());
+        assertEquals(0.5f, query.getBoost(), 0);
     }
 
     @Test
@@ -113,14 +113,14 @@ public class RangeConditionTest extends AbstractConditionTest {
         RangeCondition rangeCondition = new RangeCondition(0.5f, "name", 42, null, true, false);
         Query query = rangeCondition.query(mappers);
 
-        Assert.assertNotNull(query);
-        Assert.assertEquals(NumericRangeQuery.class, query.getClass());
-        Assert.assertEquals("name", ((NumericRangeQuery<?>) query).getField());
-        Assert.assertEquals(42, ((NumericRangeQuery<?>) query).getMin());
-        Assert.assertEquals(null, ((NumericRangeQuery<?>) query).getMax());
-        Assert.assertEquals(true, ((NumericRangeQuery<?>) query).includesMin());
-        Assert.assertEquals(false, ((NumericRangeQuery<?>) query).includesMax());
-        Assert.assertEquals(0.5f, query.getBoost(), 0);
+        assertNotNull(query);
+        assertEquals(NumericRangeQuery.class, query.getClass());
+        assertEquals("name", ((NumericRangeQuery<?>) query).getField());
+        assertEquals(42, ((NumericRangeQuery<?>) query).getMin());
+        assertEquals(null, ((NumericRangeQuery<?>) query).getMax());
+        assertEquals(true, ((NumericRangeQuery<?>) query).includesMin());
+        assertEquals(false, ((NumericRangeQuery<?>) query).includesMax());
+        assertEquals(0.5f, query.getBoost(), 0);
     }
 
     @Test
@@ -133,14 +133,14 @@ public class RangeConditionTest extends AbstractConditionTest {
         RangeCondition rangeCondition = new RangeCondition(0.5f, "name", 42L, 43, false, false);
         Query query = rangeCondition.query(mappers);
 
-        Assert.assertNotNull(query);
-        Assert.assertEquals(NumericRangeQuery.class, query.getClass());
-        Assert.assertEquals("name", ((NumericRangeQuery<?>) query).getField());
-        Assert.assertEquals(42L, ((NumericRangeQuery<?>) query).getMin());
-        Assert.assertEquals(43L, ((NumericRangeQuery<?>) query).getMax());
-        Assert.assertEquals(false, ((NumericRangeQuery<?>) query).includesMin());
-        Assert.assertEquals(false, ((NumericRangeQuery<?>) query).includesMax());
-        Assert.assertEquals(0.5f, query.getBoost(), 0);
+        assertNotNull(query);
+        assertEquals(NumericRangeQuery.class, query.getClass());
+        assertEquals("name", ((NumericRangeQuery<?>) query).getField());
+        assertEquals(42L, ((NumericRangeQuery<?>) query).getMin());
+        assertEquals(43L, ((NumericRangeQuery<?>) query).getMax());
+        assertEquals(false, ((NumericRangeQuery<?>) query).includesMin());
+        assertEquals(false, ((NumericRangeQuery<?>) query).includesMax());
+        assertEquals(0.5f, query.getBoost(), 0);
     }
 
     @Test
@@ -153,14 +153,14 @@ public class RangeConditionTest extends AbstractConditionTest {
         RangeCondition rangeCondition = new RangeCondition(0.5f, "name", 42f, null, true, false);
         Query query = rangeCondition.query(mappers);
 
-        Assert.assertNotNull(query);
-        Assert.assertEquals(NumericRangeQuery.class, query.getClass());
-        Assert.assertEquals("name", ((NumericRangeQuery<?>) query).getField());
-        Assert.assertEquals(42L, ((NumericRangeQuery<?>) query).getMin());
-        Assert.assertEquals(null, ((NumericRangeQuery<?>) query).getMax());
-        Assert.assertEquals(true, ((NumericRangeQuery<?>) query).includesMin());
-        Assert.assertEquals(false, ((NumericRangeQuery<?>) query).includesMax());
-        Assert.assertEquals(0.5f, query.getBoost(), 0);
+        assertNotNull(query);
+        assertEquals(NumericRangeQuery.class, query.getClass());
+        assertEquals("name", ((NumericRangeQuery<?>) query).getField());
+        assertEquals(42L, ((NumericRangeQuery<?>) query).getMin());
+        assertEquals(null, ((NumericRangeQuery<?>) query).getMax());
+        assertEquals(true, ((NumericRangeQuery<?>) query).includesMin());
+        assertEquals(false, ((NumericRangeQuery<?>) query).includesMax());
+        assertEquals(0.5f, query.getBoost(), 0);
     }
 
     @Test
@@ -173,14 +173,14 @@ public class RangeConditionTest extends AbstractConditionTest {
         RangeCondition rangeCondition = new RangeCondition(0.5f, "name", 42.42D, 43.42F, false, false);
         Query query = rangeCondition.query(mappers);
 
-        Assert.assertNotNull(query);
-        Assert.assertEquals(NumericRangeQuery.class, query.getClass());
-        Assert.assertEquals("name", ((NumericRangeQuery<?>) query).getField());
-        Assert.assertEquals(42.42F, ((NumericRangeQuery<?>) query).getMin());
-        Assert.assertEquals(43.42f, ((NumericRangeQuery<?>) query).getMax());
-        Assert.assertEquals(false, ((NumericRangeQuery<?>) query).includesMin());
-        Assert.assertEquals(false, ((NumericRangeQuery<?>) query).includesMax());
-        Assert.assertEquals(0.5f, query.getBoost(), 0);
+        assertNotNull(query);
+        assertEquals(NumericRangeQuery.class, query.getClass());
+        assertEquals("name", ((NumericRangeQuery<?>) query).getField());
+        assertEquals(42.42F, ((NumericRangeQuery<?>) query).getMin());
+        assertEquals(43.42f, ((NumericRangeQuery<?>) query).getMax());
+        assertEquals(false, ((NumericRangeQuery<?>) query).includesMin());
+        assertEquals(false, ((NumericRangeQuery<?>) query).includesMax());
+        assertEquals(0.5f, query.getBoost(), 0);
     }
 
     @Test
@@ -193,14 +193,14 @@ public class RangeConditionTest extends AbstractConditionTest {
         RangeCondition rangeCondition = new RangeCondition(0.5f, "name", 42.42f, null, true, false);
         Query query = rangeCondition.query(mappers);
 
-        Assert.assertNotNull(query);
-        Assert.assertEquals(NumericRangeQuery.class, query.getClass());
-        Assert.assertEquals("name", ((NumericRangeQuery<?>) query).getField());
-        Assert.assertEquals(42.42f, ((NumericRangeQuery<?>) query).getMin());
-        Assert.assertEquals(null, ((NumericRangeQuery<?>) query).getMax());
-        Assert.assertEquals(true, ((NumericRangeQuery<?>) query).includesMin());
-        Assert.assertEquals(false, ((NumericRangeQuery<?>) query).includesMax());
-        Assert.assertEquals(0.5f, query.getBoost(), 0);
+        assertNotNull(query);
+        assertEquals(NumericRangeQuery.class, query.getClass());
+        assertEquals("name", ((NumericRangeQuery<?>) query).getField());
+        assertEquals(42.42f, ((NumericRangeQuery<?>) query).getMin());
+        assertEquals(null, ((NumericRangeQuery<?>) query).getMax());
+        assertEquals(true, ((NumericRangeQuery<?>) query).includesMin());
+        assertEquals(false, ((NumericRangeQuery<?>) query).includesMax());
+        assertEquals(0.5f, query.getBoost(), 0);
     }
 
     @Test
@@ -213,14 +213,14 @@ public class RangeConditionTest extends AbstractConditionTest {
         RangeCondition rangeCondition = new RangeCondition(0.5f, "name", 42.42D, 43.42D, false, false);
         Query query = rangeCondition.query(mappers);
 
-        Assert.assertNotNull(query);
-        Assert.assertEquals(NumericRangeQuery.class, query.getClass());
-        Assert.assertEquals("name", ((NumericRangeQuery<?>) query).getField());
-        Assert.assertEquals(42.42D, ((NumericRangeQuery<?>) query).getMin());
-        Assert.assertEquals(43.42D, ((NumericRangeQuery<?>) query).getMax());
-        Assert.assertEquals(false, ((NumericRangeQuery<?>) query).includesMin());
-        Assert.assertEquals(false, ((NumericRangeQuery<?>) query).includesMax());
-        Assert.assertEquals(0.5f, query.getBoost(), 0);
+        assertNotNull(query);
+        assertEquals(NumericRangeQuery.class, query.getClass());
+        assertEquals("name", ((NumericRangeQuery<?>) query).getField());
+        assertEquals(42.42D, ((NumericRangeQuery<?>) query).getMin());
+        assertEquals(43.42D, ((NumericRangeQuery<?>) query).getMax());
+        assertEquals(false, ((NumericRangeQuery<?>) query).includesMin());
+        assertEquals(false, ((NumericRangeQuery<?>) query).includesMax());
+        assertEquals(0.5f, query.getBoost(), 0);
     }
 
     @Test
@@ -233,14 +233,14 @@ public class RangeConditionTest extends AbstractConditionTest {
         RangeCondition rangeCondition = new RangeCondition(0.5f, "name", 42.42D, null, true, false);
         Query query = rangeCondition.query(mappers);
 
-        Assert.assertNotNull(query);
-        Assert.assertEquals(NumericRangeQuery.class, query.getClass());
-        Assert.assertEquals("name", ((NumericRangeQuery<?>) query).getField());
-        Assert.assertEquals(42.42D, ((NumericRangeQuery<?>) query).getMin());
-        Assert.assertEquals(null, ((NumericRangeQuery<?>) query).getMax());
-        Assert.assertEquals(true, ((NumericRangeQuery<?>) query).includesMin());
-        Assert.assertEquals(false, ((NumericRangeQuery<?>) query).includesMax());
-        Assert.assertEquals(0.5f, query.getBoost(), 0);
+        assertNotNull(query);
+        assertEquals(NumericRangeQuery.class, query.getClass());
+        assertEquals("name", ((NumericRangeQuery<?>) query).getField());
+        assertEquals(42.42D, ((NumericRangeQuery<?>) query).getMin());
+        assertEquals(null, ((NumericRangeQuery<?>) query).getMax());
+        assertEquals(true, ((NumericRangeQuery<?>) query).includesMin());
+        assertEquals(false, ((NumericRangeQuery<?>) query).includesMax());
+        assertEquals(0.5f, query.getBoost(), 0);
     }
 
     @Test
@@ -253,14 +253,14 @@ public class RangeConditionTest extends AbstractConditionTest {
         RangeCondition rangeCondition = new RangeCondition(0.5f, "name", "192.168.0.01", "192.168.0.045", true, true);
         Query query = rangeCondition.query(mappers);
 
-        Assert.assertNotNull(query);
-        Assert.assertEquals(TermRangeQuery.class, query.getClass());
-        Assert.assertEquals("name", ((TermRangeQuery) query).getField());
-        Assert.assertEquals("192.168.0.1", ((TermRangeQuery) query).getLowerTerm().utf8ToString());
-        Assert.assertEquals("192.168.0.45", ((TermRangeQuery) query).getUpperTerm().utf8ToString());
-        Assert.assertEquals(true, ((TermRangeQuery) query).includesLower());
-        Assert.assertEquals(true, ((TermRangeQuery) query).includesUpper());
-        Assert.assertEquals(0.5f, query.getBoost(), 0);
+        assertNotNull(query);
+        assertEquals(TermRangeQuery.class, query.getClass());
+        assertEquals("name", ((TermRangeQuery) query).getField());
+        assertEquals("192.168.0.1", ((TermRangeQuery) query).getLowerTerm().utf8ToString());
+        assertEquals("192.168.0.45", ((TermRangeQuery) query).getUpperTerm().utf8ToString());
+        assertEquals(true, ((TermRangeQuery) query).includesLower());
+        assertEquals(true, ((TermRangeQuery) query).includesUpper());
+        assertEquals(0.5f, query.getBoost(), 0);
     }
 
     @Test
@@ -278,14 +278,14 @@ public class RangeConditionTest extends AbstractConditionTest {
                                                      .build();
         Query query = rangeCondition.query(mappers);
 
-        Assert.assertNotNull(query);
-        Assert.assertEquals(TermRangeQuery.class, query.getClass());
-        Assert.assertEquals("name", ((TermRangeQuery) query).getField());
-        Assert.assertEquals("2001:db8:2de:0:0:0:0:e13", ((TermRangeQuery) query).getLowerTerm().utf8ToString());
-        Assert.assertEquals("2001:db8:2de:0:0:0:0:e23", ((TermRangeQuery) query).getUpperTerm().utf8ToString());
-        Assert.assertEquals(true, ((TermRangeQuery) query).includesLower());
-        Assert.assertEquals(true, ((TermRangeQuery) query).includesUpper());
-        Assert.assertEquals(0.5f, query.getBoost(), 0);
+        assertNotNull(query);
+        assertEquals(TermRangeQuery.class, query.getClass());
+        assertEquals("name", ((TermRangeQuery) query).getField());
+        assertEquals("2001:db8:2de:0:0:0:0:e13", ((TermRangeQuery) query).getLowerTerm().utf8ToString());
+        assertEquals("2001:db8:2de:0:0:0:0:e23", ((TermRangeQuery) query).getUpperTerm().utf8ToString());
+        assertEquals(true, ((TermRangeQuery) query).includesLower());
+        assertEquals(true, ((TermRangeQuery) query).includesUpper());
+        assertEquals(0.5f, query.getBoost(), 0);
     }
 
     @Test
@@ -319,6 +319,18 @@ public class RangeConditionTest extends AbstractConditionTest {
                                                                               match("f2", "v2"))
                                                                         .should(match("f3", "v3"))
                                                                         .boost(0.5)).build());
+    }
+
+    @Test
+    public void testToString() {
+        RangeCondition condition = range("name").boost(0.5f)
+                                                .lower("2001:DB8:2de::e13")
+                                                .upper("2001:DB8:02de::e23")
+                                                .includeLower(true)
+                                                .includeUpper(true)
+                                                .build();
+        assertEquals("RangeCondition{boost=0.5, field=name, lower=2001:DB8:2de::e13, " +
+                     "upper=2001:DB8:02de::e23, includeLower=true, includeUpper=true}", condition.toString());
     }
 
 }

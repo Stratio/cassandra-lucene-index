@@ -25,6 +25,7 @@ import org.apache.lucene.search.Query;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 import static com.stratio.cassandra.lucene.query.builder.SearchBuilders.*;
@@ -78,8 +79,17 @@ public class SearchBuildersTest {
     }
 
     @Test
-    public void testPhrase() throws IOException {
+    public void testPhraseArray() throws IOException {
         PhraseConditionBuilder builder = phrase("field", "value1", "value2");
+        assertNotNull(builder);
+        PhraseCondition condition = builder.build();
+        assertEquals("field", condition.getField());
+        assertArrayEquals(new String[]{"value1", "value2"}, condition.getValues());
+    }
+
+    @Test
+    public void testPhraseList() throws IOException {
+        PhraseConditionBuilder builder = phrase("field", Arrays.asList("value1", "value2"));
         assertNotNull(builder);
         PhraseCondition condition = builder.build();
         assertEquals("field", condition.getField());

@@ -21,9 +21,10 @@ import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.QueryWrapperFilter;
-import org.junit.Assert;
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -40,7 +41,7 @@ public class ConditionTest extends AbstractConditionTest {
                 return null;
             }
         };
-        Assert.assertEquals(0.7f, condition.boost, 0.0f);
+        assertEquals(0.7f, condition.boost, 0.0f);
     }
 
     @Test
@@ -51,7 +52,7 @@ public class ConditionTest extends AbstractConditionTest {
                 return null;
             }
         };
-        Assert.assertEquals(Condition.DEFAULT_BOOST, condition.boost, 0.0f);
+        assertEquals(Condition.DEFAULT_BOOST, condition.boost, 0.0f);
     }
 
     @Test
@@ -64,12 +65,12 @@ public class ConditionTest extends AbstractConditionTest {
             }
         };
         Filter filter = condition.filter(schema);
-        Assert.assertNotNull(filter);
-        Assert.assertEquals(QueryWrapperFilter.class, filter.getClass());
+        assertNotNull(filter);
+        assertEquals(QueryWrapperFilter.class, filter.getClass());
         QueryWrapperFilter queryWrapperFilter = (QueryWrapperFilter) filter;
         Query query = queryWrapperFilter.getQuery();
-        Assert.assertNotNull(query);
-        Assert.assertEquals(MatchAllDocsQuery.class, query.getClass());
+        assertNotNull(query);
+        assertEquals(MatchAllDocsQuery.class, query.getClass());
     }
 
     @Test
@@ -82,7 +83,7 @@ public class ConditionTest extends AbstractConditionTest {
                 return null;
             }
         };
-        Assert.assertEquals("test", condition.analyze("f", "tests", schema));
+        assertEquals("test", condition.analyze("f", "tests", schema));
         schema.close();
     }
 

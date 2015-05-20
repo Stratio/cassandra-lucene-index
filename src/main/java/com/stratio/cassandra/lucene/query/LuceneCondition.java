@@ -94,7 +94,7 @@ public class LuceneCondition extends Condition {
             luceneQuery.setBoost(boost);
             return luceneQuery;
         } catch (ParseException e) {
-            throw new RuntimeException("Error while parsing lucene syntax query", e);
+            throw new IllegalArgumentException("Error while parsing lucene syntax query", e);
         }
     }
 

@@ -185,6 +185,7 @@ public class FuzzyCondition extends SingleFieldCondition {
     @Override
     public String toString() {
         return Objects.toStringHelper(this)
+                      .add("boost", boost)
                       .add("field", field)
                       .add("value", value)
                       .add("maxEdits", maxEdits)

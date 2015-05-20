@@ -20,7 +20,6 @@ import com.stratio.cassandra.lucene.schema.analysis.AnalyzerBuilder;
 import com.stratio.cassandra.lucene.schema.analysis.ClasspathAnalyzerBuilder;
 import com.stratio.cassandra.lucene.schema.analysis.PreBuiltAnalyzers;
 import com.stratio.cassandra.lucene.schema.mapping.ColumnMapper;
-import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperSingle;
 import com.stratio.cassandra.lucene.util.JsonSerializer;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
@@ -149,21 +148,6 @@ public class Schema implements Closeable {
             if (columnMapper != null) return columnMapper;
         }
         return null;
-    }
-
-    /**
-     * Returns the {@link ColumnMapperSingle} identified by the specified field name, or {@code null} if not found.
-     *
-     * @param field A field name.
-     * @return The {@link ColumnMapperSingle} identified by the specified field name, or {@code null} if not found.
-     */
-    public ColumnMapperSingle getMapperSingle(String field) {
-        ColumnMapper columnMapper = getMapper(field);
-        if (columnMapper != null && columnMapper instanceof ColumnMapperSingle<?>) {
-            return (ColumnMapperSingle<?>) columnMapper;
-        } else {
-            return null;
-        }
     }
 
     /**

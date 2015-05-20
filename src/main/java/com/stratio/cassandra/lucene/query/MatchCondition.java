@@ -82,7 +82,7 @@ public class MatchCondition extends SingleFieldCondition {
         if (clazz == String.class) {
             String value = (String) columnMapper.base(field, this.value);
             String analyzedValue = analyze(field, value, schema);
-            if (analyzedValue == null) {
+            if (StringUtils.isBlank(analyzedValue)) {
                 throw new IllegalArgumentException("Value discarded by analyzer");
             }
             Term term = new Term(field, analyzedValue);
@@ -110,6 +110,6 @@ public class MatchCondition extends SingleFieldCondition {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("field", field).add("value", value).toString();
+        return Objects.toStringHelper(this).add("boost", boost).add("field", field).add("value", value).toString();
     }
 }

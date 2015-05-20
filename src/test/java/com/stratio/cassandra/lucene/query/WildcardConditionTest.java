@@ -23,16 +23,29 @@ import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperInteger;
 import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperString;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.search.Query;
-import org.junit.Assert;
+import org.apache.lucene.search.WildcardQuery;
 import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 /**
  * @author Andres de la Pena <adelapena@stratio.com>
  */
 public class WildcardConditionTest extends AbstractConditionTest {
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testBuildNullValue() {
+        new WildcardCondition(0.1f, "field", null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testBuildBlankValue() {
+        new WildcardCondition(0.1f, "field", " ");
+    }
 
     @Test
     public void testString() {
@@ -44,12 +57,12 @@ public class WildcardConditionTest extends AbstractConditionTest {
         WildcardCondition wildcardCondition = new WildcardCondition(0.5f, "name", "tr*");
         Query query = wildcardCondition.query(mappers);
 
-        Assert.assertNotNull(query);
-        Assert.assertEquals(org.apache.lucene.search.WildcardQuery.class, query.getClass());
-        org.apache.lucene.search.WildcardQuery luceneQuery = (org.apache.lucene.search.WildcardQuery) query;
-        Assert.assertEquals("name", luceneQuery.getField());
-        Assert.assertEquals("tr*", luceneQuery.getTerm().text());
-        Assert.assertEquals(0.5f, query.getBoost(), 0);
+        assertNotNull(query);
+        assertEquals(WildcardQuery.class, query.getClass());
+        WildcardQuery luceneQuery = (WildcardQuery) query;
+        assertEquals("name", luceneQuery.getField());
+        assertEquals("tr*", luceneQuery.getTerm().text());
+        assertEquals(0.5f, query.getBoost(), 0);
     }
 
     @Test(expected = UnsupportedOperationException.class)
@@ -72,12 +85,12 @@ public class WildcardConditionTest extends AbstractConditionTest {
         WildcardCondition wildcardCondition = new WildcardCondition(0.5f, "name", "192.168.*");
         Query query = wildcardCondition.query(mappers);
 
-        Assert.assertNotNull(query);
-        Assert.assertEquals(org.apache.lucene.search.WildcardQuery.class, query.getClass());
-        org.apache.lucene.search.WildcardQuery luceneQuery = (org.apache.lucene.search.WildcardQuery) query;
-        Assert.assertEquals("name", luceneQuery.getField());
-        Assert.assertEquals("192.168.*", luceneQuery.getTerm().text());
-        Assert.assertEquals(0.5f, query.getBoost(), 0);
+        assertNotNull(query);
+        assertEquals(WildcardQuery.class, query.getClass());
+        WildcardQuery luceneQuery = (WildcardQuery) query;
+        assertEquals("name", luceneQuery.getField());
+        assertEquals("192.168.*", luceneQuery.getTerm().text());
+        assertEquals(0.5f, query.getBoost(), 0);
     }
 
     @Test
@@ -87,20 +100,26 @@ public class WildcardConditionTest extends AbstractConditionTest {
         map.put("name", new ColumnMapperInet(null, null));
         Schema mappers = new Schema(map, null, EnglishAnalyzer.class.getName());
 
-        WildcardCondition wildcardCondition = new WildcardCondition(0.5f, "name", "2001:db8:2de:0:0:0:0:e*");
-        Query query = wildcardCondition.query(mappers);
+        WildcardCondition condition = new WildcardCondition(0.5f, "name", "2001:db8:2de:0:0:0:0:e*");
+        Query query = condition.query(mappers);
 
-        Assert.assertNotNull(query);
-        Assert.assertEquals(org.apache.lucene.search.WildcardQuery.class, query.getClass());
-        org.apache.lucene.search.WildcardQuery luceneQuery = (org.apache.lucene.search.WildcardQuery) query;
-        Assert.assertEquals("name", luceneQuery.getField());
-        Assert.assertEquals("2001:db8:2de:0:0:0:0:e*", luceneQuery.getTerm().text());
-        Assert.assertEquals(0.5f, query.getBoost(), 0);
+        assertNotNull(query);
+        assertEquals(WildcardQuery.class, query.getClass());
+        WildcardQuery luceneQuery = (WildcardQuery) query;
+        assertEquals("name", luceneQuery.getField());
+        assertEquals("2001:db8:2de:0:0:0:0:e*", luceneQuery.getTerm().text());
+        assertEquals(0.5f, query.getBoost(), 0);
     }
 
     @Test
     public void testJson() {
         testJsonCondition(SearchBuilders.query(SearchBuilders.wildcard("name", "aaa*").boost(0.5f)));
+    }
+
+    @Test
+    public void testToString() {
+        WildcardCondition condition = SearchBuilders.wildcard("name", "aaa*").boost(0.5f).build();
+        assertEquals("WildcardCondition{boost=0.5, field=name, value=aaa*}", condition.toString());
     }
 
 }

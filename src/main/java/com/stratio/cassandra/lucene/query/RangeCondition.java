@@ -172,6 +172,7 @@ public class RangeCondition extends SingleFieldCondition {
     @Override
     public String toString() {
         return Objects.toStringHelper(this)
+                      .add("boost", boost)
                       .add("field", field)
                       .add("lower", lower)
                       .add("upper", upper)

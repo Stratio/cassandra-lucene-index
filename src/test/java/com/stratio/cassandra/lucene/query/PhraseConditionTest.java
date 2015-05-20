@@ -17,11 +17,10 @@ package com.stratio.cassandra.lucene.query;
 
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.ColumnMapper;
-import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperBoolean;
+import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperString;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.Query;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -29,6 +28,7 @@ import java.util.Map;
 
 import static com.stratio.cassandra.lucene.query.builder.SearchBuilders.filter;
 import static com.stratio.cassandra.lucene.query.builder.SearchBuilders.phrase;
+import static org.junit.Assert.*;
 
 /**
  * @author Andres de la Pena <adelapena@stratio.com>
@@ -36,26 +36,63 @@ import static com.stratio.cassandra.lucene.query.builder.SearchBuilders.phrase;
 public class PhraseConditionTest extends AbstractConditionTest {
 
     @Test
+    public void testBuild() {
+        String[] values = new String[]{"hello", "adios"};
+        PhraseCondition condition = new PhraseCondition(0.5f, "name", values, 2);
+        assertEquals(0.5f, condition.getBoost(), 0);
+        assertEquals("name", condition.getField());
+        assertArrayEquals(values, condition.getValues());
+        assertEquals(2, condition.getSlop());
+    }
+
+    @Test
+    public void testBuildDefaults() {
+        String[] values = new String[]{"hello", "adios"};
+        PhraseCondition condition = new PhraseCondition(null, "name", values, null);
+        assertEquals(PhraseCondition.DEFAULT_BOOST, condition.getBoost(), 0);
+        assertEquals("name", condition.getField());
+        assertArrayEquals(values, condition.getValues());
+        assertEquals(PhraseCondition.DEFAULT_SLOP, condition.getSlop());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testBuildNullValues() {
+        new PhraseCondition(null, "name", null, null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testBuildNegativeSlop() {
+        String[] values = new String[]{"hello", "adios"};
+        new PhraseCondition(null, "name", values, -1);
+    }
+
+    @Test
     public void testPhraseQuery() {
 
         Map<String, ColumnMapper> map = new HashMap<>();
-        map.put("name", new ColumnMapperBoolean(null, null));
-        Schema mappers = new Schema(map, null, EnglishAnalyzer.class.getName());
+        map.put("name", new ColumnMapperString(null, null, null));
+        Schema schema = new Schema(map, null, EnglishAnalyzer.class.getName());
 
-        String[] values = new String[]{"hola", "adios"};
-        PhraseCondition phraseCondition = new PhraseCondition(0.5f, "name", values, 2);
-        Query query = phraseCondition.query(mappers);
-        Assert.assertNotNull(query);
-        Assert.assertEquals(PhraseQuery.class, query.getClass());
+        String[] values = new String[]{"hola", "adios", "the", "a"};
+        PhraseCondition condition = new PhraseCondition(0.5f, "name", values, 2);
+        Query query = condition.query(schema);
+        assertNotNull(query);
+        assertEquals(PhraseQuery.class, query.getClass());
         PhraseQuery luceneQuery = (PhraseQuery) query;
-        Assert.assertEquals(values.length, luceneQuery.getTerms().length);
-        Assert.assertEquals(2, luceneQuery.getSlop());
-        Assert.assertEquals(0.5f, query.getBoost(), 0);
+        assertEquals(values.length, luceneQuery.getTerms().length);
+        assertEquals(2, luceneQuery.getSlop());
+        assertEquals(0.5f, query.getBoost(), 0);
     }
 
     @Test
     public void testJson() {
         testJsonCondition(filter(phrase("name", "hola", "adios").slop(1).boost(0.5f)));
+    }
+
+    @Test
+    public void testToString() {
+        PhraseCondition condition = new PhraseCondition(0.5f, "name", new String[]{"hola", "adios"}, 2);
+        assertEquals("PhraseCondition{boost=0.5, field=name, values=[hola, adios], slop=2}", condition.toString());
     }
 
 }

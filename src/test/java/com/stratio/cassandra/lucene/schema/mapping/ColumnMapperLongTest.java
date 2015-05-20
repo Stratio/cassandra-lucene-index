@@ -18,62 +18,85 @@ package com.stratio.cassandra.lucene.schema.mapping;
 import com.stratio.cassandra.lucene.schema.Schema;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.DocValuesType;
-import org.junit.Assert;
+import org.apache.lucene.search.SortField;
 import org.junit.Test;
 
 import java.io.IOException;
+
+import static org.junit.Assert.*;
 
 public class ColumnMapperLongTest {
 
     @Test
     public void testConstructorWithoutArgs() {
         ColumnMapperLong mapper = new ColumnMapperLong(null, null, null);
-        Assert.assertEquals(ColumnMapper.DEFAULT_INDEXED, mapper.isIndexed());
-        Assert.assertEquals(ColumnMapper.DEFAULT_SORTED, mapper.isSorted());
-        Assert.assertEquals(ColumnMapperDouble.DEFAULT_BOOST, mapper.getBoost(), 1);
+        assertEquals(ColumnMapper.DEFAULT_INDEXED, mapper.isIndexed());
+        assertEquals(ColumnMapper.DEFAULT_SORTED, mapper.isSorted());
+        assertEquals(ColumnMapperDouble.DEFAULT_BOOST, mapper.getBoost(), 1);
     }
 
     @Test
     public void testConstructorWithAllArgs() {
         ColumnMapperLong mapper = new ColumnMapperLong(false, true, 2.3f);
-        Assert.assertFalse(mapper.isIndexed());
-        Assert.assertTrue(mapper.isSorted());
-        Assert.assertEquals(2.3f, mapper.getBoost(), 1);
+        assertFalse(mapper.isIndexed());
+        assertTrue(mapper.isSorted());
+        assertEquals(2.3f, mapper.getBoost(), 1);
+    }
+
+    @Test()
+    public void testSortField() {
+        ColumnMapperLong mapper = new ColumnMapperLong(null, null, 2.3f);
+        SortField sortField = mapper.sortField("field", true);
+        assertNotNull(sortField);
+        assertTrue(sortField.getReverse());
     }
 
     @Test
     public void testValueNull() {
         ColumnMapperLong mapper = new ColumnMapperLong(true, true, 1f);
         Long parsed = mapper.base("test", null);
-        Assert.assertNull(parsed);
+        assertNull(parsed);
+    }
+
+    @Test()
+    public void testValueString() {
+        ColumnMapperLong mapper = new ColumnMapperLong(null, null, 1f);
+        Long parsed = mapper.base("test", "3");
+        assertEquals(Long.valueOf(3), parsed);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testValueStringInvalid() {
+        ColumnMapperLong mapper = new ColumnMapperLong(null, null, 1f);
+        mapper.base("test", "error");
     }
 
     @Test
     public void testValueInteger() {
         ColumnMapperLong mapper = new ColumnMapperLong(true, true, 1f);
         Long parsed = mapper.base("test", 3);
-        Assert.assertEquals(Long.valueOf(3), parsed);
+        assertEquals(Long.valueOf(3), parsed);
     }
 
     @Test
     public void testValueLong() {
         ColumnMapperLong mapper = new ColumnMapperLong(true, true, 1f);
         Long parsed = mapper.base("test", 3l);
-        Assert.assertEquals(Long.valueOf(3), parsed);
+        assertEquals(Long.valueOf(3), parsed);
     }
 
     @Test
     public void testValueFloatWithoutDecimal() {
         ColumnMapperLong mapper = new ColumnMapperLong(true, true, 1f);
         Long parsed = mapper.base("test", 3f);
-        Assert.assertEquals(Long.valueOf(3), parsed);
+        assertEquals(Long.valueOf(3), parsed);
     }
 
     @Test
     public void testValueFloatWithDecimalFloor() {
         ColumnMapperLong mapper = new ColumnMapperLong(true, true, 1f);
         Long parsed = mapper.base("test", 3.5f);
-        Assert.assertEquals(Long.valueOf(3), parsed);
+        assertEquals(Long.valueOf(3), parsed);
 
     }
 
@@ -81,7 +104,7 @@ public class ColumnMapperLongTest {
     public void testValueFloatWithDecimalCeil() {
         ColumnMapperLong mapper = new ColumnMapperLong(true, true, 1f);
         Long parsed = mapper.base("test", 3.6f);
-        Assert.assertEquals(Long.valueOf(3), parsed);
+        assertEquals(Long.valueOf(3), parsed);
 
     }
 
@@ -89,14 +112,14 @@ public class ColumnMapperLongTest {
     public void testValueDoubleWithoutDecimal() {
         ColumnMapperLong mapper = new ColumnMapperLong(true, true, 1f);
         Long parsed = mapper.base("test", 3d);
-        Assert.assertEquals(Long.valueOf(3), parsed);
+        assertEquals(Long.valueOf(3), parsed);
     }
 
     @Test
     public void testValueDoubleWithDecimalFloor() {
         ColumnMapperLong mapper = new ColumnMapperLong(true, true, 1f);
         Long parsed = mapper.base("test", 3.5d);
-        Assert.assertEquals(Long.valueOf(3), parsed);
+        assertEquals(Long.valueOf(3), parsed);
 
     }
 
@@ -104,7 +127,7 @@ public class ColumnMapperLongTest {
     public void testValueDoubleWithDecimalCeil() {
         ColumnMapperLong mapper = new ColumnMapperLong(true, true, 1f);
         Long parsed = mapper.base("test", 3.6d);
-        Assert.assertEquals(Long.valueOf(3), parsed);
+        assertEquals(Long.valueOf(3), parsed);
 
     }
 
@@ -112,14 +135,14 @@ public class ColumnMapperLongTest {
     public void testValueStringWithoutDecimal() {
         ColumnMapperLong mapper = new ColumnMapperLong(true, true, 1f);
         Long parsed = mapper.base("test", "3");
-        Assert.assertEquals(Long.valueOf(3), parsed);
+        assertEquals(Long.valueOf(3), parsed);
     }
 
     @Test
     public void testValueStringWithDecimalFloor() {
         ColumnMapperLong mapper = new ColumnMapperLong(true, true, 1f);
         Long parsed = mapper.base("test", "3.2");
-        Assert.assertEquals(Long.valueOf(3), parsed);
+        assertEquals(Long.valueOf(3), parsed);
 
     }
 
@@ -127,40 +150,40 @@ public class ColumnMapperLongTest {
     public void testValueStringWithDecimalCeil() {
         ColumnMapperLong mapper = new ColumnMapperLong(true, true, 1f);
         Long parsed = mapper.base("test", "3.2");
-        Assert.assertEquals(Long.valueOf(3), parsed);
+        assertEquals(Long.valueOf(3), parsed);
     }
 
     @Test
     public void testIndexedField() {
         ColumnMapperLong mapper = new ColumnMapperLong(true, true, 1f);
         Field field = mapper.indexedField("name", 3L);
-        Assert.assertNotNull(field);
-        Assert.assertEquals(3L, field.numericValue());
-        Assert.assertEquals("name", field.name());
-        Assert.assertEquals(false, field.fieldType().stored());
+        assertNotNull(field);
+        assertEquals(3L, field.numericValue());
+        assertEquals("name", field.name());
+        assertEquals(false, field.fieldType().stored());
     }
 
     @Test
     public void testSortedField() {
         ColumnMapperLong mapper = new ColumnMapperLong(true, true, 1f);
         Field field = mapper.sortedField("name", 3L, false);
-        Assert.assertNotNull(field);
-        Assert.assertEquals(DocValuesType.NUMERIC, field.fieldType().docValuesType());
+        assertNotNull(field);
+        assertEquals(DocValuesType.NUMERIC, field.fieldType().docValuesType());
     }
 
     @Test
     public void testSortedFieldCollection() {
         ColumnMapperLong mapper = new ColumnMapperLong(true, true, 1f);
         Field field = mapper.sortedField("name", 3L, true);
-        Assert.assertNotNull(field);
-        Assert.assertEquals(DocValuesType.NUMERIC, field.fieldType().docValuesType());
+        assertNotNull(field);
+        assertEquals(DocValuesType.NUMERIC, field.fieldType().docValuesType());
     }
 
     @Test
     public void testExtractAnalyzers() {
         ColumnMapperLong mapper = new ColumnMapperLong(true, true, 1f);
         String analyzer = mapper.getAnalyzer();
-        Assert.assertEquals(ColumnMapper.KEYWORD_ANALYZER, analyzer);
+        assertEquals(ColumnMapper.KEYWORD_ANALYZER, analyzer);
     }
 
     @Test
@@ -168,11 +191,11 @@ public class ColumnMapperLongTest {
         String json = "{fields:{age:{type:\"long\"}}}";
         Schema schema = Schema.fromJson(json);
         ColumnMapper columnMapper = schema.getMapper("age");
-        Assert.assertNotNull(columnMapper);
-        Assert.assertEquals(ColumnMapperLong.class, columnMapper.getClass());
-        Assert.assertEquals(ColumnMapper.DEFAULT_INDEXED, columnMapper.isIndexed());
-        Assert.assertEquals(ColumnMapper.DEFAULT_SORTED, columnMapper.isSorted());
-        Assert.assertEquals(ColumnMapperLong.DEFAULT_BOOST, ((ColumnMapperLong) columnMapper).getBoost(), 1);
+        assertNotNull(columnMapper);
+        assertEquals(ColumnMapperLong.class, columnMapper.getClass());
+        assertEquals(ColumnMapper.DEFAULT_INDEXED, columnMapper.isIndexed());
+        assertEquals(ColumnMapper.DEFAULT_SORTED, columnMapper.isSorted());
+        assertEquals(ColumnMapperLong.DEFAULT_BOOST, ((ColumnMapperLong) columnMapper).getBoost(), 1);
     }
 
     @Test
@@ -180,11 +203,11 @@ public class ColumnMapperLongTest {
         String json = "{fields:{age:{type:\"long\", indexed:\"false\", sorted:\"true\", boost:\"5\"}}}";
         Schema schema = Schema.fromJson(json);
         ColumnMapper columnMapper = schema.getMapper("age");
-        Assert.assertNotNull(columnMapper);
-        Assert.assertEquals(ColumnMapperLong.class, columnMapper.getClass());
-        Assert.assertFalse(columnMapper.isIndexed());
-        Assert.assertTrue(columnMapper.isSorted());
-        Assert.assertEquals(5, ((ColumnMapperLong) columnMapper).getBoost(), 1);
+        assertNotNull(columnMapper);
+        assertEquals(ColumnMapperLong.class, columnMapper.getClass());
+        assertFalse(columnMapper.isIndexed());
+        assertTrue(columnMapper.isSorted());
+        assertEquals(5, ((ColumnMapperLong) columnMapper).getBoost(), 1);
     }
 
     @Test
@@ -192,12 +215,18 @@ public class ColumnMapperLongTest {
         String json = "{fields:{}}";
         Schema schema = Schema.fromJson(json);
         ColumnMapper columnMapper = schema.getMapper("age");
-        Assert.assertNull(columnMapper);
+        assertNull(columnMapper);
     }
 
     @Test(expected = IOException.class)
     public void testParseJSONInvalid() throws IOException {
         String json = "{fields:{age:{}}";
         Schema.fromJson(json);
+    }
+
+    @Test
+    public void testToString() {
+        ColumnMapperLong mapper = new ColumnMapperLong(false, false, 0.3f);
+        assertEquals("ColumnMapperLong{indexed=false, sorted=false, boost=0.3}", mapper.toString());
     }
 }

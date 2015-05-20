@@ -17,13 +17,13 @@ package com.stratio.cassandra.lucene.query.builder;
 
 import com.stratio.cassandra.lucene.query.Search;
 import com.stratio.cassandra.lucene.util.JsonSerializer;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
 
 import static com.stratio.cassandra.lucene.query.builder.SearchBuilders.match;
 import static com.stratio.cassandra.lucene.query.builder.SearchBuilders.sortField;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Andres de la Pena <adelapena@stratio.com>
@@ -39,6 +39,6 @@ public class SearchBuilderTest {
         SearchBuilder searchBuilder = new SearchBuilder().query(query).filter(filter).sort(sort1, sort2);
         Search search = searchBuilder.build();
         String json = searchBuilder.toJson();
-        Assert.assertEquals(json, JsonSerializer.toString(search));
+        assertEquals(json, JsonSerializer.toString(search));
     }
 }

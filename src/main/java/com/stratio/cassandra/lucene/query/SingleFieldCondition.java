@@ -16,6 +16,7 @@
 package com.stratio.cassandra.lucene.query;
 
 import com.stratio.cassandra.lucene.schema.Schema;
+import com.stratio.cassandra.lucene.schema.mapping.ColumnMapper;
 import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperSingle;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.annotate.JsonProperty;
@@ -60,12 +61,11 @@ public abstract class SingleFieldCondition extends Condition {
     }
 
     protected ColumnMapperSingle<?> getMapper(Schema schema, String field) {
-        ColumnMapperSingle<?> columnMapper = schema.getMapperSingle(field);
-        if (columnMapper == null) {
-            throw new IllegalArgumentException("Not found mapper for field " + field);
-        } else {
-            return columnMapper;
+        ColumnMapper columnMapper = schema.getMapper(field);
+        if (columnMapper != null && columnMapper instanceof ColumnMapperSingle<?>) {
+            return (ColumnMapperSingle<?>) columnMapper;
         }
+        throw new IllegalArgumentException("Not found mapper for field " + field);
     }
 
 }

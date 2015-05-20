@@ -38,13 +38,16 @@ import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.Sort;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -82,8 +85,7 @@ public abstract class RowService {
         this.schema = config.getSchema();
         this.rowMapper = RowMapper.build(metadata, columnDefinition, schema);
 
-        this.luceneIndex = new LuceneIndex(rowMapper,
-                                           config.getPath(),
+        this.luceneIndex = new LuceneIndex(config.getPath(),
                                            config.getRefreshSeconds(),
                                            config.getRamBufferMB(),
                                            config.getMaxMergeMB(),
@@ -250,27 +252,30 @@ public abstract class RowService {
         Query rangeQuery = rowMapper.query(dataRange);
         Query query = search.query(schema, rangeQuery);
         Sort sort = search.sort(schema);
-        boolean usesRelevance = search.usesRelevance();
+        boolean relevance = search.usesRelevance();
 
         // Setup search pagination
         List<Row> rows = new LinkedList<>(); // The row list to be returned
-        SearchResult lastDoc = null; // The last search result
+        SearchResult last = null; // The last search result
 
         // Paginate search collecting documents
-        List<SearchResult> searchResults;
-        int pageSize = Math.min(limit, MAX_PAGE_SIZE);
+        int page = Math.min(limit, MAX_PAGE_SIZE);
         boolean maybeMore;
         do {
             // Search rows identifiers in Lucene
             luceneTime.start();
-            searchResults = luceneIndex.search(query, sort, lastDoc, pageSize, fieldsToLoad(), usesRelevance);
+            Map<Document, ScoreDoc> docs = luceneIndex.search(query, sort, last, page, fieldsToLoad(), relevance);
+            List<SearchResult> searchResults = new ArrayList<>(docs.size());
+            for (Map.Entry<Document, ScoreDoc> entry : docs.entrySet()) {
+                searchResults.add(rowMapper.searchResult(entry.getKey(), entry.getValue()));
+            }
             numDocs += searchResults.size();
-            lastDoc = searchResults.isEmpty() ? null : searchResults.get(searchResults.size() - 1);
+            last = searchResults.isEmpty() ? null : searchResults.get(searchResults.size() - 1);
             luceneTime.stop();
 
             // Collect rows from Cassandra
             collectTime.start();
-            for (Row row : rows(searchResults, timestamp, usesRelevance)) {
+            for (Row row : rows(searchResults, timestamp, relevance)) {
                 if (row != null && accepted(row, expressions)) {
                     rows.add(row);
                 }
@@ -278,8 +283,8 @@ public abstract class RowService {
             collectTime.stop();
 
             // Setup next iteration
-            maybeMore = searchResults.size() == pageSize;
-            pageSize = Math.min(Math.max(FILTERING_PAGE_SIZE, rows.size() - limit), MAX_PAGE_SIZE);
+            maybeMore = searchResults.size() == page;
+            page = Math.min(Math.max(FILTERING_PAGE_SIZE, rows.size() - limit), MAX_PAGE_SIZE);
             numPages++;
 
             // Iterate while there are still documents to read and we don't have enough rows

@@ -73,12 +73,12 @@ public class ColumnMapperInet extends ColumnMapperKeyword {
                 }
             }
         }
-        throw new IllegalArgumentException(String.format("Value '%s' cannot be cast to InetAddress", value));
+        return error("Field '%s' requires an inet address, but found '%s'", name, value);
     }
 
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).toString();
+        return Objects.toStringHelper(this).add("indexed", indexed).add("sorted", sorted).toString();
     }
 }

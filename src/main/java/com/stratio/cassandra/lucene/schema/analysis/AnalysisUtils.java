@@ -42,7 +42,8 @@ public class AnalysisUtils {
             stream = analyzer.tokenStream(field, new StringReader(value));
             stream.reset();
             while (stream.incrementToken()) {
-                result.add(stream.getAttribute(CharTermAttribute.class).toString());
+                String analyzedValue = stream.getAttribute(CharTermAttribute.class).toString();
+                result.add(analyzedValue);
             }
         } catch (Exception e) {
             throw new RuntimeException(e);

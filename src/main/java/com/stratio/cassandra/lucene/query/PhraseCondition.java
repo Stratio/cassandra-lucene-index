@@ -24,6 +24,8 @@ import org.apache.lucene.search.Query;
 import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
 
+import java.util.Arrays;
+
 /**
  * A {@link Condition} implementation that matches documents containing a particular sequence of terms.
  *
@@ -104,12 +106,10 @@ public class PhraseCondition extends SingleFieldCondition {
             query.setBoost(boost);
             int count = 0;
             for (String value : values) {
-                if (value != null) {
-                    String analyzedValue = analyze(field, value, schema);
-                    if (analyzedValue != null) {
-                        Term term = new Term(field, analyzedValue);
-                        query.add(term, count);
-                    }
+                String analyzedValue = analyze(field, value, schema);
+                if (analyzedValue != null) {
+                    Term term = new Term(field, analyzedValue);
+                    query.add(term, count);
                 }
                 count++;
             }
@@ -123,6 +123,11 @@ public class PhraseCondition extends SingleFieldCondition {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("field", field).add("values", values).add("slop", slop).toString();
+        return Objects.toStringHelper(this)
+                      .add("boost", boost)
+                      .add("field", field)
+                      .add("values", Arrays.toString(values))
+                      .add("slop", slop)
+                      .toString();
     }
 }
