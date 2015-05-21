@@ -1,0 +1,43 @@
+2.1.6.0
+ * Become a plugin instead of a fork of Apache Cassandra
+ * Upgrade to Apache Cassandra 2.1.6
+ * Upgrade to Lucene 5.1.0
+ * Sorting through doc values
+ * Add "indexed" and "sorted" options to mappers
+
+2.1.5.0
+ * Upgrade to Apache Cassandra 2.1.5 (issue#28)
+ * Removed clustering key mapper columns
+
+2.1.4.1
+ * Improve top-k (CASSANDRA-8717)
+ * Fix build.xml
+
+2.1.4.0
+ * Upgrade to Apache Cassandra 2.1.4 (issue#16)
+ * Fix reverse clustering order (issue#14)
+ * Support for snowball and possibly other analyzers (issue#11)
+ * Fix mapping in column-based clustering key mapper (issue#7)
+
+2.1.3.1
+ * Fix mapping bug in column-based clustering key mapper
+ * Upgrade to Lucene 4.10.4
+ * Added case sensitive option to StringMapper
+
+2.1.3.0
+ * Upgrade to Apache Cassandra 2.1.3
+
+2.1.2.2
+ * Fix issue#7 (data inserted during update is not indexed)
+ * Remove boolean query max clauses limit
+ * Add contains condition
+ * Add basic support for geospatial search
+ * Add basic support for multiple fields per mapper
+ * Add collation for UUID mapper
+
+2.1.2.1
+ * Improve logging time counting
+ * Set synchronous indexing as default
+
+2.1.2.0
+ * Upgrade to Apache Cassandra 2.1.2
