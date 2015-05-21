@@ -15,36 +15,51 @@
  */
 package com.stratio.cassandra.lucene.service;
 
+import com.google.common.collect.Sets;
 import com.stratio.cassandra.lucene.IndexConfig;
-import static junit.framework.Assert.*;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.document.SortedDocValuesField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.SortField;
+import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.WildcardQuery;
+import org.apache.lucene.util.BytesRef;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+
+import static junit.framework.Assert.assertEquals;
 
 /**
  * @author Andres de la Pena <adelapena@stratio.com>
  */
 public class LuceneIndexTest {
 
+    private static final Double REFRESH_SECONDS = 0.1D;
+    private static final int REFRESH_MILLISECONDS = (int) (REFRESH_SECONDS * 1000);
+
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
 
     @Test
-    public void testBuild() throws InterruptedException {
-        Double refreshSeconds = 1.5;
-        Path path = Paths.get(folder.newFolder("directory").getPath());
+    public void testCRUD() throws IOException, InterruptedException {
+
+        Path path = Paths.get(folder.newFolder("directory" + UUID.randomUUID()).getPath());
         LuceneIndex index = new LuceneIndex(path,
-                                            refreshSeconds,
+                                            REFRESH_SECONDS,
                                             IndexConfig.DEFAULT_RAM_BUFFER_MB,
                                             IndexConfig.DEFAULT_MAX_MERGE_MB,
                                             IndexConfig.DEFAULT_MAX_CACHED_MB,
@@ -53,24 +68,78 @@ public class LuceneIndexTest {
         index.init(sort);
         assertEquals(0, index.getNumDocs());
 
-        Term term1 = new Term("field1","value1");
+        Term term1 = new Term("field", "value1");
         Document document1 = new Document();
-        document1.add(new StringField("field1","value1", Field.Store.NO));
+        document1.add(new StringField("field", "value1", Field.Store.NO));
+        document1.add(new SortedDocValuesField("field", new BytesRef("value1")));
         index.upsert(term1, document1);
 
-        Term term2 = new Term("field2","value2");
+        Term term2 = new Term("field", "value2");
         Document document2 = new Document();
-        document2.add(new StringField("field2","value2", Field.Store.NO));
+        document2.add(new StringField("field", "value2", Field.Store.NO));
+        document2.add(new SortedDocValuesField("field", new BytesRef("value2")));
         index.upsert(term2, document2);
 
         index.commit();
-        Thread.sleep((int) (refreshSeconds * 1000));
+        Thread.sleep(REFRESH_MILLISECONDS);
         assertEquals(2, index.getNumDocs());
 
+        Query query = new WildcardQuery(new Term("field", "value*"));
+        Set<String> fields = Sets.newHashSet("field");
+        Map<Document, ScoreDoc> results;
+
+        // Search
+        results = index.search(query, null, null, 1, fields, true);
+        assertEquals(1, results.size());
+        ScoreDoc last1 = results.values().iterator().next();
+        results = index.search(query, null, last1, 1, fields, true);
+        assertEquals(1, results.size());
+
+        results = index.search(query, null, null, 1, fields, false);
+        assertEquals(1, results.size());
+        ScoreDoc last2 = results.values().iterator().next();
+        results = index.search(query, null, last2, 1, fields, false);
+        assertEquals(1, results.size());
+
+        results = index.search(query, sort, null, 1, fields, false);
+        assertEquals(1, results.size());
+        ScoreDoc last3 = results.values().iterator().next();
+        results = index.search(query, sort, last3, 1, fields, false);
+        assertEquals(1, results.size());
+
+        // Delete by term
         index.delete(term1);
-        Thread.sleep((int) (refreshSeconds * 1000));
+        index.commit();
+        Thread.sleep(REFRESH_MILLISECONDS);
         assertEquals(1, index.getNumDocs());
 
-        index.close();
+        // Delete by query
+        index.upsert(term1, document1);
+        index.commit();
+        Thread.sleep(REFRESH_MILLISECONDS);
+        assertEquals(2, index.getNumDocs());
+        index.delete(new TermQuery(term1));
+        Thread.sleep(REFRESH_MILLISECONDS);
+        assertEquals(1, index.getNumDocs());
+
+        // Upsert
+        index.upsert(term1, document1);
+        index.upsert(term2, document2);
+        index.upsert(term2, document2);
+        index.commit();
+        Thread.sleep(REFRESH_MILLISECONDS);
+        assertEquals(2, index.getNumDocs());
+
+        // Truncate
+        index.truncate();
+        index.commit();
+        Thread.sleep(REFRESH_MILLISECONDS);
+        assertEquals(0, index.getNumDocs());
+
+        // Delete
+        index.delete();
+
+        // Cleanup
+        folder.delete();
     }
 }

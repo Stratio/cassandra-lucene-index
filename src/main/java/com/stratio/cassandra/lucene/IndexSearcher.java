@@ -29,6 +29,7 @@ import org.apache.cassandra.db.index.SecondaryIndexSearcher;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.exceptions.InvalidRequestException;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -75,13 +76,18 @@ class IndexSearcher extends SecondaryIndexSearcher {
      */
     @Override
     public List<Row> search(ExtendedFilter extendedFilter) {
-        long timestamp = extendedFilter.timestamp;
-        int limit = extendedFilter.currentLimit();
-        DataRange dataRange = extendedFilter.dataRange;
-        List<IndexExpression> clause = extendedFilter.getClause();
-        List<IndexExpression> filteredExpressions = filteredExpressions(clause);
-        Search search = search(clause);
-        return rowService.search(search, filteredExpressions, dataRange, limit, timestamp);
+        try {
+            long timestamp = extendedFilter.timestamp;
+            int limit = extendedFilter.currentLimit();
+            DataRange dataRange = extendedFilter.dataRange;
+            List<IndexExpression> clause = extendedFilter.getClause();
+            List<IndexExpression> filteredExpressions = filteredExpressions(clause);
+            Search search = search(clause);
+            return rowService.search(search, filteredExpressions, dataRange, limit, timestamp);
+        } catch (IOException e) {
+            Log.error(e, "Error while searching: %s", extendedFilter);
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -185,6 +191,7 @@ class IndexSearcher extends SecondaryIndexSearcher {
     /** {@inheritDoc} */
     @Override
     public List<Row> postReconciliationProcessing(List<IndexExpression> clause, List<Row> rows) {
+
         int startSize = rows.size();
         long startTime = System.currentTimeMillis();
 

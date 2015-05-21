@@ -53,9 +53,6 @@ public class Index extends PerRowSecondaryIndex {
 
     private RowService rowService;
 
-    // Concurrency lock
-//    private ReadWriteLock lock = new ReentrantReadWriteLock();
-
     @Override
     public String getIndexName() {
         return indexName;
@@ -134,9 +131,9 @@ public class Index extends PerRowSecondaryIndex {
                 long timestamp = System.currentTimeMillis();
                 rowService.index(key, columnFamily, timestamp);
             }
-        } catch (RuntimeException e) {
+        } catch (Exception e) {
             Log.error("Error while indexing row %s in Lucene index %s", key, logName);
-            throw e;
+            throw new RuntimeException(e);
         }
     }
 
@@ -151,9 +148,9 @@ public class Index extends PerRowSecondaryIndex {
         try {
             rowService.delete(key);
             rowService = null;
-        } catch (RuntimeException e) {
+        } catch (Exception e) {
             Log.error(e, "Error deleting row %s", key);
-            throw e;
+            throw new RuntimeException(e);
         }
     }
 
@@ -249,9 +246,9 @@ public class Index extends PerRowSecondaryIndex {
         try {
             rowService.commit();
             Log.info("Flushed Lucene index %s", logName);
-        } catch (RuntimeException e) {
+        } catch (Exception e) {
             Log.error(e, "Error while flushing Lucene index %s", logName);
-            throw e;
+            throw new RuntimeException(e);
         }
     }
 

@@ -41,6 +41,7 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.Sort;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -107,7 +108,7 @@ public abstract class RowService {
      * @param columnDefinition The {@link ColumnDefinition} of the indexed column.
      * @return A new {@link RowService} for the specified {@link ColumnFamilyStore} and {@link ColumnDefinition}.
      */
-    public static RowService build(ColumnFamilyStore baseCfs, ColumnDefinition columnDefinition) {
+    public static RowService build(ColumnFamilyStore baseCfs, ColumnDefinition columnDefinition) throws IOException {
         int clusteringPosition = baseCfs.metadata.clusteringColumns().size();
         if (clusteringPosition > 0) {
             return new RowServiceWide(baseCfs, columnDefinition);
@@ -142,14 +143,18 @@ public abstract class RowService {
      * @param columnFamily A {@link ColumnFamily} with a single common cluster key.
      * @param timestamp    The insertion time.
      */
-    public void index(final ByteBuffer key, final ColumnFamily columnFamily, final long timestamp) {
+    public void index(final ByteBuffer key, final ColumnFamily columnFamily, final long timestamp) throws IOException {
         if (indexQueue == null) {
-            indexInner(key, columnFamily, timestamp);
+            doIndex(key, columnFamily, timestamp);
         } else {
             indexQueue.submitAsynchronous(key, new Runnable() {
                 @Override
                 public void run() {
-                    indexInner(key, columnFamily, timestamp);
+                    try {
+                        doIndex(key, columnFamily, timestamp);
+                    } catch (Exception e) {
+                        Log.error(e, "Unrecoverable error during asynchronously indexing");
+                    }
                 }
             });
         }
@@ -163,21 +168,25 @@ public abstract class RowService {
      * @param columnFamily The column family containing the clustering keys.
      * @param timestamp    The operation time stamp.
      */
-    protected abstract void indexInner(ByteBuffer key, ColumnFamily columnFamily, long timestamp);
+    protected abstract void doIndex(ByteBuffer key, ColumnFamily columnFamily, long timestamp) throws IOException;
 
     /**
      * Deletes the partition identified by the specified partition key. This operation is performed asynchronously.
      *
      * @param partitionKey The partition key identifying the partition to be deleted.
      */
-    public void delete(final DecoratedKey partitionKey) {
+    public void delete(final DecoratedKey partitionKey) throws IOException {
         if (indexQueue == null) {
-            deleteInner(partitionKey);
+            doDelete(partitionKey);
         } else {
             indexQueue.submitAsynchronous(partitionKey, new Runnable() {
                 @Override
                 public void run() {
-                    deleteInner(partitionKey);
+                    try {
+                        doDelete(partitionKey);
+                    } catch (Exception e) {
+                        Log.error(e, "Unrecoverable error during asynchronous deletion of %s", partitionKey);
+                    }
                 }
             });
         }
@@ -188,19 +197,19 @@ public abstract class RowService {
      *
      * @param partitionKey The partition key identifying the partition to be deleted.
      */
-    protected abstract void deleteInner(DecoratedKey partitionKey);
+    protected abstract void doDelete(DecoratedKey partitionKey) throws IOException;
 
     /**
      * Deletes all the {@link Document}s.
      */
-    public final void truncate() {
+    public final void truncate() throws IOException {
         luceneIndex.truncate();
     }
 
     /**
      * Closes and removes all the index files.
      */
-    public final void delete() {
+    public final void delete() throws IOException {
         luceneIndex.delete();
         schema.close();
     }
@@ -208,14 +217,18 @@ public abstract class RowService {
     /**
      * Commits the pending changes. This operation is performed asynchronously.
      */
-    public final void commit() {
+    public final void commit() throws IOException {
         if (indexQueue == null) {
             luceneIndex.commit();
         } else {
             indexQueue.submitSynchronous(new Runnable() {
                 @Override
                 public void run() {
-                    luceneIndex.commit();
+                    try {
+                        luceneIndex.commit();
+                    } catch (Exception e) {
+                        Log.error(e, "Unrecoverable error during asynchronous commit");
+                    }
                 }
             });
         }
@@ -235,7 +248,7 @@ public abstract class RowService {
                                   List<IndexExpression> expressions,
                                   DataRange dataRange,
                                   final int limit,
-                                  long timestamp) {
+                                  long timestamp) throws IOException {
         Log.debug("Searching with search %s ", search);
 
         // Setup stats
@@ -256,7 +269,7 @@ public abstract class RowService {
 
         // Setup search pagination
         List<Row> rows = new LinkedList<>(); // The row list to be returned
-        SearchResult last = null; // The last search result
+        ScoreDoc last = null; // The last search result
 
         // Paginate search collecting documents
         int page = Math.min(limit, MAX_PAGE_SIZE);
@@ -270,7 +283,7 @@ public abstract class RowService {
                 searchResults.add(rowMapper.searchResult(entry.getKey(), entry.getValue()));
             }
             numDocs += searchResults.size();
-            last = searchResults.isEmpty() ? null : searchResults.get(searchResults.size() - 1);
+            last = searchResults.isEmpty() ? null : searchResults.get(searchResults.size() - 1).getScoreDoc();
             luceneTime.stop();
 
             // Collect rows from Cassandra
@@ -467,7 +480,7 @@ public abstract class RowService {
      *
      * @return The total number of {@link Document}s in the index.
      */
-    public long getIndexSize() {
+    public long getIndexSize() throws IOException {
         return luceneIndex.getNumDocs();
     }
 
