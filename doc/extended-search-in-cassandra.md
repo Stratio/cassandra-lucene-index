@@ -29,6 +29,7 @@ Table of Contents
 -   [Datatypes Mapping](#datatypes-mapping)
     -   [CQL to Field type](#cql-to-field-type)
     -   [Field type to CQL](#field-type-to-cql)
+-   [JMX Interface](#jmx-interface)
 
 Overview
 --------
@@ -1233,4 +1234,49 @@ Datatypes Mapping
         <td>All</td>
     </tr>
     </tbody>
+</table>
+
+JMX Interface
+-------------
+
+The existing Lucene indexes expose some attributes and operations through JMX, using the same MBean server as Apache Cassandra. The MBeans provided by Stratio are under the domain **com.stratio.cassandra.lucene**.
+
+Please note that all the JMX attributes and operations refer to the index shard living inside the local JVM, and not to the globally distributed index.
+
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Notes</th>
+    </tr>
+    <tr>
+        <td>NumDeletedDocs</td>
+        <td>Attribute</td>
+        <td>Total number of deleted documents in the index.</td>
+    </tr>
+    <tr>
+        <td>NumDocs</td>
+        <td>Attribute</td>
+        <td>Total number of documents in the index.</td>
+    </tr>
+    <tr>
+        <td>commit</td>
+        <td>Operation</td>
+        <td>Commits all the pending index changes to disk.</td>
+    </tr>
+    <tr>
+        <td>refresh</td>
+        <td>Operation</td>
+        <td>Reopens all the readers and searchers to provide a recent view of the index.</td>
+    </tr>
+    <tr>
+        <td>forceMerge</td>
+        <td>Operation</td>
+        <td>Optimizes the index forcing merge segments leaving the specified number of segments. It also includes a boolean parameter to block until all merging completes.</td>
+    </tr>
+    <tr>
+        <td>forceMergeDeletes</td>
+        <td>Operation</td>
+        <td>Optimizes the index forcing merge segments containing deletions, leaving the specified number of segments. It also includes a boolean parameter to block until all merging completes.</td>
+    </tr>
 </table>
