@@ -58,7 +58,10 @@ public class LuceneIndexTest {
     public void testCRUD() throws IOException, InterruptedException {
 
         Path path = Paths.get(folder.newFolder("directory" + UUID.randomUUID()).getPath());
-        LuceneIndex index = new LuceneIndex(path,
+        LuceneIndex index = new LuceneIndex("ks",
+                                            "cf",
+                                            "idx",
+                                            path,
                                             REFRESH_SECONDS,
                                             IndexConfig.DEFAULT_RAM_BUFFER_MB,
                                             IndexConfig.DEFAULT_MAX_MERGE_MB,

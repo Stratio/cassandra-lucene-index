@@ -86,7 +86,10 @@ public abstract class RowService {
         this.schema = config.getSchema();
         this.rowMapper = RowMapper.build(metadata, columnDefinition, schema);
 
-        this.luceneIndex = new LuceneIndex(config.getPath(),
+        this.luceneIndex = new LuceneIndex(columnDefinition.ksName,
+                                           columnDefinition.cfName,
+                                           columnDefinition.getIndexName(),
+                                           config.getPath(),
                                            config.getRefreshSeconds(),
                                            config.getRamBufferMB(),
                                            config.getMaxMergeMB(),
