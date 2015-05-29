@@ -16,7 +16,6 @@
 package com.stratio.cassandra.lucene.service;
 
 import org.apache.cassandra.config.DatabaseDescriptor;
-import org.apache.cassandra.db.DataRange;
 import org.apache.cassandra.db.DecoratedKey;
 import org.apache.cassandra.db.RowPosition;
 import org.apache.cassandra.dht.IPartitioner;
@@ -56,24 +55,6 @@ public abstract class TokenMapper {
      * @param partitionKey The raw partition key to be added.
      */
     public abstract void addFields(Document document, DecoratedKey partitionKey);
-
-    /**
-     * Returns a Lucene {@link Query} for filtering documents/rows according to the row token range specified in {@code
-     * dataRange}.
-     *
-     * @param dataRange The key range containing the row token range to be filtered.
-     * @return A Lucene {@link Query} for filtering documents/rows according to the row token range specified in {@code
-     * dataRage}.
-     */
-    public Query query(DataRange dataRange) {
-        RowPosition startPosition = dataRange.startKey();
-        RowPosition stopPosition = dataRange.stopKey();
-        Token start = startPosition.getToken();
-        Token stop = stopPosition.getToken();
-        boolean includeLower = includeStart(startPosition);
-        boolean includeUpper = includeStop(stopPosition);
-        return query(start, stop, includeLower, includeUpper);
-    }
 
     /**
      * Returns a Lucene {@link Query} for retrieving the documents inside the specified {@link Token} range.

@@ -23,7 +23,12 @@ import org.apache.cassandra.db.ColumnFamily;
 import org.apache.cassandra.db.DataRange;
 import org.apache.cassandra.db.DecoratedKey;
 import org.apache.cassandra.db.Row;
+import org.apache.cassandra.db.RowPosition;
 import org.apache.cassandra.db.composites.CellName;
+import org.apache.cassandra.db.composites.Composite;
+import org.apache.cassandra.db.filter.IDiskAtomFilter;
+import org.apache.cassandra.db.filter.SliceQueryFilter;
+import org.apache.cassandra.dht.Token;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
@@ -85,7 +90,24 @@ public class RowMapperSkinny extends RowMapper {
      */
     @Override
     public final Query query(DataRange dataRange) {
-        return tokenMapper.query(dataRange);
+        RowPosition startPosition = dataRange.startKey();
+        RowPosition stopPosition = dataRange.stopKey();
+        Token startToken = startPosition.getToken();
+        Token stopToken = stopPosition.getToken();
+        boolean includeStart = tokenMapper.includeStart(startPosition);
+        boolean includeStop = tokenMapper.includeStop(stopPosition);
+        if (startPosition instanceof DecoratedKey) {
+            DecoratedKey decoratedKey = (DecoratedKey) startPosition;
+            IDiskAtomFilter filter = dataRange.columnFilter(decoratedKey.getKey());
+            if (filter != null && filter instanceof SliceQueryFilter) {
+                SliceQueryFilter sliceQueryFilter = (SliceQueryFilter) filter;
+                Composite startName = sliceQueryFilter.start();
+                if (startName != null && !startName.isEmpty()) {
+                    includeStart = false;
+                }
+            }
+        }
+        return tokenMapper.query(startToken, stopToken, includeStart, includeStop);
     }
 
     /**
