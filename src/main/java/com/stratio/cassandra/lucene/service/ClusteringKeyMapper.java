@@ -328,7 +328,7 @@ public class ClusteringKeyMapper {
                                                     int hits,
                                                     int sort,
                                                     boolean reversed) throws IOException {
-                return new FieldComparator.TermOrdValComparator(hits, field, false) {
+                return new FieldComparator.TermValComparator(hits, field, false) {
                     @Override
                     public int compareValues(BytesRef val1, BytesRef val2) {
                         CellName bb1 = clusteringKey(val1);
