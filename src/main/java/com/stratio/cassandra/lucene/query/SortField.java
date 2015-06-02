@@ -92,7 +92,7 @@ public class SortField {
         if (columnMapper == null) {
             throw new IllegalArgumentException("No mapper found for sortFields field " + field);
         } else {
-            return columnMapper.sortField(field, reverse);
+            return columnMapper.sortField(reverse);
         }
     }
 
@@ -112,8 +112,13 @@ public class SortField {
                     return -1;
                 }
 
-                Column<?> column1 = o1.getColumn(field);
-                Column<?> column2 = o2.getColumn(field);
+                Columns columns1 = o1.getColumnsByName(field);
+                Columns columns2 = o2.getColumnsByName(field);
+                if (columns1.size() > 1 || columns2.size() > 1 ) {
+                    throw new RuntimeException("Sorting in multivalued columns is not supported");
+                }
+                Column<?> column1 = columns1.getFirst();
+                Column<?> column2 = columns2.getFirst();
 
                 if (column1 == null) {
                     return column2 == null ? 0 : 1;

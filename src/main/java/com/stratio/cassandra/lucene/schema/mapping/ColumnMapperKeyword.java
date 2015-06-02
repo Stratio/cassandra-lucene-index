@@ -59,8 +59,8 @@ public abstract class ColumnMapperKeyword extends ColumnMapperSingle<String> {
 
     /** {@inheritDoc} */
     @Override
-    public final SortField sortField(String field, boolean reverse) {
-        return new SortField(field, Type.STRING_VAL, reverse);
+    public final SortField sortField(boolean reverse) {
+        return new SortField(name, Type.STRING_VAL, reverse);
     }
 
     /** {@inheritDoc} */

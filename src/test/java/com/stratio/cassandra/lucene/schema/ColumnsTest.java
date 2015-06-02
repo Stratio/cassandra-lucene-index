@@ -63,13 +63,29 @@ public class ColumnsTest {
     }
 
     @Test
-    public void testGet() {
+    public void testGetColumnsByFullName() {
         Columns columns = new Columns();
         columns.add(Column.fromComposed("field1", "value1", UTF8Type.instance, false));
         columns.add(Column.fromComposed("field2", "value2", UTF8Type.instance, false));
-        assertNotNull(columns.getColumn("field1"));
-        assertNotNull(columns.getColumn("field2"));
-        assertNull(columns.getColumn("field3"));
+        assertEquals(1, columns.getColumnsByFullName("field1").size());
+        assertEquals(1, columns.getColumnsByFullName("field2").size());
+        assertTrue(columns.getColumnsByFullName("field3").isEmpty());
+    }
+
+    @Test
+    public void testGetColumnsByName() {
+        Columns columns = new Columns();
+        columns.add(Column.fromComposed("field1","item1", "value1", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("field1","item2", "value1", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("field2","item1", "value2", UTF8Type.instance, false));
+        assertEquals(2, columns.getColumnsByName("field1").size());
+        assertEquals(0, columns.getColumnsByFullName("field1").size());
+        assertEquals(1, columns.getColumnsByFullName("field1.item1").size());
+        assertEquals(1, columns.getColumnsByFullName("field1.item2").size());
+        assertEquals(1, columns.getColumnsByName("field2").size());
+        assertEquals(0, columns.getColumnsByFullName("field2").size());
+        assertEquals(1, columns.getColumnsByFullName("field2.item1").size());
+        assertTrue(columns.getColumnsByFullName("field3").isEmpty());
     }
 
     @Test

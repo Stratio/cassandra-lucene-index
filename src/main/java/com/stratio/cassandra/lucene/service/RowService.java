@@ -25,6 +25,7 @@ import com.stratio.cassandra.lucene.util.TaskQueue;
 import com.stratio.cassandra.lucene.util.TimeCounter;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
+import org.apache.cassandra.cql3.Operator;
 import org.apache.cassandra.db.ArrayBackedSortedColumns;
 import org.apache.cassandra.db.Cell;
 import org.apache.cassandra.db.ColumnFamily;
@@ -352,24 +353,27 @@ public abstract class RowService {
      */
     private boolean accepted(Columns columns, IndexExpression expression) {
 
-        ByteBuffer expectedValue = expression.value;
-
         ColumnDefinition def = metadata.getColumnDefinition(expression.column);
         String name = def.name.toString();
+        ByteBuffer expectedValue = expression.value;
+        Operator operator = expression.operator;
+        AbstractType<?> validator = def.type;
 
-        Column column = columns.getColumn(name);
-        if (column == null) {
-            return false;
+        for (Column column : columns.getColumnsByName(name)) {
+            if (accepted(column, validator, operator, expectedValue)) return true;
         }
+        return false;
+    }
+
+    private boolean accepted(Column column, AbstractType<?> validator, Operator operator, ByteBuffer value) {
+
+        if (column == null) return false;
 
         ByteBuffer actualValue = column.getDecomposedValue();
-        if (actualValue == null) {
-            return false;
-        }
+        if (actualValue == null) return false;
 
-        AbstractType<?> validator = def.type;
-        int comparison = validator.compare(actualValue, expectedValue);
-        switch (expression.operator) {
+        int comparison = validator.compare(actualValue, value);
+        switch (operator) {
             case EQ:
                 return comparison == 0;
             case GTE:

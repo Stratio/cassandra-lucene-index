@@ -126,8 +126,8 @@ public class ColumnMapperDate extends ColumnMapperSingle<Long> {
 
     /** {@inheritDoc} */
     @Override
-    public SortField sortField(String field, boolean reverse) {
-        return new SortField(field, Type.LONG, reverse);
+    public SortField sortField(boolean reverse) {
+        return new SortField(name, Type.LONG, reverse);
     }
 
     /** {@inheritDoc} */

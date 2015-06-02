@@ -63,7 +63,8 @@ public class ColumnMapperDateTest {
     @Test()
     public void testSortField() {
         ColumnMapperDate mapper = new ColumnMapperDate(null, null, PATTERN);
-        SortField sortField = mapper.sortField("field", true);
+        mapper.init("field");
+        SortField sortField = mapper.sortField(true);
         assertNotNull(sortField);
         assertTrue(sortField.getReverse());
     }

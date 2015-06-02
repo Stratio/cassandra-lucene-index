@@ -243,7 +243,7 @@ public class MatchConditionTest extends AbstractConditionTest {
             }
 
             @Override
-            public org.apache.lucene.search.SortField sortField(String field, boolean reverse) {
+            public org.apache.lucene.search.SortField sortField(boolean reverse) {
                 return null;
             }
         };

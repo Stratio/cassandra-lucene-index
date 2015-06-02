@@ -18,6 +18,8 @@ package com.stratio.cassandra.lucene.geospatial;
 import com.google.common.base.Objects;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.shape.Shape;
+import com.stratio.cassandra.lucene.schema.Column;
+import com.stratio.cassandra.lucene.schema.Columns;
 import com.stratio.cassandra.lucene.schema.mapping.ColumnMapper;
 import org.apache.cassandra.db.marshal.AsciiType;
 import org.apache.cassandra.db.marshal.UTF8Type;
@@ -62,7 +64,15 @@ public class GeoShapeMapper extends ColumnMapper {
         this.grid = new GeohashPrefixTree(spatialContext, this.maxLevels);
     }
 
-    public void addFields(Document document, String name, Object value, boolean isCollection) {
+    public void addFields(Document document, Columns columns) {
+        for (Column column : columns.getColumnsByName(name)) {
+            String name = column.getFullName();
+            Object value = column.getComposedValue();
+            addFields(document, name, value);
+        }
+    }
+
+    private void addFields(Document document, String name, Object value) {
         SpatialStrategy strategy = getStrategy(name);
         GeoShape geoShape = GeoShape.fromJson((String) value);
         Shape shape = geoShape.toSpatial4j(spatialContext);
@@ -86,8 +96,8 @@ public class GeoShapeMapper extends ColumnMapper {
 
     /** {@inheritDoc} */
     @Override
-    public SortField sortField(String field, boolean reverse) {
-        return new SortField(field, Type.LONG, reverse);
+    public SortField sortField(boolean reverse) {
+        return new SortField(name, Type.LONG, reverse);
     }
 
     @Override

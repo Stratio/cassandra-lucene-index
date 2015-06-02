@@ -46,7 +46,8 @@ public class ColumnMapperDoubleTest {
     @Test()
     public void testSortField() {
         ColumnMapperDouble mapper = new ColumnMapperDouble(null, null, 2.3f);
-        SortField sortField = mapper.sortField("field", true);
+        mapper.init("field");
+        SortField sortField = mapper.sortField(true);
         assertNotNull(sortField);
         assertTrue(sortField.getReverse());
     }

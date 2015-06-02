@@ -17,6 +17,7 @@ package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.stratio.cassandra.lucene.geospatial.GeoShapeMapper;
 import com.stratio.cassandra.lucene.schema.Column;
+import com.stratio.cassandra.lucene.schema.Columns;
 import com.stratio.cassandra.lucene.schema.analysis.PreBuiltAnalyzers;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.ListType;
@@ -65,6 +66,8 @@ public abstract class ColumnMapper {
     /** If the field must be sorted when no specified. */
     static final boolean DEFAULT_SORTED = true;
 
+    protected String name;
+
     /** If the field must be indexed. */
     final Boolean indexed;
 
@@ -85,6 +88,10 @@ public abstract class ColumnMapper {
         this.indexed = indexed == null ? DEFAULT_INDEXED : indexed;
         this.sorted = sorted == null ? DEFAULT_SORTED : sorted;
         this.supportedTypes = supportedTypes;
+    }
+
+    public void init(String name) {
+        this.name = name;
     }
 
     /**
@@ -116,28 +123,20 @@ public abstract class ColumnMapper {
 
     /**
      * Adds to the specified {@link Document} the Lucene {@link Field}s resulting from the mapping of the specified
-     * {@link Column}.
+     * {@link Columns}.
      *
      * @param document The {@link Document} where the {@link Field} are going to be added.
-     * @param column   The name of the {@link Column}.
+     * @param columns   The {@link Columns}.
      */
-    public final void addFields(Document document, Column column) {
-        String name = column.getFullName();
-        Object value = column.getComposedValue();
-        boolean isCollection = column.isCollection();
-        addFields(document, name, value, isCollection);
-    }
-
-    protected abstract void addFields(Document document, String name, Object value, boolean isCollection);
+    public abstract void addFields(Document document, Columns columns);
 
     /**
      * Returns the {@link SortField} resulting from the mapping of the specified object.
      *
-     * @param field   The field name.
      * @param reverse If the sort must be reversed.
      * @return The {@link SortField} resulting from the mapping of the specified object.
      */
-    public abstract SortField sortField(String field, boolean reverse);
+    public abstract SortField sortField(boolean reverse);
 
     /**
      * Returns {@code true} if the specified Cassandra type/marshaller is supported, {@code false} otherwise.

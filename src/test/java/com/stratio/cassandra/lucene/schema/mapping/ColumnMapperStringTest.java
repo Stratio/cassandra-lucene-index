@@ -16,6 +16,7 @@
 package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.stratio.cassandra.lucene.schema.Column;
+import com.stratio.cassandra.lucene.schema.Columns;
 import com.stratio.cassandra.lucene.schema.Schema;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.lucene.document.Document;
@@ -204,9 +205,11 @@ public class ColumnMapperStringTest {
     @Test
     public void testAddFields() {
         ColumnMapperString mapper = new ColumnMapperString(null, null, null);
+        mapper.init("field");
         Document document = new Document();
         Column column = Column.fromComposed("field", "value", UTF8Type.instance, false);
-        mapper.addFields(document, column);
+        Columns columns = new Columns(column);
+        mapper.addFields(document, columns);
         IndexableField[] indexableFields = document.getFields("field");
         assertEquals(2, indexableFields.length);
         assertTrue(indexableFields[0] instanceof StringField);

@@ -106,8 +106,8 @@ public class ColumnMapperInteger extends ColumnMapperSingle<Integer> {
 
     /** {@inheritDoc} */
     @Override
-    public SortField sortField(String field, boolean reverse) {
-        return new SortField(field, Type.INT, reverse);
+    public SortField sortField(boolean reverse) {
+        return new SortField(name, Type.INT, reverse);
     }
 
     /** {@inheritDoc} */

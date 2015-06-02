@@ -2,6 +2,7 @@ package com.stratio.cassandra.lucene.query;
 
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.analysis.PreBuiltAnalyzers;
+import com.stratio.cassandra.lucene.schema.mapping.ColumnMapper;
 import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperString;
 import org.junit.Test;
 
@@ -90,18 +91,22 @@ public class SearchTest {
 
     @Test
     public void testSort() {
+        ColumnMapper mapper = new ColumnMapperString(true, true, true);
+        mapper.init("field");
         Schema schema = mock(Schema.class);
         when(schema.getAnalyzer()).thenReturn(PreBuiltAnalyzers.STANDARD.get());
-        when(schema.getMapper("field")).thenReturn(new ColumnMapperString(true, true, true));
+        when(schema.getMapper("field")).thenReturn(mapper);
         assertNotNull(search().sort(sortField("field")).build().sort(schema));
         assertNull(search().query(match("field", "value")).build().sort(schema));
     }
 
     @Test
     public void testValidate() {
+        ColumnMapper mapper = new ColumnMapperString(true, true, true);
+        mapper.init("field");
         Schema schema = mock(Schema.class);
         when(schema.getAnalyzer()).thenReturn(PreBuiltAnalyzers.STANDARD.get());
-        when(schema.getMapper("field")).thenReturn(new ColumnMapperString(true, true, true));
+        when(schema.getMapper("field")).thenReturn(mapper);
         search().query(match("field", "value"))
                 .filter(match("field", "value"))
                 .sort(sortField("field"))

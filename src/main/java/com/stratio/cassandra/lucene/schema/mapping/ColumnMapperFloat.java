@@ -106,8 +106,8 @@ public class ColumnMapperFloat extends ColumnMapperSingle<Float> {
 
     /** {@inheritDoc} */
     @Override
-    public SortField sortField(String field, boolean reverse) {
-        return new SortField(field, Type.FLOAT, reverse);
+    public SortField sortField(boolean reverse) {
+        return new SortField(name, Type.FLOAT, reverse);
     }
 
     /** {@inheritDoc} */

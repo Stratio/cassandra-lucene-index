@@ -17,6 +17,7 @@ package com.stratio.cassandra.lucene.schema;
 
 import com.google.common.base.Objects;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -34,6 +35,10 @@ public class Columns implements Iterable<Column> {
     /** Constructs an empty {@link Column} list. */
     public Columns() {
         this.columns = new LinkedList<>();
+    }
+
+    public Columns(Column... columns) {
+        this.columns = Arrays.asList(columns);
     }
 
     /**
@@ -79,19 +84,44 @@ public class Columns implements Iterable<Column> {
         return columns.size();
     }
 
+    public boolean isEmpty() {
+        return columns.isEmpty();
+    }
+
     /**
      * Returns the {@link Column} identified by the specified name, or {@code null} if not found.
      *
      * @param name The name of the {@link Column} to be returned.
      * @return The {@link Column} identified by the specified name, or {@code null} if not found.
      */
-    public Column getColumn(String name) {
+    public Columns getColumnsByFullName(String name) {
+        Columns result = new Columns();
         for (Column column : columns) {
-            if (column.getName().equals(name)) {
-                return column;
+            if (column.getFullName().equals(name)) {
+                result.add(column);
             }
         }
-        return null;
+        return result;
+    }
+
+    /**
+     * Returns the {@link Column} identified by the specified name, or {@code null} if not found.
+     *
+     * @param name The name of the {@link Column} to be returned.
+     * @return The {@link Column} identified by the specified name, or {@code null} if not found.
+     */
+    public Columns getColumnsByName(String name) {
+        Columns result = new Columns();
+        for (Column column : columns) {
+            if (column.getName().equals(name)) {
+                result.add(column);
+            }
+        }
+        return result;
+    }
+
+    public Column getFirst() {
+        return columns.isEmpty() ? null : columns.get(0);
     }
 
     /** {@inheritDoc} */

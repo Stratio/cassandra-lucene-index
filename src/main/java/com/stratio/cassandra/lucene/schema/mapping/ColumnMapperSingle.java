@@ -16,6 +16,7 @@
 package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.stratio.cassandra.lucene.schema.Column;
+import com.stratio.cassandra.lucene.schema.Columns;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -38,7 +39,15 @@ public abstract class ColumnMapperSingle<BASE> extends ColumnMapper {
         super(indexed, sorted, supportedTypes);
     }
 
-    @Override
+    public void addFields(Document document, Columns columns) {
+        for (Column column : columns.getColumnsByName(name)) {
+            String name = column.getFullName();
+            Object value = column.getComposedValue();
+            boolean isCollection = column.isCollection();
+            addFields(document, name, value, isCollection);
+        }
+    }
+
     public final void addFields(Document document, String name, Object value, boolean isCollection) {
         BASE base = base(name, value);
         if (indexed) document.add(indexedField(name, base));

@@ -66,6 +66,9 @@ public class Schema implements Closeable {
                   @JsonProperty("default_analyzer") String defaultAnalyzer) {
 
         this.columnMappers = columnMappers;
+        for (Map.Entry<String,ColumnMapper> entry : this.columnMappers.entrySet()) {
+            entry.getValue().init(entry.getKey());
+        }
 
         this.analyzers = new HashMap<>();
         if (analyzers != null) {
@@ -157,12 +160,8 @@ public class Schema implements Closeable {
      * @param columns  The {@link Columns} to be added.
      */
     public void addFields(Document document, Columns columns) {
-        for (Column column : columns) {
-            String name = column.getName();
-            ColumnMapper columnMapper = getMapper(name);
-            if (columnMapper != null) {
-                columnMapper.addFields(document, column);
-            }
+        for (ColumnMapper columnMapper : columnMappers.values()) {
+            columnMapper.addFields(document, columns);
         }
     }
 

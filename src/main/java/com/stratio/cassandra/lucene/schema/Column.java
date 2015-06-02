@@ -163,6 +163,19 @@ public class Column<T> {
         return new Column<>(name, null, decomposedValue, composedValue, type, isCollection);
     }
 
+    /**
+     * Returns the {@link Column} defined by the specified name, value and type.
+     *
+     * @param name          The column name.
+     * @param composedValue The column composed value.
+     * @param type          The column type/marshaller.
+     * @return A {@link Column}.
+     */
+    public static <T> Column<T> fromComposed(String name, String sufix, T composedValue, AbstractType<T> type, boolean isCollection) {
+        ByteBuffer decomposedValue = type.decompose(composedValue);
+        return new Column<>(name, sufix, decomposedValue, composedValue, type, isCollection);
+    }
+
     /** {@inheritDoc} */
     @Override
     public String toString() {

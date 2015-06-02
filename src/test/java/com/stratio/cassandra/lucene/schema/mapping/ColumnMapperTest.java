@@ -15,6 +15,7 @@
  */
 package com.stratio.cassandra.lucene.schema.mapping;
 
+import com.stratio.cassandra.lucene.schema.Columns;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.IntegerType;
 import org.apache.cassandra.db.marshal.ListType;
@@ -108,12 +109,12 @@ public class ColumnMapperTest {
 
         ColumnMapper mapper = new ColumnMapper(null, null, supportedTypes) {
             @Override
-            protected void addFields(Document document, String name, Object value, boolean isCollection) {
+            public void addFields(Document document, Columns columns) {
 
             }
 
             @Override
-            public SortField sortField(String field, boolean reverse) {
+            public SortField sortField(boolean reverse) {
                 return null;
             }
         };

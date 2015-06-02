@@ -53,7 +53,8 @@ public class ColumnMapperTextTest {
     @Test()
     public void testSortField() {
         ColumnMapperText mapper = new ColumnMapperText(false, true, "SpanishAnalyzer");
-        SortField sortField = mapper.sortField("field", true);
+        mapper.init("field");
+        SortField sortField = mapper.sortField(true);
         assertNotNull(sortField);
         assertTrue(sortField.getReverse());
     }

@@ -106,8 +106,8 @@ public class ColumnMapperDouble extends ColumnMapperSingle<Double> {
 
     /** {@inheritDoc} */
     @Override
-    public SortField sortField(String field, boolean reverse) {
-        return new SortField(field, Type.DOUBLE, reverse);
+    public SortField sortField(boolean reverse) {
+        return new SortField(name, Type.DOUBLE, reverse);
     }
 
     /** {@inheritDoc} */

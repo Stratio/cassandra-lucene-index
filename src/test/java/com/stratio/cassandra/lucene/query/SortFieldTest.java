@@ -19,6 +19,7 @@ import com.stratio.cassandra.lucene.schema.Column;
 import com.stratio.cassandra.lucene.schema.Columns;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.analysis.PreBuiltAnalyzers;
+import com.stratio.cassandra.lucene.schema.mapping.ColumnMapper;
 import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperString;
 import com.stratio.cassandra.lucene.util.JsonSerializer;
 import org.apache.cassandra.db.marshal.UTF8Type;
@@ -67,9 +68,13 @@ public class SortFieldTest {
 
     @Test
     public void testSortField() {
+
+        ColumnMapper mapper = new ColumnMapperString(null, null, null);
+        mapper.init("field");
+
         Schema schema = mock(Schema.class);
         when(schema.getAnalyzer()).thenReturn(PreBuiltAnalyzers.DEFAULT.get());
-        when(schema.getMapper("field")).thenReturn(new ColumnMapperString(null, null, null));
+        when(schema.getMapper("field")).thenReturn(mapper);
 
         SortField sortField = new SortField("field", true);
         org.apache.lucene.search.SortField luceneSortField = sortField.sortField(schema);
