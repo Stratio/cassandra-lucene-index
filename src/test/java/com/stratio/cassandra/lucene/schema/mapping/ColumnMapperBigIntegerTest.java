@@ -31,7 +31,7 @@ public class ColumnMapperBigIntegerTest {
 
     @Test
     public void testConstructorWithoutArgs() {
-        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger(null, null, null);
+        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger("field", null, null, null);
         assertEquals(ColumnMapper.DEFAULT_INDEXED, mapper.isIndexed());
         assertEquals(ColumnMapper.DEFAULT_SORTED, mapper.isSorted());
         assertEquals(ColumnMapperBigInteger.DEFAULT_DIGITS, mapper.getDigits());
@@ -39,7 +39,7 @@ public class ColumnMapperBigIntegerTest {
 
     @Test
     public void testConstructorWithAllArgs() {
-        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger(false, true, null);
+        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger("field", false, true, null);
         assertFalse(mapper.isIndexed());
         assertTrue(mapper.isSorted());
         assertEquals(ColumnMapperBigInteger.DEFAULT_DIGITS, mapper.getDigits());
@@ -47,89 +47,89 @@ public class ColumnMapperBigIntegerTest {
 
     @Test()
     public void testValueNull() {
-        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger(null, null, 10);
+        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger("field", null, null, 10);
         String parsed = mapper.base("test", null);
         assertNull(parsed);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testValueDigitsZero() {
-        new ColumnMapperBigInteger(null, null, 0);
+        new ColumnMapperBigInteger("field", null, null, 0);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testValueDigitsNegative() {
-        new ColumnMapperBigInteger(null, null, -1);
+        new ColumnMapperBigInteger("field", null, null, -1);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testValueBooleanTrue() {
-        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger(null, null, 10);
+        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger("field", null, null, 10);
         mapper.base("test", true);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testValueBooleanFalse() {
-        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger(null, null, 10);
+        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger("field", null, null, 10);
         mapper.base("test", false);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testValueUUID() {
-        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger(null, null, 100);
+        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger("field", null, null, 100);
         mapper.base("test", UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testValueDate() {
-        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger(null, null, 100);
+        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger("field", null, null, 100);
         mapper.base("test", new Date());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testValueStringInvalid() {
-        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger(null, null, 10);
+        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger("field", null, null, 10);
         mapper.base("test", "0s0");
     }
 
     @Test
     public void testValueStringMinPositive() {
-        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger(null, null, 8);
+        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger("field", null, null, 8);
         String parsed = mapper.base("test", "1");
         assertEquals("01njchs", parsed);
     }
 
     @Test
     public void testValueStringMaxPositive() {
-        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger(null, null, 8);
+        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger("field", null, null, 8);
         String parsed = mapper.base("test", "99999999");
         assertEquals("03b2ozi", parsed);
     }
 
     @Test
     public void testValueStringMinNegative() {
-        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger(null, null, 8);
+        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger("field", null, null, 8);
         String parsed = mapper.base("test", "-1");
         assertEquals("01njchq", parsed);
     }
 
     @Test
     public void testValueStringMaxNegative() {
-        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger(null, null, 8);
+        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger("field", null, null, 8);
         String parsed = mapper.base("test", "-99999999");
         assertEquals("0000000", parsed);
     }
 
     @Test
     public void testValueStringZero() {
-        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger(null, null, 8);
+        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger("field", null, null, 8);
         String parsed = mapper.base("test", "0");
         assertEquals("01njchr", parsed);
     }
 
     @Test
     public void testValueStringLeadingZeros() {
-        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger(null, null, 8);
+        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger("field", null, null, 8);
         String parsed = mapper.base("test", "000042");
         assertEquals("01njcix", parsed);
     }
@@ -138,35 +138,35 @@ public class ColumnMapperBigIntegerTest {
 
     @Test
     public void testValueIntegerMinPositive() {
-        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger(null, null, 8);
+        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger("field", null, null, 8);
         String parsed = mapper.base("test", 1);
         assertEquals("01njchs", parsed);
     }
 
     @Test
     public void testValueIntegerMaxPositive() {
-        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger(null, null, 8);
+        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger("field", null, null, 8);
         String parsed = mapper.base("test", 99999999);
         assertEquals("03b2ozi", parsed);
     }
 
     @Test
     public void testValueIntegerMinNegative() {
-        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger(null, null, 8);
+        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger("field", null, null, 8);
         String parsed = mapper.base("test", -1);
         assertEquals("01njchq", parsed);
     }
 
     @Test
     public void testValueIntegerMaxNegative() {
-        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger(null, null, 8);
+        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger("field", null, null, 8);
         String parsed = mapper.base("test", -99999999);
         assertEquals("0000000", parsed);
     }
 
     @Test
     public void testValueIntegerZero() {
-        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger(null, null, 8);
+        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger("field", null, null, 8);
         String parsed = mapper.base("test", 0);
         assertEquals("01njchr", parsed);
     }
@@ -175,35 +175,35 @@ public class ColumnMapperBigIntegerTest {
 
     @Test
     public void testValueLongMinPositive() {
-        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger(null, null, 10);
+        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger("field", null, null, 10);
         String parsed = mapper.base("test", 1L);
         assertEquals("04ldqpds", parsed);
     }
 
     @Test
     public void testValueLongMaxPositive() {
-        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger(null, null, 10);
+        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger("field", null, null, 10);
         String parsed = mapper.base("test", 9999999999L);
         assertEquals("096rheri", parsed);
     }
 
     @Test
     public void testValueLongMinNegative() {
-        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger(null, null, 10);
+        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger("field", null, null, 10);
         String parsed = mapper.base("test", -1L);
         assertEquals("04ldqpdq", parsed);
     }
 
     @Test
     public void testValueLongMaxNegative() {
-        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger(null, null, 10);
+        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger("field", null, null, 10);
         String parsed = mapper.base("test", -9999999999L);
         assertEquals("00000000", parsed);
     }
 
     @Test
     public void testValueLongZero() {
-        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger(null, null, 10);
+        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger("field", null, null, 10);
         String parsed = mapper.base("test", 0L);
         assertEquals("04ldqpdr", parsed);
     }
@@ -212,35 +212,35 @@ public class ColumnMapperBigIntegerTest {
 
     @Test
     public void testValueBigIntegerMinPositive() {
-        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger(null, null, 20);
+        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger("field", null, null, 20);
         String parsed = mapper.base("test", new BigInteger("1"));
         assertEquals("00l3r41ifs0q5ts", parsed);
     }
 
     @Test
     public void testValueBigIntegerMaxPositive() {
-        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger(null, null, 20);
+        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger("field", null, null, 20);
         String parsed = mapper.base("test", new BigInteger("99999999999999999999"));
         assertEquals("0167i830vk1gbni", parsed);
     }
 
     @Test
     public void testValueBigIntegerMinNegative() {
-        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger(null, null, 20);
+        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger("field", null, null, 20);
         String parsed = mapper.base("test", new BigInteger("-1"));
         assertEquals("00l3r41ifs0q5tq", parsed);
     }
 
     @Test
     public void testValueBigIntegerMaxNegative() {
-        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger(null, null, 20);
+        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger("field", null, null, 20);
         String parsed = mapper.base("test", new BigInteger("-99999999999999999999"));
         assertEquals("000000000000000", parsed);
     }
 
     @Test
     public void testValueBigIntegerZero() {
-        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger(null, null, 20);
+        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger("field", null, null, 20);
         String parsed = mapper.base("test", new BigInteger("0"));
         assertEquals("00l3r41ifs0q5tr", parsed);
     }
@@ -249,31 +249,31 @@ public class ColumnMapperBigIntegerTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testValueFloatMinPositive() {
-        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger(null, null, 8);
+        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger("field", null, null, 8);
         mapper.base("test", 1.0f);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testValueFloatMaxPositive() {
-        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger(null, null, 8);
+        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger("field", null, null, 8);
         mapper.base("test", 99999999.0f);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testValueFloatMinNegative() {
-        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger(null, null, 8);
+        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger("field", null, null, 8);
         mapper.base("test", -1.0f);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testValueFloatMaxNegative() {
-        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger(null, null, 8);
+        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger("field", null, null, 8);
         mapper.base("test", -99999999.0f);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testValueFloatZero() {
-        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger(null, null, 8);
+        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger("field", null, null, 8);
         mapper.base("test", 0.0f);
     }
 
@@ -281,31 +281,31 @@ public class ColumnMapperBigIntegerTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testValueDoubleMinPositive() {
-        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger(null, null, 10);
+        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger("field", null, null, 10);
         mapper.base("test", 1.0d);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testValueDoubleMaxPositive() {
-        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger(null, null, 10);
+        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger("field", null, null, 10);
         mapper.base("test", 9999999999.0d);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testValueDoubleMinNegative() {
-        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger(null, null, 10);
+        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger("field", null, null, 10);
         mapper.base("test", -1.0d);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testValueDoubleMaxNegative() {
-        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger(null, null, 10);
+        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger("field", null, null, 10);
         mapper.base("test", -9999999999.0d);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testValueDoubleZero() {
-        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger(null, null, 10);
+        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger("field", null, null, 10);
         mapper.base("test", 0.0d);
     }
 
@@ -313,19 +313,19 @@ public class ColumnMapperBigIntegerTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testValueTooBig() {
-        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger(null, null, 8);
+        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger("field", null, null, 8);
         mapper.base("test", 100000000);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testValueTooSmall() {
-        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger(null, null, 8);
+        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger("field", null, null, 8);
         mapper.base("test", -100000000);
     }
 
     @Test
     public void testValueNegativeMaxSort() {
-        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger(null, null, 8);
+        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger("field", null, null, 8);
         String lower = mapper.base("test", -99999999);
         String upper = mapper.base("test", -99999998);
         int compare = lower.compareTo(upper);
@@ -334,7 +334,7 @@ public class ColumnMapperBigIntegerTest {
 
     @Test
     public void testValueNegativeMinSort() {
-        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger(null, null, 8);
+        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger("field", null, null, 8);
         String lower = mapper.base("test", -2);
         String upper = mapper.base("test", -1);
         int compare = lower.compareTo(upper);
@@ -343,7 +343,7 @@ public class ColumnMapperBigIntegerTest {
 
     @Test
     public void testValuePositiveMaxSort() {
-        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger(null, null, 8);
+        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger("field", null, null, 8);
         String lower = mapper.base("test", 99999998);
         String upper = mapper.base("test", 99999999);
         int compare = lower.compareTo(upper);
@@ -352,7 +352,7 @@ public class ColumnMapperBigIntegerTest {
 
     @Test
     public void testValuePositiveMinSort() {
-        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger(null, null, 8);
+        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger("field", null, null, 8);
         String lower = mapper.base("test", 1);
         String upper = mapper.base("test", 2);
         int compare = lower.compareTo(upper);
@@ -361,7 +361,7 @@ public class ColumnMapperBigIntegerTest {
 
     @Test
     public void testValueNegativeZeroSort() {
-        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger(null, null, 8);
+        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger("field", null, null, 8);
         String lower = mapper.base("test", -1);
         String upper = mapper.base("test", 0);
         int compare = lower.compareTo(upper);
@@ -370,7 +370,7 @@ public class ColumnMapperBigIntegerTest {
 
     @Test
     public void testValuePositiveZeroSort() {
-        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger(null, null, 8);
+        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger("field", null, null, 8);
         String lower = mapper.base("test", 0);
         String upper = mapper.base("test", 1);
         int compare = lower.compareTo(upper);
@@ -379,7 +379,7 @@ public class ColumnMapperBigIntegerTest {
 
     @Test
     public void testValueExtremeSort() {
-        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger(null, null, 8);
+        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger("field", null, null, 8);
         String lower = mapper.base("test", -99999999);
         String upper = mapper.base("test", 99999999);
         int compare = lower.compareTo(upper);
@@ -388,7 +388,7 @@ public class ColumnMapperBigIntegerTest {
 
     @Test
     public void testValueNegativePositiveSort() {
-        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger(null, null, 8);
+        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger("field", null, null, 8);
         String lower = mapper.base("test", -1);
         String upper = mapper.base("test", 1);
         int compare = lower.compareTo(upper);
@@ -397,7 +397,7 @@ public class ColumnMapperBigIntegerTest {
 
     @Test
     public void testIndexedField() {
-        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger(true, null, 10);
+        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger("field", true, null, 10);
         String base = mapper.base("name", "4243");
         Field field = mapper.indexedField("name", base);
         assertNotNull(field);
@@ -409,7 +409,7 @@ public class ColumnMapperBigIntegerTest {
 
     @Test
     public void testSortedField() {
-        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger(null, true, 10);
+        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger("field", null, true, 10);
         String base = mapper.base("name", "4243");
         Field field = mapper.sortedField("name", base, false);
         assertNotNull(field);
@@ -418,7 +418,7 @@ public class ColumnMapperBigIntegerTest {
 
     @Test
     public void testSortedFieldCollection() {
-        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger(null, true, 10);
+        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger("field", null, true, 10);
         String base = mapper.base("name", "4243");
         Field field = mapper.sortedField("name", base, true);
         assertNotNull(field);
@@ -427,7 +427,7 @@ public class ColumnMapperBigIntegerTest {
 
     @Test
     public void testExtractAnalyzers() {
-        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger(null, null, 10);
+        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger("field", null, null, 10);
         String analyzer = mapper.getAnalyzer();
         assertEquals(ColumnMapper.KEYWORD_ANALYZER, analyzer);
     }
@@ -471,7 +471,7 @@ public class ColumnMapperBigIntegerTest {
 
     @Test
     public void testToString() {
-        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger(false, false, 8);
+        ColumnMapperBigInteger mapper = new ColumnMapperBigInteger("field", false, false, 8);
         assertEquals("ColumnMapperBigInteger{indexed=false, sorted=false, digits=8}", mapper.toString());
     }
 }

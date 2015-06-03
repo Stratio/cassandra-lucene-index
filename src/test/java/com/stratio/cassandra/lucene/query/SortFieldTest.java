@@ -69,8 +69,7 @@ public class SortFieldTest {
     @Test
     public void testSortField() {
 
-        ColumnMapper mapper = new ColumnMapperString(null, null, null);
-        mapper.init("field");
+        ColumnMapper mapper = new ColumnMapperString("field", null, null, null);
 
         Schema schema = mock(Schema.class);
         when(schema.getAnalyzer()).thenReturn(PreBuiltAnalyzers.DEFAULT.get());
@@ -97,7 +96,7 @@ public class SortFieldTest {
 
         Schema schema = mock(Schema.class);
         when(schema.getAnalyzer()).thenReturn(PreBuiltAnalyzers.DEFAULT.get());
-        when(schema.getMapper("field")).thenReturn(new ColumnMapperString(null, null, null));
+        when(schema.getMapper("field")).thenReturn(new ColumnMapperString("field", null, null, null));
 
         SortField sortField = new SortField("field", false);
         Comparator<Columns> comparator = sortField.comparator();
@@ -116,7 +115,7 @@ public class SortFieldTest {
 
         Schema schema = mock(Schema.class);
         when(schema.getAnalyzer()).thenReturn(PreBuiltAnalyzers.DEFAULT.get());
-        when(schema.getMapper("field")).thenReturn(new ColumnMapperString(null, null, null));
+        when(schema.getMapper("field")).thenReturn(new ColumnMapperString("field", null, null, null));
 
         SortField sortField = new SortField("field", true);
         Comparator<Columns> comparator = sortField.comparator();

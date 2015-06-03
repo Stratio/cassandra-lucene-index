@@ -16,15 +16,10 @@
 package com.stratio.cassandra.lucene.query;
 
 import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.mapping.ColumnMapper;
 import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperString;
-import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.Query;
 import org.junit.Test;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import static com.stratio.cassandra.lucene.query.builder.SearchBuilders.filter;
 import static com.stratio.cassandra.lucene.query.builder.SearchBuilders.phrase;
@@ -69,9 +64,7 @@ public class PhraseConditionTest extends AbstractConditionTest {
     @Test
     public void testPhraseQuery() {
 
-        Map<String, ColumnMapper> map = new HashMap<>();
-        map.put("name", new ColumnMapperString(null, null, null));
-        Schema schema = new Schema(map, null, EnglishAnalyzer.class.getName());
+        Schema schema = mockSchema("name", new ColumnMapperString("name", true, true, null));
 
         String[] values = new String[]{"hola", "adios", "the", "a"};
         PhraseCondition condition = new PhraseCondition(0.5f, "name", values, 2);

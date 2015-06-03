@@ -78,7 +78,7 @@ public class SingleFieldConditionTest extends AbstractConditionTest {
     @Test
     public void testGetMapper() {
 
-        ColumnMapperSingle mapper = new ColumnMapperString(null, null, null);
+        ColumnMapperSingle mapper = new ColumnMapperString("field", null, null, null);
         Schema schema = mock(Schema.class);
         when(schema.getMapper("field")).thenReturn(mapper);
 

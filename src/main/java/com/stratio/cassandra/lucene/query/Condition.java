@@ -17,8 +17,6 @@ package com.stratio.cassandra.lucene.query;
 
 import com.stratio.cassandra.lucene.geospatial.GeoBBoxCondition;
 import com.stratio.cassandra.lucene.geospatial.GeoDistanceCondition;
-import com.stratio.cassandra.lucene.geospatial.GeoDistanceRangeCondition;
-import com.stratio.cassandra.lucene.geospatial.GeoShapeCondition;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.analysis.AnalysisUtils;
 import org.apache.lucene.analysis.Analyzer;
@@ -35,8 +33,7 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
  * <p/>
  * Known subclasses are: <ul> <li> {@link BooleanCondition} <li> {@link ContainsCondition} <li> {@link FuzzyCondition}
  * <li> {@link MatchCondition} <li> {@link PhraseCondition} <li> {@link PrefixCondition} <li> {@link RangeCondition}
- * <li> {@link WildcardCondition} <li> {@link GeoShapeCondition} <li> {@link GeoDistanceCondition} <li> {@link
- * GeoDistanceRangeCondition} <li> {@link GeoBBoxCondition} </ul>
+ * <li> {@link WildcardCondition} <li> {@link GeoDistanceCondition} <li> {@link GeoBBoxCondition} </ul>
  *
  * @author Andres de la Pena <adelapena@stratio.com>
  */
@@ -52,9 +49,7 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
                @JsonSubTypes.Type(value = PrefixCondition.class, name = "prefix"),
                @JsonSubTypes.Type(value = RegexpCondition.class, name = "regexp"),
                @JsonSubTypes.Type(value = WildcardCondition.class, name = "wildcard"),
-               @JsonSubTypes.Type(value = GeoShapeCondition.class, name = "geo_shape"),
                @JsonSubTypes.Type(value = GeoDistanceCondition.class, name = "geo_distance"),
-               @JsonSubTypes.Type(value = GeoDistanceRangeCondition.class, name = "geo_distance_range"),
                @JsonSubTypes.Type(value = GeoBBoxCondition.class, name = "geo_bounding_box"),})
 public abstract class Condition {
 

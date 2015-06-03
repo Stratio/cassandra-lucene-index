@@ -18,21 +18,16 @@ package com.stratio.cassandra.lucene.query;
 import com.stratio.cassandra.lucene.query.builder.RangeConditionBuilder;
 import com.stratio.cassandra.lucene.query.builder.SearchBuilder;
 import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.mapping.ColumnMapper;
 import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperDouble;
 import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperFloat;
 import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperInet;
 import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperInteger;
 import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperLong;
 import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperString;
-import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.search.NumericRangeQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermRangeQuery;
 import org.junit.Test;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import static com.stratio.cassandra.lucene.query.builder.SearchBuilders.*;
 import static org.junit.Assert.*;
@@ -45,12 +40,10 @@ public class RangeConditionTest extends AbstractConditionTest {
     @Test
     public void testStringClose() {
 
-        Map<String, ColumnMapper> map = new HashMap<>();
-        map.put("name", new ColumnMapperString(null, null, null));
-        Schema mappers = new Schema(map, null, EnglishAnalyzer.class.getName());
+        Schema schema = mockSchema("name", new ColumnMapperString("name", null, null, null));
 
         RangeCondition rangeCondition = new RangeCondition(0.5f, "name", "alpha", "beta", true, true);
-        Query query = rangeCondition.query(mappers);
+        Query query = rangeCondition.query(schema);
 
         assertNotNull(query);
         assertEquals(TermRangeQuery.class, query.getClass());
@@ -65,12 +58,10 @@ public class RangeConditionTest extends AbstractConditionTest {
     @Test
     public void testStringOpen() {
 
-        Map<String, ColumnMapper> map = new HashMap<>();
-        map.put("name", new ColumnMapperString(null, null, null));
-        Schema mappers = new Schema(map, null, EnglishAnalyzer.class.getName());
+        Schema schema = mockSchema("name", new ColumnMapperString("name", null, null, null));
 
         RangeCondition rangeCondition = new RangeCondition(0.5f, "name", "alpha", null, true, false);
-        Query query = rangeCondition.query(mappers);
+        Query query = rangeCondition.query(schema);
 
         assertNotNull(query);
         assertEquals(TermRangeQuery.class, query.getClass());
@@ -86,12 +77,10 @@ public class RangeConditionTest extends AbstractConditionTest {
     @Test
     public void testIntegerClose() {
 
-        Map<String, ColumnMapper> map = new HashMap<>();
-        map.put("name", new ColumnMapperInteger(null, null, 1f));
-        Schema mappers = new Schema(map, null, EnglishAnalyzer.class.getName());
+        Schema schema = mockSchema("name", new ColumnMapperInteger("name", null, null, 1f));
 
         RangeCondition rangeCondition = new RangeCondition(0.5f, "name", 42, 43, false, false);
-        Query query = rangeCondition.query(mappers);
+        Query query = rangeCondition.query(schema);
 
         assertNotNull(query);
         assertEquals(NumericRangeQuery.class, query.getClass());
@@ -106,12 +95,10 @@ public class RangeConditionTest extends AbstractConditionTest {
     @Test
     public void testIntegerOpen() {
 
-        Map<String, ColumnMapper> map = new HashMap<>();
-        map.put("name", new ColumnMapperInteger(null, null, 1f));
-        Schema mappers = new Schema(map, null, EnglishAnalyzer.class.getName());
+        Schema schema = mockSchema("name", new ColumnMapperInteger("name", null, null, 1f));
 
         RangeCondition rangeCondition = new RangeCondition(0.5f, "name", 42, null, true, false);
-        Query query = rangeCondition.query(mappers);
+        Query query = rangeCondition.query(schema);
 
         assertNotNull(query);
         assertEquals(NumericRangeQuery.class, query.getClass());
@@ -126,12 +113,10 @@ public class RangeConditionTest extends AbstractConditionTest {
     @Test
     public void testLongClose() {
 
-        Map<String, ColumnMapper> map = new HashMap<>();
-        map.put("name", new ColumnMapperLong(true, true, 1f));
-        Schema mappers = new Schema(map, null, EnglishAnalyzer.class.getName());
+        Schema schema = mockSchema("name", new ColumnMapperLong("name", true, true, 1f));
 
         RangeCondition rangeCondition = new RangeCondition(0.5f, "name", 42L, 43, false, false);
-        Query query = rangeCondition.query(mappers);
+        Query query = rangeCondition.query(schema);
 
         assertNotNull(query);
         assertEquals(NumericRangeQuery.class, query.getClass());
@@ -146,12 +131,10 @@ public class RangeConditionTest extends AbstractConditionTest {
     @Test
     public void testLongOpen() {
 
-        Map<String, ColumnMapper> map = new HashMap<>();
-        map.put("name", new ColumnMapperLong(true, true, 1f));
-        Schema mappers = new Schema(map, null, EnglishAnalyzer.class.getName());
+        Schema schema = mockSchema("name", new ColumnMapperLong("name", true, true, 1f));
 
         RangeCondition rangeCondition = new RangeCondition(0.5f, "name", 42f, null, true, false);
-        Query query = rangeCondition.query(mappers);
+        Query query = rangeCondition.query(schema);
 
         assertNotNull(query);
         assertEquals(NumericRangeQuery.class, query.getClass());
@@ -166,12 +149,10 @@ public class RangeConditionTest extends AbstractConditionTest {
     @Test
     public void testFloatClose() {
 
-        Map<String, ColumnMapper> map = new HashMap<>();
-        map.put("name", new ColumnMapperFloat(null, null, 1f));
-        Schema mappers = new Schema(map, null, EnglishAnalyzer.class.getName());
+        Schema schema = mockSchema("name", new ColumnMapperFloat("name", null, null, 1f));
 
         RangeCondition rangeCondition = new RangeCondition(0.5f, "name", 42.42D, 43.42F, false, false);
-        Query query = rangeCondition.query(mappers);
+        Query query = rangeCondition.query(schema);
 
         assertNotNull(query);
         assertEquals(NumericRangeQuery.class, query.getClass());
@@ -186,12 +167,10 @@ public class RangeConditionTest extends AbstractConditionTest {
     @Test
     public void testFloatOpen() {
 
-        Map<String, ColumnMapper> map = new HashMap<>();
-        map.put("name", new ColumnMapperFloat(null, null, 1f));
-        Schema mappers = new Schema(map, null, EnglishAnalyzer.class.getName());
+        Schema schema = mockSchema("name", new ColumnMapperFloat("name", null, null, 1f));
 
         RangeCondition rangeCondition = new RangeCondition(0.5f, "name", 42.42f, null, true, false);
-        Query query = rangeCondition.query(mappers);
+        Query query = rangeCondition.query(schema);
 
         assertNotNull(query);
         assertEquals(NumericRangeQuery.class, query.getClass());
@@ -206,12 +185,10 @@ public class RangeConditionTest extends AbstractConditionTest {
     @Test
     public void testDoubleClose() {
 
-        Map<String, ColumnMapper> map = new HashMap<>();
-        map.put("name", new ColumnMapperDouble(null, null, 1f));
-        Schema mappers = new Schema(map, null, EnglishAnalyzer.class.getName());
+        Schema schema = mockSchema("name", new ColumnMapperDouble("name", null, null, 1f));
 
         RangeCondition rangeCondition = new RangeCondition(0.5f, "name", 42.42D, 43.42D, false, false);
-        Query query = rangeCondition.query(mappers);
+        Query query = rangeCondition.query(schema);
 
         assertNotNull(query);
         assertEquals(NumericRangeQuery.class, query.getClass());
@@ -226,12 +203,10 @@ public class RangeConditionTest extends AbstractConditionTest {
     @Test
     public void testDoubleOpen() {
 
-        Map<String, ColumnMapper> map = new HashMap<>();
-        map.put("name", new ColumnMapperDouble(null, null, 1f));
-        Schema mappers = new Schema(map, null, EnglishAnalyzer.class.getName());
+        Schema schema = mockSchema("name", new ColumnMapperDouble("name", null, null, 1f));
 
         RangeCondition rangeCondition = new RangeCondition(0.5f, "name", 42.42D, null, true, false);
-        Query query = rangeCondition.query(mappers);
+        Query query = rangeCondition.query(schema);
 
         assertNotNull(query);
         assertEquals(NumericRangeQuery.class, query.getClass());
@@ -246,12 +221,10 @@ public class RangeConditionTest extends AbstractConditionTest {
     @Test
     public void testInetV4() {
 
-        Map<String, ColumnMapper> map = new HashMap<>();
-        map.put("name", new ColumnMapperInet(null, null));
-        Schema mappers = new Schema(map, null, EnglishAnalyzer.class.getName());
+        Schema schema = mockSchema("name", new ColumnMapperInet("name", null, null));
 
         RangeCondition rangeCondition = new RangeCondition(0.5f, "name", "192.168.0.01", "192.168.0.045", true, true);
-        Query query = rangeCondition.query(mappers);
+        Query query = rangeCondition.query(schema);
 
         assertNotNull(query);
         assertEquals(TermRangeQuery.class, query.getClass());
@@ -266,9 +239,7 @@ public class RangeConditionTest extends AbstractConditionTest {
     @Test
     public void testInetV6() {
 
-        Map<String, ColumnMapper> map = new HashMap<>();
-        map.put("name", new ColumnMapperInet(null, null));
-        Schema mappers = new Schema(map, null, EnglishAnalyzer.class.getName());
+        Schema schema = mockSchema("name", new ColumnMapperInet("name", null, null));
 
         RangeCondition rangeCondition = range("name").boost(0.5f)
                                                      .lower("2001:DB8:2de::e13")
@@ -276,7 +247,7 @@ public class RangeConditionTest extends AbstractConditionTest {
                                                      .includeLower(true)
                                                      .includeUpper(true)
                                                      .build();
-        Query query = rangeCondition.query(mappers);
+        Query query = rangeCondition.query(schema);
 
         assertNotNull(query);
         assertEquals(TermRangeQuery.class, query.getClass());

@@ -20,11 +20,9 @@ import com.stratio.cassandra.lucene.schema.analysis.AnalyzerBuilder;
 import com.stratio.cassandra.lucene.schema.analysis.ClasspathAnalyzerBuilder;
 import com.stratio.cassandra.lucene.schema.analysis.PreBuiltAnalyzers;
 import com.stratio.cassandra.lucene.schema.mapping.ColumnMapper;
+import com.stratio.cassandra.lucene.schema.mapping.builder.ColumnMapperBuilder;
 import com.stratio.cassandra.lucene.util.JsonSerializer;
 import org.apache.cassandra.config.CFMetaData;
-import org.apache.cassandra.config.ColumnDefinition;
-import org.apache.cassandra.db.marshal.AbstractType;
-import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.miscellaneous.PerFieldAnalyzerWrapper;
@@ -34,7 +32,6 @@ import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -56,18 +53,21 @@ public class Schema implements Closeable {
     /**
      * Builds a new {@code ColumnsMapper} for the specified getAnalyzer and cell mappers.
      *
-     * @param columnMappers   The {@link Column} mappers to be used.
-     * @param analyzers       The {@link AnalyzerBuilder}s to be used.
-     * @param defaultAnalyzer The name of the class of the getAnalyzer to be used.
+     * @param columnMappersBuilders The {@link Column} mappers builders to be used.
+     * @param analyzers             The {@link AnalyzerBuilder}s to be used.
+     * @param defaultAnalyzer       The name of the class of the getAnalyzer to be used.
      */
     @JsonCreator
-    public Schema(@JsonProperty("fields") Map<String, ColumnMapper> columnMappers,
+    public Schema(@JsonProperty("fields") Map<String, ColumnMapperBuilder> columnMappersBuilders,
                   @JsonProperty("analyzers") Map<String, AnalyzerBuilder> analyzers,
                   @JsonProperty("default_analyzer") String defaultAnalyzer) {
 
-        this.columnMappers = columnMappers;
-        for (Map.Entry<String,ColumnMapper> entry : this.columnMappers.entrySet()) {
-            entry.getValue().init(entry.getKey());
+        this.columnMappers = new HashMap<>(columnMappersBuilders.size());
+        for (Map.Entry<String, ColumnMapperBuilder> entry : columnMappersBuilders.entrySet()) {
+            String name = entry.getKey();
+            ColumnMapperBuilder builder = entry.getValue();
+            ColumnMapper mapper = builder.build(name);
+            columnMappers.put(name, mapper);
         }
 
         this.analyzers = new HashMap<>();
@@ -171,25 +171,8 @@ public class Schema implements Closeable {
      * @param metadata A column family metadata.
      */
     public void validate(CFMetaData metadata) {
-        for (Map.Entry<String, ColumnMapper> entry : columnMappers.entrySet()) {
-
-            String name = entry.getKey();
-            ColumnMapper columnMapper = entry.getValue();
-            ByteBuffer columnName = UTF8Type.instance.decompose(name);
-
-            ColumnDefinition columnDefinition = metadata.getColumnDefinition(columnName);
-            if (columnDefinition == null) {
-                throw new RuntimeException("No column definition for mapper " + name);
-            }
-
-            if (columnDefinition.isStatic()) {
-                throw new RuntimeException("Lucene indexes are not allowed on static columns as " + name);
-            }
-
-            AbstractType<?> type = columnDefinition.type;
-            if (!columnMapper.supports(columnDefinition.type)) {
-                throw new RuntimeException(String.format("Type '%s' is not supported by mapper '%s'", type, name));
-            }
+        for (ColumnMapper mapper : columnMappers.values()) {
+            mapper.validate(metadata);
         }
     }
 

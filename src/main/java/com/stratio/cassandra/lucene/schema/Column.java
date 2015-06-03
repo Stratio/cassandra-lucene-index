@@ -171,7 +171,11 @@ public class Column<T> {
      * @param type          The column type/marshaller.
      * @return A {@link Column}.
      */
-    public static <T> Column<T> fromComposed(String name, String sufix, T composedValue, AbstractType<T> type, boolean isCollection) {
+    public static <T> Column<T> fromComposed(String name,
+                                             String sufix,
+                                             T composedValue,
+                                             AbstractType<T> type,
+                                             boolean isCollection) {
         ByteBuffer decomposedValue = type.decompose(composedValue);
         return new Column<>(name, sufix, decomposedValue, composedValue, type, isCollection);
     }

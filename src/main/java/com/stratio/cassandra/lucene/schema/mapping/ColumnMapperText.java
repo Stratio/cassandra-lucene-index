@@ -26,8 +26,6 @@ import org.apache.lucene.document.TextField;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.SortField.Type;
 import org.apache.lucene.util.BytesRef;
-import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * A {@link ColumnMapper} to map a string, tokenized field.
@@ -44,15 +42,14 @@ public class ColumnMapperText extends ColumnMapperSingle<String> {
     /**
      * Builds a new {@link ColumnMapperText} using the specified Lucene {@link Analyzer}.
      *
+     * @param name     The name of the mapper.
      * @param indexed  If the field supports searching.
      * @param sorted   If the field supports sorting.
      * @param analyzer The Lucene {@link Analyzer} to be used.
      */
-    @JsonCreator
-    public ColumnMapperText(@JsonProperty("indexed") Boolean indexed,
-                            @JsonProperty("sorted") Boolean sorted,
-                            @JsonProperty("analyzer") String analyzer) {
-        super(indexed,
+    public ColumnMapperText(String name, Boolean indexed, Boolean sorted, String analyzer) {
+        super(name,
+              indexed,
               sorted,
               AsciiType.instance,
               UTF8Type.instance,

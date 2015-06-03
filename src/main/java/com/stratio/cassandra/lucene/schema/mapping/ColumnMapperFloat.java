@@ -30,7 +30,6 @@ import org.apache.lucene.document.NumericDocValuesField;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.SortField.Type;
 import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * A {@link ColumnMapper} to map a float field.
@@ -48,15 +47,15 @@ public class ColumnMapperFloat extends ColumnMapperSingle<Float> {
     /**
      * Builds a new {@link ColumnMapperFloat} using the specified boost.
      *
+     * @param name    The name of the mapper.
      * @param indexed If the field supports searching.
      * @param sorted  If the field supports sorting.
      * @param boost   The boost to be used.
      */
     @JsonCreator
-    public ColumnMapperFloat(@JsonProperty("indexed") Boolean indexed,
-                             @JsonProperty("sorted") Boolean sorted,
-                             @JsonProperty("boost") Float boost) {
-        super(indexed,
+    public ColumnMapperFloat(String name, Boolean indexed, Boolean sorted, Float boost) {
+        super(name,
+              indexed,
               sorted,
               AsciiType.instance,
               UTF8Type.instance,

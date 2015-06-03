@@ -21,8 +21,6 @@ import org.apache.cassandra.db.marshal.AsciiType;
 import org.apache.cassandra.db.marshal.BytesType;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.utils.Hex;
-import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.nio.ByteBuffer;
 
@@ -36,12 +34,12 @@ public class ColumnMapperBlob extends ColumnMapperKeyword {
     /**
      * Builds a new {@link ColumnMapperBlob}.
      *
+     * @param name    The name of the mapper.
      * @param indexed If the field supports searching.
      * @param sorted  If the field supports sorting.
      */
-    @JsonCreator
-    public ColumnMapperBlob(@JsonProperty("indexed") Boolean indexed, @JsonProperty("sorted") Boolean sorted) {
-        super(indexed, sorted, AsciiType.instance, UTF8Type.instance, BytesType.instance);
+    public ColumnMapperBlob(String name, Boolean indexed, Boolean sorted) {
+        super(name, indexed, sorted, AsciiType.instance, UTF8Type.instance, BytesType.instance);
     }
 
     /** {@inheritDoc} */

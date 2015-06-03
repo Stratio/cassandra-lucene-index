@@ -16,9 +16,16 @@
 package com.stratio.cassandra.lucene.geospatial;
 
 import com.google.common.base.Objects;
+import com.spatial4j.core.context.SpatialContext;
+import com.spatial4j.core.shape.Rectangle;
 import com.stratio.cassandra.lucene.query.Condition;
 import com.stratio.cassandra.lucene.schema.Schema;
+import com.stratio.cassandra.lucene.schema.mapping.ColumnMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.spatial.SpatialStrategy;
+import org.apache.lucene.spatial.query.SpatialArgs;
+import org.apache.lucene.spatial.query.SpatialOperation;
 import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
 
@@ -28,6 +35,8 @@ import org.codehaus.jackson.annotate.JsonProperty;
  * @author Andres de la Pena <adelapena@stratio.com>
  */
 public class GeoBBoxCondition extends Condition {
+
+    private static final SpatialContext spatialContext = SpatialContext.GEO;
 
     private final String field; // The name of the field to be matched
     private final double minLongitude; // The minimum accepted longitude
@@ -46,11 +55,40 @@ public class GeoBBoxCondition extends Condition {
     @JsonCreator
     public GeoBBoxCondition(@JsonProperty("boost") Float boost,
                             @JsonProperty("field") String field,
-                            @JsonProperty("min_longitude") double minLongitude,
-                            @JsonProperty("max_longitude") double maxLongitude,
-                            @JsonProperty("min_latitude") double minLatitude,
-                            @JsonProperty("max_latitude") double maxLatitude) {
+                            @JsonProperty("min_longitude") Double minLongitude,
+                            @JsonProperty("max_longitude") Double maxLongitude,
+                            @JsonProperty("min_latitude") Double minLatitude,
+                            @JsonProperty("max_latitude") Double maxLatitude) {
         super(boost);
+
+        if (StringUtils.isBlank(field)) {
+            throw new IllegalArgumentException("Field name required");
+        }
+
+        if (minLongitude == null) {
+            throw new IllegalArgumentException("min_longitude required");
+        } else if (minLongitude < -180.0 || minLongitude > 180) {
+            throw new IllegalArgumentException("min_longitude must be between -180.0 and 180");
+        }
+
+        if (maxLongitude == null) {
+            throw new IllegalArgumentException("max_longitude required");
+        } else if (maxLongitude < -180.0 || maxLongitude > 180) {
+            throw new IllegalArgumentException("max_longitude must be between -180.0 and 180");
+        }
+
+        if (minLatitude == null) {
+            throw new IllegalArgumentException("min_latitude required");
+        } else if (minLatitude < -90.0 || minLatitude > 90) {
+            throw new IllegalArgumentException("min_latitude must be between -90.0 and 90");
+        }
+
+        if (maxLatitude == null) {
+            throw new IllegalArgumentException("max_latitude required");
+        } else if (maxLatitude < -90.0 || maxLatitude > 90) {
+            throw new IllegalArgumentException("max_latitude must be between -90.0 and 90");
+        }
+
         this.field = field;
         this.minLongitude = minLongitude;
         this.maxLongitude = maxLongitude;
@@ -61,8 +99,20 @@ public class GeoBBoxCondition extends Condition {
     /** {@inheritDoc} */
     @Override
     public Query query(Schema schema) {
-        GeoRectangle rectangle = new GeoRectangle(minLongitude, maxLongitude, minLatitude, maxLatitude);
-        return new GeoShapeCondition(boost, field, GeoOperator.Intersects, rectangle).query(schema);
+
+        ColumnMapper columnMapper = schema.getMapper(field);
+        if (!(columnMapper instanceof GeoPointMapper)) {
+            throw new IllegalArgumentException("Geo point mapper required");
+        }
+        GeoPointMapper geoPointMapper = (GeoPointMapper) columnMapper;
+        SpatialStrategy spatialStrategy = geoPointMapper.getStrategy();
+
+        Rectangle rectangle = spatialContext.makeRectangle(minLongitude, maxLongitude, minLatitude, maxLatitude);
+
+        SpatialArgs args = new SpatialArgs(SpatialOperation.Intersects, rectangle);
+        Query query = spatialStrategy.makeQuery(args);
+        query.setBoost(boost);
+        return query;
     }
 
     /** {@inheritDoc} */

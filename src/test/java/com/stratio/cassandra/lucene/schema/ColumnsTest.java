@@ -21,7 +21,8 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Andres de la Pena <adelapena@stratio.com>
@@ -75,9 +76,9 @@ public class ColumnsTest {
     @Test
     public void testGetColumnsByName() {
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("field1","item1", "value1", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("field1","item2", "value1", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("field2","item1", "value2", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("field1", "item1", "value1", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("field1", "item2", "value1", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("field2", "item1", "value2", UTF8Type.instance, false));
         assertEquals(2, columns.getColumnsByName("field1").size());
         assertEquals(0, columns.getColumnsByFullName("field1").size());
         assertEquals(1, columns.getColumnsByFullName("field1.item1").size());

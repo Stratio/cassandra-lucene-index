@@ -30,8 +30,6 @@ import org.apache.lucene.document.LongField;
 import org.apache.lucene.document.NumericDocValuesField;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.SortField.Type;
-import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -57,15 +55,14 @@ public class ColumnMapperDate extends ColumnMapperSingle<Long> {
     /**
      * Builds a new {@link ColumnMapperDate} using the specified pattern.
      *
+     * @param name    The name of the mapper.
      * @param indexed If the field supports searching.
      * @param sorted  If the field supports sorting.
      * @param pattern The {@link SimpleDateFormat} pattern to be used.
      */
-    @JsonCreator
-    public ColumnMapperDate(@JsonProperty("indexed") Boolean indexed,
-                            @JsonProperty("sorted") Boolean sorted,
-                            @JsonProperty("pattern") String pattern) {
-        super(indexed,
+    public ColumnMapperDate(String name, Boolean indexed, Boolean sorted, String pattern) {
+        super(name,
+              indexed,
               sorted,
               AsciiType.instance,
               UTF8Type.instance,

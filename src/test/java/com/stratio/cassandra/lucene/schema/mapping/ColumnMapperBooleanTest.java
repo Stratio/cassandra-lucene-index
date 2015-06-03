@@ -30,126 +30,126 @@ public class ColumnMapperBooleanTest {
 
     @Test
     public void testConstructorWithoutArgs() {
-        ColumnMapperBoolean mapper = new ColumnMapperBoolean(null, null);
+        ColumnMapperBoolean mapper = new ColumnMapperBoolean("field", null, null);
         assertEquals(ColumnMapper.DEFAULT_INDEXED, mapper.isIndexed());
         assertEquals(ColumnMapper.DEFAULT_SORTED, mapper.isSorted());
     }
 
     @Test
     public void testConstructorWithAllArgs() {
-        ColumnMapperBoolean mapper = new ColumnMapperBoolean(false, true);
+        ColumnMapperBoolean mapper = new ColumnMapperBoolean("field", false, true);
         assertFalse(mapper.isIndexed());
         assertTrue(mapper.isSorted());
     }
 
     @Test()
     public void testValueNull() {
-        ColumnMapperBoolean mapper = new ColumnMapperBoolean(null, null);
+        ColumnMapperBoolean mapper = new ColumnMapperBoolean("field", null, null);
         String parsed = mapper.base("test", null);
         assertNull(parsed);
     }
 
     @Test
     public void testValueBooleanTrue() {
-        ColumnMapperBoolean mapper = new ColumnMapperBoolean(null, null);
+        ColumnMapperBoolean mapper = new ColumnMapperBoolean("field", null, null);
         String parsed = mapper.base("test", true);
         assertEquals("true", parsed);
     }
 
     @Test
     public void testValueBooleanFalse() {
-        ColumnMapperBoolean mapper = new ColumnMapperBoolean(null, null);
+        ColumnMapperBoolean mapper = new ColumnMapperBoolean("field", null, null);
         String parsed = mapper.base("test", false);
         assertEquals("false", parsed);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testValueDate() {
-        ColumnMapperBoolean mapper = new ColumnMapperBoolean(null, null);
+        ColumnMapperBoolean mapper = new ColumnMapperBoolean("field", null, null);
         mapper.base("test", new Date());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testValueInteger() {
-        ColumnMapperBoolean mapper = new ColumnMapperBoolean(null, null);
+        ColumnMapperBoolean mapper = new ColumnMapperBoolean("field", null, null);
         mapper.base("test", 3);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testValueLong() {
-        ColumnMapperBoolean mapper = new ColumnMapperBoolean(null, null);
+        ColumnMapperBoolean mapper = new ColumnMapperBoolean("field", null, null);
         mapper.base("test", 3l);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testValueFloat() {
-        ColumnMapperBoolean mapper = new ColumnMapperBoolean(null, null);
+        ColumnMapperBoolean mapper = new ColumnMapperBoolean("field", null, null);
         mapper.base("test", 3.6f);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testValueDouble() {
-        ColumnMapperBoolean mapper = new ColumnMapperBoolean(null, null);
+        ColumnMapperBoolean mapper = new ColumnMapperBoolean("field", null, null);
         mapper.base("test", 3.5d);
     }
 
     @Test
     public void testValueStringTrueLowercase() {
-        ColumnMapperBoolean mapper = new ColumnMapperBoolean(null, null);
+        ColumnMapperBoolean mapper = new ColumnMapperBoolean("field", null, null);
         String parsed = mapper.base("test", "true");
         assertEquals("true", parsed);
     }
 
     @Test
     public void testValueStringTrueUppercase() {
-        ColumnMapperBoolean mapper = new ColumnMapperBoolean(null, null);
+        ColumnMapperBoolean mapper = new ColumnMapperBoolean("field", null, null);
         String parsed = mapper.base("test", "TRUE");
         assertEquals("true", parsed);
     }
 
     @Test
     public void testValueStringTrueMixedCase() {
-        ColumnMapperBoolean mapper = new ColumnMapperBoolean(null, null);
+        ColumnMapperBoolean mapper = new ColumnMapperBoolean("field", null, null);
         String parsed = mapper.base("test", "TrUe");
         assertEquals("true", parsed);
     }
 
     @Test
     public void testValueStringFalseLowercase() {
-        ColumnMapperBoolean mapper = new ColumnMapperBoolean(null, null);
+        ColumnMapperBoolean mapper = new ColumnMapperBoolean("field", null, null);
         String parsed = mapper.base("test", "false");
         assertEquals("false", parsed);
     }
 
     @Test
     public void testValueStringFalseUppercase() {
-        ColumnMapperBoolean mapper = new ColumnMapperBoolean(null, null);
+        ColumnMapperBoolean mapper = new ColumnMapperBoolean("field", null, null);
         String parsed = mapper.base("test", "FALSE");
         assertEquals("false", parsed);
     }
 
     @Test
     public void testValueStringFalseMixedCase() {
-        ColumnMapperBoolean mapper = new ColumnMapperBoolean(null, null);
+        ColumnMapperBoolean mapper = new ColumnMapperBoolean("field", null, null);
         String parsed = mapper.base("test", "fALsE");
         assertEquals("false", parsed);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testValueStringInvalid() {
-        ColumnMapperBoolean mapper = new ColumnMapperBoolean(null, null);
+        ColumnMapperBoolean mapper = new ColumnMapperBoolean("field", null, null);
         mapper.base("test", "hello");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testValueUUID() {
-        ColumnMapperBoolean mapper = new ColumnMapperBoolean(null, null);
+        ColumnMapperBoolean mapper = new ColumnMapperBoolean("field", null, null);
         mapper.base("test", UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));
     }
 
     @Test
     public void testIndexedField() {
-        ColumnMapperBoolean mapper = new ColumnMapperBoolean(true, true);
+        ColumnMapperBoolean mapper = new ColumnMapperBoolean("field", true, true);
         Field field = mapper.indexedField("name", "true");
         assertNotNull(field);
         assertNotNull(field);
@@ -160,7 +160,7 @@ public class ColumnMapperBooleanTest {
 
     @Test
     public void testSortedField() {
-        ColumnMapperBoolean mapper = new ColumnMapperBoolean(true, false);
+        ColumnMapperBoolean mapper = new ColumnMapperBoolean("field", true, false);
         Field field = mapper.sortedField("name", "true", false);
         assertNotNull(field);
         assertEquals(DocValuesType.SORTED, field.fieldType().docValuesType());
@@ -168,7 +168,7 @@ public class ColumnMapperBooleanTest {
 
     @Test
     public void testSortedFieldCollection() {
-        ColumnMapperBoolean mapper = new ColumnMapperBoolean(true, false);
+        ColumnMapperBoolean mapper = new ColumnMapperBoolean("field", true, false);
         Field field = mapper.sortedField("name", "true", true);
         assertNotNull(field);
         assertEquals(DocValuesType.SORTED_SET, field.fieldType().docValuesType());
@@ -176,7 +176,7 @@ public class ColumnMapperBooleanTest {
 
     @Test
     public void testExtractAnalyzers() {
-        ColumnMapperBoolean mapper = new ColumnMapperBoolean(null, null);
+        ColumnMapperBoolean mapper = new ColumnMapperBoolean("field", null, null);
         String analyzer = mapper.getAnalyzer();
         assertEquals(ColumnMapper.KEYWORD_ANALYZER, analyzer);
     }
@@ -219,7 +219,7 @@ public class ColumnMapperBooleanTest {
 
     @Test
     public void testToString() {
-        ColumnMapperBoolean mapper = new ColumnMapperBoolean(false, false);
+        ColumnMapperBoolean mapper = new ColumnMapperBoolean("field", false, false);
         assertEquals("ColumnMapperBoolean{indexed=false, sorted=false}", mapper.toString());
     }
 }

@@ -18,8 +18,10 @@ package com.stratio.cassandra.lucene.schema;
 import com.stratio.cassandra.lucene.schema.analysis.PreBuiltAnalyzers;
 import com.stratio.cassandra.lucene.schema.mapping.ColumnMapper;
 import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperInteger;
-import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperString;
 import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperText;
+import com.stratio.cassandra.lucene.schema.mapping.builder.ColumnMapperBuilder;
+import com.stratio.cassandra.lucene.schema.mapping.builder.ColumnMapperIntegerBuilder;
+import com.stratio.cassandra.lucene.schema.mapping.builder.ColumnMapperStringBuilder;
 import com.stratio.cassandra.lucene.util.JsonSerializer;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.db.marshal.AsciiType;
@@ -53,31 +55,8 @@ import static org.junit.Assert.*;
 public class SchemaTest {
 
     @Test
-    public void testGetMapper() {
-
-        Map<String, ColumnMapper> columnMappers = new HashMap<>();
-
-        ColumnMapperString columnMapper1 = new ColumnMapperString(true, true, null);
-        ColumnMapperString columnMapper2 = new ColumnMapperString(true, true, null);
-        ColumnMapperString columnMapper3 = new ColumnMapperString(true, true, null);
-
-        columnMappers.put("a", columnMapper1);
-        columnMappers.put("a.b", columnMapper2);
-        columnMappers.put("a.b.c", columnMapper3);
-
-        Schema schema = new Schema(columnMappers, null, null);
-        assertEquals(columnMapper1, schema.getMapper("a"));
-        assertEquals(columnMapper2, schema.getMapper("a.b"));
-        assertEquals(columnMapper3, schema.getMapper("a.b.c"));
-        assertEquals(columnMapper3, schema.getMapper("a.b.c.d"));
-        assertNotSame(columnMapper1, schema.getMapper("a.b.c.d"));
-
-        schema.close();
-    }
-
-    @Test
     public void testGetDefaultAnalyzer() {
-        Map<String, ColumnMapper> columnMappers = new HashMap<>();
+        Map<String, ColumnMapperBuilder> columnMappers = new HashMap<>();
         Schema schema = new Schema(columnMappers, null, "English");
         Analyzer analyzer = schema.getDefaultAnalyzer();
         assertEquals(EnglishAnalyzer.class, analyzer.getClass());
@@ -86,7 +65,7 @@ public class SchemaTest {
 
     @Test
     public void testGetDefaultAnalyzerNotSpecified() {
-        Map<String, ColumnMapper> columnMappers = new HashMap<>();
+        Map<String, ColumnMapperBuilder> columnMappers = new HashMap<>();
         Schema schema = new Schema(columnMappers, null, null);
         Analyzer analyzer = schema.getDefaultAnalyzer();
         assertEquals(PreBuiltAnalyzers.DEFAULT.get(), analyzer);
@@ -95,7 +74,7 @@ public class SchemaTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testGetAnalyzerNotExistent() {
-        Map<String, ColumnMapper> columnMappers = new HashMap<>();
+        Map<String, ColumnMapperBuilder> columnMappers = new HashMap<>();
         Schema schema = new Schema(columnMappers, null, "English");
         schema.getAnalyzer("custom");
         schema.close();
@@ -103,7 +82,7 @@ public class SchemaTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testGetAnalyzerNull() {
-        Map<String, ColumnMapper> columnMappers = new HashMap<>();
+        Map<String, ColumnMapperBuilder> columnMappers = new HashMap<>();
         Schema schema = new Schema(columnMappers, null, "English");
         schema.getAnalyzer(null);
         schema.close();
@@ -111,7 +90,7 @@ public class SchemaTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testGetAnalyzerEmpty() {
-        Map<String, ColumnMapper> columnMappers = new HashMap<>();
+        Map<String, ColumnMapperBuilder> columnMappers = new HashMap<>();
         Schema schema = new Schema(columnMappers, null, "English");
         schema.getAnalyzer(" \t");
         schema.close();
@@ -263,10 +242,10 @@ public class SchemaTest {
     @Test
     public void testAddColumns() {
 
-        ColumnMapperString columnMapper1 = new ColumnMapperString(true, true, null);
-        ColumnMapperInteger columnMapper2 = new ColumnMapperInteger(true, true, null);
+        ColumnMapperBuilder columnMapper1 = new ColumnMapperStringBuilder();
+        ColumnMapperBuilder columnMapper2 = new ColumnMapperIntegerBuilder();
 
-        Map<String, ColumnMapper> columnMappers = new HashMap<>();
+        Map<String, ColumnMapperBuilder> columnMappers = new HashMap<>();
         columnMappers.put("field1", columnMapper1);
         columnMappers.put("field2", columnMapper2);
 
@@ -301,10 +280,10 @@ public class SchemaTest {
                                  .setName("Standard1");
         CFMetaData metadata = CFMetaData.fromThrift(cfDef);
 
-        ColumnMapperString columnMapper1 = new ColumnMapperString(true, true, null);
-        ColumnMapperInteger columnMapper2 = new ColumnMapperInteger(true, true, null);
+        ColumnMapperBuilder columnMapper1 = new ColumnMapperStringBuilder();
+        ColumnMapperBuilder columnMapper2 = new ColumnMapperIntegerBuilder();
 
-        Map<String, ColumnMapper> columnMappers = new HashMap<>();
+        Map<String, ColumnMapperBuilder> columnMappers = new HashMap<>();
         columnMappers.put("field1", columnMapper1);
         columnMappers.put("field2", columnMapper2);
 
@@ -315,10 +294,10 @@ public class SchemaTest {
     @Test
     public void testToString() {
 
-        ColumnMapperString columnMapper1 = new ColumnMapperString(true, true, null);
-        ColumnMapperInteger columnMapper2 = new ColumnMapperInteger(true, true, null);
+        ColumnMapperBuilder columnMapper1 = new ColumnMapperStringBuilder();
+        ColumnMapperBuilder columnMapper2 = new ColumnMapperIntegerBuilder();
 
-        Map<String, ColumnMapper> columnMappers = new HashMap<>();
+        Map<String, ColumnMapperBuilder> columnMappers = new HashMap<>();
         columnMappers.put("field1", columnMapper1);
         columnMappers.put("field2", columnMapper2);
 

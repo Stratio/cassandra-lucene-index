@@ -114,7 +114,7 @@ public class SortField {
 
                 Columns columns1 = o1.getColumnsByName(field);
                 Columns columns2 = o2.getColumnsByName(field);
-                if (columns1.size() > 1 || columns2.size() > 1 ) {
+                if (columns1.size() > 1 || columns2.size() > 1) {
                     throw new RuntimeException("Sorting in multivalued columns is not supported");
                 }
                 Column<?> column1 = columns1.getFirst();

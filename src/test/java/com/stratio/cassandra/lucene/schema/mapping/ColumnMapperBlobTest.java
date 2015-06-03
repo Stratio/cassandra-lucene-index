@@ -32,112 +32,112 @@ public class ColumnMapperBlobTest {
 
     @Test
     public void testConstructorWithoutArgs() {
-        ColumnMapperBlob mapper = new ColumnMapperBlob(null, null);
+        ColumnMapperBlob mapper = new ColumnMapperBlob("field", null, null);
         assertEquals(ColumnMapper.DEFAULT_INDEXED, mapper.isIndexed());
         assertEquals(ColumnMapper.DEFAULT_SORTED, mapper.isSorted());
     }
 
     @Test
     public void testConstructorWithAllArgs() {
-        ColumnMapperBlob mapper = new ColumnMapperBlob(false, true);
+        ColumnMapperBlob mapper = new ColumnMapperBlob("field", false, true);
         assertFalse(mapper.isIndexed());
         assertTrue(mapper.isSorted());
     }
 
     @Test()
     public void testValueNull() {
-        ColumnMapperBlob mapper = new ColumnMapperBlob(null, null);
+        ColumnMapperBlob mapper = new ColumnMapperBlob("field", null, null);
         String parsed = mapper.base("test", null);
         assertNull(parsed);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testValueInteger() {
-        ColumnMapperBlob mapper = new ColumnMapperBlob(null, null);
+        ColumnMapperBlob mapper = new ColumnMapperBlob("field", null, null);
         mapper.base("test", 3);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testValueLong() {
-        ColumnMapperBlob mapper = new ColumnMapperBlob(null, null);
+        ColumnMapperBlob mapper = new ColumnMapperBlob("field", null, null);
         mapper.base("test", 3l);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testValueFloat() {
-        ColumnMapperBlob mapper = new ColumnMapperBlob(null, null);
+        ColumnMapperBlob mapper = new ColumnMapperBlob("field", null, null);
         mapper.base("test", 3.5f);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testValueDouble() {
-        ColumnMapperBlob mapper = new ColumnMapperBlob(null, null);
+        ColumnMapperBlob mapper = new ColumnMapperBlob("field", null, null);
         mapper.base("test", 3.6d);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testValueUUID() {
-        ColumnMapperBlob mapper = new ColumnMapperBlob(null, null);
+        ColumnMapperBlob mapper = new ColumnMapperBlob("field", null, null);
         mapper.base("test", UUID.randomUUID());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testValueStringInvalid() {
-        ColumnMapperBlob mapper = new ColumnMapperBlob(null, null);
+        ColumnMapperBlob mapper = new ColumnMapperBlob("field", null, null);
         mapper.base("test", "Hello");
     }
 
     @Test
     public void testValueStringLowerCaseWithoutPrefix() {
-        ColumnMapperBlob mapper = new ColumnMapperBlob(null, null);
+        ColumnMapperBlob mapper = new ColumnMapperBlob("field", null, null);
         String parsed = mapper.base("test", "f1");
         assertEquals("f1", parsed);
     }
 
     @Test
     public void testValueStringUpperCaseWithoutPrefix() {
-        ColumnMapperBlob mapper = new ColumnMapperBlob(null, null);
+        ColumnMapperBlob mapper = new ColumnMapperBlob("field", null, null);
         String parsed = mapper.base("test", "F1");
         assertEquals("f1", parsed);
     }
 
     @Test
     public void testValueStringMixedCaseWithoutPrefix() {
-        ColumnMapperBlob mapper = new ColumnMapperBlob(null, null);
+        ColumnMapperBlob mapper = new ColumnMapperBlob("field", null, null);
         String parsed = mapper.base("test", "F1a2B3");
         assertEquals("f1a2b3", parsed);
     }
 
     @Test
     public void testValueStringLowerCaseWithPrefix() {
-        ColumnMapperBlob mapper = new ColumnMapperBlob(null, null);
+        ColumnMapperBlob mapper = new ColumnMapperBlob("field", null, null);
         String parsed = mapper.base("test", "0xf1");
         assertEquals("f1", parsed);
     }
 
     @Test
     public void testValueStringUpperCaseWithPrefix() {
-        ColumnMapperBlob mapper = new ColumnMapperBlob(null, null);
+        ColumnMapperBlob mapper = new ColumnMapperBlob("field", null, null);
         String parsed = mapper.base("test", "0xF1");
         assertEquals("f1", parsed);
     }
 
     @Test
     public void testValueStringMixedCaseWithPrefix() {
-        ColumnMapperBlob mapper = new ColumnMapperBlob(null, null);
+        ColumnMapperBlob mapper = new ColumnMapperBlob("field", null, null);
         String parsed = mapper.base("test", "0xF1a2B3");
         assertEquals("f1a2b3", parsed);
     }
 
     @Test(expected = NumberFormatException.class)
     public void testValueStringOdd() {
-        ColumnMapperBlob mapper = new ColumnMapperBlob(null, null);
+        ColumnMapperBlob mapper = new ColumnMapperBlob("field", null, null);
         mapper.base("test", "f");
     }
 
     @Test
     public void testValueByteBuffer() {
-        ColumnMapperBlob mapper = new ColumnMapperBlob(null, null);
+        ColumnMapperBlob mapper = new ColumnMapperBlob("field", null, null);
         ByteBuffer bb = ByteBufferUtil.hexToBytes("f1");
         String parsed = mapper.base("test", bb);
         assertEquals("f1", parsed);
@@ -145,7 +145,7 @@ public class ColumnMapperBlobTest {
 
     @Test
     public void testValueBytes() {
-        ColumnMapperBlob mapper = new ColumnMapperBlob(null, null);
+        ColumnMapperBlob mapper = new ColumnMapperBlob("field", null, null);
         byte[] bytes = Hex.hexToBytes("f1");
         String parsed = mapper.base("test", bytes);
         assertEquals("f1", parsed);
@@ -153,7 +153,7 @@ public class ColumnMapperBlobTest {
 
     @Test
     public void testIndexedField() {
-        ColumnMapperBlob mapper = new ColumnMapperBlob(true, null);
+        ColumnMapperBlob mapper = new ColumnMapperBlob("field", true, null);
         String base = mapper.base("name", "f1B2");
         Field field = mapper.indexedField("name", base);
         assertNotNull(field);
@@ -165,7 +165,7 @@ public class ColumnMapperBlobTest {
 
     @Test
     public void testSortedField() {
-        ColumnMapperBlob mapper = new ColumnMapperBlob(true, false);
+        ColumnMapperBlob mapper = new ColumnMapperBlob("field", true, false);
         String base = mapper.base("name", "f1B2");
         Field field = mapper.sortedField("name", base, false);
         assertNotNull(field);
@@ -174,7 +174,7 @@ public class ColumnMapperBlobTest {
 
     @Test
     public void testSortedFieldCollection() {
-        ColumnMapperBlob mapper = new ColumnMapperBlob(true, false);
+        ColumnMapperBlob mapper = new ColumnMapperBlob("field", true, false);
         String base = mapper.base("name", "f1B2");
         Field field = mapper.sortedField("name", base, true);
         assertNotNull(field);
@@ -183,7 +183,7 @@ public class ColumnMapperBlobTest {
 
     @Test
     public void testExtractAnalyzers() {
-        ColumnMapperBlob mapper = new ColumnMapperBlob(null, null);
+        ColumnMapperBlob mapper = new ColumnMapperBlob("field", null, null);
         String analyzer = mapper.getAnalyzer();
         assertEquals(ColumnMapper.KEYWORD_ANALYZER, analyzer);
     }
@@ -226,7 +226,7 @@ public class ColumnMapperBlobTest {
 
     @Test
     public void testToString() {
-        ColumnMapperBlob mapper = new ColumnMapperBlob(false, false);
+        ColumnMapperBlob mapper = new ColumnMapperBlob("field", false, false);
         assertEquals("ColumnMapperBlob{indexed=false, sorted=false}", mapper.toString());
     }
 }

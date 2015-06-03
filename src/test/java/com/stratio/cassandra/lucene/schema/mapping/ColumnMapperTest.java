@@ -16,6 +16,7 @@
 package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.stratio.cassandra.lucene.schema.Columns;
+import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.IntegerType;
 import org.apache.cassandra.db.marshal.ListType;
@@ -107,7 +108,7 @@ public class ColumnMapperTest {
 
     private void testSupports(boolean expected, AbstractType<?> candidateType, AbstractType<?>... supportedTypes) {
 
-        ColumnMapper mapper = new ColumnMapper(null, null, supportedTypes) {
+        ColumnMapper mapper = new ColumnMapper("field", null, null, supportedTypes) {
             @Override
             public void addFields(Document document, Columns columns) {
 
@@ -116,6 +117,11 @@ public class ColumnMapperTest {
             @Override
             public SortField sortField(boolean reverse) {
                 return null;
+            }
+
+            @Override
+            public void validate(CFMetaData metaData) {
+
             }
         };
         assertEquals(expected, mapper.supports(candidateType));

@@ -100,7 +100,7 @@ public class ContainsConditionTest extends AbstractConditionTest {
 
         Schema schema = mock(Schema.class);
         when(schema.getAnalyzer()).thenReturn(new EnglishAnalyzer());
-        when(schema.getMapper(field)).thenReturn(new ColumnMapperInteger(null, null, null));
+        when(schema.getMapper(field)).thenReturn(new ColumnMapperInteger("field", null, null, null));
 
         ContainsCondition condition = new ContainsCondition(boost, field, values);
         Query query = condition.query(schema);
@@ -126,7 +126,7 @@ public class ContainsConditionTest extends AbstractConditionTest {
 
         Schema schema = mock(Schema.class);
         when(schema.getAnalyzer()).thenReturn(new EnglishAnalyzer());
-        when(schema.getMapper(field)).thenReturn(new ColumnMapperString(null, null, null));
+        when(schema.getMapper(field)).thenReturn(new ColumnMapperString("field", null, null, null));
 
         ContainsCondition condition = new ContainsCondition(boost, field, values);
         Query query = condition.query(schema);

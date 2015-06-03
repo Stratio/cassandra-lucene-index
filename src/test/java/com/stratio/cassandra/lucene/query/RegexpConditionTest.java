@@ -17,17 +17,12 @@ package com.stratio.cassandra.lucene.query;
 
 import com.stratio.cassandra.lucene.query.builder.SearchBuilders;
 import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.mapping.ColumnMapper;
 import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperInet;
 import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperInteger;
 import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperString;
-import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.RegexpQuery;
 import org.junit.Test;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -64,12 +59,10 @@ public class RegexpConditionTest extends AbstractConditionTest {
     @Test
     public void testString() {
 
-        Map<String, ColumnMapper> map = new HashMap<>();
-        map.put("name", new ColumnMapperString(true, true, null));
-        Schema mappers = new Schema(map, null, EnglishAnalyzer.class.getName());
+        Schema schema = mockSchema("name", new ColumnMapperString("name", true, true, null));
 
         RegexpCondition condition = new RegexpCondition(0.5f, "name", "tr*");
-        Query query = condition.query(mappers);
+        Query query = condition.query(schema);
 
         assertNotNull(query);
         assertEquals(RegexpQuery.class, query.getClass());
@@ -80,23 +73,20 @@ public class RegexpConditionTest extends AbstractConditionTest {
 
     @Test(expected = UnsupportedOperationException.class)
     public void testInteger() {
-        Map<String, ColumnMapper> map = new HashMap<>();
-        map.put("name", new ColumnMapperInteger(null, null, 1f));
-        Schema mappers = new Schema(map, null, EnglishAnalyzer.class.getName());
+
+        Schema schema = mockSchema("name", new ColumnMapperInteger("name", null, null, 1f));
 
         RegexpCondition condition = new RegexpCondition(0.5f, "name", "22*");
-        condition.query(mappers);
+        condition.query(schema);
     }
 
     @Test
     public void testInetV4() {
 
-        Map<String, ColumnMapper> map = new HashMap<>();
-        map.put("name", new ColumnMapperInet(null, null));
-        Schema mappers = new Schema(map, null, EnglishAnalyzer.class.getName());
+        Schema schema = mockSchema("name", new ColumnMapperInet("name", null, null));
 
         RegexpCondition condition = new RegexpCondition(0.5f, "name", "192.168.*");
-        Query query = condition.query(mappers);
+        Query query = condition.query(schema);
 
         assertNotNull(query);
         assertEquals(RegexpQuery.class, query.getClass());
@@ -108,12 +98,10 @@ public class RegexpConditionTest extends AbstractConditionTest {
     @Test
     public void testInetV6() {
 
-        Map<String, ColumnMapper> map = new HashMap<>();
-        map.put("name", new ColumnMapperInet(null, null));
-        Schema mappers = new Schema(map, null, EnglishAnalyzer.class.getName());
+        Schema schema = mockSchema("name", new ColumnMapperInet("name", null, null));
 
         RegexpCondition regexpCondition = new RegexpCondition(0.5f, "name", "2001:db8:2de:0:0:0:0:e*");
-        Query query = regexpCondition.query(mappers);
+        Query query = regexpCondition.query(schema);
 
         assertNotNull(query);
         assertEquals(RegexpQuery.class, query.getClass());

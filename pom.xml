@@ -95,6 +95,7 @@
                         <includes>
                             <include>com.stratio.cassandra:*</include>
                             <include>org.apache.lucene:*</include>
+                            <include>com.spatial4j:*</include>
                         </includes>
                         <excludes>
                             <exclude>org.apache.cassandra:*</exclude>

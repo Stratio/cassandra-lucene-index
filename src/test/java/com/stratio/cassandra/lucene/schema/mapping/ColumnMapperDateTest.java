@@ -35,7 +35,7 @@ public class ColumnMapperDateTest {
 
     @Test
     public void testConstructorWithoutArgs() {
-        ColumnMapperDate mapper = new ColumnMapperDate(null, null, null);
+        ColumnMapperDate mapper = new ColumnMapperDate("field", null, null, null);
         assertEquals(ColumnMapper.DEFAULT_INDEXED, mapper.isIndexed());
         assertEquals(ColumnMapper.DEFAULT_SORTED, mapper.isSorted());
         assertEquals(ColumnMapperDate.DEFAULT_PATTERN, mapper.getPattern());
@@ -43,7 +43,7 @@ public class ColumnMapperDateTest {
 
     @Test
     public void testConstructorWithAllArgs() {
-        ColumnMapperDate mapper = new ColumnMapperDate(false, true, PATTERN);
+        ColumnMapperDate mapper = new ColumnMapperDate("field", false, true, PATTERN);
         assertFalse(mapper.isIndexed());
         assertTrue(mapper.isSorted());
         assertEquals(PATTERN, mapper.getPattern());
@@ -51,19 +51,18 @@ public class ColumnMapperDateTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithWrongPattern() {
-        new ColumnMapperDate(false, false, "hello");
+        new ColumnMapperDate("field", false, false, "hello");
     }
 
     @Test()
     public void testBaseClass() {
-        ColumnMapperDate mapper = new ColumnMapperDate(null, null, PATTERN);
+        ColumnMapperDate mapper = new ColumnMapperDate("field", null, null, PATTERN);
         assertEquals(Long.class, mapper.baseClass());
     }
 
     @Test()
     public void testSortField() {
-        ColumnMapperDate mapper = new ColumnMapperDate(null, null, PATTERN);
-        mapper.init("field");
+        ColumnMapperDate mapper = new ColumnMapperDate("field", null, null, PATTERN);
         SortField sortField = mapper.sortField(true);
         assertNotNull(sortField);
         assertTrue(sortField.getReverse());
@@ -71,14 +70,14 @@ public class ColumnMapperDateTest {
 
     @Test()
     public void testValueNull() {
-        ColumnMapperDate mapper = new ColumnMapperDate(null, null, PATTERN);
+        ColumnMapperDate mapper = new ColumnMapperDate("field", null, null, PATTERN);
         Long parsed = mapper.base("test", null);
         assertNull(parsed);
     }
 
     @Test
     public void testValueDate() {
-        ColumnMapperDate mapper = new ColumnMapperDate(null, null, PATTERN);
+        ColumnMapperDate mapper = new ColumnMapperDate("field", null, null, PATTERN);
         Date date = new Date();
         long parsed = mapper.base("test", date);
         assertEquals(date.getTime(), parsed);
@@ -86,28 +85,28 @@ public class ColumnMapperDateTest {
 
     @Test
     public void testValueInteger() {
-        ColumnMapperDate mapper = new ColumnMapperDate(null, null, PATTERN);
+        ColumnMapperDate mapper = new ColumnMapperDate("field", null, null, PATTERN);
         Long parsed = mapper.base("test", 3);
         assertEquals(Long.valueOf(3), parsed);
     }
 
     @Test
     public void testValueLong() {
-        ColumnMapperDate mapper = new ColumnMapperDate(null, null, PATTERN);
+        ColumnMapperDate mapper = new ColumnMapperDate("field", null, null, PATTERN);
         Long parsed = mapper.base("test", 3l);
         assertEquals(Long.valueOf(3), parsed);
     }
 
     @Test
     public void testValueFloatWithoutDecimal() {
-        ColumnMapperDate mapper = new ColumnMapperDate(null, null, PATTERN);
+        ColumnMapperDate mapper = new ColumnMapperDate("field", null, null, PATTERN);
         Long parsed = mapper.base("test", 3f);
         assertEquals(Long.valueOf(3), parsed);
     }
 
     @Test
     public void testValueFloatWithDecimalFloor() {
-        ColumnMapperDate mapper = new ColumnMapperDate(null, null, PATTERN);
+        ColumnMapperDate mapper = new ColumnMapperDate("field", null, null, PATTERN);
         Long parsed = mapper.base("test", 3.5f);
         assertEquals(Long.valueOf(3), parsed);
 
@@ -115,7 +114,7 @@ public class ColumnMapperDateTest {
 
     @Test
     public void testValueFloatWithDecimalCeil() {
-        ColumnMapperDate mapper = new ColumnMapperDate(null, null, PATTERN);
+        ColumnMapperDate mapper = new ColumnMapperDate("field", null, null, PATTERN);
         Long parsed = mapper.base("test", 3.6f);
         assertEquals(Long.valueOf(3), parsed);
 
@@ -123,14 +122,14 @@ public class ColumnMapperDateTest {
 
     @Test
     public void testValueDoubleWithoutDecimal() {
-        ColumnMapperDate mapper = new ColumnMapperDate(null, null, PATTERN);
+        ColumnMapperDate mapper = new ColumnMapperDate("field", null, null, PATTERN);
         Long parsed = mapper.base("test", 3d);
         assertEquals(Long.valueOf(3), parsed);
     }
 
     @Test
     public void testValueDoubleWithDecimalFloor() {
-        ColumnMapperDate mapper = new ColumnMapperDate(null, null, PATTERN);
+        ColumnMapperDate mapper = new ColumnMapperDate("field", null, null, PATTERN);
         Long parsed = mapper.base("test", 3.5d);
         assertEquals(Long.valueOf(3), parsed);
 
@@ -138,7 +137,7 @@ public class ColumnMapperDateTest {
 
     @Test
     public void testValueDoubleWithDecimalCeil() {
-        ColumnMapperDate mapper = new ColumnMapperDate(null, null, PATTERN);
+        ColumnMapperDate mapper = new ColumnMapperDate("field", null, null, PATTERN);
         Long parsed = mapper.base("test", 3.6d);
         assertEquals(Long.valueOf(3), parsed);
 
@@ -146,34 +145,34 @@ public class ColumnMapperDateTest {
 
     @Test
     public void testValueStringWithPattern() throws ParseException {
-        ColumnMapperDate mapper = new ColumnMapperDate(null, null, PATTERN);
+        ColumnMapperDate mapper = new ColumnMapperDate("field", null, null, PATTERN);
         long parsed = mapper.base("test", "2014-03-19");
         assertEquals(sdf.parse("2014-03-19").getTime(), parsed);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testValueStringWithPatternInvalid() {
-        ColumnMapperDate mapper = new ColumnMapperDate(null, null, PATTERN);
+        ColumnMapperDate mapper = new ColumnMapperDate("field", null, null, PATTERN);
         mapper.base("test", "2014/03/19");
     }
 
     @Test
     public void testValueStringWithoutPattern() throws ParseException {
-        ColumnMapperDate mapper = new ColumnMapperDate(null, null, null);
+        ColumnMapperDate mapper = new ColumnMapperDate("field", null, null, null);
         long parsed = mapper.base("test", "2014/03/19 00:00:00.000");
         assertEquals(sdf.parse("2014-03-19").getTime(), parsed);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testValueStringWithoutPatternInvalid() throws ParseException {
-        ColumnMapperDate mapper = new ColumnMapperDate(null, null, null);
+        ColumnMapperDate mapper = new ColumnMapperDate("field", null, null, null);
         mapper.base("test", "2014-03-19");
     }
 
     @Test
     public void testIndexedField() throws ParseException {
         long time = sdf.parse("2014-03-19").getTime();
-        ColumnMapperDate mapper = new ColumnMapperDate(true, null, PATTERN);
+        ColumnMapperDate mapper = new ColumnMapperDate("field", true, null, PATTERN);
         Field field = mapper.indexedField("name", time);
         assertNotNull(field);
         assertEquals(time, field.numericValue().longValue());
@@ -184,7 +183,7 @@ public class ColumnMapperDateTest {
     @Test
     public void testSortedField() throws ParseException {
         long time = sdf.parse("2014-03-19").getTime();
-        ColumnMapperDate mapper = new ColumnMapperDate(null, true, PATTERN);
+        ColumnMapperDate mapper = new ColumnMapperDate("field", null, true, PATTERN);
         Field field = mapper.sortedField("name", time, false);
         assertNotNull(field);
         assertEquals(DocValuesType.NUMERIC, field.fieldType().docValuesType());
@@ -193,7 +192,7 @@ public class ColumnMapperDateTest {
     @Test
     public void testSortedFieldCollection() throws ParseException {
         long time = sdf.parse("2014-03-19").getTime();
-        ColumnMapperDate mapper = new ColumnMapperDate(null, true, PATTERN);
+        ColumnMapperDate mapper = new ColumnMapperDate("field", null, true, PATTERN);
         Field field = mapper.sortedField("name", time, true);
         assertNotNull(field);
         assertEquals(DocValuesType.NUMERIC, field.fieldType().docValuesType());
@@ -201,7 +200,7 @@ public class ColumnMapperDateTest {
 
     @Test
     public void testExtractAnalyzers() {
-        ColumnMapperDate mapper = new ColumnMapperDate(null, null, PATTERN);
+        ColumnMapperDate mapper = new ColumnMapperDate("field", null, null, PATTERN);
         String analyzer = mapper.getAnalyzer();
         assertEquals(ColumnMapper.KEYWORD_ANALYZER, analyzer);
     }
@@ -247,7 +246,7 @@ public class ColumnMapperDateTest {
 
     @Test
     public void testToString() {
-        ColumnMapperDate mapper = new ColumnMapperDate(false, false, PATTERN);
+        ColumnMapperDate mapper = new ColumnMapperDate("field", false, false, PATTERN);
         assertEquals("ColumnMapperDate{indexed=false, sorted=false, pattern=yyyy-MM-dd}", mapper.toString());
     }
 }

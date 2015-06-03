@@ -30,7 +30,7 @@ public class ColumnMapperTextTest {
 
     @Test
     public void testConstructorWithoutArgs() {
-        ColumnMapperText mapper = new ColumnMapperText(null, null, null);
+        ColumnMapperText mapper = new ColumnMapperText("field", null, null, null);
         assertEquals(ColumnMapper.DEFAULT_INDEXED, mapper.isIndexed());
         assertEquals(ColumnMapper.DEFAULT_SORTED, mapper.isSorted());
         assertEquals(ColumnMapperText.DEFAULT_ANALYZER, mapper.getAnalyzer());
@@ -38,7 +38,7 @@ public class ColumnMapperTextTest {
 
     @Test
     public void testConstructorWithAllArgs() {
-        ColumnMapperText mapper = new ColumnMapperText(false, true, "SpanishAnalyzer");
+        ColumnMapperText mapper = new ColumnMapperText("field", false, true, "SpanishAnalyzer");
         assertFalse(mapper.isIndexed());
         assertTrue(mapper.isSorted());
         assertEquals("SpanishAnalyzer", mapper.getAnalyzer());
@@ -46,14 +46,13 @@ public class ColumnMapperTextTest {
 
     @Test()
     public void testBaseClass() {
-        ColumnMapperText mapper = new ColumnMapperText(false, true, "SpanishAnalyzer");
+        ColumnMapperText mapper = new ColumnMapperText("field", false, true, "SpanishAnalyzer");
         assertEquals(String.class, mapper.baseClass());
     }
 
     @Test()
     public void testSortField() {
-        ColumnMapperText mapper = new ColumnMapperText(false, true, "SpanishAnalyzer");
-        mapper.init("field");
+        ColumnMapperText mapper = new ColumnMapperText("field", false, true, "SpanishAnalyzer");
         SortField sortField = mapper.sortField(true);
         assertNotNull(sortField);
         assertTrue(sortField.getReverse());
@@ -61,42 +60,57 @@ public class ColumnMapperTextTest {
 
     @Test()
     public void testAnalyzerNull() {
-        ColumnMapperText mapper = new ColumnMapperText(true, true, null);
+        ColumnMapperText mapper = new ColumnMapperText("field", true, true, null);
         String parsed = mapper.base("test", null);
         assertNull(parsed);
     }
 
     @Test()
     public void testValueNull() {
-        ColumnMapperText mapper = new ColumnMapperText(true, true, "org.apache.lucene.analysis.en.EnglishAnalyzer");
+        ColumnMapperText mapper = new ColumnMapperText("field",
+                                                       true,
+                                                       true,
+                                                       "org.apache.lucene.analysis.en.EnglishAnalyzer");
         String parsed = mapper.base("test", null);
         assertNull(parsed);
     }
 
     @Test
     public void testValueInteger() {
-        ColumnMapperText mapper = new ColumnMapperText(true, true, "org.apache.lucene.analysis.en.EnglishAnalyzer");
+        ColumnMapperText mapper = new ColumnMapperText("field",
+                                                       true,
+                                                       true,
+                                                       "org.apache.lucene.analysis.en.EnglishAnalyzer");
         String parsed = mapper.base("test", 3);
         assertEquals("3", parsed);
     }
 
     @Test
     public void testValueLong() {
-        ColumnMapperText mapper = new ColumnMapperText(true, true, "org.apache.lucene.analysis.en.EnglishAnalyzer");
+        ColumnMapperText mapper = new ColumnMapperText("field",
+                                                       true,
+                                                       true,
+                                                       "org.apache.lucene.analysis.en.EnglishAnalyzer");
         String parsed = mapper.base("test", 3l);
         assertEquals("3", parsed);
     }
 
     @Test
     public void testValueFloatWithoutDecimal() {
-        ColumnMapperText mapper = new ColumnMapperText(true, true, "org.apache.lucene.analysis.en.EnglishAnalyzer");
+        ColumnMapperText mapper = new ColumnMapperText("field",
+                                                       true,
+                                                       true,
+                                                       "org.apache.lucene.analysis.en.EnglishAnalyzer");
         String parsed = mapper.base("test", 3f);
         assertEquals("3.0", parsed);
     }
 
     @Test
     public void testValueFloatWithDecimalFloor() {
-        ColumnMapperText mapper = new ColumnMapperText(true, true, "org.apache.lucene.analysis.en.EnglishAnalyzer");
+        ColumnMapperText mapper = new ColumnMapperText("field",
+                                                       true,
+                                                       true,
+                                                       "org.apache.lucene.analysis.en.EnglishAnalyzer");
         String parsed = mapper.base("test", 3.5f);
         assertEquals("3.5", parsed);
 
@@ -104,21 +118,30 @@ public class ColumnMapperTextTest {
 
     @Test
     public void testValueFloatWithDecimalCeil() {
-        ColumnMapperText mapper = new ColumnMapperText(true, true, "org.apache.lucene.analysis.en.EnglishAnalyzer");
+        ColumnMapperText mapper = new ColumnMapperText("field",
+                                                       true,
+                                                       true,
+                                                       "org.apache.lucene.analysis.en.EnglishAnalyzer");
         String parsed = mapper.base("test", 3.6f);
         assertEquals("3.6", parsed);
     }
 
     @Test
     public void testValueDoubleWithoutDecimal() {
-        ColumnMapperText mapper = new ColumnMapperText(true, true, "org.apache.lucene.analysis.en.EnglishAnalyzer");
+        ColumnMapperText mapper = new ColumnMapperText("field",
+                                                       true,
+                                                       true,
+                                                       "org.apache.lucene.analysis.en.EnglishAnalyzer");
         String parsed = mapper.base("test", 3d);
         assertEquals("3.0", parsed);
     }
 
     @Test
     public void testValueDoubleWithDecimalFloor() {
-        ColumnMapperText mapper = new ColumnMapperText(true, true, "org.apache.lucene.analysis.en.EnglishAnalyzer");
+        ColumnMapperText mapper = new ColumnMapperText("field",
+                                                       true,
+                                                       true,
+                                                       "org.apache.lucene.analysis.en.EnglishAnalyzer");
         String parsed = mapper.base("test", 3.5d);
         assertEquals("3.5", parsed);
 
@@ -126,7 +149,10 @@ public class ColumnMapperTextTest {
 
     @Test
     public void testValueDoubleWithDecimalCeil() {
-        ColumnMapperText mapper = new ColumnMapperText(true, true, "org.apache.lucene.analysis.en.EnglishAnalyzer");
+        ColumnMapperText mapper = new ColumnMapperText("field",
+                                                       true,
+                                                       true,
+                                                       "org.apache.lucene.analysis.en.EnglishAnalyzer");
         String parsed = mapper.base("test", 3.6d);
         assertEquals("3.6", parsed);
 
@@ -134,21 +160,30 @@ public class ColumnMapperTextTest {
 
     @Test
     public void testValueStringWithoutDecimal() {
-        ColumnMapperText mapper = new ColumnMapperText(true, true, "org.apache.lucene.analysis.en.EnglishAnalyzer");
+        ColumnMapperText mapper = new ColumnMapperText("field",
+                                                       true,
+                                                       true,
+                                                       "org.apache.lucene.analysis.en.EnglishAnalyzer");
         String parsed = mapper.base("test", "3");
         assertEquals("3", parsed);
     }
 
     @Test
     public void testValueStringWithDecimalFloor() {
-        ColumnMapperText mapper = new ColumnMapperText(true, true, "org.apache.lucene.analysis.en.EnglishAnalyzer");
+        ColumnMapperText mapper = new ColumnMapperText("field",
+                                                       true,
+                                                       true,
+                                                       "org.apache.lucene.analysis.en.EnglishAnalyzer");
         String parsed = mapper.base("test", "3.2");
         assertEquals("3.2", parsed);
     }
 
     @Test
     public void testValueStringWithDecimalCeil() {
-        ColumnMapperText mapper = new ColumnMapperText(true, true, "org.apache.lucene.analysis.en.EnglishAnalyzer");
+        ColumnMapperText mapper = new ColumnMapperText("field",
+                                                       true,
+                                                       true,
+                                                       "org.apache.lucene.analysis.en.EnglishAnalyzer");
         String parsed = mapper.base("test", "3.6");
         assertEquals("3.6", parsed);
 
@@ -156,14 +191,20 @@ public class ColumnMapperTextTest {
 
     @Test
     public void testValueUUID() {
-        ColumnMapperText mapper = new ColumnMapperText(true, true, "org.apache.lucene.analysis.en.EnglishAnalyzer");
+        ColumnMapperText mapper = new ColumnMapperText("field",
+                                                       true,
+                                                       true,
+                                                       "org.apache.lucene.analysis.en.EnglishAnalyzer");
         String parsed = mapper.base("test", UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));
         assertEquals("550e8400-e29b-41d4-a716-446655440000", parsed);
     }
 
     @Test
     public void testIndexedField() {
-        ColumnMapperText mapper = new ColumnMapperText(true, true, "org.apache.lucene.analysis.en.EnglishAnalyzer");
+        ColumnMapperText mapper = new ColumnMapperText("field",
+                                                       true,
+                                                       true,
+                                                       "org.apache.lucene.analysis.en.EnglishAnalyzer");
         Field field = mapper.indexedField("name", "hello");
         assertNotNull(field);
         assertEquals("hello", field.stringValue());
@@ -173,7 +214,10 @@ public class ColumnMapperTextTest {
 
     @Test
     public void testSortedField() {
-        ColumnMapperText mapper = new ColumnMapperText(null, true, "org.apache.lucene.analysis.en.EnglishAnalyzer");
+        ColumnMapperText mapper = new ColumnMapperText("field",
+                                                       null,
+                                                       true,
+                                                       "org.apache.lucene.analysis.en.EnglishAnalyzer");
         Field field = mapper.sortedField("name", "hello", false);
         assertNotNull(field);
         assertEquals(DocValuesType.SORTED, field.fieldType().docValuesType());
@@ -181,7 +225,10 @@ public class ColumnMapperTextTest {
 
     @Test
     public void testSortedFieldCollection() {
-        ColumnMapperText mapper = new ColumnMapperText(null, true, "org.apache.lucene.analysis.en.EnglishAnalyzer");
+        ColumnMapperText mapper = new ColumnMapperText("field",
+                                                       null,
+                                                       true,
+                                                       "org.apache.lucene.analysis.en.EnglishAnalyzer");
         Field field = mapper.sortedField("name", "hello", true);
         assertNotNull(field);
         assertEquals(DocValuesType.SORTED_SET, field.fieldType().docValuesType());
@@ -189,7 +236,10 @@ public class ColumnMapperTextTest {
 
     @Test
     public void testExtractAnalyzers() {
-        ColumnMapperText mapper = new ColumnMapperText(true, true, "org.apache.lucene.analysis.en.EnglishAnalyzer");
+        ColumnMapperText mapper = new ColumnMapperText("field",
+                                                       true,
+                                                       true,
+                                                       "org.apache.lucene.analysis.en.EnglishAnalyzer");
         assertEquals("org.apache.lucene.analysis.en.EnglishAnalyzer", mapper.getAnalyzer());
     }
 
@@ -251,7 +301,7 @@ public class ColumnMapperTextTest {
 
     @Test
     public void testToString() {
-        ColumnMapperText mapper = new ColumnMapperText(false, false, "English");
+        ColumnMapperText mapper = new ColumnMapperText("field", false, false, "English");
         assertEquals("ColumnMapperText{indexed=false, sorted=false, analyzer=English}", mapper.toString());
     }
 }

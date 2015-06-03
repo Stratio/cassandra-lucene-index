@@ -20,8 +20,6 @@ import com.stratio.cassandra.lucene.util.Log;
 import org.apache.cassandra.db.marshal.AsciiType;
 import org.apache.cassandra.db.marshal.InetAddressType;
 import org.apache.cassandra.db.marshal.UTF8Type;
-import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -45,12 +43,12 @@ public class ColumnMapperInet extends ColumnMapperKeyword {
     /**
      * Builds a new {@link ColumnMapperInet}.
      *
+     * @param name    The name of the mapper.
      * @param indexed If the field supports searching.
      * @param sorted  If the field supports sorting.
      */
-    @JsonCreator
-    public ColumnMapperInet(@JsonProperty("indexed") Boolean indexed, @JsonProperty("sorted") Boolean sorted) {
-        super(indexed, sorted, AsciiType.instance, UTF8Type.instance, InetAddressType.instance);
+    public ColumnMapperInet(String name, Boolean indexed, Boolean sorted) {
+        super(name, indexed, sorted, AsciiType.instance, UTF8Type.instance, InetAddressType.instance);
     }
 
     /** {@inheritDoc} */

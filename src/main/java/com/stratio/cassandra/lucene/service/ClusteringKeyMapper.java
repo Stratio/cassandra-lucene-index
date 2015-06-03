@@ -324,10 +324,8 @@ public class ClusteringKeyMapper {
     public SortField[] sortFields() {
         return new SortField[]{new SortField(FIELD_NAME, new FieldComparatorSource() {
             @Override
-            public FieldComparator<?> newComparator(String field,
-                                                    int hits,
-                                                    int sort,
-                                                    boolean reversed) throws IOException {
+            public FieldComparator<?> newComparator(String field, int hits, int sort, boolean reversed)
+            throws IOException {
                 return new FieldComparator.TermValComparator(hits, field, false) {
                     @Override
                     public int compareValues(BytesRef val1, BytesRef val2) {

@@ -25,8 +25,6 @@ import org.apache.cassandra.db.marshal.IntegerType;
 import org.apache.cassandra.db.marshal.LongType;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.commons.lang3.StringUtils;
-import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.math.BigDecimal;
 
@@ -56,6 +54,7 @@ public class ColumnMapperBigDecimal extends ColumnMapperKeyword {
      * Builds a new {@link ColumnMapperBigDecimal} using the specified max number of digits for the integer and decimal
      * parts.
      *
+     * @param name          The name of the mapper.
      * @param indexed       If the field supports searching.
      * @param sorted        If the field supports sorting.
      * @param integerDigits The max number of digits for the integer part. If {@code null}, the {@link
@@ -63,12 +62,13 @@ public class ColumnMapperBigDecimal extends ColumnMapperKeyword {
      * @param decimalDigits The max number of digits for the decimal part. If {@code null}, the {@link
      *                      #DEFAULT_DECIMAL_DIGITS} will be used.
      */
-    @JsonCreator
-    public ColumnMapperBigDecimal(@JsonProperty("indexed") Boolean indexed,
-                                  @JsonProperty("sorted") Boolean sorted,
-                                  @JsonProperty("integer_digits") Integer integerDigits,
-                                  @JsonProperty("decimal_digits") Integer decimalDigits) {
-        super(indexed,
+    public ColumnMapperBigDecimal(String name,
+                                  Boolean indexed,
+                                  Boolean sorted,
+                                  Integer integerDigits,
+                                  Integer decimalDigits) {
+        super(name,
+              indexed,
               sorted,
               AsciiType.instance,
               UTF8Type.instance,
@@ -165,4 +165,5 @@ public class ColumnMapperBigDecimal extends ColumnMapperKeyword {
                       .add("decimalDigits", decimalDigits)
                       .toString();
     }
+
 }

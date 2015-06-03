@@ -37,90 +37,90 @@ public class ColumnMapperUUIDTest {
 
     @Test
     public void testConstructorWithoutArgs() {
-        ColumnMapperUUID mapper = new ColumnMapperUUID(null, null);
+        ColumnMapperUUID mapper = new ColumnMapperUUID("field", null, null);
         assertEquals(ColumnMapper.DEFAULT_INDEXED, mapper.isIndexed());
         assertEquals(ColumnMapper.DEFAULT_SORTED, mapper.isSorted());
     }
 
     @Test
     public void testConstructorWithAllArgs() {
-        ColumnMapperUUID mapper = new ColumnMapperUUID(false, true);
+        ColumnMapperUUID mapper = new ColumnMapperUUID("field", false, true);
         assertFalse(mapper.isIndexed());
         assertTrue(mapper.isSorted());
     }
 
     @Test
     public void testValueNull() {
-        ColumnMapperUUID mapper = new ColumnMapperUUID(true, true);
+        ColumnMapperUUID mapper = new ColumnMapperUUID("field", true, true);
         String parsed = mapper.base("test", null);
         assertNull(parsed);
     }
 
     @Test
     public void testValueUUIDRandom() {
-        ColumnMapperUUID mapper = new ColumnMapperUUID(true, true);
+        ColumnMapperUUID mapper = new ColumnMapperUUID("field", true, true);
         String parsed = mapper.base("test", "550e8400-e29b-41d4-a716-446655440000");
         assertEquals("04550e8400e29b41d4a716446655440000", parsed);
     }
 
     @Test
     public void testValueUUIDTimeBased() {
-        ColumnMapperUUID mapper = new ColumnMapperUUID(true, true);
+        ColumnMapperUUID mapper = new ColumnMapperUUID("field", true, true);
         String parsed = mapper.base("test", "c4c61dc4-89d7-11e4-b116-123b93f75cba");
         assertEquals("0101e489d7c4c61dc4c4c61dc489d711e4b116123b93f75cba", parsed);
     }
 
     @Test
     public void testValueStringRandom() {
-        ColumnMapperUUID mapper = new ColumnMapperUUID(true, true);
+        ColumnMapperUUID mapper = new ColumnMapperUUID("field", true, true);
         String parsed = mapper.base("test", "550e8400-e29b-41d4-a716-446655440000");
         assertEquals("04550e8400e29b41d4a716446655440000", parsed);
     }
 
     @Test
     public void testValueStringTimeBased() {
-        ColumnMapperUUID mapper = new ColumnMapperUUID(true, true);
+        ColumnMapperUUID mapper = new ColumnMapperUUID("field", true, true);
         String parsed = mapper.base("test", "c4c61dc4-89d7-11e4-b116-123b93f75cba");
         assertEquals("0101e489d7c4c61dc4c4c61dc489d711e4b116123b93f75cba", parsed);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testValueStringInvalid() {
-        ColumnMapperUUID mapper = new ColumnMapperUUID(true, true);
+        ColumnMapperUUID mapper = new ColumnMapperUUID("field", true, true);
         mapper.base("test", "550e840");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testValueInteger() {
-        ColumnMapperUUID mapper = new ColumnMapperUUID(true, true);
+        ColumnMapperUUID mapper = new ColumnMapperUUID("field", true, true);
         String parsed = mapper.base("test", 3);
         assertEquals("3", parsed);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testValueLong() {
-        ColumnMapperUUID mapper = new ColumnMapperUUID(true, true);
+        ColumnMapperUUID mapper = new ColumnMapperUUID("field", true, true);
         String parsed = mapper.base("test", 3l);
         assertEquals("3", parsed);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testValueFloat() {
-        ColumnMapperUUID mapper = new ColumnMapperUUID(true, true);
+        ColumnMapperUUID mapper = new ColumnMapperUUID("field", true, true);
         String parsed = mapper.base("test", 3.6f);
         assertEquals("3.6", parsed);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testValueDouble() {
-        ColumnMapperUUID mapper = new ColumnMapperUUID(true, true);
+        ColumnMapperUUID mapper = new ColumnMapperUUID("field", true, true);
         String parsed = mapper.base("test", 3d);
         assertEquals("3.0", parsed);
     }
 
     @Test
     public void testIndexedField() {
-        ColumnMapperUUID mapper = new ColumnMapperUUID(true, true);
+        ColumnMapperUUID mapper = new ColumnMapperUUID("field", true, true);
         String base = mapper.base("name", "550e8400-e29b-41d4-a716-446655440000");
         Field field = mapper.indexedField("name", base);
         assertNotNull(field);
@@ -131,7 +131,7 @@ public class ColumnMapperUUIDTest {
 
     @Test
     public void testSortedField() {
-        ColumnMapperUUID mapper = new ColumnMapperUUID(true, true);
+        ColumnMapperUUID mapper = new ColumnMapperUUID("field", true, true);
         String base = mapper.base("name", "550e8400-e29b-41d4-a716-446655440000");
         Field field = mapper.sortedField("name", base, false);
         assertNotNull(field);
@@ -140,7 +140,7 @@ public class ColumnMapperUUIDTest {
 
     @Test
     public void testSortedFieldCollection() {
-        ColumnMapperUUID mapper = new ColumnMapperUUID(true, true);
+        ColumnMapperUUID mapper = new ColumnMapperUUID("field", true, true);
         Field field = mapper.sortedField("name", "550e8400-e29b-41d4-a716-446655440000", true);
         assertNotNull(field);
         assertEquals(DocValuesType.SORTED_SET, field.fieldType().docValuesType());
@@ -148,7 +148,7 @@ public class ColumnMapperUUIDTest {
 
     @Test
     public void testExtractAnalyzers() {
-        ColumnMapperUUID mapper = new ColumnMapperUUID(true, true);
+        ColumnMapperUUID mapper = new ColumnMapperUUID("field", true, true);
         String analyzer = mapper.getAnalyzer();
         assertEquals(ColumnMapper.KEYWORD_ANALYZER, analyzer);
     }
@@ -192,7 +192,7 @@ public class ColumnMapperUUIDTest {
     @Test
     public void testCompareDifferentTypes() {
 
-        ColumnMapperUUID mapper = new ColumnMapperUUID(true, true);
+        ColumnMapperUUID mapper = new ColumnMapperUUID("field", true, true);
 
         UUID uuidTimeBased = UUID.fromString("c4c61dc4-89d7-11e4-b116-123b93f75cba");
         UUID uuidRandom = UUID.fromString("c4c61dc4-89d7-41e4-b116-123b93f75cba");
@@ -212,7 +212,7 @@ public class ColumnMapperUUIDTest {
     @Test
     public void testCompareTimeUUID() {
 
-        ColumnMapperUUID mapper = new ColumnMapperUUID(true, true);
+        ColumnMapperUUID mapper = new ColumnMapperUUID("field", true, true);
 
         UUID uuid1 = UUID.fromString("d9b602c0-89d8-11e4-b116-123b93f75cba");
         UUID uuid2 = UUID.fromString("d9b6ff0e-89d8-11e4-b116-123b93f75cba");
@@ -232,7 +232,7 @@ public class ColumnMapperUUIDTest {
     @Test
     public void testCompareRandomUUID() throws InterruptedException {
 
-        ColumnMapperUUID mapper = new ColumnMapperUUID(true, true);
+        ColumnMapperUUID mapper = new ColumnMapperUUID("field", true, true);
 
         UUID uuid1 = UUID.fromString("5e9384d7-c72b-402a-aa13-2745f9b6b318");
         UUID uuid2 = UUID.fromString("eddfdc0d-76ee-4a5c-a155-3e5dd16ce1ae");
@@ -374,7 +374,7 @@ public class ColumnMapperUUIDTest {
 
     @Test
     public void testToString() {
-        ColumnMapperUUID mapper = new ColumnMapperUUID(false, false);
+        ColumnMapperUUID mapper = new ColumnMapperUUID("field", false, false);
         assertEquals("ColumnMapperUUID{indexed=false, sorted=false}", mapper.toString());
     }
 }

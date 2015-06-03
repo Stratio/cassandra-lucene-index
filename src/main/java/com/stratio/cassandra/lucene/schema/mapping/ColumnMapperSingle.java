@@ -17,6 +17,7 @@ package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.stratio.cassandra.lucene.schema.Column;
 import com.stratio.cassandra.lucene.schema.Columns;
+import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -31,12 +32,13 @@ public abstract class ColumnMapperSingle<BASE> extends ColumnMapper {
     /**
      * Builds a new {@link ColumnMapperSingle} supporting the specified types for indexing and clustering.
      *
+     * @param name           The name of the mapper.
      * @param indexed        If the field supports searching.
      * @param sorted         If the field supports sorting.
      * @param supportedTypes The supported Cassandra types for indexing.
      */
-    public ColumnMapperSingle(Boolean indexed, Boolean sorted, AbstractType<?>... supportedTypes) {
-        super(indexed, sorted, supportedTypes);
+    public ColumnMapperSingle(String name, Boolean indexed, Boolean sorted, AbstractType<?>... supportedTypes) {
+        super(name, indexed, sorted, supportedTypes);
     }
 
     public void addFields(Document document, Columns columns) {
@@ -76,6 +78,11 @@ public abstract class ColumnMapperSingle<BASE> extends ColumnMapper {
 
     protected BASE error(String msg, Object... args) {
         throw new IllegalArgumentException(String.format(msg, args));
+    }
+
+    @Override
+    public void validate(CFMetaData metadata) {
+        validate(metadata, name);
     }
 
 }

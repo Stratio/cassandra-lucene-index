@@ -55,7 +55,7 @@ public class RowServiceSkinny extends RowService {
      * @param baseCfs          The base column family store.
      * @param columnDefinition The indexed column definition.
      */
-    public RowServiceSkinny(ColumnFamilyStore baseCfs, ColumnDefinition columnDefinition)  throws IOException {
+    public RowServiceSkinny(ColumnFamilyStore baseCfs, ColumnDefinition columnDefinition) throws IOException {
         super(baseCfs, columnDefinition);
         this.rowMapper = (RowMapperSkinny) super.rowMapper;
         luceneIndex.init(rowMapper.sort());

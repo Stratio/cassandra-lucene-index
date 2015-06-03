@@ -91,7 +91,7 @@ public class FuzzyConditionTest extends AbstractConditionTest {
 
         Schema schema = mock(Schema.class);
         when(schema.getAnalyzer()).thenReturn(PreBuiltAnalyzers.STANDARD.get());
-        when(schema.getMapper("name")).thenReturn(new ColumnMapperString(null, null, null));
+        when(schema.getMapper("name")).thenReturn(new ColumnMapperString("name", null, null, null));
 
         FuzzyCondition condition = new FuzzyCondition(0.5f, "name", "tr", 1, 2, 49, true);
         Query query = condition.query(schema);
@@ -111,7 +111,7 @@ public class FuzzyConditionTest extends AbstractConditionTest {
 
         Schema schema = mock(Schema.class);
         when(schema.getAnalyzer()).thenReturn(PreBuiltAnalyzers.STANDARD.get());
-        when(schema.getMapper("name")).thenReturn(new ColumnMapperInteger(null, null, null));
+        when(schema.getMapper("name")).thenReturn(new ColumnMapperInteger("name", null, null, null));
 
         FuzzyCondition condition = new FuzzyCondition(0.5f, "name", "tr", 1, 2, 49, true);
         condition.query(schema);

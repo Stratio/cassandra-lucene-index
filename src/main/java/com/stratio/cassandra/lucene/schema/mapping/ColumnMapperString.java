@@ -17,8 +17,6 @@ package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.google.common.base.Objects;
 import org.apache.cassandra.db.marshal.*;
-import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * A {@link ColumnMapper} to map a string, not tokenized field.
@@ -36,15 +34,14 @@ public class ColumnMapperString extends ColumnMapperKeyword {
     /**
      * Builds a new {@link ColumnMapperString}.
      *
+     * @param name          The name of the mapper.
      * @param indexed       If the field supports searching.
      * @param sorted        If the field supports sorting.
      * @param caseSensitive If the getAnalyzer must be case sensitive.
      */
-    @JsonCreator
-    public ColumnMapperString(@JsonProperty("indexed") Boolean indexed,
-                              @JsonProperty("sorted") Boolean sorted,
-                              @JsonProperty("case_sensitive") Boolean caseSensitive) {
-        super(indexed,
+    public ColumnMapperString(String name, Boolean indexed, Boolean sorted, Boolean caseSensitive) {
+        super(name,
+              indexed,
               sorted,
               AsciiType.instance,
               UTF8Type.instance,

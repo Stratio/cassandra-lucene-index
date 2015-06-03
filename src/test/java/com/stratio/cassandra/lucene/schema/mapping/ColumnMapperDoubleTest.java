@@ -29,7 +29,7 @@ public class ColumnMapperDoubleTest {
 
     @Test
     public void testConstructorWithoutArgs() {
-        ColumnMapperDouble mapper = new ColumnMapperDouble(null, null, null);
+        ColumnMapperDouble mapper = new ColumnMapperDouble("field", null, null, null);
         assertEquals(ColumnMapper.DEFAULT_INDEXED, mapper.isIndexed());
         assertEquals(ColumnMapper.DEFAULT_SORTED, mapper.isSorted());
         assertEquals(ColumnMapperDouble.DEFAULT_BOOST, mapper.getBoost(), 1);
@@ -37,7 +37,7 @@ public class ColumnMapperDoubleTest {
 
     @Test
     public void testConstructorWithAllArgs() {
-        ColumnMapperDouble mapper = new ColumnMapperDouble(false, true, 2.3f);
+        ColumnMapperDouble mapper = new ColumnMapperDouble("field", false, true, 2.3f);
         assertFalse(mapper.isIndexed());
         assertTrue(mapper.isSorted());
         assertEquals(2.3f, mapper.getBoost(), 1);
@@ -45,8 +45,7 @@ public class ColumnMapperDoubleTest {
 
     @Test()
     public void testSortField() {
-        ColumnMapperDouble mapper = new ColumnMapperDouble(null, null, 2.3f);
-        mapper.init("field");
+        ColumnMapperDouble mapper = new ColumnMapperDouble("field", null, null, 2.3f);
         SortField sortField = mapper.sortField(true);
         assertNotNull(sortField);
         assertTrue(sortField.getReverse());
@@ -54,48 +53,48 @@ public class ColumnMapperDoubleTest {
 
     @Test()
     public void testValueNull() {
-        ColumnMapperDouble mapper = new ColumnMapperDouble(null, null, 1f);
+        ColumnMapperDouble mapper = new ColumnMapperDouble("field", null, null, 1f);
         Double parsed = mapper.base("test", null);
         assertNull(parsed);
     }
 
     @Test()
     public void testValueString() {
-        ColumnMapperDouble mapper = new ColumnMapperDouble(null, null, 1f);
+        ColumnMapperDouble mapper = new ColumnMapperDouble("field", null, null, 1f);
         Double parsed = mapper.base("test", "3.4");
         assertEquals(Double.valueOf(3.4), parsed);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testValueStringInvalid() {
-        ColumnMapperDouble mapper = new ColumnMapperDouble(null, null, 1f);
+        ColumnMapperDouble mapper = new ColumnMapperDouble("field", null, null, 1f);
         mapper.base("test", "error");
     }
 
     @Test
     public void testValueInteger() {
-        ColumnMapperDouble mapper = new ColumnMapperDouble(null, null, 1f);
+        ColumnMapperDouble mapper = new ColumnMapperDouble("field", null, null, 1f);
         Double parsed = mapper.base("test", 3);
         assertEquals(Double.valueOf(3), parsed);
     }
 
     @Test
     public void testValueLong() {
-        ColumnMapperDouble mapper = new ColumnMapperDouble(null, null, 1f);
+        ColumnMapperDouble mapper = new ColumnMapperDouble("field", null, null, 1f);
         Double parsed = mapper.base("test", 3l);
         assertEquals(Double.valueOf(3), parsed);
     }
 
     @Test
     public void testValueFloatWithoutDecimal() {
-        ColumnMapperDouble mapper = new ColumnMapperDouble(null, null, 1f);
+        ColumnMapperDouble mapper = new ColumnMapperDouble("field", null, null, 1f);
         Double parsed = mapper.base("test", 3f);
         assertEquals(Double.valueOf(3), parsed);
     }
 
     @Test
     public void testValueFloatWithDecimalFloor() {
-        ColumnMapperDouble mapper = new ColumnMapperDouble(null, null, 1f);
+        ColumnMapperDouble mapper = new ColumnMapperDouble("field", null, null, 1f);
         Double parsed = mapper.base("test", 3.5f);
         assertEquals(Double.valueOf(3.5d), parsed);
 
@@ -103,21 +102,21 @@ public class ColumnMapperDoubleTest {
 
     @Test
     public void testValueFloatWithDecimalCeil() {
-        ColumnMapperDouble mapper = new ColumnMapperDouble(null, null, 1f);
+        ColumnMapperDouble mapper = new ColumnMapperDouble("field", null, null, 1f);
         Double parsed = mapper.base("test", 3.6f);
         assertEquals(Double.valueOf(3.6f), parsed);
     }
 
     @Test
     public void testValueDoubleWithoutDecimal() {
-        ColumnMapperDouble mapper = new ColumnMapperDouble(null, null, 1f);
+        ColumnMapperDouble mapper = new ColumnMapperDouble("field", null, null, 1f);
         Double parsed = mapper.base("test", 3d);
         assertEquals(Double.valueOf(3), parsed);
     }
 
     @Test
     public void testValueDoubleWithDecimalFloor() {
-        ColumnMapperDouble mapper = new ColumnMapperDouble(null, null, 1f);
+        ColumnMapperDouble mapper = new ColumnMapperDouble("field", null, null, 1f);
         Double parsed = mapper.base("test", 3.5d);
         assertEquals(Double.valueOf(3.5d), parsed);
 
@@ -125,7 +124,7 @@ public class ColumnMapperDoubleTest {
 
     @Test
     public void testValueDoubleWithDecimalCeil() {
-        ColumnMapperDouble mapper = new ColumnMapperDouble(null, null, 1f);
+        ColumnMapperDouble mapper = new ColumnMapperDouble("field", null, null, 1f);
         Double parsed = mapper.base("test", 3.6d);
         assertEquals(Double.valueOf(3.6d), parsed);
 
@@ -133,28 +132,28 @@ public class ColumnMapperDoubleTest {
 
     @Test
     public void testValueStringWithoutDecimal() {
-        ColumnMapperDouble mapper = new ColumnMapperDouble(null, null, 1f);
+        ColumnMapperDouble mapper = new ColumnMapperDouble("field", null, null, 1f);
         Double parsed = mapper.base("test", "3");
         assertEquals(Double.valueOf(3), parsed);
     }
 
     @Test
     public void testValueStringWithDecimalFloor() {
-        ColumnMapperDouble mapper = new ColumnMapperDouble(null, null, 1f);
+        ColumnMapperDouble mapper = new ColumnMapperDouble("field", null, null, 1f);
         Double parsed = mapper.base("test", "3.2");
         assertEquals(Double.valueOf(3.2d), parsed);
     }
 
     @Test
     public void testValueStringWithDecimalCeil() {
-        ColumnMapperDouble mapper = new ColumnMapperDouble(null, null, 1f);
+        ColumnMapperDouble mapper = new ColumnMapperDouble("field", null, null, 1f);
         Double parsed = mapper.base("test", "3.6");
         assertEquals(Double.valueOf(3.6d), parsed);
     }
 
     @Test
     public void testIndexedField() {
-        ColumnMapperDouble mapper = new ColumnMapperDouble(true, true, 1f);
+        ColumnMapperDouble mapper = new ColumnMapperDouble("field", true, true, 1f);
         Field field = mapper.indexedField("name", 3.2d);
         assertNotNull(field);
         assertEquals(3.2d, field.numericValue());
@@ -164,7 +163,7 @@ public class ColumnMapperDoubleTest {
 
     @Test
     public void testSortedField() {
-        ColumnMapperDouble mapper = new ColumnMapperDouble(true, true, 1f);
+        ColumnMapperDouble mapper = new ColumnMapperDouble("field", true, true, 1f);
         Field field = mapper.sortedField("name", 3.2d, false);
         assertNotNull(field);
         assertEquals(DocValuesType.NUMERIC, field.fieldType().docValuesType());
@@ -172,7 +171,7 @@ public class ColumnMapperDoubleTest {
 
     @Test
     public void testSortedFieldCollection() {
-        ColumnMapperDouble mapper = new ColumnMapperDouble(true, true, 1f);
+        ColumnMapperDouble mapper = new ColumnMapperDouble("field", true, true, 1f);
         Field field = mapper.sortedField("name", 3.2d, true);
         assertNotNull(field);
         assertEquals(DocValuesType.NUMERIC, field.fieldType().docValuesType());
@@ -180,7 +179,7 @@ public class ColumnMapperDoubleTest {
 
     @Test
     public void testExtractAnalyzers() {
-        ColumnMapperDouble mapper = new ColumnMapperDouble(null, null, 1f);
+        ColumnMapperDouble mapper = new ColumnMapperDouble("field", null, null, 1f);
         String analyzer = mapper.getAnalyzer();
         assertEquals(ColumnMapper.KEYWORD_ANALYZER, analyzer);
     }
@@ -225,7 +224,7 @@ public class ColumnMapperDoubleTest {
 
     @Test
     public void testToString() {
-        ColumnMapperDouble mapper = new ColumnMapperDouble(false, false, 0.3f);
+        ColumnMapperDouble mapper = new ColumnMapperDouble("field", false, false, 0.3f);
         assertEquals("ColumnMapperDouble{indexed=false, sorted=false, boost=0.3}", mapper.toString());
     }
 }

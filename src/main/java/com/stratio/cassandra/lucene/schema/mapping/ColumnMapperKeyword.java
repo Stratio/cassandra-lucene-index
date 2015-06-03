@@ -32,12 +32,13 @@ import org.apache.lucene.util.BytesRef;
 public abstract class ColumnMapperKeyword extends ColumnMapperSingle<String> {
 
     /**
+     * @param name           The name of the mapper.
      * @param indexed        If the field supports searching.
      * @param sorted         If the field supports sorting.
      * @param supportedTypes The supported Cassandra types for indexing.
      */
-    ColumnMapperKeyword(Boolean indexed, Boolean sorted, AbstractType<?>... supportedTypes) {
-        super(indexed, sorted, supportedTypes);
+    ColumnMapperKeyword(String name, Boolean indexed, Boolean sorted, AbstractType<?>... supportedTypes) {
+        super(name, indexed, sorted, supportedTypes);
     }
 
     /** {@inheritDoc} */

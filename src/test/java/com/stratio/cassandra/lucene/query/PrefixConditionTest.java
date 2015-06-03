@@ -16,17 +16,12 @@
 package com.stratio.cassandra.lucene.query;
 
 import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.mapping.ColumnMapper;
 import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperInet;
 import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperInteger;
 import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperString;
-import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.search.PrefixQuery;
 import org.apache.lucene.search.Query;
 import org.junit.Test;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import static com.stratio.cassandra.lucene.query.builder.SearchBuilders.prefix;
 import static com.stratio.cassandra.lucene.query.builder.SearchBuilders.query;
@@ -41,12 +36,10 @@ public class PrefixConditionTest extends AbstractConditionTest {
     @Test
     public void testString() {
 
-        Map<String, ColumnMapper> map = new HashMap<>();
-        map.put("name", new ColumnMapperString(true, true, null));
-        Schema mappers = new Schema(map, null, EnglishAnalyzer.class.getName());
+        Schema schema = mockSchema("name", new ColumnMapperString("name", true, true, null));
 
         PrefixCondition prefixCondition = new PrefixCondition(0.5f, "name", "tr");
-        Query query = prefixCondition.query(mappers);
+        Query query = prefixCondition.query(schema);
 
         assertNotNull(query);
         assertEquals(PrefixQuery.class, query.getClass());
@@ -59,23 +52,19 @@ public class PrefixConditionTest extends AbstractConditionTest {
     @Test(expected = UnsupportedOperationException.class)
     public void testInteger() {
 
-        Map<String, ColumnMapper> map = new HashMap<>();
-        map.put("name", new ColumnMapperInteger(null, null, 1f));
-        Schema mappers = new Schema(map, null, EnglishAnalyzer.class.getName());
+        Schema schema = mockSchema("name", new ColumnMapperInteger("name", null, null, 1f));
 
         PrefixCondition prefixCondition = new PrefixCondition(0.5f, "name", "2*");
-        prefixCondition.query(mappers);
+        prefixCondition.query(schema);
     }
 
     @Test
     public void testInetV4() {
 
-        Map<String, ColumnMapper> map = new HashMap<>();
-        map.put("name", new ColumnMapperInet(null, null));
-        Schema mappers = new Schema(map, null, EnglishAnalyzer.class.getName());
+        Schema schema = mockSchema("name", new ColumnMapperInet("name", null, null));
 
         PrefixCondition wildcardCondition = new PrefixCondition(0.5f, "name", "192.168.");
-        Query query = wildcardCondition.query(mappers);
+        Query query = wildcardCondition.query(schema);
 
         assertNotNull(query);
         assertEquals(PrefixQuery.class, query.getClass());
@@ -88,12 +77,10 @@ public class PrefixConditionTest extends AbstractConditionTest {
     @Test
     public void testInetV6() {
 
-        Map<String, ColumnMapper> map = new HashMap<>();
-        map.put("name", new ColumnMapperInet(null, null));
-        Schema mappers = new Schema(map, null, EnglishAnalyzer.class.getName());
+        Schema schema = mockSchema("name", new ColumnMapperInet("name", null, null));
 
         PrefixCondition wildcardCondition = new PrefixCondition(0.5f, "name", "2001:db8:2de:0:0:0:0:e");
-        Query query = wildcardCondition.query(mappers);
+        Query query = wildcardCondition.query(schema);
 
         assertNotNull(query);
         assertEquals(PrefixQuery.class, query.getClass());

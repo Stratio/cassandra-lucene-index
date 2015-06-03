@@ -44,10 +44,10 @@ public class BooleanConditionTest extends AbstractConditionTest {
     public void testQuery() {
         Schema schema = mock(Schema.class);
         when(schema.getAnalyzer()).thenReturn(PreBuiltAnalyzers.DEFAULT.get());
-        when(schema.getMapper("name")).thenReturn(new ColumnMapperString(null, null, null));
-        when(schema.getMapper("color")).thenReturn(new ColumnMapperString(null, null, null));
-        when(schema.getMapper("country")).thenReturn(new ColumnMapperString(null, null, null));
-        when(schema.getMapper("age")).thenReturn(new ColumnMapperInteger(null, null, null));
+        when(schema.getMapper("name")).thenReturn(new ColumnMapperString("name", null, null, null));
+        when(schema.getMapper("color")).thenReturn(new ColumnMapperString("color", null, null, null));
+        when(schema.getMapper("country")).thenReturn(new ColumnMapperString("country", null, null, null));
+        when(schema.getMapper("age")).thenReturn(new ColumnMapperInteger("age", null, null, null));
         BooleanCondition condition = bool().must(match("name", "jonathan"), range("age").lower(18).includeLower(true))
                                            .should(match("color", "green"), match("color", "blue"))
                                            .not(match("country", "england"))
