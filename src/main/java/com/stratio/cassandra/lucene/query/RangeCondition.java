@@ -135,12 +135,6 @@ public class RangeCondition extends SingleFieldCondition {
         if (clazz == String.class) {
             String lower = (String) columnMapper.base(field, this.lower);
             String upper = (String) columnMapper.base(field, this.upper);
-            if (lower != null) {
-                lower = analyze(field, lower, schema);
-            }
-            if (upper != null) {
-                upper = analyze(field, upper, schema);
-            }
             query = TermRangeQuery.newStringRange(field, lower, upper, includeLower, includeUpper);
         } else if (clazz == Integer.class) {
             Integer lower = (Integer) columnMapper.base(field, this.lower);

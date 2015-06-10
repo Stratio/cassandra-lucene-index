@@ -18,8 +18,6 @@ package com.stratio.cassandra.lucene.query;
 import com.stratio.cassandra.lucene.geospatial.GeoBBoxCondition;
 import com.stratio.cassandra.lucene.geospatial.GeoDistanceCondition;
 import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.analysis.AnalysisUtils;
-import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.QueryWrapperFilter;
@@ -91,11 +89,6 @@ public abstract class Condition {
      */
     public Filter filter(Schema schema) {
         return new QueryWrapperFilter(query(schema));
-    }
-
-    protected String analyze(String field, String value, Schema schema) {
-        Analyzer analyzer = schema.getAnalyzer();
-        return AnalysisUtils.instance.analyzeAsText(field, value, analyzer);
     }
 
 }

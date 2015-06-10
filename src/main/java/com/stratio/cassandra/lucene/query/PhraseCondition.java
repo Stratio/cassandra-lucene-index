@@ -17,14 +17,14 @@ package com.stratio.cassandra.lucene.query;
 
 import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.schema.Schema;
+import com.stratio.cassandra.lucene.schema.analysis.AnalysisUtils;
 import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperSingle;
+import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.Query;
 import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
-
-import java.util.Arrays;
 
 /**
  * A {@link Condition} implementation that matches documents containing a particular sequence of terms.
@@ -41,8 +41,8 @@ public class PhraseCondition extends SingleFieldCondition {
     private final String field;
 
     /** The phrase terms to be matched. */
-    @JsonProperty("values")
-    private final String[] values;
+    @JsonProperty("value")
+    private final String value;
 
     /** The number of other words permitted between words in phrase. */
     @JsonProperty("slop")
@@ -51,29 +51,29 @@ public class PhraseCondition extends SingleFieldCondition {
     /**
      * Constructor using the field name and the value to be matched.
      *
-     * @param boost  The boost for this query clause. Documents matching this clause will (in addition to the normal
-     *               weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link
-     *               #DEFAULT_BOOST} is used as default.
-     * @param field  The name of the field to be matched.
-     * @param values The phrase terms to be matched.
-     * @param slop   The number of other words permitted between words in phrase.
+     * @param boost The boost for this query clause. Documents matching this clause will (in addition to the normal
+     *              weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link
+     *              #DEFAULT_BOOST} is used as default.
+     * @param field The name of the field to be matched.
+     * @param value The phrase terms to be matched.
+     * @param slop  The number of other words permitted between words in phrase.
      */
     @JsonCreator
     public PhraseCondition(@JsonProperty("boost") Float boost,
                            @JsonProperty("field") String field,
-                           @JsonProperty("values") String[] values,
+                           @JsonProperty("value") String value,
                            @JsonProperty("slop") Integer slop) {
         super(boost, field);
 
-        if (values == null) {
-            throw new IllegalArgumentException("Field values required");
+        if (value == null) {
+            throw new IllegalArgumentException("Field value required");
         }
         if (slop != null && slop < 0) {
             throw new IllegalArgumentException("Slop must be positive");
         }
 
         this.field = field;
-        this.values = values;
+        this.value = value;
         this.slop = slop == null ? DEFAULT_SLOP : slop;
     }
 
@@ -91,8 +91,8 @@ public class PhraseCondition extends SingleFieldCondition {
      *
      * @return the phrase terms to be matched.
      */
-    public String[] getValues() {
-        return values;
+    public String getValue() {
+        return value;
     }
 
     /** {@inheritDoc} */
@@ -104,14 +104,10 @@ public class PhraseCondition extends SingleFieldCondition {
             PhraseQuery query = new PhraseQuery();
             query.setSlop(slop);
             query.setBoost(boost);
-            int count = 0;
-            for (String value : values) {
-                String analyzedValue = analyze(field, value, schema);
-                if (analyzedValue != null) {
-                    Term term = new Term(field, analyzedValue);
-                    query.add(term, count);
-                }
-                count++;
+            Analyzer analyzer = schema.getAnalyzer();
+            for (String token : AnalysisUtils.instance.analyze(field, value, analyzer)) {
+                Term term = new Term(field, token);
+                query.add(term);
             }
             return query;
         } else {
@@ -126,7 +122,7 @@ public class PhraseCondition extends SingleFieldCondition {
         return Objects.toStringHelper(this)
                       .add("boost", boost)
                       .add("field", field)
-                      .add("values", Arrays.toString(values))
+                      .add("value", value)
                       .add("slop", slop)
                       .toString();
     }

@@ -31,18 +31,20 @@ public class AnalysisUtils {
 
     public static final AnalysisUtils instance = new AnalysisUtils();
 
-    public List<String> analyzeAsTokens(String value, Analyzer analyzer) {
-        return analyzeAsTokens(null, value, analyzer);
+    public List<String> analyze(String value, Analyzer analyzer) {
+        return analyze(null, value, analyzer);
     }
 
-    public List<String> analyzeAsTokens(String field, String value, Analyzer analyzer) {
+    public List<String> analyze(String field, String value, Analyzer analyzer) {
         List<String> result = new ArrayList<>();
         TokenStream stream = null;
+        System.out.println("USING ANALYZER " + analyzer);
         try {
             stream = analyzer.tokenStream(field, new StringReader(value));
             stream.reset();
             while (stream.incrementToken()) {
                 String analyzedValue = stream.getAttribute(CharTermAttribute.class).toString();
+                System.out.println(String.format("TOKEN '%s' -> '%s'", value, analyzedValue));
                 result.add(analyzedValue);
             }
         } catch (Exception e) {
@@ -53,17 +55,17 @@ public class AnalysisUtils {
         return result;
     }
 
-    public String analyzeAsText(String value, Analyzer analyzer) {
-        return analyzeAsText(null, value, analyzer);
-    }
-
-    public String analyzeAsText(String field, String value, Analyzer analyzer) {
-        List<String> tokens = analyzeAsTokens(field, value, analyzer);
-        StringBuilder result = new StringBuilder();
-        for (String token : tokens) {
-            result.append(token);
-            result.append(" ");
-        }
-        return result.toString().trim();
-    }
+//    public String analyzeAsText(String value, Analyzer analyzer) {
+//        return analyzeAsText(null, value, analyzer);
+//    }
+//
+//    public String analyzeAsText(String field, String value, Analyzer analyzer) {
+//        List<String> tokens = analyze(field, value, analyzer);
+//        StringBuilder result = new StringBuilder();
+//        for (String token : tokens) {
+//            result.append(token);
+//            result.append(" ");
+//        }
+//        return result.toString();
+//    }
 }

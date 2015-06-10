@@ -15,8 +15,6 @@
  */
 package com.stratio.cassandra.lucene.query.builder;
 
-import java.util.List;
-
 /**
  * Factory for {@link SearchBuilder} and {@link ConditionBuilder}s.
  *
@@ -113,23 +111,12 @@ public class SearchBuilders {
     /**
      * Returns a new {@link PhraseConditionBuilder} for the specified field and values.
      *
-     * @param field  The name of the field to be matched.
-     * @param values The values of the field to be matched.
+     * @param field The name of the field to be matched.
+     * @param value The text to be matched.
      * @return A new {@link PhraseConditionBuilder} for the specified field and values.
      */
-    public static PhraseConditionBuilder phrase(String field, String... values) {
-        return new PhraseConditionBuilder(field, values);
-    }
-
-    /**
-     * Returns a new {@link PhraseConditionBuilder} for the specified field and values.
-     *
-     * @param field  The name of the field to be matched.
-     * @param values The values of the field to be matched.
-     * @return A new {@link PhraseConditionBuilder} for the specified field and values.
-     */
-    public static PhraseConditionBuilder phrase(String field, List<String> values) {
-        return new PhraseConditionBuilder(field, values);
+    public static PhraseConditionBuilder phrase(String field, String value) {
+        return new PhraseConditionBuilder(field, value);
     }
 
     /**

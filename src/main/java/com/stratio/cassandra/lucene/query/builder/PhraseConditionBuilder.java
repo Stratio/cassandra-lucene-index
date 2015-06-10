@@ -17,8 +17,6 @@ package com.stratio.cassandra.lucene.query.builder;
 
 import com.stratio.cassandra.lucene.query.PhraseCondition;
 
-import java.util.List;
-
 /**
  * {@link ConditionBuilder} for building a new {@link PhraseCondition}.
  *
@@ -30,7 +28,7 @@ public class PhraseConditionBuilder extends ConditionBuilder<PhraseCondition, Ph
     private final String field;
 
     /** The phrase terms to be matched. */
-    private final String[] values;
+    private final String value;
 
     /** The number of other words permitted between words in phrase. */
     private Integer slop;
@@ -38,23 +36,12 @@ public class PhraseConditionBuilder extends ConditionBuilder<PhraseCondition, Ph
     /**
      * Returns a new {@link PhraseConditionBuilder} with the specified field name and values to be matched.
      *
-     * @param field  The name of the field to be matched.
-     * @param values The phrase terms to be matched.
+     * @param field The name of the field to be matched.
+     * @param value The phrase terms to be matched.
      */
-    protected PhraseConditionBuilder(String field, List<String> values) {
+    protected PhraseConditionBuilder(String field, String value) {
         this.field = field;
-        this.values = values.toArray(new String[values.size()]);
-    }
-
-    /**
-     * Returns a new {@link PhraseConditionBuilder} with the specified field name and values to be matched.
-     *
-     * @param field  The name of the field.
-     * @param values The phrase terms to be matched.
-     */
-    public PhraseConditionBuilder(String field, String... values) {
-        this.field = field;
-        this.values = values;
+        this.value = value;
     }
 
     /**
@@ -76,6 +63,6 @@ public class PhraseConditionBuilder extends ConditionBuilder<PhraseCondition, Ph
      */
     @Override
     public PhraseCondition build() {
-        return new PhraseCondition(boost, field, values, slop);
+        return new PhraseCondition(boost, field, value, slop);
     }
 }

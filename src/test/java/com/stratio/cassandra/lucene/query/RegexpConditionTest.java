@@ -51,9 +51,18 @@ public class RegexpConditionTest extends AbstractConditionTest {
         new RegexpCondition(null, "field", null);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testBuildBlankValue() {
-        new RegexpCondition(null, "field", " ");
+        Schema schema = mockSchema("name", new ColumnMapperString("name", true, true, null));
+
+        RegexpCondition condition = new RegexpCondition(0.5f, "name", " ");
+        Query query = condition.query(schema);
+
+        assertNotNull(query);
+        assertEquals(RegexpQuery.class, query.getClass());
+        RegexpQuery luceneQuery = (RegexpQuery) query;
+        assertEquals("name", luceneQuery.getField());
+        assertEquals(0.5f, query.getBoost(), 0);
     }
 
     @Test

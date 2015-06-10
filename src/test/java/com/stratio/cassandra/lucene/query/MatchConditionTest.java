@@ -28,7 +28,6 @@ import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperString;
 import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperText;
 import org.apache.cassandra.db.marshal.UUIDType;
 import org.apache.lucene.analysis.core.KeywordAnalyzer;
-import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.search.NumericRangeQuery;
 import org.apache.lucene.search.Query;
@@ -66,9 +65,12 @@ public class MatchConditionTest extends AbstractConditionTest {
         new MatchCondition(null, "field", null);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testBuildBlankValue() {
-        new MatchCondition(null, "field", " ");
+        MatchCondition condition = new MatchCondition(0.5f, "field", " ");
+        assertEquals(0.5f, condition.getBoost(), 0);
+        assertEquals("field", condition.getField());
+        assertEquals(" ", condition.getValue());
     }
 
     @Test
@@ -87,15 +89,18 @@ public class MatchConditionTest extends AbstractConditionTest {
         assertEquals(0.5f, query.getBoost(), 0);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testStringStopwords() {
 
-        Schema schema = mock(Schema.class);
-        when(schema.getMapper("name")).thenReturn(new ColumnMapperText("name", null, null, "english"));
-        when(schema.getAnalyzer()).thenReturn(new EnglishAnalyzer());
+        Schema schema = mockSchema("name", new ColumnMapperText("name", null, null, "english"), "english");
 
         MatchCondition matchCondition = new MatchCondition(0.5f, "name", "the");
-        matchCondition.query(schema);
+        Query query = matchCondition.query(schema);
+
+        assertNotNull(query);
+        assertEquals(TermQuery.class, query.getClass());
+        assertEquals("", ((TermQuery) query).getTerm().bytes().utf8ToString());
+        assertEquals(0.5f, query.getBoost(), 0);
     }
 
     @Test

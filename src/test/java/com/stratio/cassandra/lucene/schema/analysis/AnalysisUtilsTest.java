@@ -58,72 +58,40 @@ public class AnalysisUtilsTest {
     }
 
     @Test
-    public void testAnalyzeAsTokensWithNullField() {
+    public void testAnalyzeWithNullField() {
         String text = "the lazy dog jumps over the quick brown fox";
-        List<String> analyzedText = AnalysisUtils.instance.analyzeAsTokens(null, text, englishAnalyzer);
+        List<String> analyzedText = AnalysisUtils.instance.analyze(null, text, englishAnalyzer);
         List<String> expectedText = Arrays.asList("lazi", "dog", "jump", "over", "quick", "brown", "fox");
         assertEquals(expectedText, analyzedText);
     }
 
     @Test
-    public void testAnalyzeAsTokensWithField() {
+    public void testAnalyzeWithField() {
         String text = "the lazy dog jumps over the quick brown fox";
-        List<String> analyzedText = AnalysisUtils.instance.analyzeAsTokens("english", text, perFieldAnalyzer);
+        List<String> analyzedText = AnalysisUtils.instance.analyze("english", text, perFieldAnalyzer);
         List<String> expectedText = Arrays.asList("lazi", "dog", "jump", "over", "quick", "brown", "fox");
         assertEquals(expectedText, analyzedText);
     }
 
     @Test
-    public void testAnalyzeAsTokensWithWrongField() {
+    public void testAnalyzeWithWrongField() {
         String text = "the lazy dog jumps over the quick brown fox";
-        List<String> analyzedText = AnalysisUtils.instance.analyzeAsTokens(null, text, perFieldAnalyzer);
+        List<String> analyzedText = AnalysisUtils.instance.analyze(null, text, perFieldAnalyzer);
         List<String> expectedText = Arrays.asList("lazi", "dog", "jump", "over", "quick", "brown", "fox");
         assertNotSame(expectedText, analyzedText);
     }
 
     @Test
-    public void testAnalyzeAsTokensWithoutField() {
+    public void testAnalyzeWithoutField() {
         String text = "the lazy dog jumps over the quick brown fox";
-        List<String> analyzedText = AnalysisUtils.instance.analyzeAsTokens(text, englishAnalyzer);
+        List<String> analyzedText = AnalysisUtils.instance.analyze(text, englishAnalyzer);
         List<String> expectedText = Arrays.asList("lazi", "dog", "jump", "over", "quick", "brown", "fox");
-        assertEquals(expectedText, analyzedText);
-    }
-
-    @Test
-    public void testAnalyzeAsTextWithNullField() {
-        String text = "the lazy dog jumps over the quick brown fox";
-        String analyzedText = AnalysisUtils.instance.analyzeAsText(null, text, englishAnalyzer);
-        String expectedText = "lazi dog jump over quick brown fox";
-        assertEquals(expectedText, analyzedText);
-    }
-
-    @Test
-    public void testAnalyzeAsTextWithField() {
-        String text = "the lazy dog jumps over the quick brown fox";
-        String analyzedText = AnalysisUtils.instance.analyzeAsText("english", text, perFieldAnalyzer);
-        String expectedText = "lazi dog jump over quick brown fox";
-        assertEquals(expectedText, analyzedText);
-    }
-
-    @Test
-    public void testAnalyzeAsTextWithWrongField() {
-        String text = "the lazy dog jumps over the quick brown fox";
-        String analyzedText = AnalysisUtils.instance.analyzeAsText(null, text, perFieldAnalyzer);
-        String expectedText = "lazi dog jump over quick brown fox";
-        assertNotSame(expectedText, analyzedText);
-    }
-
-    @Test
-    public void testAnalyzeAsTextWithoutField() {
-        String text = "the lazy dog jumps over the quick brown fox";
-        String analyzedText = AnalysisUtils.instance.analyzeAsText(text, englishAnalyzer);
-        String expectedText = "lazi dog jump over quick brown fox";
         assertEquals(expectedText, analyzedText);
     }
 
     @Test(expected = RuntimeException.class)
-    public void testAnalyzeAsTokensFailing() {
-        AnalysisUtils.instance.analyzeAsTokens(null, null);
+    public void testAnalyzeFailing() {
+        AnalysisUtils.instance.analyze(null, null);
     }
 
 }

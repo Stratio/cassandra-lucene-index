@@ -19,6 +19,7 @@ import com.stratio.cassandra.lucene.query.builder.SearchBuilder;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.analysis.PreBuiltAnalyzers;
 import com.stratio.cassandra.lucene.schema.mapping.ColumnMapper;
+import org.apache.lucene.analysis.Analyzer;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -44,6 +45,20 @@ public class AbstractConditionTest {
     protected Schema mockSchema(String mapperName, ColumnMapper columnMapper) {
         Schema schema = mock(Schema.class);
         when(schema.getAnalyzer()).thenReturn(PreBuiltAnalyzers.KEYWORD.get());
+        when(schema.getMapper(mapperName)).thenReturn(columnMapper);
+        return schema;
+    }
+
+    protected Schema mockSchema(String mapperName, ColumnMapper columnMapper, Analyzer analyzer) {
+        Schema schema = mock(Schema.class);
+        when(schema.getAnalyzer()).thenReturn(analyzer);
+        when(schema.getMapper(mapperName)).thenReturn(columnMapper);
+        return schema;
+    }
+
+    protected Schema mockSchema(String mapperName, ColumnMapper columnMapper, String analyzer) {
+        Schema schema = mock(Schema.class);
+        when(schema.getAnalyzer()).thenReturn(PreBuiltAnalyzers.get(analyzer));
         when(schema.getMapper(mapperName)).thenReturn(columnMapper);
         return schema;
     }

@@ -788,7 +788,7 @@ FROM <table>
 WHERE <magic_column> = '{ query : {
                             type  :"phrase",
                             field : <fieldname> ,
-                            values : <value_list>
+                            value : <value>
                             (, slop : <slop> )?
                         }}';
 ```
@@ -805,7 +805,7 @@ SELECT * FROM test.users
 WHERE stratio_col = '{query : {
                         type   : "phrase",
                         field  : "phrase",
-                        values : ["camisa", "manchada"] }}';
+                        values : "camisa manchada" }}';
 ```
 
 Example 2: will return rows where “phrase” contains the word “mancha” followed by the word “camisa” having 0 to 2 words in between.
@@ -815,7 +815,7 @@ SELECT * FROM test.users
 WHERE stratio_col = '{query : {
                         type   : "phrase",
                         field  : "phrase",
-                        values : ["mancha", "camisa"],
+                        values : "mancha camisa",
                         slop   : 2 }}';
 ```
 

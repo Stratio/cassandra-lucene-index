@@ -17,14 +17,18 @@ package com.stratio.cassandra.lucene.query;
 
 import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.schema.Schema;
+import com.stratio.cassandra.lucene.schema.analysis.AnalysisUtils;
 import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperSingle;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.NumericRangeQuery;
+import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
+
+import java.util.List;
 
 /**
  * A {@link Condition} implementation that matches documents containing a value for a field.
@@ -56,7 +60,7 @@ public class MatchCondition extends SingleFieldCondition {
                           @JsonProperty("value") Object value) {
         super(boost, field);
 
-        if (value == null || value instanceof String && StringUtils.isBlank((String) value)) {
+        if (value == null) {
             throw new IllegalArgumentException("Field value required");
         }
 
@@ -81,12 +85,23 @@ public class MatchCondition extends SingleFieldCondition {
         Query query;
         if (clazz == String.class) {
             String value = (String) columnMapper.base(field, this.value);
-            String analyzedValue = analyze(field, value, schema);
-            if (StringUtils.isBlank(analyzedValue)) {
-                throw new IllegalArgumentException("Value discarded by analyzer");
+            Analyzer analyzer = schema.getAnalyzer();
+            List<String> terms = AnalysisUtils.instance.analyze(field, value, analyzer);
+            switch (terms.size()) {
+                case 0:
+                    query = new TermQuery(new Term(field, ""));
+                    break;
+                case 1:
+                    query = new TermQuery(new Term(field, terms.get(0)));
+                    break;
+                default:
+                    PhraseQuery phraseQuery = new PhraseQuery();
+                    for (String token : terms) {
+                        Term term = new Term(field, token);
+                        phraseQuery.add(term);
+                    }
+                    query = phraseQuery;
             }
-            Term term = new Term(field, analyzedValue);
-            query = new TermQuery(term);
         } else if (clazz == Integer.class) {
             Integer value = (Integer) columnMapper.base(field, this.value);
             query = NumericRangeQuery.newIntRange(field, value, value, true, true);

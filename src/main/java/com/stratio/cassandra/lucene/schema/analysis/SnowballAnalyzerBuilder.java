@@ -84,7 +84,7 @@ public class SnowballAnalyzerBuilder extends AnalyzerBuilder {
         this.analyzer = buildAnalyzer(language, stops);
 
         // Force analysis validation
-        AnalysisUtils.instance.analyzeAsText("test", analyzer);
+        AnalysisUtils.instance.analyze("test", analyzer);
     }
 
     /** {@inheritDoc} */

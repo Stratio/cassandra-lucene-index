@@ -16,7 +16,6 @@
 package com.stratio.cassandra.lucene.query;
 
 import com.stratio.cassandra.lucene.schema.Schema;
-import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
@@ -26,7 +25,6 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Andres de la Pena <adelapena@stratio.com>
@@ -71,20 +69,6 @@ public class ConditionTest extends AbstractConditionTest {
         Query query = queryWrapperFilter.getQuery();
         assertNotNull(query);
         assertEquals(MatchAllDocsQuery.class, query.getClass());
-    }
-
-    @Test
-    public void testAnalyze() {
-        Schema schema = mock(Schema.class);
-        when(schema.getAnalyzer()).thenReturn(new EnglishAnalyzer());
-        Condition condition = new Condition(null) {
-            @Override
-            public Query query(Schema schema) {
-                return null;
-            }
-        };
-        assertEquals("test", condition.analyze("f", "tests", schema));
-        schema.close();
     }
 
 }

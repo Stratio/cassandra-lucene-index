@@ -18,7 +18,6 @@ package com.stratio.cassandra.lucene.query;
 import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperSingle;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.WildcardQuery;
@@ -59,7 +58,7 @@ public class WildcardCondition extends SingleFieldCondition {
                              @JsonProperty("value") String value) {
         super(boost, field);
 
-        if (StringUtils.isBlank(value)) {
+        if (value == null) {
             throw new IllegalArgumentException("Field value required");
         }
 

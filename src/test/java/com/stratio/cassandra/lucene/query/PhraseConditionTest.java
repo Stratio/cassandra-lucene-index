@@ -16,14 +16,15 @@
 package com.stratio.cassandra.lucene.query;
 
 import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperString;
+import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperText;
 import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.Query;
 import org.junit.Test;
 
 import static com.stratio.cassandra.lucene.query.builder.SearchBuilders.filter;
 import static com.stratio.cassandra.lucene.query.builder.SearchBuilders.phrase;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Andres de la Pena <adelapena@stratio.com>
@@ -32,21 +33,21 @@ public class PhraseConditionTest extends AbstractConditionTest {
 
     @Test
     public void testBuild() {
-        String[] values = new String[]{"hello", "adios"};
-        PhraseCondition condition = new PhraseCondition(0.5f, "name", values, 2);
+        String value = "hello adios";
+        PhraseCondition condition = new PhraseCondition(0.5f, "name", value, 2);
         assertEquals(0.5f, condition.getBoost(), 0);
         assertEquals("name", condition.getField());
-        assertArrayEquals(values, condition.getValues());
+        assertEquals(value, condition.getValue());
         assertEquals(2, condition.getSlop());
     }
 
     @Test
     public void testBuildDefaults() {
-        String[] values = new String[]{"hello", "adios"};
-        PhraseCondition condition = new PhraseCondition(null, "name", values, null);
+        String value = "hello adios";
+        PhraseCondition condition = new PhraseCondition(null, "name", value, null);
         assertEquals(PhraseCondition.DEFAULT_BOOST, condition.getBoost(), 0);
         assertEquals("name", condition.getField());
-        assertArrayEquals(values, condition.getValues());
+        assertEquals(value, condition.getValue());
         assertEquals(PhraseCondition.DEFAULT_SLOP, condition.getSlop());
     }
 
@@ -57,35 +58,35 @@ public class PhraseConditionTest extends AbstractConditionTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testBuildNegativeSlop() {
-        String[] values = new String[]{"hello", "adios"};
-        new PhraseCondition(null, "name", values, -1);
+        String value = "hello adios";
+        new PhraseCondition(null, "name", value, -1);
     }
 
     @Test
     public void testPhraseQuery() {
 
-        Schema schema = mockSchema("name", new ColumnMapperString("name", true, true, null));
+        Schema schema = mockSchema("name", new ColumnMapperText("name", true, true, "spanish"), "spanish");
 
-        String[] values = new String[]{"hola", "adios", "the", "a"};
-        PhraseCondition condition = new PhraseCondition(0.5f, "name", values, 2);
+        String value = "hola adios  the    a";
+        PhraseCondition condition = new PhraseCondition(0.5f, "name", value, 2);
         Query query = condition.query(schema);
         assertNotNull(query);
         assertEquals(PhraseQuery.class, query.getClass());
         PhraseQuery luceneQuery = (PhraseQuery) query;
-        assertEquals(values.length, luceneQuery.getTerms().length);
+        assertEquals(3, luceneQuery.getTerms().length);
         assertEquals(2, luceneQuery.getSlop());
         assertEquals(0.5f, query.getBoost(), 0);
     }
 
     @Test
     public void testJson() {
-        testJsonCondition(filter(phrase("name", "hola", "adios").slop(1).boost(0.5f)));
+        testJsonCondition(filter(phrase("name", " hola adios").slop(1).boost(0.5f)));
     }
 
     @Test
     public void testToString() {
-        PhraseCondition condition = new PhraseCondition(0.5f, "name", new String[]{"hola", "adios"}, 2);
-        assertEquals("PhraseCondition{boost=0.5, field=name, values=[hola, adios], slop=2}", condition.toString());
+        PhraseCondition condition = new PhraseCondition(0.5f, "name", "hola adios", 2);
+        assertEquals("PhraseCondition{boost=0.5, field=name, value=hola adios, slop=2}", condition.toString());
     }
 
 }

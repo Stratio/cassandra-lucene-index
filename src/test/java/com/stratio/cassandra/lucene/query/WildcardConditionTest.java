@@ -37,9 +37,20 @@ public class WildcardConditionTest extends AbstractConditionTest {
         new WildcardCondition(0.1f, "field", null);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testBuildBlankValue() {
-        new WildcardCondition(0.1f, "field", " ");
+
+        Schema schema = mockSchema("name", new ColumnMapperString("name", true, true, null));
+
+        WildcardCondition wildcardCondition = new WildcardCondition(0.5f, "name", " ");
+        Query query = wildcardCondition.query(schema);
+
+        assertNotNull(query);
+        assertEquals(WildcardQuery.class, query.getClass());
+        WildcardQuery luceneQuery = (WildcardQuery) query;
+        assertEquals("name", luceneQuery.getField());
+        assertEquals(" ", luceneQuery.getTerm().text());
+        assertEquals(0.5f, query.getBoost(), 0);
     }
 
     @Test

@@ -120,7 +120,7 @@ Now, to query the top 100 more relevant tweets where *body* field contains the p
 
 ```
 SELECT * FROM tweets WHERE lucene='{
-	query : {type:"phrase", field:"body", values:["big","data","gives","organizations"]}
+	query : {type:"phrase", field:"body", value:"big data gives organizations", slop:1}
 }' limit 100;
 ```
 To restrict the search for tweets within a certain date range, then you must add to the search a filter as follows:
@@ -128,7 +128,7 @@ To restrict the search for tweets within a certain date range, then you must add
 ```
 SELECT * FROM tweets WHERE lucene='{
     filter : {type:"range", field:"time", lower:"2014/04/25", upper:"2014/04/1"},
-    query  : {type:"phrase", field:"body", values:["big","data","gives","organizations"]}
+    query  : {type:"phrase", field:"body", value:"big data gives organizations", slop:1}
 }' limit 100;
 ```
 To refine the search to get only the tweets written by users whose name starts with "a":
@@ -138,7 +138,7 @@ SELECT * FROM tweets WHERE lucene='{
     filter : {type:"boolean", must:[
                    {type:"range", field:"time", lower:"2014/04/25", upper:"2014/04/1"},
                    {type:"prefix", field:"user", value:"a"} ] },
-    query  : {type:"phrase", field:"body", values:["big","data","gives","organizations"]}
+    query  : {type:"phrase", field:"body", value:"big data gives organizations", slop:1}
 }' limit 100;
 ```
 
@@ -149,7 +149,7 @@ SELECT * FROM tweets WHERE lucene='{
     filter : {type:"boolean", must:[
                    {type:"range", field:"time", lower:"2014/04/25", upper:"2014/04/1"},
                    {type:"prefix", field:"user", value:"a"} ] },
-    query  : {type:"phrase", field:"body", values:["big","data","gives","organizations"]},
+    query  : {type:"phrase", field:"body", value:"big data gives organizations", slop:1},
     sort  : {fields: [ {field:"time", reverse:true} ] }
 }' limit 100;
 ```
@@ -161,7 +161,7 @@ SELECT * FROM tweets WHERE lucene='{
     filter : {type:"boolean", must:[
                    {type:"range", field:"time", lower:"2014/04/25", upper:"2014/04/1"},
                    {type:"prefix", field:"user", value:"a"} ] },
-    query  : {type:"phrase", field:"body", values:["big","data","gives","organizations"]}
+    query  : {type:"phrase", field:"body", value:"big data gives organizations", slop:1]}
 }' AND token(id) >= token(0) AND token(id) < token(10000000) limit 100;
 ```
 

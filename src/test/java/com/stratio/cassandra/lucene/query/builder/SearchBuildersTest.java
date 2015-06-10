@@ -25,11 +25,11 @@ import org.apache.lucene.search.Query;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 
 import static com.stratio.cassandra.lucene.query.builder.SearchBuilders.*;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -79,21 +79,12 @@ public class SearchBuildersTest {
     }
 
     @Test
-    public void testPhraseArray() throws IOException {
-        PhraseConditionBuilder builder = phrase("field", "value1", "value2");
+    public void testPhrase() throws IOException {
+        PhraseConditionBuilder builder = phrase("field", "value1 value2");
         assertNotNull(builder);
         PhraseCondition condition = builder.build();
         assertEquals("field", condition.getField());
-        assertArrayEquals(new String[]{"value1", "value2"}, condition.getValues());
-    }
-
-    @Test
-    public void testPhraseList() throws IOException {
-        PhraseConditionBuilder builder = phrase("field", Arrays.asList("value1", "value2"));
-        assertNotNull(builder);
-        PhraseCondition condition = builder.build();
-        assertEquals("field", condition.getField());
-        assertArrayEquals(new String[]{"value1", "value2"}, condition.getValues());
+        assertEquals("value1 value2", condition.getValue());
     }
 
     @Test

@@ -170,8 +170,7 @@ public class FuzzyCondition extends SingleFieldCondition {
         ColumnMapperSingle<?> columnMapper = getMapper(schema, field);
         Class<?> clazz = columnMapper.baseClass();
         if (clazz == String.class) {
-            String analyzedValue = analyze(field, value, schema);
-            Term term = new Term(field, analyzedValue);
+            Term term = new Term(field, value);
             Query query = new FuzzyQuery(term, maxEdits, prefixLength, maxExpansions, transpositions);
             query.setBoost(boost);
             return query;
