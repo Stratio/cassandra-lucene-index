@@ -29,6 +29,7 @@ Stratio's Cassandra Lucene Index and its integration with Lucene search technolo
 -   Third-party drivers compatibility
 -   Spark compatibility
 -   Hadoop compatibility
+-   Paging over non-relevance queries
 
 Not yet supported:
 
@@ -38,6 +39,7 @@ Not yet supported:
 -   Columns with TTL
 -   CQL user defined types
 -   Static columns
+-   Paging over relevance queries
 
 Requirements
 ------------
