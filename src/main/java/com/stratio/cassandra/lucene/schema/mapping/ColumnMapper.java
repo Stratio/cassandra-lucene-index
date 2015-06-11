@@ -26,9 +26,7 @@ import org.apache.cassandra.db.marshal.ReversedType;
 import org.apache.cassandra.db.marshal.SetType;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.search.SortField;
 
@@ -100,19 +98,19 @@ public abstract class ColumnMapper {
     }
 
     /**
-     * Returns the name of the used {@link Analyzer}.
+     * Returns the name of the used {@link org.apache.lucene.analysis.Analyzer}.
      *
-     * @return The name of the used {@link Analyzer}.
+     * @return The name of the used {@link org.apache.lucene.analysis.Analyzer}.
      */
     public String getAnalyzer() {
         return KEYWORD_ANALYZER;
     }
 
     /**
-     * Adds to the specified {@link Document} the Lucene {@link Field}s resulting from the mapping of the specified
-     * {@link Columns}.
+     * Adds to the specified {@link Document} the Lucene {@link org.apache.lucene.document.Field}s resulting from the
+     * mapping of the specified {@link Columns}.
      *
-     * @param document The {@link Document} where the {@link Field} are going to be added.
+     * @param document The {@link Document} where the {@link org.apache.lucene.document.Field} are going to be added.
      * @param columns  The {@link Columns}.
      */
     public abstract void addFields(Document document, Columns columns);

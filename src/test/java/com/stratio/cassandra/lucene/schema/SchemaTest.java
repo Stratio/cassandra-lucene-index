@@ -289,6 +289,7 @@ public class SchemaTest {
 
         Schema schema = new Schema(columnMappers, null, null);
         schema.validate(metadata);
+        schema.close();
     }
 
     @Test
@@ -303,5 +304,6 @@ public class SchemaTest {
 
         Schema schema = new Schema(columnMappers, null, null);
         assertNotNull(schema.toString());
+        schema.close();
     }
 }

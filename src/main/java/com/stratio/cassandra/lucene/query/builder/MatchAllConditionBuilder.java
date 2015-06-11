@@ -16,10 +16,9 @@
 package com.stratio.cassandra.lucene.query.builder;
 
 import com.stratio.cassandra.lucene.query.MatchAllCondition;
-import com.stratio.cassandra.lucene.query.MatchCondition;
 
 /**
- * {@link ConditionBuilder} for building a new {@link MatchCondition}.
+ * {@link ConditionBuilder} for building a new {@link MatchAllCondition}.
  *
  * @author Andres de la Pena <adelapena@stratio.com>
  */
@@ -32,9 +31,9 @@ public class MatchAllConditionBuilder extends ConditionBuilder<MatchAllCondition
     }
 
     /**
-     * Returns the {@link MatchCondition} represented by this builder.
+     * Returns the {@link MatchAllCondition} represented by this builder.
      *
-     * @return The {@link MatchCondition} represented by this builder.
+     * @return The {@link MatchAllCondition} represented by this builder.
      */
     @Override
     public MatchAllCondition build() {

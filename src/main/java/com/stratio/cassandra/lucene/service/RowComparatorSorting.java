@@ -19,7 +19,6 @@ import com.stratio.cassandra.lucene.contrib.ComparatorChain;
 import com.stratio.cassandra.lucene.query.Sort;
 import com.stratio.cassandra.lucene.query.SortField;
 import com.stratio.cassandra.lucene.schema.Columns;
-import com.stratio.cassandra.lucene.schema.Schema;
 import org.apache.cassandra.db.Row;
 
 import java.util.Comparator;
@@ -35,7 +34,7 @@ class RowComparatorSorting implements RowComparator {
     private final ComparatorChain<Columns> comparatorChain;
 
     /**
-     * @param rowMapper The indexing {@link Schema} of the {@link Row}s to be compared.
+     * @param rowMapper The indexing {@link RowMapper} of the {@link Row}s to be compared.
      * @param sort      The Lucene {@link Sort} inf which the {@link Row} comparison is based.
      */
     public RowComparatorSorting(RowMapper rowMapper, Sort sort) {

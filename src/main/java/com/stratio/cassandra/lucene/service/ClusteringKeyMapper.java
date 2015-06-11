@@ -30,7 +30,6 @@ import org.apache.cassandra.db.composites.CellNameType;
 import org.apache.cassandra.db.composites.Composite;
 import org.apache.cassandra.db.filter.ColumnSlice;
 import org.apache.cassandra.db.marshal.AbstractType;
-import org.apache.cassandra.db.marshal.CompositeType;
 import org.apache.cassandra.utils.ByteBufferUtil;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -90,7 +89,7 @@ public class ClusteringKeyMapper {
     }
 
     /**
-     * Returns the clustering key validation type. It's always a {@link CompositeType} in CQL3 tables.
+     * Returns the clustering key validation type. It's always a {@link CellNameType} in CQL3 tables.
      *
      * @return The clustering key validation type.
      */

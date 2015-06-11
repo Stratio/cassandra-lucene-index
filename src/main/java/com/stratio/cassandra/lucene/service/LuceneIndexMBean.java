@@ -1,7 +1,5 @@
 package com.stratio.cassandra.lucene.service;
 
-import org.apache.lucene.document.Document;
-
 import java.io.IOException;
 
 /**
@@ -17,17 +15,17 @@ public interface LuceneIndexMBean {
     void commit() throws IOException;
 
     /**
-     * Returns the total number of {@link Document}s in this index.
+     * Returns the total number of {@link org.apache.lucene.document.Document}s in this index.
      *
-     * @return The total number of {@link Document}s in this index.
+     * @return The total number of {@link org.apache.lucene.document.Document}s in this index.
      * @throws IOException If Lucene throws IO errors.
      */
     long getNumDocs() throws IOException;
 
     /**
-     * Returns the total number of deleted {@link Document}s in this index.
+     * Returns the total number of deleted {@link org.apache.lucene.document.Document}s in this index.
      *
-     * @return The total number of deleted {@link Document}s in this index.
+     * @return The total number of deleted {@link org.apache.lucene.document.Document}s in this index.
      * @throws IOException If Lucene throws IO errors.
      */
     long getNumDeletedDocs() throws IOException;

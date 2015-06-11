@@ -18,7 +18,6 @@ package com.stratio.cassandra.lucene.service;
 import com.stratio.cassandra.lucene.util.ByteBufferUtils;
 import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.db.DecoratedKey;
-import org.apache.cassandra.dht.IPartitioner;
 import org.apache.cassandra.dht.Token;
 import org.apache.cassandra.dht.Token.TokenFactory;
 import org.apache.lucene.document.Document;
@@ -37,8 +36,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 /**
- * {@link TokenMapper} to be used when any {@link IPartitioner} when there is not a more specific implementation. It
- * indexes the token raw binary value as a Lucene string field.
+ * {@link TokenMapper} to be used when any {@link org.apache.cassandra.dht.IPartitioner} when there is not a more
+ * specific implementation. It indexes the token raw binary value as a Lucene string field.
  *
  * @author Andres de la Pena <adelapena@stratio.com>
  */
@@ -56,7 +55,6 @@ public class TokenMapperGeneric extends TokenMapper {
 
     /** {@inheritDoc} */
     @Override
-    @SuppressWarnings("unchecked")
     public void addFields(Document document, DecoratedKey partitionKey) {
         ByteBuffer bb = factory.toByteArray(partitionKey.getToken());
         String serialized = ByteBufferUtils.toString(bb);
@@ -114,7 +112,6 @@ public class TokenMapperGeneric extends TokenMapper {
      * @param token A Cassandra {@link Token}.
      * @return The Lucene {@link BytesRef} represented by the specified Cassandra {@link Token}.
      */
-    @SuppressWarnings("unchecked")
     public BytesRef bytesRef(Token token) {
         ByteBuffer bb = factory.toByteArray(token);
         byte[] bytes = ByteBufferUtils.asArray(bb);

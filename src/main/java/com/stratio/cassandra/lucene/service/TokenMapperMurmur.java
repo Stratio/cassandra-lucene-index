@@ -15,9 +15,7 @@
  */
 package com.stratio.cassandra.lucene.service;
 
-import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.db.DecoratedKey;
-import org.apache.cassandra.dht.Murmur3Partitioner;
 import org.apache.cassandra.dht.Token;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.FieldType;
@@ -29,8 +27,8 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.SortField;
 
 /**
- * {@link PartitionKeyMapper} to be used when {@link Murmur3Partitioner} is used. It indexes the token long value as a
- * Lucene long field.
+ * {@link PartitionKeyMapper} to be used when {@link org.apache.cassandra.dht.Murmur3Partitioner} is used. It indexes
+ * the token long value as a Lucene long field.
  *
  * @author Andres de la Pena <adelapena@stratio.com>
  */
@@ -49,7 +47,7 @@ public class TokenMapperMurmur extends TokenMapper {
     }
 
     /**
-     * Builds a new {@link TokenMapperMurmur} using the specified {@link CFMetaData}.
+     * Builds a new {@link TokenMapperMurmur}.
      */
     public TokenMapperMurmur() {
         super();

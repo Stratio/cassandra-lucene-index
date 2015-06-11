@@ -20,7 +20,6 @@ import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperSingle;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.FuzzyQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.util.automaton.LevenshteinAutomata;
@@ -83,8 +82,8 @@ public class FuzzyCondition extends SingleFieldCondition {
      * @param maxEdits       Must be >= 0 and <= {@link LevenshteinAutomata#MAXIMUM_SUPPORTED_DISTANCE}.
      * @param prefixLength   Length of common (non-fuzzy) prefix
      * @param maxExpansions  The maximum number of terms to match. If this number is greater than {@link
-     *                       BooleanQuery#getMaxClauseCount} when the query is rewritten, then the maxClauseCount will
-     *                       be used instead.
+     *                       org.apache.lucene.search.BooleanQuery#getMaxClauseCount} when the query is rewritten, then
+     *                       the maxClauseCount will be used instead.
      * @param transpositions True if transpositions should be treated as a primitive edit operation. If this is false,
      *                       comparisons will implement the classic Levenshtein algorithm.
      */

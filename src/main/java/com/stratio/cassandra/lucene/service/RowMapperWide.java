@@ -36,7 +36,6 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.Sort;
@@ -165,10 +164,10 @@ public class RowMapperWide extends RowMapper {
     }
 
     /**
-     * Returns the Lucene {@link Filter} to get the {@link Document}s satisfying the specified {@link DataRange}.
+     * Returns the Lucene {@link Query} to get the {@link Document}s satisfying the specified {@link DataRange}.
      *
      * @param dataRange A {@link DataRange}.
-     * @return The Lucene {@link Filter} to get the {@link Document}s satisfying the specified {@link DataRange}.
+     * @return The Lucene {@link Query} to get the {@link Document}s satisfying the specified {@link DataRange}.
      */
     public Query query(DataRange dataRange) {
         RowPosition startPosition = dataRange.startKey();

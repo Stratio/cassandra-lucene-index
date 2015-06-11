@@ -40,7 +40,6 @@ public class RowComparatorNatural implements RowComparator {
         comparatorChain = new ComparatorChain<>();
         comparatorChain.addComparator(new Comparator<Row>() {
             @Override
-            @SuppressWarnings({"unchecked", "rawtypes"})
             public int compare(Row row1, Row row2) {
                 Token t1 = row1.key.getToken();
                 Token t2 = row2.key.getToken();
@@ -59,7 +58,6 @@ public class RowComparatorNatural implements RowComparator {
         comparatorChain = new ComparatorChain<>();
         comparatorChain.addComparator(new Comparator<Row>() {
             @Override
-            @SuppressWarnings({"unchecked", "rawtypes"})
             public int compare(Row row1, Row row2) {
                 Token t1 = row1.key.getToken();
                 Token t2 = row2.key.getToken();

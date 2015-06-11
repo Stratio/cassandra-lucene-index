@@ -67,28 +67,28 @@ public class ContainsConditionTest extends AbstractConditionTest {
     public void testBuildWithNullField() {
         Schema schema = mock(Schema.class);
         when(schema.getAnalyzer()).thenReturn(new EnglishAnalyzer());
-        new ContainsCondition(0.7f, null, new Object[]{1, 2, 3});
+        new ContainsCondition(0.7f, null, 1, 2, 3);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testBuildWithBlankField() {
         Schema schema = mock(Schema.class);
         when(schema.getAnalyzer()).thenReturn(new EnglishAnalyzer());
-        new ContainsCondition(0.7f, " ", new Object[]{1, 2, 3});
+        new ContainsCondition(0.7f, " ", 1, 2, 3);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testBuildWithNullValues() {
         Schema schema = mock(Schema.class);
         when(schema.getAnalyzer()).thenReturn(new EnglishAnalyzer());
-        new ContainsCondition(0.7f, "values", null);
+        new ContainsCondition(0.7f, "values");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testBuildWithEmptyValues() {
         Schema schema = mock(Schema.class);
         when(schema.getAnalyzer()).thenReturn(new EnglishAnalyzer());
-        new ContainsCondition(0.7f, "values", new Object[]{});
+        new ContainsCondition(0.7f, "values");
     }
 
     @Test

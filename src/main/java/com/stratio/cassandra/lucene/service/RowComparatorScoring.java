@@ -17,10 +17,8 @@ package com.stratio.cassandra.lucene.service;
 
 import org.apache.cassandra.db.Row;
 
-import java.util.Comparator;
-
 /**
- * A {@link Comparator} for comparing {@link Row}s according to its Lucene scoring.
+ * A {@link RowComparator} for comparing {@link Row}s according to its Lucene scoring.
  *
  * @author Andres de la Pena <adelapena@stratio.com>
  */
@@ -32,7 +30,7 @@ public class RowComparatorScoring implements RowComparator {
     private final RowService rowService;
 
     /**
-     * Returns a new {@link Comparator} for comparing {@link Row}s according to its Lucene scoring.
+     * Returns a new {@link RowComparator} for comparing {@link Row}s according to its Lucene scoring.
      *
      * @param rowService The used {@link RowService}.
      */

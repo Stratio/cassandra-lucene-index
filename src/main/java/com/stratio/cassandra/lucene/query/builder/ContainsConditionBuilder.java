@@ -16,10 +16,9 @@
 package com.stratio.cassandra.lucene.query.builder;
 
 import com.stratio.cassandra.lucene.query.ContainsCondition;
-import com.stratio.cassandra.lucene.query.MatchCondition;
 
 /**
- * {@link ConditionBuilder} for building a new {@link MatchCondition}.
+ * {@link ConditionBuilder} for building a new {@link ContainsCondition}.
  *
  * @author Andres de la Pena <adelapena@stratio.com>
  */
@@ -43,9 +42,9 @@ public class ContainsConditionBuilder extends ConditionBuilder<ContainsCondition
     }
 
     /**
-     * Returns the {@link MatchCondition} represented by this builder.
+     * Returns the {@link ContainsCondition} represented by this builder.
      *
-     * @return The {@link MatchCondition} represented by this builder.
+     * @return The {@link ContainsCondition} represented by this builder.
      */
     @Override
     public ContainsCondition build() {

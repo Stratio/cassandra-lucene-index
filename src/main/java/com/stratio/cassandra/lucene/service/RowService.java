@@ -46,7 +46,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -439,7 +438,7 @@ public abstract class RowService {
 
     /**
      * Returns the {@link RowComparator} to be used for ordering the {@link Row}s obtained from the specified {@link
-     * Search}. This {@link Comparator} is useful for merging the partial results obtained from running the specified
+     * Search}. This {@link RowComparator} is useful for merging the partial results obtained from running the specified
      * {@link Search} against several indexes.
      *
      * @param search A {@link Search}.

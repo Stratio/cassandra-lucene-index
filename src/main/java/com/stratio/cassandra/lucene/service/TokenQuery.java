@@ -96,7 +96,6 @@ public class TokenQuery extends MultiTermQuery {
 
         /** {@inheritDoc} */
         @Override
-        @SuppressWarnings("unchecked")
         protected AcceptStatus accept(BytesRef term) {
             Token token = tokenMapper.token(term);
             if (includeLower ? token.compareTo(lower) < 0 : token.compareTo(lower) <= 0) {

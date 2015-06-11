@@ -18,7 +18,6 @@ package com.stratio.cassandra.lucene.schema.mapping;
 import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.schema.analysis.PreBuiltAnalyzers;
 import org.apache.cassandra.db.marshal.*;
-import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.SortedDocValuesField;
 import org.apache.lucene.document.SortedSetDocValuesField;
@@ -36,16 +35,16 @@ public class ColumnMapperText extends ColumnMapperSingle<String> {
 
     public static final String DEFAULT_ANALYZER = PreBuiltAnalyzers.DEFAULT.name();
 
-    /** The Lucene {@link Analyzer} to be used. */
+    /** The name of the Lucene {@link org.apache.lucene.analysis.Analyzer} to be used. */
     private final String analyzer;
 
     /**
-     * Builds a new {@link ColumnMapperText} using the specified Lucene {@link Analyzer}.
+     * Builds a new {@link ColumnMapperText} using the specified Lucene {@link org.apache.lucene.analysis.Analyzer}.
      *
      * @param name     The name of the mapper.
      * @param indexed  If the field supports searching.
      * @param sorted   If the field supports sorting.
-     * @param analyzer The Lucene {@link Analyzer} to be used.
+     * @param analyzer The name of the Lucene {@link org.apache.lucene.analysis.Analyzer} to be used.
      */
     public ColumnMapperText(String name, Boolean indexed, Boolean sorted, String analyzer) {
         super(name,

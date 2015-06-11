@@ -22,7 +22,6 @@ import org.apache.cassandra.dht.IPartitioner;
 import org.apache.cassandra.dht.Murmur3Partitioner;
 import org.apache.cassandra.dht.Token;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.SortField;
 
@@ -49,7 +48,8 @@ public abstract class TokenMapper {
     }
 
     /**
-     * Adds to the specified {@link Document} the {@link Field}s associated to the token of the specified row key.
+     * Adds to the specified {@link Document} the {@link org.apache.lucene.document.Field}s associated to the token of
+     * the specified row key.
      *
      * @param document     A {@link Document}.
      * @param partitionKey The raw partition key to be added.
@@ -65,7 +65,6 @@ public abstract class TokenMapper {
      * @param includeUpper If the {@code upperValue} is included in the range.
      * @return A Lucene {@link Query} for retrieving the documents inside the specified {@link Token} range.
      */
-    @SuppressWarnings("unchecked")
     public Query query(Token lower, Token upper, boolean includeLower, boolean includeUpper) {
         if (lower != null && upper != null && isMinimum(lower) && isMinimum(upper) && (includeLower || includeUpper)) {
             return null;
