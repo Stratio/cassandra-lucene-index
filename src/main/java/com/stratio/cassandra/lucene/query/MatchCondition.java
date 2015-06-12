@@ -17,18 +17,14 @@ package com.stratio.cassandra.lucene.query;
 
 import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.analysis.AnalysisUtils;
 import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperSingle;
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.index.Term;
+import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.NumericRangeQuery;
-import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.util.QueryBuilder;
 import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
-
-import java.util.List;
 
 /**
  * A {@link Condition} implementation that matches documents containing a value for a field.
@@ -86,22 +82,9 @@ public class MatchCondition extends SingleFieldCondition {
         if (clazz == String.class) {
             String value = (String) columnMapper.base(field, this.value);
             Analyzer analyzer = schema.getAnalyzer();
-            List<String> terms = AnalysisUtils.instance.analyze(field, value, analyzer);
-            switch (terms.size()) {
-                case 0:
-                    query = new TermQuery(new Term(field, ""));
-                    break;
-                case 1:
-                    query = new TermQuery(new Term(field, terms.get(0)));
-                    break;
-                default:
-                    PhraseQuery phraseQuery = new PhraseQuery();
-                    for (String token : terms) {
-                        Term term = new Term(field, token);
-                        phraseQuery.add(term);
-                    }
-                    query = phraseQuery;
-            }
+            QueryBuilder queryBuilder = new QueryBuilder(analyzer);
+            query = queryBuilder.createPhraseQuery(field, value, 0);
+            if (query == null) query = new BooleanQuery();
         } else if (clazz == Integer.class) {
             Integer value = (Integer) columnMapper.base(field, this.value);
             query = NumericRangeQuery.newIntRange(field, value, value, true, true);

@@ -17,12 +17,11 @@ package com.stratio.cassandra.lucene.query;
 
 import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.analysis.AnalysisUtils;
 import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperSingle;
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.index.Term;
-import org.apache.lucene.search.PhraseQuery;
+import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.util.QueryBuilder;
 import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
 
@@ -101,14 +100,11 @@ public class PhraseCondition extends SingleFieldCondition {
         ColumnMapperSingle<?> columnMapper = getMapper(schema, field);
         Class<?> clazz = columnMapper.baseClass();
         if (clazz == String.class) {
-            PhraseQuery query = new PhraseQuery();
-            query.setSlop(slop);
-            query.setBoost(boost);
             Analyzer analyzer = schema.getAnalyzer();
-            for (String token : AnalysisUtils.instance.analyze(field, value, analyzer)) {
-                Term term = new Term(field, token);
-                query.add(term);
-            }
+            QueryBuilder queryBuilder = new QueryBuilder(analyzer);
+            Query query = queryBuilder.createPhraseQuery(field, value, slop);
+            if (query == null) query = new BooleanQuery();
+            query.setBoost(boost);
             return query;
         } else {
             String message = String.format("Unsupported query %s for mapper %s", this, columnMapper);

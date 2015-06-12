@@ -29,6 +29,7 @@ import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperText;
 import org.apache.cassandra.db.marshal.UUIDType;
 import org.apache.lucene.analysis.core.KeywordAnalyzer;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.NumericRangeQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
@@ -98,8 +99,7 @@ public class MatchConditionTest extends AbstractConditionTest {
         Query query = matchCondition.query(schema);
 
         assertNotNull(query);
-        assertEquals(TermQuery.class, query.getClass());
-        assertEquals("", ((TermQuery) query).getTerm().bytes().utf8ToString());
+        assertEquals(BooleanQuery.class, query.getClass());
         assertEquals(0.5f, query.getBoost(), 0);
     }
 
