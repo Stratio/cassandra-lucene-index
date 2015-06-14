@@ -73,16 +73,11 @@ public class RegularCellsMapper {
         ColumnFamily columnFamily = row.cf;
         Columns columns = new Columns();
 
-        // Get row's columns iterator skipping clustering column
-        Iterator<Cell> cellIterator = columnFamily.iterator();
-        cellIterator.next();
-
         // Stuff for grouping collection columns (sets, lists and maps)
         String name;
         CollectionType collectionType;
 
-        while (cellIterator.hasNext()) {
-            Cell cell = cellIterator.next();
+        for (Cell cell : columnFamily) {
             CellName cellName = cell.name();
             ColumnDefinition columnDefinition = metadata.getColumnDefinition(cellName);
             if (columnDefinition == null) {
