@@ -33,10 +33,10 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.SortField.Type;
-import org.apache.lucene.spatial.SpatialStrategy;
 import org.apache.lucene.spatial.prefix.NumberRangePrefixTreeStrategy;
 import org.apache.lucene.spatial.prefix.tree.DateRangePrefixTree;
-import org.apache.lucene.spatial.prefix.tree.NumberRangePrefixTree;
+import org.apache.lucene.spatial.prefix.tree.NumberRangePrefixTree.NRShape;
+import org.apache.lucene.spatial.prefix.tree.NumberRangePrefixTree.UnitNRShape;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -53,14 +53,14 @@ public class DateRangeMapper extends ColumnMapper {
     /** The default {@link SimpleDateFormat} pattern. */
     public static final String DEFAULT_PATTERN = "yyyy/MM/dd HH:mm:ss.SSS";
 
-    private final String from;
-    private final String to;
+    private final String start;
+    private final String stop;
 
     /** The {@link SimpleDateFormat} pattern. */
     private final String pattern;
 
     private final DateRangePrefixTree tree;
-    private final SpatialStrategy strategy;
+    private final NumberRangePrefixTreeStrategy strategy;
 
     /** The thread safe date format. */
     private final ThreadLocal<DateFormat> concurrentDateFormat;
@@ -70,7 +70,7 @@ public class DateRangeMapper extends ColumnMapper {
      *
      * @param name The name of the mapper.
      */
-    public DateRangeMapper(String name, Boolean indexed, Boolean sorted, String from, String to, String pattern) {
+    public DateRangeMapper(String name, Boolean indexed, Boolean sorted, String start, String stop, String pattern) {
         super(name,
               indexed,
               sorted,
@@ -83,16 +83,16 @@ public class DateRangeMapper extends ColumnMapper {
               DoubleType.instance,
               DecimalType.instance);
 
-        if (StringUtils.isBlank(from)) {
-            throw new IllegalArgumentException("from column name is required");
+        if (StringUtils.isBlank(start)) {
+            throw new IllegalArgumentException("start column name is required");
         }
 
-        if (StringUtils.isBlank(to)) {
-            throw new IllegalArgumentException("to column name is required");
+        if (StringUtils.isBlank(stop)) {
+            throw new IllegalArgumentException("stop column name is required");
         }
 
-        this.from = from;
-        this.to = to;
+        this.start = start;
+        this.stop = stop;
         this.tree = DateRangePrefixTree.INSTANCE;
         this.strategy = new NumberRangePrefixTreeStrategy(tree, name);
         this.pattern = pattern == null ? DEFAULT_PATTERN : pattern;
@@ -105,16 +105,15 @@ public class DateRangeMapper extends ColumnMapper {
         };
     }
 
+    public NumberRangePrefixTreeStrategy getStrategy() {
+        return strategy;
+    }
+
     @Override
     public void addFields(Document document, Columns columns) {
-
-        Date from = readFrom(columns);
-        Date to = readTo(columns);
-
-        NumberRangePrefixTree.UnitNRShape start = tree.toUnitShape(from);
-        NumberRangePrefixTree.UnitNRShape stop = tree.toUnitShape(to);
-        NumberRangePrefixTree.NRShape shape = tree.toRangeShape(start, stop);
-
+        Date start = readStart(columns);
+        Date stop = readStop(columns);
+        NRShape shape = makeShape(start, stop);
         for (IndexableField field : strategy.createIndexableFields(shape)) {
             document.add(field);
         }
@@ -129,8 +128,8 @@ public class DateRangeMapper extends ColumnMapper {
     @Override
     public String toString() {
         return Objects.toStringHelper(this)
-                      .add("from", from)
-                      .add("to", to)
+                      .add("start", start)
+                      .add("stop", stop)
                       .add("tree", tree)
                       .add("strategy", strategy)
                       .toString();
@@ -138,45 +137,38 @@ public class DateRangeMapper extends ColumnMapper {
 
     @Override
     public void validate(CFMetaData metadata) {
-        validate(metadata, from);
-        validate(metadata, to);
+        validate(metadata, start);
+        validate(metadata, stop);
+    }
+
+    public NRShape makeShape(Date start, Date stop) {
+        UnitNRShape startShape = tree.toUnitShape(start);
+        UnitNRShape stopShape = tree.toUnitShape(stop);
+        return tree.toRangeShape(startShape, stopShape);
     }
 
     /**
-     * Returns the longitude contained in the specified {@link Columns}. A valid longitude must in the range [-180,
-     * 180].
+     * Returns the start date contained in the specified {@link Columns}.
      *
-     * @param columns The {@link Columns} containing the latitude.
+     * @param columns The {@link Columns} containing the start date.
      */
-    Date readFrom(Columns columns) {
-        Column column = columns.getColumnsByName(this.from).getFirst();
-        if (column == null) {
-            throw new IllegalArgumentException("from column required");
-        }
-        Object value = column.getComposedValue();
-        Date from = base(value);
-        if (from == null) {
-            throw new IllegalArgumentException("Valid start date required, but found " + value);
-        }
-        return from;
+    Date readStart(Columns columns) {
+        Column column = columns.getColumnsByName(start).getFirst();
+        if (column == null) throw new IllegalArgumentException("Start column required");
+        Date start = base(column.getComposedValue());
+        if (stop == null) throw new IllegalArgumentException("Start date required");
+        return start;
     }
 
     /**
-     * Returns the latitude contained in the specified {@link Columns}. A valid latitude must in the range [-90, 90].
-     *
-     * @param columns The {@link Columns} containing the latitude.
+     * Returns the stop date contained in the specified {@link Columns}.
      */
-    Date readTo(Columns columns) {
-        Column column = columns.getColumnsByName(this.to).getFirst();
-        if (column == null) {
-            throw new IllegalArgumentException("to column required");
-        }
-        Object value = column.getComposedValue();
-        Date to = base(value);
-        if (to == null) {
-            throw new IllegalArgumentException("Valid stop date required, but found " + value);
-        }
-        return to;
+    Date readStop(Columns columns) {
+        Column column = columns.getColumnsByName(stop).getFirst();
+        if (column == null) throw new IllegalArgumentException("Stop column required");
+        Date stop = base(column.getComposedValue());
+        if (stop == null) throw new IllegalArgumentException("Stop date required");
+        return stop;
     }
 
     public Date base(Object value) {
@@ -193,6 +185,6 @@ public class DateRangeMapper extends ColumnMapper {
                 // Ignore to fail below
             }
         }
-        return null;
+        throw new IllegalArgumentException(String.format("Valid date required, but found '%s'", value));
     }
 }
