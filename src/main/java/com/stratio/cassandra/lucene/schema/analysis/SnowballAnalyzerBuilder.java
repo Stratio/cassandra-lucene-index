@@ -42,6 +42,7 @@ import org.apache.lucene.analysis.standard.StandardFilter;
 import org.apache.lucene.analysis.standard.StandardTokenizer;
 import org.apache.lucene.analysis.sv.SwedishAnalyzer;
 import org.apache.lucene.analysis.util.CharArraySet;
+import org.apache.lucene.util.QueryBuilder;
 import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
 
@@ -84,7 +85,8 @@ public class SnowballAnalyzerBuilder extends AnalyzerBuilder {
         this.analyzer = buildAnalyzer(language, stops);
 
         // Force analysis validation
-        AnalysisUtils.instance.analyze("test", analyzer);
+        QueryBuilder queryBuilder = new QueryBuilder(analyzer);
+        queryBuilder.createPhraseQuery("nothing","nothing");
     }
 
     /** {@inheritDoc} */

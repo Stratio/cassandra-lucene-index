@@ -17,9 +17,13 @@ package com.stratio.cassandra.lucene.schema.analysis;
 
 import com.stratio.cassandra.lucene.util.JsonSerializer;
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
+import org.apache.lucene.util.IOUtils;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -189,8 +193,27 @@ public class SnowballAnalyzerBuilderTest {
     private void testAnalyzer(AnalyzerBuilder builder, String value, String... expected) {
         Analyzer analyzer = builder.analyzer();
         assertNotNull(analyzer);
-        List<String> tokens = AnalysisUtils.instance.analyze(value, analyzer);
+        List<String> tokens = analyze(value, analyzer);
         assertArrayEquals(expected, tokens.toArray());
         analyzer.close();
     }
+
+    private List<String> analyze(String value, Analyzer analyzer) {
+        List<String> result = new ArrayList<>();
+        TokenStream stream = null;
+        try {
+            stream = analyzer.tokenStream(null, value);
+            stream.reset();
+            while (stream.incrementToken()) {
+                String analyzedValue = stream.getAttribute(CharTermAttribute.class).toString();
+                result.add(analyzedValue);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            IOUtils.closeWhileHandlingException(stream);
+        }
+        return result;
+    }
+
 }
