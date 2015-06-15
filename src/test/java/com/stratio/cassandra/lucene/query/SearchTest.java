@@ -2,8 +2,8 @@ package com.stratio.cassandra.lucene.query;
 
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.analysis.PreBuiltAnalyzers;
-import com.stratio.cassandra.lucene.schema.mapping.ColumnMapper;
-import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperString;
+import com.stratio.cassandra.lucene.schema.mapping.Mapper;
+import com.stratio.cassandra.lucene.schema.mapping.StringMapper;
 import org.junit.Test;
 
 import static com.stratio.cassandra.lucene.query.builder.SearchBuilders.*;
@@ -91,7 +91,7 @@ public class SearchTest {
 
     @Test
     public void testSort() {
-        ColumnMapper mapper = new ColumnMapperString("field", true, true, true);
+        Mapper mapper = new StringMapper("field", true, true, true);
         Schema schema = mock(Schema.class);
         when(schema.getAnalyzer()).thenReturn(PreBuiltAnalyzers.STANDARD.get());
         when(schema.getMapper("field")).thenReturn(mapper);
@@ -101,7 +101,7 @@ public class SearchTest {
 
     @Test
     public void testValidate() {
-        ColumnMapper mapper = new ColumnMapperString("field", true, true, true);
+        Mapper mapper = new StringMapper("field", true, true, true);
         Schema schema = mock(Schema.class);
         when(schema.getAnalyzer()).thenReturn(PreBuiltAnalyzers.STANDARD.get());
         when(schema.getMapper("field")).thenReturn(mapper);

@@ -17,8 +17,8 @@ package com.stratio.cassandra.lucene.query;
 
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.analysis.PreBuiltAnalyzers;
-import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperInteger;
-import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperString;
+import com.stratio.cassandra.lucene.schema.mapping.IntegerMapper;
+import com.stratio.cassandra.lucene.schema.mapping.StringMapper;
 import org.apache.lucene.search.BooleanQuery;
 import org.junit.Test;
 
@@ -44,10 +44,10 @@ public class BooleanConditionTest extends AbstractConditionTest {
     public void testQuery() {
         Schema schema = mock(Schema.class);
         when(schema.getAnalyzer()).thenReturn(PreBuiltAnalyzers.DEFAULT.get());
-        when(schema.getMapper("name")).thenReturn(new ColumnMapperString("name", null, null, null));
-        when(schema.getMapper("color")).thenReturn(new ColumnMapperString("color", null, null, null));
-        when(schema.getMapper("country")).thenReturn(new ColumnMapperString("country", null, null, null));
-        when(schema.getMapper("age")).thenReturn(new ColumnMapperInteger("age", null, null, null));
+        when(schema.getMapper("name")).thenReturn(new StringMapper("name", null, null, null));
+        when(schema.getMapper("color")).thenReturn(new StringMapper("color", null, null, null));
+        when(schema.getMapper("country")).thenReturn(new StringMapper("country", null, null, null));
+        when(schema.getMapper("age")).thenReturn(new IntegerMapper("age", null, null, null));
         BooleanCondition condition = bool().must(match("name", "jonathan"), range("age").lower(18).includeLower(true))
                                            .should(match("color", "green"), match("color", "blue"))
                                            .not(match("country", "england"))

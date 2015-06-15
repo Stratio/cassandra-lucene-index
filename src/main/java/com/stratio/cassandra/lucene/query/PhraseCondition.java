@@ -17,7 +17,7 @@ package com.stratio.cassandra.lucene.query;
 
 import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperSingle;
+import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
@@ -97,7 +97,7 @@ public class PhraseCondition extends SingleFieldCondition {
     /** {@inheritDoc} */
     @Override
     public Query query(Schema schema) {
-        ColumnMapperSingle<?> columnMapper = getMapper(schema, field);
+        SingleColumnMapper<?> columnMapper = getMapper(schema, field);
         Class<?> clazz = columnMapper.baseClass();
         if (clazz == String.class) {
             Analyzer analyzer = schema.getAnalyzer();

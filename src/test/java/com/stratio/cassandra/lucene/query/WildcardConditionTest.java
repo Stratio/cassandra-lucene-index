@@ -17,9 +17,9 @@ package com.stratio.cassandra.lucene.query;
 
 import com.stratio.cassandra.lucene.query.builder.SearchBuilders;
 import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperInet;
-import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperInteger;
-import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperString;
+import com.stratio.cassandra.lucene.schema.mapping.InetMapper;
+import com.stratio.cassandra.lucene.schema.mapping.IntegerMapper;
+import com.stratio.cassandra.lucene.schema.mapping.StringMapper;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.WildcardQuery;
 import org.junit.Test;
@@ -40,7 +40,7 @@ public class WildcardConditionTest extends AbstractConditionTest {
     @Test
     public void testBuildBlankValue() {
 
-        Schema schema = mockSchema("name", new ColumnMapperString("name", true, true, null));
+        Schema schema = mockSchema("name", new StringMapper("name", true, true, null));
 
         WildcardCondition wildcardCondition = new WildcardCondition(0.5f, "name", " ");
         Query query = wildcardCondition.query(schema);
@@ -56,7 +56,7 @@ public class WildcardConditionTest extends AbstractConditionTest {
     @Test
     public void testString() {
 
-        Schema schema = mockSchema("name", new ColumnMapperString("name", true, true, null));
+        Schema schema = mockSchema("name", new StringMapper("name", true, true, null));
 
         WildcardCondition wildcardCondition = new WildcardCondition(0.5f, "name", "tr*");
         Query query = wildcardCondition.query(schema);
@@ -72,7 +72,7 @@ public class WildcardConditionTest extends AbstractConditionTest {
     @Test(expected = UnsupportedOperationException.class)
     public void testInteger() {
 
-        Schema schema = mockSchema("name", new ColumnMapperInteger("name", null, null, 1f));
+        Schema schema = mockSchema("name", new IntegerMapper("name", null, null, 1f));
 
         WildcardCondition wildcardCondition = new WildcardCondition(0.5f, "name", "22*");
         wildcardCondition.query(schema);
@@ -81,7 +81,7 @@ public class WildcardConditionTest extends AbstractConditionTest {
     @Test
     public void testInetV4() {
 
-        Schema schema = mockSchema("name", new ColumnMapperInet("name", null, null));
+        Schema schema = mockSchema("name", new InetMapper("name", null, null));
 
         WildcardCondition wildcardCondition = new WildcardCondition(0.5f, "name", "192.168.*");
         Query query = wildcardCondition.query(schema);
@@ -97,7 +97,7 @@ public class WildcardConditionTest extends AbstractConditionTest {
     @Test
     public void testInetV6() {
 
-        Schema schema = mockSchema("name", new ColumnMapperInet("name", null, null));
+        Schema schema = mockSchema("name", new InetMapper("name", null, null));
 
         WildcardCondition condition = new WildcardCondition(0.5f, "name", "2001:db8:2de:0:0:0:0:e*");
         Query query = condition.query(schema);

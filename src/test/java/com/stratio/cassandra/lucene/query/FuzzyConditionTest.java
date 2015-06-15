@@ -17,8 +17,8 @@ package com.stratio.cassandra.lucene.query;
 
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.analysis.PreBuiltAnalyzers;
-import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperInteger;
-import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperString;
+import com.stratio.cassandra.lucene.schema.mapping.IntegerMapper;
+import com.stratio.cassandra.lucene.schema.mapping.StringMapper;
 import org.apache.lucene.search.FuzzyQuery;
 import org.apache.lucene.search.Query;
 import org.junit.Test;
@@ -91,7 +91,7 @@ public class FuzzyConditionTest extends AbstractConditionTest {
 
         Schema schema = mock(Schema.class);
         when(schema.getAnalyzer()).thenReturn(PreBuiltAnalyzers.STANDARD.get());
-        when(schema.getMapper("name")).thenReturn(new ColumnMapperString("name", null, null, null));
+        when(schema.getMapper("name")).thenReturn(new StringMapper("name", null, null, null));
 
         FuzzyCondition condition = new FuzzyCondition(0.5f, "name", "tr", 1, 2, 49, true);
         Query query = condition.query(schema);
@@ -111,7 +111,7 @@ public class FuzzyConditionTest extends AbstractConditionTest {
 
         Schema schema = mock(Schema.class);
         when(schema.getAnalyzer()).thenReturn(PreBuiltAnalyzers.STANDARD.get());
-        when(schema.getMapper("name")).thenReturn(new ColumnMapperInteger("name", null, null, null));
+        when(schema.getMapper("name")).thenReturn(new IntegerMapper("name", null, null, null));
 
         FuzzyCondition condition = new FuzzyCondition(0.5f, "name", "tr", 1, 2, 49, true);
         condition.query(schema);
