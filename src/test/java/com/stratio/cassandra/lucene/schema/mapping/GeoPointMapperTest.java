@@ -18,15 +18,25 @@ package com.stratio.cassandra.lucene.schema.mapping;
 import com.stratio.cassandra.lucene.schema.Column;
 import com.stratio.cassandra.lucene.schema.Columns;
 import com.stratio.cassandra.lucene.schema.Schema;
+import org.apache.cassandra.config.CFMetaData;
+import org.apache.cassandra.db.ColumnFamilyType;
+import org.apache.cassandra.db.composites.CellNameType;
+import org.apache.cassandra.db.composites.SimpleSparseCellNameType;
 import org.apache.cassandra.db.marshal.DoubleType;
 import org.apache.cassandra.db.marshal.FloatType;
 import org.apache.cassandra.db.marshal.Int32Type;
 import org.apache.cassandra.db.marshal.LongType;
 import org.apache.cassandra.db.marshal.UTF8Type;
+import org.apache.cassandra.db.marshal.UUIDType;
+import org.apache.cassandra.exceptions.ConfigurationException;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
+import org.apache.lucene.index.IndexableField;
 import org.junit.Test;
 
 import java.io.IOException;
 
+import static org.apache.cassandra.config.ColumnDefinition.regularDef;
 import static org.junit.Assert.*;
 
 public class GeoPointMapperTest {
@@ -34,21 +44,25 @@ public class GeoPointMapperTest {
     @Test
     public void testConstructorWithDefaultArgs() {
         GeoPointMapper mapper = new GeoPointMapper("field", "lat", "lon", null);
+        assertEquals("field", mapper.getName());
         assertTrue(mapper.isIndexed());
         assertFalse(mapper.isSorted());
         assertEquals("lat", mapper.getLatitude());
         assertEquals("lon", mapper.getLongitude());
         assertEquals(GeoPointMapper.DEFAULT_MAX_LEVELS, mapper.getMaxLevels());
+        assertNotNull(mapper.getStrategy());
     }
 
     @Test
     public void testConstructorWithAllArgs() {
         GeoPointMapper mapper = new GeoPointMapper("field", "lat", "lon", 7);
+        assertEquals("field", mapper.getName());
         assertTrue(mapper.isIndexed());
         assertFalse(mapper.isSorted());
         assertEquals("lat", mapper.getLatitude());
         assertEquals("lon", mapper.getLongitude());
         assertEquals(7, mapper.getMaxLevels());
+        assertNotNull(mapper.getStrategy());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -127,6 +141,15 @@ public class GeoPointMapperTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
+    public void testGetLatitudeFromUnparseableStringColumn() {
+        GeoPointMapper mapper = new GeoPointMapper("field", "lat", "lon", null);
+        Columns columns = new Columns();
+        columns.add(Column.fromComposed("lat", "abc", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("lon", 0, Int32Type.instance, false));
+        mapper.readLatitude(columns);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
     public void testGetLatitudeWithNullColumn() {
         GeoPointMapper mapper = new GeoPointMapper("field", "lat", "lon", null);
         Columns columns = new Columns();
@@ -198,7 +221,24 @@ public class GeoPointMapperTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
+    public void testGetLongitudeFromUnparseableStringColumn() {
+        GeoPointMapper mapper = new GeoPointMapper("field", "lat", "lon", null);
+        Columns columns = new Columns();
+        columns.add(Column.fromComposed("lat", 0, Int32Type.instance, false));
+        columns.add(Column.fromComposed("lon", "abc", UTF8Type.instance, false));
+        mapper.readLongitude(columns);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
     public void testGetLongitudeWithNullColumn() {
+        GeoPointMapper mapper = new GeoPointMapper("field", "lat", "lon", null);
+        Columns columns = new Columns();
+        columns.add(Column.fromComposed("lat", 0, Int32Type.instance, false));
+        assertEquals(5.3d, mapper.readLongitude(new Columns()), 0);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testGetLongitudeWithWrongColumnType() {
         GeoPointMapper mapper = new GeoPointMapper("field", "lat", "lon", null);
         Columns columns = new Columns();
         columns.add(Column.fromComposed("lat", 0, Int32Type.instance, false));
@@ -222,11 +262,27 @@ public class GeoPointMapperTest {
         columns.add(Column.fromComposed("lon", "181", UTF8Type.instance, false));
         mapper.readLongitude(columns);
     }
-    
-    @Test(expected = UnsupportedOperationException.class)    
+
+    @Test(expected = UnsupportedOperationException.class)
     public void testSortField() {
         GeoPointMapper mapper = new GeoPointMapper("field", "lat", "lon", null);
         mapper.sortField(false);
+    }
+
+    @Test
+    public void testAddFields() {
+        GeoPointMapper mapper = new GeoPointMapper("field", "lat", "lon", 10);
+
+        Columns columns = new Columns();
+        columns.add(Column.fromComposed("lat", 20, Int32Type.instance, false));
+        columns.add(Column.fromComposed("lon", "30", UTF8Type.instance, false));
+
+        Document document = new Document();
+        mapper.addFields(document, columns);
+        IndexableField[] indexableFields = document.getFields("field");
+        assertEquals(1, indexableFields.length);
+        assertTrue(indexableFields[0] instanceof Field);
+        assertEquals("field", indexableFields[0].name());
     }
 
     @Test
@@ -234,6 +290,46 @@ public class GeoPointMapperTest {
         GeoPointMapper mapper = new GeoPointMapper("field", "lat", "lon", null);
         String analyzer = mapper.getAnalyzer();
         assertEquals(Mapper.KEYWORD_ANALYZER, analyzer);
+    }
+
+    @Test
+    public void testValidate() throws ConfigurationException {
+
+        CellNameType nameType = new SimpleSparseCellNameType(UTF8Type.instance);
+        CFMetaData metadata = new CFMetaData("ks", "cf", ColumnFamilyType.Standard, nameType);
+        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("lat"), FloatType.instance, 0));
+        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("lon"), FloatType.instance, 0));
+        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("any"), UUIDType.instance, 0));
+        new GeoPointMapper("field", "lat", "lon", null).validate(metadata);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testValidateUnsupportedType() throws ConfigurationException {
+
+        CellNameType nameType = new SimpleSparseCellNameType(UTF8Type.instance);
+        CFMetaData metadata = new CFMetaData("ks", "cf", ColumnFamilyType.Standard, nameType);
+        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("lat"), UUIDType.instance, 0));
+        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("lon"), FloatType.instance, 0));
+        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("any"), UUIDType.instance, 0));
+        new GeoPointMapper("field", "lat", "lon", null).validate(metadata);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testValidateWithoutLatitudeColumn() throws ConfigurationException {
+        CellNameType nameType = new SimpleSparseCellNameType(UTF8Type.instance);
+        CFMetaData metadata = new CFMetaData("ks", "cf", ColumnFamilyType.Standard, nameType);
+        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("lon"), FloatType.instance, 0));
+        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("any"), UUIDType.instance, 0));
+        new GeoPointMapper("field", "lat", "lon", null).validate(metadata);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testValidateWithouyLongitudeColumn() throws ConfigurationException {
+        CellNameType nameType = new SimpleSparseCellNameType(UTF8Type.instance);
+        CFMetaData metadata = new CFMetaData("ks", "cf", ColumnFamilyType.Standard, nameType);
+        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("lat"), FloatType.instance, 0));
+        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("any"), UUIDType.instance, 0));
+        new GeoPointMapper("field", "lat", "lon", null).validate(metadata);
     }
 
     @Test

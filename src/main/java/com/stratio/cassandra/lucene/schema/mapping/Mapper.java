@@ -169,16 +169,16 @@ public abstract class Mapper {
 
         ColumnDefinition columnDefinition = metadata.getColumnDefinition(columnName);
         if (columnDefinition == null) {
-            throw new RuntimeException(String.format("No column definition %s for mapper %s", name, this.name));
+            throw new IllegalArgumentException(String.format("No column definition %s for mapper %s", name, this.name));
         }
 
         if (columnDefinition.isStatic()) {
-            throw new RuntimeException("Lucene indexes are not allowed on static columns as " + name);
+            throw new IllegalArgumentException("Lucene indexes are not allowed on static columns as " + name);
         }
 
         AbstractType<?> type = columnDefinition.type;
         if (!supports(columnDefinition.type)) {
-            throw new RuntimeException(String.format("Type '%s' is not supported by mapper '%s'", type, this.name));
+            throw new IllegalArgumentException(String.format("'%s' is not supported by mapper '%s'", type, this.name));
         }
     }
 

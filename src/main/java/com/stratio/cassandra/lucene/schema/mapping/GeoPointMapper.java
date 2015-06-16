@@ -18,7 +18,6 @@ package com.stratio.cassandra.lucene.schema.mapping;
 import com.google.common.base.Objects;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.shape.Point;
-import com.spatial4j.core.shape.Rectangle;
 import com.stratio.cassandra.lucene.schema.Column;
 import com.stratio.cassandra.lucene.schema.Columns;
 import org.apache.cassandra.config.CFMetaData;
@@ -34,7 +33,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.search.SortField;
-import org.apache.lucene.search.SortField.Type;
 import org.apache.lucene.spatial.SpatialStrategy;
 import org.apache.lucene.spatial.prefix.RecursivePrefixTreeStrategy;
 import org.apache.lucene.spatial.prefix.tree.GeohashPrefixTree;
@@ -53,7 +51,6 @@ public class GeoPointMapper extends Mapper {
     private final String latitude;
     private final String longitude;
     private final int maxLevels;
-    private final SpatialPrefixTree grid;
 
     private final SpatialStrategy strategy;
 
@@ -62,10 +59,7 @@ public class GeoPointMapper extends Mapper {
      *
      * @param name The name of the mapper.
      */
-    public GeoPointMapper(String name,
-                          String latitude,
-                          String longitude,
-                          Integer maxLevels) {
+    public GeoPointMapper(String name, String latitude, String longitude, Integer maxLevels) {
         super(name,
               true,
               false,
@@ -89,7 +83,7 @@ public class GeoPointMapper extends Mapper {
         this.latitude = latitude;
         this.longitude = longitude;
         this.maxLevels = maxLevels == null ? DEFAULT_MAX_LEVELS : maxLevels;
-        this.grid = new GeohashPrefixTree(spatialContext, this.maxLevels);
+        SpatialPrefixTree grid = new GeohashPrefixTree(spatialContext, this.maxLevels);
         this.strategy = new RecursivePrefixTreeStrategy(grid, name);
     }
 
@@ -158,21 +152,19 @@ public class GeoPointMapper extends Mapper {
         if (column == null) {
             throw new IllegalArgumentException("Latitude column required");
         }
-        Object columnValue = column.getComposedValue();
+        Object value = column.getComposedValue();
         Double latitude = null;
-        if (columnValue != null) {
-            if (columnValue instanceof Number) {
-                latitude = ((Number) columnValue).doubleValue();
-            } else if (columnValue instanceof String) {
-                try {
-                    latitude = Double.valueOf((String) columnValue);
-                } catch (NumberFormatException e) {
-                    // Ignore to fail below
-                }
+        if (value instanceof Number) {
+            latitude = ((Number) value).doubleValue();
+        } else {
+            try {
+                latitude = Double.valueOf(value.toString());
+            } catch (NumberFormatException e) {
+                // Ignore to fail below
             }
         }
         if (latitude == null || latitude < -90.0 || latitude > 90) {
-            throw new IllegalArgumentException("Valid latitude required, but found " + latitude);
+            throw new IllegalArgumentException("Valid latitude required, but found " + value);
         }
         return latitude;
     }
@@ -188,21 +180,19 @@ public class GeoPointMapper extends Mapper {
         if (column == null) {
             throw new IllegalArgumentException("Longitude column required");
         }
-        Object columnValue = column.getComposedValue();
+        Object value = column.getComposedValue();
         Double longitude = null;
-        if (columnValue != null) {
-            if (columnValue instanceof Number) {
-                longitude = ((Number) columnValue).doubleValue();
-            } else if (columnValue instanceof String) {
-                try {
-                    longitude = Double.valueOf((String) columnValue);
-                } catch (NumberFormatException e) {
-                    // Ignore to fail below
-                }
+        if (value instanceof Number) {
+            longitude = ((Number) value).doubleValue();
+        } else {
+            try {
+                longitude = Double.valueOf(value.toString());
+            } catch (NumberFormatException e) {
+                // Ignore to fail below
             }
         }
         if (longitude == null || longitude < -180.0 || longitude > 180) {
-            throw new IllegalArgumentException("Valid longitude required, but found " + latitude);
+            throw new IllegalArgumentException("Valid longitude required, but found " + value);
         }
         return longitude;
     }
