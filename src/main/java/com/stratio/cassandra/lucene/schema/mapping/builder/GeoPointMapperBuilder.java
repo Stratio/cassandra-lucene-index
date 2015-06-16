@@ -16,6 +16,7 @@
 package com.stratio.cassandra.lucene.schema.mapping.builder;
 
 import com.stratio.cassandra.lucene.schema.mapping.GeoPointMapper;
+import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
@@ -23,49 +24,23 @@ import org.codehaus.jackson.annotate.JsonProperty;
  */
 public class GeoPointMapperBuilder extends MapperBuilder<GeoPointMapper> {
 
-    @JsonProperty("indexed")
-    private Boolean indexed;
+    private final String latitude;
 
-    @JsonProperty("sorted")
-    private Boolean sorted;
+    private final String longitude;
 
-    @JsonProperty("latitude")
-    private String latitude;
+    private final Integer maxLevels;
 
-    @JsonProperty("longitude")
-    private String longitude;
-
-    @JsonProperty("max_levels")
-    private Integer maxLevels;
-
-    public GeoPointMapperBuilder setIndexed(Boolean indexed) {
-        this.indexed = indexed;
-        return this;
-    }
-
-    public GeoPointMapperBuilder setSorted(Boolean sorted) {
-        this.sorted = sorted;
-        return this;
-    }
-
-    public GeoPointMapperBuilder setLatitude(String latitude) {
+    @JsonCreator
+    public GeoPointMapperBuilder(@JsonProperty("latitude") String latitude,
+                                 @JsonProperty("longitude") String longitude,
+                                 @JsonProperty("max_levels") Integer maxLevels) {
         this.latitude = latitude;
-        return this;
-    }
-
-    public GeoPointMapperBuilder setLongitude(String longitude) {
         this.longitude = longitude;
-        return this;
-    }
-
-    public GeoPointMapperBuilder setMaxLevels(Integer maxLevels) {
         this.maxLevels = maxLevels;
-        return this;
     }
 
     @Override
     public GeoPointMapper build(String name) {
-        GeoPointMapper mapper = new GeoPointMapper(name, indexed, sorted, latitude, longitude, maxLevels);
-        return mapper;
+        return new GeoPointMapper(name, latitude, longitude, maxLevels);
     }
 }

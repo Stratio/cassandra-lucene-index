@@ -80,6 +80,15 @@ public abstract class Mapper {
     }
 
     /**
+     * Returns the identifying name of this mapper.
+     *
+     * @return The identifying name of this mapper.
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
      * Returns {@code true} if the columns must be searchable, {@code false} otherwise.
      *
      * @return {@code true} if the columns must be searchable, {@code false} otherwise.

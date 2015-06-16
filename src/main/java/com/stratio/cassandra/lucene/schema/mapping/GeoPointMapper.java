@@ -18,6 +18,7 @@ package com.stratio.cassandra.lucene.schema.mapping;
 import com.google.common.base.Objects;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.shape.Point;
+import com.spatial4j.core.shape.Rectangle;
 import com.stratio.cassandra.lucene.schema.Column;
 import com.stratio.cassandra.lucene.schema.Columns;
 import org.apache.cassandra.config.CFMetaData;
@@ -46,8 +47,8 @@ import org.apache.lucene.spatial.prefix.tree.SpatialPrefixTree;
  */
 public class GeoPointMapper extends Mapper {
 
-    private static final SpatialContext spatialContext = SpatialContext.GEO;
-    private static final int DEFAULT_MAX_LEVELS = 11;
+    public static final SpatialContext spatialContext = SpatialContext.GEO;
+    public static final int DEFAULT_MAX_LEVELS = 11;
 
     private final String latitude;
     private final String longitude;
@@ -62,14 +63,12 @@ public class GeoPointMapper extends Mapper {
      * @param name The name of the mapper.
      */
     public GeoPointMapper(String name,
-                          Boolean indexed,
-                          Boolean sorted,
                           String latitude,
                           String longitude,
                           Integer maxLevels) {
         super(name,
-              indexed,
-              sorted,
+              true,
+              false,
               AsciiType.instance,
               UTF8Type.instance,
               Int32Type.instance,
@@ -95,12 +94,34 @@ public class GeoPointMapper extends Mapper {
     }
 
     /**
+     * Returns the name of the column containing the latitude.
+     *
+     * @return The name of the column containing the latitude.
+     */
+    public String getLatitude() {
+        return latitude;
+    }
+
+    /**
+     * Returns the name of the column containing the longitude.
+     *
+     * @return The name of the column containing the longitude.
+     */
+    public String getLongitude() {
+        return longitude;
+    }
+
+    /**
      * Returns the used {@link SpatialStrategy}.
      *
      * @return The used {@link SpatialStrategy}.
      */
     public SpatialStrategy getStrategy() {
         return strategy;
+    }
+
+    public int getMaxLevels() {
+        return maxLevels;
     }
 
     @Override
@@ -118,22 +139,42 @@ public class GeoPointMapper extends Mapper {
     /** {@inheritDoc} */
     @Override
     public SortField sortField(boolean reverse) {
-        return new SortField(name, Type.LONG, reverse);
-    }
-
-    @Override
-    public String toString() {
-        return Objects.toStringHelper(this)
-                      .add("maxLevels", maxLevels)
-                      .add("grid", grid)
-                      .add("strategy", strategy)
-                      .toString();
+        throw new UnsupportedOperationException("Geographical points do not support sorting");
     }
 
     @Override
     public void validate(CFMetaData metadata) {
         validate(metadata, latitude);
         validate(metadata, longitude);
+    }
+
+    /**
+     * Returns the latitude contained in the specified {@link Columns}. A valid latitude must in the range [-90, 90].
+     *
+     * @param columns The {@link Columns} containing the latitude.
+     */
+    double readLatitude(Columns columns) {
+        Column column = columns.getColumnsByName(this.latitude).getFirst();
+        if (column == null) {
+            throw new IllegalArgumentException("Latitude column required");
+        }
+        Object columnValue = column.getComposedValue();
+        Double latitude = null;
+        if (columnValue != null) {
+            if (columnValue instanceof Number) {
+                latitude = ((Number) columnValue).doubleValue();
+            } else if (columnValue instanceof String) {
+                try {
+                    latitude = Double.valueOf((String) columnValue);
+                } catch (NumberFormatException e) {
+                    // Ignore to fail below
+                }
+            }
+        }
+        if (latitude == null || latitude < -90.0 || latitude > 90) {
+            throw new IllegalArgumentException("Valid latitude required, but found " + latitude);
+        }
+        return latitude;
     }
 
     /**
@@ -166,32 +207,13 @@ public class GeoPointMapper extends Mapper {
         return longitude;
     }
 
-    /**
-     * Returns the latitude contained in the specified {@link Columns}. A valid latitude must in the range [-90, 90].
-     *
-     * @param columns The {@link Columns} containing the latitude.
-     */
-    double readLatitude(Columns columns) {
-        Column column = columns.getColumnsByName(this.longitude).getFirst();
-        if (column == null) {
-            throw new IllegalArgumentException("Latitude column required");
-        }
-        Object columnValue = column.getComposedValue();
-        Double latitude = null;
-        if (columnValue != null) {
-            if (columnValue instanceof Number) {
-                latitude = ((Number) columnValue).doubleValue();
-            } else if (columnValue instanceof String) {
-                try {
-                    latitude = Double.valueOf((String) columnValue);
-                } catch (NumberFormatException e) {
-                    // Ignore to fail below
-                }
-            }
-        }
-        if (latitude == null || latitude < -90.0 || latitude > 90) {
-            throw new IllegalArgumentException("Valid latitude required, but found " + latitude);
-        }
-        return latitude;
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this)
+                      .add("name", name)
+                      .add("latitude", latitude)
+                      .add("longitude", longitude)
+                      .add("maxLevels", maxLevels)
+                      .toString();
     }
 }
