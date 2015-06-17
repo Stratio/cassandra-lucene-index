@@ -74,16 +74,14 @@ public class DateRangeMapper extends Mapper {
 
     /**
      * @param name    The name of the mapper.
-     * @param indexed If the field supports searching.
-     * @param sorted  If the field supports sorting.
      * @param start   The column containing the start {@link Date}.
      * @param stop    The column containing the stop {@link Date}.
      * @param pattern The {@link SimpleDateFormat} pattern to be used.
      */
-    public DateRangeMapper(String name, Boolean indexed, Boolean sorted, String start, String stop, String pattern) {
+    public DateRangeMapper(String name, String start, String stop, String pattern) {
         super(name,
-              indexed,
-              sorted,
+              true,
+              false,
               AsciiType.instance,
               UTF8Type.instance,
               Int32Type.instance,
@@ -116,6 +114,18 @@ public class DateRangeMapper extends Mapper {
         };
     }
 
+    public String getStart() {
+        return start;
+    }
+
+    public String getStop() {
+        return stop;
+    }
+
+    public String getPattern() {
+        return pattern;
+    }
+
     /** {@inheritDoc} */
     @Override
     public void addFields(Document document, Columns columns) {
@@ -130,7 +140,7 @@ public class DateRangeMapper extends Mapper {
     /** {@inheritDoc} */
     @Override
     public SortField sortField(boolean reverse) {
-        return new SortField(name, Type.LONG, reverse);
+        throw new UnsupportedOperationException("Date ranges do not support sorting");
     }
 
     /**
@@ -146,10 +156,10 @@ public class DateRangeMapper extends Mapper {
     @Override
     public String toString() {
         return Objects.toStringHelper(this)
+                      .add("name", name)
                       .add("start", start)
                       .add("stop", stop)
-                      .add("tree", tree)
-                      .add("strategy", strategy)
+                      .add("pattern", pattern)
                       .toString();
     }
 

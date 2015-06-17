@@ -25,12 +25,6 @@ import org.codehaus.jackson.annotate.JsonProperty;
  */
 public class DateRangeMapperBuilder extends MapperBuilder<DateRangeMapper> {
 
-    @JsonProperty("indexed")
-    private Boolean indexed;
-
-    @JsonProperty("sorted")
-    private Boolean sorted;
-
     @JsonProperty("start")
     private String start;
 
@@ -39,28 +33,6 @@ public class DateRangeMapperBuilder extends MapperBuilder<DateRangeMapper> {
 
     @JsonProperty("pattern")
     private String pattern;
-
-    /**
-     * Sets if the {@link DateRangeMapper} to be built is going to support searching.
-     *
-     * @param indexed If the {@link DateRangeMapper} to be built is going to support searching.
-     * @return This.
-     */
-    public DateRangeMapperBuilder setIndexed(Boolean indexed) {
-        this.indexed = indexed;
-        return this;
-    }
-
-    /**
-     * Sets if the {@link DateRangeMapper} to be built is going to support sorting.
-     *
-     * @param sorted If the {@link DateRangeMapper} to be built is going to support sorting.
-     * @return This.
-     */
-    public DateRangeMapperBuilder setSorted(Boolean sorted) {
-        this.sorted = sorted;
-        return this;
-    }
 
     public DateRangeMapperBuilder setStart(String start) {
         this.start = start;
@@ -79,6 +51,6 @@ public class DateRangeMapperBuilder extends MapperBuilder<DateRangeMapper> {
 
     @Override
     public DateRangeMapper build(String name) {
-        return new DateRangeMapper(name, indexed, sorted, start, stop, pattern);
+        return new DateRangeMapper(name, start, stop, pattern);
     }
 }
