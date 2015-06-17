@@ -351,11 +351,8 @@ public enum PreBuiltAnalyzers {
         }
     };
 
-    private Analyzer analyzer;
-
-    public synchronized Analyzer get() {
-        if (analyzer == null) analyzer = instantiate();
-        return analyzer;
+    public  Analyzer get() {
+        return instantiate();
     }
 
     abstract protected Analyzer instantiate();

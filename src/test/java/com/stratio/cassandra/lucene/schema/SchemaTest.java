@@ -68,7 +68,7 @@ public class SchemaTest {
         Map<String, ColumnMapperBuilder> columnMappers = new HashMap<>();
         Schema schema = new Schema(columnMappers, null, null);
         Analyzer analyzer = schema.getDefaultAnalyzer();
-        assertEquals(PreBuiltAnalyzers.DEFAULT.get(), analyzer);
+        assertEquals(PreBuiltAnalyzers.DEFAULT.get().getClass(), analyzer.getClass());
         schema.close();
     }
 
@@ -225,7 +225,7 @@ public class SchemaTest {
         Schema schema = JsonSerializer.fromString(json, Schema.class);
 
         Analyzer defaultAnalyzer = schema.getDefaultAnalyzer();
-        assertEquals(PreBuiltAnalyzers.DEFAULT.get(), defaultAnalyzer);
+        assertEquals(PreBuiltAnalyzers.DEFAULT.get().getClass(), defaultAnalyzer.getClass());
 
         Analyzer spanishAnalyzer = schema.getAnalyzer("spanish_analyzer");
         assertTrue(spanishAnalyzer instanceof SpanishAnalyzer);
