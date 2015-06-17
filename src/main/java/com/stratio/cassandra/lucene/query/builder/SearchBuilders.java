@@ -180,6 +180,15 @@ public class SearchBuilders {
     }
 
     /**
+     * Returns a new {@link DateRangeConditionBuilder} with the specified field reference point.
+     *
+     * @param field The name of the field to be matched.
+     */
+    public static DateRangeConditionBuilder dateRange(String field) {
+        return new DateRangeConditionBuilder(field);
+    }
+
+    /**
      * Returns a new {@link SortFieldBuilder} for the specified field.
      *
      * @param field The name of the field to be sorted.

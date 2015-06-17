@@ -32,9 +32,9 @@ public class DateRangeConditionBuilder extends ConditionBuilder<DateRangeConditi
     private String operation; // The spatial operation to be performed.
 
     /**
-     *  Returns a new {@link DateRangeConditionBuilder} with the specified field reference point.
+     * Returns a new {@link DateRangeConditionBuilder} with the specified field reference point.
      *
-     * @param field     The name of the field to be matched.
+     * @param field The name of the field to be matched.
      */
     public DateRangeConditionBuilder(String field) {
         this.field = field;

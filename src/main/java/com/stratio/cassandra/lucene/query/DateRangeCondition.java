@@ -16,8 +16,8 @@
 package com.stratio.cassandra.lucene.query;
 
 import com.google.common.base.Objects;
-import com.stratio.cassandra.lucene.schema.mapping.DateRangeMapper;
 import com.stratio.cassandra.lucene.schema.Schema;
+import com.stratio.cassandra.lucene.schema.mapping.DateRangeMapper;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.spatial.SpatialStrategy;
@@ -25,6 +25,7 @@ import org.apache.lucene.spatial.prefix.tree.NumberRangePrefixTree.NRShape;
 import org.apache.lucene.spatial.query.SpatialArgs;
 import org.apache.lucene.spatial.query.SpatialOperation;
 import org.codehaus.jackson.annotate.JsonCreator;
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.util.Date;
@@ -37,10 +38,10 @@ import java.util.Date;
 public class DateRangeCondition extends Condition {
 
     /** The default include lower option. */
-    public static final boolean DEFAULT_INCLUDE_START = false;
+    public static final int DEFAULT_START = 0;
 
     /** The default include upper option. */
-    public static final boolean DEFAULT_INCLUDE_STOP = false;
+    public static final int DEFAULT_STOP = Integer.MAX_VALUE;
 
     /** The name of the field to be matched. */
     @JsonProperty("field")
@@ -56,7 +57,9 @@ public class DateRangeCondition extends Condition {
 
     /** The spatial operation to be performed. */
     @JsonProperty("operation")
-    private final SpatialOperation operation;
+    private final String operation;
+
+    private SpatialOperation spatialOperation;
 
     /**
      * Constructs a query selecting all fields greater/equal than {@code start} but less/equal than {@code stop}.
@@ -64,34 +67,41 @@ public class DateRangeCondition extends Condition {
      * If an endpoint is null, it is said to be "open". Either or both endpoints may be open. Open endpoints may not be
      * exclusive (you can't select all but the first or last term without explicitly specifying the term to exclude.)
      *
-     * @param boost        The boost for this query clause. Documents matching this clause will (in addition to the
-     *                     normal weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link
-     *                     #DEFAULT_BOOST} is used as default.
-     * @param field        The name of the field to be matched.
-     * @param start        The lower accepted {@link Date}. Maybe {@code null} meaning no lower limit.
-     * @param stop         The upper accepted {@link Date}. Maybe {@code null} meaning no upper limit.
+     * @param boost     The boost for this query clause. Documents matching this clause will (in addition to the normal
+     *                  weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link
+     *                  #DEFAULT_BOOST} is used as default.
+     * @param field     The name of the field to be matched.
+     * @param start     The lower accepted {@link Date}. Maybe {@code null} meaning no lower limit.
+     * @param stop      The upper accepted {@link Date}. Maybe {@code null} meaning no upper limit.
+     * @param operation The spatial operation to be performed.
      */
     @JsonCreator
     public DateRangeCondition(@JsonProperty("boost") Float boost,
                               @JsonProperty("field") String field,
                               @JsonProperty("start") Object start,
                               @JsonProperty("stop") Object stop,
-                              @JsonProperty("operator") String operator) {
+                              @JsonProperty("operation") String operation) {
         super(boost);
         this.field = field;
-        this.start = start;
-        this.stop = stop;
-        if (operator == null ) {
-            this.operation = SpatialOperation.Intersects;
-        } else if (operator.equalsIgnoreCase("is_within")) {
-            this.operation = SpatialOperation.IsWithin;
-        } else if (operator.equalsIgnoreCase("contains")) {
-            this.operation = SpatialOperation.Contains;
-        } else if (operator.equalsIgnoreCase("intersects")) {
-            this.operation = SpatialOperation.Intersects;
+        this.start = start == null ? DEFAULT_START : start;
+        this.stop = stop == null ? DEFAULT_STOP : stop;
+        this.operation = operation;
+
+        if (operation == null) {
+            spatialOperation = SpatialOperation.Intersects;
+        } else if (operation.equalsIgnoreCase("is_within")) {
+            spatialOperation = SpatialOperation.IsWithin;
+        } else if (operation.equalsIgnoreCase("contains")) {
+            spatialOperation = SpatialOperation.Contains;
+        } else if (operation.equalsIgnoreCase("intersects")) {
+            spatialOperation = SpatialOperation.Intersects;
         } else {
-            throw new IllegalArgumentException("Operator is invalid: " + operator);
+            throw new IllegalArgumentException("Operator is invalid: " + operation);
         }
+    }
+
+    public String getField() {
+        return field;
     }
 
     /**
@@ -112,6 +122,11 @@ public class DateRangeCondition extends Condition {
         return stop;
     }
 
+    @JsonIgnore
+    public SpatialOperation getSpatialOperation() {
+        return spatialOperation;
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -130,7 +145,7 @@ public class DateRangeCondition extends Condition {
 
         NRShape shape = mapper.makeShape(start, stop);
 
-        SpatialArgs args = new SpatialArgs(operation, shape);
+        SpatialArgs args = new SpatialArgs(spatialOperation, shape);
         Query query = strategy.makeQuery(args);
         query.setBoost(boost);
         return query;
