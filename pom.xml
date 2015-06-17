@@ -24,7 +24,7 @@
     <groupId>com.stratio.cassandra.lucene</groupId>
     <artifactId>cassandra-lucene-index</artifactId>
     <packaging>jar</packaging>
-    <version>2.1.6.0</version>
+    <version>2.1.6.1</version>
     <name>cassandra-lucene-index</name>
     <url>http://maven.apache.org</url>
 
