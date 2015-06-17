@@ -57,9 +57,12 @@ public class GeoPointMapper extends Mapper {
     /**
      * Builds a new {@link GeoPointMapper}.
      *
-     * @param name The name of the mapper.
+     * @param name      The name of the mapper.
+     * @param longitude The name of the column containing the longitude.
+     * @param latitude  The name of the column containing the latitude.
+     * @param maxLevels The maximum number of levels in the tree.
      */
-    public GeoPointMapper(String name, String latitude, String longitude, Integer maxLevels) {
+    public GeoPointMapper(String name, String longitude, String latitude, Integer maxLevels) {
         super(name,
               true,
               false,

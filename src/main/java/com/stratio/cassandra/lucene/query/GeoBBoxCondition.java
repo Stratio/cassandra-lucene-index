@@ -18,8 +18,8 @@ package com.stratio.cassandra.lucene.query;
 import com.google.common.base.Objects;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.shape.Rectangle;
-import com.stratio.cassandra.lucene.schema.mapping.GeoPointMapper;
 import com.stratio.cassandra.lucene.schema.Schema;
+import com.stratio.cassandra.lucene.schema.mapping.GeoPointMapper;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.search.Query;
@@ -38,23 +38,37 @@ public class GeoBBoxCondition extends Condition {
 
     private static final SpatialContext spatialContext = SpatialContext.GEO;
 
-    private final String field; // The name of the field to be matched
-    private final double minLongitude; // The minimum accepted longitude
-    private final double maxLongitude; // The maximum accepted longitude
-    private final double minLatitude; // The minimum accepted latitude
-    private final double maxLatitude; // The maximum accepted latitude
+    /** The name of the field to be matched. */
+    @JsonProperty("field")
+    private final String field;
+
+    /** The minimum accepted longitude. */
+    @JsonProperty("min_longitude")
+    private final double minLongitude;
+
+    /** The maximum accepted longitude. */
+    @JsonProperty("max_longitude")
+    private final double maxLongitude;
+
+    /** The minimum accepted latitude. */
+    @JsonProperty("min_latitude")
+    private final double minLatitude;
+
+    /** The maximum accepted latitude. */
+    @JsonProperty("max_latitude")
+    private final double maxLatitude;
 
     /**
      * Constructor using the field name and the value to be matched.
      *
-     * @param boost The boost for this query clause. Documents matching this clause will (in addition to the normal
-     *              weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link
-     *              #DEFAULT_BOOST} is used as default.
-     * @param field The name of the field to be matched.
+     * @param boost        The boost for this query clause. Documents matching this clause will (in addition to the
+     *                     normal weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link
+     *                     #DEFAULT_BOOST} is used as default.
+     * @param field        The name of the field to be matched.
      * @param minLongitude The minimum accepted longitude.
      * @param maxLongitude The maximum accepted longitude.
-     * @param minLatitude The minimum accepted latitude.
-     * @param maxLatitude The maximum accepted latitude.
+     * @param minLatitude  The minimum accepted latitude.
+     * @param maxLatitude  The maximum accepted latitude.
      */
     @JsonCreator
     public GeoBBoxCondition(@JsonProperty("boost") Float boost,
@@ -93,11 +107,39 @@ public class GeoBBoxCondition extends Condition {
             throw new IllegalArgumentException("max_latitude must be between -90.0 and 90");
         }
 
+        if (minLongitude > maxLongitude) {
+            throw new IllegalArgumentException("min_longitude must be lower than max_longitude");
+        }
+
+        if (minLatitude > maxLatitude) {
+            throw new IllegalArgumentException("min_latitude must be lower than max_latitude");
+        }
+
         this.field = field;
         this.minLongitude = minLongitude;
         this.maxLongitude = maxLongitude;
         this.minLatitude = minLatitude;
         this.maxLatitude = maxLatitude;
+    }
+
+    public String getField() {
+        return field;
+    }
+
+    public double getMinLongitude() {
+        return minLongitude;
+    }
+
+    public double getMaxLongitude() {
+        return maxLongitude;
+    }
+
+    public double getMinLatitude() {
+        return minLatitude;
+    }
+
+    public double getMaxLatitude() {
+        return maxLatitude;
     }
 
     /** {@inheritDoc} */
@@ -123,6 +165,7 @@ public class GeoBBoxCondition extends Condition {
     @Override
     public String toString() {
         return Objects.toStringHelper(this)
+                      .add("boost", boost)
                       .add("field", field)
                       .add("minLongitude", minLongitude)
                       .add("maxLongitude", maxLongitude)

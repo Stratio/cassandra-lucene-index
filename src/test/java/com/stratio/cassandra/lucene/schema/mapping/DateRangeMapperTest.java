@@ -250,7 +250,7 @@ public class DateRangeMapperTest {
 
         Columns columns = new Columns();
         columns.add(Column.fromComposed("from", 20, Int32Type.instance, false));
-        columns.add(Column.fromComposed("to", "30", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("to", 30, Int32Type.instance, false));
 
         Document document = new Document();
         mapper.addFields(document, columns);
@@ -304,7 +304,7 @@ public class DateRangeMapperTest {
         CFMetaData metadata = new CFMetaData("ks", "cf", ColumnFamilyType.Standard, nameType);
         metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("from"), FloatType.instance, 0));
         metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("any"), UUIDType.instance, 0));
-        new GeoPointMapper("field", "from", "to", null).validate(metadata);
+        new GeoPointMapper("field", "to", "from", null).validate(metadata);
     }
 
     @Test

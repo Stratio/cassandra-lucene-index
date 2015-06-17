@@ -41,6 +41,6 @@ public class GeoPointMapperBuilder extends MapperBuilder<GeoPointMapper> {
 
     @Override
     public GeoPointMapper build(String name) {
-        return new GeoPointMapper(name, latitude, longitude, maxLevels);
+        return new GeoPointMapper(name, longitude, latitude, maxLevels);
     }
 }
