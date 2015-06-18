@@ -132,7 +132,7 @@ To restrict the search for tweets within a certain date range, then you must add
 
 ```
 SELECT * FROM tweets WHERE lucene='{
-    filter : {type:"range", field:"time", lower:"2014/04/25", upper:"2014/04/1"},
+    filter : {type:"range", field:"time", lower:"2014/04/25", upper:"2014/05/1"},
     query  : {type:"phrase", field:"body", value:"big data gives organizations", slop:1}
 }' limit 100;
 ```
