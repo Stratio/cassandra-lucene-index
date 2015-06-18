@@ -25,7 +25,6 @@ import org.apache.lucene.spatial.prefix.tree.NumberRangePrefixTree.NRShape;
 import org.apache.lucene.spatial.query.SpatialArgs;
 import org.apache.lucene.spatial.query.SpatialOperation;
 import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.util.Date;
@@ -37,11 +36,14 @@ import java.util.Date;
  */
 public class DateRangeCondition extends Condition {
 
-    /** The default include lower option. */
+    /** The default start value. */
     public static final int DEFAULT_START = 0;
 
-    /** The default include upper option. */
+    /** The default stop value. */
     public static final int DEFAULT_STOP = Integer.MAX_VALUE;
+
+    /** The default operation. */
+    public static final String DEFAULT_OPERATION = "intersects";
 
     /** The name of the field to be matched. */
     @JsonProperty("field")
@@ -58,8 +60,6 @@ public class DateRangeCondition extends Condition {
     /** The spatial operation to be performed. */
     @JsonProperty("operation")
     private final String operation;
-
-    private SpatialOperation spatialOperation;
 
     /**
      * Constructs a query selecting all fields greater/equal than {@code start} but less/equal than {@code stop}.
@@ -85,19 +85,7 @@ public class DateRangeCondition extends Condition {
         this.field = field;
         this.start = start == null ? DEFAULT_START : start;
         this.stop = stop == null ? DEFAULT_STOP : stop;
-        this.operation = operation;
-
-        if (operation == null) {
-            spatialOperation = SpatialOperation.Intersects;
-        } else if (operation.equalsIgnoreCase("is_within")) {
-            spatialOperation = SpatialOperation.IsWithin;
-        } else if (operation.equalsIgnoreCase("contains")) {
-            spatialOperation = SpatialOperation.Contains;
-        } else if (operation.equalsIgnoreCase("intersects")) {
-            spatialOperation = SpatialOperation.Intersects;
-        } else {
-            throw new IllegalArgumentException("Operator is invalid: " + operation);
-        }
+        this.operation = operation == null ? DEFAULT_OPERATION : operation;
     }
 
     public String getField() {
@@ -122,9 +110,13 @@ public class DateRangeCondition extends Condition {
         return stop;
     }
 
-    @JsonIgnore
-    public SpatialOperation getSpatialOperation() {
-        return spatialOperation;
+    /**
+     * Returns the spatial operation to be performed.
+     *
+     * @return The spatial operation to be performed.
+     */
+    public String getOperation() {
+        return operation;
     }
 
     /**
@@ -145,10 +137,32 @@ public class DateRangeCondition extends Condition {
 
         NRShape shape = mapper.makeShape(start, stop);
 
+        SpatialOperation spatialOperation = parseSpatialOperation(operation);
+
         SpatialArgs args = new SpatialArgs(spatialOperation, shape);
         Query query = strategy.makeQuery(args);
         query.setBoost(boost);
         return query;
+    }
+
+    /**
+     * Returns the {@link SpatialOperation} representing the specified {@code String}.
+     *
+     * @param operation A {@code String} representing a {@link SpatialOperation}.
+     * @return The {@link SpatialOperation} representing the specified {@code String}.
+     */
+    static SpatialOperation parseSpatialOperation(String operation) {
+        if (operation == null) {
+            throw new IllegalArgumentException("Operation is required");
+        } else if (operation.equalsIgnoreCase("is_within")) {
+            return SpatialOperation.IsWithin;
+        } else if (operation.equalsIgnoreCase("contains")) {
+            return SpatialOperation.Contains;
+        } else if (operation.equalsIgnoreCase("intersects")) {
+            return SpatialOperation.Intersects;
+        } else {
+            throw new IllegalArgumentException("Operation is invalid: " + operation);
+        }
     }
 
     /**

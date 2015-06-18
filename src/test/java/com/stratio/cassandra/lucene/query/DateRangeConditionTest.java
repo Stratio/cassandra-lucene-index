@@ -41,42 +41,62 @@ public class DateRangeConditionTest extends AbstractConditionTest {
         assertEquals("name", condition.getField());
         assertEquals(1, condition.getStart());
         assertEquals(2, condition.getStop());
-        assertEquals(SpatialOperation.Intersects, condition.getSpatialOperation());
+        assertEquals(DateRangeCondition.DEFAULT_OPERATION, condition.getOperation());
     }
 
     @Test
-    public void testConstructorWithIntersects() {
-        DateRangeCondition condition = new DateRangeCondition(0.5f, "name", 1, 2, "intersects");
-        assertEquals(0.5, condition.getBoost(), 0);
-        assertEquals("name", condition.getField());
-        assertEquals(1, condition.getStart());
-        assertEquals(2, condition.getStop());
-        assertEquals(SpatialOperation.Intersects, condition.getSpatialOperation());
-    }
-
-    @Test
-    public void testConstructorWithContains() {
+    public void testConstructorWithAllArgs() {
         DateRangeCondition condition = new DateRangeCondition(0.5f, "name", 1, 2, "contains");
         assertEquals(0.5, condition.getBoost(), 0);
         assertEquals("name", condition.getField());
         assertEquals(1, condition.getStart());
         assertEquals(2, condition.getStop());
-        assertEquals(SpatialOperation.Contains, condition.getSpatialOperation());
+        assertEquals("contains", condition.getOperation());
     }
 
     @Test
-    public void testConstructorWithIsWithin() {
-        DateRangeCondition condition = new DateRangeCondition(0.5f, "name", 1, 2, "is_within");
-        assertEquals(0.5, condition.getBoost(), 0);
-        assertEquals("name", condition.getField());
-        assertEquals(1, condition.getStart());
-        assertEquals(2, condition.getStop());
-        assertEquals(SpatialOperation.IsWithin, condition.getSpatialOperation());
+    public void testParseSpatialOperationIntersectsLowerCase() {
+        assertEquals(SpatialOperation.Intersects, DateRangeCondition.parseSpatialOperation("intersects"));
+    }
+
+    @Test
+    public void testParseSpatialOperationIntersectsUpperCase() {
+        assertEquals(SpatialOperation.Intersects, DateRangeCondition.parseSpatialOperation("INTERSECTS"));
+    }
+
+    @Test
+    public void testParseSpatialOperationIsWithinLowerCase() {
+        assertEquals(SpatialOperation.IsWithin, DateRangeCondition.parseSpatialOperation("is_within"));
+    }
+
+    @Test
+    public void testParseSpatialOperationIsWithinUpperCase() {
+        assertEquals(SpatialOperation.IsWithin, DateRangeCondition.parseSpatialOperation("IS_WITHIN"));
+    }
+
+    @Test
+    public void testParseSpatialOperationIContainsLowerCase() {
+        assertEquals(SpatialOperation.Contains, DateRangeCondition.parseSpatialOperation("contains"));
+    }
+
+    @Test
+    public void testParseSpatialOperationContainsUpperCase() {
+        assertEquals(SpatialOperation.Contains, DateRangeCondition.parseSpatialOperation("CONTAINS"));
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testConstructorWithIsBadOperation() {
-        new DateRangeCondition(0.5f, "name", 1, 2, "abc");
+    public void testParseSpatialOperationNull() {
+        DateRangeCondition.parseSpatialOperation(null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testParseSpatialOperationEmpty() {
+        DateRangeCondition.parseSpatialOperation("");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testParseSpatialOperationBlank() {
+        DateRangeCondition.parseSpatialOperation(" ");
     }
 
     @Test
@@ -97,7 +117,7 @@ public class DateRangeConditionTest extends AbstractConditionTest {
     @Test(expected = IllegalArgumentException.class)
     public void testQueryWithoutValidMapper() {
         Schema schema = mockSchema("name", new UUIDMapper("name", null, null));
-        GeoBBoxCondition condition = new GeoBBoxCondition(0.5f, "name", -180D, 180D, -90D, 90D);
+        DateRangeCondition condition = new DateRangeCondition(null, "name", 1, 2, null);
         condition.query(schema);
     }
 
