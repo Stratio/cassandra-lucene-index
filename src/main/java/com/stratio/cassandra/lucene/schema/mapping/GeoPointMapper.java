@@ -124,8 +124,8 @@ public class GeoPointMapper extends Mapper {
     @Override
     public void addFields(Document document, Columns columns) {
 
-        Double latitude = readLongitude(columns);
-        Double longitude = readLatitude(columns);
+        Double longitude = readLongitude(columns);
+        Double latitude = readLatitude(columns);
         Point point = spatialContext.makePoint(longitude, latitude);
 
         for (IndexableField field : strategy.createIndexableFields(point)) {
