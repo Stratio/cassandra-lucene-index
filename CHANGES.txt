@@ -1,3 +1,7 @@
+2.1.6.1
+ * Fix row updated skipping first column (issue#6)
+ * Avoid analysis at prefix, regexp, range and wildcard queries
+
 2.1.6.0
  * Become a plugin instead of a fork of Apache Cassandra
  * Upgrade to Apache Cassandra 2.1.6
