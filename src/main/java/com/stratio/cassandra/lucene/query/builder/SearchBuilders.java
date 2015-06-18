@@ -171,12 +171,23 @@ public class SearchBuilders {
      * @param minLatitude  The minimum accepted latitude.
      * @param maxLatitude  The maximum accepted latitude.
      */
-    public static GeoBBoxConditionBuilder geobbox(String field,
+    public static GeoBBoxConditionBuilder geoBBox(String field,
                                                   double minLongitude,
                                                   double maxLongitude,
                                                   double minLatitude,
                                                   double maxLatitude) {
         return new GeoBBoxConditionBuilder(field, minLongitude, maxLongitude, minLatitude, maxLatitude);
+    }
+
+    /**
+     * Returns a new {@link GeoDistanceConditionBuilder} with the specified field reference point.
+     *
+     * @param field     The name of the field to be matched.
+     * @param longitude The longitude of the reference point.
+     * @param latitude  The latitude of the reference point.
+     */
+    public static GeoDistanceConditionBuilder geoDistance(String field, double longitude, double latitude) {
+        return new GeoDistanceConditionBuilder(field, longitude, latitude);
     }
 
     /**

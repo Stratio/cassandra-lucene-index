@@ -15,16 +15,17 @@
  */
 package com.stratio.cassandra.lucene.query;
 
-import com.stratio.cassandra.lucene.query.builder.GeoBBoxConditionBuilder;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.GeoPointMapper;
 import com.stratio.cassandra.lucene.schema.mapping.UUIDMapper;
+import org.apache.lucene.search.BooleanClause;
+import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.ConstantScoreQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.spatial.prefix.IntersectsPrefixTreeFilter;
 import org.junit.Test;
 
-import static com.stratio.cassandra.lucene.query.builder.SearchBuilders.geobbox;
+import static com.stratio.cassandra.lucene.query.builder.SearchBuilders.geoDistance;
 import static com.stratio.cassandra.lucene.query.builder.SearchBuilders.query;
 import static org.junit.Assert.*;
 
@@ -35,146 +36,155 @@ public class GeoDistanceConditionTest extends AbstractConditionTest {
 
     @Test
     public void testConstructor() {
-        GeoBBoxCondition condition = new GeoBBoxCondition(0.5f, "name", -180D, 180D, -90D, 90D);
+        GeoDistanceCondition condition = new GeoDistanceCondition(0.5f, "name", -180D, 90D, "3km", "10km");
         assertEquals(0.5, condition.getBoost(), 0);
-        assertEquals("name", condition.getField());
-        assertEquals(-180, condition.getMinLongitude(), 0);
-        assertEquals(180, condition.getMaxLongitude(), 0);
-        assertEquals(-90, condition.getMinLatitude(), 0);
-        assertEquals(90, condition.getMaxLatitude(), 0);
+        assertEquals("name", condition.field);
+        assertEquals(-180, condition.longitude, 0);
+        assertEquals(90, condition.latitude, 0);
+        assertEquals("3km", condition.minDistance);
+        assertEquals("10km", condition.maxDistance);
     }
 
     @Test
     public void testConstructorWithDefaults() {
-        GeoBBoxCondition condition = new GeoBBoxCondition(null, "name", 0D, 1D, 2D, 3D);
+        GeoDistanceCondition condition = new GeoDistanceCondition(null, "name", -180D, 90D, null, "1yd");
         assertEquals(GeoBBoxCondition.DEFAULT_BOOST, condition.getBoost(), 0);
-        assertEquals("name", condition.getField());
-        assertEquals(0, condition.getMinLongitude(), 0);
-        assertEquals(1, condition.getMaxLongitude(), 0);
-        assertEquals(2, condition.getMinLatitude(), 0);
-        assertEquals(3, condition.getMaxLatitude(), 0);
+        assertEquals("name", condition.field);
+        assertEquals(-180, condition.longitude, 0);
+        assertEquals(90, condition.latitude, 0);
+        assertNull(condition.minDistance);
+        assertEquals("1yd", condition.maxDistance);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithNullField() {
-        new GeoBBoxCondition(null, null, 0D, 1D, 2D, 3D);
+        new GeoDistanceCondition(null, null, -180D, 90D, "1km", "3km");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithEmptyField() {
-        new GeoBBoxCondition(null, "", 0D, 1D, 2D, 3D);
+        new GeoDistanceCondition(null, "", -180D, 90D, "1km", "3km");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithBlankField() {
-        new GeoBBoxCondition(null, " ", 0D, 1D, 2D, 3D);
+        new GeoDistanceCondition(null, " ", -180D, 90D, "1km", "3km");
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testConstructorWithNullMinLongitude() {
-        new GeoBBoxCondition(null, "name", null, 1D, 2D, 3D);
+    public void testConstructorWithNullLongitude() {
+        new GeoDistanceCondition(null, "name", null, 90D, "1km", "3km");
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testConstructorWithToSmallMinLongitude() {
-        new GeoBBoxCondition(null, "name", -181D, 1D, 2D, 3D);
+    public void testConstructorWithToSmallLongitude() {
+        new GeoDistanceCondition(null, "name", -181D, 90D, "1km", "3km");
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testConstructorWithToBiglMinLongitude() {
-        new GeoBBoxCondition(null, "name", 181D, 1D, 2D, 3D);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testConstructorWithNullMaxLongitude() {
-        new GeoBBoxCondition(null, "name", 0D, null, 2D, 3D);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testConstructorWithTooSmallMaxLongitude() {
-        new GeoBBoxCondition(null, "name", 0D, -181D, 2D, 3D);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testConstructorWithTooBigMaxLongitude() {
-        new GeoBBoxCondition(null, "name", 0D, 181D, 2D, 3D);
+    public void testConstructorWithToBigLongitude() {
+        new GeoDistanceCondition(null, "name", 181D, 90D, "1km", "3km");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithNullLatitude() {
-        new GeoBBoxCondition(null, "name", 0D, 1D, null, 3D);
+        new GeoDistanceCondition(null, "name", -180D, null, "1km", "3km");
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testConstructorWithTooSmallMinLatitude() {
-        new GeoBBoxCondition(null, "name", 0D, 1D, -91D, 3D);
+    public void testConstructorWithTooSmallLatitude() {
+        new GeoDistanceCondition(null, "name", -180D, -91D, "1km", "3km");
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testConstructorWithTooBigMinLatitude() {
-        new GeoBBoxCondition(null, "name", 0D, 1D, 91D, 3D);
+    public void testConstructorWithTooBigLatitude() {
+        new GeoDistanceCondition(null, "name", -180D, 91D, "1km", "3km");
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testConstructorWithNullMaxLatitude() {
-        new GeoBBoxCondition(null, "name", 0D, 1D, 2D, null);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testConstructorWithTooSmallMaxLatitude() {
-        new GeoBBoxCondition(null, "name", 0D, 1D, 2D, -91D);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testConstructorWithTooBigMaxLatitude() {
-        new GeoBBoxCondition(null, "name", 0D, 1D, 2D, 91D);
+    public void testConstructorWithoutDistances() {
+        new GeoDistanceCondition(null, "name", -180D, 90D, null, null);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithMinLongitudeGreaterThanMaxLongitude() {
-        new GeoBBoxCondition(null, "name", 2D, 1D, 3D, 3D);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testConstructorWithMinLatitudeGreaterThanMaxLatitude() {
-        new GeoBBoxCondition(null, "name", 0D, 1D, 4D, 3D);
+        new GeoDistanceCondition(null, "name", -180D, 90D, "10km", "3km");
     }
 
     @Test
-    public void testQuery() {
+    public void testQueryMax() {
         Schema schema = mockSchema("name", new GeoPointMapper("name", "lon", "lat", 8));
-        GeoBBoxCondition condition = new GeoBBoxCondition(0.5f, "name", -180D, 180D, -90D, 90D);
+        GeoDistanceCondition condition = new GeoDistanceCondition(0.5f, "name", -180D, 90D, null, "10hm");
         Query query = condition.query(schema);
         assertNotNull(query);
+        BooleanQuery booleanQuery = (BooleanQuery) query;
+        assertEquals(1, booleanQuery.getClauses().length);
+        BooleanClause maxClause = booleanQuery.getClauses()[0];
+        assertEquals(BooleanClause.Occur.MUST, maxClause.getOccur());
+        query = maxClause.getQuery();
         assertTrue(query instanceof ConstantScoreQuery);
         query = ((ConstantScoreQuery) query).getQuery();
         assertTrue(query instanceof IntersectsPrefixTreeFilter);
         IntersectsPrefixTreeFilter filter = (IntersectsPrefixTreeFilter) query;
-        assertEquals("IntersectsPrefixTreeFilter(" +
-                     "fieldName=name," +
-                     "queryShape=Rect(minX=-180.0,maxX=180.0,minY=-90.0,maxY=90.0)," +
-                     "detailLevel=3," +
-                     "prefixGridScanLevel=4)", filter.toString());
+        assertEquals("IntersectsPrefixTreeFilter(fieldName=name,queryShape=Circle(Pt(x=-180.0,y=90.0), " +
+                     "d=0.0° 1.00km),detailLevel=8,prefixGridScanLevel=4)", filter.toString());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testQueryMin() {
+        new GeoDistanceCondition(0.5f, "name", -180D, 90D, "3km", null);
+    }
+
+    @Test
+    public void testQueryMinMax() {
+        Schema schema = mockSchema("name", new GeoPointMapper("name", "lon", "lat", 8));
+        GeoDistanceCondition condition = new GeoDistanceCondition(0.5f, "name", -180D, 90D, "1km", "3km");
+        Query query = condition.query(schema);
+        assertNotNull(query);
+        assertTrue(query instanceof BooleanQuery);
+        BooleanQuery booleanQuery = (BooleanQuery) query;
+        assertEquals(2, booleanQuery.getClauses().length);
+
+        BooleanClause minClause = booleanQuery.getClauses()[1];
+        assertEquals(BooleanClause.Occur.MUST_NOT, minClause.getOccur());
+        query = minClause.getQuery();
+        assertTrue(query instanceof ConstantScoreQuery);
+        query = ((ConstantScoreQuery) query).getQuery();
+        assertTrue(query instanceof IntersectsPrefixTreeFilter);
+        IntersectsPrefixTreeFilter minFilter = (IntersectsPrefixTreeFilter) query;
+        assertEquals("IntersectsPrefixTreeFilter(fieldName=name,queryShape=Circle(Pt(x=-180.0,y=90.0), " +
+                     "d=0.0° 1.00km),detailLevel=8,prefixGridScanLevel=4)", minFilter.toString());
+
+        BooleanClause maxClause = booleanQuery.getClauses()[0];
+        assertEquals(BooleanClause.Occur.MUST, maxClause.getOccur());
+        query = maxClause.getQuery();
+        assertTrue(query instanceof ConstantScoreQuery);
+        query = ((ConstantScoreQuery) query).getQuery();
+        assertTrue(query instanceof IntersectsPrefixTreeFilter);
+        IntersectsPrefixTreeFilter maxFilter = (IntersectsPrefixTreeFilter) query;
+        assertEquals("IntersectsPrefixTreeFilter(fieldName=name,queryShape=Circle(Pt(x=-180.0,y=90.0), " +
+                     "d=0.0° 3.00km),detailLevel=8,prefixGridScanLevel=4)", maxFilter.toString());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testQueryWithoutValidMapper() {
         Schema schema = mockSchema("name", new UUIDMapper("name", null, null));
-        GeoBBoxCondition condition = new GeoBBoxCondition(0.5f, "name", -180D, 180D, -90D, 90D);
+        Condition condition = new GeoDistanceCondition(0.5f, "name", -180D, 90D, null, "3km");
         condition.query(schema);
     }
 
     @Test
     public void testJson() {
-        GeoBBoxConditionBuilder condition = geobbox("name", -180D, 180D, -90D, 90D).boost(0.5f);
-        testJsonCondition(query(condition));
+        testJsonCondition(query(geoDistance("name", -180D, 90D).setMinDistance("1km").setMaxDistance("3km")));
     }
 
     @Test
     public void testToString() {
-        GeoBBoxCondition condition = geobbox("name", -180D, 180D, -90D, 90D).boost(0.5f).build();
-        assertEquals("GeoBBoxCondition{boost=0.5, field=name, " +
-                     "minLongitude=-180.0, maxLongitude=180.0, minLatitude=-90.0, maxLatitude=90.0}",
+        GeoDistanceCondition condition = geoDistance("name", -1D, 9).setMinDistance("1km")
+                                                                    .setMaxDistance("3km")
+                                                                    .boost(0.4f)
+                                                                    .build();
+        assertEquals("GeoDistanceCondition{field=name, longitude=-1.0, latitude=9.0, minDistance=1km, maxDistance=3km}",
                      condition.toString());
     }
 

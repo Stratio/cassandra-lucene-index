@@ -23,7 +23,7 @@ import org.codehaus.jackson.annotate.JsonCreator;
  *
  * @author Andres de la Pena <adelapena@stratio.com>
  */
-public class GeoDistance {
+public class GeoDistance implements Comparable<GeoDistance> {
 
     private final double value; // The quantitative distance value
     private final GeoDistanceUnit unit; // The distance unit
@@ -45,7 +45,7 @@ public class GeoDistance {
      * @param unit The distance unit to be used.
      * @return The numeric distance value in the specified unit.
      */
-    public double getValue(GeoDistanceUnit unit) {
+    public Double getValue(GeoDistanceUnit unit) {
         return this.unit.getMetres() * value / unit.getMetres();
     }
 
@@ -74,9 +74,13 @@ public class GeoDistance {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
+    @Override
+    public int compareTo(GeoDistance other) {
+        return getValue(GeoDistanceUnit.MILLIMETRES).compareTo(other.getValue(GeoDistanceUnit.MILLIMETRES));
+    }
+
+    /** {@inheritDoc} */
     @Override
     public String toString() {
         return Objects.toStringHelper(this).add("value", value).add("unit", unit).toString();

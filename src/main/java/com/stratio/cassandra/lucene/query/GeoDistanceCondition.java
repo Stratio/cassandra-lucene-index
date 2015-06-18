@@ -19,8 +19,8 @@ import com.google.common.base.Objects;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.shape.Circle;
-import com.stratio.cassandra.lucene.schema.mapping.GeoPointMapper;
 import com.stratio.cassandra.lucene.schema.Schema;
+import com.stratio.cassandra.lucene.schema.mapping.GeoPointMapper;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 import com.stratio.cassandra.lucene.util.GeoDistance;
 import com.stratio.cassandra.lucene.util.GeoDistanceUnit;
@@ -32,6 +32,7 @@ import org.apache.lucene.spatial.SpatialStrategy;
 import org.apache.lucene.spatial.query.SpatialArgs;
 import org.apache.lucene.spatial.query.SpatialOperation;
 import org.codehaus.jackson.annotate.JsonCreator;
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
@@ -41,29 +42,53 @@ import org.codehaus.jackson.annotate.JsonProperty;
  */
 public class GeoDistanceCondition extends Condition {
 
-    private static final SpatialContext spatialContext = SpatialContext.GEO;
+    static final SpatialContext spatialContext = SpatialContext.GEO;
 
-    private final String field; // The name of the field to be matched.
-    private final double longitude;
-    private final double latitude;
-    private final GeoDistance minDistance;
-    private final GeoDistance maxDistance;
+    /** The name of the field to be matched. */
+    @JsonProperty("field")
+    final String field;
+
+    /** The longitude of the reference point. */
+    @JsonProperty("longitude")
+    final double longitude;
+
+    /** The latitude of the reference point. */
+    @JsonProperty("latitude")
+    final double latitude;
+
+    /** The min allowed distance. */
+    @JsonProperty("min_distance")
+    final String minDistance;
+
+    /** The max allowed distance. */
+    @JsonProperty("max_distance")
+    final String maxDistance;
+
+    @JsonIgnore
+    final GeoDistance minGeoDistance;
+
+    @JsonIgnore
+    final GeoDistance maxGeoDistance;
 
     /**
      * Constructor using the field name and the value to be matched.
      *
-     * @param boost The boost for this query clause. Documents matching this clause will (in addition to the normal
-     *              weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link
-     *              #DEFAULT_BOOST} is used as default.
-     * @param field The name of the field to be matched.
+     * @param boost       The boost for this query clause. Documents matching this clause will (in addition to the
+     *                    normal weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link
+     *                    #DEFAULT_BOOST} is used as default.
+     * @param field       The name of the field to be matched.
+     * @param longitude   The longitude of the reference point.
+     * @param latitude    The latitude of the reference point.
+     * @param minDistance The min allowed distance.
+     * @param maxDistance The max allowed distance.
      */
     @JsonCreator
     public GeoDistanceCondition(@JsonProperty("boost") Float boost,
                                 @JsonProperty("field") String field,
                                 @JsonProperty("longitude") Double longitude,
                                 @JsonProperty("latitude") Double latitude,
-                                @JsonProperty("min_distance") GeoDistance minDistance,
-                                @JsonProperty("max_distance") GeoDistance maxDistance) {
+                                @JsonProperty("min_distance") String minDistance,
+                                @JsonProperty("max_distance") String maxDistance) {
         super(boost);
 
         if (StringUtils.isBlank(field)) {
@@ -73,13 +98,24 @@ public class GeoDistanceCondition extends Condition {
         if (longitude == null) {
             throw new IllegalArgumentException("longitude required");
         } else if (longitude < -180.0 || longitude > 180) {
-            throw new IllegalArgumentException("longitude must be between -180.0 and 180");
+            throw new IllegalArgumentException("longitude must be between -180.0 and 180.0");
         }
 
         if (latitude == null) {
             throw new IllegalArgumentException("latitude required");
         } else if (latitude < -90.0 || latitude > 90) {
-            throw new IllegalArgumentException("latitude must be between -90.0 and 90");
+            throw new IllegalArgumentException("latitude must be between -90.0 and 90.0");
+        }
+
+        if (StringUtils.isBlank(maxDistance)) {
+            throw new IllegalArgumentException("max_distance must be provided");
+        }
+
+        minGeoDistance = minDistance == null ? null : GeoDistance.create(minDistance);
+        maxGeoDistance = GeoDistance.create(maxDistance);
+
+        if (minGeoDistance != null && minGeoDistance.compareTo(maxGeoDistance) >= 0) {
+            throw new IllegalArgumentException("min_distance must be lower than max_distance");
         }
 
         this.field = field;
@@ -100,38 +136,21 @@ public class GeoDistanceCondition extends Condition {
         GeoPointMapper geoPointMapper = (GeoPointMapper) mapper;
         SpatialStrategy spatialStrategy = geoPointMapper.getStrategy();
 
-        if (minDistance != null && maxDistance != null) {
-            BooleanQuery query = new BooleanQuery();
-            query.add(maxQuery(spatialStrategy), BooleanClause.Occur.MUST);
-            query.add(minQuery(spatialStrategy), BooleanClause.Occur.MUST_NOT);
-            return query;
-        } else if (minDistance == null && maxDistance != null) {
-            return maxQuery(spatialStrategy);
-        } else if (minDistance != null) {
-            return minQuery(spatialStrategy);
-        } else {
-            throw new IllegalArgumentException("min_distance and/or max_distance required");
+        BooleanQuery query = new BooleanQuery();
+        query.add(query(maxGeoDistance, spatialStrategy), BooleanClause.Occur.MUST);
+        if (minGeoDistance != null) {
+            query.add(query(minGeoDistance, spatialStrategy), BooleanClause.Occur.MUST_NOT);
         }
-    }
-
-    Query minQuery(SpatialStrategy spatialStrategy) {
-        double kms = minDistance.getValue(GeoDistanceUnit.KILOMETRES);
-        double distance = DistanceUtils.dist2Degrees(kms, DistanceUtils.EARTH_MEAN_RADIUS_KM);
-        Circle circle = spatialContext.makeCircle(longitude, latitude, distance);
-        SpatialArgs args = new SpatialArgs(SpatialOperation.Intersects, circle);
-        Query query = spatialStrategy.makeQuery(args);
         query.setBoost(boost);
         return query;
     }
 
-    Query maxQuery(SpatialStrategy spatialStrategy) {
-        double kms = maxDistance.getValue(GeoDistanceUnit.KILOMETRES);
+    private Query query(GeoDistance geoDistance, SpatialStrategy spatialStrategy) {
+        double kms = geoDistance.getValue(GeoDistanceUnit.KILOMETRES);
         double distance = DistanceUtils.dist2Degrees(kms, DistanceUtils.EARTH_MEAN_RADIUS_KM);
         Circle circle = spatialContext.makeCircle(longitude, latitude, distance);
         SpatialArgs args = new SpatialArgs(SpatialOperation.Intersects, circle);
-        Query query = spatialStrategy.makeQuery(args);
-        query.setBoost(boost);
-        return query;
+        return spatialStrategy.makeQuery(args);
     }
 
     /** {@inheritDoc} */

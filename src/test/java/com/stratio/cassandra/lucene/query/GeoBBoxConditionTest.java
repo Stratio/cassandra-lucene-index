@@ -24,7 +24,7 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.spatial.prefix.IntersectsPrefixTreeFilter;
 import org.junit.Test;
 
-import static com.stratio.cassandra.lucene.query.builder.SearchBuilders.geobbox;
+import static com.stratio.cassandra.lucene.query.builder.SearchBuilders.geoBBox;
 import static com.stratio.cassandra.lucene.query.builder.SearchBuilders.query;
 import static org.junit.Assert.*;
 
@@ -166,13 +166,13 @@ public class GeoBBoxConditionTest extends AbstractConditionTest {
 
     @Test
     public void testJson() {
-        GeoBBoxConditionBuilder condition = geobbox("name", -180D, 180D, -90D, 90D).boost(0.5f);
+        GeoBBoxConditionBuilder condition = geoBBox("name", -180D, 180D, -90D, 90D).boost(0.5f);
         testJsonCondition(query(condition));
     }
 
     @Test
     public void testToString() {
-        GeoBBoxCondition condition = geobbox("name", -180D, 180D, -90D, 90D).boost(0.5f).build();
+        GeoBBoxCondition condition = geoBBox("name", -180D, 180D, -90D, 90D).boost(0.5f).build();
         assertEquals("GeoBBoxCondition{boost=0.5, field=name, " +
                      "minLongitude=-180.0, maxLongitude=180.0, minLatitude=-90.0, maxLatitude=90.0}",
                      condition.toString());
