@@ -814,7 +814,7 @@ where:
 -   **longitude** : a double value between -180 and 180 being the longitude of the reference point.
 -   **latitude** : a double value between -90 and 90 being the latitude of the reference point.
 -   **max_distance** : a string value being the max allowed distance from the reference point.
--   **min_distance** : a double value being the min allowed distance from the reference point.
+-   **min_distance** : a string value being the min allowed distance from the reference point.
 
 Example 1: will return any rows where “place” is  within one kilometer from the geo point (40.225479, -3.999278).
 
