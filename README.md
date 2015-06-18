@@ -1,7 +1,7 @@
 Stratio's Cassandra Lucene Index
 ================================
 
-Stratio's Cassandra Lucene Index, derived from [Stratio Cassandra](https://github.com/Stratio/stratio-cassandra), is a plugin for [Apache Cassandra](http://cassandra.apache.org/) that extends its index functionality to provide near real time search such as ElasticSearch or Solr, including [full text search](http://en.wikipedia.org/wiki/Full_text_search) capabilities and free multivariable search. It is achieved through an [Apache Lucene](http://lucene.apache.org/) based implementation of Cassandra secondary indexes, where each node of the cluster indexes its own data. Stratio's Cassandra indexes are one of the core modules on which [Stratio's BigData platform (SDS)](http://www.stratio.com/) is based.
+Stratio's Cassandra Lucene Index, derived from [Stratio Cassandra](https://github.com/Stratio/stratio-cassandra), is a plugin for [Apache Cassandra](http://cassandra.apache.org/) that extends its index functionality to provide near real time search such as ElasticSearch or Solr, including [full text search](http://en.wikipedia.org/wiki/Full_text_search) capabilities and free multivariable and geospatial search. It is achieved through an [Apache Lucene](http://lucene.apache.org/) based implementation of Cassandra secondary indexes, where each node of the cluster indexes its own data. Stratio's Cassandra indexes are one of the core modules on which [Stratio's BigData platform (SDS)](http://www.stratio.com/) is based.
 
 Index [relevance queries](http://en.wikipedia.org/wiki/Relevance_(information_retrieval)) allows you to retrieve the *n* more relevant results satisfying a query. The coordinator node sends the query to each node in the cluster, each node returns its *n* best results and then the coordinator combines these partial results and gives you the *n* best of them, avoiding full scan. You can also base the sorting in a combination of fields.
 
@@ -110,7 +110,8 @@ WITH OPTIONS = {
             id   : {type : "integer"},
             user : {type : "string"},
             body : {type : "text",  analyzer : "english"},
-            time : {type : "date", pattern  : "yyyy/MM/dd"}
+            time : {type : "date", pattern  : "yyyy/MM/dd"},
+            place : {type : "geo_point", longitude : "longitude", latitude : "latitude"}
         }
     }'
 };
@@ -138,7 +139,7 @@ To refine the search to get only the tweets written by users whose name starts w
 ```
 SELECT * FROM tweets WHERE lucene='{
     filter : {type:"boolean", must:[
-                   {type:"range", field:"time", lower:"2014/04/25", upper:"2014/04/1"},
+                   {type:"range", field:"time", lower:"2014/04/25", upper:"2014/05/1"},
                    {type:"prefix", field:"user", value:"a"} ] },
     query  : {type:"phrase", field:"body", value:"big data gives organizations", slop:1}
 }' limit 100;
@@ -149,8 +150,26 @@ To get the 100 more recent filtered results you can use the *sort* option:
 ```
 SELECT * FROM tweets WHERE lucene='{
     filter : {type:"boolean", must:[
-                   {type:"range", field:"time", lower:"2014/04/25", upper:"2014/04/1"},
+                   {type:"range", field:"time", lower:"2014/04/25", upper:"2014/05/1"},
                    {type:"prefix", field:"user", value:"a"} ] },
+    query  : {type:"phrase", field:"body", value:"big data gives organizations", slop:1},
+    sort  : {fields: [ {field:"time", reverse:true} ] }
+}' limit 100;
+```
+
+The previous query can be restricted to a geographical bounding box:
+
+```
+SELECT * FROM tweets WHERE lucene='{
+    filter : {type:"boolean", must:[
+                   {type:"range", field:"time", lower:"2014/04/25", upper:"2014/05/1"},
+                   {type:"prefix", field:"user", value:"a"},
+                   {type:"geo_bbox", 
+                    field:"place",
+                   	min_longitude:40.225479, 
+                   	max_longitude:40.560174, 
+                   	min_latitude:-3.999278, 
+                   	max_latitude:-3.378550} ] },
     query  : {type:"phrase", field:"body", value:"big data gives organizations", slop:1},
     sort  : {fields: [ {field:"time", reverse:true} ] }
 }' limit 100;
@@ -161,8 +180,14 @@ Finally, if you want to restrict the search to a certain token range:
 ```
 SELECT * FROM tweets WHERE lucene='{
     filter : {type:"boolean", must:[
-                   {type:"range", field:"time", lower:"2014/04/25", upper:"2014/04/1"},
-                   {type:"prefix", field:"user", value:"a"} ] },
+                   {type:"range", field:"time", lower:"2014/04/25", upper:"2014/05/1"},
+                   {type:"prefix", field:"user", value:"a"} ,
+                   {type:"geo_bbox", 
+                    field:"place",
+                    min_longitude:40.225479, 
+                    max_longitude:40.560174, 
+                    min_latitude:-3.999278, 
+                    max_latitude:-3.378550} ] },
     query  : {type:"phrase", field:"body", value:"big data gives organizations", slop:1]}
 }' AND token(id) >= token(0) AND token(id) < token(10000000) limit 100;
 ```
