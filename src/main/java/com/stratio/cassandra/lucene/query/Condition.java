@@ -46,7 +46,7 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
                @JsonSubTypes.Type(value = RegexpCondition.class, name = "regexp"),
                @JsonSubTypes.Type(value = WildcardCondition.class, name = "wildcard"),
                @JsonSubTypes.Type(value = GeoDistanceCondition.class, name = "geo_distance"),
-               @JsonSubTypes.Type(value = GeoBBoxCondition.class, name = "geo_bounding_box"),
+               @JsonSubTypes.Type(value = GeoBBoxCondition.class, name = "geo_bbox"),
                @JsonSubTypes.Type(value = DateRangeCondition.class, name = "date_range"),})
 public abstract class Condition {
 
