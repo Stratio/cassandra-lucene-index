@@ -94,6 +94,8 @@ CREATE TABLE tweets (
     user TEXT,
     body TEXT,
     time TIMESTAMP,
+    longitude FLOAT,
+    latitude FLOAT,
     lucene TEXT
 );
 ```
