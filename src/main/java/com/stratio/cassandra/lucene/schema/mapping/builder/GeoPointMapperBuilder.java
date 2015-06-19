@@ -20,16 +20,28 @@ import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
+ * {@link MapperBuilder} to build a new {@link GeoPointMapper}.
+ *
  * @author Andres de la Pena <adelapena@stratio.com>
  */
 public class GeoPointMapperBuilder extends MapperBuilder<GeoPointMapper> {
 
+    /** The name of the column containing the latitude. */
     private final String latitude;
 
+    /** The name of the column containing the longitude. */
     private final String longitude;
 
+    /** The maximum number of levels in the tree. */
     private final Integer maxLevels;
 
+    /**
+     * Builds a new {@link GeoPointMapper}.
+     *
+     * @param latitude  The name of the column containing the latitude.
+     * @param longitude The name of the column containing the longitude.
+     * @param maxLevels The maximum number of levels in the tree.
+     */
     @JsonCreator
     public GeoPointMapperBuilder(@JsonProperty("latitude") String latitude,
                                  @JsonProperty("longitude") String longitude,
@@ -39,8 +51,9 @@ public class GeoPointMapperBuilder extends MapperBuilder<GeoPointMapper> {
         this.maxLevels = maxLevels;
     }
 
+    /** {@inheritDoc} */
     @Override
     public GeoPointMapper build(String name) {
-        return new GeoPointMapper(name, longitude, latitude, maxLevels);
+        return new GeoPointMapper(name, latitude, longitude, maxLevels);
     }
 }

@@ -35,7 +35,7 @@ public class GeoBBoxConditionTest extends AbstractConditionTest {
 
     @Test
     public void testConstructor() {
-        GeoBBoxCondition condition = new GeoBBoxCondition(0.5f, "name", -180D, 180D, -90D, 90D);
+        GeoBBoxCondition condition = new GeoBBoxCondition(0.5f, "name", -90D, 90D, -180D, 180D);
         assertEquals(0.5, condition.getBoost(), 0);
         assertEquals("name", condition.getField());
         assertEquals(-180, condition.getMinLongitude(), 0);
@@ -46,7 +46,7 @@ public class GeoBBoxConditionTest extends AbstractConditionTest {
 
     @Test
     public void testConstructorWithDefaults() {
-        GeoBBoxCondition condition = new GeoBBoxCondition(null, "name", 0D, 1D, 2D, 3D);
+        GeoBBoxCondition condition = new GeoBBoxCondition(null, "name", 2D, 3D, 0D, 1D);
         assertEquals(GeoBBoxCondition.DEFAULT_BOOST, condition.getBoost(), 0);
         assertEquals("name", condition.getField());
         assertEquals(0, condition.getMinLongitude(), 0);
@@ -57,93 +57,93 @@ public class GeoBBoxConditionTest extends AbstractConditionTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithNullField() {
-        new GeoBBoxCondition(null, null, 0D, 1D, 2D, 3D);
+        new GeoBBoxCondition(null, null, 2D, 3D, 0D, 1D);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithEmptyField() {
-        new GeoBBoxCondition(null, "", 0D, 1D, 2D, 3D);
+        new GeoBBoxCondition(null, "", 2D, 3D, 0D, 1D);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithBlankField() {
-        new GeoBBoxCondition(null, " ", 0D, 1D, 2D, 3D);
+        new GeoBBoxCondition(null, " ", 2D, 3D, 0D, 1D);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithNullMinLongitude() {
-        new GeoBBoxCondition(null, "name", null, 1D, 2D, 3D);
+        new GeoBBoxCondition(null, "name", 2D, 3D, null, 1D);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithToSmallMinLongitude() {
-        new GeoBBoxCondition(null, "name", -181D, 1D, 2D, 3D);
+        new GeoBBoxCondition(null, "name", 2D, 3D, -181D, 1D);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithToBiglMinLongitude() {
-        new GeoBBoxCondition(null, "name", 181D, 1D, 2D, 3D);
+        new GeoBBoxCondition(null, "name", 2D, 3D, 181D, 1D);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithNullMaxLongitude() {
-        new GeoBBoxCondition(null, "name", 0D, null, 2D, 3D);
+        new GeoBBoxCondition(null, "name", 2D, 3D, 0D, null);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithTooSmallMaxLongitude() {
-        new GeoBBoxCondition(null, "name", 0D, -181D, 2D, 3D);
+        new GeoBBoxCondition(null, "name", 2D, 3D, 0D, -181D);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithTooBigMaxLongitude() {
-        new GeoBBoxCondition(null, "name", 0D, 181D, 2D, 3D);
+        new GeoBBoxCondition(null, "name", 2D, 3D, 0D, 181D);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithNullLatitude() {
-        new GeoBBoxCondition(null, "name", 0D, 1D, null, 3D);
+        new GeoBBoxCondition(null, "name", null, 3D, 0D, 1D);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithTooSmallMinLatitude() {
-        new GeoBBoxCondition(null, "name", 0D, 1D, -91D, 3D);
+        new GeoBBoxCondition(null, "name", -91D, 3D, 0D, 1D);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithTooBigMinLatitude() {
-        new GeoBBoxCondition(null, "name", 0D, 1D, 91D, 3D);
+        new GeoBBoxCondition(null, "name", 91D, 3D, 0D, 1D);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithNullMaxLatitude() {
-        new GeoBBoxCondition(null, "name", 0D, 1D, 2D, null);
+        new GeoBBoxCondition(null, "name", 2D, null, 0D, 1D);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithTooSmallMaxLatitude() {
-        new GeoBBoxCondition(null, "name", 0D, 1D, 2D, -91D);
+        new GeoBBoxCondition(null, "name", 2D, -91D, 0D, 1D);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithTooBigMaxLatitude() {
-        new GeoBBoxCondition(null, "name", 0D, 1D, 2D, 91D);
+        new GeoBBoxCondition(null, "name", 2D, 91D, 0D, 1D);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithMinLongitudeGreaterThanMaxLongitude() {
-        new GeoBBoxCondition(null, "name", 2D, 1D, 3D, 3D);
+        new GeoBBoxCondition(null, "name", 3D, 3D, 2D, 1D);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithMinLatitudeGreaterThanMaxLatitude() {
-        new GeoBBoxCondition(null, "name", 0D, 1D, 4D, 3D);
+        new GeoBBoxCondition(null, "name", 4D, 3D, 0D, 1D);
     }
 
     @Test
     public void testQuery() {
-        Schema schema = mockSchema("name", new GeoPointMapper("name", "lon", "lat", 8));
-        GeoBBoxCondition condition = new GeoBBoxCondition(0.5f, "name", -180D, 180D, -90D, 90D);
+        Schema schema = mockSchema("name", new GeoPointMapper("name", "lat", "lon", 8));
+        GeoBBoxCondition condition = new GeoBBoxCondition(0.5f, "name", -90D, 90D, -180D, 180D);
         Query query = condition.query(schema);
         assertNotNull(query);
         assertTrue(query instanceof ConstantScoreQuery);
@@ -160,7 +160,7 @@ public class GeoBBoxConditionTest extends AbstractConditionTest {
     @Test(expected = IllegalArgumentException.class)
     public void testQueryWithoutValidMapper() {
         Schema schema = mockSchema("name", new UUIDMapper("name", null, null));
-        GeoBBoxCondition condition = new GeoBBoxCondition(0.5f, "name", -180D, 180D, -90D, 90D);
+        GeoBBoxCondition condition = new GeoBBoxCondition(0.5f, "name", -90D, 90D, -180D, 180D);
         condition.query(schema);
     }
 
@@ -174,7 +174,7 @@ public class GeoBBoxConditionTest extends AbstractConditionTest {
     public void testToString() {
         GeoBBoxCondition condition = geoBBox("name", -180D, 180D, -90D, 90D).boost(0.5f).build();
         assertEquals("GeoBBoxCondition{boost=0.5, field=name, " +
-                     "minLongitude=-180.0, maxLongitude=180.0, minLatitude=-90.0, maxLatitude=90.0}",
+                     "minLatitude=-90.0, maxLatitude=90.0, minLongitude=-180.0, maxLongitude=180.0}",
                      condition.toString());
     }
 

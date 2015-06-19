@@ -36,24 +36,13 @@ public class GeoDistanceConditionBuilder extends ConditionBuilder<GeoDistanceCon
      * Returns a new {@link GeoDistanceConditionBuilder} with the specified field reference point.
      *
      * @param field     The name of the field to be matched.
-     * @param longitude The longitude of the reference point.
      * @param latitude  The latitude of the reference point.
+     * @param longitude The longitude of the reference point.
      */
-    public GeoDistanceConditionBuilder(String field, double longitude, double latitude) {
+    public GeoDistanceConditionBuilder(String field, double latitude, double longitude) {
         this.field = field;
         this.longitude = longitude;
         this.latitude = latitude;
-    }
-
-    /**
-     * Sets the min allowed {@link GeoDistance}.
-     *
-     * @param minDistance The min allowed {@link GeoDistance}.
-     * @return This.
-     */
-    public GeoDistanceConditionBuilder setMinDistance(String minDistance) {
-        this.minDistance = minDistance;
-        return this;
     }
 
     /**
@@ -68,12 +57,23 @@ public class GeoDistanceConditionBuilder extends ConditionBuilder<GeoDistanceCon
     }
 
     /**
+     * Sets the min allowed {@link GeoDistance}.
+     *
+     * @param minDistance The min allowed {@link GeoDistance}.
+     * @return This.
+     */
+    public GeoDistanceConditionBuilder setMinDistance(String minDistance) {
+        this.minDistance = minDistance;
+        return this;
+    }
+
+    /**
      * Returns the {@link GeoDistanceCondition} represented by this builder.
      *
      * @return The {@link GeoDistanceCondition} represented by this builder.
      */
     @Override
     public GeoDistanceCondition build() {
-        return new GeoDistanceCondition(boost, field, longitude, latitude, minDistance, maxDistance);
+        return new GeoDistanceCondition(boost, field, latitude, longitude, minDistance, maxDistance);
     }
 }

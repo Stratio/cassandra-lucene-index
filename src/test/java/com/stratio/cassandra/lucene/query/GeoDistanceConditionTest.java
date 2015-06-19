@@ -36,7 +36,7 @@ public class GeoDistanceConditionTest extends AbstractConditionTest {
 
     @Test
     public void testConstructor() {
-        GeoDistanceCondition condition = new GeoDistanceCondition(0.5f, "name", -180D, 90D, "3km", "10km");
+        GeoDistanceCondition condition = new GeoDistanceCondition(0.5f, "name", 90D, -180D, "3km", "10km");
         assertEquals(0.5, condition.getBoost(), 0);
         assertEquals("name", condition.field);
         assertEquals(-180, condition.longitude, 0);
@@ -47,7 +47,7 @@ public class GeoDistanceConditionTest extends AbstractConditionTest {
 
     @Test
     public void testConstructorWithDefaults() {
-        GeoDistanceCondition condition = new GeoDistanceCondition(null, "name", -180D, 90D, null, "1yd");
+        GeoDistanceCondition condition = new GeoDistanceCondition(null, "name", 90D, -180D, null, "1yd");
         assertEquals(GeoBBoxCondition.DEFAULT_BOOST, condition.getBoost(), 0);
         assertEquals("name", condition.field);
         assertEquals(-180, condition.longitude, 0);
@@ -58,63 +58,63 @@ public class GeoDistanceConditionTest extends AbstractConditionTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithNullField() {
-        new GeoDistanceCondition(null, null, -180D, 90D, "1km", "3km");
+        new GeoDistanceCondition(null, null, 90D, -180D, "1km", "3km");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithEmptyField() {
-        new GeoDistanceCondition(null, "", -180D, 90D, "1km", "3km");
+        new GeoDistanceCondition(null, "", 90D, -180D, "1km", "3km");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithBlankField() {
-        new GeoDistanceCondition(null, " ", -180D, 90D, "1km", "3km");
+        new GeoDistanceCondition(null, " ", 90D, -180D, "1km", "3km");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithNullLongitude() {
-        new GeoDistanceCondition(null, "name", null, 90D, "1km", "3km");
+        new GeoDistanceCondition(null, "name", 90D, null, "1km", "3km");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithToSmallLongitude() {
-        new GeoDistanceCondition(null, "name", -181D, 90D, "1km", "3km");
+        new GeoDistanceCondition(null, "name", 90D, -181D, "1km", "3km");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithToBigLongitude() {
-        new GeoDistanceCondition(null, "name", 181D, 90D, "1km", "3km");
+        new GeoDistanceCondition(null, "name", 90D, 181D, "1km", "3km");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithNullLatitude() {
-        new GeoDistanceCondition(null, "name", -180D, null, "1km", "3km");
+        new GeoDistanceCondition(null, "name", null, -180D, "1km", "3km");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithTooSmallLatitude() {
-        new GeoDistanceCondition(null, "name", -180D, -91D, "1km", "3km");
+        new GeoDistanceCondition(null, "name", -91D, -180D, "1km", "3km");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithTooBigLatitude() {
-        new GeoDistanceCondition(null, "name", -180D, 91D, "1km", "3km");
+        new GeoDistanceCondition(null, "name", 91D, -180D, "1km", "3km");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithoutDistances() {
-        new GeoDistanceCondition(null, "name", -180D, 90D, null, null);
+        new GeoDistanceCondition(null, "name", 90D, -180D, null, null);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithMinLongitudeGreaterThanMaxLongitude() {
-        new GeoDistanceCondition(null, "name", -180D, 90D, "10km", "3km");
+        new GeoDistanceCondition(null, "name", 90D, -180D, "10km", "3km");
     }
 
     @Test
     public void testQueryMax() {
-        Schema schema = mockSchema("name", new GeoPointMapper("name", "lon", "lat", 8));
-        GeoDistanceCondition condition = new GeoDistanceCondition(0.5f, "name", -180D, 90D, null, "10hm");
+        Schema schema = mockSchema("name", new GeoPointMapper("name", "lat", "lon", 8));
+        GeoDistanceCondition condition = new GeoDistanceCondition(0.5f, "name", 90D, -180D, null, "10hm");
         Query query = condition.query(schema);
         assertNotNull(query);
         BooleanQuery booleanQuery = (BooleanQuery) query;
@@ -132,13 +132,13 @@ public class GeoDistanceConditionTest extends AbstractConditionTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testQueryMin() {
-        new GeoDistanceCondition(0.5f, "name", -180D, 90D, "3km", null);
+        new GeoDistanceCondition(0.5f, "name", 90D, -180D, "3km", null);
     }
 
     @Test
     public void testQueryMinMax() {
-        Schema schema = mockSchema("name", new GeoPointMapper("name", "lon", "lat", 8));
-        GeoDistanceCondition condition = new GeoDistanceCondition(0.5f, "name", -180D, 90D, "1km", "3km");
+        Schema schema = mockSchema("name", new GeoPointMapper("name", "lat", "lon", 8));
+        GeoDistanceCondition condition = new GeoDistanceCondition(0.5f, "name", 90D, -180D, "1km", "3km");
         Query query = condition.query(schema);
         assertNotNull(query);
         assertTrue(query instanceof BooleanQuery);
@@ -169,7 +169,7 @@ public class GeoDistanceConditionTest extends AbstractConditionTest {
     @Test(expected = IllegalArgumentException.class)
     public void testQueryWithoutValidMapper() {
         Schema schema = mockSchema("name", new UUIDMapper("name", null, null));
-        Condition condition = new GeoDistanceCondition(0.5f, "name", -180D, 90D, null, "3km");
+        Condition condition = new GeoDistanceCondition(0.5f, "name", 90D, -180D, null, "3km");
         condition.query(schema);
     }
 
@@ -184,7 +184,7 @@ public class GeoDistanceConditionTest extends AbstractConditionTest {
                                                                     .setMaxDistance("3km")
                                                                     .boost(0.4f)
                                                                     .build();
-        assertEquals("GeoDistanceCondition{field=name, longitude=-1.0, latitude=9.0, minDistance=1km, maxDistance=3km}",
+        assertEquals("GeoDistanceCondition{field=name, latitude=9.0, longitude=-1.0, minDistance=1km, maxDistance=3km}",
                      condition.toString());
     }
 

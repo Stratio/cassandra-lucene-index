@@ -42,14 +42,6 @@ public class GeoBBoxCondition extends Condition {
     @JsonProperty("field")
     private final String field;
 
-    /** The minimum accepted longitude. */
-    @JsonProperty("min_longitude")
-    private final double minLongitude;
-
-    /** The maximum accepted longitude. */
-    @JsonProperty("max_longitude")
-    private final double maxLongitude;
-
     /** The minimum accepted latitude. */
     @JsonProperty("min_latitude")
     private final double minLatitude;
@@ -58,41 +50,36 @@ public class GeoBBoxCondition extends Condition {
     @JsonProperty("max_latitude")
     private final double maxLatitude;
 
+    /** The minimum accepted longitude. */
+    @JsonProperty("min_longitude")
+    private final double minLongitude;
+
+    /** The maximum accepted longitude. */
+    @JsonProperty("max_longitude")
+    private final double maxLongitude;
+
     /**
      * Constructor using the field name and the value to be matched.
-     *
-     * @param boost        The boost for this query clause. Documents matching this clause will (in addition to the
+     *  @param boost       The boost for this query clause. Documents matching this clause will (in addition to the
      *                     normal weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link
      *                     #DEFAULT_BOOST} is used as default.
      * @param field        The name of the field to be matched.
-     * @param minLongitude The minimum accepted longitude.
-     * @param maxLongitude The maximum accepted longitude.
      * @param minLatitude  The minimum accepted latitude.
      * @param maxLatitude  The maximum accepted latitude.
+     * @param minLongitude The minimum accepted longitude.
+     * @param maxLongitude The maximum accepted longitude.
      */
     @JsonCreator
     public GeoBBoxCondition(@JsonProperty("boost") Float boost,
                             @JsonProperty("field") String field,
-                            @JsonProperty("min_longitude") Double minLongitude,
-                            @JsonProperty("max_longitude") Double maxLongitude,
                             @JsonProperty("min_latitude") Double minLatitude,
-                            @JsonProperty("max_latitude") Double maxLatitude) {
+                            @JsonProperty("max_latitude") Double maxLatitude,
+                            @JsonProperty("min_longitude") Double minLongitude,
+                            @JsonProperty("max_longitude") Double maxLongitude) {
         super(boost);
 
         if (StringUtils.isBlank(field)) {
             throw new IllegalArgumentException("Field name required");
-        }
-
-        if (minLongitude == null) {
-            throw new IllegalArgumentException("min_longitude required");
-        } else if (minLongitude < -180.0 || minLongitude > 180) {
-            throw new IllegalArgumentException("min_longitude must be between -180.0 and 180");
-        }
-
-        if (maxLongitude == null) {
-            throw new IllegalArgumentException("max_longitude required");
-        } else if (maxLongitude < -180.0 || maxLongitude > 180) {
-            throw new IllegalArgumentException("max_longitude must be between -180.0 and 180");
         }
 
         if (minLatitude == null) {
@@ -105,6 +92,18 @@ public class GeoBBoxCondition extends Condition {
             throw new IllegalArgumentException("max_latitude required");
         } else if (maxLatitude < -90.0 || maxLatitude > 90) {
             throw new IllegalArgumentException("max_latitude must be between -90.0 and 90");
+        }
+
+        if (minLongitude == null) {
+            throw new IllegalArgumentException("min_longitude required");
+        } else if (minLongitude < -180.0 || minLongitude > 180) {
+            throw new IllegalArgumentException("min_longitude must be between -180.0 and 180");
+        }
+
+        if (maxLongitude == null) {
+            throw new IllegalArgumentException("max_longitude required");
+        } else if (maxLongitude < -180.0 || maxLongitude > 180) {
+            throw new IllegalArgumentException("max_longitude must be between -180.0 and 180");
         }
 
         if (minLongitude > maxLongitude) {
@@ -126,20 +125,20 @@ public class GeoBBoxCondition extends Condition {
         return field;
     }
 
-    public double getMinLongitude() {
-        return minLongitude;
-    }
-
-    public double getMaxLongitude() {
-        return maxLongitude;
-    }
-
     public double getMinLatitude() {
         return minLatitude;
     }
 
     public double getMaxLatitude() {
         return maxLatitude;
+    }
+
+    public double getMinLongitude() {
+        return minLongitude;
+    }
+
+    public double getMaxLongitude() {
+        return maxLongitude;
     }
 
     /** {@inheritDoc} */
@@ -167,10 +166,10 @@ public class GeoBBoxCondition extends Condition {
         return Objects.toStringHelper(this)
                       .add("boost", boost)
                       .add("field", field)
-                      .add("minLongitude", minLongitude)
-                      .add("maxLongitude", maxLongitude)
                       .add("minLatitude", minLatitude)
                       .add("maxLatitude", maxLatitude)
+                      .add("minLongitude", minLongitude)
+                      .add("maxLongitude", maxLongitude)
                       .toString();
     }
 }

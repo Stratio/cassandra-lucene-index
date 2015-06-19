@@ -316,12 +316,12 @@ Field mapping definition options depend on the field type. Details and default v
     </tr>
     <tr>
         <td rowspan="3">geo_point</td>
-        <td>longitude</td>
+        <td>latitude</td>
         <td>string</td>
         <td></td>
     </tr>
     <tr>
-        <td>latitude</td>
+        <td>longitude</td>
         <td>string</td>
         <td></td>
     </tr>
@@ -765,20 +765,20 @@ SELECT ( <fields> | * )
 FROM <table>
 WHERE <magic_column> = '{ query : {
                             type  : "geo_bbox",
-                            field : <fieldname> ,
+                            field : <fieldname>,
+                            min_latitude : <min_latitude> ,
+                            max_latitude : <max_latitude> ,
                             min_longitude : <min_longitude> ,
-                            max_longitude : <max_longitude>,
-                            min_latitude : <min_latitude>,
-                            max_latitude : <max_latitude>
+                            max_longitude : <max_longitude>
                           }}';
 ```
 
 where:
 
--   **min_longitude** : a double value between -180 and 180 being the min allowed longitude.
--   **max_longitude** : a double value between -180 and 180 being the max allowed longitude.
 -   **min_latitude** : a double value between -90 and 90 being the min allowed latitude.
 -   **max_latitude** : a double value between -90 and 90 being the max allowed latitude.
+-   **min_longitude** : a double value between -180 and 180 being the min allowed longitude.
+-   **max_longitude** : a double value between -180 and 180 being the max allowed longitude.
 
 Example 1: will return any rows where “place” is formed by a longitude between 40.225479 and 40.560174, and a latitude between -3.999278 and -3.378550.
 
@@ -786,10 +786,10 @@ Example 1: will return any rows where “place” is formed by a longitude betwe
 SELECT * FROM test.users
 WHERE stratio_col = '{query : { type : "geo_bbox",
                                 field : "place",
-                                min_longitude : 40.225479, 
-                                max_longitude : 40.560174, 
-                                min_latitude : -3.999278, 
-                                max_latitude : -3.378550 }}';
+                                min_latitude : 40.225479, 
+                                max_latitude : 40.560174, 
+                                min_longitude : -3.999278, 
+                                max_longitude : -3.378550 }}';
 ```
 
 ###Geo distance query
@@ -802,8 +802,8 @@ FROM <table>
 WHERE <magic_column> = '{ query : {
                             type  : "geo_distance",
                             field : <fieldname> ,
-                            longitude : <longitude> ,
                             latitude : <latitude> ,
+                            longitude : <longitude> ,
                             max_distance : <max_distance>
                             (, min_distance : <min_distance> )?
                           }}';
@@ -811,8 +811,8 @@ WHERE <magic_column> = '{ query : {
 
 where:
 
--   **longitude** : a double value between -180 and 180 being the longitude of the reference point.
 -   **latitude** : a double value between -90 and 90 being the latitude of the reference point.
+-   **longitude** : a double value between -180 and 180 being the longitude of the reference point.
 -   **max_distance** : a string value being the max allowed distance from the reference point.
 -   **min_distance** : a string value being the min allowed distance from the reference point.
 
@@ -822,8 +822,8 @@ Example 1: will return any rows where “place” is  within one kilometer from 
 SELECT * FROM test.users
 WHERE stratio_col = '{query : { type : "geo_distance",
                                 field : "place",
-                                longitude : 40.225479, 
-                                latitude : -3.999278, 
+                                latitude : 40.225479, 
+                                longitude : -3.999278, 
                                 max_distance : "1km" }}';
 ```
 
@@ -833,8 +833,8 @@ Example 2: will return any rows where “place” is within one yard and ten yar
 SELECT * FROM test.users
 WHERE stratio_col = '{query : { type : "geo_distance",
                                 field : "place",
-                                longitude : 40.225479, 
-                                latitude : -3.999278, 
+                                latitude : 40.225479, 
+                                longitude : -3.999278, 
                                 max_distance : "10yd" , 
                                 min_distance : "1yd" }}';
 ```
@@ -962,9 +962,9 @@ Example: will return rows where “phrase” contains a word starting with “lu
 ```sql
 SELECT * FROM test.users
 WHERE stratio_col = '{query : {
-                        type          : "prefix",
-                        field         : "phrase",
-                        value         : "lu" }}';
+                        type  : "prefix",
+                        field : "phrase",
+                        value : "lu" }}';
 ```
 
 ###Range query

@@ -58,11 +58,11 @@ public class GeoPointMapper extends Mapper {
      * Builds a new {@link GeoPointMapper}.
      *
      * @param name      The name of the mapper.
-     * @param longitude The name of the column containing the longitude.
      * @param latitude  The name of the column containing the latitude.
+     * @param longitude The name of the column containing the longitude.
      * @param maxLevels The maximum number of levels in the tree.
      */
-    public GeoPointMapper(String name, String longitude, String latitude, Integer maxLevels) {
+    public GeoPointMapper(String name, String latitude, String longitude, Integer maxLevels) {
         super(name,
               true,
               false,
@@ -155,21 +155,7 @@ public class GeoPointMapper extends Mapper {
         if (column == null) {
             throw new IllegalArgumentException("Latitude column required");
         }
-        Object value = column.getComposedValue();
-        Double latitude = null;
-        if (value instanceof Number) {
-            latitude = ((Number) value).doubleValue();
-        } else {
-            try {
-                latitude = Double.valueOf(value.toString());
-            } catch (NumberFormatException e) {
-                // Ignore to fail below
-            }
-        }
-        if (latitude == null || latitude < -90.0 || latitude > 90) {
-            throw new IllegalArgumentException("Valid latitude required, but found " + value);
-        }
-        return latitude;
+        return readLatitude(column.getComposedValue());
     }
 
     /**
@@ -183,7 +169,37 @@ public class GeoPointMapper extends Mapper {
         if (column == null) {
             throw new IllegalArgumentException("Longitude column required");
         }
-        Object value = column.getComposedValue();
+        return readLongitude(column.getComposedValue());
+    }
+
+    /**
+     * Returns the latitude contained in the specified {@link Object}. A valid latitude must in the range [-90, 90].
+     *
+     * @param value The {@link Object} containing the latitude.
+     */
+    public static double readLatitude(Object value) {
+        Double latitude = null;
+        if (value instanceof Number) {
+            latitude = ((Number) value).doubleValue();
+        } else {
+            try {
+                latitude = Double.valueOf(value.toString());
+            } catch (NumberFormatException e) {
+                // Ignore to fail below
+            }
+        } if (latitude == null || latitude < -90.0 || latitude > 90) {
+            throw new IllegalArgumentException("Valid latitude required, but found " + value);
+        }
+        return latitude;
+    }
+
+    /**
+     * Returns the longitude contained in the specified {@link Object}. A valid longitude must in the range [-180,
+     * 180].
+     *
+     * @param value The {@link Object} containing the latitude.
+     */
+    public static double readLongitude(Object value) {
         Double longitude = null;
         if (value instanceof Number) {
             longitude = ((Number) value).doubleValue();

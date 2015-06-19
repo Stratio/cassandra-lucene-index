@@ -304,7 +304,7 @@ public class DateRangeMapperTest {
         CFMetaData metadata = new CFMetaData("ks", "cf", ColumnFamilyType.Standard, nameType);
         metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("from"), FloatType.instance, 0));
         metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("any"), UUIDType.instance, 0));
-        new GeoPointMapper("field", "to", "from", null).validate(metadata);
+        new GeoPointMapper("field", "from", "to", null).validate(metadata);
     }
 
     @Test

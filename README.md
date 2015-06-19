@@ -94,8 +94,8 @@ CREATE TABLE tweets (
     user TEXT,
     body TEXT,
     time TIMESTAMP,
-    longitude FLOAT,
     latitude FLOAT,
+    longitude FLOAT,
     lucene TEXT
 );
 ```
@@ -109,11 +109,11 @@ WITH OPTIONS = {
     'refresh_seconds' : '1',
     'schema' : '{
         fields : {
-            id   : {type : "integer"},
-            user : {type : "string"},
-            body : {type : "text",  analyzer : "english"},
-            time : {type : "date", pattern  : "yyyy/MM/dd"},
-            place : {type : "geo_point", longitude : "longitude", latitude : "latitude"}
+            id    : {type : "integer"},
+            user  : {type : "string"},
+            body  : {type : "text", analyzer : "english"},
+            time  : {type : "date", pattern : "yyyy/MM/dd"},
+            place : {type : "geo_point", latitude:"latitude", longitude:"longitude"}
         }
     }'
 };
@@ -168,10 +168,10 @@ SELECT * FROM tweets WHERE lucene='{
                    {type:"prefix", field:"user", value:"a"},
                    {type:"geo_bbox", 
                     field:"place",
-                   	min_longitude:40.225479, 
-                   	max_longitude:40.560174, 
-                   	min_latitude:-3.999278, 
-                   	max_latitude:-3.378550} ] },
+                   	min_latitude:40.225479, 
+                    max_latitude:40.560174, 
+                    min_longitude:-3.999278, 
+                    max_longitude:-3.378550} ] },
     query  : {type:"phrase", field:"body", value:"big data gives organizations", slop:1},
     sort  : {fields: [ {field:"time", reverse:true} ] }
 }' limit 100;
@@ -186,10 +186,10 @@ SELECT * FROM tweets WHERE lucene='{
                    {type:"prefix", field:"user", value:"a"} ,
                    {type:"geo_bbox", 
                     field:"place",
-                    min_longitude:40.225479, 
-                    max_longitude:40.560174, 
-                    min_latitude:-3.999278, 
-                    max_latitude:-3.378550} ] },
+                    min_latitude:40.225479, 
+                    max_latitude:40.560174, 
+                    min_longitude:-3.999278, 
+                    max_longitude:-3.378550} ] },
     query  : {type:"phrase", field:"body", value:"big data gives organizations", slop:1]}
 }' AND token(id) >= token(0) AND token(id) < token(10000000) limit 100;
 ```

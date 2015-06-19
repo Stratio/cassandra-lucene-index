@@ -48,13 +48,13 @@ public class GeoDistanceCondition extends Condition {
     @JsonProperty("field")
     final String field;
 
-    /** The longitude of the reference point. */
-    @JsonProperty("longitude")
-    final double longitude;
-
     /** The latitude of the reference point. */
     @JsonProperty("latitude")
     final double latitude;
+
+    /** The longitude of the reference point. */
+    @JsonProperty("longitude")
+    final double longitude;
 
     /** The min allowed distance. */
     @JsonProperty("min_distance")
@@ -72,21 +72,20 @@ public class GeoDistanceCondition extends Condition {
 
     /**
      * Constructor using the field name and the value to be matched.
-     *
-     * @param boost       The boost for this query clause. Documents matching this clause will (in addition to the
+     *  @param boost      The boost for this query clause. Documents matching this clause will (in addition to the
      *                    normal weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link
      *                    #DEFAULT_BOOST} is used as default.
      * @param field       The name of the field to be matched.
-     * @param longitude   The longitude of the reference point.
      * @param latitude    The latitude of the reference point.
+     * @param longitude   The longitude of the reference point.
      * @param minDistance The min allowed distance.
      * @param maxDistance The max allowed distance.
      */
     @JsonCreator
     public GeoDistanceCondition(@JsonProperty("boost") Float boost,
                                 @JsonProperty("field") String field,
-                                @JsonProperty("longitude") Double longitude,
                                 @JsonProperty("latitude") Double latitude,
+                                @JsonProperty("longitude") Double longitude,
                                 @JsonProperty("min_distance") String minDistance,
                                 @JsonProperty("max_distance") String maxDistance) {
         super(boost);
@@ -95,16 +94,16 @@ public class GeoDistanceCondition extends Condition {
             throw new IllegalArgumentException("Field name required");
         }
 
-        if (longitude == null) {
-            throw new IllegalArgumentException("longitude required");
-        } else if (longitude < -180.0 || longitude > 180) {
-            throw new IllegalArgumentException("longitude must be between -180.0 and 180.0");
-        }
-
         if (latitude == null) {
             throw new IllegalArgumentException("latitude required");
         } else if (latitude < -90.0 || latitude > 90) {
             throw new IllegalArgumentException("latitude must be between -90.0 and 90.0");
+        }
+
+        if (longitude == null) {
+            throw new IllegalArgumentException("longitude required");
+        } else if (longitude < -180.0 || longitude > 180) {
+            throw new IllegalArgumentException("longitude must be between -180.0 and 180.0");
         }
 
         if (StringUtils.isBlank(maxDistance)) {
@@ -158,8 +157,8 @@ public class GeoDistanceCondition extends Condition {
     public String toString() {
         return Objects.toStringHelper(this)
                       .add("field", field)
-                      .add("longitude", longitude)
                       .add("latitude", latitude)
+                      .add("longitude", longitude)
                       .add("minDistance", minDistance)
                       .add("maxDistance", maxDistance)
                       .toString();

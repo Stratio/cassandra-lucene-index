@@ -34,16 +34,16 @@ public class GeoBBoxConditionBuilder extends ConditionBuilder<GeoBBoxCondition, 
      * Returns a new {@link GeoBBoxConditionBuilder} with the specified field name and bounding box coordinates.
      *
      * @param field        The name of the field to be matched.
-     * @param minLongitude The minimum accepted longitude.
-     * @param maxLongitude The maximum accepted longitude.
      * @param minLatitude  The minimum accepted latitude.
      * @param maxLatitude  The maximum accepted latitude.
+     * @param minLongitude The minimum accepted longitude.
+     * @param maxLongitude The maximum accepted longitude.
      */
     public GeoBBoxConditionBuilder(String field,
-                                   double minLongitude,
-                                   double maxLongitude,
                                    double minLatitude,
-                                   double maxLatitude) {
+                                   double maxLatitude,
+                                   double minLongitude,
+                                   double maxLongitude) {
         this.field = field;
         this.minLongitude = minLongitude;
         this.maxLongitude = maxLongitude;
@@ -58,6 +58,6 @@ public class GeoBBoxConditionBuilder extends ConditionBuilder<GeoBBoxCondition, 
      */
     @Override
     public GeoBBoxCondition build() {
-        return new GeoBBoxCondition(boost, field, minLongitude, maxLongitude, minLatitude, maxLatitude);
+        return new GeoBBoxCondition(boost, field, minLatitude, maxLatitude, minLongitude, maxLongitude);
     }
 }

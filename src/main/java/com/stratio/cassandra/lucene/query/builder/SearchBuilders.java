@@ -176,7 +176,7 @@ public class SearchBuilders {
                                                   double maxLongitude,
                                                   double minLatitude,
                                                   double maxLatitude) {
-        return new GeoBBoxConditionBuilder(field, minLongitude, maxLongitude, minLatitude, maxLatitude);
+        return new GeoBBoxConditionBuilder(field, minLatitude, maxLatitude, minLongitude, maxLongitude);
     }
 
     /**
@@ -187,7 +187,7 @@ public class SearchBuilders {
      * @param latitude  The latitude of the reference point.
      */
     public static GeoDistanceConditionBuilder geoDistance(String field, double longitude, double latitude) {
-        return new GeoDistanceConditionBuilder(field, longitude, latitude);
+        return new GeoDistanceConditionBuilder(field, latitude, longitude);
     }
 
     /**
