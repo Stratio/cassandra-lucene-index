@@ -26,7 +26,7 @@ import com.stratio.cassandra.lucene.query.Sort;
  */
 public class SearchBuilder implements Builder<Search> {
 
-    /** he {@link Condition} for querying, maybe {@code null} meaning no querying. */
+    /** The {@link Condition} for querying, maybe {@code null} meaning no querying. */
     private Condition queryCondition;
 
     /** The {@link Condition} for filtering, maybe {@code null} meaning no filtering. */
