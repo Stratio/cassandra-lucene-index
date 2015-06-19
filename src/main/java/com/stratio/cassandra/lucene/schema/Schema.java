@@ -19,8 +19,8 @@ import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.schema.analysis.AnalyzerBuilder;
 import com.stratio.cassandra.lucene.schema.analysis.ClasspathAnalyzerBuilder;
 import com.stratio.cassandra.lucene.schema.analysis.PreBuiltAnalyzers;
-import com.stratio.cassandra.lucene.schema.mapping.ColumnMapper;
-import com.stratio.cassandra.lucene.schema.mapping.builder.ColumnMapperBuilder;
+import com.stratio.cassandra.lucene.schema.mapping.Mapper;
+import com.stratio.cassandra.lucene.schema.mapping.builder.MapperBuilder;
 import com.stratio.cassandra.lucene.util.JsonSerializer;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.commons.lang3.StringUtils;
@@ -42,7 +42,7 @@ import java.util.Map;
  */
 public class Schema implements Closeable {
 
-    private final Map<String, ColumnMapper> columnMappers;
+    private final Map<String, Mapper> columnMappers;
 
     private final Map<String, Analyzer> analyzers;
 
@@ -58,15 +58,15 @@ public class Schema implements Closeable {
      * @param defaultAnalyzer       The name of the class of the getAnalyzer to be used.
      */
     @JsonCreator
-    public Schema(@JsonProperty("fields") Map<String, ColumnMapperBuilder> columnMappersBuilders,
+    public Schema(@JsonProperty("fields") Map<String, MapperBuilder> columnMappersBuilders,
                   @JsonProperty("analyzers") Map<String, AnalyzerBuilder> analyzers,
                   @JsonProperty("default_analyzer") String defaultAnalyzer) {
 
         this.columnMappers = new HashMap<>(columnMappersBuilders.size());
-        for (Map.Entry<String, ColumnMapperBuilder> entry : columnMappersBuilders.entrySet()) {
+        for (Map.Entry<String, MapperBuilder> entry : columnMappersBuilders.entrySet()) {
             String name = entry.getKey();
-            ColumnMapperBuilder builder = entry.getValue();
-            ColumnMapper mapper = builder.build(name);
+            MapperBuilder builder = entry.getValue();
+            Mapper mapper = builder.build(name);
             columnMappers.put(name, mapper);
         }
 
@@ -82,9 +82,9 @@ public class Schema implements Closeable {
         this.defaultAnalyzer = defaultAnalyzer == null ? PreBuiltAnalyzers.DEFAULT.get() : getAnalyzer(defaultAnalyzer);
 
         Map<String, Analyzer> perFieldAnalyzers = new HashMap<>();
-        for (Map.Entry<String, ColumnMapper> entry : columnMappers.entrySet()) {
+        for (Map.Entry<String, Mapper> entry : columnMappers.entrySet()) {
             String name = entry.getKey();
-            ColumnMapper mapper = entry.getValue();
+            Mapper mapper = entry.getValue();
             String analyzerName = mapper.getAnalyzer();
             Analyzer analyzer = getAnalyzer(analyzerName);
             perFieldAnalyzers.put(name, analyzer);
@@ -134,12 +134,12 @@ public class Schema implements Closeable {
     }
 
     /**
-     * Returns the {@link ColumnMapper} identified by the specified field name, or {@code null} if not found.
+     * Returns the {@link Mapper} identified by the specified field name, or {@code null} if not found.
      *
      * @param field A field name.
-     * @return The {@link ColumnMapper} identified by the specified field name, or {@code null} if not found.
+     * @return The {@link Mapper} identified by the specified field name, or {@code null} if not found.
      */
-    public ColumnMapper getMapper(String field) {
+    public Mapper getMapper(String field) {
         String[] components = field.split("\\.");
         for (int i = components.length - 1; i >= 0; i--) {
             StringBuilder sb = new StringBuilder();
@@ -147,8 +147,8 @@ public class Schema implements Closeable {
                 sb.append(components[j]);
                 if (j < i) sb.append('.');
             }
-            ColumnMapper columnMapper = columnMappers.get(sb.toString());
-            if (columnMapper != null) return columnMapper;
+            Mapper mapper = columnMappers.get(sb.toString());
+            if (mapper != null) return mapper;
         }
         return null;
     }
@@ -160,8 +160,8 @@ public class Schema implements Closeable {
      * @param columns  The {@link Columns} to be added.
      */
     public void addFields(Document document, Columns columns) {
-        for (ColumnMapper columnMapper : columnMappers.values()) {
-            columnMapper.addFields(document, columns);
+        for (Mapper mapper : columnMappers.values()) {
+            mapper.addFields(document, columns);
         }
     }
 
@@ -171,7 +171,7 @@ public class Schema implements Closeable {
      * @param metadata A column family metadata.
      */
     public void validate(CFMetaData metadata) {
-        for (ColumnMapper mapper : columnMappers.values()) {
+        for (Mapper mapper : columnMappers.values()) {
             mapper.validate(metadata);
         }
     }

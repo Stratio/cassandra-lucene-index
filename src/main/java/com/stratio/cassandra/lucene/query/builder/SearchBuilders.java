@@ -163,6 +163,43 @@ public class SearchBuilders {
     }
 
     /**
+     * Returns a new {@link GeoBBoxConditionBuilder} with the specified field name and bounding box coordinates.
+     *
+     * @param field        The name of the field to be matched.
+     * @param minLongitude The minimum accepted longitude.
+     * @param maxLongitude The maximum accepted longitude.
+     * @param minLatitude  The minimum accepted latitude.
+     * @param maxLatitude  The maximum accepted latitude.
+     */
+    public static GeoBBoxConditionBuilder geoBBox(String field,
+                                                  double minLongitude,
+                                                  double maxLongitude,
+                                                  double minLatitude,
+                                                  double maxLatitude) {
+        return new GeoBBoxConditionBuilder(field, minLatitude, maxLatitude, minLongitude, maxLongitude);
+    }
+
+    /**
+     * Returns a new {@link GeoDistanceConditionBuilder} with the specified field reference point.
+     *
+     * @param field     The name of the field to be matched.
+     * @param longitude The longitude of the reference point.
+     * @param latitude  The latitude of the reference point.
+     */
+    public static GeoDistanceConditionBuilder geoDistance(String field, double longitude, double latitude) {
+        return new GeoDistanceConditionBuilder(field, latitude, longitude);
+    }
+
+    /**
+     * Returns a new {@link DateRangeConditionBuilder} with the specified field reference point.
+     *
+     * @param field The name of the field to be matched.
+     */
+    public static DateRangeConditionBuilder dateRange(String field) {
+        return new DateRangeConditionBuilder(field);
+    }
+
+    /**
      * Returns a new {@link SortFieldBuilder} for the specified field.
      *
      * @param field The name of the field to be sorted.

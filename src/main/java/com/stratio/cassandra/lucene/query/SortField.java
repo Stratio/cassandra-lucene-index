@@ -19,7 +19,7 @@ import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.schema.Column;
 import com.stratio.cassandra.lucene.schema.Columns;
 import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.mapping.ColumnMapper;
+import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.annotate.JsonCreator;
@@ -88,11 +88,11 @@ public class SortField {
      * @return the Lucene {@link org.apache.lucene.search.SortField} representing this {@link SortField}.
      */
     public org.apache.lucene.search.SortField sortField(Schema schema) {
-        ColumnMapper columnMapper = schema.getMapper(field);
-        if (columnMapper == null) {
+        Mapper mapper = schema.getMapper(field);
+        if (mapper == null) {
             throw new IllegalArgumentException("No mapper found for sortFields field " + field);
         } else {
-            return columnMapper.sortField(reverse);
+            return mapper.sortField(reverse);
         }
     }
 

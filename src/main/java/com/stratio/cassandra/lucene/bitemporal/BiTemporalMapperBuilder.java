@@ -1,12 +1,13 @@
 package com.stratio.cassandra.lucene.bitemporal;
 
-import com.stratio.cassandra.lucene.schema.mapping.builder.ColumnMapperBuilder;
+
+import com.stratio.cassandra.lucene.schema.mapping.builder.MapperBuilder;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * Created by eduardoalonso on 18/06/15.
  */
-public class BiTemporalMapperBuilder extends ColumnMapperBuilder<BiTemporalMapper> {
+public class BiTemporalMapperBuilder extends MapperBuilder<BiTemporalMapper> {
 
 
     @JsonProperty("vtStart")

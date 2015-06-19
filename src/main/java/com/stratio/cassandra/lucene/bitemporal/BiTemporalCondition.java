@@ -64,7 +64,7 @@ public class BiTemporalCondition extends Condition {
 
     @Override
     public Query query(Schema schema) {
-        FilteredQuery filterQuery= new FilteredQuery()
+        //FilteredQuery filterQuery= new FilteredQuery()
 
 
 

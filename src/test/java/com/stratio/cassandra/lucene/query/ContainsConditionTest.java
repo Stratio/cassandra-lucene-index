@@ -16,8 +16,8 @@
 package com.stratio.cassandra.lucene.query;
 
 import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperInteger;
-import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperString;
+import com.stratio.cassandra.lucene.schema.mapping.IntegerMapper;
+import com.stratio.cassandra.lucene.schema.mapping.StringMapper;
 import com.stratio.cassandra.lucene.util.JsonSerializer;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.search.BooleanClause;
@@ -100,7 +100,7 @@ public class ContainsConditionTest extends AbstractConditionTest {
 
         Schema schema = mock(Schema.class);
         when(schema.getAnalyzer()).thenReturn(new EnglishAnalyzer());
-        when(schema.getMapper(field)).thenReturn(new ColumnMapperInteger("field", null, null, null));
+        when(schema.getMapper(field)).thenReturn(new IntegerMapper("field", null, null, null));
 
         ContainsCondition condition = new ContainsCondition(boost, field, values);
         Query query = condition.query(schema);
@@ -126,7 +126,7 @@ public class ContainsConditionTest extends AbstractConditionTest {
 
         Schema schema = mock(Schema.class);
         when(schema.getAnalyzer()).thenReturn(new EnglishAnalyzer());
-        when(schema.getMapper(field)).thenReturn(new ColumnMapperString("field", null, null, null));
+        when(schema.getMapper(field)).thenReturn(new StringMapper("field", null, null, null));
 
         ContainsCondition condition = new ContainsCondition(boost, field, values);
         Query query = condition.query(schema);

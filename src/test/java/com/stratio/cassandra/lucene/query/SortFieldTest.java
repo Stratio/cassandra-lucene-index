@@ -19,8 +19,8 @@ import com.stratio.cassandra.lucene.schema.Column;
 import com.stratio.cassandra.lucene.schema.Columns;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.analysis.PreBuiltAnalyzers;
-import com.stratio.cassandra.lucene.schema.mapping.ColumnMapper;
-import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperString;
+import com.stratio.cassandra.lucene.schema.mapping.Mapper;
+import com.stratio.cassandra.lucene.schema.mapping.StringMapper;
 import com.stratio.cassandra.lucene.util.JsonSerializer;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.junit.Test;
@@ -69,7 +69,7 @@ public class SortFieldTest {
     @Test
     public void testSortField() {
 
-        ColumnMapper mapper = new ColumnMapperString("field", null, null, null);
+        Mapper mapper = new StringMapper("field", null, null, null);
 
         Schema schema = mock(Schema.class);
         when(schema.getAnalyzer()).thenReturn(PreBuiltAnalyzers.DEFAULT.get());
@@ -96,7 +96,7 @@ public class SortFieldTest {
 
         Schema schema = mock(Schema.class);
         when(schema.getAnalyzer()).thenReturn(PreBuiltAnalyzers.DEFAULT.get());
-        when(schema.getMapper("field")).thenReturn(new ColumnMapperString("field", null, null, null));
+        when(schema.getMapper("field")).thenReturn(new StringMapper("field", null, null, null));
 
         SortField sortField = new SortField("field", false);
         Comparator<Columns> comparator = sortField.comparator();
@@ -115,7 +115,7 @@ public class SortFieldTest {
 
         Schema schema = mock(Schema.class);
         when(schema.getAnalyzer()).thenReturn(PreBuiltAnalyzers.DEFAULT.get());
-        when(schema.getMapper("field")).thenReturn(new ColumnMapperString("field", null, null, null));
+        when(schema.getMapper("field")).thenReturn(new StringMapper("field", null, null, null));
 
         SortField sortField = new SortField("field", true);
         Comparator<Columns> comparator = sortField.comparator();

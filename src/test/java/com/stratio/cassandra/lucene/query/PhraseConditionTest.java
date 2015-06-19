@@ -16,7 +16,7 @@
 package com.stratio.cassandra.lucene.query;
 
 import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperText;
+import com.stratio.cassandra.lucene.schema.mapping.TextMapper;
 import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.Query;
 import org.junit.Test;
@@ -65,7 +65,7 @@ public class PhraseConditionTest extends AbstractConditionTest {
     @Test
     public void testPhraseQuery() {
 
-        Schema schema = mockSchema("name", new ColumnMapperText("name", true, true, "spanish"), "spanish");
+        Schema schema = mockSchema("name", new TextMapper("name", true, true, "spanish"), "spanish");
 
         String value = "hola adios  the    a";
         PhraseCondition condition = new PhraseCondition(0.5f, "name", value, 2);

@@ -3,7 +3,8 @@ package com.stratio.cassandra.lucene.bitemporal;
 import com.spatial4j.core.shape.Shape;
 import com.stratio.cassandra.lucene.schema.Column;
 import com.stratio.cassandra.lucene.schema.Columns;
-import com.stratio.cassandra.lucene.schema.mapping.ColumnMapper;
+
+import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexableField;
@@ -18,7 +19,7 @@ import java.text.SimpleDateFormat;
 /**
  * Created by eduardoalonso on 18/06/15.
  */
-public class BiTemporalMapper extends ColumnMapper {
+public class BiTemporalMapper extends Mapper {
     /** The default {@link SimpleDateFormat} pattern. */
     public static final String DEFAULT_PATTERN = "yyyy/MM/dd HH:mm:ss.SSS";
     /** The {@link SimpleDateFormat} pattern. */
@@ -33,14 +34,8 @@ public class BiTemporalMapper extends ColumnMapper {
 
     /** The thread safe date format. */
     private final ThreadLocal<DateFormat> concurrentDateFormat;
-    /**
-     * Builds a new {@link ColumnMapper} supporting the specified types for indexing.
-     *
-     * @param name           The name of the mapper.
-     * @param indexed        If the field supports searching.
-     * @param sorted         If the field supports sorting.
+    //Builds a new {@link Mapper} supporting the specified types for indexing.
 
-     */
     public BiTemporalMapper(String name,String vtStart,String vtEnd,String ttStart,String ttEnd,String pattern) {
         //TODO accepted types????
         super(name, null,false);

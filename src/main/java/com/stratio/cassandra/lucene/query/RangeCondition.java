@@ -17,7 +17,7 @@ package com.stratio.cassandra.lucene.query;
 
 import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperSingle;
+import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
 import org.apache.lucene.search.NumericRangeQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermRangeQuery;
@@ -129,7 +129,7 @@ public class RangeCondition extends SingleFieldCondition {
      */
     @Override
     public Query query(Schema schema) {
-        ColumnMapperSingle<?> columnMapper = getMapper(schema, field);
+        SingleColumnMapper<?> columnMapper = getMapper(schema, field);
         Class<?> clazz = columnMapper.baseClass();
         Query query;
         if (clazz == String.class) {

@@ -1,7 +1,7 @@
 Extended Search in Cassandra
 ============================
 
-[Cassandra](http://cassandra.apache.org/ "Apache Cassandra project") index functionality has been extended to provide near real time search such as [ElasticSearch](http://www.elasticsearch.org/ "ElasticSearch project") or [Solr](https://lucene.apache.org/solr/ "Apache Solr project"), including full text search capabilities and free multivariable search.
+[Cassandra](http://cassandra.apache.org/ "Apache Cassandra project") index functionality has been extended to provide near real time search such as [ElasticSearch](http://www.elasticsearch.org/ "ElasticSearch project") or [Solr](https://lucene.apache.org/solr/ "Apache Solr project"), including full text search capabilities and multivariable and geospatial search.
 
 It is also fully compatible with [Apache Spark](https://spark.apache.org/) and [Apache Hadoop](https://hadoop.apache.org/), allowing you to filter data at database level. This speeds up jobs reducing the amount of data to be collected and processed.
 
@@ -16,6 +16,8 @@ Table of Contents
     -   [Boolean](#boolean-query)
     -   [Contains](#contains-query)
     -   [Fuzzy](#fuzzy-query)
+    -   [Geo bounding box](#geo-bounding-box-query)
+    -   [Geo distance](#geo-distance-query)
     -   [Match](#match-query)
     -   [Match all](#match-all-query)
     -   [Phrase](#phrase-query)
@@ -218,12 +220,12 @@ Field mapping definition options depend on the field type. Details and default v
     </tr>
     <tr>
         <td>integer_digits</td>
-        <td>positive integer</td>
+        <td>integer</td>
         <td>32</td>
     </tr>
     <tr>
         <td>decimal_digits</td>
-        <td>positive integer</td>
+        <td>integer</td>
         <td>32</td>
     </tr>
     <tr>
@@ -239,7 +241,7 @@ Field mapping definition options depend on the field type. Details and default v
     </tr>
     <tr>
         <td>digits</td>
-        <td>positive integer</td>
+        <td>integer</td>
         <td>32</td>
     </tr>
     <tr>
@@ -313,6 +315,22 @@ Field mapping definition options depend on the field type. Details and default v
         <td>0.1f</td>
     </tr>
     <tr>
+        <td rowspan="3">geo_point</td>
+        <td>latitude</td>
+        <td>string</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>longitude</td>
+        <td>string</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>max_levels</td>
+        <td>integer</td>
+        <td>11</td>
+    </tr>
+    <tr>
         <td rowspan="2">inet</td>
         <td>indexed</td>
         <td>boolean</td>
@@ -379,7 +397,7 @@ Field mapping definition options depend on the field type. Details and default v
     </tr>
     <tr>
         <td>analyzer</td>
-        <td>class name (string)</td>
+        <td>string</td>
         <td>default_analyzer of the schema</td>
     </tr>
     <tr>
@@ -522,6 +540,28 @@ In addition to the options described in the table, all query types have a “**b
 <li><strong>prefix_length</strong> (default = 0): integer representing the length of common non-fuzzy prefix.</li>
 <li><strong>max_expansions</strong> (default = 50): an integer for the maximum number of terms to match.</li>
 <li><strong>transpositions</strong> (default = true): if transpositions should be treated as a primitive edit operation (<a href="http://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance" title="Wikipedia article on Damerau-Levenshtein Distance">Damerau-Levenshtein distance</a>). When false, comparisons will implement the classic <a href="http://en.wikipedia.org/wiki/Levenshtein_distance" title="Wikipedia article on Levenshtein Distance">Levenshtein distance</a>.</li>
+</ul></td>
+</tr>
+<tr class="odd">
+<td align="left"><a href="#geo-bbox-query">Geo bounding box</a></td>
+<td align="left">double</td>
+<td align="left"><ul>
+<li><strong>field</strong>: the field name.</li>
+<li><strong>min_latitude</strong>: the min allowed latitude.</li>
+<li><strong>max_latitude</strong>: the max allowed latitude.</li>
+<li><strong>min_longitude</strong>: the min allowed longitude.</li>
+<li><strong>max_longitude</strong>: the max allowed longitude.</li>
+</ul></td>
+</tr>
+<tr class="odd">
+<td align="left"><a href="#geo-distance-query">Geo distance</a></td>
+<td align="left">double</td>
+<td align="left"><ul>
+<li><strong>field</strong>: the field name.</li>
+<li><strong>latitude</strong>: the reference latitude.</li>
+<li><strong>longitude</strong>: the reference longitude.</li>
+<li><strong>max_distance</strong>: the max allowed distance.</li>
+<li><strong>min_distance</strong>: the min allowed distance.</li>
 </ul></td>
 </tr>
 <tr class="even">
@@ -716,6 +756,89 @@ WHERE stratio_col = '{query : { type          : "fuzzy",
                                 prefix_length : 2 }}';
 ```
 
+###Geo bounding box query
+
+Syntax:
+
+```sql
+SELECT ( <fields> | * )
+FROM <table>
+WHERE <magic_column> = '{ query : {
+                            type  : "geo_bbox",
+                            field : <fieldname>,
+                            min_latitude : <min_latitude> ,
+                            max_latitude : <max_latitude> ,
+                            min_longitude : <min_longitude> ,
+                            max_longitude : <max_longitude>
+                          }}';
+```
+
+where:
+
+-   **min_latitude** : a double value between -90 and 90 being the min allowed latitude.
+-   **max_latitude** : a double value between -90 and 90 being the max allowed latitude.
+-   **min_longitude** : a double value between -180 and 180 being the min allowed longitude.
+-   **max_longitude** : a double value between -180 and 180 being the max allowed longitude.
+
+Example 1: will return any rows where “place” is formed by a latitude between 40.225479 and 40.560174, and a longitude between -3.999278 and -3.378550.
+
+```sql
+SELECT * FROM test.users
+WHERE stratio_col = '{query : { type : "geo_bbox",
+                                field : "place",
+                                min_latitude : 40.225479, 
+                                max_latitude : 40.560174, 
+                                min_longitude : -3.999278, 
+                                max_longitude : -3.378550 }}';
+```
+
+###Geo distance query
+
+Syntax:
+
+```sql
+SELECT ( <fields> | * )
+FROM <table>
+WHERE <magic_column> = '{ query : {
+                            type  : "geo_distance",
+                            field : <fieldname> ,
+                            latitude : <latitude> ,
+                            longitude : <longitude> ,
+                            max_distance : <max_distance>
+                            (, min_distance : <min_distance> )?
+                          }}';
+```
+
+where:
+
+-   **latitude** : a double value between -90 and 90 being the latitude of the reference point.
+-   **longitude** : a double value between -180 and 180 being the longitude of the reference point.
+-   **max_distance** : a string value being the max allowed distance from the reference point.
+-   **min_distance** : a string value being the min allowed distance from the reference point.
+
+Example 1: will return any rows where “place” is  within one kilometer from the geo point (40.225479, -3.999278).
+
+```sql
+SELECT * FROM test.users
+WHERE stratio_col = '{query : { type : "geo_distance",
+                                field : "place",
+                                latitude : 40.225479, 
+                                longitude : -3.999278, 
+                                max_distance : "1km" }}';
+```
+
+Example 2: will return any rows where “place” is within one yard and ten yards from the geo point (40.225479, -3.999278).
+
+```sql
+SELECT * FROM test.users
+WHERE stratio_col = '{query : { type : "geo_distance",
+                                field : "place",
+                                latitude : 40.225479, 
+                                longitude : -3.999278, 
+                                max_distance : "10yd" , 
+                                min_distance : "1yd" }}';
+```
+
 ###Match query
 
 Syntax:
@@ -839,9 +962,9 @@ Example: will return rows where “phrase” contains a word starting with “lu
 ```sql
 SELECT * FROM test.users
 WHERE stratio_col = '{query : {
-                        type          : "prefix",
-                        field         : "phrase",
-                        value         : "lu" }}';
+                        type  : "prefix",
+                        field : "phrase",
+                        value : "lu" }}';
 ```
 
 ###Range query

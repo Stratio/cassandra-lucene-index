@@ -16,9 +16,9 @@
 package com.stratio.cassandra.lucene.query;
 
 import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.mapping.ColumnMapper;
-import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperSingle;
-import com.stratio.cassandra.lucene.schema.mapping.ColumnMapperString;
+import com.stratio.cassandra.lucene.schema.mapping.Mapper;
+import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
+import com.stratio.cassandra.lucene.schema.mapping.StringMapper;
 import org.apache.lucene.search.Query;
 import org.junit.Test;
 
@@ -78,7 +78,7 @@ public class SingleFieldConditionTest extends AbstractConditionTest {
     @Test
     public void testGetMapper() {
 
-        ColumnMapperSingle mapper = new ColumnMapperString("field", null, null, null);
+        SingleColumnMapper mapper = new StringMapper("field", null, null, null);
         Schema schema = mock(Schema.class);
         when(schema.getMapper("field")).thenReturn(mapper);
 
@@ -88,7 +88,7 @@ public class SingleFieldConditionTest extends AbstractConditionTest {
                 return null;
             }
         };
-        ColumnMapper out = condition.getMapper(schema, "field");
+        Mapper out = condition.getMapper(schema, "field");
         assertNotNull(out);
         assertEquals(mapper, out);
 
