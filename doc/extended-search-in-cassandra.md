@@ -16,6 +16,7 @@ Table of Contents
     -   [Boolean](#boolean-query)
     -   [Contains](#contains-query)
     -   [Fuzzy](#fuzzy-query)
+    -   [Date range](#date-range-query)
     -   [Geo bounding box](#geo-bounding-box-query)
     -   [Geo distance](#geo-distance-query)
     -   [Match](#match-query)
@@ -39,10 +40,12 @@ Overview
 Lucene search technology integration into Cassandra provides:
 
 -   Full text search
+-   Geospatial search
+-   Date durations search
+-   Multidimensional boolean (and, or, not) search
+-   Near real-time search
 -   Relevance scoring and sorting
 -   General top-k queries
--   Complex boolean queries (and, or, not)
--   Near real-time search
 -   Custom analyzers
 -   CQL3 support
 -   Wide rows support
@@ -276,6 +279,22 @@ Field mapping definition options depend on the field type. Details and default v
         <td>sorted</td>
         <td>boolean</td>
         <td>true</td>
+    </tr>
+    <tr>
+        <td>pattern</td>
+        <td>date format (string)</td>
+        <td>yyyy/MM/dd HH:mm:ss.SSS</td>
+    </tr>
+    <tr>
+        <td rowspan="3">date_range</td>
+        <td>start</td>
+        <td>string</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>stop</td>
+        <td>string</td>
+        <td></td>
     </tr>
     <tr>
         <td>pattern</td>
@@ -530,7 +549,18 @@ In addition to the options described in the table, all query types have a “**b
 <li><strong>values</strong>: the matched field values.</li>
 </ul></td>
 </tr>
+</tr>
 <tr class="odd">
+<td align="left"><a href="#date-range-query" title="Date range query details">Date range</a></td>
+<td align="left">All</td>
+<td align="left"><ul>
+<li><strong>field</strong>: the field name.</li>
+<li><strong>start</strong>: the date range start.</li>
+<li><strong>stop</strong>: the date range start.</li>
+<li><strong>operation</strong>: the spatial operation to be performed, it can be **intersects**, **contains** and **is_within**.</li>
+</ul></td>
+</tr>
+<tr class="even">
 <td align="left"><a href="#fuzzy-query">Fuzzy</a></td>
 <td align="left">bytes<br /> inet<br /> string<br /> text</td>
 <td align="left"><ul>
@@ -553,7 +583,7 @@ In addition to the options described in the table, all query types have a “**b
 <li><strong>max_longitude</strong>: the max allowed longitude.</li>
 </ul></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left"><a href="#geo-distance-query">Geo distance</a></td>
 <td align="left">double</td>
 <td align="left"><ul>
@@ -564,7 +594,7 @@ In addition to the options described in the table, all query types have a “**b
 <li><strong>min_distance</strong>: the min allowed distance.</li>
 </ul></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left"><a href="#match-query">Match</a></td>
 <td align="left">All</td>
 <td align="left"><ul>
@@ -708,6 +738,51 @@ WHERE stratio_col = '{query : {
                         type   : "contains",
                         field  : "date",
                         values : ["2014/01/01", "2014/01/02", "2014/01/03"] }}';
+```
+
+###Date range query
+
+Syntax:
+
+```sql
+SELECT ( <fields> | * )
+FROM <table>
+WHERE <magic_column> = '{ query : {
+                            type  : "contains",
+                            start : <start> ,
+                            stop  : <stop> ,
+                            (, operation: <operation> )?
+                          }}';
+```
+
+where:
+
+-   **start**: a string or a number being the beginning of the date range.
+-   **stop**: a string or a number being the end of the date range.
+-   **operation**: the spatial operation to be performed, it can be **intersects**, **contains** and **is_within**.
+
+Example 1: will return rows where duration is within "2013/05/02" and :"2013/05/03"
+
+```sql
+SELECT * FROM test.users
+WHERE stratio_col = '{filter : {
+                        type  : "date_range",
+                        field : "duration", 
+                        start : "2013/05/02", 
+                        stop  : "2013/05/03",
+                        operation : "is_within"}}';
+```
+
+Example 1: will return rows where duration intersects "2013/05/02" and :"2013/05/03"
+
+```sql
+SELECT * FROM test.users
+WHERE stratio_col = '{filter : {
+                        type  : "date_range",
+                        field : "duration", 
+                        start : "2013/05/02", 
+                        stop  : "2013/05/03",
+                        operation : "intersects"}}';
 ```
 
 ###Fuzzy query
