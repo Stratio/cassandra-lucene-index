@@ -547,10 +547,10 @@ In addition to the options described in the table, all query types have a “**b
 <td align="left">double</td>
 <td align="left"><ul>
 <li><strong>field</strong>: the field name.</li>
-<li><strong>min_longitude</strong>: the min allowed longitude.</li>
-<li><strong>max_longitude</strong>: the max allowed longitude.</li>
 <li><strong>min_latitude</strong>: the min allowed latitude.</li>
 <li><strong>max_latitude</strong>: the max allowed latitude.</li>
+<li><strong>min_longitude</strong>: the min allowed longitude.</li>
+<li><strong>max_longitude</strong>: the max allowed longitude.</li>
 </ul></td>
 </tr>
 <tr class="odd">
@@ -558,8 +558,8 @@ In addition to the options described in the table, all query types have a “**b
 <td align="left">double</td>
 <td align="left"><ul>
 <li><strong>field</strong>: the field name.</li>
-<li><strong>longitude</strong>: the reference longitude.</li>
 <li><strong>latitude</strong>: the reference latitude.</li>
+<li><strong>longitude</strong>: the reference longitude.</li>
 <li><strong>max_distance</strong>: the max allowed distance.</li>
 <li><strong>min_distance</strong>: the min allowed distance.</li>
 </ul></td>
@@ -780,7 +780,7 @@ where:
 -   **min_longitude** : a double value between -180 and 180 being the min allowed longitude.
 -   **max_longitude** : a double value between -180 and 180 being the max allowed longitude.
 
-Example 1: will return any rows where “place” is formed by a longitude between 40.225479 and 40.560174, and a latitude between -3.999278 and -3.378550.
+Example 1: will return any rows where “place” is formed by a latitude between 40.225479 and 40.560174, and a longitude between -3.999278 and -3.378550.
 
 ```sql
 SELECT * FROM test.users
