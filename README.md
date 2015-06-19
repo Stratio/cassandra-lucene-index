@@ -176,6 +176,22 @@ SELECT * FROM tweets WHERE lucene='{
     sort  : {fields: [ {field:"time", reverse:true} ] }
 }' limit 100;
 ```
+Alternatively, you can restrict the query to retrieve tweets that are within a specific distance from a geographical position:
+```
+SELECT * FROM tweets WHERE lucene='{
+    filter : {type:"boolean", must:[
+                   {type:"range", field:"time", lower:"2014/04/25", upper:"2014/05/1"},
+                   {type:"prefix", field:"user", value:"a"},
+                   {type:"geo_distance", 
+                    field:"place",
+                    latitude:40.393035,
+                    longitude:-3.732859, 
+                    max_distance:"10km", 
+                    min_distance:"100m"} ] },
+    query  : {type:"phrase", field:"body", value:"big data gives organizations", slop:1},
+    sort  : {fields: [ {field:"time", reverse:true} ] }
+}' limit 100;
+```
 
 Finally, if you want to restrict the search to a certain token range:
 
@@ -184,12 +200,12 @@ SELECT * FROM tweets WHERE lucene='{
     filter : {type:"boolean", must:[
                    {type:"range", field:"time", lower:"2014/04/25", upper:"2014/05/1"},
                    {type:"prefix", field:"user", value:"a"} ,
-                   {type:"geo_bbox", 
+                   {type:"geo_distance", 
                     field:"place",
-                    min_latitude:40.225479, 
-                    max_latitude:40.560174, 
-                    min_longitude:-3.999278, 
-                    max_longitude:-3.378550} ] },
+                    latitude:40.393035,
+                    longitude:-3.732859, 
+                    max_distance:"10km", 
+                    min_distance:"100m"} ] },
     query  : {type:"phrase", field:"body", value:"big data gives organizations", slop:1]}
 }' AND token(id) >= token(0) AND token(id) < token(10000000) limit 100;
 ```
