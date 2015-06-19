@@ -15,6 +15,7 @@
  */
 package com.stratio.cassandra.lucene.query;
 
+import com.stratio.cassandra.lucene.bitemporal.BiTemporalCondition;
 import com.stratio.cassandra.lucene.geospatial.GeoBBoxCondition;
 import com.stratio.cassandra.lucene.geospatial.GeoDistanceCondition;
 import com.stratio.cassandra.lucene.schema.Schema;
@@ -43,6 +44,7 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
                @JsonSubTypes.Type(value = MatchCondition.class, name = "match"),
                @JsonSubTypes.Type(value = MatchAllCondition.class, name = "match_all"),
                @JsonSubTypes.Type(value = RangeCondition.class, name = "range"),
+               @JsonSubTypes.Type(value = BiTemporalCondition.class, name = "bitemporal"),
                @JsonSubTypes.Type(value = PhraseCondition.class, name = "phrase"),
                @JsonSubTypes.Type(value = PrefixCondition.class, name = "prefix"),
                @JsonSubTypes.Type(value = RegexpCondition.class, name = "regexp"),
