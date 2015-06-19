@@ -1,5 +1,6 @@
 package com.stratio.cassandra.lucene.bitemporal;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -23,7 +24,7 @@ public class BiTemporalDateTime implements Comparable{
         return this.dateUnix.equals(MAX);
     }
     public boolean isMin() {
-        return this.dateUnix.equals(MIN);
+        return this.dateUnix.equals(0L);
     }
     public boolean isMax() {
         return this.dateUnix.equals(MAX);
@@ -46,7 +47,7 @@ public class BiTemporalDateTime implements Comparable{
         }
     }
     public String toString() {
-        //TODO use patern to compose a string
-        return this.dateUnix.toString();
+        Date date= new Date(this.dateUnix);
+        return new SimpleDateFormat(DEFAULT_PATTERN).format(date);
     }
 }

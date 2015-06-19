@@ -1,57 +1,52 @@
 package com.stratio.cassandra.lucene.bitemporal;
 
 
+
 import com.stratio.cassandra.lucene.schema.mapping.builder.MapperBuilder;
+import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
- * Created by eduardoalonso on 18/06/15.
+ * {@link MapperBuilder} to build a new {@link BiTemporalMapperBuilder}.
+ *
+ * @author Eduardo Alonso <eduardoalonso@stratio.com>
  */
 public class BiTemporalMapperBuilder extends MapperBuilder<BiTemporalMapper> {
 
+    /** The name of the column containing the vtStart **/
+    private final String vtStart;
 
-    @JsonProperty("vtStart")
-    private String vtStart;
+    /** The name of the column containing the vtEnd **/
+    private final String vtEnd;
 
-    @JsonProperty("vtEnd")
-    private String vtEnd;
+    /** The name of the column containing the ttStart **/
+    private final String ttStart;
 
-    @JsonProperty("ttStart")
-    private String ttStart;
+    /** The name of the column containing the ttEnd **/
+    private final String ttEnd;
 
-    @JsonProperty("ttEnd")
-    private String ttEnd;
+    /** pattern of DateTime **/
+    private final String pattern;
 
-    @JsonProperty("pattern")
-    private String pattern;
 
-    public BiTemporalMapperBuilder setVtStart(String vtStart) {
-        this.vtStart = vtStart;
-        return this;
+    @JsonCreator
+    public BiTemporalMapperBuilder(@JsonProperty("vtStart") String vtStart,
+                                   @JsonProperty("vtEnd") String vtEnd,
+                                   @JsonProperty("ttStart") String ttStart,
+                                   @JsonProperty("ttEnd") String ttEnd,
+                                   @JsonProperty("pattern") String pattern) {
+        this.vtStart=vtStart;
+        this.vtEnd=vtEnd;
+        this.ttStart=ttStart;
+        this.ttEnd=ttEnd;
+        this.pattern=pattern;
     }
 
-    public BiTemporalMapperBuilder setVtEnd(String vtEnd) {
-        this.vtEnd = vtEnd;
-        return this;
-    }
-
-    public BiTemporalMapperBuilder setTtStart(String ttStart) {
-        this.ttStart = ttStart;
-        return this;
-    }
-
-    public BiTemporalMapperBuilder setTtEnd(String ttEnd) {
-        this.ttEnd = ttEnd;
-        return this;
-    }
-
-    public BiTemporalMapperBuilder setPattern(String pattern) {
-        this.pattern = pattern;
-        return this;
-    }
-
+    /**
+     *
+     * @param name
+     * @return
+     */
     @Override
-    public BiTemporalMapper build(String name) {
-        return new BiTemporalMapper(name,vtStart,vtEnd,ttStart,ttEnd,pattern);
-    }
+    public BiTemporalMapper build(String name) { return new BiTemporalMapper(name,vtStart,vtEnd,ttStart,ttEnd,pattern); }
 }

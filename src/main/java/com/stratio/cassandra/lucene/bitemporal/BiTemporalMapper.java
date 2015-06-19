@@ -17,12 +17,16 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
 /**
- * Created by eduardoalonso on 18/06/15.
+ * A {@link Mapper} to map BiTemporal DateRanges
+ *
+ * @author Eduardo Alonso <eduardoalonso@stratio.com>
  */
 public class BiTemporalMapper extends Mapper {
+
     /** The default {@link SimpleDateFormat} pattern. */
     public static final String DEFAULT_PATTERN = "yyyy/MM/dd HH:mm:ss.SSS";
     /** The {@link SimpleDateFormat} pattern. */
+
     private final String pattern;
     private final String vtStartFieldName;
     private final String vtEndFieldName;
@@ -88,46 +92,27 @@ public class BiTemporalMapper extends Mapper {
             document.add(field);
         }
     }
-/*    private Document newSampleDocument(int i, UUID id,String item, Shape shape) {
-        Document doc = new Document();
-        //doc.add(new StoredField("id", id.toString()));
-        doc.add(new StringField("id", id.toString(), Field.Store.YES));
-        doc.add(new StringField("item", item, Field.Store.YES));
-        //TODO ADD term
-        //Potentially more than one shape in this field is supported by some
-        // strategies; see the javadocs of the SpatialStrategy impl to see.
-
-        for (Field f : this.strategies[i].createIndexableFields(shape)) {
-            doc.add(f);
-        }
-        //store it too; the format is up to you
-        //  (assume point in this example)
-        if (shape.hasArea()) {
-            Rectangle rectangle=(Rectangle)shape;
-            doc.add(new StoredField(strategies[i].getFieldName(),rectangle.getMinX() + ":" + rectangle.getMaxX() + "," + rectangle.getMinY() + ":" + rectangle.getMaxY()))
-            ;
-        } else {
-            Point point=(Point) shape;
-            doc.add(new StoredField(strategies[i].getFieldName(),point.getX() + ":NOW," + point.getY() + ":NOW"));
-        }
-        return doc;
-    }*/
+    public NumberRangePrefixTreeStrategy getStrategy(int i) {
+        return this.strategies[i];
+    }
     BiTemporalDateTime readBitemporalDate(Columns columns,String fieldName) {
         Column column = columns.getColumnsByName(fieldName).getFirst();
         if (column == null) {
             throw new IllegalArgumentException(fieldName+" column required");
         }
         Object columnValue = column.getComposedValue();
+        return this.parseBiTemporalDate(columnValue);
+    }
+
+    BiTemporalDateTime parseBiTemporalDate(Object value){
         Long btDateValue = null;
 
-        if (columnValue != null) {
-            if (columnValue instanceof Number) {
-                btDateValue = ((Number) columnValue).longValue();
-            } else if (columnValue instanceof String) {
+        if (value != null) {
+            if (value instanceof Number) {
+                btDateValue = ((Number) value).longValue();
+            } else if (value instanceof String) {
                 try {
-
-
-                    btDateValue=concurrentDateFormat.get().parse(columnValue.toString()).getTime();
+                    btDateValue=concurrentDateFormat.get().parse(value.toString()).getTime();
                 } catch (ParseException e) {
                     // Ignore to fail below
                 }
