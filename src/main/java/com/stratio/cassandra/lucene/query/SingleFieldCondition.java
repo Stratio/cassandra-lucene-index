@@ -34,7 +34,7 @@ public abstract class SingleFieldCondition extends Condition {
 
     /** The name of the field to be matched. */
     @JsonProperty("field")
-    protected final String field;
+    public final String field;
 
     /**
      * Abstract {@link SingleFieldCondition} builder receiving the boost to be used.
@@ -49,15 +49,6 @@ public abstract class SingleFieldCondition extends Condition {
             throw new IllegalArgumentException("Field name required");
         }
         this.field = field;
-    }
-
-    /**
-     * Returns the name of the field to be matched.
-     *
-     * @return The name of the field to be matched.
-     */
-    public String getField() {
-        return field;
     }
 
     protected SingleColumnMapper<?> getMapper(Schema schema, String field) {

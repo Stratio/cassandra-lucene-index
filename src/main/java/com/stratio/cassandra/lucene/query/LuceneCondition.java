@@ -37,11 +37,11 @@ public class LuceneCondition extends Condition {
 
     /** The Lucene query syntax expression. */
     @JsonProperty("query")
-    private final String query;
+    public final String query;
 
     /** The name of the field where the clauses will be applied by default. */
     @JsonProperty("default_field")
-    private String defaultField;
+    public final String defaultField;
 
     /**
      * Constructor using the field name and the value to be matched.
@@ -62,24 +62,6 @@ public class LuceneCondition extends Condition {
         }
         this.query = query;
         this.defaultField = defaultField == null ? DEFAULT_FIELD : defaultField;
-    }
-
-    /**
-     * Returns the default name of the field where the clauses will be applied by default.
-     *
-     * @return The default field name.
-     */
-    public String getDefaultField() {
-        return defaultField;
-    }
-
-    /**
-     * Returns the Lucene query syntax expression.
-     *
-     * @return The Lucene query syntax expression.
-     */
-    public String getQuery() {
-        return query;
     }
 
     /** {@inheritDoc} */

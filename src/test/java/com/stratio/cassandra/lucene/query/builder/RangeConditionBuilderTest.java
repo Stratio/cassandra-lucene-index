@@ -34,11 +34,11 @@ public class RangeConditionBuilderTest {
         builder.includeUpper(true);
         RangeCondition condition = builder.build();
         assertNotNull(condition);
-        assertEquals("field", condition.getField());
-        assertEquals("lower", condition.getLower());
-        assertEquals("upper", condition.getUpper());
-        assertEquals(false, condition.getIncludeLower());
-        assertEquals(true, condition.getIncludeUpper());
+        assertEquals("field", condition.field);
+        assertEquals("lower", condition.lower);
+        assertEquals("upper", condition.upper);
+        assertEquals(false, condition.includeLower);
+        assertEquals(true, condition.includeUpper);
     }
 
     @Test
@@ -50,11 +50,11 @@ public class RangeConditionBuilderTest {
         builder.includeUpper(true);
         RangeCondition condition = builder.build();
         assertNotNull(condition);
-        assertEquals("field", condition.getField());
-        assertEquals(1, condition.getLower());
-        assertEquals(2, condition.getUpper());
-        assertEquals(false, condition.getIncludeLower());
-        assertEquals(true, condition.getIncludeUpper());
+        assertEquals("field", condition.field);
+        assertEquals(1, condition.lower);
+        assertEquals(2, condition.upper);
+        assertEquals(false, condition.includeLower);
+        assertEquals(true, condition.includeUpper);
     }
 
     @Test
@@ -62,10 +62,10 @@ public class RangeConditionBuilderTest {
         RangeConditionBuilder builder = new RangeConditionBuilder("field");
         RangeCondition condition = builder.build();
         assertNotNull(condition);
-        assertEquals("field", condition.getField());
-        assertNull(condition.getLower());
-        assertNull(condition.getUpper());
-        assertEquals(RangeCondition.DEFAULT_INCLUDE_LOWER, condition.getIncludeLower());
-        assertEquals(RangeCondition.DEFAULT_INCLUDE_UPPER, condition.getIncludeUpper());
+        assertEquals("field", condition.field);
+        assertNull(condition.lower);
+        assertNull(condition.upper);
+        assertEquals(RangeCondition.DEFAULT_INCLUDE_LOWER, condition.includeLower);
+        assertEquals(RangeCondition.DEFAULT_INCLUDE_UPPER, condition.includeUpper);
     }
 }

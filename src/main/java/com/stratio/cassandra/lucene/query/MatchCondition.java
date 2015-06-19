@@ -35,11 +35,11 @@ public class MatchCondition extends SingleFieldCondition {
 
     /** The name of the field to be matched. */
     @JsonProperty("field")
-    private final String field;
+    public final String field;
 
     /** The value of the field to be matched. */
     @JsonProperty("value")
-    private Object value;
+    public final Object value;
 
     /**
      * Constructor using the field name and the value to be matched.
@@ -62,15 +62,6 @@ public class MatchCondition extends SingleFieldCondition {
 
         this.field = field;
         this.value = value;
-    }
-
-    /**
-     * Returns the value of the field to be matched.
-     *
-     * @return The value of the field to be matched.
-     */
-    public Object getValue() {
-        return value;
     }
 
     /** {@inheritDoc} */

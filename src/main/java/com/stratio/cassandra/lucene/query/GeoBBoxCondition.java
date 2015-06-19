@@ -40,23 +40,23 @@ public class GeoBBoxCondition extends Condition {
 
     /** The name of the field to be matched. */
     @JsonProperty("field")
-    private final String field;
+    public final String field;
 
     /** The minimum accepted latitude. */
     @JsonProperty("min_latitude")
-    private final double minLatitude;
+    public final double minLatitude;
 
     /** The maximum accepted latitude. */
     @JsonProperty("max_latitude")
-    private final double maxLatitude;
+    public final double maxLatitude;
 
     /** The minimum accepted longitude. */
     @JsonProperty("min_longitude")
-    private final double minLongitude;
+    public final double minLongitude;
 
     /** The maximum accepted longitude. */
     @JsonProperty("max_longitude")
-    private final double maxLongitude;
+    public final double maxLongitude;
 
     /**
      * Constructor using the field name and the value to be matched.
@@ -119,26 +119,6 @@ public class GeoBBoxCondition extends Condition {
         this.maxLongitude = maxLongitude;
         this.minLatitude = minLatitude;
         this.maxLatitude = maxLatitude;
-    }
-
-    public String getField() {
-        return field;
-    }
-
-    public double getMinLatitude() {
-        return minLatitude;
-    }
-
-    public double getMaxLatitude() {
-        return maxLatitude;
-    }
-
-    public double getMinLongitude() {
-        return minLongitude;
-    }
-
-    public double getMaxLongitude() {
-        return maxLongitude;
     }
 
     /** {@inheritDoc} */

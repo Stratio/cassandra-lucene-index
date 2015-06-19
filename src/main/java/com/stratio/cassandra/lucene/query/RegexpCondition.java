@@ -37,11 +37,11 @@ public class RegexpCondition extends SingleFieldCondition {
 
     /** The name of the field to be matched. */
     @JsonProperty("field")
-    private final String field;
+    public final String field;
 
     /** The wildcard expression to be matched. */
     @JsonProperty("value")
-    private final String value;
+    public final String value;
 
     /**
      * Constructor using the field name and the value to be matched.
@@ -64,15 +64,6 @@ public class RegexpCondition extends SingleFieldCondition {
 
         this.field = field;
         this.value = value;
-    }
-
-    /**
-     * Returns the wildcard expression to be matched.
-     *
-     * @return The wildcard expression to be matched.
-     */
-    public String getValue() {
-        return value;
     }
 
     /** {@inheritDoc} */

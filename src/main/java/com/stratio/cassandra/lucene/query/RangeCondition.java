@@ -39,23 +39,23 @@ public class RangeCondition extends SingleFieldCondition {
 
     /** The name of the field to be matched. */
     @JsonProperty("field")
-    private final String field;
+    public final String field;
 
     /** The lower accepted value. Maybe null meaning no lower limit. */
     @JsonProperty("lower")
-    private final Object lower;
+    public final Object lower;
 
     /** The upper accepted value. Maybe null meaning no upper limit. */
     @JsonProperty("upper")
-    private final Object upper;
+    public final Object upper;
 
     /** If the lower value must be included if not null. */
     @JsonProperty("include_lower")
-    private final boolean includeLower;
+    public final boolean includeLower;
 
     /** If the upper value must be included if not null. */
     @JsonProperty("include_upper")
-    private final boolean includeUpper;
+    public final boolean includeUpper;
 
     /**
      * Constructs a query selecting all fields greater/equal than {@code lowerValue} but less/equal than {@code
@@ -86,42 +86,6 @@ public class RangeCondition extends SingleFieldCondition {
         this.upper = upperValue;
         this.includeLower = includeLower == null ? DEFAULT_INCLUDE_LOWER : includeLower;
         this.includeUpper = includeUpper == null ? DEFAULT_INCLUDE_UPPER : includeUpper;
-    }
-
-    /**
-     * Returns the lower accepted value. Maybe {@code null} meaning no lower limit.
-     *
-     * @return The lower accepted value. Maybe {@code null} meaning no lower limit.
-     */
-    public Object getLower() {
-        return lower;
-    }
-
-    /**
-     * Returns the upper accepted value. Maybe {@code null} meaning no upper limit.
-     *
-     * @return The upper accepted value. Maybe {@code null} meaning no upper limit.
-     */
-    public Object getUpper() {
-        return upper;
-    }
-
-    /**
-     * Returns {@code true} if the {@link #lower} value is included in the range, {@code false} otherwise.
-     *
-     * @return {@code true} if the {@link #lower} value is included in the range, {@code false} otherwise.
-     */
-    public Boolean getIncludeLower() {
-        return includeLower;
-    }
-
-    /**
-     * Returns {@code true} if the {@link #upper} value is included in the range, {@code false} otherwise.
-     *
-     * @return {@code true} if the {@link #upper} value is included in the range, {@code false} otherwise.
-     */
-    public Boolean getIncludeUpper() {
-        return includeUpper;
     }
 
     /**

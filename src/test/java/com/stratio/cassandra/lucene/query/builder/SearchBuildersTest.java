@@ -50,8 +50,8 @@ public class SearchBuildersTest {
         FuzzyConditionBuilder builder = fuzzy("field", "value");
         assertNotNull(builder);
         FuzzyCondition condition = builder.build();
-        assertEquals("field", condition.getField());
-        assertEquals("value", condition.getValue());
+        assertEquals("field", condition.field);
+        assertEquals("value", condition.value);
     }
 
     @Test
@@ -59,7 +59,7 @@ public class SearchBuildersTest {
         LuceneConditionBuilder builder = lucene("field:value");
         assertNotNull(builder);
         LuceneCondition condition = builder.build();
-        assertEquals("field:value", condition.getQuery());
+        assertEquals("field:value", condition.query);
     }
 
     @Test
@@ -74,8 +74,8 @@ public class SearchBuildersTest {
         MatchConditionBuilder builder = match("field", "value");
         assertNotNull(builder);
         MatchCondition condition = builder.build();
-        assertEquals("field", condition.getField());
-        assertEquals("value", condition.getValue());
+        assertEquals("field", condition.field);
+        assertEquals("value", condition.value);
     }
 
     @Test
@@ -83,8 +83,8 @@ public class SearchBuildersTest {
         PhraseConditionBuilder builder = phrase("field", "value1 value2");
         assertNotNull(builder);
         PhraseCondition condition = builder.build();
-        assertEquals("field", condition.getField());
-        assertEquals("value1 value2", condition.getValue());
+        assertEquals("field", condition.field);
+        assertEquals("value1 value2", condition.value);
     }
 
     @Test
@@ -92,8 +92,8 @@ public class SearchBuildersTest {
         PrefixConditionBuilder builder = prefix("field", "value");
         assertNotNull(builder);
         PrefixCondition condition = builder.build();
-        assertEquals("field", condition.getField());
-        assertEquals("value", condition.getValue());
+        assertEquals("field", condition.field);
+        assertEquals("value", condition.value);
     }
 
     @Test
@@ -101,7 +101,7 @@ public class SearchBuildersTest {
         RangeConditionBuilder builder = range("field");
         assertNotNull(builder);
         RangeCondition condition = builder.build();
-        assertEquals("field", condition.getField());
+        assertEquals("field", condition.field);
     }
 
     @Test
@@ -109,8 +109,8 @@ public class SearchBuildersTest {
         RegexpConditionBuilder builder = regexp("field", "value");
         assertNotNull(builder);
         RegexpCondition condition = builder.build();
-        assertEquals("field", condition.getField());
-        assertEquals("value", condition.getValue());
+        assertEquals("field", condition.field);
+        assertEquals("value", condition.value);
     }
 
     @Test
@@ -118,8 +118,8 @@ public class SearchBuildersTest {
         WildcardConditionBuilder builder = wildcard("field", "value");
         assertNotNull(builder);
         WildcardCondition condition = builder.build();
-        assertEquals("field", condition.getField());
-        assertEquals("value", condition.getValue());
+        assertEquals("field", condition.field);
+        assertEquals("value", condition.value);
     }
 
     @Test
@@ -127,7 +127,7 @@ public class SearchBuildersTest {
         SortFieldBuilder builder = sortField("field");
         assertNotNull(builder);
         SortField sortField = builder.build();
-        assertEquals("field", sortField.getField());
+        assertEquals("field", sortField.field);
     }
 
     @Test
@@ -135,7 +135,7 @@ public class SearchBuildersTest {
         SearchBuilder builder = sort(sortField("field"));
         assertNotNull(builder);
         Search search = builder.build();
-        assertEquals("field", search.getSort().getSortFields().iterator().next().getField());
+        assertEquals("field", search.getSort().getSortFields().iterator().next().field);
     }
 
     @Test

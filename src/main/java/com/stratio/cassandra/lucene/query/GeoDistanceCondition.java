@@ -46,29 +46,29 @@ public class GeoDistanceCondition extends Condition {
 
     /** The name of the field to be matched. */
     @JsonProperty("field")
-    final String field;
+    public final String field;
 
     /** The latitude of the reference point. */
     @JsonProperty("latitude")
-    final double latitude;
+    public final double latitude;
 
     /** The longitude of the reference point. */
     @JsonProperty("longitude")
-    final double longitude;
+    public final double longitude;
 
     /** The min allowed distance. */
     @JsonProperty("min_distance")
-    final String minDistance;
+    public final String minDistance;
 
     /** The max allowed distance. */
     @JsonProperty("max_distance")
-    final String maxDistance;
+    public final String maxDistance;
 
     @JsonIgnore
-    final GeoDistance minGeoDistance;
+    public final GeoDistance minGeoDistance;
 
     @JsonIgnore
-    final GeoDistance maxGeoDistance;
+    public final GeoDistance maxGeoDistance;
 
     /**
      * Constructor using the field name and the value to be matched.

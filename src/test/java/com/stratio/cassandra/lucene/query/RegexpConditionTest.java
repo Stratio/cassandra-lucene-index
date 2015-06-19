@@ -35,15 +35,15 @@ public class RegexpConditionTest extends AbstractConditionTest {
     @Test
     public void testBuild() {
         RegexpCondition condition = new RegexpCondition(0.5f, "field", "value");
-        assertEquals(0.5f, condition.getBoost(), 0);
-        assertEquals("field", condition.getField());
-        assertEquals("value", condition.getValue());
+        assertEquals(0.5f, condition.boost, 0);
+        assertEquals("field", condition.field);
+        assertEquals("value", condition.value);
     }
 
     @Test
     public void testBuildDefaults() {
         RegexpCondition condition = new RegexpCondition(null, "field", "value");
-        assertEquals(Condition.DEFAULT_BOOST, condition.getBoost(), 0);
+        assertEquals(Condition.DEFAULT_BOOST, condition.boost, 0);
     }
 
     @Test(expected = IllegalArgumentException.class)

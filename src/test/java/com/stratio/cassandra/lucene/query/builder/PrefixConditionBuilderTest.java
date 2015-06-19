@@ -31,7 +31,7 @@ public class PrefixConditionBuilderTest {
         PrefixConditionBuilder builder = new PrefixConditionBuilder("field", "value");
         PrefixCondition condition = builder.build();
         assertNotNull(condition);
-        assertEquals("field", condition.getField());
-        assertEquals("value", condition.getValue());
+        assertEquals("field", condition.field);
+        assertEquals("value", condition.value);
     }
 }

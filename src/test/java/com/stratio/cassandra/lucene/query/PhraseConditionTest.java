@@ -35,20 +35,20 @@ public class PhraseConditionTest extends AbstractConditionTest {
     public void testBuild() {
         String value = "hello adios";
         PhraseCondition condition = new PhraseCondition(0.5f, "name", value, 2);
-        assertEquals(0.5f, condition.getBoost(), 0);
-        assertEquals("name", condition.getField());
-        assertEquals(value, condition.getValue());
-        assertEquals(2, condition.getSlop());
+        assertEquals(0.5f, condition.boost, 0);
+        assertEquals("name", condition.field);
+        assertEquals(value, condition.value);
+        assertEquals(2, condition.slop);
     }
 
     @Test
     public void testBuildDefaults() {
         String value = "hello adios";
         PhraseCondition condition = new PhraseCondition(null, "name", value, null);
-        assertEquals(PhraseCondition.DEFAULT_BOOST, condition.getBoost(), 0);
-        assertEquals("name", condition.getField());
-        assertEquals(value, condition.getValue());
-        assertEquals(PhraseCondition.DEFAULT_SLOP, condition.getSlop());
+        assertEquals(PhraseCondition.DEFAULT_BOOST, condition.boost, 0);
+        assertEquals("name", condition.field);
+        assertEquals(value, condition.value);
+        assertEquals(PhraseCondition.DEFAULT_SLOP, condition.slop);
     }
 
     @Test(expected = IllegalArgumentException.class)

@@ -33,7 +33,7 @@ public class MatchAllConditionBuilderTest {
         builder.boost(0.7);
         MatchAllCondition condition = builder.build();
         assertNotNull(condition);
-        assertEquals(0.7f, condition.getBoost(), 0);
+        assertEquals(0.7f, condition.boost, 0);
     }
 
     @Test
@@ -41,6 +41,6 @@ public class MatchAllConditionBuilderTest {
         MatchAllConditionBuilder builder = new MatchAllConditionBuilder();
         MatchAllCondition condition = builder.build();
         assertNotNull(condition);
-        assertEquals(Condition.DEFAULT_BOOST, condition.getBoost(), 0);
+        assertEquals(Condition.DEFAULT_BOOST, condition.boost, 0);
     }
 }

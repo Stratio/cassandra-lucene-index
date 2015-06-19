@@ -42,9 +42,9 @@ public class LuceneConditionTest extends AbstractConditionTest {
         String defaultField = "field_1";
         String query = "field_2:houses";
         LuceneCondition condition = new LuceneCondition(boost, defaultField, query);
-        assertEquals(boost, condition.getBoost(), 0);
-        assertEquals(defaultField, condition.getDefaultField());
-        assertEquals(query, condition.getQuery());
+        assertEquals(boost, condition.boost, 0);
+        assertEquals(defaultField, condition.defaultField);
+        assertEquals(query, condition.query);
     }
 
     @Test
@@ -53,9 +53,9 @@ public class LuceneConditionTest extends AbstractConditionTest {
         when(schema.getAnalyzer()).thenReturn(new EnglishAnalyzer());
         String query = "field_2:houses";
         LuceneCondition condition = new LuceneCondition(null, null, query);
-        assertEquals(Condition.DEFAULT_BOOST, condition.getBoost(), 0);
-        assertEquals(LuceneCondition.DEFAULT_FIELD, condition.getDefaultField());
-        assertEquals(query, condition.getQuery());
+        assertEquals(Condition.DEFAULT_BOOST, condition.boost, 0);
+        assertEquals(LuceneCondition.DEFAULT_FIELD, condition.defaultField);
+        assertEquals(query, condition.query);
     }
 
     @Test(expected = IllegalArgumentException.class)

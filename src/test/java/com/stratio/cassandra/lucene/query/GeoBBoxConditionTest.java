@@ -36,23 +36,23 @@ public class GeoBBoxConditionTest extends AbstractConditionTest {
     @Test
     public void testConstructor() {
         GeoBBoxCondition condition = new GeoBBoxCondition(0.5f, "name", -90D, 90D, -180D, 180D);
-        assertEquals(0.5, condition.getBoost(), 0);
-        assertEquals("name", condition.getField());
-        assertEquals(-180, condition.getMinLongitude(), 0);
-        assertEquals(180, condition.getMaxLongitude(), 0);
-        assertEquals(-90, condition.getMinLatitude(), 0);
-        assertEquals(90, condition.getMaxLatitude(), 0);
+        assertEquals(0.5, condition.boost, 0);
+        assertEquals("name", condition.field);
+        assertEquals(-180, condition.minLongitude, 0);
+        assertEquals(180, condition.maxLongitude, 0);
+        assertEquals(-90, condition.minLatitude, 0);
+        assertEquals(90, condition.maxLatitude, 0);
     }
 
     @Test
     public void testConstructorWithDefaults() {
         GeoBBoxCondition condition = new GeoBBoxCondition(null, "name", 2D, 3D, 0D, 1D);
-        assertEquals(GeoBBoxCondition.DEFAULT_BOOST, condition.getBoost(), 0);
-        assertEquals("name", condition.getField());
-        assertEquals(0, condition.getMinLongitude(), 0);
-        assertEquals(1, condition.getMaxLongitude(), 0);
-        assertEquals(2, condition.getMinLatitude(), 0);
-        assertEquals(3, condition.getMaxLatitude(), 0);
+        assertEquals(GeoBBoxCondition.DEFAULT_BOOST, condition.boost, 0);
+        assertEquals("name", condition.field);
+        assertEquals(0, condition.minLongitude, 0);
+        assertEquals(1, condition.maxLongitude, 0);
+        assertEquals(2, condition.minLatitude, 0);
+        assertEquals(3, condition.maxLatitude, 0);
     }
 
     @Test(expected = IllegalArgumentException.class)

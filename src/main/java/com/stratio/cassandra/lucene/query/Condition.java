@@ -55,7 +55,7 @@ public abstract class Condition {
 
     /** The boost to be used. */
     @JsonProperty("boost")
-    protected final float boost;
+    public final float boost;
 
     /**
      * Abstract {@link Condition} builder receiving the boost to be used.
@@ -66,10 +66,6 @@ public abstract class Condition {
     @JsonCreator
     public Condition(@JsonProperty("boost") Float boost) {
         this.boost = boost == null ? DEFAULT_BOOST : boost;
-    }
-
-    public float getBoost() {
-        return boost;
     }
 
     /**

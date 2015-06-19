@@ -36,15 +36,15 @@ public class BooleanCondition extends Condition {
 
     /** The mandatory conditions */
     @JsonProperty("must")
-    private final List<Condition> must;
+    public final List<Condition> must;
 
     /** The optional conditions */
     @JsonProperty("should")
-    private final List<Condition> should;
+    public final List<Condition> should;
 
     /** The mandatory not conditions */
     @JsonProperty("not")
-    private final List<Condition> not;
+    public final List<Condition> not;
 
     /**
      * Returns a new {@link BooleanCondition} compound by the specified {@link Condition}s.

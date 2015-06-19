@@ -33,7 +33,7 @@ public class WildcardConditionBuilderTest {
         WildcardConditionBuilder builder = new WildcardConditionBuilder(field, value);
         WildcardCondition condition = builder.build();
         assertNotNull(condition);
-        assertEquals(field, condition.getField());
-        assertEquals(value, condition.getValue());
+        assertEquals(field, condition.field);
+        assertEquals(value, condition.value);
     }
 }

@@ -31,8 +31,8 @@ public class MatchConditionBuilderTest {
         MatchConditionBuilder builder = new MatchConditionBuilder("field", "value");
         MatchCondition condition = builder.build();
         assertNotNull(condition);
-        assertEquals("field", condition.getField());
-        assertEquals("value", condition.getValue());
+        assertEquals("field", condition.field);
+        assertEquals("value", condition.value);
     }
 
     @Test
@@ -40,7 +40,7 @@ public class MatchConditionBuilderTest {
         MatchConditionBuilder builder = new MatchConditionBuilder("field", 3);
         MatchCondition condition = builder.build();
         assertNotNull(condition);
-        assertEquals("field", condition.getField());
-        assertEquals(3, condition.getValue());
+        assertEquals("field", condition.field);
+        assertEquals(3, condition.value);
     }
 }

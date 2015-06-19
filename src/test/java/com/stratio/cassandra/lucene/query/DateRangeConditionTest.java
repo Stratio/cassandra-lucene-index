@@ -37,21 +37,21 @@ public class DateRangeConditionTest extends AbstractConditionTest {
     @Test
     public void testConstructorWithDefaults() {
         DateRangeCondition condition = new DateRangeCondition(null, "name", 1, 2, null);
-        assertEquals(DateRangeCondition.DEFAULT_BOOST, condition.getBoost(), 0);
-        assertEquals("name", condition.getField());
-        assertEquals(1, condition.getStart());
-        assertEquals(2, condition.getStop());
-        assertEquals(DateRangeCondition.DEFAULT_OPERATION, condition.getOperation());
+        assertEquals(DateRangeCondition.DEFAULT_BOOST, condition.boost, 0);
+        assertEquals("name", condition.field);
+        assertEquals(1, condition.start);
+        assertEquals(2, condition.stop);
+        assertEquals(DateRangeCondition.DEFAULT_OPERATION, condition.operation);
     }
 
     @Test
     public void testConstructorWithAllArgs() {
         DateRangeCondition condition = new DateRangeCondition(0.5f, "name", 1, 2, "contains");
-        assertEquals(0.5, condition.getBoost(), 0);
-        assertEquals("name", condition.getField());
-        assertEquals(1, condition.getStart());
-        assertEquals(2, condition.getStop());
-        assertEquals("contains", condition.getOperation());
+        assertEquals(0.5, condition.boost, 0);
+        assertEquals("name", condition.field);
+        assertEquals(1, condition.start);
+        assertEquals(2, condition.stop);
+        assertEquals("contains", condition.operation);
     }
 
     @Test

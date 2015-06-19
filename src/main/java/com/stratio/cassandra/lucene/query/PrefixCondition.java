@@ -33,11 +33,11 @@ public class PrefixCondition extends SingleFieldCondition {
 
     /** The name of the field to be matched. */
     @JsonProperty("field")
-    private final String field;
+    public final String field;
 
     /** The field prefix to be matched. */
     @JsonProperty("value")
-    private final String value;
+    public final String value;
 
     /**
      * Constructor using the field name and the value to be matched.
@@ -60,15 +60,6 @@ public class PrefixCondition extends SingleFieldCondition {
 
         this.field = field;
         this.value = value;
-    }
-
-    /**
-     * Returns the field prefix to be matched.
-     *
-     * @return The field prefix to be matched.
-     */
-    public String getValue() {
-        return value;
     }
 
     /** {@inheritDoc} */

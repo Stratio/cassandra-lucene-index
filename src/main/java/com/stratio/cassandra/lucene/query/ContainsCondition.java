@@ -34,11 +34,11 @@ public class ContainsCondition extends SingleFieldCondition {
 
     /** The name of the field to be matched. */
     @JsonProperty("field")
-    private final String field;
+    public final String field;
 
     /** The value of the field to be matched. */
     @JsonProperty("values")
-    private Object[] values;
+    public final Object[] values;
 
     /**
      * Constructor using the field name and the value to be matched.
@@ -61,14 +61,6 @@ public class ContainsCondition extends SingleFieldCondition {
 
         this.field = field;
         this.values = values;
-    }
-
-    public String getField() {
-        return field;
-    }
-
-    public Object[] getValues() {
-        return values;
     }
 
     /** {@inheritDoc} */

@@ -47,19 +47,19 @@ public class DateRangeCondition extends Condition {
 
     /** The name of the field to be matched. */
     @JsonProperty("field")
-    private final String field;
+    public final String field;
 
     /** The lower accepted value. Maybe null meaning no lower limit. */
     @JsonProperty("start")
-    private final Object start;
+    public final Object start;
 
     /** The upper accepted value. Maybe null meaning no upper limit. */
     @JsonProperty("stop")
-    private final Object stop;
+    public final Object stop;
 
     /** The spatial operation to be performed. */
     @JsonProperty("operation")
-    private final String operation;
+    public final String operation;
 
     /**
      * Constructs a query selecting all fields greater/equal than {@code start} but less/equal than {@code stop}.
@@ -86,37 +86,6 @@ public class DateRangeCondition extends Condition {
         this.start = start == null ? DEFAULT_START : start;
         this.stop = stop == null ? DEFAULT_STOP : stop;
         this.operation = operation == null ? DEFAULT_OPERATION : operation;
-    }
-
-    public String getField() {
-        return field;
-    }
-
-    /**
-     * Returns the lower accepted value. Maybe {@code null} meaning no lower limit.
-     *
-     * @return The lower accepted value. Maybe {@code null} meaning no lower limit.
-     */
-    public Object getStart() {
-        return start;
-    }
-
-    /**
-     * Returns the upper accepted value. Maybe {@code null} meaning no upper limit.
-     *
-     * @return The upper accepted value. Maybe {@code null} meaning no upper limit.
-     */
-    public Object getStop() {
-        return stop;
-    }
-
-    /**
-     * Returns the spatial operation to be performed.
-     *
-     * @return The spatial operation to be performed.
-     */
-    public String getOperation() {
-        return operation;
     }
 
     /**

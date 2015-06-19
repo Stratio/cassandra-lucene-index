@@ -49,27 +49,27 @@ public class FuzzyCondition extends SingleFieldCondition {
 
     /** The name of the field to be matched. */
     @JsonProperty("field")
-    private final String field;
+    public final String field;
 
     /** The fuzzy expression to be matched. */
     @JsonProperty("value")
-    private final String value;
+    public final String value;
 
     /** The Damerau-Levenshtein max distance. */
     @JsonProperty("max_edits")
-    private final int maxEdits;
+    public final int maxEdits;
 
     /** The length of common (non-fuzzy) prefix. */
     @JsonProperty("prefix_length")
-    private final int prefixLength;
+    public final int prefixLength;
 
     /** The length of common (non-fuzzy) prefix. */
     @JsonProperty("max_expansions")
-    private final int maxExpansions;
+    public final int maxExpansions;
 
     /** If transpositions should be treated as a primitive edit operation. */
     @JsonProperty("transpositions")
-    private final boolean transpositions;
+    public final boolean transpositions;
 
     /**
      * Returns a new {@link FuzzyCondition}.
@@ -116,51 +116,6 @@ public class FuzzyCondition extends SingleFieldCondition {
         this.prefixLength = prefixLength == null ? DEFAULT_PREFIX_LENGTH : prefixLength;
         this.maxExpansions = maxExpansions == null ? DEFAULT_MAX_EXPANSIONS : maxExpansions;
         this.transpositions = transpositions == null ? DEFAULT_TRANSPOSITIONS : transpositions;
-    }
-
-    /**
-     * Returns The field fuzzy value.
-     *
-     * @return The field fuzzy value.
-     */
-    public String getValue() {
-        return value;
-    }
-
-    /**
-     * Returns the max edits.
-     *
-     * @return The max edits.
-     */
-    public int getMaxEdits() {
-        return maxEdits;
-    }
-
-    /**
-     * Returns the prefix length.
-     *
-     * @return The prefix length.
-     */
-    public int getPrefixLength() {
-        return prefixLength;
-    }
-
-    /**
-     * Returns the max expansions.
-     *
-     * @return The max expansions.
-     */
-    public int getMaxExpansions() {
-        return maxExpansions;
-    }
-
-    /**
-     * Returns the max transpositions.
-     *
-     * @return The max transpositions.
-     */
-    public boolean getTranspositions() {
-        return transpositions;
     }
 
     /** {@inheritDoc} */

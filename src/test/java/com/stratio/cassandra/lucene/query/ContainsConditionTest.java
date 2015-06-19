@@ -46,9 +46,9 @@ public class ContainsConditionTest extends AbstractConditionTest {
         String field = "test";
         Object[] values = new Object[]{1, 2, 3};
         ContainsCondition condition = new ContainsCondition(boost, field, values);
-        assertEquals(boost, condition.getBoost(), 0);
-        assertEquals(field, condition.getField());
-        assertArrayEquals(values, condition.getValues());
+        assertEquals(boost, condition.boost, 0);
+        assertEquals(field, condition.field);
+        assertArrayEquals(values, condition.values);
     }
 
     @Test
@@ -58,9 +58,9 @@ public class ContainsConditionTest extends AbstractConditionTest {
         String field = "test";
         Object[] values = new Object[]{1, 2, 3};
         ContainsCondition condition = new ContainsCondition(null, field, values);
-        assertEquals(Condition.DEFAULT_BOOST, condition.getBoost(), 0);
-        assertEquals(field, condition.getField());
-        assertArrayEquals(values, condition.getValues());
+        assertEquals(Condition.DEFAULT_BOOST, condition.boost, 0);
+        assertEquals(field, condition.field);
+        assertArrayEquals(values, condition.values);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -143,9 +143,9 @@ public class ContainsConditionTest extends AbstractConditionTest {
     public void testJsonNumbers() throws IOException {
         String in = "{type:\"contains\",boost:0.7,field:\"test\",values:[1,2,3]}";
         ContainsCondition condition = JsonSerializer.fromString(in, ContainsCondition.class);
-        assertEquals(0.7f, condition.getBoost(), 0f);
-        assertEquals("test", condition.getField());
-        assertArrayEquals(new Object[]{1, 2, 3}, condition.getValues());
+        assertEquals(0.7f, condition.boost, 0f);
+        assertEquals("test", condition.field);
+        assertArrayEquals(new Object[]{1, 2, 3}, condition.values);
         String out = JsonSerializer.toString(condition);
         assertEquals(in, out);
     }
@@ -154,9 +154,9 @@ public class ContainsConditionTest extends AbstractConditionTest {
     public void testJsonStrings() throws IOException {
         String in = "{type:\"contains\",boost:0.7,field:\"test\",values:[\"a\",\"b\"]}";
         ContainsCondition condition = JsonSerializer.fromString(in, ContainsCondition.class);
-        assertEquals(0.7f, condition.getBoost(), 0f);
-        assertEquals("test", condition.getField());
-        assertArrayEquals(new Object[]{"a", "b"}, condition.getValues());
+        assertEquals(0.7f, condition.boost, 0f);
+        assertEquals("test", condition.field);
+        assertArrayEquals(new Object[]{"a", "b"}, condition.values);
         String out = JsonSerializer.toString(condition);
         assertEquals(in, out);
     }

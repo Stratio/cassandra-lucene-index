@@ -37,13 +37,13 @@ public class FuzzyConditionBuilderTest {
         builder.transpositions(true);
         FuzzyCondition condition = builder.build();
         assertNotNull(condition);
-        assertEquals(0.7f, condition.getBoost(), 0);
-        assertEquals("field", condition.getField());
-        assertEquals("value", condition.getValue());
-        assertEquals(2, condition.getMaxEdits());
-        assertEquals(2, condition.getPrefixLength());
-        assertEquals(49, condition.getMaxExpansions());
-        assertEquals(true, condition.getTranspositions());
+        assertEquals(0.7f, condition.boost, 0);
+        assertEquals("field", condition.field);
+        assertEquals("value", condition.value);
+        assertEquals(2, condition.maxEdits);
+        assertEquals(2, condition.prefixLength);
+        assertEquals(49, condition.maxExpansions);
+        assertEquals(true, condition.transpositions);
     }
 
     @Test
@@ -51,12 +51,12 @@ public class FuzzyConditionBuilderTest {
         FuzzyConditionBuilder builder = new FuzzyConditionBuilder("field", "value");
         FuzzyCondition condition = builder.build();
         assertNotNull(condition);
-        assertEquals(Condition.DEFAULT_BOOST, condition.getBoost(), 0);
-        assertEquals("field", condition.getField());
-        assertEquals("value", condition.getValue());
-        assertEquals(FuzzyCondition.DEFAULT_MAX_EDITS, condition.getMaxEdits());
-        assertEquals(FuzzyCondition.DEFAULT_PREFIX_LENGTH, condition.getPrefixLength());
-        assertEquals(FuzzyCondition.DEFAULT_MAX_EXPANSIONS, condition.getMaxExpansions());
-        assertEquals(FuzzyCondition.DEFAULT_TRANSPOSITIONS, condition.getTranspositions());
+        assertEquals(Condition.DEFAULT_BOOST, condition.boost, 0);
+        assertEquals("field", condition.field);
+        assertEquals("value", condition.value);
+        assertEquals(FuzzyCondition.DEFAULT_MAX_EDITS, condition.maxEdits);
+        assertEquals(FuzzyCondition.DEFAULT_PREFIX_LENGTH, condition.prefixLength);
+        assertEquals(FuzzyCondition.DEFAULT_MAX_EXPANSIONS, condition.maxExpansions);
+        assertEquals(FuzzyCondition.DEFAULT_TRANSPOSITIONS, condition.transpositions);
     }
 }

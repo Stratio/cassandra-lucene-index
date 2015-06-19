@@ -30,7 +30,7 @@ public class DateMapperBuilder extends MapperBuilder<DateMapper> {
     private Boolean sorted;
 
     @JsonProperty("pattern")
-    String pattern;
+    private String pattern;
 
     public DateMapperBuilder setIndexed(Boolean indexed) {
         this.indexed = indexed;

@@ -36,13 +36,13 @@ public class MatchAllConditionTest extends AbstractConditionTest {
     public void testBuild() {
         Float boost = 0.7f;
         MatchAllCondition condition = new MatchAllCondition(boost);
-        assertEquals(boost, condition.getBoost(), 0);
+        assertEquals(boost, condition.boost, 0);
     }
 
     @Test
     public void testBuildWithDefaults() {
         MatchAllCondition condition = new MatchAllCondition(null);
-        assertEquals(Condition.DEFAULT_BOOST, condition.getBoost(), 0);
+        assertEquals(Condition.DEFAULT_BOOST, condition.boost, 0);
     }
 
     @Test

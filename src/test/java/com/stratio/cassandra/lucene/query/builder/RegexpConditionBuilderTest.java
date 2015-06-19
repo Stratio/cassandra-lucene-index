@@ -33,7 +33,7 @@ public class RegexpConditionBuilderTest {
         RegexpConditionBuilder builder = new RegexpConditionBuilder(field, value);
         RegexpCondition condition = builder.build();
         assertNotNull(condition);
-        assertEquals(field, condition.getField());
-        assertEquals(value, condition.getValue());
+        assertEquals(field, condition.field);
+        assertEquals(value, condition.value);
     }
 }

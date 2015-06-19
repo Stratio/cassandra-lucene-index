@@ -40,11 +40,11 @@ public class SortField {
 
     /** The name of field to sortFields by. */
     @JsonProperty("field")
-    private final String field;
+    public final String field;
 
     /** {@code true} if natural order should be reversed. */
     @JsonProperty("reverse")
-    private final boolean reverse;
+    public final boolean reverse;
 
     /**
      * Returns a new {@link SortField}.

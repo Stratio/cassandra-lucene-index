@@ -27,12 +27,15 @@ import org.codehaus.jackson.annotate.JsonProperty;
 public class GeoPointMapperBuilder extends MapperBuilder<GeoPointMapper> {
 
     /** The name of the column containing the latitude. */
+    @JsonProperty("latitude")
     private final String latitude;
 
     /** The name of the column containing the longitude. */
+    @JsonProperty("longitude")
     private final String longitude;
 
     /** The maximum number of levels in the tree. */
+    @JsonProperty("max_levels")
     private final Integer maxLevels;
 
     /**

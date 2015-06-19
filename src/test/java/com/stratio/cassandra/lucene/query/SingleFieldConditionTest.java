@@ -40,8 +40,8 @@ public class SingleFieldConditionTest extends AbstractConditionTest {
                 return null;
             }
         };
-        assertEquals(0.5f, condition.getBoost(), 0);
-        assertEquals("field", condition.getField());
+        assertEquals(0.5f, condition.boost, 0);
+        assertEquals("field", condition.field);
     }
 
     @Test
@@ -52,7 +52,7 @@ public class SingleFieldConditionTest extends AbstractConditionTest {
                 return null;
             }
         };
-        assertEquals(Condition.DEFAULT_BOOST, condition.getBoost(), 0);
+        assertEquals(Condition.DEFAULT_BOOST, condition.boost, 0);
     }
 
     @Test(expected = IllegalArgumentException.class)

@@ -50,15 +50,15 @@ public class MatchConditionTest extends AbstractConditionTest {
     @Test
     public void testBuild() {
         MatchCondition condition = new MatchCondition(0.5f, "field", "value");
-        assertEquals(0.5f, condition.getBoost(), 0);
-        assertEquals("field", condition.getField());
-        assertEquals("value", condition.getValue());
+        assertEquals(0.5f, condition.boost, 0);
+        assertEquals("field", condition.field);
+        assertEquals("value", condition.value);
     }
 
     @Test
     public void testBuildDefaults() {
         MatchCondition condition = new MatchCondition(null, "field", "value");
-        assertEquals(Condition.DEFAULT_BOOST, condition.getBoost(), 0);
+        assertEquals(Condition.DEFAULT_BOOST, condition.boost, 0);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -69,9 +69,9 @@ public class MatchConditionTest extends AbstractConditionTest {
     @Test
     public void testBuildBlankValue() {
         MatchCondition condition = new MatchCondition(0.5f, "field", " ");
-        assertEquals(0.5f, condition.getBoost(), 0);
-        assertEquals("field", condition.getField());
-        assertEquals(" ", condition.getValue());
+        assertEquals(0.5f, condition.boost, 0);
+        assertEquals("field", condition.field);
+        assertEquals(" ", condition.value);
     }
 
     @Test

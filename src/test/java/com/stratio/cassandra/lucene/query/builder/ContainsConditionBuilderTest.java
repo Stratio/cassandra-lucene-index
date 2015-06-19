@@ -31,8 +31,8 @@ public class ContainsConditionBuilderTest {
         ContainsConditionBuilder builder = new ContainsConditionBuilder("field", values);
         ContainsCondition condition = builder.build();
         assertNotNull(condition);
-        assertEquals("field", condition.getField());
-        assertArrayEquals(values, condition.getValues());
+        assertEquals("field", condition.field);
+        assertArrayEquals(values, condition.values);
     }
 
     @Test
@@ -41,7 +41,7 @@ public class ContainsConditionBuilderTest {
         ContainsConditionBuilder builder = new ContainsConditionBuilder("field", values);
         ContainsCondition condition = builder.build();
         assertNotNull(condition);
-        assertEquals("field", condition.getField());
-        assertArrayEquals(values, condition.getValues());
+        assertEquals("field", condition.field);
+        assertArrayEquals(values, condition.values);
     }
 }

@@ -158,7 +158,7 @@ public class SortFieldTest {
 
     @Test
     public void testEquals() {
-        assertFalse(new SortField("field", true).equals(null));
+        assertNotNull(new SortField("field", true));
         assertFalse(new SortField("field", true).equals(""));
         assertEquals(new SortField("field", true), new SortField("field", true));
         assertFalse(new SortField("field1", true).equals(new SortField("field2", true)));

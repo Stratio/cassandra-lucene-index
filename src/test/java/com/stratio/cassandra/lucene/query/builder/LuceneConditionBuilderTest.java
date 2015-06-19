@@ -34,9 +34,9 @@ public class LuceneConditionBuilderTest {
         builder.defaultField("field");
         LuceneCondition condition = builder.build();
         assertNotNull(condition);
-        assertEquals(0.7f, condition.getBoost(), 0);
-        assertEquals("field", condition.getDefaultField());
-        assertEquals("field:value", condition.getQuery());
+        assertEquals(0.7f, condition.boost, 0);
+        assertEquals("field", condition.defaultField);
+        assertEquals("field:value", condition.query);
     }
 
     @Test
@@ -44,8 +44,8 @@ public class LuceneConditionBuilderTest {
         LuceneConditionBuilder builder = new LuceneConditionBuilder("field:value");
         LuceneCondition condition = builder.build();
         assertNotNull(condition);
-        assertEquals(Condition.DEFAULT_BOOST, condition.getBoost(), 0);
-        assertEquals(LuceneCondition.DEFAULT_FIELD, condition.getDefaultField());
-        assertEquals("field:value", condition.getQuery());
+        assertEquals(Condition.DEFAULT_BOOST, condition.boost, 0);
+        assertEquals(LuceneCondition.DEFAULT_FIELD, condition.defaultField);
+        assertEquals("field:value", condition.query);
     }
 }

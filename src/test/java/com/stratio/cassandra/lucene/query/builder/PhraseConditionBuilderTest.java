@@ -33,8 +33,8 @@ public class PhraseConditionBuilderTest {
         builder.slop(2);
         PhraseCondition condition = builder.build();
         assertNotNull(condition);
-        assertEquals("field", condition.getField());
-        assertEquals(value, condition.getValue());
-        assertEquals(2, condition.getSlop());
+        assertEquals("field", condition.field);
+        assertEquals(value, condition.value);
+        assertEquals(2, condition.slop);
     }
 }

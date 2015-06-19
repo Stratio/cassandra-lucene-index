@@ -37,15 +37,15 @@ public class PhraseCondition extends SingleFieldCondition {
 
     /** The name of the field to be matched. */
     @JsonProperty("field")
-    private final String field;
+    public final String field;
 
     /** The phrase terms to be matched. */
     @JsonProperty("value")
-    private final String value;
+    public final String value;
 
     /** The number of other words permitted between words in phrase. */
     @JsonProperty("slop")
-    private int slop;
+    public final int slop;
 
     /**
      * Constructor using the field name and the value to be matched.
@@ -74,24 +74,6 @@ public class PhraseCondition extends SingleFieldCondition {
         this.field = field;
         this.value = value;
         this.slop = slop == null ? DEFAULT_SLOP : slop;
-    }
-
-    /**
-     * Returns the number of other words permitted between words in phrase.
-     *
-     * @return The number of other words permitted between words in phrase.
-     */
-    public int getSlop() {
-        return slop;
-    }
-
-    /**
-     * Returns The phrase terms to be matched.
-     *
-     * @return the phrase terms to be matched.
-     */
-    public String getValue() {
-        return value;
     }
 
     /** {@inheritDoc} */

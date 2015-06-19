@@ -50,6 +50,7 @@ public class LuceneIndexTest {
 
     private static final Double REFRESH_SECONDS = 0.1D;
     private static final int REFRESH_MILLISECONDS = (int) (REFRESH_SECONDS * 1000);
+    private static final int WAIT_MILLISECONDS = REFRESH_MILLISECONDS * 2;
 
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
@@ -113,16 +114,16 @@ public class LuceneIndexTest {
         // Delete by term
         index.delete(term1);
         index.commit();
-        Thread.sleep(REFRESH_MILLISECONDS);
+        Thread.sleep(WAIT_MILLISECONDS);
         assertEquals(1, index.getNumDocs());
 
         // Delete by query
         index.upsert(term1, document1);
         index.commit();
-        Thread.sleep(REFRESH_MILLISECONDS);
+        Thread.sleep(WAIT_MILLISECONDS);
         assertEquals(2, index.getNumDocs());
         index.delete(new TermQuery(term1));
-        Thread.sleep(REFRESH_MILLISECONDS);
+        Thread.sleep(WAIT_MILLISECONDS);
         assertEquals(1, index.getNumDocs());
 
         // Upsert
@@ -130,13 +131,13 @@ public class LuceneIndexTest {
         index.upsert(term2, document2);
         index.upsert(term2, document2);
         index.commit();
-        Thread.sleep(REFRESH_MILLISECONDS);
+        Thread.sleep(WAIT_MILLISECONDS);
         assertEquals(2, index.getNumDocs());
 
         // Truncate
         index.truncate();
         index.commit();
-        Thread.sleep(REFRESH_MILLISECONDS);
+        Thread.sleep(WAIT_MILLISECONDS);
         assertEquals(0, index.getNumDocs());
 
         // Delete
