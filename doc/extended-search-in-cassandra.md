@@ -41,7 +41,7 @@ Lucene search technology integration into Cassandra provides:
 
 -   Full text search
 -   Geospatial search
--   Date durations search
+-   Date ranges (durations) search
 -   Multidimensional boolean (and, or, not) search
 -   Near real-time search
 -   Relevance scoring and sorting

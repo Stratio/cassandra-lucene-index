@@ -16,11 +16,13 @@ Features
 
 Stratio's Cassandra Lucene Index and its integration with Lucene search technology provides:
 
--   Big data full text search
+-   Full text search
+-   Geospatial search
+-   Date ranges (durations) search
+-   Multidimensional boolean (and, or, not) search
+-   Near real-time search
 -   Relevance scoring and sorting
 -   General top-k queries
--   Complex boolean queries (and, or, not)
--   Near real-time search
 -   Custom analyzers
 -   CQL3 support
 -   Wide rows support
