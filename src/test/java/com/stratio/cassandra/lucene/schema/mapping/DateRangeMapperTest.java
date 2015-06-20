@@ -35,12 +35,18 @@ import org.apache.lucene.index.IndexableField;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import static org.apache.cassandra.config.ColumnDefinition.regularDef;
 import static org.junit.Assert.*;
 
 public class DateRangeMapperTest {
+
+    private static final String SHORT_PATTERN = "yyyy-MM-dd";
+    private static final SimpleDateFormat ssdf = new SimpleDateFormat(SHORT_PATTERN);
+    private static final SimpleDateFormat lsdf = new SimpleDateFormat(DateRangeMapper.DEFAULT_PATTERN);
 
     @Test
     public void testConstructorWithDefaultArgs() {
@@ -133,21 +139,21 @@ public class DateRangeMapperTest {
     }
 
     @Test
-    public void testGetStartFromStringColumnWithDefaultPattern() {
+    public void testGetStartFromStringColumnWithDefaultPattern() throws ParseException {
         DateRangeMapper mapper = new DateRangeMapper("field", "from", "to", null);
         Columns columns = new Columns();
         columns.add(Column.fromComposed("from", "2015/02/28 01:02:03.004", UTF8Type.instance, false));
         columns.add(Column.fromComposed("to", 0, Int32Type.instance, false));
-        assertEquals(1425081723004L, mapper.readStart(columns).getTime());
+        assertEquals(lsdf.parse("2015/02/28 01:02:03.004"), mapper.readStart(columns));
     }
 
     @Test
-    public void testGetStartFromStringColumnWithCustomPattern() {
+    public void testGetStartFromStringColumnWithCustomPattern() throws ParseException {
         DateRangeMapper mapper = new DateRangeMapper("field", "from", "to", "yyyy-MM-dd");
         Columns columns = new Columns();
         columns.add(Column.fromComposed("from", "2015-02-28", UTF8Type.instance, false));
         columns.add(Column.fromComposed("to", 0, Int32Type.instance, false));
-        assertEquals(1425078000000L, mapper.readStart(columns).getTime());
+        assertEquals(ssdf.parse("2015-02-28"), mapper.readStart(columns));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -204,21 +210,21 @@ public class DateRangeMapperTest {
     }
 
     @Test
-    public void testGetStopFromStringColumnWithDefaultPattern() {
+    public void testGetStopFromStringColumnWithDefaultPattern() throws ParseException {
         DateRangeMapper mapper = new DateRangeMapper("field", "from", "to", null);
         Columns columns = new Columns();
         columns.add(Column.fromComposed("from", 0, Int32Type.instance, false));
         columns.add(Column.fromComposed("to", "2015/02/28 01:02:03.004", UTF8Type.instance, false));
-        assertEquals(1425081723004L, mapper.readStop(columns).getTime());
+        assertEquals(lsdf.parse("2015/02/28 01:02:03.004"), mapper.readStop(columns));
     }
 
     @Test
-    public void testGetStopFromStringColumnWithCustomPattern() {
+    public void testGetStopFromStringColumnWithCustomPattern() throws ParseException {
         DateRangeMapper mapper = new DateRangeMapper("field", "from", "to", "yyyy-MM-dd");
         Columns columns = new Columns();
         columns.add(Column.fromComposed("from", 0, Int32Type.instance, false));
         columns.add(Column.fromComposed("to", "2015-02-28", UTF8Type.instance, false));
-        assertEquals(1425078000000L, mapper.readStop(columns).getTime());
+        assertEquals(ssdf.parse("2015-02-28"), mapper.readStop(columns));
     }
 
     @Test(expected = IllegalArgumentException.class)
