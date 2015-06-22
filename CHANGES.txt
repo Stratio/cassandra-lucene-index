@@ -1,3 +1,7 @@
+2.1.6.2
+ * Add date range features
+ * Add basic geospatial features
+
 2.1.6.1
  * Fix row updated skipping first column (issue#6)
  * Avoid analysis at prefix, regexp, range and wildcard queries
