@@ -9,7 +9,7 @@ Index filtered queries are a powerful help when analyzing the data stored in Cas
 
 Any cell in the tables can be indexed, including those in the primary key as well as collections. Wide rows are also supported. You can scan token/key ranges, apply additional CQL3 clauses and page on the filtered results.
 
-More detailed information is available at [Stratio's Cassandra Lucene Index documentation](doc/extended-search-in-cassandra.md).
+More detailed information is available at [Stratio's Cassandra Lucene Index documentation](doc/src/site/sphinx/documentation.rst).
 
 Features
 --------
@@ -214,4 +214,4 @@ SELECT * FROM tweets WHERE lucene='{
 
 This last is the basis for Hadoop, Spark and other MapReduce frameworks support.
 
-Please, refer to the comprehensive [Stratio's Cassandra Lucene Index documentation](doc/extended-search-in-cassandra.md).
+Please, refer to the comprehensive [Stratio's Cassandra Lucene Index documentation](doc/src/site/sphinx/documentation.rst).
