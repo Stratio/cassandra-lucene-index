@@ -1,5 +1,5 @@
-Contents:
-*********
+Stratio's Cassandra Lucene Index
+++++++++++++++++++++++++++++++++
 .. toctree::
     :maxdepth: 2
     :numbered:

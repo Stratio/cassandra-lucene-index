@@ -1,3 +1,6 @@
+Stratio's Cassandra Lucene Index
+++++++++++++++++++++++++++++++++
+
 Overview
 ********
 
