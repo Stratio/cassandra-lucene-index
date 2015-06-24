@@ -1,5 +1,34 @@
+++++++++++++++++++++++++++++++++
 Stratio's Cassandra Lucene Index
 ++++++++++++++++++++++++++++++++
+
+- `Overview <#overview>`__
+    - `Features <#features>`__
+    - `Requirements <#requirements>`__
+    - `Installation <#installation>`__
+    - `Example <#example>`__
+- `Indexing <#indexing>`__
+    - `Analysis <#analysis>`__
+    - `Mapping <#mapping>`__
+    - `Example <#example>`__
+- `Querying <#querying>`__
+    - `Boolean query <#boolean-query>`__
+    - `Contains query <#contains-query>`__
+    - `Date range query <#date-range-query>`__
+    - `Fuzzy query <#fuzzy-query>`__
+    - `Geo bounding box query <#geo-bbox-query>`__
+    - `Geo distance query <#geo-distance-query>`__
+    - `Match query <#match-query>`__
+    - `Match all query <#match-all-query>`__
+    - `Phrase query <#phrase-query>`__
+    - `Prefix query <#prefix-query>`__
+    - `Range query <#range-query>`__
+    - `Regexp query <#regexp-query>`__
+    - `Wildcard query <#wildcard-query>`__
+- `Spark and Hadoop <#spark-and-hadoop>`__
+    - `Token range queries <#token-range-queries>`__
+    - `Paging <#paging>`__
+- `JMX interface <#jmx-interface>`__
 
 Overview
 ********
@@ -1189,10 +1218,10 @@ Example: will retrieve rows which tokens are greater than (‘Alicia’,
      WHERE stratio_col='{filter : {type : "match", field : "food", value : "chips"}}'
        AND token(name, gender) > token('Alicia', 'female');
 
-Pagination
-==========
+Paging
+======
 
-Pagination over filtered results is fully supported. You can retrieve
+Paging filtered results is fully supported. You can retrieve
 the rows starting from a certain key. For example, if the primary key is
 (userid, createdAt), you can query:
 
@@ -1206,3 +1235,32 @@ the rows starting from a certain key. For example, if the primary key is
       LIMIT 5000;
 
 Note that paging does not support neither relevance queries nor sorting. You must increase the page size until the number of desired results.
+
+JMX Interface
+*************
+
+The existing Lucene indexes expose some attributes and operations
+through JMX, using the same MBean server as Apache Cassandra. The MBeans
+provided by Stratio are under the domain
+**com.stratio.cassandra.lucene**.
+
+Please note that all the JMX attributes and operations refer to the
+index shard living inside the local JVM, and not to the globally
+distributed index.
+
+
++-------------------+-----------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Name              | Type      | Notes                                                                                                                                                                                 |
++===================+===========+=======================================================================================================================================================================================+
+| NumDeletedDocs    | Attribute | Total number of documents in the index.                                                                                                                                               |
++-------------------+-----------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| NumDocs           | Attribute | Total number of documents in the index.                                                                                                                                               |
++-------------------+-----------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Commit            | Operation | Commits all the pending index changes to disk.                                                                                                                                        |
++-------------------+-----------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Refresh           | Operation | Reopens all the readers and searchers to provide a recent view of the index.                                                                                                          |
++-------------------+-----------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| forceMerge        | Operation | Optimizes the index forcing merge segments leaving the specified number of segments. It also includes a boolean parameter to block until all merging completes.                       |
++-------------------+-----------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| forceMergeDeletes | Operation | Optimizes the index forcing merge segments containing deletions, leaving the specified number of segments. It also includes a boolean parameter to block until all merging completes. |
++-------------------+-----------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+

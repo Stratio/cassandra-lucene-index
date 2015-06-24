@@ -24,10 +24,10 @@ Example: will retrieve rows which tokens are greater than (‘Alicia’,
      WHERE stratio_col='{filter : {type : "match", field : "food", value : "chips"}}'
        AND token(name, gender) > token('Alicia', 'female');
 
-Pagination
-==========
+Paging
+======
 
-Pagination over filtered results is fully supported. You can retrieve
+Paging over filtered results is fully supported. You can retrieve
 the rows starting from a certain key. For example, if the primary key is
 (userid, createdAt), you can query:
 
