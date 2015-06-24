@@ -277,10 +277,11 @@ where:
                    ('max_cached_mb'        : '<int_value>',)?
                    ('indexing_threads'     : '<int_value>',)?
                    ('indexing_queues_size' : '<int_value>',)?
+                   ('directory_path'       : '<string_value>',)?
                    'schema'                : '<schema_definition>'};
 
-Options, except “schema”, take a positive integer value enclosed in
-single quotes:
+Options, except “schema” and “directory\_path”, take a positive integer
+value enclosed in single quotes:
 
 -  **refresh\_seconds**: number of seconds before refreshing the index
    (between writers and readers). Defaults to ’60’.
@@ -292,6 +293,8 @@ single quotes:
    means synchronous indexing. Defaults to ’0’.
 -  **indexing\_queues\_size**: max number of queued documents per
    asynchronous indexing thread. Defaults to ’50’.
+-  **directory\_path**: The path of the directory where the  Lucene index
+   will be stored.
 -  **schema**: see below
 
 .. code-block:: sql
