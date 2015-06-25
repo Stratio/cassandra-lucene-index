@@ -16,6 +16,8 @@
 package com.stratio.cassandra.lucene.query.builder;
 
 import com.stratio.cassandra.lucene.query.PhraseCondition;
+import org.codehaus.jackson.annotate.JsonCreator;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * {@link ConditionBuilder} for building a new {@link PhraseCondition}.
@@ -25,12 +27,15 @@ import com.stratio.cassandra.lucene.query.PhraseCondition;
 public class PhraseConditionBuilder extends ConditionBuilder<PhraseCondition, PhraseConditionBuilder> {
 
     /** The name of the field to be matched. */
+    @JsonProperty("field")
     private final String field;
 
     /** The phrase terms to be matched. */
+    @JsonProperty("value")
     private final String value;
 
     /** The number of other words permitted between words in phrase. */
+    @JsonProperty("slop")
     private Integer slop;
 
     /**
@@ -39,7 +44,8 @@ public class PhraseConditionBuilder extends ConditionBuilder<PhraseCondition, Ph
      * @param field The name of the field to be matched.
      * @param value The phrase terms to be matched.
      */
-    protected PhraseConditionBuilder(String field, String value) {
+    @JsonCreator
+    protected PhraseConditionBuilder(@JsonProperty("field") String field, @JsonProperty("value") String value) {
         this.field = field;
         this.value = value;
     }

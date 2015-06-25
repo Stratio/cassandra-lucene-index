@@ -15,7 +15,6 @@
  */
 package com.stratio.cassandra.lucene.query.builder;
 
-import com.stratio.cassandra.lucene.query.Search;
 import com.stratio.cassandra.lucene.util.JsonSerializer;
 import org.junit.Test;
 
@@ -37,8 +36,7 @@ public class SearchBuilderTest {
         SortFieldBuilder sort1 = sortField("field3");
         SortFieldBuilder sort2 = sortField("field4");
         SearchBuilder searchBuilder = new SearchBuilder().query(query).filter(filter).sort(sort1, sort2);
-        Search search = searchBuilder.build();
         String json = searchBuilder.toJson();
-        assertEquals(json, JsonSerializer.toString(search));
+        assertEquals(json, JsonSerializer.toString(searchBuilder));
     }
 }

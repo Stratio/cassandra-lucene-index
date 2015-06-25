@@ -29,8 +29,8 @@ import org.apache.commons.lang3.StringUtils;
 import java.math.BigDecimal;
 
 /**
- * A {@link Mapper} to map {@link BigDecimal} values. A max number of digits for the integer a decimal parts must
- * be specified.
+ * A {@link Mapper} to map {@link BigDecimal} values. A max number of digits for the integer a decimal parts must be
+ * specified.
  *
  * @author Andres de la Pena <adelapena@stratio.com>
  */
@@ -62,7 +62,11 @@ public class BigDecimalMapper extends KeywordMapper {
      * @param decimalDigits The max number of digits for the decimal part. If {@code null}, the {@link
      *                      #DEFAULT_DECIMAL_DIGITS} will be used.
      */
-    public BigDecimalMapper(String name, Boolean indexed, Boolean sorted, Integer integerDigits, Integer decimalDigits) {
+    public BigDecimalMapper(String name,
+                            Boolean indexed,
+                            Boolean sorted,
+                            Integer integerDigits,
+                            Integer decimalDigits) {
         super(name,
               indexed,
               sorted,

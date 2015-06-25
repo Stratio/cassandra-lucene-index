@@ -17,16 +17,11 @@ package com.stratio.cassandra.lucene.query;
 
 import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.util.JsonSerializer;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.ConstantScoreQuery;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
-import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonProperty;
-
-import java.io.IOException;
 
 /**
  * Class representing an Lucene index search. It is formed by an optional querying {@link Condition} and an optional
@@ -37,18 +32,15 @@ import java.io.IOException;
 public class Search {
 
     /** he {@link Condition} for querying, maybe {@code null} meaning no querying. */
-    @JsonProperty("query")
     private final Condition queryCondition;
 
     /** The {@link Condition} for filtering, maybe {@code null} meaning no filtering. */
-    @JsonProperty("filter")
     private final Condition filterCondition;
 
     /**
      * The {@link Sort} for the query. Note that is the order in which the data will be read before querying, not the
      * order of the results after querying.
      */
-    @JsonProperty("sort")
     private final Sort sort;
 
     /**
@@ -59,40 +51,10 @@ public class Search {
      * @param sort            The {@link Sort} for the query. Note that is the order in which the data will be read
      *                        before querying, not the order of the results after querying.
      */
-    @JsonCreator
-    public Search(@JsonProperty("query") Condition queryCondition,
-                  @JsonProperty("filter") Condition filterCondition,
-                  @JsonProperty("sort") Sort sort) {
+    public Search(Condition queryCondition, Condition filterCondition, Sort sort) {
         this.queryCondition = queryCondition;
         this.filterCondition = filterCondition;
         this.sort = sort;
-    }
-
-    /**
-     * Returns a new {@link Search} from the specified JSON {@code String}.
-     *
-     * @param json A JSON {@code String} representing a {@link Search}.
-     * @return The {@link Search} represented by the specified JSON {@code String}.
-     */
-    public static Search fromJson(String json) {
-        try {
-            return JsonSerializer.fromString(json, Search.class);
-        } catch (IOException e) {
-            throw new IllegalArgumentException(String.format("Unparseable JSON search: %s", e.getMessage()), e);
-        }
-    }
-
-    /**
-     * Returns the JSON representation of this object.
-     *
-     * @return the JSON representation of this object.
-     */
-    public String toJson() {
-        try {
-            return JsonSerializer.toString(this);
-        } catch (IOException e) {
-            throw new IllegalArgumentException(String.format("Unformateable JSON search: %s", e.getMessage()), e);
-        }
     }
 
     /**

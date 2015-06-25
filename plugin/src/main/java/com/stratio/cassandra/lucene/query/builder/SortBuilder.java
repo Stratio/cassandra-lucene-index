@@ -17,6 +17,8 @@ package com.stratio.cassandra.lucene.query.builder;
 
 import com.stratio.cassandra.lucene.query.Sort;
 import com.stratio.cassandra.lucene.query.SortField;
+import org.codehaus.jackson.annotate.JsonCreator;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,7 +32,8 @@ import java.util.List;
 public class SortBuilder implements Builder<Sort> {
 
     /** The {@link SortField}s */
-    private final List<SortField> sortFields;
+    @JsonProperty("fields")
+    private final List<SortFieldBuilder> sortFieldBuilders;
 
     /**
      * Creates a new {@link SortBuilder} for the specified {@link SortFieldBuilder}.
@@ -38,10 +41,7 @@ public class SortBuilder implements Builder<Sort> {
      * @param sortFieldBuilders The {@link SortFieldBuilder}s.
      */
     public SortBuilder(List<SortFieldBuilder> sortFieldBuilders) {
-        this.sortFields = new ArrayList<>(sortFieldBuilders.size());
-        for (SortFieldBuilder sortFieldBuilder : sortFieldBuilders) {
-            sortFields.add(sortFieldBuilder.build());
-        }
+        this.sortFieldBuilders = sortFieldBuilders;
     }
 
     /**
@@ -49,13 +49,18 @@ public class SortBuilder implements Builder<Sort> {
      *
      * @param sortFieldBuilders The {@link SortFieldBuilder}s.
      */
-    public SortBuilder(SortFieldBuilder... sortFieldBuilders) {
+    @JsonCreator
+    public SortBuilder(@JsonProperty("fields") SortFieldBuilder... sortFieldBuilders) {
         this(Arrays.asList(sortFieldBuilders));
     }
 
     /** {@inheritDoc} */
     @Override
     public Sort build() {
+        List<SortField> sortFields = new ArrayList<>(sortFieldBuilders.size());
+        for (SortFieldBuilder sortFieldBuilder : sortFieldBuilders) {
+            sortFields.add(sortFieldBuilder.build());
+        }
         return new Sort(sortFields);
     }
 }

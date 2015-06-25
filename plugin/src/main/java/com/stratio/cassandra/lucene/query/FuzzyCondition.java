@@ -23,8 +23,6 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.search.FuzzyQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.util.automaton.LevenshteinAutomata;
-import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * A {@link Condition} that implements the fuzzy search query. The similarity measurement is based on the
@@ -48,27 +46,21 @@ public class FuzzyCondition extends SingleFieldCondition {
     public final static boolean DEFAULT_TRANSPOSITIONS = true;
 
     /** The name of the field to be matched. */
-    @JsonProperty("field")
     public final String field;
 
     /** The fuzzy expression to be matched. */
-    @JsonProperty("value")
     public final String value;
 
     /** The Damerau-Levenshtein max distance. */
-    @JsonProperty("max_edits")
     public final int maxEdits;
 
     /** The length of common (non-fuzzy) prefix. */
-    @JsonProperty("prefix_length")
     public final int prefixLength;
 
     /** The length of common (non-fuzzy) prefix. */
-    @JsonProperty("max_expansions")
     public final int maxExpansions;
 
     /** If transpositions should be treated as a primitive edit operation. */
-    @JsonProperty("transpositions")
     public final boolean transpositions;
 
     /**
@@ -87,14 +79,13 @@ public class FuzzyCondition extends SingleFieldCondition {
      * @param transpositions True if transpositions should be treated as a primitive edit operation. If this is false,
      *                       comparisons will implement the classic Levenshtein algorithm.
      */
-    @JsonCreator
-    public FuzzyCondition(@JsonProperty("boost") Float boost,
-                          @JsonProperty("field") String field,
-                          @JsonProperty("value") String value,
-                          @JsonProperty("max_edits") Integer maxEdits,
-                          @JsonProperty("prefix_length") Integer prefixLength,
-                          @JsonProperty("max_expansions") Integer maxExpansions,
-                          @JsonProperty("transpositions") Boolean transpositions) {
+    public FuzzyCondition(Float boost,
+                          String field,
+                          String value,
+                          Integer maxEdits,
+                          Integer prefixLength,
+                          Integer maxExpansions,
+                          Boolean transpositions) {
         super(boost, field);
 
         if (StringUtils.isBlank(value)) {

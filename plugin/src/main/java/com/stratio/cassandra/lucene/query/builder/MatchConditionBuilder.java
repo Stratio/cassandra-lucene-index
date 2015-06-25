@@ -16,6 +16,8 @@
 package com.stratio.cassandra.lucene.query.builder;
 
 import com.stratio.cassandra.lucene.query.MatchCondition;
+import org.codehaus.jackson.annotate.JsonCreator;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * {@link ConditionBuilder} for building a new {@link MatchCondition}.
@@ -25,9 +27,11 @@ import com.stratio.cassandra.lucene.query.MatchCondition;
 public class MatchConditionBuilder extends ConditionBuilder<MatchCondition, MatchConditionBuilder> {
 
     /** The name of the field to be matched. */
+    @JsonProperty("field")
     private final String field;
 
     /** The value of the field to be matched. */
+    @JsonProperty("value")
     private final Object value;
 
     /**
@@ -36,7 +40,8 @@ public class MatchConditionBuilder extends ConditionBuilder<MatchCondition, Matc
      * @param field The name of the field to be matched.
      * @param value The value of the field to be matched.
      */
-    public MatchConditionBuilder(String field, Object value) {
+    @JsonCreator
+    public MatchConditionBuilder(@JsonProperty("field") String field, @JsonProperty("value") Object value) {
         this.field = field;
         this.value = value;
     }

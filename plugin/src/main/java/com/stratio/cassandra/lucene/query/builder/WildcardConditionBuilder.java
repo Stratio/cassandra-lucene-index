@@ -16,6 +16,8 @@
 package com.stratio.cassandra.lucene.query.builder;
 
 import com.stratio.cassandra.lucene.query.WildcardCondition;
+import org.codehaus.jackson.annotate.JsonCreator;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * {@link ConditionBuilder} for building a new {@link WildcardCondition}.
@@ -25,9 +27,11 @@ import com.stratio.cassandra.lucene.query.WildcardCondition;
 public class WildcardConditionBuilder extends ConditionBuilder<WildcardCondition, WildcardConditionBuilder> {
 
     /** The name of the field to be matched. */
+    @JsonProperty("field")
     private final String field;
 
     /** The wildcard expression to be matched. */
+    @JsonProperty("value")
     private final String value;
 
     /**
@@ -36,7 +40,8 @@ public class WildcardConditionBuilder extends ConditionBuilder<WildcardCondition
      * @param field The name of the field to be matched.
      * @param value The wildcard expression to be matched.
      */
-    protected WildcardConditionBuilder(String field, String value) {
+    @JsonCreator
+    protected WildcardConditionBuilder(@JsonProperty("field") String field, @JsonProperty("value") String value) {
         this.field = field;
         this.value = value;
     }

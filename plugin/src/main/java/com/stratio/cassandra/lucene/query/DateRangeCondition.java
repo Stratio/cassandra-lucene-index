@@ -24,8 +24,6 @@ import org.apache.lucene.spatial.SpatialStrategy;
 import org.apache.lucene.spatial.prefix.tree.NumberRangePrefixTree.NRShape;
 import org.apache.lucene.spatial.query.SpatialArgs;
 import org.apache.lucene.spatial.query.SpatialOperation;
-import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.util.Date;
 
@@ -46,19 +44,15 @@ public class DateRangeCondition extends Condition {
     public static final String DEFAULT_OPERATION = "intersects";
 
     /** The name of the field to be matched. */
-    @JsonProperty("field")
     public final String field;
 
     /** The lower accepted value. Maybe null meaning no lower limit. */
-    @JsonProperty("start")
     public final Object start;
 
     /** The upper accepted value. Maybe null meaning no upper limit. */
-    @JsonProperty("stop")
     public final Object stop;
 
     /** The spatial operation to be performed. */
-    @JsonProperty("operation")
     public final String operation;
 
     /**
@@ -75,12 +69,7 @@ public class DateRangeCondition extends Condition {
      * @param stop      The upper accepted {@link Date}. Maybe {@code null} meaning no upper limit.
      * @param operation The spatial operation to be performed.
      */
-    @JsonCreator
-    public DateRangeCondition(@JsonProperty("boost") Float boost,
-                              @JsonProperty("field") String field,
-                              @JsonProperty("start") Object start,
-                              @JsonProperty("stop") Object stop,
-                              @JsonProperty("operation") String operation) {
+    public DateRangeCondition(Float boost, String field, Object start, Object stop, String operation) {
         super(boost);
         this.field = field;
         this.start = start == null ? DEFAULT_START : start;

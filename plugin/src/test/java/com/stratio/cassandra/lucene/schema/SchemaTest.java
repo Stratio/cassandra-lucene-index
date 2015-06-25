@@ -16,11 +16,11 @@
 package com.stratio.cassandra.lucene.schema;
 
 import com.stratio.cassandra.lucene.schema.analysis.PreBuiltAnalyzers;
-import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 import com.stratio.cassandra.lucene.schema.mapping.IntegerMapper;
+import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 import com.stratio.cassandra.lucene.schema.mapping.TextMapper;
-import com.stratio.cassandra.lucene.schema.mapping.builder.MapperBuilder;
 import com.stratio.cassandra.lucene.schema.mapping.builder.IntegerMapperBuilder;
+import com.stratio.cassandra.lucene.schema.mapping.builder.MapperBuilder;
 import com.stratio.cassandra.lucene.schema.mapping.builder.StringMapperBuilder;
 import com.stratio.cassandra.lucene.util.JsonSerializer;
 import org.apache.cassandra.config.CFMetaData;

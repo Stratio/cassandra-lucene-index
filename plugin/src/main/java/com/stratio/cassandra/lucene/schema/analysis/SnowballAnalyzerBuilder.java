@@ -86,7 +86,7 @@ public class SnowballAnalyzerBuilder extends AnalyzerBuilder {
 
         // Force analysis validation
         QueryBuilder queryBuilder = new QueryBuilder(analyzer);
-        queryBuilder.createPhraseQuery("nothing","nothing");
+        queryBuilder.createPhraseQuery("nothing", "nothing");
     }
 
     /** {@inheritDoc} */

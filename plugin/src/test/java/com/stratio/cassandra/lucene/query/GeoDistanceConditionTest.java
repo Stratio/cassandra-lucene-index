@@ -175,15 +175,12 @@ public class GeoDistanceConditionTest extends AbstractConditionTest {
 
     @Test
     public void testJson() {
-        testJsonCondition(query(geoDistance("name", -180D, 90D).setMinDistance("1km").setMaxDistance("3km")));
+        testJsonCondition(query(geoDistance("name", -180D, 90D, "3km").setMinDistance("1km")));
     }
 
     @Test
     public void testToString() {
-        GeoDistanceCondition condition = geoDistance("name", -1D, 9).setMinDistance("1km")
-                                                                    .setMaxDistance("3km")
-                                                                    .boost(0.4f)
-                                                                    .build();
+        GeoDistanceCondition condition = geoDistance("name", -1D, 9, "3km").setMinDistance("1km").boost(0.4f).build();
         assertEquals("GeoDistanceCondition{field=name, latitude=9.0, longitude=-1.0, minDistance=1km, maxDistance=3km}",
                      condition.toString());
     }

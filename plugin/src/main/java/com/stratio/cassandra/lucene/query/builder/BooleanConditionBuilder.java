@@ -17,8 +17,10 @@ package com.stratio.cassandra.lucene.query.builder;
 
 import com.stratio.cassandra.lucene.query.BooleanCondition;
 import com.stratio.cassandra.lucene.query.Condition;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -29,13 +31,16 @@ import java.util.List;
 public class BooleanConditionBuilder extends ConditionBuilder<BooleanCondition, BooleanConditionBuilder> {
 
     /** The mandatory conditions */
-    private List<Condition> must;
+    @JsonProperty("must")
+    private List<ConditionBuilder> must = new ArrayList<>();
 
     /** The optional conditions */
-    private List<Condition> should;
+    @JsonProperty("should")
+    private List<ConditionBuilder> should = new ArrayList<>();
 
     /** The mandatory not conditions */
-    private List<Condition> not;
+    @JsonProperty("not")
+    private List<ConditionBuilder> not = new ArrayList<>();
 
     /**
      * Returns a new {@link BooleanConditionBuilder}.
@@ -50,12 +55,7 @@ public class BooleanConditionBuilder extends ConditionBuilder<BooleanCondition, 
      * @return this builder with the specified mandatory conditions.
      */
     public BooleanConditionBuilder must(ConditionBuilder... conditionBuilders) {
-        if (must == null) {
-            must = new ArrayList<>(conditionBuilders.length);
-        }
-        for (ConditionBuilder conditionBuilder : conditionBuilders) {
-            must.add(conditionBuilder.build());
-        }
+        must.addAll(Arrays.asList(conditionBuilders));
         return this;
     }
 
@@ -66,12 +66,7 @@ public class BooleanConditionBuilder extends ConditionBuilder<BooleanCondition, 
      * @return this builder with the specified optional conditions.
      */
     public BooleanConditionBuilder should(ConditionBuilder... conditionBuilders) {
-        if (should == null) {
-            should = new ArrayList<>(conditionBuilders.length);
-        }
-        for (ConditionBuilder conditionBuilder : conditionBuilders) {
-            should.add(conditionBuilder.build());
-        }
+        should.addAll(Arrays.asList(conditionBuilders));
         return this;
     }
 
@@ -82,12 +77,7 @@ public class BooleanConditionBuilder extends ConditionBuilder<BooleanCondition, 
      * @return this builder with the specified mandatory not conditions.
      */
     public BooleanConditionBuilder not(ConditionBuilder... conditionBuilders) {
-        if (not == null) {
-            not = new ArrayList<>(conditionBuilders.length);
-        }
-        for (ConditionBuilder conditionBuilder : conditionBuilders) {
-            not.add(conditionBuilder.build());
-        }
+        not.addAll(Arrays.asList(conditionBuilders));
         return this;
     }
 
@@ -98,6 +88,18 @@ public class BooleanConditionBuilder extends ConditionBuilder<BooleanCondition, 
      */
     @Override
     public BooleanCondition build() {
+        List<Condition> must = new ArrayList<>();
+        for (ConditionBuilder conditionBuilder : this.must) {
+            must.add(conditionBuilder.build());
+        }
+        List<Condition> should = new ArrayList<>();
+        for (ConditionBuilder conditionBuilder : this.should) {
+            should.add(conditionBuilder.build());
+        }
+        List<Condition> not = new ArrayList<>();
+        for (ConditionBuilder conditionBuilder : this.not) {
+            not.add(conditionBuilder.build());
+        }
         return new BooleanCondition(boost, must, should, not);
     }
 }

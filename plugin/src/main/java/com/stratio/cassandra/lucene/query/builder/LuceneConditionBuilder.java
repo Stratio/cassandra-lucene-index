@@ -16,6 +16,8 @@
 package com.stratio.cassandra.lucene.query.builder;
 
 import com.stratio.cassandra.lucene.query.LuceneCondition;
+import org.codehaus.jackson.annotate.JsonCreator;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * {@link ConditionBuilder} for building a new {@link LuceneCondition}.
@@ -25,9 +27,11 @@ import com.stratio.cassandra.lucene.query.LuceneCondition;
 public class LuceneConditionBuilder extends ConditionBuilder<LuceneCondition, LuceneConditionBuilder> {
 
     /** The Lucene query syntax expression. */
+    @JsonProperty("query")
     private final String query;
 
     /** The name of the field where the clauses will be applied by default. */
+    @JsonProperty("default_field")
     private String defaultField;
 
     /**
@@ -35,7 +39,8 @@ public class LuceneConditionBuilder extends ConditionBuilder<LuceneCondition, Lu
      *
      * @param query The Lucene query syntax expression.
      */
-    protected LuceneConditionBuilder(String query) {
+    @JsonCreator
+    protected LuceneConditionBuilder(@JsonProperty("query") String query) {
         this.query = query;
     }
 

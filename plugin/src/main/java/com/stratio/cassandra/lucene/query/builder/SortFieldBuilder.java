@@ -16,6 +16,8 @@
 package com.stratio.cassandra.lucene.query.builder;
 
 import com.stratio.cassandra.lucene.query.SortField;
+import org.codehaus.jackson.annotate.JsonCreator;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * {@link Builder} for building a new {@link SortField}.
@@ -25,9 +27,11 @@ import com.stratio.cassandra.lucene.query.SortField;
 public class SortFieldBuilder implements Builder<SortField> {
 
     /** The name of the field to be used for sort. */
+    @JsonProperty("field")
     private final String field;
 
     /** If natural order should be reversed. */
+    @JsonProperty("reverse")
     private boolean reverse;
 
     /**
@@ -35,7 +39,8 @@ public class SortFieldBuilder implements Builder<SortField> {
      *
      * @param field The name of the field to be used for sort.
      */
-    public SortFieldBuilder(String field) {
+    @JsonCreator
+    public SortFieldBuilder(@JsonProperty("field") String field) {
         this.field = field;
         this.reverse = SortField.DEFAULT_REVERSE;
     }
@@ -45,6 +50,7 @@ public class SortFieldBuilder implements Builder<SortField> {
      *
      * @param reverse {@code true} if natural order should be reversed.
      */
+    @JsonProperty("reverse")
     public SortFieldBuilder reverse(boolean reverse) {
         this.reverse = reverse;
         return this;

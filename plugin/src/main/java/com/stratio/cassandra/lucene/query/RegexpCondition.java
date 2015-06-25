@@ -21,8 +21,6 @@ import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.RegexpQuery;
-import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * Implements the wildcard search query. Supported wildcards are {@code *}, which matches any character sequence
@@ -36,11 +34,9 @@ import org.codehaus.jackson.annotate.JsonProperty;
 public class RegexpCondition extends SingleFieldCondition {
 
     /** The name of the field to be matched. */
-    @JsonProperty("field")
     public final String field;
 
     /** The wildcard expression to be matched. */
-    @JsonProperty("value")
     public final String value;
 
     /**
@@ -52,10 +48,7 @@ public class RegexpCondition extends SingleFieldCondition {
      * @param field The name of the field to be matched.
      * @param value The wildcard expression to be matched.
      */
-    @JsonCreator
-    public RegexpCondition(@JsonProperty("boost") Float boost,
-                           @JsonProperty("field") String field,
-                           @JsonProperty("value") String value) {
+    public RegexpCondition(Float boost, String field, String value) {
         super(boost, field);
 
         if (value == null) {

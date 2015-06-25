@@ -17,8 +17,6 @@ package com.stratio.cassandra.lucene.query;
 
 import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.schema.Schema;
-import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.util.Iterator;
 import java.util.List;
@@ -38,8 +36,7 @@ public class Sort implements Iterable<SortField> {
      *
      * @param sortFields The specified {@link SortField}s.
      */
-    @JsonCreator
-    public Sort(@JsonProperty("fields") List<SortField> sortFields) {
+    public Sort(List<SortField> sortFields) {
         this.sortFields = sortFields;
     }
 

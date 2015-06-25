@@ -22,8 +22,6 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.util.QueryBuilder;
-import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * A {@link Condition} implementation that matches documents containing a particular sequence of terms.
@@ -36,15 +34,12 @@ public class PhraseCondition extends SingleFieldCondition {
     public static final int DEFAULT_SLOP = 0;
 
     /** The name of the field to be matched. */
-    @JsonProperty("field")
     public final String field;
 
     /** The phrase terms to be matched. */
-    @JsonProperty("value")
     public final String value;
 
     /** The number of other words permitted between words in phrase. */
-    @JsonProperty("slop")
     public final int slop;
 
     /**
@@ -57,11 +52,7 @@ public class PhraseCondition extends SingleFieldCondition {
      * @param value The phrase terms to be matched.
      * @param slop  The number of other words permitted between words in phrase.
      */
-    @JsonCreator
-    public PhraseCondition(@JsonProperty("boost") Float boost,
-                           @JsonProperty("field") String field,
-                           @JsonProperty("value") String value,
-                           @JsonProperty("slop") Integer slop) {
+    public PhraseCondition(Float boost, String field, String value, Integer slop) {
         super(boost, field);
 
         if (value == null) {

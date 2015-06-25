@@ -21,8 +21,6 @@ import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
 import org.apache.lucene.search.NumericRangeQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermRangeQuery;
-import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * A {@link Condition} implementation that matches a field within an range of values.
@@ -38,23 +36,18 @@ public class RangeCondition extends SingleFieldCondition {
     public static final boolean DEFAULT_INCLUDE_UPPER = false;
 
     /** The name of the field to be matched. */
-    @JsonProperty("field")
     public final String field;
 
     /** The lower accepted value. Maybe null meaning no lower limit. */
-    @JsonProperty("lower")
     public final Object lower;
 
     /** The upper accepted value. Maybe null meaning no upper limit. */
-    @JsonProperty("upper")
     public final Object upper;
 
     /** If the lower value must be included if not null. */
-    @JsonProperty("include_lower")
     public final boolean includeLower;
 
     /** If the upper value must be included if not null. */
-    @JsonProperty("include_upper")
     public final boolean includeUpper;
 
     /**
@@ -73,13 +66,12 @@ public class RangeCondition extends SingleFieldCondition {
      * @param includeLower if {@code true}, the {@code lowerValue} is included in the range.
      * @param includeUpper if {@code true}, the {@code upperValue} is included in the range.
      */
-    @JsonCreator
-    public RangeCondition(@JsonProperty("boost") Float boost,
-                          @JsonProperty("field") String field,
-                          @JsonProperty("lower") Object lowerValue,
-                          @JsonProperty("upper") Object upperValue,
-                          @JsonProperty("include_lower") Boolean includeLower,
-                          @JsonProperty("include_upper") Boolean includeUpper) {
+    public RangeCondition(Float boost,
+                          String field,
+                          Object lowerValue,
+                          Object upperValue,
+                          Boolean includeLower,
+                          Boolean includeUpper) {
         super(boost, field);
         this.field = field;
         this.lower = lowerValue;

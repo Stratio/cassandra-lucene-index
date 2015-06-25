@@ -18,6 +18,8 @@ package com.stratio.cassandra.lucene.query.builder;
 import com.stratio.cassandra.lucene.query.GeoBBoxCondition;
 import com.stratio.cassandra.lucene.query.GeoDistanceCondition;
 import com.stratio.cassandra.lucene.util.GeoDistance;
+import org.codehaus.jackson.annotate.JsonCreator;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * {@link ConditionBuilder} for building a new {@link GeoBBoxCondition}.
@@ -26,34 +28,43 @@ import com.stratio.cassandra.lucene.util.GeoDistance;
  */
 public class GeoDistanceConditionBuilder extends ConditionBuilder<GeoDistanceCondition, GeoDistanceConditionBuilder> {
 
-    private String field; // The name of the field to be matched.
-    private double longitude; // The longitude of the reference point.
-    private double latitude; // The latitude of the reference point.
-    private String minDistance; // The min allowed distance.
-    private String maxDistance; // The max allowed distance.
+    /** The name of the field to be matched. */
+    @JsonProperty("field")
+    private String field;
+
+    /** The latitude of the reference point. */
+    @JsonProperty("latitude")
+    private double latitude;
+
+    /** The longitude of the reference point. */
+    @JsonProperty("longitude")
+    private double longitude;
+
+    /** The min allowed distance. */
+    @JsonProperty("min_distance")
+    private String minDistance;
+
+    /** The max allowed distance. */
+    @JsonProperty("max_distance")
+    private String maxDistance;
 
     /**
      * Returns a new {@link GeoDistanceConditionBuilder} with the specified field reference point.
      *
-     * @param field     The name of the field to be matched.
-     * @param latitude  The latitude of the reference point.
-     * @param longitude The longitude of the reference point.
+     * @param field       The name of the field to be matched.
+     * @param latitude    The latitude of the reference point.
+     * @param longitude   The longitude of the reference point.
+     * @param maxDistance The max allowed distance.
      */
-    public GeoDistanceConditionBuilder(String field, double latitude, double longitude) {
+    @JsonCreator
+    public GeoDistanceConditionBuilder(@JsonProperty("field") String field,
+                                       @JsonProperty("latitude") double latitude,
+                                       @JsonProperty("longitude") double longitude,
+                                       @JsonProperty("max_distance") String maxDistance) {
         this.field = field;
         this.longitude = longitude;
         this.latitude = latitude;
-    }
-
-    /**
-     * Sets the max allowed {@link GeoDistance}.
-     *
-     * @param maxDistance The max allowed {@link GeoDistance}.
-     * @return This.
-     */
-    public GeoDistanceConditionBuilder setMaxDistance(String maxDistance) {
         this.maxDistance = maxDistance;
-        return this;
     }
 
     /**

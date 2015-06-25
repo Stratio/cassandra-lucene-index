@@ -16,6 +16,7 @@
 package com.stratio.cassandra.lucene.query.builder;
 
 import com.stratio.cassandra.lucene.query.MatchAllCondition;
+import org.codehaus.jackson.annotate.JsonCreator;
 
 /**
  * {@link ConditionBuilder} for building a new {@link MatchAllCondition}.
@@ -27,6 +28,7 @@ public class MatchAllConditionBuilder extends ConditionBuilder<MatchAllCondition
     /**
      * Creates a new {@link MatchAllConditionBuilder}.
      */
+    @JsonCreator
     public MatchAllConditionBuilder() {
     }
 

@@ -16,6 +16,8 @@
 package com.stratio.cassandra.lucene.query.builder;
 
 import com.stratio.cassandra.lucene.query.RegexpCondition;
+import org.codehaus.jackson.annotate.JsonCreator;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * {@link ConditionBuilder} for building a new {@link RegexpCondition}.
@@ -25,9 +27,11 @@ import com.stratio.cassandra.lucene.query.RegexpCondition;
 public class RegexpConditionBuilder extends ConditionBuilder<RegexpCondition, RegexpConditionBuilder> {
 
     /** The name of the field to be matched. */
+    @JsonProperty("field")
     private final String field;
 
     /** The wildcard expression to be matched. */
+    @JsonProperty("value")
     private final String value;
 
     /**
@@ -36,7 +40,8 @@ public class RegexpConditionBuilder extends ConditionBuilder<RegexpCondition, Re
      * @param field The name of the field to be matched.
      * @param value The wildcard expression to be matched.
      */
-    protected RegexpConditionBuilder(String field, String value) {
+    @JsonCreator
+    protected RegexpConditionBuilder(@JsonProperty("field") String field, @JsonProperty("value") String value) {
         this.field = field;
         this.value = value;
     }

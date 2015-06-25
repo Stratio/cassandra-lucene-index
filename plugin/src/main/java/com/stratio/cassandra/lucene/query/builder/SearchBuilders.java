@@ -182,12 +182,16 @@ public class SearchBuilders {
     /**
      * Returns a new {@link GeoDistanceConditionBuilder} with the specified field reference point.
      *
-     * @param field     The name of the field to be matched.
-     * @param longitude The longitude of the reference point.
-     * @param latitude  The latitude of the reference point.
+     * @param field       The name of the field to be matched.
+     * @param longitude   The longitude of the reference point.
+     * @param latitude    The latitude of the reference point.
+     * @param maxDistance The max allowed distance.
      */
-    public static GeoDistanceConditionBuilder geoDistance(String field, double longitude, double latitude) {
-        return new GeoDistanceConditionBuilder(field, latitude, longitude);
+    public static GeoDistanceConditionBuilder geoDistance(String field,
+                                                          double longitude,
+                                                          double latitude,
+                                                          String maxDistance) {
+        return new GeoDistanceConditionBuilder(field, latitude, longitude, maxDistance);
     }
 
     /**

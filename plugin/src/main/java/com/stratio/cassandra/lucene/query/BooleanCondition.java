@@ -20,8 +20,6 @@ import com.stratio.cassandra.lucene.schema.Schema;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
-import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -35,15 +33,12 @@ import java.util.List;
 public class BooleanCondition extends Condition {
 
     /** The mandatory conditions */
-    @JsonProperty("must")
     public final List<Condition> must;
 
     /** The optional conditions */
-    @JsonProperty("should")
     public final List<Condition> should;
 
     /** The mandatory not conditions */
-    @JsonProperty("not")
     public final List<Condition> not;
 
     /**
@@ -56,11 +51,7 @@ public class BooleanCondition extends Condition {
      * @param should the optional {@link Condition}s.
      * @param not    the mandatory not {@link Condition}s.
      */
-    @JsonCreator
-    public BooleanCondition(@JsonProperty("boost") Float boost,
-                            @JsonProperty("must") List<Condition> must,
-                            @JsonProperty("should") List<Condition> should,
-                            @JsonProperty("not") List<Condition> not) {
+    public BooleanCondition(Float boost, List<Condition> must, List<Condition> should, List<Condition> not) {
         super(boost);
         this.must = must == null ? new LinkedList<Condition>() : must;
         this.should = should == null ? new LinkedList<Condition>() : should;

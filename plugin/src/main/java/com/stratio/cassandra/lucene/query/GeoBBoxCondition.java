@@ -26,8 +26,6 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.spatial.SpatialStrategy;
 import org.apache.lucene.spatial.query.SpatialArgs;
 import org.apache.lucene.spatial.query.SpatialOperation;
-import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * A {@link Condition} that matches documents containing a shape contained in a certain bounding box.
@@ -39,28 +37,24 @@ public class GeoBBoxCondition extends Condition {
     private static final SpatialContext spatialContext = SpatialContext.GEO;
 
     /** The name of the field to be matched. */
-    @JsonProperty("field")
     public final String field;
 
     /** The minimum accepted latitude. */
-    @JsonProperty("min_latitude")
     public final double minLatitude;
 
     /** The maximum accepted latitude. */
-    @JsonProperty("max_latitude")
     public final double maxLatitude;
 
     /** The minimum accepted longitude. */
-    @JsonProperty("min_longitude")
     public final double minLongitude;
 
     /** The maximum accepted longitude. */
-    @JsonProperty("max_longitude")
     public final double maxLongitude;
 
     /**
      * Constructor using the field name and the value to be matched.
-     *  @param boost       The boost for this query clause. Documents matching this clause will (in addition to the
+     *
+     * @param boost        The boost for this query clause. Documents matching this clause will (in addition to the
      *                     normal weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link
      *                     #DEFAULT_BOOST} is used as default.
      * @param field        The name of the field to be matched.
@@ -69,13 +63,12 @@ public class GeoBBoxCondition extends Condition {
      * @param minLongitude The minimum accepted longitude.
      * @param maxLongitude The maximum accepted longitude.
      */
-    @JsonCreator
-    public GeoBBoxCondition(@JsonProperty("boost") Float boost,
-                            @JsonProperty("field") String field,
-                            @JsonProperty("min_latitude") Double minLatitude,
-                            @JsonProperty("max_latitude") Double maxLatitude,
-                            @JsonProperty("min_longitude") Double minLongitude,
-                            @JsonProperty("max_longitude") Double maxLongitude) {
+    public GeoBBoxCondition(Float boost,
+                            String field,
+                            Double minLatitude,
+                            Double maxLatitude,
+                            Double minLongitude,
+                            Double maxLongitude) {
         super(boost);
 
         if (StringUtils.isBlank(field)) {

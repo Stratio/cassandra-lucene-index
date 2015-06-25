@@ -27,7 +27,6 @@ import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.CollectionType;
 
 import java.nio.ByteBuffer;
-import java.util.Iterator;
 
 /**
  * Class for several regular cells mappings between Cassandra and Lucene.

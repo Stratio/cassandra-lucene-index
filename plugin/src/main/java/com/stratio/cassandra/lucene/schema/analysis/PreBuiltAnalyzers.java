@@ -351,7 +351,7 @@ public enum PreBuiltAnalyzers {
         }
     };
 
-    public  Analyzer get() {
+    public Analyzer get() {
         return instantiate();
     }
 

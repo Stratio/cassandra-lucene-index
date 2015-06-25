@@ -289,7 +289,7 @@ public class RangeConditionTest extends AbstractConditionTest {
                                              .boost(0.5f)).filter(bool().must(match("f1", "v1").boost(2),
                                                                               match("f2", "v2"))
                                                                         .should(match("f3", "v3"))
-                                                                        .boost(0.5)).build());
+                                                                        .boost(0.5)));
     }
 
     @Test

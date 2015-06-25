@@ -16,6 +16,8 @@
 package com.stratio.cassandra.lucene.query.builder;
 
 import com.stratio.cassandra.lucene.query.ContainsCondition;
+import org.codehaus.jackson.annotate.JsonCreator;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * {@link ConditionBuilder} for building a new {@link ContainsCondition}.
@@ -25,9 +27,11 @@ import com.stratio.cassandra.lucene.query.ContainsCondition;
 public class ContainsConditionBuilder extends ConditionBuilder<ContainsCondition, ContainsConditionBuilder> {
 
     /** The name of the field to be matched. */
+    @JsonProperty("field")
     private final String field;
 
     /** The value of the field to be matched. */
+    @JsonProperty("values")
     private final Object[] values;
 
     /**
@@ -36,7 +40,8 @@ public class ContainsConditionBuilder extends ConditionBuilder<ContainsCondition
      * @param field  The name of the field to be matched.
      * @param values The values of the field to be matched.
      */
-    public ContainsConditionBuilder(String field, Object... values) {
+    @JsonCreator
+    public ContainsConditionBuilder(@JsonProperty("field") String field, @JsonProperty("values") Object... values) {
         this.field = field;
         this.values = values;
     }

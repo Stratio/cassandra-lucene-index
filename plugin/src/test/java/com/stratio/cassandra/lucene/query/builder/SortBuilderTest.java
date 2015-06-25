@@ -17,12 +17,13 @@ package com.stratio.cassandra.lucene.query.builder;
 
 import com.stratio.cassandra.lucene.query.Sort;
 import com.stratio.cassandra.lucene.query.SortField;
+import com.stratio.cassandra.lucene.util.JsonSerializer;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.Arrays;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 /**
  * @author Andres de la Pena <adelapena@stratio.com>
@@ -50,6 +51,19 @@ public class SortBuilderTest {
         assertNotNull(sort);
         assertArrayEquals(new SortField[]{sortFieldBuilder1.build(), sortFieldBuilder2.build()},
                           sort.getSortFields().toArray());
+    }
+
+    @Test
+    public void testJson() throws IOException {
+        SortFieldBuilder sortFieldBuilder1 = new SortFieldBuilder("field1").reverse(true);
+        SortFieldBuilder sortFieldBuilder2 = new SortFieldBuilder("field2").reverse(false);
+        SortFieldBuilder sortFieldBuilder3 = new SortFieldBuilder("field3");
+        SortBuilder sortBuilder = new SortBuilder(sortFieldBuilder1, sortFieldBuilder2, sortFieldBuilder3);
+        String json = JsonSerializer.toString(sortBuilder);
+        assertEquals("{fields:[{field:\"field1\",reverse:true}," +
+                     "{field:\"field2\"," +
+                     "reverse:false}," +
+                     "{field:\"field3\",reverse:false}]}", json);
 
     }
 }

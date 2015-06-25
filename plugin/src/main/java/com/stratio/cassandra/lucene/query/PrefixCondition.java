@@ -21,8 +21,6 @@ import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.PrefixQuery;
 import org.apache.lucene.search.Query;
-import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * A {@link Condition} implementation that matches documents containing terms with a specified prefix.
@@ -32,11 +30,9 @@ import org.codehaus.jackson.annotate.JsonProperty;
 public class PrefixCondition extends SingleFieldCondition {
 
     /** The name of the field to be matched. */
-    @JsonProperty("field")
     public final String field;
 
     /** The field prefix to be matched. */
-    @JsonProperty("value")
     public final String value;
 
     /**
@@ -48,10 +44,7 @@ public class PrefixCondition extends SingleFieldCondition {
      * @param field The name of the field to be matched.
      * @param value The field prefix to be matched.
      */
-    @JsonCreator
-    public PrefixCondition(@JsonProperty("boost") Float boost,
-                           @JsonProperty("field") String field,
-                           @JsonProperty("value") String value) {
+    public PrefixCondition(Float boost, String field, String value) {
         super(boost, field);
 
         if (value == null) {

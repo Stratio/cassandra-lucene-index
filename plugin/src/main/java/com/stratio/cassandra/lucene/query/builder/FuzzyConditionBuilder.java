@@ -16,6 +16,8 @@
 package com.stratio.cassandra.lucene.query.builder;
 
 import com.stratio.cassandra.lucene.query.FuzzyCondition;
+import org.codehaus.jackson.annotate.JsonCreator;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * {@link ConditionBuilder} for building a new {@link FuzzyCondition}.
@@ -25,21 +27,27 @@ import com.stratio.cassandra.lucene.query.FuzzyCondition;
 public class FuzzyConditionBuilder extends ConditionBuilder<FuzzyCondition, FuzzyConditionBuilder> {
 
     /** The name of the field to be matched. */
+    @JsonProperty("field")
     private final String field;
 
     /** The fuzzy expression to be matched. */
+    @JsonProperty("value")
     private final String value;
 
     /** The Damerau-Levenshtein max distance. */
+    @JsonProperty("max_edits")
     private Integer maxEdits;
 
     /** The length of common (non-fuzzy) prefix. */
+    @JsonProperty("prefix_length")
     private Integer prefixLength;
 
     /** The maximum number of terms to match. */
+    @JsonProperty("max_expansions")
     private Integer maxExpansions;
 
     /** If transpositions should be treated as a primitive edit operation. */
+    @JsonProperty("transpositions")
     private Boolean transpositions;
 
     /**
@@ -48,7 +56,8 @@ public class FuzzyConditionBuilder extends ConditionBuilder<FuzzyCondition, Fuzz
      * @param field the name of the field to be matched.
      * @param value the value of the field to be matched.
      */
-    protected FuzzyConditionBuilder(String field, String value) {
+    @JsonCreator
+    protected FuzzyConditionBuilder(@JsonProperty("field") String field, @JsonProperty("value") String value) {
         this.field = field;
         this.value = value;
     }

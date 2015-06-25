@@ -16,6 +16,8 @@
 package com.stratio.cassandra.lucene.query.builder;
 
 import com.stratio.cassandra.lucene.query.GeoBBoxCondition;
+import org.codehaus.jackson.annotate.JsonCreator;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * {@link ConditionBuilder} for building a new {@link GeoBBoxCondition}.
@@ -24,11 +26,16 @@ import com.stratio.cassandra.lucene.query.GeoBBoxCondition;
  */
 public class GeoBBoxConditionBuilder extends ConditionBuilder<GeoBBoxCondition, GeoBBoxConditionBuilder> {
 
+    @JsonProperty("field")
     private String field; // The name of the field to be matched
-    private double minLongitude; // The minimum accepted longitude
-    private double maxLongitude; // The maximum accepted longitude
+    @JsonProperty("min_latitude")
     private double minLatitude; // The minimum accepted latitude
+    @JsonProperty("max_latitude")
     private double maxLatitude; // The maximum accepted latitude
+    @JsonProperty("min_longitude")
+    private double minLongitude; // The minimum accepted longitude
+    @JsonProperty("max_longitude")
+    private double maxLongitude; // The maximum accepted longitude
 
     /**
      * Returns a new {@link GeoBBoxConditionBuilder} with the specified field name and bounding box coordinates.
@@ -39,11 +46,12 @@ public class GeoBBoxConditionBuilder extends ConditionBuilder<GeoBBoxCondition, 
      * @param minLongitude The minimum accepted longitude.
      * @param maxLongitude The maximum accepted longitude.
      */
-    public GeoBBoxConditionBuilder(String field,
-                                   double minLatitude,
-                                   double maxLatitude,
-                                   double minLongitude,
-                                   double maxLongitude) {
+    @JsonCreator
+    public GeoBBoxConditionBuilder(@JsonProperty("field") String field,
+                                   @JsonProperty("min_latitude") double minLatitude,
+                                   @JsonProperty("max_latitude") double maxLatitude,
+                                   @JsonProperty("min_longitude") double minLongitude,
+                                   @JsonProperty("max_longitude") double maxLongitude) {
         this.field = field;
         this.minLongitude = minLongitude;
         this.maxLongitude = maxLongitude;

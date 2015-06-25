@@ -16,6 +16,8 @@
 package com.stratio.cassandra.lucene.query.builder;
 
 import com.stratio.cassandra.lucene.query.PrefixCondition;
+import org.codehaus.jackson.annotate.JsonCreator;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * {@link ConditionBuilder} for building a new {@link PrefixCondition}.
@@ -25,9 +27,11 @@ import com.stratio.cassandra.lucene.query.PrefixCondition;
 public class PrefixConditionBuilder extends ConditionBuilder<PrefixCondition, PrefixConditionBuilder> {
 
     /** The name of the field to be matched. */
+    @JsonProperty("field")
     private final String field;
 
     /** The prefix to be matched. */
+    @JsonProperty("value")
     private final String value;
 
     /**
@@ -36,7 +40,8 @@ public class PrefixConditionBuilder extends ConditionBuilder<PrefixCondition, Pr
      * @param field The name of the field to be matched.
      * @param value The prefix to be matched.
      */
-    protected PrefixConditionBuilder(String field, String value) {
+    @JsonCreator
+    protected PrefixConditionBuilder(@JsonProperty("field") String field, @JsonProperty("value") String value) {
         this.field = field;
         this.value = value;
     }

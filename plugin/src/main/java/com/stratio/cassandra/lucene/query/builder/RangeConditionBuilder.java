@@ -16,6 +16,8 @@
 package com.stratio.cassandra.lucene.query.builder;
 
 import com.stratio.cassandra.lucene.query.RangeCondition;
+import org.codehaus.jackson.annotate.JsonCreator;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * {@link ConditionBuilder} for building a new {@link RangeCondition}.
@@ -25,18 +27,23 @@ import com.stratio.cassandra.lucene.query.RangeCondition;
 public class RangeConditionBuilder extends ConditionBuilder<RangeCondition, RangeConditionBuilder> {
 
     /** The name of the field to be matched. */
+    @JsonProperty("field")
     private final String field;
 
     /** The lower accepted value. Maybe null meaning no lower limit. */
+    @JsonProperty("lower")
     private Object lower;
 
     /** The upper accepted value. Maybe null meaning no upper limit. */
+    @JsonProperty("upper")
     private Object upper;
 
     /** If the lower value must be included if not null. */
+    @JsonProperty("include_lower")
     private Boolean includeLower;
 
     /** If the upper value must be included if not null. */
+    @JsonProperty("include_upper")
     private Boolean includeUpper;
 
     /**
@@ -44,7 +51,8 @@ public class RangeConditionBuilder extends ConditionBuilder<RangeCondition, Rang
      *
      * @param field the name of the field to be matched.
      */
-    public RangeConditionBuilder(String field) {
+    @JsonCreator
+    public RangeConditionBuilder(@JsonProperty("field") String field) {
         this.field = field;
     }
 

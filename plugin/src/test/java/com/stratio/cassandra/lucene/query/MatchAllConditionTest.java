@@ -15,6 +15,7 @@
  */
 package com.stratio.cassandra.lucene.query;
 
+import com.stratio.cassandra.lucene.query.builder.MatchAllConditionBuilder;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.util.JsonSerializer;
 import org.apache.lucene.search.MatchAllDocsQuery;
@@ -57,7 +58,7 @@ public class MatchAllConditionTest extends AbstractConditionTest {
     @Test
     public void testJson() throws IOException {
         String in = "{type:\"match_all\",boost:0.7}";
-        MatchAllCondition condition = JsonSerializer.fromString(in, MatchAllCondition.class);
+        MatchAllConditionBuilder condition = JsonSerializer.fromString(in, MatchAllConditionBuilder.class);
         String out = JsonSerializer.toString(condition);
         assertEquals(in, out);
     }

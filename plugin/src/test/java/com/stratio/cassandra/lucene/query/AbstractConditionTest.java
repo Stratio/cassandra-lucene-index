@@ -30,15 +30,9 @@ import static org.mockito.Mockito.when;
  */
 public class AbstractConditionTest {
 
-    protected void testJsonCondition(Search search) {
+    protected void testJsonCondition(SearchBuilder search) {
         String json1 = search.toJson();
-        String json2 = Search.fromJson(json1).toJson();
-        assertEquals(json1, json2);
-    }
-
-    protected void testJsonCondition(SearchBuilder searchBuilder) {
-        String json1 = searchBuilder.build().toJson();
-        String json2 = Search.fromJson(json1).toJson();
+        String json2 = SearchBuilder.fromJson(json1).toJson();
         assertEquals(json1, json2);
     }
 

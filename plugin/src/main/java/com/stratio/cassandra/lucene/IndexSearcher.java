@@ -17,6 +17,7 @@ package com.stratio.cassandra.lucene;
 
 import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.query.Search;
+import com.stratio.cassandra.lucene.query.builder.SearchBuilder;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.service.RowService;
 import com.stratio.cassandra.lucene.util.Log;
@@ -127,7 +128,7 @@ class IndexSearcher extends SecondaryIndexSearcher {
     public void validate(IndexExpression indexExpression) throws InvalidRequestException {
         try {
             String json = UTF8Type.instance.compose(indexExpression.value);
-            Search.fromJson(json).validate(schema);
+            SearchBuilder.fromJson(json).build().validate(schema);
         } catch (Exception e) {
             throw new InvalidRequestException(e.getMessage());
         }
@@ -145,7 +146,7 @@ class IndexSearcher extends SecondaryIndexSearcher {
             throw new RuntimeException("There is no index expression in the clause");
         }
         String json = UTF8Type.instance.compose(indexedExpression.value);
-        return Search.fromJson(json);
+        return SearchBuilder.fromJson(json).build();
     }
 
     /**

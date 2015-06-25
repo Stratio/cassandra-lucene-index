@@ -20,8 +20,6 @@ import com.stratio.cassandra.lucene.schema.Schema;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
-import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.util.Arrays;
 
@@ -33,11 +31,9 @@ import java.util.Arrays;
 public class ContainsCondition extends SingleFieldCondition {
 
     /** The name of the field to be matched. */
-    @JsonProperty("field")
     public final String field;
 
     /** The value of the field to be matched. */
-    @JsonProperty("values")
     public final Object[] values;
 
     /**
@@ -49,10 +45,7 @@ public class ContainsCondition extends SingleFieldCondition {
      * @param field  The name of the field to be matched.
      * @param values The value of the field to be matched.
      */
-    @JsonCreator
-    public ContainsCondition(@JsonProperty("boost") Float boost,
-                             @JsonProperty("field") String field,
-                             @JsonProperty("values") Object... values) {
+    public ContainsCondition(Float boost, String field, Object... values) {
         super(boost, field);
 
         if (values == null || values.length == 0) {

@@ -19,8 +19,6 @@ import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.schema.Schema;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
-import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * A {@link Condition} implementation that matches all documents.
@@ -36,8 +34,7 @@ public class MatchAllCondition extends Condition {
      *              weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link
      *              #DEFAULT_BOOST} is used as default.
      */
-    @JsonCreator
-    public MatchAllCondition(@JsonProperty("boost") Float boost) {
+    public MatchAllCondition(Float boost) {
         super(boost);
     }
 

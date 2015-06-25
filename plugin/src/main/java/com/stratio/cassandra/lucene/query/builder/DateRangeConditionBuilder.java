@@ -18,6 +18,8 @@ package com.stratio.cassandra.lucene.query.builder;
 import com.stratio.cassandra.lucene.query.DateRangeCondition;
 import com.stratio.cassandra.lucene.query.GeoBBoxCondition;
 import com.stratio.cassandra.lucene.query.GeoDistanceCondition;
+import org.codehaus.jackson.annotate.JsonCreator;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * {@link ConditionBuilder} for building a new {@link GeoBBoxCondition}.
@@ -26,9 +28,13 @@ import com.stratio.cassandra.lucene.query.GeoDistanceCondition;
  */
 public class DateRangeConditionBuilder extends ConditionBuilder<DateRangeCondition, DateRangeConditionBuilder> {
 
+    @JsonProperty("field")
     private String field; // The name of the field to be matched.
+    @JsonProperty("start")
     private Object start; // The lower accepted date. Maybe null meaning no lower limit.
+    @JsonProperty("stop")
     private Object stop; // The upper accepted date. Maybe null meaning no upper limit.
+    @JsonProperty("operation")
     private String operation; // The spatial operation to be performed.
 
     /**
@@ -36,12 +42,14 @@ public class DateRangeConditionBuilder extends ConditionBuilder<DateRangeConditi
      *
      * @param field The name of the field to be matched.
      */
-    public DateRangeConditionBuilder(String field) {
+    @JsonCreator
+    public DateRangeConditionBuilder(@JsonProperty("field") String field) {
         this.field = field;
     }
 
     /**
      * Sets the lower accepted date. Maybe null meaning no lower limit.
+     *
      * @param start The lower accepted date. Maybe null meaning no lower limit.
      * @return This.
      */
@@ -52,6 +60,7 @@ public class DateRangeConditionBuilder extends ConditionBuilder<DateRangeConditi
 
     /**
      * Sets the upper accepted date. Maybe null meaning no lower limit.
+     *
      * @param stop The upper accepted date. Maybe null meaning no lower limit.
      * @return This.
      */
@@ -62,6 +71,7 @@ public class DateRangeConditionBuilder extends ConditionBuilder<DateRangeConditi
 
     /**
      * Sets the operation to be performed.
+     *
      * @param operation The operation to be performed.
      * @return This.
      */

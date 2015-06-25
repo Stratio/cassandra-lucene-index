@@ -15,6 +15,7 @@
  */
 package com.stratio.cassandra.lucene.query;
 
+import com.stratio.cassandra.lucene.query.builder.ContainsConditionBuilder;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.IntegerMapper;
 import com.stratio.cassandra.lucene.schema.mapping.StringMapper;
@@ -141,22 +142,16 @@ public class ContainsConditionTest extends AbstractConditionTest {
 
     @Test
     public void testJsonNumbers() throws IOException {
-        String in = "{type:\"contains\",boost:0.7,field:\"test\",values:[1,2,3]}";
-        ContainsCondition condition = JsonSerializer.fromString(in, ContainsCondition.class);
-        assertEquals(0.7f, condition.boost, 0f);
-        assertEquals("test", condition.field);
-        assertArrayEquals(new Object[]{1, 2, 3}, condition.values);
+        String in = "{type:\"contains\",field:\"test\",values:[1,2,3],boost:0.7}";
+        ContainsConditionBuilder condition = JsonSerializer.fromString(in, ContainsConditionBuilder.class);
         String out = JsonSerializer.toString(condition);
         assertEquals(in, out);
     }
 
     @Test
     public void testJsonStrings() throws IOException {
-        String in = "{type:\"contains\",boost:0.7,field:\"test\",values:[\"a\",\"b\"]}";
-        ContainsCondition condition = JsonSerializer.fromString(in, ContainsCondition.class);
-        assertEquals(0.7f, condition.boost, 0f);
-        assertEquals("test", condition.field);
-        assertArrayEquals(new Object[]{"a", "b"}, condition.values);
+        String in = "{type:\"contains\",field:\"test\",values:[\"a\",\"b\"],boost:0.7}";
+        ContainsConditionBuilder condition = JsonSerializer.fromString(in, ContainsConditionBuilder.class);
         String out = JsonSerializer.toString(condition);
         assertEquals(in, out);
     }

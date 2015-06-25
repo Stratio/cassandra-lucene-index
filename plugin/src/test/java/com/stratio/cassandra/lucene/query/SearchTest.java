@@ -1,5 +1,6 @@
 package com.stratio.cassandra.lucene.query;
 
+import com.stratio.cassandra.lucene.query.builder.SearchBuilder;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.analysis.PreBuiltAnalyzers;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
@@ -33,18 +34,18 @@ public class SearchTest {
 
     @Test
     public void testJson() {
-        Search search = search().query(match("field", "value"))
-                                .filter(match("field", "value"))
-                                .sort(sortField("field"))
-                                .build();
-        String json = search.toJson();
-        assertEquals(json, Search.fromJson(json).toJson());
-
+        SearchBuilder searchBuilder = search().query(match("field", "value"))
+                                              .filter(match("field", "value"))
+                                              .sort(sortField("field"));
+        String json = searchBuilder.toJson();
+        System.out.println("JSON : " + json);
+        System.out.println("JSON : " + SearchBuilder.fromJson(json));
+        assertEquals(json, SearchBuilder.fromJson(json).toJson());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testFromJsonInvalid() {
-        Search.fromJson("error");
+        SearchBuilder.fromJson("error");
     }
 
     @Test

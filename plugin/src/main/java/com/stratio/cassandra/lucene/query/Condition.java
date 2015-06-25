@@ -19,10 +19,6 @@ import com.stratio.cassandra.lucene.schema.Schema;
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.QueryWrapperFilter;
-import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonProperty;
-import org.codehaus.jackson.annotate.JsonSubTypes;
-import org.codehaus.jackson.annotate.JsonTypeInfo;
 
 /**
  * The abstract base class for queries.
@@ -33,28 +29,13 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
  *
  * @author Andres de la Pena <adelapena@stratio.com>
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
-@JsonSubTypes({@JsonSubTypes.Type(value = BooleanCondition.class, name = "boolean"),
-               @JsonSubTypes.Type(value = ContainsCondition.class, name = "contains"),
-               @JsonSubTypes.Type(value = FuzzyCondition.class, name = "fuzzy"),
-               @JsonSubTypes.Type(value = LuceneCondition.class, name = "lucene"),
-               @JsonSubTypes.Type(value = MatchCondition.class, name = "match"),
-               @JsonSubTypes.Type(value = MatchAllCondition.class, name = "match_all"),
-               @JsonSubTypes.Type(value = RangeCondition.class, name = "range"),
-               @JsonSubTypes.Type(value = PhraseCondition.class, name = "phrase"),
-               @JsonSubTypes.Type(value = PrefixCondition.class, name = "prefix"),
-               @JsonSubTypes.Type(value = RegexpCondition.class, name = "regexp"),
-               @JsonSubTypes.Type(value = WildcardCondition.class, name = "wildcard"),
-               @JsonSubTypes.Type(value = GeoDistanceCondition.class, name = "geo_distance"),
-               @JsonSubTypes.Type(value = GeoBBoxCondition.class, name = "geo_bbox"),
-               @JsonSubTypes.Type(value = DateRangeCondition.class, name = "date_range"),})
+
 public abstract class Condition {
 
     /** The default boost to be used. */
     public static final float DEFAULT_BOOST = 1.0f;
 
     /** The boost to be used. */
-    @JsonProperty("boost")
     public final float boost;
 
     /**
@@ -63,8 +44,7 @@ public abstract class Condition {
      * @param boost The boost for this query clause. Documents matching this clause will (in addition to the normal
      *              weightings) have their score multiplied by {@code boost}.
      */
-    @JsonCreator
-    public Condition(@JsonProperty("boost") Float boost) {
+    public Condition(Float boost) {
         this.boost = boost == null ? DEFAULT_BOOST : boost;
     }
 

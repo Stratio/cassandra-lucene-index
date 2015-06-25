@@ -18,6 +18,10 @@ package com.stratio.cassandra.lucene.query.builder;
 import com.stratio.cassandra.lucene.query.Condition;
 import com.stratio.cassandra.lucene.query.Search;
 import com.stratio.cassandra.lucene.query.Sort;
+import com.stratio.cassandra.lucene.util.JsonSerializer;
+import org.codehaus.jackson.annotate.JsonProperty;
+
+import java.io.IOException;
 
 /**
  * {@link Builder} for building a new {@link Search}.
@@ -27,36 +31,53 @@ import com.stratio.cassandra.lucene.query.Sort;
 public class SearchBuilder implements Builder<Search> {
 
     /** The {@link Condition} for querying, maybe {@code null} meaning no querying. */
-    private Condition queryCondition;
+    @JsonProperty("query")
+    private ConditionBuilder queryBuilder;
 
     /** The {@link Condition} for filtering, maybe {@code null} meaning no filtering. */
-    private Condition filterCondition;
+    @JsonProperty("filter")
+    private ConditionBuilder filterBuilder;
 
     /**
      * The {@link Sort} for the query. Note that is the order in which the data will be read before querying, not the
      * order of the results after querying.
      */
-    private Sort sort;
+    @JsonProperty("sort")
+    private SortBuilder sortBuilder;
 
     /**
      * Returns this builder with the specified querying condition.
      *
-     * @param queryConditionBuilder The querying condition to be set.
+     * @param queryBuilder The querying condition to be set.
      * @return This builder with the specified querying condition.
      */
-    public SearchBuilder query(ConditionBuilder queryConditionBuilder) {
-        this.queryCondition = queryConditionBuilder.build();
+    @JsonProperty("query")
+    public SearchBuilder query(ConditionBuilder queryBuilder) {
+        this.queryBuilder = queryBuilder;
         return this;
     }
 
     /**
      * Returns this builder with the specified filtering condition.
      *
-     * @param filterConditionBuilder The filtering condition to be set.
+     * @param filterBuilder The filtering condition to be set.
      * @return This builder with the specified filtering condition.
      */
-    public SearchBuilder filter(ConditionBuilder filterConditionBuilder) {
-        this.filterCondition = filterConditionBuilder.build();
+    @JsonProperty("filter")
+    public SearchBuilder filter(ConditionBuilder filterBuilder) {
+        this.filterBuilder = filterBuilder;
+        return this;
+    }
+
+    /**
+     * Returns this builder with the specified sorting.
+     *
+     * @param sortBuilder The sorting fields to be set.
+     * @return This builder with the specified sorting.
+     */
+    @JsonProperty("sort")
+    public SearchBuilder sort(SortBuilder sortBuilder) {
+        this.sortBuilder = sortBuilder;
         return this;
     }
 
@@ -67,7 +88,7 @@ public class SearchBuilder implements Builder<Search> {
      * @return This builder with the specified sorting.
      */
     public SearchBuilder sort(SortFieldBuilder... sortFieldBuilders) {
-        this.sort = new SortBuilder(sortFieldBuilders).build();
+        this.sortBuilder = new SortBuilder(sortFieldBuilders);
         return this;
     }
 
@@ -78,16 +99,38 @@ public class SearchBuilder implements Builder<Search> {
      */
     @Override
     public Search build() {
-        return new Search(queryCondition, filterCondition, sort);
+        Condition query = queryBuilder == null ? null : queryBuilder.build();
+        Condition filter = filterBuilder == null ? null : filterBuilder.build();
+        Sort sort = sortBuilder == null ? null : sortBuilder.build();
+        return new Search(query, filter, sort);
     }
 
     /**
-     * Returns the JSON representation of the {@link Search} represented by this builder.
+     * Returns the JSON representation of this object.
      *
-     * @return The JSON representation of the {@link Search} represented by this builder.
+     * @return the JSON representation of this object.
      */
     public String toJson() {
-        return build().toJson();
+        build(); // Validate
+        try {
+            return JsonSerializer.toString(this);
+        } catch (IOException e) {
+            throw new IllegalArgumentException(String.format("Unformateable JSON search: %s", e.getMessage()), e);
+        }
+    }
+
+    /**
+     * Returns the {@link SearchBuilder} represented by the specified JSON {@code String}.
+     *
+     * @param json A JSON {@code String} representing a {@link SearchBuilder}.
+     * @return The {@link SearchBuilder} represented by the specified JSON {@code String}.
+     */
+    public static SearchBuilder fromJson(String json) {
+        try {
+            return JsonSerializer.fromString(json, SearchBuilder.class);
+        } catch (IOException e) {
+            throw new IllegalArgumentException(String.format("Unformateable JSON search: %s", e.getMessage()), e);
+        }
     }
 
 }

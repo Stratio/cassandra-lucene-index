@@ -19,7 +19,6 @@ import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
 import org.apache.commons.lang3.StringUtils;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * The abstract base class for queries.
@@ -33,7 +32,6 @@ import org.codehaus.jackson.annotate.JsonProperty;
 public abstract class SingleFieldCondition extends Condition {
 
     /** The name of the field to be matched. */
-    @JsonProperty("field")
     public final String field;
 
     /**

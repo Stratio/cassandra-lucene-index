@@ -31,9 +31,6 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.spatial.SpatialStrategy;
 import org.apache.lucene.spatial.query.SpatialArgs;
 import org.apache.lucene.spatial.query.SpatialOperation;
-import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonIgnore;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * A {@link Condition} that matches documents containing a point contained between two certain circles.
@@ -45,34 +42,28 @@ public class GeoDistanceCondition extends Condition {
     static final SpatialContext spatialContext = SpatialContext.GEO;
 
     /** The name of the field to be matched. */
-    @JsonProperty("field")
     public final String field;
 
     /** The latitude of the reference point. */
-    @JsonProperty("latitude")
     public final double latitude;
 
     /** The longitude of the reference point. */
-    @JsonProperty("longitude")
     public final double longitude;
 
     /** The min allowed distance. */
-    @JsonProperty("min_distance")
     public final String minDistance;
 
     /** The max allowed distance. */
-    @JsonProperty("max_distance")
     public final String maxDistance;
 
-    @JsonIgnore
     public final GeoDistance minGeoDistance;
 
-    @JsonIgnore
     public final GeoDistance maxGeoDistance;
 
     /**
      * Constructor using the field name and the value to be matched.
-     *  @param boost      The boost for this query clause. Documents matching this clause will (in addition to the
+     *
+     * @param boost       The boost for this query clause. Documents matching this clause will (in addition to the
      *                    normal weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link
      *                    #DEFAULT_BOOST} is used as default.
      * @param field       The name of the field to be matched.
@@ -81,13 +72,12 @@ public class GeoDistanceCondition extends Condition {
      * @param minDistance The min allowed distance.
      * @param maxDistance The max allowed distance.
      */
-    @JsonCreator
-    public GeoDistanceCondition(@JsonProperty("boost") Float boost,
-                                @JsonProperty("field") String field,
-                                @JsonProperty("latitude") Double latitude,
-                                @JsonProperty("longitude") Double longitude,
-                                @JsonProperty("min_distance") String minDistance,
-                                @JsonProperty("max_distance") String maxDistance) {
+    public GeoDistanceCondition(Float boost,
+                                String field,
+                                Double latitude,
+                                Double longitude,
+                                String minDistance,
+                                String maxDistance) {
         super(boost);
 
         if (StringUtils.isBlank(field)) {

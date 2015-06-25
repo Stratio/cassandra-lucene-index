@@ -22,8 +22,6 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.Query;
-import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * A {@link Condition} implementation that matches documents satisfying a Lucene Query Syntax.
@@ -36,11 +34,9 @@ public class LuceneCondition extends Condition {
     public static final String DEFAULT_FIELD = "lucene";
 
     /** The Lucene query syntax expression. */
-    @JsonProperty("query")
     public final String query;
 
     /** The name of the field where the clauses will be applied by default. */
-    @JsonProperty("default_field")
     public final String defaultField;
 
     /**
@@ -52,10 +48,7 @@ public class LuceneCondition extends Condition {
      * @param defaultField the default field name.
      * @param query        the Lucene Query Syntax query.
      */
-    @JsonCreator
-    public LuceneCondition(@JsonProperty("boost") Float boost,
-                           @JsonProperty("default_field") String defaultField,
-                           @JsonProperty("query") String query) {
+    public LuceneCondition(Float boost, String defaultField, String query) {
         super(boost);
         if (StringUtils.isBlank(query)) {
             throw new IllegalArgumentException("Query statement required");

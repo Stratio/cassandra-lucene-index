@@ -23,8 +23,6 @@ import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.NumericRangeQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.util.QueryBuilder;
-import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * A {@link Condition} implementation that matches documents containing a value for a field.
@@ -34,11 +32,9 @@ import org.codehaus.jackson.annotate.JsonProperty;
 public class MatchCondition extends SingleFieldCondition {
 
     /** The name of the field to be matched. */
-    @JsonProperty("field")
     public final String field;
 
     /** The value of the field to be matched. */
-    @JsonProperty("value")
     public final Object value;
 
     /**
@@ -50,10 +46,7 @@ public class MatchCondition extends SingleFieldCondition {
      * @param field The name of the field to be matched.
      * @param value The value of the field to be matched.
      */
-    @JsonCreator
-    public MatchCondition(@JsonProperty("boost") Float boost,
-                          @JsonProperty("field") String field,
-                          @JsonProperty("value") Object value) {
+    public MatchCondition(Float boost, String field, Object value) {
         super(boost, field);
 
         if (value == null) {

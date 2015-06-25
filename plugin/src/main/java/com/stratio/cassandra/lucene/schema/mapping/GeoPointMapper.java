@@ -187,7 +187,8 @@ public class GeoPointMapper extends Mapper {
             } catch (NumberFormatException e) {
                 // Ignore to fail below
             }
-        } if (latitude == null || latitude < -90.0 || latitude > 90) {
+        }
+        if (latitude == null || latitude < -90.0 || latitude > 90) {
             throw new IllegalArgumentException("Valid latitude required, but found " + value);
         }
         return latitude;

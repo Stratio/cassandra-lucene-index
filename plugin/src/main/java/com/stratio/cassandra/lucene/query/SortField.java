@@ -22,8 +22,6 @@ import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.commons.lang3.StringUtils;
-import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.nio.ByteBuffer;
 import java.util.Comparator;
@@ -39,11 +37,9 @@ public class SortField {
     public static final boolean DEFAULT_REVERSE = false;
 
     /** The name of field to sortFields by. */
-    @JsonProperty("field")
     public final String field;
 
     /** {@code true} if natural order should be reversed. */
-    @JsonProperty("reverse")
     public final boolean reverse;
 
     /**
@@ -52,8 +48,7 @@ public class SortField {
      * @param field   The name of field to sort by.
      * @param reverse {@code true} if natural order should be reversed.
      */
-    @JsonCreator
-    public SortField(@JsonProperty("field") String field, @JsonProperty("reverse") Boolean reverse) {
+    public SortField(String field, Boolean reverse) {
 
         if (field == null || StringUtils.isBlank(field)) {
             throw new IllegalArgumentException("Field name required");

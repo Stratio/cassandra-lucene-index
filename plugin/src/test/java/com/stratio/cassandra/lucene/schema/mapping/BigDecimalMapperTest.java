@@ -503,10 +503,8 @@ public class BigDecimalMapperTest {
         assertEquals(BigDecimalMapper.class, mapper.getClass());
         assertEquals(Mapper.DEFAULT_INDEXED, mapper.isIndexed());
         assertEquals(Mapper.DEFAULT_SORTED, mapper.isSorted());
-        assertEquals(BigDecimalMapper.DEFAULT_DECIMAL_DIGITS,
-                     ((BigDecimalMapper) mapper).getDecimalDigits());
-        assertEquals(BigDecimalMapper.DEFAULT_INTEGER_DIGITS,
-                     ((BigDecimalMapper) mapper).getIntegerDigits());
+        assertEquals(BigDecimalMapper.DEFAULT_DECIMAL_DIGITS, ((BigDecimalMapper) mapper).getDecimalDigits());
+        assertEquals(BigDecimalMapper.DEFAULT_INTEGER_DIGITS, ((BigDecimalMapper) mapper).getIntegerDigits());
     }
 
     @Test
