@@ -130,7 +130,7 @@
         <profile>
             <id>patch</id>
             <properties>
-                <cassandra_home>${project.build.directory}/apache-cassandra-2.1.6</cassandra_home>
+                <cassandra_home>${project.build.directory}/apache-cassandra-${cassandra.version}</cassandra_home>
             </properties>
             <build>
                 <plugins>
@@ -159,7 +159,7 @@
         <profile>
             <id>download_and_patch</id>
             <properties>
-                <cassandra_home>${project.build.directory}/apache-cassandra-2.1.6</cassandra_home>
+                <cassandra_home>${project.build.directory}/apache-cassandra-${cassandra.version}</cassandra_home>
             </properties>
             <build>
                 <plugins>
@@ -173,20 +173,20 @@
                                 <configuration>
                                     <target>
                                         <echo message="Downloading Apache Cassandra"/>
-                                        <get src="http://www.us.apache.org/dist/cassandra/2.1.6/apache-cassandra-2.1.6-bin.tar.gz"
-                                             dest="${project.build.directory}/apache-cassandra-2.1.6-bin.tar.gz"/>
+                                        <get src="http://www.us.apache.org/dist/cassandra/${cassandra.version}/apache-cassandra-${cassandra.version}-bin.tar.gz"
+                                             dest="${project.build.directory}/apache-cassandra-${cassandra.version}-bin.tar.gz"/>
                                         <echo message="Uncompressing Apache Cassandra"/>
-                                        <gunzip src="${project.build.directory}/apache-cassandra-2.1.6-bin.tar.gz"
-                                                dest="${project.build.directory}/apache-cassandra-2.1.6-bin.tar"/>
-                                        <delete file="${project.build.directory}/apache-cassandra-2.1.6-bin.tar.gz"/>
-                                        <untar src="${project.build.directory}/apache-cassandra-2.1.6-bin.tar"
+                                        <gunzip src="${project.build.directory}/apache-cassandra-${cassandra.version}-bin.tar.gz"
+                                                dest="${project.build.directory}/apache-cassandra-${cassandra.version}-bin.tar"/>
+                                        <delete file="${project.build.directory}/apache-cassandra-${cassandra.version}-bin.tar.gz"/>
+                                        <untar src="${project.build.directory}/apache-cassandra-${cassandra.version}-bin.tar"
                                                dest="${project.build.directory}"/>
-                                        <delete file="${project.build.directory}/apache-cassandra-2.1.6-bin.tar"/>
+                                        <delete file="${project.build.directory}/apache-cassandra-${cassandra.version}-bin.tar"/>
                                         <echo message="Patching Apache Cassandra"/>
                                         <copy file="${project.build.directory}/${project.build.finalName}.jar"
-                                              toFile="${project.build.directory}/apache-cassandra-2.1.6/lib/${project.build.finalName}.jar"/>
+                                              toFile="${project.build.directory}/apache-cassandra-${cassandra.version}/lib/${project.build.finalName}.jar"/>
                                         <echo message="Moving Apache Cassandra to ${cassandra_home}"/>
-                                        <move file="${project.build.directory}/apache-cassandra-2.1.6"
+                                        <move file="${project.build.directory}/apache-cassandra-${cassandra.version}"
                                               toFile="${cassandra_home}"/>
                                     </target>
                                 </configuration>
