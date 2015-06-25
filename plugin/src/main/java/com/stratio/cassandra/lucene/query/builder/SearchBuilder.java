@@ -38,10 +38,7 @@ public class SearchBuilder implements Builder<Search> {
     @JsonProperty("filter")
     private ConditionBuilder filterBuilder;
 
-    /**
-     * The {@link Sort} for the query. Note that is the order in which the data will be read before querying, not the
-     * order of the results after querying.
-     */
+    /** The {@link Sort} for the query, maybe {@code null} meaning no filtering. */
     @JsonProperty("sort")
     private SortBuilder sortBuilder;
 
@@ -51,7 +48,6 @@ public class SearchBuilder implements Builder<Search> {
      * @param queryBuilder The querying condition to be set.
      * @return This builder with the specified querying condition.
      */
-    @JsonProperty("query")
     public SearchBuilder query(ConditionBuilder queryBuilder) {
         this.queryBuilder = queryBuilder;
         return this;
@@ -63,7 +59,6 @@ public class SearchBuilder implements Builder<Search> {
      * @param filterBuilder The filtering condition to be set.
      * @return This builder with the specified filtering condition.
      */
-    @JsonProperty("filter")
     public SearchBuilder filter(ConditionBuilder filterBuilder) {
         this.filterBuilder = filterBuilder;
         return this;
@@ -75,7 +70,6 @@ public class SearchBuilder implements Builder<Search> {
      * @param sortBuilder The sorting fields to be set.
      * @return This builder with the specified sorting.
      */
-    @JsonProperty("sort")
     public SearchBuilder sort(SortBuilder sortBuilder) {
         this.sortBuilder = sortBuilder;
         return this;

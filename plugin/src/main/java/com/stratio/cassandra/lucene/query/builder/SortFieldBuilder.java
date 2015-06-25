@@ -50,7 +50,6 @@ public class SortFieldBuilder implements Builder<SortField> {
      *
      * @param reverse {@code true} if natural order should be reversed.
      */
-    @JsonProperty("reverse")
     public SortFieldBuilder reverse(boolean reverse) {
         this.reverse = reverse;
         return this;
