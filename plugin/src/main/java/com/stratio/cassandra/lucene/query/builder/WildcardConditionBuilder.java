@@ -28,11 +28,11 @@ public class WildcardConditionBuilder extends ConditionBuilder<WildcardCondition
 
     /** The name of the field to be matched. */
     @JsonProperty("field")
-    private final String field;
+    final String field;
 
     /** The wildcard expression to be matched. */
     @JsonProperty("value")
-    private final String value;
+    final String value;
 
     /**
      * Creates a new {@link WildcardConditionBuilder} for the specified field and value.

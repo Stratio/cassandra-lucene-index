@@ -26,7 +26,6 @@ import org.apache.lucene.spatial.prefix.IntersectsPrefixTreeFilter;
 import org.junit.Test;
 
 import static com.stratio.cassandra.lucene.query.builder.SearchBuilders.geoDistance;
-import static com.stratio.cassandra.lucene.query.builder.SearchBuilders.query;
 import static org.junit.Assert.*;
 
 /**
@@ -171,11 +170,6 @@ public class GeoDistanceConditionTest extends AbstractConditionTest {
         Schema schema = mockSchema("name", new UUIDMapper("name", null, null));
         Condition condition = new GeoDistanceCondition(0.5f, "name", 90D, -180D, null, "3km");
         condition.query(schema);
-    }
-
-    @Test
-    public void testJson() {
-        testJsonCondition(query(geoDistance("name", -180D, 90D, "3km").setMinDistance("1km")));
     }
 
     @Test

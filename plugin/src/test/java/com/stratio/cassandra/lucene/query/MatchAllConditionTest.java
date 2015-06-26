@@ -15,14 +15,10 @@
  */
 package com.stratio.cassandra.lucene.query;
 
-import com.stratio.cassandra.lucene.query.builder.MatchAllConditionBuilder;
 import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.util.JsonSerializer;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
 import org.junit.Test;
-
-import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -53,14 +49,6 @@ public class MatchAllConditionTest extends AbstractConditionTest {
         assertNotNull(query);
         assertEquals(MatchAllDocsQuery.class, query.getClass());
         assertEquals(0.7f, query.getBoost(), 0);
-    }
-
-    @Test
-    public void testJson() throws IOException {
-        String in = "{type:\"match_all\",boost:0.7}";
-        MatchAllConditionBuilder condition = JsonSerializer.fromString(in, MatchAllConditionBuilder.class);
-        String out = JsonSerializer.toString(condition);
-        assertEquals(in, out);
     }
 
     @Test

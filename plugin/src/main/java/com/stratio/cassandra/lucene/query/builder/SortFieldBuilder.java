@@ -28,11 +28,11 @@ public class SortFieldBuilder implements Builder<SortField> {
 
     /** The name of the field to be used for sort. */
     @JsonProperty("field")
-    private final String field;
+    final String field;
 
     /** If natural order should be reversed. */
     @JsonProperty("reverse")
-    private boolean reverse;
+    boolean reverse;
 
     /**
      * Creates a new {@link SortFieldBuilder} for the specified field and reverse option.

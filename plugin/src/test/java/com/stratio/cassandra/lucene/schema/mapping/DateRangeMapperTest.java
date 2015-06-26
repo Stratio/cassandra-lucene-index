@@ -168,8 +168,6 @@ public class DateRangeMapperTest {
     @Test(expected = IllegalArgumentException.class)
     public void testGetStartWithNullColumn() {
         DateRangeMapper mapper = new DateRangeMapper("field", "from", "to", null);
-        Columns columns = new Columns();
-        columns.add(Column.fromComposed("from", 0, Int32Type.instance, false));
         mapper.readStart(new Columns());
     }
 
@@ -239,8 +237,6 @@ public class DateRangeMapperTest {
     @Test(expected = IllegalArgumentException.class)
     public void testGetStopWithNullColumn() {
         DateRangeMapper mapper = new DateRangeMapper("field", "from", "to", null);
-        Columns columns = new Columns();
-        columns.add(Column.fromComposed("to", 0, Int32Type.instance, false));
         mapper.readStop(new Columns());
     }
 

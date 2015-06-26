@@ -25,7 +25,7 @@ import static org.junit.Assert.assertNotNull;
 /**
  * @author Andres de la Pena <adelapena@stratio.com>
  */
-public class FuzzyConditionBuilderTest {
+public class FuzzyConditionBuilderTest extends AbstractConditionBuilderTest {
 
     @Test
     public void testBuild() {
@@ -58,5 +58,24 @@ public class FuzzyConditionBuilderTest {
         assertEquals(FuzzyCondition.DEFAULT_PREFIX_LENGTH, condition.prefixLength);
         assertEquals(FuzzyCondition.DEFAULT_MAX_EXPANSIONS, condition.maxExpansions);
         assertEquals(FuzzyCondition.DEFAULT_TRANSPOSITIONS, condition.transpositions);
+    }
+
+    @Test
+    public void testJsonSerialization() {
+        FuzzyConditionBuilder builder = new FuzzyConditionBuilder("field", "value");
+        builder.boost(0.7f);
+        builder.maxEdits(2);
+        builder.prefixLength(2);
+        builder.maxExpansions(49);
+        builder.transpositions(true);
+        testJsonSerialization(builder,
+                              "{type:\"fuzzy\",field:\"field\",value:\"value\",boost:0.7," +
+                              "transpositions:true,max_edits:2,prefix_length:2,max_expansions:49}");
+    }
+
+    @Test
+    public void testJsonSerializationDefaults() {
+        FuzzyConditionBuilder builder = new FuzzyConditionBuilder("field", "value");
+        testJsonSerialization(builder, "{type:\"fuzzy\",field:\"field\",value:\"value\"}");
     }
 }

@@ -32,21 +32,15 @@ public class BooleanConditionBuilder extends ConditionBuilder<BooleanCondition, 
 
     /** The mandatory conditions */
     @JsonProperty("must")
-    private List<ConditionBuilder> must = new ArrayList<>();
+    List<ConditionBuilder> must = new ArrayList<>();
 
     /** The optional conditions */
     @JsonProperty("should")
-    private List<ConditionBuilder> should = new ArrayList<>();
+    List<ConditionBuilder> should = new ArrayList<>();
 
     /** The mandatory not conditions */
     @JsonProperty("not")
-    private List<ConditionBuilder> not = new ArrayList<>();
-
-    /**
-     * Returns a new {@link BooleanConditionBuilder}.
-     */
-    BooleanConditionBuilder() {
-    }
+    List<ConditionBuilder> not = new ArrayList<>();
 
     /**
      * Returns this builder with the specified mandatory conditions.

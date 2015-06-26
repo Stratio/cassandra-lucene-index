@@ -25,13 +25,11 @@ import static org.junit.Assert.assertNotNull;
 /**
  * @author Andres de la Pena <adelapena@stratio.com>
  */
-public class LuceneConditionBuilderTest {
+public class LuceneConditionBuilderTest extends AbstractConditionBuilderTest {
 
     @Test
     public void testBuild() {
-        LuceneConditionBuilder builder = new LuceneConditionBuilder("field:value");
-        builder.boost(0.7f);
-        builder.defaultField("field");
+        LuceneConditionBuilder builder = new LuceneConditionBuilder("field:value").boost(0.7f).defaultField("field");
         LuceneCondition condition = builder.build();
         assertNotNull(condition);
         assertEquals(0.7f, condition.boost, 0);
@@ -47,5 +45,17 @@ public class LuceneConditionBuilderTest {
         assertEquals(Condition.DEFAULT_BOOST, condition.boost, 0);
         assertEquals(LuceneCondition.DEFAULT_FIELD, condition.defaultField);
         assertEquals("field:value", condition.query);
+    }
+
+    @Test
+    public void testJsonSerialization() {
+        LuceneConditionBuilder builder = new LuceneConditionBuilder("field:value").boost(0.7f).defaultField("field");
+        testJsonSerialization(builder, "{type:\"lucene\",query:\"field:value\",boost:0.7,default_field:\"field\"}");
+    }
+
+    @Test
+    public void testJsonSerializationDefaults() {
+        LuceneConditionBuilder builder = new LuceneConditionBuilder("field:value");
+        testJsonSerialization(builder, "{type:\"lucene\",query:\"field:value\"}");
     }
 }

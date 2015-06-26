@@ -28,27 +28,27 @@ public class FuzzyConditionBuilder extends ConditionBuilder<FuzzyCondition, Fuzz
 
     /** The name of the field to be matched. */
     @JsonProperty("field")
-    private final String field;
+    final String field;
 
     /** The fuzzy expression to be matched. */
     @JsonProperty("value")
-    private final String value;
+    final String value;
 
     /** The Damerau-Levenshtein max distance. */
     @JsonProperty("max_edits")
-    private Integer maxEdits;
+    Integer maxEdits;
 
     /** The length of common (non-fuzzy) prefix. */
     @JsonProperty("prefix_length")
-    private Integer prefixLength;
+    Integer prefixLength;
 
     /** The maximum number of terms to match. */
     @JsonProperty("max_expansions")
-    private Integer maxExpansions;
+    Integer maxExpansions;
 
     /** If transpositions should be treated as a primitive edit operation. */
     @JsonProperty("transpositions")
-    private Boolean transpositions;
+    Boolean transpositions;
 
     /**
      * Returns a new {@link FuzzyConditionBuilder}

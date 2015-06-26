@@ -28,14 +28,21 @@ import org.codehaus.jackson.annotate.JsonProperty;
  */
 public class DateRangeConditionBuilder extends ConditionBuilder<DateRangeCondition, DateRangeConditionBuilder> {
 
+    /** The name of the field to be matched. */
     @JsonProperty("field")
-    private String field; // The name of the field to be matched.
+    String field;
+
+    /** The lower accepted date. Maybe null meaning no lower limit. */
     @JsonProperty("start")
-    private Object start; // The lower accepted date. Maybe null meaning no lower limit.
+    Object start;
+
+    /** The upper accepted date. Maybe null meaning no upper limit. */
     @JsonProperty("stop")
-    private Object stop; // The upper accepted date. Maybe null meaning no upper limit.
+    Object stop;
+
+    /** The spatial operation to be performed. */
     @JsonProperty("operation")
-    private String operation; // The spatial operation to be performed.
+    String operation;
 
     /**
      * Returns a new {@link DateRangeConditionBuilder} with the specified field reference point.

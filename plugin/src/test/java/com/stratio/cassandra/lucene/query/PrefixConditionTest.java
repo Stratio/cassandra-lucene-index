@@ -23,8 +23,6 @@ import org.apache.lucene.search.PrefixQuery;
 import org.apache.lucene.search.Query;
 import org.junit.Test;
 
-import static com.stratio.cassandra.lucene.query.builder.SearchBuilders.prefix;
-import static com.stratio.cassandra.lucene.query.builder.SearchBuilders.query;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -88,11 +86,6 @@ public class PrefixConditionTest extends AbstractConditionTest {
         assertEquals("name", luceneQuery.getField());
         assertEquals("2001:db8:2de:0:0:0:0:e", luceneQuery.getPrefix().text());
         assertEquals(0.5f, query.getBoost(), 0);
-    }
-
-    @Test
-    public void testJson() {
-        testJsonCondition(query(prefix("name", "aaa").boost(0.5f)));
     }
 
     @Test

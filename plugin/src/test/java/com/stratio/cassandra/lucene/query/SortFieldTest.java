@@ -15,18 +15,15 @@
  */
 package com.stratio.cassandra.lucene.query;
 
-import com.stratio.cassandra.lucene.query.builder.SortFieldBuilder;
 import com.stratio.cassandra.lucene.schema.Column;
 import com.stratio.cassandra.lucene.schema.Columns;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.analysis.PreBuiltAnalyzers;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 import com.stratio.cassandra.lucene.schema.mapping.StringMapper;
-import com.stratio.cassandra.lucene.util.JsonSerializer;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.util.Comparator;
 
 import static org.junit.Assert.*;
@@ -170,14 +167,5 @@ public class SortFieldTest {
     public void testToString() {
         SortField sortField = new SortField("field", null);
         assertEquals("SortField{field=field, reverse=false}", sortField.toString());
-    }
-
-    @Test
-    public void testToJson() throws IOException {
-        SortFieldBuilder sortField = new SortFieldBuilder("field");
-        String expectedJson = "{field:\"field\",reverse:false}";
-        assertEquals(expectedJson, JsonSerializer.toString(sortField));
-        assertEquals(expectedJson,
-                     JsonSerializer.toString(JsonSerializer.fromString(expectedJson, SortFieldBuilder.class)));
     }
 }

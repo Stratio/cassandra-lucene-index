@@ -15,7 +15,6 @@
  */
 package com.stratio.cassandra.lucene.query;
 
-import com.stratio.cassandra.lucene.query.builder.SearchBuilders;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.BlobMapper;
 import com.stratio.cassandra.lucene.schema.mapping.DoubleMapper;
@@ -259,11 +258,6 @@ public class MatchConditionTest extends AbstractConditionTest {
 
         MatchCondition matchCondition = new MatchCondition(0.5f, "field", "2001:DB8:2de::0e13");
         matchCondition.query(schema);
-    }
-
-    @Test
-    public void testJson() {
-        testJsonCondition(SearchBuilders.filter(SearchBuilders.match("name", 42).boost(0.5f)));
     }
 
     @Test

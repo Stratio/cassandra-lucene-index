@@ -15,8 +15,6 @@
  */
 package com.stratio.cassandra.lucene.query;
 
-import com.stratio.cassandra.lucene.query.builder.RangeConditionBuilder;
-import com.stratio.cassandra.lucene.query.builder.SearchBuilder;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.DoubleMapper;
 import com.stratio.cassandra.lucene.schema.mapping.FloatMapper;
@@ -29,7 +27,7 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermRangeQuery;
 import org.junit.Test;
 
-import static com.stratio.cassandra.lucene.query.builder.SearchBuilders.*;
+import static com.stratio.cassandra.lucene.query.builder.SearchBuilders.range;
 import static org.junit.Assert.*;
 
 /**
@@ -257,39 +255,6 @@ public class RangeConditionTest extends AbstractConditionTest {
         assertEquals(true, ((TermRangeQuery) query).includesLower());
         assertEquals(true, ((TermRangeQuery) query).includesUpper());
         assertEquals(0.5f, query.getBoost(), 0);
-    }
-
-    @Test
-    public void testJsonInteger() {
-        RangeConditionBuilder rangeCondition = range("name").lower(1)
-                                                            .upper(2)
-                                                            .includeLower(true)
-                                                            .includeUpper(false)
-                                                            .boost(0.5f);
-        SearchBuilder searchBuilder = query(rangeCondition);
-
-        testJsonCondition(searchBuilder);
-    }
-
-    @Test
-    public void testJsonDouble() {
-        testJsonCondition(query(range("name").lower(1.6)
-                                             .upper(2.5)
-                                             .includeLower(true)
-                                             .includeUpper(false)
-                                             .boost(0.5f)));
-    }
-
-    @Test
-    public void testJsonString() {
-        testJsonCondition(query(range("name").lower("a")
-                                             .upper("b")
-                                             .includeLower(true)
-                                             .includeUpper(false)
-                                             .boost(0.5f)).filter(bool().must(match("f1", "v1").boost(2),
-                                                                              match("f2", "v2"))
-                                                                        .should(match("f3", "v3"))
-                                                                        .boost(0.5)));
     }
 
     @Test

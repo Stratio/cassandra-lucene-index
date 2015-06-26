@@ -111,11 +111,6 @@ public class WildcardConditionTest extends AbstractConditionTest {
     }
 
     @Test
-    public void testJson() {
-        testJsonCondition(SearchBuilders.query(SearchBuilders.wildcard("name", "aaa*").boost(0.5f)));
-    }
-
-    @Test
     public void testToString() {
         WildcardCondition condition = SearchBuilders.wildcard("name", "aaa*").boost(0.5f).build();
         assertEquals("WildcardCondition{boost=0.5, field=name, value=aaa*}", condition.toString());

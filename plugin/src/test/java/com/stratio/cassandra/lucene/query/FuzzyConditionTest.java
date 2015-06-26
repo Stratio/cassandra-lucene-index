@@ -23,8 +23,6 @@ import org.apache.lucene.search.FuzzyQuery;
 import org.apache.lucene.search.Query;
 import org.junit.Test;
 
-import static com.stratio.cassandra.lucene.query.builder.SearchBuilders.filter;
-import static com.stratio.cassandra.lucene.query.builder.SearchBuilders.fuzzy;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -115,15 +113,6 @@ public class FuzzyConditionTest extends AbstractConditionTest {
 
         FuzzyCondition condition = new FuzzyCondition(0.5f, "name", "tr", 1, 2, 49, true);
         condition.query(schema);
-    }
-
-    @Test
-    public void testJson() {
-        testJsonCondition(filter(fuzzy("name", "tr").maxEdits(1)
-                                                    .maxExpansions(1)
-                                                    .prefixLength(40)
-                                                    .transpositions(true)
-                                                    .boost(0.5f)));
     }
 
     @Test

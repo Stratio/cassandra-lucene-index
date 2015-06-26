@@ -20,8 +20,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-import static com.stratio.cassandra.lucene.query.builder.SearchBuilders.match;
-import static com.stratio.cassandra.lucene.query.builder.SearchBuilders.sortField;
+import static com.stratio.cassandra.lucene.query.builder.SearchBuilders.*;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -38,5 +37,19 @@ public class SearchBuilderTest {
         SearchBuilder searchBuilder = new SearchBuilder().query(query).filter(filter).sort(sort1, sort2);
         String json = searchBuilder.toJson();
         assertEquals(json, JsonSerializer.toString(searchBuilder));
+    }
+
+    @Test
+    public void testJson() {
+        SearchBuilder searchBuilder = search().query(match("field", "value"))
+                                              .filter(match("field", "value"))
+                                              .sort(sortField("field"));
+        String json = searchBuilder.toJson();
+        assertEquals(json, SearchBuilder.fromJson(json).toJson());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testFromJsonInvalid() {
+        SearchBuilder.fromJson("error");
     }
 }

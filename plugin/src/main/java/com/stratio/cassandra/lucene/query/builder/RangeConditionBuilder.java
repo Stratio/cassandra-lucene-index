@@ -28,23 +28,23 @@ public class RangeConditionBuilder extends ConditionBuilder<RangeCondition, Rang
 
     /** The name of the field to be matched. */
     @JsonProperty("field")
-    private final String field;
+    final String field;
 
     /** The lower accepted value. Maybe null meaning no lower limit. */
     @JsonProperty("lower")
-    private Object lower;
+    Object lower;
 
     /** The upper accepted value. Maybe null meaning no upper limit. */
     @JsonProperty("upper")
-    private Object upper;
+    Object upper;
 
     /** If the lower value must be included if not null. */
     @JsonProperty("include_lower")
-    private Boolean includeLower;
+    Boolean includeLower;
 
     /** If the upper value must be included if not null. */
     @JsonProperty("include_upper")
-    private Boolean includeUpper;
+    Boolean includeUpper;
 
     /**
      * Creates a new {@link RangeConditionBuilder} for the specified field.

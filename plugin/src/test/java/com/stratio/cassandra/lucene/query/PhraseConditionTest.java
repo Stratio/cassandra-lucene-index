@@ -21,8 +21,6 @@ import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.Query;
 import org.junit.Test;
 
-import static com.stratio.cassandra.lucene.query.builder.SearchBuilders.filter;
-import static com.stratio.cassandra.lucene.query.builder.SearchBuilders.phrase;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -76,11 +74,6 @@ public class PhraseConditionTest extends AbstractConditionTest {
         assertEquals(3, luceneQuery.getTerms().length);
         assertEquals(2, luceneQuery.getSlop());
         assertEquals(0.5f, query.getBoost(), 0);
-    }
-
-    @Test
-    public void testJson() {
-        testJsonCondition(filter(phrase("name", " hola adios").slop(1).boost(0.5f)));
     }
 
     @Test

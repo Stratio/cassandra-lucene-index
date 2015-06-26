@@ -15,7 +15,6 @@
  */
 package com.stratio.cassandra.lucene.query;
 
-import com.stratio.cassandra.lucene.query.builder.DateRangeConditionBuilder;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.DateRangeMapper;
 import com.stratio.cassandra.lucene.schema.mapping.UUIDMapper;
@@ -26,7 +25,6 @@ import org.apache.lucene.spatial.query.SpatialOperation;
 import org.junit.Test;
 
 import static com.stratio.cassandra.lucene.query.builder.SearchBuilders.dateRange;
-import static com.stratio.cassandra.lucene.query.builder.SearchBuilders.query;
 import static org.junit.Assert.*;
 
 /**
@@ -119,15 +117,6 @@ public class DateRangeConditionTest extends AbstractConditionTest {
         Schema schema = mockSchema("name", new UUIDMapper("name", null, null));
         DateRangeCondition condition = new DateRangeCondition(null, "name", 1, 2, null);
         condition.query(schema);
-    }
-
-    @Test
-    public void testJson() {
-        DateRangeConditionBuilder condition = dateRange("name").setStart(1)
-                                                               .setStop(2)
-                                                               .setOperation("contains")
-                                                               .boost(0.3);
-        testJsonCondition(query(condition));
     }
 
     @Test

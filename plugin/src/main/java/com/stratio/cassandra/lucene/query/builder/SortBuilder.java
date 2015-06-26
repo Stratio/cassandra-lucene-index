@@ -33,7 +33,7 @@ public class SortBuilder implements Builder<Sort> {
 
     /** The {@link SortField}s */
     @JsonProperty("fields")
-    private final List<SortFieldBuilder> sortFieldBuilders;
+    final List<SortFieldBuilder> sortFieldBuilders;
 
     /**
      * Creates a new {@link SortBuilder} for the specified {@link SortFieldBuilder}.

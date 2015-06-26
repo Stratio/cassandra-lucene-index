@@ -15,7 +15,6 @@
  */
 package com.stratio.cassandra.lucene.query;
 
-import com.stratio.cassandra.lucene.query.builder.SearchBuilders;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.InetMapper;
 import com.stratio.cassandra.lucene.schema.mapping.IntegerMapper;
@@ -117,11 +116,6 @@ public class RegexpConditionTest extends AbstractConditionTest {
         RegexpQuery luceneQuery = (RegexpQuery) query;
         assertEquals("name", luceneQuery.getField());
         assertEquals(0.5f, query.getBoost(), 0);
-    }
-
-    @Test
-    public void testJson() {
-        testJsonCondition(SearchBuilders.query(SearchBuilders.regexp("name", "aaa*").boost(0.5f)));
     }
 
     @Test

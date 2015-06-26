@@ -15,15 +15,11 @@
  */
 package com.stratio.cassandra.lucene.query;
 
-import com.stratio.cassandra.lucene.query.builder.LuceneConditionBuilder;
 import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.util.JsonSerializer;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.junit.Test;
-
-import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -86,14 +82,6 @@ public class LuceneConditionTest extends AbstractConditionTest {
         when(schema.getAnalyzer()).thenReturn(new EnglishAnalyzer());
         LuceneCondition condition = new LuceneCondition(0.7f, "field_1", ":");
         condition.query(schema);
-    }
-
-    @Test
-    public void testJson() throws IOException {
-        String in = "{type:\"lucene\",query:\"field_2:houses\",boost:0.7,default_field:\"field_1\"}";
-        LuceneConditionBuilder condition = JsonSerializer.fromString(in, LuceneConditionBuilder.class);
-        String out = JsonSerializer.toString(condition);
-        assertEquals(in, out);
     }
 
     @Test

@@ -32,15 +32,15 @@ public class SearchBuilder implements Builder<Search> {
 
     /** The {@link Condition} for querying, maybe {@code null} meaning no querying. */
     @JsonProperty("query")
-    private ConditionBuilder queryBuilder;
+    ConditionBuilder queryBuilder;
 
     /** The {@link Condition} for filtering, maybe {@code null} meaning no filtering. */
     @JsonProperty("filter")
-    private ConditionBuilder filterBuilder;
+    ConditionBuilder filterBuilder;
 
     /** The {@link Sort} for the query, maybe {@code null} meaning no filtering. */
     @JsonProperty("sort")
-    private SortBuilder sortBuilder;
+    SortBuilder sortBuilder;
 
     /**
      * Returns this builder with the specified querying condition.

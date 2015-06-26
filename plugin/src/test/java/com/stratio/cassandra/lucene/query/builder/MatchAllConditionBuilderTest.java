@@ -25,12 +25,11 @@ import static org.junit.Assert.assertNotNull;
 /**
  * @author Andres de la Pena <adelapena@stratio.com>
  */
-public class MatchAllConditionBuilderTest {
+public class MatchAllConditionBuilderTest extends AbstractConditionBuilderTest {
 
     @Test
     public void testBuild() {
-        MatchAllConditionBuilder builder = new MatchAllConditionBuilder();
-        builder.boost(0.7);
+        MatchAllConditionBuilder builder = new MatchAllConditionBuilder().boost(0.7);
         MatchAllCondition condition = builder.build();
         assertNotNull(condition);
         assertEquals(0.7f, condition.boost, 0);
@@ -42,5 +41,17 @@ public class MatchAllConditionBuilderTest {
         MatchAllCondition condition = builder.build();
         assertNotNull(condition);
         assertEquals(Condition.DEFAULT_BOOST, condition.boost, 0);
+    }
+
+    @Test
+    public void testJsonSerialization() {
+        MatchAllConditionBuilder builder = new MatchAllConditionBuilder().boost(0.7);
+        testJsonSerialization(builder, "{type:\"match_all\",boost:0.7}");
+    }
+
+    @Test
+    public void testJsonSerializationDefaults() {
+        MatchAllConditionBuilder builder = new MatchAllConditionBuilder();
+        testJsonSerialization(builder, "{type:\"match_all\"}");
     }
 }

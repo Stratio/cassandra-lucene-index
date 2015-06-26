@@ -15,6 +15,7 @@
  */
 package com.stratio.cassandra.lucene.query.builder;
 
+import com.stratio.cassandra.lucene.query.Condition;
 import com.stratio.cassandra.lucene.query.RangeCondition;
 import org.junit.Test;
 
@@ -23,17 +24,18 @@ import static org.junit.Assert.*;
 /**
  * @author Andres de la Pena <adelapena@stratio.com>
  */
-public class RangeConditionBuilderTest {
+public class RangeConditionBuilderTest extends AbstractConditionBuilderTest {
 
     @Test
     public void testBuildString() {
-        RangeConditionBuilder builder = new RangeConditionBuilder("field");
-        builder.lower("lower");
-        builder.upper("upper");
-        builder.includeLower(false);
-        builder.includeUpper(true);
+        RangeConditionBuilder builder = new RangeConditionBuilder("field").boost(0.4)
+                                                                          .lower("lower")
+                                                                          .upper("upper")
+                                                                          .includeLower(false)
+                                                                          .includeUpper(true);
         RangeCondition condition = builder.build();
         assertNotNull(condition);
+        assertEquals(0.4f, condition.boost, 0);
         assertEquals("field", condition.field);
         assertEquals("lower", condition.lower);
         assertEquals("upper", condition.upper);
@@ -43,13 +45,14 @@ public class RangeConditionBuilderTest {
 
     @Test
     public void testBuildNumber() {
-        RangeConditionBuilder builder = new RangeConditionBuilder("field");
-        builder.lower(1);
-        builder.upper(2);
-        builder.includeLower(false);
-        builder.includeUpper(true);
+        RangeConditionBuilder builder = new RangeConditionBuilder("field").boost(0.4)
+                                                                          .lower(1)
+                                                                          .upper(2)
+                                                                          .includeLower(false)
+                                                                          .includeUpper(true);
         RangeCondition condition = builder.build();
         assertNotNull(condition);
+        assertEquals(0.4f, condition.boost, 0);
         assertEquals("field", condition.field);
         assertEquals(1, condition.lower);
         assertEquals(2, condition.upper);
@@ -63,9 +66,40 @@ public class RangeConditionBuilderTest {
         RangeCondition condition = builder.build();
         assertNotNull(condition);
         assertEquals("field", condition.field);
+        assertEquals(Condition.DEFAULT_BOOST, condition.boost, 0);
         assertNull(condition.lower);
         assertNull(condition.upper);
         assertEquals(RangeCondition.DEFAULT_INCLUDE_LOWER, condition.includeLower);
         assertEquals(RangeCondition.DEFAULT_INCLUDE_UPPER, condition.includeUpper);
+    }
+
+    @Test
+    public void testJsonSerializationString() {
+        RangeConditionBuilder builder = new RangeConditionBuilder("field").boost(0.4)
+                                                                          .lower("lower")
+                                                                          .upper("upper")
+                                                                          .includeLower(false)
+                                                                          .includeUpper(true);
+        testJsonSerialization(builder,
+                              "{type:\"range\",field:\"field\",boost:0.4,lower:\"lower\",upper:\"upper\"," +
+                              "include_lower:false,include_upper:true}");
+    }
+
+    @Test
+    public void testJsonSerializationNumber() {
+        RangeConditionBuilder builder = new RangeConditionBuilder("field").boost(0.4)
+                                                                          .lower(1)
+                                                                          .upper(2)
+                                                                          .includeLower(false)
+                                                                          .includeUpper(true);
+        testJsonSerialization(builder,
+                              "{type:\"range\",field:\"field\",boost:0.4,lower:1,upper:2," +
+                              "include_lower:false,include_upper:true}");
+    }
+
+    @Test
+    public void testJsonSerializationDefaults() {
+        PrefixConditionBuilder builder = new PrefixConditionBuilder("field", "value");
+        testJsonSerialization(builder, "{type:\"prefix\",field:\"field\",value:\"value\"}");
     }
 }

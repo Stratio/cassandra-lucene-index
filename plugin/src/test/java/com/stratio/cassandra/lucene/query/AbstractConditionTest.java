@@ -15,13 +15,11 @@
  */
 package com.stratio.cassandra.lucene.query;
 
-import com.stratio.cassandra.lucene.query.builder.SearchBuilder;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.analysis.PreBuiltAnalyzers;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 import org.apache.lucene.analysis.Analyzer;
 
-import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -29,12 +27,6 @@ import static org.mockito.Mockito.when;
  * @author Andres de la Pena <adelapena@stratio.com>
  */
 public class AbstractConditionTest {
-
-    protected void testJsonCondition(SearchBuilder search) {
-        String json1 = search.toJson();
-        String json2 = SearchBuilder.fromJson(json1).toJson();
-        assertEquals(json1, json2);
-    }
 
     protected Schema mockSchema(String mapperName, Mapper mapper) {
         Schema schema = mock(Schema.class);

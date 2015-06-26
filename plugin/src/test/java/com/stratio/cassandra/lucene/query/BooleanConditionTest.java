@@ -33,14 +33,6 @@ import static org.mockito.Mockito.when;
 public class BooleanConditionTest extends AbstractConditionTest {
 
     @Test
-    public void testJson() {
-        testJsonCondition(query(bool().must(match("name", "jonathan"), range("age").lower(18).includeLower(true))
-                                      .should(match("color", "green"), match("color", "blue"))
-                                      .not(match("country", "england"))
-                                      .boost(0.5f)).filter(match("section", "customers")));
-    }
-
-    @Test
     public void testQuery() {
         Schema schema = mock(Schema.class);
         when(schema.getAnalyzer()).thenReturn(PreBuiltAnalyzers.DEFAULT.get());

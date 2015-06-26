@@ -15,6 +15,7 @@
  */
 package com.stratio.cassandra.lucene.query.builder;
 
+import com.stratio.cassandra.lucene.query.Condition;
 import com.stratio.cassandra.lucene.query.PhraseCondition;
 import org.junit.Test;
 
@@ -24,17 +25,39 @@ import static org.junit.Assert.assertNotNull;
 /**
  * @author Andres de la Pena <adelapena@stratio.com>
  */
-public class PhraseConditionBuilderTest {
+public class PhraseConditionBuilderTest extends AbstractConditionBuilderTest {
 
     @Test
     public void testBuild() {
-        String value = "value1 value2";
-        PhraseConditionBuilder builder = new PhraseConditionBuilder("field", value);
-        builder.slop(2);
+        PhraseConditionBuilder builder = new PhraseConditionBuilder("field", "value1 value2").slop(2).boost(0.7f);
         PhraseCondition condition = builder.build();
         assertNotNull(condition);
+        assertEquals(0.7f, condition.boost, 0);
         assertEquals("field", condition.field);
-        assertEquals(value, condition.value);
+        assertEquals("value1 value2", condition.value);
         assertEquals(2, condition.slop);
+    }
+
+    @Test
+    public void testBuildDefaults() {
+        PhraseConditionBuilder builder = new PhraseConditionBuilder("field", "value1 value2");
+        PhraseCondition condition = builder.build();
+        assertNotNull(condition);
+        assertEquals(Condition.DEFAULT_BOOST, condition.boost, 0);
+        assertEquals("field", condition.field);
+        assertEquals("value1 value2", condition.value);
+        assertEquals(PhraseCondition.DEFAULT_SLOP, condition.slop);
+    }
+
+    @Test
+    public void testJsonSerialization() {
+        PhraseConditionBuilder builder = new PhraseConditionBuilder("field", "value1 value2").slop(2).boost(0.7f);
+        testJsonSerialization(builder, "{type:\"phrase\",field:\"field\",value:\"value1 value2\",boost:0.7,slop:2}");
+    }
+
+    @Test
+    public void testJsonSerializationDefaults() {
+        PhraseConditionBuilder builder = new PhraseConditionBuilder("field", "value1 value2");
+        testJsonSerialization(builder, "{type:\"phrase\",field:\"field\",value:\"value1 value2\"}");
     }
 }

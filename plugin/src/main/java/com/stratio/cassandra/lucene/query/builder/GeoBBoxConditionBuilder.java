@@ -26,16 +26,25 @@ import org.codehaus.jackson.annotate.JsonProperty;
  */
 public class GeoBBoxConditionBuilder extends ConditionBuilder<GeoBBoxCondition, GeoBBoxConditionBuilder> {
 
+    /** The name of the field to be matched. */
     @JsonProperty("field")
-    private String field; // The name of the field to be matched
+    String field;
+
+    /** The minimum accepted latitude. */
     @JsonProperty("min_latitude")
-    private double minLatitude; // The minimum accepted latitude
+    double minLatitude;
+
+    /** The maximum accepted latitude. */
     @JsonProperty("max_latitude")
-    private double maxLatitude; // The maximum accepted latitude
+    double maxLatitude;
+
+    /** The minimum accepted longitude. */
     @JsonProperty("min_longitude")
-    private double minLongitude; // The minimum accepted longitude
+    double minLongitude;
+
+    /** The maximum accepted longitude. */
     @JsonProperty("max_longitude")
-    private double maxLongitude; // The maximum accepted longitude
+    double maxLongitude;
 
     /**
      * Returns a new {@link GeoBBoxConditionBuilder} with the specified field name and bounding box coordinates.

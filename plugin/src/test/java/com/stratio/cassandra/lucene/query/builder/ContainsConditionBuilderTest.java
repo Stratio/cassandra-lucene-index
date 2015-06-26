@@ -15,6 +15,7 @@
  */
 package com.stratio.cassandra.lucene.query.builder;
 
+import com.stratio.cassandra.lucene.query.Condition;
 import com.stratio.cassandra.lucene.query.ContainsCondition;
 import org.junit.Test;
 
@@ -23,25 +24,50 @@ import static org.junit.Assert.*;
 /**
  * @author Andres de la Pena <adelapena@stratio.com>
  */
-public class ContainsConditionBuilderTest {
+public class ContainsConditionBuilderTest extends AbstractConditionBuilderTest {
 
     @Test
-    public void testBuildStrings() {
+    public void testBuildDefaults() {
         Object[] values = new Object[]{"a", "b"};
         ContainsConditionBuilder builder = new ContainsConditionBuilder("field", values);
         ContainsCondition condition = builder.build();
         assertNotNull(condition);
+        assertEquals(Condition.DEFAULT_BOOST, condition.boost, 0);
+        assertEquals("field", condition.field);
+        assertArrayEquals(values, condition.values);
+    }
+
+    @Test
+    public void testBuildStrings() {
+        Object[] values = new Object[]{"a", "b"};
+        ContainsConditionBuilder builder = new ContainsConditionBuilder("field", values).boost(0.7);
+        ContainsCondition condition = builder.build();
+        assertNotNull(condition);
+        assertEquals(0.7f, condition.boost, 0);
         assertEquals("field", condition.field);
         assertArrayEquals(values, condition.values);
     }
 
     @Test
     public void testBuildNumbers() {
-        Object[] values = new Object[]{1, 2};
-        ContainsConditionBuilder builder = new ContainsConditionBuilder("field", values);
+        Object[] values = new Object[]{1, 2, -3};
+        ContainsConditionBuilder builder = new ContainsConditionBuilder("field", values).boost(0.7);
         ContainsCondition condition = builder.build();
         assertNotNull(condition);
+        assertEquals(0.7f, condition.boost, 0);
         assertEquals("field", condition.field);
         assertArrayEquals(values, condition.values);
+    }
+
+    @Test
+    public void testJsonSerializationStrings() {
+        ContainsConditionBuilder builder = new ContainsConditionBuilder("field", "a", "b").boost(0.7);
+        testJsonSerialization(builder, "{type:\"contains\",field:\"field\",values:[\"a\",\"b\"],boost:0.7}");
+    }
+
+    @Test
+    public void testJsonSerializationNumbers() {
+        ContainsConditionBuilder builder = new ContainsConditionBuilder("field", 1, 2, -3).boost(0.7);
+        testJsonSerialization(builder, "{type:\"contains\",field:\"field\",values:[1,2,-3],boost:0.7}");
     }
 }

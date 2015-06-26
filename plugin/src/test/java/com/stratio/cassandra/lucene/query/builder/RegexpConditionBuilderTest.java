@@ -15,6 +15,7 @@
  */
 package com.stratio.cassandra.lucene.query.builder;
 
+import com.stratio.cassandra.lucene.query.Condition;
 import com.stratio.cassandra.lucene.query.RegexpCondition;
 import org.junit.Test;
 
@@ -24,16 +25,37 @@ import static org.junit.Assert.assertNotNull;
 /**
  * @author Andres de la Pena <adelapena@stratio.com>
  */
-public class RegexpConditionBuilderTest {
+public class RegexpConditionBuilderTest extends AbstractConditionBuilderTest {
 
     @Test
     public void testBuild() {
-        String field = "field";
-        String value = "value";
-        RegexpConditionBuilder builder = new RegexpConditionBuilder(field, value);
+        RegexpConditionBuilder builder = new RegexpConditionBuilder("field", "value").boost(0.7f);
         RegexpCondition condition = builder.build();
         assertNotNull(condition);
-        assertEquals(field, condition.field);
-        assertEquals(value, condition.value);
+        assertEquals(0.7f, condition.boost, 0);
+        assertEquals("field", condition.field);
+        assertEquals("value", condition.value);
+    }
+
+    @Test
+    public void testBuildDefaults() {
+        RegexpConditionBuilder builder = new RegexpConditionBuilder("field", "value");
+        RegexpCondition condition = builder.build();
+        assertNotNull(condition);
+        assertEquals(Condition.DEFAULT_BOOST, condition.boost, 0);
+        assertEquals("field", condition.field);
+        assertEquals("value", condition.value);
+    }
+
+    @Test
+    public void testJsonSerialization() {
+        RegexpConditionBuilder builder = new RegexpConditionBuilder("field", "value").boost(0.7f);
+        testJsonSerialization(builder, "{type:\"regexp\",field:\"field\",value:\"value\",boost:0.7}");
+    }
+
+    @Test
+    public void testJsonSerializationDefaults() {
+        RegexpConditionBuilder builder = new RegexpConditionBuilder("field", "value");
+        testJsonSerialization(builder, "{type:\"regexp\",field:\"field\",value:\"value\"}");
     }
 }
