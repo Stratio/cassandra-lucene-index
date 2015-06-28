@@ -33,6 +33,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 
 /**
+ * Class for testing {@link SearchBuilders}.
+ *
  * @author Andres de la Pena <adelapena@stratio.com>
  */
 public class SearchBuildersTest {

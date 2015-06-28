@@ -23,6 +23,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
+ * Class for testing {@link WildcardConditionBuilder}.
+ *
  * @author Andres de la Pena <adelapena@stratio.com>
  */
 public class WildcardConditionBuilderTest extends AbstractConditionBuilderTest {

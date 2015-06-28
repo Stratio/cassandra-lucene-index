@@ -26,6 +26,8 @@ import java.util.Arrays;
 import static org.junit.Assert.*;
 
 /**
+ * Class for testing {@link SortFieldBuilder}.
+ *
  * @author Andres de la Pena <adelapena@stratio.com>
  */
 public class SortBuilderTest {

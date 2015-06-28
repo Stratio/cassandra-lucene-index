@@ -23,18 +23,19 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
+ * Class for testing {@link FuzzyConditionBuilder}.
+ *
  * @author Andres de la Pena <adelapena@stratio.com>
  */
 public class FuzzyConditionBuilderTest extends AbstractConditionBuilderTest {
 
     @Test
     public void testBuild() {
-        FuzzyConditionBuilder builder = new FuzzyConditionBuilder("field", "value");
-        builder.boost(0.7f);
-        builder.maxEdits(2);
-        builder.prefixLength(2);
-        builder.maxExpansions(49);
-        builder.transpositions(true);
+        FuzzyConditionBuilder builder = new FuzzyConditionBuilder("field", "value").boost(0.7f)
+                                                                                   .maxEdits(2)
+                                                                                   .prefixLength(2)
+                                                                                   .maxExpansions(49)
+                                                                                   .transpositions(true);
         FuzzyCondition condition = builder.build();
         assertNotNull(condition);
         assertEquals(0.7f, condition.boost, 0);
@@ -62,12 +63,11 @@ public class FuzzyConditionBuilderTest extends AbstractConditionBuilderTest {
 
     @Test
     public void testJsonSerialization() {
-        FuzzyConditionBuilder builder = new FuzzyConditionBuilder("field", "value");
-        builder.boost(0.7f);
-        builder.maxEdits(2);
-        builder.prefixLength(2);
-        builder.maxExpansions(49);
-        builder.transpositions(true);
+        FuzzyConditionBuilder builder = new FuzzyConditionBuilder("field", "value").boost(0.7f)
+                                                                                   .maxEdits(2)
+                                                                                   .prefixLength(2)
+                                                                                   .maxExpansions(49)
+                                                                                   .transpositions(true);
         testJsonSerialization(builder,
                               "{type:\"fuzzy\",field:\"field\",value:\"value\",boost:0.7," +
                               "transpositions:true,max_edits:2,prefix_length:2,max_expansions:49}");

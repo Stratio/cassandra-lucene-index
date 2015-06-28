@@ -22,9 +22,11 @@ import java.io.IOException;
 import static org.junit.Assert.assertEquals;
 
 /**
+ * Abstract class for {@link ConditionBuilder} tests.
+ *
  * @author Andres de la Pena <adelapena@stratio.com>
  */
-public class AbstractConditionBuilderTest {
+public abstract class AbstractConditionBuilderTest {
 
     protected void testJsonSerialization(ConditionBuilder conditionBuilder, String json) {
         try {

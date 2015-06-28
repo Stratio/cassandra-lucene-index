@@ -32,17 +32,17 @@ public class TextMapperBuilder extends MapperBuilder<TextMapper> {
     @JsonProperty("analyzer")
     private String analyzer;
 
-    public TextMapperBuilder setIndexed(Boolean indexed) {
+    public TextMapperBuilder indexed(Boolean indexed) {
         this.indexed = indexed;
         return this;
     }
 
-    public TextMapperBuilder setSorted(Boolean sorted) {
+    public TextMapperBuilder sorted(Boolean sorted) {
         this.sorted = sorted;
         return this;
     }
 
-    public TextMapperBuilder setAnalyzer(String analyzer) {
+    public TextMapperBuilder analyzer(String analyzer) {
         this.analyzer = analyzer;
         return this;
     }

@@ -22,6 +22,8 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 /**
+ * Class for testing {@link RangeConditionBuilder}.
+ *
  * @author Andres de la Pena <adelapena@stratio.com>
  */
 public class RangeConditionBuilderTest extends AbstractConditionBuilderTest {

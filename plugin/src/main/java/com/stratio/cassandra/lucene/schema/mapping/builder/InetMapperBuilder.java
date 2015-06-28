@@ -29,12 +29,12 @@ public class InetMapperBuilder extends MapperBuilder<InetMapper> {
     @JsonProperty("sorted")
     private Boolean sorted;
 
-    public InetMapperBuilder setIndexed(Boolean indexed) {
+    public InetMapperBuilder indexed(Boolean indexed) {
         this.indexed = indexed;
         return this;
     }
 
-    public InetMapperBuilder setSorted(Boolean sorted) {
+    public InetMapperBuilder sorted(Boolean sorted) {
         this.sorted = sorted;
         return this;
     }

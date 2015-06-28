@@ -46,10 +46,10 @@ public abstract class Mapper {
     static final Store STORE = Store.NO;
 
     /** If the field must be indexed when no specified. */
-    static final boolean DEFAULT_INDEXED = true;
+    public static final boolean DEFAULT_INDEXED = true;
 
     /** If the field must be sorted when no specified. */
-    static final boolean DEFAULT_SORTED = true;
+    public static final boolean DEFAULT_SORTED = true;
 
     /** The name of the mapper. */
     protected final String name;

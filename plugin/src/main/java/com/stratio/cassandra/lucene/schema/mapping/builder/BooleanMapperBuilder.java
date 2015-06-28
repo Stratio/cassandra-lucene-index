@@ -29,12 +29,12 @@ public class BooleanMapperBuilder extends MapperBuilder<BooleanMapper> {
     @JsonProperty("sorted")
     private Boolean sorted;
 
-    public BooleanMapperBuilder setIndexed(Boolean indexed) {
+    public BooleanMapperBuilder indexed(Boolean indexed) {
         this.indexed = indexed;
         return this;
     }
 
-    public BooleanMapperBuilder setSorted(Boolean sorted) {
+    public BooleanMapperBuilder sorted(Boolean sorted) {
         this.sorted = sorted;
         return this;
     }

@@ -32,17 +32,17 @@ public class IntegerMapperBuilder extends MapperBuilder<IntegerMapper> {
     @JsonProperty("boost")
     private Float boost;
 
-    public IntegerMapperBuilder setIndexed(Boolean indexed) {
+    public IntegerMapperBuilder indexed(Boolean indexed) {
         this.indexed = indexed;
         return this;
     }
 
-    public IntegerMapperBuilder setSorted(Boolean sorted) {
+    public IntegerMapperBuilder sorted(Boolean sorted) {
         this.sorted = sorted;
         return this;
     }
 
-    public IntegerMapperBuilder setBoost(Float boost) {
+    public IntegerMapperBuilder boost(Float boost) {
         this.boost = boost;
         return this;
     }

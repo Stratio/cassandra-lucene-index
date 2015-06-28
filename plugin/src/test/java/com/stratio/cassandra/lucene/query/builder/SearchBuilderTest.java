@@ -24,6 +24,8 @@ import static com.stratio.cassandra.lucene.query.builder.SearchBuilders.*;
 import static org.junit.Assert.assertEquals;
 
 /**
+ * Class for testing {@link SearchBuilder}.
+ *
  * @author Andres de la Pena <adelapena@stratio.com>
  */
 public class SearchBuilderTest {

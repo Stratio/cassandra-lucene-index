@@ -29,12 +29,12 @@ public class UUIDMapperBuilder extends MapperBuilder<UUIDMapper> {
     @JsonProperty("sorted")
     private Boolean sorted;
 
-    public UUIDMapperBuilder setIndexed(Boolean indexed) {
+    public UUIDMapperBuilder indexed(Boolean indexed) {
         this.indexed = indexed;
         return this;
     }
 
-    public UUIDMapperBuilder setSorted(Boolean sorted) {
+    public UUIDMapperBuilder sorted(Boolean sorted) {
         this.sorted = sorted;
         return this;
     }

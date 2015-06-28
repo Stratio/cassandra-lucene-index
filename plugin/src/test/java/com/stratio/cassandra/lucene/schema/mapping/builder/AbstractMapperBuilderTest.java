@@ -15,32 +15,28 @@
  */
 package com.stratio.cassandra.lucene.schema.mapping.builder;
 
-import com.stratio.cassandra.lucene.schema.mapping.BlobMapper;
-import org.codehaus.jackson.annotate.JsonProperty;
+import com.stratio.cassandra.lucene.util.JsonSerializer;
+
+import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
 
 /**
+ * Abstract class for {@link MapperBuilder} tests.
+ *
  * @author Andres de la Pena <adelapena@stratio.com>
  */
-public class BlobMapperBuilder extends MapperBuilder<BlobMapper> {
+public abstract class AbstractMapperBuilderTest {
 
-    @JsonProperty("indexed")
-    private Boolean indexed;
-
-    @JsonProperty("sorted")
-    private Boolean sorted;
-
-    public BlobMapperBuilder indexed(Boolean indexed) {
-        this.indexed = indexed;
-        return this;
+    protected void testJsonSerialization(MapperBuilder mapperBuilder, String json) {
+        try {
+            String json1 = JsonSerializer.toString(mapperBuilder);
+            assertEquals(json, json1);
+            String json2 = JsonSerializer.toString(JsonSerializer.fromString(json1, MapperBuilder.class));
+            assertEquals(json1, json2);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public BlobMapperBuilder sorted(Boolean sorted) {
-        this.sorted = sorted;
-        return this;
-    }
-
-    @Override
-    public BlobMapper build(String name) {
-        return new BlobMapper(name, indexed, sorted);
-    }
 }

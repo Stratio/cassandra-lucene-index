@@ -22,6 +22,8 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 /**
+ * Class for testing {@link ContainsConditionBuilder}.
+ *
  * @author Andres de la Pena <adelapena@stratio.com>
  */
 public class ContainsConditionBuilderTest extends AbstractConditionBuilderTest {
