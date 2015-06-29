@@ -28,7 +28,7 @@ import java.lang.reflect.Constructor;
  */
 public class ClasspathAnalyzerBuilder extends AnalyzerBuilder {
 
-    private Analyzer analyzer;
+    @JsonProperty("class") String className;
 
     /**
      * Builds a new {@link AnalyzerBuilder} using the specified {@link Analyzer} full class name.
@@ -37,18 +37,19 @@ public class ClasspathAnalyzerBuilder extends AnalyzerBuilder {
      */
     @JsonCreator
     public ClasspathAnalyzerBuilder(@JsonProperty("class") String className) {
-        try {
-            Class<?> analyzerClass = Class.forName(className);
-            Constructor<?> constructor = analyzerClass.getConstructor();
-            analyzer = (Analyzer) constructor.newInstance();
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Analyzer not found: " + className, e);
-        }
+        this.className = className;
+
     }
 
     /** {@inheritDoc} */
     @Override
     public Analyzer analyzer() {
-        return analyzer;
+        try {
+            Class<?> analyzerClass = Class.forName(className);
+            Constructor<?> constructor = analyzerClass.getConstructor();
+            return (Analyzer) constructor.newInstance();
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Analyzer not found: " + className, e);
+        }
     }
 }
