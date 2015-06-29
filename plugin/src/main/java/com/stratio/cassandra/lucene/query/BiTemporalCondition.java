@@ -38,28 +38,28 @@ import static org.apache.lucene.search.BooleanClause.Occur.SHOULD;
  */
 public class BiTemporalCondition extends Condition {
 
-
-
-
     /** The name of the field to be matched. */
-    final String field;
+    public final String field;
 
     /** The Valid Time Start. */
-    final Object vt_from;
+    public final Object vt_from;
 
     /** The Valid Time End. */
-    final Object vt_to;
+    public final Object vt_to;
 
     /** The Transaction Time Start. */
-    final Object tt_from;
+    public final Object tt_from;
 
     /** The Transaction Time End. */
-    final Object tt_to;
+    public final Object tt_to;
+
+    /** The spatial operation to be performed. */
+    public final String operation;
+
+    public final SpatialOperation spatialOperation;
+    public static final String DEFAULT_OPERATION = "contains";
 
 
-    public String getField() {
-        return field;
-    }
     /**
      * Constructs a query selecting all fields that intersects with valid time and transaction time ranges including limits.
      * <p/>
@@ -71,39 +71,38 @@ public class BiTemporalCondition extends Condition {
      * @param vt_to   The Valid Time End.
      * @param tt_from The Transaction Time Start.
      * @param tt_to   The Transaction Time End.
+     * @param operation The spatial operation to be performed.
      */
     @JsonCreator
-    public BiTemporalCondition(Float boost, String field, Object vt_from, Object vt_to, Object tt_from, Object tt_to) {
+    public BiTemporalCondition(Float boost, String field, Object vt_from, Object vt_to, Object tt_from, Object tt_to, String operation) {
         super(boost);
         this.field = field;
         this.vt_from = vt_from;
         this.vt_to = vt_to;
         this.tt_from = tt_from;
         this.tt_to = tt_to;
+        this.operation = operation == null ? DEFAULT_OPERATION : operation;
+        this.spatialOperation= parseSpatialOperation(this.operation);
     }
 
-    public Object getVt_from() {
-        return vt_from;
-    }
-
-    public Object getVt_to() {
-        return vt_to;
-    }
-
-    public Object getTt_from() {
-        return tt_from;
-    }
-
-    public Object getTt_to() {
-        return tt_to;
-    }
     private Query makeNormalQuery(BiTemporalMapper mapper,
                                   NumberRangePrefixTreeStrategy strategy,
                                   DateRangePrefixTree tree,
                                   BiTemporalMapper.BiTemporalDateTime x_from,
                                   BiTemporalMapper.BiTemporalDateTime x_to) {
-        SpatialArgs args = new SpatialArgs(SpatialOperation.Intersects, mapper.makeShape(tree, x_from, x_to));
+        SpatialArgs args = new SpatialArgs(this.spatialOperation, mapper.makeShape(tree, x_from, x_to));
         return strategy.makeQuery(args);
+    }
+    static SpatialOperation parseSpatialOperation(String operation) {
+        if (operation == null) {
+            throw new IllegalArgumentException("Operation is required");
+        } else if (operation.equalsIgnoreCase("contains")) {
+            return SpatialOperation.Contains;
+        } else if (operation.equalsIgnoreCase("intersects")) {
+            return SpatialOperation.Intersects;
+        } else {
+            throw new IllegalArgumentException("Operation is invalid: " + operation);
+        }
     }
 
     /**

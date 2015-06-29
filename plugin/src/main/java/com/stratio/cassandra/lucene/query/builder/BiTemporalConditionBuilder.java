@@ -26,6 +26,9 @@ public class BiTemporalConditionBuilder extends ConditionBuilder<BiTemporalCondi
     @JsonProperty("tt_to")
     Object tt_to;//Transaction Time Start
 
+    /** The spatial operation to be performed. */
+    @JsonProperty("operation")
+    String operation;
     /**
      * Returns a new {@link BiTemporalConditionBuilder} with the specified field reference point.
      *
@@ -72,6 +75,18 @@ public class BiTemporalConditionBuilder extends ConditionBuilder<BiTemporalCondi
         this.tt_to = tt_to;
         return this;
     }
+
+    /**
+     * Sets the operation to be performed.
+     *
+     * @param operation The operation to be performed.
+     * @return This.
+     */
+    public BiTemporalConditionBuilder setOperation(String operation) {
+        this.operation = operation;
+        return this;
+    }
+
     /**
      * Returns the {@link BiTemporalCondition} represented by this builder.
      *
@@ -79,6 +94,6 @@ public class BiTemporalConditionBuilder extends ConditionBuilder<BiTemporalCondi
      */
     @Override
     public BiTemporalCondition build() {
-        return new BiTemporalCondition(boost,field, vt_from, vt_to, tt_from, tt_to);
+        return new BiTemporalCondition(boost,field, vt_from, vt_to, tt_from, tt_to,operation);
     }
 }

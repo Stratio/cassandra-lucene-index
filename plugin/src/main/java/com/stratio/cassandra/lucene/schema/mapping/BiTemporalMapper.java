@@ -130,6 +130,7 @@ public class BiTemporalMapper extends Mapper {
     /** The default {@link SimpleDateFormat} pattern. */
     public static final String DEFAULT_PATTERN = "yyyy/MM/dd HH:mm:ss.SSS";
 
+
     public String getPattern() {
         return pattern;
     }
@@ -231,7 +232,7 @@ public class BiTemporalMapper extends Mapper {
         // Validate pattern
         new SimpleDateFormat(this.pattern);
 
-        // tt_to=now vt_to=now 2 daterangePrefixTree
+        // tt_to=now vt_to=now 2 DateRangePrefixTree
 
         this.tree_t1_V = DateRangePrefixTree.INSTANCE;
         this.strategy_t1_V = new NumberRangePrefixTreeStrategy(tree_t1_V, name + ".t1_v");

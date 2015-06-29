@@ -33,13 +33,15 @@ public class BiTemporalConditionBuilderTest extends AbstractConditionBuilderTest
         builder.setTt_to((long) 2);
         builder.setVt_from((long) 3);
         builder.setVt_to((long) 4);
+        builder.setOperation("intersects");
         BiTemporalCondition condition=builder.build();
         assertNotNull(condition);
-        assertEquals("field",condition.getField());
-        assertEquals((long) 1, condition.getTt_from());
-        assertEquals((long) 2, condition.getTt_to());
-        assertEquals((long) 3, condition.getVt_from());
-        assertEquals((long) 4, condition.getVt_to());
+        assertEquals("field", condition.field);
+        assertEquals((long) 1, condition.tt_from);
+        assertEquals((long) 2, condition.tt_to);
+        assertEquals((long) 3, condition.vt_from);
+        assertEquals((long) 4, condition.vt_to);
+        assertEquals("intersects", condition.operation);
     }
 
     @Test
@@ -49,13 +51,15 @@ public class BiTemporalConditionBuilderTest extends AbstractConditionBuilderTest
         builder.setTt_to("2013/03/20 11:45:32.333");
         builder.setVt_from("2012/03/20 11:45:32.333");
         builder.setVt_to("2011/03/20 11:45:32.333");
+        builder.setOperation("intersects");
         BiTemporalCondition condition=builder.build();
         assertNotNull(condition);
-        assertEquals("field",condition.getField());
-        assertEquals("2015/03/20 11:45:32.333", condition.getTt_from());
-        assertEquals("2013/03/20 11:45:32.333", condition.getTt_to());
-        assertEquals("2012/03/20 11:45:32.333", condition.getVt_from());
-        assertEquals("2011/03/20 11:45:32.333", condition.getVt_to());
+        assertEquals("field", condition.field);
+        assertEquals("2015/03/20 11:45:32.333", condition.tt_from);
+        assertEquals("2013/03/20 11:45:32.333", condition.tt_to);
+        assertEquals("2012/03/20 11:45:32.333", condition.vt_from);
+        assertEquals("2011/03/20 11:45:32.333", condition.vt_to);
+        assertEquals("intersects", condition.operation);
     }
 
     @Test
@@ -63,11 +67,12 @@ public class BiTemporalConditionBuilderTest extends AbstractConditionBuilderTest
         BiTemporalConditionBuilder builder= new BiTemporalConditionBuilder("field");
         BiTemporalCondition condition = builder.build();
         assertNotNull(condition);
-        assertEquals("field", condition.getField());
-        assertNull(condition.getTt_from());
-        assertNull(condition.getTt_to());
-        assertNull(condition.getVt_from());
-        assertNull(condition.getVt_to());
+        assertEquals("field", condition.field);
+        assertNull(condition.tt_from);
+        assertNull(condition.tt_to);
+        assertNull(condition.vt_from);
+        assertNull(condition.vt_to);
+        assertEquals("contains", condition.operation);
     }
 
     @Test
