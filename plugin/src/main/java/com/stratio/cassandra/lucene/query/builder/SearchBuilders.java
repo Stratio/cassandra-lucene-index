@@ -212,4 +212,14 @@ public class SearchBuilders {
     public static SortFieldBuilder sortField(String field) {
         return new SortFieldBuilder(field);
     }
+
+    /**
+     * Returns a new {@link BiTemporalConditionBuilder} for the specified field.
+     *
+     * @param field The name of the field to be sorted.
+     * @return A new {@link BiTemporalConditionBuilder} for the specified field.
+     */
+    public static BiTemporalConditionBuilder biTemporalSearch(String field) {
+        return new BiTemporalConditionBuilder(field);
+    }
 }

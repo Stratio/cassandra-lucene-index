@@ -39,7 +39,8 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
                @JsonSubTypes.Type(value = WildcardConditionBuilder.class, name = "wildcard"),
                @JsonSubTypes.Type(value = GeoDistanceConditionBuilder.class, name = "geo_distance"),
                @JsonSubTypes.Type(value = GeoBBoxConditionBuilder.class, name = "geo_bbox"),
-               @JsonSubTypes.Type(value = DateRangeConditionBuilder.class, name = "date_range"),})
+               @JsonSubTypes.Type(value = DateRangeConditionBuilder.class, name = "date_range"),
+               @JsonSubTypes.Type(value = BiTemporalConditionBuilder.class, name = "bitemporal")})
 public abstract class ConditionBuilder<T extends Condition, K extends ConditionBuilder<T, K>> implements Builder<T> {
 
     /** The boost for the {@link Condition} to be built. */

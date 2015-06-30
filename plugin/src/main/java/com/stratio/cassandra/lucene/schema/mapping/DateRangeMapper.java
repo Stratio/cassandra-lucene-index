@@ -68,10 +68,6 @@ public class DateRangeMapper extends Mapper {
     /**
      * Builds a new {@link DateRangeMapper}.
      *
-     * @param name The name of the mapper.
-     */
-
-    /**
      * @param name    The name of the mapper.
      * @param start   The column containing the start {@link Date}.
      * @param stop    The column containing the stop {@link Date}.

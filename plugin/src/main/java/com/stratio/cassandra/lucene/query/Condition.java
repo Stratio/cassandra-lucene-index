@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package com.stratio.cassandra.lucene.query;
-
 import com.stratio.cassandra.lucene.schema.Schema;
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.Query;
@@ -29,7 +28,6 @@ import org.apache.lucene.search.QueryWrapperFilter;
  *
  * @author Andres de la Pena <adelapena@stratio.com>
  */
-
 public abstract class Condition {
 
     /** The default boost to be used. */
