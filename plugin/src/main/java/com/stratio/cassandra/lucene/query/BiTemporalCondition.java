@@ -100,6 +100,8 @@ public class BiTemporalCondition extends Condition {
             return SpatialOperation.Contains;
         } else if (operation.equalsIgnoreCase("intersects")) {
             return SpatialOperation.Intersects;
+        } else if (operation.equalsIgnoreCase("iswithin")) {
+            return SpatialOperation.IsWithin;
         } else {
             throw new IllegalArgumentException("Operation is invalid: " + operation);
         }
