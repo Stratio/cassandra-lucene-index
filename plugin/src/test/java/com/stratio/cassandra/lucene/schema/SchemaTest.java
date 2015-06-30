@@ -16,10 +16,7 @@
 package com.stratio.cassandra.lucene.schema;
 
 import com.stratio.cassandra.lucene.schema.analysis.PreBuiltAnalyzers;
-import com.stratio.cassandra.lucene.schema.mapping.IntegerMapper;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
-import com.stratio.cassandra.lucene.schema.mapping.TextMapper;
-import com.stratio.cassandra.lucene.util.JsonSerializer;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.db.marshal.AsciiType;
 import org.apache.cassandra.db.marshal.IntegerType;
@@ -32,20 +29,15 @@ import org.apache.cassandra.thrift.IndexType;
 import org.apache.cassandra.utils.ByteBufferUtil;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
-import org.apache.lucene.analysis.es.SpanishAnalyzer;
-import org.codehaus.jackson.map.JsonMappingException;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.stratio.cassandra.lucene.schema.SchemaBuilder.stringMapper;
-import static com.stratio.cassandra.lucene.schema.SchemaBuilder.textMapper;
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
 
 /**
@@ -112,7 +104,7 @@ public class SchemaTest {
                                  .setName("Standard1");
         CFMetaData metadata = CFMetaData.fromThrift(cfDef);
 
-        Schema schema = SchemaBuilder.schema().mapper("field1", stringMapper()).mapper("field2", textMapper()).build();
+        Schema schema = SchemaBuilders.schema().mapper("field1", stringMapper()).mapper("field2", textMapper()).build();
         schema.validate(metadata);
         schema.close();
     }
@@ -120,7 +112,7 @@ public class SchemaTest {
     @Test
     public void testToString() {
 
-        Schema schema = SchemaBuilder.schema().mapper("field1", stringMapper()).mapper("field2", textMapper()).build();
+        Schema schema = schema().mapper("field1", stringMapper()).mapper("field2", textMapper()).build();
         assertNotNull(schema.toString());
         schema.close();
     }

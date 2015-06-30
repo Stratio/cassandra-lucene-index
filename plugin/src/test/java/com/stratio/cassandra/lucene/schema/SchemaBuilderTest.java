@@ -18,16 +18,14 @@ package com.stratio.cassandra.lucene.schema;
 import com.stratio.cassandra.lucene.schema.analysis.PreBuiltAnalyzers;
 import com.stratio.cassandra.lucene.schema.analysis.SnowballAnalyzerBuilder.SnowballAnalyzer;
 import com.stratio.cassandra.lucene.schema.mapping.*;
-import com.stratio.cassandra.lucene.util.JsonSerializer;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.analysis.es.SpanishAnalyzer;
-import org.codehaus.jackson.map.JsonMappingException;
 import org.junit.Test;
 
 import java.io.IOException;
 
-import static com.stratio.cassandra.lucene.schema.SchemaBuilder.*;
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
