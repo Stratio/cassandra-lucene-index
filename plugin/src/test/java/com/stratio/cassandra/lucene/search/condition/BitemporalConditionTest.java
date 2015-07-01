@@ -16,7 +16,7 @@
 package com.stratio.cassandra.lucene.search.condition;
 
 import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.mapping.BiTemporalMapper;
+import com.stratio.cassandra.lucene.schema.mapping.BitemporalMapper;
 import com.stratio.cassandra.lucene.schema.mapping.UUIDMapper;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
@@ -29,24 +29,24 @@ import static org.junit.Assert.*;
  * @author Eduardo Alonso <eduardoalonso@stratio.com>
  */
 
-public class BiTemporalConditionTest extends AbstractConditionTest {
+public class BitemporalConditionTest extends AbstractConditionTest {
 
     @Test
     public void testConstructorWithDefaults() {
-        BiTemporalCondition condition = new BiTemporalCondition(null, "name", 1, 2, 3, 4, null);
+        BitemporalCondition condition = new BitemporalCondition(null, "name", 1, 2, 3, 4, null);
 
-        assertEquals(BiTemporalCondition.DEFAULT_BOOST, condition.boost, 0);
+        assertEquals(com.stratio.cassandra.lucene.search.condition.BitemporalCondition.DEFAULT_BOOST, condition.boost, 0);
         assertEquals("name", condition.field);
         assertEquals(1, condition.vt_from);
         assertEquals(2, condition.vt_to);
         assertEquals(3, condition.tt_from);
         assertEquals(4, condition.tt_to);
-        assertEquals(BiTemporalCondition.DEFAULT_OPERATION, condition.operation);
+        assertEquals(com.stratio.cassandra.lucene.search.condition.BitemporalCondition.DEFAULT_OPERATION, condition.operation);
     }
 
     @Test
     public void testConstructorWithAllArgs() {
-        BiTemporalCondition condition = new BiTemporalCondition(0.5f, "name", 1, 2, 3, 4, "intersects");
+        BitemporalCondition condition = new BitemporalCondition(0.5f, "name", 1, 2, 3, 4, "intersects");
         assertEquals(0.5, condition.boost, 0);
         assertEquals("name", condition.field);
         assertEquals(1, condition.vt_from);
@@ -58,8 +58,8 @@ public class BiTemporalConditionTest extends AbstractConditionTest {
 
     @Test
     public void testQuery() {
-        Schema schema = mockSchema("name", new BiTemporalMapper("name", "vt_from", "vt_to", "tt_from", "tt_to", null));
-        BiTemporalCondition condition = new BiTemporalCondition(0.5f, "name", 1, 2, 3, 4, null);
+        Schema schema = mockSchema("name", new BitemporalMapper("name", "vt_from", "vt_to", "tt_from", "tt_to", null));
+        BitemporalCondition condition = new BitemporalCondition(0.5f, "name", 1, 2, 3, 4, null);
 
         Query query = condition.query(schema);
         assertNotNull(query);
@@ -69,19 +69,19 @@ public class BiTemporalConditionTest extends AbstractConditionTest {
     @Test(expected = IllegalArgumentException.class)
     public void testQueryWithoutValidMapper() {
         Schema schema = mockSchema("name", new UUIDMapper("name", null, null));
-        BiTemporalCondition condition = new BiTemporalCondition(null, "name", 1, 2, 3, 4, null);
+        BitemporalCondition condition = new BitemporalCondition(null, "name", 1, 2, 3, 4, null);
         condition.query(schema);
     }
 
     @Test
     public void testToString() {
-        BiTemporalCondition condition = biTemporalSearch("name").setVt_from(1)
+        BitemporalCondition condition = biTemporalSearch("name").setVt_from(1)
                                                                 .setVt_to(2)
                                                                 .setTt_from(3)
                                                                 .setTt_to(4)
                                                                 .boost(0.3)
                                                                 .build();
-        assertEquals("BiTemporalCondition{boost=0.3, field=name, vt_from=1, vt_to=2, tt_from=3, tt_to=4}",
+        assertEquals("BitemporalCondition{boost=0.3, field=name, vt_from=1, vt_to=2, tt_from=3, tt_to=4}",
                      condition.toString());
     }
 }

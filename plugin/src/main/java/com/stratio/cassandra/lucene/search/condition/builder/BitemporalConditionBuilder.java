@@ -1,15 +1,15 @@
 package com.stratio.cassandra.lucene.search.condition.builder;
 
-import com.stratio.cassandra.lucene.search.condition.BiTemporalCondition;
+import com.stratio.cassandra.lucene.search.condition.BitemporalCondition;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 
 /**
- * {@link ConditionBuilder} for building a new {@link BiTemporalCondition}.
+ * {@link ConditionBuilder} for building a new {@link BitemporalCondition}.
  *
  * @author Eduardo Alonso <eduardoalonso@stratio.com>
  */
-public class BiTemporalConditionBuilder extends ConditionBuilder<BiTemporalCondition,BiTemporalConditionBuilder> {
+public class BitemporalConditionBuilder extends ConditionBuilder<BitemporalCondition,BitemporalConditionBuilder> {
 
     @JsonProperty("field")
     String field;//the name of the filed to be matched
@@ -30,18 +30,18 @@ public class BiTemporalConditionBuilder extends ConditionBuilder<BiTemporalCondi
     @JsonProperty("operation")
     String operation;
     /**
-     * Returns a new {@link BiTemporalConditionBuilder} with the specified field reference point.
+     * Returns a new {@link BitemporalConditionBuilder} with the specified field reference point.
      *
      * @param field The name of the field to be matched.
      */
-    public BiTemporalConditionBuilder(@JsonProperty("field") String field) {this.field=field;}
+    public BitemporalConditionBuilder(@JsonProperty("field") String field) {this.field=field;}
 
     /**
      * Sets the Valid Time Start.
      * @param vt_from The Valid Time Start.
      * @return This.
      */
-    public BiTemporalConditionBuilder setVt_from(Object vt_from) {
+    public BitemporalConditionBuilder setVt_from(Object vt_from) {
         this.vt_from = vt_from;
         return this;
     }
@@ -51,7 +51,7 @@ public class BiTemporalConditionBuilder extends ConditionBuilder<BiTemporalCondi
      * @param vt_to The Valid Time End.
      * @return This.
      */
-    public BiTemporalConditionBuilder setVt_to(Object vt_to) {
+    public BitemporalConditionBuilder setVt_to(Object vt_to) {
         this.vt_to = vt_to;
         return this;
     }
@@ -61,7 +61,7 @@ public class BiTemporalConditionBuilder extends ConditionBuilder<BiTemporalCondi
      * @param tt_from The Transaction Time Start.
      * @return This.
      */
-    public BiTemporalConditionBuilder setTt_from(Object tt_from) {
+    public BitemporalConditionBuilder setTt_from(Object tt_from) {
         this.tt_from = tt_from;
         return this;
     }
@@ -71,7 +71,7 @@ public class BiTemporalConditionBuilder extends ConditionBuilder<BiTemporalCondi
      * @param tt_to The Transaction Time End.
      * @return This.
      */
-    public BiTemporalConditionBuilder setTt_to(Object tt_to) {
+    public BitemporalConditionBuilder setTt_to(Object tt_to) {
         this.tt_to = tt_to;
         return this;
     }
@@ -82,18 +82,18 @@ public class BiTemporalConditionBuilder extends ConditionBuilder<BiTemporalCondi
      * @param operation The operation to be performed.
      * @return This.
      */
-    public BiTemporalConditionBuilder setOperation(String operation) {
+    public BitemporalConditionBuilder setOperation(String operation) {
         this.operation = operation;
         return this;
     }
 
     /**
-     * Returns the {@link BiTemporalCondition} represented by this builder.
+     * Returns the {@link BitemporalCondition} represented by this builder.
      *
-     * @return The {@link BiTemporalCondition} represented by this builder.
+     * @return The {@link BitemporalCondition} represented by this builder.
      */
     @Override
-    public BiTemporalCondition build() {
-        return new BiTemporalCondition(boost,field, vt_from, vt_to, tt_from, tt_to,operation);
+    public BitemporalCondition build() {
+        return new BitemporalCondition(boost,field, vt_from, vt_to, tt_from, tt_to,operation);
     }
 }

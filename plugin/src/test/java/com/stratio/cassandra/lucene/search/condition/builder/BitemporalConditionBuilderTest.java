@@ -15,7 +15,7 @@
  */
 package com.stratio.cassandra.lucene.search.condition.builder;
 
-import com.stratio.cassandra.lucene.search.condition.BiTemporalCondition;
+import com.stratio.cassandra.lucene.search.condition.BitemporalCondition;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -23,17 +23,17 @@ import static org.junit.Assert.*;
 /**
  * @author Eduardo Alonso <eduardoalonso@stratio.com>
  */
-public class BiTemporalConditionBuilderTest extends AbstractConditionBuilderTest {
+public class BitemporalConditionBuilderTest extends AbstractConditionBuilderTest {
 
     @Test
     public void testBuildLong() {
-        BiTemporalConditionBuilder builder = new BiTemporalConditionBuilder("field");
+        BitemporalConditionBuilder builder = new BitemporalConditionBuilder("field");
         builder.setTt_from((long) 1);
         builder.setTt_to((long) 2);
         builder.setVt_from((long) 3);
         builder.setVt_to((long) 4);
         builder.setOperation("intersects");
-        BiTemporalCondition condition = builder.build();
+        BitemporalCondition condition = builder.build();
         assertNotNull(condition);
         assertEquals("field", condition.field);
         assertEquals((long) 1, condition.tt_from);
@@ -45,13 +45,13 @@ public class BiTemporalConditionBuilderTest extends AbstractConditionBuilderTest
 
     @Test
     public void testBuildString() {
-        BiTemporalConditionBuilder builder = new BiTemporalConditionBuilder("field");
+        BitemporalConditionBuilder builder = new BitemporalConditionBuilder("field");
         builder.setTt_from("2015/03/20 11:45:32.333");
         builder.setTt_to("2013/03/20 11:45:32.333");
         builder.setVt_from("2012/03/20 11:45:32.333");
         builder.setVt_to("2011/03/20 11:45:32.333");
         builder.setOperation("intersects");
-        BiTemporalCondition condition = builder.build();
+        BitemporalCondition condition = builder.build();
         assertNotNull(condition);
         assertEquals("field", condition.field);
         assertEquals("2015/03/20 11:45:32.333", condition.tt_from);
@@ -63,8 +63,8 @@ public class BiTemporalConditionBuilderTest extends AbstractConditionBuilderTest
 
     @Test
     public void testBuildDefaults() {
-        BiTemporalConditionBuilder builder = new BiTemporalConditionBuilder("field");
-        BiTemporalCondition condition = builder.build();
+        BitemporalConditionBuilder builder = new BitemporalConditionBuilder("field");
+        BitemporalCondition condition = builder.build();
         assertNotNull(condition);
         assertEquals("field", condition.field);
         assertNull(condition.tt_from);
@@ -76,13 +76,13 @@ public class BiTemporalConditionBuilderTest extends AbstractConditionBuilderTest
 
     @Test
     public void testJsonSerialization() {
-        BiTemporalConditionBuilder builder = new BiTemporalConditionBuilder("field").boost(0.7f);
+        BitemporalConditionBuilder builder = new BitemporalConditionBuilder("field").boost(0.7f);
         testJsonSerialization(builder, "{type:\"bitemporal\",field:\"field\",boost:0.7}");
     }
 
     @Test
     public void testJsonSerializationDefaults() {
-        BiTemporalConditionBuilder builder = new BiTemporalConditionBuilder("field");
+        BitemporalConditionBuilder builder = new BitemporalConditionBuilder("field");
         testJsonSerialization(builder, "{type:\"bitemporal\",field:\"field\"}");
     }
 }

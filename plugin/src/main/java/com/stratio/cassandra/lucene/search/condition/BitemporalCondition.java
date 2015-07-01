@@ -17,7 +17,7 @@ package com.stratio.cassandra.lucene.search.condition;
 
 import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.mapping.BiTemporalMapper;
+import com.stratio.cassandra.lucene.schema.mapping.BitemporalMapper;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
@@ -34,7 +34,7 @@ import static org.apache.lucene.search.BooleanClause.Occur.SHOULD;
  *
  * @author Eduardo Alonso <eduardoalonso@stratio.com>
  */
-public class BiTemporalCondition extends Condition {
+public class BitemporalCondition extends Condition {
 
     /** The name of the field to be matched. */
     public final String field;
@@ -70,7 +70,13 @@ public class BiTemporalCondition extends Condition {
      * @param tt_to   The Transaction Time End.
      * @param operation The spatial operation to be performed.
      */
-    public BiTemporalCondition(Float boost, String field, Object vt_from, Object vt_to, Object tt_from, Object tt_to, String operation) {
+    public BitemporalCondition(Float boost,
+                               String field,
+                               Object vt_from,
+                               Object vt_to,
+                               Object tt_from,
+                               Object tt_to,
+                               String operation) {
         super(boost);
         this.field = field;
         this.vt_from = vt_from;
@@ -81,11 +87,11 @@ public class BiTemporalCondition extends Condition {
         this.spatialOperation= parseSpatialOperation(this.operation);
     }
 
-    private Query makeNormalQuery(BiTemporalMapper mapper,
+    private Query makeNormalQuery(BitemporalMapper mapper,
                                   NumberRangePrefixTreeStrategy strategy,
                                   DateRangePrefixTree tree,
-                                  BiTemporalMapper.BiTemporalDateTime x_from,
-                                  BiTemporalMapper.BiTemporalDateTime x_to) {
+                                  BitemporalMapper.BiTemporalDateTime x_from,
+                                  BitemporalMapper.BiTemporalDateTime x_to) {
         SpatialArgs args = new SpatialArgs(this.spatialOperation, mapper.makeShape(tree, x_from, x_to));
         return strategy.makeQuery(args);
     }
@@ -108,15 +114,15 @@ public class BiTemporalCondition extends Condition {
     public Query query(Schema schema) {
 
         Mapper mapper = schema.getMapper(field);
-        if (!(mapper instanceof BiTemporalMapper)) {
+        if (!(mapper instanceof BitemporalMapper)) {
             throw new IllegalArgumentException("BiTemporal2 mapper required");
         }
-        BiTemporalMapper biTemporalMapper = (BiTemporalMapper) mapper;
+        BitemporalMapper bitemporalMapper = (BitemporalMapper) mapper;
 
-        BiTemporalMapper.BiTemporalDateTime vt_from = biTemporalMapper.parseBiTemporalDate(this.vt_from);
-        BiTemporalMapper.BiTemporalDateTime vt_to = biTemporalMapper.parseBiTemporalDate(this.vt_to);
-        BiTemporalMapper.BiTemporalDateTime tt_from = biTemporalMapper.parseBiTemporalDate(this.tt_from);
-        BiTemporalMapper.BiTemporalDateTime tt_to = biTemporalMapper.parseBiTemporalDate(this.tt_to);
+        BitemporalMapper.BiTemporalDateTime vt_from = bitemporalMapper.parseBiTemporalDate(this.vt_from);
+        BitemporalMapper.BiTemporalDateTime vt_to = bitemporalMapper.parseBiTemporalDate(this.vt_to);
+        BitemporalMapper.BiTemporalDateTime tt_from = bitemporalMapper.parseBiTemporalDate(this.tt_from);
+        BitemporalMapper.BiTemporalDateTime tt_to = bitemporalMapper.parseBiTemporalDate(this.tt_to);
         
         BooleanQuery query = new BooleanQuery();
         NumberRangePrefixTreeStrategy[] validTimeStrategies = new NumberRangePrefixTreeStrategy[4];
@@ -124,10 +130,10 @@ public class BiTemporalCondition extends Condition {
         NumberRangePrefixTreeStrategy[] transactionTimeStrategies = new NumberRangePrefixTreeStrategy[4];
         DateRangePrefixTree[] transactionTimeTrees = new DateRangePrefixTree[4];
         for (int i = 0; i < 4; i++) {
-            validTimeStrategies[i] = biTemporalMapper.getStrategy(i, true);
-            transactionTimeStrategies[i] = biTemporalMapper.getStrategy(i, false);
-            validTimeTrees[i] = biTemporalMapper.getTree(i, true);
-            transactionTimeTrees[i] = biTemporalMapper.getTree(i, false);
+            validTimeStrategies[i] = bitemporalMapper.getStrategy(i, true);
+            transactionTimeStrategies[i] = bitemporalMapper.getStrategy(i, false);
+            validTimeTrees[i] = bitemporalMapper.getTree(i, true);
+            transactionTimeTrees[i] = bitemporalMapper.getTree(i, false);
         }
 
         SpatialArgs args;
@@ -135,15 +141,15 @@ public class BiTemporalCondition extends Condition {
         if (!tt_from.isNow() && (tt_to.compareTo(vt_from) >= 0)) {
             //R1,R2,R3,R4
          
-            Query vQueryT1 = makeNormalQuery(biTemporalMapper,
+            Query vQueryT1 = makeNormalQuery(bitemporalMapper,
                                              validTimeStrategies[0],
                                              validTimeTrees[0],
-                                             BiTemporalMapper.BiTemporalDateTime.MIN,
+                                             BitemporalMapper.BiTemporalDateTime.MIN,
                                              vt_to);
-            Query tQueryT1 = makeNormalQuery(biTemporalMapper,
+            Query tQueryT1 = makeNormalQuery(bitemporalMapper,
                                              transactionTimeStrategies[0],
                                              transactionTimeTrees[0],
-                                             BiTemporalMapper.BiTemporalDateTime.MIN,
+                                             BitemporalMapper.BiTemporalDateTime.MIN,
                                              tt_to);
 
             BooleanQuery t1Query = new BooleanQuery();
@@ -151,15 +157,15 @@ public class BiTemporalCondition extends Condition {
             t1Query.add(tQueryT1, MUST);
             query.add(t1Query,SHOULD);
 
-            Query vQueryT2 = makeNormalQuery(biTemporalMapper,
+            Query vQueryT2 = makeNormalQuery(bitemporalMapper,
                                              validTimeStrategies[1],
                                              validTimeTrees[1],
                                              vt_from,
                                              vt_to);
-            Query tQueryT2 = makeNormalQuery(biTemporalMapper,
+            Query tQueryT2 = makeNormalQuery(bitemporalMapper,
                                              transactionTimeStrategies[1],
                                              transactionTimeTrees[1],
-                                             BiTemporalMapper.BiTemporalDateTime.MIN,
+                                             BitemporalMapper.BiTemporalDateTime.MIN,
                                              tt_to);
             BooleanQuery t2Query = new BooleanQuery();
             t2Query.add(vQueryT2, MUST);
@@ -167,27 +173,27 @@ public class BiTemporalCondition extends Condition {
             query.add(t2Query,SHOULD);
 
 
-            Query vQueryT3 = makeNormalQuery(biTemporalMapper,
+            Query vQueryT3 = makeNormalQuery(bitemporalMapper,
                                              validTimeStrategies[2],
                                              validTimeTrees[2],
-                                             BiTemporalMapper.BiTemporalDateTime.MIN,
+                                             BitemporalMapper.BiTemporalDateTime.MIN,
                                              vt_to);
-            Query tQueryT3 = makeNormalQuery(biTemporalMapper,
+            Query tQueryT3 = makeNormalQuery(bitemporalMapper,
                                              transactionTimeStrategies[2],
                                              transactionTimeTrees[2],
-                                             BiTemporalMapper.BiTemporalDateTime.max(tt_from, vt_from),
+                                             BitemporalMapper.BiTemporalDateTime.max(tt_from, vt_from),
                                              tt_to);
             BooleanQuery t3Query= new BooleanQuery();
             t3Query.add(vQueryT3, MUST);
             t3Query.add(tQueryT3, MUST);
             query.add(t3Query,SHOULD);
 
-            Query vQueryT4 = makeNormalQuery(biTemporalMapper,
+            Query vQueryT4 = makeNormalQuery(bitemporalMapper,
                                              validTimeStrategies[3],
                                              validTimeTrees[3],
                                              vt_from,
                                              vt_to);
-            Query tQueryT4 = makeNormalQuery(biTemporalMapper,
+            Query tQueryT4 = makeNormalQuery(bitemporalMapper,
                                              transactionTimeStrategies[3],
                                              transactionTimeTrees[3],
                                              tt_from,
@@ -199,27 +205,27 @@ public class BiTemporalCondition extends Condition {
 
         } else if ((!tt_from.isNow()) && (tt_to.compareTo(vt_from) < 0)) {
             //R2,R4
-            Query vQueryT2 = makeNormalQuery(biTemporalMapper,
+            Query vQueryT2 = makeNormalQuery(bitemporalMapper,
                                              validTimeStrategies[1],
                                              validTimeTrees[1],
                                              vt_from,
                                              vt_to);
-            Query tQueryT2 = makeNormalQuery(biTemporalMapper,
+            Query tQueryT2 = makeNormalQuery(bitemporalMapper,
                                              transactionTimeStrategies[1],
                                              transactionTimeTrees[1],
-                                             BiTemporalMapper.BiTemporalDateTime.MIN,
+                                             BitemporalMapper.BiTemporalDateTime.MIN,
                                              tt_to);
             BooleanQuery t2Query= new BooleanQuery();
             t2Query.add(vQueryT2, MUST);
             t2Query.add(tQueryT2, MUST);
             query.add(t2Query,SHOULD);
 
-            Query vQueryT4 = makeNormalQuery(biTemporalMapper,
+            Query vQueryT4 = makeNormalQuery(bitemporalMapper,
                                              validTimeStrategies[3],
                                              validTimeTrees[3],
                                              vt_from,
                                              vt_to);
-            Query tQueryT4 = makeNormalQuery(biTemporalMapper,
+            Query tQueryT4 = makeNormalQuery(bitemporalMapper,
                                              transactionTimeStrategies[3],
                                              transactionTimeTrees[3],
                                              tt_from,
@@ -232,15 +238,15 @@ public class BiTemporalCondition extends Condition {
         } else if (tt_from.isNow()) {
             if (((!vt_from.isMin()) || (!vt_to.isMax())) && (tt_to.compareTo(vt_from) >= 0)) {
                 //R1,R2
-                Query vQueryT1 = makeNormalQuery(biTemporalMapper,
+                Query vQueryT1 = makeNormalQuery(bitemporalMapper,
                                                  validTimeStrategies[0],
                                                  validTimeTrees[0],
-                                                 BiTemporalMapper.BiTemporalDateTime.MIN,
+                                                 BitemporalMapper.BiTemporalDateTime.MIN,
                                                  vt_to);
-                Query tQueryT1 = makeNormalQuery(biTemporalMapper,
+                Query tQueryT1 = makeNormalQuery(bitemporalMapper,
                                                  transactionTimeStrategies[0],
                                                  transactionTimeTrees[0],
-                                                 BiTemporalMapper.BiTemporalDateTime.MIN,
+                                                 BitemporalMapper.BiTemporalDateTime.MIN,
                                                  tt_to);
 
                 BooleanQuery t1Query= new BooleanQuery();
@@ -248,15 +254,15 @@ public class BiTemporalCondition extends Condition {
                 t1Query.add(tQueryT1, MUST);
                 query.add(t1Query,SHOULD);
 
-                Query vQueryT2 = makeNormalQuery(biTemporalMapper,
+                Query vQueryT2 = makeNormalQuery(bitemporalMapper,
                                                  validTimeStrategies[1],
                                                  validTimeTrees[1],
                                                  vt_from,
                                                  vt_to);
-                Query tQueryT2 = makeNormalQuery(biTemporalMapper,
+                Query tQueryT2 = makeNormalQuery(bitemporalMapper,
                                                  transactionTimeStrategies[1],
                                                  transactionTimeTrees[1],
-                                                 BiTemporalMapper.BiTemporalDateTime.MIN,
+                                                 BitemporalMapper.BiTemporalDateTime.MIN,
                                                  tt_to);
                 BooleanQuery t2Query= new BooleanQuery();
                 t2Query.add(vQueryT2, MUST);
@@ -265,15 +271,15 @@ public class BiTemporalCondition extends Condition {
 
             } else if (((!vt_from.isMin()) || (!vt_to.isMax())) && (tt_to.compareTo(vt_from) < 0)) {
                 //R2
-                Query vQueryT2 = makeNormalQuery(biTemporalMapper,
+                Query vQueryT2 = makeNormalQuery(bitemporalMapper,
                                                  validTimeStrategies[1],
                                                  validTimeTrees[1],
                                                  vt_from,
                                                  vt_to);
-                Query tQueryT2 = makeNormalQuery(biTemporalMapper,
+                Query tQueryT2 = makeNormalQuery(bitemporalMapper,
                                                  transactionTimeStrategies[1],
                                                  transactionTimeTrees[1],
-                                                 BiTemporalMapper.BiTemporalDateTime.MIN,
+                                                 BitemporalMapper.BiTemporalDateTime.MIN,
                                                  tt_to);
                 BooleanQuery t2Query= new BooleanQuery();
                 t2Query.add(vQueryT2, MUST);
@@ -282,32 +288,32 @@ public class BiTemporalCondition extends Condition {
                 
             } else if ((vt_from.isMin()) && (vt_to.isMax())) { // [vt_from, vt_to]==[tmin,tmax]])
                 //R1,R2
-                Query vQueryT1 = makeNormalQuery(biTemporalMapper,
+                Query vQueryT1 = makeNormalQuery(bitemporalMapper,
                                                  validTimeStrategies[0],
                                                  validTimeTrees[0],
-                                                 BiTemporalMapper.BiTemporalDateTime.MIN,
-                                                 BiTemporalMapper.BiTemporalDateTime.MAX);
-                Query tQueryT1 = makeNormalQuery(biTemporalMapper,
+                                                 BitemporalMapper.BiTemporalDateTime.MIN,
+                                                 BitemporalMapper.BiTemporalDateTime.MAX);
+                Query tQueryT1 = makeNormalQuery(bitemporalMapper,
                                                  transactionTimeStrategies[0],
                                                  transactionTimeTrees[0],
-                                                 BiTemporalMapper.BiTemporalDateTime.MIN,
-                                                 BiTemporalMapper.BiTemporalDateTime.MAX);
+                                                 BitemporalMapper.BiTemporalDateTime.MIN,
+                                                 BitemporalMapper.BiTemporalDateTime.MAX);
 
                 BooleanQuery t1Query= new BooleanQuery();
                 t1Query.add(vQueryT1, MUST);
                 t1Query.add(tQueryT1, MUST);
                 query.add(t1Query,SHOULD);
 
-                Query vQueryT2 = makeNormalQuery(biTemporalMapper,
+                Query vQueryT2 = makeNormalQuery(bitemporalMapper,
                                                  validTimeStrategies[1],
                                                  validTimeTrees[1],
-                                                 BiTemporalMapper.BiTemporalDateTime.MIN,
-                                                 BiTemporalMapper.BiTemporalDateTime.MAX);
-                Query tQueryT2 = makeNormalQuery(biTemporalMapper,
+                                                 BitemporalMapper.BiTemporalDateTime.MIN,
+                                                 BitemporalMapper.BiTemporalDateTime.MAX);
+                Query tQueryT2 = makeNormalQuery(bitemporalMapper,
                                                  transactionTimeStrategies[1],
                                                  transactionTimeTrees[1],
-                                                 BiTemporalMapper.BiTemporalDateTime.MIN,
-                                                 BiTemporalMapper.BiTemporalDateTime.MAX);
+                                                 BitemporalMapper.BiTemporalDateTime.MIN,
+                                                 BitemporalMapper.BiTemporalDateTime.MAX);
 
                 BooleanQuery t2Query= new BooleanQuery();
                 t2Query.add(vQueryT2, MUST);

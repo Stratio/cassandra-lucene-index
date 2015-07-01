@@ -217,12 +217,12 @@ public class SearchBuilders {
     }
 
     /**
-     * Returns a new {@link BiTemporalConditionBuilder} for the specified field.
+     * Returns a new {@link BitemporalConditionBuilder} for the specified field.
      *
      * @param field The name of the field to be sorted.
-     * @return A new {@link BiTemporalConditionBuilder} for the specified field.
+     * @return A new {@link BitemporalConditionBuilder} for the specified field.
      */
-    public static BiTemporalConditionBuilder biTemporalSearch(String field) {
-        return new BiTemporalConditionBuilder(field);
+    public static BitemporalConditionBuilder biTemporalSearch(String field) {
+        return new BitemporalConditionBuilder(field);
     }
 }

@@ -15,16 +15,16 @@
  */
 package com.stratio.cassandra.lucene.schema.mapping.builder;
 
-import com.stratio.cassandra.lucene.schema.mapping.BiTemporalMapper;
+import com.stratio.cassandra.lucene.schema.mapping.BitemporalMapper;
 import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
- * {@link MapperBuilder} to build a new {@link BiTemporalMapperBuilder}.
+ * {@link MapperBuilder} to build a new {@link BitemporalMapperBuilder}.
  *
  * @author Eduardo Alonso <eduardoalonso@stratio.com>
  */
-public class BiTemporalMapperBuilder extends MapperBuilder<BiTemporalMapper> {
+public class BitemporalMapperBuilder extends MapperBuilder<BitemporalMapper> {
 
     /** The name of the column containing the vtStart **/
     @JsonProperty("vt_from")
@@ -47,7 +47,7 @@ public class BiTemporalMapperBuilder extends MapperBuilder<BiTemporalMapper> {
     private final String pattern;
 
     @JsonCreator
-    public BiTemporalMapperBuilder(@JsonProperty("vt_from") String vt_from,
+    public BitemporalMapperBuilder(@JsonProperty("vt_from") String vt_from,
                                    @JsonProperty("vt_to") String vt_to,
                                    @JsonProperty("tt_from") String tt_from,
                                    @JsonProperty("tt_to") String tt_to,
@@ -61,7 +61,7 @@ public class BiTemporalMapperBuilder extends MapperBuilder<BiTemporalMapper> {
 
     /** {@inheritDoc} */
     @Override
-    public BiTemporalMapper build(String name) {
-        return new BiTemporalMapper(name, vt_from, vt_to, tt_from, tt_to, pattern);
+    public BitemporalMapper build(String name) {
+        return new BitemporalMapper(name, vt_from, vt_to, tt_from, tt_to, pattern);
     }
 }

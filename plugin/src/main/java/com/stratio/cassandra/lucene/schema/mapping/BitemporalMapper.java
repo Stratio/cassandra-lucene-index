@@ -46,7 +46,7 @@ import java.util.Date;
  *
  * @author Eduardo Alonso <eduardoalonso@stratio.com>
  */
-public class BiTemporalMapper extends Mapper {
+public class BitemporalMapper extends Mapper {
 
     public static class BiTemporalDateTime implements Comparable {
 
@@ -182,7 +182,7 @@ public class BiTemporalMapper extends Mapper {
     private final ThreadLocal<DateFormat> concurrentDateFormat;
 
     /**
-     * Builds a new {@link BiTemporalMapper}.
+     * Builds a new {@link BitemporalMapper}.
      *
      * @param name    the name of the mapper.
      * @param vt_from The column name containing the Start Valid Time.
@@ -191,7 +191,7 @@ public class BiTemporalMapper extends Mapper {
      * @param tt_to   The column name containing the End Transaction Time.
      * @param pattern The {@link SimpleDateFormat} pattern to be used.
      */
-    public BiTemporalMapper(String name, String vt_from, String vt_to, String tt_from, String tt_to, String pattern) {
+    public BitemporalMapper(String name, String vt_from, String vt_to, String tt_from, String tt_to, String pattern) {
 
         super(name,
               true,
@@ -256,7 +256,7 @@ public class BiTemporalMapper extends Mapper {
         concurrentDateFormat = new ThreadLocal<DateFormat>() {
             @Override
             protected DateFormat initialValue() {
-                return new SimpleDateFormat(BiTemporalMapper.this.pattern);
+                return new SimpleDateFormat(BitemporalMapper.this.pattern);
             }
         };
     }
