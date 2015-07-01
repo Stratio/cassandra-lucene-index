@@ -38,6 +38,7 @@ import static org.apache.lucene.search.BooleanClause.Occur.SHOULD;
  */
 public class BiTemporalCondition extends Condition {
 
+
     /** The name of the field to be matched. */
     public final String field;
 
@@ -57,7 +58,15 @@ public class BiTemporalCondition extends Condition {
     public final String operation;
 
     public final SpatialOperation spatialOperation;
+
+    /** The default operation. */
     public static final String DEFAULT_OPERATION = "iswithin";
+
+    /** The default from value for vt_from and tt_from. */
+    public static final Long DEFAULT_FROM = 0L;
+
+    /** The default to value for vt_to and tt_to. */
+    public static final Long DEFAULT_TO = Long.MAX_VALUE;
 
 
     /**
@@ -77,10 +86,10 @@ public class BiTemporalCondition extends Condition {
     public BiTemporalCondition(Float boost, String field, Object vt_from, Object vt_to, Object tt_from, Object tt_to, String operation) {
         super(boost);
         this.field = field;
-        this.vt_from = vt_from;
-        this.vt_to = vt_to;
-        this.tt_from = tt_from;
-        this.tt_to = tt_to;
+        this.vt_from = vt_from == null ? DEFAULT_FROM : vt_from;
+        this.vt_to = vt_to == null ? DEFAULT_TO : vt_to;
+        this.tt_from = tt_from == null ? DEFAULT_FROM : tt_from;
+        this.tt_to = tt_to == null ? DEFAULT_TO : tt_to;
         this.operation = operation == null ? DEFAULT_OPERATION : operation;
         this.spatialOperation= parseSpatialOperation(this.operation);
     }
