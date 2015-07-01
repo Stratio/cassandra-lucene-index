@@ -72,7 +72,7 @@ public class BiTemporalConditionBuilderTest extends AbstractConditionBuilderTest
         assertNull(condition.tt_to);
         assertNull(condition.vt_from);
         assertNull(condition.vt_to);
-        assertEquals("contains", condition.operation);
+        assertEquals("iswithin", condition.operation);
     }
 
     @Test
