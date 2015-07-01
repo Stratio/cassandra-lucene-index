@@ -57,7 +57,7 @@ public class BiTemporalCondition extends Condition {
     public final String operation;
 
     public final SpatialOperation spatialOperation;
-    public static final String DEFAULT_OPERATION = "contains";
+    public static final String DEFAULT_OPERATION = "iswithin";
 
 
     /**
