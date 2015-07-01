@@ -29,12 +29,12 @@ public class BlobMapperBuilder extends MapperBuilder<BlobMapper> {
     @JsonProperty("sorted")
     private Boolean sorted;
 
-    public BlobMapperBuilder setIndexed(Boolean indexed) {
+    public BlobMapperBuilder indexed(Boolean indexed) {
         this.indexed = indexed;
         return this;
     }
 
-    public BlobMapperBuilder setSorted(Boolean sorted) {
+    public BlobMapperBuilder sorted(Boolean sorted) {
         this.sorted = sorted;
         return this;
     }

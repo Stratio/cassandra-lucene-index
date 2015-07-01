@@ -15,9 +15,8 @@
  */
 package com.stratio.cassandra.lucene.schema.mapping;
 
-import com.stratio.cassandra.lucene.schema.Column;
-import com.stratio.cassandra.lucene.schema.Columns;
-import com.stratio.cassandra.lucene.schema.Schema;
+import com.stratio.cassandra.lucene.schema.column.Column;
+import com.stratio.cassandra.lucene.schema.column.Columns;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -27,7 +26,6 @@ import org.apache.lucene.index.DocValuesType;
 import org.apache.lucene.index.IndexableField;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.util.UUID;
 
 import static org.junit.Assert.*;
@@ -213,44 +211,6 @@ public class StringMapperTest {
         assertEquals(2, indexableFields.length);
         assertTrue(indexableFields[0] instanceof StringField);
         assertTrue(indexableFields[1] instanceof SortedDocValuesField);
-    }
-
-    @Test
-    public void testParseJSONWithoutArgs() throws IOException {
-        String json = "{fields:{age:{type:\"string\"}}}";
-        Schema schema = Schema.fromJson(json);
-        Mapper mapper = schema.getMapper("age");
-        assertNotNull(mapper);
-        assertEquals(StringMapper.class, mapper.getClass());
-        assertEquals(Mapper.DEFAULT_INDEXED, mapper.isIndexed());
-        assertEquals(Mapper.DEFAULT_SORTED, mapper.isSorted());
-        assertEquals(StringMapper.DEFAULT_CASE_SENSITIVE, ((StringMapper) mapper).isCaseSensitive());
-    }
-
-    @Test
-    public void testParseJSONWithAllArgs() throws IOException {
-        String json = "{fields:{age:{type:\"string\", indexed:\"false\", sorted:\"true\", case_sensitive:\"false\"}}}";
-        Schema schema = Schema.fromJson(json);
-        Mapper mapper = schema.getMapper("age");
-        assertNotNull(mapper);
-        assertEquals(StringMapper.class, mapper.getClass());
-        assertFalse(mapper.isIndexed());
-        assertTrue(mapper.isSorted());
-        assertFalse(((StringMapper) mapper).isCaseSensitive());
-    }
-
-    @Test
-    public void testParseJSONEmpty() throws IOException {
-        String json = "{fields:{}}";
-        Schema schema = Schema.fromJson(json);
-        Mapper mapper = schema.getMapper("age");
-        assertNull(mapper);
-    }
-
-    @Test(expected = IOException.class)
-    public void testParseJSONInvalid() throws IOException {
-        String json = "{fields:{age:{}}";
-        Schema.fromJson(json);
     }
 
     @Test

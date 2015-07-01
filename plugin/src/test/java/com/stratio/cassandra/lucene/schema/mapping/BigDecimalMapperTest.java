@@ -15,12 +15,10 @@
  */
 package com.stratio.cassandra.lucene.schema.mapping;
 
-import com.stratio.cassandra.lucene.schema.Schema;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.DocValuesType;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.UUID;
 
@@ -492,47 +490,6 @@ public class BigDecimalMapperTest {
         BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, 10, 10);
         String analyzer = mapper.getAnalyzer();
         assertEquals(Mapper.KEYWORD_ANALYZER, analyzer);
-    }
-
-    @Test
-    public void testParseJSONWithoutArgs() throws IOException {
-        String json = "{fields:{age:{type:\"bigdec\"}}}";
-        Schema schema = Schema.fromJson(json);
-        Mapper mapper = schema.getMapper("age");
-        assertNotNull(mapper);
-        assertEquals(BigDecimalMapper.class, mapper.getClass());
-        assertEquals(Mapper.DEFAULT_INDEXED, mapper.isIndexed());
-        assertEquals(Mapper.DEFAULT_SORTED, mapper.isSorted());
-        assertEquals(BigDecimalMapper.DEFAULT_DECIMAL_DIGITS, ((BigDecimalMapper) mapper).getDecimalDigits());
-        assertEquals(BigDecimalMapper.DEFAULT_INTEGER_DIGITS, ((BigDecimalMapper) mapper).getIntegerDigits());
-    }
-
-    @Test
-    public void testParseJSONWithAllArgs() throws IOException {
-        String json = "{fields:{age:{type:\"bigdec\", indexed:\"false\", sorted:\"true\", " +
-                      "integer_digits:20, decimal_digits:30}}}";
-        Schema schema = Schema.fromJson(json);
-        Mapper mapper = schema.getMapper("age");
-        assertNotNull(mapper);
-        assertEquals(BigDecimalMapper.class, mapper.getClass());
-        assertFalse(mapper.isIndexed());
-        assertTrue(mapper.isSorted());
-        assertEquals(20, ((BigDecimalMapper) mapper).getIntegerDigits());
-        assertEquals(30, ((BigDecimalMapper) mapper).getDecimalDigits());
-    }
-
-    @Test
-    public void testParseJSONEmpty() throws IOException {
-        String json = "{fields:{}}";
-        Schema schema = Schema.fromJson(json);
-        Mapper mapper = schema.getMapper("age");
-        assertNull(mapper);
-    }
-
-    @Test(expected = IOException.class)
-    public void testParseJSONInvalid() throws IOException {
-        String json = "{fields:{age:{}}";
-        Schema.fromJson(json);
     }
 
     @Test

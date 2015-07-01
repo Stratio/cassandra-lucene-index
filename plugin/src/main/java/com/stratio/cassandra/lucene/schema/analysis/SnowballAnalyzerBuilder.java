@@ -42,7 +42,6 @@ import org.apache.lucene.analysis.standard.StandardFilter;
 import org.apache.lucene.analysis.standard.StandardTokenizer;
 import org.apache.lucene.analysis.sv.SwedishAnalyzer;
 import org.apache.lucene.analysis.util.CharArraySet;
-import org.apache.lucene.util.QueryBuilder;
 import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
 
@@ -59,7 +58,11 @@ import java.util.List;
  */
 public class SnowballAnalyzerBuilder extends AnalyzerBuilder {
 
-    private final Analyzer analyzer;
+    @JsonProperty("language")
+    private final String language;
+
+    @JsonProperty("stopwords")
+    private final String stopwords;
 
     /**
      * Builds a new {@link SnowballAnalyzerBuilder} for the specified language and stopwords.
@@ -70,7 +73,7 @@ public class SnowballAnalyzerBuilder extends AnalyzerBuilder {
      * @param stopwords The comma separated stopwords {@code String}.
      */
     @JsonCreator
-    public SnowballAnalyzerBuilder(@JsonProperty("language") final String language,
+    public SnowballAnalyzerBuilder(@JsonProperty("language") String language,
                                    @JsonProperty("stopwords") String stopwords) {
 
         // Check language
@@ -78,21 +81,16 @@ public class SnowballAnalyzerBuilder extends AnalyzerBuilder {
             throw new IllegalArgumentException("Language must be specified");
         }
 
-        // Setup stopwords
-        CharArraySet stops = stopwords == null ? getDefaultStopwords(language) : getStopwords(stopwords);
-
-        // Setup analyzer
-        this.analyzer = buildAnalyzer(language, stops);
-
-        // Force analysis validation
-        QueryBuilder queryBuilder = new QueryBuilder(analyzer);
-        queryBuilder.createPhraseQuery("nothing", "nothing");
+        this.language = language;
+        this.stopwords = stopwords;
     }
 
     /** {@inheritDoc} */
     @Override
     public Analyzer analyzer() {
-        return analyzer;
+        // Setup stopwords
+        CharArraySet stops = stopwords == null ? getDefaultStopwords(language) : getStopwords(stopwords);
+        return buildAnalyzer(language, stops);
     }
 
     /**
@@ -105,16 +103,7 @@ public class SnowballAnalyzerBuilder extends AnalyzerBuilder {
      * @return The snowball {@link Analyzer} for the specified language and stopwords.
      */
     private static Analyzer buildAnalyzer(final String language, final CharArraySet stopwords) {
-        return new Analyzer() {
-            protected TokenStreamComponents createComponents(String fieldName) {
-                final Tokenizer source = new StandardTokenizer();
-                TokenStream result = new StandardFilter(source);
-                result = new LowerCaseFilter(result);
-                result = new StopFilter(result, stopwords);
-                result = new SnowballFilter(result, language);
-                return new TokenStreamComponents(source, result);
-            }
-        };
+        return new SnowballAnalyzer(language, stopwords);
     }
 
     /**
@@ -181,6 +170,26 @@ public class SnowballAnalyzerBuilder extends AnalyzerBuilder {
                 return CatalanAnalyzer.getDefaultStopSet();
             default:
                 return CharArraySet.EMPTY_SET;
+        }
+    }
+
+    public static class SnowballAnalyzer extends Analyzer {
+
+        private String language;
+        private CharArraySet stopwords;
+
+        public SnowballAnalyzer(String language, CharArraySet stopwords) {
+            this.language = language;
+            this.stopwords = stopwords;
+        }
+
+        protected TokenStreamComponents createComponents(String fieldName) {
+            final Tokenizer source = new StandardTokenizer();
+            TokenStream result = new StandardFilter(source);
+            result = new LowerCaseFilter(result);
+            result = new StopFilter(result, stopwords);
+            result = new SnowballFilter(result, language);
+            return new TokenStreamComponents(source, result);
         }
     }
 }

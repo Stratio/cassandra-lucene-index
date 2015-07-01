@@ -35,22 +35,22 @@ public class BigDecimalMapperBuilder extends MapperBuilder<BigDecimalMapper> {
     @JsonProperty("decimal_digits")
     private Integer decimalDigits;
 
-    public BigDecimalMapperBuilder setIndexed(Boolean indexed) {
+    public BigDecimalMapperBuilder indexed(Boolean indexed) {
         this.indexed = indexed;
         return this;
     }
 
-    public BigDecimalMapperBuilder setSorted(Boolean sorted) {
+    public BigDecimalMapperBuilder sorted(Boolean sorted) {
         this.sorted = sorted;
         return this;
     }
 
-    public BigDecimalMapperBuilder setIntegerDigits(Integer integerDigits) {
+    public BigDecimalMapperBuilder integerDigits(Integer integerDigits) {
         this.integerDigits = integerDigits;
         return this;
     }
 
-    public BigDecimalMapperBuilder setDecimalDigits(Integer decimalDigits) {
+    public BigDecimalMapperBuilder decimalDigits(Integer decimalDigits) {
         this.decimalDigits = decimalDigits;
         return this;
     }

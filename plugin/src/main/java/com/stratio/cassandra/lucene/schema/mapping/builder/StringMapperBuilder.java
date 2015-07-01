@@ -32,17 +32,17 @@ public class StringMapperBuilder extends MapperBuilder<StringMapper> {
     @JsonProperty("case_sensitive")
     private Boolean caseSensitive;
 
-    public StringMapperBuilder setIndexed(Boolean indexed) {
+    public StringMapperBuilder indexed(Boolean indexed) {
         this.indexed = indexed;
         return this;
     }
 
-    public StringMapperBuilder setSorted(Boolean sorted) {
+    public StringMapperBuilder sorted(Boolean sorted) {
         this.sorted = sorted;
         return this;
     }
 
-    public StringMapperBuilder setCaseSensitive(Boolean caseSensitive) {
+    public StringMapperBuilder caseSensitive(Boolean caseSensitive) {
         this.caseSensitive = caseSensitive;
         return this;
     }

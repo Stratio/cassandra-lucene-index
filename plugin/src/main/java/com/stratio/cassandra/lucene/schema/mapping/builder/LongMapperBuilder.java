@@ -32,17 +32,17 @@ public class LongMapperBuilder extends MapperBuilder<LongMapper> {
     @JsonProperty("boost")
     private Float boost;
 
-    public LongMapperBuilder setIndexed(Boolean indexed) {
+    public LongMapperBuilder indexed(Boolean indexed) {
         this.indexed = indexed;
         return this;
     }
 
-    public LongMapperBuilder setSorted(Boolean sorted) {
+    public LongMapperBuilder sorted(Boolean sorted) {
         this.sorted = sorted;
         return this;
     }
 
-    public LongMapperBuilder setBoost(Float boost) {
+    public LongMapperBuilder boost(Float boost) {
         this.boost = boost;
         return this;
     }

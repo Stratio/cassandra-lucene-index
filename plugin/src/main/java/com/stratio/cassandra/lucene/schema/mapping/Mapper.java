@@ -15,8 +15,8 @@
  */
 package com.stratio.cassandra.lucene.schema.mapping;
 
-import com.stratio.cassandra.lucene.schema.Columns;
 import com.stratio.cassandra.lucene.schema.analysis.PreBuiltAnalyzers;
+import com.stratio.cassandra.lucene.schema.column.Columns;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
 import org.apache.cassandra.db.marshal.AbstractType;
@@ -46,10 +46,10 @@ public abstract class Mapper {
     static final Store STORE = Store.NO;
 
     /** If the field must be indexed when no specified. */
-    static final boolean DEFAULT_INDEXED = true;
+    public static final boolean DEFAULT_INDEXED = true;
 
     /** If the field must be sorted when no specified. */
-    static final boolean DEFAULT_SORTED = true;
+    public static final boolean DEFAULT_SORTED = true;
 
     /** The name of the mapper. */
     protected final String name;

@@ -36,22 +36,30 @@ public class GeoPointMapperBuilder extends MapperBuilder<GeoPointMapper> {
 
     /** The maximum number of levels in the tree. */
     @JsonProperty("max_levels")
-    private final Integer maxLevels;
+    private Integer maxLevels;
 
     /**
      * Builds a new {@link GeoPointMapper}.
      *
      * @param latitude  The name of the column containing the latitude.
      * @param longitude The name of the column containing the longitude.
-     * @param maxLevels The maximum number of levels in the tree.
      */
     @JsonCreator
     public GeoPointMapperBuilder(@JsonProperty("latitude") String latitude,
-                                 @JsonProperty("longitude") String longitude,
-                                 @JsonProperty("max_levels") Integer maxLevels) {
+                                 @JsonProperty("longitude") String longitude) {
         this.latitude = latitude;
         this.longitude = longitude;
+    }
+
+    /**
+     * Sets the maximum number of levels in the tree.
+     *
+     * @param maxLevels The maximum number of levels in the tree.
+     * @return This
+     */
+    public GeoPointMapperBuilder maxLevels(Integer maxLevels) {
         this.maxLevels = maxLevels;
+        return this;
     }
 
     /** {@inheritDoc} */

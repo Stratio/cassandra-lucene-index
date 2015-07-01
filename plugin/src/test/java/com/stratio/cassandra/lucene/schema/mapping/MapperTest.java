@@ -15,7 +15,7 @@
  */
 package com.stratio.cassandra.lucene.schema.mapping;
 
-import com.stratio.cassandra.lucene.schema.Columns;
+import com.stratio.cassandra.lucene.schema.column.Columns;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.IntegerType;

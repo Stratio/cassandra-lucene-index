@@ -15,13 +15,11 @@
  */
 package com.stratio.cassandra.lucene.schema.mapping;
 
-import com.stratio.cassandra.lucene.schema.Schema;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.DocValuesType;
 import org.apache.lucene.search.SortField;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.util.UUID;
 
 import static org.junit.Assert.*;
@@ -190,62 +188,6 @@ public class TextMapperTest {
     public void testExtractAnalyzers() {
         TextMapper mapper = new TextMapper("field", true, true, "org.apache.lucene.analysis.en.EnglishAnalyzer");
         assertEquals("org.apache.lucene.analysis.en.EnglishAnalyzer", mapper.getAnalyzer());
-    }
-
-    @Test
-    public void testParseJSONWithAnalyzer() throws IOException {
-        String json = "{fields:{age:{type:\"text\", analyzer:\"org.apache.lucene.analysis.en.EnglishAnalyzer\"}}}";
-        Schema schema = Schema.fromJson(json);
-        Mapper mapper = schema.getMapper("age");
-        assertNotNull(mapper);
-        assertEquals(TextMapper.class, mapper.getClass());
-    }
-
-    @Test
-    public void testParseJSONWithoutAnalyzer() throws IOException {
-        String json = "{fields:{age:{type:\"text\"}}}";
-        Schema schema = Schema.fromJson(json);
-        Mapper mapper = schema.getMapper("age");
-        assertNotNull(mapper);
-        assertEquals(TextMapper.class, mapper.getClass());
-    }
-
-    @Test
-    public void testParseJSONWithoutArgs() throws IOException {
-        String json = "{fields:{age:{type:\"text\"}}}";
-        Schema schema = Schema.fromJson(json);
-        Mapper mapper = schema.getMapper("age");
-        assertNotNull(mapper);
-        assertEquals(TextMapper.class, mapper.getClass());
-        assertEquals(Mapper.DEFAULT_INDEXED, mapper.isIndexed());
-        assertEquals(Mapper.DEFAULT_SORTED, mapper.isSorted());
-        assertEquals(TextMapper.DEFAULT_ANALYZER, mapper.getAnalyzer());
-    }
-
-    @Test
-    public void testParseJSONWithAllArgs() throws IOException {
-        String json = "{fields:{age:{type:\"text\", indexed:\"false\", sorted:\"true\", analyzer:\"spanish\"}}}";
-        Schema schema = Schema.fromJson(json);
-        Mapper mapper = schema.getMapper("age");
-        assertNotNull(mapper);
-        assertEquals(TextMapper.class, mapper.getClass());
-        assertFalse(mapper.isIndexed());
-        assertTrue(mapper.isSorted());
-        assertEquals("spanish", mapper.getAnalyzer());
-    }
-
-    @Test
-    public void testParseJSONEmpty() throws IOException {
-        String json = "{fields:{}}";
-        Schema schema = Schema.fromJson(json);
-        Mapper mapper = schema.getMapper("age");
-        assertNull(mapper);
-    }
-
-    @Test(expected = IOException.class)
-    public void testParseJSONInvalid() throws IOException {
-        String json = "{fields:{age:{}}";
-        Schema.fromJson(json);
     }
 
     @Test

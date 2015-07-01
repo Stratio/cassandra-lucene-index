@@ -16,8 +16,8 @@
 package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.google.common.base.Objects;
-import com.stratio.cassandra.lucene.schema.Column;
-import com.stratio.cassandra.lucene.schema.Columns;
+import com.stratio.cassandra.lucene.schema.column.Column;
+import com.stratio.cassandra.lucene.schema.column.Columns;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.db.marshal.AsciiType;
 import org.apache.cassandra.db.marshal.DecimalType;
