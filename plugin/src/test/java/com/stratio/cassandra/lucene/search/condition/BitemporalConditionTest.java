@@ -37,10 +37,10 @@ public class BitemporalConditionTest extends AbstractConditionTest {
 
         assertEquals(BitemporalCondition.DEFAULT_BOOST, condition.boost, 0);
         assertEquals("name", condition.field);
-        assertEquals(1, condition.vt_from);
-        assertEquals(2, condition.vt_to);
-        assertEquals(3, condition.tt_from);
-        assertEquals(4, condition.tt_to);
+        assertEquals(1, condition.vtFrom);
+        assertEquals(2, condition.vtTo);
+        assertEquals(3, condition.ttFrom);
+        assertEquals(4, condition.ttTo);
         assertEquals(BitemporalCondition.DEFAULT_OPERATION, condition.operation);
     }
 
@@ -49,16 +49,16 @@ public class BitemporalConditionTest extends AbstractConditionTest {
         BitemporalCondition condition = new BitemporalCondition(0.5f, "name", 1, 2, 3, 4, "intersects");
         assertEquals(0.5, condition.boost, 0);
         assertEquals("name", condition.field);
-        assertEquals(1, condition.vt_from);
-        assertEquals(2, condition.vt_to);
-        assertEquals(3, condition.tt_from);
-        assertEquals(4, condition.tt_to);
+        assertEquals(1, condition.vtFrom);
+        assertEquals(2, condition.vtTo);
+        assertEquals(3, condition.ttFrom);
+        assertEquals(4, condition.ttTo);
         assertEquals("intersects", condition.operation);
     }
 
     @Test
     public void testQuery() {
-        Schema schema = mockSchema("name", new BitemporalMapper("name", "vt_from", "vt_to", "tt_from", "tt_to", null));
+        Schema schema = mockSchema("name", new BitemporalMapper("name", "vtFrom", "vtTo", "ttFrom", "ttTo", null));
         BitemporalCondition condition = new BitemporalCondition(0.5f, "name", 1, 2, 3, 4, null);
 
         Query query = condition.query(schema);
@@ -75,13 +75,8 @@ public class BitemporalConditionTest extends AbstractConditionTest {
 
     @Test
     public void testToString() {
-        BitemporalCondition condition = biTemporalSearch("name").setVt_from(1)
-                                                                .setVt_to(2)
-                                                                .setTt_from(3)
-                                                                .setTt_to(4)
-                                                                .boost(0.3)
-                                                                .build();
-        assertEquals("BitemporalCondition{boost=0.3, field=name, vt_from=1, vt_to=2, tt_from=3, tt_to=4}",
+        BitemporalCondition condition = biTemporalSearch("name").vtFrom(1).vtTo(2).ttFrom(3).ttTo(4).boost(0.3).build();
+        assertEquals("BitemporalCondition{boost=0.3, field=name, vtFrom=1, vtTo=2, ttFrom=3, ttTo=4}",
                      condition.toString());
     }
 }

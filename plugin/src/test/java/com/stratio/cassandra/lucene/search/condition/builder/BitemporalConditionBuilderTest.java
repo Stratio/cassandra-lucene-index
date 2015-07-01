@@ -18,7 +18,8 @@ package com.stratio.cassandra.lucene.search.condition.builder;
 import com.stratio.cassandra.lucene.search.condition.BitemporalCondition;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Eduardo Alonso <eduardoalonso@stratio.com>
@@ -28,36 +29,36 @@ public class BitemporalConditionBuilderTest extends AbstractConditionBuilderTest
     @Test
     public void testBuildLong() {
         BitemporalConditionBuilder builder = new BitemporalConditionBuilder("field");
-        builder.setTt_from((long) 1);
-        builder.setTt_to((long) 2);
-        builder.setVt_from((long) 3);
-        builder.setVt_to((long) 4);
-        builder.setOperation("intersects");
+        builder.ttFrom((long) 1);
+        builder.ttTo((long) 2);
+        builder.vtFrom((long) 3);
+        builder.vtTo((long) 4);
+        builder.operation("intersects");
         BitemporalCondition condition = builder.build();
         assertNotNull(condition);
         assertEquals("field", condition.field);
-        assertEquals((long) 1, condition.tt_from);
-        assertEquals((long) 2, condition.tt_to);
-        assertEquals((long) 3, condition.vt_from);
-        assertEquals((long) 4, condition.vt_to);
+        assertEquals((long) 1, condition.ttFrom);
+        assertEquals((long) 2, condition.ttTo);
+        assertEquals((long) 3, condition.vtFrom);
+        assertEquals((long) 4, condition.vtTo);
         assertEquals("intersects", condition.operation);
     }
 
     @Test
     public void testBuildString() {
         BitemporalConditionBuilder builder = new BitemporalConditionBuilder("field");
-        builder.setTt_from("2015/03/20 11:45:32.333");
-        builder.setTt_to("2013/03/20 11:45:32.333");
-        builder.setVt_from("2012/03/20 11:45:32.333");
-        builder.setVt_to("2011/03/20 11:45:32.333");
-        builder.setOperation("intersects");
+        builder.ttFrom("2015/03/20 11:45:32.333");
+        builder.ttTo("2013/03/20 11:45:32.333");
+        builder.vtFrom("2012/03/20 11:45:32.333");
+        builder.vtTo("2011/03/20 11:45:32.333");
+        builder.operation("intersects");
         BitemporalCondition condition = builder.build();
         assertNotNull(condition);
         assertEquals("field", condition.field);
-        assertEquals("2015/03/20 11:45:32.333", condition.tt_from);
-        assertEquals("2013/03/20 11:45:32.333", condition.tt_to);
-        assertEquals("2012/03/20 11:45:32.333", condition.vt_from);
-        assertEquals("2011/03/20 11:45:32.333", condition.vt_to);
+        assertEquals("2015/03/20 11:45:32.333", condition.ttFrom);
+        assertEquals("2013/03/20 11:45:32.333", condition.ttTo);
+        assertEquals("2012/03/20 11:45:32.333", condition.vtFrom);
+        assertEquals("2011/03/20 11:45:32.333", condition.vtTo);
         assertEquals("intersects", condition.operation);
     }
 
@@ -67,10 +68,10 @@ public class BitemporalConditionBuilderTest extends AbstractConditionBuilderTest
         BitemporalCondition condition = builder.build();
         assertNotNull(condition);
         assertEquals("field", condition.field);
-        assertEquals(BitemporalCondition.DEFAULT_FROM,condition.tt_from);
-        assertEquals(BitemporalCondition.DEFAULT_TO,condition.tt_to);
-        assertEquals(BitemporalCondition.DEFAULT_FROM,condition.vt_from);
-        assertEquals(BitemporalCondition.DEFAULT_TO,condition.vt_to);
+        assertEquals(BitemporalCondition.DEFAULT_FROM, condition.ttFrom);
+        assertEquals(BitemporalCondition.DEFAULT_TO, condition.ttTo);
+        assertEquals(BitemporalCondition.DEFAULT_FROM, condition.vtFrom);
+        assertEquals(BitemporalCondition.DEFAULT_TO, condition.vtTo);
         assertEquals(BitemporalCondition.DEFAULT_OPERATION, condition.operation);
     }
 

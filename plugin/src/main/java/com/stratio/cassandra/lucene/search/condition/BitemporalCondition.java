@@ -36,21 +36,20 @@ import static org.apache.lucene.search.BooleanClause.Occur.SHOULD;
  */
 public class BitemporalCondition extends Condition {
 
-
     /** The name of the field to be matched. */
     public final String field;
 
     /** The Valid Time Start. */
-    public final Object vt_from;
+    public final Object vtFrom;
 
     /** The Valid Time End. */
-    public final Object vt_to;
+    public final Object vtTo;
 
     /** The Transaction Time Start. */
-    public final Object tt_from;
+    public final Object ttFrom;
 
     /** The Transaction Time End. */
-    public final Object tt_to;
+    public final Object ttTo;
 
     /** The spatial operation to be performed. */
     public final String operation;
@@ -58,13 +57,12 @@ public class BitemporalCondition extends Condition {
     public final SpatialOperation spatialOperation;
 
     /** The default operation. */
-    public static final String DEFAULT_OPERATION = "iswithin";
+    public static final String DEFAULT_OPERATION = "is_within";
 
-
-    /** The default from value for vt_from and tt_from. */
+    /** The default from value for vtFrom and ttFrom. */
     public static final Long DEFAULT_FROM = 0L;
 
-    /** The default to value for vt_to and tt_to. */
+    /** The default to value for vtTo and ttTo. */
     public static final Long DEFAULT_TO = Long.MAX_VALUE;
 
     /**
@@ -74,25 +72,25 @@ public class BitemporalCondition extends Condition {
      * @param boost     The boost for this query clause. Documents matching this clause will (in addition to the normal
      *                  weightings) have their score multiplied by {@code boost}.
      * @param field     The name of the field to be matched.
-     * @param vt_from   The Valid Time Start.
-     * @param vt_to     The Valid Time End.
-     * @param tt_from   The Transaction Time Start.
-     * @param tt_to     The Transaction Time End.
+     * @param vtFrom    The Valid Time Start.
+     * @param vtTo      The Valid Time End.
+     * @param ttFrom    The Transaction Time Start.
+     * @param ttTo      The Transaction Time End.
      * @param operation The spatial operation to be performed.
      */
     public BitemporalCondition(Float boost,
                                String field,
-                               Object vt_from,
-                               Object vt_to,
-                               Object tt_from,
-                               Object tt_to,
+                               Object vtFrom,
+                               Object vtTo,
+                               Object ttFrom,
+                               Object ttTo,
                                String operation) {
         super(boost);
         this.field = field;
-        this.vt_from = vt_from == null ? DEFAULT_FROM : vt_from;
-        this.vt_to = vt_to == null ? DEFAULT_TO : vt_to;
-        this.tt_from = tt_from == null ? DEFAULT_FROM : tt_from;
-        this.tt_to = tt_to == null ? DEFAULT_TO : tt_to;
+        this.vtFrom = vtFrom == null ? DEFAULT_FROM : vtFrom;
+        this.vtTo = vtTo == null ? DEFAULT_TO : vtTo;
+        this.ttFrom = ttFrom == null ? DEFAULT_FROM : ttFrom;
+        this.ttTo = ttTo == null ? DEFAULT_TO : ttTo;
         this.operation = operation == null ? DEFAULT_OPERATION : operation;
         this.spatialOperation = parseSpatialOperation(this.operation);
     }
@@ -113,7 +111,7 @@ public class BitemporalCondition extends Condition {
             return SpatialOperation.Contains;
         } else if (operation.equalsIgnoreCase("intersects")) {
             return SpatialOperation.Intersects;
-        } else if (operation.equalsIgnoreCase("iswithin")) {
+        } else if (operation.equalsIgnoreCase("is_within")) {
             return SpatialOperation.IsWithin;
         } else {
             throw new IllegalArgumentException("Operation is invalid: " + operation);
@@ -132,10 +130,10 @@ public class BitemporalCondition extends Condition {
         }
         BitemporalMapper bitemporalMapper = (BitemporalMapper) mapper;
 
-        BitemporalMapper.BiTemporalDateTime vt_from = bitemporalMapper.parseBiTemporalDate(this.vt_from);
-        BitemporalMapper.BiTemporalDateTime vt_to = bitemporalMapper.parseBiTemporalDate(this.vt_to);
-        BitemporalMapper.BiTemporalDateTime tt_from = bitemporalMapper.parseBiTemporalDate(this.tt_from);
-        BitemporalMapper.BiTemporalDateTime tt_to = bitemporalMapper.parseBiTemporalDate(this.tt_to);
+        BitemporalMapper.BiTemporalDateTime vt_from = bitemporalMapper.parseBiTemporalDate(this.vtFrom);
+        BitemporalMapper.BiTemporalDateTime vt_to = bitemporalMapper.parseBiTemporalDate(this.vtTo);
+        BitemporalMapper.BiTemporalDateTime tt_from = bitemporalMapper.parseBiTemporalDate(this.ttFrom);
+        BitemporalMapper.BiTemporalDateTime tt_to = bitemporalMapper.parseBiTemporalDate(this.ttTo);
 
         BooleanQuery query = new BooleanQuery();
         NumberRangePrefixTreeStrategy[] validTimeStrategies = new NumberRangePrefixTreeStrategy[4];
@@ -148,8 +146,6 @@ public class BitemporalCondition extends Condition {
             validTimeTrees[i] = bitemporalMapper.getTree(i, true);
             transactionTimeTrees[i] = bitemporalMapper.getTree(i, false);
         }
-
-        SpatialArgs args;
 
         if (!tt_from.isNow() && (tt_to.compareTo(vt_from) >= 0)) {
             //R1,R2,R3,R4
@@ -298,7 +294,7 @@ public class BitemporalCondition extends Condition {
                 t2Query.add(tQueryT2, MUST);
                 query.add(t2Query, SHOULD);
 
-            } else if ((vt_from.isMin()) && (vt_to.isMax())) { // [vt_from, vt_to]==[tmin,tmax]])
+            } else if ((vt_from.isMin()) && (vt_to.isMax())) { // [vtFrom, vtTo]==[tmin,tmax]])
                 //R1,R2
                 Query vQueryT1 = makeNormalQuery(bitemporalMapper,
                                                  validTimeStrategies[0],
@@ -343,10 +339,10 @@ public class BitemporalCondition extends Condition {
         return Objects.toStringHelper(this)
                       .add("boost", boost)
                       .add("field", field)
-                      .add("vt_from", vt_from)
-                      .add("vt_to", vt_to)
-                      .add("tt_from", tt_from)
-                      .add("tt_to", tt_to)
+                      .add("vtFrom", vtFrom)
+                      .add("vtTo", vtTo)
+                      .add("ttFrom", ttFrom)
+                      .add("ttTo", ttTo)
                       .toString();
     }
 }

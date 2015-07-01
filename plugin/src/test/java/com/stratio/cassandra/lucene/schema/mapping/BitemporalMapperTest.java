@@ -47,14 +47,14 @@ public class BitemporalMapperTest {
 
     @Test
     public void testConstructorWithDefaultArgs() {
-        BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null);
+        BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null);
         assertEquals("field", mapper.getName());
         assertTrue(mapper.isIndexed());
         assertFalse(mapper.isSorted());
-        assertEquals("vt_from", mapper.getVt_from());
-        assertEquals("vt_to", mapper.getVt_to());
-        assertEquals("tt_from", mapper.getTt_from());
-        assertEquals("tt_to", mapper.getTt_to());
+        assertEquals("vtFrom", mapper.getVtFrom());
+        assertEquals("vtTo", mapper.getVtTo());
+        assertEquals("ttFrom", mapper.getTtFrom());
+        assertEquals("ttTo", mapper.getTtTo());
         assertEquals(BitemporalMapper.DEFAULT_PATTERN, mapper.getPattern());
         for (int i = 0; i <= 3; i++) {
             assertNotNull(mapper.getStrategy(i, true));
@@ -68,14 +68,14 @@ public class BitemporalMapperTest {
     @Test
     public void testConstructorWithAllArgs() {
 
-        BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", "yyyy/MM/dd");
+        BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", "yyyy/MM/dd");
         assertEquals("field", mapper.getName());
         assertTrue(mapper.isIndexed());
         assertFalse(mapper.isSorted());
-        assertEquals("vt_from", mapper.getVt_from());
-        assertEquals("vt_to", mapper.getVt_to());
-        assertEquals("tt_from", mapper.getTt_from());
-        assertEquals("tt_to", mapper.getTt_to());
+        assertEquals("vtFrom", mapper.getVtFrom());
+        assertEquals("vtTo", mapper.getVtTo());
+        assertEquals("ttFrom", mapper.getTtFrom());
+        assertEquals("ttTo", mapper.getTtTo());
         assertEquals("yyyy/MM/dd", mapper.getPattern());
         for (int i = 0; i <= 3; i++) {
             assertNotNull(mapper.getStrategy(i, true));
@@ -88,143 +88,143 @@ public class BitemporalMapperTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithNullVtFrom() {
-        new BitemporalMapper("field", null, "vt_to", "tt_from", "tt_to", "yyyy/MM/dd");
+        new BitemporalMapper("field", null, "vtTo", "ttFrom", "ttTo", "yyyy/MM/dd");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithEmptyVtFrom() {
-        new BitemporalMapper("field", "", "vt_to", "tt_from", "tt_to", "yyyy/MM/dd");
+        new BitemporalMapper("field", "", "vtTo", "ttFrom", "ttTo", "yyyy/MM/dd");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithBlankVtFrom() {
-        new BitemporalMapper("field", " ", "vt_to", "tt_from", "tt_to", "yyyy/MM/dd");
+        new BitemporalMapper("field", " ", "vtTo", "ttFrom", "ttTo", "yyyy/MM/dd");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithNullVtTo() {
-        new BitemporalMapper("field", "vt_from", null, "tt_from", "tt_to", "yyyy/MM/dd");
+        new BitemporalMapper("field", "vtFrom", null, "ttFrom", "ttTo", "yyyy/MM/dd");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithEmptyVtTo() {
-        new BitemporalMapper("field", "vt_from", "", "tt_from", "tt_to", "yyyy/MM/dd");
+        new BitemporalMapper("field", "vtFrom", "", "ttFrom", "ttTo", "yyyy/MM/dd");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithBlankVtTo() {
-        new BitemporalMapper("field", "vt_from", " ", "tt_from", "tt_to", "yyyy/MM/dd");
+        new BitemporalMapper("field", "vtFrom", " ", "ttFrom", "ttTo", "yyyy/MM/dd");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithNullTtFrom() {
-        new BitemporalMapper("field", "vt_from", "vt_to", null, "tt_to", "yyyy/MM/dd");
+        new BitemporalMapper("field", "vtFrom", "vtTo", null, "ttTo", "yyyy/MM/dd");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithEmptyTtFrom() {
-        new BitemporalMapper("field", "vt_from", "vt_to", "", "tt_to", "yyyy/MM/dd");
+        new BitemporalMapper("field", "vtFrom", "vtTo", "", "ttTo", "yyyy/MM/dd");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithBlankTtFrom() {
-        new BitemporalMapper("field", "vt_from", "vt_to", " ", "tt_to", "yyyy/MM/dd");
+        new BitemporalMapper("field", "vtFrom", "vtTo", " ", "ttTo", "yyyy/MM/dd");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithNullTtTo() {
-        new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", null, "yyyy/MM/dd");
+        new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", null, "yyyy/MM/dd");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithEmptyTtTo() {
-        new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "", "yyyy/MM/dd");
+        new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "", "yyyy/MM/dd");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithBlankTtTo() {
-        new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", " ", "yyyy/MM/dd");
+        new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", " ", "yyyy/MM/dd");
     }
 
     @Test()
     public void testReadVtFromFieldFromInt32Column() {
-        BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null);
+        BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null);
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("vt_from", 5, Int32Type.instance, false));
-        columns.add(Column.fromComposed("vt_to", 0, Int32Type.instance, false));
-        columns.add(Column.fromComposed("tt_from", 0, Int32Type.instance, false));
-        columns.add(Column.fromComposed("tt_to", 0, Int32Type.instance, false));
-        assertEquals(new BitemporalMapper.BiTemporalDateTime(5L), mapper.readBitemporalDate(columns, "vt_from"));
+        columns.add(Column.fromComposed("vtFrom", 5, Int32Type.instance, false));
+        columns.add(Column.fromComposed("vtTo", 0, Int32Type.instance, false));
+        columns.add(Column.fromComposed("ttFrom", 0, Int32Type.instance, false));
+        columns.add(Column.fromComposed("ttTo", 0, Int32Type.instance, false));
+        assertEquals(new BitemporalMapper.BiTemporalDateTime(5L), mapper.readBitemporalDate(columns, "vtFrom"));
     }
 
     @Test()
     public void testReadVtFromFieldFromLongColumn() {
-        BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null);
+        BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null);
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("vt_from", 5L, LongType.instance, false));
-        columns.add(Column.fromComposed("vt_to", 0L, LongType.instance, false));
-        columns.add(Column.fromComposed("tt_from", 0L, LongType.instance, false));
-        columns.add(Column.fromComposed("tt_to", 0L, LongType.instance, false));
-        assertEquals(new BitemporalMapper.BiTemporalDateTime(5L), mapper.readBitemporalDate(columns, "vt_from"));
+        columns.add(Column.fromComposed("vtFrom", 5L, LongType.instance, false));
+        columns.add(Column.fromComposed("vtTo", 0L, LongType.instance, false));
+        columns.add(Column.fromComposed("ttFrom", 0L, LongType.instance, false));
+        columns.add(Column.fromComposed("ttTo", 0L, LongType.instance, false));
+        assertEquals(new BitemporalMapper.BiTemporalDateTime(5L), mapper.readBitemporalDate(columns, "vtFrom"));
     }
 
     @Test()
     public void testReadVtFromFieldFromIntegerColumn() {
-        BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null);
+        BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null);
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("vt_from", BigInteger.valueOf(5), IntegerType.instance, false));
-        columns.add(Column.fromComposed("vt_to", BigInteger.valueOf(0), IntegerType.instance, false));
-        columns.add(Column.fromComposed("tt_from", BigInteger.valueOf(0), IntegerType.instance, false));
-        columns.add(Column.fromComposed("tt_to", BigInteger.valueOf(0), IntegerType.instance, false));
-        assertEquals(new BitemporalMapper.BiTemporalDateTime(5L), mapper.readBitemporalDate(columns, "vt_from"));
+        columns.add(Column.fromComposed("vtFrom", BigInteger.valueOf(5), IntegerType.instance, false));
+        columns.add(Column.fromComposed("vtTo", BigInteger.valueOf(0), IntegerType.instance, false));
+        columns.add(Column.fromComposed("ttFrom", BigInteger.valueOf(0), IntegerType.instance, false));
+        columns.add(Column.fromComposed("ttTo", BigInteger.valueOf(0), IntegerType.instance, false));
+        assertEquals(new BitemporalMapper.BiTemporalDateTime(5L), mapper.readBitemporalDate(columns, "vtFrom"));
     }
 
     @Test()
     public void testReadVtFromFieldFromFloatColumn() {
-        BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null);
+        BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null);
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("vt_from", 5.0f, FloatType.instance, false));
-        columns.add(Column.fromComposed("vt_to", 0.0f, FloatType.instance, false));
-        columns.add(Column.fromComposed("tt_from", 0.0f, FloatType.instance, false));
-        columns.add(Column.fromComposed("tt_to", 0.0f, FloatType.instance, false));
-        assertEquals(new BitemporalMapper.BiTemporalDateTime(5L), mapper.readBitemporalDate(columns, "vt_from"));
+        columns.add(Column.fromComposed("vtFrom", 5.0f, FloatType.instance, false));
+        columns.add(Column.fromComposed("vtTo", 0.0f, FloatType.instance, false));
+        columns.add(Column.fromComposed("ttFrom", 0.0f, FloatType.instance, false));
+        columns.add(Column.fromComposed("ttTo", 0.0f, FloatType.instance, false));
+        assertEquals(new BitemporalMapper.BiTemporalDateTime(5L), mapper.readBitemporalDate(columns, "vtFrom"));
     }
 
     @Test()
     public void testReadVtFromFieldFromDoubleColumn() {
-        BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null);
+        BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null);
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("vt_from", 5.0, DoubleType.instance, false));
-        columns.add(Column.fromComposed("vt_to", 0.0, DoubleType.instance, false));
-        columns.add(Column.fromComposed("tt_from", 0.0, DoubleType.instance, false));
-        columns.add(Column.fromComposed("tt_to", 0.0, DoubleType.instance, false));
-        assertEquals(new BitemporalMapper.BiTemporalDateTime(5L), mapper.readBitemporalDate(columns, "vt_from"));
+        columns.add(Column.fromComposed("vtFrom", 5.0, DoubleType.instance, false));
+        columns.add(Column.fromComposed("vtTo", 0.0, DoubleType.instance, false));
+        columns.add(Column.fromComposed("ttFrom", 0.0, DoubleType.instance, false));
+        columns.add(Column.fromComposed("ttTo", 0.0, DoubleType.instance, false));
+        assertEquals(new BitemporalMapper.BiTemporalDateTime(5L), mapper.readBitemporalDate(columns, "vtFrom"));
     }
 
     @Test()
     public void testReadVtFromFieldFromDecimalColumn() {
-        BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null);
+        BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null);
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("vt_from", BigDecimal.valueOf(5.0), DecimalType.instance, false));
-        columns.add(Column.fromComposed("vt_to", BigDecimal.valueOf(0.0), DecimalType.instance, false));
-        columns.add(Column.fromComposed("tt_from", BigDecimal.valueOf(0.0), DecimalType.instance, false));
-        columns.add(Column.fromComposed("tt_to", BigDecimal.valueOf(0.0), DecimalType.instance, false));
-        assertEquals(new BitemporalMapper.BiTemporalDateTime(5L), mapper.readBitemporalDate(columns, "vt_from"));
+        columns.add(Column.fromComposed("vtFrom", BigDecimal.valueOf(5.0), DecimalType.instance, false));
+        columns.add(Column.fromComposed("vtTo", BigDecimal.valueOf(0.0), DecimalType.instance, false));
+        columns.add(Column.fromComposed("ttFrom", BigDecimal.valueOf(0.0), DecimalType.instance, false));
+        columns.add(Column.fromComposed("ttTo", BigDecimal.valueOf(0.0), DecimalType.instance, false));
+        assertEquals(new BitemporalMapper.BiTemporalDateTime(5L), mapper.readBitemporalDate(columns, "vtFrom"));
     }
 
     @Test()
     public void testReadVtFromFieldFromAsciiColumn() {
         BitemporalMapper mapper = new BitemporalMapper("field",
-                                                       "vt_from",
-                                                       "vt_to",
-                                                       "tt_from",
-                                                       "tt_to",
+                                                       "vtFrom",
+                                                       "vtTo",
+                                                       "ttFrom",
+                                                       "ttTo",
                                                        "yyyy/MM/dd HH:mm:ss");
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("vt_from", "2015/03/24 11:15:14", AsciiType.instance, false));
-        columns.add(Column.fromComposed("vt_to", "2015/03/24 11:15:14", AsciiType.instance, false));
-        columns.add(Column.fromComposed("tt_from", "2015/03/24 11:15:14", AsciiType.instance, false));
-        columns.add(Column.fromComposed("tt_to", "2015/03/24 11:15:14", AsciiType.instance, false));
+        columns.add(Column.fromComposed("vtFrom", "2015/03/24 11:15:14", AsciiType.instance, false));
+        columns.add(Column.fromComposed("vtTo", "2015/03/24 11:15:14", AsciiType.instance, false));
+        columns.add(Column.fromComposed("ttFrom", "2015/03/24 11:15:14", AsciiType.instance, false));
+        columns.add(Column.fromComposed("ttTo", "2015/03/24 11:15:14", AsciiType.instance, false));
         SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         Date date = null;
         try {
@@ -232,22 +232,22 @@ public class BitemporalMapperTest {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        assertEquals(new BitemporalMapper.BiTemporalDateTime(date), mapper.readBitemporalDate(columns, "vt_from"));
+        assertEquals(new BitemporalMapper.BiTemporalDateTime(date), mapper.readBitemporalDate(columns, "vtFrom"));
     }
 
     @Test()
     public void testReadVtFromFieldFromUTF8Column() {
         BitemporalMapper mapper = new BitemporalMapper("field",
-                                                       "vt_from",
-                                                       "vt_to",
-                                                       "tt_from",
-                                                       "tt_to",
+                                                       "vtFrom",
+                                                       "vtTo",
+                                                       "ttFrom",
+                                                       "ttTo",
                                                        "yyyy/MM/dd HH:mm:ss");
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("vt_from", "2015/03/24 11:15:14", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("vt_to", "2015/03/24 11:15:14", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("tt_from", "2015/03/24 11:15:14", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("tt_to", "2015/03/24 11:15:14", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("vtFrom", "2015/03/24 11:15:14", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("vtTo", "2015/03/24 11:15:14", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("ttFrom", "2015/03/24 11:15:14", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("ttTo", "2015/03/24 11:15:14", UTF8Type.instance, false));
         SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         Date date = null;
         try {
@@ -255,16 +255,16 @@ public class BitemporalMapperTest {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        assertEquals(new BitemporalMapper.BiTemporalDateTime(date), mapper.readBitemporalDate(columns, "vt_from"));
+        assertEquals(new BitemporalMapper.BiTemporalDateTime(date), mapper.readBitemporalDate(columns, "vtFrom"));
     }
 
     @Test()
     public void testReadVtFromFieldFromTimeStampColumn() {
         BitemporalMapper mapper = new BitemporalMapper("field",
-                                                       "vt_from",
-                                                       "vt_to",
-                                                       "tt_from",
-                                                       "tt_to",
+                                                       "vtFrom",
+                                                       "vtTo",
+                                                       "ttFrom",
+                                                       "ttTo",
                                                        "yyyy/MM/dd HH:mm:ss");
         SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         Date date = new Date();
@@ -274,92 +274,92 @@ public class BitemporalMapperTest {
             e.printStackTrace();
         }
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("vt_from", date, TimestampType.instance, false));
-        columns.add(Column.fromComposed("vt_to", date, TimestampType.instance, false));
-        columns.add(Column.fromComposed("tt_from", date, TimestampType.instance, false));
-        columns.add(Column.fromComposed("tt_to", date, TimestampType.instance, false));
-        assertEquals(new BitemporalMapper.BiTemporalDateTime(date), mapper.readBitemporalDate(columns, "vt_from"));
+        columns.add(Column.fromComposed("vtFrom", date, TimestampType.instance, false));
+        columns.add(Column.fromComposed("vtTo", date, TimestampType.instance, false));
+        columns.add(Column.fromComposed("ttFrom", date, TimestampType.instance, false));
+        columns.add(Column.fromComposed("ttTo", date, TimestampType.instance, false));
+        assertEquals(new BitemporalMapper.BiTemporalDateTime(date), mapper.readBitemporalDate(columns, "vtFrom"));
     }
 
     @Test()
     public void testReadVtToFieldsFromInt32Column() {
-        BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null);
+        BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null);
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("vt_from", 0, Int32Type.instance, false));
-        columns.add(Column.fromComposed("vt_to", 5, Int32Type.instance, false));
-        columns.add(Column.fromComposed("tt_from", 0, Int32Type.instance, false));
-        columns.add(Column.fromComposed("tt_to", 0, Int32Type.instance, false));
-        assertEquals(new BitemporalMapper.BiTemporalDateTime(5L), mapper.readBitemporalDate(columns, "vt_to"));
+        columns.add(Column.fromComposed("vtFrom", 0, Int32Type.instance, false));
+        columns.add(Column.fromComposed("vtTo", 5, Int32Type.instance, false));
+        columns.add(Column.fromComposed("ttFrom", 0, Int32Type.instance, false));
+        columns.add(Column.fromComposed("ttTo", 0, Int32Type.instance, false));
+        assertEquals(new BitemporalMapper.BiTemporalDateTime(5L), mapper.readBitemporalDate(columns, "vtTo"));
     }
 
     @Test()
     public void testReadVtToFieldsFromLongColumn() {
-        BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null);
+        BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null);
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("vt_from", 0L, LongType.instance, false));
-        columns.add(Column.fromComposed("vt_to", 5L, LongType.instance, false));
-        columns.add(Column.fromComposed("tt_from", 0L, LongType.instance, false));
-        columns.add(Column.fromComposed("tt_to", 0L, LongType.instance, false));
-        assertEquals(new BitemporalMapper.BiTemporalDateTime(5L), mapper.readBitemporalDate(columns, "vt_to"));
+        columns.add(Column.fromComposed("vtFrom", 0L, LongType.instance, false));
+        columns.add(Column.fromComposed("vtTo", 5L, LongType.instance, false));
+        columns.add(Column.fromComposed("ttFrom", 0L, LongType.instance, false));
+        columns.add(Column.fromComposed("ttTo", 0L, LongType.instance, false));
+        assertEquals(new BitemporalMapper.BiTemporalDateTime(5L), mapper.readBitemporalDate(columns, "vtTo"));
     }
 
     @Test()
     public void testReadVtToFieldsFromIntegerColumn() {
-        BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null);
+        BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null);
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("vt_from", BigInteger.valueOf(0), IntegerType.instance, false));
-        columns.add(Column.fromComposed("vt_to", BigInteger.valueOf(5), IntegerType.instance, false));
-        columns.add(Column.fromComposed("tt_from", BigInteger.valueOf(0), IntegerType.instance, false));
-        columns.add(Column.fromComposed("tt_to", BigInteger.valueOf(0), IntegerType.instance, false));
-        assertEquals(new BitemporalMapper.BiTemporalDateTime(5L), mapper.readBitemporalDate(columns, "vt_to"));
+        columns.add(Column.fromComposed("vtFrom", BigInteger.valueOf(0), IntegerType.instance, false));
+        columns.add(Column.fromComposed("vtTo", BigInteger.valueOf(5), IntegerType.instance, false));
+        columns.add(Column.fromComposed("ttFrom", BigInteger.valueOf(0), IntegerType.instance, false));
+        columns.add(Column.fromComposed("ttTo", BigInteger.valueOf(0), IntegerType.instance, false));
+        assertEquals(new BitemporalMapper.BiTemporalDateTime(5L), mapper.readBitemporalDate(columns, "vtTo"));
     }
 
     @Test()
     public void testReadVtToFieldsFromFloatColumn() {
-        BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null);
+        BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null);
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("vt_from", 0.0f, FloatType.instance, false));
-        columns.add(Column.fromComposed("vt_to", 5.0f, FloatType.instance, false));
-        columns.add(Column.fromComposed("tt_from", 0.0f, FloatType.instance, false));
-        columns.add(Column.fromComposed("tt_to", 0.0f, FloatType.instance, false));
-        assertEquals(new BitemporalMapper.BiTemporalDateTime(5L), mapper.readBitemporalDate(columns, "vt_to"));
+        columns.add(Column.fromComposed("vtFrom", 0.0f, FloatType.instance, false));
+        columns.add(Column.fromComposed("vtTo", 5.0f, FloatType.instance, false));
+        columns.add(Column.fromComposed("ttFrom", 0.0f, FloatType.instance, false));
+        columns.add(Column.fromComposed("ttTo", 0.0f, FloatType.instance, false));
+        assertEquals(new BitemporalMapper.BiTemporalDateTime(5L), mapper.readBitemporalDate(columns, "vtTo"));
     }
 
     @Test()
     public void testReadVtToFieldsFromDoubleColumn() {
-        BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null);
+        BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null);
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("vt_from", 0.0, DoubleType.instance, false));
-        columns.add(Column.fromComposed("vt_to", 5.0, DoubleType.instance, false));
-        columns.add(Column.fromComposed("tt_from", 0.0, DoubleType.instance, false));
-        columns.add(Column.fromComposed("tt_to", 0.0, DoubleType.instance, false));
-        assertEquals(new BitemporalMapper.BiTemporalDateTime(5L), mapper.readBitemporalDate(columns, "vt_to"));
+        columns.add(Column.fromComposed("vtFrom", 0.0, DoubleType.instance, false));
+        columns.add(Column.fromComposed("vtTo", 5.0, DoubleType.instance, false));
+        columns.add(Column.fromComposed("ttFrom", 0.0, DoubleType.instance, false));
+        columns.add(Column.fromComposed("ttTo", 0.0, DoubleType.instance, false));
+        assertEquals(new BitemporalMapper.BiTemporalDateTime(5L), mapper.readBitemporalDate(columns, "vtTo"));
     }
 
     @Test()
     public void testReadVtToFieldsFromDecimalColumn() {
-        BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null);
+        BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null);
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("vt_from", BigDecimal.valueOf(0.0), DecimalType.instance, false));
-        columns.add(Column.fromComposed("vt_to", BigDecimal.valueOf(5.0), DecimalType.instance, false));
-        columns.add(Column.fromComposed("tt_from", BigDecimal.valueOf(0.0), DecimalType.instance, false));
-        columns.add(Column.fromComposed("tt_to", BigDecimal.valueOf(0.0), DecimalType.instance, false));
-        assertEquals(new BitemporalMapper.BiTemporalDateTime(5L), mapper.readBitemporalDate(columns, "vt_to"));
+        columns.add(Column.fromComposed("vtFrom", BigDecimal.valueOf(0.0), DecimalType.instance, false));
+        columns.add(Column.fromComposed("vtTo", BigDecimal.valueOf(5.0), DecimalType.instance, false));
+        columns.add(Column.fromComposed("ttFrom", BigDecimal.valueOf(0.0), DecimalType.instance, false));
+        columns.add(Column.fromComposed("ttTo", BigDecimal.valueOf(0.0), DecimalType.instance, false));
+        assertEquals(new BitemporalMapper.BiTemporalDateTime(5L), mapper.readBitemporalDate(columns, "vtTo"));
     }
 
     @Test()
     public void testReadVtToFieldsFromAsciiColumn() {
         BitemporalMapper mapper = new BitemporalMapper("field",
-                                                       "vt_from",
-                                                       "vt_to",
-                                                       "tt_from",
-                                                       "tt_to",
+                                                       "vtFrom",
+                                                       "vtTo",
+                                                       "ttFrom",
+                                                       "ttTo",
                                                        "yyyy/MM/dd HH:mm:ss");
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("vt_from", "2015/03/24 11:15:14", AsciiType.instance, false));
-        columns.add(Column.fromComposed("vt_to", "2015/03/24 11:15:14", AsciiType.instance, false));
-        columns.add(Column.fromComposed("tt_from", "2015/03/24 11:15:14", AsciiType.instance, false));
-        columns.add(Column.fromComposed("tt_to", "2015/03/24 11:15:14", AsciiType.instance, false));
+        columns.add(Column.fromComposed("vtFrom", "2015/03/24 11:15:14", AsciiType.instance, false));
+        columns.add(Column.fromComposed("vtTo", "2015/03/24 11:15:14", AsciiType.instance, false));
+        columns.add(Column.fromComposed("ttFrom", "2015/03/24 11:15:14", AsciiType.instance, false));
+        columns.add(Column.fromComposed("ttTo", "2015/03/24 11:15:14", AsciiType.instance, false));
         SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         Date date = null;
         try {
@@ -367,22 +367,22 @@ public class BitemporalMapperTest {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        assertEquals(new BitemporalMapper.BiTemporalDateTime(date), mapper.readBitemporalDate(columns, "vt_to"));
+        assertEquals(new BitemporalMapper.BiTemporalDateTime(date), mapper.readBitemporalDate(columns, "vtTo"));
     }
 
     @Test()
     public void testReadVtToFieldsFromUTF8Column() {
         BitemporalMapper mapper = new BitemporalMapper("field",
-                                                       "vt_from",
-                                                       "vt_to",
-                                                       "tt_from",
-                                                       "tt_to",
+                                                       "vtFrom",
+                                                       "vtTo",
+                                                       "ttFrom",
+                                                       "ttTo",
                                                        "yyyy/MM/dd HH:mm:ss");
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("vt_from", "2015/03/24 11:15:14", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("vt_to", "2015/03/24 11:15:14", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("tt_from", "2015/03/24 11:15:14", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("tt_to", "2015/03/24 11:15:14", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("vtFrom", "2015/03/24 11:15:14", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("vtTo", "2015/03/24 11:15:14", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("ttFrom", "2015/03/24 11:15:14", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("ttTo", "2015/03/24 11:15:14", UTF8Type.instance, false));
         SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         Date date = null;
         try {
@@ -390,16 +390,16 @@ public class BitemporalMapperTest {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        assertEquals(new BitemporalMapper.BiTemporalDateTime(date), mapper.readBitemporalDate(columns, "vt_to"));
+        assertEquals(new BitemporalMapper.BiTemporalDateTime(date), mapper.readBitemporalDate(columns, "vtTo"));
     }
 
     @Test()
     public void testReadVtToFieldsFromTimeStampColumn() {
         BitemporalMapper mapper = new BitemporalMapper("field",
-                                                       "vt_from",
-                                                       "vt_to",
-                                                       "tt_from",
-                                                       "tt_to",
+                                                       "vtFrom",
+                                                       "vtTo",
+                                                       "ttFrom",
+                                                       "ttTo",
                                                        "yyyy/MM/dd HH:mm:ss");
         SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         Date date = new Date();
@@ -409,92 +409,92 @@ public class BitemporalMapperTest {
             e.printStackTrace();
         }
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("vt_from", date, TimestampType.instance, false));
-        columns.add(Column.fromComposed("vt_to", date, TimestampType.instance, false));
-        columns.add(Column.fromComposed("tt_from", date, TimestampType.instance, false));
-        columns.add(Column.fromComposed("tt_to", date, TimestampType.instance, false));
-        assertEquals(new BitemporalMapper.BiTemporalDateTime(date), mapper.readBitemporalDate(columns, "vt_to"));
+        columns.add(Column.fromComposed("vtFrom", date, TimestampType.instance, false));
+        columns.add(Column.fromComposed("vtTo", date, TimestampType.instance, false));
+        columns.add(Column.fromComposed("ttFrom", date, TimestampType.instance, false));
+        columns.add(Column.fromComposed("ttTo", date, TimestampType.instance, false));
+        assertEquals(new BitemporalMapper.BiTemporalDateTime(date), mapper.readBitemporalDate(columns, "vtTo"));
     }
 
     @Test()
     public void testReadTtFromFieldFromInt32Column() {
-        BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null);
+        BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null);
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("vt_from", 0, Int32Type.instance, false));
-        columns.add(Column.fromComposed("vt_to", 0, Int32Type.instance, false));
-        columns.add(Column.fromComposed("tt_from", 5, Int32Type.instance, false));
-        columns.add(Column.fromComposed("tt_to", 0, Int32Type.instance, false));
-        assertEquals(new BitemporalMapper.BiTemporalDateTime(5L), mapper.readBitemporalDate(columns, "tt_from"));
+        columns.add(Column.fromComposed("vtFrom", 0, Int32Type.instance, false));
+        columns.add(Column.fromComposed("vtTo", 0, Int32Type.instance, false));
+        columns.add(Column.fromComposed("ttFrom", 5, Int32Type.instance, false));
+        columns.add(Column.fromComposed("ttTo", 0, Int32Type.instance, false));
+        assertEquals(new BitemporalMapper.BiTemporalDateTime(5L), mapper.readBitemporalDate(columns, "ttFrom"));
     }
 
     @Test()
     public void testReadTtFromFieldFromLongColumn() {
-        BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null);
+        BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null);
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("vt_from", 0L, LongType.instance, false));
-        columns.add(Column.fromComposed("vt_to", 0L, LongType.instance, false));
-        columns.add(Column.fromComposed("tt_from", 5L, LongType.instance, false));
-        columns.add(Column.fromComposed("tt_to", 0L, LongType.instance, false));
-        assertEquals(new BitemporalMapper.BiTemporalDateTime(5L), mapper.readBitemporalDate(columns, "tt_from"));
+        columns.add(Column.fromComposed("vtFrom", 0L, LongType.instance, false));
+        columns.add(Column.fromComposed("vtTo", 0L, LongType.instance, false));
+        columns.add(Column.fromComposed("ttFrom", 5L, LongType.instance, false));
+        columns.add(Column.fromComposed("ttTo", 0L, LongType.instance, false));
+        assertEquals(new BitemporalMapper.BiTemporalDateTime(5L), mapper.readBitemporalDate(columns, "ttFrom"));
     }
 
     @Test()
     public void testReadTtFromFieldFromIntegerColumn() {
-        BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null);
+        BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null);
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("vt_from", BigInteger.valueOf(0), IntegerType.instance, false));
-        columns.add(Column.fromComposed("vt_to", BigInteger.valueOf(0), IntegerType.instance, false));
-        columns.add(Column.fromComposed("tt_from", BigInteger.valueOf(5), IntegerType.instance, false));
-        columns.add(Column.fromComposed("tt_to", BigInteger.valueOf(0), IntegerType.instance, false));
-        assertEquals(new BitemporalMapper.BiTemporalDateTime(5L), mapper.readBitemporalDate(columns, "tt_from"));
+        columns.add(Column.fromComposed("vtFrom", BigInteger.valueOf(0), IntegerType.instance, false));
+        columns.add(Column.fromComposed("vtTo", BigInteger.valueOf(0), IntegerType.instance, false));
+        columns.add(Column.fromComposed("ttFrom", BigInteger.valueOf(5), IntegerType.instance, false));
+        columns.add(Column.fromComposed("ttTo", BigInteger.valueOf(0), IntegerType.instance, false));
+        assertEquals(new BitemporalMapper.BiTemporalDateTime(5L), mapper.readBitemporalDate(columns, "ttFrom"));
     }
 
     @Test()
     public void testReadTtFromFieldFromFloatColumn() {
-        BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null);
+        BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null);
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("vt_from", 0.0f, FloatType.instance, false));
-        columns.add(Column.fromComposed("vt_to", 0.0f, FloatType.instance, false));
-        columns.add(Column.fromComposed("tt_from", 5.0f, FloatType.instance, false));
-        columns.add(Column.fromComposed("tt_to", 0.0f, FloatType.instance, false));
-        assertEquals(new BitemporalMapper.BiTemporalDateTime(5L), mapper.readBitemporalDate(columns, "tt_from"));
+        columns.add(Column.fromComposed("vtFrom", 0.0f, FloatType.instance, false));
+        columns.add(Column.fromComposed("vtTo", 0.0f, FloatType.instance, false));
+        columns.add(Column.fromComposed("ttFrom", 5.0f, FloatType.instance, false));
+        columns.add(Column.fromComposed("ttTo", 0.0f, FloatType.instance, false));
+        assertEquals(new BitemporalMapper.BiTemporalDateTime(5L), mapper.readBitemporalDate(columns, "ttFrom"));
     }
 
     @Test()
     public void testReadTtFromFieldFromDoubleColumn() {
-        BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null);
+        BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null);
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("vt_from", 0.0, DoubleType.instance, false));
-        columns.add(Column.fromComposed("vt_to", 0.0, DoubleType.instance, false));
-        columns.add(Column.fromComposed("tt_from", 5.0, DoubleType.instance, false));
-        columns.add(Column.fromComposed("tt_to", 0.0, DoubleType.instance, false));
-        assertEquals(new BitemporalMapper.BiTemporalDateTime(5L), mapper.readBitemporalDate(columns, "tt_from"));
+        columns.add(Column.fromComposed("vtFrom", 0.0, DoubleType.instance, false));
+        columns.add(Column.fromComposed("vtTo", 0.0, DoubleType.instance, false));
+        columns.add(Column.fromComposed("ttFrom", 5.0, DoubleType.instance, false));
+        columns.add(Column.fromComposed("ttTo", 0.0, DoubleType.instance, false));
+        assertEquals(new BitemporalMapper.BiTemporalDateTime(5L), mapper.readBitemporalDate(columns, "ttFrom"));
     }
 
     @Test()
     public void testReadTtFromFieldFromDecimalColumn() {
-        BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null);
+        BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null);
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("vt_from", BigDecimal.valueOf(0.0), DecimalType.instance, false));
-        columns.add(Column.fromComposed("vt_to", BigDecimal.valueOf(0.0), DecimalType.instance, false));
-        columns.add(Column.fromComposed("tt_from", BigDecimal.valueOf(5.0), DecimalType.instance, false));
-        columns.add(Column.fromComposed("tt_to", BigDecimal.valueOf(0.0), DecimalType.instance, false));
-        assertEquals(new BitemporalMapper.BiTemporalDateTime(5L), mapper.readBitemporalDate(columns, "tt_from"));
+        columns.add(Column.fromComposed("vtFrom", BigDecimal.valueOf(0.0), DecimalType.instance, false));
+        columns.add(Column.fromComposed("vtTo", BigDecimal.valueOf(0.0), DecimalType.instance, false));
+        columns.add(Column.fromComposed("ttFrom", BigDecimal.valueOf(5.0), DecimalType.instance, false));
+        columns.add(Column.fromComposed("ttTo", BigDecimal.valueOf(0.0), DecimalType.instance, false));
+        assertEquals(new BitemporalMapper.BiTemporalDateTime(5L), mapper.readBitemporalDate(columns, "ttFrom"));
     }
 
     @Test()
     public void testReadTtFromFieldFromAsciiColumn() {
         BitemporalMapper mapper = new BitemporalMapper("field",
-                                                       "vt_from",
-                                                       "vt_to",
-                                                       "tt_from",
-                                                       "tt_to",
+                                                       "vtFrom",
+                                                       "vtTo",
+                                                       "ttFrom",
+                                                       "ttTo",
                                                        "yyyy/MM/dd HH:mm:ss");
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("vt_from", "2015/03/24 11:15:14", AsciiType.instance, false));
-        columns.add(Column.fromComposed("vt_to", "2015/03/24 11:15:14", AsciiType.instance, false));
-        columns.add(Column.fromComposed("tt_from", "2015/03/24 11:15:14", AsciiType.instance, false));
-        columns.add(Column.fromComposed("tt_to", "2015/03/24 11:15:14", AsciiType.instance, false));
+        columns.add(Column.fromComposed("vtFrom", "2015/03/24 11:15:14", AsciiType.instance, false));
+        columns.add(Column.fromComposed("vtTo", "2015/03/24 11:15:14", AsciiType.instance, false));
+        columns.add(Column.fromComposed("ttFrom", "2015/03/24 11:15:14", AsciiType.instance, false));
+        columns.add(Column.fromComposed("ttTo", "2015/03/24 11:15:14", AsciiType.instance, false));
         SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         Date date = null;
         try {
@@ -502,22 +502,22 @@ public class BitemporalMapperTest {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        assertEquals(new BitemporalMapper.BiTemporalDateTime(date), mapper.readBitemporalDate(columns, "tt_from"));
+        assertEquals(new BitemporalMapper.BiTemporalDateTime(date), mapper.readBitemporalDate(columns, "ttFrom"));
     }
 
     @Test()
     public void testReadTtFromFieldFromUTF8Column() {
         BitemporalMapper mapper = new BitemporalMapper("field",
-                                                       "vt_from",
-                                                       "vt_to",
-                                                       "tt_from",
-                                                       "tt_to",
+                                                       "vtFrom",
+                                                       "vtTo",
+                                                       "ttFrom",
+                                                       "ttTo",
                                                        "yyyy/MM/dd HH:mm:ss");
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("vt_from", "2015/03/24 11:15:14", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("vt_to", "2015/03/24 11:15:14", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("tt_from", "2015/03/24 11:15:14", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("tt_to", "2015/03/24 11:15:14", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("vtFrom", "2015/03/24 11:15:14", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("vtTo", "2015/03/24 11:15:14", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("ttFrom", "2015/03/24 11:15:14", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("ttTo", "2015/03/24 11:15:14", UTF8Type.instance, false));
         SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         Date date = null;
         try {
@@ -525,16 +525,16 @@ public class BitemporalMapperTest {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        assertEquals(new BitemporalMapper.BiTemporalDateTime(date), mapper.readBitemporalDate(columns, "tt_from"));
+        assertEquals(new BitemporalMapper.BiTemporalDateTime(date), mapper.readBitemporalDate(columns, "ttFrom"));
     }
 
     @Test()
     public void testReadTtFromFieldFromTimeStampColumn() {
         BitemporalMapper mapper = new BitemporalMapper("field",
-                                                       "vt_from",
-                                                       "vt_to",
-                                                       "tt_from",
-                                                       "tt_to",
+                                                       "vtFrom",
+                                                       "vtTo",
+                                                       "ttFrom",
+                                                       "ttTo",
                                                        "yyyy/MM/dd HH:mm:ss");
         SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         Date date = new Date();
@@ -544,92 +544,92 @@ public class BitemporalMapperTest {
             e.printStackTrace();
         }
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("vt_from", date, TimestampType.instance, false));
-        columns.add(Column.fromComposed("vt_to", date, TimestampType.instance, false));
-        columns.add(Column.fromComposed("tt_from", date, TimestampType.instance, false));
-        columns.add(Column.fromComposed("tt_to", date, TimestampType.instance, false));
-        assertEquals(new BitemporalMapper.BiTemporalDateTime(date), mapper.readBitemporalDate(columns, "tt_from"));
+        columns.add(Column.fromComposed("vtFrom", date, TimestampType.instance, false));
+        columns.add(Column.fromComposed("vtTo", date, TimestampType.instance, false));
+        columns.add(Column.fromComposed("ttFrom", date, TimestampType.instance, false));
+        columns.add(Column.fromComposed("ttTo", date, TimestampType.instance, false));
+        assertEquals(new BitemporalMapper.BiTemporalDateTime(date), mapper.readBitemporalDate(columns, "ttFrom"));
     }
 
     @Test()
     public void testReadTtToFieldFromInt32Column() {
-        BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null);
+        BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null);
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("vt_from", 0, Int32Type.instance, false));
-        columns.add(Column.fromComposed("vt_to", 0, Int32Type.instance, false));
-        columns.add(Column.fromComposed("tt_from", 0, Int32Type.instance, false));
-        columns.add(Column.fromComposed("tt_to", 5, Int32Type.instance, false));
-        assertEquals(new BitemporalMapper.BiTemporalDateTime(5L), mapper.readBitemporalDate(columns, "tt_to"));
+        columns.add(Column.fromComposed("vtFrom", 0, Int32Type.instance, false));
+        columns.add(Column.fromComposed("vtTo", 0, Int32Type.instance, false));
+        columns.add(Column.fromComposed("ttFrom", 0, Int32Type.instance, false));
+        columns.add(Column.fromComposed("ttTo", 5, Int32Type.instance, false));
+        assertEquals(new BitemporalMapper.BiTemporalDateTime(5L), mapper.readBitemporalDate(columns, "ttTo"));
     }
 
     @Test()
     public void testReadTtToFieldFromLongColumn() {
-        BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null);
+        BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null);
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("vt_from", 0L, LongType.instance, false));
-        columns.add(Column.fromComposed("vt_to", 0L, LongType.instance, false));
-        columns.add(Column.fromComposed("tt_from", 0L, LongType.instance, false));
-        columns.add(Column.fromComposed("tt_to", 5L, LongType.instance, false));
-        assertEquals(new BitemporalMapper.BiTemporalDateTime(5L), mapper.readBitemporalDate(columns, "tt_to"));
+        columns.add(Column.fromComposed("vtFrom", 0L, LongType.instance, false));
+        columns.add(Column.fromComposed("vtTo", 0L, LongType.instance, false));
+        columns.add(Column.fromComposed("ttFrom", 0L, LongType.instance, false));
+        columns.add(Column.fromComposed("ttTo", 5L, LongType.instance, false));
+        assertEquals(new BitemporalMapper.BiTemporalDateTime(5L), mapper.readBitemporalDate(columns, "ttTo"));
     }
 
     @Test()
     public void testReadTtToFieldFromIntegerColumn() {
-        BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null);
+        BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null);
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("vt_from", BigInteger.valueOf(0), IntegerType.instance, false));
-        columns.add(Column.fromComposed("vt_to", BigInteger.valueOf(0), IntegerType.instance, false));
-        columns.add(Column.fromComposed("tt_from", BigInteger.valueOf(0), IntegerType.instance, false));
-        columns.add(Column.fromComposed("tt_to", BigInteger.valueOf(5), IntegerType.instance, false));
-        assertEquals(new BitemporalMapper.BiTemporalDateTime(5L), mapper.readBitemporalDate(columns, "tt_to"));
+        columns.add(Column.fromComposed("vtFrom", BigInteger.valueOf(0), IntegerType.instance, false));
+        columns.add(Column.fromComposed("vtTo", BigInteger.valueOf(0), IntegerType.instance, false));
+        columns.add(Column.fromComposed("ttFrom", BigInteger.valueOf(0), IntegerType.instance, false));
+        columns.add(Column.fromComposed("ttTo", BigInteger.valueOf(5), IntegerType.instance, false));
+        assertEquals(new BitemporalMapper.BiTemporalDateTime(5L), mapper.readBitemporalDate(columns, "ttTo"));
     }
 
     @Test()
     public void testReadTtToFieldFromFloatColumn() {
-        BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null);
+        BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null);
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("vt_from", 0.0f, FloatType.instance, false));
-        columns.add(Column.fromComposed("vt_to", 0.0f, FloatType.instance, false));
-        columns.add(Column.fromComposed("tt_from", 0.0f, FloatType.instance, false));
-        columns.add(Column.fromComposed("tt_to", 5.0f, FloatType.instance, false));
-        assertEquals(new BitemporalMapper.BiTemporalDateTime(5L), mapper.readBitemporalDate(columns, "tt_to"));
+        columns.add(Column.fromComposed("vtFrom", 0.0f, FloatType.instance, false));
+        columns.add(Column.fromComposed("vtTo", 0.0f, FloatType.instance, false));
+        columns.add(Column.fromComposed("ttFrom", 0.0f, FloatType.instance, false));
+        columns.add(Column.fromComposed("ttTo", 5.0f, FloatType.instance, false));
+        assertEquals(new BitemporalMapper.BiTemporalDateTime(5L), mapper.readBitemporalDate(columns, "ttTo"));
     }
 
     @Test()
     public void testReadTtToFieldFromDoubleColumn() {
-        BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null);
+        BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null);
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("vt_from", 0.0, DoubleType.instance, false));
-        columns.add(Column.fromComposed("vt_to", 0.0, DoubleType.instance, false));
-        columns.add(Column.fromComposed("tt_from", 0.0, DoubleType.instance, false));
-        columns.add(Column.fromComposed("tt_to", 5.0, DoubleType.instance, false));
-        assertEquals(new BitemporalMapper.BiTemporalDateTime(5L), mapper.readBitemporalDate(columns, "tt_to"));
+        columns.add(Column.fromComposed("vtFrom", 0.0, DoubleType.instance, false));
+        columns.add(Column.fromComposed("vtTo", 0.0, DoubleType.instance, false));
+        columns.add(Column.fromComposed("ttFrom", 0.0, DoubleType.instance, false));
+        columns.add(Column.fromComposed("ttTo", 5.0, DoubleType.instance, false));
+        assertEquals(new BitemporalMapper.BiTemporalDateTime(5L), mapper.readBitemporalDate(columns, "ttTo"));
     }
 
     @Test()
     public void testReadTtToFieldFromDecimalColumn() {
-        BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null);
+        BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null);
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("vt_from", BigDecimal.valueOf(0.0), DecimalType.instance, false));
-        columns.add(Column.fromComposed("vt_to", BigDecimal.valueOf(0.0), DecimalType.instance, false));
-        columns.add(Column.fromComposed("tt_from", BigDecimal.valueOf(0.0), DecimalType.instance, false));
-        columns.add(Column.fromComposed("tt_to", BigDecimal.valueOf(5.0), DecimalType.instance, false));
-        assertEquals(new BitemporalMapper.BiTemporalDateTime(5L), mapper.readBitemporalDate(columns, "tt_to"));
+        columns.add(Column.fromComposed("vtFrom", BigDecimal.valueOf(0.0), DecimalType.instance, false));
+        columns.add(Column.fromComposed("vtTo", BigDecimal.valueOf(0.0), DecimalType.instance, false));
+        columns.add(Column.fromComposed("ttFrom", BigDecimal.valueOf(0.0), DecimalType.instance, false));
+        columns.add(Column.fromComposed("ttTo", BigDecimal.valueOf(5.0), DecimalType.instance, false));
+        assertEquals(new BitemporalMapper.BiTemporalDateTime(5L), mapper.readBitemporalDate(columns, "ttTo"));
     }
 
     @Test()
     public void testReadTtToFieldFromAsciiColumn() {
         BitemporalMapper mapper = new BitemporalMapper("field",
-                                                       "vt_from",
-                                                       "vt_to",
-                                                       "tt_from",
-                                                       "tt_to",
+                                                       "vtFrom",
+                                                       "vtTo",
+                                                       "ttFrom",
+                                                       "ttTo",
                                                        "yyyy/MM/dd HH:mm:ss");
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("vt_from", "2015/03/24 11:15:14", AsciiType.instance, false));
-        columns.add(Column.fromComposed("vt_to", "2015/03/24 11:15:14", AsciiType.instance, false));
-        columns.add(Column.fromComposed("tt_from", "2015/03/24 11:15:14", AsciiType.instance, false));
-        columns.add(Column.fromComposed("tt_to", "2015/03/24 11:15:14", AsciiType.instance, false));
+        columns.add(Column.fromComposed("vtFrom", "2015/03/24 11:15:14", AsciiType.instance, false));
+        columns.add(Column.fromComposed("vtTo", "2015/03/24 11:15:14", AsciiType.instance, false));
+        columns.add(Column.fromComposed("ttFrom", "2015/03/24 11:15:14", AsciiType.instance, false));
+        columns.add(Column.fromComposed("ttTo", "2015/03/24 11:15:14", AsciiType.instance, false));
         SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         Date date = null;
         try {
@@ -637,22 +637,22 @@ public class BitemporalMapperTest {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        assertEquals(new BitemporalMapper.BiTemporalDateTime(date), mapper.readBitemporalDate(columns, "tt_to"));
+        assertEquals(new BitemporalMapper.BiTemporalDateTime(date), mapper.readBitemporalDate(columns, "ttTo"));
     }
 
     @Test()
     public void testReadTtToFieldFromUTF8Column() {
         BitemporalMapper mapper = new BitemporalMapper("field",
-                                                       "vt_from",
-                                                       "vt_to",
-                                                       "tt_from",
-                                                       "tt_to",
+                                                       "vtFrom",
+                                                       "vtTo",
+                                                       "ttFrom",
+                                                       "ttTo",
                                                        "yyyy/MM/dd HH:mm:ss");
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("vt_from", "2015/03/24 11:15:14", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("vt_to", "2015/03/24 11:15:14", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("tt_from", "2015/03/24 11:15:14", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("tt_to", "2015/03/24 11:15:14", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("vtFrom", "2015/03/24 11:15:14", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("vtTo", "2015/03/24 11:15:14", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("ttFrom", "2015/03/24 11:15:14", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("ttTo", "2015/03/24 11:15:14", UTF8Type.instance, false));
         SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         Date date = null;
         try {
@@ -660,16 +660,16 @@ public class BitemporalMapperTest {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        assertEquals(new BitemporalMapper.BiTemporalDateTime(date), mapper.readBitemporalDate(columns, "tt_to"));
+        assertEquals(new BitemporalMapper.BiTemporalDateTime(date), mapper.readBitemporalDate(columns, "ttTo"));
     }
 
     @Test()
     public void testReadTtToFieldFromTimeStampColumn() {
         BitemporalMapper mapper = new BitemporalMapper("field",
-                                                       "vt_from",
-                                                       "vt_to",
-                                                       "tt_from",
-                                                       "tt_to",
+                                                       "vtFrom",
+                                                       "vtTo",
+                                                       "ttFrom",
+                                                       "ttTo",
                                                        "yyyy/MM/dd HH:mm:ss");
         SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         Date date = new Date();
@@ -679,209 +679,209 @@ public class BitemporalMapperTest {
             e.printStackTrace();
         }
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("vt_from", date, TimestampType.instance, false));
-        columns.add(Column.fromComposed("vt_to", date, TimestampType.instance, false));
-        columns.add(Column.fromComposed("tt_from", date, TimestampType.instance, false));
-        columns.add(Column.fromComposed("tt_to", date, TimestampType.instance, false));
-        assertEquals(new BitemporalMapper.BiTemporalDateTime(date), mapper.readBitemporalDate(columns, "tt_to"));
+        columns.add(Column.fromComposed("vtFrom", date, TimestampType.instance, false));
+        columns.add(Column.fromComposed("vtTo", date, TimestampType.instance, false));
+        columns.add(Column.fromComposed("ttFrom", date, TimestampType.instance, false));
+        columns.add(Column.fromComposed("ttTo", date, TimestampType.instance, false));
+        assertEquals(new BitemporalMapper.BiTemporalDateTime(date), mapper.readBitemporalDate(columns, "ttTo"));
     }
 
     @Test
     public void testGetVtFromStringColumnWithDefaultPattern() {
-        BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null);
+        BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null);
 
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("vt_from", "2015/02/28 01:02:03.004", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("vt_to", "2015/02/28 01:02:03.004", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("tt_from", "2015/02/28 01:02:03.004", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("tt_to", "2015/02/28 01:02:03.004", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("vtFrom", "2015/02/28 01:02:03.004", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("vtTo", "2015/02/28 01:02:03.004", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("ttFrom", "2015/02/28 01:02:03.004", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("ttTo", "2015/02/28 01:02:03.004", UTF8Type.instance, false));
 
-        assertEquals(1425081723004L, mapper.readBitemporalDate(columns, "vt_from").getTime());
+        assertEquals(1425081723004L, mapper.readBitemporalDate(columns, "vtFrom").getTime());
     }
 
     @Test
     public void testGetVtFromStringColumnWithCustomPattern() {
-        BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", "yyyy-MM-dd");
+        BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", "yyyy-MM-dd");
 
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("vt_from", "2015-02-28", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("vt_to", "2015-02-28", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("tt_from", "2015-02-28", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("tt_to", "2015-02-28", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("vtFrom", "2015-02-28", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("vtTo", "2015-02-28", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("ttFrom", "2015-02-28", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("ttTo", "2015-02-28", UTF8Type.instance, false));
 
-        assertEquals(1425078000000L, mapper.readBitemporalDate(columns, "vt_from").getTime());
+        assertEquals(1425078000000L, mapper.readBitemporalDate(columns, "vtFrom").getTime());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testGetVtFromFromUnparseableStringColumn() {
-        BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null);
+        BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null);
 
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("vt_from", "abc", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("vt_to", "0673679", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("tt_from", "abc", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("tt_to", "8947597", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("vtFrom", "abc", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("vtTo", "0673679", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("ttFrom", "abc", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("ttTo", "8947597", UTF8Type.instance, false));
 
-        mapper.readBitemporalDate(columns, "vt_from");
+        mapper.readBitemporalDate(columns, "vtFrom");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testGetVtFromWithNullColumn() {
-        BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null);
-        mapper.readBitemporalDate(new Columns(), "vt_from");
+        BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null);
+        mapper.readBitemporalDate(new Columns(), "vtFrom");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testGetVtFromWithNegativeColumn() {
-        BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null);
+        BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null);
 
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("vt_from", -1, Int32Type.instance, false));
-        columns.add(Column.fromComposed("vt_to", -1, Int32Type.instance, false));
-        columns.add(Column.fromComposed("tt_from", -1, Int32Type.instance, false));
-        columns.add(Column.fromComposed("tt_to", -1, Int32Type.instance, false));
+        columns.add(Column.fromComposed("vtFrom", -1, Int32Type.instance, false));
+        columns.add(Column.fromComposed("vtTo", -1, Int32Type.instance, false));
+        columns.add(Column.fromComposed("ttFrom", -1, Int32Type.instance, false));
+        columns.add(Column.fromComposed("ttTo", -1, Int32Type.instance, false));
 
-        mapper.readBitemporalDate(columns, "vt_from");
+        mapper.readBitemporalDate(columns, "vtFrom");
     }
 
     @Test
     public void testGetVtToStringColumnWithDefaultPattern() {
-        BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null);
+        BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null);
 
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("vt_from", "2015/02/28 01:02:03.004", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("vt_to", "2015/02/28 01:02:03.004", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("tt_from", "2015/02/28 01:02:03.004", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("tt_to", "2015/02/28 01:02:03.004", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("vtFrom", "2015/02/28 01:02:03.004", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("vtTo", "2015/02/28 01:02:03.004", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("ttFrom", "2015/02/28 01:02:03.004", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("ttTo", "2015/02/28 01:02:03.004", UTF8Type.instance, false));
 
-        assertEquals(1425081723004L, mapper.readBitemporalDate(columns, "vt_to").getTime());
+        assertEquals(1425081723004L, mapper.readBitemporalDate(columns, "vtTo").getTime());
     }
 
     @Test
     public void testGetVtToStringColumnWithCustomPattern() {
-        BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", "yyyy-MM-dd");
+        BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", "yyyy-MM-dd");
 
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("vt_from", "2015-02-28", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("vt_to", "2015-02-28", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("tt_from", "2015-02-28", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("tt_to", "2015-02-28", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("vtFrom", "2015-02-28", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("vtTo", "2015-02-28", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("ttFrom", "2015-02-28", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("ttTo", "2015-02-28", UTF8Type.instance, false));
 
-        assertEquals(1425078000000L, mapper.readBitemporalDate(columns, "vt_to").getTime());
+        assertEquals(1425078000000L, mapper.readBitemporalDate(columns, "vtTo").getTime());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testGetVtToFromUnparseableStringColumn() {
-        BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null);
+        BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null);
 
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("vt_from", "abc", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("vt_to", "0673679", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("tt_from", "abc", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("tt_to", "8947597", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("vtFrom", "abc", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("vtTo", "0673679", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("ttFrom", "abc", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("ttTo", "8947597", UTF8Type.instance, false));
 
-        mapper.readBitemporalDate(columns, "vt_to");
+        mapper.readBitemporalDate(columns, "vtTo");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testGetVtToWithNullColumn() {
-        BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null);
-        mapper.readBitemporalDate(new Columns(), "vt_to");
+        BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null);
+        mapper.readBitemporalDate(new Columns(), "vtTo");
     }
 
     @Test
     public void testGetTtFromStringColumnWithDefaultPattern() {
-        BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null);
+        BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null);
 
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("vt_from", "2015/02/28 01:02:03.004", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("vt_to", "2015/02/28 01:02:03.004", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("tt_from", "2015/02/28 01:02:03.004", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("tt_to", "2015/02/28 01:02:03.004", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("vtFrom", "2015/02/28 01:02:03.004", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("vtTo", "2015/02/28 01:02:03.004", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("ttFrom", "2015/02/28 01:02:03.004", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("ttTo", "2015/02/28 01:02:03.004", UTF8Type.instance, false));
 
-        assertEquals(1425081723004L, mapper.readBitemporalDate(columns, "tt_from").getTime());
+        assertEquals(1425081723004L, mapper.readBitemporalDate(columns, "ttFrom").getTime());
     }
 
     @Test
     public void testGetTtFromStringColumnWithCustomPattern() {
-        BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", "yyyy-MM-dd");
+        BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", "yyyy-MM-dd");
 
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("vt_from", "2015-02-28", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("vt_to", "2015-02-28", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("tt_from", "2015-02-28", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("tt_to", "2015-02-28", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("vtFrom", "2015-02-28", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("vtTo", "2015-02-28", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("ttFrom", "2015-02-28", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("ttTo", "2015-02-28", UTF8Type.instance, false));
 
-        assertEquals(1425078000000L, mapper.readBitemporalDate(columns, "tt_from").getTime());
+        assertEquals(1425078000000L, mapper.readBitemporalDate(columns, "ttFrom").getTime());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testGetTtFromFromUnparseableStringColumn() {
-        BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null);
+        BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null);
 
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("vt_from", "abc", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("vt_to", "0673679", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("tt_from", "abc", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("tt_to", "8947597", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("vtFrom", "abc", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("vtTo", "0673679", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("ttFrom", "abc", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("ttTo", "8947597", UTF8Type.instance, false));
 
-        mapper.readBitemporalDate(columns, "tt_from");
+        mapper.readBitemporalDate(columns, "ttFrom");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testGetTtFromWithNullColumn() {
-        BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null);
-        mapper.readBitemporalDate(new Columns(), "tt_from");
+        BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null);
+        mapper.readBitemporalDate(new Columns(), "ttFrom");
     }
 
     @Test
     public void testGetTtToStringColumnWithDefaultPattern() {
-        BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null);
+        BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null);
 
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("vt_from", "2015/02/28 01:02:03.004", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("vt_to", "2015/02/28 01:02:03.004", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("tt_from", "2015/02/28 01:02:03.004", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("tt_to", "2015/02/28 01:02:03.004", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("vtFrom", "2015/02/28 01:02:03.004", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("vtTo", "2015/02/28 01:02:03.004", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("ttFrom", "2015/02/28 01:02:03.004", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("ttTo", "2015/02/28 01:02:03.004", UTF8Type.instance, false));
 
-        assertEquals(1425081723004L, mapper.readBitemporalDate(columns, "tt_to").getTime());
+        assertEquals(1425081723004L, mapper.readBitemporalDate(columns, "ttTo").getTime());
     }
 
     @Test
     public void testGetTtToStringColumnWithCustomPattern() {
-        BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", "yyyy-MM-dd");
+        BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", "yyyy-MM-dd");
 
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("vt_from", "2015-02-28", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("vt_to", "2015-02-28", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("tt_from", "2015-02-28", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("tt_to", "2015-02-28", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("vtFrom", "2015-02-28", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("vtTo", "2015-02-28", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("ttFrom", "2015-02-28", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("ttTo", "2015-02-28", UTF8Type.instance, false));
 
-        assertEquals(1425078000000L, mapper.readBitemporalDate(columns, "tt_to").getTime());
+        assertEquals(1425078000000L, mapper.readBitemporalDate(columns, "ttTo").getTime());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testGetTtToFromUnparseableStringColumn() {
-        BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null);
+        BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null);
 
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("vt_from", "abc", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("vt_to", "0673679", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("tt_from", "abc", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("tt_to", "8947597", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("vtFrom", "abc", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("vtTo", "0673679", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("ttFrom", "abc", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("ttTo", "8947597", UTF8Type.instance, false));
 
-        mapper.readBitemporalDate(columns, "tt_to");
+        mapper.readBitemporalDate(columns, "ttTo");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testGetTtToWithNullColumn() {
-        BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null);
-        mapper.readBitemporalDate(new Columns(), "tt_to");
+        BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null);
+        mapper.readBitemporalDate(new Columns(), "ttTo");
     }
 
     @Test(expected = UnsupportedOperationException.class)
     public void testSortField() {
-        BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null);
+        BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null);
         mapper.sortField(false);
     }
 
@@ -903,13 +903,13 @@ public class BitemporalMapperTest {
 
     @Test
     public void testAddFieldsT1() {
-        BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null);
+        BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null);
 
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("vt_from", "2015/02/28 01:02:03.004", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("vt_to", Long.MAX_VALUE, LongType.instance, false));
-        columns.add(Column.fromComposed("tt_from", "2015/02/28 01:02:03.004", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("tt_to", Long.MAX_VALUE, LongType.instance, false));
+        columns.add(Column.fromComposed("vtFrom", "2015/02/28 01:02:03.004", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("vtTo", Long.MAX_VALUE, LongType.instance, false));
+        columns.add(Column.fromComposed("ttFrom", "2015/02/28 01:02:03.004", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("ttTo", Long.MAX_VALUE, LongType.instance, false));
         Document document = new Document();
         mapper.addFields(document, columns);
         testAddFieldsOnlyThese(document,
@@ -924,13 +924,13 @@ public class BitemporalMapperTest {
 
     @Test
     public void testAddFieldsT2() {
-        BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null);
+        BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null);
 
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("vt_from", "2015/02/28 01:02:03.004", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("vt_to", Long.MAX_VALUE, LongType.instance, false));
-        columns.add(Column.fromComposed("tt_from", "2015/02/28 01:02:03.004", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("tt_to", "2015/02/28 01:02:03.004", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("vtFrom", "2015/02/28 01:02:03.004", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("vtTo", Long.MAX_VALUE, LongType.instance, false));
+        columns.add(Column.fromComposed("ttFrom", "2015/02/28 01:02:03.004", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("ttTo", "2015/02/28 01:02:03.004", UTF8Type.instance, false));
         Document document = new Document();
         mapper.addFields(document, columns);
         testAddFieldsOnlyThese(document,
@@ -945,13 +945,13 @@ public class BitemporalMapperTest {
 
     @Test
     public void testAddFieldsT3() {
-        BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null);
+        BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null);
 
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("vt_from", "2015/02/28 01:02:03.004", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("vt_to", "2015/02/28 01:02:03.004", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("tt_from", "2015/02/28 01:02:03.004", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("tt_to", Long.MAX_VALUE, LongType.instance, false));
+        columns.add(Column.fromComposed("vtFrom", "2015/02/28 01:02:03.004", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("vtTo", "2015/02/28 01:02:03.004", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("ttFrom", "2015/02/28 01:02:03.004", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("ttTo", Long.MAX_VALUE, LongType.instance, false));
         Document document = new Document();
         mapper.addFields(document, columns);
         testAddFieldsOnlyThese(document,
@@ -966,13 +966,13 @@ public class BitemporalMapperTest {
 
     @Test
     public void testAddFieldsT4() {
-        BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null);
+        BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null);
 
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("vt_from", "2015/02/28 01:02:03.004", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("vt_to", "2015/02/28 01:02:03.004", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("tt_from", "2015/02/28 01:02:03.004", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("tt_to", "2015/02/28 01:02:03.004", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("vtFrom", "2015/02/28 01:02:03.004", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("vtTo", "2015/02/28 01:02:03.004", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("ttFrom", "2015/02/28 01:02:03.004", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("ttTo", "2015/02/28 01:02:03.004", UTF8Type.instance, false));
         Document document = new Document();
         mapper.addFields(document, columns);
         testAddFieldsOnlyThese(document,
@@ -987,7 +987,7 @@ public class BitemporalMapperTest {
 
     @Test
     public void testExtractAnalyzers() {
-        BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null);
+        BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null);
         String analyzer = mapper.getAnalyzer();
         assertEquals(Mapper.KEYWORD_ANALYZER, analyzer);
     }
@@ -998,16 +998,16 @@ public class BitemporalMapperTest {
         CellNameType nameType = new SimpleSparseCellNameType(UTF8Type.instance);
         CFMetaData metadata = new CFMetaData("ks", "cf", ColumnFamilyType.Standard, nameType);
         metadata.addColumnDefinition(regularDef(metadata,
-                                                UTF8Type.instance.decompose("vt_from"),
+                                                UTF8Type.instance.decompose("vtFrom"),
                                                 UTF8Type.instance,
                                                 0));
-        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("vt_to"), UTF8Type.instance, 0));
+        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("vtTo"), UTF8Type.instance, 0));
         metadata.addColumnDefinition(regularDef(metadata,
-                                                UTF8Type.instance.decompose("tt_from"),
+                                                UTF8Type.instance.decompose("ttFrom"),
                                                 UTF8Type.instance,
                                                 0));
-        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("tt_to"), UTF8Type.instance, 0));
-        new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null).validate(metadata);
+        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("ttTo"), UTF8Type.instance, 0));
+        new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null).validate(metadata);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -1016,29 +1016,29 @@ public class BitemporalMapperTest {
         CellNameType nameType = new SimpleSparseCellNameType(UTF8Type.instance);
         CFMetaData metadata = new CFMetaData("ks", "cf", ColumnFamilyType.Standard, nameType);
         metadata.addColumnDefinition(regularDef(metadata,
-                                                UTF8Type.instance.decompose("vt_from"),
+                                                UTF8Type.instance.decompose("vtFrom"),
                                                 UUIDType.instance,
                                                 0));
-        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("vt_to"), UUIDType.instance, 0));
+        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("vtTo"), UUIDType.instance, 0));
         metadata.addColumnDefinition(regularDef(metadata,
-                                                UTF8Type.instance.decompose("tt_from"),
+                                                UTF8Type.instance.decompose("ttFrom"),
                                                 UUIDType.instance,
                                                 0));
-        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("tt_to"), UUIDType.instance, 0));
-        new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null).validate(metadata);
+        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("ttTo"), UUIDType.instance, 0));
+        new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null).validate(metadata);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testValidateWithoutVtFromColumn() throws ConfigurationException {
         CellNameType nameType = new SimpleSparseCellNameType(UTF8Type.instance);
         CFMetaData metadata = new CFMetaData("ks", "cf", ColumnFamilyType.Standard, nameType);
-        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("vt_to"), UTF8Type.instance, 0));
+        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("vtTo"), UTF8Type.instance, 0));
         metadata.addColumnDefinition(regularDef(metadata,
-                                                UTF8Type.instance.decompose("tt_from"),
+                                                UTF8Type.instance.decompose("ttFrom"),
                                                 UTF8Type.instance,
                                                 0));
-        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("tt_to"), UTF8Type.instance, 0));
-        new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null).validate(metadata);
+        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("ttTo"), UTF8Type.instance, 0));
+        new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null).validate(metadata);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -1046,15 +1046,15 @@ public class BitemporalMapperTest {
         CellNameType nameType = new SimpleSparseCellNameType(UTF8Type.instance);
         CFMetaData metadata = new CFMetaData("ks", "cf", ColumnFamilyType.Standard, nameType);
         metadata.addColumnDefinition(regularDef(metadata,
-                                                UTF8Type.instance.decompose("vt_from"),
+                                                UTF8Type.instance.decompose("vtFrom"),
                                                 UTF8Type.instance,
                                                 0));
         metadata.addColumnDefinition(regularDef(metadata,
-                                                UTF8Type.instance.decompose("tt_from"),
+                                                UTF8Type.instance.decompose("ttFrom"),
                                                 UTF8Type.instance,
                                                 0));
-        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("tt_to"), UTF8Type.instance, 0));
-        new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null).validate(metadata);
+        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("ttTo"), UTF8Type.instance, 0));
+        new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null).validate(metadata);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -1062,12 +1062,12 @@ public class BitemporalMapperTest {
         CellNameType nameType = new SimpleSparseCellNameType(UTF8Type.instance);
         CFMetaData metadata = new CFMetaData("ks", "cf", ColumnFamilyType.Standard, nameType);
         metadata.addColumnDefinition(regularDef(metadata,
-                                                UTF8Type.instance.decompose("vt_from"),
+                                                UTF8Type.instance.decompose("vtFrom"),
                                                 UTF8Type.instance,
                                                 0));
-        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("vt_to"), UTF8Type.instance, 0));
-        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("tt_to"), UTF8Type.instance, 0));
-        new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null).validate(metadata);
+        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("vtTo"), UTF8Type.instance, 0));
+        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("ttTo"), UTF8Type.instance, 0));
+        new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null).validate(metadata);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -1075,28 +1075,28 @@ public class BitemporalMapperTest {
         CellNameType nameType = new SimpleSparseCellNameType(UTF8Type.instance);
         CFMetaData metadata = new CFMetaData("ks", "cf", ColumnFamilyType.Standard, nameType);
         metadata.addColumnDefinition(regularDef(metadata,
-                                                UTF8Type.instance.decompose("vt_from"),
+                                                UTF8Type.instance.decompose("vtFrom"),
                                                 UTF8Type.instance,
                                                 0));
-        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("vt_to"), UTF8Type.instance, 0));
+        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("vtTo"), UTF8Type.instance, 0));
         metadata.addColumnDefinition(regularDef(metadata,
-                                                UTF8Type.instance.decompose("tt_from"),
+                                                UTF8Type.instance.decompose("ttFrom"),
                                                 UTF8Type.instance,
                                                 0));
-        new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null).validate(metadata);
+        new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null).validate(metadata);
     }
 
     @Test
     public void testParseJSONWithDefaultArgs() throws IOException {
-        String json = "{fields:{temporal:{type:\"bitemporal\", vt_from:\"vt_from\", vt_to:\"vt_to\", tt_from:\"tt_from\", tt_to:\"tt_to\"}}}";
+        String json = "{fields:{temporal:{type:\"bitemporal\", vtFrom:\"vtFrom\", vtTo:\"vtTo\", ttFrom:\"ttFrom\", ttTo:\"ttTo\"}}}";
         Schema schema = SchemaBuilder.fromJson(json).build();
         BitemporalMapper mapper = (BitemporalMapper) schema.getMapper("temporal");
         assertEquals(BitemporalMapper.class, mapper.getClass());
         assertEquals("temporal", mapper.getName());
-        assertEquals("vt_from", mapper.getVt_from());
-        assertEquals("vt_to", mapper.getVt_to());
-        assertEquals("tt_from", mapper.getTt_from());
-        assertEquals("tt_to", mapper.getTt_to());
+        assertEquals("vtFrom", mapper.getVtFrom());
+        assertEquals("vtTo", mapper.getVtTo());
+        assertEquals("ttFrom", mapper.getTtFrom());
+        assertEquals("ttTo", mapper.getTtTo());
         assertTrue(mapper.isIndexed());
         assertFalse(mapper.isSorted());
         assertEquals(BitemporalMapper.DEFAULT_PATTERN, mapper.getPattern());
@@ -1104,15 +1104,15 @@ public class BitemporalMapperTest {
 
     @Test
     public void testParseJSONWithAllArgs() throws IOException {
-        String json = "{fields:{temporal:{type:\"bitemporal\", vt_from:\"vt_from\", vt_to:\"vt_to\", tt_from:\"tt_from\", tt_to:\"tt_to\", pattern:\"yyyy/MM/dd\"}}}";
+        String json = "{fields:{temporal:{type:\"bitemporal\", vtFrom:\"vtFrom\", vtTo:\"vtTo\", ttFrom:\"ttFrom\", ttTo:\"ttTo\", pattern:\"yyyy/MM/dd\"}}}";
         Schema schema = SchemaBuilder.fromJson(json).build();
         BitemporalMapper mapper = (BitemporalMapper) schema.getMapper("temporal");
         assertEquals(BitemporalMapper.class, mapper.getClass());
         assertEquals("temporal", mapper.getName());
-        assertEquals("vt_from", mapper.getVt_from());
-        assertEquals("vt_to", mapper.getVt_to());
-        assertEquals("tt_from", mapper.getTt_from());
-        assertEquals("tt_to", mapper.getTt_to());
+        assertEquals("vtFrom", mapper.getVtFrom());
+        assertEquals("vtTo", mapper.getVtTo());
+        assertEquals("ttFrom", mapper.getTtFrom());
+        assertEquals("ttTo", mapper.getTtTo());
         assertTrue(mapper.isIndexed());
         assertFalse(mapper.isSorted());
         assertEquals("yyyy/MM/dd", mapper.getPattern());
@@ -1120,8 +1120,8 @@ public class BitemporalMapperTest {
 
     @Test
     public void testToString() {
-        BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", "yyyy/MM/dd");
-        String exp = "BitemporalMapper{name=field, vt_from=vt_from, vt_to=vt_to, tt_from=tt_from, tt_to=tt_to, pattern=yyyy/MM/dd}";
+        BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", "yyyy/MM/dd");
+        String exp = "BitemporalMapper{name=field, vtFrom=vtFrom, vtTo=vtTo, ttFrom=ttFrom, ttTo=ttTo, pattern=yyyy/MM/dd}";
         assertEquals(exp, mapper.toString());
     }
 }

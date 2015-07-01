@@ -13,23 +13,23 @@ public class BitemporalConditionBuilder extends ConditionBuilder<BitemporalCondi
 
     /** The name of the filed to be matched. */
     @JsonProperty("field")
-    String field;
+    final String field;
 
     /** The valid time start. */
-    @JsonProperty("vt_from")
-    Object vt_from;
+    @JsonProperty("vtFrom")
+    Object vtFrom;
 
     /** The valid time end. */
-    @JsonProperty("vt_to")
-    Object vt_to;
+    @JsonProperty("vtTo")
+    Object vtTo;
 
     /** The transaction time start. */
-    @JsonProperty("tt_from")
-    Object tt_from;
+    @JsonProperty("ttFrom")
+    Object ttFrom;
 
     /** The transaction time end. */
-    @JsonProperty("tt_to")
-    Object tt_to;
+    @JsonProperty("ttTo")
+    Object ttTo;
 
     /** The spatial operation to be performed. */
     @JsonProperty("operation")
@@ -48,44 +48,44 @@ public class BitemporalConditionBuilder extends ConditionBuilder<BitemporalCondi
     /**
      * Sets the valid time start.
      *
-     * @param vt_from The valid time start to be set.
+     * @param vtFrom The valid time start to be set.
      * @return This.
      */
-    public BitemporalConditionBuilder setVt_from(Object vt_from) {
-        this.vt_from = vt_from;
+    public BitemporalConditionBuilder vtFrom(Object vtFrom) {
+        this.vtFrom = vtFrom;
         return this;
     }
 
     /**
      * Sets the valid time end.
      *
-     * @param vt_to The valid time end to be set.
+     * @param vtTo The valid time end to be set.
      * @return This.
      */
-    public BitemporalConditionBuilder setVt_to(Object vt_to) {
-        this.vt_to = vt_to;
+    public BitemporalConditionBuilder vtTo(Object vtTo) {
+        this.vtTo = vtTo;
         return this;
     }
 
     /**
      * Sets the transaction time start.
      *
-     * @param tt_from The transaction time start to be set.
+     * @param ttFrom The transaction time start to be set.
      * @return This.
      */
-    public BitemporalConditionBuilder setTt_from(Object tt_from) {
-        this.tt_from = tt_from;
+    public BitemporalConditionBuilder ttFrom(Object ttFrom) {
+        this.ttFrom = ttFrom;
         return this;
     }
 
     /**
      * Sets the transaction time end.
      *
-     * @param tt_to The transaction time end to be set.
+     * @param ttTo The transaction time end to be set.
      * @return This.
      */
-    public BitemporalConditionBuilder setTt_to(Object tt_to) {
-        this.tt_to = tt_to;
+    public BitemporalConditionBuilder ttTo(Object ttTo) {
+        this.ttTo = ttTo;
         return this;
     }
 
@@ -95,7 +95,7 @@ public class BitemporalConditionBuilder extends ConditionBuilder<BitemporalCondi
      * @param operation The spatial operation to be performed.
      * @return This.
      */
-    public BitemporalConditionBuilder setOperation(String operation) {
+    public BitemporalConditionBuilder operation(String operation) {
         this.operation = operation;
         return this;
     }
@@ -107,6 +107,6 @@ public class BitemporalConditionBuilder extends ConditionBuilder<BitemporalCondi
      */
     @Override
     public BitemporalCondition build() {
-        return new BitemporalCondition(boost, field, vt_from, vt_to, tt_from, tt_to, operation);
+        return new BitemporalCondition(boost, field, vtFrom, vtTo, ttFrom, ttTo, operation);
     }
 }

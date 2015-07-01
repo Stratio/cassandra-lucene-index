@@ -27,34 +27,34 @@ import org.codehaus.jackson.annotate.JsonProperty;
 public class BitemporalMapperBuilder extends MapperBuilder<BitemporalMapper> {
 
     /** The name of the column containing the vtStart **/
-    @JsonProperty("vt_from")
-    private final String vt_from;
+    @JsonProperty("vtFrom")
+    private final String vtFrom;
 
     /** The name of the column containing the vtEnd **/
-    @JsonProperty("vt_to")
-    private final String vt_to;
+    @JsonProperty("vtTo")
+    private final String vtTo;
 
     /** The name of the column containing the ttStart **/
-    @JsonProperty("tt_from")
-    private final String tt_from;
+    @JsonProperty("ttFrom")
+    private final String ttFrom;
 
     /** The name of the column containing the ttEnd **/
-    @JsonProperty("tt_to")
-    private final String tt_to;
+    @JsonProperty("ttTo")
+    private final String ttTo;
 
     /** Pattern of DateTime **/
     @JsonProperty("pattern")
     private String pattern;
 
     @JsonCreator
-    public BitemporalMapperBuilder(@JsonProperty("vt_from") String vt_from,
-                                   @JsonProperty("vt_to") String vt_to,
-                                   @JsonProperty("tt_from") String tt_from,
-                                   @JsonProperty("tt_to") String tt_to) {
-        this.vt_from = vt_from;
-        this.vt_to = vt_to;
-        this.tt_from = tt_from;
-        this.tt_to = tt_to;
+    public BitemporalMapperBuilder(@JsonProperty("vtFrom") String vtFrom,
+                                   @JsonProperty("vtTo") String vtTo,
+                                   @JsonProperty("ttFrom") String ttFrom,
+                                   @JsonProperty("ttTo") String ttTo) {
+        this.vtFrom = vtFrom;
+        this.vtTo = vtTo;
+        this.ttFrom = ttFrom;
+        this.ttTo = ttTo;
     }
 
     public BitemporalMapperBuilder pattern(String pattern) {
@@ -65,6 +65,6 @@ public class BitemporalMapperBuilder extends MapperBuilder<BitemporalMapper> {
     /** {@inheritDoc} */
     @Override
     public BitemporalMapper build(String name) {
-        return new BitemporalMapper(name, vt_from, vt_to, tt_from, tt_to, pattern);
+        return new BitemporalMapper(name, vtFrom, vtTo, ttFrom, ttTo, pattern);
     }
 }

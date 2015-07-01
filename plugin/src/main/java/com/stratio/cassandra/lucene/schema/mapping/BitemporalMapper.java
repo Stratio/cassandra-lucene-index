@@ -54,14 +54,14 @@ public class BitemporalMapper extends Mapper {
 
     /** The {@link SimpleDateFormat} pattern. */
     private final String pattern;
-    
-    /** Filed names for the four fields. */
-    private final String vt_from;
-    private final String vt_to;
-    private final String tt_from;
-    private final String tt_to;
 
-    // tt_to=now vt_to=now 2 daterangePrefixTree
+    /** Filed names for the four fields. */
+    private final String vtFrom;
+    private final String vtTo;
+    private final String ttFrom;
+    private final String ttTo;
+
+    // ttTo=now vtTo=now 2 daterangePrefixTree
     private NumberRangePrefixTreeStrategy strategy_t1_V;
     private DateRangePrefixTree tree_t1_V;
     private NumberRangePrefixTreeStrategy strategy_t1_T;
@@ -89,13 +89,13 @@ public class BitemporalMapper extends Mapper {
      * Builds a new {@link BitemporalMapper}.
      *
      * @param name    the name of the mapper.
-     * @param vt_from The column name containing the Start Valid Time.
-     * @param vt_to   The column name containing the End Valid Time.
-     * @param tt_from The column name containing the Start Transaction Time.
-     * @param tt_to   The column name containing the End Transaction Time.
+     * @param vtFrom  The column name containing the Start Valid Time.
+     * @param vtTo    The column name containing the End Valid Time.
+     * @param ttFrom  The column name containing the Start Transaction Time.
+     * @param ttTo    The column name containing the End Transaction Time.
      * @param pattern The {@link SimpleDateFormat} pattern to be used.
      */
-    public BitemporalMapper(String name, String vt_from, String vt_to, String tt_from, String tt_to, String pattern) {
+    public BitemporalMapper(String name, String vtFrom, String vtTo, String ttFrom, String ttTo, String pattern) {
 
         super(name,
               true,
@@ -110,32 +110,32 @@ public class BitemporalMapper extends Mapper {
               DecimalType.instance,
               TimestampType.instance);
 
-        if (StringUtils.isBlank(vt_from)) {
-            throw new IllegalArgumentException("vt_from column name is required");
+        if (StringUtils.isBlank(vtFrom)) {
+            throw new IllegalArgumentException("vtFrom column name is required");
         }
 
-        if (StringUtils.isBlank(vt_to)) {
-            throw new IllegalArgumentException("vt_to column name is required");
+        if (StringUtils.isBlank(vtTo)) {
+            throw new IllegalArgumentException("vtTo column name is required");
         }
 
-        if (StringUtils.isBlank(tt_from)) {
-            throw new IllegalArgumentException("tt_from column name is required");
+        if (StringUtils.isBlank(ttFrom)) {
+            throw new IllegalArgumentException("ttFrom column name is required");
         }
 
-        if (StringUtils.isBlank(tt_to)) {
-            throw new IllegalArgumentException("tt_to column name is required");
+        if (StringUtils.isBlank(ttTo)) {
+            throw new IllegalArgumentException("ttTo column name is required");
         }
 
         this.pattern = (pattern == null) ? DEFAULT_PATTERN : pattern;
-        this.vt_from = vt_from;
-        this.vt_to = vt_to;
-        this.tt_from = tt_from;
-        this.tt_to = tt_to;
+        this.vtFrom = vtFrom;
+        this.vtTo = vtTo;
+        this.ttFrom = ttFrom;
+        this.ttTo = ttTo;
 
         // Validate pattern
         new SimpleDateFormat(this.pattern);
 
-        // tt_to=now vt_to=now 2 DateRangePrefixTree
+        // ttTo=now vtTo=now 2 DateRangePrefixTree
 
         this.tree_t1_V = DateRangePrefixTree.INSTANCE;
         this.strategy_t1_V = new NumberRangePrefixTreeStrategy(tree_t1_V, name + ".t1_v");
@@ -169,20 +169,20 @@ public class BitemporalMapper extends Mapper {
         return pattern;
     }
 
-    public String getVt_from() {
-        return vt_from;
+    public String getVtFrom() {
+        return vtFrom;
     }
 
-    public String getVt_to() {
-        return vt_to;
+    public String getVtTo() {
+        return vtTo;
     }
 
-    public String getTt_from() {
-        return tt_from;
+    public String getTtFrom() {
+        return ttFrom;
     }
 
-    public String getTt_to() {
-        return tt_to;
+    public String getTtTo() {
+        return ttTo;
     }
 
     /**
@@ -237,9 +237,7 @@ public class BitemporalMapper extends Mapper {
      * @param stop  The {@link BiTemporalDateTime} stop of the range.
      * @return A built {@link NRShape}.
      */
-    public NRShape makeShape(DateRangePrefixTree tree,
-                                                   BiTemporalDateTime start,
-                                                   BiTemporalDateTime stop) {
+    public NRShape makeShape(DateRangePrefixTree tree, BiTemporalDateTime start, BiTemporalDateTime stop) {
         UnitNRShape startShape = tree.toUnitShape(start.toDate());
         UnitNRShape stopShape = tree.toUnitShape(stop.toDate());
         return tree.toRangeShape(startShape, stopShape);
@@ -249,10 +247,10 @@ public class BitemporalMapper extends Mapper {
     @Override
     public void addFields(Document document, Columns columns) {
 
-        BiTemporalDateTime vt_from = readBitemporalDate(columns, this.vt_from);
-        BiTemporalDateTime vt_to = readBitemporalDate(columns, this.vt_to);
-        BiTemporalDateTime tt_from = readBitemporalDate(columns, this.tt_from);
-        BiTemporalDateTime tt_to = readBitemporalDate(columns, this.tt_to);
+        BiTemporalDateTime vt_from = readBitemporalDate(columns, this.vtFrom);
+        BiTemporalDateTime vt_to = readBitemporalDate(columns, this.vtTo);
+        BiTemporalDateTime tt_from = readBitemporalDate(columns, this.ttFrom);
+        BiTemporalDateTime tt_to = readBitemporalDate(columns, this.ttTo);
 
         if (tt_to.isNow() && vt_to.isNow()) { // T1
             Shape shapeV = makeShape(tree_t1_V, vt_from, vt_from);
@@ -334,10 +332,10 @@ public class BitemporalMapper extends Mapper {
     /** {@inheritDoc} */
     @Override
     public void validate(CFMetaData metaData) {
-        validate(metaData, vt_from);
-        validate(metaData, vt_to);
-        validate(metaData, tt_from);
-        validate(metaData, tt_to);
+        validate(metaData, vtFrom);
+        validate(metaData, vtTo);
+        validate(metaData, ttFrom);
+        validate(metaData, ttTo);
     }
 
     /** {@inheritDoc} */
@@ -345,10 +343,10 @@ public class BitemporalMapper extends Mapper {
     public String toString() {
         return Objects.toStringHelper(this)
                       .add("name", name)
-                      .add("vt_from", vt_from)
-                      .add("vt_to", vt_to)
-                      .add("tt_from", tt_from)
-                      .add("tt_to", tt_to)
+                      .add("vtFrom", vtFrom)
+                      .add("vtTo", vtTo)
+                      .add("ttFrom", ttFrom)
+                      .add("ttTo", ttTo)
                       .add("pattern", pattern)
                       .toString();
     }
