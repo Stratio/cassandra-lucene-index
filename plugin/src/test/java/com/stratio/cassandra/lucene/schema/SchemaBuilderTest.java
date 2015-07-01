@@ -41,6 +41,7 @@ public class SchemaBuilderTest {
                                 .analyzer("snowball", snowballAnalyzer("English", "the,at"))
                                 .mapper("big_int", bigIntegerMapper().digits(10))
                                 .mapper("big_dec", bigDecimalMapper().indexed(false).sorted(true))
+                                .mapper("bitemporal", bitemporalMapper("vt_from", "vt_to", "tt_from", "tt_to"))
                                 .mapper("blob", blobMapper())
                                 .mapper("bool", booleanMapper())
                                 .mapper("date", dateMapper())
@@ -60,6 +61,7 @@ public class SchemaBuilderTest {
         assertEquals(SnowballAnalyzer.class, schema.getAnalyzer("snowball").getClass());
         assertEquals(BigIntegerMapper.class, schema.getMapper("big_int").getClass());
         assertEquals(BigDecimalMapper.class, schema.getMapper("big_dec").getClass());
+        assertEquals(BitemporalMapper.class, schema.getMapper("bitemporal").getClass());
         assertEquals(BlobMapper.class, schema.getMapper("blob").getClass());
         assertEquals(BooleanMapper.class, schema.getMapper("bool").getClass());
         assertEquals(DateMapper.class, schema.getMapper("date").getClass());
@@ -82,6 +84,7 @@ public class SchemaBuilderTest {
                               .analyzer("snowball", snowballAnalyzer("English", "the,at"))
                               .mapper("big_int", bigIntegerMapper().digits(10))
                               .mapper("big_dec", bigDecimalMapper().indexed(false).sorted(true))
+                              .mapper("bitemporal", bitemporalMapper("vt_from", "vt_to", "tt_from", "tt_to"))
                               .mapper("blob", blobMapper())
                               .mapper("bool", booleanMapper())
                               .mapper("date", dateMapper())
@@ -103,6 +106,7 @@ public class SchemaBuilderTest {
                      "fields:" +
                      "{big_int:{type:\"bigint\",digits:10}," +
                      "big_dec:{type:\"bigdec\",indexed:false,sorted:true}," +
+                     "bitemporal:{type:\"bitemporal\",vt_from:\"vt_from\",vt_to:\"vt_to\",tt_from:\"tt_from\",tt_to:\"tt_to\"},"+
                      "blob:{type:\"bytes\"}," +
                      "bool:{type:\"boolean\"}," +
                      "date:{type:\"date\"}," +
@@ -127,6 +131,7 @@ public class SchemaBuilderTest {
                       "fields:" +
                       "{big_int:{type:\"bigint\",digits:10}," +
                       "big_dec:{type:\"bigdec\",indexed:false,sorted:true}," +
+                      "bitemporal:{type:\"bitemporal\",vt_from:\"vt_from\",vt_to:\"vt_to\",tt_from:\"tt_from\",tt_to:\"tt_to\"},"+
                       "blob:{type:\"bytes\"}," +
                       "bool:{type:\"boolean\"}," +
                       "date:{type:\"date\"}," +
@@ -146,6 +151,7 @@ public class SchemaBuilderTest {
         assertEquals(SnowballAnalyzer.class, schema.getAnalyzer("snowball").getClass());
         assertEquals(BigIntegerMapper.class, schema.getMapper("big_int").getClass());
         assertEquals(BigDecimalMapper.class, schema.getMapper("big_dec").getClass());
+        assertEquals(BitemporalMapper.class, schema.getMapper("bitemporal").getClass());
         assertEquals(BlobMapper.class, schema.getMapper("blob").getClass());
         assertEquals(BooleanMapper.class, schema.getMapper("bool").getClass());
         assertEquals(DateMapper.class, schema.getMapper("date").getClass());
