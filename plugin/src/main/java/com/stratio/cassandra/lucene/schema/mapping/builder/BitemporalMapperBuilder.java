@@ -44,19 +44,22 @@ public class BitemporalMapperBuilder extends MapperBuilder<BitemporalMapper> {
 
     /** Pattern of DateTime **/
     @JsonProperty("pattern")
-    private final String pattern;
+    private String pattern;
 
     @JsonCreator
     public BitemporalMapperBuilder(@JsonProperty("vt_from") String vt_from,
                                    @JsonProperty("vt_to") String vt_to,
                                    @JsonProperty("tt_from") String tt_from,
-                                   @JsonProperty("tt_to") String tt_to,
-                                   @JsonProperty("pattern") String pattern) {
+                                   @JsonProperty("tt_to") String tt_to) {
         this.vt_from = vt_from;
         this.vt_to = vt_to;
         this.tt_from = tt_from;
         this.tt_to = tt_to;
+    }
+
+    public BitemporalMapperBuilder pattern(String pattern) {
         this.pattern = pattern;
+        return this;
     }
 
     /** {@inheritDoc} */
