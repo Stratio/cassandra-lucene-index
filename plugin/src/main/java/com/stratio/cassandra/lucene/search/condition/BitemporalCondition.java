@@ -55,7 +55,7 @@ public class BitemporalCondition extends Condition {
     public final String operation;
 
     public final SpatialOperation spatialOperation;
-    public static final String DEFAULT_OPERATION = "contains";
+    public static final String DEFAULT_OPERATION = "iswithin";
 
     /**
      * Constructs a query selecting all fields that intersects with valid time and transaction time ranges including
