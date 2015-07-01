@@ -32,17 +32,17 @@ public class FloatMapperBuilder extends MapperBuilder<FloatMapper> {
     @JsonProperty("boost")
     private Float boost;
 
-    public FloatMapperBuilder setIndexed(Boolean indexed) {
+    public FloatMapperBuilder indexed(Boolean indexed) {
         this.indexed = indexed;
         return this;
     }
 
-    public FloatMapperBuilder setSorted(Boolean sorted) {
+    public FloatMapperBuilder sorted(Boolean sorted) {
         this.sorted = sorted;
         return this;
     }
 
-    public FloatMapperBuilder setBoost(Float boost) {
+    public FloatMapperBuilder boost(Float boost) {
         this.boost = boost;
         return this;
     }

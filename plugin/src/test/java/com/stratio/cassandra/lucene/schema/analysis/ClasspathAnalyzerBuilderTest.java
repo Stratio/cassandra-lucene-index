@@ -39,7 +39,7 @@ public class ClasspathAnalyzerBuilderTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testBuildWithWrongClassName() {
-        new ClasspathAnalyzerBuilder("abc");
+        new ClasspathAnalyzerBuilder("abc").analyzer();
     }
 
     @Test

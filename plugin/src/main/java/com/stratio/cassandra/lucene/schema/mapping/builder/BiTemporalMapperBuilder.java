@@ -27,18 +27,23 @@ import org.codehaus.jackson.annotate.JsonProperty;
 public class BiTemporalMapperBuilder extends MapperBuilder<BiTemporalMapper> {
 
     /** The name of the column containing the vtStart **/
+    @JsonProperty("vt_from")
     private final String vt_from;
 
     /** The name of the column containing the vtEnd **/
+    @JsonProperty("vt_to")
     private final String vt_to;
 
     /** The name of the column containing the ttStart **/
+    @JsonProperty("tt_from")
     private final String tt_from;
 
     /** The name of the column containing the ttEnd **/
+    @JsonProperty("tt_to")
     private final String tt_to;
 
     /** pattern of DateTime **/
+    @JsonProperty("pattern")
     private final String pattern;
 
     @JsonCreator

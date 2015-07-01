@@ -17,9 +17,8 @@ package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.google.common.base.Objects;
 import com.spatial4j.core.shape.Shape;
-
-import com.stratio.cassandra.lucene.schema.Column;
-import com.stratio.cassandra.lucene.schema.Columns;
+import com.stratio.cassandra.lucene.schema.column.Column;
+import com.stratio.cassandra.lucene.schema.column.Columns;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.db.marshal.AsciiType;
 import org.apache.cassandra.db.marshal.DecimalType;
@@ -39,7 +38,6 @@ import org.apache.lucene.spatial.prefix.tree.DateRangePrefixTree;
 import org.apache.lucene.spatial.prefix.tree.NumberRangePrefixTree;
 
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -49,6 +47,7 @@ import java.util.Date;
  * @author Eduardo Alonso <eduardoalonso@stratio.com>
  */
 public class BiTemporalMapper extends Mapper {
+
     public static class BiTemporalDateTime implements Comparable {
 
         public static BiTemporalDateTime MAX = new BiTemporalDateTime(Long.MAX_VALUE);
@@ -56,7 +55,6 @@ public class BiTemporalMapper extends Mapper {
         private final Long timestamp;
 
         /**
-         *
          * @param date
          */
         public BiTemporalDateTime(Date date) {
@@ -64,11 +62,11 @@ public class BiTemporalMapper extends Mapper {
         }
 
         /**
-         *
          * @param timestamp
          */
         public BiTemporalDateTime(Long timestamp) {
-            if (timestamp<0L) throw new IllegalArgumentException("Cannot build a BiTemporalDateTime with a negative unix time");
+            if (timestamp < 0L)
+                throw new IllegalArgumentException("Cannot build a BiTemporalDateTime with a negative unix time");
             this.timestamp = timestamp;
         }
 
@@ -127,9 +125,9 @@ public class BiTemporalMapper extends Mapper {
             return timestamp.hashCode();
         }
     }
+
     /** The default {@link SimpleDateFormat} pattern. */
     public static final String DEFAULT_PATTERN = "yyyy/MM/dd HH:mm:ss.SSS";
-
 
     public String getPattern() {
         return pattern;
@@ -153,7 +151,7 @@ public class BiTemporalMapper extends Mapper {
 
     /** The {@link SimpleDateFormat} pattern. */
     private final String pattern;
-    /** Filed names for the four fields.   */
+    /** Filed names for the four fields. */
     private final String vt_from;
     private final String vt_to;
     private final String tt_from;
@@ -185,11 +183,12 @@ public class BiTemporalMapper extends Mapper {
 
     /**
      * Builds a new {@link BiTemporalMapper}.
-     * @param name the name of the mapper.
+     *
+     * @param name    the name of the mapper.
      * @param vt_from The column name containing the Start Valid Time.
-     * @param vt_to The column name containing the End Valid Time.
+     * @param vt_to   The column name containing the End Valid Time.
      * @param tt_from The column name containing the Start Transaction Time.
-     * @param tt_to The column name containing the End Transaction Time.
+     * @param tt_to   The column name containing the End Transaction Time.
      * @param pattern The {@link SimpleDateFormat} pattern to be used.
      */
     public BiTemporalMapper(String name, String vt_from, String vt_to, String tt_from, String tt_to, String pattern) {
@@ -264,7 +263,8 @@ public class BiTemporalMapper extends Mapper {
 
     /**
      * returns the {@link NumberRangePrefixTreeStrategy} of the specified tree.
-     * @param i is the number of the tree [0-3].
+     *
+     * @param i                    is the number of the tree [0-3].
      * @param isValidOrTransaction indicates if the tree is of valid time or transaction time.
      * @return the {@link NumberRangePrefixTreeStrategy} of the specified tree.
      */
@@ -282,9 +282,11 @@ public class BiTemporalMapper extends Mapper {
                 throw new IllegalArgumentException("Not valid strategy found");
         }
     }
+
     /**
      * returns the {@link DateRangePrefixTree} of the specified tree.
-     * @param i is the number of the tree [0-3].
+     *
+     * @param i                    is the number of the tree [0-3].
      * @param isValidOrTransaction indicates if the tree is of valid time or transaction time.
      * @return the {@link DateRangePrefixTree} of the specified tree.
      */
@@ -305,9 +307,10 @@ public class BiTemporalMapper extends Mapper {
 
     /**
      * Build a {@link org.apache.lucene.spatial.prefix.tree.NumberRangePrefixTree.NRShape}
-     * @param tree the {@link DateRangePrefixTree} tree
+     *
+     * @param tree  the {@link DateRangePrefixTree} tree
      * @param start the {@link BiTemporalDateTime} start of the range
-     * @param stop the {@link BiTemporalDateTime} stop of the range
+     * @param stop  the {@link BiTemporalDateTime} stop of the range
      * @return a built {@link org.apache.lucene.spatial.prefix.tree.NumberRangePrefixTree.NRShape}
      */
     public NumberRangePrefixTree.NRShape makeShape(DateRangePrefixTree tree,
@@ -317,6 +320,7 @@ public class BiTemporalMapper extends Mapper {
         NumberRangePrefixTree.UnitNRShape stopShape = tree.toUnitShape(stop.toDate());
         return tree.toRangeShape(startShape, stopShape);
     }
+
     /** {@inheritDoc} */
     @Override
     public void addFields(Document document, Columns columns) {
@@ -359,7 +363,8 @@ public class BiTemporalMapper extends Mapper {
 
     /**
      * returns a {@link BiTemporalDateTime} readed from columns
-     * @param columns the {@link Columns} where it is the data
+     *
+     * @param columns   the {@link Columns} where it is the data
      * @param fieldName the filed Name to read from {@link Columns}
      * @return a {@link BiTemporalDateTime} readed from columns
      */
@@ -372,9 +377,12 @@ public class BiTemporalMapper extends Mapper {
     }
 
     /**
-     * Parses an {@link Object} into a {@link BiTemporalDateTime}. it parses {@link Long} and {@link String} format values based in pattern.
+     * Parses an {@link Object} into a {@link BiTemporalDateTime}. it parses {@link Long} and {@link String} format
+     * values based in pattern.
+     *
      * @param value
-     * @return a parsed {@link BiTemporalDateTime} from an {@link Object}. it parses {@link Long} and {@link String} format values based in pattern.
+     * @return a parsed {@link BiTemporalDateTime} from an {@link Object}. it parses {@link Long} and {@link String}
+     * format values based in pattern.
      */
     public BiTemporalDateTime parseBiTemporalDate(Object value) {
         if (value != null) {
@@ -392,11 +400,13 @@ public class BiTemporalMapper extends Mapper {
         }
         throw new IllegalArgumentException("Valid DateTime required, but found " + value);
     }
+
     /** {@inheritDoc} */
     @Override
     public SortField sortField(boolean reverse) {
         throw new UnsupportedOperationException();
     }
+
     /** {@inheritDoc} */
     @Override
     public void validate(CFMetaData metaData) {
@@ -410,12 +420,12 @@ public class BiTemporalMapper extends Mapper {
     @Override
     public String toString() {
         return Objects.toStringHelper(this)
-                .add("name", name)
-                .add("vt_from", vt_from)
-                .add("vt_to", vt_to)
-                .add("tt_from", tt_from)
-                .add("tt_to", tt_to)
-                .add("pattern", pattern)
-                .toString();
+                      .add("name", name)
+                      .add("vt_from", vt_from)
+                      .add("vt_to", vt_to)
+                      .add("tt_from", tt_from)
+                      .add("tt_to", tt_to)
+                      .add("pattern", pattern)
+                      .toString();
     }
 }
