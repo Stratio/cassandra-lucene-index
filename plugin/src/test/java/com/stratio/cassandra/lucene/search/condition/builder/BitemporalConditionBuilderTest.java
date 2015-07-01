@@ -67,11 +67,11 @@ public class BitemporalConditionBuilderTest extends AbstractConditionBuilderTest
         BitemporalCondition condition = builder.build();
         assertNotNull(condition);
         assertEquals("field", condition.field);
-        assertEquals(BiTemporalCondition.DEFAULT_FROM,condition.tt_from);
-        assertEquals(BiTemporalCondition.DEFAULT_TO,condition.tt_to);
-        assertEquals(BiTemporalCondition.DEFAULT_FROM,condition.vt_from);
-        assertEquals(BiTemporalCondition.DEFAULT_TO,condition.vt_to);
-        assertEquals(BiTemporalCondition.DEFAULT_OPERATION, condition.operation);
+        assertEquals(BitemporalCondition.DEFAULT_FROM,condition.tt_from);
+        assertEquals(BitemporalCondition.DEFAULT_TO,condition.tt_to);
+        assertEquals(BitemporalCondition.DEFAULT_FROM,condition.vt_from);
+        assertEquals(BitemporalCondition.DEFAULT_TO,condition.vt_to);
+        assertEquals(BitemporalCondition.DEFAULT_OPERATION, condition.operation);
     }
 
     @Test

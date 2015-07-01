@@ -66,7 +66,7 @@ public class BitemporalCondition extends Condition {
 
     /** The default to value for vt_to and tt_to. */
     public static final Long DEFAULT_TO = Long.MAX_VALUE;
-    
+
     /**
      * Constructs a query selecting all fields that intersects with valid time and transaction time ranges including
      * limits.
