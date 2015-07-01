@@ -15,13 +15,10 @@
  */
 package com.stratio.cassandra.lucene.schema.mapping;
 
-import com.stratio.cassandra.lucene.schema.Schema;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.DocValuesType;
 import org.apache.lucene.search.SortField;
 import org.junit.Test;
-
-import java.io.IOException;
 
 import static org.junit.Assert.*;
 
@@ -184,44 +181,6 @@ public class FloatMapperTest {
         FloatMapper mapper = new FloatMapper("field", null, null, 1f);
         String analyzer = mapper.getAnalyzer();
         assertEquals(Mapper.KEYWORD_ANALYZER, analyzer);
-    }
-
-    @Test
-    public void testParseJSONWithoutArgs() throws IOException {
-        String json = "{fields:{age:{type:\"float\"}}}";
-        Schema schema = Schema.fromJson(json);
-        Mapper mapper = schema.getMapper("age");
-        assertNotNull(mapper);
-        assertEquals(FloatMapper.class, mapper.getClass());
-        assertEquals(Mapper.DEFAULT_INDEXED, mapper.isIndexed());
-        assertEquals(Mapper.DEFAULT_SORTED, mapper.isSorted());
-        assertEquals(FloatMapper.DEFAULT_BOOST, ((FloatMapper) mapper).getBoost(), 1);
-    }
-
-    @Test
-    public void testParseJSONWithAllArgs() throws IOException {
-        String json = "{fields:{age:{type:\"float\", indexed:\"false\", sorted:\"true\", boost:\"5\"}}}";
-        Schema schema = Schema.fromJson(json);
-        Mapper mapper = schema.getMapper("age");
-        assertNotNull(mapper);
-        assertEquals(FloatMapper.class, mapper.getClass());
-        assertFalse(mapper.isIndexed());
-        assertTrue(mapper.isSorted());
-        assertEquals(5, ((FloatMapper) mapper).getBoost(), 1);
-    }
-
-    @Test
-    public void testParseJSONEmpty() throws IOException {
-        String json = "{fields:{}}";
-        Schema schema = Schema.fromJson(json);
-        Mapper mapper = schema.getMapper("age");
-        assertNull(mapper);
-    }
-
-    @Test(expected = IOException.class)
-    public void testParseJSONInvalid() throws IOException {
-        String json = "{fields:{age:{}}";
-        Schema.fromJson(json);
     }
 
     @Test

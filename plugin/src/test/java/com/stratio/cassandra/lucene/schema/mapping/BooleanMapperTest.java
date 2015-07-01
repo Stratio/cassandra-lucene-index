@@ -15,12 +15,10 @@
  */
 package com.stratio.cassandra.lucene.schema.mapping;
 
-import com.stratio.cassandra.lucene.schema.Schema;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.DocValuesType;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.UUID;
 
@@ -179,42 +177,6 @@ public class BooleanMapperTest {
         BooleanMapper mapper = new BooleanMapper("field", null, null);
         String analyzer = mapper.getAnalyzer();
         assertEquals(Mapper.KEYWORD_ANALYZER, analyzer);
-    }
-
-    @Test
-    public void testParseJSONWithoutArgs() throws IOException {
-        String json = "{fields:{age:{type:\"boolean\"}}}";
-        Schema schema = Schema.fromJson(json);
-        Mapper mapper = schema.getMapper("age");
-        assertNotNull(mapper);
-        assertEquals(BooleanMapper.class, mapper.getClass());
-        assertEquals(Mapper.DEFAULT_INDEXED, mapper.isIndexed());
-        assertEquals(Mapper.DEFAULT_SORTED, mapper.isSorted());
-    }
-
-    @Test
-    public void testParseJSONWithAllArgs() throws IOException {
-        String json = "{fields:{age:{type:\"boolean\", indexed:\"false\", sorted:\"true\"}}}";
-        Schema schema = Schema.fromJson(json);
-        Mapper mapper = schema.getMapper("age");
-        assertNotNull(mapper);
-        assertEquals(BooleanMapper.class, mapper.getClass());
-        assertFalse(mapper.isIndexed());
-        assertTrue(mapper.isSorted());
-    }
-
-    @Test
-    public void testParseJSONEmpty() throws IOException {
-        String json = "{fields:{}}";
-        Schema schema = Schema.fromJson(json);
-        Mapper mapper = schema.getMapper("age");
-        assertNull(mapper);
-    }
-
-    @Test(expected = IOException.class)
-    public void testParseJSONInvalid() throws IOException {
-        String json = "{fields:{age:{}}";
-        Schema.fromJson(json);
     }
 
     @Test

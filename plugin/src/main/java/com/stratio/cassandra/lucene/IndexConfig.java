@@ -17,6 +17,7 @@ package com.stratio.cassandra.lucene;
 
 import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.schema.Schema;
+import com.stratio.cassandra.lucene.schema.SchemaBuilder;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.DatabaseDescriptor;
 
@@ -267,7 +268,7 @@ public class IndexConfig {
         Schema schema;
         if (schemaOption != null && !schemaOption.trim().isEmpty()) {
             try {
-                schema = Schema.fromJson(schemaOption);
+                schema = SchemaBuilder.fromJson(schemaOption).build();
                 schema.validate(metadata);
             } catch (Exception e) {
                 String msg = String.format("'%s' is invalid : %s", SCHEMA_OPTION, e.getMessage());

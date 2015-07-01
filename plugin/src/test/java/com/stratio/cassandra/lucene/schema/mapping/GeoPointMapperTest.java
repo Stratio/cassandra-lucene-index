@@ -15,9 +15,8 @@
  */
 package com.stratio.cassandra.lucene.schema.mapping;
 
-import com.stratio.cassandra.lucene.schema.Column;
-import com.stratio.cassandra.lucene.schema.Columns;
-import com.stratio.cassandra.lucene.schema.Schema;
+import com.stratio.cassandra.lucene.schema.column.Column;
+import com.stratio.cassandra.lucene.schema.column.Columns;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.db.ColumnFamilyType;
 import org.apache.cassandra.db.composites.CellNameType;
@@ -33,8 +32,6 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.IndexableField;
 import org.junit.Test;
-
-import java.io.IOException;
 
 import static org.apache.cassandra.config.ColumnDefinition.regularDef;
 import static org.junit.Assert.*;
@@ -330,34 +327,6 @@ public class GeoPointMapperTest {
         metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("lat"), FloatType.instance, 0));
         metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("any"), UUIDType.instance, 0));
         new GeoPointMapper("field", "lat", "lon", null).validate(metadata);
-    }
-
-    @Test
-    public void testParseJSONWithDefaultArgs() throws IOException {
-        String json = "{fields:{position:{type:\"geo_point\", latitude:\"lat\", longitude:\"lon\", max_levels:10}}}";
-        Schema schema = Schema.fromJson(json);
-        GeoPointMapper mapper = (GeoPointMapper) schema.getMapper("position");
-        assertEquals(GeoPointMapper.class, mapper.getClass());
-        assertEquals("position", mapper.getName());
-        assertEquals("lat", mapper.getLatitude());
-        assertEquals("lon", mapper.getLongitude());
-        assertTrue(mapper.isIndexed());
-        assertFalse(mapper.isSorted());
-        assertEquals(GeoPointMapper.DEFAULT_MAX_LEVELS, mapper.getMaxLevels(), 1);
-    }
-
-    @Test
-    public void testParseJSONWithAllArgs() throws IOException {
-        String json = "{fields:{position:{type:\"geo_point\", latitude:\"lat\", longitude:\"lon\", max_levels:10}}}";
-        Schema schema = Schema.fromJson(json);
-        GeoPointMapper mapper = (GeoPointMapper) schema.getMapper("position");
-        assertEquals(GeoPointMapper.class, mapper.getClass());
-        assertEquals("position", mapper.getName());
-        assertEquals("lat", mapper.getLatitude());
-        assertEquals("lon", mapper.getLongitude());
-        assertTrue(mapper.isIndexed());
-        assertFalse(mapper.isSorted());
-        assertEquals(10, mapper.getMaxLevels(), 1);
     }
 
     @Test

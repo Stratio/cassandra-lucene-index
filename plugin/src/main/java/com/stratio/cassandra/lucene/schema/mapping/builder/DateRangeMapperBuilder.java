@@ -34,17 +34,12 @@ public class DateRangeMapperBuilder extends MapperBuilder<DateRangeMapper> {
     @JsonProperty("pattern")
     private String pattern;
 
-    public DateRangeMapperBuilder setStart(String start) {
+    public DateRangeMapperBuilder(@JsonProperty("start") String start, @JsonProperty("stop") String stop) {
         this.start = start;
-        return this;
-    }
-
-    public DateRangeMapperBuilder setStop(String stop) {
         this.stop = stop;
-        return this;
     }
 
-    public DateRangeMapperBuilder setPattern(String pattern) {
+    public DateRangeMapperBuilder pattern(String pattern) {
         this.pattern = pattern;
         return this;
     }

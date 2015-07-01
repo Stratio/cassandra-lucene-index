@@ -32,17 +32,17 @@ public class DateMapperBuilder extends MapperBuilder<DateMapper> {
     @JsonProperty("pattern")
     private String pattern;
 
-    public DateMapperBuilder setIndexed(Boolean indexed) {
+    public DateMapperBuilder indexed(Boolean indexed) {
         this.indexed = indexed;
         return this;
     }
 
-    public DateMapperBuilder setSorted(Boolean sorted) {
+    public DateMapperBuilder sorted(Boolean sorted) {
         this.sorted = sorted;
         return this;
     }
 
-    public DateMapperBuilder setPattern(String pattern) {
+    public DateMapperBuilder pattern(String pattern) {
         this.pattern = pattern;
         return this;
     }

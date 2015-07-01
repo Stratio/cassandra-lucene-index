@@ -32,17 +32,17 @@ public class BigIntegerMapperBuilder extends MapperBuilder<BigIntegerMapper> {
     @JsonProperty("digits")
     private Integer digits;
 
-    public BigIntegerMapperBuilder setIndexed(Boolean indexed) {
+    public BigIntegerMapperBuilder indexed(Boolean indexed) {
         this.indexed = indexed;
         return this;
     }
 
-    public BigIntegerMapperBuilder setSorted(Boolean sorted) {
+    public BigIntegerMapperBuilder sorted(Boolean sorted) {
         this.sorted = sorted;
         return this;
     }
 
-    public BigIntegerMapperBuilder setDigits(Integer digits) {
+    public BigIntegerMapperBuilder digits(Integer digits) {
         this.digits = digits;
         return this;
     }

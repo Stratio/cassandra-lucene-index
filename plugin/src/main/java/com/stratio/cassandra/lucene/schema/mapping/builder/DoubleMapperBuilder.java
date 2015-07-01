@@ -32,17 +32,17 @@ public class DoubleMapperBuilder extends MapperBuilder<DoubleMapper> {
     @JsonProperty("boost")
     private Float boost;
 
-    public DoubleMapperBuilder setIndexed(Boolean indexed) {
+    public DoubleMapperBuilder indexed(Boolean indexed) {
         this.indexed = indexed;
         return this;
     }
 
-    public DoubleMapperBuilder setSorted(Boolean sorted) {
+    public DoubleMapperBuilder sorted(Boolean sorted) {
         this.sorted = sorted;
         return this;
     }
 
-    public DoubleMapperBuilder setBoost(Float boost) {
+    public DoubleMapperBuilder boost(Float boost) {
         this.boost = boost;
         return this;
     }
