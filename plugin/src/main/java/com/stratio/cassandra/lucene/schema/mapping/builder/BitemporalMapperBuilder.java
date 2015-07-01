@@ -27,19 +27,19 @@ import org.codehaus.jackson.annotate.JsonProperty;
 public class BitemporalMapperBuilder extends MapperBuilder<BitemporalMapper> {
 
     /** The name of the column containing the vtStart **/
-    @JsonProperty("vtFrom")
+    @JsonProperty("vt_from")
     private final String vtFrom;
 
     /** The name of the column containing the vtEnd **/
-    @JsonProperty("vtTo")
+    @JsonProperty("vt_to")
     private final String vtTo;
 
     /** The name of the column containing the ttStart **/
-    @JsonProperty("ttFrom")
+    @JsonProperty("tt_from")
     private final String ttFrom;
 
     /** The name of the column containing the ttEnd **/
-    @JsonProperty("ttTo")
+    @JsonProperty("tt_to")
     private final String ttTo;
 
     /** Pattern of DateTime **/
@@ -47,10 +47,10 @@ public class BitemporalMapperBuilder extends MapperBuilder<BitemporalMapper> {
     private String pattern;
 
     @JsonCreator
-    public BitemporalMapperBuilder(@JsonProperty("vtFrom") String vtFrom,
-                                   @JsonProperty("vtTo") String vtTo,
-                                   @JsonProperty("ttFrom") String ttFrom,
-                                   @JsonProperty("ttTo") String ttTo) {
+    public BitemporalMapperBuilder(@JsonProperty("vt_from") String vtFrom,
+                                   @JsonProperty("vt_to") String vtTo,
+                                   @JsonProperty("tt_from") String ttFrom,
+                                   @JsonProperty("tt_to") String ttTo) {
         this.vtFrom = vtFrom;
         this.vtTo = vtTo;
         this.ttFrom = ttFrom;

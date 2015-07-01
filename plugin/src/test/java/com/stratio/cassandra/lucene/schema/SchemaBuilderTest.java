@@ -41,7 +41,7 @@ public class SchemaBuilderTest {
                                 .analyzer("snowball", snowballAnalyzer("English", "the,at"))
                                 .mapper("big_int", bigIntegerMapper().digits(10))
                                 .mapper("big_dec", bigDecimalMapper().indexed(false).sorted(true))
-                                .mapper("bitemporal", bitemporalMapper("vtFrom", "vtTo", "ttFrom", "ttTo"))
+                                .mapper("bitemporal", bitemporalMapper("vt_from", "vt_to", "tt_from", "tt_to"))
                                 .mapper("blob", blobMapper())
                                 .mapper("bool", booleanMapper())
                                 .mapper("date", dateMapper())
@@ -106,7 +106,7 @@ public class SchemaBuilderTest {
                      "fields:" +
                      "{big_int:{type:\"bigint\",digits:10}," +
                      "big_dec:{type:\"bigdec\",indexed:false,sorted:true}," +
-                     "bitemporal:{type:\"bitemporal\",vtFrom:\"vtFrom\",vtTo:\"vtTo\",ttFrom:\"ttFrom\",ttTo:\"ttTo\"},"+
+                     "bitemporal:{type:\"bitemporal\",vt_from:\"vtFrom\",vt_to:\"vtTo\",tt_from:\"ttFrom\",tt_to:\"ttTo\"},"+
                      "blob:{type:\"bytes\"}," +
                      "bool:{type:\"boolean\"}," +
                      "date:{type:\"date\"}," +
@@ -131,7 +131,7 @@ public class SchemaBuilderTest {
                       "fields:" +
                       "{big_int:{type:\"bigint\",digits:10}," +
                       "big_dec:{type:\"bigdec\",indexed:false,sorted:true}," +
-                      "bitemporal:{type:\"bitemporal\",vtFrom:\"vtFrom\",vtTo:\"vtTo\",ttFrom:\"ttFrom\",ttTo:\"ttTo\"},"+
+                      "bitemporal:{type:\"bitemporal\",vt_from:\"vtFrom\",vt_to:\"vtTo\",tt_from:\"ttFrom\",tt_to:\"ttTo\"},"+
                       "blob:{type:\"bytes\"}," +
                       "bool:{type:\"boolean\"}," +
                       "date:{type:\"date\"}," +
