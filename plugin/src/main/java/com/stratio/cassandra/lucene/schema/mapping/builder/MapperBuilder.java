@@ -20,7 +20,7 @@ import org.codehaus.jackson.annotate.JsonSubTypes;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
 
 /**
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({@JsonSubTypes.Type(value = BlobMapperBuilder.class, name = "bytes"),

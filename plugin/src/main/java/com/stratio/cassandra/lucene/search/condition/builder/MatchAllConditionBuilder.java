@@ -21,7 +21,7 @@ import org.codehaus.jackson.annotate.JsonCreator;
 /**
  * {@link ConditionBuilder} for building a new {@link MatchAllCondition}.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class MatchAllConditionBuilder extends ConditionBuilder<MatchAllCondition, MatchAllConditionBuilder> {
 

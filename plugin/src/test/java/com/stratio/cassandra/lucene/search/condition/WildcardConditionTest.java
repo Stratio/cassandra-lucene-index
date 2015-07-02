@@ -28,7 +28,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class WildcardConditionTest extends AbstractConditionTest {
 

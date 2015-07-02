@@ -22,7 +22,7 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
 /**
  * An Lucene {@link Analyzer} builder.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({@JsonSubTypes.Type(value = ClasspathAnalyzerBuilder.class, name = "classpath"),

@@ -24,7 +24,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
 /**
  * {@link ConditionBuilder} for building a new {@link GeoBBoxCondition}.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class DateRangeConditionBuilder extends ConditionBuilder<DateRangeCondition, DateRangeConditionBuilder> {
 

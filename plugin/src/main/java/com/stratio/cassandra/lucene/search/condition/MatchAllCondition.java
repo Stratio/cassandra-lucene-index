@@ -23,7 +23,7 @@ import org.apache.lucene.search.Query;
 /**
  * A {@link Condition} implementation that matches all documents.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class MatchAllCondition extends Condition {
 

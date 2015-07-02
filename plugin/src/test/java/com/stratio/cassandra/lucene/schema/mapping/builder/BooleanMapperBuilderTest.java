@@ -24,7 +24,7 @@ import static org.junit.Assert.*;
 /**
  * Class for testing {@link BooleanMapperBuilder}.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class BooleanMapperBuilderTest extends AbstractMapperBuilderTest {
 

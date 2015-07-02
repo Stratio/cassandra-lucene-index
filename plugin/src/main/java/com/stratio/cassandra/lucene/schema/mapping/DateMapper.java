@@ -39,7 +39,7 @@ import java.util.Date;
 /**
  * A {@link Mapper} to map a date field.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class DateMapper extends SingleColumnMapper<Long> {
 

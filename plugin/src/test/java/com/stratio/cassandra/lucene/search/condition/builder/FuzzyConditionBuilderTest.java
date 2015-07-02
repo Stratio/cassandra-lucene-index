@@ -25,7 +25,7 @@ import static org.junit.Assert.assertNotNull;
 /**
  * Class for testing {@link FuzzyConditionBuilder}.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class FuzzyConditionBuilderTest extends AbstractConditionBuilderTest {
 

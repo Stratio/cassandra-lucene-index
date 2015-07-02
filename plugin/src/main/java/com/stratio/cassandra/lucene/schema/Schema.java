@@ -33,7 +33,7 @@ import java.util.Map;
 /**
  * Class for several columns mappings between Cassandra and Lucene.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class Schema implements Closeable {
 
@@ -76,7 +76,7 @@ public class Schema implements Closeable {
     /**
      * Returns the {@link Analyzer} identified by the specified name. If there is no analyzer with the specified name,
      * then it will be interpreted as a class name and it will be instantiated by reflection.
-     * <p/>
+     *
      * {@link IllegalArgumentException} is thrown if there is no {@link Analyzer} with such name.
      *
      * @param name The name of the {@link Analyzer} to be returned.

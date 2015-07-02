@@ -28,7 +28,7 @@ import java.math.BigInteger;
 /**
  * A {@link Mapper} to map {@link BigInteger} values. A max number of digits must be specified.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class BigIntegerMapper extends KeywordMapper {
 

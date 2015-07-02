@@ -50,11 +50,11 @@ import java.util.List;
 
 /**
  * {@link AnalyzerBuilder} for tartarus.org snowball {@link Analyzer}.
- * <p/>
+ *
  * The supported languages are English, French, Spanish, Portuguese, Italian, Romanian, German, Dutch, Swedish,
  * Norwegian, Danish, Russian, Finnish, Irish, Hungarian, Turkish, Armenian, Basque and Catalan.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class SnowballAnalyzerBuilder extends AnalyzerBuilder {
 

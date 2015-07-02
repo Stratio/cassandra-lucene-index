@@ -45,7 +45,7 @@ import java.util.Date;
 /**
  * A {@link Mapper} to map bitemporal DateRanges.
  *
- * @author Eduardo Alonso <eduardoalonso@stratio.com>
+ * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
 public class BitemporalMapper extends Mapper {
 
@@ -358,14 +358,14 @@ public class BitemporalMapper extends Mapper {
         private final Long timestamp;
 
         /**
-         * @param date
+         * @param date A date.
          */
         public BiTemporalDateTime(Date date) {
             this.timestamp = date.getTime();
         }
 
         /**
-         * @param timestamp
+         * @param timestamp A timestamp.
          */
         public BiTemporalDateTime(Long timestamp) {
             if (timestamp < 0L)

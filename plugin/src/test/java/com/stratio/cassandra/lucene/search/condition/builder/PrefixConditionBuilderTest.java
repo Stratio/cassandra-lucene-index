@@ -25,7 +25,7 @@ import static org.junit.Assert.assertNotNull;
 /**
  * Class for testing {@link PrefixConditionBuilder}.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class PrefixConditionBuilderTest extends AbstractConditionBuilderTest {
 

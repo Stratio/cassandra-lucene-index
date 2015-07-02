@@ -14,33 +14,19 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * This class is a specialized extension of the ThreadPoolExecutor class.
- * <p/>
+ *
  * Two functionalities had been added to this subclass. 1) The execute method of the ThreadPoolExecutor will block in
  * case the queue is full and only unblock when the queue is dequeued - that is a task that is currently in the queue is
  * removed and handled by the ThreadPoolExecutor. 2) Client code can await for the event of all tasks being run to
  * conclusion. Client code which actively chose to wait for this occurrence should call await on the instance of his
  * ThreadPoolExecutor. This differs from awaitTermination as it does not require any call to shutdown.
- * <p/>
- * Code example:
- * <p/>
- * NotifyingBlockingThreadPoolExecutor threadPoolExecutor = new NotifyingBlockingThreadPoolExecutor(5, ,10, 15,
- * TimeUnit.SECONDS);
- * <p/>
- * for (int i = 0; i < 5000; i++) { threadPoolExecutor.execute(...) }
- * <p/>
- * try { threadPoolExecutor.await(); } catch (InterruptedException e) { // Handle error }
- * <p/>
- * System.out.println("Done!");
- * <p/>
- * The example above shows how 5000 tasks are run within 5 threads. The line with 'System.out.println("Done!");' will
- * not run until such a time when all the tasks given to the thread pool have concluded. their run.
- * <p/>
+ *
  * This subclass of ThreadPoolExecutor also takes away the max threads capabilities of the ThreadPoolExecutor superclass
  * and internally sets the amount of maximum threads to be the size of the core threads. This is done since threads over
  * the core size and under the max are instantiated only once the queue is full, but the
  * NotifyingBlockingThreadPoolExecutor will block once the queue is full.
  *
- * @author Yaneeve Shekel & Amir Kirsh
+ * @author Yaneeve Shekel {@literal &} Amir Kirsh
  */
 public class NotifyingBlockingThreadPoolExecutor extends ThreadPoolExecutor {
 
@@ -215,9 +201,10 @@ public class NotifyingBlockingThreadPoolExecutor extends ThreadPoolExecutor {
      * A blocking wait for this ThreadPool to be in idle state or a certain timeout to elapse. Works the same as the
      * await() method, except for adding the timeout condition.
      *
+     * @param timeout The timeout.
+     * @param timeUnit The time unit.
      * @return false if the timeout elapsed, true if the synch event we are waiting for had happened.
      * @throws InterruptedException when the internal condition throws it.
-     * @see NotifyingBlockingThreadPoolExecutor#await() for more details.
      */
     public boolean await(long timeout, TimeUnit timeUnit) throws InterruptedException {
         return synchronizer.await(timeout, timeUnit);

@@ -10,7 +10,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
 import java.util.LinkedHashMap;
 
 /**
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class SchemaBuilders {
 

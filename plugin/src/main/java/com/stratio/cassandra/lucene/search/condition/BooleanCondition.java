@@ -28,7 +28,7 @@ import java.util.List;
  * A {@link Condition} that matches documents matching boolean combinations of other queries, e.g. {@link
  * MatchCondition}s, {@link RangeCondition}s or other {@link BooleanCondition}s.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class BooleanCondition extends Condition {
 

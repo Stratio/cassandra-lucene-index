@@ -27,7 +27,7 @@ import java.io.IOException;
 /**
  * A JSON mapper based on {@link org.codehaus.jackson} annotations.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class JsonSerializer {
 

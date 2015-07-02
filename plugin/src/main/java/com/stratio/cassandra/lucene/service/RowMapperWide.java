@@ -50,7 +50,7 @@ import static org.apache.lucene.search.BooleanClause.Occur.SHOULD;
 /**
  * {@link RowMapper} for wide rows.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class RowMapperWide extends RowMapper {
 

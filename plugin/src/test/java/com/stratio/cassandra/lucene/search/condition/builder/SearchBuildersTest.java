@@ -48,7 +48,7 @@ import static org.mockito.Mockito.mock;
 /**
  * Class for testing {@link SearchBuilders}.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class SearchBuildersTest {
 

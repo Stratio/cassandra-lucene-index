@@ -22,7 +22,7 @@ import org.apache.lucene.search.ScoreDoc;
 /**
  * Class representing the a result of a search in Lucene. Its roughly formed by the row identifier and the search hit.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class SearchResult {
 

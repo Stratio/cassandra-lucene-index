@@ -41,7 +41,7 @@ import org.apache.lucene.spatial.prefix.tree.SpatialPrefixTree;
 /**
  * A {@link Mapper} to map geographical points.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class GeoPointMapper extends Mapper {
 
@@ -176,6 +176,7 @@ public class GeoPointMapper extends Mapper {
      * Returns the latitude contained in the specified {@link Object}. A valid latitude must in the range [-90, 90].
      *
      * @param value The {@link Object} containing the latitude.
+     * @return The latitude.
      */
     public static double readLatitude(Object value) {
         Double latitude = null;
@@ -199,6 +200,7 @@ public class GeoPointMapper extends Mapper {
      * 180].
      *
      * @param value The {@link Object} containing the latitude.
+     * @return The longitude.
      */
     public static double readLongitude(Object value) {
         Double longitude = null;

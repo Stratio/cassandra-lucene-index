@@ -26,7 +26,7 @@ import java.util.Arrays;
 /**
  * A {@link Condition} implementation that matches documents containing a value for a field.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class ContainsCondition extends SingleFieldCondition {
 

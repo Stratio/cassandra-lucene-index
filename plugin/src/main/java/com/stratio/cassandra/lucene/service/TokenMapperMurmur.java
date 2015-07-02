@@ -30,7 +30,7 @@ import org.apache.lucene.search.SortField;
  * {@link PartitionKeyMapper} to be used when {@link org.apache.cassandra.dht.Murmur3Partitioner} is used. It indexes
  * the token long value as a Lucene long field.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class TokenMapperMurmur extends TokenMapper {
 

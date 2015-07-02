@@ -38,7 +38,7 @@ import java.util.Set;
  * A {@link PerRowSecondaryIndex} that uses Apache Lucene as backend. It allows, among others, multi-column and
  * full-text search.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class Index extends PerRowSecondaryIndex {
 

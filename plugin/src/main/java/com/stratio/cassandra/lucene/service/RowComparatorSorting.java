@@ -26,7 +26,7 @@ import java.util.Comparator;
 /**
  * A {@link Comparator} for comparing {@link Row}s according to a certain Lucene {@link Sort}.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 class RowComparatorSorting implements RowComparator {
 

@@ -34,7 +34,7 @@ import java.util.Set;
 /**
  * {@link RowService} that manages simple rows.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class RowServiceSkinny extends RowService {
 
@@ -54,6 +54,7 @@ public class RowServiceSkinny extends RowService {
      *
      * @param baseCfs          The base column family store.
      * @param columnDefinition The indexed column definition.
+     * @throws IOException If there are I/O errors.
      */
     public RowServiceSkinny(ColumnFamilyStore baseCfs, ColumnDefinition columnDefinition) throws IOException {
         super(baseCfs, columnDefinition);
@@ -63,7 +64,7 @@ public class RowServiceSkinny extends RowService {
 
     /**
      * {@inheritDoc}
-     * <p/>
+     *
      * These fields are just the partition key.
      */
     @Override

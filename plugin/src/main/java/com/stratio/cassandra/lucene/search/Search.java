@@ -29,7 +29,7 @@ import org.apache.lucene.search.Query;
  * Class representing an Lucene index search. It is formed by an optional querying {@link Condition} and an optional
  * filtering {@link Condition}. It can be translated to a Lucene {@link Query} using a {@link Schema}.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class Search {
 
@@ -63,7 +63,7 @@ public class Search {
      * Returns {@code true} if the results must be ordered by relevance. If {@code false}, then the results are sorted
      * by the natural Cassandra's order. Results must be ordered by relevance if the querying condition is not {code
      * null}.
-     * <p/>
+     *
      * Relevance is used when the query condition is set, and it is not used when only the clusteringKeyFilter condition
      * is set.
      *

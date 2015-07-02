@@ -24,7 +24,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * Abstract class for {@link MapperBuilder} tests.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public abstract class AbstractMapperBuilderTest {
 

@@ -26,7 +26,7 @@ import java.util.List;
 /**
  * {@link ConditionBuilder} for building a new {@link BooleanCondition}.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class BooleanConditionBuilder extends ConditionBuilder<BooleanCondition, BooleanConditionBuilder> {
 

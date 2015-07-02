@@ -28,7 +28,7 @@ import org.apache.lucene.search.SortField;
 /**
  * Class for several row partitioning {@link Token} mappings between Cassandra and Lucene.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public abstract class TokenMapper {
 

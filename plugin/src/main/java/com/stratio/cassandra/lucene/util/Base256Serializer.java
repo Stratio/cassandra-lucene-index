@@ -22,7 +22,7 @@ import java.nio.ByteBuffer;
 /**
  * Class for mapping several binary types from/to {@link String} using a base of 256 UTF-8 characters.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 class Base256Serializer {
 

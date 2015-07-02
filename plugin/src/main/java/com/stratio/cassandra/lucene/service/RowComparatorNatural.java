@@ -26,7 +26,7 @@ import java.util.Comparator;
 /**
  * A {@link Comparator} for comparing {@link Row}s according to its Cassandra's natural order.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class RowComparatorNatural implements RowComparator {
 

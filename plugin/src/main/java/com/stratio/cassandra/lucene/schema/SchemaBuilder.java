@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class SchemaBuilder {
 
@@ -98,6 +98,7 @@ public class SchemaBuilder {
      *
      * @param json A {@code String} containing the JSON representation of the {@link Schema} to be parsed.
      * @return The {@link Schema} contained in the specified JSON {@code String}.
+     * @throws IOException If there are I/O errors.
      */
     public static SchemaBuilder fromJson(String json) throws IOException {
         return JsonSerializer.fromString(json, SchemaBuilder.class);

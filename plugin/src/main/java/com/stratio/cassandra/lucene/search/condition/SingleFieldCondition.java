@@ -22,12 +22,12 @@ import org.apache.commons.lang3.StringUtils;
 
 /**
  * The abstract base class for queries.
- * <p/>
+ *
  * Known subclasses are: <ul> <li> {@link BooleanCondition} <li> {@link FuzzyCondition} <li> {@link MatchCondition} <li>
  * {@link PhraseCondition} <li> {@link PrefixCondition} <li> {@link RangeCondition} <li> {@link WildcardCondition}
  * </ul>
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public abstract class SingleFieldCondition extends Condition {
 

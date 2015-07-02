@@ -21,7 +21,7 @@ import com.stratio.cassandra.lucene.search.sort.builder.SortFieldBuilder;
 /**
  * Factory for {@link SearchBuilder} and {@link ConditionBuilder}s.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class SearchBuilders {
 
@@ -37,24 +37,27 @@ public class SearchBuilders {
     /**
      * Returns a new {@link SearchBuilder} using the specified {@link ConditionBuilder} as query.
      *
+     * @param conditionBuilder The {@link ConditionBuilder} containing the query.
      * @return a new {@link SearchBuilder} using the specified {@link ConditionBuilder} as query.
      */
-    public static SearchBuilder query(ConditionBuilder<?, ?> queryConditionBuilder) {
-        return search().query(queryConditionBuilder);
+    public static SearchBuilder query(ConditionBuilder<?, ?> conditionBuilder) {
+        return search().query(conditionBuilder);
     }
 
     /**
      * Returns a new {@link SearchBuilder} using the specified {@link ConditionBuilder} as clusteringKeyFilter.
      *
+     * @param conditionBuilder The {@link ConditionBuilder} containing the filter.
      * @return a new {@link SearchBuilder} using the specified {@link ConditionBuilder} as clusteringKeyFilter.
      */
-    public static SearchBuilder filter(ConditionBuilder<?, ?> filterConditionBuilder) {
-        return search().filter(filterConditionBuilder);
+    public static SearchBuilder filter(ConditionBuilder<?, ?> conditionBuilder) {
+        return search().filter(conditionBuilder);
     }
 
     /**
      * Returns a new {@link SearchBuilder} using the specified {@link SortFieldBuilder}s as sorting.
      *
+     * @param sortFieldBuilders The {@link SortFieldBuilder}s.
      * @return a new {@link SearchBuilder} using the specified {@link SortFieldBuilder}s as sorting.
      */
     public static SearchBuilder sort(SortFieldBuilder... sortFieldBuilders) {
@@ -173,6 +176,7 @@ public class SearchBuilders {
      * @param maxLongitude The maximum accepted longitude.
      * @param minLatitude  The minimum accepted latitude.
      * @param maxLatitude  The maximum accepted latitude.
+     * @return A new {@link GeoBBoxConditionBuilder}.
      */
     public static GeoBBoxConditionBuilder geoBBox(String field,
                                                   double minLongitude,
@@ -189,6 +193,7 @@ public class SearchBuilders {
      * @param longitude   The longitude of the reference point.
      * @param latitude    The latitude of the reference point.
      * @param maxDistance The max allowed distance.
+     * @return A new {@link GeoDistanceConditionBuilder}.
      */
     public static GeoDistanceConditionBuilder geoDistance(String field,
                                                           double longitude,
@@ -201,6 +206,7 @@ public class SearchBuilders {
      * Returns a new {@link DateRangeConditionBuilder} with the specified field reference point.
      *
      * @param field The name of the field to be matched.
+     * @return A new {@link DateRangeConditionBuilder}.
      */
     public static DateRangeConditionBuilder dateRange(String field) {
         return new DateRangeConditionBuilder(field);

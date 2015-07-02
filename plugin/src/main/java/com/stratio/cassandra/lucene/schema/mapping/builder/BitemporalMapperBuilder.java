@@ -22,7 +22,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
 /**
  * {@link MapperBuilder} to build a new {@link BitemporalMapperBuilder}.
  *
- * @author Eduardo Alonso <eduardoalonso@stratio.com>
+ * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
 public class BitemporalMapperBuilder extends MapperBuilder<BitemporalMapper> {
 

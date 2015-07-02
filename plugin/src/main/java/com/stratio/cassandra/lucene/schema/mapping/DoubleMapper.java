@@ -33,7 +33,7 @@ import org.apache.lucene.search.SortField.Type;
 /**
  * A {@link Mapper} to map a double field.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class DoubleMapper extends SingleColumnMapper<Double> {
 

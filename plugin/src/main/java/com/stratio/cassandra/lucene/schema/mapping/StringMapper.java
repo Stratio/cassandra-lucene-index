@@ -21,7 +21,7 @@ import org.apache.cassandra.db.marshal.*;
 /**
  * A {@link Mapper} to map a string, not tokenized field.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class StringMapper extends KeywordMapper {
 

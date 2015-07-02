@@ -28,7 +28,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * an identifier, ensuring that all tasks with same identifier will be executed orderly in the same thread. Each thread
  * has its own task queue.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class TaskQueue {
 
@@ -64,13 +64,14 @@ public class TaskQueue {
 
     /**
      * Submits a non value-returning task for asynchronous execution.
-     * <p/>
+     *
      * The specified identifier is used to choose the thread executor where the task will be queued. The selection and
      * load balancing is based in the {@link #hashCode()} of this identifier.
      *
      * @param id   The identifier of the task used to choose the thread executor where the task will be queued for
      *             asynchronous execution.
      * @param task A task to be queued for asynchronous execution.
+     * @return A future for the submitted task.
      */
     public Future<?> submitAsynchronous(Object id, Runnable task) {
         lock.readLock().lock();

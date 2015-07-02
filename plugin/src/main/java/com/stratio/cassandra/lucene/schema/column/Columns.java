@@ -25,7 +25,7 @@ import java.util.List;
 /**
  * A sorted list of CQL3 logic {@link Column}s.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class Columns implements Iterable<Column> {
 

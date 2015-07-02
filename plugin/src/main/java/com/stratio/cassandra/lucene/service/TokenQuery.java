@@ -29,7 +29,7 @@ import java.io.IOException;
 /**
  * Generic query for retrieving a range of tokens in combination with {@link TokenMapperGeneric}.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class TokenQuery extends MultiTermQuery {
 

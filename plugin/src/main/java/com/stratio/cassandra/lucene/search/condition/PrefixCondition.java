@@ -25,7 +25,7 @@ import org.apache.lucene.search.Query;
 /**
  * A {@link Condition} implementation that matches documents containing terms with a specified prefix.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class PrefixCondition extends SingleFieldCondition {
 

@@ -23,7 +23,7 @@ import java.nio.ByteBuffer;
 /**
  * A cell of a CQL3 logic {@link Column}, which in most cases is different from a storage engine column.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class Column<T> {
 
@@ -122,6 +122,8 @@ public class Column<T> {
      * @param name            The column name.
      * @param decomposedValue The column raw value.
      * @param type            The column type/marshaller.
+     * @param isCollection    If the {@link Column} belongs to a collection.
+     * @param <T>             The base type.
      * @return A {@link Column}.
      */
     public static <T> Column<T> fromDecomposed(String name,
@@ -139,6 +141,8 @@ public class Column<T> {
      * @param nameSufix       The column name sufix.
      * @param decomposedValue The column raw value.
      * @param type            The column type/marshaller.
+     * @param isCollection    If the {@link Column} belongs to a collection.
+     * @param <T>             The base type.
      * @return A {@link Column}.
      */
     public static <T> Column<T> fromDecomposed(String name,
@@ -156,6 +160,8 @@ public class Column<T> {
      * @param name          The column name.
      * @param composedValue The column composed value.
      * @param type          The column type/marshaller.
+     * @param isCollection  If the {@link Column} belongs to a collection.
+     * @param <T>           The base type.
      * @return A {@link Column}.
      */
     public static <T> Column<T> fromComposed(String name, T composedValue, AbstractType<T> type, boolean isCollection) {
@@ -167,8 +173,11 @@ public class Column<T> {
      * Returns the {@link Column} defined by the specified name, value and type.
      *
      * @param name          The column name.
+     * @param sufix         The column name sufix.
      * @param composedValue The column composed value.
      * @param type          The column type/marshaller.
+     * @param isCollection  If the {@link Column} belongs to a collection.
+     * @param <T>           The base type.
      * @return A {@link Column}.
      */
     public static <T> Column<T> fromComposed(String name,

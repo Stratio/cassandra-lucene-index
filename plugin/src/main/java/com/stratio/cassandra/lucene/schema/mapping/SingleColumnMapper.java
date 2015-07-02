@@ -25,7 +25,7 @@ import org.apache.lucene.document.Field;
 /**
  * Class for mapping between Cassandra's columns and Lucene documents.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public abstract class SingleColumnMapper<BASE> extends Mapper {
 

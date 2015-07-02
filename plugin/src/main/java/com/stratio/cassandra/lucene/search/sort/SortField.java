@@ -29,7 +29,7 @@ import java.util.Comparator;
 /**
  * A sorting for a field of a search.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class SortField {
 

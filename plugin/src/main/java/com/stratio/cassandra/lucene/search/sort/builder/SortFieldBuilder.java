@@ -23,7 +23,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
 /**
  * {@link Builder} for building a new {@link SortField}.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class SortFieldBuilder implements Builder<SortField> {
 
@@ -50,6 +50,7 @@ public class SortFieldBuilder implements Builder<SortField> {
      * Returns this {@link SortFieldBuilder} with the specified reverse option.
      *
      * @param reverse {@code true} if natural order should be reversed.
+     * @return This.
      */
     public SortFieldBuilder reverse(boolean reverse) {
         this.reverse = reverse;

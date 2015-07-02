@@ -7,7 +7,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
 /**
  * {@link ConditionBuilder} for building a new {@link BitemporalCondition}.
  *
- * @author Eduardo Alonso <eduardoalonso@stratio.com>
+ * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
 public class BitemporalConditionBuilder extends ConditionBuilder<BitemporalCondition, BitemporalConditionBuilder> {
 

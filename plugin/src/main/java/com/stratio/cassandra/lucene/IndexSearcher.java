@@ -44,7 +44,7 @@ import static org.apache.cassandra.cql3.Operator.EQ;
 /**
  * A {@link SecondaryIndexSearcher} for {@link Index}.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 class IndexSearcher extends SecondaryIndexSearcher {
 

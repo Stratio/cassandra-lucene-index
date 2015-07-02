@@ -22,12 +22,12 @@ import org.apache.lucene.search.QueryWrapperFilter;
 
 /**
  * The abstract base class for queries.
- * <p/>
+ *
  * Known subclasses are: <ul> <li> {@link BooleanCondition} <li> {@link ContainsCondition} <li> {@link FuzzyCondition}
  * <li> {@link MatchCondition} <li> {@link PhraseCondition} <li> {@link PrefixCondition} <li> {@link RangeCondition}
  * <li> {@link WildcardCondition} <li> {@link GeoDistanceCondition} <li> {@link GeoBBoxCondition} </ul>
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public abstract class Condition {
 

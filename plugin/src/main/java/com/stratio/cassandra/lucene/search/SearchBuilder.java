@@ -28,7 +28,7 @@ import java.io.IOException;
 /**
  * Class for building a new {@link Search}.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class SearchBuilder {
 

@@ -44,7 +44,7 @@ import java.util.Set;
 /**
  * Class wrapping a Lucene directory and its readers, writers and searchers for NRT.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class LuceneIndex implements LuceneIndexMBean {
 
@@ -251,11 +251,12 @@ public class LuceneIndex implements LuceneIndexMBean {
      * Finds the top {@code count} hits for {@code query}, applying {@code clusteringKeyFilter} if non-null, and sorting
      * the hits by the criteria in {@code sortFields}.
      *
-     * @param query        The {@link Query} to search for.
-     * @param sort         The {@link Sort} to be applied.
-     * @param after        The starting {@link SearchResult}.
-     * @param count        Return only the top {@code count} results.
-     * @param fieldsToLoad The name of the fields to be loaded.
+     * @param query         The {@link Query} to search for.
+     * @param sort          The {@link Sort} to be applied.
+     * @param after         The starting {@link SearchResult}.
+     * @param count         Return only the top {@code count} results.
+     * @param fieldsToLoad  The name of the fields to be loaded.
+     * @param usesRelevance If the search must sorts results by relevance.
      * @return The found documents, sorted according to the supplied {@link Sort} instance.
      * @throws IOException If Lucene throws IO errors.
      */

@@ -26,7 +26,7 @@ import org.apache.lucene.util.QueryBuilder;
 /**
  * A {@link Condition} implementation that matches documents containing a particular sequence of terms.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class PhraseCondition extends SingleFieldCondition {
 

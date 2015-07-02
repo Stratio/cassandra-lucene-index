@@ -25,7 +25,7 @@ import static org.junit.Assert.assertNotNull;
 /**
  * Class for testing {@link PhraseConditionBuilder}.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class PhraseConditionBuilderTest extends AbstractConditionBuilderTest {
 

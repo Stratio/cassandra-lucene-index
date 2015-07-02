@@ -24,7 +24,7 @@ import static org.junit.Assert.*;
 /**
  * Class for testing {@link UUIDMapperBuilder}.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class UUIDMapperBuilderTest extends AbstractMapperBuilderTest {
 

@@ -29,7 +29,7 @@ import java.util.UUID;
 /**
  * A {@link Mapper} to map a UUID field.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class UUIDMapper extends KeywordMapper {
 

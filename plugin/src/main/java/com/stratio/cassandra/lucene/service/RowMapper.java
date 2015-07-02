@@ -35,7 +35,7 @@ import java.nio.ByteBuffer;
 /**
  * Class for several {@link Row} mappings between Cassandra and Lucene.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public abstract class RowMapper {
 

@@ -39,7 +39,7 @@ import java.util.List;
 /**
  * Class for several partition key mappings between Cassandra and Lucene.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class PartitionKeyMapper {
 

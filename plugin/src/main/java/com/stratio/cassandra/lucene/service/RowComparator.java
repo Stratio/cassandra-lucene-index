@@ -22,7 +22,7 @@ import java.util.Comparator;
 /**
  * A {@link Comparator} for comparing {@link Row}s according to a certain criterion.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public interface RowComparator extends Comparator<Row> {
 

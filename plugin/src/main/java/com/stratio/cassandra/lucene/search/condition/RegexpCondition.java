@@ -25,11 +25,11 @@ import org.apache.lucene.search.RegexpQuery;
 /**
  * Implements the wildcard search query. Supported wildcards are {@code *}, which matches any character sequence
  * (including the empty one), and {@code ?}, which matches any single character. '\' is the escape character.
- * <p/>
+ *
  * Note this query can be slow, as it needs to iterate over many terms. In order to prevent extremely slow
  * WildcardQueries, a Wildcard term should not start with the wildcard {@code *}.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class RegexpCondition extends SingleFieldCondition {
 

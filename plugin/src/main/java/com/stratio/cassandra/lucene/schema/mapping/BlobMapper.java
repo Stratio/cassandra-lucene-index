@@ -27,7 +27,7 @@ import java.nio.ByteBuffer;
 /**
  * A {@link Mapper} to map blob values.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class BlobMapper extends KeywordMapper {
 

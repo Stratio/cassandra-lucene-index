@@ -55,7 +55,7 @@ import java.util.Map;
  * Class for several clustering key mappings between Cassandra and Lucene. This class only be used in column families
  * with wide rows.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class ClusteringKeyMapper {
 
@@ -341,6 +341,8 @@ public class ClusteringKeyMapper {
      * Returns a Lucene {@link Query} array to retrieving documents/rows whose clustering key is between the two
      * specified column name prefixes.
      *
+     * @param start The start key.
+     * @param stop  The stop key.
      * @return A Lucene {@link Query} array to retrieving documents/rows whose clustering key is between the two
      * specified column name prefixes.
      */

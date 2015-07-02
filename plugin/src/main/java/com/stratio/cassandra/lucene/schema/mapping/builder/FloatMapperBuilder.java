@@ -19,7 +19,7 @@ import com.stratio.cassandra.lucene.schema.mapping.FloatMapper;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class FloatMapperBuilder extends MapperBuilder<FloatMapper> {
 

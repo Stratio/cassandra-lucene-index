@@ -23,7 +23,7 @@ import org.apache.cassandra.db.marshal.UTF8Type;
 /**
  * A {@link Mapper} to map a boolean field.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class BooleanMapper extends KeywordMapper {
 

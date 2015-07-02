@@ -20,7 +20,7 @@ import org.apache.commons.lang3.time.StopWatch;
 /**
  * Class for measuring time durations.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class TimeCounter {
 

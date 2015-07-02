@@ -28,7 +28,7 @@ import java.util.List;
 /**
  * {@link Builder} for building a new {@link Sort}.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class SortBuilder implements Builder<Sort> {
 

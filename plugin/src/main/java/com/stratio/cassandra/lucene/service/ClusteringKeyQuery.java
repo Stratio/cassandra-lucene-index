@@ -29,7 +29,7 @@ import org.apache.lucene.util.BytesRef;
 import java.io.IOException;
 
 /**
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 class ClusteringKeyQuery extends MultiTermQuery {
 

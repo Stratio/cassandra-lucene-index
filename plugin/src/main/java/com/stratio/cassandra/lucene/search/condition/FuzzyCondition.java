@@ -29,7 +29,7 @@ import org.apache.lucene.util.automaton.LevenshteinAutomata;
  * Damerau-Levenshtein (optimal string alignment) algorithm, though you can explicitly choose classic Levenshtein by
  * passing {@code false} to the {@code transpositions} parameter.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class FuzzyCondition extends SingleFieldCondition {
 
@@ -71,7 +71,7 @@ public class FuzzyCondition extends SingleFieldCondition {
      *                       {@link #DEFAULT_BOOST} is used as default.
      * @param field          The field name.
      * @param value          The field fuzzy value.
-     * @param maxEdits       Must be >= 0 and <= {@link LevenshteinAutomata#MAXIMUM_SUPPORTED_DISTANCE}.
+     * @param maxEdits       Must be {@literal >=} 0 and {@literal <=} {@link LevenshteinAutomata#MAXIMUM_SUPPORTED_DISTANCE}.
      * @param prefixLength   Length of common (non-fuzzy) prefix
      * @param maxExpansions  The maximum number of terms to match. If this number is greater than {@link
      *                       org.apache.lucene.search.BooleanQuery#getMaxClauseCount} when the query is rewritten, then

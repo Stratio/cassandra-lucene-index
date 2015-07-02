@@ -39,7 +39,7 @@ import java.nio.ByteBuffer;
  * {@link TokenMapper} to be used when any {@link org.apache.cassandra.dht.IPartitioner} when there is not a more
  * specific implementation. It indexes the token raw binary value as a Lucene string field.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class TokenMapperGeneric extends TokenMapper {
 

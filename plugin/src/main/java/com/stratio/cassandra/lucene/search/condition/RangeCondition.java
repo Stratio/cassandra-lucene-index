@@ -25,7 +25,7 @@ import org.apache.lucene.search.TermRangeQuery;
 /**
  * A {@link Condition} implementation that matches a field within an range of values.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class RangeCondition extends SingleFieldCondition {
 
@@ -53,7 +53,7 @@ public class RangeCondition extends SingleFieldCondition {
     /**
      * Constructs a query selecting all fields greater/equal than {@code lowerValue} but less/equal than {@code
      * upperValue}.
-     * <p/>
+     *
      * If an endpoint is null, it is said to be "open". Either or both endpoints may be open. Open endpoints may not be
      * exclusive (you can't select all but the first or last term without explicitly specifying the term to exclude.)
      *

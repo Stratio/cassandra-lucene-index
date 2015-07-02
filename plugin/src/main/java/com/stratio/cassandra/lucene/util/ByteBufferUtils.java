@@ -26,7 +26,7 @@ import java.util.List;
 /**
  * Utility class with some {@link ByteBuffer}/ {@link org.apache.cassandra.db.marshal.AbstractType} utilities.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class ByteBufferUtils {
 

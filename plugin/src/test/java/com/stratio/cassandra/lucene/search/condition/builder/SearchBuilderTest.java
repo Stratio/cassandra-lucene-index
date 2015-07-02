@@ -28,7 +28,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * Class for testing {@link SearchBuilder}.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class SearchBuilderTest {
 

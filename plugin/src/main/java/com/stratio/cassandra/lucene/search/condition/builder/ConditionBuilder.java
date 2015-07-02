@@ -24,7 +24,7 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
 /**
  * Class for building new {@link Condition}s.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({@JsonSubTypes.Type(value = BooleanConditionBuilder.class, name = "boolean"),

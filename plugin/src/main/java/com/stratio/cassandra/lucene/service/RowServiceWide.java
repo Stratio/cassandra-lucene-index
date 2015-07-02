@@ -38,7 +38,7 @@ import java.util.*;
 /**
  * {@link RowService} that manages wide rows.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class RowServiceWide extends RowService {
 
@@ -59,6 +59,7 @@ public class RowServiceWide extends RowService {
      *
      * @param baseCfs          The base column family store.
      * @param columnDefinition The indexed column definition.
+     * @throws IOException If there are I/O errors.
      */
     public RowServiceWide(ColumnFamilyStore baseCfs, ColumnDefinition columnDefinition) throws IOException {
         super(baseCfs, columnDefinition);
@@ -68,7 +69,7 @@ public class RowServiceWide extends RowService {
 
     /**
      * {@inheritDoc}
-     * <p/>
+     *
      * These fields are the partition and clustering keys.
      */
     @Override
@@ -116,7 +117,7 @@ public class RowServiceWide extends RowService {
 
     /**
      * {@inheritDoc}
-     * <p/>
+     *
      * The {@link Row} is a logical one.
      */
     @Override

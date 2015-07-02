@@ -23,7 +23,7 @@ import java.nio.ByteBuffer;
 /**
  * Utility class for Stratio log messages.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class Log {
 

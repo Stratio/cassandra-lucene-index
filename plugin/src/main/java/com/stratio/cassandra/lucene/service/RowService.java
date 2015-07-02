@@ -16,10 +16,10 @@
 package com.stratio.cassandra.lucene.service;
 
 import com.stratio.cassandra.lucene.IndexConfig;
-import com.stratio.cassandra.lucene.search.Search;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
+import com.stratio.cassandra.lucene.search.Search;
 import com.stratio.cassandra.lucene.util.Log;
 import com.stratio.cassandra.lucene.util.TaskQueue;
 import com.stratio.cassandra.lucene.util.TimeCounter;
@@ -54,7 +54,7 @@ import java.util.Set;
 /**
  * Class for mapping rows between Cassandra and Lucene.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public abstract class RowService {
 
@@ -110,6 +110,7 @@ public abstract class RowService {
      * @param baseCfs          The {@link ColumnFamilyStore} associated to the managed index.
      * @param columnDefinition The {@link ColumnDefinition} of the indexed column.
      * @return A new {@link RowService} for the specified {@link ColumnFamilyStore} and {@link ColumnDefinition}.
+     * @throws IOException If there are I/O errors.
      */
     public static RowService build(ColumnFamilyStore baseCfs, ColumnDefinition columnDefinition) throws IOException {
         int clusteringPosition = baseCfs.metadata.clusteringColumns().size();
@@ -145,6 +146,7 @@ public abstract class RowService {
      * @param key          A partition key.
      * @param columnFamily A {@link ColumnFamily} with a single common cluster key.
      * @param timestamp    The insertion time.
+     * @throws IOException If there are I/O errors.
      */
     public void index(final ByteBuffer key, final ColumnFamily columnFamily, final long timestamp) throws IOException {
         if (indexQueue == null) {
@@ -170,6 +172,7 @@ public abstract class RowService {
      * @param key          The partition key.
      * @param columnFamily The column family containing the clustering keys.
      * @param timestamp    The operation time stamp.
+     * @throws IOException If there are I/O errors.
      */
     protected abstract void doIndex(ByteBuffer key, ColumnFamily columnFamily, long timestamp) throws IOException;
 
@@ -177,6 +180,7 @@ public abstract class RowService {
      * Deletes the partition identified by the specified partition key. This operation is performed asynchronously.
      *
      * @param partitionKey The partition key identifying the partition to be deleted.
+     * @throws IOException If there are I/O errors.
      */
     public void delete(final DecoratedKey partitionKey) throws IOException {
         if (indexQueue == null) {
@@ -199,11 +203,14 @@ public abstract class RowService {
      * Deletes the partition identified by the specified partition key.
      *
      * @param partitionKey The partition key identifying the partition to be deleted.
+     * @throws IOException If there are I/O errors.
      */
     protected abstract void doDelete(DecoratedKey partitionKey) throws IOException;
 
     /**
      * Deletes all the {@link Document}s.
+     *
+     * @throws IOException If there are I/O errors.
      */
     public final void truncate() throws IOException {
         luceneIndex.truncate();
@@ -211,6 +218,8 @@ public abstract class RowService {
 
     /**
      * Closes and removes all the index files.
+     *
+     * @throws IOException If there are I/O errors.
      */
     public final void delete() throws IOException {
         luceneIndex.delete();
@@ -219,6 +228,8 @@ public abstract class RowService {
 
     /**
      * Commits the pending changes. This operation is performed asynchronously.
+     *
+     * @throws IOException If there are I/O errors.
      */
     public final void commit() throws IOException {
         if (indexQueue == null) {
@@ -246,6 +257,7 @@ public abstract class RowService {
      * @param limit       The max number of {@link Row}s to be returned.
      * @param timestamp   The operation time stamp.
      * @return The {@link Row}s satisfying the specified restrictions.
+     * @throws IOException If there are I/O errors.
      */
     public final List<Row> search(Search search,
                                   List<IndexExpression> expressions,
@@ -485,6 +497,7 @@ public abstract class RowService {
      * Returns the total number of {@link Document}s in the index.
      *
      * @return The total number of {@link Document}s in the index.
+     * @throws IOException If there are I/O errors.
      */
     public long getIndexSize() throws IOException {
         return luceneIndex.getNumDocs();

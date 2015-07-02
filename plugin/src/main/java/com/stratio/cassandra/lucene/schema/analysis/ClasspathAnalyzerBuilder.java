@@ -24,7 +24,7 @@ import java.lang.reflect.Constructor;
 /**
  * {@link AnalyzerBuilder} for building {@link Analyzer}s in classpath using its default (no args) constructor.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class ClasspathAnalyzerBuilder extends AnalyzerBuilder {
 

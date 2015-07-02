@@ -46,7 +46,7 @@ import java.util.Date;
 /**
  * A {@link Mapper} to map 1-dimensional ranges of dates.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class DateRangeMapper extends Mapper {
 

@@ -21,7 +21,7 @@ import org.apache.lucene.search.similarities.DefaultSimilarity;
  * {@link DefaultSimilarity} that ignores the inverse document frequency, doing the similarity independent of the index
  * context.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 class NoIDFSimilarity extends DefaultSimilarity {
 

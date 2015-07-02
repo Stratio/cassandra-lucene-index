@@ -34,7 +34,7 @@ import org.codehaus.jackson.annotate.JsonCreator;
 /**
  * A {@link Mapper} to map a float field.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class FloatMapper extends SingleColumnMapper<Float> {
 

@@ -20,7 +20,7 @@ import org.apache.cassandra.db.Row;
 /**
  * A {@link RowComparator} for comparing {@link Row}s according to its Lucene scoring.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class RowComparatorScoring implements RowComparator {
 

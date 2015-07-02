@@ -31,7 +31,7 @@ import java.nio.ByteBuffer;
 /**
  * Class for several regular cells mappings between Cassandra and Lucene.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class RegularCellsMapper {
 

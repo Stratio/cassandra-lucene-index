@@ -25,7 +25,7 @@ import java.io.IOException;
 import static org.junit.Assert.assertEquals;
 
 /**
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class ClasspathAnalyzerBuilderTest {
 

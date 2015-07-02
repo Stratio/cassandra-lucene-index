@@ -22,7 +22,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
 /**
  * {@link MapperBuilder} to build a new {@link GeoPointMapper}.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class GeoPointMapperBuilder extends MapperBuilder<GeoPointMapper> {
 

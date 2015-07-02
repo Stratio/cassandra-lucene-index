@@ -28,7 +28,7 @@ import java.util.regex.Pattern;
 /**
  * A {@link Mapper} to map inet addresses.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class InetMapper extends KeywordMapper {
 

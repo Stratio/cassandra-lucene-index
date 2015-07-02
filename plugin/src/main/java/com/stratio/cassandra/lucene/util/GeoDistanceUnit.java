@@ -20,7 +20,7 @@ import org.codehaus.jackson.annotate.JsonCreator;
 /**
  * Class representing a spatial distance unit.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public enum GeoDistanceUnit {
 

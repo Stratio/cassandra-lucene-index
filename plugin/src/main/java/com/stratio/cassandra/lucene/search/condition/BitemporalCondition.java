@@ -32,7 +32,7 @@ import static org.apache.lucene.search.BooleanClause.Occur.SHOULD;
 /**
  * A {@link Condition} implementation that matches bi-temporal (four) fields within two range of values.
  *
- * @author Eduardo Alonso <eduardoalonso@stratio.com>
+ * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
 public class BitemporalCondition extends Condition {
 

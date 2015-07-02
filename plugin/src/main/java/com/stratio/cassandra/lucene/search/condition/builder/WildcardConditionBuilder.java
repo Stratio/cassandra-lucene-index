@@ -22,7 +22,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
 /**
  * {@link ConditionBuilder} for building a new {@link WildcardCondition}.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class WildcardConditionBuilder extends ConditionBuilder<WildcardCondition, WildcardConditionBuilder> {
 

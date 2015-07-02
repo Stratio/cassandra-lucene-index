@@ -32,7 +32,7 @@ import java.math.BigDecimal;
  * A {@link Mapper} to map {@link BigDecimal} values. A max number of digits for the integer a decimal parts must be
  * specified.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class BigDecimalMapper extends KeywordMapper {
 

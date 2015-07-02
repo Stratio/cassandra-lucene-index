@@ -30,7 +30,7 @@ import org.apache.lucene.spatial.query.SpatialOperation;
 /**
  * A {@link Condition} that matches documents containing a shape contained in a certain bounding box.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class GeoBBoxCondition extends Condition {
 

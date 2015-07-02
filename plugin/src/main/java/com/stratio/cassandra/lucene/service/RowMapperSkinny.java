@@ -37,7 +37,7 @@ import org.apache.lucene.search.Sort;
 /**
  * {@link RowMapper} for skinny rows.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class RowMapperSkinny extends RowMapper {
 

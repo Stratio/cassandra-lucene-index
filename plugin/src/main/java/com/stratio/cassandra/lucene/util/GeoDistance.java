@@ -21,7 +21,7 @@ import org.codehaus.jackson.annotate.JsonCreator;
 /**
  * Class representing a geographical distance.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class GeoDistance implements Comparable<GeoDistance> {
 

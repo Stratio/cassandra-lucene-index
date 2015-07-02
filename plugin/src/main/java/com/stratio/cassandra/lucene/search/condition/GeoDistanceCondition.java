@@ -35,7 +35,7 @@ import org.apache.lucene.spatial.query.SpatialOperation;
 /**
  * A {@link Condition} that matches documents containing a point contained between two certain circles.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class GeoDistanceCondition extends Condition {
 

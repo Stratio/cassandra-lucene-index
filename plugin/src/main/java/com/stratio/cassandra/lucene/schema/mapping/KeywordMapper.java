@@ -27,7 +27,7 @@ import org.apache.lucene.util.BytesRef;
 /**
  * A {@link Mapper} to map a string, not tokenized field.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public abstract class KeywordMapper extends SingleColumnMapper<String> {
 

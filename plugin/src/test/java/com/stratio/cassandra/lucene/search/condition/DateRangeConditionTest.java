@@ -28,7 +28,7 @@ import static com.stratio.cassandra.lucene.search.SearchBuilders.dateRange;
 import static org.junit.Assert.*;
 
 /**
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class DateRangeConditionTest extends AbstractConditionTest {
 

@@ -3,7 +3,7 @@ package com.stratio.cassandra.lucene.service;
 import java.io.IOException;
 
 /**
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public interface LuceneIndexMBean {
 

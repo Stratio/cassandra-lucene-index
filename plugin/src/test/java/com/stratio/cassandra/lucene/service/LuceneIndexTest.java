@@ -44,7 +44,7 @@ import java.util.UUID;
 import static junit.framework.Assert.assertEquals;
 
 /**
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class LuceneIndexTest {
 
