@@ -54,6 +54,8 @@ public class BitemporalCondition extends Condition {
     /** The spatial operation to be performed. */
     public final String operation;
 
+
+
     public final SpatialOperation spatialOperation;
 
     /** The default operation. */
@@ -64,6 +66,8 @@ public class BitemporalCondition extends Condition {
 
     /** The default to value for vtTo and ttTo. */
     public static final Long DEFAULT_TO = Long.MAX_VALUE;
+
+
 
     /**
      * Constructs a query selecting all fields that intersects with valid time and transaction time ranges including
@@ -93,6 +97,9 @@ public class BitemporalCondition extends Condition {
         this.ttTo = ttTo == null ? DEFAULT_TO : ttTo;
         this.operation = operation == null ? DEFAULT_OPERATION : operation;
         this.spatialOperation = parseSpatialOperation(this.operation);
+
+
+
     }
 
     private Query makeNormalQuery(BitemporalMapper mapper,
@@ -126,7 +133,7 @@ public class BitemporalCondition extends Condition {
 
         Mapper mapper = schema.getMapper(field);
         if (!(mapper instanceof BitemporalMapper)) {
-            throw new IllegalArgumentException("BiTemporal2 mapper required");
+            throw new IllegalArgumentException("BiTemporal mapper required");
         }
         BitemporalMapper bitemporalMapper = (BitemporalMapper) mapper;
 

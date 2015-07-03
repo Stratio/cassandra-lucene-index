@@ -46,6 +46,10 @@ public class BitemporalMapperBuilder extends MapperBuilder<BitemporalMapper> {
     @JsonProperty("pattern")
     private String pattern;
 
+    /** NOW Value **/
+    @JsonProperty("nowValue")
+    private Object nowValue;
+
     @JsonCreator
     public BitemporalMapperBuilder(@JsonProperty("vt_from") String vtFrom,
                                    @JsonProperty("vt_to") String vtTo,
@@ -62,9 +66,14 @@ public class BitemporalMapperBuilder extends MapperBuilder<BitemporalMapper> {
         return this;
     }
 
+    public BitemporalMapperBuilder nowValue(Object nowValue) {
+        this.nowValue=nowValue;
+        return this;
+    }
+
     /** {@inheritDoc} */
     @Override
     public BitemporalMapper build(String name) {
-        return new BitemporalMapper(name, vtFrom, vtTo, ttFrom, ttTo, pattern);
+        return new BitemporalMapper(name, vtFrom, vtTo, ttFrom, ttTo, pattern,this.nowValue);
     }
 }
