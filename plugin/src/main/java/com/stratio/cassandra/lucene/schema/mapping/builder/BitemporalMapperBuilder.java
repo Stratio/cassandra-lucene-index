@@ -47,7 +47,7 @@ public class BitemporalMapperBuilder extends MapperBuilder<BitemporalMapper> {
     private String pattern;
 
     /** NOW Value **/
-    @JsonProperty("nowValue")
+    @JsonProperty("now_value")
     private Object nowValue;
 
     @JsonCreator

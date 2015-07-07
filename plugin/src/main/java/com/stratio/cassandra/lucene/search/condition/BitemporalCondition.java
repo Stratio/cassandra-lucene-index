@@ -91,10 +91,10 @@ public class BitemporalCondition extends Condition {
                                String operation) {
         super(boost);
         this.field = field;
-        this.vtFrom = vtFrom == null ? DEFAULT_FROM : vtFrom;
-        this.vtTo = vtTo == null ? DEFAULT_TO : vtTo;
-        this.ttFrom = ttFrom == null ? DEFAULT_FROM : ttFrom;
-        this.ttTo = ttTo == null ? DEFAULT_TO : ttTo;
+        this.vtFrom = vtFrom;
+        this.vtTo = vtTo;
+        this.ttFrom = ttFrom;
+        this.ttTo = ttTo;
         this.operation = operation == null ? DEFAULT_OPERATION : operation;
         this.spatialOperation = parseSpatialOperation(this.operation);
 
@@ -137,10 +137,11 @@ public class BitemporalCondition extends Condition {
         }
         BitemporalMapper bitemporalMapper = (BitemporalMapper) mapper;
 
-        BitemporalMapper.BiTemporalDateTime vt_from = bitemporalMapper.parseBiTemporalDate(this.vtFrom);
-        BitemporalMapper.BiTemporalDateTime vt_to = bitemporalMapper.parseBiTemporalDate(this.vtTo);
-        BitemporalMapper.BiTemporalDateTime tt_from = bitemporalMapper.parseBiTemporalDate(this.ttFrom);
-        BitemporalMapper.BiTemporalDateTime tt_to = bitemporalMapper.parseBiTemporalDate(this.ttTo);
+
+        BitemporalMapper.BiTemporalDateTime vt_from = this.vtFrom == null ? new BitemporalMapper.BiTemporalDateTime(DEFAULT_FROM) : bitemporalMapper.parseBiTemporalDate(this.vtFrom);
+        BitemporalMapper.BiTemporalDateTime vt_to = this.vtTo == null ? new BitemporalMapper.BiTemporalDateTime(DEFAULT_TO) : bitemporalMapper.parseBiTemporalDate(this.vtTo);
+        BitemporalMapper.BiTemporalDateTime tt_from = this.ttFrom == null ? new BitemporalMapper.BiTemporalDateTime(DEFAULT_FROM) : bitemporalMapper.parseBiTemporalDate(this.ttFrom);
+        BitemporalMapper.BiTemporalDateTime tt_to = this.ttTo == null ? new BitemporalMapper.BiTemporalDateTime(DEFAULT_TO) : bitemporalMapper.parseBiTemporalDate(this.ttTo);
 
         BooleanQuery query = new BooleanQuery();
         NumberRangePrefixTreeStrategy[] validTimeStrategies = new NumberRangePrefixTreeStrategy[4];

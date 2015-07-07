@@ -314,7 +314,7 @@ public class BitemporalMapper extends Mapper {
         if (dateTime.compareTo(this.nowBitemporalDateTime)==0) {
             dateTime= new BiTemporalDateTime(Long.MAX_VALUE);
         } else if (dateTime.compareTo(this.nowBitemporalDateTime)>0) {
-            throw new IllegalArgumentException("BiTemporalDateTime exceeds Max Value");
+            throw new IllegalArgumentException("BiTemporalDateTime value: "+dateTime.getTime()+" exceeds Max Value: "+ this.nowBitemporalDateTime);
         }
         return dateTime;
 
@@ -333,10 +333,9 @@ public class BitemporalMapper extends Mapper {
                 return checkIfNow(new BiTemporalDateTime(((Number) value).longValue()));
             } else if (value instanceof String) {
                 try {
-                    return checkIfNow(new BiTemporalDateTime(concurrentDateFormat.get().parse(value.toString()).getTime()));
-                } catch (Exception e) {
-                    // Ignore to fail below
-
+                    return checkIfNow(new BiTemporalDateTime(concurrentDateFormat.get().parse((String) value).getTime()));
+                } catch (ParseException e) {
+                    throw new IllegalArgumentException("Valid DateTime required but found "+value+ " cannot be parsed by pattern "+this.pattern);
                 }
             } else if (value instanceof Date) {
                 return checkIfNow(new BiTemporalDateTime(((Date) value).getTime()));
@@ -354,6 +353,7 @@ public class BitemporalMapper extends Mapper {
     /** {@inheritDoc} */
     @Override
     public void validate(CFMetaData metaData) {
+
         validate(metaData, vtFrom);
         validate(metaData, vtTo);
         validate(metaData, ttFrom);
