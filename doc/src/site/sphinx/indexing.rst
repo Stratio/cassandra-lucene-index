@@ -14,7 +14,7 @@ where:
 
 -  <magic\_column> is the name of a text column that does not contain
    any data and will be used to show the scoring for each resulting row
-   of a query,
+   of a search,
 -  <options> is a JSON object:
 
 .. code-block:: sql

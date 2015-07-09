@@ -6,7 +6,7 @@ Stratio's Cassandra Lucene Index
 
     overview
     indexing
-    querying
+    searching
     spark_and_hadoop
     jmx_interface
     using_sandbox

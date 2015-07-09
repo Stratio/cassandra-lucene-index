@@ -23,6 +23,8 @@ Features
 
 Lucene search technology integration into Cassandra provides:
 
+Stratio’s Cassandra Lucene Index and its integration with Lucene search technology provides:
+
 -  Full text search
 -  Geospatial search
 -  Date ranges (durations) search
@@ -38,7 +40,7 @@ Lucene search technology integration into Cassandra provides:
 -  Third-party drivers compatibility
 -  Spark compatibility
 -  Hadoop compatibility
--  Paging over non-relevance queries
+-  Paging over non-relevance searches (filters)
 
 Not yet supported:
 
@@ -48,7 +50,7 @@ Not yet supported:
 -  Columns with TTL
 -  CQL user defined types
 -  Static columns
--  Paging over relevance queries
+-  Paging over relevance searches (queries and sorts)
 
 Requirements
 ============
@@ -65,7 +67,7 @@ Cassandra. Thus, you just need to build a JAR containing the plugin and
 add it to the Cassandra's classpath:
 
 -  Build the plugin with Maven: ``mvn clean package``
--  Copy the generated JAR to the lib folder of your comaptible Cassandra
+-  Copy the generated JAR to the lib folder of your compatible Cassandra
    installation:
    ``cp target/cassandra-lucene-index-2.1.7.0.jar <CASSANDRA_HOME>/lib/``
 -  Start/restart Cassandra as usual
@@ -121,7 +123,7 @@ We will create the following table to store tweets:
         lucene TEXT
     );
 
-We have created a column called *lucene* to link the index queries. This column will not store data. Now you can create a custom Lucene index on it with the following statement:
+We have created a column called *lucene* to link the index searches. This column will not store data. Now you can create a custom Lucene index on it with the following statement:
 
 .. code-block:: sql
 
@@ -142,15 +144,16 @@ We have created a column called *lucene* to link the index queries. This column 
 
 This will index all the columns in the table with the specified types, and it will be refreshed once per second.
 
-Now, to query the top 100 more relevant tweets where *body* field contains the phrase "big data gives organizations":
+Now, to search for tweets within a certain date range:
 
 .. code-block:: sql
 
     SELECT * FROM tweets WHERE lucene='{
-        query : {type:"phrase", field:"body", value:"big data gives organizations", slop:1}
+        filter : {type:"range", field:"time", lower:"2014/04/25", upper:"2014/05/1"}
     }' limit 100;
 
-To restrict the search for tweets within a certain date range, then you must add to the search a filter as follows:
+Now, to search the top 100 more relevant tweets where *body* field contains the phrase “big data gives organizations”
+within the aforementioned date range:
 
 .. code-block:: sql
 
@@ -179,10 +182,10 @@ To get the 100 more recent filtered results you can use the *sort* option:
                        {type:"range", field:"time", lower:"2014/04/25", upper:"2014/05/1"},
                        {type:"prefix", field:"user", value:"a"} ] },
         query  : {type:"phrase", field:"body", value:"big data gives organizations", slop:1},
-        sort  : {fields: [ {field:"time", reverse:true} ] }
+        sort   : {fields: [ {field:"time", reverse:true} ] }
     }' limit 100;
 
-The previous query can be restricted to a geographical bounding box:
+The previous search can be restricted to a geographical bounding box:
 
 .. code-block:: sql
 
@@ -197,10 +200,10 @@ The previous query can be restricted to a geographical bounding box:
                         min_longitude:-3.999278,
                         max_longitude:-3.378550} ] },
         query  : {type:"phrase", field:"body", value:"big data gives organizations", slop:1},
-        sort  : {fields: [ {field:"time", reverse:true} ] }
+        sort   : {fields: [ {field:"time", reverse:true} ] }
     }' limit 100;
 
-Alternatively, you can restrict the query to retrieve tweets that are within a specific distance from a geographical position:
+Alternatively, you can restrict the search to retrieve tweets that are within a specific distance from a geographical position:
 
 .. code-block:: sql
 
@@ -215,5 +218,5 @@ Alternatively, you can restrict the query to retrieve tweets that are within a s
                         max_distance:"10km",
                         min_distance:"100m"} ] },
         query  : {type:"phrase", field:"body", value:"big data gives organizations", slop:1},
-        sort  : {fields: [ {field:"time", reverse:true} ] }
+        sort   : {fields: [ {field:"time", reverse:true} ] }
     }' limit 100;
