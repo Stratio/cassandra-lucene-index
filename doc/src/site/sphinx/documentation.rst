@@ -12,6 +12,7 @@ Stratio's Cassandra Lucene Index
     - `Mapping <#mapping>`__
     - `Example <#example>`__
 - `Searching <#searching>`__
+    - `Bitemporal search <#bitemporal-search>`__
     - `Boolean search <#boolean-search>`__
     - `Contains search <#contains-search>`__
     - `Date range search <#date-range-search>`__
@@ -61,6 +62,7 @@ Stratio’s Cassandra Lucene Index and its integration with Lucene search techno
 -  Geospatial search
 -  Date ranges (durations) search
 -  Multidimensional boolean (and, or, not) search
+-  Bitemporal search
 -  Near real-time search
 -  Relevance scoring and sorting
 -  General top-k queries
@@ -73,6 +75,7 @@ Stratio’s Cassandra Lucene Index and its integration with Lucene search techno
 -  Spark compatibility
 -  Hadoop compatibility
 -  Paging over non-relevance searches (filters)
+
 
 Not yet supported:
 
@@ -362,6 +365,18 @@ default values are listed in the table below.
 +                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | digits          | integer         | 32                             | No        |
 +-----------------+-----------------+-----------------+--------------------------------+-----------+
+| bitemporal      | vt_from         | string          |                                | Yes       |
++                 +-----------------+-----------------+--------------------------------+-----------+
+|                 | vt_to           | string          |                                | Yes       |
++                 +-----------------+-----------------+--------------------------------+-----------+
+|                 | tt_from         | string          |                                | Yes       |
++                 +-----------------+-----------------+--------------------------------+-----------+
+|                 | tt_to           | string          |                                | Yes       |
++                 +-----------------+-----------------+--------------------------------+-----------+
+|                 | pattern         | string          | yyyy/MM/dd HH:mm:ss.SSS        | No        |
++                 +-----------------+-----------------+--------------------------------+-----------+
+|                 | now_value       | object          | Long.MAX_VALUE                 | No        |
++-----------------+-----------------+-----------------+--------------------------------+-----------+
 | blob            | indexed         | boolean         | true                           | No        |
 +                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | sorted          | boolean         | true                           | No        |
@@ -543,6 +558,18 @@ a “\ **boost**\ ” option that acts as a weight on the resulting score.
 +-----------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 | Search type                             | Option          | Value type      | Default value                  | Mandatory |
 +=========================================+=================+=================+================================+===========+
+| `Bitemporal <#bitemporal-search>`__     | field           | string          |                                | Yes       |
+|                                         +-----------------+-----------------+--------------------------------+-----------+
+|                                         | vtFrom          | string/long     | 0L                             | No        |
+|                                         +-----------------+-----------------+--------------------------------+-----------+
+|                                         | vtTo            | string/long     | Long.MAX_VALUE                 | No        |
+|                                         +-----------------+-----------------+--------------------------------+-----------+
+|                                         | ttFrom          | string/long     | 0L                             | No        |
+|                                         +-----------------+-----------------+--------------------------------+-----------+
+|                                         | ttTo            | string/long     | Long.MAX_VALUE                 | No        |
+|                                         +-----------------+-----------------+--------------------------------+-----------+
+|                                         | operation       | string          | "is_within"                    | No        |
++=========================================+=================+=================+================================+===========+
 | `Boolean <#boolean-search>`__           | must            | search          |                                | No        |
 |                                         +-----------------+-----------------+--------------------------------+-----------+
 |                                         | should          | search          |                                | No        |
@@ -555,9 +582,11 @@ a “\ **boost**\ ” option that acts as a weight on the resulting score.
 +-----------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 | `Date range <#date-range-search>`__     | field           | String          |                                | Yes       |
 |                                         +-----------------+-----------------+--------------------------------+-----------+
-|                                         | start           | string/long     |                                | Yes       |
+|                                         | start           | string/long     | 0                              | No        |
 |                                         +-----------------+-----------------+--------------------------------+-----------+
-|                                         | stop            | string/long     |                                | Yes       |
+|                                         | stop            | string/long     | Integer.MAX_VALUE              | No        |
+|                                         +-----------------+-----------------+--------------------------------+-----------+
+|                                         | operation       | string          | intersects                     | No        |
 +-----------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 | `Fuzzy <#fuzzy-search>`__               | field           | string          |                                | Yes       |
 |                                         +-----------------+-----------------+--------------------------------+-----------+
@@ -625,6 +654,67 @@ a “\ **boost**\ ” option that acts as a weight on the resulting score.
 |                                         +-----------------+-----------------+--------------------------------+-----------+
 |                                         | value           | string          |                                | Yes       |
 +-----------------------------------------+-----------------+-----------------+--------------------------------+-----------+
+
+Bitemporal search
+==============
+
+Syntax:
+
+.. code-block:: sql
+
+     SELECT ( <fields> | * )
+    FROM <table>
+    WHERE <magic_column> = '{ (filter | query) : {
+                                type  : "bitemporal",
+                                (vt_from : <vt_from> ,)?
+                                (vt_to   : <vt_to> ,)?
+                                (tt_from : <tt_from> ,)?
+                                (tt_to   : <tt_to> ,)?
+                                (operation: <operation> )?
+                              }}';
+
+where:
+
+-  **vt\_from**: a string or a number being the beginning of the valid date
+   range.
+-  **vt\_to**: a string or a number being the end of the valid date range.
+-  **tt\_from**: a string or a number being the beginning of the transaction date
+   range.
+-  **tt\_to**: a string or a number being the end of the transaction date range.
+-  **operation**: the spatial operation to be performed, it can be
+   **intersects**, **contains** and **is\_within**.
+
+Example 1: will return rows where valid time range is within "2014/02/01 00:00:00.000" and
+"2014/02/28 23:59:59.999" and transaction time range is within "2014/02/01 00:00:00.000" and
+"2014/03/31 23:59:59.999"
+
+.. code-block:: sql
+
+    SELECT * FROM test.users
+    WHERE stratio_col = '{ filter : {
+                            type  : "bitemporal",
+                            vt_from : "2014/02/01 00:00:00.000",
+                            vt_to : "2014/02/28 23:59:59.999",
+                            tt_from  : "2014/02/01 00:00:00.000",
+                            tt_to  : "2014/03/31 23:59:59.999",
+                            operation : "is_within"}}';
+
+Example 2: will return rows where valid time range intersects "2014/02/01 00:00:00.000" and
+"2014/02/28 23:59:59.999" and transaction time range intersects "2014/02/01 00:00:00.000" and
+"2014/03/31 23:59:59.999"
+
+.. code-block:: sql
+
+    SELECT * FROM test.users
+    WHERE stratio_col = '{  filter : {
+                            type  : "bitemporal",
+                            vt_from : "2014/02/01 00:00:00.000",
+                            vt_to : "2014/02/28 23:59:59.999",
+                            tt_from  : "2014/02/01 00:00:00.000",
+                            tt_to  : "2014/03/31 23:59:59.999",
+                            operation : "intersecs"}}';
+
+
 
 Boolean search
 ==============
@@ -732,9 +822,9 @@ Syntax:
     FROM <table>
     WHERE <magic_column> = '{ (filter | query) : {
                                 type  : "contains",
-                                start : <start> ,
-                                stop  : <stop> ,
-                                (, operation: <operation> )?
+                                (start : <start> ,)?
+                                (stop  : <stop> ,)?
+                                (operation: <operation> )?
                               }}';
 
 where:
@@ -758,7 +848,7 @@ Example 1: will return rows where duration is within "2013/05/02" and
                             stop  : "2013/05/03",
                             operation : "is_within"}}';
 
-Example 1: will return rows where duration intersects "2013/05/02" and
+Example 2: will return rows where duration intersects "2013/05/02" and
 :"2013/05/03"
 
 .. code-block:: sql

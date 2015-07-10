@@ -29,6 +29,7 @@ Stratio’s Cassandra Lucene Index and its integration with Lucene search techno
 -  Geospatial search
 -  Date ranges (durations) search
 -  Multidimensional boolean (and, or, not) search
+-  Bitemporal search
 -  Near real-time search
 -  Relevance scoring and sorting
 -  General top-k queries
@@ -41,6 +42,7 @@ Stratio’s Cassandra Lucene Index and its integration with Lucene search techno
 -  Spark compatibility
 -  Hadoop compatibility
 -  Paging over non-relevance searches (filters)
+
 
 Not yet supported:
 
