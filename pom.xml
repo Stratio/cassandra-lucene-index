@@ -83,7 +83,7 @@
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <cassandra.version>2.1.7</cassandra.version>
+        <cassandra.version>2.1.8</cassandra.version>
         <lucene.version>5.1.0</lucene.version>
         <coverage.data.dir>${project.build.outputDirectory}</coverage.data.dir>
     </properties>

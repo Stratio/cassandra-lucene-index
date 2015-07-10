@@ -1,3 +1,6 @@
+2.1.8.0
+ * Upgrade to Apache Cassandra 2.1.8
+
 2.1.7.1
  * Add paging cache to remember Lucene cursors
  * Fix JavaDoc generation with Java 8
