@@ -1,12 +1,12 @@
 Spark and Hadoop
 ****************
 
-Spark and Hadoop integrations are fully supported because Lucene queries
-can be combined with token range queries and pagination, which are the
+Spark and Hadoop integrations are fully supported because Lucene searches
+can be combined with token range restrictions and pagination, which are the
 basis of MapReduce frameworks support.
 
-Token Range Queries
-===================
+Token Range Searches
+====================
 
 The token function allows computing the token for a given partition key.
 The primary key of the example table “users” is ((name, gender), animal,
@@ -29,7 +29,7 @@ Paging
 
 Paging over filtered results is fully supported. You can retrieve
 the rows starting from a certain key. For example, if the primary key is
-(userid, createdAt), you can query:
+(userid, createdAt), you can search:
 
 .. code-block:: sql
 
@@ -40,4 +40,5 @@ the rows starting from a certain key. For example, if the primary key is
         AND createdAt > 2011-02-03 04:05+0000
       LIMIT 5000;
 
-Note that paging does not support neither relevance queries nor sorting. You must increase the page size until the number of desired results.
+Note that paging does not support neither relevance queries nor sorting,
+so you must disable pagination with this kind of searches.
