@@ -16,12 +16,11 @@
 package com.stratio.cassandra.lucene.search;
 
 import com.google.common.base.Objects;
+import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.search.condition.Condition;
 import com.stratio.cassandra.lucene.search.sort.Sort;
-import com.stratio.cassandra.lucene.schema.Schema;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.ConstantScoreQuery;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
 
@@ -63,7 +62,7 @@ public class Search {
      * Returns {@code true} if the results must be ordered by relevance. If {@code false}, then the results are sorted
      * by the natural Cassandra's order. Results must be ordered by relevance if the querying condition is not {code
      * null}.
-     *
+     * <p/>
      * Relevance is used when the query condition is set, and it is not used when only the clusteringKeyFilter condition
      * is set.
      *
@@ -131,11 +130,11 @@ public class Search {
             booleanQuery.add(query, BooleanClause.Occur.MUST);
         }
         if (filterCondition != null) {
-            Query query = new ConstantScoreQuery(filterCondition.query(schema));
-            booleanQuery.add(query, BooleanClause.Occur.MUST);
+            Query query = filterCondition.query(schema);
+            booleanQuery.add(query, BooleanClause.Occur.FILTER);
         }
         if (rangeQuery != null) {
-            booleanQuery.add(rangeQuery, BooleanClause.Occur.MUST);
+            booleanQuery.add(rangeQuery, BooleanClause.Occur.FILTER);
         }
         return booleanQuery;
     }

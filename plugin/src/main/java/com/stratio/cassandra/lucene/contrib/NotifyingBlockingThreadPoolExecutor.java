@@ -14,13 +14,13 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * This class is a specialized extension of the ThreadPoolExecutor class.
- *
+ * <p/>
  * Two functionalities had been added to this subclass. 1) The execute method of the ThreadPoolExecutor will block in
  * case the queue is full and only unblock when the queue is dequeued - that is a task that is currently in the queue is
  * removed and handled by the ThreadPoolExecutor. 2) Client code can await for the event of all tasks being run to
  * conclusion. Client code which actively chose to wait for this occurrence should call await on the instance of his
  * ThreadPoolExecutor. This differs from awaitTermination as it does not require any call to shutdown.
- *
+ * <p/>
  * This subclass of ThreadPoolExecutor also takes away the max threads capabilities of the ThreadPoolExecutor superclass
  * and internally sets the amount of maximum threads to be the size of the core threads. This is done since threads over
  * the core size and under the max are instantiated only once the queue is full, but the
@@ -201,7 +201,7 @@ public class NotifyingBlockingThreadPoolExecutor extends ThreadPoolExecutor {
      * A blocking wait for this ThreadPool to be in idle state or a certain timeout to elapse. Works the same as the
      * await() method, except for adding the timeout condition.
      *
-     * @param timeout The timeout.
+     * @param timeout  The timeout.
      * @param timeUnit The time unit.
      * @return false if the timeout elapsed, true if the synch event we are waiting for had happened.
      * @throws InterruptedException when the internal condition throws it.

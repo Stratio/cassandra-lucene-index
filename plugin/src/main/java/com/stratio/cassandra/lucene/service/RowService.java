@@ -38,14 +38,15 @@ import org.apache.cassandra.db.composites.CellName;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.SearcherManager;
 import org.apache.lucene.search.Sort;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -70,6 +71,8 @@ public abstract class RowService {
     private final Schema schema;
     private final TaskQueue indexQueue;
 
+    private final PagingCache pagingCache;
+
     /**
      * Returns a new {@code RowService}.
      *
@@ -86,15 +89,23 @@ public abstract class RowService {
         this.schema = config.getSchema();
         this.rowMapper = RowMapper.build(metadata, columnDefinition, schema);
 
+        this.pagingCache = new PagingCache(config.getPagingCacheSize());
+
         this.luceneIndex = new LuceneIndex(columnDefinition.ksName,
                                            columnDefinition.cfName,
                                            columnDefinition.getIndexName(),
                                            config.getPath(),
-                                           config.getRefreshSeconds(),
                                            config.getRamBufferMB(),
                                            config.getMaxMergeMB(),
                                            config.getMaxCachedMB(),
-                                           schema.getAnalyzer());
+                                           schema.getAnalyzer(),
+                                           config.getRefreshSeconds(),
+                                           new Runnable() {
+                                               @Override
+                                               public void run() {
+                                                   pagingCache.clear();
+                                               }
+                                           });
 
         int indexingThreads = config.getIndexingThreads();
         if (indexingThreads > 0) {
@@ -270,79 +281,104 @@ public abstract class RowService {
         TimeCounter searchTime = new TimeCounter();
         TimeCounter luceneTime = new TimeCounter();
         TimeCounter collectTime = new TimeCounter();
-        TimeCounter sortTime = new TimeCounter();
         int numDocs = 0;
         int numPages = 0;
-
+        int numRows = 0;
         searchTime.start();
 
-        // Setup search arguments
-        Query rangeQuery = rowMapper.query(dataRange);
-        Query query = search.query(schema, rangeQuery);
-        Sort sort = search.sort(schema);
-        boolean relevance = search.usesRelevance();
+        List<ScoredRow> scoredRows = new LinkedList<>();
 
-        // Setup search pagination
-        List<Row> rows = new LinkedList<>(); // The row list to be returned
-        ScoreDoc last = null; // The last search result
+        SearcherManager searcherManager = luceneIndex.getSearcherManager();
+        IndexSearcher searcher = searcherManager.acquire();
+        try {
 
-        // Paginate search collecting documents
-        int page = Math.min(limit, MAX_PAGE_SIZE);
-        boolean maybeMore;
-        do {
-            // Search rows identifiers in Lucene
-            luceneTime.start();
-            Map<Document, ScoreDoc> docs = luceneIndex.search(query, sort, last, page, fieldsToLoad(), relevance);
-            List<SearchResult> searchResults = new ArrayList<>(docs.size());
-            for (Map.Entry<Document, ScoreDoc> entry : docs.entrySet()) {
-                searchResults.add(rowMapper.searchResult(entry.getKey(), entry.getValue()));
+            // Get query and last doc trying luck with paging cache
+            Query query;
+            ScoreDoc last; // The last search result
+            PagingCache.Entry pagingCacheEntry = pagingCache.get(search, dataRange);
+            if (pagingCacheEntry != null) {
+                query = pagingCacheEntry.getQuery();
+                last = pagingCacheEntry.getScoreDoc();
+            } else {
+                Query rangeQuery = rowMapper.query(dataRange);
+                query = search.query(schema, rangeQuery);
+                last = null;
             }
-            numDocs += searchResults.size();
-            last = searchResults.isEmpty() ? null : searchResults.get(searchResults.size() - 1).getScoreDoc();
-            luceneTime.stop();
 
-            // Collect rows from Cassandra
-            collectTime.start();
-            for (Row row : rows(searchResults, timestamp, relevance)) {
-                if (row != null && accepted(row, expressions)) {
-                    rows.add(row);
+            // Setup non-cached search arguments
+            Sort sort = search.sort(schema);
+            boolean relevance = search.usesRelevance();
+            int page = Math.min(limit, MAX_PAGE_SIZE);
+            boolean maybeMore;
+
+            do {
+                // Search rows identifiers in Lucene
+                luceneTime.start();
+                Set<String> fields = fieldsToLoad();
+                Map<Document, ScoreDoc> docs = luceneIndex.search(searcher, query, sort, last, page, fields, relevance);
+                List<SearchResult> searchResults = new ArrayList<>(docs.size());
+                for (Map.Entry<Document, ScoreDoc> entry : docs.entrySet()) {
+                    Document document = entry.getKey();
+                    ScoreDoc scoreDoc = entry.getValue();
+                    last = scoreDoc;
+                    searchResults.add(rowMapper.searchResult(document, scoreDoc));
                 }
-            }
-            collectTime.stop();
+                numDocs += searchResults.size();
+                luceneTime.stop();
 
-            // Setup next iteration
-            maybeMore = searchResults.size() == page;
-            page = Math.min(Math.max(FILTERING_PAGE_SIZE, rows.size() - limit), MAX_PAGE_SIZE);
-            numPages++;
+                // Collect rows from Cassandra
+                collectTime.start();
+                for (ScoredRow scoredRow : scoredRows(searchResults, timestamp, relevance)) {
+                    if (accepted(scoredRow, expressions)) {
+                        scoredRows.add(scoredRow);
+                        numRows++;
+                    }
+                }
+                collectTime.stop();
 
-            // Iterate while there are still documents to read and we don't have enough rows
-        } while (maybeMore && rows.size() < limit);
+                // Setup next iteration
+                maybeMore = searchResults.size() == page;
+                page = Math.min(Math.max(FILTERING_PAGE_SIZE, numRows - limit), MAX_PAGE_SIZE);
+                numPages++;
 
-        sortTime.start();
-        Collections.sort(rows, comparator());
-        sortTime.stop();
+                // Iterate while there are still documents to read and we don't have enough rows
+            } while (maybeMore && scoredRows.size() < limit);
+
+            // Cache last two results
+            if (numRows > 0) pagingCache.put(search, dataRange, query, scoredRows.get(numRows - 1));
+            if (numRows > 1) pagingCache.put(search, dataRange, query, scoredRows.get(numRows - 2));
+
+        } finally {
+            searcherManager.release(searcher);
+        }
+
+        List<Row> rows = new ArrayList<>(numRows);
+        for (ScoredRow scoredRow : scoredRows) {
+            rows.add(scoredRow.getRow());
+        }
 
         searchTime.stop();
 
         Log.debug("Lucene time: %s", luceneTime);
         Log.debug("Cassandra time: %s", collectTime);
-        Log.debug("Sort time: %s", sortTime);
-        Log.debug("Collected %d docs and %d rows in %d pages in %s", numDocs, rows.size(), numPages, searchTime);
+        Log.debug("Collected %d docs and %d rows in %d pages in %s", numDocs, numRows, numPages, searchTime);
 
         return rows;
+
     }
 
     /**
-     * Returns {@code true} if the specified {@link Row} satisfies the all the specified {@link IndexExpression}s,
+     * Returns {@code true} if the specified {@link ScoredRow} satisfies the all the specified {@link IndexExpression}s,
      * {@code false} otherwise.
      *
-     * @param row         A {@link Row}.
+     * @param scoredRow   A {@link ScoredRow}.
      * @param expressions A list of {@link IndexExpression}s to be satisfied by {@code row}.
-     * @return {@code true} if the specified {@link Row} satisfies the all the specified {@link IndexExpression}s,
+     * @return {@code true} if the specified {@link ScoredRow} satisfies the all the specified {@link IndexExpression}s,
      * {@code false} otherwise.
      */
-    private boolean accepted(Row row, List<IndexExpression> expressions) {
+    private boolean accepted(ScoredRow scoredRow, List<IndexExpression> expressions) {
         if (!expressions.isEmpty()) {
+            Row row = scoredRow.getRow();
             Columns columns = rowMapper.columns(row);
             for (IndexExpression expression : expressions) {
                 if (!accepted(columns, expression)) {
@@ -401,15 +437,17 @@ public abstract class RowService {
     }
 
     /**
-     * Returns the {@link Row}s identified by the specified {@link Document}s, using the specified time stamp to ignore
-     * deleted columns. The {@link Row}s are retrieved from the storage engine, so it involves IO operations.
+     * Returns the {@link ScoredRow}s identified by the specified {@link Document}s, using the specified time stamp to
+     * ignore deleted columns. The {@link Row}s are retrieved from the storage engine, so it involves IO operations.
      *
      * @param searchResults The {@link SearchResult}s
      * @param timestamp     The time stamp to ignore deleted columns.
      * @param usesRelevance If the search uses relevance.
-     * @return The {@link Row} identified by the specified {@link Document}s
+     * @return The {@link ScoredRow} identified by the specified {@link Document}s
      */
-    protected abstract List<Row> rows(List<SearchResult> searchResults, long timestamp, boolean usesRelevance);
+    protected abstract List<ScoredRow> scoredRows(List<SearchResult> searchResults,
+                                                  long timestamp,
+                                                  boolean usesRelevance);
 
     /**
      * Returns a {@link ColumnFamily} composed by the non expired {@link Cell}s of the specified  {@link ColumnFamily}.
@@ -491,16 +529,6 @@ public abstract class RowService {
         Cell cell = cf.getColumn(cellName);
         String value = UTF8Type.instance.compose(cell.value());
         return Float.parseFloat(value);
-    }
-
-    /**
-     * Returns the total number of {@link Document}s in the index.
-     *
-     * @return The total number of {@link Document}s in the index.
-     * @throws IOException If there are I/O errors.
-     */
-    public long getIndexSize() throws IOException {
-        return luceneIndex.getNumDocs();
     }
 
 }

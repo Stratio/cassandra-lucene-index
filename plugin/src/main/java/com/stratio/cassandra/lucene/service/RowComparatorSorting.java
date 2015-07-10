@@ -16,9 +16,9 @@
 package com.stratio.cassandra.lucene.service;
 
 import com.stratio.cassandra.lucene.contrib.ComparatorChain;
+import com.stratio.cassandra.lucene.schema.column.Columns;
 import com.stratio.cassandra.lucene.search.sort.Sort;
 import com.stratio.cassandra.lucene.search.sort.SortField;
-import com.stratio.cassandra.lucene.schema.column.Columns;
 import org.apache.cassandra.db.Row;
 
 import java.util.Comparator;

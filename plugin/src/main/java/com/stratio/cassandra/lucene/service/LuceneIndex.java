@@ -22,11 +22,18 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
-import org.apache.lucene.index.SortingMergePolicy;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TieredMergePolicy;
 import org.apache.lucene.index.TrackingIndexWriter;
-import org.apache.lucene.search.*;
+import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.ControlledRealTimeReopenThread;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.SearcherFactory;
+import org.apache.lucene.search.SearcherManager;
+import org.apache.lucene.search.Sort;
+import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.NRTCachingDirectory;
@@ -38,7 +45,6 @@ import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -63,7 +69,7 @@ public class LuceneIndex implements LuceneIndexMBean {
     private IndexWriter indexWriter;
     private SearcherManager searcherManager;
     private ControlledRealTimeReopenThread<IndexSearcher> searcherReopener;
-    private SortingMergePolicy sortingMergePolicy;
+    private Runnable refreshCallback;
 
     private Sort sort;
     private ObjectName objectName;
@@ -75,27 +81,27 @@ public class LuceneIndex implements LuceneIndexMBean {
     /**
      * Builds a new {@code RowDirectory} using the specified directory path and analyzer.
      *
-     * @param keyspace       The keyspace name.
-     * @param table          The table name.
-     * @param name           The index name.
-     * @param path           The analyzer to be used. The path of the directory in where the Lucene files will be
-     *                       stored.
-     * @param refreshSeconds The index readers refresh time in seconds. No guarantees that the writings are visible
-     *                       until this time.
-     * @param ramBufferMB    The index writer buffer size in MB.
-     * @param maxMergeMB     NRTCachingDirectory max merge size in MB.
-     * @param maxCachedMB    NRTCachingDirectory max cached MB.
-     * @param analyzer       The default {@link Analyzer}.
+     * @param keyspace        The keyspace name.
+     * @param table           The table name.
+     * @param name            The index name.
+     * @param path            The path of the directory in where the Lucene files will be stored.
+     * @param ramBufferMB     The index writer buffer size in MB.
+     * @param maxMergeMB      NRTCachingDirectory max merge size in MB.
+     * @param maxCachedMB     NRTCachingDirectory max cached MB.
+     * @param analyzer        The default {@link Analyzer}.
+     * @param refreshSeconds  The index readers refresh time in seconds. Writings are not visible until this time.
+     * @param refreshCallback A runnable to be run on index refresh.
      */
     public LuceneIndex(String keyspace,
                        String table,
                        String name,
                        Path path,
-                       Double refreshSeconds,
                        Integer ramBufferMB,
                        Integer maxMergeMB,
                        Integer maxCachedMB,
-                       Analyzer analyzer) {
+                       Analyzer analyzer,
+                       Double refreshSeconds,
+                       Runnable refreshCallback) {
         this.keyspace = keyspace;
         this.table = table;
         this.name = name;
@@ -105,6 +111,7 @@ public class LuceneIndex implements LuceneIndexMBean {
         this.maxMergeMB = maxMergeMB;
         this.maxCachedMB = maxCachedMB;
         this.analyzer = analyzer;
+        this.refreshCallback = refreshCallback;
         this.logName = String.format("Lucene index %s.%s.%s", keyspace, table, name);
     }
 
@@ -122,19 +129,18 @@ public class LuceneIndex implements LuceneIndexMBean {
         FSDirectory fsDirectory = FSDirectory.open(path);
         directory = new NRTCachingDirectory(fsDirectory, maxMergeMB, maxCachedMB);
 
-        sortingMergePolicy = new SortingMergePolicy(new TieredMergePolicy(), sort);
-
         // Setup index writer
         IndexWriterConfig config = new IndexWriterConfig(analyzer);
         config.setRAMBufferSizeMB(ramBufferMB);
         config.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
         config.setUseCompoundFile(true);
-        config.setMergePolicy(sortingMergePolicy);
+        config.setMergePolicy(new TieredMergePolicy());
         indexWriter = new IndexWriter(directory, config);
 
         // Setup NRT search
         SearcherFactory searcherFactory = new SearcherFactory() {
             public IndexSearcher newSearcher(IndexReader reader) throws IOException {
+                LuceneIndex.this.refreshCallBack();
                 IndexSearcher searcher = new IndexSearcher(reader);
                 searcher.setSimilarity(new NoIDFSimilarity());
                 return searcher;
@@ -159,6 +165,10 @@ public class LuceneIndex implements LuceneIndexMBean {
         } catch (MBeanException | OperationsException e) {
             Log.error(e, "Error while registering MBean");
         }
+    }
+
+    private void refreshCallBack() {
+        if (refreshCallback != null) refreshCallback.run();
     }
 
     /**
@@ -247,10 +257,15 @@ public class LuceneIndex implements LuceneIndexMBean {
         Log.info("%s removed", logName);
     }
 
+    public SearcherManager getSearcherManager() {
+        return searcherManager;
+    }
+
     /**
      * Finds the top {@code count} hits for {@code query}, applying {@code clusteringKeyFilter} if non-null, and sorting
      * the hits by the criteria in {@code sortFields}.
      *
+     * @param searcher      The {@link IndexSearcher} to be used.
      * @param query         The {@link Query} to search for.
      * @param sort          The {@link Sort} to be applied.
      * @param after         The starting {@link SearchResult}.
@@ -260,50 +275,33 @@ public class LuceneIndex implements LuceneIndexMBean {
      * @return The found documents, sorted according to the supplied {@link Sort} instance.
      * @throws IOException If Lucene throws IO errors.
      */
-    public Map<Document, ScoreDoc> search(Query query,
-                                          Sort sort,
-                                          ScoreDoc after,
-                                          Integer count,
-                                          Set<String> fieldsToLoad,
-                                          boolean usesRelevance) throws IOException {
+    public LinkedHashMap<Document, ScoreDoc> search(IndexSearcher searcher,
+                                                    Query query,
+                                                    Sort sort,
+                                                    ScoreDoc after,
+                                                    Integer count,
+                                                    Set<String> fieldsToLoad,
+                                                    boolean usesRelevance) throws IOException {
         Log.debug("%s search by query %s", logName, query);
-        IndexSearcher searcher = searcherManager.acquire();
-        try {
-            // Search
-            ScoreDoc start = after == null ? null : after;
-            TopDocs topDocs = topDocs(searcher, query, sort, start, count, usesRelevance);
-            ScoreDoc[] scoreDocs = topDocs.scoreDocs;
 
-            // Collect the documents from query result
-            Map<Document, ScoreDoc> searchResults = new LinkedHashMap<>();
-            for (ScoreDoc scoreDoc : scoreDocs) {
-                Document document = searcher.doc(scoreDoc.doc, fieldsToLoad);
-                searchResults.put(document, scoreDoc);
-            }
-
-            return searchResults;
-        } finally {
-            searcherManager.release(searcher);
-        }
-    }
-
-    private TopDocs topDocs(IndexSearcher searcher,
-                            Query query,
-                            Sort sort,
-                            ScoreDoc after,
-                            int count,
-                            boolean usesRelevance) throws IOException {
+        TopDocs topDocs;
         if (sort != null) {
-            return searcher.searchAfter(after, query, count, sort);
+            topDocs = searcher.searchAfter(after, query, count, sort);
         } else if (usesRelevance) {
-            return searcher.searchAfter(after, query, count);
+            topDocs = searcher.searchAfter(after, query, count);
         } else {
-            FieldDoc start = after == null ? null : (FieldDoc) after;
-            TopFieldCollector tfc = TopFieldCollector.create(this.sort, count, start, true, false, false);
-            Collector collector = new EarlyTerminatingSortingCollector(tfc, this.sort, count, sortingMergePolicy);
-            searcher.search(query, collector);
-            return tfc.topDocs();
+            topDocs = searcher.searchAfter(after, query, count, this.sort);
         }
+        ScoreDoc[] scoreDocs = topDocs.scoreDocs;
+
+        // Collect the documents from query result
+        LinkedHashMap<Document, ScoreDoc> searchResults = new LinkedHashMap<>();
+        for (ScoreDoc scoreDoc : scoreDocs) {
+            Document document = searcher.doc(scoreDoc.doc, fieldsToLoad);
+            searchResults.put(document, scoreDoc);
+        }
+
+        return searchResults;
     }
 
     /**

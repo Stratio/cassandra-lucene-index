@@ -174,7 +174,7 @@ public class SearchBuildersTest {
         assertEquals(BooleanQuery.class, query.getClass());
         List<BooleanClause> clauses = ((BooleanQuery) query).clauses();
         assertEquals(1, clauses.size());
-        assertEquals(ConstantScoreQuery.class, clauses.get(0).getQuery().getClass());
+        assertEquals(MatchAllDocsQuery.class, clauses.get(0).getQuery().getClass());
     }
 
     @Test

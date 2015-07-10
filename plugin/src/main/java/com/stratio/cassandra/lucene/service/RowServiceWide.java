@@ -30,6 +30,7 @@ import org.apache.cassandra.db.filter.SliceQueryFilter;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.ScoreDoc;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -69,7 +70,7 @@ public class RowServiceWide extends RowService {
 
     /**
      * {@inheritDoc}
-     *
+     * <p/>
      * These fields are the partition and clustering keys.
      */
     @Override
@@ -117,22 +118,23 @@ public class RowServiceWide extends RowService {
 
     /**
      * {@inheritDoc}
-     *
+     * <p/>
      * The {@link Row} is a logical one.
      */
     @Override
-    protected List<Row> rows(List<SearchResult> searchResults, long timestamp, boolean usesRelevance) {
-        // Initialize result
-        List<Row> rows = new ArrayList<>(searchResults.size());
+    protected List<ScoredRow> scoredRows(List<SearchResult> searchResults, long timestamp, boolean usesRelevance) {
+
+        Map<String, Row> rowsByScore = new HashMap<>(searchResults.size());
 
         // Group key queries by partition keys
-        Map<CellName, Float> scoresByClusteringKey = new HashMap<>(searchResults.size());
+        Map<String, ScoreDoc> scoresByClusteringKey = new HashMap<>(searchResults.size());
         Map<DecoratedKey, List<CellName>> keys = new HashMap<>();
         for (SearchResult searchResult : searchResults) {
             DecoratedKey partitionKey = searchResult.getPartitionKey();
             CellName clusteringKey = searchResult.getClusteringKey();
-            Float score = searchResult.getScore();
-            scoresByClusteringKey.put(clusteringKey, score);
+            ScoreDoc scoreDoc = searchResult.getScoreDoc();
+            String rowHash = rowMapper.hash(partitionKey, clusteringKey);
+            scoresByClusteringKey.put(rowHash, scoreDoc);
             List<CellName> clusteringKeys = keys.get(partitionKey);
             if (clusteringKeys == null) {
                 clusteringKeys = new ArrayList<>();
@@ -146,19 +148,31 @@ public class RowServiceWide extends RowService {
             for (List<CellName> clusteringKeys : Lists.partition(entry.getValue(), 1000)) {
                 Map<CellName, Row> partitionRows = rows(partitionKey, clusteringKeys, timestamp);
                 for (Map.Entry<CellName, Row> entry1 : partitionRows.entrySet()) {
+                    CellName clusteringKey = entry1.getKey();
                     Row row = entry1.getValue();
+                    String rowHash = rowMapper.hash(partitionKey, clusteringKey);
+                    ScoreDoc scoreDoc = scoresByClusteringKey.get(rowHash);
                     if (usesRelevance) {
-                        CellName clusteringKey = entry1.getKey();
-                        Float score = scoresByClusteringKey.get(clusteringKey);
+                        Float score = scoreDoc.score;
                         Row scoredRow = addScoreColumn(row, timestamp, score);
-                        rows.add(scoredRow);
+                        rowsByScore.put(scoreDoc.toString(), scoredRow);
                     } else {
-                        rows.add(row);
+                        rowsByScore.put(scoreDoc.toString(), row);
                     }
                 }
             }
         }
-        return rows;
+
+        List<ScoredRow> scoredRows = new ArrayList<>(searchResults.size());
+        for (SearchResult searchResult : searchResults) {
+            ScoreDoc scoreDoc = searchResult.getScoreDoc();
+            Row row = rowsByScore.get(scoreDoc.toString());
+            if (row != null) {
+                scoredRows.add(new ScoredRow(row, scoreDoc));
+            }
+        }
+
+        return scoredRows;
     }
 
     /**

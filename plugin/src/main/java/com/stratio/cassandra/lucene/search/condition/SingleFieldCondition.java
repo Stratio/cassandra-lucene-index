@@ -22,7 +22,7 @@ import org.apache.commons.lang3.StringUtils;
 
 /**
  * The abstract base class for queries.
- *
+ * <p/>
  * Known subclasses are: <ul> <li> {@link BooleanCondition} <li> {@link FuzzyCondition} <li> {@link MatchCondition} <li>
  * {@link PhraseCondition} <li> {@link PrefixCondition} <li> {@link RangeCondition} <li> {@link WildcardCondition}
  * </ul>

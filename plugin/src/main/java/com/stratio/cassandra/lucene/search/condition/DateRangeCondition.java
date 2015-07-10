@@ -25,7 +25,6 @@ import org.apache.lucene.spatial.prefix.tree.NumberRangePrefixTree.NRShape;
 import org.apache.lucene.spatial.query.SpatialArgs;
 import org.apache.lucene.spatial.query.SpatialOperation;
 
-
 import java.util.Date;
 
 /**
@@ -58,7 +57,7 @@ public class DateRangeCondition extends Condition {
 
     /**
      * Constructs a query selecting all fields greater/equal than {@code start} but less/equal than {@code stop}.
-     *
+     * <p/>
      * If an endpoint is null, it is said to be "open". Either or both endpoints may be open. Open endpoints may not be
      * exclusive (you can't select all but the first or last term without explicitly specifying the term to exclude.)
      *

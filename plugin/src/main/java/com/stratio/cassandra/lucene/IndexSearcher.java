@@ -16,9 +16,9 @@
 package com.stratio.cassandra.lucene;
 
 import com.google.common.base.Objects;
+import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.search.Search;
 import com.stratio.cassandra.lucene.search.SearchBuilder;
-import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.service.RowService;
 import com.stratio.cassandra.lucene.util.Log;
 import org.apache.cassandra.db.DataRange;

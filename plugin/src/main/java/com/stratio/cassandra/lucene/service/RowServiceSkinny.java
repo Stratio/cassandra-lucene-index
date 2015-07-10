@@ -23,6 +23,7 @@ import org.apache.cassandra.db.Row;
 import org.apache.cassandra.db.filter.QueryFilter;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.search.ScoreDoc;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -64,7 +65,7 @@ public class RowServiceSkinny extends RowService {
 
     /**
      * {@inheritDoc}
-     *
+     * <p/>
      * These fields are just the partition key.
      */
     @Override
@@ -100,28 +101,28 @@ public class RowServiceSkinny extends RowService {
     }
 
     /** {@inheritDoc} */
-    protected List<Row> rows(List<SearchResult> searchResults, long timestamp, boolean usesRelevance) {
-        List<Row> rows = new ArrayList<>(searchResults.size());
+    @Override
+    protected List<ScoredRow> scoredRows(List<SearchResult> searchResults, long timestamp, boolean usesRelevance) {
+        List<ScoredRow> scoredRows = new ArrayList<>(searchResults.size());
         for (SearchResult searchResult : searchResults) {
 
             // Extract row from document
             DecoratedKey partitionKey = searchResult.getPartitionKey();
             Row row = row(partitionKey, timestamp);
 
-            if (row == null) {
-                return null;
-            }
+            if (row == null) continue;
 
             // Return decorated row
+            ScoreDoc scoreDoc = searchResult.getScoreDoc();
             if (usesRelevance) {
-                Float score = searchResult.getScore();
+                Float score = scoreDoc.score;
                 Row decoratedRow = addScoreColumn(row, timestamp, score);
-                rows.add(decoratedRow);
+                scoredRows.add(new ScoredRow(decoratedRow, scoreDoc));
             } else {
-                rows.add(row);
+                scoredRows.add(new ScoredRow(row, scoreDoc));
             }
         }
-        return rows;
+        return scoredRows;
     }
 
     /**

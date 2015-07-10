@@ -41,6 +41,8 @@ value enclosed in single quotes:
    means synchronous indexing. Defaults to ’0’.
 -  **indexing\_queues\_size**: max number of queued documents per
    asynchronous indexing thread. Defaults to ’50’.
+-  **paging_cache_size**: The max number of lucene cursors to be cached.
+   Defaults to ’50’.
 -  **directory\_path**: The path of the directory where the  Lucene index
    will be stored.
 -  **schema**: see below

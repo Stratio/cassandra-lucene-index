@@ -273,4 +273,8 @@ public class RowMapperWide extends RowMapper {
         CellName clusteringKey = clusteringKeyMapper.clusteringKey(document);
         return new SearchResult(partitionKey, clusteringKey, scoreDoc);
     }
+
+    public String hash(DecoratedKey partitionKey, CellName cellName) {
+        return fullKeyMapper.hash(partitionKey, cellName);
+    }
 }
