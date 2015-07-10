@@ -29,13 +29,13 @@ import java.util.List;
  * returned), or 2) the ComparatorChain is exhausted (and zero is returned). This type of sorting is very similar to
  * multi-column sorting in SQL, and this class allows Java classes to emulate that kind of behaviour when sorting a
  * List.
- * <p/>
+ *
  * To further facilitate SQL-like sorting, the order of any single Comparator in the list can be reversed.
- * <p/>
+ *
  * Calling a method that adds new Comparators or changes the ascend/descend sortFields after compare(Object, Object) has
  * been called will result in an UnsupportedOperationException. However, take care to not alter the underlying List of
  * Comparators or the BitSet that defines the sortFields order.
- * <p/>
+ *
  * Instances of ComparatorChain are not synchronized. The class is not thread-safe at construction time, but it is
  * thread-safe to perform multiple comparisons after all the setup operations are complete.
  *
@@ -294,7 +294,7 @@ public class ComparatorChain<T> implements Comparator<T>, Serializable {
     /**
      * Returns <code>true</code> iff that Object is is a {@link Comparator} whose ordering is known to be equivalent to
      * mine.
-     * <p/>
+     *
      * This implementation returns {@code true} iff {@code object.getClass()} is equals to {@code this.getClass()}, and
      * the underlying comparators and order bits are equal. Subclasses may want to override this behavior to remain
      * consistent with the {@link Comparator#equals(Object)} contract.

@@ -64,7 +64,7 @@ public class TaskQueue {
 
     /**
      * Submits a non value-returning task for asynchronous execution.
-     * <p/>
+     *
      * The specified identifier is used to choose the thread executor where the task will be queued. The selection and
      * load balancing is based in the {@link #hashCode()} of this identifier.
      *

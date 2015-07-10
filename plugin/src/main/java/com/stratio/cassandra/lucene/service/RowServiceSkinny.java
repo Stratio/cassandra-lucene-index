@@ -65,7 +65,7 @@ public class RowServiceSkinny extends RowService {
 
     /**
      * {@inheritDoc}
-     * <p/>
+     *
      * These fields are just the partition key.
      */
     @Override

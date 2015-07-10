@@ -70,7 +70,7 @@ public class RowServiceWide extends RowService {
 
     /**
      * {@inheritDoc}
-     * <p/>
+     *
      * These fields are the partition and clustering keys.
      */
     @Override
@@ -118,7 +118,7 @@ public class RowServiceWide extends RowService {
 
     /**
      * {@inheritDoc}
-     * <p/>
+     *
      * The {@link Row} is a logical one.
      */
     @Override

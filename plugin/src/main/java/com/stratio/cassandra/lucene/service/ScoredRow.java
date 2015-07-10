@@ -21,7 +21,7 @@ import org.apache.lucene.search.ScoreDoc;
 /**
  * Class representing a Cassandra {@link Row} associated to a Lucene {@link ScoreDoc}.
  *
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class ScoredRow {
 
