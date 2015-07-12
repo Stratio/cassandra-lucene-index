@@ -60,7 +60,6 @@ public class RowServiceSkinny extends RowService {
     public RowServiceSkinny(ColumnFamilyStore baseCfs, ColumnDefinition columnDefinition) throws IOException {
         super(baseCfs, columnDefinition);
         this.rowMapper = (RowMapperSkinny) super.rowMapper;
-        luceneIndex.init(rowMapper.sort());
     }
 
     /**
@@ -102,7 +101,7 @@ public class RowServiceSkinny extends RowService {
 
     /** {@inheritDoc} */
     @Override
-    protected List<ScoredRow> scoredRows(List<SearchResult> searchResults, long timestamp, boolean usesRelevance) {
+    protected List<ScoredRow> scoredRows(List<SearchResult> searchResults, long timestamp) {
         List<ScoredRow> scoredRows = new ArrayList<>(searchResults.size());
         for (SearchResult searchResult : searchResults) {
 
@@ -114,13 +113,9 @@ public class RowServiceSkinny extends RowService {
 
             // Return decorated row
             ScoreDoc scoreDoc = searchResult.getScoreDoc();
-            if (usesRelevance) {
-                Float score = scoreDoc.score;
-                Row decoratedRow = addScoreColumn(row, timestamp, score);
-                scoredRows.add(new ScoredRow(decoratedRow, scoreDoc));
-            } else {
-                scoredRows.add(new ScoredRow(row, scoreDoc));
-            }
+            Float score = scoreDoc.score;
+            Row decoratedRow = addScoreColumn(row, timestamp, score);
+            scoredRows.add(new ScoredRow(decoratedRow, scoreDoc));
         }
         return scoredRows;
     }

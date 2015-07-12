@@ -54,24 +54,15 @@ import java.util.Set;
  */
 public class LuceneIndex implements LuceneIndexMBean {
 
-    private final String keyspace;
-    private final String table;
-    private final String name;
     private final Path path;
-    private final Double refreshSeconds;
-    private final Integer ramBufferMB;
-    private final Integer maxMergeMB;
-    private final Integer maxCachedMB;
-    private final Analyzer analyzer;
     private final String logName;
 
-    private Directory directory;
-    private IndexWriter indexWriter;
-    private SearcherManager searcherManager;
-    private ControlledRealTimeReopenThread<IndexSearcher> searcherReopener;
-    private Runnable refreshCallback;
+    private final Directory directory;
+    private final IndexWriter indexWriter;
+    private final SearcherManager searcherManager;
+    private final ControlledRealTimeReopenThread<IndexSearcher> searcherReopener;
+    private final Runnable refreshCallback;
 
-    private Sort sort;
     private ObjectName objectName;
 
     static {
@@ -91,6 +82,7 @@ public class LuceneIndex implements LuceneIndexMBean {
      * @param analyzer        The default {@link Analyzer}.
      * @param refreshSeconds  The index readers refresh time in seconds. Writings are not visible until this time.
      * @param refreshCallback A runnable to be run on index refresh.
+     * @throws IOException If Lucene throws IO errors.
      */
     public LuceneIndex(String keyspace,
                        String table,
@@ -101,29 +93,10 @@ public class LuceneIndex implements LuceneIndexMBean {
                        Integer maxCachedMB,
                        Analyzer analyzer,
                        Double refreshSeconds,
-                       Runnable refreshCallback) {
-        this.keyspace = keyspace;
-        this.table = table;
-        this.name = name;
+                       Runnable refreshCallback) throws IOException {
         this.path = path;
-        this.refreshSeconds = refreshSeconds;
-        this.ramBufferMB = ramBufferMB;
-        this.maxMergeMB = maxMergeMB;
-        this.maxCachedMB = maxCachedMB;
-        this.analyzer = analyzer;
         this.refreshCallback = refreshCallback;
         this.logName = String.format("Lucene index %s.%s.%s", keyspace, table, name);
-    }
-
-    /**
-     * Initializes this using the specified {@link Sort} for trying to keep the {@link Document}s sorted.
-     *
-     * @param sort The {@link Sort} to be used.
-     * @throws IOException If Lucene throws IO errors.
-     */
-    public void init(Sort sort) throws IOException {
-        Log.debug("Initializing index");
-        this.sort = sort;
 
         // Open or create directory
         FSDirectory fsDirectory = FSDirectory.open(path);
@@ -265,13 +238,12 @@ public class LuceneIndex implements LuceneIndexMBean {
      * Finds the top {@code count} hits for {@code query}, applying {@code clusteringKeyFilter} if non-null, and sorting
      * the hits by the criteria in {@code sortFields}.
      *
-     * @param searcher      The {@link IndexSearcher} to be used.
-     * @param query         The {@link Query} to search for.
-     * @param sort          The {@link Sort} to be applied.
-     * @param after         The starting {@link SearchResult}.
-     * @param count         Return only the top {@code count} results.
-     * @param fieldsToLoad  The name of the fields to be loaded.
-     * @param usesRelevance If the search must sorts results by relevance.
+     * @param searcher     The {@link IndexSearcher} to be used.
+     * @param query        The {@link Query} to search for.
+     * @param sort         The {@link Sort} to be applied.
+     * @param after        The starting {@link SearchResult}.
+     * @param count        Return only the top {@code count} results.
+     * @param fieldsToLoad The name of the fields to be loaded.
      * @return The found documents, sorted according to the supplied {@link Sort} instance.
      * @throws IOException If Lucene throws IO errors.
      */
@@ -280,17 +252,14 @@ public class LuceneIndex implements LuceneIndexMBean {
                                                     Sort sort,
                                                     ScoreDoc after,
                                                     Integer count,
-                                                    Set<String> fieldsToLoad,
-                                                    boolean usesRelevance) throws IOException {
+                                                    Set<String> fieldsToLoad) throws IOException {
         Log.debug("%s search by query %s", logName, query);
 
         TopDocs topDocs;
-        if (sort != null) {
-            topDocs = searcher.searchAfter(after, query, count, sort);
-        } else if (usesRelevance) {
+        if (sort == null) {
             topDocs = searcher.searchAfter(after, query, count);
         } else {
-            topDocs = searcher.searchAfter(after, query, count, this.sort);
+            topDocs = searcher.searchAfter(after, query, count, sort);
         }
         ScoreDoc[] scoreDocs = topDocs.scoreDocs;
 

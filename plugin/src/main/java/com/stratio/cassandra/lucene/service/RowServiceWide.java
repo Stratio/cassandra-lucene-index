@@ -65,7 +65,6 @@ public class RowServiceWide extends RowService {
     public RowServiceWide(ColumnFamilyStore baseCfs, ColumnDefinition columnDefinition) throws IOException {
         super(baseCfs, columnDefinition);
         this.rowMapper = (RowMapperWide) super.rowMapper;
-        luceneIndex.init(rowMapper.sort());
     }
 
     /**
@@ -122,7 +121,7 @@ public class RowServiceWide extends RowService {
      * The {@link Row} is a logical one.
      */
     @Override
-    protected List<ScoredRow> scoredRows(List<SearchResult> searchResults, long timestamp, boolean usesRelevance) {
+    protected List<ScoredRow> scoredRows(List<SearchResult> searchResults, long timestamp) {
 
         Map<String, Row> rowsByScore = new HashMap<>(searchResults.size());
 
@@ -152,13 +151,9 @@ public class RowServiceWide extends RowService {
                     Row row = entry1.getValue();
                     String rowHash = rowMapper.hash(partitionKey, clusteringKey);
                     ScoreDoc scoreDoc = scoresByClusteringKey.get(rowHash);
-                    if (usesRelevance) {
-                        Float score = scoreDoc.score;
-                        Row scoredRow = addScoreColumn(row, timestamp, score);
-                        rowsByScore.put(scoreDoc.toString(), scoredRow);
-                    } else {
-                        rowsByScore.put(scoreDoc.toString(), row);
-                    }
+                    Float score = scoreDoc.score;
+                    Row scoredRow = addScoreColumn(row, timestamp, score);
+                    rowsByScore.put(scoreDoc.toString(), scoredRow);
                 }
             }
         }

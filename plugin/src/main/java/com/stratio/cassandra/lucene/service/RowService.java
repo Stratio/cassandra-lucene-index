@@ -78,8 +78,9 @@ public abstract class RowService {
      *
      * @param baseCfs          The base column family store.
      * @param columnDefinition The indexed column definition.
+     * @throws IOException If there are I/O errors.
      */
-    protected RowService(ColumnFamilyStore baseCfs, ColumnDefinition columnDefinition) {
+    protected RowService(ColumnFamilyStore baseCfs, ColumnDefinition columnDefinition) throws IOException {
 
         this.baseCfs = baseCfs;
         this.metadata = baseCfs.metadata;
@@ -306,8 +307,7 @@ public abstract class RowService {
             }
 
             // Setup non-cached search arguments
-            Sort sort = search.sort(schema);
-            boolean relevance = search.usesRelevance();
+            Sort sort = sort(search);
             int page = Math.min(limit, MAX_PAGE_SIZE);
             boolean maybeMore;
 
@@ -315,7 +315,7 @@ public abstract class RowService {
                 // Search rows identifiers in Lucene
                 luceneTime.start();
                 Set<String> fields = fieldsToLoad();
-                Map<Document, ScoreDoc> docs = luceneIndex.search(searcher, query, sort, last, page, fields, relevance);
+                Map<Document, ScoreDoc> docs = luceneIndex.search(searcher, query, sort, last, page, fields);
                 List<SearchResult> searchResults = new ArrayList<>(docs.size());
                 for (Map.Entry<Document, ScoreDoc> entry : docs.entrySet()) {
                     Document document = entry.getKey();
@@ -328,7 +328,7 @@ public abstract class RowService {
 
                 // Collect rows from Cassandra
                 collectTime.start();
-                for (ScoredRow scoredRow : scoredRows(searchResults, timestamp, relevance)) {
+                for (ScoredRow scoredRow : scoredRows(searchResults, timestamp)) {
                     if (accepted(scoredRow, expressions)) {
                         scoredRows.add(scoredRow);
                         numRows++;
@@ -364,7 +364,16 @@ public abstract class RowService {
         Log.debug("Collected %d docs and %d rows in %d pages in %s", numDocs, numRows, numPages, searchTime);
 
         return rows;
+    }
 
+    private Sort sort(Search search) {
+        if (search.usesRelevance()) {
+            return null;
+        } else if (search.usesSorting()) {
+            return search.sort(schema);
+        } else {
+            return rowMapper.sort();
+        }
     }
 
     /**
@@ -442,12 +451,9 @@ public abstract class RowService {
      *
      * @param searchResults The {@link SearchResult}s
      * @param timestamp     The time stamp to ignore deleted columns.
-     * @param usesRelevance If the search uses relevance.
      * @return The {@link ScoredRow} identified by the specified {@link Document}s
      */
-    protected abstract List<ScoredRow> scoredRows(List<SearchResult> searchResults,
-                                                  long timestamp,
-                                                  boolean usesRelevance);
+    protected abstract List<ScoredRow> scoredRows(List<SearchResult> searchResults, long timestamp);
 
     /**
      * Returns a {@link ColumnFamily} composed by the non expired {@link Cell}s of the specified  {@link ColumnFamily}.

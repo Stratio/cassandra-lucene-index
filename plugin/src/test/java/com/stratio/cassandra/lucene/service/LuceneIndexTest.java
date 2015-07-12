@@ -72,7 +72,6 @@ public class LuceneIndexTest {
                                             REFRESH_SECONDS,
                                             null);
         Sort sort = new Sort(new SortField("field", SortField.Type.STRING));
-        index.init(sort);
         assertEquals(0, index.getNumDocs());
 
         Term term1 = new Term("field", "value1");
@@ -100,22 +99,22 @@ public class LuceneIndexTest {
         IndexSearcher searcher = searcherManager.acquire();
 
         try {
-            results = index.search(searcher, query, null, null, 1, fields, true);
+            results = index.search(searcher, query, null, null, 1, fields);
             assertEquals(1, results.size());
             ScoreDoc last1 = results.values().iterator().next();
-            results = index.search(searcher, query, null, last1, 1, fields, true);
+            results = index.search(searcher, query, null, last1, 1, fields);
             assertEquals(1, results.size());
 
-            results = index.search(searcher, query, null, null, 1, fields, false);
+            results = index.search(searcher, query, null, null, 1, fields);
             assertEquals(1, results.size());
             ScoreDoc last2 = results.values().iterator().next();
-            results = index.search(searcher, query, null, last2, 1, fields, false);
+            results = index.search(searcher, query, null, last2, 1, fields);
             assertEquals(1, results.size());
 
-            results = index.search(searcher, query, sort, null, 1, fields, false);
+            results = index.search(searcher, query, sort, null, 1, fields);
             assertEquals(1, results.size());
             ScoreDoc last3 = results.values().iterator().next();
-            results = index.search(searcher, query, sort, last3, 1, fields, false);
+            results = index.search(searcher, query, sort, last3, 1, fields);
             assertEquals(1, results.size());
         } finally {
             searcherManager.release(searcher);
