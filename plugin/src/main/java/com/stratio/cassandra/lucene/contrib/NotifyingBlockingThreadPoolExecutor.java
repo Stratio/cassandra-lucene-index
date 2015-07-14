@@ -201,7 +201,7 @@ public class NotifyingBlockingThreadPoolExecutor extends ThreadPoolExecutor {
      * A blocking wait for this ThreadPool to be in idle state or a certain timeout to elapse. Works the same as the
      * await() method, except for adding the timeout condition.
      *
-     * @param timeout The timeout.
+     * @param timeout  The timeout.
      * @param timeUnit The time unit.
      * @return false if the timeout elapsed, true if the synch event we are waiting for had happened.
      * @throws InterruptedException when the internal condition throws it.

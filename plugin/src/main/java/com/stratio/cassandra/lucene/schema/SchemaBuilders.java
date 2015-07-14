@@ -3,9 +3,7 @@ package com.stratio.cassandra.lucene.schema;
 import com.stratio.cassandra.lucene.schema.analysis.AnalyzerBuilder;
 import com.stratio.cassandra.lucene.schema.analysis.ClasspathAnalyzerBuilder;
 import com.stratio.cassandra.lucene.schema.analysis.SnowballAnalyzerBuilder;
-import com.stratio.cassandra.lucene.schema.mapping.BitemporalMapper;
 import com.stratio.cassandra.lucene.schema.mapping.builder.*;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.util.LinkedHashMap;
 
@@ -29,7 +27,7 @@ public class SchemaBuilders {
     }
 
     public static BitemporalMapperBuilder bitemporalMapper(String vt_from, String vt_to, String tt_from, String tt_to) {
-        return new BitemporalMapperBuilder(vt_from,vt_to,tt_from,tt_to);
+        return new BitemporalMapperBuilder(vt_from, vt_to, tt_from, tt_to);
     }
 
     public static BlobMapperBuilder blobMapper() {

@@ -23,8 +23,10 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.document.SortedDocValuesField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.SearcherManager;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.TermQuery;
@@ -63,13 +65,13 @@ public class LuceneIndexTest {
                                             "cf",
                                             "idx",
                                             path,
-                                            REFRESH_SECONDS,
                                             IndexConfig.DEFAULT_RAM_BUFFER_MB,
                                             IndexConfig.DEFAULT_MAX_MERGE_MB,
                                             IndexConfig.DEFAULT_MAX_CACHED_MB,
-                                            new StandardAnalyzer());
+                                            new StandardAnalyzer(),
+                                            REFRESH_SECONDS,
+                                            null);
         Sort sort = new Sort(new SortField("field", SortField.Type.STRING));
-        index.init(sort);
         assertEquals(0, index.getNumDocs());
 
         Term term1 = new Term("field", "value1");
@@ -93,23 +95,30 @@ public class LuceneIndexTest {
         Map<Document, ScoreDoc> results;
 
         // Search
-        results = index.search(query, null, null, 1, fields, true);
-        assertEquals(1, results.size());
-        ScoreDoc last1 = results.values().iterator().next();
-        results = index.search(query, null, last1, 1, fields, true);
-        assertEquals(1, results.size());
+        SearcherManager searcherManager = index.getSearcherManager();
+        IndexSearcher searcher = searcherManager.acquire();
 
-        results = index.search(query, null, null, 1, fields, false);
-        assertEquals(1, results.size());
-        ScoreDoc last2 = results.values().iterator().next();
-        results = index.search(query, null, last2, 1, fields, false);
-        assertEquals(1, results.size());
+        try {
+            results = index.search(searcher, query, null, null, 1, fields);
+            assertEquals(1, results.size());
+            ScoreDoc last1 = results.values().iterator().next();
+            results = index.search(searcher, query, null, last1, 1, fields);
+            assertEquals(1, results.size());
 
-        results = index.search(query, sort, null, 1, fields, false);
-        assertEquals(1, results.size());
-        ScoreDoc last3 = results.values().iterator().next();
-        results = index.search(query, sort, last3, 1, fields, false);
-        assertEquals(1, results.size());
+            results = index.search(searcher, query, null, null, 1, fields);
+            assertEquals(1, results.size());
+            ScoreDoc last2 = results.values().iterator().next();
+            results = index.search(searcher, query, null, last2, 1, fields);
+            assertEquals(1, results.size());
+
+            results = index.search(searcher, query, sort, null, 1, fields);
+            assertEquals(1, results.size());
+            ScoreDoc last3 = results.values().iterator().next();
+            results = index.search(searcher, query, sort, last3, 1, fields);
+            assertEquals(1, results.size());
+        } finally {
+            searcherManager.release(searcher);
+        }
 
         // Delete by term
         index.delete(term1);

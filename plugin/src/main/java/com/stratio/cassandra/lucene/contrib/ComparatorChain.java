@@ -28,17 +28,16 @@ import java.util.List;
  * Comparator in sequence until either 1) any single Comparator returns a non-zero result (and that result is then
  * returned), or 2) the ComparatorChain is exhausted (and zero is returned). This type of sorting is very similar to
  * multi-column sorting in SQL, and this class allows Java classes to emulate that kind of behaviour when sorting a
- * List. 
- * 
- * To further facilitate SQL-like sorting, the order of any single Comparator in the list can be
- * reversed. 
- * 
- * Calling a method that adds new Comparators or changes the ascend/descend sortFields after
- * compare(Object, Object) has been called will result in an UnsupportedOperationException. However, take
- * care to not alter the underlying List of Comparators or the BitSet that defines the sortFields order.
- * 
- * Instances of ComparatorChain are not synchronized. The class is not thread-safe at construction time, but it
- * is thread-safe to perform multiple comparisons after all the setup operations are complete.
+ * List.
+ *
+ * To further facilitate SQL-like sorting, the order of any single Comparator in the list can be reversed.
+ *
+ * Calling a method that adds new Comparators or changes the ascend/descend sortFields after compare(Object, Object) has
+ * been called will result in an UnsupportedOperationException. However, take care to not alter the underlying List of
+ * Comparators or the BitSet that defines the sortFields order.
+ *
+ * Instances of ComparatorChain are not synchronized. The class is not thread-safe at construction time, but it is
+ * thread-safe to perform multiple comparisons after all the setup operations are complete.
  *
  * @author Morgan Delagrange
  * @version $Revision: 646777 $ $Date: 2008-04-10 13:33:15 +0100 (Thu, 10 Apr 2008) $
@@ -111,9 +110,9 @@ public class ComparatorChain<T> implements Comparator<T>, Serializable {
 
     /**
      * Construct a ComparatorChain from the Comparators in the given List. The sortFields order of each column will be
-     * drawn from the given BitSet. When determining the sortFields order for Comparator at index i in the List,
-     * the ComparatorChain will call BitSet.get(i). If that method returns false, the forward sortFields
-     * order is used; a return value of true indicates reverse sortFields order.
+     * drawn from the given BitSet. When determining the sortFields order for Comparator at index i in the List, the
+     * ComparatorChain will call BitSet.get(i). If that method returns false, the forward sortFields order is used; a
+     * return value of true indicates reverse sortFields order.
      *
      * @param list List of Comparators. NOTE: This constructor does not perform a defensive copy of the list
      * @param bits Sort order for each Comparator. Extra bits are ignored, unless extra Comparators are added by another
@@ -293,11 +292,11 @@ public class ComparatorChain<T> implements Comparator<T>, Serializable {
     }
 
     /**
-     * Returns <code>true</code> iff that Object is is a {@link Comparator} whose ordering is known to be
-     * equivalent to mine.
-     * 
-     * This implementation returns {@code true} iff {@code object.getClass()} is equals to {@code this.getClass()},
-     * and the underlying comparators and order bits are equal. Subclasses may want to override this behavior to remain
+     * Returns <code>true</code> iff that Object is is a {@link Comparator} whose ordering is known to be equivalent to
+     * mine.
+     *
+     * This implementation returns {@code true} iff {@code object.getClass()} is equals to {@code this.getClass()}, and
+     * the underlying comparators and order bits are equal. Subclasses may want to override this behavior to remain
      * consistent with the {@link Comparator#equals(Object)} contract.
      *
      * @param object the object to compare with

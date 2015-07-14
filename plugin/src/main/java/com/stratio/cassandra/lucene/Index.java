@@ -178,13 +178,7 @@ public class Index extends PerRowSecondaryIndex {
 
     @Override
     public long estimateResultRows() {
-        Log.debug("Estimating row results for Lucene index %s", logName);
-        try {
-            return rowService.getIndexSize();
-        } catch (Exception e) {
-            Log.error(e, "Error while estimating row results for Lucene index %s", logName);
-            throw new RuntimeException(e);
-        }
+        return 1;
     }
 
     @Override

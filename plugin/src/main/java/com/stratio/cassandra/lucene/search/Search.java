@@ -16,12 +16,11 @@
 package com.stratio.cassandra.lucene.search;
 
 import com.google.common.base.Objects;
+import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.search.condition.Condition;
 import com.stratio.cassandra.lucene.search.sort.Sort;
-import com.stratio.cassandra.lucene.schema.Schema;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.ConstantScoreQuery;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
 
@@ -131,11 +130,11 @@ public class Search {
             booleanQuery.add(query, BooleanClause.Occur.MUST);
         }
         if (filterCondition != null) {
-            Query query = new ConstantScoreQuery(filterCondition.query(schema));
-            booleanQuery.add(query, BooleanClause.Occur.MUST);
+            Query query = filterCondition.query(schema);
+            booleanQuery.add(query, BooleanClause.Occur.FILTER);
         }
         if (rangeQuery != null) {
-            booleanQuery.add(rangeQuery, BooleanClause.Occur.MUST);
+            booleanQuery.add(rangeQuery, BooleanClause.Occur.FILTER);
         }
         return booleanQuery;
     }

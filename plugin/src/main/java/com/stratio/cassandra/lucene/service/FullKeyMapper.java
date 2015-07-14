@@ -20,6 +20,7 @@ import org.apache.cassandra.db.DecoratedKey;
 import org.apache.cassandra.db.composites.CellName;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.CompositeType;
+import org.apache.cassandra.utils.ByteBufferUtil;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Field.Store;
@@ -74,8 +75,12 @@ public class FullKeyMapper {
      * @param cellName     A clustering key.
      * @return The {@link ByteBuffer} representation of the full row key formed by the specified key pair.
      */
-    private ByteBuffer byteBuffer(DecoratedKey partitionKey, CellName cellName) {
+    public ByteBuffer byteBuffer(DecoratedKey partitionKey, CellName cellName) {
         return type.builder().add(partitionKey.getKey()).add(cellName.toByteBuffer()).build();
+    }
+
+    public String hash(DecoratedKey partitionKey, CellName cellName) {
+        return ByteBufferUtil.bytesToHex(byteBuffer(partitionKey, cellName));
     }
 
     /**

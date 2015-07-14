@@ -57,7 +57,7 @@ Not yet supported:
 Requirements
 ============
 
--  Cassandra 2.1.7
+-  Cassandra 2.1.8
 -  Java >= 1.7 (OpenJDK and Sun have been tested)
 -  Maven >= 3.0
 
@@ -71,7 +71,7 @@ add it to the Cassandra's classpath:
 -  Build the plugin with Maven: ``mvn clean package``
 -  Copy the generated JAR to the lib folder of your compatible Cassandra
    installation:
-   ``cp target/cassandra-lucene-index-2.1.7.0.jar <CASSANDRA_HOME>/lib/``
+   ``cp target/cassandra-lucene-index-2.1.8.1-SNAPSHOT.jar <CASSANDRA_HOME>/lib/``
 -  Start/restart Cassandra as usual
 
 Patching can also be done with this Maven profile, specifying the path

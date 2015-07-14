@@ -23,6 +23,7 @@ import org.apache.cassandra.db.Row;
 import org.apache.cassandra.db.filter.QueryFilter;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.search.ScoreDoc;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -59,7 +60,6 @@ public class RowServiceSkinny extends RowService {
     public RowServiceSkinny(ColumnFamilyStore baseCfs, ColumnDefinition columnDefinition) throws IOException {
         super(baseCfs, columnDefinition);
         this.rowMapper = (RowMapperSkinny) super.rowMapper;
-        luceneIndex.init(rowMapper.sort());
     }
 
     /**
@@ -100,28 +100,24 @@ public class RowServiceSkinny extends RowService {
     }
 
     /** {@inheritDoc} */
-    protected List<Row> rows(List<SearchResult> searchResults, long timestamp, boolean usesRelevance) {
-        List<Row> rows = new ArrayList<>(searchResults.size());
+    @Override
+    protected List<ScoredRow> scoredRows(List<SearchResult> searchResults, long timestamp) {
+        List<ScoredRow> scoredRows = new ArrayList<>(searchResults.size());
         for (SearchResult searchResult : searchResults) {
 
             // Extract row from document
             DecoratedKey partitionKey = searchResult.getPartitionKey();
             Row row = row(partitionKey, timestamp);
 
-            if (row == null) {
-                return null;
-            }
+            if (row == null) continue;
 
             // Return decorated row
-            if (usesRelevance) {
-                Float score = searchResult.getScore();
-                Row decoratedRow = addScoreColumn(row, timestamp, score);
-                rows.add(decoratedRow);
-            } else {
-                rows.add(row);
-            }
+            ScoreDoc scoreDoc = searchResult.getScoreDoc();
+            Float score = scoreDoc.score;
+            Row decoratedRow = addScoreColumn(row, timestamp, score);
+            scoredRows.add(new ScoredRow(decoratedRow, scoreDoc));
         }
-        return rows;
+        return scoredRows;
     }
 
     /**
