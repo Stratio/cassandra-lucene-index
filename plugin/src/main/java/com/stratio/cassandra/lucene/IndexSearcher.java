@@ -46,7 +46,7 @@ import static org.apache.cassandra.cql3.Operator.EQ;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-class IndexSearcher extends SecondaryIndexSearcher {
+public class IndexSearcher extends SecondaryIndexSearcher {
 
     private final Index index;
     private final RowService rowService;
@@ -140,7 +140,7 @@ class IndexSearcher extends SecondaryIndexSearcher {
      * @param clause A list of {@link IndexExpression}s.
      * @return The {@link Search} contained in the specified list of {@link IndexExpression}s.
      */
-    private Search search(List<IndexExpression> clause) {
+    public Search search(List<IndexExpression> clause) {
         IndexExpression indexedExpression = indexedExpression(clause);
         if (indexedExpression == null) {
             throw new RuntimeException("There is no index expression in the clause");
