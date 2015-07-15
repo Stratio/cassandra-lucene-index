@@ -69,18 +69,18 @@ Stratio’s Cassandra Lucene Index is distributed as a plugin for Apache Cassand
 containing the plugin and add it to the Cassandra’s classpath:
 
 -  Build the plugin with Maven: ``mvn clean package``
--  Copy the generated JAR to the lib folder of your comaptible Cassandra installation:
-   ``cp target/cassandra-lucene-index-2.1.8.1-SNAPSHOT.jar <CASSANDRA_HOME>/lib/``
+-  Copy the generated JAR to the lib folder of your compatible Cassandra installation:
+   ``cp plugin/target/cassandra-lucene-index-plugin-2.1.8.1-SNAPSHOT.jar <CASSANDRA_HOME>/lib/``
 -  Start/restart Cassandra as usual
 
-Patching can also be done with this Maven profile, specifying the path of your Cassandra installation:
+Alternatively, patching can also be done with this Maven profile, specifying the path of your Cassandra installation:
 
 .. code-block:: bash
 
     mvn clean package -Ppatch -Dcassandra_home=<CASSANDRA_HOME>
 
-Alternatively, if you don’t have an installed version of Cassandra, there is a profile to let Maven download and patch
-the proper version of Apache Cassandra:
+If you don’t have an installed version of Cassandra, there is also an alternative profile to let Maven download and
+patch the proper version of Apache Cassandra:
 
 .. code-block:: bash
 
@@ -93,8 +93,8 @@ Now you can run Cassandra and do some tests using the Cassandra Query Language:
     <CASSANDRA_HOME>/bin/cassandra -f
     <CASSANDRA_HOME>/bin/cqlsh
 
-The Lucene’s index files will be stored in the same directories where the Cassandra’s will be. The default data directory
-is ``/var/lib/cassandra/data``, and each index is placed next to the SSTables of its indexed column family.
+The Lucene’s index files will be stored in the same directories where the Cassandra’s will be. The default data
+directory is ``/var/lib/cassandra/data``, and each index is placed next to the SSTables of its indexed column family.
 
 For more details about Apache Cassandra please see its `documentation <http://cassandra.apache.org/>`__.
 

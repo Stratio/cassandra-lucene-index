@@ -153,7 +153,7 @@ a “\ **boost**\ ” option that acts as a weight on the resulting score.
 +-----------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 
 Bitemporal search
-==============
+=================
 
 Syntax:
 
@@ -209,7 +209,7 @@ Example 2: will return rows where valid time range intersects "2014/02/01 00:00:
                             vt_to : "2014/02/28 23:59:59.999",
                             tt_from  : "2014/02/01 00:00:00.000",
                             tt_to  : "2014/03/31 23:59:59.999",
-                            operation : "intersecs"}}';
+                            operation : "intersects"}}';
 
 
 
