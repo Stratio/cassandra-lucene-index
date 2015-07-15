@@ -67,13 +67,13 @@ public class BitemporalMapperBuilder extends MapperBuilder<BitemporalMapper> {
     }
 
     public BitemporalMapperBuilder nowValue(Object nowValue) {
-        this.nowValue=nowValue;
+        this.nowValue = nowValue;
         return this;
     }
 
     /** {@inheritDoc} */
     @Override
     public BitemporalMapper build(String name) {
-        return new BitemporalMapper(name, vtFrom, vtTo, ttFrom, ttTo, pattern,this.nowValue);
+        return new BitemporalMapper(name, vtFrom, vtTo, ttFrom, ttTo, pattern, nowValue);
     }
 }

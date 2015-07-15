@@ -106,7 +106,7 @@ public class SchemaBuilderTest {
                      "fields:" +
                      "{big_int:{type:\"bigint\",digits:10}," +
                      "big_dec:{type:\"bigdec\",indexed:false,sorted:true}," +
-                     "bitemporal:{type:\"bitemporal\",vt_from:\"vtFrom\",vt_to:\"vtTo\",tt_from:\"ttFrom\",tt_to:\"ttTo\"},"+
+                     "bitemporal:{type:\"bitemporal\",vt_from:\"vtFrom\",vt_to:\"vtTo\",tt_from:\"ttFrom\",tt_to:\"ttTo\"}," +
                      "blob:{type:\"bytes\"}," +
                      "bool:{type:\"boolean\"}," +
                      "date:{type:\"date\"}," +
@@ -131,7 +131,7 @@ public class SchemaBuilderTest {
                       "fields:" +
                       "{big_int:{type:\"bigint\",digits:10}," +
                       "big_dec:{type:\"bigdec\",indexed:false,sorted:true}," +
-                      "bitemporal:{type:\"bitemporal\",vt_from:\"vtFrom\",vt_to:\"vtTo\",tt_from:\"ttFrom\",tt_to:\"ttTo\"},"+
+                      "bitemporal:{type:\"bitemporal\",vt_from:\"vtFrom\",vt_to:\"vtTo\",tt_from:\"ttFrom\",tt_to:\"ttTo\"}," +
                       "blob:{type:\"bytes\"}," +
                       "bool:{type:\"boolean\"}," +
                       "date:{type:\"date\"}," +

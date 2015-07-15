@@ -26,7 +26,7 @@ import static com.stratio.cassandra.lucene.search.SearchBuilders.biTemporalSearc
 import static org.junit.Assert.*;
 
 /**
- * @author Eduardo Alonso <eduardoalonso@stratio.com>
+ * @author Eduardo Alonso  {@literal <eduardoalonso@stratio.com>}
  */
 
 public class BitemporalConditionTest extends AbstractConditionTest {
@@ -58,7 +58,8 @@ public class BitemporalConditionTest extends AbstractConditionTest {
 
     @Test
     public void testQuery() {
-        Schema schema = mockSchema("name", new BitemporalMapper("name", "vtFrom", "vtTo", "ttFrom", "ttTo", null,null));
+        Schema schema = mockSchema("name",
+                                   new BitemporalMapper("name", "vtFrom", "vtTo", "ttFrom", "ttTo", null, null));
         BitemporalCondition condition = new BitemporalCondition(0.5f, "name", 1, 2, 3, 4, null);
 
         Query query = condition.query(schema);

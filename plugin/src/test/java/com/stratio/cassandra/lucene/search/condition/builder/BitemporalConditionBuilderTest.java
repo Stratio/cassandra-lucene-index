@@ -22,7 +22,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
- * @author Eduardo Alonso <eduardoalonso@stratio.com>
+ * @author Eduardo Alonso  {@literal <eduardoalonso@stratio.com>}
  */
 public class BitemporalConditionBuilderTest extends AbstractConditionBuilderTest {
 
