@@ -28,10 +28,13 @@ import org.apache.cassandra.transport.messages.ResultMessage;
 import java.util.List;
 
 /**
+ * {@link QueryHandler} that avoids paging on relevance queries.
+ *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class LuceneQueryProcessor {
+public class LuceneRelevancePagingAvoiderQueryHandler extends LuceneQueryHandler {
 
+    @Override
     public ResultMessage proccess(IndexSearcher searcher,
                                   List<IndexExpression> expressions,
                                   SelectStatement statement,
@@ -52,4 +55,5 @@ public class LuceneQueryProcessor {
 
         return statement.execute(state, options);
     }
+
 }

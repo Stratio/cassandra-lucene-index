@@ -33,10 +33,14 @@ import org.apache.cassandra.utils.MD5Digest;
 
 import java.util.List;
 
-public class LuceneQueryHandler implements QueryHandler {
+/**
+ * Abstract {@link QueryHandler} to be used with Lucene searches.
+ *
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
+ */
+public abstract class LuceneQueryHandler implements QueryHandler {
 
     static QueryProcessor cqlProcessor = QueryProcessor.instance;
-    static LuceneQueryProcessor luceneProcessor = new LuceneQueryProcessor();
 
     @Override
     public ResultMessage.Prepared prepare(String query, QueryState state) throws RequestValidationException {
@@ -84,10 +88,17 @@ public class LuceneQueryHandler implements QueryHandler {
             SecondaryIndexManager secondaryIndexManager = cfs.indexManager;
             SecondaryIndexSearcher searcher = secondaryIndexManager.getHighestSelectivityIndexSearcher(expressions);
             if (searcher != null && searcher instanceof IndexSearcher) {
-                return luceneProcessor.proccess((IndexSearcher) searcher, expressions, select, state, options);
+                return proccess((IndexSearcher) searcher, expressions, select, state, options);
             }
         }
 
         return cqlProcessor.processStatement(prepared, state, options);
     }
+
+    public abstract ResultMessage proccess(IndexSearcher searcher,
+                                           List<IndexExpression> expressions,
+                                           SelectStatement statement,
+                                           QueryState state,
+                                           QueryOptions options)
+    throws RequestExecutionException, RequestValidationException;
 }
