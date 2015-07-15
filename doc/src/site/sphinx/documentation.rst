@@ -12,6 +12,7 @@ Stratio's Cassandra Lucene Index
     - `Mapping <#mapping>`__
     - `Example <#example>`__
 - `Searching <#searching>`__
+    - `Bitemporal search <#bitemporal-search>`__
     - `Boolean search <#boolean-search>`__
     - `Contains search <#contains-search>`__
     - `Date range search <#date-range-search>`__
@@ -61,6 +62,7 @@ Stratio’s Cassandra Lucene Index and its integration with Lucene search techno
 -  Geospatial search
 -  Date ranges (durations) search
 -  Multidimensional boolean (and, or, not) search
+-  Bitemporal search
 -  Near real-time search
 -  Relevance scoring and sorting
 -  General top-k queries
@@ -73,6 +75,7 @@ Stratio’s Cassandra Lucene Index and its integration with Lucene search techno
 -  Spark compatibility
 -  Hadoop compatibility
 -  Paging over non-relevance searches (filters)
+
 
 Not yet supported:
 
@@ -94,46 +97,38 @@ Requirements
 Installation
 ============
 
-Stratio's Cassandra Lucene Index is distributed as a plugin for Apache
-Cassandra. Thus, you just need to build a JAR containing the plugin and
-add it to the Cassandra's classpath:
+SStratio’s Cassandra Lucene Index is distributed as a plugin for Apache Cassandra. Thus, you just need to build a JAR
+containing the plugin and add it to the Cassandra’s classpath:
 
 -  Build the plugin with Maven: ``mvn clean package``
--  Copy the generated JAR to the lib folder of your compatible Cassandra
-   installation:
-   ``cp target/cassandra-lucene-index-2.1.8.1-SNAPSHOT.jar <CASSANDRA_HOME>/lib/``
+-  Copy the generated JAR to the lib folder of your compatible Cassandra installation:
+   ``cp plugin/target/cassandra-lucene-index-plugin-2.1.8.1-SNAPSHOT.jar <CASSANDRA_HOME>/lib/``
 -  Start/restart Cassandra as usual
 
-Patching can also be done with this Maven profile, specifying the path
-of your Cassandra installation:
+Alternatively, patching can also be done with this Maven profile, specifying the path of your Cassandra installation:
 
 .. code-block:: bash
 
     mvn clean package -Ppatch -Dcassandra_home=<CASSANDRA_HOME>
 
-Alternatively, if you don't have an installed version of Cassandra,
-there is a profile to let Maven download and patch the proper version of
-Apache Cassandra:
+If you don’t have an installed version of Cassandra, there is also an alternative profile to let Maven download and
+patch the proper version of Apache Cassandra:
 
 .. code-block:: bash
 
     mvn clean package -Pdownload_and_patch -Dcassandra_home=<CASSANDRA_HOME>
 
-Now you can run Cassandra and do some tests using the Cassandra Query
-Language:
+Now you can run Cassandra and do some tests using the Cassandra Query Language:
 
 .. code-block:: bash
 
     <CASSANDRA_HOME>/bin/cassandra -f
     <CASSANDRA_HOME>/bin/cqlsh
 
-The Lucene's index files will be stored in the same directories where
-the Cassandra's will be. The default data directory is
-``/var/lib/cassandra/data``, and each index is placed next to the
-SSTables of its indexed column family.
+The Lucene’s index files will be stored in the same directories where the Cassandra’s will be. The default data
+directory is ``/var/lib/cassandra/data``, and each index is placed next to the SSTables of its indexed column family.
 
-For more details about Apache Cassandra please see its
-`documentation <http://cassandra.apache.org/>`__.
+For more details about Apache Cassandra please see its `documentation <http://cassandra.apache.org/>`__.
 
 Example
 =======
@@ -155,7 +150,8 @@ We will create the following table to store tweets:
         lucene TEXT
     );
 
-We have created a column called *lucene* to link the index searches. This column will not store data. Now you can create a custom Lucene index on it with the following statement:
+We have created a column called *lucene* to link the index searches. This column will not store data. Now you can create
+a custom Lucene index on it with the following statement:
 
 .. code-block:: sql
 
@@ -364,6 +360,18 @@ default values are listed in the table below.
 |                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | digits          | integer         | 32                             | No        |
 +-----------------+-----------------+-----------------+--------------------------------+-----------+
+| bitemporal      | vt_from         | string          |                                | Yes       |
++                 +-----------------+-----------------+--------------------------------+-----------+
+|                 | vt_to           | string          |                                | Yes       |
++                 +-----------------+-----------------+--------------------------------+-----------+
+|                 | tt_from         | string          |                                | Yes       |
++                 +-----------------+-----------------+--------------------------------+-----------+
+|                 | tt_to           | string          |                                | Yes       |
++                 +-----------------+-----------------+--------------------------------+-----------+
+|                 | pattern         | string          | yyyy/MM/dd HH:mm:ss.SSS        | No        |
++                 +-----------------+-----------------+--------------------------------+-----------+
+|                 | now_value       | object          | Long.MAX_VALUE                 | No        |
++-----------------+-----------------+-----------------+--------------------------------+-----------+
 | blob            | indexed         | boolean         | true                           | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | sorted          | boolean         | true                           | No        |
@@ -546,6 +554,18 @@ a “\ **boost**\ ” option that acts as a weight on the resulting score.
 +-----------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 | Search type                             | Option          | Value type      | Default value                  | Mandatory |
 +=========================================+=================+=================+================================+===========+
+| `Bitemporal <#bitemporal-search>`__     | field           | string          |                                | Yes       |
+|                                         +-----------------+-----------------+--------------------------------+-----------+
+|                                         | vt_from         | string/long     | 0L                             | No        |
+|                                         +-----------------+-----------------+--------------------------------+-----------+
+|                                         | vt_to           | string/long     | Long.MAX_VALUE                 | No        |
+|                                         +-----------------+-----------------+--------------------------------+-----------+
+|                                         | tt_from         | string/long     | 0L                             | No        |
+|                                         +-----------------+-----------------+--------------------------------+-----------+
+|                                         | tt_to           | string/long     | Long.MAX_VALUE                 | No        |
+|                                         +-----------------+-----------------+--------------------------------+-----------+
+|                                         | operation       | string          | is_within                      | No        |
++-----------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 | `Boolean <#boolean-search>`__           | must            | search          |                                | No        |
 |                                         +-----------------+-----------------+--------------------------------+-----------+
 |                                         | should          | search          |                                | No        |
@@ -558,9 +578,10 @@ a “\ **boost**\ ” option that acts as a weight on the resulting score.
 +-----------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 | `Date range <#date-range-search>`__     | field           | string          |                                | Yes       |
 |                                         +-----------------+-----------------+--------------------------------+-----------+
-|                                         | start           | string/long     |                                | Yes       |
+|                                         | start           | string/long     | 0                              | No        |
 |                                         +-----------------+-----------------+--------------------------------+-----------+
-|                                         | stop            | string/long     |                                | Yes       |
+|                                         | stop            | string/long     | Integer.MAX_VALUE              | No        |
+|                                         +-----------------+-----------------+--------------------------------+-----------+
 |                                         | operation       | string          | is_within                      | No        |
 +-----------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 | `Fuzzy <#fuzzy-search>`__               | field           | string          |                                | Yes       |
@@ -629,6 +650,67 @@ a “\ **boost**\ ” option that acts as a weight on the resulting score.
 |                                         +-----------------+-----------------+--------------------------------+-----------+
 |                                         | value           | string          |                                | Yes       |
 +-----------------------------------------+-----------------+-----------------+--------------------------------+-----------+
+
+Bitemporal search
+=================
+
+Syntax:
+
+.. code-block:: sql
+
+     SELECT ( <fields> | * )
+    FROM <table>
+    WHERE <magic_column> = '{ (filter | query) : {
+                                type  : "bitemporal",
+                                (vt_from : <vt_from> ,)?
+                                (vt_to   : <vt_to> ,)?
+                                (tt_from : <tt_from> ,)?
+                                (tt_to   : <tt_to> ,)?
+                                (operation: <operation> )?
+                              }}';
+
+where:
+
+-  **vt\_from**: a string or a number being the beginning of the valid date
+   range.
+-  **vt\_to**: a string or a number being the end of the valid date range.
+-  **tt\_from**: a string or a number being the beginning of the transaction date
+   range.
+-  **tt\_to**: a string or a number being the end of the transaction date range.
+-  **operation**: the spatial operation to be performed, it can be
+   **intersects**, **contains** and **is\_within**.
+
+Example 1: will return rows where valid time range is within "2014/02/01 00:00:00.000" and
+"2014/02/28 23:59:59.999" and transaction time range is within "2014/02/01 00:00:00.000" and
+"2014/03/31 23:59:59.999"
+
+.. code-block:: sql
+
+    SELECT * FROM test.users
+    WHERE stratio_col = '{ filter : {
+                            type  : "bitemporal",
+                            vt_from : "2014/02/01 00:00:00.000",
+                            vt_to : "2014/02/28 23:59:59.999",
+                            tt_from  : "2014/02/01 00:00:00.000",
+                            tt_to  : "2014/03/31 23:59:59.999",
+                            operation : "is_within"}}';
+
+Example 2: will return rows where valid time range intersects "2014/02/01 00:00:00.000" and
+"2014/02/28 23:59:59.999" and transaction time range intersects "2014/02/01 00:00:00.000" and
+"2014/03/31 23:59:59.999"
+
+.. code-block:: sql
+
+    SELECT * FROM test.users
+    WHERE stratio_col = '{  filter : {
+                            type  : "bitemporal",
+                            vt_from : "2014/02/01 00:00:00.000",
+                            vt_to : "2014/02/28 23:59:59.999",
+                            tt_from  : "2014/02/01 00:00:00.000",
+                            tt_to  : "2014/03/31 23:59:59.999",
+                            operation : "intersects"}}';
+
+
 
 Boolean search
 ==============
@@ -736,9 +818,9 @@ Syntax:
     FROM <table>
     WHERE <magic_column> = '{ (filter | query) : {
                                 type  : "contains",
-                                start : <start> ,
-                                stop  : <stop> ,
-                                (, operation: <operation> )?
+                                (start : <start> ,)?
+                                (stop  : <stop> ,)?
+                                (operation: <operation> )?
                               }}';
 
 where:
@@ -762,7 +844,7 @@ Example 1: will return rows where duration is within "2013/05/02" and
                             stop  : "2013/05/03",
                             operation : "is_within"}}';
 
-Example 1: will return rows where duration intersects "2013/05/02" and
+Example 2: will return rows where duration intersects "2013/05/02" and
 :"2013/05/03"
 
 .. code-block:: sql
@@ -1280,3 +1362,4 @@ distributed index.
 +-------------------+-----------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 | forceMergeDeletes | Operation | Optimizes the index forcing merge segments containing deletions, leaving the specified number of segments. It also includes a boolean parameter to block until all merging completes. |
 +-------------------+-----------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+

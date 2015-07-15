@@ -55,6 +55,18 @@ a “\ **boost**\ ” option that acts as a weight on the resulting score.
 +-----------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 | Search type                             | Option          | Value type      | Default value                  | Mandatory |
 +=========================================+=================+=================+================================+===========+
+| `Bitemporal <#bitemporal-search>`__     | field           | string          |                                | Yes       |
+|                                         +-----------------+-----------------+--------------------------------+-----------+
+|                                         | vt_from         | string/long     | 0L                             | No        |
+|                                         +-----------------+-----------------+--------------------------------+-----------+
+|                                         | vt_to           | string/long     | Long.MAX_VALUE                 | No        |
+|                                         +-----------------+-----------------+--------------------------------+-----------+
+|                                         | tt_from         | string/long     | 0L                             | No        |
+|                                         +-----------------+-----------------+--------------------------------+-----------+
+|                                         | tt_to           | string/long     | Long.MAX_VALUE                 | No        |
+|                                         +-----------------+-----------------+--------------------------------+-----------+
+|                                         | operation       | string          | is_within                      | No        |
++-----------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 | `Boolean <#boolean-search>`__           | must            | search          |                                | No        |
 |                                         +-----------------+-----------------+--------------------------------+-----------+
 |                                         | should          | search          |                                | No        |
@@ -67,9 +79,10 @@ a “\ **boost**\ ” option that acts as a weight on the resulting score.
 +-----------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 | `Date range <#date-range-search>`__     | field           | string          |                                | Yes       |
 |                                         +-----------------+-----------------+--------------------------------+-----------+
-|                                         | start           | string/long     |                                | Yes       |
+|                                         | start           | string/long     | 0                              | No        |
 |                                         +-----------------+-----------------+--------------------------------+-----------+
-|                                         | stop            | string/long     |                                | Yes       |
+|                                         | stop            | string/long     | Integer.MAX_VALUE              | No        |
+|                                         +-----------------+-----------------+--------------------------------+-----------+
 |                                         | operation       | string          | is_within                      | No        |
 +-----------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 | `Fuzzy <#fuzzy-search>`__               | field           | string          |                                | Yes       |
@@ -138,6 +151,67 @@ a “\ **boost**\ ” option that acts as a weight on the resulting score.
 |                                         +-----------------+-----------------+--------------------------------+-----------+
 |                                         | value           | string          |                                | Yes       |
 +-----------------------------------------+-----------------+-----------------+--------------------------------+-----------+
+
+Bitemporal search
+=================
+
+Syntax:
+
+.. code-block:: sql
+
+     SELECT ( <fields> | * )
+    FROM <table>
+    WHERE <magic_column> = '{ (filter | query) : {
+                                type  : "bitemporal",
+                                (vt_from : <vt_from> ,)?
+                                (vt_to   : <vt_to> ,)?
+                                (tt_from : <tt_from> ,)?
+                                (tt_to   : <tt_to> ,)?
+                                (operation: <operation> )?
+                              }}';
+
+where:
+
+-  **vt\_from**: a string or a number being the beginning of the valid date
+   range.
+-  **vt\_to**: a string or a number being the end of the valid date range.
+-  **tt\_from**: a string or a number being the beginning of the transaction date
+   range.
+-  **tt\_to**: a string or a number being the end of the transaction date range.
+-  **operation**: the spatial operation to be performed, it can be
+   **intersects**, **contains** and **is\_within**.
+
+Example 1: will return rows where valid time range is within "2014/02/01 00:00:00.000" and
+"2014/02/28 23:59:59.999" and transaction time range is within "2014/02/01 00:00:00.000" and
+"2014/03/31 23:59:59.999"
+
+.. code-block:: sql
+
+    SELECT * FROM test.users
+    WHERE stratio_col = '{ filter : {
+                            type  : "bitemporal",
+                            vt_from : "2014/02/01 00:00:00.000",
+                            vt_to : "2014/02/28 23:59:59.999",
+                            tt_from  : "2014/02/01 00:00:00.000",
+                            tt_to  : "2014/03/31 23:59:59.999",
+                            operation : "is_within"}}';
+
+Example 2: will return rows where valid time range intersects "2014/02/01 00:00:00.000" and
+"2014/02/28 23:59:59.999" and transaction time range intersects "2014/02/01 00:00:00.000" and
+"2014/03/31 23:59:59.999"
+
+.. code-block:: sql
+
+    SELECT * FROM test.users
+    WHERE stratio_col = '{  filter : {
+                            type  : "bitemporal",
+                            vt_from : "2014/02/01 00:00:00.000",
+                            vt_to : "2014/02/28 23:59:59.999",
+                            tt_from  : "2014/02/01 00:00:00.000",
+                            tt_to  : "2014/03/31 23:59:59.999",
+                            operation : "intersects"}}';
+
+
 
 Boolean search
 ==============
@@ -245,9 +319,9 @@ Syntax:
     FROM <table>
     WHERE <magic_column> = '{ (filter | query) : {
                                 type  : "contains",
-                                start : <start> ,
-                                stop  : <stop> ,
-                                (, operation: <operation> )?
+                                (start : <start> ,)?
+                                (stop  : <stop> ,)?
+                                (operation: <operation> )?
                               }}';
 
 where:
@@ -271,7 +345,7 @@ Example 1: will return rows where duration is within "2013/05/02" and
                             stop  : "2013/05/03",
                             operation : "is_within"}}';
 
-Example 1: will return rows where duration intersects "2013/05/02" and
+Example 2: will return rows where duration intersects "2013/05/02" and
 :"2013/05/03"
 
 .. code-block:: sql

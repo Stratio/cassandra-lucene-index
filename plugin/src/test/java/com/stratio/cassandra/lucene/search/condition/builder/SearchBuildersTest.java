@@ -15,6 +15,7 @@
  */
 package com.stratio.cassandra.lucene.search.condition.builder;
 
+import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.search.Search;
 import com.stratio.cassandra.lucene.search.SearchBuilder;
 import com.stratio.cassandra.lucene.search.SearchBuilders;
@@ -29,10 +30,8 @@ import com.stratio.cassandra.lucene.search.condition.RegexpCondition;
 import com.stratio.cassandra.lucene.search.condition.WildcardCondition;
 import com.stratio.cassandra.lucene.search.sort.SortField;
 import com.stratio.cassandra.lucene.search.sort.builder.SortFieldBuilder;
-import com.stratio.cassandra.lucene.schema.Schema;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.ConstantScoreQuery;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
 import org.junit.Test;

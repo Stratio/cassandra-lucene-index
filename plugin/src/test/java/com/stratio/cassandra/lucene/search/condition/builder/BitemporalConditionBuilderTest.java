@@ -22,7 +22,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
- * @author Eduardo Alonso <eduardoalonso@stratio.com>
+ * @author Eduardo Alonso  {@literal <eduardoalonso@stratio.com>}
  */
 public class BitemporalConditionBuilderTest extends AbstractConditionBuilderTest {
 
@@ -68,10 +68,10 @@ public class BitemporalConditionBuilderTest extends AbstractConditionBuilderTest
         BitemporalCondition condition = builder.build();
         assertNotNull(condition);
         assertEquals("field", condition.field);
-        assertEquals(BitemporalCondition.DEFAULT_FROM, condition.ttFrom);
-        assertEquals(BitemporalCondition.DEFAULT_TO, condition.ttTo);
-        assertEquals(BitemporalCondition.DEFAULT_FROM, condition.vtFrom);
-        assertEquals(BitemporalCondition.DEFAULT_TO, condition.vtTo);
+        assertEquals(null, condition.ttFrom);
+        assertEquals(null, condition.ttTo);
+        assertEquals(null, condition.vtFrom);
+        assertEquals(null, condition.vtTo);
         assertEquals(BitemporalCondition.DEFAULT_OPERATION, condition.operation);
     }
 

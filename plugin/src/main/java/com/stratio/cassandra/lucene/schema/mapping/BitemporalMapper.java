@@ -39,6 +39,7 @@ import org.apache.lucene.spatial.prefix.tree.NumberRangePrefixTree.NRShape;
 import org.apache.lucene.spatial.prefix.tree.NumberRangePrefixTree.UnitNRShape;
 
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -60,6 +61,8 @@ public class BitemporalMapper extends Mapper {
     private final String vtTo;
     private final String ttFrom;
     private final String ttTo;
+
+    private BitemporalDateTime nowBitemporalDateTime = new BitemporalDateTime(Long.MAX_VALUE);
 
     // ttTo=now vtTo=now 2 daterangePrefixTree
     private NumberRangePrefixTreeStrategy strategy_t1_V;
@@ -95,7 +98,13 @@ public class BitemporalMapper extends Mapper {
      * @param ttTo    The column name containing the End Transaction Time.
      * @param pattern The {@link SimpleDateFormat} pattern to be used.
      */
-    public BitemporalMapper(String name, String vtFrom, String vtTo, String ttFrom, String ttTo, String pattern) {
+    public BitemporalMapper(String name,
+                            String vtFrom,
+                            String vtTo,
+                            String ttFrom,
+                            String ttTo,
+                            String pattern,
+                            Object nowValue) {
 
         super(name,
               true,
@@ -163,6 +172,11 @@ public class BitemporalMapper extends Mapper {
                 return new SimpleDateFormat(BitemporalMapper.this.pattern);
             }
         };
+
+        this.nowBitemporalDateTime = nowValue == null ?
+                                     new BitemporalDateTime(Long.MAX_VALUE) :
+                                     this.parseBiTemporalDate(nowValue);
+
     }
 
     public String getPattern() {
@@ -183,6 +197,10 @@ public class BitemporalMapper extends Mapper {
 
     public String getTtTo() {
         return ttTo;
+    }
+
+    public BitemporalDateTime getNowValue() {
+        return this.nowBitemporalDateTime;
     }
 
     /**
@@ -233,11 +251,11 @@ public class BitemporalMapper extends Mapper {
      * Build a {@link NRShape}.
      *
      * @param tree  The {@link DateRangePrefixTree} tree.
-     * @param start The {@link BiTemporalDateTime} start of the range.
-     * @param stop  The {@link BiTemporalDateTime} stop of the range.
+     * @param start The {@link BitemporalDateTime} start of the range.
+     * @param stop  The {@link BitemporalDateTime} stop of the range.
      * @return A built {@link NRShape}.
      */
-    public NRShape makeShape(DateRangePrefixTree tree, BiTemporalDateTime start, BiTemporalDateTime stop) {
+    public NRShape makeShape(DateRangePrefixTree tree, BitemporalDateTime start, BitemporalDateTime stop) {
         UnitNRShape startShape = tree.toUnitShape(start.toDate());
         UnitNRShape stopShape = tree.toUnitShape(stop.toDate());
         return tree.toRangeShape(startShape, stopShape);
@@ -247,10 +265,10 @@ public class BitemporalMapper extends Mapper {
     @Override
     public void addFields(Document document, Columns columns) {
 
-        BiTemporalDateTime vt_from = readBitemporalDate(columns, this.vtFrom);
-        BiTemporalDateTime vt_to = readBitemporalDate(columns, this.vtTo);
-        BiTemporalDateTime tt_from = readBitemporalDate(columns, this.ttFrom);
-        BiTemporalDateTime tt_to = readBitemporalDate(columns, this.ttTo);
+        BitemporalDateTime vt_from = readBitemporalDate(columns, this.vtFrom);
+        BitemporalDateTime vt_to = readBitemporalDate(columns, this.vtTo);
+        BitemporalDateTime tt_from = readBitemporalDate(columns, this.ttFrom);
+        BitemporalDateTime tt_to = readBitemporalDate(columns, this.ttTo);
 
         if (tt_to.isNow() && vt_to.isNow()) { // T1
             Shape shapeV = makeShape(tree_t1_V, vt_from, vt_from);
@@ -266,7 +284,7 @@ public class BitemporalMapper extends Mapper {
             Shape shapeT = makeShape(tree_t2_T, tt_from, tt_to);
             for (IndexableField field : strategy_t2_T.createIndexableFields(shapeT)) document.add(field);
 
-        } else if (tt_to.isNow() && !vt_to.isNow()) { // T3
+        } else if (tt_to.isNow()) { // T3
             Shape shapeV = makeShape(tree_t3_V, vt_from, vt_to);
             for (IndexableField field : strategy_t3_V.createIndexableFields(shapeV)) document.add(field);
 
@@ -284,13 +302,13 @@ public class BitemporalMapper extends Mapper {
     }
 
     /**
-     * returns a {@link BiTemporalDateTime} readed from columns
+     * returns a {@link BitemporalDateTime} readed from columns
      *
      * @param columns   the {@link Columns} where it is the data
      * @param fieldName the filed Name to read from {@link Columns}
-     * @return a {@link BiTemporalDateTime} readed from columns
+     * @return a {@link BitemporalDateTime} readed from columns
      */
-    BiTemporalDateTime readBitemporalDate(Columns columns, String fieldName) {
+    BitemporalDateTime readBitemporalDate(Columns columns, String fieldName) {
         Column column = columns.getColumnsByName(fieldName).getFirst();
         if (column == null) {
             throw new IllegalArgumentException(fieldName + " column required");
@@ -298,26 +316,46 @@ public class BitemporalMapper extends Mapper {
         return this.parseBiTemporalDate(column.getComposedValue());
     }
 
+    BitemporalDateTime checkIfNow(BitemporalDateTime in) {
+        BitemporalDateTime dateTime = in;
+        if (this.nowBitemporalDateTime == null) return dateTime;
+        if (dateTime.compareTo(this.nowBitemporalDateTime) == 0) {
+            dateTime = new BitemporalDateTime(Long.MAX_VALUE);
+        } else if (dateTime.compareTo(this.nowBitemporalDateTime) > 0) {
+            throw new IllegalArgumentException("BitemporalDateTime value: " +
+                                               dateTime.getTime() +
+                                               " exceeds Max Value: " +
+                                               this.nowBitemporalDateTime);
+        }
+        return dateTime;
+
+    }
+
     /**
-     * Parses an {@link Object} into a {@link BiTemporalDateTime}. It parses {@link Long} and {@link String} format
+     * Parses an {@link Object} into a {@link BitemporalDateTime}. It parses {@link Long} and {@link String} format
      * values based in pattern.
      *
      * @param value The object to be parsed.
-     * @return a parsed {@link BiTemporalDateTime} from an {@link Object}. it parses {@link Long} and {@link String}
+     * @return a parsed {@link BitemporalDateTime} from an {@link Object}. it parses {@link Long} and {@link String}
      * format values based in pattern.
      */
-    public BiTemporalDateTime parseBiTemporalDate(Object value) {
+    public BitemporalDateTime parseBiTemporalDate(Object value) throws IllegalArgumentException {
         if (value != null) {
             if (value instanceof Number) {
-                return new BiTemporalDateTime(((Number) value).longValue());
+                return checkIfNow(new BitemporalDateTime(((Number) value).longValue()));
             } else if (value instanceof String) {
                 try {
-                    return new BiTemporalDateTime(concurrentDateFormat.get().parse(value.toString()).getTime());
-                } catch (Exception e) {
-                    // Ignore to fail below
+                    return checkIfNow(new BitemporalDateTime(concurrentDateFormat.get()
+                                                                                 .parse((String) value)
+                                                                                 .getTime()));
+                } catch (ParseException e) {
+                    throw new IllegalArgumentException("Valid DateTime required but found " +
+                                                       value +
+                                                       " cannot be parsed by pattern " +
+                                                       this.pattern);
                 }
             } else if (value instanceof Date) {
-                return new BiTemporalDateTime(((Date) value).getTime());
+                return checkIfNow(new BitemporalDateTime(((Date) value).getTime()));
             }
         }
         throw new IllegalArgumentException("Valid DateTime required, but found " + value);
@@ -332,6 +370,7 @@ public class BitemporalMapper extends Mapper {
     /** {@inheritDoc} */
     @Override
     public void validate(CFMetaData metaData) {
+
         validate(metaData, vtFrom);
         validate(metaData, vtTo);
         validate(metaData, ttFrom);
@@ -348,28 +387,30 @@ public class BitemporalMapper extends Mapper {
                       .add("ttFrom", ttFrom)
                       .add("ttTo", ttTo)
                       .add("pattern", pattern)
+                      .add("nowValue", this.nowBitemporalDateTime)
                       .toString();
     }
 
-    public static class BiTemporalDateTime implements Comparable {
+    public static class BitemporalDateTime implements Comparable<BitemporalDateTime> {
 
-        public static BiTemporalDateTime MAX = new BiTemporalDateTime(Long.MAX_VALUE);
-        public static BiTemporalDateTime MIN = new BiTemporalDateTime(0L);
+        public static final BitemporalDateTime MAX = new BitemporalDateTime(Long.MAX_VALUE);
+        public static final BitemporalDateTime MIN = new BitemporalDateTime(0L);
+
         private final Long timestamp;
 
         /**
          * @param date A date.
          */
-        public BiTemporalDateTime(Date date) {
+        public BitemporalDateTime(Date date) {
             this.timestamp = date.getTime();
         }
 
         /**
          * @param timestamp A timestamp.
          */
-        public BiTemporalDateTime(Long timestamp) {
+        public BitemporalDateTime(Long timestamp) {
             if (timestamp < 0L)
-                throw new IllegalArgumentException("Cannot build a BiTemporalDateTime with a negative unix time");
+                throw new IllegalArgumentException("Cannot build a BitemporalDateTime with a negative unix time");
             this.timestamp = timestamp;
         }
 
@@ -394,12 +435,11 @@ public class BitemporalMapper extends Mapper {
         }
 
         @Override
-        public int compareTo(Object o) {
-            BiTemporalDateTime other = (BiTemporalDateTime) o;
+        public int compareTo(BitemporalDateTime other) {
             return timestamp.compareTo(other.timestamp);
         }
 
-        public static BiTemporalDateTime max(BiTemporalDateTime bt1, BiTemporalDateTime bt2) {
+        public static BitemporalDateTime max(BitemporalDateTime bt1, BitemporalDateTime bt2) {
             int result = bt1.compareTo(bt2);
             if (result <= 0) {
                 return bt2;
@@ -409,9 +449,6 @@ public class BitemporalMapper extends Mapper {
         }
 
         public String toString() {
-            //Date date= new Date(this.timestamp);
-            //return new SimpleDateFormat(DEFAULT_PATTERN).format(date);
-
             return timestamp.toString();
         }
 
@@ -419,7 +456,7 @@ public class BitemporalMapper extends Mapper {
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-            BiTemporalDateTime that = (BiTemporalDateTime) o;
+            BitemporalDateTime that = (BitemporalDateTime) o;
             return timestamp.equals(that.timestamp);
         }
 
@@ -429,3 +466,4 @@ public class BitemporalMapper extends Mapper {
         }
     }
 }
+

@@ -16,19 +16,19 @@ public class BitemporalConditionBuilder extends ConditionBuilder<BitemporalCondi
     final String field;
 
     /** The valid time start. */
-    @JsonProperty("vtFrom")
+    @JsonProperty("vt_from")
     Object vtFrom;
 
     /** The valid time end. */
-    @JsonProperty("vtTo")
+    @JsonProperty("vt_to")
     Object vtTo;
 
     /** The transaction time start. */
-    @JsonProperty("ttFrom")
+    @JsonProperty("tt_from")
     Object ttFrom;
 
     /** The transaction time end. */
-    @JsonProperty("ttTo")
+    @JsonProperty("tt_to")
     Object ttTo;
 
     /** The spatial operation to be performed. */

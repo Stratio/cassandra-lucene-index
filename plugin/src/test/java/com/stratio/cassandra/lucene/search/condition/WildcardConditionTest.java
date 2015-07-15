@@ -15,11 +15,11 @@
  */
 package com.stratio.cassandra.lucene.search.condition;
 
-import com.stratio.cassandra.lucene.search.SearchBuilders;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.InetMapper;
 import com.stratio.cassandra.lucene.schema.mapping.IntegerMapper;
 import com.stratio.cassandra.lucene.schema.mapping.StringMapper;
+import com.stratio.cassandra.lucene.search.SearchBuilders;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.WildcardQuery;
 import org.junit.Test;
