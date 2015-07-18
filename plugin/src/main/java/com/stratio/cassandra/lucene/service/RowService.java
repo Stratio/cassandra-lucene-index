@@ -16,6 +16,7 @@
 package com.stratio.cassandra.lucene.service;
 
 import com.stratio.cassandra.lucene.IndexConfig;
+import com.stratio.cassandra.lucene.RowKey;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
@@ -276,7 +277,7 @@ public abstract class RowService {
                                   DataRange dataRange,
                                   final int limit,
                                   long timestamp,
-                                  Row after) throws IOException {
+                                  RowKey after) throws IOException {
         Log.debug("Searching with search %s ", search);
 
         // Setup stats
@@ -353,9 +354,9 @@ public abstract class RowService {
         return rows;
     }
 
-    private ScoreDoc after(IndexSearcher searcher, Row row, Query query, Sort sort) throws IOException {
-        if (row == null) return null;
-        Filter rowFilter = new QueryWrapperFilter(rowMapper.query(row));
+    private ScoreDoc after(IndexSearcher searcher, RowKey rowKey, Query query, Sort sort) throws IOException {
+        if (rowKey == null) return null;
+        Filter rowFilter = new QueryWrapperFilter(rowMapper.query(rowKey));
         Query afterQuery = new FilteredQuery(query, rowFilter);
         Set<String> fields = Collections.emptySet();
         Map<Document, ScoreDoc> results = luceneIndex.search(searcher, afterQuery, sort, null, 1, fields);
@@ -534,4 +535,7 @@ public abstract class RowService {
         return Float.parseFloat(value);
     }
 
+    public RowMapper mapper() {
+        return rowMapper;
+    }
 }

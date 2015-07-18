@@ -1,12 +1,17 @@
 package org.apache.cassandra.service;
 
 import com.stratio.cassandra.lucene.IndexSearcher;
+import com.stratio.cassandra.lucene.RowKey;
+import com.stratio.cassandra.lucene.RowKeys;
+import com.stratio.cassandra.lucene.service.RowMapper;
+import com.stratio.cassandra.lucene.util.Log;
 import org.apache.cassandra.concurrent.Stage;
 import org.apache.cassandra.concurrent.StageManager;
 import org.apache.cassandra.cql3.LuceneQueryProcessor;
 import org.apache.cassandra.cql3.Operator;
 import org.apache.cassandra.db.AbstractRangeCommand;
 import org.apache.cassandra.db.ConsistencyLevel;
+import org.apache.cassandra.db.DecoratedKey;
 import org.apache.cassandra.db.IndexExpression;
 import org.apache.cassandra.db.Keyspace;
 import org.apache.cassandra.db.RangeSliceCommand;
@@ -16,7 +21,6 @@ import org.apache.cassandra.db.RowPosition;
 import org.apache.cassandra.db.filter.IDiskAtomFilter;
 import org.apache.cassandra.dht.AbstractBounds;
 import org.apache.cassandra.exceptions.ReadTimeoutException;
-import org.apache.cassandra.io.util.DataOutputBuffer;
 import org.apache.cassandra.net.AsyncOneResponse;
 import org.apache.cassandra.net.MessageOut;
 import org.apache.cassandra.net.MessagingService;
@@ -36,17 +40,15 @@ import java.util.List;
 public final class RangeHandler {
 
     private Keyspace ks;
-    private String cf;
     private long timestamp;
     private ConsistencyLevel consistency;
     private AbstractBounds<RowPosition> range;
     private ReadCallback<RangeSliceReply, Iterable<Row>> callback;
     private List<Row> rows = new ArrayList<>();
     private List<AsyncOneResponse> repairResults;
-    private int limit;
-    private IDiskAtomFilter predicate;
-    private List<IndexExpression> expressions;
     private RangeSliceCommand command;
+    RowMapper mapper;
+    RowKey after;
 
     public RangeHandler(Keyspace ks,
                         String cf,
@@ -56,19 +58,32 @@ public final class RangeHandler {
                         List<IndexExpression> filter,
                         int limit,
                         ConsistencyLevel consistency,
-                        Row after) throws Exception {
-        this.cf = cf;
+                        RowKeys rowKeys,
+                        RowMapper mapper) throws Exception {
         this.ks = ks;
         this.timestamp = timestamp;
         this.consistency = consistency;
         this.rows = new ArrayList<>();
         this.range = range;
-        this.limit = limit;
-        this.predicate = predicate;
-        this.expressions = filter;
+        this.mapper = mapper;
 
-        List<IndexExpression> decoratedFilter = decoratedFilter(filter, after);
+        after = rowKey(range, rowKeys);
+        Log.info("@@@ QUERYING TO " + range + " FOR " + limit + " AFTER " + after);
+
+        List<IndexExpression> decoratedFilter = new ArrayList<>(filter);
+        if (after != null)  {
+            decoratedFilter.add(new IndexExpression(IndexSearcher.AFTER, Operator.EQ, mapper.byteBuffer(after)));
+        }
         command = new RangeSliceCommand(ks.getName(), cf, timestamp, predicate, range, decoratedFilter, limit);
+    }
+
+    private RowKey rowKey(AbstractBounds<RowPosition> range, RowKeys rowKeys) {
+        if (rowKeys == null) return null;
+        for(RowKey rowKey : rowKeys) {
+            DecoratedKey key = rowKey.getPartitionKey();
+            if (range.contains(key)) return rowKey;
+        }
+        return null;
     }
 
     public RangeHandler send() throws Exception {
@@ -111,6 +126,10 @@ public final class RangeHandler {
     }
 
     public List<Row> getRows() {
+        Log.info("@@@ QUERY TO " + range + " FOUNDS " + rows.size());
+        for (Row row : rows) {
+            Log.info("\t" + row.key);
+        }
         return rows;
     }
 
@@ -118,27 +137,11 @@ public final class RangeHandler {
         return repairResults;
     }
 
-    public RangeHandler withStart(List<Row> results) throws Exception {
-        Row last = last(results);
-        return new RangeHandler(ks, cf, timestamp, predicate, range, expressions, limit, consistency, last);
-    }
-
-    private Row last(List<Row> results) {
+    public RowKey last(List<Row> results) {
         for (int i = rows.size() - 1; i >= 0; i--) {
             Row row = rows.get(i);
-            if (results.contains(row)) return row;
+            if (results.contains(row)) return mapper.rowKey(row);
         }
-        return null;
-    }
-
-    private List<IndexExpression> decoratedFilter(List<IndexExpression> filter, Row after) throws IOException {
-        if (after == null) return filter;
-        List<IndexExpression> decoratedFilter = new ArrayList<>(filter);
-        int size = (int) Row.serializer.serializedSize(after, MessagingService.current_version);
-        DataOutputBuffer dob = new DataOutputBuffer(size);
-        Row.serializer.serialize(after, dob, MessagingService.current_version);
-        ByteBuffer value = dob.asByteBuffer();
-        decoratedFilter.add(new IndexExpression(IndexSearcher.AFTER, Operator.EQ, value));
-        return decoratedFilter;
+        return after;
     }
 }

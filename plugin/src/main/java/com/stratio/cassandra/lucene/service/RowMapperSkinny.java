@@ -15,6 +15,7 @@
  */
 package com.stratio.cassandra.lucene.service;
 
+import com.stratio.cassandra.lucene.RowKey;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import org.apache.cassandra.config.CFMetaData;
@@ -35,6 +36,8 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.TermQuery;
+
+import java.nio.ByteBuffer;
 
 /**
  * {@link RowMapper} for skinny rows.
@@ -116,8 +119,8 @@ public class RowMapperSkinny extends RowMapper {
      * {@inheritDoc}
      */
     @Override
-    public Query query(Row row) {
-        DecoratedKey partitionKey = row.key;
+    public Query query(RowKey rowKey) {
+        DecoratedKey partitionKey = rowKey.getPartitionKey();
         Term term = term(partitionKey);
         return new TermQuery(term);
     }
@@ -145,5 +148,31 @@ public class RowMapperSkinny extends RowMapper {
     public SearchResult searchResult(Document document, ScoreDoc scoreDoc) {
         DecoratedKey partitionKey = partitionKeyMapper.partitionKey(document);
         return new SearchResult(partitionKey, null, scoreDoc);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ByteBuffer byteBuffer(RowKey rowKey) {
+        return rowKey.getPartitionKey().getKey();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public RowKey rowKey(ByteBuffer bb) {
+        DecoratedKey partitionKey = partitionKey(bb);
+        return new RowKey(partitionKey, null);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public RowKey rowKey(Row row) {
+        DecoratedKey partitionKey = row.key;
+        return new RowKey(partitionKey, null);
     }
 }

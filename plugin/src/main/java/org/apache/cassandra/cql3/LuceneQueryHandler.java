@@ -39,6 +39,7 @@ import org.apache.cassandra.service.pager.PagingState;
 import org.apache.cassandra.transport.messages.ResultMessage;
 import org.apache.cassandra.utils.MD5Digest;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.List;
 
@@ -107,7 +108,7 @@ public class LuceneQueryHandler implements QueryHandler {
                 } catch (RequestExecutionException | RequestValidationException e) {
                     throw e;
                 } catch (Exception e) {
-                    Log.error(e, e.getMessage());
+                    e.printStackTrace();
                     throw new RuntimeException(e);
                 }
             }
@@ -121,7 +122,6 @@ public class LuceneQueryHandler implements QueryHandler {
                                   SelectStatement statement,
                                   QueryState state,
                                   QueryOptions options) throws Exception {
-        Log.info("EXECUTING HANDLER " + this + " WITH OPTION CLASS " +options.getClass() +  " WITH PAGING STATE " + options.getPagingState());
 
         ClientState clientState = state.getClientState();
         statement.checkAccess(clientState);
@@ -129,6 +129,7 @@ public class LuceneQueryHandler implements QueryHandler {
 
         int limit = statement.getLimit(options);
         int page = options.getPageSize();
+
 
         String ks = statement.keyspace();
         String cf = statement.columnFamily();
@@ -141,12 +142,18 @@ public class LuceneQueryHandler implements QueryHandler {
         IDiskAtomFilter filter = makeFilter(statement, options, limit);
         AbstractBounds<RowPosition> range = statement.getKeyBounds(options);
 
-        List<Row> rows = LuceneQueryProcessor.run(searcher, ks, cf, now, filter, range, expressions, limit, cl, page);
-
-        PagingState pagingState = new PagingState(null, null, limit);
-        ResultMessage.Rows msg = statement.processResults(rows, options, limit, now);
-//        msg.result.metadata.setHasMorePages(pagingState);
-        return msg;
+        return LuceneQueryProcessor.run(searcher,
+                                        ks,
+                                        cf,
+                                        now,
+                                        filter,
+                                        range,
+                                        expressions,
+                                        limit,
+                                        cl,
+                                        page,
+                                        statement,
+                                        options);
     }
 
     private IDiskAtomFilter makeFilter(SelectStatement statement, QueryOptions options, int limit)

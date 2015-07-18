@@ -19,6 +19,7 @@ import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.search.Search;
 import com.stratio.cassandra.lucene.search.SearchBuilder;
+import com.stratio.cassandra.lucene.service.RowMapper;
 import com.stratio.cassandra.lucene.service.RowService;
 import com.stratio.cassandra.lucene.util.Log;
 import org.apache.cassandra.db.DataRange;
@@ -29,13 +30,8 @@ import org.apache.cassandra.db.index.SecondaryIndexManager;
 import org.apache.cassandra.db.index.SecondaryIndexSearcher;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.exceptions.InvalidRequestException;
-import org.apache.cassandra.io.util.DataOutputBuffer;
-import org.apache.cassandra.net.MessagingService;
-import org.apache.cassandra.utils.ByteBufferUtil;
 
-import java.io.DataInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -53,7 +49,7 @@ import static org.apache.cassandra.cql3.Operator.EQ;
  */
 public class IndexSearcher extends SecondaryIndexSearcher {
 
-    public final static ByteBuffer AFTER = UTF8Type.instance.fromString("AFTER");
+    public final static ByteBuffer AFTER = UTF8Type.instance.fromString("search_after_doc");
 
     private final Index index;
     private final RowService rowService;
@@ -85,7 +81,7 @@ public class IndexSearcher extends SecondaryIndexSearcher {
     @Override
     public List<Row> search(ExtendedFilter extendedFilter) {
         try {
-            Row after = after(extendedFilter.getClause());
+            RowKey after = after(extendedFilter.getClause());
             long timestamp = extendedFilter.timestamp;
             int limit = extendedFilter.currentLimit();
             DataRange dataRange = extendedFilter.dataRange;
@@ -234,20 +230,17 @@ public class IndexSearcher extends SecondaryIndexSearcher {
                       .toString();
     }
 
-    private Row after(List<IndexExpression> expressions) {
-        try {
-            for (IndexExpression indexExpression : expressions) {
-                ByteBuffer columnName = indexExpression.column;
-                if (AFTER.equals(columnName)) {
-                    ByteBuffer value = indexExpression.value;
-                    InputStream is = ByteBufferUtil.inputStream(value);
-                    DataInputStream di = new DataInputStream(is);
-                    return Row.serializer.deserialize(di, MessagingService.current_version);
-                }
+    private RowKey after(List<IndexExpression> expressions) {
+        for (IndexExpression indexExpression : expressions) {
+            ByteBuffer columnName = indexExpression.column;
+            if (AFTER.equals(columnName)) {
+                return mapper().rowKey(indexExpression.value);
             }
-        } catch (IOException e) {
-            Log.error(e, e.getMessage());
         }
         return null;
+    }
+
+    public RowMapper mapper() {
+        return rowService.mapper();
     }
 }

@@ -122,6 +122,10 @@ public class ClusteringKeyMapper {
         return iterator.hasNext() ? clusteringKey(iterator.next().name()) : null;
     }
 
+    public CellName clusteringKey(ByteBuffer bb) {
+        return cellNameType.cellFromByteBuffer(bb);
+    }
+
     /**
      * Returns the common clustering keys of the specified column family.
      *

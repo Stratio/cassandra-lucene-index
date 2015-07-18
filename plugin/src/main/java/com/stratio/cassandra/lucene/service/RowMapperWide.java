@@ -15,6 +15,7 @@
  */
 package com.stratio.cassandra.lucene.service;
 
+import com.stratio.cassandra.lucene.RowKey;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import org.apache.cassandra.config.CFMetaData;
@@ -42,6 +43,7 @@ import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.TermQuery;
 
+import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Map;
 
@@ -221,9 +223,9 @@ public class RowMapperWide extends RowMapper {
      * {@inheritDoc}
      */
     @Override
-    public Query query(Row row) {
-        DecoratedKey partitionKey = row.key;
-        CellName clusteringKey = clusteringKey(row.cf);
+    public Query query(RowKey rowKey) {
+        DecoratedKey partitionKey = rowKey.getPartitionKey();
+        CellName clusteringKey = rowKey.getClusteringKey();
         Term term = term(partitionKey, clusteringKey);
         return new TermQuery(term);
     }
@@ -288,5 +290,33 @@ public class RowMapperWide extends RowMapper {
 
     public String hash(DecoratedKey partitionKey, CellName cellName) {
         return fullKeyMapper.hash(partitionKey, cellName);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ByteBuffer byteBuffer(RowKey rowKey) {
+        DecoratedKey partitionKey = rowKey.getPartitionKey();
+        CellName clusteringKey = rowKey.getClusteringKey();
+        return fullKeyMapper.byteBuffer(partitionKey, clusteringKey);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public RowKey rowKey(ByteBuffer bb) {
+        return fullKeyMapper.rowKey(bb);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public RowKey rowKey(Row row) {
+        DecoratedKey partitionKey = row.key;
+        CellName clusteringKey = clusteringKey(row.cf);
+        return new RowKey(partitionKey, clusteringKey);
     }
 }
