@@ -38,8 +38,11 @@ import org.apache.cassandra.db.composites.CellName;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.search.Filter;
+import org.apache.lucene.search.FilteredQuery;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.QueryWrapperFilter;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.SearcherManager;
 import org.apache.lucene.search.Sort;
@@ -47,6 +50,7 @@ import org.apache.lucene.search.Sort;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -71,8 +75,6 @@ public abstract class RowService {
     private final Schema schema;
     private final TaskQueue indexQueue;
 
-    private final PagingCache pagingCache;
-
     /**
      * Returns a new {@code RowService}.
      *
@@ -90,8 +92,6 @@ public abstract class RowService {
         this.schema = config.getSchema();
         this.rowMapper = RowMapper.build(metadata, columnDefinition, schema);
 
-        this.pagingCache = new PagingCache(config.getPagingCacheSize());
-
         this.luceneIndex = new LuceneIndex(columnDefinition.ksName,
                                            columnDefinition.cfName,
                                            columnDefinition.getIndexName(),
@@ -104,7 +104,7 @@ public abstract class RowService {
                                            new Runnable() {
                                                @Override
                                                public void run() {
-                                                   pagingCache.clear();
+
                                                }
                                            });
 
@@ -275,7 +275,8 @@ public abstract class RowService {
                                   List<IndexExpression> expressions,
                                   DataRange dataRange,
                                   final int limit,
-                                  long timestamp) throws IOException {
+                                  long timestamp,
+                                  Row after) throws IOException {
         Log.debug("Searching with search %s ", search);
 
         // Setup stats
@@ -293,21 +294,11 @@ public abstract class RowService {
         IndexSearcher searcher = searcherManager.acquire();
         try {
 
-            // Get query and last doc trying luck with paging cache
-            Query query;
-            ScoreDoc last; // The last search result
-            PagingCache.Entry pagingCacheEntry = pagingCache.get(search, dataRange);
-            if (pagingCacheEntry != null) {
-                query = pagingCacheEntry.getQuery();
-                last = pagingCacheEntry.getScoreDoc();
-            } else {
-                Query rangeQuery = rowMapper.query(dataRange);
-                query = search.query(schema, rangeQuery);
-                last = null;
-            }
-
-            // Setup non-cached search arguments
+            // Setup search arguments
+            Query rangeQuery = rowMapper.query(dataRange);
+            Query query = search.query(schema, rangeQuery);
             Sort sort = sort(search);
+            ScoreDoc last = after(searcher, after,query,sort);
             int page = Math.min(limit, MAX_PAGE_SIZE);
             boolean maybeMore;
 
@@ -344,10 +335,6 @@ public abstract class RowService {
                 // Iterate while there are still documents to read and we don't have enough rows
             } while (maybeMore && scoredRows.size() < limit);
 
-            // Cache last two results
-            if (numRows > 0) pagingCache.put(search, dataRange, query, scoredRows.get(numRows - 1));
-            if (numRows > 1) pagingCache.put(search, dataRange, query, scoredRows.get(numRows - 2));
-
         } finally {
             searcherManager.release(searcher);
         }
@@ -364,6 +351,16 @@ public abstract class RowService {
         Log.debug("Collected %d docs and %d rows in %d pages in %s", numDocs, numRows, numPages, searchTime);
 
         return rows;
+    }
+
+    private ScoreDoc after(IndexSearcher searcher, Row row, Query query, Sort sort) throws IOException {
+        if (row == null) return null;
+        Filter rowFilter = new QueryWrapperFilter(rowMapper.query(row));
+        Query afterQuery = new FilteredQuery(query, rowFilter);
+        Set<String> fields = Collections.emptySet();
+        Map<Document, ScoreDoc> results = luceneIndex.search(searcher, afterQuery, sort, null, 1, fields);
+        if (results.isEmpty()) return null;
+        return results.values().iterator().next();
     }
 
     private Sort sort(Search search) {

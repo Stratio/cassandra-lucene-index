@@ -30,9 +30,11 @@ import org.apache.cassandra.db.filter.IDiskAtomFilter;
 import org.apache.cassandra.db.filter.SliceQueryFilter;
 import org.apache.cassandra.dht.Token;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.index.Term;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.Sort;
+import org.apache.lucene.search.TermQuery;
 
 /**
  * {@link RowMapper} for skinny rows.
@@ -108,6 +110,16 @@ public class RowMapperSkinny extends RowMapper {
             }
         }
         return tokenMapper.query(startToken, stopToken, includeStart, includeStop);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Query query(Row row) {
+        DecoratedKey partitionKey = row.key;
+        Term term = term(partitionKey);
+        return new TermQuery(term);
     }
 
     /**

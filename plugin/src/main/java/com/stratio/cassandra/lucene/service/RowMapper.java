@@ -136,6 +136,8 @@ public abstract class RowMapper {
      */
     public abstract Query query(DataRange dataRange);
 
+    public abstract Query query(Row row);
+
     /**
      * Returns the Lucene {@link Sort} to get {@link Document}s in the same order that is used in Cassandra.
      *

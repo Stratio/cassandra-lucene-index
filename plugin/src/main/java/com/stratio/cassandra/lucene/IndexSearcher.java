@@ -29,8 +29,13 @@ import org.apache.cassandra.db.index.SecondaryIndexManager;
 import org.apache.cassandra.db.index.SecondaryIndexSearcher;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.exceptions.InvalidRequestException;
+import org.apache.cassandra.io.util.DataOutputBuffer;
+import org.apache.cassandra.net.MessagingService;
+import org.apache.cassandra.utils.ByteBufferUtil;
 
+import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -47,6 +52,8 @@ import static org.apache.cassandra.cql3.Operator.EQ;
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class IndexSearcher extends SecondaryIndexSearcher {
+
+    public final static ByteBuffer AFTER = UTF8Type.instance.fromString("AFTER");
 
     private final Index index;
     private final RowService rowService;
@@ -78,13 +85,14 @@ public class IndexSearcher extends SecondaryIndexSearcher {
     @Override
     public List<Row> search(ExtendedFilter extendedFilter) {
         try {
+            Row after = after(extendedFilter.getClause());
             long timestamp = extendedFilter.timestamp;
             int limit = extendedFilter.currentLimit();
             DataRange dataRange = extendedFilter.dataRange;
             List<IndexExpression> clause = extendedFilter.getClause();
             List<IndexExpression> filteredExpressions = filteredExpressions(clause);
             Search search = search(clause);
-            return rowService.search(search, filteredExpressions, dataRange, limit, timestamp);
+            return rowService.search(search, filteredExpressions, dataRange, limit, timestamp, after);
         } catch (IOException e) {
             Log.error(e, "Error while searching: %s", extendedFilter);
             throw new RuntimeException(e);
@@ -175,7 +183,7 @@ public class IndexSearcher extends SecondaryIndexSearcher {
         List<IndexExpression> filteredExpressions = new ArrayList<>(clause.size());
         for (IndexExpression ie : clause) {
             ByteBuffer columnName = ie.column;
-            if (!indexedColumnName.equals(columnName)) {
+            if (!indexedColumnName.equals(columnName) && !AFTER.equals(columnName)) {
                 filteredExpressions.add(ie);
             }
         }
@@ -224,5 +232,22 @@ public class IndexSearcher extends SecondaryIndexSearcher {
                       .add("table", index.getTableName())
                       .add("column", index.getColumnName())
                       .toString();
+    }
+
+    private Row after(List<IndexExpression> expressions) {
+        try {
+            for (IndexExpression indexExpression : expressions) {
+                ByteBuffer columnName = indexExpression.column;
+                if (AFTER.equals(columnName)) {
+                    ByteBuffer value = indexExpression.value;
+                    InputStream is = ByteBufferUtil.inputStream(value);
+                    DataInputStream di = new DataInputStream(is);
+                    return Row.serializer.deserialize(di, MessagingService.current_version);
+                }
+            }
+        } catch (IOException e) {
+            Log.error(e, e.getMessage());
+        }
+        return null;
     }
 }

@@ -40,6 +40,7 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.SortField;
+import org.apache.lucene.search.TermQuery;
 
 import java.util.List;
 import java.util.Map;
@@ -214,6 +215,17 @@ public class RowMapperWide extends RowMapper {
         }
 
         return query.getClauses().length == 0 ? null : query;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Query query(Row row) {
+        DecoratedKey partitionKey = row.key;
+        CellName clusteringKey = clusteringKey(row.cf);
+        Term term = term(partitionKey, clusteringKey);
+        return new TermQuery(term);
     }
 
     /**
