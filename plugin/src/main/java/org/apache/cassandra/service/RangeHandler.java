@@ -58,7 +58,7 @@ public final class RangeHandler {
         this.mapper = mapper;
 
         after = rowKey(range, rowKeys);
-        Log.info("@@@ QUERYING TO " + range + " FOR " + limit + " AFTER " + after);
+        // Log.info("@@@ QUERYING TO " + range + " FOR " + limit + " AFTER " + after);
 
         List<IndexExpression> decoratedFilter = new ArrayList<>(filter);
         if (after != null) {
@@ -118,7 +118,7 @@ public final class RangeHandler {
     }
 
     public List<Row> getRows() {
-        Log.info("@@@ QUERY TO " + range + " FOUNDS " + rows.size());
+        // Log.info("@@@ QUERY TO " + range + " FOUNDS " + rows.size());
         for (Row row : rows) {
             Log.info("\t" + row.key);
         }

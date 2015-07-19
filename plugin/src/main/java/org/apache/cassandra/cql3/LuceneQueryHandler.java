@@ -16,6 +16,10 @@
 package org.apache.cassandra.cql3;
 
 import com.stratio.cassandra.lucene.IndexSearcher;
+import com.stratio.cassandra.lucene.RowKeys;
+import com.stratio.cassandra.lucene.service.RowMapper;
+import com.stratio.cassandra.lucene.util.ByteBufferUtils;
+import com.stratio.cassandra.lucene.util.Log;
 import org.apache.cassandra.cql3.statements.BatchStatement;
 import org.apache.cassandra.cql3.statements.ParsedStatement;
 import org.apache.cassandra.cql3.statements.SelectStatement;
@@ -23,6 +27,7 @@ import org.apache.cassandra.db.ColumnFamilyStore;
 import org.apache.cassandra.db.ConsistencyLevel;
 import org.apache.cassandra.db.IndexExpression;
 import org.apache.cassandra.db.Keyspace;
+import org.apache.cassandra.db.Row;
 import org.apache.cassandra.db.RowPosition;
 import org.apache.cassandra.db.filter.IDiskAtomFilter;
 import org.apache.cassandra.db.index.SecondaryIndexManager;
@@ -34,10 +39,15 @@ import org.apache.cassandra.exceptions.RequestValidationException;
 import org.apache.cassandra.service.ClientState;
 import org.apache.cassandra.service.LuceneQueryProcessor;
 import org.apache.cassandra.service.QueryState;
+import org.apache.cassandra.service.pager.PagingState;
 import org.apache.cassandra.transport.messages.ResultMessage;
 import org.apache.cassandra.utils.MD5Digest;
+import org.apache.cassandra.utils.Pair;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -49,8 +59,16 @@ public class LuceneQueryHandler implements QueryHandler {
 
     static QueryProcessor cqlProcessor = QueryProcessor.instance;
 
-    public LuceneQueryHandler() {
-        System.out.println("INSTANTIATING");
+    private IDiskAtomFilter makeFilter(SelectStatement statement, QueryOptions options, int limit) throws Exception {
+        Method method = SelectStatement.class.getDeclaredMethod("makeFilter", QueryOptions.class, int.class);
+        method.setAccessible(true);
+        return (IDiskAtomFilter) method.invoke(statement, options, limit);
+    }
+
+    private static boolean isCount(SelectStatement selectStatement) throws Exception {
+        Field field = SelectStatement.Parameters.class.getDeclaredField("isCount");
+        field.setAccessible(true);
+        return (boolean) field.get(selectStatement.parameters);
     }
 
     @Override
@@ -126,7 +144,7 @@ public class LuceneQueryHandler implements QueryHandler {
 
         int limit = statement.getLimit(options);
         int page = options.getPageSize();
-
+        boolean isCount = isCount(statement);
 
         String ks = statement.keyspace();
         String cf = statement.columnFamily();
@@ -139,29 +157,50 @@ public class LuceneQueryHandler implements QueryHandler {
         IDiskAtomFilter filter = makeFilter(statement, options, limit);
         AbstractBounds<RowPosition> range = statement.getKeyBounds(options);
 
-        return LuceneQueryProcessor.run(searcher,
-                                        ks,
-                                        cf,
-                                        now,
-                                        filter,
-                                        range,
-                                        expressions,
-                                        limit,
-                                        cl,
-                                        page,
-                                        statement,
-                                        options);
-    }
-
-    private IDiskAtomFilter makeFilter(SelectStatement statement, QueryOptions options, int limit)
-    throws InvalidRequestException {
-        try {
-            Method method = SelectStatement.class.getDeclaredMethod("makeFilter", QueryOptions.class, int.class);
-            method.setAccessible(true);
-            return (IDiskAtomFilter) method.invoke(statement, options, limit);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new InvalidRequestException(e.getMessage());
+        RowMapper mapper = searcher.mapper();
+        PagingState pagingState = options.getPagingState();
+        RowKeys rowKeys = null;
+        if (pagingState != null) {
+            limit = pagingState.remaining;
+            ByteBuffer bb = pagingState.partitionKey;
+            if (!ByteBufferUtils.isEmpty(bb)) {
+                rowKeys = mapper.rowKeys(bb);
+            }
         }
+
+        int rowsPerCommand = page > 0 ? page : limit;
+        List<Row> rows = new ArrayList<>();
+        int remaining;
+        int collectedRows;
+
+        do {
+            Pair<List<Row>, RowKeys> results = LuceneQueryProcessor.run(searcher,
+                                                                        ks,
+                                                                        cf,
+                                                                        now,
+                                                                        filter,
+                                                                        range,
+                                                                        expressions,
+                                                                        rowsPerCommand,
+                                                                        cl,
+                                                                        rowKeys);
+            collectedRows = results.left.size();
+            rows.addAll(results.left);
+            rowKeys = results.right;
+            remaining = limit - rows.size();
+            Log.info("@@@ ITERATION COMMAND ENDS WITH " + rows.size() + " COLLECTED ROWS AND REMAINING " + remaining);
+            Log.info("@@@ ITERATION NEXT COMMAND WILL START " + rowKeys);
+
+        } while (isCount && remaining > 0 && collectedRows == rowsPerCommand);
+        Log.info("@@@ COMMAND ENDS WITH " + rows.size() + " COLLECTED ROWS AND REMAINING " + remaining);
+        Log.info("@@@ NEXT COMMAND WILL START " + rowKeys);
+
+        ResultMessage.Rows msg = statement.processResults(rows, options, limit, now);
+        if (!isCount && remaining > 0 && rows.size() == rowsPerCommand) {
+            ByteBuffer bb = mapper.byteBuffer(rowKeys);
+            pagingState = new PagingState(bb, null, remaining);
+            msg.result.metadata.setHasMorePages(pagingState);
+        }
+        return msg;
     }
 }
