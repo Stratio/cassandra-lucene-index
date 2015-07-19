@@ -1,4 +1,4 @@
-package org.apache.cassandra.cql3;
+package org.apache.cassandra.service;
 
 import com.stratio.cassandra.lucene.IndexSearcher;
 import com.stratio.cassandra.lucene.RowKey;
@@ -7,6 +7,7 @@ import com.stratio.cassandra.lucene.service.RowMapper;
 import com.stratio.cassandra.lucene.util.ByteBufferUtils;
 import com.stratio.cassandra.lucene.util.Log;
 import org.apache.cassandra.config.DatabaseDescriptor;
+import org.apache.cassandra.cql3.QueryOptions;
 import org.apache.cassandra.cql3.statements.SelectStatement;
 import org.apache.cassandra.db.ConsistencyLevel;
 import org.apache.cassandra.db.IndexExpression;
@@ -18,8 +19,6 @@ import org.apache.cassandra.dht.AbstractBounds;
 import org.apache.cassandra.dht.RingPosition;
 import org.apache.cassandra.locator.LocalStrategy;
 import org.apache.cassandra.net.AsyncOneResponse;
-import org.apache.cassandra.service.RangeHandler;
-import org.apache.cassandra.service.StorageProxy;
 import org.apache.cassandra.service.pager.PagingState;
 import org.apache.cassandra.transport.messages.ResultMessage;
 import org.apache.cassandra.utils.FBUtilities;
@@ -77,67 +76,6 @@ public class LuceneQueryProcessor {
         return (boolean) isCount.get(selectStatement.parameters);
     }
 
-    public static List<AbstractBounds<RowPosition>> ranges(AbstractBounds<RowPosition> keyRange,
-                                                           Keyspace keyspace,
-                                                           ConsistencyLevel consistency_level) throws Exception {
-
-        List<AbstractBounds<RowPosition>> result = new ArrayList<>();
-
-        List<? extends AbstractBounds<RowPosition>> ranges;
-        if (keyspace.getReplicationStrategy() instanceof LocalStrategy) ranges = keyRange.unwrap();
-        else ranges = getRestrictedRanges(keyRange);
-
-        int concurrencyFactor = ranges.size();
-
-        int i = 0;
-        AbstractBounds<RowPosition> nextRange = null;
-        List<InetAddress> nextEndpoints = null;
-        List<InetAddress> nextFilteredEndpoints = null;
-        while (i < ranges.size()) {
-            int concurrentFetchStartingIndex = i;
-            while ((i - concurrentFetchStartingIndex) < concurrencyFactor) {
-                AbstractBounds<RowPosition> range = nextRange == null ? ranges.get(i) : nextRange;
-                List<InetAddress> liveEndpoints = nextEndpoints == null ?
-                                                  getLiveSortedEndpoints(keyspace, range.right) :
-                                                  nextEndpoints;
-                List<InetAddress> filteredEndpoints = nextFilteredEndpoints == null ?
-                                                      consistency_level.filterForQuery(keyspace, liveEndpoints) :
-                                                      nextFilteredEndpoints;
-                ++i;
-
-                while (i < ranges.size()) {
-                    nextRange = ranges.get(i);
-                    nextEndpoints = getLiveSortedEndpoints(keyspace, nextRange.right);
-                    nextFilteredEndpoints = consistency_level.filterForQuery(keyspace, nextEndpoints);
-
-                    if (range.right.isMinimum()) break;
-
-                    List<InetAddress> merged = intersection(liveEndpoints, nextEndpoints);
-
-                    if (!consistency_level.isSufficientLiveNodes(keyspace, merged)) break;
-
-                    List<InetAddress> filteredMerged = consistency_level.filterForQuery(keyspace, merged);
-
-                    // Estimate whether merging will be a win or not
-                    if (!DatabaseDescriptor.getEndpointSnitch()
-                                           .isWorthMergingForRangeQuery(filteredMerged,
-                                                                        filteredEndpoints,
-                                                                        nextFilteredEndpoints)) break;
-
-                    // If we get there, merge this range and the next one
-                    range = range.withNewRight(nextRange.right);
-                    liveEndpoints = merged;
-                    filteredEndpoints = filteredMerged;
-                    ++i;
-                }
-
-                result.add(range);
-            }
-        }
-
-        return result;
-    }
-
     public static ResultMessage.Rows run(IndexSearcher indexSearcher,
                                          String keyspaceName,
                                          String columnFamily,
@@ -164,12 +102,11 @@ public class LuceneQueryProcessor {
 
         Keyspace keyspace = Keyspace.open(keyspaceName);
 
-
         if (pageSize < 0) pageSize = limit;
         int remaining;
         boolean isCount = isCount(statement);
-
-        List<? extends AbstractBounds<RowPosition>> ranges = ranges(range, keyspace, consistency_level);
+        
+        List<? extends AbstractBounds<RowPosition>> ranges = getRestrictedRanges(range);
         int numRanges = ranges.size();
 
         List<Row> rows = new ArrayList<>();
@@ -188,7 +125,7 @@ public class LuceneQueryProcessor {
                                                    pageSize,
                                                    consistency_level,
                                                    rowKeys,
-                                                   mapper).send());
+                                                   mapper));
             }
 
             iterationRows = new ArrayList<>();
@@ -202,7 +139,7 @@ public class LuceneQueryProcessor {
             iterationRows = indexSearcher.postReconciliationProcessing(expressions, iterationRows);
             if (iterationRows.size() > pageSize) iterationRows = iterationRows.subList(0, pageSize);
 
-            for (Row row: iterationRows) {
+            for (Row row : iterationRows) {
                 rows.add(row);
             }
 

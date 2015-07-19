@@ -7,7 +7,6 @@ import com.stratio.cassandra.lucene.service.RowMapper;
 import com.stratio.cassandra.lucene.util.Log;
 import org.apache.cassandra.concurrent.Stage;
 import org.apache.cassandra.concurrent.StageManager;
-import org.apache.cassandra.cql3.LuceneQueryProcessor;
 import org.apache.cassandra.cql3.Operator;
 import org.apache.cassandra.db.AbstractRangeCommand;
 import org.apache.cassandra.db.ConsistencyLevel;
@@ -28,9 +27,7 @@ import org.apache.cassandra.service.StorageProxy.LocalRangeSliceRunnable;
 import org.apache.cassandra.tracing.Tracing;
 import org.apache.cassandra.utils.FBUtilities;
 
-import java.io.IOException;
 import java.net.InetAddress;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,14 +36,10 @@ import java.util.List;
  */
 public final class RangeHandler {
 
-    private Keyspace ks;
-    private long timestamp;
-    private ConsistencyLevel consistency;
     private AbstractBounds<RowPosition> range;
     private ReadCallback<RangeSliceReply, Iterable<Row>> callback;
     private List<Row> rows = new ArrayList<>();
     private List<AsyncOneResponse> repairResults;
-    private RangeSliceCommand command;
     RowMapper mapper;
     RowKey after;
 
@@ -60,9 +53,6 @@ public final class RangeHandler {
                         ConsistencyLevel consistency,
                         RowKeys rowKeys,
                         RowMapper mapper) throws Exception {
-        this.ks = ks;
-        this.timestamp = timestamp;
-        this.consistency = consistency;
         this.rows = new ArrayList<>();
         this.range = range;
         this.mapper = mapper;
@@ -71,22 +61,16 @@ public final class RangeHandler {
         Log.info("@@@ QUERYING TO " + range + " FOR " + limit + " AFTER " + after);
 
         List<IndexExpression> decoratedFilter = new ArrayList<>(filter);
-        if (after != null)  {
+        if (after != null) {
             decoratedFilter.add(new IndexExpression(IndexSearcher.AFTER, Operator.EQ, mapper.byteBuffer(after)));
         }
-        command = new RangeSliceCommand(ks.getName(), cf, timestamp, predicate, range, decoratedFilter, limit);
-    }
-
-    private RowKey rowKey(AbstractBounds<RowPosition> range, RowKeys rowKeys) {
-        if (rowKeys == null) return null;
-        for(RowKey rowKey : rowKeys) {
-            DecoratedKey key = rowKey.getPartitionKey();
-            if (range.contains(key)) return rowKey;
-        }
-        return null;
-    }
-
-    public RangeHandler send() throws Exception {
+        RangeSliceCommand command = new RangeSliceCommand(ks.getName(),
+                                                          cf,
+                                                          timestamp,
+                                                          predicate,
+                                                          range,
+                                                          decoratedFilter,
+                                                          limit);
 
         List<InetAddress> liveEndpoints = LuceneQueryProcessor.getLiveSortedEndpoints(ks, range.right);
         List<InetAddress> filteredEndpoints = consistency.filterForQuery(ks, liveEndpoints);
@@ -109,7 +93,15 @@ public final class RangeHandler {
                 MessagingService.instance().sendRR(message, endpoint, callback);
             }
         }
-        return this;
+    }
+
+    private RowKey rowKey(AbstractBounds<RowPosition> range, RowKeys rowKeys) {
+        if (rowKeys == null) return null;
+        for (RowKey rowKey : rowKeys) {
+            DecoratedKey key = rowKey.getPartitionKey();
+            if (range.contains(key)) return rowKey;
+        }
+        return null;
     }
 
     public RangeHandler get() throws ReadTimeoutException {
