@@ -15,7 +15,10 @@
  */
 package com.stratio.cassandra.lucene.service;
 
+import com.stratio.cassandra.lucene.contrib.ComparatorChain;
 import org.apache.cassandra.db.Row;
+
+import java.util.Comparator;
 
 /**
  * A {@link RowComparator} for comparing {@link Row}s according to its Lucene scoring.
@@ -23,6 +26,8 @@ import org.apache.cassandra.db.Row;
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class RowComparatorScoring implements RowComparator {
+
+    private final ComparatorChain<Row> comparatorChain;
 
     /**
      * The used {@link RowService}.
@@ -36,6 +41,15 @@ public class RowComparatorScoring implements RowComparator {
      */
     public RowComparatorScoring(RowService rowService) {
         this.rowService = rowService;
+        comparatorChain = new ComparatorChain<>();
+        comparatorChain.addComparator(new Comparator<Row>() {
+            public int compare(Row row1, Row row2) {
+                Float score1 = RowComparatorScoring.this.rowService.score(row1);
+                Float score2 = RowComparatorScoring.this.rowService.score(row2);
+                return score2.compareTo(score1);
+            }
+        });
+        comparatorChain.addComparator(rowService.comparator());
     }
 
     /**
@@ -43,9 +57,7 @@ public class RowComparatorScoring implements RowComparator {
      */
     @Override
     public int compare(Row row1, Row row2) {
-        Float score1 = rowService.score(row1);
-        Float score2 = rowService.score(row2);
-        return score2.compareTo(score1);
+        return comparatorChain.compare(row1, row2);
     }
 
 }

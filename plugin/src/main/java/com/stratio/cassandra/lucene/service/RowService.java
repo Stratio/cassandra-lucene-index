@@ -38,6 +38,7 @@ import org.apache.cassandra.db.Row;
 import org.apache.cassandra.db.composites.CellName;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.UTF8Type;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.FilteredQuery;
@@ -47,6 +48,7 @@ import org.apache.lucene.search.QueryWrapperFilter;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.SearcherManager;
 import org.apache.lucene.search.Sort;
+import org.apache.lucene.search.SortField;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -56,6 +58,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static org.apache.lucene.search.SortField.FIELD_SCORE;
 
 /**
  * Class for mapping rows between Cassandra and Lucene.
@@ -310,6 +314,7 @@ public abstract class RowService {
                 Map<Document, ScoreDoc> docs = luceneIndex.search(searcher, query, sort, last, page, fields);
                 List<SearchResult> searchResults = new ArrayList<>(docs.size());
                 for (Map.Entry<Document, ScoreDoc> entry : docs.entrySet()) {
+                    System.out.println("** FOUND " + entry.getValue());
                     Document document = entry.getKey();
                     ScoreDoc scoreDoc = entry.getValue();
                     last = scoreDoc;
@@ -360,13 +365,20 @@ public abstract class RowService {
         Query afterQuery = new FilteredQuery(query, rowFilter);
         Set<String> fields = Collections.emptySet();
         Map<Document, ScoreDoc> results = luceneIndex.search(searcher, afterQuery, sort, null, 1, fields);
-        if (results.isEmpty()) return null;
-        return results.values().iterator().next();
+        ScoreDoc scoreDoc = results.isEmpty() ? null : results.values().iterator().next();
+        System.out.println("** AFTER " + scoreDoc);
+        return scoreDoc;
     }
 
     private Sort sort(Search search) {
         if (search.usesRelevance()) {
-            return null;
+            SortField[] naturalSortFields =  rowMapper.sort().getSort();
+            SortField[] sortFields = new SortField[naturalSortFields.length + 1];
+            sortFields[0] = FIELD_SCORE;
+            for (int i = 0; i < naturalSortFields.length; i++) {
+                sortFields[i+1] = naturalSortFields[i];
+            }
+            return new Sort(sortFields);
         } else if (search.usesSorting()) {
             return search.sort(schema);
         } else {
@@ -509,7 +521,7 @@ public abstract class RowService {
                 return new RowComparatorScoring(this);
             }
         }
-        return rowMapper.naturalComparator();
+        return rowMapper.comparator();
     }
 
     /**
@@ -518,7 +530,7 @@ public abstract class RowService {
      * @return The default {@link Row} comparator.
      */
     public RowComparator comparator() {
-        return rowMapper.naturalComparator();
+        return rowMapper.comparator();
     }
 
     /**

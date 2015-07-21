@@ -129,7 +129,7 @@ public class RowMapperWide extends RowMapper {
      * {@inheritDoc}
      */
     @Override
-    public RowComparator naturalComparator() {
+    public RowComparator comparator() {
         return new RowComparatorNatural(clusteringKeyMapper);
     }
 

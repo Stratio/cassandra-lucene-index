@@ -19,6 +19,7 @@ import com.stratio.cassandra.lucene.IndexSearcher;
 import com.stratio.cassandra.lucene.RowKeys;
 import com.stratio.cassandra.lucene.service.RowMapper;
 import com.stratio.cassandra.lucene.util.ByteBufferUtils;
+import com.stratio.cassandra.lucene.util.Log;
 import org.apache.cassandra.cql3.statements.BatchStatement;
 import org.apache.cassandra.cql3.statements.ParsedStatement;
 import org.apache.cassandra.cql3.statements.SelectStatement;
@@ -191,8 +192,9 @@ public class LuceneQueryHandler implements QueryHandler {
             // Log.info("@@@ ITERATION NEXT COMMAND WILL START " + rowKeys);
 
         } while (isCount && remaining > 0 && collectedRows == rowsPerCommand);
-        // Log.info("@@@ COMMAND ENDS WITH " + rows.size() + " COLLECTED ROWS AND REMAINING " + remaining);
-        // Log.info("@@@ NEXT COMMAND WILL START " + rowKeys);
+        System.out.println("@@@ COMMAND ENDS WITH " + rows.size() + " COLLECTED ROWS AND REMAINING " + remaining);
+        System.out.println("@@@ NEXT COMMAND WILL START " + rowKeys);
+        System.out.println();
 
         ResultMessage.Rows msg = statement.processResults(rows, options, limit, now);
         if (!isCount && remaining > 0 && rows.size() == rowsPerCommand) {

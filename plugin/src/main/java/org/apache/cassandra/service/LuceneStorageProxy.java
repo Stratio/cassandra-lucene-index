@@ -4,6 +4,7 @@ import com.stratio.cassandra.lucene.IndexSearcher;
 import com.stratio.cassandra.lucene.RowKey;
 import com.stratio.cassandra.lucene.RowKeys;
 import com.stratio.cassandra.lucene.service.RowMapper;
+import com.stratio.cassandra.lucene.util.Log;
 import org.apache.cassandra.concurrent.Stage;
 import org.apache.cassandra.concurrent.StageManager;
 import org.apache.cassandra.config.DatabaseDescriptor;
@@ -430,8 +431,8 @@ public class LuceneStorageProxy {
         RowKeys newRowKeys = new RowKeys();
         for (Map.Entry<AbstractBounds<RowPosition>, List<Row>> entry : rowsPerRange.entrySet()) {
             RowKey rowKey = rowKey(entry.getKey(), rowKeys);
-            rowKey = last(mapper, rowKey, rows, entry.getValue());
-            if (rowKey != null) newRowKeys.add(rowKey);
+            RowKey newRowKey = last(mapper, rowKey, rows, entry.getValue());
+            if (newRowKey != null) newRowKeys.add(newRowKey);
         }
         return Pair.create(rows, newRowKeys);
     }

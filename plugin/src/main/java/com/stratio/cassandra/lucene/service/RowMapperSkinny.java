@@ -137,7 +137,7 @@ public class RowMapperSkinny extends RowMapper {
      * {@inheritDoc}
      */
     @Override
-    public RowComparator naturalComparator() {
+    public RowComparator comparator() {
         return new RowComparatorNatural();
     }
 
