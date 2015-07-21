@@ -41,6 +41,9 @@ import org.apache.lucene.search.Sort;
  */
 public class RowMapperSkinny extends RowMapper {
 
+    /** The natural sorting comparator. */
+    private final RowComparator comparator;
+
     /**
      * Builds a new {@link RowMapperSkinny} for the specified column family metadata, indexed column definition and
      * {@link Schema}.
@@ -51,6 +54,7 @@ public class RowMapperSkinny extends RowMapper {
      */
     RowMapperSkinny(CFMetaData metadata, ColumnDefinition columnDefinition, Schema schema) {
         super(metadata, columnDefinition, schema);
+        this.comparator = new RowComparatorNatural();
     }
 
     /**
@@ -122,8 +126,8 @@ public class RowMapperSkinny extends RowMapper {
      * {@inheritDoc}
      */
     @Override
-    public RowComparator naturalComparator() {
-        return new RowComparatorNatural();
+    public RowComparator comparator() {
+        return comparator;
     }
 
     /**

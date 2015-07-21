@@ -156,7 +156,7 @@ public abstract class RowMapper {
      *
      * @return A {@link RowComparator} using the same order that is used in Cassandra.
      */
-    public abstract RowComparator naturalComparator();
+    public abstract RowComparator comparator();
 
     /**
      * Returns the {@link SearchResult} defined by the specified {@link Document} and {@link ScoreDoc}.

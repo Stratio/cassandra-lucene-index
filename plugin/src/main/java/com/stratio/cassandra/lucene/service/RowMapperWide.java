@@ -60,6 +60,9 @@ public class RowMapperWide extends RowMapper {
     /** The full key mapper. */
     private final FullKeyMapper fullKeyMapper;
 
+    /** The natural sorting comparator. */
+    private final RowComparator comparator;
+
     /**
      * Builds a new {@link RowMapperWide} for the specified column family metadata, indexed column definition and {@link
      * Schema}.
@@ -72,6 +75,7 @@ public class RowMapperWide extends RowMapper {
         super(metadata, columnDefinition, schema);
         this.clusteringKeyMapper = ClusteringKeyMapper.instance(metadata);
         this.fullKeyMapper = FullKeyMapper.instance(partitionKeyMapper, clusteringKeyMapper);
+        this.comparator = new RowComparatorNatural(clusteringKeyMapper);
     }
 
     /**
@@ -126,8 +130,8 @@ public class RowMapperWide extends RowMapper {
      * {@inheritDoc}
      */
     @Override
-    public RowComparator naturalComparator() {
-        return new RowComparatorNatural(clusteringKeyMapper);
+    public RowComparator comparator() {
+        return comparator;
     }
 
     /**

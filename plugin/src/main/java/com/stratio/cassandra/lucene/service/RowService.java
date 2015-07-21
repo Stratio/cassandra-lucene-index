@@ -279,13 +279,12 @@ public abstract class RowService {
         Log.debug("Searching with search %s ", search);
 
         // Setup stats
-        TimeCounter searchTime = new TimeCounter();
-        TimeCounter luceneTime = new TimeCounter();
-        TimeCounter collectTime = new TimeCounter();
+        TimeCounter searchTime = TimeCounter.create().start();
+        TimeCounter luceneTime = TimeCounter.create();
+        TimeCounter collectTime = TimeCounter.create();
         int numDocs = 0;
         int numPages = 0;
         int numRows = 0;
-        searchTime.start();
 
         List<ScoredRow> scoredRows = new LinkedList<>();
 
@@ -511,7 +510,7 @@ public abstract class RowService {
                 return new RowComparatorScoring(this);
             }
         }
-        return rowMapper.naturalComparator();
+        return comparator();
     }
 
     /**
@@ -520,7 +519,7 @@ public abstract class RowService {
      * @return The default {@link Row} comparator.
      */
     public RowComparator comparator() {
-        return rowMapper.naturalComparator();
+        return rowMapper.comparator();
     }
 
     /**
