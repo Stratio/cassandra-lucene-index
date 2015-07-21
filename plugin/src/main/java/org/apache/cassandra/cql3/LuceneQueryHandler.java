@@ -19,7 +19,6 @@ import com.stratio.cassandra.lucene.IndexSearcher;
 import com.stratio.cassandra.lucene.RowKeys;
 import com.stratio.cassandra.lucene.service.RowMapper;
 import com.stratio.cassandra.lucene.util.ByteBufferUtils;
-import com.stratio.cassandra.lucene.util.Log;
 import org.apache.cassandra.cql3.statements.BatchStatement;
 import org.apache.cassandra.cql3.statements.ParsedStatement;
 import org.apache.cassandra.cql3.statements.SelectStatement;
@@ -37,7 +36,7 @@ import org.apache.cassandra.exceptions.InvalidRequestException;
 import org.apache.cassandra.exceptions.RequestExecutionException;
 import org.apache.cassandra.exceptions.RequestValidationException;
 import org.apache.cassandra.service.ClientState;
-import org.apache.cassandra.service.LuceneQueryProcessor;
+import org.apache.cassandra.service.LuceneStorageProxy;
 import org.apache.cassandra.service.QueryState;
 import org.apache.cassandra.service.pager.PagingState;
 import org.apache.cassandra.transport.messages.ResultMessage;
@@ -101,7 +100,6 @@ public class LuceneQueryHandler implements QueryHandler {
     @Override
     public ResultMessage process(String query, QueryState state, QueryOptions options)
     throws RequestExecutionException, RequestValidationException {
-        System.out.println("PROCESSING LUCENE");
 
         ParsedStatement.Prepared p = QueryProcessor.getStatement(query, state.getClientState());
         options.prepare(p.boundNames);
@@ -119,7 +117,7 @@ public class LuceneQueryHandler implements QueryHandler {
             SecondaryIndexSearcher searcher = secondaryIndexManager.getHighestSelectivityIndexSearcher(expressions);
             if (searcher != null && searcher instanceof IndexSearcher) {
                 try {
-                    return proccess((IndexSearcher) searcher, expressions, select, state, options);
+                    return process((IndexSearcher) searcher, expressions, select, state, options);
                 } catch (RequestExecutionException | RequestValidationException e) {
                     throw e;
                 } catch (Exception e) {
@@ -132,11 +130,11 @@ public class LuceneQueryHandler implements QueryHandler {
         return cqlProcessor.processStatement(prepared, state, options);
     }
 
-    public ResultMessage proccess(IndexSearcher searcher,
-                                  List<IndexExpression> expressions,
-                                  SelectStatement statement,
-                                  QueryState state,
-                                  QueryOptions options) throws Exception {
+    public ResultMessage process(IndexSearcher searcher,
+                                 List<IndexExpression> expressions,
+                                 SelectStatement statement,
+                                 QueryState state,
+                                 QueryOptions options) throws Exception {
 
         ClientState clientState = state.getClientState();
         statement.checkAccess(clientState);
@@ -174,26 +172,27 @@ public class LuceneQueryHandler implements QueryHandler {
         int collectedRows;
 
         do {
-            Pair<List<Row>, RowKeys> results = LuceneQueryProcessor.run(searcher,
-                                                                        ks,
-                                                                        cf,
-                                                                        now,
-                                                                        filter,
-                                                                        range,
-                                                                        expressions,
-                                                                        rowsPerCommand,
-                                                                        cl,
-                                                                        rowKeys);
+            Pair<List<Row>, RowKeys> results = LuceneStorageProxy.getRangeSlice(searcher,
+                                                                                ks,
+                                                                                cf,
+                                                                                now,
+                                                                                filter,
+                                                                                range,
+                                                                                expressions,
+                                                                                rowsPerCommand,
+                                                                                cl,
+                                                                                rowKeys,
+                                                                                isCount);
             collectedRows = results.left.size();
             rows.addAll(results.left);
             rowKeys = results.right;
             remaining = limit - rows.size();
-            Log.info("@@@ ITERATION COMMAND ENDS WITH " + rows.size() + " COLLECTED ROWS AND REMAINING " + remaining);
-            Log.info("@@@ ITERATION NEXT COMMAND WILL START " + rowKeys);
+            // Log.info("@@@ ITERATION COMMAND ENDS WITH " + rows.size() + " COLLECTED ROWS AND REMAINING " + remaining);
+            // Log.info("@@@ ITERATION NEXT COMMAND WILL START " + rowKeys);
 
         } while (isCount && remaining > 0 && collectedRows == rowsPerCommand);
-        Log.info("@@@ COMMAND ENDS WITH " + rows.size() + " COLLECTED ROWS AND REMAINING " + remaining);
-        Log.info("@@@ NEXT COMMAND WILL START " + rowKeys);
+        // Log.info("@@@ COMMAND ENDS WITH " + rows.size() + " COLLECTED ROWS AND REMAINING " + remaining);
+        // Log.info("@@@ NEXT COMMAND WILL START " + rowKeys);
 
         ResultMessage.Rows msg = statement.processResults(rows, options, limit, now);
         if (!isCount && remaining > 0 && rows.size() == rowsPerCommand) {
