@@ -1,4 +1,5 @@
 2.1.8.1-SNAPSHOT
+ * Fix numeric collections (issue#12)
 
 2.1.8.0
  * Upgrade to Apache Cassandra 2.1.8

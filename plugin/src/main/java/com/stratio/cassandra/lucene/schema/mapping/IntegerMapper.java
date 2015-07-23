@@ -27,6 +27,7 @@ import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.IntField;
 import org.apache.lucene.document.NumericDocValuesField;
+import org.apache.lucene.document.SortedNumericDocValuesField;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.SortField.Type;
 
@@ -98,7 +99,11 @@ public class IntegerMapper extends SingleColumnMapper<Integer> {
     /** {@inheritDoc} */
     @Override
     public Field sortedField(String name, Integer value, boolean isCollection) {
-        return new NumericDocValuesField(name, value);
+        if (isCollection) {
+            return new SortedNumericDocValuesField(name, value);
+        } else {
+            return new NumericDocValuesField(name, value);
+        }
     }
 
     /** {@inheritDoc} */

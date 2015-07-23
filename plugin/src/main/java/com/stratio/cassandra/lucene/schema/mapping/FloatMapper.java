@@ -27,8 +27,10 @@ import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FloatField;
 import org.apache.lucene.document.NumericDocValuesField;
+import org.apache.lucene.document.SortedNumericDocValuesField;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.SortField.Type;
+import org.apache.lucene.util.NumericUtils;
 import org.codehaus.jackson.annotate.JsonCreator;
 
 /**
@@ -100,7 +102,12 @@ public class FloatMapper extends SingleColumnMapper<Float> {
     /** {@inheritDoc} */
     @Override
     public Field sortedField(String name, Float value, boolean isCollection) {
-        return new NumericDocValuesField(name, Float.floatToIntBits(value));
+        int sortable = NumericUtils.floatToSortableInt(value);
+        if (isCollection) {
+            return new SortedNumericDocValuesField(name, sortable);
+        } else {
+            return new NumericDocValuesField(name, sortable);
+        }
     }
 
     /** {@inheritDoc} */

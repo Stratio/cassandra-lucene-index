@@ -25,8 +25,12 @@ import org.apache.cassandra.db.marshal.IntegerType;
 import org.apache.cassandra.db.marshal.LongType;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.document.FieldType;
 import org.apache.lucene.document.LongField;
 import org.apache.lucene.document.NumericDocValuesField;
+import org.apache.lucene.document.SortedNumericDocValuesField;
+import org.apache.lucene.index.DocValuesType;
+import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.SortField.Type;
 
@@ -36,6 +40,23 @@ import org.apache.lucene.search.SortField.Type;
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class LongMapper extends SingleColumnMapper<Long> {
+
+    public static final FieldType NUMERIC_MULTIVALUED_TYPE = new FieldType();
+
+    static {
+        NUMERIC_MULTIVALUED_TYPE.setDocValuesType(DocValuesType.NUMERIC);
+        NUMERIC_MULTIVALUED_TYPE.freeze();
+    }
+
+    public static final FieldType TYPE_NOT_STORED = new FieldType();
+
+    static {
+        TYPE_NOT_STORED.setTokenized(true);
+        TYPE_NOT_STORED.setOmitNorms(true);
+        TYPE_NOT_STORED.setIndexOptions(IndexOptions.DOCS);
+        TYPE_NOT_STORED.setNumericType(FieldType.NumericType.LONG);
+        TYPE_NOT_STORED.freeze();
+    }
 
     /** The default boost. */
     public static final Float DEFAULT_BOOST = 1.0f;
@@ -98,7 +119,11 @@ public class LongMapper extends SingleColumnMapper<Long> {
     /** {@inheritDoc} */
     @Override
     public Field sortedField(String name, Long value, boolean isCollection) {
-        return new NumericDocValuesField(name, value);
+        if (isCollection) {
+            return new SortedNumericDocValuesField(name, value);
+        } else {
+            return new NumericDocValuesField(name, value);
+        }
     }
 
     /** {@inheritDoc} */
