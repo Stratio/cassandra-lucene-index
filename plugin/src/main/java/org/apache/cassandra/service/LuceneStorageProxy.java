@@ -1,10 +1,9 @@
 package org.apache.cassandra.service;
 
 import com.stratio.cassandra.lucene.IndexSearcher;
-import com.stratio.cassandra.lucene.RowKey;
-import com.stratio.cassandra.lucene.RowKeys;
+import com.stratio.cassandra.lucene.service.RowKey;
+import com.stratio.cassandra.lucene.service.RowKeys;
 import com.stratio.cassandra.lucene.service.RowMapper;
-import com.stratio.cassandra.lucene.util.Log;
 import org.apache.cassandra.concurrent.Stage;
 import org.apache.cassandra.concurrent.StageManager;
 import org.apache.cassandra.config.DatabaseDescriptor;
@@ -36,11 +35,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import org.apache.cassandra.service.StorageProxy.*;
 
-/**
- * @author Andres de la Pena <adelapena@stratio.com>
- */
+import static org.apache.cassandra.service.StorageProxy.LocalRangeSliceRunnable;
+
 @SuppressWarnings("unchecked")
 public class LuceneStorageProxy {
 
@@ -48,7 +45,6 @@ public class LuceneStorageProxy {
     private static final ClientRequestMetrics rangeMetrics = new ClientRequestMetrics("RangeSlice");
     private static final double CONCURRENT_SUBREQUESTS_MARGIN = 0.10;
 
-    private static final Method getRestrictedRanges;
     private static final Method getLiveSortedEndpoints;
     private static final Method intersection;
     private static final Method calculateResultRowsUsingEstimatedKeys;
@@ -57,16 +53,16 @@ public class LuceneStorageProxy {
         try {
             Class clazz = StorageProxy.class;
 
-            getRestrictedRanges = clazz.getDeclaredMethod("getRestrictedRanges", AbstractBounds.class);
-            getRestrictedRanges.setAccessible(true);
-
-            getLiveSortedEndpoints = clazz.getDeclaredMethod("getLiveSortedEndpoints", Keyspace.class, RingPosition.class);
+            getLiveSortedEndpoints = clazz.getDeclaredMethod("getLiveSortedEndpoints",
+                                                             Keyspace.class,
+                                                             RingPosition.class);
             getLiveSortedEndpoints.setAccessible(true);
 
             intersection = clazz.getDeclaredMethod("intersection", List.class, List.class);
             intersection.setAccessible(true);
 
-            calculateResultRowsUsingEstimatedKeys = clazz.getDeclaredMethod("calculateResultRowsUsingEstimatedKeys", ColumnFamilyStore.class);
+            calculateResultRowsUsingEstimatedKeys = clazz.getDeclaredMethod("calculateResultRowsUsingEstimatedKeys",
+                                                                            ColumnFamilyStore.class);
             calculateResultRowsUsingEstimatedKeys.setAccessible(true);
 
         } catch (Exception e) {
@@ -86,46 +82,39 @@ public class LuceneStorageProxy {
         return (float) calculateResultRowsUsingEstimatedKeys.invoke(StorageProxy.instance, cfs);
     }
 
-    public static float estimateResultRowsPerRange(Keyspace keyspace, String columnFamily, List<IndexExpression> rowFilter, boolean countCQL3Rows) throws Exception {
+    public static float estimateResultRowsPerRange(Keyspace keyspace,
+                                                   String columnFamily,
+                                                   List<IndexExpression> rowFilter,
+                                                   boolean countCQL3Rows) throws Exception {
         ColumnFamilyStore cfs = keyspace.getColumnFamilyStore(columnFamily);
         float resultRowsPerRange = Float.POSITIVE_INFINITY;
-        if (rowFilter != null && !rowFilter.isEmpty())
-        {
+        if (rowFilter != null && !rowFilter.isEmpty()) {
             List<SecondaryIndexSearcher> searchers = cfs.indexManager.getIndexSearchersForQuery(rowFilter);
-            if (searchers.isEmpty())
-            {
+            if (searchers.isEmpty()) {
                 resultRowsPerRange = calculateResultRowsUsingEstimatedKeys(cfs);
-            }
-            else
-            {
+            } else {
                 // Secondary index query (cql3 or otherwise).  Estimate result rows based on most selective 2ary index.
-                for (SecondaryIndexSearcher searcher : searchers)
-                {
+                for (SecondaryIndexSearcher searcher : searchers) {
                     // use our own mean column count as our estimate for how many matching rows each node will have
                     SecondaryIndex highestSelectivityIndex = searcher.highestSelectivityIndex(rowFilter);
                     resultRowsPerRange = Math.min(resultRowsPerRange, highestSelectivityIndex.estimateResultRows());
                 }
             }
-        }
-        else if (!countCQL3Rows)
-        {
+        } else if (!countCQL3Rows) {
             // non-cql3 query
             resultRowsPerRange = cfs.estimateKeys();
-        }
-        else
-        {
+        } else {
             resultRowsPerRange = calculateResultRowsUsingEstimatedKeys(cfs);
         }
 
         // adjust resultRowsPerRange by the number of tokens this node has and the replication factor for this ks
-        return (resultRowsPerRange / DatabaseDescriptor.getNumTokens()) / keyspace.getReplicationStrategy().getReplicationFactor();
+        return (resultRowsPerRange / DatabaseDescriptor.getNumTokens()) /
+               keyspace.getReplicationStrategy().getReplicationFactor();
     }
 
-    public static boolean ignoredTombstonedPartitions(IDiskAtomFilter predicate)
-    {
-        return predicate instanceof SliceQueryFilter
-               && ((SliceQueryFilter) predicate).compositesToGroup
-                  == SliceQueryFilter.IGNORE_TOMBSTONED_PARTITIONS;
+    public static boolean ignoredTombstonedPartitions(IDiskAtomFilter predicate) {
+        return predicate instanceof SliceQueryFilter &&
+               ((SliceQueryFilter) predicate).compositesToGroup == SliceQueryFilter.IGNORE_TOMBSTONED_PARTITIONS;
     }
 
     private static RowKey rowKey(AbstractBounds<RowPosition> range, RowKeys rowKeys) {
@@ -155,9 +144,7 @@ public class LuceneStorageProxy {
                                                          int limit,
                                                          ConsistencyLevel consistency_level,
                                                          RowKeys rowKeys,
-                                                         boolean countCQL3Rows)
-    throws Exception
-    {
+                                                         boolean countCQL3Rows) throws Exception {
         Tracing.trace("Computing ranges to query");
         long startTime = System.nanoTime();
 
@@ -165,8 +152,7 @@ public class LuceneStorageProxy {
         List<Row> rows;
         Map<AbstractBounds<RowPosition>, List<Row>> rowsPerRange = new HashMap<>();
         // now scan until we have enough results
-        try
-        {
+        try {
             int liveRowCount = 0;
             boolean countLiveRows = countCQL3Rows || ignoredTombstonedPartitions(predicate);
             rows = new ArrayList<>();
@@ -174,16 +160,13 @@ public class LuceneStorageProxy {
             // when dealing with LocalStrategy keyspaces, we can skip the range splitting and merging (which can be
             // expensive in clusters with vnodes)
             List<? extends AbstractBounds<RowPosition>> ranges;
-            if (keyspace.getReplicationStrategy() instanceof LocalStrategy)
-                ranges = keyRange.unwrap();
-            else
-                ranges = StorageProxy.getRestrictedRanges(keyRange);
+            if (keyspace.getReplicationStrategy() instanceof LocalStrategy) ranges = keyRange.unwrap();
+            else ranges = StorageProxy.getRestrictedRanges(keyRange);
 
             // determine the number of rows to be fetched and the concurrency factor
             int rowsToBeFetched = limit;
             int concurrencyFactor;
-            if (searcher.requiresScanningAllRanges(expressions))
-            {
+            if (searcher.requiresScanningAllRanges(expressions)) {
                 // all nodes must be queried
                 rowsToBeFetched *= ranges.size();
                 concurrencyFactor = ranges.size();
@@ -192,25 +175,28 @@ public class LuceneStorageProxy {
                              ranges.size(),
                              concurrencyFactor);
                 Tracing.trace("Submitting range requests on {} ranges with a concurrency of {}",
-                              new Object[]{ ranges.size(), concurrencyFactor});
-            }
-            else
-            {
+                              new Object[]{ranges.size(), concurrencyFactor});
+            } else {
                 // our estimate of how many result rows there will be per-range
-                float resultRowsPerRange = estimateResultRowsPerRange(keyspace, columnFamily, expressions, countCQL3Rows);
+                float resultRowsPerRange = estimateResultRowsPerRange(keyspace,
+                                                                      columnFamily,
+                                                                      expressions,
+                                                                      countCQL3Rows);
                 // underestimate how many rows we will get per-range in order to increase the likelihood that we'll
                 // fetch enough rows in the first round
                 resultRowsPerRange -= resultRowsPerRange * CONCURRENT_SUBREQUESTS_MARGIN;
-                concurrencyFactor = resultRowsPerRange == 0.0
-                                    ? 1
-                                    : Math.max(1, Math.min(ranges.size(), (int) Math.ceil(limit / resultRowsPerRange)));
-                logger.debug("Estimated result rows per range: {}; requested rows: {}, ranges.size(): {}; concurrent range requests: {}",
-                             resultRowsPerRange,
-                             limit,
-                             ranges.size(),
-                             concurrencyFactor);
-                Tracing.trace("Submitting range requests on {} ranges with a concurrency of {} ({} rows per range expected)",
-                              new Object[]{ ranges.size(), concurrencyFactor, resultRowsPerRange});
+                concurrencyFactor = resultRowsPerRange == 0.0 ?
+                                    1 :
+                                    Math.max(1, Math.min(ranges.size(), (int) Math.ceil(limit / resultRowsPerRange)));
+                logger.debug(
+                        "Estimated result rows per range: {}; requested rows: {}, ranges.size(): {}; concurrent range requests: {}",
+                        resultRowsPerRange,
+                        limit,
+                        ranges.size(),
+                        concurrencyFactor);
+                Tracing.trace(
+                        "Submitting range requests on {} ranges with a concurrency of {} ({} rows per range expected)",
+                        new Object[]{ranges.size(), concurrencyFactor, resultRowsPerRange});
             }
 
             boolean haveSufficientRows = false;
@@ -218,30 +204,26 @@ public class LuceneStorageProxy {
             AbstractBounds<RowPosition> nextRange = null;
             List<InetAddress> nextEndpoints = null;
             List<InetAddress> nextFilteredEndpoints = null;
-            while (i < ranges.size())
-            {
-                List<Pair<AbstractRangeCommand, ReadCallback<RangeSliceReply, Iterable<Row>>>> scanHandlers = new ArrayList<>(concurrencyFactor);
+            while (i < ranges.size()) {
+                List<Pair<AbstractRangeCommand, ReadCallback<RangeSliceReply, Iterable<Row>>>> scanHandlers = new ArrayList<>(
+                        concurrencyFactor);
                 int concurrentFetchStartingIndex = i;
                 int concurrentRequests = 0;
-                while ((i - concurrentFetchStartingIndex) < concurrencyFactor)
-                {
-                    AbstractBounds<RowPosition> range = nextRange == null
-                                                        ? ranges.get(i)
-                                                        : nextRange;
-                    List<InetAddress> liveEndpoints = nextEndpoints == null
-                                                      ? getLiveSortedEndpoints(keyspace, range.right)
-                                                      : nextEndpoints;
-                    List<InetAddress> filteredEndpoints = nextFilteredEndpoints == null
-                                                          ? consistency_level.filterForQuery(keyspace, liveEndpoints)
-                                                          : nextFilteredEndpoints;
+                while ((i - concurrentFetchStartingIndex) < concurrencyFactor) {
+                    AbstractBounds<RowPosition> range = nextRange == null ? ranges.get(i) : nextRange;
+                    List<InetAddress> liveEndpoints = nextEndpoints == null ?
+                                                      getLiveSortedEndpoints(keyspace, range.right) :
+                                                      nextEndpoints;
+                    List<InetAddress> filteredEndpoints = nextFilteredEndpoints == null ?
+                                                          consistency_level.filterForQuery(keyspace, liveEndpoints) :
+                                                          nextFilteredEndpoints;
                     ++i;
                     ++concurrentRequests;
 
                     // getRestrictedRange has broken the queried range into per-[vnode] token ranges, but this doesn't take
                     // the replication factor into account. If the intersection of live endpoints for 2 consecutive ranges
                     // still meets the CL requirements, then we can merge both ranges into the same RangeSliceCommand.
-                    while (i < ranges.size())
-                    {
+                    while (i < ranges.size()) {
                         nextRange = ranges.get(i);
                         nextEndpoints = getLiveSortedEndpoints(keyspace, nextRange.right);
                         nextFilteredEndpoints = consistency_level.filterForQuery(keyspace, nextEndpoints);
@@ -251,20 +233,20 @@ public class LuceneStorageProxy {
                         // Note: it would be slightly more efficient to have CFS.getRangeSlice on the destination nodes unwraps
                         // the range if necessary and deal with it. However, we can't start sending wrapped range without breaking
                         // wire compatibility, so It's likely easier not to bother;
-                        if (range.right.isMinimum())
-                            break;
+                        if (range.right.isMinimum()) break;
 
                         List<InetAddress> merged = intersection(liveEndpoints, nextEndpoints);
 
                         // Check if there is enough endpoint for the merge to be possible.
-                        if (!consistency_level.isSufficientLiveNodes(keyspace, merged))
-                            break;
+                        if (!consistency_level.isSufficientLiveNodes(keyspace, merged)) break;
 
                         List<InetAddress> filteredMerged = consistency_level.filterForQuery(keyspace, merged);
 
                         // Estimate whether merging will be a win or not
-                        if (!DatabaseDescriptor.getEndpointSnitch().isWorthMergingForRangeQuery(filteredMerged, filteredEndpoints, nextFilteredEndpoints))
-                            break;
+                        if (!DatabaseDescriptor.getEndpointSnitch()
+                                               .isWorthMergingForRangeQuery(filteredMerged,
+                                                                            filteredEndpoints,
+                                                                            nextFilteredEndpoints)) break;
 
                         // If we get there, merge this range and the next one
                         range = range.withNewRight(nextRange.right);
@@ -275,11 +257,12 @@ public class LuceneStorageProxy {
 
                     ////////////////////////////////////////////////////////////////////////////////////////////////////
                     RowKey after = rowKey(range, rowKeys);
-                    // Log.info("@@@ QUERYING TO " + range + " FOR " + limit + " AFTER " + after);
 
                     List<IndexExpression> decoratedExpressions = new ArrayList<>(expressions);
                     if (after != null) {
-                        decoratedExpressions.add(new IndexExpression(IndexSearcher.AFTER, Operator.EQ, searcher.mapper().byteBuffer(after)));
+                        decoratedExpressions.add(new IndexExpression(IndexSearcher.AFTER,
+                                                                     Operator.EQ,
+                                                                     searcher.mapper().byteBuffer(after)));
                     }
                     RangeSliceCommand command = new RangeSliceCommand(keyspaceName,
                                                                       columnFamily,
@@ -295,93 +278,89 @@ public class LuceneStorageProxy {
 
                     // collect replies and resolve according to consistency level
                     RangeSliceResponseResolver resolver = new RangeSliceResponseResolver(nodeCmd.keyspace, timestamp);
-                    List<InetAddress> minimalEndpoints = filteredEndpoints.subList(0, Math.min(filteredEndpoints.size(), consistency_level.blockFor(keyspace)));
-                    ReadCallback<RangeSliceReply, Iterable<Row>> handler = new ReadCallback<>(resolver, consistency_level, nodeCmd, minimalEndpoints);
+                    List<InetAddress> minimalEndpoints = filteredEndpoints.subList(0,
+                                                                                   Math.min(filteredEndpoints.size(),
+                                                                                            consistency_level.blockFor(
+                                                                                                    keyspace)));
+                    ReadCallback<RangeSliceReply, Iterable<Row>> handler = new ReadCallback<>(resolver,
+                                                                                              consistency_level,
+                                                                                              nodeCmd,
+                                                                                              minimalEndpoints);
                     handler.assureSufficientLiveNodes();
                     resolver.setSources(filteredEndpoints);
-                    if (filteredEndpoints.size() == 1
-                        && filteredEndpoints.get(0).equals(FBUtilities.getBroadcastAddress()))
-                    {
-                        StageManager.getStage(Stage.READ).execute(new LocalRangeSliceRunnable(nodeCmd, handler), Tracing.instance.get());
-                    }
-                    else
-                    {
+                    if (filteredEndpoints.size() == 1 &&
+                        filteredEndpoints.get(0).equals(FBUtilities.getBroadcastAddress())) {
+                        StageManager.getStage(Stage.READ)
+                                    .execute(new LocalRangeSliceRunnable(nodeCmd, handler), Tracing.instance.get());
+                    } else {
                         MessageOut<? extends AbstractRangeCommand> message = nodeCmd.createMessage();
-                        for (InetAddress endpoint : filteredEndpoints)
-                        {
+                        for (InetAddress endpoint : filteredEndpoints) {
                             Tracing.trace("Enqueuing request to {}", endpoint);
                             MessagingService.instance().sendRR(message, endpoint, handler);
                         }
                     }
                     scanHandlers.add(Pair.create(nodeCmd, handler));
                 }
-                Tracing.trace("Submitted {} concurrent range requests covering {} ranges", concurrentRequests, i - concurrentFetchStartingIndex);
+                Tracing.trace("Submitted {} concurrent range requests covering {} ranges",
+                              concurrentRequests,
+                              i - concurrentFetchStartingIndex);
 
                 List<AsyncOneResponse> repairResponses = new ArrayList<>();
-                for (Pair<AbstractRangeCommand, ReadCallback<RangeSliceReply, Iterable<Row>>> cmdPairHandler : scanHandlers)
-                {
+                for (Pair<AbstractRangeCommand, ReadCallback<RangeSliceReply, Iterable<Row>>> cmdPairHandler : scanHandlers) {
                     ReadCallback<RangeSliceReply, Iterable<Row>> handler = cmdPairHandler.right;
-                    RangeSliceResponseResolver resolver = (RangeSliceResponseResolver)handler.resolver;
+                    RangeSliceResponseResolver resolver = (RangeSliceResponseResolver) handler.resolver;
 
-                    try
-                    {
-                        for (Row row : handler.get())
-                        {
+                    try {
+                        for (Row row : handler.get()) {
                             rows.add(row);
                             rowsPerRange.get(cmdPairHandler.left.keyRange).add(row);
-                            if (countLiveRows)
-                                liveRowCount += row.getLiveCount(predicate, timestamp);
+                            if (countLiveRows) liveRowCount += row.getLiveCount(predicate, timestamp);
                         }
                         repairResponses.addAll(resolver.repairResults);
-                    }
-                    catch (ReadTimeoutException ex)
-                    {
+                    } catch (ReadTimeoutException ex) {
                         // we timed out waiting for responses
                         int blockFor = consistency_level.blockFor(keyspace);
                         int responseCount = resolver.responses.size();
-                        String gotData = responseCount > 0
-                                         ? resolver.isDataPresent() ? " (including data)" : " (only digests)"
-                                         : "";
+                        String gotData = responseCount > 0 ?
+                                         resolver.isDataPresent() ? " (including data)" : " (only digests)" :
+                                         "";
 
-                        if (Tracing.isTracing())
-                        {
+                        if (Tracing.isTracing()) {
                             Tracing.trace("Timed out; received {} of {} responses{} for range {} of {}",
-                                          new Object[]{ responseCount, blockFor, gotData, i, ranges.size() });
-                        }
-                        else if (logger.isDebugEnabled())
-                        {
+                                          new Object[]{responseCount, blockFor, gotData, i, ranges.size()});
+                        } else if (logger.isDebugEnabled()) {
                             logger.debug("Range slice timeout; received {} of {} responses{} for range {} of {}",
-                                         responseCount, blockFor, gotData, i, ranges.size());
+                                         responseCount,
+                                         blockFor,
+                                         gotData,
+                                         i,
+                                         ranges.size());
                         }
                         throw ex;
-                    }
-                    catch (DigestMismatchException e)
-                    {
+                    } catch (DigestMismatchException e) {
                         throw new AssertionError(e); // no digests in range slices yet
                     }
 
                     // if we're done, great, otherwise, move to the next range
                     int count = countLiveRows ? liveRowCount : rows.size();
-                    if (count >= rowsToBeFetched)
-                    {
+                    if (count >= rowsToBeFetched) {
                         haveSufficientRows = true;
                         break;
                     }
                 }
 
-                try
-                {
+                try {
                     FBUtilities.waitOnFutures(repairResponses, DatabaseDescriptor.getWriteRpcTimeout());
-                }
-                catch (TimeoutException ex)
-                {
+                } catch (TimeoutException ex) {
                     // We got all responses, but timed out while repairing
                     int blockFor = consistency_level.blockFor(keyspace);
-                    if (Tracing.isTracing())
-                        Tracing.trace("Timed out while read-repairing after receiving all {} data and digest responses", blockFor);
-                    else
-                        logger.debug("Range slice timeout while read-repairing after receiving all {} data and digest responses", blockFor);
-                    throw new ReadTimeoutException(consistency_level, blockFor-1, blockFor, true);
+                    if (Tracing.isTracing()) Tracing.trace(
+                            "Timed out while read-repairing after receiving all {} data and digest responses",
+                            blockFor);
+                    else logger.debug(
+                            "Range slice timeout while read-repairing after receiving all {} data and digest responses",
+                            blockFor);
+                    throw new ReadTimeoutException(consistency_level, blockFor - 1, blockFor, true);
                 }
 
                 if (haveSufficientRows)
@@ -389,32 +368,32 @@ public class LuceneStorageProxy {
 
                 // we didn't get enough rows in our concurrent fetch; recalculate our concurrency factor
                 // based on the results we've seen so far (as long as we still have ranges left to query)
-                if (i < ranges.size())
-                {
+                if (i < ranges.size()) {
                     float fetchedRows = countLiveRows ? liveRowCount : rows.size();
                     float remainingRows = rowsToBeFetched - fetchedRows;
                     float actualRowsPerRange;
-                    if (fetchedRows == 0.0)
-                    {
+                    if (fetchedRows == 0.0) {
                         // we haven't actually gotten any results, so query all remaining ranges at once
                         actualRowsPerRange = 0.0f;
                         concurrencyFactor = ranges.size() - i;
-                    }
-                    else
-                    {
+                    } else {
                         actualRowsPerRange = fetchedRows / i;
-                        concurrencyFactor = Math.max(1, Math.min(ranges.size() - i, Math.round(remainingRows / actualRowsPerRange)));
+                        concurrencyFactor = Math.max(1,
+                                                     Math.min(ranges.size() - i,
+                                                              Math.round(remainingRows / actualRowsPerRange)));
                     }
-                    logger.debug("Didn't get enough response rows; actual rows per range: {}; remaining rows: {}, new concurrent requests: {}",
-                                 actualRowsPerRange, (int) remainingRows, concurrencyFactor);
+                    logger.debug(
+                            "Didn't get enough response rows; actual rows per range: {}; remaining rows: {}, new concurrent requests: {}",
+                            actualRowsPerRange,
+                            (int) remainingRows,
+                            concurrencyFactor);
                 }
             }
-        }
-        finally
-        {
+        } finally {
             long latency = System.nanoTime() - startTime;
             rangeMetrics.addNano(latency);
-            Keyspace.open(keyspaceName).getColumnFamilyStore(columnFamily).metric.coordinatorScanLatency.update(latency, TimeUnit.NANOSECONDS);
+            Keyspace.open(keyspaceName).getColumnFamilyStore(columnFamily).metric.coordinatorScanLatency.update(latency,
+                                                                                                                TimeUnit.NANOSECONDS);
         }
         return makeResult(rows, searcher, expressions, limit, rowsPerRange, rowKeys, searcher.mapper());
     }

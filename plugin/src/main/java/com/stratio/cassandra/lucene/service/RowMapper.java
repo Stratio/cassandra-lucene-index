@@ -15,8 +15,6 @@
  */
 package com.stratio.cassandra.lucene.service;
 
-import com.stratio.cassandra.lucene.RowKey;
-import com.stratio.cassandra.lucene.RowKeys;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import com.stratio.cassandra.lucene.util.ByteBufferUtils;

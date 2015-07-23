@@ -15,9 +15,7 @@
  */
 package com.stratio.cassandra.lucene.service;
 
-import com.stratio.cassandra.lucene.RowKey;
 import com.stratio.cassandra.lucene.util.ByteBufferUtils;
-import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.db.DecoratedKey;
 import org.apache.cassandra.db.composites.CellName;

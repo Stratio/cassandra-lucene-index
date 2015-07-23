@@ -16,7 +16,6 @@
 package com.stratio.cassandra.lucene.service;
 
 import com.stratio.cassandra.lucene.IndexConfig;
-import com.stratio.cassandra.lucene.RowKey;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
@@ -305,7 +304,7 @@ public abstract class RowService {
                 Map<Document, ScoreDoc> docs = luceneIndex.search(searcher, query, sort, last, page, fields);
                 List<SearchResult> searchResults = new ArrayList<>(docs.size());
                 for (Map.Entry<Document, ScoreDoc> entry : docs.entrySet()) {
-                    System.out.println("** FOUND " + entry.getValue());
+                // Log.info("** FOUND " + entry.getValue());
                     Document document = entry.getKey();
                     ScoreDoc scoreDoc = entry.getValue();
                     last = scoreDoc;
@@ -349,13 +348,15 @@ public abstract class RowService {
     }
 
     private ScoreDoc after(IndexSearcher searcher, RowKey rowKey, Query query, Sort sort) throws IOException {
+        TimeCounter time = TimeCounter.create().start();
         if (rowKey == null) return null;
         Filter rowFilter = new QueryWrapperFilter(rowMapper.query(rowKey));
         Query afterQuery = new FilteredQuery(query, rowFilter);
         Set<String> fields = Collections.emptySet();
         Map<Document, ScoreDoc> results = luceneIndex.search(searcher, afterQuery, sort, null, 1, fields);
         ScoreDoc scoreDoc = results.isEmpty() ? null : results.values().iterator().next();
-        System.out.println("** AFTER " + scoreDoc);
+        // Log.info("** AFTER " + scoreDoc);
+        Log.debug("Search after time: %s", time.stop());
         return scoreDoc;
     }
 

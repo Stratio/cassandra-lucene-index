@@ -1,11 +1,11 @@
-package com.stratio.cassandra.lucene;
+package com.stratio.cassandra.lucene.service;
 
 import com.google.common.base.Objects;
 import org.apache.cassandra.db.DecoratedKey;
 import org.apache.cassandra.db.composites.CellName;
 
 /**
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class RowKey {
 

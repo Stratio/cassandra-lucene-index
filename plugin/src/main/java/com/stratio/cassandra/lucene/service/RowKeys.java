@@ -1,4 +1,4 @@
-package com.stratio.cassandra.lucene;
+package com.stratio.cassandra.lucene.service;
 
 import com.google.common.base.Objects;
 
@@ -7,7 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * @author Andres de la Pena <adelapena@stratio.com>
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class RowKeys implements Iterable<RowKey>{
 
@@ -19,10 +19,6 @@ public class RowKeys implements Iterable<RowKey>{
 
     public RowKeys(List<RowKey> rowKeys) {
         this.rowKeys = rowKeys;
-    }
-
-    public List<RowKey> getRowKeys() {
-        return rowKeys;
     }
 
     public Iterator<RowKey> iterator() {

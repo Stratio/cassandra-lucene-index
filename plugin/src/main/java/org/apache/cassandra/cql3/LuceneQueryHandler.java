@@ -16,10 +16,11 @@
 package org.apache.cassandra.cql3;
 
 import com.stratio.cassandra.lucene.IndexSearcher;
-import com.stratio.cassandra.lucene.RowKeys;
+import com.stratio.cassandra.lucene.service.RowKeys;
 import com.stratio.cassandra.lucene.service.RowMapper;
 import com.stratio.cassandra.lucene.util.ByteBufferUtils;
 import com.stratio.cassandra.lucene.util.Log;
+import com.stratio.cassandra.lucene.util.TimeCounter;
 import org.apache.cassandra.cql3.statements.BatchStatement;
 import org.apache.cassandra.cql3.statements.ParsedStatement;
 import org.apache.cassandra.cql3.statements.SelectStatement;
@@ -58,6 +59,8 @@ import java.util.List;
 public class LuceneQueryHandler implements QueryHandler {
 
     static QueryProcessor cqlProcessor = QueryProcessor.instance;
+
+
 
     private IDiskAtomFilter makeFilter(SelectStatement statement, QueryOptions options, int limit) throws Exception {
         Method method = SelectStatement.class.getDeclaredMethod("makeFilter", QueryOptions.class, int.class);
@@ -118,7 +121,10 @@ public class LuceneQueryHandler implements QueryHandler {
             SecondaryIndexSearcher searcher = secondaryIndexManager.getHighestSelectivityIndexSearcher(expressions);
             if (searcher != null && searcher instanceof IndexSearcher) {
                 try {
-                    return process((IndexSearcher) searcher, expressions, select, state, options);
+                    TimeCounter time = TimeCounter.create().start();
+                    ResultMessage msg = process((IndexSearcher) searcher, expressions, select, state, options);
+                    Log.debug("Total Lucene query time: %s\n", time.stop());
+                    return msg;
                 } catch (RequestExecutionException | RequestValidationException e) {
                     throw e;
                 } catch (Exception e) {
@@ -188,13 +194,8 @@ public class LuceneQueryHandler implements QueryHandler {
             rows.addAll(results.left);
             rowKeys = results.right;
             remaining = limit - rows.size();
-            // Log.info("@@@ ITERATION COMMAND ENDS WITH " + rows.size() + " COLLECTED ROWS AND REMAINING " + remaining);
-            // Log.info("@@@ ITERATION NEXT COMMAND WILL START " + rowKeys);
 
         } while (isCount && remaining > 0 && collectedRows == rowsPerCommand);
-        System.out.println("@@@ COMMAND ENDS WITH " + rows.size() + " COLLECTED ROWS AND REMAINING " + remaining);
-        System.out.println("@@@ NEXT COMMAND WILL START " + rowKeys);
-        System.out.println();
 
         ResultMessage.Rows msg = statement.processResults(rows, options, limit, now);
         if (!isCount && remaining > 0 && rows.size() == rowsPerCommand) {
