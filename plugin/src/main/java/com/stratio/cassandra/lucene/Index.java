@@ -21,6 +21,7 @@ import com.stratio.cassandra.lucene.util.Log;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
 import org.apache.cassandra.config.Schema;
+import org.apache.cassandra.cql3.LuceneQueryHandler;
 import org.apache.cassandra.db.ColumnFamily;
 import org.apache.cassandra.db.ColumnFamilyStore;
 import org.apache.cassandra.db.DecoratedKey;
@@ -29,8 +30,11 @@ import org.apache.cassandra.db.index.PerRowSecondaryIndex;
 import org.apache.cassandra.db.index.SecondaryIndexManager;
 import org.apache.cassandra.db.index.SecondaryIndexSearcher;
 import org.apache.cassandra.exceptions.ConfigurationException;
+import org.apache.cassandra.service.ClientState;
 import org.apache.cassandra.utils.concurrent.OpOrder;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.nio.ByteBuffer;
 import java.util.Set;
 
@@ -41,6 +45,22 @@ import java.util.Set;
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class Index extends PerRowSecondaryIndex {
+
+    // Setup CQL query handler
+    static {
+        try {
+            Field field = ClientState.class.getDeclaredField("cqlQueryHandler");
+            field.setAccessible(true);
+
+            Field modifiersField = Field.class.getDeclaredField("modifiers");
+            modifiersField.setAccessible(true);
+            modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
+
+            field.set(null, new LuceneQueryHandler());
+        } catch (Exception e) {
+            Log.error("Unable to set Lucene CQL query handler");
+        }
+    }
 
     private SecondaryIndexManager secondaryIndexManager;
     private ColumnDefinition columnDefinition;

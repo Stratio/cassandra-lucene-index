@@ -19,6 +19,8 @@ import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.search.Search;
 import com.stratio.cassandra.lucene.search.SearchBuilder;
+import com.stratio.cassandra.lucene.service.RowKey;
+import com.stratio.cassandra.lucene.service.RowMapper;
 import com.stratio.cassandra.lucene.service.RowService;
 import com.stratio.cassandra.lucene.util.Log;
 import com.stratio.cassandra.lucene.util.TimeCounter;
@@ -34,7 +36,6 @@ import org.apache.cassandra.exceptions.InvalidRequestException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
@@ -47,7 +48,9 @@ import static org.apache.cassandra.cql3.Operator.EQ;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-class IndexSearcher extends SecondaryIndexSearcher {
+public class IndexSearcher extends SecondaryIndexSearcher {
+
+    public final static ByteBuffer AFTER = UTF8Type.instance.fromString("search_after_doc");
 
     private final Index index;
     private final RowService rowService;
@@ -79,13 +82,14 @@ class IndexSearcher extends SecondaryIndexSearcher {
     @Override
     public List<Row> search(ExtendedFilter extendedFilter) {
         try {
+            RowKey after = after(extendedFilter.getClause());
             long timestamp = extendedFilter.timestamp;
             int limit = extendedFilter.currentLimit();
             DataRange dataRange = extendedFilter.dataRange;
             List<IndexExpression> clause = extendedFilter.getClause();
             List<IndexExpression> filteredExpressions = filteredExpressions(clause);
             Search search = search(clause);
-            return rowService.search(search, filteredExpressions, dataRange, limit, timestamp);
+            return rowService.search(search, filteredExpressions, dataRange, limit, timestamp, after);
         } catch (IOException e) {
             Log.error(e, "Error while searching: %s", extendedFilter);
             throw new RuntimeException(e);
@@ -141,7 +145,7 @@ class IndexSearcher extends SecondaryIndexSearcher {
      * @param clause A list of {@link IndexExpression}s.
      * @return The {@link Search} contained in the specified list of {@link IndexExpression}s.
      */
-    private Search search(List<IndexExpression> clause) {
+    public Search search(List<IndexExpression> clause) {
         IndexExpression indexedExpression = indexedExpression(clause);
         if (indexedExpression == null) {
             throw new RuntimeException("There is no index expression in the clause");
@@ -176,7 +180,7 @@ class IndexSearcher extends SecondaryIndexSearcher {
         List<IndexExpression> filteredExpressions = new ArrayList<>(clause.size());
         for (IndexExpression ie : clause) {
             ByteBuffer columnName = ie.column;
-            if (!indexedColumnName.equals(columnName)) {
+            if (!indexedColumnName.equals(columnName) && !AFTER.equals(columnName)) {
                 filteredExpressions.add(ie);
             }
         }
@@ -197,18 +201,12 @@ class IndexSearcher extends SecondaryIndexSearcher {
         TimeCounter sortTime = TimeCounter.create().start();
         int startSize = rows.size();
 
-        // Remove duplicates
-        Comparator<Row> comparator = rowService.comparator();
-        TreeSet<Row> set = new TreeSet<>(rowService.comparator());
+        // Remove duplicates and sort
+        Search search = search(clause);
+        Comparator<Row> comparator = rowService.comparator(search);
+        TreeSet<Row> set = new TreeSet<>(comparator);
         set.addAll(rows);
         List<Row> result = new ArrayList<>(set);
-
-        // Sort by relevance
-        Search search = search(clause);
-        if (search.usesRelevanceOrSorting()) {
-            comparator = rowService.comparator(search);
-            Collections.sort(result, comparator);
-        }
 
         String comparatorName = comparator.getClass().getSimpleName();
         int endSize = result.size();
@@ -228,5 +226,19 @@ class IndexSearcher extends SecondaryIndexSearcher {
                       .add("table", index.getTableName())
                       .add("column", index.getColumnName())
                       .toString();
+    }
+
+    private RowKey after(List<IndexExpression> expressions) {
+        for (IndexExpression indexExpression : expressions) {
+            ByteBuffer columnName = indexExpression.column;
+            if (AFTER.equals(columnName)) {
+                return mapper().rowKey(indexExpression.value);
+            }
+        }
+        return null;
+    }
+
+    public RowMapper mapper() {
+        return rowService.mapper();
     }
 }

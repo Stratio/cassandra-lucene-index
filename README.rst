@@ -5,7 +5,7 @@ Stratio’s Cassandra Lucene Index
 Stratio’s Cassandra Lucene Index, derived from `Stratio Cassandra <https://github.com/Stratio/stratio-cassandra>`__, is
 a plugin for `Apache Cassandra <http://cassandra.apache.org/>`__ that extends its index functionality to provide near
 real time search such as ElasticSearch or Solr, including `full text search <http://en.wikipedia.org/wiki/Full_text_search>`__
-capabilities and free multivariable and geospatial search. It is achieved through an `Apache Lucene <http://lucene.apache.org/>`__
+capabilities and free multivariable, geospatial and bitemporal search. It is achieved through an `Apache Lucene <http://lucene.apache.org/>`__
 based implementation of Cassandra secondary indexes, where each node of the cluster indexes its own data. Stratio’s
 Cassandra indexes are one of the core modules on which `Stratio’s BigData platform <http://www.stratio.com/>`__ is based.
 
@@ -30,20 +30,16 @@ Stratio’s Cassandra Lucene Index and its integration with Lucene search techno
 
 -  Full text search
 -  Geospatial search
--  Date ranges (durations) search
--  Multidimensional boolean (and, or, not) search
+-  Bitemporal search
+-  Boolean (and, or, not) search
 -  Near real-time search
 -  Relevance scoring and sorting
 -  General top-k queries
 -  Custom analyzers
 -  CQL3 support
--  Wide rows support
--  Partition and cluster composite keys support
--  Support for indexing columns part of primary key
 -  Third-party drivers compatibility
 -  Spark compatibility
 -  Hadoop compatibility
--  Paging over non-relevance searches (filters)
 
 Not yet supported:
 
@@ -53,7 +49,6 @@ Not yet supported:
 -  Columns with TTL
 -  CQL user defined types
 -  Static columns
--  Paging over relevance searches (queries and sorts)
 
 Requirements
 ------------

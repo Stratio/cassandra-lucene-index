@@ -79,8 +79,8 @@ public class SearchTest {
         Schema schema = mock(Schema.class);
         when(schema.getAnalyzer()).thenReturn(PreBuiltAnalyzers.STANDARD.get());
         when(schema.getMapper("field")).thenReturn(mapper);
-        assertNotNull(search().sort(sortField("field")).build().sort(schema));
-        assertNull(search().query(match("field", "value")).build().sort(schema));
+        assertNotNull(search().sort(sortField("field")).build().sortFields(schema));
+        assertNull(search().query(match("field", "value")).build().sortFields(schema));
     }
 
     @Test

@@ -121,9 +121,9 @@ public class RowServiceWide extends RowService {
      * The {@link Row} is a logical one.
      */
     @Override
-    protected List<ScoredRow> scoredRows(List<SearchResult> searchResults, long timestamp) {
+    protected List<Row> rows(List<SearchResult> searchResults, long timestamp, boolean relevance) {
 
-        Map<String, Row> rowsByScore = new HashMap<>(searchResults.size());
+        List<Row> rows = new ArrayList<>(searchResults.size());
 
         // Group key queries by partition keys
         Map<String, ScoreDoc> scoresByClusteringKey = new HashMap<>(searchResults.size());
@@ -149,25 +149,16 @@ public class RowServiceWide extends RowService {
                 for (Map.Entry<CellName, Row> entry1 : partitionRows.entrySet()) {
                     CellName clusteringKey = entry1.getKey();
                     Row row = entry1.getValue();
+                    if (relevance) {
                     String rowHash = rowMapper.hash(partitionKey, clusteringKey);
                     ScoreDoc scoreDoc = scoresByClusteringKey.get(rowHash);
-                    Float score = scoreDoc.score;
-                    Row scoredRow = addScoreColumn(row, timestamp, score);
-                    rowsByScore.put(scoreDoc.toString(), scoredRow);
+                    row = addScoreColumn(row, timestamp, scoreDoc);
+                    }
+                    rows.add(row);
                 }
             }
         }
-
-        List<ScoredRow> scoredRows = new ArrayList<>(searchResults.size());
-        for (SearchResult searchResult : searchResults) {
-            ScoreDoc scoreDoc = searchResult.getScoreDoc();
-            Row row = rowsByScore.get(scoreDoc.toString());
-            if (row != null) {
-                scoredRows.add(new ScoredRow(row, scoreDoc));
-            }
-        }
-
-        return scoredRows;
+        return rows;
     }
 
     /**

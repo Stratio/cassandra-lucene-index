@@ -30,9 +30,13 @@ import org.apache.cassandra.db.filter.IDiskAtomFilter;
 import org.apache.cassandra.db.filter.SliceQueryFilter;
 import org.apache.cassandra.dht.Token;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.index.Term;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.Sort;
+import org.apache.lucene.search.SortField;
+import org.apache.lucene.search.TermQuery;
+
+import java.nio.ByteBuffer;
 
 /**
  * {@link RowMapper} for skinny rows.
@@ -85,8 +89,8 @@ public class RowMapperSkinny extends RowMapper {
      * {@inheritDoc}
      */
     @Override
-    public Sort sort() {
-        return new Sort(tokenMapper.sortFields());
+    public SortField[] sortFields() {
+        return tokenMapper.sortFields();
     }
 
     /**
@@ -118,6 +122,16 @@ public class RowMapperSkinny extends RowMapper {
      * {@inheritDoc}
      */
     @Override
+    public Query query(RowKey rowKey) {
+        DecoratedKey partitionKey = rowKey.getPartitionKey();
+        Term term = term(partitionKey);
+        return new TermQuery(term);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public CellName makeCellName(ColumnFamily columnFamily) {
         return metadata.comparator.makeCellName(columnDefinition.name.bytes);
     }
@@ -137,5 +151,31 @@ public class RowMapperSkinny extends RowMapper {
     public SearchResult searchResult(Document document, ScoreDoc scoreDoc) {
         DecoratedKey partitionKey = partitionKeyMapper.partitionKey(document);
         return new SearchResult(partitionKey, null, scoreDoc);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ByteBuffer byteBuffer(RowKey rowKey) {
+        return rowKey.getPartitionKey().getKey();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public RowKey rowKey(ByteBuffer bb) {
+        DecoratedKey partitionKey = partitionKey(bb);
+        return new RowKey(partitionKey, null);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public RowKey rowKey(Row row) {
+        DecoratedKey partitionKey = row.key;
+        return new RowKey(partitionKey, null);
     }
 }

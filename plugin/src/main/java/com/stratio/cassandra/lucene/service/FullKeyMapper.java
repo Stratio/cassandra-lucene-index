@@ -16,6 +16,7 @@
 package com.stratio.cassandra.lucene.service;
 
 import com.stratio.cassandra.lucene.util.ByteBufferUtils;
+import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.db.DecoratedKey;
 import org.apache.cassandra.db.composites.CellName;
 import org.apache.cassandra.db.marshal.AbstractType;
@@ -43,6 +44,8 @@ public class FullKeyMapper {
     /** The type of the full row key, which is composed by the partition and clustering key types. */
     private final CompositeType type;
 
+    ClusteringKeyMapper clusteringKeyMapper;
+
     /**
      * Returns a new {@link FullKeyMapper} using the specified column family metadata.
      *
@@ -50,6 +53,7 @@ public class FullKeyMapper {
      * @param clusteringKeyMapper A {@link ClusteringKeyMapper}.
      */
     private FullKeyMapper(PartitionKeyMapper partitionKeyMapper, ClusteringKeyMapper clusteringKeyMapper) {
+        this.clusteringKeyMapper = clusteringKeyMapper;
         AbstractType<?> partitionKeyType = partitionKeyMapper.getType();
         AbstractType<?> clusteringKeyType = clusteringKeyMapper.getType().asAbstractType();
         type = CompositeType.getInstance(partitionKeyType, clusteringKeyType);
@@ -77,6 +81,13 @@ public class FullKeyMapper {
      */
     public ByteBuffer byteBuffer(DecoratedKey partitionKey, CellName cellName) {
         return type.builder().add(partitionKey.getKey()).add(cellName.toByteBuffer()).build();
+    }
+
+    public RowKey rowKey(ByteBuffer bb) {
+        ByteBuffer[] bbs = ByteBufferUtils.split(bb, type);
+        DecoratedKey partitionKey = DatabaseDescriptor.getPartitioner().decorateKey(bbs[0]);
+        CellName clusteringKey = clusteringKeyMapper.clusteringKey(bbs[1]);
+        return new RowKey(partitionKey, clusteringKey);
     }
 
     public String hash(DecoratedKey partitionKey, CellName cellName) {

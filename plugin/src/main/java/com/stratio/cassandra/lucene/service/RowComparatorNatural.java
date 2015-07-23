@@ -30,22 +30,21 @@ import java.util.Comparator;
  */
 public class RowComparatorNatural implements RowComparator {
 
-    private final ComparatorChain<Row> comparatorChain;
+    private final Comparator<Row> comparator;
 
     /**
      * Builds a new {@link RowComparatorNatural} to be used with skinny rows tables.
      */
     public RowComparatorNatural() {
         super();
-        comparatorChain = new ComparatorChain<>();
-        comparatorChain.addComparator(new Comparator<Row>() {
+        comparator = new Comparator<Row>() {
             @Override
             public int compare(Row row1, Row row2) {
                 Token t1 = row1.key.getToken();
                 Token t2 = row2.key.getToken();
                 return t1.compareTo(t2);
             }
-        });
+        };
     }
 
     /**
@@ -55,7 +54,7 @@ public class RowComparatorNatural implements RowComparator {
      */
     public RowComparatorNatural(final ClusteringKeyMapper clusteringKeyMapper) {
         super();
-        comparatorChain = new ComparatorChain<>();
+        ComparatorChain<Row> comparatorChain = new ComparatorChain<>();
         comparatorChain.addComparator(new Comparator<Row>() {
             @Override
             public int compare(Row row1, Row row2) {
@@ -73,11 +72,12 @@ public class RowComparatorNatural implements RowComparator {
                 return nameType.compare(name1, name2);
             }
         });
+        comparator = comparatorChain;
     }
 
     @Override
     public int compare(Row row1, Row row2) {
-        return comparatorChain.compare(row1, row2);
+        return comparator.compare(row1, row2);
     }
 
 }

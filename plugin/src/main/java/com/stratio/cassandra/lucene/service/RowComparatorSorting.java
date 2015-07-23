@@ -30,20 +30,30 @@ import java.util.Comparator;
  */
 class RowComparatorSorting implements RowComparator {
 
-    private final RowMapper rowMapper;
-    private final ComparatorChain<Columns> comparatorChain;
+    private final ComparatorChain<Row> comparator;
 
     /**
-     * @param rowMapper The indexing {@link RowMapper} of the {@link Row}s to be compared.
+     * @param mapper The indexing {@link RowMapper} of the {@link Row}s to be compared.
      * @param sort      The Lucene {@link Sort} inf which the {@link Row} comparison is based.
      */
-    public RowComparatorSorting(RowMapper rowMapper, Sort sort) {
-        this.rowMapper = rowMapper;
-        comparatorChain = new ComparatorChain<>();
+    public RowComparatorSorting(final RowMapper mapper, Sort sort) {
+
+        final ComparatorChain<Columns> columnsComparator = new ComparatorChain<>();
         for (SortField sortField : sort.getSortFields()) {
             Comparator<Columns> comparator = sortField.comparator();
-            comparatorChain.addComparator(comparator);
+            columnsComparator.addComparator(comparator);
         }
+
+        comparator = new ComparatorChain<>();
+        comparator.addComparator(new Comparator<Row>() {
+            @Override
+            public int compare(Row row1, Row row2) {
+                Columns columns1 = mapper.columns(row1);
+                Columns columns2 = mapper.columns(row2);
+                return columnsComparator.compare(columns1, columns2);
+            }
+        });
+        comparator.addComparator(mapper.comparator());
     }
 
     /**
@@ -56,8 +66,6 @@ class RowComparatorSorting implements RowComparator {
      */
     @Override
     public int compare(Row row1, Row row2) {
-        Columns columns1 = rowMapper.columns(row1);
-        Columns columns2 = rowMapper.columns(row2);
-        return comparatorChain.compare(columns1, columns2);
+        return comparator.compare(row1, row2);
     }
 }

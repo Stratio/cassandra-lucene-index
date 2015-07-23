@@ -5,7 +5,7 @@ Overview
 been extended to provide near real time search such as
 `ElasticSearch <http://www.elasticsearch.org/>`__ or
 `Solr <https://lucene.apache.org/solr/>`__, including full text search
-capabilities and multivariable and geospatial search.
+capabilities and multivariable, geospatial and bitemporal search.
 
 It is also fully compatible with `Apache
 Spark <https://spark.apache.org/>`__ and `Apache
@@ -27,22 +27,16 @@ Stratio’s Cassandra Lucene Index and its integration with Lucene search techno
 
 -  Full text search
 -  Geospatial search
--  Date ranges (durations) search
--  Multidimensional boolean (and, or, not) search
 -  Bitemporal search
+-  Boolean (and, or, not) search
 -  Near real-time search
 -  Relevance scoring and sorting
 -  General top-k queries
 -  Custom analyzers
 -  CQL3 support
--  Wide rows support
--  Partition and cluster composite keys support
--  Support for indexing columns part of primary key
 -  Third-party drivers compatibility
 -  Spark compatibility
 -  Hadoop compatibility
--  Paging over non-relevance searches (filters)
-
 
 Not yet supported:
 
@@ -52,7 +46,6 @@ Not yet supported:
 -  Columns with TTL
 -  CQL user defined types
 -  Static columns
--  Paging over relevance searches (queries and sorts)
 
 Requirements
 ============
