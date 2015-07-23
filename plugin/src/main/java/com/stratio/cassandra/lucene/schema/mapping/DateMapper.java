@@ -28,6 +28,7 @@ import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.LongField;
 import org.apache.lucene.document.NumericDocValuesField;
+import org.apache.lucene.document.SortedNumericDocValuesField;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.SortField.Type;
 
@@ -118,7 +119,11 @@ public class DateMapper extends SingleColumnMapper<Long> {
     /** {@inheritDoc} */
     @Override
     public Field sortedField(String name, Long value, boolean isCollection) {
-        return new NumericDocValuesField(name, value);
+        if (isCollection) {
+            return new SortedNumericDocValuesField(name, value);
+        } else {
+            return new NumericDocValuesField(name, value);
+        }
     }
 
     /** {@inheritDoc} */

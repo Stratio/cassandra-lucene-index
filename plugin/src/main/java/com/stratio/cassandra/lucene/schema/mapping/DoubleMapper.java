@@ -27,8 +27,10 @@ import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.lucene.document.DoubleField;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.NumericDocValuesField;
+import org.apache.lucene.document.SortedNumericDocValuesField;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.SortField.Type;
+import org.apache.lucene.util.NumericUtils;
 
 /**
  * A {@link Mapper} to map a double field.
@@ -98,7 +100,12 @@ public class DoubleMapper extends SingleColumnMapper<Double> {
     /** {@inheritDoc} */
     @Override
     public Field sortedField(String name, Double value, boolean isCollection) {
-        return new NumericDocValuesField(name, Double.doubleToLongBits(value));
+        long sortable = NumericUtils.doubleToSortableLong(value);
+        if (isCollection) {
+            return new SortedNumericDocValuesField(name, sortable);
+        } else {
+            return new NumericDocValuesField(name, sortable);
+        }
     }
 
     /** {@inheritDoc} */

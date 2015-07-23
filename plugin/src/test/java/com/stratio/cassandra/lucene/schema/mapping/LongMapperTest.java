@@ -173,7 +173,7 @@ public class LongMapperTest {
         LongMapper mapper = new LongMapper("field", true, true, 1f);
         Field field = mapper.sortedField("name", 3L, true);
         assertNotNull(field);
-        assertEquals(DocValuesType.NUMERIC, field.fieldType().docValuesType());
+        assertEquals(DocValuesType.SORTED_NUMERIC, field.fieldType().docValuesType());
     }
 
     @Test
