@@ -171,7 +171,7 @@ public class DoubleMapperTest {
         DoubleMapper mapper = new DoubleMapper("field", true, true, 1f);
         Field field = mapper.sortedField("name", 3.2d, true);
         assertNotNull(field);
-        assertEquals(DocValuesType.NUMERIC, field.fieldType().docValuesType());
+        assertEquals(DocValuesType.SORTED_NUMERIC, field.fieldType().docValuesType());
     }
 
     @Test

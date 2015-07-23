@@ -174,7 +174,7 @@ public class IntegerMapperTest {
         IntegerMapper mapper = new IntegerMapper("field", true, true, 1f);
         Field field = mapper.sortedField("name", 3, true);
         assertNotNull(field);
-        assertEquals(DocValuesType.NUMERIC, field.fieldType().docValuesType());
+        assertEquals(DocValuesType.SORTED_NUMERIC, field.fieldType().docValuesType());
     }
 
     @Test

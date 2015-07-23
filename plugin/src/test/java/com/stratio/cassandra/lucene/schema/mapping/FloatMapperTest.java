@@ -173,7 +173,7 @@ public class FloatMapperTest {
         FloatMapper mapper = new FloatMapper("field", true, true, 1f);
         Field field = mapper.sortedField("name", 3.2f, true);
         assertNotNull(field);
-        assertEquals(DocValuesType.NUMERIC, field.fieldType().docValuesType());
+        assertEquals(DocValuesType.SORTED_NUMERIC, field.fieldType().docValuesType());
     }
 
     @Test

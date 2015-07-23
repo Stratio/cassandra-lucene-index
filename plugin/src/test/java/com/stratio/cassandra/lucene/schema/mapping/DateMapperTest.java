@@ -193,7 +193,7 @@ public class DateMapperTest {
         DateMapper mapper = new DateMapper("field", null, true, PATTERN);
         Field field = mapper.sortedField("name", time, true);
         assertNotNull(field);
-        assertEquals(DocValuesType.NUMERIC, field.fieldType().docValuesType());
+        assertEquals(DocValuesType.SORTED_NUMERIC, field.fieldType().docValuesType());
     }
 
     @Test
