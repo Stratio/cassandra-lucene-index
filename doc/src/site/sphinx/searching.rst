@@ -159,7 +159,7 @@ Syntax:
 
 .. code-block:: sql
 
-     SELECT ( <fields> | * )
+    SELECT ( <fields> | * )
     FROM <table>
     WHERE <magic_column> = '{ (filter | query) : {
                                 type  : "bitemporal",
@@ -172,14 +172,12 @@ Syntax:
 
 where:
 
--  **vt\_from**: a string or a number being the beginning of the valid date
-   range.
+-  **vt\_from**: a string or a number being the beginning of the valid date range.
 -  **vt\_to**: a string or a number being the end of the valid date range.
--  **tt\_from**: a string or a number being the beginning of the transaction date
-   range.
+-  **tt\_from**: a string or a number being the beginning of the transaction date range.
 -  **tt\_to**: a string or a number being the end of the transaction date range.
--  **operation**: the spatial operation to be performed, it can be
-   **intersects**, **contains** and **is\_within**.
+-  **operation**: the spatial operation to be performed, it can be **intersects**,
+   **contains** and **is\_within**.
 
 Example 1: will return rows where valid time range is within "2014/02/01 00:00:00.000" and
 "2014/02/28 23:59:59.999" and transaction time range is within "2014/02/01 00:00:00.000" and

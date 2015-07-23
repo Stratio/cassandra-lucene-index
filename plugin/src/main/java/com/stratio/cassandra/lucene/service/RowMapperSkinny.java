@@ -35,6 +35,7 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.Sort;
+import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.TermQuery;
 
 import java.nio.ByteBuffer;
@@ -46,6 +47,9 @@ import java.nio.ByteBuffer;
  */
 public class RowMapperSkinny extends RowMapper {
 
+    /** The natural sorting comparator. */
+    private final RowComparator comparator;
+
     /**
      * Builds a new {@link RowMapperSkinny} for the specified column family metadata, indexed column definition and
      * {@link Schema}.
@@ -56,6 +60,7 @@ public class RowMapperSkinny extends RowMapper {
      */
     RowMapperSkinny(CFMetaData metadata, ColumnDefinition columnDefinition, Schema schema) {
         super(metadata, columnDefinition, schema);
+        this.comparator = new RowComparatorNatural();
     }
 
     /**
@@ -86,8 +91,8 @@ public class RowMapperSkinny extends RowMapper {
      * {@inheritDoc}
      */
     @Override
-    public Sort sort() {
-        return new Sort(tokenMapper.sortFields());
+    public SortField[] sortFields() {
+        return tokenMapper.sortFields();
     }
 
     /**
@@ -138,7 +143,7 @@ public class RowMapperSkinny extends RowMapper {
      */
     @Override
     public RowComparator comparator() {
-        return new RowComparatorNatural();
+        return comparator;
     }
 
     /**

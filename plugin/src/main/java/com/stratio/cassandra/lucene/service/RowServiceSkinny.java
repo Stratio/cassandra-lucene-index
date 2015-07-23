@@ -23,6 +23,7 @@ import org.apache.cassandra.db.Row;
 import org.apache.cassandra.db.filter.QueryFilter;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.search.FieldDoc;
 import org.apache.lucene.search.ScoreDoc;
 
 import java.io.IOException;
@@ -101,8 +102,8 @@ public class RowServiceSkinny extends RowService {
 
     /** {@inheritDoc} */
     @Override
-    protected List<ScoredRow> scoredRows(List<SearchResult> searchResults, long timestamp) {
-        List<ScoredRow> scoredRows = new ArrayList<>(searchResults.size());
+    protected List<Row> rows(List<SearchResult> searchResults, long timestamp, boolean relevance) {
+        List<Row> rows = new ArrayList<>(searchResults.size());
         for (SearchResult searchResult : searchResults) {
 
             // Extract row from document
@@ -112,12 +113,13 @@ public class RowServiceSkinny extends RowService {
             if (row == null) continue;
 
             // Return decorated row
-            ScoreDoc scoreDoc = searchResult.getScoreDoc();
-            Float score = scoreDoc.score;
-            Row decoratedRow = addScoreColumn(row, timestamp, score);
-            scoredRows.add(new ScoredRow(decoratedRow, scoreDoc));
+            if (relevance) {
+                ScoreDoc scoreDoc = searchResult.getScoreDoc();
+                row = addScoreColumn(row, timestamp, scoreDoc);
+            }
+            rows.add(row);
         }
-        return scoredRows;
+        return rows;
     }
 
     /**

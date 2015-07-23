@@ -40,15 +40,7 @@ import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.search.Filter;
-import org.apache.lucene.search.FilteredQuery;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.QueryWrapperFilter;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.SearcherManager;
-import org.apache.lucene.search.Sort;
-import org.apache.lucene.search.SortField;
+import org.apache.lucene.search.*;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -285,15 +277,14 @@ public abstract class RowService {
         Log.debug("Searching with search %s ", search);
 
         // Setup stats
-        TimeCounter searchTime = new TimeCounter();
-        TimeCounter luceneTime = new TimeCounter();
-        TimeCounter collectTime = new TimeCounter();
+        TimeCounter searchTime = TimeCounter.create().start();
+        TimeCounter luceneTime = TimeCounter.create();
+        TimeCounter collectTime = TimeCounter.create();
         int numDocs = 0;
         int numPages = 0;
         int numRows = 0;
-        searchTime.start();
 
-        List<ScoredRow> scoredRows = new LinkedList<>();
+        List<Row> rows = new LinkedList<>();
 
         SearcherManager searcherManager = luceneIndex.getSearcherManager();
         IndexSearcher searcher = searcherManager.acquire();
@@ -303,7 +294,7 @@ public abstract class RowService {
             Query rangeQuery = rowMapper.query(dataRange);
             Query query = search.query(schema, rangeQuery);
             Sort sort = sort(search);
-            ScoreDoc last = after(searcher, after,query,sort);
+            ScoreDoc last = after(searcher, after, query, sort);
             int page = Math.min(limit, MAX_PAGE_SIZE);
             boolean maybeMore;
 
@@ -325,9 +316,9 @@ public abstract class RowService {
 
                 // Collect rows from Cassandra
                 collectTime.start();
-                for (ScoredRow scoredRow : scoredRows(searchResults, timestamp)) {
-                    if (accepted(scoredRow, expressions)) {
-                        scoredRows.add(scoredRow);
+                for (Row row : rows(searchResults, timestamp, search.usesRelevance())) {
+                    if (accepted(row, expressions)) {
+                        rows.add(row);
                         numRows++;
                     }
                 }
@@ -339,16 +330,14 @@ public abstract class RowService {
                 numPages++;
 
                 // Iterate while there are still documents to read and we don't have enough rows
-            } while (maybeMore && scoredRows.size() < limit);
+            } while (maybeMore && rows.size() < limit);
 
         } finally {
             searcherManager.release(searcher);
         }
 
-        List<Row> rows = new ArrayList<>(numRows);
-        for (ScoredRow scoredRow : scoredRows) {
-            rows.add(scoredRow.getRow());
-        }
+        RowComparator comparator = comparator(search);
+        Collections.sort(rows, comparator);
 
         searchTime.stop();
 
@@ -371,33 +360,45 @@ public abstract class RowService {
     }
 
     private Sort sort(Search search) {
-        if (search.usesRelevance()) {
-            SortField[] naturalSortFields =  rowMapper.sort().getSort();
-            SortField[] sortFields = new SortField[naturalSortFields.length + 1];
-            sortFields[0] = FIELD_SCORE;
-            for (int i = 0; i < naturalSortFields.length; i++) {
-                sortFields[i+1] = naturalSortFields[i];
-            }
-            return new Sort(sortFields);
-        } else if (search.usesSorting()) {
-            return search.sort(schema);
+        if (search.usesSorting()) {
+            return new Sort(ArrayUtils.addAll(search.sortFields(schema), rowMapper.sortFields()));
+        } else if (search.usesRelevance()) {
+            return new Sort(ArrayUtils.addAll(new SortField[]{FIELD_SCORE}, rowMapper.sortFields()));
         } else {
-            return rowMapper.sort();
+            return new Sort(rowMapper.sortFields());
         }
     }
 
     /**
-     * Returns {@code true} if the specified {@link ScoredRow} satisfies the all the specified {@link IndexExpression}s,
+     * Returns the {@link RowComparator} to be used for ordering the {@link Row}s obtained from the specified {@link
+     * Search}. This {@link RowComparator} is useful for merging the partial results obtained from running the specified
+     * {@link Search} against several indexes.
+     *
+     * @param search A {@link Search}.
+     * @return The {@link RowComparator} to be used for ordering the {@link Row}s obtained from the specified {@link
+     * Search}.
+     */
+    public RowComparator comparator(Search search) {
+        if (search.usesSorting()) {
+            return new RowComparatorSorting(rowMapper, search.getSort());
+        } else if (search.usesRelevance()) {
+            return new RowComparatorScoring(rowMapper);
+        } else {
+            return rowMapper.comparator();
+        }
+    }
+
+    /**
+     * Returns {@code true} if the specified {@link Row} satisfies the all the specified {@link IndexExpression}s,
      * {@code false} otherwise.
      *
-     * @param scoredRow   A {@link ScoredRow}.
+     * @param row   A {@link Row}.
      * @param expressions A list of {@link IndexExpression}s to be satisfied by {@code row}.
-     * @return {@code true} if the specified {@link ScoredRow} satisfies the all the specified {@link IndexExpression}s,
+     * @return {@code true} if the specified {@link Row} satisfies the all the specified {@link IndexExpression}s,
      * {@code false} otherwise.
      */
-    private boolean accepted(ScoredRow scoredRow, List<IndexExpression> expressions) {
+    private boolean accepted(Row row, List<IndexExpression> expressions) {
         if (!expressions.isEmpty()) {
-            Row row = scoredRow.getRow();
             Columns columns = rowMapper.columns(row);
             for (IndexExpression expression : expressions) {
                 if (!accepted(columns, expression)) {
@@ -456,14 +457,15 @@ public abstract class RowService {
     }
 
     /**
-     * Returns the {@link ScoredRow}s identified by the specified {@link Document}s, using the specified time stamp to
+     * Returns the {@link Row}s identified by the specified {@link Document}s, using the specified time stamp to
      * ignore deleted columns. The {@link Row}s are retrieved from the storage engine, so it involves IO operations.
      *
      * @param searchResults The {@link SearchResult}s
      * @param timestamp     The time stamp to ignore deleted columns.
-     * @return The {@link ScoredRow} identified by the specified {@link Document}s
+     * @param relevance     If the search uses relevance.
+     * @return The {@link Row}s identified by the specified {@link Document}s
      */
-    protected abstract List<ScoredRow> scoredRows(List<SearchResult> searchResults, long timestamp);
+    protected abstract List<Row> rows(List<SearchResult> searchResults, long timestamp, boolean relevance);
 
     /**
      * Returns a {@link ColumnFamily} composed by the non expired {@link Cell}s of the specified  {@link ColumnFamily}.
@@ -487,12 +489,13 @@ public abstract class RowService {
      *
      * @param row       A {@link Row}.
      * @param timestamp The score column timestamp.
-     * @param score     The score column value.
+     * @param scoreDoc  The score column value.
      * @return The {@link Row} with the score.
      */
-    protected Row addScoreColumn(Row row, long timestamp, Float score) {
+    protected Row addScoreColumn(Row row, long timestamp, ScoreDoc scoreDoc) {
         ColumnFamily cf = row.cf;
         CellName cellName = rowMapper.makeCellName(cf);
+        Float score = Float.parseFloat(((FieldDoc) scoreDoc).fields[0].toString());
         ByteBuffer cellValue = UTF8Type.instance.decompose(score.toString());
 
         ColumnFamily dcf = ArrayBackedSortedColumns.factory.create(baseCfs.metadata);
@@ -500,51 +503,6 @@ public abstract class RowService {
         dcf.addAll(row.cf);
 
         return new Row(row.key, dcf);
-    }
-
-    /**
-     * Returns the {@link RowComparator} to be used for ordering the {@link Row}s obtained from the specified {@link
-     * Search}. This {@link RowComparator} is useful for merging the partial results obtained from running the specified
-     * {@link Search} against several indexes.
-     *
-     * @param search A {@link Search}.
-     * @return The {@link RowComparator} to be used for ordering the {@link Row}s obtained from the specified {@link
-     * Search}.
-     */
-    public RowComparator comparator(Search search) {
-        if (search != null) {
-            if (search.usesSorting()) // Sort with search itself
-            {
-                return new RowComparatorSorting(rowMapper, search.getSort());
-            } else if (search.usesRelevance()) // Sort with row's score
-            {
-                return new RowComparatorScoring(this);
-            }
-        }
-        return rowMapper.comparator();
-    }
-
-    /**
-     * Returns the default {@link Row} comparator. This comparator is based on Cassandra's natural order.
-     *
-     * @return The default {@link Row} comparator.
-     */
-    public RowComparator comparator() {
-        return rowMapper.comparator();
-    }
-
-    /**
-     * Returns the score of the specified {@link Row}.
-     *
-     * @param row A {@link Row}.
-     * @return The score of the specified {@link Row}.
-     */
-    protected Float score(Row row) {
-        ColumnFamily cf = row.cf;
-        CellName cellName = rowMapper.makeCellName(cf);
-        Cell cell = cf.getColumn(cellName);
-        String value = UTF8Type.instance.compose(cell.value());
-        return Float.parseFloat(value);
     }
 
     public RowMapper mapper() {

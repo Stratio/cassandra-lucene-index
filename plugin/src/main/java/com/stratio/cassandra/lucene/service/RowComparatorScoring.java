@@ -27,29 +27,23 @@ import java.util.Comparator;
  */
 public class RowComparatorScoring implements RowComparator {
 
-    private final ComparatorChain<Row> comparatorChain;
-
-    /**
-     * The used {@link RowService}.
-     */
-    private final RowService rowService;
+    private final ComparatorChain<Row> comparator;
 
     /**
      * Returns a new {@link RowComparator} for comparing {@link Row}s according to its Lucene scoring.
      *
-     * @param rowService The used {@link RowService}.
+     * @param mapper The used {@link RowMapper}.
      */
-    public RowComparatorScoring(RowService rowService) {
-        this.rowService = rowService;
-        comparatorChain = new ComparatorChain<>();
-        comparatorChain.addComparator(new Comparator<Row>() {
+    public RowComparatorScoring(final RowMapper mapper) {
+        comparator = new ComparatorChain<>();
+        comparator.addComparator(new Comparator<Row>() {
             public int compare(Row row1, Row row2) {
-                Float score1 = RowComparatorScoring.this.rowService.score(row1);
-                Float score2 = RowComparatorScoring.this.rowService.score(row2);
+                Float score1 = mapper.score(row1);
+                Float score2 = mapper.score(row2);
                 return score2.compareTo(score1);
             }
         });
-        comparatorChain.addComparator(rowService.comparator());
+        comparator.addComparator(mapper.comparator());
     }
 
     /**
@@ -57,7 +51,7 @@ public class RowComparatorScoring implements RowComparator {
      */
     @Override
     public int compare(Row row1, Row row2) {
-        return comparatorChain.compare(row1, row2);
+        return comparator.compare(row1, row2);
     }
 
 }

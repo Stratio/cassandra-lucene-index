@@ -22,22 +22,19 @@ import com.stratio.cassandra.lucene.schema.column.Columns;
 import com.stratio.cassandra.lucene.util.ByteBufferUtils;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
+import org.apache.cassandra.db.Cell;
 import org.apache.cassandra.db.ColumnFamily;
 import org.apache.cassandra.db.DataRange;
 import org.apache.cassandra.db.DecoratedKey;
 import org.apache.cassandra.db.Row;
-import org.apache.cassandra.db.composites.CBuilder;
 import org.apache.cassandra.db.composites.CellName;
-import org.apache.cassandra.db.marshal.BytesType;
-import org.apache.cassandra.db.marshal.CompositeType;
-import org.apache.cassandra.utils.ByteBufferUtil;
+import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.Sort;
+import org.apache.lucene.search.SortField;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -150,11 +147,11 @@ public abstract class RowMapper {
     public abstract Query query(RowKey rowKey);
 
     /**
-     * Returns the Lucene {@link Sort} to get {@link Document}s in the same order that is used in Cassandra.
+     * Returns the Lucene {@link SortField}s to get {@link Document}s in the same order that is used in Cassandra.
      *
-     * @return The Lucene {@link Sort} to get {@link Document}s in the same order that is used in Cassandra.
+     * @return The Lucene {@link SortField}s to get {@link Document}s in the same order that is used in Cassandra.
      */
-    public abstract Sort sort();
+    public abstract SortField[] sortFields();
 
     /**
      * Returns a {@link CellName} for the indexed column in the specified column family.
@@ -203,6 +200,20 @@ public abstract class RowMapper {
         return bb;
     }
 
+    /**
+     * Returns the score of the specified {@link Row}.
+     *
+     * @param row A {@link Row}.
+     * @return The score of the specified {@link Row}.
+     */
+    protected Float score(Row row) {
+        ColumnFamily cf = row.cf;
+        CellName cellName = makeCellName(cf);
+        Cell cell = cf.getColumn(cellName);
+        String value = UTF8Type.instance.compose(cell.value());
+        return Float.parseFloat(value);
+    }
+
     public RowKeys rowKeys(ByteBuffer bb) throws IOException {
         RowKeys rowKeys = new RowKeys();
         bb.rewind();
@@ -214,7 +225,7 @@ public abstract class RowMapper {
             rowKeys.add(rowKey);
         }
         bb.rewind();
-        return  rowKeys;
+        return rowKeys;
     }
 
     public abstract RowKey rowKey(Row row);

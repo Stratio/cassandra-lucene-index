@@ -22,6 +22,7 @@ import com.stratio.cassandra.lucene.search.SearchBuilder;
 import com.stratio.cassandra.lucene.service.RowMapper;
 import com.stratio.cassandra.lucene.service.RowService;
 import com.stratio.cassandra.lucene.util.Log;
+import com.stratio.cassandra.lucene.util.TimeCounter;
 import org.apache.cassandra.db.DataRange;
 import org.apache.cassandra.db.IndexExpression;
 import org.apache.cassandra.db.Row;
@@ -197,24 +198,21 @@ public class IndexSearcher extends SecondaryIndexSearcher {
     @Override
     public List<Row> postReconciliationProcessing(List<IndexExpression> clause, List<Row> rows) {
 
+        TimeCounter sortTime = TimeCounter.create().start();
         int startSize = rows.size();
-        long startTime = System.currentTimeMillis();
 
-        // Remove duplicates
-        TreeSet<Row> set = new TreeSet<>(rowService.comparator());
+        // Remove duplicates and sort
+        Search search = search(clause);
+        Comparator<Row> comparator = rowService.comparator(search);
+        TreeSet<Row> set = new TreeSet<>(comparator);
         set.addAll(rows);
         List<Row> result = new ArrayList<>(set);
 
-        // Sort
-        Search search = search(clause);
-        Comparator<Row> comparator = rowService.comparator(search);
-        Collections.sort(result, comparator);
-
         String comparatorName = comparator.getClass().getSimpleName();
         int endSize = result.size();
-        long endTime = System.currentTimeMillis() - startTime;
+        sortTime.stop();
 
-        Log.debug("Sorted %d rows to %d with comparator %s in %d ms\n", startSize, endSize, comparatorName, endTime);
+        Log.debug("Sorted %d rows to %d with comparator %s in %s\n", startSize, endSize, comparatorName, sortTime);
 
         return result;
     }

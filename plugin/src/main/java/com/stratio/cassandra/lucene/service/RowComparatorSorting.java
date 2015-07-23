@@ -30,34 +30,30 @@ import java.util.Comparator;
  */
 class RowComparatorSorting implements RowComparator {
 
-    private final RowMapper rowMapper;
-    ComparatorChain<Columns> columnsComparator;
-    private final ComparatorChain<Row> comparatorChain;
+    private final ComparatorChain<Row> comparator;
 
     /**
-     * @param rowMapper The indexing {@link RowMapper} of the {@link Row}s to be compared.
+     * @param mapper The indexing {@link RowMapper} of the {@link Row}s to be compared.
      * @param sort      The Lucene {@link Sort} inf which the {@link Row} comparison is based.
      */
-    public RowComparatorSorting(RowMapper rowMapper, Sort sort) {
+    public RowComparatorSorting(final RowMapper mapper, Sort sort) {
 
-        this.rowMapper = rowMapper;
-        comparatorChain = new ComparatorChain<>();
-
-        columnsComparator = new ComparatorChain<>();
+        final ComparatorChain<Columns> columnsComparator = new ComparatorChain<>();
         for (SortField sortField : sort.getSortFields()) {
             Comparator<Columns> comparator = sortField.comparator();
             columnsComparator.addComparator(comparator);
         }
 
-        comparatorChain.addComparator(new Comparator<Row>() {
+        comparator = new ComparatorChain<>();
+        comparator.addComparator(new Comparator<Row>() {
             @Override
             public int compare(Row row1, Row row2) {
-                Columns columns1 = RowComparatorSorting.this.rowMapper.columns(row1);
-                Columns columns2 = RowComparatorSorting.this.rowMapper.columns(row2);
+                Columns columns1 = mapper.columns(row1);
+                Columns columns2 = mapper.columns(row2);
                 return columnsComparator.compare(columns1, columns2);
             }
         });
-        comparatorChain.addComparator(rowMapper.comparator());
+        comparator.addComparator(mapper.comparator());
     }
 
     /**
@@ -70,6 +66,6 @@ class RowComparatorSorting implements RowComparator {
      */
     @Override
     public int compare(Row row1, Row row2) {
-        return comparatorChain.compare(row1, row2);
+        return comparator.compare(row1, row2);
     }
 }

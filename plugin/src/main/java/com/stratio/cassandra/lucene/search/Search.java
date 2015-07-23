@@ -23,6 +23,7 @@ import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.SortField;
 
 /**
  * Class representing an Lucene index search. It is formed by an optional querying {@link Condition} and an optional
@@ -107,8 +108,8 @@ public class Search {
      * @param schema A {@link Schema}.
      * @return The Lucene {@link org.apache.lucene.search.Sort} represented by this {@link Sort} using {@code schema}.
      */
-    public org.apache.lucene.search.Sort sort(Schema schema) {
-        return sort == null ? null : sort.sort(schema);
+    public SortField[] sortFields(Schema schema) {
+        return sort == null ? null : sort.sortFields(schema);
     }
 
     /**
@@ -149,7 +150,7 @@ public class Search {
             query(schema, null);
         }
         if (sort != null) {
-            sort.sort(schema);
+            sort.sortFields(schema);
         }
     }
 
