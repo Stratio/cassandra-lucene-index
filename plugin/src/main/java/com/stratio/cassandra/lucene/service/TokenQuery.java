@@ -64,7 +64,7 @@ public class TokenQuery extends MultiTermQuery {
     /** {@inheritDoc} */
     @Override
     protected TermsEnum getTermsEnum(Terms terms, AttributeSource atts) throws IOException {
-        TermsEnum termsEnum = terms.iterator(null);
+        TermsEnum termsEnum = terms.iterator();
         return new TokenDataRangeFilteredTermsEnum(termsEnum);
     }
 

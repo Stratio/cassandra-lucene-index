@@ -5,6 +5,7 @@
  * Fix map columns sorting (issue#17)
  * Avoid sorting in lists and sets
  * Set default sorted value to false
+ * Upgrade to Lucene 5.2.1
 
 2.1.8.0
  * Upgrade to Apache Cassandra 2.1.8

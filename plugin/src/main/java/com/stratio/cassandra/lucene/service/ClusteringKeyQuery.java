@@ -48,7 +48,7 @@ class ClusteringKeyQuery extends MultiTermQuery {
 
     @Override
     protected TermsEnum getTermsEnum(Terms terms, AttributeSource atts) throws IOException {
-        return new FullKeyDataRangeFilteredTermsEnum(terms.iterator(null));
+        return new FullKeyDataRangeFilteredTermsEnum(terms.iterator());
     }
 
     @Override
