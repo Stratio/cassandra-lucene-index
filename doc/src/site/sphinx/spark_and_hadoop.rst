@@ -39,6 +39,3 @@ the rows starting from a certain key. For example, if the primary key is
         AND userid = 3543534
         AND createdAt > 2011-02-03 04:05+0000
       LIMIT 5000;
-
-Note that paging does not support neither relevance queries nor sorting,
-so you must disable pagination with this kind of searches.

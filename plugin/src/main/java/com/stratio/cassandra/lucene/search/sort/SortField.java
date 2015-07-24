@@ -25,6 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.nio.ByteBuffer;
 import java.util.Comparator;
+import static org.apache.lucene.search.SortField.FIELD_SCORE;
 
 /**
  * A sorting for a field of a search.
@@ -83,6 +84,7 @@ public class SortField {
      * @return the Lucene {@link org.apache.lucene.search.SortField} representing this {@link SortField}.
      */
     public org.apache.lucene.search.SortField sortField(Schema schema) {
+        if (field.equalsIgnoreCase("score")) return FIELD_SCORE;
         Mapper mapper = schema.getMapper(field);
         if (mapper == null) {
             throw new IllegalArgumentException("No mapper found for sortFields field " + field);

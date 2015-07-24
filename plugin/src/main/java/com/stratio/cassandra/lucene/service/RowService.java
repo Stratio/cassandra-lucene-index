@@ -37,20 +37,20 @@ import org.apache.cassandra.db.Row;
 import org.apache.cassandra.db.composites.CellName;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.UTF8Type;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.SearcherManager;
-import org.apache.lucene.search.Sort;
+import org.apache.lucene.search.*;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static org.apache.lucene.search.SortField.FIELD_SCORE;
 
 /**
  * Class for mapping rows between Cassandra and Lucene.
@@ -71,8 +71,6 @@ public abstract class RowService {
     private final Schema schema;
     private final TaskQueue indexQueue;
 
-    private final PagingCache pagingCache;
-
     /**
      * Returns a new {@code RowService}.
      *
@@ -90,8 +88,6 @@ public abstract class RowService {
         this.schema = config.getSchema();
         this.rowMapper = RowMapper.build(metadata, columnDefinition, schema);
 
-        this.pagingCache = new PagingCache(config.getPagingCacheSize());
-
         this.luceneIndex = new LuceneIndex(columnDefinition.ksName,
                                            columnDefinition.cfName,
                                            columnDefinition.getIndexName(),
@@ -104,7 +100,7 @@ public abstract class RowService {
                                            new Runnable() {
                                                @Override
                                                public void run() {
-                                                   pagingCache.clear();
+
                                                }
                                            });
 
@@ -275,7 +271,8 @@ public abstract class RowService {
                                   List<IndexExpression> expressions,
                                   DataRange dataRange,
                                   final int limit,
-                                  long timestamp) throws IOException {
+                                  long timestamp,
+                                  RowKey after) throws IOException {
         Log.debug("Searching with search %s ", search);
 
         // Setup stats
@@ -286,27 +283,17 @@ public abstract class RowService {
         int numPages = 0;
         int numRows = 0;
 
-        List<ScoredRow> scoredRows = new LinkedList<>();
+        List<Row> rows = new LinkedList<>();
 
         SearcherManager searcherManager = luceneIndex.getSearcherManager();
         IndexSearcher searcher = searcherManager.acquire();
         try {
 
-            // Get query and last doc trying luck with paging cache
-            Query query;
-            ScoreDoc last; // The last search result
-            PagingCache.Entry pagingCacheEntry = pagingCache.get(search, dataRange);
-            if (pagingCacheEntry != null) {
-                query = pagingCacheEntry.getQuery();
-                last = pagingCacheEntry.getScoreDoc();
-            } else {
-                Query rangeQuery = rowMapper.query(dataRange);
-                query = search.query(schema, rangeQuery);
-                last = null;
-            }
-
-            // Setup non-cached search arguments
+            // Setup search arguments
+            Query rangeQuery = rowMapper.query(dataRange);
+            Query query = search.query(schema, rangeQuery);
             Sort sort = sort(search);
+            ScoreDoc last = after(searcher, after, query, sort);
             int page = Math.min(limit, MAX_PAGE_SIZE);
             boolean maybeMore;
 
@@ -317,6 +304,7 @@ public abstract class RowService {
                 Map<Document, ScoreDoc> docs = luceneIndex.search(searcher, query, sort, last, page, fields);
                 List<SearchResult> searchResults = new ArrayList<>(docs.size());
                 for (Map.Entry<Document, ScoreDoc> entry : docs.entrySet()) {
+                // Log.info("** FOUND " + entry.getValue());
                     Document document = entry.getKey();
                     ScoreDoc scoreDoc = entry.getValue();
                     last = scoreDoc;
@@ -327,9 +315,9 @@ public abstract class RowService {
 
                 // Collect rows from Cassandra
                 collectTime.start();
-                for (ScoredRow scoredRow : scoredRows(searchResults, timestamp)) {
-                    if (accepted(scoredRow, expressions)) {
-                        scoredRows.add(scoredRow);
+                for (Row row : rows(searchResults, timestamp, search.usesRelevance())) {
+                    if (accepted(row, expressions)) {
+                        rows.add(row);
                         numRows++;
                     }
                 }
@@ -341,20 +329,14 @@ public abstract class RowService {
                 numPages++;
 
                 // Iterate while there are still documents to read and we don't have enough rows
-            } while (maybeMore && scoredRows.size() < limit);
-
-            // Cache last two results
-            if (numRows > 0) pagingCache.put(search, dataRange, query, scoredRows.get(numRows - 1));
-            if (numRows > 1) pagingCache.put(search, dataRange, query, scoredRows.get(numRows - 2));
+            } while (maybeMore && rows.size() < limit);
 
         } finally {
             searcherManager.release(searcher);
         }
 
-        List<Row> rows = new ArrayList<>(numRows);
-        for (ScoredRow scoredRow : scoredRows) {
-            rows.add(scoredRow.getRow());
-        }
+        RowComparator comparator = comparator(search);
+        Collections.sort(rows, comparator);
 
         searchTime.stop();
 
@@ -365,28 +347,59 @@ public abstract class RowService {
         return rows;
     }
 
+    private ScoreDoc after(IndexSearcher searcher, RowKey rowKey, Query query, Sort sort) throws IOException {
+        TimeCounter time = TimeCounter.create().start();
+        if (rowKey == null) return null;
+        Filter rowFilter = new QueryWrapperFilter(rowMapper.query(rowKey));
+        Query afterQuery = new FilteredQuery(query, rowFilter);
+        Set<String> fields = Collections.emptySet();
+        Map<Document, ScoreDoc> results = luceneIndex.search(searcher, afterQuery, sort, null, 1, fields);
+        ScoreDoc scoreDoc = results.isEmpty() ? null : results.values().iterator().next();
+        // Log.info("** AFTER " + scoreDoc);
+        Log.debug("Search after time: %s", time.stop());
+        return scoreDoc;
+    }
+
     private Sort sort(Search search) {
-        if (search.usesRelevance()) {
-            return null;
-        } else if (search.usesSorting()) {
-            return search.sort(schema);
+        if (search.usesSorting()) {
+            return new Sort(ArrayUtils.addAll(search.sortFields(schema), rowMapper.sortFields()));
+        } else if (search.usesRelevance()) {
+            return new Sort(ArrayUtils.addAll(new SortField[]{FIELD_SCORE}, rowMapper.sortFields()));
         } else {
-            return rowMapper.sort();
+            return new Sort(rowMapper.sortFields());
         }
     }
 
     /**
-     * Returns {@code true} if the specified {@link ScoredRow} satisfies the all the specified {@link IndexExpression}s,
+     * Returns the {@link RowComparator} to be used for ordering the {@link Row}s obtained from the specified {@link
+     * Search}. This {@link RowComparator} is useful for merging the partial results obtained from running the specified
+     * {@link Search} against several indexes.
+     *
+     * @param search A {@link Search}.
+     * @return The {@link RowComparator} to be used for ordering the {@link Row}s obtained from the specified {@link
+     * Search}.
+     */
+    public RowComparator comparator(Search search) {
+        if (search.usesSorting()) {
+            return new RowComparatorSorting(rowMapper, search.getSort());
+        } else if (search.usesRelevance()) {
+            return new RowComparatorScoring(rowMapper);
+        } else {
+            return rowMapper.comparator();
+        }
+    }
+
+    /**
+     * Returns {@code true} if the specified {@link Row} satisfies the all the specified {@link IndexExpression}s,
      * {@code false} otherwise.
      *
-     * @param scoredRow   A {@link ScoredRow}.
+     * @param row   A {@link Row}.
      * @param expressions A list of {@link IndexExpression}s to be satisfied by {@code row}.
-     * @return {@code true} if the specified {@link ScoredRow} satisfies the all the specified {@link IndexExpression}s,
+     * @return {@code true} if the specified {@link Row} satisfies the all the specified {@link IndexExpression}s,
      * {@code false} otherwise.
      */
-    private boolean accepted(ScoredRow scoredRow, List<IndexExpression> expressions) {
+    private boolean accepted(Row row, List<IndexExpression> expressions) {
         if (!expressions.isEmpty()) {
-            Row row = scoredRow.getRow();
             Columns columns = rowMapper.columns(row);
             for (IndexExpression expression : expressions) {
                 if (!accepted(columns, expression)) {
@@ -445,14 +458,15 @@ public abstract class RowService {
     }
 
     /**
-     * Returns the {@link ScoredRow}s identified by the specified {@link Document}s, using the specified time stamp to
+     * Returns the {@link Row}s identified by the specified {@link Document}s, using the specified time stamp to
      * ignore deleted columns. The {@link Row}s are retrieved from the storage engine, so it involves IO operations.
      *
      * @param searchResults The {@link SearchResult}s
      * @param timestamp     The time stamp to ignore deleted columns.
-     * @return The {@link ScoredRow} identified by the specified {@link Document}s
+     * @param relevance     If the search uses relevance.
+     * @return The {@link Row}s identified by the specified {@link Document}s
      */
-    protected abstract List<ScoredRow> scoredRows(List<SearchResult> searchResults, long timestamp);
+    protected abstract List<Row> rows(List<SearchResult> searchResults, long timestamp, boolean relevance);
 
     /**
      * Returns a {@link ColumnFamily} composed by the non expired {@link Cell}s of the specified  {@link ColumnFamily}.
@@ -476,12 +490,13 @@ public abstract class RowService {
      *
      * @param row       A {@link Row}.
      * @param timestamp The score column timestamp.
-     * @param score     The score column value.
+     * @param scoreDoc  The score column value.
      * @return The {@link Row} with the score.
      */
-    protected Row addScoreColumn(Row row, long timestamp, Float score) {
+    protected Row addScoreColumn(Row row, long timestamp, ScoreDoc scoreDoc) {
         ColumnFamily cf = row.cf;
         CellName cellName = rowMapper.makeCellName(cf);
+        Float score = Float.parseFloat(((FieldDoc) scoreDoc).fields[0].toString());
         ByteBuffer cellValue = UTF8Type.instance.decompose(score.toString());
 
         ColumnFamily dcf = ArrayBackedSortedColumns.factory.create(baseCfs.metadata);
@@ -491,49 +506,7 @@ public abstract class RowService {
         return new Row(row.key, dcf);
     }
 
-    /**
-     * Returns the {@link RowComparator} to be used for ordering the {@link Row}s obtained from the specified {@link
-     * Search}. This {@link RowComparator} is useful for merging the partial results obtained from running the specified
-     * {@link Search} against several indexes.
-     *
-     * @param search A {@link Search}.
-     * @return The {@link RowComparator} to be used for ordering the {@link Row}s obtained from the specified {@link
-     * Search}.
-     */
-    public RowComparator comparator(Search search) {
-        if (search != null) {
-            if (search.usesSorting()) // Sort with search itself
-            {
-                return new RowComparatorSorting(rowMapper, search.getSort());
-            } else if (search.usesRelevance()) // Sort with row's score
-            {
-                return new RowComparatorScoring(this);
-            }
-        }
-        return comparator();
+    public RowMapper mapper() {
+        return rowMapper;
     }
-
-    /**
-     * Returns the default {@link Row} comparator. This comparator is based on Cassandra's natural order.
-     *
-     * @return The default {@link Row} comparator.
-     */
-    public RowComparator comparator() {
-        return rowMapper.comparator();
-    }
-
-    /**
-     * Returns the score of the specified {@link Row}.
-     *
-     * @param row A {@link Row}.
-     * @return The score of the specified {@link Row}.
-     */
-    protected Float score(Row row) {
-        ColumnFamily cf = row.cf;
-        CellName cellName = rowMapper.makeCellName(cf);
-        Cell cell = cf.getColumn(cellName);
-        String value = UTF8Type.instance.compose(cell.value());
-        return Float.parseFloat(value);
-    }
-
 }

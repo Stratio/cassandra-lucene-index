@@ -38,9 +38,10 @@ import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.SortField;
+import org.apache.lucene.search.TermQuery;
 
+import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Map;
 
@@ -111,10 +112,10 @@ public class RowMapperWide extends RowMapper {
      * {@inheritDoc}
      */
     @Override
-    public Sort sort() {
+    public SortField[] sortFields() {
         SortField[] partitionKeySort = tokenMapper.sortFields();
         SortField[] clusteringKeySort = clusteringKeyMapper.sortFields();
-        return new Sort(ArrayUtils.addAll(partitionKeySort, clusteringKeySort));
+        return ArrayUtils.addAll(partitionKeySort, clusteringKeySort);
     }
 
     /**
@@ -221,6 +222,17 @@ public class RowMapperWide extends RowMapper {
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Query query(RowKey rowKey) {
+        DecoratedKey partitionKey = rowKey.getPartitionKey();
+        CellName clusteringKey = rowKey.getClusteringKey();
+        Term term = term(partitionKey, clusteringKey);
+        return new TermQuery(term);
+    }
+
+    /**
      * Returns the Lucene {@link Query} to get the {@link Document}s satisfying the specified partition key and {@link
      * RangeTombstone}.
      *
@@ -280,5 +292,33 @@ public class RowMapperWide extends RowMapper {
 
     public String hash(DecoratedKey partitionKey, CellName cellName) {
         return fullKeyMapper.hash(partitionKey, cellName);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ByteBuffer byteBuffer(RowKey rowKey) {
+        DecoratedKey partitionKey = rowKey.getPartitionKey();
+        CellName clusteringKey = rowKey.getClusteringKey();
+        return fullKeyMapper.byteBuffer(partitionKey, clusteringKey);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public RowKey rowKey(ByteBuffer bb) {
+        return fullKeyMapper.rowKey(bb);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public RowKey rowKey(Row row) {
+        DecoratedKey partitionKey = row.key;
+        CellName clusteringKey = clusteringKey(row.cf);
+        return new RowKey(partitionKey, clusteringKey);
     }
 }

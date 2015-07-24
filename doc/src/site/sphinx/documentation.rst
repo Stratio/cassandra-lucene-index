@@ -38,7 +38,7 @@ Overview
 been extended to provide near real time search such as
 `ElasticSearch <http://www.elasticsearch.org/>`__ or
 `Solr <https://lucene.apache.org/solr/>`__, including full text search
-capabilities and multivariable and geospatial search.
+capabilities and multivariable, geospatial and bitemporal search.
 
 It is also fully compatible with `Apache
 Spark <https://spark.apache.org/>`__ and `Apache
@@ -60,22 +60,16 @@ Stratio’s Cassandra Lucene Index and its integration with Lucene search techno
 
 -  Full text search
 -  Geospatial search
--  Date ranges (durations) search
--  Multidimensional boolean (and, or, not) search
 -  Bitemporal search
+-  Boolean (and, or, not) search
 -  Near real-time search
 -  Relevance scoring and sorting
 -  General top-k queries
 -  Custom analyzers
 -  CQL3 support
--  Wide rows support
--  Partition and cluster composite keys support
--  Support for indexing columns part of primary key
 -  Third-party drivers compatibility
 -  Spark compatibility
 -  Hadoop compatibility
--  Paging over non-relevance searches (filters)
-
 
 Not yet supported:
 
@@ -85,7 +79,6 @@ Not yet supported:
 -  Columns with TTL
 -  CQL user defined types
 -  Static columns
--  Paging over relevance searches (queries and sorts)
 
 Requirements
 ============
@@ -292,7 +285,6 @@ value enclosed in single quotes:
    means synchronous indexing. Defaults to ’0’.
 -  **indexing\_queues\_size**: max number of queued documents per
    asynchronous indexing thread. Defaults to ’50’.
--  **paging_cache_size**: The max number of lucene cursors to be cached.
    Defaults to ’50’.
 -  **directory\_path**: The path of the directory where the  Lucene index
    will be stored.
@@ -457,7 +449,7 @@ Example
 This code below and the one for creating the corresponding keyspace and
 table is available in a CQL script that can be sourced from the
 Cassandra shell:
-`test-users-create.cql <resources/test-users-create.cql>`__.
+`test-users-create.cql </doc/resources/test-users-create.cql>`__.
 
 .. code-block:: sql
 
@@ -1328,9 +1320,6 @@ the rows starting from a certain key. For example, if the primary key is
         AND userid = 3543534
         AND createdAt > 2011-02-03 04:05+0000
       LIMIT 5000;
-
-Note that paging does not support neither relevance queries nor sorting,
-so you must disable pagination with this kind of searches.
 
 JMX Interface
 *************

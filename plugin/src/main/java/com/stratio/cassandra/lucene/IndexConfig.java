@@ -56,9 +56,6 @@ public class IndexConfig {
     public static final String INDEXING_QUEUES_SIZE_OPTION = "indexing_queues_size";
     public static final int DEFAULT_INDEXING_QUEUES_SIZE = 50;
 
-    public static final String PAGING_CACHE_SIZE_OPTION = "paging_cache_size";
-    public static final int DEFAULT_PAGING_CACHE_SIZE = 100;
-
     private final Schema schema;
     private final double refreshSeconds;
     private final Path path;
@@ -67,7 +64,6 @@ public class IndexConfig {
     private final int maxCachedMB;
     private final int indexingThreads;
     private final int indexingQueuesSize;
-    private final int pagingCacheSize;
 
     /**
      * Builds a new {@link IndexConfig} for the column family defined by the specified metadata using the specified
@@ -85,7 +81,6 @@ public class IndexConfig {
         indexingQueuesSize = parseIndexingQueuesSize(options);
         schema = parseSchema(options, metadata);
         path = parsePath(options, metadata);
-        pagingCacheSize = parsePagingCacheSize(options);
     }
 
     /**
@@ -149,15 +144,6 @@ public class IndexConfig {
      */
     public int getIndexingQueuesSize() {
         return indexingQueuesSize;
-    }
-
-    /**
-     * Returns the paging cache size.
-     *
-     * @return The paging cache size.
-     */
-    public int getPagingCacheSize() {
-        return pagingCacheSize;
     }
 
     private static double parseRefresh(Map<String, String> options) {
@@ -310,22 +296,6 @@ public class IndexConfig {
             return Paths.get(pathString);
         } else {
             return Paths.get(pathOption);
-        }
-    }
-
-    private static int parsePagingCacheSize(Map<String, String> options) {
-        String pagingCacheSizeOption = options.get(PAGING_CACHE_SIZE_OPTION);
-        int pagingCacheSize;
-        if (pagingCacheSizeOption != null) {
-            try {
-                pagingCacheSize = Integer.parseInt(pagingCacheSizeOption);
-            } catch (NumberFormatException e) {
-                String msg = String.format("'%s'  must be a positive integer", PAGING_CACHE_SIZE_OPTION);
-                throw new RuntimeException(msg);
-            }
-            return pagingCacheSize;
-        } else {
-            return DEFAULT_PAGING_CACHE_SIZE;
         }
     }
 

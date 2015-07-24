@@ -1,4 +1,5 @@
 2.1.8.1-SNAPSHOT
+ * Add complete support for CQL paging, even for top-k queries.
  * Fix numeric collections (issue#12)
 
 2.1.8.0
