@@ -20,6 +20,7 @@ import com.stratio.cassandra.lucene.schema.column.Columns;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
 import org.apache.cassandra.db.marshal.AbstractType;
+import org.apache.cassandra.db.marshal.CollectionType;
 import org.apache.cassandra.db.marshal.ListType;
 import org.apache.cassandra.db.marshal.MapType;
 import org.apache.cassandra.db.marshal.ReversedType;
@@ -29,6 +30,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.search.SortField;
+
+import org.apache.cassandra.db.marshal.CollectionType.Kind;
+import static org.apache.cassandra.db.marshal.CollectionType.Kind.*;
 
 import java.nio.ByteBuffer;
 
@@ -179,6 +183,16 @@ public abstract class Mapper {
         AbstractType<?> type = columnDefinition.type;
         if (!supports(columnDefinition.type)) {
             throw new IllegalArgumentException(String.format("'%s' is not supported by mapper '%s'", type, this.name));
+        }
+
+        // Avoid sorting in lists and sets
+        if (type.isCollection() && sorted) {
+            Kind kind = ((CollectionType<?>) type).kind;
+            if (kind == SET) {
+                throw new IllegalArgumentException(String.format("'%s' can't be sorted because it's a set", name));
+            } else if (kind == LIST) {
+                throw new IllegalArgumentException(String.format("'%s' can't be sorted because it's a list", name));
+            }
         }
     }
 
