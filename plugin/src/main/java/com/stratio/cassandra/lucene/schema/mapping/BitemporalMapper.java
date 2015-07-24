@@ -178,10 +178,6 @@ public class BitemporalMapper extends Mapper {
                                      new BitemporalDateTime(Long.MAX_VALUE) :
                                      this.parseBiTemporalDate(nowValue);
 
-        Log.debug("BITEMPMAP: Receiving in constructor of BitemporalMapper now_value object "+(nowValue==null?"null":nowValue.toString()) +" parsed: "+this.nowBitemporalDateTime);
-        Log.debug("BITEMPMAP: mapper results as: "+this.toString());
-
-
     }
 
     public String getPattern() {
@@ -269,14 +265,12 @@ public class BitemporalMapper extends Mapper {
     /** {@inheritDoc} */
     @Override
     public void addFields(Document document, Columns columns) {
-        Log.debug("BITEMPMAP: addFields doc: "+document.toString()+" columns: "+columns.toString());
         BitemporalDateTime vt_from = readBitemporalDate(columns, this.vtFrom);
         BitemporalDateTime vt_to = readBitemporalDate(columns, this.vtTo);
         BitemporalDateTime tt_from = readBitemporalDate(columns, this.ttFrom);
         BitemporalDateTime tt_to = readBitemporalDate(columns, this.ttTo);
 
         if (tt_to.isNow() && vt_to.isNow()) { // T1
-            Log.debug("BITEMPMAP: addFields tt_To == NOW vt_to == NOW tree T1");
             Shape shapeV = makeShape(tree_t1_V, vt_from, vt_from);
             for (IndexableField field : strategy_t1_V.createIndexableFields(shapeV)) document.add(field);
 
@@ -284,7 +278,6 @@ public class BitemporalMapper extends Mapper {
             for (IndexableField field : strategy_t1_T.createIndexableFields(shapeT)) document.add(field);
 
         } else if (!tt_to.isNow() && vt_to.isNow()) {// T2
-            Log.debug("BITEMPMAP: addFields tt_To != NOW vt_to == NOW tree T2");
             Shape shapeV = makeShape(tree_t2_V, vt_from, vt_from);
             for (IndexableField field : strategy_t2_V.createIndexableFields(shapeV)) document.add(field);
 
@@ -292,7 +285,6 @@ public class BitemporalMapper extends Mapper {
             for (IndexableField field : strategy_t2_T.createIndexableFields(shapeT)) document.add(field);
 
         } else if (tt_to.isNow()) { // T3
-            Log.debug("BITEMPMAP: addFields tt_To == NOW vt_to != NOW tree T3");
             Shape shapeV = makeShape(tree_t3_V, vt_from, vt_to);
             for (IndexableField field : strategy_t3_V.createIndexableFields(shapeV)) document.add(field);
 
@@ -300,7 +292,6 @@ public class BitemporalMapper extends Mapper {
             for (IndexableField field : strategy_t3_T.createIndexableFields(shapeT)) document.add(field);
 
         } else { // T4
-            Log.debug("BITEMPMAP: addFields tt_To != NOW vt_to != NOW tree T4");
             Shape shapeV = makeShape(tree_t4_V, vt_from, vt_to);
             for (IndexableField field : strategy_t4_V.createIndexableFields(shapeV)) document.add(field);
 
@@ -317,7 +308,6 @@ public class BitemporalMapper extends Mapper {
      * @return a {@link BitemporalDateTime} readed from columns
      */
     BitemporalDateTime readBitemporalDate(Columns columns, String fieldName) {
-        Log.debug("BITEMPMAP: readBitemporalDate: columns : "+columns.toString()+" filedName: "+fieldName);
         Column column = columns.getColumnsByName(fieldName).getFirst();
         if (column == null) {
             throw new IllegalArgumentException(fieldName + " column required");
@@ -336,7 +326,6 @@ public class BitemporalMapper extends Mapper {
                                                " exceeds Max Value: " +
                                                this.nowBitemporalDateTime);
         }
-        Log.debug("BITEMPMAP: checkIfNow: in: "+in.toString()+" out: "+dateTime.toString());
         return dateTime;
 
     }
@@ -350,13 +339,10 @@ public class BitemporalMapper extends Mapper {
      * format values based in pattern.
      */
     public BitemporalDateTime parseBiTemporalDate(Object value) throws IllegalArgumentException {
-        Log.debug("BITEMPMAP: parseBiTemporalDate: object value: "+value);
         if (value != null) {
             if (value instanceof Number) {
-                Log.debug("BITEMPMAP: parseBiTemporalDate: value is Number: " +((Number)value).longValue());
                 return checkIfNow(new BitemporalDateTime(((Number) value).longValue()));
             } else if (value instanceof String) {
-                Log.debug("BITEMPMAP: parseBiTemporalDate: value is String: "+ value);
                 try {
                     return checkIfNow(new BitemporalDateTime(concurrentDateFormat.get()
                                                                                  .parse((String) value)
@@ -383,7 +369,6 @@ public class BitemporalMapper extends Mapper {
     /** {@inheritDoc} */
     @Override
     public void validate(CFMetaData metaData) {
-        Log.debug("BITEMPMAP: validate: metadata: "+metaData.toString());
         validate(metaData, vtFrom);
         validate(metaData, vtTo);
         validate(metaData, ttFrom);

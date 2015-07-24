@@ -94,8 +94,6 @@ public class BitemporalCondition extends Condition {
         this.ttTo = ttTo;
         this.operation = operation == null ? DEFAULT_OPERATION : operation;
         this.spatialOperation = parseSpatialOperation(this.operation);
-        Log.debug("BITEMPCOND: calling BiTemporalCondition with object: " + this.toString());
-
     }
 
     private Query makeNormalQuery(BitemporalMapper mapper,
@@ -103,13 +101,11 @@ public class BitemporalCondition extends Condition {
                                   DateRangePrefixTree tree,
                                   BitemporalMapper.BitemporalDateTime x_from,
                                   BitemporalMapper.BitemporalDateTime x_to) {
-        Log.debug("BITEMPCOND: calling makeNormalQuery: ");
         SpatialArgs args = new SpatialArgs(this.spatialOperation, mapper.makeShape(tree, x_from, x_to));
         return strategy.makeQuery(args);
     }
 
     static SpatialOperation parseSpatialOperation(String operation) {
-        Log.debug("BITEMPCOND: calling parseSpatialOperation "+operation);
         if (operation == null) {
             throw new IllegalArgumentException("Operation is required");
         } else if (operation.equalsIgnoreCase("contains")) {
@@ -352,7 +348,6 @@ public class BitemporalCondition extends Condition {
     }*/
     @Override
     public Query query(Schema schema) {
-        Log.debug("BITEMPCOND: calling query with schema: "+schema.toString());
         Mapper mapper = schema.getMapper(field);
         if (!(mapper instanceof BitemporalMapper)) {
             throw new IllegalArgumentException("BiTemporal mapper required");
