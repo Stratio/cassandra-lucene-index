@@ -449,7 +449,7 @@ Example
 This code below and the one for creating the corresponding keyspace and
 table is available in a CQL script that can be sourced from the
 Cassandra shell:
-`test-users-create.cql <resources/test-users-create.cql>`__.
+`test-users-create.cql </doc/resources/test-users-create.cql>`__.
 
 .. code-block:: sql
 

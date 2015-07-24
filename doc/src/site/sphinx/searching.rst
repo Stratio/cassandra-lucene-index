@@ -47,7 +47,7 @@ prefer filters over queries when no relevance nor sorting are needed.
 Types of search and their options are summarized in the table below.
 Details for each of them are available in individual sections and the
 examples can be downloaded as a CQL script:
-`extended-search-examples.cql <resources/extended-search-examples.cql>`__.
+`extended-search-examples.cql </doc/resources/extended-search-examples.cql>`__.
 
 In addition to the options described in the table, all search types have
 a “\ **boost**\ ” option that acts as a weight on the resulting score.
