@@ -127,7 +127,7 @@ a custom Lucene index on it with the following statement:
                 id    : {type : "integer"},
                 user  : {type : "string"},
                 body  : {type : "text", analyzer : "english"},
-                time  : {type : "date", pattern : "yyyy/MM/dd"},
+                time  : {type : "date", pattern : "yyyy/MM/dd", sorted : true},
                 place : {type : "geo_point", latitude:"latitude", longitude:"longitude"}
             }
         }'

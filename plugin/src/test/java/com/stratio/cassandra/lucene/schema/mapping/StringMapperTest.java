@@ -194,7 +194,7 @@ public class StringMapperTest {
 
     @Test
     public void testAddFields() {
-        StringMapper mapper = new StringMapper("field", null, null, null);
+        StringMapper mapper = new StringMapper("field", true, true, null);
         Document document = new Document();
         Column column = Column.fromComposed("field", "value", UTF8Type.instance, false);
         Columns columns = new Columns(column);

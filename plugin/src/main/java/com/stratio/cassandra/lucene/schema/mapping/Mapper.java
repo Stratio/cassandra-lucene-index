@@ -53,7 +53,7 @@ public abstract class Mapper {
     public static final boolean DEFAULT_INDEXED = true;
 
     /** If the field must be sorted when no specified. */
-    public static final boolean DEFAULT_SORTED = true;
+    public static final boolean DEFAULT_SORTED = false;
 
     /** The name of the mapper. */
     protected final String name;

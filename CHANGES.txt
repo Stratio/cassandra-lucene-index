@@ -4,6 +4,7 @@
  * Fix match condition with not tokenized fields (issue#16)
  * Fix map columns sorting (issue#17)
  * Avoid sorting in lists and sets
+ * Set default sorted value to false
 
 2.1.8.0
  * Upgrade to Apache Cassandra 2.1.8

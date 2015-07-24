@@ -157,7 +157,7 @@ a custom Lucene index on it with the following statement:
                 id    : {type : "integer"},
                 user  : {type : "string"},
                 body  : {type : "text", analyzer : "english"},
-                time  : {type : "date", pattern : "yyyy/MM/dd"},
+                time  : {type : "date", pattern : "yyyy/MM/dd", sorted : true},
                 place : {type : "geo_point", latitude:"latitude", longitude:"longitude"}
             }
         }'
@@ -340,7 +340,7 @@ default values are listed in the table below.
 +=================+=================+=================+================================+===========+
 | bigdec          | indexed         | boolean         | true                           | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
-|                 | sorted          | boolean         | true                           | No        |
+|                 | sorted          | boolean         | false                          | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | integer_digits  | integer         | 32                             | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
@@ -348,7 +348,7 @@ default values are listed in the table below.
 +-----------------+-----------------+-----------------+--------------------------------+-----------+
 | bigint          | indexed         | boolean         | true                           | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
-|                 | sorted          | boolean         | true                           | No        |
+|                 | sorted          | boolean         | false                          | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | digits          | integer         | 32                             | No        |
 +-----------------+-----------------+-----------------+--------------------------------+-----------+
@@ -366,15 +366,15 @@ default values are listed in the table below.
 +-----------------+-----------------+-----------------+--------------------------------+-----------+
 | blob            | indexed         | boolean         | true                           | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
-|                 | sorted          | boolean         | true                           | No        |
+|                 | sorted          | boolean         | false                          | No        |
 +-----------------+-----------------+-----------------+--------------------------------+-----------+
 | boolean         | indexed         | boolean         | true                           | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
-|                 | sorted          | boolean         | true                           | No        |
+|                 | sorted          | boolean         | false                          | No        |
 +-----------------+-----------------+-----------------+--------------------------------+-----------+
 | date            | indexed         | boolean         | true                           | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
-|                 | sorted          | boolean         | true                           | No        |
+|                 | sorted          | boolean         | false                          | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | pattern         | string          | yyyy/MM/dd HH:mm:ss.SSS        | No        |
 +-----------------+-----------------+-----------------+--------------------------------+-----------+
@@ -386,13 +386,13 @@ default values are listed in the table below.
 +-----------------+-----------------+-----------------+--------------------------------+-----------+
 | double          | indexed         | boolean         | true                           | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
-|                 | sorted          | boolean         | true                           | No        |
+|                 | sorted          | boolean         | false                          | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | boost           | integer         | 0.1f                           | No        |
 +-----------------+-----------------+-----------------+--------------------------------+-----------+
 | float           | indexed         | boolean         | true                           | No        |
 +                 +-----------------+-----------------+--------------------------------+-----------+
-|                 | sorted          | boolean         | true                           | No        |
+|                 | sorted          | boolean         | false                          | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | boost           | integer         | 0.1f                           | No        |
 +-----------------+-----------------+-----------------+--------------------------------+-----------+
@@ -404,40 +404,40 @@ default values are listed in the table below.
 +-----------------+-----------------+-----------------+--------------------------------+-----------+
 | inet            | indexed         | boolean         | true                           | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
-|                 | sorted          | boolean         | true                           | No        |
+|                 | sorted          | boolean         | false                          | No        |
 +-----------------+-----------------+-----------------+--------------------------------+-----------+
 | integer         | indexed         | boolean         | true                           | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
-|                 | sorted          | boolean         | true                           | No        |
+|                 | sorted          | boolean         | false                          | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | boost           | integer         | 0.1f                           | No        |
 +-----------------+-----------------+-----------------+--------------------------------+-----------+
 | long            | indexed         | boolean         | true                           | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
-|                 | sorted          | boolean         | true                           | No        |
+|                 | sorted          | boolean         | false                          | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | boost           | integer         | 0.1f                           | No        |
 +-----------------+-----------------+-----------------+--------------------------------+-----------+
 | string          | indexed         | boolean         | true                           | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
-|                 | sorted          | boolean         | true                           | No        |
+|                 | sorted          | boolean         | false                          | No        |
 +-----------------+-----------------+-----------------+--------------------------------+-----------+
 | text            | indexed         | boolean         | true                           | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
-|                 | sorted          | boolean         | true                           | No        |
+|                 | sorted          | boolean         | false                          | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | analyzer        | string          | default_analyzer of the schema | No        |
 +-----------------+-----------------+-----------------+--------------------------------+-----------+
 | uuid            | indexed         | boolean         | true                           | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
-|                 | sorted          | boolean         | true                           | No        |
+|                 | sorted          | boolean         | false                          | No        |
 +-----------------+-----------------+-----------------+--------------------------------+-----------+
 
 Most mapping definitions have an “\ **indexed**\ ” option indicating if
-the field is searchable. There is also a “\ **sorted**\ ” option
-specifying if it is possible to sort rows by the corresponding field.
-Both fields are true by default, but they should be set to false when no
-needed in order to have a smaller and faster index.
+the field is searchable, it is true by default. There is also a “\ **sorted**\ ” option
+specifying if it is possible to sort rows by the corresponding field, false by default. List and set
+columns can't be sorted because they produce multivalued fields.
+These options should be set to false when no needed in order to have a smaller and faster index.
 
 Note that Cassandra allows one custom index per table. On the other
 hand, Cassandra does not allow a modify operation on indexes. To modify
@@ -474,15 +474,15 @@ Cassandra shell:
             default_analyzer : "english",
             fields : {
                 name   : {type     : "string"},
-                gender : {type     : "string", sorted: "false"},
+                gender : {type     : "string", sorted: true},
                 animal : {type     : "string"},
                 age    : {type     : "integer"},
                 food   : {type     : "string"},
                 number : {type     : "integer"},
                 bool   : {type     : "boolean"},
                 date   : {type     : "date", pattern  : "yyyy/MM/dd"},
-                mapz   : {type     : "string", sorted: "false"},
-                setz   : {type     : "string", sorted: "false"},
+                mapz   : {type     : "string", sorted: true},
+                setz   : {type     : "string"},
                 listz  : {type     : "string"},
                 phrase : {type     : "text", analyzer : "my_custom_analyzer"}
             }

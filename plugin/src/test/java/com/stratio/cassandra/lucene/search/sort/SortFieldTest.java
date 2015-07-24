@@ -67,7 +67,7 @@ public class SortFieldTest {
     @Test
     public void testSortField() {
 
-        Mapper mapper = new StringMapper("field", null, null, null);
+        Mapper mapper = new StringMapper("field", null, true, null);
 
         Schema schema = mock(Schema.class);
         when(schema.getAnalyzer()).thenReturn(PreBuiltAnalyzers.DEFAULT.get());
