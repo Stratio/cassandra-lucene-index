@@ -18,10 +18,13 @@ package com.stratio.cassandra.lucene.search.condition;
 import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
+import com.stratio.cassandra.lucene.schema.mapping.TextMapper;
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.NumericRangeQuery;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.util.QueryBuilder;
 
 /**
@@ -60,26 +63,30 @@ public class MatchCondition extends SingleFieldCondition {
     /** {@inheritDoc} */
     @Override
     public Query query(Schema schema) {
-        SingleColumnMapper<?> columnMapper = getMapper(schema, field);
-        Class<?> clazz = columnMapper.baseClass();
+        SingleColumnMapper<?> mapper = getMapper(schema, field);
+        Class<?> clazz = mapper.baseClass();
         Query query;
         if (clazz == String.class) {
-            String value = (String) columnMapper.base(field, this.value);
+            String value = (String) mapper.base(field, this.value);
             Analyzer analyzer = schema.getAnalyzer();
-            QueryBuilder queryBuilder = new QueryBuilder(analyzer);
-            query = queryBuilder.createPhraseQuery(field, value, 0);
+            if (mapper instanceof TextMapper) {
+                QueryBuilder queryBuilder = new QueryBuilder(analyzer);
+                query = queryBuilder.createPhraseQuery(field, value, 0);
+            } else {
+                query = new TermQuery(new Term(field, value));
+            }
             if (query == null) query = new BooleanQuery();
         } else if (clazz == Integer.class) {
-            Integer value = (Integer) columnMapper.base(field, this.value);
+            Integer value = (Integer) mapper.base(field, this.value);
             query = NumericRangeQuery.newIntRange(field, value, value, true, true);
         } else if (clazz == Long.class) {
-            Long value = (Long) columnMapper.base(field, this.value);
+            Long value = (Long) mapper.base(field, this.value);
             query = NumericRangeQuery.newLongRange(field, value, value, true, true);
         } else if (clazz == Float.class) {
-            Float value = (Float) columnMapper.base(field, this.value);
+            Float value = (Float) mapper.base(field, this.value);
             query = NumericRangeQuery.newFloatRange(field, value, value, true, true);
         } else if (clazz == Double.class) {
-            Double value = (Double) columnMapper.base(field, this.value);
+            Double value = (Double) mapper.base(field, this.value);
             query = NumericRangeQuery.newDoubleRange(field, value, value, true, true);
         } else {
             String message = String.format("Match queries are not supported by %s mapper", clazz.getSimpleName());
