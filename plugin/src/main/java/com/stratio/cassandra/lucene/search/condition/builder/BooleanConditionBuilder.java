@@ -17,6 +17,7 @@ package com.stratio.cassandra.lucene.search.condition.builder;
 
 import com.stratio.cassandra.lucene.search.condition.BooleanCondition;
 import com.stratio.cassandra.lucene.search.condition.Condition;
+import com.stratio.cassandra.lucene.util.Log;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.util.ArrayList;
@@ -83,16 +84,22 @@ public class BooleanConditionBuilder extends ConditionBuilder<BooleanCondition, 
     @Override
     public BooleanCondition build() {
         List<Condition> must = new ArrayList<>();
-        for (ConditionBuilder conditionBuilder : this.must) {
-            must.add(conditionBuilder.build());
+        if (this.must!=null) {
+            for (ConditionBuilder conditionBuilder : this.must) {
+                must.add(conditionBuilder.build());
+            }
         }
         List<Condition> should = new ArrayList<>();
-        for (ConditionBuilder conditionBuilder : this.should) {
-            should.add(conditionBuilder.build());
+        if (this.should!=null) {
+            for (ConditionBuilder conditionBuilder : this.should) {
+                should.add(conditionBuilder.build());
+            }
         }
         List<Condition> not = new ArrayList<>();
-        for (ConditionBuilder conditionBuilder : this.not) {
-            not.add(conditionBuilder.build());
+        if (this.not!=null) {
+            for (ConditionBuilder conditionBuilder : this.not) {
+                not.add(conditionBuilder.build());
+            }
         }
         return new BooleanCondition(boost, must, should, not);
     }
