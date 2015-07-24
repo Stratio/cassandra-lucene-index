@@ -18,6 +18,7 @@ package com.stratio.cassandra.lucene.search.condition;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.IntegerMapper;
 import com.stratio.cassandra.lucene.schema.mapping.StringMapper;
+import com.stratio.cassandra.lucene.schema.mapping.TextMapper;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
@@ -124,6 +125,28 @@ public class ContainsConditionTest extends AbstractConditionTest {
         Schema schema = mock(Schema.class);
         when(schema.getAnalyzer()).thenReturn(new EnglishAnalyzer());
         when(schema.getMapper(field)).thenReturn(new StringMapper("field", null, null, null));
+
+        ContainsCondition condition = new ContainsCondition(boost, field, values);
+        Query query = condition.query(schema);
+        assertNotNull(query);
+
+        assertEquals(BooleanQuery.class, query.getClass());
+        assertEquals(0.7f, query.getBoost(), 0);
+        BooleanClause[] booleanClauses = ((BooleanQuery) query).getClauses();
+        assertEquals("houses", ((TermQuery) booleanClauses[0].getQuery()).getTerm().bytes().utf8ToString());
+        assertEquals("cats", ((TermQuery) booleanClauses[1].getQuery()).getTerm().bytes().utf8ToString());
+    }
+
+    @Test
+    public void testQueryText() {
+
+        Float boost = 0.7f;
+        String field = "test";
+        Object[] values = new Object[]{"houses", "cats"};
+
+        Schema schema = mock(Schema.class);
+        when(schema.getAnalyzer()).thenReturn(new EnglishAnalyzer());
+        when(schema.getMapper(field)).thenReturn(new TextMapper("field", null, null, null));
 
         ContainsCondition condition = new ContainsCondition(boost, field, values);
         Query query = condition.query(schema);
