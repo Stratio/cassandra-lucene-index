@@ -49,18 +49,13 @@ public abstract class KeywordMapper extends SingleColumnMapper<String> {
 
     /** {@inheritDoc} */
     @Override
-    public Field sortedField(String name, String value, boolean isCollection) {
-        BytesRef bytes = new BytesRef(value);
-        if (isCollection) {
-            return new SortedSetDocValuesField(name, bytes);
-        } else {
-            return new SortedDocValuesField(name, bytes);
-        }
+    public Field sortedField(String name, String value) {
+        return new SortedDocValuesField(name, new BytesRef(value));
     }
 
     /** {@inheritDoc} */
     @Override
-    public final SortField sortField(boolean reverse) {
+    public final SortField sortField(String name, boolean reverse) {
         return new SortField(name, Type.STRING_VAL, reverse);
     }
 

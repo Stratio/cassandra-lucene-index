@@ -263,7 +263,7 @@ public class GeoPointMapperTest {
     @Test(expected = UnsupportedOperationException.class)
     public void testSortField() {
         GeoPointMapper mapper = new GeoPointMapper("field", "lat", "lon", null);
-        mapper.sortField(false);
+        mapper.sortField("field", false);
     }
 
     @Test

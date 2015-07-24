@@ -43,7 +43,7 @@ public class DoubleMapperTest {
     @Test()
     public void testSortField() {
         DoubleMapper mapper = new DoubleMapper("field", null, null, 2.3f);
-        SortField sortField = mapper.sortField(true);
+        SortField sortField = mapper.sortField("field", true);
         assertNotNull(sortField);
         assertTrue(sortField.getReverse());
     }
@@ -161,17 +161,9 @@ public class DoubleMapperTest {
     @Test
     public void testSortedField() {
         DoubleMapper mapper = new DoubleMapper("field", true, true, 1f);
-        Field field = mapper.sortedField("name", 3.2d, false);
+        Field field = mapper.sortedField("name", 3.2d);
         assertNotNull(field);
         assertEquals(DocValuesType.NUMERIC, field.fieldType().docValuesType());
-    }
-
-    @Test
-    public void testSortedFieldCollection() {
-        DoubleMapper mapper = new DoubleMapper("field", true, true, 1f);
-        Field field = mapper.sortedField("name", 3.2d, true);
-        assertNotNull(field);
-        assertEquals(DocValuesType.SORTED_NUMERIC, field.fieldType().docValuesType());
     }
 
     @Test

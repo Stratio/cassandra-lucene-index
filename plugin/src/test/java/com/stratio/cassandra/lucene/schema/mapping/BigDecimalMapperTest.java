@@ -471,18 +471,9 @@ public class BigDecimalMapperTest {
     public void testSortedField() {
         BigDecimalMapper mapper = new BigDecimalMapper("field", false, null, 4, 4);
         String base = mapper.base("name", "42.43");
-        Field field = mapper.sortedField("name", base, false);
+        Field field = mapper.sortedField("name", base);
         assertNotNull(field);
         assertEquals(DocValuesType.SORTED, field.fieldType().docValuesType());
-    }
-
-    @Test
-    public void testSortedFieldCollection() {
-        BigDecimalMapper mapper = new BigDecimalMapper("field", false, null, 4, 4);
-        String base = mapper.base("name", "42.43");
-        Field field = mapper.sortedField("name", base, true);
-        assertNotNull(field);
-        assertEquals(DocValuesType.SORTED_SET, field.fieldType().docValuesType());
     }
 
     @Test

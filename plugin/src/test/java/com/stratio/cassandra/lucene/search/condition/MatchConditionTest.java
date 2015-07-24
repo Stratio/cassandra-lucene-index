@@ -232,7 +232,7 @@ public class MatchConditionTest extends AbstractConditionTest {
             }
 
             @Override
-            public Field sortedField(String name, UUID value, boolean isCollection) {
+            public Field sortedField(String name, UUID value) {
                 return null;
             }
 
@@ -247,7 +247,7 @@ public class MatchConditionTest extends AbstractConditionTest {
             }
 
             @Override
-            public org.apache.lucene.search.SortField sortField(boolean reverse) {
+            public org.apache.lucene.search.SortField sortField(String name, boolean reverse) {
                 return null;
             }
         };

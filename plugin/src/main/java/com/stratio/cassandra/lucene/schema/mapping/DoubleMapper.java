@@ -99,18 +99,14 @@ public class DoubleMapper extends SingleColumnMapper<Double> {
 
     /** {@inheritDoc} */
     @Override
-    public Field sortedField(String name, Double value, boolean isCollection) {
+    public Field sortedField(String name, Double value) {
         long sortable = NumericUtils.doubleToSortableLong(value);
-        if (isCollection) {
-            return new SortedNumericDocValuesField(name, sortable);
-        } else {
-            return new NumericDocValuesField(name, sortable);
-        }
+        return new NumericDocValuesField(name, sortable);
     }
 
     /** {@inheritDoc} */
     @Override
-    public SortField sortField(boolean reverse) {
+    public SortField sortField(String name, boolean reverse) {
         return new SortField(name, Type.DOUBLE, reverse);
     }
 

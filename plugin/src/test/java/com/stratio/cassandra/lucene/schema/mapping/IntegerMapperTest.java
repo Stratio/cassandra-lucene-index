@@ -43,7 +43,7 @@ public class IntegerMapperTest {
     @Test()
     public void testSortField() {
         IntegerMapper mapper = new IntegerMapper("field", null, null, 2.3f);
-        SortField sortField = mapper.sortField(true);
+        SortField sortField = mapper.sortField("field", true);
         assertNotNull(sortField);
         assertTrue(sortField.getReverse());
     }
@@ -164,17 +164,9 @@ public class IntegerMapperTest {
     @Test
     public void testSortedField() {
         IntegerMapper mapper = new IntegerMapper("field", true, true, 1f);
-        Field field = mapper.sortedField("name", 3, false);
+        Field field = mapper.sortedField("name", 3);
         assertNotNull(field);
         assertEquals(DocValuesType.NUMERIC, field.fieldType().docValuesType());
-    }
-
-    @Test
-    public void testSortedFieldCollection() {
-        IntegerMapper mapper = new IntegerMapper("field", true, true, 1f);
-        Field field = mapper.sortedField("name", 3, true);
-        assertNotNull(field);
-        assertEquals(DocValuesType.SORTED_NUMERIC, field.fieldType().docValuesType());
     }
 
     @Test

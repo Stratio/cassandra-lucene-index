@@ -135,8 +135,8 @@ public class GeoPointMapper extends Mapper {
 
     /** {@inheritDoc} */
     @Override
-    public SortField sortField(boolean reverse) {
-        throw new UnsupportedOperationException("Geographical points do not support sorting");
+    public SortField sortField(String name, boolean reverse) {
+        throw new UnsupportedOperationException(String.format("GeoPoint mapper '%s' does not support sorting", name));
     }
 
     @Override

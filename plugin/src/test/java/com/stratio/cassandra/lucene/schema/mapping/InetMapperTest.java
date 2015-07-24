@@ -148,17 +148,9 @@ public class InetMapperTest {
     @Test
     public void testSortedField() {
         InetMapper mapper = new InetMapper("field", true, true);
-        Field field = mapper.sortedField("name", "192.168.0.13", false);
+        Field field = mapper.sortedField("name", "192.168.0.13");
         assertNotNull(field);
         assertEquals(DocValuesType.SORTED, field.fieldType().docValuesType());
-    }
-
-    @Test
-    public void testSortedFieldCollection() {
-        InetMapper mapper = new InetMapper("field", true, true);
-        Field field = mapper.sortedField("name", "192.168.0.13", true);
-        assertNotNull(field);
-        assertEquals(DocValuesType.SORTED_SET, field.fieldType().docValuesType());
     }
 
     @Test

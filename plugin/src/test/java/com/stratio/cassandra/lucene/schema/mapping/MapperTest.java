@@ -115,7 +115,7 @@ public class MapperTest {
             }
 
             @Override
-            public SortField sortField(boolean reverse) {
+            public SortField sortField(String name, boolean reverse) {
                 return null;
             }
 

@@ -241,7 +241,7 @@ public class DateRangeMapperTest {
     @Test(expected = UnsupportedOperationException.class)
     public void testSortField() {
         DateRangeMapper mapper = new DateRangeMapper("field", "to", "from", null);
-        mapper.sortField(false);
+        mapper.sortField("field", false);
     }
 
     @Test

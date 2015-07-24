@@ -98,17 +98,13 @@ public class IntegerMapper extends SingleColumnMapper<Integer> {
 
     /** {@inheritDoc} */
     @Override
-    public Field sortedField(String name, Integer value, boolean isCollection) {
-        if (isCollection) {
-            return new SortedNumericDocValuesField(name, value);
-        } else {
-            return new NumericDocValuesField(name, value);
-        }
+    public Field sortedField(String name, Integer value) {
+        return new NumericDocValuesField(name, value);
     }
 
     /** {@inheritDoc} */
     @Override
-    public SortField sortField(boolean reverse) {
+    public SortField sortField(String name, boolean reverse) {
         return new SortField(name, Type.INT, reverse);
     }
 

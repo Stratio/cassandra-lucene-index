@@ -43,7 +43,7 @@ public class LongMapperTest {
     @Test()
     public void testSortField() {
         LongMapper mapper = new LongMapper("field", null, null, 2.3f);
-        SortField sortField = mapper.sortField(true);
+        SortField sortField = mapper.sortField("field", true);
         assertNotNull(sortField);
         assertTrue(sortField.getReverse());
     }
@@ -163,17 +163,9 @@ public class LongMapperTest {
     @Test
     public void testSortedField() {
         LongMapper mapper = new LongMapper("field", true, true, 1f);
-        Field field = mapper.sortedField("name", 3L, false);
+        Field field = mapper.sortedField("name", 3L);
         assertNotNull(field);
         assertEquals(DocValuesType.NUMERIC, field.fieldType().docValuesType());
-    }
-
-    @Test
-    public void testSortedFieldCollection() {
-        LongMapper mapper = new LongMapper("field", true, true, 1f);
-        Field field = mapper.sortedField("name", 3L, true);
-        assertNotNull(field);
-        assertEquals(DocValuesType.SORTED_NUMERIC, field.fieldType().docValuesType());
     }
 
     @Test

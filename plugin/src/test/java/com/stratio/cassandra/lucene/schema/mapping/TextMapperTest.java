@@ -51,7 +51,7 @@ public class TextMapperTest {
     @Test()
     public void testSortField() {
         TextMapper mapper = new TextMapper("field", false, true, "SpanishAnalyzer");
-        SortField sortField = mapper.sortField(true);
+        SortField sortField = mapper.sortField("field", true);
         assertNotNull(sortField);
         assertTrue(sortField.getReverse());
     }
@@ -171,17 +171,9 @@ public class TextMapperTest {
     @Test
     public void testSortedField() {
         TextMapper mapper = new TextMapper("field", null, true, "org.apache.lucene.analysis.en.EnglishAnalyzer");
-        Field field = mapper.sortedField("name", "hello", false);
+        Field field = mapper.sortedField("name", "hello");
         assertNotNull(field);
         assertEquals(DocValuesType.SORTED, field.fieldType().docValuesType());
-    }
-
-    @Test
-    public void testSortedFieldCollection() {
-        TextMapper mapper = new TextMapper("field", null, true, "org.apache.lucene.analysis.en.EnglishAnalyzer");
-        Field field = mapper.sortedField("name", "hello", true);
-        assertNotNull(field);
-        assertEquals(DocValuesType.SORTED_SET, field.fieldType().docValuesType());
     }
 
     @Test

@@ -131,17 +131,9 @@ public class UUIDMapperTest {
     public void testSortedField() {
         UUIDMapper mapper = new UUIDMapper("field", true, true);
         String base = mapper.base("name", "550e8400-e29b-41d4-a716-446655440000");
-        Field field = mapper.sortedField("name", base, false);
+        Field field = mapper.sortedField("name", base);
         assertNotNull(field);
         assertEquals(DocValuesType.SORTED, field.fieldType().docValuesType());
-    }
-
-    @Test
-    public void testSortedFieldCollection() {
-        UUIDMapper mapper = new UUIDMapper("field", true, true);
-        Field field = mapper.sortedField("name", "550e8400-e29b-41d4-a716-446655440000", true);
-        assertNotNull(field);
-        assertEquals(DocValuesType.SORTED_SET, field.fieldType().docValuesType());
     }
 
     @Test

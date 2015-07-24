@@ -101,18 +101,14 @@ public class FloatMapper extends SingleColumnMapper<Float> {
 
     /** {@inheritDoc} */
     @Override
-    public Field sortedField(String name, Float value, boolean isCollection) {
+    public Field sortedField(String name, Float value) {
         int sortable = NumericUtils.floatToSortableInt(value);
-        if (isCollection) {
-            return new SortedNumericDocValuesField(name, sortable);
-        } else {
-            return new NumericDocValuesField(name, sortable);
-        }
+        return new NumericDocValuesField(name, sortable);
     }
 
     /** {@inheritDoc} */
     @Override
-    public SortField sortField(boolean reverse) {
+    public SortField sortField(String name, boolean reverse) {
         return new SortField(name, Type.FLOAT, reverse);
     }
 

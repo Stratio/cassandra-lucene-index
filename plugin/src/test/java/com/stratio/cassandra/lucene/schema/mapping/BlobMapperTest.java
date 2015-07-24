@@ -165,18 +165,9 @@ public class BlobMapperTest {
     public void testSortedField() {
         BlobMapper mapper = new BlobMapper("field", true, false);
         String base = mapper.base("name", "f1B2");
-        Field field = mapper.sortedField("name", base, false);
+        Field field = mapper.sortedField("name", base);
         assertNotNull(field);
         assertEquals(DocValuesType.SORTED, field.fieldType().docValuesType());
-    }
-
-    @Test
-    public void testSortedFieldCollection() {
-        BlobMapper mapper = new BlobMapper("field", true, false);
-        String base = mapper.base("name", "f1B2");
-        Field field = mapper.sortedField("name", base, true);
-        assertNotNull(field);
-        assertEquals(DocValuesType.SORTED_SET, field.fieldType().docValuesType());
     }
 
     @Test

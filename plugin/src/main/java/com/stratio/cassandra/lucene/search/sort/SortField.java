@@ -88,8 +88,10 @@ public class SortField {
         Mapper mapper = schema.getMapper(field);
         if (mapper == null) {
             throw new IllegalArgumentException("No mapper found for sortFields field " + field);
+        } else if (!mapper.isSorted()) {
+            throw new IllegalArgumentException(String.format("Mapper '%s' is not sorted", mapper.getName()));
         } else {
-            return mapper.sortField(reverse);
+            return mapper.sortField(field, reverse);
         }
     }
 
@@ -109,13 +111,8 @@ public class SortField {
                     return -1;
                 }
 
-                Columns columns1 = o1.getColumnsByName(field);
-                Columns columns2 = o2.getColumnsByName(field);
-                if (columns1.size() > 1 || columns2.size() > 1) {
-                    throw new RuntimeException("Sorting in multivalued columns is not supported");
-                }
-                Column<?> column1 = columns1.getFirst();
-                Column<?> column2 = columns2.getFirst();
+                Column<?> column1 = o1.getColumnsByFullName(field).getFirst();
+                Column<?> column2 = o2.getColumnsByFullName(field).getFirst();
 
                 if (column1 == null) {
                     return column2 == null ? 0 : 1;

@@ -409,18 +409,9 @@ public class BigIntegerMapperTest {
     public void testSortedField() {
         BigIntegerMapper mapper = new BigIntegerMapper("field", null, true, 10);
         String base = mapper.base("name", "4243");
-        Field field = mapper.sortedField("name", base, false);
+        Field field = mapper.sortedField("name", base);
         assertNotNull(field);
         assertEquals(DocValuesType.SORTED, field.fieldType().docValuesType());
-    }
-
-    @Test
-    public void testSortedFieldCollection() {
-        BigIntegerMapper mapper = new BigIntegerMapper("field", null, true, 10);
-        String base = mapper.base("name", "4243");
-        Field field = mapper.sortedField("name", base, true);
-        assertNotNull(field);
-        assertEquals(DocValuesType.SORTED_SET, field.fieldType().docValuesType());
     }
 
     @Test

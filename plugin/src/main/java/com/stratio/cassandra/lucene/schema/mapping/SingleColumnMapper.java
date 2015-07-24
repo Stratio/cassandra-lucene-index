@@ -45,20 +45,19 @@ public abstract class SingleColumnMapper<BASE> extends Mapper {
         for (Column column : columns.getColumnsByName(name)) {
             String name = column.getFullName();
             Object value = column.getComposedValue();
-            boolean isCollection = column.isCollection();
-            addFields(document, name, value, isCollection);
+            addFields(document, name, value);
         }
     }
 
-    public final void addFields(Document document, String name, Object value, boolean isCollection) {
+    public final void addFields(Document document, String name, Object value) {
         BASE base = base(name, value);
         if (indexed) document.add(indexedField(name, base));
-        if (sorted) document.add(sortedField(name, base, isCollection));
+        if (sorted) document.add(sortedField(name, base));
     }
 
     public abstract Field indexedField(String name, BASE value);
 
-    public abstract Field sortedField(String name, BASE value, boolean isCollection);
+    public abstract Field sortedField(String name, BASE value);
 
     /**
      * Returns the Lucene type for this mapper.

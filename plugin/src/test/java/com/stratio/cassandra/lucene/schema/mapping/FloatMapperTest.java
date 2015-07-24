@@ -43,7 +43,7 @@ public class FloatMapperTest {
     @Test()
     public void testSortField() {
         FloatMapper mapper = new FloatMapper("field", null, null, 2.3f);
-        SortField sortField = mapper.sortField(true);
+        SortField sortField = mapper.sortField("field", true);
         assertNotNull(sortField);
         assertTrue(sortField.getReverse());
     }
@@ -163,17 +163,9 @@ public class FloatMapperTest {
     @Test
     public void testSortedField() {
         FloatMapper mapper = new FloatMapper("field", true, true, 1f);
-        Field field = mapper.sortedField("name", 3.2f, false);
+        Field field = mapper.sortedField("name", 3.2f);
         assertNotNull(field);
         assertEquals(DocValuesType.NUMERIC, field.fieldType().docValuesType());
-    }
-
-    @Test
-    public void testSortedFieldCollection() {
-        FloatMapper mapper = new FloatMapper("field", true, true, 1f);
-        Field field = mapper.sortedField("name", 3.2f, true);
-        assertNotNull(field);
-        assertEquals(DocValuesType.SORTED_NUMERIC, field.fieldType().docValuesType());
     }
 
     @Test

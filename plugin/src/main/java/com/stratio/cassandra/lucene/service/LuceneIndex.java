@@ -253,7 +253,7 @@ public class LuceneIndex implements LuceneIndexMBean {
                                                     ScoreDoc after,
                                                     Integer count,
                                                     Set<String> fieldsToLoad) throws IOException {
-        Log.debug("%s search by query %s", logName, query);
+        Log.debug("%s search by query %s and sort %s", logName, query, sort);
 
         TopDocs topDocs;
         if (sort == null) {

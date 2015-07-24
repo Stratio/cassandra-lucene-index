@@ -983,7 +983,7 @@ public class BitemporalMapperTest {
     @Test(expected = UnsupportedOperationException.class)
     public void testSortField() {
         BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null, null);
-        mapper.sortField(false);
+        mapper.sortField("field", false);
     }
 
     private void testAddFieldsOnlyThese(Document doc,

@@ -156,17 +156,9 @@ public class StringMapperTest {
     @Test
     public void testSortedField() {
         StringMapper mapper = new StringMapper("field", true, true, true);
-        Field field = mapper.sortedField("name", "hello", false);
+        Field field = mapper.sortedField("name", "hello");
         assertNotNull(field);
         assertEquals(DocValuesType.SORTED, field.fieldType().docValuesType());
-    }
-
-    @Test
-    public void testSortedFieldCollection() {
-        StringMapper mapper = new StringMapper("field", true, true, true);
-        Field field = mapper.sortedField("name", "hello", true);
-        assertNotNull(field);
-        assertEquals(DocValuesType.SORTED_SET, field.fieldType().docValuesType());
     }
 
     @Test

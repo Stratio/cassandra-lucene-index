@@ -134,8 +134,8 @@ public class DateRangeMapper extends Mapper {
 
     /** {@inheritDoc} */
     @Override
-    public SortField sortField(boolean reverse) {
-        throw new UnsupportedOperationException("Date ranges do not support sorting");
+    public SortField sortField(String name, boolean reverse) {
+        throw new UnsupportedOperationException(String.format("Date range mapper '%s' does not support sorting", name));
     }
 
     /**

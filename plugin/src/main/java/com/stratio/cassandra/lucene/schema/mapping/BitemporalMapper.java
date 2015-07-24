@@ -362,8 +362,8 @@ public class BitemporalMapper extends Mapper {
 
     /** {@inheritDoc} */
     @Override
-    public SortField sortField(boolean reverse) {
-        throw new UnsupportedOperationException();
+    public SortField sortField(String name, boolean reverse) {
+        throw new UnsupportedOperationException(String.format("Bitemporal mapper '%s' does not support sorting", name));
     }
 
     /** {@inheritDoc} */

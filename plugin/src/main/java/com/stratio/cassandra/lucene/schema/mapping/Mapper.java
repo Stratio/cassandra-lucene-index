@@ -131,10 +131,11 @@ public abstract class Mapper {
     /**
      * Returns the {@link SortField} resulting from the mapping of the specified object.
      *
+     * @param name The name of the sorting field.
      * @param reverse If the sort must be reversed.
      * @return The {@link SortField} resulting from the mapping of the specified object.
      */
-    public abstract SortField sortField(boolean reverse);
+    public abstract SortField sortField(String name, boolean reverse);
 
     /**
      * Returns {@code true} if the specified Cassandra type/marshaller is supported, {@code false} otherwise.

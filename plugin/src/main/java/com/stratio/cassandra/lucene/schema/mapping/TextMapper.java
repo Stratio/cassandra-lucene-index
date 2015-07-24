@@ -90,18 +90,14 @@ public class TextMapper extends SingleColumnMapper<String> {
 
     /** {@inheritDoc} */
     @Override
-    public Field sortedField(String name, String value, boolean isCollection) {
+    public Field sortedField(String name, String value) {
         BytesRef bytes = new BytesRef(value);
-        if (isCollection) {
-            return new SortedSetDocValuesField(name, bytes);
-        } else {
-            return new SortedDocValuesField(name, bytes);
-        }
+        return new SortedDocValuesField(name, bytes);
     }
 
     /** {@inheritDoc} */
     @Override
-    public SortField sortField(boolean reverse) {
+    public SortField sortField(String name, boolean reverse) {
         return new SortField(name, Type.STRING, reverse);
     }
 

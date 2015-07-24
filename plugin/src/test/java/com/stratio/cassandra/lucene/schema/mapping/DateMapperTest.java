@@ -61,7 +61,7 @@ public class DateMapperTest {
     @Test()
     public void testSortField() {
         DateMapper mapper = new DateMapper("field", null, null, PATTERN);
-        SortField sortField = mapper.sortField(true);
+        SortField sortField = mapper.sortField("field", true);
         assertNotNull(sortField);
         assertTrue(sortField.getReverse());
     }
@@ -182,18 +182,9 @@ public class DateMapperTest {
     public void testSortedField() throws ParseException {
         long time = sdf.parse("2014-03-19").getTime();
         DateMapper mapper = new DateMapper("field", null, true, PATTERN);
-        Field field = mapper.sortedField("name", time, false);
+        Field field = mapper.sortedField("name", time);
         assertNotNull(field);
         assertEquals(DocValuesType.NUMERIC, field.fieldType().docValuesType());
-    }
-
-    @Test
-    public void testSortedFieldCollection() throws ParseException {
-        long time = sdf.parse("2014-03-19").getTime();
-        DateMapper mapper = new DateMapper("field", null, true, PATTERN);
-        Field field = mapper.sortedField("name", time, true);
-        assertNotNull(field);
-        assertEquals(DocValuesType.SORTED_NUMERIC, field.fieldType().docValuesType());
     }
 
     @Test

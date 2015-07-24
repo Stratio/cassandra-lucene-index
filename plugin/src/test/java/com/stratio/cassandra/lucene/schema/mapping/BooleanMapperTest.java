@@ -159,17 +159,9 @@ public class BooleanMapperTest {
     @Test
     public void testSortedField() {
         BooleanMapper mapper = new BooleanMapper("field", true, false);
-        Field field = mapper.sortedField("name", "true", false);
+        Field field = mapper.sortedField("name", "true");
         assertNotNull(field);
         assertEquals(DocValuesType.SORTED, field.fieldType().docValuesType());
-    }
-
-    @Test
-    public void testSortedFieldCollection() {
-        BooleanMapper mapper = new BooleanMapper("field", true, false);
-        Field field = mapper.sortedField("name", "true", true);
-        assertNotNull(field);
-        assertEquals(DocValuesType.SORTED_SET, field.fieldType().docValuesType());
     }
 
     @Test
