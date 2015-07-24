@@ -53,7 +53,7 @@ public class SearchBuildersTest {
 
     @Test
     public void testBool() throws IOException {
-        BooleanConditionBuilder builder = bool();
+        BooleanConditionBuilder builder = bool().must(matchAll());
         assertNotNull(builder);
         BooleanCondition condition = builder.build();
         assertNotNull(condition);

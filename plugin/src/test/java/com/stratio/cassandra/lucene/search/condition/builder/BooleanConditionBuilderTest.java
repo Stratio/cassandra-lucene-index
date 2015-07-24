@@ -47,7 +47,7 @@ public class BooleanConditionBuilderTest extends AbstractConditionBuilderTest {
         assertEquals(6, condition.not.size());
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void testBuildDefaults() {
         BooleanConditionBuilder builder = new BooleanConditionBuilder();
         BooleanCondition condition = builder.build();
