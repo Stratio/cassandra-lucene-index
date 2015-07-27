@@ -47,7 +47,7 @@ prefer filters over queries when no relevance nor sorting are needed.
 Types of search and their options are summarized in the table below.
 Details for each of them are available in individual sections and the
 examples can be downloaded as a CQL script:
-`extended-search-examples.cql </doc/resources/extended-search-examples.cql>`__.
+`extended-search-examples.cql <resources/extended-search-examples.cql>`__.
 
 In addition to the options described in the table, all search types have
 a “\ **boost**\ ” option that acts as a weight on the resulting score.
@@ -65,7 +65,7 @@ a “\ **boost**\ ” option that acts as a weight on the resulting score.
 |                                         +-----------------+-----------------+--------------------------------+-----------+
 |                                         | tt_to           | string/long     | Long.MAX_VALUE                 | No        |
 |                                         +-----------------+-----------------+--------------------------------+-----------+
-|                                         | operation       | string          | is_within                      | No        |
+|                                         | operation       | string          | intersects                     | No        |
 +-----------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 | `Boolean <#boolean-search>`__           | must            | search          |                                | No        |
 |                                         +-----------------+-----------------+--------------------------------+-----------+
@@ -172,11 +172,11 @@ Syntax:
 
 where:
 
--  **vt\_from**: a string or a number being the beginning of the valid date range.
--  **vt\_to**: a string or a number being the end of the valid date range.
--  **tt\_from**: a string or a number being the beginning of the transaction date range.
--  **tt\_to**: a string or a number being the end of the transaction date range.
--  **operation**: the spatial operation to be performed, it can be **intersects**,
+-  **vt\_from** (default = 0L): a string or a number being the beginning of the valid date range.
+-  **vt\_to** (default = Long.MAX_VALUE): a string or a number being the end of the valid date range.
+-  **tt\_from** (default = 0L): a string or a number being the beginning of the transaction date range.
+-  **tt\_to** (default = Long.MAX_VALUE): a string or a number being the end of the transaction date range.
+-  **operation** (default = intersects): the spatial operation to be performed, it can be **intersects**,
    **contains** and **is\_within**.
 
 Example 1: will return rows where valid time range is within "2014/02/01 00:00:00.000" and

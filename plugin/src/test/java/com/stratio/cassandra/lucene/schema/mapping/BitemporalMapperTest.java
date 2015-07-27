@@ -55,7 +55,7 @@ public class BitemporalMapperTest {
         assertEquals("vtTo", mapper.getVtTo());
         assertEquals("ttFrom", mapper.getTtFrom());
         assertEquals("ttTo", mapper.getTtTo());
-        assertEquals(new BitemporalMapper.BitemporalDateTime(Long.MAX_VALUE), mapper.getNowValue());
+        assertEquals((Long)Long.MAX_VALUE, (Long)mapper.getNowValue());
         assertEquals(BitemporalMapper.DEFAULT_PATTERN, mapper.getPattern());
         for (int i = 0; i <= 3; i++) {
             assertNotNull(mapper.getStrategy(i, true));

@@ -16,24 +16,14 @@
 package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.google.common.base.Objects;
-import org.apache.cassandra.db.marshal.AsciiType;
-import org.apache.cassandra.db.marshal.DecimalType;
-import org.apache.cassandra.db.marshal.DoubleType;
-import org.apache.cassandra.db.marshal.FloatType;
-import org.apache.cassandra.db.marshal.Int32Type;
-import org.apache.cassandra.db.marshal.IntegerType;
-import org.apache.cassandra.db.marshal.LongType;
-import org.apache.cassandra.db.marshal.TimestampType;
-import org.apache.cassandra.db.marshal.UTF8Type;
+import com.stratio.cassandra.lucene.util.DateFormatter;
+import org.apache.cassandra.db.marshal.*;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.LongField;
 import org.apache.lucene.document.NumericDocValuesField;
-import org.apache.lucene.document.SortedNumericDocValuesField;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.SortField.Type;
 
-import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -50,8 +40,8 @@ public class DateMapper extends SingleColumnMapper<Long> {
     /** The {@link SimpleDateFormat} pattern. */
     private final String pattern;
 
-    /** The thread safe date format. */
-    private final ThreadLocal<DateFormat> concurrentDateFormat;
+    /** the {@link DateFormatter} */
+    private final DateFormatter dateFormatter;
 
     /**
      * Builds a new {@link DateMapper} using the specified pattern.
@@ -76,15 +66,8 @@ public class DateMapper extends SingleColumnMapper<Long> {
               TimestampType.instance);
         this.pattern = pattern == null ? DEFAULT_PATTERN : pattern;
 
-        // Validate pattern
-        new SimpleDateFormat(this.pattern);
+        this.dateFormatter= new DateFormatter(this.pattern);
 
-        concurrentDateFormat = new ThreadLocal<DateFormat>() {
-            @Override
-            protected DateFormat initialValue() {
-                return new SimpleDateFormat(DateMapper.this.pattern);
-            }
-        };
     }
 
     public String getPattern() {
@@ -94,20 +77,12 @@ public class DateMapper extends SingleColumnMapper<Long> {
     /** {@inheritDoc} */
     @Override
     public Long base(String name, Object value) {
-        if (value == null) {
+        Date opt=this.dateFormatter.fromObject(value);
+        if (opt==null) {
             return null;
-        } else if (value instanceof Date) {
-            return ((Date) value).getTime();
-        } else if (value instanceof Number) {
-            return ((Number) value).longValue();
-        } else if (value instanceof String) {
-            try {
-                return concurrentDateFormat.get().parse(value.toString()).getTime();
-            } catch (ParseException e) {
-                // Ignore to fail below
-            }
+        } else {
+            return opt.getTime();
         }
-        return error("Field '%s' requires a date with format '%s', but found '%s'", name, pattern, value);
     }
 
     /** {@inheritDoc} */

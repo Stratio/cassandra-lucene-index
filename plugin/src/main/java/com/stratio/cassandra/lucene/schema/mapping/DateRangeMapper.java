@@ -18,6 +18,7 @@ package com.stratio.cassandra.lucene.schema.mapping;
 import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
+import com.stratio.cassandra.lucene.util.DateFormatter;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.db.marshal.AsciiType;
 import org.apache.cassandra.db.marshal.DecimalType;
@@ -59,11 +60,11 @@ public class DateRangeMapper extends Mapper {
     /** The {@link SimpleDateFormat} pattern. */
     private final String pattern;
 
+    /** the {@link DateFormatter} */
+    private final DateFormatter dateFormatter;
+
     private final DateRangePrefixTree tree;
     private final NumberRangePrefixTreeStrategy strategy;
-
-    /** The thread safe date format. */
-    private final ThreadLocal<DateFormat> concurrentDateFormat;
 
     /**
      * Builds a new {@link DateRangeMapper}.
@@ -101,12 +102,7 @@ public class DateRangeMapper extends Mapper {
         this.strategy = new NumberRangePrefixTreeStrategy(tree, name);
         this.pattern = pattern == null ? DEFAULT_PATTERN : pattern;
 
-        concurrentDateFormat = new ThreadLocal<DateFormat>() {
-            @Override
-            protected DateFormat initialValue() {
-                return new SimpleDateFormat(DateRangeMapper.this.pattern);
-            }
-        };
+        this.dateFormatter= new DateFormatter(this.pattern);
     }
 
     public String getStart() {
@@ -214,19 +210,11 @@ public class DateRangeMapper extends Mapper {
      * @return The {@link Date} represented by the specified object, or {@code null} if there is no one.
      */
     public Date base(Object value) {
-        if (value == null) {
+        Date opt=this.dateFormatter.fromObject(value);
+        if (opt==null) {
             return null;
-        } else if (value instanceof Date) {
-            return (Date) value;
-        } else if (value instanceof Number) {
-            return new Date(((Number) value).longValue());
-        } else if (value instanceof String) {
-            try {
-                return concurrentDateFormat.get().parse(value.toString());
-            } catch (ParseException e) {
-                // Ignore to fail below
-            }
+        } else {
+            return opt;
         }
-        throw new IllegalArgumentException(String.format("Valid date required, but found '%s'", value));
     }
 }

@@ -58,7 +58,7 @@ public class BitemporalCondition extends Condition {
     public final SpatialOperation spatialOperation;
 
     /** The default operation. */
-    public static final String DEFAULT_OPERATION = "is_within";
+    public static final String DEFAULT_OPERATION = "intersects";
 
     /** The default from value for vtFrom and ttFrom. */
     public static final Long DEFAULT_FROM = 0L;
