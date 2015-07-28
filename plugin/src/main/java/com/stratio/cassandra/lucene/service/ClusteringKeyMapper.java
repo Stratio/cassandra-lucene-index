@@ -254,8 +254,7 @@ public class ClusteringKeyMapper {
         return start(cellName).withEOC(Composite.EOC.END);
     }
 
-    public final Columns columns(Row row) {
-        ColumnFamily columnFamily = row.cf;
+    public final Columns columns(ColumnFamily columnFamily) {
         int numClusteringColumns = metadata.clusteringColumns().size();
         Columns columns = new Columns();
         if (numClusteringColumns > 0) {

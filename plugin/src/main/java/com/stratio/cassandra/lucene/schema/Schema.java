@@ -153,6 +153,15 @@ public class Schema implements Closeable {
         }
     }
 
+    public boolean canMapAll(Columns columns) {
+        for (Mapper mapper : mappers.values()) {
+            if (!mapper.canMap(columns)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     /** {@inheritDoc} */
     @Override
     public void close() {

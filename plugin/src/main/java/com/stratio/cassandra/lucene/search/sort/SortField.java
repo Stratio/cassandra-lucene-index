@@ -25,6 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.nio.ByteBuffer;
 import java.util.Comparator;
+
 import static org.apache.lucene.search.SortField.FIELD_SCORE;
 
 /**

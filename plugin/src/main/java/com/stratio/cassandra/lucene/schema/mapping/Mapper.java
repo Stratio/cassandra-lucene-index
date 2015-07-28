@@ -16,11 +16,13 @@
 package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.stratio.cassandra.lucene.schema.analysis.PreBuiltAnalyzers;
+import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.CollectionType;
+import org.apache.cassandra.db.marshal.CollectionType.Kind;
 import org.apache.cassandra.db.marshal.ListType;
 import org.apache.cassandra.db.marshal.MapType;
 import org.apache.cassandra.db.marshal.ReversedType;
@@ -31,10 +33,11 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.search.SortField;
 
-import org.apache.cassandra.db.marshal.CollectionType.Kind;
-import static org.apache.cassandra.db.marshal.CollectionType.Kind.*;
-
 import java.nio.ByteBuffer;
+import java.util.List;
+
+import static org.apache.cassandra.db.marshal.CollectionType.Kind.LIST;
+import static org.apache.cassandra.db.marshal.CollectionType.Kind.SET;
 
 /**
  * Class for mapping between Cassandra's columns and Lucene documents.
@@ -65,7 +68,10 @@ public abstract class Mapper {
     protected final Boolean sorted;
 
     /** The supported Cassandra types for indexing. */
-    private final AbstractType<?>[] supportedTypes;
+    private final List<AbstractType> supportedTypes;
+
+    /** The names of the columns to be mapped. */
+    private final List<String> mappedColumns;
 
     /**
      * Builds a new {@link Mapper} supporting the specified types for indexing.
@@ -74,13 +80,19 @@ public abstract class Mapper {
      * @param indexed        If the field supports searching.
      * @param sorted         If the field supports sorting.
      * @param supportedTypes The supported Cassandra types for indexing.
+     * @param mappedColumns  The names of the columns to be mapped.
      */
-    protected Mapper(String name, Boolean indexed, Boolean sorted, AbstractType<?>... supportedTypes) {
+    protected Mapper(String name,
+                     Boolean indexed,
+                     Boolean sorted,
+                     List<AbstractType> supportedTypes,
+                     List<String> mappedColumns) {
         if (StringUtils.isBlank(name)) throw new IllegalArgumentException("Mapper name is required");
         this.name = name;
         this.indexed = indexed == null ? DEFAULT_INDEXED : indexed;
         this.sorted = sorted == null ? DEFAULT_SORTED : sorted;
         this.supportedTypes = supportedTypes;
+        this.mappedColumns = mappedColumns;
     }
 
     /**
@@ -131,7 +143,7 @@ public abstract class Mapper {
     /**
      * Returns the {@link SortField} resulting from the mapping of the specified object.
      *
-     * @param name The name of the sorting field.
+     * @param name    The name of the sorting field.
      * @param reverse If the sort must be reversed.
      * @return The {@link SortField} resulting from the mapping of the specified object.
      */
@@ -198,5 +210,20 @@ public abstract class Mapper {
     }
 
     public abstract void validate(CFMetaData metaData);
+
+    public final boolean canMap(Columns columns) {
+        for (String columnName : mappedColumns) {
+            Columns mapperColumns = columns.getColumnsByName(columnName);
+            if (mapperColumns.isEmpty()) {
+                return false;
+            }
+            for (Column column : mapperColumns) {
+                if (column.isCollection()) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
 
 }

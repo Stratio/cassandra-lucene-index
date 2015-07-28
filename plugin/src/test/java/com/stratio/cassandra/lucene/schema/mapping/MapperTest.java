@@ -29,6 +29,8 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.search.SortField;
 import org.junit.Test;
 
+import java.util.Arrays;
+
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -106,9 +108,9 @@ public class MapperTest {
         testSupports(true, ReversedType.getInstance(UTF8Type.instance), UTF8Type.instance);
     }
 
-    private void testSupports(boolean expected, AbstractType<?> candidateType, AbstractType<?>... supportedTypes) {
+    private void testSupports(boolean expected, AbstractType candidateType, AbstractType... supportedTypes) {
 
-        Mapper mapper = new Mapper("field", null, null, supportedTypes) {
+        Mapper mapper = new Mapper("field", null, null, Arrays.asList(supportedTypes), Arrays.asList("field")) {
             @Override
             public void addFields(Document document, Columns columns) {
 

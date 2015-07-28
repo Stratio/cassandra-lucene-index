@@ -21,6 +21,7 @@ import com.spatial4j.core.shape.Point;
 import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import org.apache.cassandra.config.CFMetaData;
+import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.AsciiType;
 import org.apache.cassandra.db.marshal.DecimalType;
 import org.apache.cassandra.db.marshal.DoubleType;
@@ -37,6 +38,8 @@ import org.apache.lucene.spatial.SpatialStrategy;
 import org.apache.lucene.spatial.prefix.RecursivePrefixTreeStrategy;
 import org.apache.lucene.spatial.prefix.tree.GeohashPrefixTree;
 import org.apache.lucene.spatial.prefix.tree.SpatialPrefixTree;
+
+import java.util.Arrays;
 
 /**
  * A {@link Mapper} to map geographical points.
@@ -66,14 +69,15 @@ public class GeoPointMapper extends Mapper {
         super(name,
               true,
               false,
-              AsciiType.instance,
-              UTF8Type.instance,
-              Int32Type.instance,
-              LongType.instance,
-              IntegerType.instance,
-              FloatType.instance,
-              DoubleType.instance,
-              DecimalType.instance);
+              Arrays.<AbstractType>asList(AsciiType.instance,
+                                          UTF8Type.instance,
+                                          Int32Type.instance,
+                                          LongType.instance,
+                                          IntegerType.instance,
+                                          FloatType.instance,
+                                          DoubleType.instance,
+                                          DecimalType.instance),
+              Arrays.asList(latitude, longitude));
 
         if (StringUtils.isBlank(latitude)) {
             throw new IllegalArgumentException("latitude column name is required");

@@ -65,23 +65,18 @@ public class RowMapperSkinny extends RowMapper {
      * {@inheritDoc}
      */
     @Override
-    public Columns columns(Row row) {
+    public Columns columns(DecoratedKey partitionKey, ColumnFamily columnFamily) {
         Columns columns = new Columns();
-        columns.add(partitionKeyMapper.columns(row));
-        columns.add(regularCellsMapper.columns(row));
+        columns.add(partitionKeyMapper.columns(partitionKey));
+        columns.add(regularCellsMapper.columns(columnFamily));
         return columns;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Document document(Row row) {
-        DecoratedKey partitionKey = row.key;
+    public Document document(DecoratedKey partitionKey, Columns columns) {
         Document document = new Document();
         tokenMapper.addFields(document, partitionKey);
         partitionKeyMapper.addFields(document, partitionKey);
-        schema.addFields(document, columns(row));
+        schema.addFields(document, columns);
         return document;
     }
 

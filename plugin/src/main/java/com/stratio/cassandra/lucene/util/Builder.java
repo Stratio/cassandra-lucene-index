@@ -27,5 +27,5 @@ public interface Builder<T> {
      *
      * @return The {@link T} represented by this builder.
      */
-    public T build();
+    T build();
 }

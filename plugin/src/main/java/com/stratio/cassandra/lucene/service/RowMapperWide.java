@@ -83,28 +83,21 @@ public class RowMapperWide extends RowMapper {
      * {@inheritDoc}
      */
     @Override
-    public Columns columns(Row row) {
+    public Columns columns(DecoratedKey partitionKey, ColumnFamily columnFamily) {
         Columns columns = new Columns();
-        columns.add(partitionKeyMapper.columns(row));
-        columns.add(clusteringKeyMapper.columns(row));
-        columns.add(regularCellsMapper.columns(row));
+        columns.add(partitionKeyMapper.columns(partitionKey));
+        columns.add(clusteringKeyMapper.columns(columnFamily));
+        columns.add(regularCellsMapper.columns(columnFamily));
         return columns;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Document document(Row row) {
-        DecoratedKey partitionKey = row.key;
-        CellName clusteringKey = clusteringKeyMapper.clusteringKey(row);
-
+    public Document document(DecoratedKey partitionKey, CellName clusteringKey, Columns columns) {
         Document document = new Document();
         tokenMapper.addFields(document, partitionKey);
         partitionKeyMapper.addFields(document, partitionKey);
         clusteringKeyMapper.addFields(document, clusteringKey);
         fullKeyMapper.addFields(document, partitionKey, clusteringKey);
-        schema.addFields(document, columns(row));
+        schema.addFields(document, columns);
         return document;
     }
 
@@ -143,16 +136,6 @@ public class RowMapperWide extends RowMapper {
      */
     private CellName clusteringKey(ColumnFamily columnFamily) {
         return clusteringKeyMapper.clusteringKey(columnFamily);
-    }
-
-    /**
-     * Returns all the clustering keys contained in the specified {@link ColumnFamily}.
-     *
-     * @param columnFamily A {@link ColumnFamily}.
-     * @return All the clustering keys contained in the specified {@link ColumnFamily}.
-     */
-    public List<CellName> clusteringKeys(ColumnFamily columnFamily) {
-        return clusteringKeyMapper.clusteringKeys(columnFamily);
     }
 
     /**
@@ -268,16 +251,6 @@ public class RowMapperWide extends RowMapper {
      */
     public Map<CellName, ColumnFamily> splitRows(ColumnFamily columnFamily) {
         return clusteringKeyMapper.splitRows(columnFamily);
-    }
-
-    /**
-     * Returns the {@code String} human-readable representation of the specified cell name.
-     *
-     * @param cellName A cell name.
-     * @return The {@code String} human-readable representation of the specified cell name.
-     */
-    public String toString(CellName cellName) {
-        return clusteringKeyMapper.toString(cellName);
     }
 
     /**

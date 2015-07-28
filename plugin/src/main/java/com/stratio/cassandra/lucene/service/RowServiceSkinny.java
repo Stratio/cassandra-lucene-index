@@ -15,6 +15,7 @@
  */
 package com.stratio.cassandra.lucene.service;
 
+import com.stratio.cassandra.lucene.schema.column.Columns;
 import org.apache.cassandra.config.ColumnDefinition;
 import org.apache.cassandra.db.ColumnFamily;
 import org.apache.cassandra.db.ColumnFamilyStore;
@@ -23,7 +24,6 @@ import org.apache.cassandra.db.Row;
 import org.apache.cassandra.db.filter.QueryFilter;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.search.FieldDoc;
 import org.apache.lucene.search.ScoreDoc;
 
 import java.io.IOException;
@@ -80,14 +80,17 @@ public class RowServiceSkinny extends RowService {
     public void doIndex(ByteBuffer key, ColumnFamily columnFamily, long timestamp) throws IOException {
         DecoratedKey partitionKey = rowMapper.partitionKey(key);
 
-        if (columnFamily.iterator().hasNext()) // Create or update row
-        {
-            Row row = row(partitionKey, timestamp); // Read row
-            Document document = rowMapper.document(row);
+        if (columnFamily.iterator().hasNext()) { // Create or update row
+            columnFamily = cleanExpired(columnFamily, timestamp);
+            Columns columns = rowMapper.columns(partitionKey, columnFamily);
+            if (!schema.canMapAll(columns)) {
+                columnFamily = row(partitionKey, timestamp);
+                columns = rowMapper.columns(partitionKey, columnFamily);
+            }
+            Document document = rowMapper.document(partitionKey, columns);
             Term term = rowMapper.term(partitionKey);
             luceneIndex.upsert(term, document); // Store document
-        } else if (columnFamily.deletionInfo() != null) // Delete full row
-        {
+        } else if (columnFamily.deletionInfo() != null) { // Delete full row
             Term term = rowMapper.term(partitionKey);
             luceneIndex.delete(term);
         }
@@ -108,9 +111,9 @@ public class RowServiceSkinny extends RowService {
 
             // Extract row from document
             DecoratedKey partitionKey = searchResult.getPartitionKey();
-            Row row = row(partitionKey, timestamp);
-
-            if (row == null) continue;
+            ColumnFamily columnFamily = row(partitionKey, timestamp);
+            if (columnFamily == null) continue;
+            Row row = new Row(partitionKey, columnFamily);
 
             // Return decorated row
             if (relevance) {
@@ -130,12 +133,11 @@ public class RowServiceSkinny extends RowService {
      * @param timestamp    The time stamp to ignore deleted columns.
      * @return The CQL3 {@link Row} identified by the specified key pair.
      */
-    private Row row(DecoratedKey partitionKey, long timestamp) {
+    private ColumnFamily row(DecoratedKey partitionKey, long timestamp) {
         QueryFilter queryFilter = QueryFilter.getIdentityFilter(partitionKey, metadata.cfName, timestamp);
         ColumnFamily columnFamily = baseCfs.getColumnFamily(queryFilter);
         if (columnFamily != null) {
-            ColumnFamily cleanColumnFamily = cleanExpired(columnFamily, timestamp);
-            return new Row(partitionKey, cleanColumnFamily);
+            return cleanExpired(columnFamily, timestamp);
         }
         return null;
     }

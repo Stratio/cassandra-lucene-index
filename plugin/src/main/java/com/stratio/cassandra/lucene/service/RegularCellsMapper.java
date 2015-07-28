@@ -63,13 +63,12 @@ public class RegularCellsMapper {
      * Returns the columns contained in the regular cells specified {@link Row}. Note that not all the contained columns
      * are returned, but only the regular cell ones.
      *
-     * @param row A {@link Row}.
+     * @param columnFamily A {@link Row} column family.
      * @return The columns contained in the regular cells specified {@link Row}.
      */
     @SuppressWarnings("rawtypes")
-    public Columns columns(Row row) {
+    public Columns columns(ColumnFamily columnFamily) {
 
-        ColumnFamily columnFamily = row.cf;
         Columns columns = new Columns();
 
         // Stuff for grouping collection columns (sets, lists and maps)

@@ -19,15 +19,7 @@ import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import org.apache.cassandra.config.CFMetaData;
-import org.apache.cassandra.db.marshal.AsciiType;
-import org.apache.cassandra.db.marshal.DecimalType;
-import org.apache.cassandra.db.marshal.DoubleType;
-import org.apache.cassandra.db.marshal.FloatType;
-import org.apache.cassandra.db.marshal.Int32Type;
-import org.apache.cassandra.db.marshal.IntegerType;
-import org.apache.cassandra.db.marshal.LongType;
-import org.apache.cassandra.db.marshal.TimestampType;
-import org.apache.cassandra.db.marshal.UTF8Type;
+import org.apache.cassandra.db.marshal.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexableField;
@@ -41,6 +33,7 @@ import org.apache.lucene.spatial.prefix.tree.NumberRangePrefixTree.UnitNRShape;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 
 /**
@@ -77,15 +70,16 @@ public class DateRangeMapper extends Mapper {
         super(name,
               true,
               false,
-              AsciiType.instance,
-              UTF8Type.instance,
-              Int32Type.instance,
-              LongType.instance,
-              IntegerType.instance,
-              FloatType.instance,
-              DoubleType.instance,
-              DecimalType.instance,
-              TimestampType.instance);
+              Arrays.<AbstractType>asList(AsciiType.instance,
+                                          UTF8Type.instance,
+                                          Int32Type.instance,
+                                          LongType.instance,
+                                          IntegerType.instance,
+                                          FloatType.instance,
+                                          DoubleType.instance,
+                                          DecimalType.instance,
+                                          TimestampType.instance),
+              Arrays.asList(start, stop));
 
         if (StringUtils.isBlank(start)) {
             throw new IllegalArgumentException("start column name is required");

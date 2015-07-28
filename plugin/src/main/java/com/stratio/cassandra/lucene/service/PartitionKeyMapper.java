@@ -134,11 +134,10 @@ public class PartitionKeyMapper {
      * Returns the columns contained in the partition key of the specified {@link Row}. Note that not all the contained
      * columns are returned, but only those of the partition key.
      *
-     * @param row A {@link Row}.
+     * @param partitionKey A {@link Row} partition key.
      * @return The columns contained in the partition key of the specified {@link Row}.
      */
-    public Columns columns(Row row) {
-        DecoratedKey partitionKey = row.key;
+    public Columns columns(DecoratedKey partitionKey) {
         Columns columns = new Columns();
         AbstractType<?> rawKeyType = metadata.getKeyValidator();
         List<ColumnDefinition> columnDefinitions = metadata.partitionKeyColumns();
@@ -151,14 +150,6 @@ public class PartitionKeyMapper {
             columns.add(Column.fromDecomposed(name, value, valueType, false));
         }
         return columns;
-    }
-
-    public String toString(ByteBuffer key) {
-        return ByteBufferUtils.toString(key, type);
-    }
-
-    public String toString(DecoratedKey decoratedKey) {
-        return decoratedKey.getToken() + " - " + ByteBufferUtils.toString(decoratedKey.getKey(), type);
     }
 
 }

@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class RowKeys implements Iterable<RowKey>{
+public class RowKeys implements Iterable<RowKey> {
 
     private final List<RowKey> rowKeys;
 

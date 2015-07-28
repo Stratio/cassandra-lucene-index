@@ -68,7 +68,7 @@ public abstract class RowService {
     final CFMetaData metadata;
     final LuceneIndex luceneIndex;
 
-    private final Schema schema;
+    protected final Schema schema;
     private final TaskQueue indexQueue;
 
     /**
@@ -304,7 +304,7 @@ public abstract class RowService {
                 Map<Document, ScoreDoc> docs = luceneIndex.search(searcher, query, sort, last, page, fields);
                 List<SearchResult> searchResults = new ArrayList<>(docs.size());
                 for (Map.Entry<Document, ScoreDoc> entry : docs.entrySet()) {
-                // Log.info("** FOUND " + entry.getValue());
+                    // Log.info("** FOUND " + entry.getValue());
                     Document document = entry.getKey();
                     ScoreDoc scoreDoc = entry.getValue();
                     last = scoreDoc;
@@ -393,7 +393,7 @@ public abstract class RowService {
      * Returns {@code true} if the specified {@link Row} satisfies the all the specified {@link IndexExpression}s,
      * {@code false} otherwise.
      *
-     * @param row   A {@link Row}.
+     * @param row         A {@link Row}.
      * @param expressions A list of {@link IndexExpression}s to be satisfied by {@code row}.
      * @return {@code true} if the specified {@link Row} satisfies the all the specified {@link IndexExpression}s,
      * {@code false} otherwise.
@@ -458,8 +458,8 @@ public abstract class RowService {
     }
 
     /**
-     * Returns the {@link Row}s identified by the specified {@link Document}s, using the specified time stamp to
-     * ignore deleted columns. The {@link Row}s are retrieved from the storage engine, so it involves IO operations.
+     * Returns the {@link Row}s identified by the specified {@link Document}s, using the specified time stamp to ignore
+     * deleted columns. The {@link Row}s are retrieved from the storage engine, so it involves IO operations.
      *
      * @param searchResults The {@link SearchResult}s
      * @param timestamp     The time stamp to ignore deleted columns.

@@ -89,20 +89,23 @@ public abstract class RowMapper {
     }
 
     /**
+     * Returns the {@link Columns} representing the specified logic {@link Row}.
+     *
+     * @param partitionKey A logic {@link Row} partition key.
+     * @param columnFamily A logic {@link Row} {@link ColumnFamily}.
+     * @return The columns contained in the specified columns.
+     */
+    public abstract Columns columns(DecoratedKey partitionKey, ColumnFamily columnFamily);
+
+    /**
      * Returns the {@link Columns} representing the specified {@link Row}.
      *
      * @param row A {@link Row}.
      * @return The columns contained in the specified columns.
      */
-    public abstract Columns columns(Row row);
-
-    /**
-     * Returns the {@link Document} representing the specified {@link Row}.
-     *
-     * @param row A {@link Row}.
-     * @return The {@link Document} representing the specified {@link Row}.
-     */
-    public abstract Document document(Row row);
+    public final Columns columns(Row row) {
+        return columns(row.key, row.cf);
+    }
 
     /**
      * Returns the decorated partition key representing the specified raw partition key.
