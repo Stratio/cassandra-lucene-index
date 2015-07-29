@@ -6,16 +6,25 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
- * Created by eduardoalonso on 27/07/15.
+ * Unified class for parse a Date from Object including a String pattern
+ * @author Eduardo ALonso {@literal <eduardoalonso@stratio.com>}
  */
 public class DateFormatter {
 
+    /** The {@link SimpleDateFormat} pattern. */
     private String pattern;
+
+    /** The thread safe date format. */
+    private static ThreadLocal<DateFormat> concurrentDateFormat;
+
+    /**
+     * Constructor with pattern
+     * @param pattern the {@link SimpleDateFormat} pattern to use.
+     */
     public DateFormatter(String pattern) {
         this.pattern=pattern;
         //validate pattern
         new SimpleDateFormat(this.pattern);
-
 
         this.concurrentDateFormat = new ThreadLocal<DateFormat>() {
             @Override
@@ -24,8 +33,12 @@ public class DateFormatter {
             }
         };
     }
-    private static ThreadLocal<DateFormat> concurrentDateFormat;
 
+    /**
+     * Returns a Date from the Object
+     * @param value the Object value to pe parsed.
+     * @return a Date that matches the pattern or null if the object cant be parsed
+     */
     public Date fromObject(Object value) {
         if (value == null) {
             return null;

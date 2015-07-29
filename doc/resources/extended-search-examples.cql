@@ -17,24 +17,108 @@ WHERE stratio_col = '{query : {
                         should : [{type : "wildcard", field : "name", value : "*_2"}, 
                                   {type : "wildcard", field : "food", value : "tu*"}]}}';
 
+
+-- Contains queries
+SELECT * FROM test.users
+WHERE stratio_col = '{filter : {
+                        type   : "contains",
+                        field  : "name",
+                        values : ["Alicia","mancha"] }}';
+
+SELECT * FROM test.users
+WHERE stratio_col = '{filter : {
+                        type   : "contains",
+                        field  : "date",
+                        values : ["2014/01/01", "2014/01/02", "2014/01/03"] }}';
+
+-- Date Range queries
+SELECT * FROM test.users
+WHERE stratio_col = '{  filter : {
+                        type   : "date_range",
+                        field  : "duration",
+                        start  : "2014/01/01",
+                        stop   : "2014/12/31",
+                        operation : "intersects"}}';
+
+
+SELECT * FROM test.users
+WHERE stratio_col = '{  filter : {
+                        type   : "date_range",
+                        field  : "duration",
+                        start  : "2014/06/01",
+                        stop   : "2014/06/02",
+                        operation : "contains"}}';
+
+
+SELECT * FROM test.users
+WHERE stratio_col = '{  filter : {
+                        type   : "date_range",
+                        field  : "duration",
+                        start  : "2014/01/01",
+                        stop   : "2014/12/31",
+                        operation : "is_within"}}';
+
+
 -- Fuzzy queries
 SELECT * FROM test.users 
 WHERE stratio_col = '{query : { type      : "fuzzy", 
                                 field     : "phrase", 
                                 value     : "puma", 
                                 max_edits : 1 }}';
-SELECT * FROM test.users 
-WHERE stratio_col = '{query : { type          : "fuzzy", 
-                                field         : "phrase", 
-                                value         : "puma", 
-                                prefix_length : 2 }}';
+SELECT * FROM test.users
+    WHERE stratio_col = '{filter : { type          : "fuzzy",
+                                     field         : "phrase",
+                                     value         : "puma",
+                                     max_edits     : 1,
+                                     prefix_length : 2 }}';
+
+
+-- Geo bbox queries
+SELECT * FROM test.users
+WHERE stratio_col = '{filter : { type : "geo_bbox",
+                                 field : "place",
+                                 min_latitude : -90.0,
+                                 max_latitude : 90.0,
+                                 min_longitude : -180.0,
+                                 max_longitude : 180.0 }}';
+
+SELECT * FROM test.users
+WHERE stratio_col = '{filter : { type : "geo_bbox",
+                                 field : "place",
+                                 min_latitude : -90.0,
+                                 max_latitude : 90.0,
+                                 min_longitude : 0.0,
+                                 max_longitude : 10.0 }}';
+
+SELECT * FROM test.users
+WHERE stratio_col = '{filter : { type : "geo_bbox",
+                                 field : "place",
+                                 min_latitude : 0.0,
+                                 max_latitude : 10.0,
+                                 min_longitude : -180.0,
+                                 max_longitude : 180.0 }}';
+-- Geo distance queries
+ SELECT * FROM test.users
+    WHERE stratio_col = '{filter : { type : "geo_distance",
+                                     field : "place",
+                                     latitude : 40.225479,
+                                     longitude : -3.999278,
+                                     max_distance : "1km"}}';
+
+SELECT * FROM test.users
+    WHERE stratio_col = '{filter : { type : "geo_distance",
+                                     field : "place",
+                                     latitude : 40.225479,
+                                     longitude : -3.999278,
+                                     max_distance : "10yd" ,
+                                     min_distance : "1yd" }}';
 
 -- Match queries
 SELECT * FROM test.users 
 WHERE stratio_col = '{query : {
                         type  : "match", 
                         field : "name", 
-                        value : "pepito_3" }}';
+                        value : "Alicia" }}';
 SELECT * FROM test.users 
 WHERE stratio_col = '{query : {
                         type  : "match", 
@@ -46,17 +130,23 @@ WHERE stratio_col = '{query : {
                         field : "date", 
                         value : "2014/01/01" }}';
 
+
+-- Match all queries
+SELECT * FROM test.users
+WHERE stratio_col = '{filter : {
+                       type  : "match_all" }}';
+
 -- Phrase queries
 SELECT * FROM test.users 
 WHERE stratio_col = '{query : {
                         type   : "phrase", 
                         field  : "phrase", 
-                        values : ["camisa", "manchada"] }}';
+                        value : "camisa manchada" }}';
 SELECT * FROM test.users 
 WHERE stratio_col = '{query : {
                         type   : "phrase", 
                         field  : "phrase", 
-                        values : ["mancha", "camisa"], 
+                        value : "mancha camisa", 
                         slop   : 2 }}';
 
 -- Prefix queries
@@ -101,7 +191,7 @@ SELECT * FROM test.users
 WHERE stratio_col = '{query : {
                         type  : "regexp", 
                         field : "name",
-                        value : "([p][aeiou]){2}.*" }}';
+                        value : "([J][aeiou]){2}.*" }}';
 
 -- Wildcard queries
 SELECT * FROM test.users 
@@ -109,4 +199,3 @@ WHERE stratio_col = '{query : {
                         type  : "wildcard", 
                         field : "food", 
                         value : "tu*" }}';
-
