@@ -70,15 +70,6 @@ public class SearchResult {
         return scoreDoc;
     }
 
-    /**
-     * Returns the search numeric score.
-     *
-     * @return The search numeric score.
-     */
-    public Float getScore() {
-        return scoreDoc.score;
-    }
-
     /** {@inheritDoc} */
     @Override
     public boolean equals(Object o) {

@@ -23,6 +23,7 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 /**
  * Class for mapping between Cassandra's columns and Lucene documents.
@@ -40,7 +41,7 @@ public abstract class SingleColumnMapper<BASE> extends Mapper {
      * @param supportedTypes The supported Cassandra types for indexing.
      */
     public SingleColumnMapper(String name, Boolean indexed, Boolean sorted, AbstractType... supportedTypes) {
-        super(name, indexed, sorted, Arrays.asList(supportedTypes), Arrays.asList(name));
+        super(name, indexed, sorted, Arrays.asList(supportedTypes), Collections.singletonList(name));
     }
 
     public void addFields(Document document, Columns columns) {

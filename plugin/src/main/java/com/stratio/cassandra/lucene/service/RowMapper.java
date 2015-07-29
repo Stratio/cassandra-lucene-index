@@ -33,7 +33,6 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.SortField;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -118,16 +117,6 @@ public abstract class RowMapper {
     }
 
     /**
-     * Returns the decorated partition key contained in the specified {@link Document}.
-     *
-     * @param document A {@link Document}.
-     * @return The decorated partition key contained in the specified {@link Document}.
-     */
-    public final DecoratedKey partitionKey(Document document) {
-        return partitionKeyMapper.partitionKey(document);
-    }
-
-    /**
      * Returns the Lucene {@link Term} to get the {@link Document}s containing the specified decorated partition key.
      *
      * @param partitionKey A decorated partition key.
@@ -182,7 +171,7 @@ public abstract class RowMapper {
 
     public abstract RowKey rowKey(ByteBuffer bb);
 
-    public ByteBuffer byteBuffer(RowKeys rowKeys) throws IOException {
+    public ByteBuffer byteBuffer(RowKeys rowKeys) {
 
         List<byte[]> allBytes = new ArrayList<>(rowKeys.size());
         int size = 0;
@@ -215,7 +204,7 @@ public abstract class RowMapper {
         return Float.parseFloat(value);
     }
 
-    public RowKeys rowKeys(ByteBuffer bb) throws IOException {
+    public RowKeys rowKeys(ByteBuffer bb) {
         RowKeys rowKeys = new RowKeys();
         bb.rewind();
         while (bb.hasRemaining()) {

@@ -112,7 +112,8 @@ public class LuceneIndex implements LuceneIndexMBean {
 
         // Setup NRT search
         SearcherFactory searcherFactory = new SearcherFactory() {
-            public IndexSearcher newSearcher(IndexReader reader) throws IOException {
+            @Override
+            public IndexSearcher newSearcher(IndexReader reader, IndexReader previousReader) {
                 LuceneIndex.this.refreshCallBack();
                 IndexSearcher searcher = new IndexSearcher(reader);
                 searcher.setSimilarity(new NoIDFSimilarity());

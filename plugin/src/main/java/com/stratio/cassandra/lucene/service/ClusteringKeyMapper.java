@@ -30,7 +30,6 @@ import org.apache.cassandra.db.composites.CellNameType;
 import org.apache.cassandra.db.composites.Composite;
 import org.apache.cassandra.db.filter.ColumnSlice;
 import org.apache.cassandra.db.marshal.AbstractType;
-import org.apache.cassandra.utils.ByteBufferUtil;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.SortedDocValuesField;
@@ -124,48 +123,6 @@ public class ClusteringKeyMapper {
 
     public CellName clusteringKey(ByteBuffer bb) {
         return cellNameType.cellFromByteBuffer(bb);
-    }
-
-    /**
-     * Returns the common clustering keys of the specified column family.
-     *
-     * @param columnFamily A storage engine {@link ColumnFamily}.
-     * @return The common clustering keys of the specified column family.
-     */
-    public List<CellName> clusteringKeys(ColumnFamily columnFamily) {
-        List<CellName> clusteringKeys = new ArrayList<>();
-        CellName lastClusteringKey = null;
-        for (Cell cell : columnFamily) {
-            CellName cellName = cell.name();
-            if (!isStatic(cellName)) {
-                CellName clusteringKey = extractClusteringKey(cellName);
-                if (lastClusteringKey == null || !lastClusteringKey.isSameCQL3RowAs(cellNameType, clusteringKey)) {
-                    lastClusteringKey = clusteringKey;
-                    clusteringKeys.add(clusteringKey);
-                }
-            }
-        }
-        return sort(clusteringKeys);
-    }
-
-    private CellName extractClusteringKey(CellName cellName) {
-        int numClusteringColumns = metadata.clusteringColumns().size();
-        ByteBuffer[] components = new ByteBuffer[numClusteringColumns + 1];
-        for (int i = 0; i < numClusteringColumns; i++) {
-            components[i] = cellName.get(i);
-        }
-        components[numClusteringColumns] = ByteBufferUtil.EMPTY_BYTE_BUFFER;
-        return cellNameType.makeCellName((Object[]) components);
-    }
-
-    private boolean isStatic(CellName cellName) {
-        int numClusteringColumns = metadata.clusteringColumns().size();
-        for (int i = 0; i < numClusteringColumns; i++) {
-            if (ByteBufferUtils.isEmpty(cellName.get(i))) {
-                return true;
-            }
-        }
-        return false;
     }
 
     /**

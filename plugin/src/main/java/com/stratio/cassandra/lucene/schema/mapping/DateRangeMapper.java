@@ -202,9 +202,9 @@ public class DateRangeMapper extends Mapper {
 
     /**
      * Returns the {@link Date} represented by the specified object, or {@code null} if there is no one. A {@link
-     * IllegalArgumentException} if the date is not parseable.
+     * IllegalArgumentException} if the date is not parsable.
      *
-     * @param value A value containing suposed to represent a {@link Date}.
+     * @param value A value which could represent a {@link Date}.
      * @return The {@link Date} represented by the specified object, or {@code null} if there is no one.
      */
     public Date base(Object value) {

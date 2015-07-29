@@ -153,8 +153,6 @@ public class RowServiceWide extends RowService {
     @Override
     protected List<Row> rows(List<SearchResult> searchResults, long timestamp, boolean relevance) {
 
-        List<Row> rows = new ArrayList<>(searchResults.size());
-
         // Group key queries by partition keys
         Map<String, ScoreDoc> scoresByClusteringKey = new HashMap<>(searchResults.size());
         Map<DecoratedKey, List<CellName>> keys = new HashMap<>();
@@ -172,6 +170,7 @@ public class RowServiceWide extends RowService {
             clusteringKeys.add(clusteringKey);
         }
 
+        List<Row> rows = new ArrayList<>(searchResults.size());
         for (Map.Entry<DecoratedKey, List<CellName>> entry : keys.entrySet()) {
             DecoratedKey partitionKey = entry.getKey();
             for (List<CellName> clusteringKeys : Lists.partition(entry.getValue(), 1000)) {
@@ -211,10 +210,8 @@ public class RowServiceWide extends RowService {
             slices = l.toArray(slices);
         }
 
-        SliceQueryFilter dataFilter = new SliceQueryFilter(slices,
-                                                           false,
-                                                           Integer.MAX_VALUE,
-                                                           baseCfs.metadata.clusteringColumns().size());
+        int compositesToGroup = baseCfs.metadata.clusteringColumns().size();
+        SliceQueryFilter dataFilter = new SliceQueryFilter(slices, false, Integer.MAX_VALUE, compositesToGroup);
         QueryFilter queryFilter = new QueryFilter(partitionKey, baseCfs.name, dataFilter, timestamp);
 
         ColumnFamily queryColumnFamily = baseCfs.getColumnFamily(queryFilter);
