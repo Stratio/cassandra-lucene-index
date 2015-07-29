@@ -25,6 +25,7 @@ public class RowKeys implements Iterable<RowKey> {
 
     /**
      * Constructor taking a initial list of {@link RowKey}s.
+     *
      * @param rowKeys A list of {@link RowKey}s.
      */
     public RowKeys(List<RowKey> rowKeys) {
@@ -47,6 +48,7 @@ public class RowKeys implements Iterable<RowKey> {
 
     /**
      * Adds a new {@link RowKey} to this list.
+     *
      * @param rowKey A {@link RowKey} to be added.
      */
     public void add(RowKey rowKey) {

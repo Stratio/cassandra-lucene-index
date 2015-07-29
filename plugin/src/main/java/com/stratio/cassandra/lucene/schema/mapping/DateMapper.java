@@ -16,6 +16,7 @@
 package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.google.common.base.Objects;
+import com.stratio.cassandra.lucene.util.DateParser;
 import org.apache.cassandra.db.marshal.AsciiType;
 import org.apache.cassandra.db.marshal.DecimalType;
 import org.apache.cassandra.db.marshal.DoubleType;
@@ -31,8 +32,6 @@ import org.apache.lucene.document.NumericDocValuesField;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.SortField.Type;
 
-import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -49,8 +48,8 @@ public class DateMapper extends SingleColumnMapper<Long> {
     /** The {@link SimpleDateFormat} pattern. */
     private final String pattern;
 
-    /** The thread safe date format. */
-    private final ThreadLocal<DateFormat> concurrentDateFormat;
+    /** The {@link DateParser} */
+    private final DateParser dateParser;
 
     /**
      * Builds a new {@link DateMapper} using the specified pattern.
@@ -74,16 +73,7 @@ public class DateMapper extends SingleColumnMapper<Long> {
               DecimalType.instance,
               TimestampType.instance);
         this.pattern = pattern == null ? DEFAULT_PATTERN : pattern;
-
-        // Validate pattern
-        new SimpleDateFormat(this.pattern);
-
-        concurrentDateFormat = new ThreadLocal<DateFormat>() {
-            @Override
-            protected DateFormat initialValue() {
-                return new SimpleDateFormat(DateMapper.this.pattern);
-            }
-        };
+        this.dateParser = new DateParser(this.pattern);
     }
 
     public String getPattern() {
@@ -93,20 +83,12 @@ public class DateMapper extends SingleColumnMapper<Long> {
     /** {@inheritDoc} */
     @Override
     public Long base(String name, Object value) {
-        if (value == null) {
+        Date opt = this.dateParser.parse(value);
+        if (opt == null) {
             return null;
-        } else if (value instanceof Date) {
-            return ((Date) value).getTime();
-        } else if (value instanceof Number) {
-            return ((Number) value).longValue();
-        } else if (value instanceof String) {
-            try {
-                return concurrentDateFormat.get().parse(value.toString()).getTime();
-            } catch (ParseException e) {
-                // Ignore to fail below
-            }
+        } else {
+            return opt.getTime();
         }
-        return error("Field '%s' requires a date with format '%s', but found '%s'", name, pattern, value);
     }
 
     /** {@inheritDoc} */

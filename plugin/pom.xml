@@ -34,33 +34,6 @@
     <name>Cassandra Lucene Index plugin</name>
     <description>Cassandra Lucene Index plugin</description>
 
-    <licenses>
-        <license>
-            <name>Apache License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0</url>
-        </license>
-    </licenses>
-
-    <scm>
-        <url>https://github.com/Stratio/cassandra-lucene-index</url>
-        <connection>scm:git:git:@github.com:Stratio/cassandra-lucene-index.git</connection>
-        <developerConnection>scm:git:git@github.com:Stratio/cassandra-lucene-index.git</developerConnection>
-        <tag>HEAD</tag>
-    </scm>
-
-    <developers>
-        <developer>
-            <id>adelapena</id>
-            <name>Andrés de la Peña</name>
-            <email>adelapena at stratio dot com</email>
-        </developer>
-        <developer>
-            <id>eraffenne</id>
-            <name>Emmanuelle Raffenne</name>
-            <email>eraffenne at stratio dot com</email>
-        </developer>
-    </developers>
-
     <dependencies>
         <dependency>
             <groupId>org.apache.cassandra</groupId>

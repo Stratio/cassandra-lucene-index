@@ -71,15 +71,15 @@ public class LuceneIndex implements LuceneIndexMBean {
     /**
      * Builds a new {@code RowDirectory} using the specified directory path and analyzer.
      *
-     * @param keyspace        The keyspace name.
-     * @param table           The table name.
-     * @param name            The index name.
-     * @param path            The path of the directory in where the Lucene files will be stored.
-     * @param ramBufferMB     The index writer buffer size in MB.
-     * @param maxMergeMB      NRTCachingDirectory max merge size in MB.
-     * @param maxCachedMB     NRTCachingDirectory max cached MB.
-     * @param analyzer        The default {@link Analyzer}.
-     * @param refreshSeconds  The index readers refresh time in seconds. Writings are not visible until this time.
+     * @param keyspace       The keyspace name.
+     * @param table          The table name.
+     * @param name           The index name.
+     * @param path           The path of the directory in where the Lucene files will be stored.
+     * @param ramBufferMB    The index writer buffer size in MB.
+     * @param maxMergeMB     NRTCachingDirectory max merge size in MB.
+     * @param maxCachedMB    NRTCachingDirectory max cached MB.
+     * @param analyzer       The default {@link Analyzer}.
+     * @param refreshSeconds The index readers refresh time in seconds. Writings are not visible until this time.
      * @throws IOException If Lucene throws IO errors.
      */
     public LuceneIndex(String keyspace,

@@ -47,16 +47,16 @@ public abstract class RowMapper {
     /** The indexed table metadata. */
     final CFMetaData metadata;
 
-    /**  The indexed column definition. */
+    /** The indexed column definition. */
     final ColumnDefinition columnDefinition;
 
-    /**  The indexing schema. */
+    /** The indexing schema. */
     final Schema schema;
 
     /** A token mapper for the indexed table. */
     final TokenMapper tokenMapper;
 
-    /**  A partition key mapper for the indexed table. */
+    /** A partition key mapper for the indexed table. */
     final PartitionKeyMapper partitionKeyMapper;
 
     /** A regular cell mapper for the indexed table. */

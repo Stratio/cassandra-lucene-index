@@ -538,7 +538,7 @@ prefer filters over queries when no relevance nor sorting are needed.
 Types of search and their options are summarized in the table below.
 Details for each of them are available in individual sections and the
 examples can be downloaded as a CQL script:
-`extended-search-examples.cql <resources/extended-search-examples.cql>`__.
+`extended-search-examples.cql </doc/resources/extended-search-examples.cql>`__.
 
 In addition to the options described in the table, all search types have
 a “\ **boost**\ ” option that acts as a weight on the resulting score.
@@ -556,7 +556,7 @@ a “\ **boost**\ ” option that acts as a weight on the resulting score.
 |                                         +-----------------+-----------------+--------------------------------+-----------+
 |                                         | tt_to           | string/long     | Long.MAX_VALUE                 | No        |
 |                                         +-----------------+-----------------+--------------------------------+-----------+
-|                                         | operation       | string          | is_within                      | No        |
+|                                         | operation       | string          | intersects                     | No        |
 +-----------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 | `Boolean <#boolean-search>`__           | must            | search          |                                | No        |
 |                                         +-----------------+-----------------+--------------------------------+-----------+
@@ -663,16 +663,53 @@ Syntax:
 
 where:
 
--  **vt\_from**: a string or a number being the beginning of the valid date range.
--  **vt\_to**: a string or a number being the end of the valid date range.
--  **tt\_from**: a string or a number being the beginning of the transaction date range.
--  **tt\_to**: a string or a number being the end of the transaction date range.
--  **operation**: the spatial operation to be performed, it can be **intersects**,
+-  **vt\_from** (default = 0L): a string or a number being the beginning of the valid date range.
+-  **vt\_to** (default = Long.MAX_VALUE): a string or a number being the end of the valid date range.
+-  **tt\_from** (default = 0L): a string or a number being the beginning of the transaction date range.
+-  **tt\_to** (default = Long.MAX_VALUE): a string or a number being the end of the transaction date range.
+-  **operation** (default = intersects): the spatial operation to be performed, it can be **intersects**,
    **contains** and **is\_within**.
 
-Example 1: will return rows where valid time range is within "2014/02/01 00:00:00.000" and
-"2014/02/28 23:59:59.999" and transaction time range is within "2014/02/01 00:00:00.000" and
-"2014/03/31 23:59:59.999"
+Bitemporal searching is so complex that we want to stay an example. Lets describe a census system where the system
+ stores the real world date when an individual resides in a city(valid time) and when the system knows about this event(transaction time)
+
+  First we create the table where all this data resides:
+
+.. code-block:: sql
+
+    CREATE KEYSPACE example_for_chris with replication = {'class':'SimpleStrategy', 'replication_factor': 1};
+    USE test;
+
+    CREATE TABLE census (
+          user_id uuid,
+          city text,
+          vt_from bigint,
+          vt_to bigint,
+          tt_from bigint,
+          tt_to bigint,
+          lucene text,
+          PRIMARY KEY (user_id, vt_from, tt_from));
+
+
+
+Secondly we create the custom index
+
+.. code-block:: sql
+
+    CREATE CUSTOM INDEX census_index on census(lucene) using 'com.stratio.cassandra.lucene.Index'
+    WITH OPTIONS = {
+        'refresh_seconds'    : '1',
+        'schema' : '{
+            fields : {
+                bitemporal : {type:"bitemporal",tt_from:"tt_from", tt_to:"tt_to",vt_from:"vt_from", vt_to:"vt_to", pattern:"yyyy/MM/dd"}
+            }
+        }'};
+
+
+Populate the data
+
+
+
 
 .. code-block:: sql
 
@@ -807,7 +844,7 @@ Syntax:
     SELECT ( <fields> | * )
     FROM <table>
     WHERE <magic_column> = '{ (filter | query) : {
-                                type  : "contains",
+                                type  : "date_range",
                                 (start : <start> ,)?
                                 (stop  : <stop> ,)?
                                 (operation: <operation> )?
@@ -821,31 +858,47 @@ where:
 -  **operation**: the spatial operation to be performed, it can be
    **intersects**, **contains** and **is\_within**.
 
-Example 1: will return rows where duration is within "2013/05/02" and
-:"2013/05/03"
-
-.. code-block:: sql
-
-    SELECT * FROM test.users
-    WHERE stratio_col = '{ filter : {
-                            type  : "date_range",
-                            field : "duration",
-                            start : "2013/05/02",
-                            stop  : "2013/05/03",
-                            operation : "is_within"}}';
-
-Example 2: will return rows where duration intersects "2013/05/02" and
-:"2013/05/03"
+Example 1: will return rows where duration intersects "2014/01/01" and
+"2014/12/31"
 
 .. code-block:: sql
 
     SELECT * FROM test.users
     WHERE stratio_col = '{  filter : {
-                            type   : "date_range",
-                            field  : "duration",
-                            start  : "2013/05/02",
-                            stop   : "2013/05/03",
-                            operation : "intersects"}}';
+                        type   : "date_range",
+                        field  : "duration",
+                        start  : "2014/01/01",
+                        stop   : "2014/12/31",
+                        operation : "intersects"}}';
+
+Example 2: will return rows where duration contains "2014/06/01" and
+"2014/06/02"
+
+.. code-block:: sql
+
+    SELECT * FROM test.users
+    WHERE stratio_col = '{  filter : {
+                        type   : "date_range",
+                        field  : "duration",
+                        start  : "2014/06/01",
+                        stop   : "2014/06/02",
+                        operation : "contains"}}';
+
+Example 3: will return rows where duration is within "2014/01/01" and
+"2014/12/31"
+
+.. code-block:: sql
+
+    SELECT * FROM test.users
+    WHERE stratio_col = '{  filter : {
+                        type   : "date_range",
+                        field  : "duration",
+                        start  : "2014/01/01",
+                        stop   : "2014/12/31",
+                        operation : "is_within"}}';
+
+
+Example 3:
 
 Fuzzy search
 ============
@@ -935,18 +988,45 @@ where:
    max allowed longitude.
 
 Example 1: will return any rows where “place” is formed by a latitude
-between 40.225479 and 40.560174, and a longitude between -3.999278 and
--3.378550.
+between -90.0 and 90.0, and a longitude between -180.0 and
+180.0.
 
 .. code-block:: sql
-
     SELECT * FROM test.users
     WHERE stratio_col = '{filter : { type : "geo_bbox",
                                      field : "place",
-                                     min_latitude : 40.225479,
-                                     max_latitude : 40.560174,
-                                     min_longitude : -3.999278,
-                                     max_longitude : -3.378550 }}';
+                                     min_latitude : -90.0,
+                                     max_latitude : 90.0,
+                                     min_longitude : -180.0,
+                                     max_longitude : 180.0 }}';
+
+Example 2: will return any rows where “place” is formed by a latitude
+between -90.0 and 90.0, and a longitude between 0.0 and
+10.0.
+
+.. code-block:: sql
+    SELECT * FROM test.users
+    WHERE stratio_col = '{filter : { type : "geo_bbox",
+                                     field : "place",
+                                     min_latitude : -90.0,
+                                     max_latitude : 90.0,
+                                     min_longitude : 0.0,
+                                     max_longitude : 10.0 }}';
+
+
+Example 3: will return any rows where “place” is formed by a latitude
+between 0.0 and 10.0, and a longitude between -180.0 and
+180.0.
+
+.. code-block:: sql
+    SELECT * FROM test.users
+    WHERE stratio_col = '{filter : { type : "geo_bbox",
+                                     field : "place",
+                                     min_latitude : 0.0,
+                                     max_latitude : 10.0,
+                                     min_longitude : -180.0,
+                                     max_longitude : 180.0 }}';
+
 
 Geo distance search
 ===================
@@ -987,7 +1067,7 @@ from the geo point (40.225479, -3.999278).
                                      field : "place",
                                      latitude : 40.225479,
                                      longitude : -3.999278,
-                                     max_distance : "1km" }}';
+                                     max_distance : "1km"}}';
 
 Example 2: will return any rows where “place” is within one yard and ten
 yards from the geo point (40.225479, -3.999278).
