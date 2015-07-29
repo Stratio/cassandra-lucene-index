@@ -50,6 +50,7 @@ import static org.apache.cassandra.cql3.Operator.EQ;
  */
 public class IndexSearcher extends SecondaryIndexSearcher {
 
+    /** The name of the {@link IndexExpression} containing the last search {@link RowKey}. */
     public final static ByteBuffer AFTER = UTF8Type.instance.fromString("search_after_doc");
 
     private final Index index;
@@ -76,9 +77,7 @@ public class IndexSearcher extends SecondaryIndexSearcher {
         indexedColumnName = index.getColumnDefinition().name.bytes;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public List<Row> search(ExtendedFilter extendedFilter) {
         try {
@@ -96,9 +95,7 @@ public class IndexSearcher extends SecondaryIndexSearcher {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean canHandleIndexClause(List<IndexExpression> clause) {
         for (IndexExpression expression : clause) {
@@ -111,9 +108,7 @@ public class IndexSearcher extends SecondaryIndexSearcher {
         return false;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public IndexExpression highestSelectivityPredicate(List<IndexExpression> clause, boolean trace) {
         for (IndexExpression expression : clause) {
@@ -126,9 +121,7 @@ public class IndexSearcher extends SecondaryIndexSearcher {
         return null;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void validate(IndexExpression indexExpression) throws InvalidRequestException {
         try {
@@ -228,6 +221,12 @@ public class IndexSearcher extends SecondaryIndexSearcher {
                       .toString();
     }
 
+    /**
+     * Returns the last search {@link RowKey} contained in the specified {@link IndexExpression}s, if any.
+     *
+     * @param expressions A list of {@link IndexExpression}s.
+     * @return The last search {@link RowKey} contained in the specified {@link IndexExpression}s, if any.
+     */
     private RowKey after(List<IndexExpression> expressions) {
         for (IndexExpression indexExpression : expressions) {
             ByteBuffer columnName = indexExpression.column;
@@ -238,6 +237,11 @@ public class IndexSearcher extends SecondaryIndexSearcher {
         return null;
     }
 
+    /**
+     * Returns the used {@link RowMapper}.
+     *
+     * @return The used {@link RowMapper}.
+     */
     public RowMapper mapper() {
         return rowService.mapper();
     }

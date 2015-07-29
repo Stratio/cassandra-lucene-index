@@ -73,9 +73,7 @@ public class RowServiceSkinny extends RowService {
         return FIELDS_TO_LOAD;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void doIndex(ByteBuffer key, ColumnFamily columnFamily, long timestamp) throws IOException {
         DecoratedKey partitionKey = rowMapper.partitionKey(key);

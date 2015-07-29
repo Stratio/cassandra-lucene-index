@@ -16,6 +16,7 @@
 package com.stratio.cassandra.lucene.service;
 
 import com.stratio.cassandra.lucene.contrib.ComparatorChain;
+import com.stratio.cassandra.lucene.search.sort.Sort;
 import org.apache.cassandra.db.Row;
 import org.apache.cassandra.db.composites.CellName;
 import org.apache.cassandra.db.composites.CellNameType;
@@ -75,6 +76,14 @@ public class RowComparatorNatural implements RowComparator {
         comparator = comparatorChain;
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param row1 A {@link Row}.
+     * @param row2 A {@link Row}.
+     * @return A negative integer, zero, or a positive integer as the first argument is less than, equal to, or greater
+     * than the second according to a Lucene {@link Sort}.
+     */
     @Override
     public int compare(Row row1, Row row2) {
         return comparator.compare(row1, row2);

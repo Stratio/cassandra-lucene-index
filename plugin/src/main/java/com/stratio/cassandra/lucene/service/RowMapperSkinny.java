@@ -61,9 +61,7 @@ public class RowMapperSkinny extends RowMapper {
         this.comparator = new RowComparatorNatural();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public Columns columns(DecoratedKey partitionKey, ColumnFamily columnFamily) {
         Columns columns = new Columns();
@@ -72,6 +70,14 @@ public class RowMapperSkinny extends RowMapper {
         return columns;
     }
 
+    /**
+     * Returns a Lucene {@link Document} representing the logical CQL row represented by the specified partition key and
+     * {@link Columns}.
+     *
+     * @param partitionKey The partition key of the logical CQL row.
+     * @param columns      The {@link Columns} of the logical CQL row.
+     * @return A Lucene {@link Document} representing the specified logical CQL row
+     */
     public Document document(DecoratedKey partitionKey, Columns columns) {
         Document document = new Document();
         tokenMapper.addFields(document, partitionKey);
@@ -80,17 +86,13 @@ public class RowMapperSkinny extends RowMapper {
         return document;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public SortField[] sortFields() {
         return tokenMapper.sortFields();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public final Query query(DataRange dataRange) {
         RowPosition startPosition = dataRange.startKey();
@@ -113,9 +115,7 @@ public class RowMapperSkinny extends RowMapper {
         return tokenMapper.query(startToken, stopToken, includeStart, includeStop);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public Query query(RowKey rowKey) {
         DecoratedKey partitionKey = rowKey.getPartitionKey();
@@ -123,51 +123,39 @@ public class RowMapperSkinny extends RowMapper {
         return new TermQuery(term);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public CellName makeCellName(ColumnFamily columnFamily) {
         return metadata.comparator.makeCellName(columnDefinition.name.bytes);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public RowComparator comparator() {
         return comparator;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public SearchResult searchResult(Document document, ScoreDoc scoreDoc) {
         DecoratedKey partitionKey = partitionKeyMapper.partitionKey(document);
         return new SearchResult(partitionKey, null, scoreDoc);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public ByteBuffer byteBuffer(RowKey rowKey) {
         return rowKey.getPartitionKey().getKey();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public RowKey rowKey(ByteBuffer bb) {
         DecoratedKey partitionKey = partitionKey(bb);
         return new RowKey(partitionKey, null);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public RowKey rowKey(Row row) {
         DecoratedKey partitionKey = row.key;

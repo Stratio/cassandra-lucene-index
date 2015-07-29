@@ -61,7 +61,6 @@ public class LuceneIndex implements LuceneIndexMBean {
     private final IndexWriter indexWriter;
     private final SearcherManager searcherManager;
     private final ControlledRealTimeReopenThread<IndexSearcher> searcherReopener;
-    private final Runnable refreshCallback;
 
     private ObjectName objectName;
 
@@ -81,7 +80,6 @@ public class LuceneIndex implements LuceneIndexMBean {
      * @param maxCachedMB     NRTCachingDirectory max cached MB.
      * @param analyzer        The default {@link Analyzer}.
      * @param refreshSeconds  The index readers refresh time in seconds. Writings are not visible until this time.
-     * @param refreshCallback A runnable to be run on index refresh.
      * @throws IOException If Lucene throws IO errors.
      */
     public LuceneIndex(String keyspace,
@@ -92,10 +90,8 @@ public class LuceneIndex implements LuceneIndexMBean {
                        Integer maxMergeMB,
                        Integer maxCachedMB,
                        Analyzer analyzer,
-                       Double refreshSeconds,
-                       Runnable refreshCallback) throws IOException {
+                       Double refreshSeconds) throws IOException {
         this.path = path;
-        this.refreshCallback = refreshCallback;
         this.logName = String.format("Lucene index %s.%s.%s", keyspace, table, name);
 
         // Open or create directory
@@ -114,7 +110,6 @@ public class LuceneIndex implements LuceneIndexMBean {
         SearcherFactory searcherFactory = new SearcherFactory() {
             @Override
             public IndexSearcher newSearcher(IndexReader reader, IndexReader previousReader) {
-                LuceneIndex.this.refreshCallBack();
                 IndexSearcher searcher = new IndexSearcher(reader);
                 searcher.setSimilarity(new NoIDFSimilarity());
                 return searcher;
@@ -139,10 +134,6 @@ public class LuceneIndex implements LuceneIndexMBean {
         } catch (MBeanException | OperationsException e) {
             Log.error(e, "Error while registering MBean");
         }
-    }
-
-    private void refreshCallBack() {
-        if (refreshCallback != null) refreshCallback.run();
     }
 
     /**

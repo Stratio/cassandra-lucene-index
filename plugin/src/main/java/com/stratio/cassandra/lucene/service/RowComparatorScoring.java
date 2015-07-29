@@ -16,6 +16,7 @@
 package com.stratio.cassandra.lucene.service;
 
 import com.stratio.cassandra.lucene.contrib.ComparatorChain;
+import com.stratio.cassandra.lucene.search.sort.Sort;
 import org.apache.cassandra.db.Row;
 
 import java.util.Comparator;
@@ -37,6 +38,7 @@ public class RowComparatorScoring implements RowComparator {
     public RowComparatorScoring(final RowMapper mapper) {
         comparator = new ComparatorChain<>();
         comparator.addComparator(new Comparator<Row>() {
+            @Override
             public int compare(Row row1, Row row2) {
                 Float score1 = mapper.score(row1);
                 Float score2 = mapper.score(row2);
@@ -48,6 +50,11 @@ public class RowComparatorScoring implements RowComparator {
 
     /**
      * {@inheritDoc}
+     *
+     * @param row1 A {@link Row}.
+     * @param row2 A {@link Row}.
+     * @return A negative integer, zero, or a positive integer as the first argument is less than, equal to, or greater
+     * than the second according to a Lucene {@link Sort}.
      */
     @Override
     public int compare(Row row1, Row row2) {

@@ -30,18 +30,13 @@ import com.stratio.cassandra.lucene.search.condition.RegexpCondition;
 import com.stratio.cassandra.lucene.search.condition.WildcardCondition;
 import com.stratio.cassandra.lucene.search.sort.SortField;
 import com.stratio.cassandra.lucene.search.sort.builder.SortFieldBuilder;
-import org.apache.lucene.search.BooleanClause;
-import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.MatchAllDocsQuery;
-import org.apache.lucene.search.Query;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.List;
 
 import static com.stratio.cassandra.lucene.search.SearchBuilders.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -157,11 +152,9 @@ public class SearchBuildersTest {
         SearchBuilder builder = query(matchAll());
         assertNotNull(builder);
         Search search = builder.build();
-        Query query = search.query(mock(Schema.class), null);
-        assertEquals(BooleanQuery.class, query.getClass());
-        List<BooleanClause> clauses = ((BooleanQuery) query).clauses();
-        assertEquals(1, clauses.size());
-        assertEquals(MatchAllDocsQuery.class, clauses.get(0).getQuery().getClass());
+        Schema schema = mock(Schema.class);
+        assertEquals(MatchAllDocsQuery.class, search.query(schema).getClass());
+        assertNull(search.filter(schema));
     }
 
     @Test
@@ -169,18 +162,17 @@ public class SearchBuildersTest {
         SearchBuilder builder = filter(matchAll());
         assertNotNull(builder);
         Search search = builder.build();
-        Query query = search.query(mock(Schema.class), null);
-        assertEquals(BooleanQuery.class, query.getClass());
-        List<BooleanClause> clauses = ((BooleanQuery) query).clauses();
-        assertEquals(1, clauses.size());
-        assertEquals(MatchAllDocsQuery.class, clauses.get(0).getQuery().getClass());
+        Schema schema = mock(Schema.class);
+        assertNull(search.query(schema));
+        assertEquals(MatchAllDocsQuery.class, search.filter(schema).getClass());
     }
 
     @Test
     public void testSearch() throws IOException {
         SearchBuilder builder = search();
         Search search = builder.build();
-        Query query = search.query(mock(Schema.class), null);
-        assertEquals(MatchAllDocsQuery.class, query.getClass());
+        Schema schema = mock(Schema.class);
+        assertNull(search.query(schema));
+        assertNull(search.filter(schema));
     }
 }

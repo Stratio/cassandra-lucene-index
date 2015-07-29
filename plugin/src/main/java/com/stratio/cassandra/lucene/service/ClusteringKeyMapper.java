@@ -51,8 +51,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Class for several clustering key mappings between Cassandra and Lucene. This class only be used in column families
- * with wide rows.
+ * Class for several clustering key mappings between Cassandra and Lucene. This class must be used only with column
+ * families with wide rows.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
@@ -211,6 +211,12 @@ public class ClusteringKeyMapper {
         return start(cellName).withEOC(Composite.EOC.END);
     }
 
+    /**
+     * Returns the {@link Columns} representing the data contained in the specified {@link ColumnFamily}.
+     *
+     * @param columnFamily A {@link ColumnFamily}.
+     * @return The {@link Columns} representing the data contained in the specified {@link ColumnFamily}.
+     */
     public final Columns columns(ColumnFamily columnFamily) {
         int numClusteringColumns = metadata.clusteringColumns().size();
         Columns columns = new Columns();
@@ -229,6 +235,12 @@ public class ClusteringKeyMapper {
         return columns;
     }
 
+    /**
+     * Splits the specified {@link ColumnFamily} into CQL logic rows grouping the data by clustering key.
+     *
+     * @param columnFamily A {@link ColumnFamily}.
+     * @return A map associating clustering keys with its {@link ColumnFamily}.
+     */
     public final Map<CellName, ColumnFamily> splitRows(ColumnFamily columnFamily) {
         Map<CellName, ColumnFamily> columnFamilies = new LinkedHashMap<>();
         for (Cell cell : columnFamily) {
@@ -245,6 +257,13 @@ public class ClusteringKeyMapper {
         return columnFamilies;
     }
 
+    /**
+     * Returns the specified clustering keys as an array of {@link ColumnSlice}s. It is assumed that the clustering keys
+     * are sorted.
+     *
+     * @param clusteringKeys A sorted list of clustering keys.
+     * @return The specified clustering keys as an array of {@link ColumnSlice}s.
+     */
     public final ColumnSlice[] columnSlices(List<CellName> clusteringKeys) {
         List<CellName> sortedClusteringKeys = sort(clusteringKeys);
         ColumnSlice[] columnSlices = new ColumnSlice[clusteringKeys.size()];

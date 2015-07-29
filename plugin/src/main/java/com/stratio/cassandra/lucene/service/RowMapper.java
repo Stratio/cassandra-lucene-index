@@ -38,19 +38,29 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Class for several {@link Row} mappings between Cassandra and Lucene.
+ * Class for several {@link Row} mappings between Cassandra and Lucene data models.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public abstract class RowMapper {
 
-    final CFMetaData metadata; // The indexed table metadata
-    final ColumnDefinition columnDefinition; // The indexed column definition
-    final Schema schema; // The indexing schema
+    /** The indexed table metadata. */
+    final CFMetaData metadata;
 
-    final TokenMapper tokenMapper; // A token mapper for the indexed table
-    final PartitionKeyMapper partitionKeyMapper; // A partition key mapper for the indexed table
-    final RegularCellsMapper regularCellsMapper; // A regular cell mapper for the indexed table
+    /**  The indexed column definition. */
+    final ColumnDefinition columnDefinition;
+
+    /**  The indexing schema. */
+    final Schema schema;
+
+    /** A token mapper for the indexed table. */
+    final TokenMapper tokenMapper;
+
+    /**  A partition key mapper for the indexed table. */
+    final PartitionKeyMapper partitionKeyMapper;
+
+    /** A regular cell mapper for the indexed table. */
+    final RegularCellsMapper regularCellsMapper;
 
     /**
      * Builds a new {@link RowMapper} for the specified column family metadata, indexed column definition and {@link
@@ -117,23 +127,29 @@ public abstract class RowMapper {
     }
 
     /**
-     * Returns the Lucene {@link Term} to get the {@link Document}s containing the specified decorated partition key.
+     * Returns a Lucene {@link Term} to get the {@link Document}s containing the specified decorated partition key.
      *
      * @param partitionKey A decorated partition key.
-     * @return The Lucene {@link Term} to get the {@link Document}s containing the specified decorated partition key.
+     * @return A Lucene {@link Term} to get the {@link Document}s containing the specified decorated partition key.
      */
     public Term term(DecoratedKey partitionKey) {
         return partitionKeyMapper.term(partitionKey);
     }
 
     /**
-     * Returns the Lucene {@link Query} to get the {@link Document}s satisfying the specified {@link DataRange}.
+     * Returns a Lucene {@link Query} to get the {@link Document}s satisfying the specified {@link DataRange}.
      *
      * @param dataRange A {@link DataRange}.
-     * @return The Lucene {@link Query} to get the {@link Document}s satisfying the specified {@link DataRange}.
+     * @return A Lucene {@link Query} to get the {@link Document}s satisfying the specified {@link DataRange}.
      */
     public abstract Query query(DataRange dataRange);
 
+    /**
+     * Returns a Lucene {@link Query} to get the {@link Document} with the specified {@link RowKey}.
+     *
+     * @param rowKey A {@link RowKey}.
+     * @return A Lucene {@link Query} to get the {@link Document} with the specified {@link RowKey}.
+     */
     public abstract Query query(RowKey rowKey);
 
     /**
@@ -167,10 +183,42 @@ public abstract class RowMapper {
      */
     public abstract SearchResult searchResult(Document document, ScoreDoc scoreDoc);
 
-    public abstract ByteBuffer byteBuffer(RowKey rowKey);
+    /**
+     * Returns the score of the specified {@link Row}.
+     *
+     * @param row A {@link Row}.
+     * @return The score of the specified {@link Row}.
+     */
+    protected Float score(Row row) {
+        ColumnFamily cf = row.cf;
+        CellName cellName = makeCellName(cf);
+        Cell cell = cf.getColumn(cellName);
+        String value = UTF8Type.instance.compose(cell.value());
+        return Float.parseFloat(value);
+    }
 
+    /**
+     * Returns the {@link RowKey} represented by the specified {@link ByteBuffer}.
+     *
+     * @param bb A {@link ByteBuffer}.
+     * @return The {@link RowKey} represented by the specified {@link ByteBuffer}.
+     */
     public abstract RowKey rowKey(ByteBuffer bb);
 
+    /**
+     * Returns a {@link ByteBuffer} representing the specified {@link RowKey}.
+     *
+     * @param rowKey A {@link RowKey}.
+     * @return A {@link ByteBuffer} representing the specified {@link RowKey}.
+     */
+    public abstract ByteBuffer byteBuffer(RowKey rowKey);
+
+    /**
+     * Returns a {@link ByteBuffer} representing the specified {@link RowKeys}.
+     *
+     * @param rowKeys A {@link RowKeys}.
+     * @return A {@link ByteBuffer} representing the specified {@link RowKeys}.
+     */
     public ByteBuffer byteBuffer(RowKeys rowKeys) {
 
         List<byte[]> allBytes = new ArrayList<>(rowKeys.size());
@@ -191,19 +239,11 @@ public abstract class RowMapper {
     }
 
     /**
-     * Returns the score of the specified {@link Row}.
+     * Returns the {@link RowKeys} represented by the specified {@link ByteBuffer}.
      *
-     * @param row A {@link Row}.
-     * @return The score of the specified {@link Row}.
+     * @param bb A {@link ByteBuffer}.
+     * @return The {@link RowKeys} represented by the specified {@link ByteBuffer}.
      */
-    protected Float score(Row row) {
-        ColumnFamily cf = row.cf;
-        CellName cellName = makeCellName(cf);
-        Cell cell = cf.getColumn(cellName);
-        String value = UTF8Type.instance.compose(cell.value());
-        return Float.parseFloat(value);
-    }
-
     public RowKeys rowKeys(ByteBuffer bb) {
         RowKeys rowKeys = new RowKeys();
         bb.rewind();
@@ -218,6 +258,12 @@ public abstract class RowMapper {
         return rowKeys;
     }
 
+    /**
+     * Returns a {@link RowKey} representing the specified {@link Row}.
+     *
+     * @param row A {@link Row}.
+     * @return A{@link RowKey} representing the specified {@link Row}.
+     */
     public abstract RowKey rowKey(Row row);
 
 }

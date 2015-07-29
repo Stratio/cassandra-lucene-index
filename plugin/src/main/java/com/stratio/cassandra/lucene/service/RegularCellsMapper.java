@@ -35,9 +35,7 @@ import java.nio.ByteBuffer;
  */
 public class RegularCellsMapper {
 
-    /**
-     * The column family metadata.
-     */
+    /** The column family metadata. */
     private final CFMetaData metadata;
 
     /**
