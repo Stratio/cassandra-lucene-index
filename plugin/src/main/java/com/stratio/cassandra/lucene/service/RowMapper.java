@@ -75,8 +75,8 @@ public abstract class RowMapper {
         this.columnDefinition = columnDefinition;
         this.schema = schema;
         this.tokenMapper = TokenMapper.instance();
-        this.partitionKeyMapper = PartitionKeyMapper.instance(metadata);
-        this.regularCellsMapper = RegularCellsMapper.instance(metadata);
+        this.partitionKeyMapper = PartitionKeyMapper.instance(metadata, schema);
+        this.regularCellsMapper = RegularCellsMapper.instance(metadata, schema);
     }
 
     /**
@@ -109,7 +109,7 @@ public abstract class RowMapper {
     /**
      * Returns the {@link Columns} representing the specified {@link Row}.
      *
-     * @param row A {@link Row}.
+     * @param row    A {@link Row}.
      * @return The columns contained in the specified columns.
      */
     public final Columns columns(Row row) {

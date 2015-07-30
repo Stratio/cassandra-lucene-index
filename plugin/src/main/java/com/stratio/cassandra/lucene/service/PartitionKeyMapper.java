@@ -15,6 +15,7 @@
  */
 package com.stratio.cassandra.lucene.service;
 
+import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import com.stratio.cassandra.lucene.util.ByteBufferUtils;
@@ -48,16 +49,19 @@ public class PartitionKeyMapper {
 
     private final IPartitioner partitioner; // The active active partition key
     private final CFMetaData metadata; // The table metadata
+    private final Schema schema; // The mapping schema
     private final AbstractType<?> type; // The partition key type
 
     /**
      * Returns a new {@code PartitionKeyMapper} according to the specified column family meta data.
      *
      * @param metadata The column family metadata.
+     * @param schema   A {@link Schema}.
      */
-    private PartitionKeyMapper(CFMetaData metadata) {
+    private PartitionKeyMapper(CFMetaData metadata, Schema schema) {
         partitioner = DatabaseDescriptor.getPartitioner();
         this.metadata = metadata;
+        this.schema = schema;
         this.type = metadata.getKeyValidator();
     }
 
@@ -65,10 +69,11 @@ public class PartitionKeyMapper {
      * Returns a new {@code PartitionKeyMapper} according to the specified column family meta data.
      *
      * @param metadata The column family metadata.
+     * @param schema   A {@link Schema}.
      * @return a new {@code PartitionKeyMapper} according to the specified column family meta data.
      */
-    public static PartitionKeyMapper instance(CFMetaData metadata) {
-        return new PartitionKeyMapper(metadata);
+    public static PartitionKeyMapper instance(CFMetaData metadata, Schema schema) {
+        return new PartitionKeyMapper(metadata,schema);
     }
 
     public AbstractType<?> getType() {
@@ -143,11 +148,13 @@ public class PartitionKeyMapper {
         List<ColumnDefinition> columnDefinitions = metadata.partitionKeyColumns();
         for (ColumnDefinition columnDefinition : columnDefinitions) {
             String name = columnDefinition.name.toString();
-            ByteBuffer[] components = ByteBufferUtils.split(partitionKey.getKey(), rawKeyType);
-            int position = columnDefinition.position();
-            ByteBuffer value = components[position];
-            AbstractType<?> valueType = rawKeyType.getComponents().get(position);
-            columns.add(Column.fromDecomposed(name, value, valueType, false));
+            if (schema.maps(name)) {
+                ByteBuffer[] components = ByteBufferUtils.split(partitionKey.getKey(), rawKeyType);
+                int position = columnDefinition.position();
+                ByteBuffer value = components[position];
+                AbstractType<?> valueType = rawKeyType.getComponents().get(position);
+                columns.add(Column.fromDecomposed(name, value, valueType, false));
+            }
         }
         return columns;
     }

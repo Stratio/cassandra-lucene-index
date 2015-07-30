@@ -155,7 +155,7 @@ public class GeoPointMapper extends Mapper {
      * @param columns The {@link Columns} containing the latitude.
      */
     double readLatitude(Columns columns) {
-        Column column = columns.getColumnsByName(this.latitude).getFirst();
+        Column column = columns.getColumnsByName(latitude).getFirst();
         if (column == null) {
             throw new IllegalArgumentException("Latitude column required");
         }
@@ -169,7 +169,7 @@ public class GeoPointMapper extends Mapper {
      * @param columns The {@link Columns} containing the latitude.
      */
     double readLongitude(Columns columns) {
-        Column column = columns.getColumnsByName(this.longitude).getFirst();
+        Column column = columns.getColumnsByName(longitude).getFirst();
         if (column == null) {
             throw new IllegalArgumentException("Longitude column required");
         }

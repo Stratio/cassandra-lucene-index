@@ -74,7 +74,7 @@ public class RowMapperWide extends RowMapper {
      */
     RowMapperWide(CFMetaData metadata, ColumnDefinition columnDefinition, Schema schema) {
         super(metadata, columnDefinition, schema);
-        this.clusteringKeyMapper = ClusteringKeyMapper.instance(metadata);
+        this.clusteringKeyMapper = ClusteringKeyMapper.instance(metadata, schema);
         this.fullKeyMapper = FullKeyMapper.instance(partitionKeyMapper, clusteringKeyMapper);
         this.comparator = new RowComparatorNatural(clusteringKeyMapper);
     }

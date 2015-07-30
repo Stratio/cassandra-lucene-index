@@ -97,7 +97,7 @@ public class RowServiceWide extends RowService {
                 CellName clusteringKey = entry.getKey();
                 ColumnFamily rowColumnFamily = entry.getValue();
                 Columns columns = rowMapper.columns(partitionKey, rowColumnFamily);
-                if (schema.canMapAll(columns)) {
+                if (schema.mapsAll(columns)) {
                     completeRows.put(clusteringKey, columns);
                 } else {
                     incompleteRows.add(clusteringKey);

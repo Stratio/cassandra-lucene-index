@@ -15,6 +15,7 @@
  */
 package com.stratio.cassandra.lucene.service;
 
+import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import com.stratio.cassandra.lucene.util.ByteBufferUtils;
@@ -64,6 +65,9 @@ public class ClusteringKeyMapper {
     /** The column family meta data */
     private final CFMetaData metadata;
 
+    /** The mapping schema. */
+    private final Schema schema;
+
     /** The type of the clustering key, which is the type of the column names */
     private final CellNameType cellNameType;
 
@@ -71,9 +75,11 @@ public class ClusteringKeyMapper {
      * Returns a new {@code ClusteringKeyMapper} according to the specified column family meta data.
      *
      * @param metadata The column family meta data.
+     * @param schema   A {@link Schema}.
      */
-    private ClusteringKeyMapper(CFMetaData metadata) {
+    private ClusteringKeyMapper(CFMetaData metadata, Schema schema) {
         this.metadata = metadata;
+        this.schema  = schema;
         this.cellNameType = metadata.comparator;
     }
 
@@ -81,10 +87,11 @@ public class ClusteringKeyMapper {
      * Returns a new {@code ClusteringKeyMapper} according to the specified column family meta data.
      *
      * @param metadata The column family meta data.
+     * @param schema   A {@link Schema}.
      * @return A new {@code ClusteringKeyMapper} according to the specified column family meta data.
      */
-    public static ClusteringKeyMapper instance(CFMetaData metadata) {
-        return new ClusteringKeyMapper(metadata);
+    public static ClusteringKeyMapper instance(CFMetaData metadata, Schema schema) {
+        return new ClusteringKeyMapper(metadata, schema);
     }
 
     /**
@@ -227,8 +234,10 @@ public class ClusteringKeyMapper {
                     ByteBuffer value = cellName.get(i);
                     ColumnDefinition columnDefinition = metadata.clusteringColumns().get(i);
                     String name = columnDefinition.name.toString();
-                    AbstractType<?> valueType = columnDefinition.type;
-                    columns.add(Column.fromDecomposed(name, value, valueType, false));
+                    if (schema.maps(name)) {
+                        AbstractType<?> valueType = columnDefinition.type;
+                        columns.add(Column.fromDecomposed(name, value, valueType, false));
+                    }
                 }
             }
         }

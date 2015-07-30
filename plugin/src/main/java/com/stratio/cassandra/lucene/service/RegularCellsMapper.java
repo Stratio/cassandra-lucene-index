@@ -15,6 +15,7 @@
  */
 package com.stratio.cassandra.lucene.service;
 
+import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import org.apache.cassandra.config.CFMetaData;
@@ -38,23 +39,29 @@ public class RegularCellsMapper {
     /** The column family metadata. */
     private final CFMetaData metadata;
 
+    /** The mapping schema. */
+    private final Schema schema;
+
     /**
-     * Builds a new {@link RegularCellsMapper} for the specified column family metadata.
+     * Builds a new {@link RegularCellsMapper} for the specified column family metadata and schema.
      *
      * @param metadata The column family metadata.
+     * @param schema   A {@link Schema}.
      */
-    private RegularCellsMapper(CFMetaData metadata) {
+    private RegularCellsMapper(CFMetaData metadata, Schema schema) {
         this.metadata = metadata;
+        this.schema = schema;
     }
 
     /**
      * Returns a new {@link RegularCellsMapper} for the specified column family metadata.
      *
      * @param metadata The column family metadata.
+     * @param schema   A {@link Schema}.
      * @return A new {@link RegularCellsMapper} for the specified column family metadata.
      */
-    public static RegularCellsMapper instance(CFMetaData metadata) {
-        return new RegularCellsMapper(metadata);
+    public static RegularCellsMapper instance(CFMetaData metadata, Schema schema) {
+        return new RegularCellsMapper(metadata, schema);
     }
 
     /**
@@ -74,7 +81,13 @@ public class RegularCellsMapper {
         CollectionType collectionType;
 
         for (Cell cell : columnFamily) {
+
             CellName cellName = cell.name();
+            name = cellName.cql3ColumnName(metadata).toString();
+            if (!schema.maps(name)) {
+                continue;
+            }
+
             ColumnDefinition columnDefinition = metadata.getColumnDefinition(cellName);
             if (columnDefinition == null) {
                 continue;
@@ -83,8 +96,6 @@ public class RegularCellsMapper {
             AbstractType<?> valueType = columnDefinition.type;
 
             ByteBuffer cellValue = cell.value();
-
-            name = cellName.cql3ColumnName(metadata).toString();
 
             if (valueType.isCollection()) {
                 collectionType = (CollectionType<?>) valueType;

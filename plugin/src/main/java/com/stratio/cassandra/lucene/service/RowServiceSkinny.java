@@ -81,7 +81,7 @@ public class RowServiceSkinny extends RowService {
         if (columnFamily.iterator().hasNext()) { // Create or update row
             columnFamily = cleanExpired(columnFamily, timestamp);
             Columns columns = rowMapper.columns(partitionKey, columnFamily);
-            if (!schema.canMapAll(columns)) {
+            if (!schema.mapsAll(columns)) {
                 columnFamily = row(partitionKey, timestamp);
                 columns = rowMapper.columns(partitionKey, columnFamily);
             }

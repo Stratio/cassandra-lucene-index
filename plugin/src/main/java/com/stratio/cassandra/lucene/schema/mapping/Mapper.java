@@ -211,7 +211,22 @@ public abstract class Mapper {
 
     public abstract void validate(CFMetaData metaData);
 
-    public final boolean canMap(Columns columns) {
+    /**
+     * Returns the names of the mapped Cassandra columns.
+     *
+     * @return The names of the mapped Cassandra columns.
+     */
+    public List<String> getMappedColumns() {
+        return mappedColumns;
+    }
+
+    /**
+     * Returns if the specified {@link Columns} contains the mapped columns.
+     *
+     * @param columns A {@link Columns}.
+     * @return {@code true} if the specified {@link Columns} contains the mapped columns, {@code false} otherwise.
+     */
+    public final boolean maps(Columns columns) {
         for (String columnName : mappedColumns) {
             Columns mapperColumns = columns.getColumnsByName(columnName);
             if (mapperColumns.isEmpty()) {
