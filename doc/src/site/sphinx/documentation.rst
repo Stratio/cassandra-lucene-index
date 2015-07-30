@@ -676,19 +676,20 @@ We want to implement a system for census bureau to track where resides a citizen
 
 First we create the table where all this data resides:
 .. code-block:: sql
-    CREATE KEYSPACE test with replication = {'class':'SimpleStrategy', 'replication_factor': 1};
-USE test;
 
-CREATE TABLE census (
-      name text,
-      city text,
-      vt_from text,
-      vt_to text,
-      tt_from text,
-      tt_to text,
-      lucene text,
-      PRIMARY KEY (name, vt_from, tt_from)
-);
+    CREATE KEYSPACE test with replication = {'class':'SimpleStrategy', 'replication_factor': 1};
+    USE test;
+
+    CREATE TABLE census (
+        name text,
+        city text,
+        vt_from text,
+        vt_to text,
+        tt_from text,
+        tt_to text,
+        lucene text,
+        PRIMARY KEY (name, vt_from, tt_from)
+    );
 
 
 
@@ -718,6 +719,7 @@ We insert the population of 5 citizens lives in each city from 2015/01/01 until 
 
 
 .. code-block:: sql
+
     INSERT INTO census(citizen_name, city, vt_from, vt_to, tt_from, tt_to) VALUES ('John', 'Madrid', '2015/01/01', '2200/12/31', '2015/01/01', '2200/12/31');
     INSERT INTO census(citizen_name, city, vt_from, vt_to, tt_from, tt_to) VALUES ('Margaret', 'Barcelona', '2015/01/01', '2200/12/31', '2015/01/01', '2200/12/31');
     INSERT INTO census(citizen_name, city, vt_from, vt_to, tt_from, tt_to) VALUES ('Cristian', 'Ceuta', '2015/01/01', '2200/12/31', '2015/01/01', '2200/12/31');
@@ -769,6 +771,7 @@ If you want to know what is the last info about where John resides, you perform 
 If the test case needs to know what the system was thinking at '2015/03/01' about where John resides.
 
 .. code-block:: sql
+
     SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM census WHERE
     lucene='{
         filter : {
