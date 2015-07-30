@@ -61,9 +61,10 @@
             <version>${lucene.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-api-mockito</artifactId>
-            <version>1.6.2</version>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>1.10.19</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -76,7 +77,6 @@
                 <configuration>
                     <artifactSet>
                         <includes>
-                            <include>com.stratio.cassandra:*</include>
                             <include>org.apache.lucene:*</include>
                             <include>com.spatial4j:*</include>
                             <include>org.codehaus.jackson:*</include>
