@@ -123,11 +123,11 @@ public class GeoBBoxCondition extends Condition {
             throw new IllegalArgumentException("Geo point mapper required");
         }
         GeoPointMapper geoPointMapper = (GeoPointMapper) mapper;
-        SpatialStrategy spatialStrategy = geoPointMapper.getStrategy();
+        SpatialStrategy spatialStrategy = geoPointMapper.getBBoxStrategy();
 
         Rectangle rectangle = spatialContext.makeRectangle(minLongitude, maxLongitude, minLatitude, maxLatitude);
 
-        SpatialArgs args = new SpatialArgs(SpatialOperation.Intersects, rectangle);
+        SpatialArgs args = new SpatialArgs(SpatialOperation.BBoxIntersects, rectangle);
         Query query = spatialStrategy.makeQuery(args);
         query.setBoost(boost);
         return query;

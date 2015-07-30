@@ -18,17 +18,9 @@ package com.stratio.cassandra.lucene.schema.mapping;
 import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
-import com.stratio.cassandra.lucene.util.DateFormatter;
+import com.stratio.cassandra.lucene.util.DateParser;
 import org.apache.cassandra.config.CFMetaData;
-import org.apache.cassandra.db.marshal.AsciiType;
-import org.apache.cassandra.db.marshal.DecimalType;
-import org.apache.cassandra.db.marshal.DoubleType;
-import org.apache.cassandra.db.marshal.FloatType;
-import org.apache.cassandra.db.marshal.Int32Type;
-import org.apache.cassandra.db.marshal.IntegerType;
-import org.apache.cassandra.db.marshal.LongType;
-import org.apache.cassandra.db.marshal.TimestampType;
-import org.apache.cassandra.db.marshal.UTF8Type;
+import org.apache.cassandra.db.marshal.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexableField;
@@ -39,9 +31,8 @@ import org.apache.lucene.spatial.prefix.tree.DateRangePrefixTree;
 import org.apache.lucene.spatial.prefix.tree.NumberRangePrefixTree.NRShape;
 import org.apache.lucene.spatial.prefix.tree.NumberRangePrefixTree.UnitNRShape;
 
-import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 
 /**
@@ -60,8 +51,8 @@ public class DateRangeMapper extends Mapper {
     /** The {@link SimpleDateFormat} pattern. */
     private final String pattern;
 
-    /** the {@link DateFormatter} */
-    private final DateFormatter dateFormatter;
+    /** The {@link DateParser} */
+    private final DateParser dateParser;
 
     private final DateRangePrefixTree tree;
     private final NumberRangePrefixTreeStrategy strategy;
@@ -78,15 +69,16 @@ public class DateRangeMapper extends Mapper {
         super(name,
               true,
               false,
-              AsciiType.instance,
-              UTF8Type.instance,
-              Int32Type.instance,
-              LongType.instance,
-              IntegerType.instance,
-              FloatType.instance,
-              DoubleType.instance,
-              DecimalType.instance,
-              TimestampType.instance);
+              Arrays.<AbstractType>asList(AsciiType.instance,
+                                          UTF8Type.instance,
+                                          Int32Type.instance,
+                                          LongType.instance,
+                                          IntegerType.instance,
+                                          FloatType.instance,
+                                          DoubleType.instance,
+                                          DecimalType.instance,
+                                          TimestampType.instance),
+              Arrays.asList(start, stop));
 
         if (StringUtils.isBlank(start)) {
             throw new IllegalArgumentException("start column name is required");
@@ -101,8 +93,7 @@ public class DateRangeMapper extends Mapper {
         this.tree = DateRangePrefixTree.INSTANCE;
         this.strategy = new NumberRangePrefixTreeStrategy(tree, name);
         this.pattern = pattern == null ? DEFAULT_PATTERN : pattern;
-
-        this.dateFormatter= new DateFormatter(this.pattern);
+        this.dateParser = new DateParser(this.pattern);
     }
 
     public String getStart() {
@@ -204,14 +195,14 @@ public class DateRangeMapper extends Mapper {
 
     /**
      * Returns the {@link Date} represented by the specified object, or {@code null} if there is no one. A {@link
-     * IllegalArgumentException} if the date is not parseable.
+     * IllegalArgumentException} if the date is not parsable.
      *
-     * @param value A value containing suposed to represent a {@link Date}.
+     * @param value A value which could represent a {@link Date}.
      * @return The {@link Date} represented by the specified object, or {@code null} if there is no one.
      */
     public Date base(Object value) {
-        Date opt=this.dateFormatter.fromObject(value);
-        if (opt==null) {
+        Date opt = this.dateParser.parse(value);
+        if (opt == null) {
             return null;
         } else {
             return opt;

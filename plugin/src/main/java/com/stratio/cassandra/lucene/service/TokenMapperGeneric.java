@@ -43,9 +43,11 @@ import java.nio.ByteBuffer;
  */
 public class TokenMapperGeneric extends TokenMapper {
 
-    public static final String FIELD_NAME = "_token_generic"; // The Lucene field name
+    /** The Lucene field name. */
+    public static final String FIELD_NAME = "_token_generic";
 
-    private final TokenFactory factory; // The partitioner token factory
+    /** The partitioner token factory. */
+    private final TokenFactory factory;
 
     /** Returns a new {@link TokenMapperGeneric}. */
     public TokenMapperGeneric() {

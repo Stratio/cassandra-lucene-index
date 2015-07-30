@@ -34,7 +34,7 @@ class RowComparatorSorting implements RowComparator {
 
     /**
      * @param mapper The indexing {@link RowMapper} of the {@link Row}s to be compared.
-     * @param sort      The Lucene {@link Sort} inf which the {@link Row} comparison is based.
+     * @param sort   The Lucene {@link Sort} inf which the {@link Row} comparison is based.
      */
     public RowComparatorSorting(final RowMapper mapper, Sort sort) {
 

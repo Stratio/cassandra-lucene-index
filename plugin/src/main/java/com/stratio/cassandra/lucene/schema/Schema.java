@@ -28,7 +28,9 @@ import org.apache.lucene.document.Document;
 
 import java.io.Closeable;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Class for several columns mappings between Cassandra and Lucene.
@@ -45,6 +47,8 @@ public class Schema implements Closeable {
 
     private final Analyzer analyzer;
 
+    private final Set<String> mappedColumns;
+
     /**
      * Builds a new {@code Schema} for the specified {@link Mapper}s and {@link Analyzer}s.
      *
@@ -57,6 +61,7 @@ public class Schema implements Closeable {
         this.defaultAnalyzer = defaultAnalyzer != null ? defaultAnalyzer : PreBuiltAnalyzers.DEFAULT.get();
         this.mappers = mappers != null ? mappers : new HashMap<String, Mapper>();
         this.analyzers = analyzers != null ? analyzers : new HashMap<String, Analyzer>();
+        mappedColumns = new HashSet<>();
 
         Map<String, Analyzer> perFieldAnalyzers = new HashMap<>();
         for (Map.Entry<String, Mapper> entry : this.mappers.entrySet()) {
@@ -65,6 +70,7 @@ public class Schema implements Closeable {
             String analyzerName = mapper.getAnalyzer();
             Analyzer analyzer = getAnalyzer(analyzerName);
             perFieldAnalyzers.put(name, analyzer);
+            mappedColumns.addAll(mapper.getMappedColumns());
         }
         this.analyzer = new PerFieldAnalyzerWrapper(this.defaultAnalyzer, perFieldAnalyzers);
     }
@@ -151,6 +157,31 @@ public class Schema implements Closeable {
         for (Mapper mapper : mappers.values()) {
             mapper.validate(metadata);
         }
+    }
+
+    /**
+     * Returns if there is any mapper mapping the specified column.
+     *
+     * @param column A column name.
+     * @return {@code true} if there is any mapper mapping the specified column, {@code false} otherwise.
+     */
+    public boolean maps(String column) {
+        return mappedColumns.contains(column);
+    }
+
+    /**
+     * Returns if the specified {@link Columns} contains the all the mapped columns.
+     *
+     * @param columns A {@link Columns}.
+     * @return {@code true} if the specified {@link Columns} contains the mapped columns, {@code false} otherwise.
+     */
+    public boolean mapsAll(Columns columns) {
+        for (Mapper mapper : mappers.values()) {
+            if (!mapper.maps(columns)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /** {@inheritDoc} */

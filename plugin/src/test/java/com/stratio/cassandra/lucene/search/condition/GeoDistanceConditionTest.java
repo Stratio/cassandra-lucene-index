@@ -119,13 +119,13 @@ public class GeoDistanceConditionTest extends AbstractConditionTest {
         BooleanQuery booleanQuery = (BooleanQuery) query;
         assertEquals(1, booleanQuery.getClauses().length);
         BooleanClause maxClause = booleanQuery.getClauses()[0];
-        assertEquals(BooleanClause.Occur.MUST, maxClause.getOccur());
+        assertEquals(BooleanClause.Occur.FILTER, maxClause.getOccur());
         query = maxClause.getQuery();
         assertTrue(query instanceof ConstantScoreQuery);
         query = ((ConstantScoreQuery) query).getQuery();
         assertTrue(query instanceof IntersectsPrefixTreeFilter);
         IntersectsPrefixTreeFilter filter = (IntersectsPrefixTreeFilter) query;
-        assertEquals("IntersectsPrefixTreeFilter(fieldName=name,queryShape=Circle(Pt(x=-180.0,y=90.0), " +
+        assertEquals("IntersectsPrefixTreeFilter(fieldName=name.dist,queryShape=Circle(Pt(x=-180.0,y=90.0), " +
                      "d=0.0° 1.00km),detailLevel=8,prefixGridScanLevel=4)", filter.toString());
     }
 
@@ -151,17 +151,17 @@ public class GeoDistanceConditionTest extends AbstractConditionTest {
         query = ((ConstantScoreQuery) query).getQuery();
         assertTrue(query instanceof IntersectsPrefixTreeFilter);
         IntersectsPrefixTreeFilter minFilter = (IntersectsPrefixTreeFilter) query;
-        assertEquals("IntersectsPrefixTreeFilter(fieldName=name,queryShape=Circle(Pt(x=-180.0,y=90.0), " +
+        assertEquals("IntersectsPrefixTreeFilter(fieldName=name.dist,queryShape=Circle(Pt(x=-180.0,y=90.0), " +
                      "d=0.0° 1.00km),detailLevel=8,prefixGridScanLevel=4)", minFilter.toString());
 
         BooleanClause maxClause = booleanQuery.getClauses()[0];
-        assertEquals(BooleanClause.Occur.MUST, maxClause.getOccur());
+        assertEquals(BooleanClause.Occur.FILTER, maxClause.getOccur());
         query = maxClause.getQuery();
         assertTrue(query instanceof ConstantScoreQuery);
         query = ((ConstantScoreQuery) query).getQuery();
         assertTrue(query instanceof IntersectsPrefixTreeFilter);
         IntersectsPrefixTreeFilter maxFilter = (IntersectsPrefixTreeFilter) query;
-        assertEquals("IntersectsPrefixTreeFilter(fieldName=name,queryShape=Circle(Pt(x=-180.0,y=90.0), " +
+        assertEquals("IntersectsPrefixTreeFilter(fieldName=name.dist,queryShape=Circle(Pt(x=-180.0,y=90.0), " +
                      "d=0.0° 3.00km),detailLevel=8,prefixGridScanLevel=4)", maxFilter.toString());
     }
 

@@ -53,7 +53,7 @@ import java.util.Set;
 import static org.apache.lucene.search.SortField.FIELD_SCORE;
 
 /**
- * Class for mapping rows between Cassandra and Lucene.
+ * Class for providing operations between Cassandra and Lucene.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
@@ -68,7 +68,7 @@ public abstract class RowService {
     final CFMetaData metadata;
     final LuceneIndex luceneIndex;
 
-    private final Schema schema;
+    protected final Schema schema;
     private final TaskQueue indexQueue;
 
     /**
@@ -96,13 +96,7 @@ public abstract class RowService {
                                            config.getMaxMergeMB(),
                                            config.getMaxCachedMB(),
                                            schema.getAnalyzer(),
-                                           config.getRefreshSeconds(),
-                                           new Runnable() {
-                                               @Override
-                                               public void run() {
-
-                                               }
-                                           });
+                                           config.getRefreshSeconds());
 
         int indexingThreads = config.getIndexingThreads();
         if (indexingThreads > 0) {
@@ -290,8 +284,7 @@ public abstract class RowService {
         try {
 
             // Setup search arguments
-            Query rangeQuery = rowMapper.query(dataRange);
-            Query query = search.query(schema, rangeQuery);
+            Query query = query(search, dataRange);
             Sort sort = sort(search);
             ScoreDoc last = after(searcher, after, query, sort);
             int page = Math.min(limit, MAX_PAGE_SIZE);
@@ -304,7 +297,6 @@ public abstract class RowService {
                 Map<Document, ScoreDoc> docs = luceneIndex.search(searcher, query, sort, last, page, fields);
                 List<SearchResult> searchResults = new ArrayList<>(docs.size());
                 for (Map.Entry<Document, ScoreDoc> entry : docs.entrySet()) {
-                // Log.info("** FOUND " + entry.getValue());
                     Document document = entry.getKey();
                     ScoreDoc scoreDoc = entry.getValue();
                     last = scoreDoc;
@@ -335,11 +327,11 @@ public abstract class RowService {
             searcherManager.release(searcher);
         }
 
+        // Ensure sorting
         RowComparator comparator = comparator(search);
         Collections.sort(rows, comparator);
 
         searchTime.stop();
-
         Log.debug("Lucene time: %s", luceneTime);
         Log.debug("Cassandra time: %s", collectTime);
         Log.debug("Collected %d docs and %d rows in %d pages in %s", numDocs, numRows, numPages, searchTime);
@@ -347,19 +339,41 @@ public abstract class RowService {
         return rows;
     }
 
-    private ScoreDoc after(IndexSearcher searcher, RowKey rowKey, Query query, Sort sort) throws IOException {
-        TimeCounter time = TimeCounter.create().start();
-        if (rowKey == null) return null;
-        Filter rowFilter = new QueryWrapperFilter(rowMapper.query(rowKey));
-        Query afterQuery = new FilteredQuery(query, rowFilter);
-        Set<String> fields = Collections.emptySet();
-        Map<Document, ScoreDoc> results = luceneIndex.search(searcher, afterQuery, sort, null, 1, fields);
-        ScoreDoc scoreDoc = results.isEmpty() ? null : results.values().iterator().next();
-        // Log.info("** AFTER " + scoreDoc);
-        Log.debug("Search after time: %s", time.stop());
-        return scoreDoc;
+    /**
+     * Returns the {@link Query} representation of the specified {@link Search} filtered by the specified {@link
+     * DataRange}.
+     *
+     * @param search    A {@link Search}.
+     * @param dataRange A {@link DataRange}.
+     * @return The {@link Query} representation of the specified {@link Search} filtered by the specified {@link
+     * DataRange}.
+     */
+    public Query query(Search search, DataRange dataRange) {
+        Query range = rowMapper.query(dataRange);
+        Query query = search.query(schema);
+        Query filter = search.filter(schema);
+        if (query == null && filter == null && range == null) {
+            return new MatchAllDocsQuery();
+        }
+        BooleanQuery booleanQuery = new BooleanQuery();
+        if (query != null) {
+            booleanQuery.add(query, BooleanClause.Occur.MUST);
+        }
+        if (filter != null) {
+            booleanQuery.add(filter, BooleanClause.Occur.FILTER);
+        }
+        if (range != null) {
+            booleanQuery.add(range, BooleanClause.Occur.FILTER);
+        }
+        return booleanQuery;
     }
 
+    /**
+     * Returns a {@link Sort} for the specified {@link Search}.
+     *
+     * @param search A {@link Search}.
+     * @return A {@link Sort} for the specified {@link Search}.
+     */
     private Sort sort(Search search) {
         if (search.usesSorting()) {
             return new Sort(ArrayUtils.addAll(search.sortFields(schema), rowMapper.sortFields()));
@@ -368,6 +382,28 @@ public abstract class RowService {
         } else {
             return new Sort(rowMapper.sortFields());
         }
+    }
+
+    /**
+     * Returns the {@link ScoreDoc} of a previous search.
+     *
+     * @param searcher The Lucene {@link IndexSearcher} to be used.
+     * @param key      The key of the last found row.
+     * @param query    The previous query.
+     * @param sort     The previous sort.
+     * @return The {@link ScoreDoc} of a previous search.
+     * @throws IOException If there are I/O errors.
+     */
+    private ScoreDoc after(IndexSearcher searcher, RowKey key, Query query, Sort sort) throws IOException {
+        TimeCounter time = TimeCounter.create().start();
+        if (key == null) return null;
+        Filter rowFilter = new QueryWrapperFilter(rowMapper.query(key));
+        Query afterQuery = new FilteredQuery(query, rowFilter);
+        Set<String> fields = Collections.emptySet();
+        Map<Document, ScoreDoc> results = luceneIndex.search(searcher, afterQuery, sort, null, 1, fields);
+        ScoreDoc scoreDoc = results.isEmpty() ? null : results.values().iterator().next();
+        Log.debug("Search after time: %s", time.stop());
+        return scoreDoc;
     }
 
     /**
@@ -393,7 +429,7 @@ public abstract class RowService {
      * Returns {@code true} if the specified {@link Row} satisfies the all the specified {@link IndexExpression}s,
      * {@code false} otherwise.
      *
-     * @param row   A {@link Row}.
+     * @param row         A {@link Row}.
      * @param expressions A list of {@link IndexExpression}s to be satisfied by {@code row}.
      * @return {@code true} if the specified {@link Row} satisfies the all the specified {@link IndexExpression}s,
      * {@code false} otherwise.
@@ -414,7 +450,7 @@ public abstract class RowService {
      * Returns {@code true} if the specified {@link Columns} satisfies the the specified {@link IndexExpression}, {@code
      * false} otherwise.
      *
-     * @param columns    A {@link Columns}
+     * @param columns    A {@link Columns}.
      * @param expression A {@link IndexExpression}s to be satisfied by {@code columns}.
      * @return {@code true} if the specified {@link Columns} satisfies the the specified {@link IndexExpression}, {@code
      * false} otherwise.
@@ -433,6 +469,17 @@ public abstract class RowService {
         return false;
     }
 
+    /**
+     * Returns {@code true} if the specified {@link Column} satisfies the the specified expression, {@code false}
+     * otherwise.
+     *
+     * @param column    A {@link Column}.
+     * @param validator An expression validator.
+     * @param operator  An expression operator.
+     * @param value     An expression value.
+     * @return {@code true} if the specified {@link Column} satisfies the the specified expression, {@code false}
+     * otherwise.
+     */
     private boolean accepted(Column column, AbstractType<?> validator, Operator operator, ByteBuffer value) {
 
         if (column == null) return false;
@@ -458,8 +505,8 @@ public abstract class RowService {
     }
 
     /**
-     * Returns the {@link Row}s identified by the specified {@link Document}s, using the specified time stamp to
-     * ignore deleted columns. The {@link Row}s are retrieved from the storage engine, so it involves IO operations.
+     * Returns the {@link Row}s identified by the specified {@link Document}s, using the specified time stamp to ignore
+     * deleted columns. The {@link Row}s are retrieved from the storage engine, so it involves IO operations.
      *
      * @param searchResults The {@link SearchResult}s
      * @param timestamp     The time stamp to ignore deleted columns.
@@ -506,6 +553,11 @@ public abstract class RowService {
         return new Row(row.key, dcf);
     }
 
+    /**
+     * Returns the used {@link RowMapper}.
+     *
+     * @return The used {@link RowMapper}.
+     */
     public RowMapper mapper() {
         return rowMapper;
     }

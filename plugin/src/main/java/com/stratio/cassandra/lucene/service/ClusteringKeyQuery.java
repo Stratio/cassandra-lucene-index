@@ -29,21 +29,30 @@ import org.apache.lucene.util.BytesRef;
 import java.io.IOException;
 
 /**
+ * {@link MultiTermQuery} to get a range of clustering keys.
+ *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 class ClusteringKeyQuery extends MultiTermQuery {
 
-    private final ClusteringKeyMapper clusteringKeyMapper;
+    private final ClusteringKeyMapper mapper;
     private final Composite start;
     private final Composite stop;
     private final CellNameType type;
 
-    public ClusteringKeyQuery(Composite start, Composite stop, ClusteringKeyMapper clusteringKeyMapper) {
+    /**
+     * Returns a new clustering key query for the specified clustering key range using the specified mapper.
+     *
+     * @param start  The clustering key at the start of the range.
+     * @param stop   The clustering key at the end of the range.
+     * @param mapper The clustering key mapper to be used.
+     */
+    public ClusteringKeyQuery(Composite start, Composite stop, ClusteringKeyMapper mapper) {
         super(ClusteringKeyMapper.FIELD_NAME);
         this.start = start;
         this.stop = stop;
-        this.clusteringKeyMapper = clusteringKeyMapper;
-        this.type = clusteringKeyMapper.getType();
+        this.mapper = mapper;
+        this.type = mapper.getType();
     }
 
     @Override
@@ -54,8 +63,8 @@ class ClusteringKeyQuery extends MultiTermQuery {
     @Override
     public String toString(String field) {
         return new ToStringBuilder(this).append("field", field)
-                                        .append("start", start == null ? null : clusteringKeyMapper.toString(start))
-                                        .append("stop", stop == null ? null : clusteringKeyMapper.toString(stop))
+                                        .append("start", start == null ? null : mapper.toString(start))
+                                        .append("stop", stop == null ? null : mapper.toString(stop))
                                         .toString();
     }
 
@@ -68,7 +77,7 @@ class ClusteringKeyQuery extends MultiTermQuery {
 
         @Override
         protected AcceptStatus accept(BytesRef term) {
-            CellName clusteringKey = clusteringKeyMapper.clusteringKey(term);
+            CellName clusteringKey = mapper.clusteringKey(term);
             if (start != null && !start.isEmpty() && type.compare(start, clusteringKey) > 0) {
                 return AcceptStatus.NO;
             }

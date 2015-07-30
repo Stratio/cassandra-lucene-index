@@ -16,6 +16,7 @@
 package com.stratio.cassandra.lucene.service;
 
 import com.google.common.collect.Lists;
+import com.stratio.cassandra.lucene.schema.column.Columns;
 import org.apache.cassandra.config.ColumnDefinition;
 import org.apache.cassandra.db.ColumnFamily;
 import org.apache.cassandra.db.ColumnFamilyStore;
@@ -35,6 +36,7 @@ import org.apache.lucene.search.ScoreDoc;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.*;
+import java.util.Map.Entry;
 
 /**
  * {@link RowService} that manages wide rows.
@@ -84,15 +86,43 @@ public class RowServiceWide extends RowService {
         DecoratedKey partitionKey = rowMapper.partitionKey(key);
 
         if (columnFamily.iterator().hasNext()) {
-            List<CellName> clusteringKeys = rowMapper.clusteringKeys(columnFamily);
-            Map<CellName, Row> rows = rows(partitionKey, clusteringKeys, timestamp);
-            for (Map.Entry<CellName, Row> entry : rows.entrySet()) {
+
+            columnFamily = cleanExpired(columnFamily, timestamp);
+            Map<CellName, ColumnFamily> incomingRows = rowMapper.splitRows(columnFamily);
+            Map<CellName, Columns> completeRows = new HashMap<>(incomingRows.size());
+            List<CellName> incompleteRows = new ArrayList<>(incomingRows.size());
+
+            // Separate complete and incomplete rows
+            for (Map.Entry<CellName, ColumnFamily> entry : incomingRows.entrySet()) {
                 CellName clusteringKey = entry.getKey();
-                Row row = entry.getValue();
-                Document document = rowMapper.document(row);
-                Term term = rowMapper.term(partitionKey, clusteringKey);
-                luceneIndex.upsert(term, document); // Store document
+                ColumnFamily rowColumnFamily = entry.getValue();
+                Columns columns = rowMapper.columns(partitionKey, rowColumnFamily);
+                if (schema.mapsAll(columns)) {
+                    completeRows.put(clusteringKey, columns);
+                } else {
+                    incompleteRows.add(clusteringKey);
+                }
             }
+
+            // Read incomplete rows from Cassandra storage engine
+            if (!incompleteRows.isEmpty()) {
+                for (Entry<CellName, ColumnFamily> entry : rows(partitionKey, incompleteRows, timestamp).entrySet()) {
+                    CellName clusteringKey = entry.getKey();
+                    ColumnFamily rowColumnFamily = entry.getValue();
+                    Columns columns = rowMapper.columns(partitionKey, rowColumnFamily);
+                    completeRows.put(clusteringKey, columns);
+                }
+            }
+
+            // Write rows into Lucene index
+            for (Entry<CellName, Columns> entry : completeRows.entrySet()) {
+                CellName clusteringKey = entry.getKey();
+                Columns columns = entry.getValue();
+                Document document = rowMapper.document(partitionKey, clusteringKey, columns);
+                Term term = rowMapper.term(partitionKey, clusteringKey);
+                luceneIndex.upsert(term, document);
+            }
+
         } else if (deletionInfo != null) {
             Iterator<RangeTombstone> iterator = deletionInfo.rangeIterator();
             if (iterator.hasNext()) {
@@ -123,8 +153,6 @@ public class RowServiceWide extends RowService {
     @Override
     protected List<Row> rows(List<SearchResult> searchResults, long timestamp, boolean relevance) {
 
-        List<Row> rows = new ArrayList<>(searchResults.size());
-
         // Group key queries by partition keys
         Map<String, ScoreDoc> scoresByClusteringKey = new HashMap<>(searchResults.size());
         Map<DecoratedKey, List<CellName>> keys = new HashMap<>();
@@ -142,17 +170,19 @@ public class RowServiceWide extends RowService {
             clusteringKeys.add(clusteringKey);
         }
 
+        List<Row> rows = new ArrayList<>(searchResults.size());
         for (Map.Entry<DecoratedKey, List<CellName>> entry : keys.entrySet()) {
             DecoratedKey partitionKey = entry.getKey();
             for (List<CellName> clusteringKeys : Lists.partition(entry.getValue(), 1000)) {
-                Map<CellName, Row> partitionRows = rows(partitionKey, clusteringKeys, timestamp);
-                for (Map.Entry<CellName, Row> entry1 : partitionRows.entrySet()) {
+                Map<CellName, ColumnFamily> partitionRows = rows(partitionKey, clusteringKeys, timestamp);
+                for (Map.Entry<CellName, ColumnFamily> entry1 : partitionRows.entrySet()) {
                     CellName clusteringKey = entry1.getKey();
-                    Row row = entry1.getValue();
+                    ColumnFamily columnFamily = entry1.getValue();
+                    Row row = new Row(partitionKey, columnFamily);
                     if (relevance) {
-                    String rowHash = rowMapper.hash(partitionKey, clusteringKey);
-                    ScoreDoc scoreDoc = scoresByClusteringKey.get(rowHash);
-                    row = addScoreColumn(row, timestamp, scoreDoc);
+                        String rowHash = rowMapper.hash(partitionKey, clusteringKey);
+                        ScoreDoc scoreDoc = scoresByClusteringKey.get(rowHash);
+                        row = addScoreColumn(row, timestamp, scoreDoc);
                     }
                     rows.add(row);
                 }
@@ -170,7 +200,7 @@ public class RowServiceWide extends RowService {
      * @param timestamp      The time stamp to ignore deleted columns.
      * @return The CQL3 {@link Row} identified by the specified key pair.
      */
-    private Map<CellName, Row> rows(DecoratedKey partitionKey, List<CellName> clusteringKeys, long timestamp) {
+    private Map<CellName, ColumnFamily> rows(DecoratedKey partitionKey, List<CellName> clusteringKeys, long timestamp) {
         ColumnSlice[] slices = rowMapper.columnSlices(clusteringKeys);
 
         if (baseCfs.metadata.hasStaticColumns()) {
@@ -180,10 +210,8 @@ public class RowServiceWide extends RowService {
             slices = l.toArray(slices);
         }
 
-        SliceQueryFilter dataFilter = new SliceQueryFilter(slices,
-                                                           false,
-                                                           Integer.MAX_VALUE,
-                                                           baseCfs.metadata.clusteringColumns().size());
+        int compositesToGroup = baseCfs.metadata.clusteringColumns().size();
+        SliceQueryFilter dataFilter = new SliceQueryFilter(slices, false, Integer.MAX_VALUE, compositesToGroup);
         QueryFilter queryFilter = new QueryFilter(partitionKey, baseCfs.name, dataFilter, timestamp);
 
         ColumnFamily queryColumnFamily = baseCfs.getColumnFamily(queryFilter);
@@ -196,16 +224,8 @@ public class RowServiceWide extends RowService {
         // Remove deleted/expired columns
         ColumnFamily cleanQueryColumnFamily = cleanExpired(queryColumnFamily, timestamp);
 
-        // Split CQL3 row column families
-        Map<CellName, ColumnFamily> columnFamilies = rowMapper.splitRows(cleanQueryColumnFamily);
-
-        // Build and return rows
-        Map<CellName, Row> rows = new HashMap<>(columnFamilies.size());
-        for (Map.Entry<CellName, ColumnFamily> entry : columnFamilies.entrySet()) {
-            Row row = new Row(partitionKey, entry.getValue());
-            rows.put(entry.getKey(), row);
-        }
-        return rows;
+        // Split and return CQL3 row column families
+        return rowMapper.splitRows(cleanQueryColumnFamily);
     }
 
 }

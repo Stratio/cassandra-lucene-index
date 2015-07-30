@@ -75,14 +75,20 @@ public class FullKeyMapper {
      * Returns the {@link ByteBuffer} representation of the full row key formed by the specified partition key and the
      * clustering key.
      *
-     * @param partitionKey A partition key.
-     * @param cellName     A clustering key.
+     * @param partitionKey  A partition key.
+     * @param clusteringKey A clustering key.
      * @return The {@link ByteBuffer} representation of the full row key formed by the specified key pair.
      */
-    public ByteBuffer byteBuffer(DecoratedKey partitionKey, CellName cellName) {
-        return type.builder().add(partitionKey.getKey()).add(cellName.toByteBuffer()).build();
+    public ByteBuffer byteBuffer(DecoratedKey partitionKey, CellName clusteringKey) {
+        return type.builder().add(partitionKey.getKey()).add(clusteringKey.toByteBuffer()).build();
     }
 
+    /**
+     * Returns the {@link RowKey} represented by the specified {@link ByteBuffer}.
+     *
+     * @param bb A {@link ByteBuffer}.
+     * @return The {@link RowKey} represented by the specified {@link ByteBuffer}.
+     */
     public RowKey rowKey(ByteBuffer bb) {
         ByteBuffer[] bbs = ByteBufferUtils.split(bb, type);
         DecoratedKey partitionKey = DatabaseDescriptor.getPartitioner().decorateKey(bbs[0]);
@@ -90,8 +96,15 @@ public class FullKeyMapper {
         return new RowKey(partitionKey, clusteringKey);
     }
 
-    public String hash(DecoratedKey partitionKey, CellName cellName) {
-        return ByteBufferUtil.bytesToHex(byteBuffer(partitionKey, cellName));
+    /**
+     * Returns a hash code to uniquely identify a CQL logical row key.
+     *
+     * @param partitionKey  A partition key.
+     * @param clusteringKey A clustering key.
+     * @return A hash code to uniquely identify a CQL logical row key.
+     */
+    public String hash(DecoratedKey partitionKey, CellName clusteringKey) {
+        return ByteBufferUtil.bytesToHex(byteBuffer(partitionKey, clusteringKey));
     }
 
     /**

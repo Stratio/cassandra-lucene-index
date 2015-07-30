@@ -16,8 +16,16 @@
 package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.google.common.base.Objects;
-import com.stratio.cassandra.lucene.util.DateFormatter;
-import org.apache.cassandra.db.marshal.*;
+import com.stratio.cassandra.lucene.util.DateParser;
+import org.apache.cassandra.db.marshal.AsciiType;
+import org.apache.cassandra.db.marshal.DecimalType;
+import org.apache.cassandra.db.marshal.DoubleType;
+import org.apache.cassandra.db.marshal.FloatType;
+import org.apache.cassandra.db.marshal.Int32Type;
+import org.apache.cassandra.db.marshal.IntegerType;
+import org.apache.cassandra.db.marshal.LongType;
+import org.apache.cassandra.db.marshal.TimestampType;
+import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.LongField;
 import org.apache.lucene.document.NumericDocValuesField;
@@ -40,8 +48,8 @@ public class DateMapper extends SingleColumnMapper<Long> {
     /** The {@link SimpleDateFormat} pattern. */
     private final String pattern;
 
-    /** the {@link DateFormatter} */
-    private final DateFormatter dateFormatter;
+    /** The {@link DateParser} */
+    private final DateParser dateParser;
 
     /**
      * Builds a new {@link DateMapper} using the specified pattern.
@@ -65,9 +73,7 @@ public class DateMapper extends SingleColumnMapper<Long> {
               DecimalType.instance,
               TimestampType.instance);
         this.pattern = pattern == null ? DEFAULT_PATTERN : pattern;
-
-        this.dateFormatter= new DateFormatter(this.pattern);
-
+        this.dateParser = new DateParser(this.pattern);
     }
 
     public String getPattern() {
@@ -77,8 +83,8 @@ public class DateMapper extends SingleColumnMapper<Long> {
     /** {@inheritDoc} */
     @Override
     public Long base(String name, Object value) {
-        Date opt=this.dateFormatter.fromObject(value);
-        if (opt==null) {
+        Date opt = this.dateParser.parse(value);
+        if (opt == null) {
             return null;
         } else {
             return opt.getTime();

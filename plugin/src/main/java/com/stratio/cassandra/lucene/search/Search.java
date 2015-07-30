@@ -19,9 +19,6 @@ import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.search.condition.Condition;
 import com.stratio.cassandra.lucene.search.sort.Sort;
-import org.apache.lucene.search.BooleanClause;
-import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.SortField;
 
@@ -102,42 +99,36 @@ public class Search {
     }
 
     /**
-     * Returns the Lucene {@link org.apache.lucene.search.Sort} represented by this {@link Sort} using the specified
-     * {@link Schema}. Maybe {@code null} meaning no sorting.
+     * Returns the Lucene {@link SortField}s represented by this using the specified {@link Schema}. Maybe {@code null}
+     * meaning no sorting.
      *
      * @param schema A {@link Schema}.
-     * @return The Lucene {@link org.apache.lucene.search.Sort} represented by this {@link Sort} using {@code schema}.
+     * @return The Lucene {@link SortField}s represented by this using {@code schema}.
      */
     public SortField[] sortFields(Schema schema) {
         return sort == null ? null : sort.sortFields(schema);
     }
 
     /**
-     * Returns the Lucene {@link Query} representation of this search. This {@link Query} include both the querying and
-     * filtering {@link Condition}s. If none of them is set, then a {@link MatchAllDocsQuery} is returned, so it never
-     * returns {@code null}.
+     * Returns the Lucene {@link Query} represented by this using the specified {@link Schema}. Maybe {@code null}
+     * meaning no query.
      *
-     * @param schema     The {@link Schema} to be used.
-     * @param rangeQuery An additional range {@link Query} to be used.
-     * @return The Lucene {@link Query} representation of this search.
+     * @param schema A {@link Schema}.
+     * @return The Lucene {@link Query} represented by this using the specified {@link Schema}
      */
-    public Query query(Schema schema, Query rangeQuery) {
-        if (queryCondition == null && filterCondition == null && rangeQuery == null) {
-            return new MatchAllDocsQuery();
-        }
-        BooleanQuery booleanQuery = new BooleanQuery();
-        if (queryCondition != null) {
-            Query query = queryCondition.query(schema);
-            booleanQuery.add(query, BooleanClause.Occur.MUST);
-        }
-        if (filterCondition != null) {
-            Query query = filterCondition.query(schema);
-            booleanQuery.add(query, BooleanClause.Occur.FILTER);
-        }
-        if (rangeQuery != null) {
-            booleanQuery.add(rangeQuery, BooleanClause.Occur.FILTER);
-        }
-        return booleanQuery;
+    public Query query(Schema schema) {
+        return queryCondition == null ? null : queryCondition.query(schema);
+    }
+
+    /**
+     * Returns the Lucene filtering {@link Query} represented by this using the specified {@link Schema}. Maybe {@code
+     * null} meaning no filtering query.
+     *
+     * @param schema A {@link Schema}.
+     * @return The Lucene filtering {@link Query} represented by this using the specified {@link Schema}
+     */
+    public Query filter(Schema schema) {
+        return filterCondition == null ? null : filterCondition.query(schema);
     }
 
     /**
@@ -146,8 +137,11 @@ public class Search {
      * @param schema A {@link Schema}.
      */
     public void validate(Schema schema) {
-        if (queryCondition != null || filterCondition != null) {
-            query(schema, null);
+        if (queryCondition != null) {
+            query(schema);
+        }
+        if (filterCondition != null) {
+            filter(schema);
         }
         if (sort != null) {
             sort.sortFields(schema);

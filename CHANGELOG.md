@@ -6,6 +6,7 @@
  * Fix numeric collections (issue#12)
  * Fix match condition with not tokenized fields (issue#16)
  * Fix map columns sorting (issue#17)
+ * Fix bounding box queries
  * Avoid sorting in lists and sets
  * Set default sorted value to false
  * Upgrade to Lucene 5.2.1

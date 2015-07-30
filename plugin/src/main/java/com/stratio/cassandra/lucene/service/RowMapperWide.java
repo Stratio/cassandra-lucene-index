@@ -74,43 +74,41 @@ public class RowMapperWide extends RowMapper {
      */
     RowMapperWide(CFMetaData metadata, ColumnDefinition columnDefinition, Schema schema) {
         super(metadata, columnDefinition, schema);
-        this.clusteringKeyMapper = ClusteringKeyMapper.instance(metadata);
+        this.clusteringKeyMapper = ClusteringKeyMapper.instance(metadata, schema);
         this.fullKeyMapper = FullKeyMapper.instance(partitionKeyMapper, clusteringKeyMapper);
         this.comparator = new RowComparatorNatural(clusteringKeyMapper);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
-    public Columns columns(Row row) {
+    public Columns columns(DecoratedKey partitionKey, ColumnFamily columnFamily) {
         Columns columns = new Columns();
-        columns.add(partitionKeyMapper.columns(row));
-        columns.add(clusteringKeyMapper.columns(row));
-        columns.add(regularCellsMapper.columns(row));
+        columns.add(partitionKeyMapper.columns(partitionKey));
+        columns.add(clusteringKeyMapper.columns(columnFamily));
+        columns.add(regularCellsMapper.columns(columnFamily));
         return columns;
     }
 
     /**
-     * {@inheritDoc}
+     * Returns a Lucene {@link Document} representing the logical CQL row represented by the specified partition key,
+     * clustering key and {@link Columns}.
+     *
+     * @param partitionKey  The partition key of the logical CQL row.
+     * @param clusteringKey The clustering key of the logical CQL row.
+     * @param columns       The {@link Columns} of the logical CQL row.
+     * @return A Lucene {@link Document} representing the specified logical CQL row
      */
-    @Override
-    public Document document(Row row) {
-        DecoratedKey partitionKey = row.key;
-        CellName clusteringKey = clusteringKeyMapper.clusteringKey(row);
-
+    public Document document(DecoratedKey partitionKey, CellName clusteringKey, Columns columns) {
         Document document = new Document();
         tokenMapper.addFields(document, partitionKey);
         partitionKeyMapper.addFields(document, partitionKey);
         clusteringKeyMapper.addFields(document, clusteringKey);
         fullKeyMapper.addFields(document, partitionKey, clusteringKey);
-        schema.addFields(document, columns(row));
+        schema.addFields(document, columns);
         return document;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public SortField[] sortFields() {
         SortField[] partitionKeySort = tokenMapper.sortFields();
@@ -118,18 +116,14 @@ public class RowMapperWide extends RowMapper {
         return ArrayUtils.addAll(partitionKeySort, clusteringKeySort);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public CellName makeCellName(ColumnFamily columnFamily) {
         CellName clusteringKey = clusteringKey(columnFamily);
         return clusteringKeyMapper.makeCellName(clusteringKey, columnDefinition);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public RowComparator comparator() {
         return comparator;
@@ -143,16 +137,6 @@ public class RowMapperWide extends RowMapper {
      */
     private CellName clusteringKey(ColumnFamily columnFamily) {
         return clusteringKeyMapper.clusteringKey(columnFamily);
-    }
-
-    /**
-     * Returns all the clustering keys contained in the specified {@link ColumnFamily}.
-     *
-     * @param columnFamily A {@link ColumnFamily}.
-     * @return All the clustering keys contained in the specified {@link ColumnFamily}.
-     */
-    public List<CellName> clusteringKeys(ColumnFamily columnFamily) {
-        return clusteringKeyMapper.clusteringKeys(columnFamily);
     }
 
     /**
@@ -175,6 +159,7 @@ public class RowMapperWide extends RowMapper {
      * @return The Lucene {@link Query} to get the {@link Document}s satisfying the specified {@link DataRange}.
      */
     public Query query(DataRange dataRange) {
+
         RowPosition startPosition = dataRange.startKey();
         RowPosition stopPosition = dataRange.stopKey();
         Token startToken = startPosition.getToken();
@@ -221,9 +206,7 @@ public class RowMapperWide extends RowMapper {
         return query.getClauses().length == 0 ? null : query;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public Query query(RowKey rowKey) {
         DecoratedKey partitionKey = rowKey.getPartitionKey();
@@ -270,19 +253,7 @@ public class RowMapperWide extends RowMapper {
         return clusteringKeyMapper.splitRows(columnFamily);
     }
 
-    /**
-     * Returns the {@code String} human-readable representation of the specified cell name.
-     *
-     * @param cellName A cell name.
-     * @return The {@code String} human-readable representation of the specified cell name.
-     */
-    public String toString(CellName cellName) {
-        return clusteringKeyMapper.toString(cellName);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public SearchResult searchResult(Document document, ScoreDoc scoreDoc) {
         DecoratedKey partitionKey = partitionKeyMapper.partitionKey(document);
@@ -290,13 +261,18 @@ public class RowMapperWide extends RowMapper {
         return new SearchResult(partitionKey, clusteringKey, scoreDoc);
     }
 
-    public String hash(DecoratedKey partitionKey, CellName cellName) {
-        return fullKeyMapper.hash(partitionKey, cellName);
+    /**
+     * Returns a hash code to uniquely identify a CQL logical row key.
+     *
+     * @param partitionKey  A partition key.
+     * @param clusteringKey A clustering key.
+     * @return A hash code to uniquely identify a CQL logical row key.
+     */
+    public String hash(DecoratedKey partitionKey, CellName clusteringKey) {
+        return fullKeyMapper.hash(partitionKey, clusteringKey);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public ByteBuffer byteBuffer(RowKey rowKey) {
         DecoratedKey partitionKey = rowKey.getPartitionKey();
@@ -304,17 +280,13 @@ public class RowMapperWide extends RowMapper {
         return fullKeyMapper.byteBuffer(partitionKey, clusteringKey);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public RowKey rowKey(ByteBuffer bb) {
         return fullKeyMapper.rowKey(bb);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public RowKey rowKey(Row row) {
         DecoratedKey partitionKey = row.key;

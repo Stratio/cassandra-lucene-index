@@ -21,6 +21,7 @@ import com.spatial4j.core.shape.Point;
 import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import org.apache.cassandra.config.CFMetaData;
+import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.AsciiType;
 import org.apache.cassandra.db.marshal.DecimalType;
 import org.apache.cassandra.db.marshal.DoubleType;
@@ -34,9 +35,12 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.spatial.SpatialStrategy;
+import org.apache.lucene.spatial.bbox.BBoxStrategy;
 import org.apache.lucene.spatial.prefix.RecursivePrefixTreeStrategy;
 import org.apache.lucene.spatial.prefix.tree.GeohashPrefixTree;
 import org.apache.lucene.spatial.prefix.tree.SpatialPrefixTree;
+
+import java.util.Arrays;
 
 /**
  * A {@link Mapper} to map geographical points.
@@ -52,7 +56,8 @@ public class GeoPointMapper extends Mapper {
     private final String longitude;
     private final int maxLevels;
 
-    private final SpatialStrategy strategy;
+    private final SpatialStrategy distanceStrategy;
+    private final SpatialStrategy bboxStrategy;
 
     /**
      * Builds a new {@link GeoPointMapper}.
@@ -66,14 +71,15 @@ public class GeoPointMapper extends Mapper {
         super(name,
               true,
               false,
-              AsciiType.instance,
-              UTF8Type.instance,
-              Int32Type.instance,
-              LongType.instance,
-              IntegerType.instance,
-              FloatType.instance,
-              DoubleType.instance,
-              DecimalType.instance);
+              Arrays.<AbstractType>asList(AsciiType.instance,
+                                          UTF8Type.instance,
+                                          Int32Type.instance,
+                                          LongType.instance,
+                                          IntegerType.instance,
+                                          FloatType.instance,
+                                          DoubleType.instance,
+                                          DecimalType.instance),
+              Arrays.asList(latitude, longitude));
 
         if (StringUtils.isBlank(latitude)) {
             throw new IllegalArgumentException("latitude column name is required");
@@ -87,7 +93,8 @@ public class GeoPointMapper extends Mapper {
         this.longitude = longitude;
         this.maxLevels = maxLevels == null ? DEFAULT_MAX_LEVELS : maxLevels;
         SpatialPrefixTree grid = new GeohashPrefixTree(spatialContext, this.maxLevels);
-        this.strategy = new RecursivePrefixTreeStrategy(grid, name);
+        distanceStrategy = new RecursivePrefixTreeStrategy(grid, name + ".dist");
+        bboxStrategy = new BBoxStrategy(spatialContext, name + ".bbox");
     }
 
     /**
@@ -109,12 +116,21 @@ public class GeoPointMapper extends Mapper {
     }
 
     /**
-     * Returns the used {@link SpatialStrategy}.
+     * Returns the used {@link SpatialStrategy} for distances.
      *
-     * @return The used {@link SpatialStrategy}.
+     * @return The used {@link SpatialStrategy} for distances.
      */
-    public SpatialStrategy getStrategy() {
-        return strategy;
+    public SpatialStrategy getDistanceStrategy() {
+        return distanceStrategy;
+    }
+
+    /**
+     * Returns the used {@link SpatialStrategy} for bounding boxes.
+     *
+     * @return The used {@link SpatialStrategy} for bounding boxes.
+     */
+    public SpatialStrategy getBBoxStrategy() {
+        return bboxStrategy;
     }
 
     public int getMaxLevels() {
@@ -128,7 +144,10 @@ public class GeoPointMapper extends Mapper {
         Double latitude = readLatitude(columns);
         Point point = spatialContext.makePoint(longitude, latitude);
 
-        for (IndexableField field : strategy.createIndexableFields(point)) {
+        for (IndexableField field : distanceStrategy.createIndexableFields(point)) {
+            document.add(field);
+        }
+        for (IndexableField field : bboxStrategy.createIndexableFields(point)) {
             document.add(field);
         }
     }
@@ -151,7 +170,7 @@ public class GeoPointMapper extends Mapper {
      * @param columns The {@link Columns} containing the latitude.
      */
     double readLatitude(Columns columns) {
-        Column column = columns.getColumnsByName(this.latitude).getFirst();
+        Column column = columns.getColumnsByName(latitude).getFirst();
         if (column == null) {
             throw new IllegalArgumentException("Latitude column required");
         }
@@ -165,7 +184,7 @@ public class GeoPointMapper extends Mapper {
      * @param columns The {@link Columns} containing the latitude.
      */
     double readLongitude(Columns columns) {
-        Column column = columns.getColumnsByName(this.longitude).getFirst();
+        Column column = columns.getColumnsByName(longitude).getFirst();
         if (column == null) {
             throw new IllegalArgumentException("Longitude column required");
         }

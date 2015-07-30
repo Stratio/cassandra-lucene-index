@@ -19,7 +19,7 @@ import com.google.common.base.Objects;
 import com.spatial4j.core.shape.Shape;
 import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
-import com.stratio.cassandra.lucene.util.DateFormatter;
+import com.stratio.cassandra.lucene.util.DateParser;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.db.marshal.*;
 import org.apache.commons.lang3.StringUtils;
@@ -32,6 +32,7 @@ import org.apache.lucene.spatial.prefix.tree.NumberRangePrefixTree.NRShape;
 import org.apache.lucene.spatial.prefix.tree.NumberRangePrefixTree.UnitNRShape;
 
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 
 /**
@@ -44,12 +45,13 @@ public class BitemporalMapper extends Mapper {
     /** The default {@link SimpleDateFormat} pattern. */
     public static final String DEFAULT_PATTERN = "yyyy/MM/dd HH:mm:ss.SSS";
 
-    /** The {@link SimpleDateFormat} pattern. */
+    /** The {@link DateParser} pattern. */
     private final String pattern;
 
-    private final DateFormatter dateFormatter;
+    /** The {@link DateParser} */
+    private final DateParser dateParser;
 
-    /** Filed names for the four fields. */
+    /** Field names for the four fields. */
     private final String vtFrom;
     private final String vtTo;
     private final String ttFrom;
@@ -99,15 +101,16 @@ public class BitemporalMapper extends Mapper {
         super(name,
               true,
               false,
-              AsciiType.instance,
-              UTF8Type.instance,
-              Int32Type.instance,
-              LongType.instance,
-              IntegerType.instance,
-              FloatType.instance,
-              DoubleType.instance,
-              DecimalType.instance,
-              TimestampType.instance);
+              Arrays.<AbstractType>asList(AsciiType.instance,
+                                          UTF8Type.instance,
+                                          Int32Type.instance,
+                                          LongType.instance,
+                                          IntegerType.instance,
+                                          FloatType.instance,
+                                          DoubleType.instance,
+                                          DecimalType.instance,
+                                          TimestampType.instance),
+              Arrays.asList(vtFrom, vtTo, ttFrom, ttTo));
 
         if (StringUtils.isBlank(vtFrom)) {
             throw new IllegalArgumentException("vtFrom column name is required");
@@ -127,7 +130,7 @@ public class BitemporalMapper extends Mapper {
 
         this.pattern = (pattern == null) ? DEFAULT_PATTERN : pattern;
 
-        this.dateFormatter= new DateFormatter(this.pattern);
+        this.dateParser = new DateParser(this.pattern);
 
         this.vtFrom = vtFrom;
         this.vtTo = vtTo;
@@ -135,7 +138,6 @@ public class BitemporalMapper extends Mapper {
         this.ttTo = ttTo;
 
         // Validate pattern
-
 
         // ttTo=now vtTo=now 2 DateRangePrefixTree
 
@@ -159,10 +161,9 @@ public class BitemporalMapper extends Mapper {
         this.tree_t4_T = DateRangePrefixTree.INSTANCE;
         this.strategy_t4_T = new NumberRangePrefixTreeStrategy(tree_t4_T, name + ".t4_t");
 
-
         this.nowBitemporalDateTimeMillis = (nowValue == null) ?
-                Long.MAX_VALUE :
-                this.dateFormatter.fromObject(nowValue).getTime();
+                                           Long.MAX_VALUE :
+                                           this.dateParser.parse(nowValue).getTime();
 
     }
 
@@ -287,11 +288,11 @@ public class BitemporalMapper extends Mapper {
     }
 
     /**
-     * returns a {@link BitemporalDateTime} readed from columns
+     * returns a {@link BitemporalDateTime} read from columns
      *
      * @param columns   the {@link Columns} where it is the data
      * @param fieldName the filed Name to read from {@link Columns}
-     * @return a {@link BitemporalDateTime} readed from columns
+     * @return a {@link BitemporalDateTime} read from columns
      */
     BitemporalDateTime readBitemporalDate(Columns columns, String fieldName) {
         Column column = columns.getColumnsByName(fieldName).getFirst();
@@ -304,8 +305,8 @@ public class BitemporalMapper extends Mapper {
     BitemporalDateTime checkIfNow(Long in) {
         if (in > this.nowBitemporalDateTimeMillis) {
             throw new IllegalArgumentException("BitemporalDateTime value: " + in +
-                    " exceeds Max Value: " + this.nowBitemporalDateTimeMillis);
-        } else if (in <this.nowBitemporalDateTimeMillis) {
+                                               " exceeds Max Value: " + this.nowBitemporalDateTimeMillis);
+        } else if (in < this.nowBitemporalDateTimeMillis) {
             return new BitemporalDateTime(in);
         } else {// (in== this.nowBitemporalDateTimeMillis) {
             return new BitemporalDateTime(Long.MAX_VALUE);
@@ -321,8 +322,8 @@ public class BitemporalMapper extends Mapper {
      * format values based in pattern.
      */
     public BitemporalDateTime parseBiTemporalDate(Object value) throws IllegalArgumentException {
-        Date opt=this.dateFormatter.fromObject(value);
-        if (opt!=null) {
+        Date opt = this.dateParser.parse(value);
+        if (opt != null) {
             return checkIfNow(opt.getTime());
         } else {
             return null;

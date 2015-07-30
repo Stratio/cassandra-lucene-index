@@ -15,6 +15,7 @@
  */
 package com.stratio.cassandra.lucene.service;
 
+import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import com.stratio.cassandra.lucene.util.ByteBufferUtils;
@@ -30,7 +31,6 @@ import org.apache.cassandra.db.composites.CellNameType;
 import org.apache.cassandra.db.composites.Composite;
 import org.apache.cassandra.db.filter.ColumnSlice;
 import org.apache.cassandra.db.marshal.AbstractType;
-import org.apache.cassandra.utils.ByteBufferUtil;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.SortedDocValuesField;
@@ -52,8 +52,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Class for several clustering key mappings between Cassandra and Lucene. This class only be used in column families
- * with wide rows.
+ * Class for several clustering key mappings between Cassandra and Lucene. This class must be used only with column
+ * families with wide rows.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
@@ -65,6 +65,9 @@ public class ClusteringKeyMapper {
     /** The column family meta data */
     private final CFMetaData metadata;
 
+    /** The mapping schema. */
+    private final Schema schema;
+
     /** The type of the clustering key, which is the type of the column names */
     private final CellNameType cellNameType;
 
@@ -72,9 +75,11 @@ public class ClusteringKeyMapper {
      * Returns a new {@code ClusteringKeyMapper} according to the specified column family meta data.
      *
      * @param metadata The column family meta data.
+     * @param schema   A {@link Schema}.
      */
-    private ClusteringKeyMapper(CFMetaData metadata) {
+    private ClusteringKeyMapper(CFMetaData metadata, Schema schema) {
         this.metadata = metadata;
+        this.schema  = schema;
         this.cellNameType = metadata.comparator;
     }
 
@@ -82,10 +87,11 @@ public class ClusteringKeyMapper {
      * Returns a new {@code ClusteringKeyMapper} according to the specified column family meta data.
      *
      * @param metadata The column family meta data.
+     * @param schema   A {@link Schema}.
      * @return A new {@code ClusteringKeyMapper} according to the specified column family meta data.
      */
-    public static ClusteringKeyMapper instance(CFMetaData metadata) {
-        return new ClusteringKeyMapper(metadata);
+    public static ClusteringKeyMapper instance(CFMetaData metadata, Schema schema) {
+        return new ClusteringKeyMapper(metadata, schema);
     }
 
     /**
@@ -124,48 +130,6 @@ public class ClusteringKeyMapper {
 
     public CellName clusteringKey(ByteBuffer bb) {
         return cellNameType.cellFromByteBuffer(bb);
-    }
-
-    /**
-     * Returns the common clustering keys of the specified column family.
-     *
-     * @param columnFamily A storage engine {@link ColumnFamily}.
-     * @return The common clustering keys of the specified column family.
-     */
-    public List<CellName> clusteringKeys(ColumnFamily columnFamily) {
-        List<CellName> clusteringKeys = new ArrayList<>();
-        CellName lastClusteringKey = null;
-        for (Cell cell : columnFamily) {
-            CellName cellName = cell.name();
-            if (!isStatic(cellName)) {
-                CellName clusteringKey = extractClusteringKey(cellName);
-                if (lastClusteringKey == null || !lastClusteringKey.isSameCQL3RowAs(cellNameType, clusteringKey)) {
-                    lastClusteringKey = clusteringKey;
-                    clusteringKeys.add(clusteringKey);
-                }
-            }
-        }
-        return sort(clusteringKeys);
-    }
-
-    private CellName extractClusteringKey(CellName cellName) {
-        int numClusteringColumns = metadata.clusteringColumns().size();
-        ByteBuffer[] components = new ByteBuffer[numClusteringColumns + 1];
-        for (int i = 0; i < numClusteringColumns; i++) {
-            components[i] = cellName.get(i);
-        }
-        components[numClusteringColumns] = ByteBufferUtil.EMPTY_BYTE_BUFFER;
-        return cellNameType.makeCellName((Object[]) components);
-    }
-
-    private boolean isStatic(CellName cellName) {
-        int numClusteringColumns = metadata.clusteringColumns().size();
-        for (int i = 0; i < numClusteringColumns; i++) {
-            if (ByteBufferUtils.isEmpty(cellName.get(i))) {
-                return true;
-            }
-        }
-        return false;
     }
 
     /**
@@ -254,8 +218,13 @@ public class ClusteringKeyMapper {
         return start(cellName).withEOC(Composite.EOC.END);
     }
 
-    public final Columns columns(Row row) {
-        ColumnFamily columnFamily = row.cf;
+    /**
+     * Returns the {@link Columns} representing the data contained in the specified {@link ColumnFamily}.
+     *
+     * @param columnFamily A {@link ColumnFamily}.
+     * @return The {@link Columns} representing the data contained in the specified {@link ColumnFamily}.
+     */
+    public final Columns columns(ColumnFamily columnFamily) {
         int numClusteringColumns = metadata.clusteringColumns().size();
         Columns columns = new Columns();
         if (numClusteringColumns > 0) {
@@ -265,14 +234,22 @@ public class ClusteringKeyMapper {
                     ByteBuffer value = cellName.get(i);
                     ColumnDefinition columnDefinition = metadata.clusteringColumns().get(i);
                     String name = columnDefinition.name.toString();
-                    AbstractType<?> valueType = columnDefinition.type;
-                    columns.add(Column.fromDecomposed(name, value, valueType, false));
+                    if (schema.maps(name)) {
+                        AbstractType<?> valueType = columnDefinition.type;
+                        columns.add(Column.fromDecomposed(name, value, valueType, false));
+                    }
                 }
             }
         }
         return columns;
     }
 
+    /**
+     * Splits the specified {@link ColumnFamily} into CQL logic rows grouping the data by clustering key.
+     *
+     * @param columnFamily A {@link ColumnFamily}.
+     * @return A map associating clustering keys with its {@link ColumnFamily}.
+     */
     public final Map<CellName, ColumnFamily> splitRows(ColumnFamily columnFamily) {
         Map<CellName, ColumnFamily> columnFamilies = new LinkedHashMap<>();
         for (Cell cell : columnFamily) {
@@ -289,6 +266,13 @@ public class ClusteringKeyMapper {
         return columnFamilies;
     }
 
+    /**
+     * Returns the specified clustering keys as an array of {@link ColumnSlice}s. It is assumed that the clustering keys
+     * are sorted.
+     *
+     * @param clusteringKeys A sorted list of clustering keys.
+     * @return The specified clustering keys as an array of {@link ColumnSlice}s.
+     */
     public final ColumnSlice[] columnSlices(List<CellName> clusteringKeys) {
         List<CellName> sortedClusteringKeys = sort(clusteringKeys);
         ColumnSlice[] columnSlices = new ColumnSlice[clusteringKeys.size()];

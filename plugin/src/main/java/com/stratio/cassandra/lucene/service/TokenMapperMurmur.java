@@ -34,7 +34,10 @@ import org.apache.lucene.search.SortField;
  */
 public class TokenMapperMurmur extends TokenMapper {
 
-    private static final String FIELD_NAME = "_token_murmur"; // The Lucene field name
+    /** The Lucene field name. */
+    private static final String FIELD_NAME = "_token_murmur";
+
+    /** The Lucene field type. */
     private static final FieldType FIELD_TYPE = new FieldType();
 
     static {
