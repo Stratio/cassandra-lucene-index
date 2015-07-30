@@ -184,6 +184,7 @@ Bitemporal searching is so complex that we want to stay an example.
 We want to implement a system for census bureau to track where resides a citizen and when the censyus bureau knows this.
 
 First we create the table where all this data resides:
+
 .. code-block:: sql
 
     CREATE KEYSPACE test with replication = {'class':'SimpleStrategy', 'replication_factor': 1};
