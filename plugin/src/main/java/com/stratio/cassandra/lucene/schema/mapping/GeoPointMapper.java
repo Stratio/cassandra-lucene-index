@@ -35,6 +35,7 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.spatial.SpatialStrategy;
+import org.apache.lucene.spatial.bbox.BBoxStrategy;
 import org.apache.lucene.spatial.prefix.RecursivePrefixTreeStrategy;
 import org.apache.lucene.spatial.prefix.tree.GeohashPrefixTree;
 import org.apache.lucene.spatial.prefix.tree.SpatialPrefixTree;
@@ -55,7 +56,8 @@ public class GeoPointMapper extends Mapper {
     private final String longitude;
     private final int maxLevels;
 
-    private final SpatialStrategy strategy;
+    private final SpatialStrategy distanceStrategy;
+    private final SpatialStrategy bboxStrategy;
 
     /**
      * Builds a new {@link GeoPointMapper}.
@@ -91,7 +93,8 @@ public class GeoPointMapper extends Mapper {
         this.longitude = longitude;
         this.maxLevels = maxLevels == null ? DEFAULT_MAX_LEVELS : maxLevels;
         SpatialPrefixTree grid = new GeohashPrefixTree(spatialContext, this.maxLevels);
-        this.strategy = new RecursivePrefixTreeStrategy(grid, name);
+        distanceStrategy = new RecursivePrefixTreeStrategy(grid, name + ".dist");
+        bboxStrategy = new BBoxStrategy(spatialContext, name + ".bbox");
     }
 
     /**
@@ -113,12 +116,21 @@ public class GeoPointMapper extends Mapper {
     }
 
     /**
-     * Returns the used {@link SpatialStrategy}.
+     * Returns the used {@link SpatialStrategy} for distances.
      *
-     * @return The used {@link SpatialStrategy}.
+     * @return The used {@link SpatialStrategy} for distances.
      */
-    public SpatialStrategy getStrategy() {
-        return strategy;
+    public SpatialStrategy getDistanceStrategy() {
+        return distanceStrategy;
+    }
+
+    /**
+     * Returns the used {@link SpatialStrategy} for bounding boxes.
+     *
+     * @return The used {@link SpatialStrategy} for bounding boxes.
+     */
+    public SpatialStrategy getBBoxStrategy() {
+        return bboxStrategy;
     }
 
     public int getMaxLevels() {
@@ -132,7 +144,10 @@ public class GeoPointMapper extends Mapper {
         Double latitude = readLatitude(columns);
         Point point = spatialContext.makePoint(longitude, latitude);
 
-        for (IndexableField field : strategy.createIndexableFields(point)) {
+        for (IndexableField field : distanceStrategy.createIndexableFields(point)) {
+            document.add(field);
+        }
+        for (IndexableField field : bboxStrategy.createIndexableFields(point)) {
             document.add(field);
         }
     }

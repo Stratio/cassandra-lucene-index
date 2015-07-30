@@ -25,12 +25,14 @@ import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 import com.stratio.cassandra.lucene.util.GeoDistance;
 import com.stratio.cassandra.lucene.util.GeoDistanceUnit;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.spatial.SpatialStrategy;
 import org.apache.lucene.spatial.query.SpatialArgs;
 import org.apache.lucene.spatial.query.SpatialOperation;
+
+import static org.apache.lucene.search.BooleanClause.Occur.FILTER;
+import static org.apache.lucene.search.BooleanClause.Occur.MUST_NOT;
 
 /**
  * A {@link Condition} that matches documents containing a point contained between two certain circles.
@@ -123,12 +125,12 @@ public class GeoDistanceCondition extends Condition {
             throw new IllegalArgumentException("Geo point mapper required");
         }
         GeoPointMapper geoPointMapper = (GeoPointMapper) mapper;
-        SpatialStrategy spatialStrategy = geoPointMapper.getStrategy();
+        SpatialStrategy spatialStrategy = geoPointMapper.getDistanceStrategy();
 
         BooleanQuery query = new BooleanQuery();
-        query.add(query(maxGeoDistance, spatialStrategy), BooleanClause.Occur.MUST);
+        query.add(query(maxGeoDistance, spatialStrategy), FILTER);
         if (minGeoDistance != null) {
-            query.add(query(minGeoDistance, spatialStrategy), BooleanClause.Occur.MUST_NOT);
+            query.add(query(minGeoDistance, spatialStrategy), MUST_NOT);
         }
         query.setBoost(boost);
         return query;

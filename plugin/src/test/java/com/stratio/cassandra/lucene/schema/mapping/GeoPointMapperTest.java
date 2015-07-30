@@ -29,8 +29,6 @@ import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.db.marshal.UUIDType;
 import org.apache.cassandra.exceptions.ConfigurationException;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
-import org.apache.lucene.index.IndexableField;
 import org.junit.Test;
 
 import static org.apache.cassandra.config.ColumnDefinition.regularDef;
@@ -47,7 +45,7 @@ public class GeoPointMapperTest {
         assertEquals("lat", mapper.getLatitude());
         assertEquals("lon", mapper.getLongitude());
         assertEquals(GeoPointMapper.DEFAULT_MAX_LEVELS, mapper.getMaxLevels());
-        assertNotNull(mapper.getStrategy());
+        assertNotNull(mapper.getDistanceStrategy());
     }
 
     @Test
@@ -59,7 +57,7 @@ public class GeoPointMapperTest {
         assertEquals("lat", mapper.getLatitude());
         assertEquals("lon", mapper.getLongitude());
         assertEquals(7, mapper.getMaxLevels());
-        assertNotNull(mapper.getStrategy());
+        assertNotNull(mapper.getDistanceStrategy());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -276,10 +274,8 @@ public class GeoPointMapperTest {
 
         Document document = new Document();
         mapper.addFields(document, columns);
-        IndexableField[] indexableFields = document.getFields("field");
-        assertEquals(1, indexableFields.length);
-        assertTrue(indexableFields[0] instanceof Field);
-        assertEquals("field", indexableFields[0].name());
+        assertEquals(1, document.getFields("field.dist").length);
+        assertEquals(6, document.getFields().size());
     }
 
     @Test

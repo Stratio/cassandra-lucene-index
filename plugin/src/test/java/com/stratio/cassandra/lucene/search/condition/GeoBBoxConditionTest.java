@@ -18,6 +18,7 @@ package com.stratio.cassandra.lucene.search.condition;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.GeoPointMapper;
 import com.stratio.cassandra.lucene.schema.mapping.UUIDMapper;
+import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.ConstantScoreQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.spatial.prefix.IntersectsPrefixTreeFilter;
@@ -146,13 +147,7 @@ public class GeoBBoxConditionTest extends AbstractConditionTest {
         assertNotNull(query);
         assertTrue(query instanceof ConstantScoreQuery);
         query = ((ConstantScoreQuery) query).getQuery();
-        assertTrue(query instanceof IntersectsPrefixTreeFilter);
-        IntersectsPrefixTreeFilter filter = (IntersectsPrefixTreeFilter) query;
-        assertEquals("IntersectsPrefixTreeFilter(" +
-                     "fieldName=name," +
-                     "queryShape=Rect(minX=-180.0,maxX=180.0,minY=-90.0,maxY=90.0)," +
-                     "detailLevel=3," +
-                     "prefixGridScanLevel=4)", filter.toString());
+        assertTrue(query instanceof BooleanQuery);
     }
 
     @Test(expected = IllegalArgumentException.class)
