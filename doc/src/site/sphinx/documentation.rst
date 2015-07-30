@@ -670,74 +670,117 @@ where:
 -  **operation** (default = intersects): the spatial operation to be performed, it can be **intersects**,
    **contains** and **is\_within**.
 
-Bitemporal searching is so complex that we want to stay an example. Lets describe a census system where the system
- stores the real world date when an individual resides in a city(valid time) and when the system knows about this event(transaction time)
+Bitemporal searching is so complex that we want to stay an example.
 
-  First we create the table where all this data resides:
+We want to implement a system for census bureau to track where resides a citizen and when the censyus bureau knows this.
+
+First we create the table where all this data resides:
+.. code-block:: sql
+    CREATE KEYSPACE test with replication = {'class':'SimpleStrategy', 'replication_factor': 1};
+USE test;
+
+CREATE TABLE census (
+      name text,
+      city text,
+      vt_from text,
+      vt_to text,
+      tt_from text,
+      tt_to text,
+      lucene text,
+      PRIMARY KEY (name, vt_from, tt_from)
+);
+
+
+
+
+Second, we create the index:
 
 .. code-block:: sql
 
-    CREATE KEYSPACE example_for_chris with replication = {'class':'SimpleStrategy', 'replication_factor': 1};
-    USE test;
-
-    CREATE TABLE census (
-          user_id uuid,
-          city text,
-          vt_from bigint,
-          vt_to bigint,
-          tt_from bigint,
-          tt_to bigint,
-          lucene text,
-          PRIMARY KEY (user_id, vt_from, tt_from));
-
-
-
-Secondly we create the custom index
-
-.. code-block:: sql
-
-    CREATE CUSTOM INDEX census_index on census(lucene) using 'com.stratio.cassandra.lucene.Index'
+    CREATE CUSTOM INDEX census_index on census(lucene)
+    USING 'com.stratio.cassandra.lucene.Index'
     WITH OPTIONS = {
-        'refresh_seconds'    : '1',
+        'refresh_seconds' : '1',
         'schema' : '{
             fields : {
-                bitemporal : {type:"bitemporal",tt_from:"tt_from", tt_to:"tt_to",vt_from:"vt_from", vt_to:"vt_to", pattern:"yyyy/MM/dd"}
+                bitemporal : {
+                    type : "bitemporal",
+                    tt_from : "tt_from",
+                    tt_to : "tt_to",
+                    vt_from : "vt_from",
+                    vt_to : "vt_to",
+                    pattern : "yyyy/MM/dd",
+                    now_value : "2200/12/31"}
             }
-        }'};
+    }'};
+
+We insert the population of 5 citizens lives in each city from 2015/01/01 until now
 
 
-Populate the data
+.. code-block:: sql
+    INSERT INTO census(citizen_name, city, vt_from, vt_to, tt_from, tt_to) VALUES ('John', 'Madrid', '2015/01/01', '2200/12/31', '2015/01/01', '2200/12/31');
+    INSERT INTO census(citizen_name, city, vt_from, vt_to, tt_from, tt_to) VALUES ('Margaret', 'Barcelona', '2015/01/01', '2200/12/31', '2015/01/01', '2200/12/31');
+    INSERT INTO census(citizen_name, city, vt_from, vt_to, tt_from, tt_to) VALUES ('Cristian', 'Ceuta', '2015/01/01', '2200/12/31', '2015/01/01', '2200/12/31');
+    INSERT INTO census(citizen_name, city, vt_from, vt_to, tt_from, tt_to) VALUES ('Edward', 'New York','2015/01/01', '2200/12/31', '2015/01/01', '2200/12/31');
+    INSERT INTO census(citizen_name, city, vt_from, vt_to, tt_from, tt_to) VALUES ('Johnatan', 'San Francisco', '2015/01/01', '2200/12/31', '2015/01/01', '2200/12/31');
 
 
+John moves to Amsterdam in '2015/03/05' but he does not comunicate this to census bureau until '2015/06/29' because he need it to apply for taxes reduction.
+
+So, the system need to update last information from John,and insert the new. This is done with batch execution updating the transaction time end of previous data and inserting new.
 
 
 .. code-block:: sql
 
-    SELECT * FROM test.users
-    WHERE stratio_col = '{ filter : {
-                            type  : "bitemporal",
-                            vt_from : "2014/02/01 00:00:00.000",
-                            vt_to : "2014/02/28 23:59:59.999",
-                            tt_from  : "2014/02/01 00:00:00.000",
-                            tt_to  : "2014/03/31 23:59:59.999",
-                            operation : "is_within"}}';
+    BEGIN BATCH
+    UPDATE census SET tt_to = '2015/06/29' WHERE citizen_name = 'John' AND vt_from = '2015/01/01' AND tt_from = '2015/01/01' IF tt_to = '2200/12/31';
+    INSERT INTO census(citizen_name, city, vt_from, vt_to, tt_from, tt_to) VALUES ('John', 'Amsterdam', '2015/03/05', '2200/12/31', '2015/06/30', '2200/12/31');
+    APPLY BATCH;
 
-Example 2: will return rows where valid time range intersects "2014/02/01 00:00:00.000" and
-"2014/02/28 23:59:59.999" and transaction time range intersects "2014/02/01 00:00:00.000" and
-"2014/03/31 23:59:59.999"
+Now , we can see the main difference between valid time and transaction time. The system knows from '2015/01/01' to '2015/06/29' that John resides in Madrid from '2015/01/01' until now, and resides in Amsterdam from '2015/03/05' until now.
+
+There are several types of queries concerning this type of indexing
+
+If its needed to get all the data in the table:
 
 .. code-block:: sql
 
-    SELECT * FROM test.users
-    WHERE stratio_col = '{  filter : {
-                            type  : "bitemporal",
-                            vt_from : "2014/02/01 00:00:00.000",
-                            vt_to : "2014/02/28 23:59:59.999",
-                            tt_from  : "2014/02/01 00:00:00.000",
-                            tt_to  : "2014/03/31 23:59:59.999",
-                            operation : "intersects"}}';
+    SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM census ;
 
 
+If you want to know what is the last info about where John resides, you perform a query with tt_from and tt_to setted to now_value:
+
+.. code-block:: sql
+
+    SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM census WHERE
+    lucene='{
+        filter : {
+            type : "bitemporal",
+            field : "bitemporal",
+            vt_from : 0,
+            vt_to : "2200/12/31",
+            tt_from : "2200/12/31",
+            tt_to : "2200/12/31"
+        }
+    }'
+    AND name='John';
+
+
+If the test case needs to know what the system was thinking at '2015/03/01' about where John resides.
+
+.. code-block:: sql
+    SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM census WHERE
+    lucene='{
+        filter : {
+            type : "bitemporal",
+            field : "bitemporal",
+            tt_from : "2015/03/01",
+            tt_to : "2015/03/01"
+        }
+    }'
+    AND name='John';
+
+This code is available in CQL script here: `example_bitemporal.cql </doc/resources/example_bitemporal.cql>`__.
 
 Boolean search
 ==============

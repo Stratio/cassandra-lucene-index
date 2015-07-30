@@ -47,7 +47,7 @@ prefer filters over queries when no relevance nor sorting are needed.
 Types of search and their options are summarized in the table below.
 Details for each of them are available in individual sections and the
 examples can be downloaded as a CQL script:
-`extended-search-examples.cql <resources/extended-search-examples.cql>`__.
+`extended-search-examples.cql </doc/resources/extended-search-examples.cql>`__.
 
 In addition to the options described in the table, all search types have
 a “\ **boost**\ ” option that acts as a weight on the resulting score.
@@ -179,36 +179,117 @@ where:
 -  **operation** (default = intersects): the spatial operation to be performed, it can be **intersects**,
    **contains** and **is\_within**.
 
-Example 1: will return rows where valid time range is within "2014/02/01 00:00:00.000" and
-"2014/02/28 23:59:59.999" and transaction time range is within "2014/02/01 00:00:00.000" and
-"2014/03/31 23:59:59.999"
+Bitemporal searching is so complex that we want to stay an example.
+
+We want to implement a system for census bureau to track where resides a citizen and when the censyus bureau knows this.
+
+First we create the table where all this data resides:
+.. code-block:: sql
+    CREATE KEYSPACE test with replication = {'class':'SimpleStrategy', 'replication_factor': 1};
+USE test;
+
+CREATE TABLE census (
+      name text,
+      city text,
+      vt_from text,
+      vt_to text,
+      tt_from text,
+      tt_to text,
+      lucene text,
+      PRIMARY KEY (name, vt_from, tt_from)
+);
+
+
+
+
+Second, we create the index:
 
 .. code-block:: sql
 
-    SELECT * FROM test.users
-    WHERE stratio_col = '{ filter : {
-                            type  : "bitemporal",
-                            vt_from : "2014/02/01 00:00:00.000",
-                            vt_to : "2014/02/28 23:59:59.999",
-                            tt_from  : "2014/02/01 00:00:00.000",
-                            tt_to  : "2014/03/31 23:59:59.999",
-                            operation : "is_within"}}';
+    CREATE CUSTOM INDEX census_index on census(lucene)
+    USING 'com.stratio.cassandra.lucene.Index'
+    WITH OPTIONS = {
+        'refresh_seconds' : '1',
+        'schema' : '{
+            fields : {
+                bitemporal : {
+                    type : "bitemporal",
+                    tt_from : "tt_from",
+                    tt_to : "tt_to",
+                    vt_from : "vt_from",
+                    vt_to : "vt_to",
+                    pattern : "yyyy/MM/dd",
+                    now_value : "2200/12/31"}
+            }
+    }'};
 
-Example 2: will return rows where valid time range intersects "2014/02/01 00:00:00.000" and
-"2014/02/28 23:59:59.999" and transaction time range intersects "2014/02/01 00:00:00.000" and
-"2014/03/31 23:59:59.999"
+We insert the population of 5 citizens lives in each city from 2015/01/01 until now
+
+
+.. code-block:: sql
+    INSERT INTO census(citizen_name, city, vt_from, vt_to, tt_from, tt_to) VALUES ('John', 'Madrid', '2015/01/01', '2200/12/31', '2015/01/01', '2200/12/31');
+    INSERT INTO census(citizen_name, city, vt_from, vt_to, tt_from, tt_to) VALUES ('Margaret', 'Barcelona', '2015/01/01', '2200/12/31', '2015/01/01', '2200/12/31');
+    INSERT INTO census(citizen_name, city, vt_from, vt_to, tt_from, tt_to) VALUES ('Cristian', 'Ceuta', '2015/01/01', '2200/12/31', '2015/01/01', '2200/12/31');
+    INSERT INTO census(citizen_name, city, vt_from, vt_to, tt_from, tt_to) VALUES ('Edward', 'New York','2015/01/01', '2200/12/31', '2015/01/01', '2200/12/31');
+    INSERT INTO census(citizen_name, city, vt_from, vt_to, tt_from, tt_to) VALUES ('Johnatan', 'San Francisco', '2015/01/01', '2200/12/31', '2015/01/01', '2200/12/31');
+
+
+John moves to Amsterdam in '2015/03/05' but he does not comunicate this to census bureau until '2015/06/29' because he need it to apply for taxes reduction.
+
+So, the system need to update last information from John,and insert the new. This is done with batch execution updating the transaction time end of previous data and inserting new.
+
 
 .. code-block:: sql
 
-    SELECT * FROM test.users
-    WHERE stratio_col = '{  filter : {
-                            type  : "bitemporal",
-                            vt_from : "2014/02/01 00:00:00.000",
-                            vt_to : "2014/02/28 23:59:59.999",
-                            tt_from  : "2014/02/01 00:00:00.000",
-                            tt_to  : "2014/03/31 23:59:59.999",
-                            operation : "intersects"}}';
+    BEGIN BATCH
+    UPDATE census SET tt_to = '2015/06/29' WHERE citizen_name = 'John' AND vt_from = '2015/01/01' AND tt_from = '2015/01/01' IF tt_to = '2200/12/31';
+    INSERT INTO census(citizen_name, city, vt_from, vt_to, tt_from, tt_to) VALUES ('John', 'Amsterdam', '2015/03/05', '2200/12/31', '2015/06/30', '2200/12/31');
+    APPLY BATCH;
 
+Now , we can see the main difference between valid time and transaction time. The system knows from '2015/01/01' to '2015/06/29' that John resides in Madrid from '2015/01/01' until now, and resides in Amsterdam from '2015/03/05' until now.
+
+There are several types of queries concerning this type of indexing
+
+If its needed to get all the data in the table:
+
+.. code-block:: sql
+
+    SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM census ;
+
+
+If you want to know what is the last info about where John resides, you perform a query with tt_from and tt_to setted to now_value:
+
+.. code-block:: sql
+
+    SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM census WHERE
+    lucene='{
+        filter : {
+            type : "bitemporal",
+            field : "bitemporal",
+            vt_from : 0,
+            vt_to : "2200/12/31",
+            tt_from : "2200/12/31",
+            tt_to : "2200/12/31"
+        }
+    }'
+    AND name='John';
+
+
+If the test case needs to know what the system was thinking at '2015/03/01' about where John resides.
+
+.. code-block:: sql
+    SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM census WHERE
+    lucene='{
+        filter : {
+            type : "bitemporal",
+            field : "bitemporal",
+            tt_from : "2015/03/01",
+            tt_to : "2015/03/01"
+        }
+    }'
+    AND name='John';
+
+This code is available in CQL script here: `example_bitemporal.cql </doc/resources/example_bitemporal.cql>`__.
 
 
 Boolean search
@@ -316,7 +397,7 @@ Syntax:
     SELECT ( <fields> | * )
     FROM <table>
     WHERE <magic_column> = '{ (filter | query) : {
-                                type  : "contains",
+                                type  : "date_range",
                                 (start : <start> ,)?
                                 (stop  : <stop> ,)?
                                 (operation: <operation> )?
@@ -330,31 +411,47 @@ where:
 -  **operation**: the spatial operation to be performed, it can be
    **intersects**, **contains** and **is\_within**.
 
-Example 1: will return rows where duration is within "2013/05/02" and
-:"2013/05/03"
-
-.. code-block:: sql
-
-    SELECT * FROM test.users
-    WHERE stratio_col = '{ filter : {
-                            type  : "date_range",
-                            field : "duration",
-                            start : "2013/05/02",
-                            stop  : "2013/05/03",
-                            operation : "is_within"}}';
-
-Example 2: will return rows where duration intersects "2013/05/02" and
-:"2013/05/03"
+Example 1: will return rows where duration intersects "2014/01/01" and
+"2014/12/31"
 
 .. code-block:: sql
 
     SELECT * FROM test.users
     WHERE stratio_col = '{  filter : {
-                            type   : "date_range",
-                            field  : "duration",
-                            start  : "2013/05/02",
-                            stop   : "2013/05/03",
-                            operation : "intersects"}}';
+                        type   : "date_range",
+                        field  : "duration",
+                        start  : "2014/01/01",
+                        stop   : "2014/12/31",
+                        operation : "intersects"}}';
+
+Example 2: will return rows where duration contains "2014/06/01" and
+"2014/06/02"
+
+.. code-block:: sql
+
+    SELECT * FROM test.users
+    WHERE stratio_col = '{  filter : {
+                        type   : "date_range",
+                        field  : "duration",
+                        start  : "2014/06/01",
+                        stop   : "2014/06/02",
+                        operation : "contains"}}';
+
+Example 3: will return rows where duration is within "2014/01/01" and
+"2014/12/31"
+
+.. code-block:: sql
+
+    SELECT * FROM test.users
+    WHERE stratio_col = '{  filter : {
+                        type   : "date_range",
+                        field  : "duration",
+                        start  : "2014/01/01",
+                        stop   : "2014/12/31",
+                        operation : "is_within"}}';
+
+
+Example 3:
 
 Fuzzy search
 ============
@@ -444,18 +541,45 @@ where:
    max allowed longitude.
 
 Example 1: will return any rows where “place” is formed by a latitude
-between 40.225479 and 40.560174, and a longitude between -3.999278 and
--3.378550.
+between -90.0 and 90.0, and a longitude between -180.0 and
+180.0.
 
 .. code-block:: sql
-
     SELECT * FROM test.users
     WHERE stratio_col = '{filter : { type : "geo_bbox",
                                      field : "place",
-                                     min_latitude : 40.225479,
-                                     max_latitude : 40.560174,
-                                     min_longitude : -3.999278,
-                                     max_longitude : -3.378550 }}';
+                                     min_latitude : -90.0,
+                                     max_latitude : 90.0,
+                                     min_longitude : -180.0,
+                                     max_longitude : 180.0 }}';
+
+Example 2: will return any rows where “place” is formed by a latitude
+between -90.0 and 90.0, and a longitude between 0.0 and
+10.0.
+
+.. code-block:: sql
+    SELECT * FROM test.users
+    WHERE stratio_col = '{filter : { type : "geo_bbox",
+                                     field : "place",
+                                     min_latitude : -90.0,
+                                     max_latitude : 90.0,
+                                     min_longitude : 0.0,
+                                     max_longitude : 10.0 }}';
+
+
+Example 3: will return any rows where “place” is formed by a latitude
+between 0.0 and 10.0, and a longitude between -180.0 and
+180.0.
+
+.. code-block:: sql
+    SELECT * FROM test.users
+    WHERE stratio_col = '{filter : { type : "geo_bbox",
+                                     field : "place",
+                                     min_latitude : 0.0,
+                                     max_latitude : 10.0,
+                                     min_longitude : -180.0,
+                                     max_longitude : 180.0 }}';
+
 
 Geo distance search
 ===================
@@ -496,7 +620,7 @@ from the geo point (40.225479, -3.999278).
                                      field : "place",
                                      latitude : 40.225479,
                                      longitude : -3.999278,
-                                     max_distance : "1km" }}';
+                                     max_distance : "1km"}}';
 
 Example 2: will return any rows where “place” is within one yard and ten
 yards from the geo point (40.225479, -3.999278).
