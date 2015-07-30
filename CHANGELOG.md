@@ -79,11 +79,11 @@
  * Add basic support for multiple fields per mapper
  * Add collation for UUID mapper
 
-## 2.1.2.1 (15 December 2015)
+## 2.1.2.1 (15 December 2014)
 
  * Improve logging time counting
  * Set synchronous indexing as default
 
-## 2.1.2.0 (5 December 2015)
+## 2.1.2.0 (5 December 2014)
 
  * Upgrade to Apache Cassandra 2.1.2
