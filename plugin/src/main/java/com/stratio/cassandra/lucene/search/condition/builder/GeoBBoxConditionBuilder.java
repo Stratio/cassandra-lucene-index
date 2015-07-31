@@ -28,23 +28,23 @@ public class GeoBBoxConditionBuilder extends ConditionBuilder<GeoBBoxCondition, 
 
     /** The name of the field to be matched. */
     @JsonProperty("field")
-    String field;
+    private final String field;
 
     /** The minimum accepted latitude. */
     @JsonProperty("min_latitude")
-    double minLatitude;
+    private final double minLatitude;
 
     /** The maximum accepted latitude. */
     @JsonProperty("max_latitude")
-    double maxLatitude;
+    private final double maxLatitude;
 
     /** The minimum accepted longitude. */
     @JsonProperty("min_longitude")
-    double minLongitude;
+    private final double minLongitude;
 
     /** The maximum accepted longitude. */
     @JsonProperty("max_longitude")
-    double maxLongitude;
+    private final double maxLongitude;
 
     /**
      * Returns a new {@link GeoBBoxConditionBuilder} with the specified field name and bounding box coordinates.

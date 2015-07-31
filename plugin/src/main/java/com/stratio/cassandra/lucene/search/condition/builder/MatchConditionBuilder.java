@@ -28,11 +28,11 @@ public class MatchConditionBuilder extends ConditionBuilder<MatchCondition, Matc
 
     /** The name of the field to be matched. */
     @JsonProperty("field")
-    final String field;
+    private final String field;
 
     /** The value of the field to be matched. */
     @JsonProperty("value")
-    final Object value;
+    private final Object value;
 
     /**
      * Creates a new {@link MatchConditionBuilder} for the specified field and value.

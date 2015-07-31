@@ -138,7 +138,7 @@ public class IndexSearcher extends SecondaryIndexSearcher {
      * @param clause A list of {@link IndexExpression}s.
      * @return The {@link Search} contained in the specified list of {@link IndexExpression}s.
      */
-    public Search search(List<IndexExpression> clause) {
+    private Search search(List<IndexExpression> clause) {
         IndexExpression indexedExpression = indexedExpression(clause);
         if (indexedExpression == null) {
             throw new RuntimeException("There is no index expression in the clause");

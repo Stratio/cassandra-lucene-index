@@ -36,6 +36,15 @@ import static org.apache.lucene.search.BooleanClause.Occur.SHOULD;
  */
 public class BitemporalCondition extends Condition {
 
+    /** The default operation. */
+    public static final String DEFAULT_OPERATION = "intersects";
+
+    /** The default from value for vtFrom and ttFrom. */
+    public static final Long DEFAULT_FROM = 0L;
+
+    /** The default to value for vtTo and ttTo. */
+    public static final Long DEFAULT_TO = Long.MAX_VALUE;
+
     /** The name of the field to be matched. */
     public final String field;
 
@@ -51,19 +60,11 @@ public class BitemporalCondition extends Condition {
     /** The Transaction Time End. */
     public final Object ttTo;
 
-    /** The spatial operation to be performed. */
+    /** The operation to be performed. */
     public final String operation;
 
-    public final SpatialOperation spatialOperation;
-
-    /** The default operation. */
-    public static final String DEFAULT_OPERATION = "intersects";
-
-    /** The default from value for vtFrom and ttFrom. */
-    public static final Long DEFAULT_FROM = 0L;
-
-    /** The default to value for vtTo and ttTo. */
-    public static final Long DEFAULT_TO = Long.MAX_VALUE;
+    /** The spatial operation to be performed. */
+    private final SpatialOperation spatialOperation;
 
     /**
      * Constructs a query selecting all fields that intersects with valid time and transaction time ranges including
@@ -104,7 +105,7 @@ public class BitemporalCondition extends Condition {
         return strategy.makeQuery(args);
     }
 
-    static SpatialOperation parseSpatialOperation(String operation) {
+    private static SpatialOperation parseSpatialOperation(String operation) {
         if (operation == null) {
             throw new IllegalArgumentException("Operation is required");
         } else if (operation.equalsIgnoreCase("contains")) {

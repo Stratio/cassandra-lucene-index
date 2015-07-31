@@ -28,15 +28,15 @@ public class PhraseConditionBuilder extends ConditionBuilder<PhraseCondition, Ph
 
     /** The name of the field to be matched. */
     @JsonProperty("field")
-    final String field;
+    private final String field;
 
     /** The phrase terms to be matched. */
     @JsonProperty("value")
-    final String value;
+    private final String value;
 
     /** The number of other words permitted between words in phrase. */
     @JsonProperty("slop")
-    Integer slop;
+    private Integer slop;
 
     /**
      * Returns a new {@link PhraseConditionBuilder} with the specified field name and values to be matched.

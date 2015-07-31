@@ -60,8 +60,6 @@ public class LuceneQueryHandler implements QueryHandler {
 
     static QueryProcessor cqlProcessor = QueryProcessor.instance;
 
-
-
     private IDiskAtomFilter makeFilter(SelectStatement statement, QueryOptions options, int limit) throws Exception {
         Method method = SelectStatement.class.getDeclaredMethod("makeFilter", QueryOptions.class, int.class);
         method.setAccessible(true);

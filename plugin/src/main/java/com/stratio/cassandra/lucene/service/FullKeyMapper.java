@@ -44,7 +44,8 @@ public class FullKeyMapper {
     /** The type of the full row key, which is composed by the partition and clustering key types. */
     private final CompositeType type;
 
-    ClusteringKeyMapper clusteringKeyMapper;
+    /** The clustering key mapper to be used. */
+    private final ClusteringKeyMapper clusteringKeyMapper;
 
     /**
      * Returns a new {@link FullKeyMapper} using the specified column family metadata.

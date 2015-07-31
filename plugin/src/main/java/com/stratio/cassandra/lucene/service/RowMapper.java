@@ -109,7 +109,7 @@ public abstract class RowMapper {
     /**
      * Returns the {@link Columns} representing the specified {@link Row}.
      *
-     * @param row    A {@link Row}.
+     * @param row A {@link Row}.
      * @return The columns contained in the specified columns.
      */
     public final Columns columns(Row row) {

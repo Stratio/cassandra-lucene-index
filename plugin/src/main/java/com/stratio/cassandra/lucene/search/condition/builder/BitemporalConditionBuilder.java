@@ -13,27 +13,27 @@ public class BitemporalConditionBuilder extends ConditionBuilder<BitemporalCondi
 
     /** The name of the filed to be matched. */
     @JsonProperty("field")
-    final String field;
+    private final String field;
 
     /** The valid time start. */
     @JsonProperty("vt_from")
-    Object vtFrom;
+    private Object vtFrom;
 
     /** The valid time end. */
     @JsonProperty("vt_to")
-    Object vtTo;
+    private Object vtTo;
 
     /** The transaction time start. */
     @JsonProperty("tt_from")
-    Object ttFrom;
+    private Object ttFrom;
 
     /** The transaction time end. */
     @JsonProperty("tt_to")
-    Object ttTo;
+    private Object ttTo;
 
     /** The spatial operation to be performed. */
     @JsonProperty("operation")
-    String operation;
+    private String operation;
 
     /**
      * Returns a new {@link BitemporalConditionBuilder} with the specified field reference point.

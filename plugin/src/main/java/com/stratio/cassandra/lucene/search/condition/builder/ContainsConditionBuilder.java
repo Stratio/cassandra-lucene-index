@@ -28,11 +28,11 @@ public class ContainsConditionBuilder extends ConditionBuilder<ContainsCondition
 
     /** The name of the field to be matched. */
     @JsonProperty("field")
-    final String field;
+    private final String field;
 
     /** The value of the field to be matched. */
     @JsonProperty("values")
-    final Object[] values;
+    private final Object[] values;
 
     /**
      * Creates a new {@link ContainsConditionBuilder} for the specified field and value.

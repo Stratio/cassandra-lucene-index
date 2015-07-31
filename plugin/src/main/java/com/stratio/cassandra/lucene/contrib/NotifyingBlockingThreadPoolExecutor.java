@@ -118,10 +118,7 @@ public class NotifyingBlockingThreadPoolExecutor extends ThreadPoolExecutor {
         tasksInProcess.incrementAndGet();
         try {
             super.execute(task);
-        } catch (RuntimeException e) { // specifically handle RejectedExecutionException
-            tasksInProcess.decrementAndGet();
-            throw e;
-        } catch (Error e) {
+        } catch (RuntimeException | Error e) { // specifically handle RejectedExecutionException
             tasksInProcess.decrementAndGet();
             throw e;
         }
@@ -343,7 +340,7 @@ public class NotifyingBlockingThreadPoolExecutor extends ThreadPoolExecutor {
                             taskSent = true;
                         } else {
                             // task was not accepted - call the Callback
-                            Boolean result = null;
+                            Boolean result;
                             try {
                                 result = blockingTimeCallback.call();
                             } catch (Exception e) {
@@ -352,10 +349,8 @@ public class NotifyingBlockingThreadPoolExecutor extends ThreadPoolExecutor {
                             }
                             // if result if false we need to throw an exception
                             // otherwise, just continue with the loop
-                            if (result == false) {
+                            if (!result) {
                                 throw new RejectedExecutionException("User decided to stop waiting for task insertion");
-                            } else {
-                                continue;
                             }
                         }
 

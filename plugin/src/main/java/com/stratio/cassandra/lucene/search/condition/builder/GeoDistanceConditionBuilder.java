@@ -30,23 +30,23 @@ public class GeoDistanceConditionBuilder extends ConditionBuilder<GeoDistanceCon
 
     /** The name of the field to be matched. */
     @JsonProperty("field")
-    String field;
+    private final String field;
 
     /** The latitude of the reference point. */
     @JsonProperty("latitude")
-    double latitude;
+    private final double latitude;
 
     /** The longitude of the reference point. */
     @JsonProperty("longitude")
-    double longitude;
-
-    /** The min allowed distance. */
-    @JsonProperty("min_distance")
-    String minDistance;
+    private final double longitude;
 
     /** The max allowed distance. */
     @JsonProperty("max_distance")
-    String maxDistance;
+    private final String maxDistance;
+
+    /** The min allowed distance. */
+    @JsonProperty("min_distance")
+    private String minDistance;
 
     /**
      * Returns a new {@link GeoDistanceConditionBuilder} with the specified field reference point.

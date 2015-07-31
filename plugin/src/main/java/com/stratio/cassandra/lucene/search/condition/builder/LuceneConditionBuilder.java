@@ -28,11 +28,11 @@ public class LuceneConditionBuilder extends ConditionBuilder<LuceneCondition, Lu
 
     /** The Lucene query syntax expression. */
     @JsonProperty("query")
-    final String query;
+    private final String query;
 
     /** The name of the field where the clauses will be applied by default. */
     @JsonProperty("default_field")
-    String defaultField;
+    private String defaultField;
 
     /**
      * Returns a new {@link LuceneConditionBuilder} with the specified query.
