@@ -26,10 +26,10 @@ import org.codehaus.jackson.annotate.JsonProperty;
 public class DateRangeMapperBuilder extends MapperBuilder<DateRangeMapper> {
 
     @JsonProperty("start")
-    private String start;
+    private final String start;
 
     @JsonProperty("stop")
-    private String stop;
+    private final String stop;
 
     @JsonProperty("pattern")
     private String pattern;

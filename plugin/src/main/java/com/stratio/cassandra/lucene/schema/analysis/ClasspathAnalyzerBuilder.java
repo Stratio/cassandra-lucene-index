@@ -29,7 +29,7 @@ import java.lang.reflect.Constructor;
 public class ClasspathAnalyzerBuilder extends AnalyzerBuilder {
 
     @JsonProperty("class")
-    String className;
+    private String className;
 
     /**
      * Builds a new {@link AnalyzerBuilder} using the specified {@link Analyzer} full class name.

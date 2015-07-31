@@ -46,7 +46,7 @@ public abstract class ConditionBuilder<T extends Condition, K extends ConditionB
 
     /** The boost for the {@link Condition} to be built. */
     @JsonProperty("boost")
-    Float boost;
+    protected Float boost;
 
     /**
      * Sets the boost for the {@link Condition} to be built. Documents matching this condition will (in addition to the

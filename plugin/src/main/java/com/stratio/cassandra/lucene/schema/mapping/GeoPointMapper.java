@@ -49,7 +49,7 @@ import java.util.Arrays;
  */
 public class GeoPointMapper extends Mapper {
 
-    public static final SpatialContext spatialContext = SpatialContext.GEO;
+    public static final SpatialContext SPATIAL_CONTEXT = SpatialContext.GEO;
     public static final int DEFAULT_MAX_LEVELS = 11;
 
     private final String latitude;
@@ -92,9 +92,9 @@ public class GeoPointMapper extends Mapper {
         this.latitude = latitude;
         this.longitude = longitude;
         this.maxLevels = maxLevels == null ? DEFAULT_MAX_LEVELS : maxLevels;
-        SpatialPrefixTree grid = new GeohashPrefixTree(spatialContext, this.maxLevels);
+        SpatialPrefixTree grid = new GeohashPrefixTree(SPATIAL_CONTEXT, this.maxLevels);
         distanceStrategy = new RecursivePrefixTreeStrategy(grid, name + ".dist");
-        bboxStrategy = new BBoxStrategy(spatialContext, name + ".bbox");
+        bboxStrategy = new BBoxStrategy(SPATIAL_CONTEXT, name + ".bbox");
     }
 
     /**
@@ -142,7 +142,7 @@ public class GeoPointMapper extends Mapper {
 
         Double longitude = readLongitude(columns);
         Double latitude = readLatitude(columns);
-        Point point = spatialContext.makePoint(longitude, latitude);
+        Point point = SPATIAL_CONTEXT.makePoint(longitude, latitude);
 
         for (IndexableField field : distanceStrategy.createIndexableFields(point)) {
             document.add(field);
@@ -197,7 +197,7 @@ public class GeoPointMapper extends Mapper {
      * @param value The {@link Object} containing the latitude.
      * @return The latitude.
      */
-    public static double readLatitude(Object value) {
+    private static double readLatitude(Object value) {
         Double latitude = null;
         if (value instanceof Number) {
             latitude = ((Number) value).doubleValue();
@@ -221,7 +221,7 @@ public class GeoPointMapper extends Mapper {
      * @param value The {@link Object} containing the latitude.
      * @return The longitude.
      */
-    public static double readLongitude(Object value) {
+    private static double readLongitude(Object value) {
         Double longitude = null;
         if (value instanceof Number) {
             longitude = ((Number) value).doubleValue();

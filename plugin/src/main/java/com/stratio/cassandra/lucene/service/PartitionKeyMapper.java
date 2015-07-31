@@ -73,7 +73,7 @@ public class PartitionKeyMapper {
      * @return a new {@code PartitionKeyMapper} according to the specified column family meta data.
      */
     public static PartitionKeyMapper instance(CFMetaData metadata, Schema schema) {
-        return new PartitionKeyMapper(metadata,schema);
+        return new PartitionKeyMapper(metadata, schema);
     }
 
     public AbstractType<?> getType() {

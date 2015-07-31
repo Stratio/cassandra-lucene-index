@@ -34,8 +34,6 @@ import org.apache.lucene.spatial.query.SpatialOperation;
  */
 public class GeoBBoxCondition extends Condition {
 
-    private static final SpatialContext spatialContext = SpatialContext.GEO;
-
     /** The name of the field to be matched. */
     public final String field;
 
@@ -125,7 +123,8 @@ public class GeoBBoxCondition extends Condition {
         GeoPointMapper geoPointMapper = (GeoPointMapper) mapper;
         SpatialStrategy spatialStrategy = geoPointMapper.getBBoxStrategy();
 
-        Rectangle rectangle = spatialContext.makeRectangle(minLongitude, maxLongitude, minLatitude, maxLatitude);
+        SpatialContext context = GeoPointMapper.SPATIAL_CONTEXT;
+        Rectangle rectangle = context.makeRectangle(minLongitude, maxLongitude, minLatitude, maxLatitude);
 
         SpatialArgs args = new SpatialArgs(SpatialOperation.BBoxIntersects, rectangle);
         Query query = spatialStrategy.makeQuery(args);

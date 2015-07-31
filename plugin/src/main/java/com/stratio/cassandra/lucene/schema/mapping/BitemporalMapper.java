@@ -59,7 +59,7 @@ public class BitemporalMapper extends Mapper {
 
     private Long nowBitemporalDateTimeMillis;
 
-    // ttTo=now vtTo=now 2 daterangePrefixTree
+    // ttTo=now vtTo=now 2 DateRangePrefixTree
     private NumberRangePrefixTreeStrategy strategy_t1_V;
     private DateRangePrefixTree tree_t1_V;
     private NumberRangePrefixTreeStrategy strategy_t1_T;
@@ -302,13 +302,13 @@ public class BitemporalMapper extends Mapper {
         return this.parseBiTemporalDate(column.getComposedValue());
     }
 
-    BitemporalDateTime checkIfNow(Long in) {
+    private BitemporalDateTime checkIfNow(Long in) {
         if (in > this.nowBitemporalDateTimeMillis) {
             throw new IllegalArgumentException("BitemporalDateTime value: " + in +
                                                " exceeds Max Value: " + this.nowBitemporalDateTimeMillis);
         } else if (in < this.nowBitemporalDateTimeMillis) {
             return new BitemporalDateTime(in);
-        } else {// (in== this.nowBitemporalDateTimeMillis) {
+        } else {
             return new BitemporalDateTime(Long.MAX_VALUE);
         }
     }
@@ -386,20 +386,16 @@ public class BitemporalMapper extends Mapper {
             return timestamp.equals(MAX.timestamp);
         }
 
-        public boolean isMin() {
-            return timestamp.equals(0L);
-        }
-
         public boolean isMax() {
             return timestamp.equals(MAX.timestamp);
         }
 
-        public Date toDate() {
-            return new Date(timestamp);
+        public boolean isMin() {
+            return timestamp.equals(0L);
         }
 
-        public long getTime() {
-            return timestamp;
+        public Date toDate() {
+            return new Date(timestamp);
         }
 
         @Override
@@ -416,10 +412,13 @@ public class BitemporalMapper extends Mapper {
             }
         }
 
+        /** {@inheritDoc} */
+        @Override
         public String toString() {
             return timestamp.toString();
         }
 
+        /** {@inheritDoc} */
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
@@ -428,6 +427,7 @@ public class BitemporalMapper extends Mapper {
             return timestamp.equals(that.timestamp);
         }
 
+        /** {@inheritDoc} */
         @Override
         public int hashCode() {
             return timestamp.hashCode();

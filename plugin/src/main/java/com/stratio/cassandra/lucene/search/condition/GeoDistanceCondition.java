@@ -16,7 +16,6 @@
 package com.stratio.cassandra.lucene.search.condition;
 
 import com.google.common.base.Objects;
-import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.shape.Circle;
 import com.stratio.cassandra.lucene.schema.Schema;
@@ -41,8 +40,6 @@ import static org.apache.lucene.search.BooleanClause.Occur.MUST_NOT;
  */
 public class GeoDistanceCondition extends Condition {
 
-    static final SpatialContext spatialContext = SpatialContext.GEO;
-
     /** The name of the field to be matched. */
     public final String field;
 
@@ -58,9 +55,9 @@ public class GeoDistanceCondition extends Condition {
     /** The max allowed distance. */
     public final String maxDistance;
 
-    public final GeoDistance minGeoDistance;
+    private final GeoDistance minGeoDistance;
 
-    public final GeoDistance maxGeoDistance;
+    private final GeoDistance maxGeoDistance;
 
     /**
      * Constructor using the field name and the value to be matched.
@@ -139,7 +136,7 @@ public class GeoDistanceCondition extends Condition {
     private Query query(GeoDistance geoDistance, SpatialStrategy spatialStrategy) {
         double kms = geoDistance.getValue(GeoDistanceUnit.KILOMETRES);
         double distance = DistanceUtils.dist2Degrees(kms, DistanceUtils.EARTH_MEAN_RADIUS_KM);
-        Circle circle = spatialContext.makeCircle(longitude, latitude, distance);
+        Circle circle = GeoPointMapper.SPATIAL_CONTEXT.makeCircle(longitude, latitude, distance);
         SpatialArgs args = new SpatialArgs(SpatialOperation.Intersects, circle);
         return spatialStrategy.makeQuery(args);
     }

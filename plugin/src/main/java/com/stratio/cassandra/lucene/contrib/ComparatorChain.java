@@ -45,25 +45,17 @@ import java.util.List;
  */
 public class ComparatorChain<T> implements Comparator<T>, Serializable {
 
-    /**
-     * Serialization version from Collections 2.0.
-     */
+    /** Serialization version from Collections 2.0. */
     private static final long serialVersionUID = -721644942746081630L;
 
-    /**
-     * The list of comparators in the chain.
-     */
-    protected List<Comparator<T>> comparatorChain = null;
-    /**
-     * Order - false (clear) = ascend; true (set) = descend.
-     */
-    protected BitSet orderingBits = null;
-    /**
-     * Whether the chain has been "locked".
-     */
-    protected boolean isLocked = false;
+    /** The list of comparators in the chain. */
+    private List<Comparator<T>> comparatorChain = null;
 
-    // -----------------------------------------------------------------------
+    /** Order - false (clear) = ascend; true (set) = descend. */
+    private BitSet orderingBits = null;
+
+    /** Whether the chain has been "locked". */
+    private boolean isLocked = false;
 
     /**
      * Construct a ComparatorChain with no Comparators. You must add at least one Comparator before calling the
@@ -89,10 +81,10 @@ public class ComparatorChain<T> implements Comparator<T>, Serializable {
      * @param reverse    false = forward sortFields; true = reverse sortFields
      */
     public ComparatorChain(Comparator<T> comparator, boolean reverse) {
-        comparatorChain = new ArrayList<Comparator<T>>();
+        comparatorChain = new ArrayList<>();
         comparatorChain.add(comparator);
         orderingBits = new BitSet(1);
-        if (reverse == true) {
+        if (reverse) {
             orderingBits.set(0);
         }
     }
@@ -144,7 +136,7 @@ public class ComparatorChain<T> implements Comparator<T>, Serializable {
         checkLocked();
 
         comparatorChain.add(comparator);
-        if (reverse == true) {
+        if (reverse) {
             orderingBits.set(comparatorChain.size() - 1);
         }
     }
@@ -171,7 +163,7 @@ public class ComparatorChain<T> implements Comparator<T>, Serializable {
         checkLocked();
 
         comparatorChain.set(index, comparator);
-        if (reverse == true) {
+        if (reverse) {
             orderingBits.set(index);
         } else {
             orderingBits.clear(index);
@@ -219,7 +211,7 @@ public class ComparatorChain<T> implements Comparator<T>, Serializable {
 
     // throw an exception if the ComparatorChain is locked
     private void checkLocked() {
-        if (isLocked == true) {
+        if (isLocked) {
             throw new UnsupportedOperationException(
                     "Comparator ordering cannot be changed after the first comparison is performed");
         }
@@ -242,7 +234,7 @@ public class ComparatorChain<T> implements Comparator<T>, Serializable {
      * @throws UnsupportedOperationException if the ComparatorChain does not contain at least one Comparator
      */
     public int compare(T o1, T o2) throws UnsupportedOperationException {
-        if (isLocked == false) {
+        if (!isLocked) {
             checkChainIntegrity();
             isLocked = true;
         }
@@ -255,7 +247,7 @@ public class ComparatorChain<T> implements Comparator<T>, Serializable {
             int retval = comparator.compare(o1, o2);
             if (retval != 0) {
                 // invert the order if it is a reverse sortFields
-                if (orderingBits.get(comparatorIndex) == true) {
+                if (orderingBits.get(comparatorIndex)) {
                     if (Integer.MIN_VALUE == retval) {
                         retval = Integer.MAX_VALUE;
                     } else {

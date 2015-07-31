@@ -30,19 +30,19 @@ public class DateRangeConditionBuilder extends ConditionBuilder<DateRangeConditi
 
     /** The name of the field to be matched. */
     @JsonProperty("field")
-    String field;
+    private final String field;
 
     /** The lower accepted date. Maybe null meaning no lower limit. */
     @JsonProperty("start")
-    Object start;
+    private Object start;
 
     /** The upper accepted date. Maybe null meaning no upper limit. */
     @JsonProperty("stop")
-    Object stop;
+    private Object stop;
 
     /** The spatial operation to be performed. */
     @JsonProperty("operation")
-    String operation;
+    private String operation;
 
     /**
      * Returns a new {@link DateRangeConditionBuilder} with the specified field reference point.

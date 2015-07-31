@@ -28,11 +28,11 @@ public class PrefixConditionBuilder extends ConditionBuilder<PrefixCondition, Pr
 
     /** The name of the field to be matched. */
     @JsonProperty("field")
-    final String field;
+    private final String field;
 
     /** The prefix to be matched. */
     @JsonProperty("value")
-    final String value;
+    private final String value;
 
     /**
      * Creates a new {@link PrefixConditionBuilder}.

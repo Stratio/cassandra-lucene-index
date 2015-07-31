@@ -79,7 +79,7 @@ public class ClusteringKeyMapper {
      */
     private ClusteringKeyMapper(CFMetaData metadata, Schema schema) {
         this.metadata = metadata;
-        this.schema  = schema;
+        this.schema = schema;
         this.cellNameType = metadata.comparator;
     }
 
