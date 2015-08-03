@@ -61,8 +61,8 @@ public class DateRangeMapper extends Mapper {
      * Builds a new {@link DateRangeMapper}.
      *
      * @param name    The name of the mapper.
-     * @param start   The column containing the start {@link Date}.
-     * @param stop    The column containing the stop {@link Date}.
+     * @param start   The column containing the start date.
+     * @param stop    The column containing the stop date.
      * @param pattern The {@link SimpleDateFormat} pattern to be used.
      */
     public DateRangeMapper(String name, String start, String stop, String pattern) {
@@ -96,14 +96,29 @@ public class DateRangeMapper extends Mapper {
         this.dateParser = new DateParser(this.pattern);
     }
 
+    /**
+     * Returns the name of the column containing the start date.
+     *
+     * @return The name of the column containing the start date.
+     */
     public String getStart() {
         return start;
     }
 
+    /**
+     * Returns the name of the column containing the stop date.
+     *
+     * @return The name of the column containing the stop date.
+     */
     public String getStop() {
         return stop;
     }
 
+    /**
+     * Returns the {@link SimpleDateFormat} pattern to be used.
+     *
+     * @return The {@link SimpleDateFormat} pattern to be used.
+     */
     public String getPattern() {
         return pattern;
     }

@@ -29,16 +29,34 @@ public class InetMapperBuilder extends MapperBuilder<InetMapper> {
     @JsonProperty("sorted")
     private Boolean sorted;
 
+    /**
+     * Sets if the field supports searching.
+     *
+     * @param indexed if the field supports searching.
+     * @return This.
+     */
     public InetMapperBuilder indexed(Boolean indexed) {
         this.indexed = indexed;
         return this;
     }
 
+    /**
+     * Sets if the field supports sorting.
+     *
+     * @param sorted if the field supports sorting.
+     * @return This.
+     */
     public InetMapperBuilder sorted(Boolean sorted) {
         this.sorted = sorted;
         return this;
     }
 
+    /**
+     * Returns the {@link InetMapper} represented by this {@link MapperBuilder}.
+     *
+     * @param name The name of the {@link InetMapper} to be built.
+     * @return The {@link InetMapper} represented by this.
+     */
     @Override
     public InetMapper build(String name) {
         return new InetMapper(name, indexed, sorted);

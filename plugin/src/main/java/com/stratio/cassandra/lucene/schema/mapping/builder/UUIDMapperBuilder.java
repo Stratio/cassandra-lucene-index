@@ -29,16 +29,34 @@ public class UUIDMapperBuilder extends MapperBuilder<UUIDMapper> {
     @JsonProperty("sorted")
     private Boolean sorted;
 
+    /**
+     * Sets if the field supports searching.
+     *
+     * @param indexed if the field supports searching.
+     * @return This.
+     */
     public UUIDMapperBuilder indexed(Boolean indexed) {
         this.indexed = indexed;
         return this;
     }
 
+    /**
+     * Sets if the field supports sorting.
+     *
+     * @param sorted if the field supports sorting.
+     * @return This.
+     */
     public UUIDMapperBuilder sorted(Boolean sorted) {
         this.sorted = sorted;
         return this;
     }
 
+    /**
+     * Returns the {@link UUIDMapper} represented by this {@link MapperBuilder}.
+     *
+     * @param name The name of the {@link UUIDMapper} to be built.
+     * @return The {@link UUIDMapper} represented by this.
+     */
     @Override
     public UUIDMapper build(String name) {
         return new UUIDMapper(name, indexed, sorted);

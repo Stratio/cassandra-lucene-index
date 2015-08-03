@@ -136,11 +136,20 @@ public class SortField {
         return Objects.toStringHelper(this).add("field", field).add("reverse", reverse).toString();
     }
 
+    /** {@inheritDoc} */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         SortField sortField = (SortField) o;
         return reverse == sortField.reverse && field.equals(sortField.field);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public int hashCode() {
+        int result = field.hashCode();
+        result = 31 * result + (reverse ? 1 : 0);
+        return result;
     }
 }

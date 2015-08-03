@@ -351,12 +351,25 @@ public enum PreBuiltAnalyzers {
         }
     };
 
+    /**
+     * Returns the {@link Analyzer} defined by this.
+     *
+     * @return The {@link Analyzer} defined by this.
+     */
     public Analyzer get() {
         return instantiate();
     }
 
     abstract protected Analyzer instantiate();
 
+    /**
+     * Returns the prebuilt {@link Analyzer} identified by the specified name, or {@code null} if there is no such
+     * {@link Analyzer}.
+     *
+     * @param name A prebuilt {@link Analyzer} name.
+     * @return The prebuilt {@link Analyzer} identified by the specified name, or {@code null} if there is no such
+     * {@link Analyzer}.
+     */
     public static Analyzer get(String name) {
         try {
             return valueOf(name.toUpperCase(Locale.ROOT)).get();

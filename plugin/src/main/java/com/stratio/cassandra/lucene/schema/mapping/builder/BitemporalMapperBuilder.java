@@ -19,6 +19,8 @@ import com.stratio.cassandra.lucene.schema.mapping.BitemporalMapper;
 import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
 
+import java.text.SimpleDateFormat;
+
 /**
  * {@link MapperBuilder} to build a new {@link BitemporalMapperBuilder}.
  *
@@ -50,6 +52,14 @@ public class BitemporalMapperBuilder extends MapperBuilder<BitemporalMapper> {
     @JsonProperty("now_value")
     private Object nowValue;
 
+    /**
+     * Returns a new {@link BitemporalMapperBuilder}.
+     *
+     * @param vtFrom The column name containing the valid time start.
+     * @param vtTo   The column name containing the valid time stop.
+     * @param ttFrom The column name containing the transaction time start.
+     * @param ttTo   The column name containing the transaction time stop.
+     */
     @JsonCreator
     public BitemporalMapperBuilder(@JsonProperty("vt_from") String vtFrom,
                                    @JsonProperty("vt_to") String vtTo,
@@ -61,17 +71,34 @@ public class BitemporalMapperBuilder extends MapperBuilder<BitemporalMapper> {
         this.ttTo = ttTo;
     }
 
+    /**
+     * Sets the {@link SimpleDateFormat} pattern to be used.
+     *
+     * @param pattern The {@link SimpleDateFormat} pattern to be used.
+     * @return This.
+     */
     public BitemporalMapperBuilder pattern(String pattern) {
         this.pattern = pattern;
         return this;
     }
 
+    /**
+     * Sets the now value to be used.
+     *
+     * @param nowValue The now value to be used.
+     * @return This.
+     */
     public BitemporalMapperBuilder nowValue(Object nowValue) {
         this.nowValue = nowValue;
         return this;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * Returns the {@link BitemporalMapper} represented by this {@link MapperBuilder}.
+     *
+     * @param name The name of the {@link BitemporalMapper} to be built.
+     * @return The {@link BitemporalMapper} represented by this.
+     */
     @Override
     public BitemporalMapper build(String name) {
         return new BitemporalMapper(name, vtFrom, vtTo, ttFrom, ttTo, pattern, nowValue);

@@ -158,7 +158,7 @@ public class Index extends PerRowSecondaryIndex {
     }
 
     /**
-     * cleans up deleted columns from cassandra cleanup compaction
+     * Cleans up deleted rows from cassandra cleanup compaction.
      *
      * @param key The partition key of the physical row to be deleted.
      */

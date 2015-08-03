@@ -32,21 +32,45 @@ public class FloatMapperBuilder extends MapperBuilder<FloatMapper> {
     @JsonProperty("boost")
     private Float boost;
 
+    /**
+     * Sets if the field supports searching.
+     *
+     * @param indexed if the field supports searching.
+     * @return This.
+     */
     public FloatMapperBuilder indexed(Boolean indexed) {
         this.indexed = indexed;
         return this;
     }
 
+    /**
+     * Sets if the field supports sorting.
+     *
+     * @param sorted if the field supports sorting.
+     * @return This.
+     */
     public FloatMapperBuilder sorted(Boolean sorted) {
         this.sorted = sorted;
         return this;
     }
 
+    /**
+     * Sets the boost to be used.
+     *
+     * @param boost The boost to be used.
+     * @return This.
+     */
     public FloatMapperBuilder boost(Float boost) {
         this.boost = boost;
         return this;
     }
 
+    /**
+     * Returns the {@link FloatMapper} represented by this {@link MapperBuilder}.
+     *
+     * @param name The name of the {@link FloatMapper} to be built.
+     * @return The {@link FloatMapper} represented by this.
+     */
     @Override
     public FloatMapper build(String name) {
         return new FloatMapper(name, indexed, sorted, boost);

@@ -31,6 +31,8 @@ import org.apache.lucene.util.BytesRef;
 public abstract class KeywordMapper extends SingleColumnMapper<String> {
 
     /**
+     * Builds  a new {@link KeywordMapper}.
+     *
      * @param name           The name of the mapper.
      * @param indexed        If the field supports searching.
      * @param sorted         If the field supports sorting.

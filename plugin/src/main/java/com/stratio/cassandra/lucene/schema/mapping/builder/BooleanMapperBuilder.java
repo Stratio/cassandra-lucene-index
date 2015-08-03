@@ -29,16 +29,34 @@ public class BooleanMapperBuilder extends MapperBuilder<BooleanMapper> {
     @JsonProperty("sorted")
     private Boolean sorted;
 
+    /**
+     * Sets if the field supports searching.
+     *
+     * @param indexed if the field supports searching.
+     * @return This.
+     */
     public BooleanMapperBuilder indexed(Boolean indexed) {
         this.indexed = indexed;
         return this;
     }
 
+    /**
+     * Sets if the field supports sorting.
+     *
+     * @param sorted if the field supports sorting.
+     * @return This.
+     */
     public BooleanMapperBuilder sorted(Boolean sorted) {
         this.sorted = sorted;
         return this;
     }
 
+    /**
+     * Returns the {@link BooleanMapper} represented by this {@link MapperBuilder}.
+     *
+     * @param name The name of the {@link BooleanMapper} to be built.
+     * @return The {@link BooleanMapper} represented by this.
+     */
     @Override
     public BooleanMapper build(String name) {
         return new BooleanMapper(name, indexed, sorted);

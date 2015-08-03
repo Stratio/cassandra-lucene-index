@@ -41,5 +41,11 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
                @JsonSubTypes.Type(value = BitemporalMapperBuilder.class, name = "bitemporal")})
 public abstract class MapperBuilder<T extends Mapper> {
 
+    /**
+     * Returns the {@link Mapper} represented by this.
+     *
+     * @param name The name of the {@link Mapper} to be built.
+     * @return The {@link Mapper} represented by this.
+     */
     public abstract T build(String name);
 }

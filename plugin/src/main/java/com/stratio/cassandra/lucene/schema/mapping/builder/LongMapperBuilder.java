@@ -32,21 +32,45 @@ public class LongMapperBuilder extends MapperBuilder<LongMapper> {
     @JsonProperty("boost")
     private Float boost;
 
+    /**
+     * Sets if the field supports searching.
+     *
+     * @param indexed if the field supports searching.
+     * @return This.
+     */
     public LongMapperBuilder indexed(Boolean indexed) {
         this.indexed = indexed;
         return this;
     }
 
+    /**
+     * Sets if the field supports sorting.
+     *
+     * @param sorted if the field supports sorting.
+     * @return This.
+     */
     public LongMapperBuilder sorted(Boolean sorted) {
         this.sorted = sorted;
         return this;
     }
 
+    /**
+     * Sets the boost to be used.
+     *
+     * @param boost The boost to be used.
+     * @return This.
+     */
     public LongMapperBuilder boost(Float boost) {
         this.boost = boost;
         return this;
     }
 
+    /**
+     * Returns the {@link LongMapper} represented by this {@link MapperBuilder}.
+     *
+     * @param name The name of the {@link LongMapper} to be built.
+     * @return The {@link LongMapper} represented by this.
+     */
     @Override
     public LongMapper build(String name) {
         return new LongMapper(name, indexed, sorted, boost);

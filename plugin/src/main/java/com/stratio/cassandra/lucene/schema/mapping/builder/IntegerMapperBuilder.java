@@ -32,21 +32,45 @@ public class IntegerMapperBuilder extends MapperBuilder<IntegerMapper> {
     @JsonProperty("boost")
     private Float boost;
 
+    /**
+     * Sets if the field supports searching.
+     *
+     * @param indexed if the field supports searching.
+     * @return This.
+     */
     public IntegerMapperBuilder indexed(Boolean indexed) {
         this.indexed = indexed;
         return this;
     }
 
+    /**
+     * Sets if the field supports sorting.
+     *
+     * @param sorted if the field supports sorting.
+     * @return This.
+     */
     public IntegerMapperBuilder sorted(Boolean sorted) {
         this.sorted = sorted;
         return this;
     }
 
+    /**
+     * Sets the boost to be used.
+     *
+     * @param boost The boost to be used.
+     * @return This.
+     */
     public IntegerMapperBuilder boost(Float boost) {
         this.boost = boost;
         return this;
     }
 
+    /**
+     * Returns the {@link IntegerMapper} represented by this {@link MapperBuilder}.
+     *
+     * @param name The name of the {@link IntegerMapper} to be built.
+     * @return The {@link IntegerMapper} represented by this.
+     */
     @Override
     public IntegerMapper build(String name) {
         return new IntegerMapper(name, indexed, sorted, boost);

@@ -76,6 +76,11 @@ public class DateMapper extends SingleColumnMapper<Long> {
         this.dateParser = new DateParser(this.pattern);
     }
 
+    /**
+     * Returns the {@link SimpleDateFormat} pattern to be used.
+     *
+     * @return The {@link SimpleDateFormat} pattern to be used.
+     */
     public String getPattern() {
         return pattern;
     }

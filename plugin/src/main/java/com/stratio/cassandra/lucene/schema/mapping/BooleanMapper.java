@@ -34,7 +34,7 @@ public class BooleanMapper extends KeywordMapper {
     private static final String FALSE = "false";
 
     /**
-     * Builds a new {@link BlobMapper}.
+     * Builds a new {@link BooleanMapper}.
      *
      * @param name    The name of the mapper.
      * @param indexed If the field supports searching.

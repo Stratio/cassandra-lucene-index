@@ -34,6 +34,12 @@ public class DateRangeMapperBuilder extends MapperBuilder<DateRangeMapper> {
     @JsonProperty("pattern")
     private String pattern;
 
+    /**
+     * Returns a new {@link DateRangeMapperBuilder}.
+     *
+     * @param start The column containing the start date.
+     * @param stop  The column containing the stop date.
+     */
     public DateRangeMapperBuilder(@JsonProperty("start") String start, @JsonProperty("stop") String stop) {
         this.start = start;
         this.stop = stop;
@@ -44,6 +50,12 @@ public class DateRangeMapperBuilder extends MapperBuilder<DateRangeMapper> {
         return this;
     }
 
+    /**
+     * Returns the {@link DateRangeMapper} represented by this {@link MapperBuilder}.
+     *
+     * @param name The name of the {@link DateRangeMapper} to be built.
+     * @return The {@link DateRangeMapper} represented by this.
+     */
     @Override
     public DateRangeMapper build(String name) {
         return new DateRangeMapper(name, start, stop, pattern);

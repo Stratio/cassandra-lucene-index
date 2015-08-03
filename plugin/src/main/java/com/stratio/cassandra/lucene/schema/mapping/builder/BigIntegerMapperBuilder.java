@@ -32,21 +32,45 @@ public class BigIntegerMapperBuilder extends MapperBuilder<BigIntegerMapper> {
     @JsonProperty("digits")
     private Integer digits;
 
+    /**
+     * Sets if the field supports searching.
+     *
+     * @param indexed if the field supports searching.
+     * @return This.
+     */
     public BigIntegerMapperBuilder indexed(Boolean indexed) {
         this.indexed = indexed;
         return this;
     }
 
+    /**
+     * Sets if the field supports sorting.
+     *
+     * @param sorted if the field supports sorting.
+     * @return This.
+     */
     public BigIntegerMapperBuilder sorted(Boolean sorted) {
         this.sorted = sorted;
         return this;
     }
 
+    /**
+     * Sets the max number of digits.
+     *
+     * @param digits The max number of digits.
+     * @return This.
+     */
     public BigIntegerMapperBuilder digits(Integer digits) {
         this.digits = digits;
         return this;
     }
 
+    /**
+     * Returns the {@link BigIntegerMapper} represented by this {@link MapperBuilder}.
+     *
+     * @param name The name of the {@link BigIntegerMapper} to be built.
+     * @return The {@link BigIntegerMapper} represented by this.
+     */
     @Override
     public BigIntegerMapper build(String name) {
         return new BigIntegerMapper(name, indexed, sorted, digits);

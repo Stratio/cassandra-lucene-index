@@ -37,7 +37,7 @@ public class StringMapper extends KeywordMapper {
      * @param name          The name of the mapper.
      * @param indexed       If the field supports searching.
      * @param sorted        If the field supports sorting.
-     * @param caseSensitive If the getAnalyzer must be case sensitive.
+     * @param caseSensitive If the analyzer must be case sensitive.
      */
     public StringMapper(String name, Boolean indexed, Boolean sorted, Boolean caseSensitive) {
         super(name,
@@ -59,6 +59,11 @@ public class StringMapper extends KeywordMapper {
         this.caseSensitive = caseSensitive == null ? DEFAULT_CASE_SENSITIVE : caseSensitive;
     }
 
+    /**
+     * Returns {@code true} if it's case sensitive, {@code false} otherwise.
+     *
+     * @return {@code true} if it's case sensitive, {@code false} otherwise.
+     */
     public boolean isCaseSensitive() {
         return caseSensitive;
     }

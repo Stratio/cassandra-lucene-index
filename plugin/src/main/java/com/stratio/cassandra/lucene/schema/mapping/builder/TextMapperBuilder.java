@@ -32,21 +32,45 @@ public class TextMapperBuilder extends MapperBuilder<TextMapper> {
     @JsonProperty("analyzer")
     private String analyzer;
 
+    /**
+     * Sets if the field supports searching.
+     *
+     * @param indexed if the field supports searching.
+     * @return This.
+     */
     public TextMapperBuilder indexed(Boolean indexed) {
         this.indexed = indexed;
         return this;
     }
 
+    /**
+     * Sets if the field supports sorting.
+     *
+     * @param sorted if the field supports sorting.
+     * @return This.
+     */
     public TextMapperBuilder sorted(Boolean sorted) {
         this.sorted = sorted;
         return this;
     }
 
+    /**
+     * Sets the name of the {@link org.apache.lucene.analysis.Analyzer} to be used.
+     *
+     * @param analyzer The name of the {@link org.apache.lucene.analysis.Analyzer} to be used.
+     * @return This.
+     */
     public TextMapperBuilder analyzer(String analyzer) {
         this.analyzer = analyzer;
         return this;
     }
 
+    /**
+     * Returns the {@link TextMapper} represented by this {@link MapperBuilder}.
+     *
+     * @param name The name of the {@link TextMapper} to be built.
+     * @return The {@link TextMapper} represented by this.
+     */
     @Override
     public TextMapper build(String name) {
         return new TextMapper(name, indexed, sorted, analyzer);

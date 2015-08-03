@@ -67,6 +67,11 @@ public class DoubleMapper extends SingleColumnMapper<Double> {
         this.boost = boost == null ? DEFAULT_BOOST : boost;
     }
 
+    /**
+     * Returns the boost to be used.
+     *
+     * @return The boost to be used.
+     */
     public float getBoost() {
         return boost;
     }

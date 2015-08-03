@@ -62,7 +62,12 @@ public class GeoPointMapperBuilder extends MapperBuilder<GeoPointMapper> {
         return this;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * Returns the {@link GeoPointMapper} represented by this {@link MapperBuilder}.
+     *
+     * @param name The name of the {@link GeoPointMapper} to be built.
+     * @return The {@link GeoPointMapper} represented by this.
+     */
     @Override
     public GeoPointMapper build(String name) {
         return new GeoPointMapper(name, latitude, longitude, maxLevels);

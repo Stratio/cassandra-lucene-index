@@ -47,7 +47,9 @@ public class RegexpConditionBuilder extends ConditionBuilder<RegexpCondition, Re
     }
 
     /**
-     * {@inheritDoc}
+     * Returns the {@link RegexpCondition} represented by this builder.
+     *
+     * @return The {@link RegexpCondition} represented by this builder.
      */
     @Override
     public RegexpCondition build() {

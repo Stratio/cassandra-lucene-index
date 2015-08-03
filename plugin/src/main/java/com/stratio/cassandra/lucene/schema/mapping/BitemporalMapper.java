@@ -60,34 +60,34 @@ public class BitemporalMapper extends Mapper {
     private Long nowBitemporalDateTimeMillis;
 
     // ttTo=now vtTo=now 2 DateRangePrefixTree
-    private NumberRangePrefixTreeStrategy strategy_t1_V;
-    private DateRangePrefixTree tree_t1_V;
-    private NumberRangePrefixTreeStrategy strategy_t1_T;
-    private DateRangePrefixTree tree_t1_T;
+    private NumberRangePrefixTreeStrategy strategyT1V;
+    private DateRangePrefixTree treeT1V;
+    private NumberRangePrefixTreeStrategy strategyT1T;
+    private DateRangePrefixTree treeT1T;
 
-    private NumberRangePrefixTreeStrategy strategy_t2_V;
-    private DateRangePrefixTree tree_t2_V;
-    private NumberRangePrefixTreeStrategy strategy_t2_T;
-    private DateRangePrefixTree tree_t2_T;
+    private NumberRangePrefixTreeStrategy strategyT2V;
+    private DateRangePrefixTree treeT2V;
+    private NumberRangePrefixTreeStrategy strategyT2T;
+    private DateRangePrefixTree treeT2T;
 
-    private NumberRangePrefixTreeStrategy strategy_t3_V;
-    private DateRangePrefixTree tree_t3_V;
-    private NumberRangePrefixTreeStrategy strategy_t3_T;
-    private DateRangePrefixTree tree_t3_T;
+    private NumberRangePrefixTreeStrategy strategyT3V;
+    private DateRangePrefixTree treeT3V;
+    private NumberRangePrefixTreeStrategy strategyT3T;
+    private DateRangePrefixTree treeT3T;
 
-    private NumberRangePrefixTreeStrategy strategy_t4_V;
-    private DateRangePrefixTree tree_t4_V;
-    private NumberRangePrefixTreeStrategy strategy_t4_T;
-    private DateRangePrefixTree tree_t4_T;
+    private NumberRangePrefixTreeStrategy strategyT4V;
+    private DateRangePrefixTree treeT4V;
+    private NumberRangePrefixTreeStrategy strategyT4T;
+    private DateRangePrefixTree treeT4T;
 
     /**
      * Builds a new {@link BitemporalMapper}.
      *
      * @param name    the name of the mapper.
-     * @param vtFrom  The column name containing the Start Valid Time.
-     * @param vtTo    The column name containing the End Valid Time.
-     * @param ttFrom  The column name containing the Start Transaction Time.
-     * @param ttTo    The column name containing the End Transaction Time.
+     * @param vtFrom  The column name containing the valid time start.
+     * @param vtTo    The column name containing the valid time stop.
+     * @param ttFrom  The column name containing the transaction time start.
+     * @param ttTo    The column name containing the transaction time stop.
      * @param pattern The {@link SimpleDateFormat} pattern to be used.
      */
     public BitemporalMapper(String name,
@@ -141,29 +141,27 @@ public class BitemporalMapper extends Mapper {
 
         // ttTo=now vtTo=now 2 DateRangePrefixTree
 
-        this.tree_t1_V = DateRangePrefixTree.INSTANCE;
-        this.strategy_t1_V = new NumberRangePrefixTreeStrategy(tree_t1_V, name + ".t1_v");
-        this.tree_t1_T = DateRangePrefixTree.INSTANCE;
-        this.strategy_t1_T = new NumberRangePrefixTreeStrategy(tree_t1_T, name + ".t1_t");
+        treeT1V = DateRangePrefixTree.INSTANCE;
+        strategyT1V = new NumberRangePrefixTreeStrategy(treeT1V, name + ".t1_v");
+        treeT1T = DateRangePrefixTree.INSTANCE;
+        strategyT1T = new NumberRangePrefixTreeStrategy(treeT1T, name + ".t1_t");
 
-        this.tree_t2_V = DateRangePrefixTree.INSTANCE;
-        this.strategy_t2_V = new NumberRangePrefixTreeStrategy(tree_t2_V, name + ".t2_v");
-        this.tree_t2_T = DateRangePrefixTree.INSTANCE;
-        this.strategy_t2_T = new NumberRangePrefixTreeStrategy(tree_t2_T, name + ".t2_t");
+        treeT2V = DateRangePrefixTree.INSTANCE;
+        strategyT2V = new NumberRangePrefixTreeStrategy(treeT2V, name + ".t2_v");
+        treeT2T = DateRangePrefixTree.INSTANCE;
+        strategyT2T = new NumberRangePrefixTreeStrategy(treeT2T, name + ".t2_t");
 
-        this.tree_t3_V = DateRangePrefixTree.INSTANCE;
-        this.strategy_t3_V = new NumberRangePrefixTreeStrategy(tree_t3_V, name + ".t3_v");
-        this.tree_t3_T = DateRangePrefixTree.INSTANCE;
-        this.strategy_t3_T = new NumberRangePrefixTreeStrategy(tree_t3_T, name + ".t3_t");
+        treeT3V = DateRangePrefixTree.INSTANCE;
+        strategyT3V = new NumberRangePrefixTreeStrategy(treeT3V, name + ".t3_v");
+        treeT3T = DateRangePrefixTree.INSTANCE;
+        strategyT3T = new NumberRangePrefixTreeStrategy(treeT3T, name + ".t3_t");
 
-        this.tree_t4_V = DateRangePrefixTree.INSTANCE;
-        this.strategy_t4_V = new NumberRangePrefixTreeStrategy(tree_t4_V, name + ".t4_v");
-        this.tree_t4_T = DateRangePrefixTree.INSTANCE;
-        this.strategy_t4_T = new NumberRangePrefixTreeStrategy(tree_t4_T, name + ".t4_t");
+        treeT4V = DateRangePrefixTree.INSTANCE;
+        strategyT4V = new NumberRangePrefixTreeStrategy(treeT4V, name + ".t4_v");
+        treeT4T = DateRangePrefixTree.INSTANCE;
+        strategyT4T = new NumberRangePrefixTreeStrategy(treeT4T, name + ".t4_t");
 
-        this.nowBitemporalDateTimeMillis = (nowValue == null) ?
-                                           Long.MAX_VALUE :
-                                           this.dateParser.parse(nowValue).getTime();
+        nowBitemporalDateTimeMillis = (nowValue == null) ? Long.MAX_VALUE : dateParser.parse(nowValue).getTime();
 
     }
 
@@ -171,24 +169,49 @@ public class BitemporalMapper extends Mapper {
         return pattern;
     }
 
+    /**
+     * Returns the column name containing the valid time start.
+     *
+     * @return The column name containing the valid time start.
+     */
     public String getVtFrom() {
         return vtFrom;
     }
 
+    /**
+     * Returns the column name containing the valid time stop.
+     *
+     * @return The column name containing the valid time stop.
+     */
     public String getVtTo() {
         return vtTo;
     }
 
+    /**
+     * Returns the column name containing the transaction time start.
+     *
+     * @return The column name containing the transaction time start.
+     */
     public String getTtFrom() {
         return ttFrom;
     }
 
+    /**
+     * Returns the column name containing the transaction time stop.
+     *
+     * @return The column name containing the transaction time stop.
+     */
     public String getTtTo() {
         return ttTo;
     }
 
+    /**
+     * Returns the now value as UNIX timestamp.
+     *
+     * @return The now value as UNIX timestamp.
+     */
     public Long getNowValue() {
-        return this.nowBitemporalDateTimeMillis;
+        return nowBitemporalDateTimeMillis;
     }
 
     /**
@@ -201,13 +224,13 @@ public class BitemporalMapper extends Mapper {
     public NumberRangePrefixTreeStrategy getStrategy(int i, boolean isValidOrTransaction) {
         switch (i) {
             case 0:
-                return isValidOrTransaction ? strategy_t1_V : strategy_t1_T;
+                return isValidOrTransaction ? strategyT1V : strategyT1T;
             case 1:
-                return isValidOrTransaction ? strategy_t2_V : strategy_t2_T;
+                return isValidOrTransaction ? strategyT2V : strategyT2T;
             case 2:
-                return isValidOrTransaction ? strategy_t3_V : strategy_t3_T;
+                return isValidOrTransaction ? strategyT3V : strategyT3T;
             case 3:
-                return isValidOrTransaction ? strategy_t4_V : strategy_t4_T;
+                return isValidOrTransaction ? strategyT4V : strategyT4T;
             default:
                 throw new IllegalArgumentException("Not valid strategy found");
         }
@@ -223,13 +246,13 @@ public class BitemporalMapper extends Mapper {
     public DateRangePrefixTree getTree(int i, boolean isValidOrTransaction) {
         switch (i) {
             case 0:
-                return isValidOrTransaction ? tree_t1_V : tree_t1_T;
+                return isValidOrTransaction ? treeT1V : treeT1T;
             case 1:
-                return isValidOrTransaction ? tree_t2_V : tree_t2_T;
+                return isValidOrTransaction ? treeT2V : treeT2T;
             case 2:
-                return isValidOrTransaction ? tree_t3_V : tree_t3_T;
+                return isValidOrTransaction ? treeT3V : treeT3T;
             case 3:
-                return isValidOrTransaction ? tree_t4_V : tree_t4_T;
+                return isValidOrTransaction ? treeT4V : treeT4T;
             default:
                 throw new IllegalArgumentException("Not valid tree found");
         }
@@ -252,38 +275,38 @@ public class BitemporalMapper extends Mapper {
     /** {@inheritDoc} */
     @Override
     public void addFields(Document document, Columns columns) {
-        BitemporalDateTime vt_from = readBitemporalDate(columns, this.vtFrom);
-        BitemporalDateTime vt_to = readBitemporalDate(columns, this.vtTo);
-        BitemporalDateTime tt_from = readBitemporalDate(columns, this.ttFrom);
-        BitemporalDateTime tt_to = readBitemporalDate(columns, this.ttTo);
+        BitemporalDateTime vtFrom = readBitemporalDate(columns, this.vtFrom);
+        BitemporalDateTime vtTo = readBitemporalDate(columns, this.vtTo);
+        BitemporalDateTime ttFrom = readBitemporalDate(columns, this.ttFrom);
+        BitemporalDateTime ttTo = readBitemporalDate(columns, this.ttTo);
 
-        if (tt_to.isNow() && vt_to.isNow()) { // T1
-            Shape shapeV = makeShape(tree_t1_V, vt_from, vt_from);
-            for (IndexableField field : strategy_t1_V.createIndexableFields(shapeV)) document.add(field);
+        if (ttTo.isNow() && vtTo.isNow()) { // T1
+            Shape shapeV = makeShape(treeT1V, vtFrom, vtFrom);
+            for (IndexableField field : strategyT1V.createIndexableFields(shapeV)) document.add(field);
 
-            Shape shapeT = makeShape(tree_t1_T, tt_from, tt_from);
-            for (IndexableField field : strategy_t1_T.createIndexableFields(shapeT)) document.add(field);
+            Shape shapeT = makeShape(treeT1T, ttFrom, ttFrom);
+            for (IndexableField field : strategyT1T.createIndexableFields(shapeT)) document.add(field);
 
-        } else if (!tt_to.isNow() && vt_to.isNow()) {// T2
-            Shape shapeV = makeShape(tree_t2_V, vt_from, vt_from);
-            for (IndexableField field : strategy_t2_V.createIndexableFields(shapeV)) document.add(field);
+        } else if (!ttTo.isNow() && vtTo.isNow()) {// T2
+            Shape shapeV = makeShape(treeT2V, vtFrom, vtFrom);
+            for (IndexableField field : strategyT2V.createIndexableFields(shapeV)) document.add(field);
 
-            Shape shapeT = makeShape(tree_t2_T, tt_from, tt_to);
-            for (IndexableField field : strategy_t2_T.createIndexableFields(shapeT)) document.add(field);
+            Shape shapeT = makeShape(treeT2T, ttFrom, ttTo);
+            for (IndexableField field : strategyT2T.createIndexableFields(shapeT)) document.add(field);
 
-        } else if (tt_to.isNow()) { // T3
-            Shape shapeV = makeShape(tree_t3_V, vt_from, vt_to);
-            for (IndexableField field : strategy_t3_V.createIndexableFields(shapeV)) document.add(field);
+        } else if (ttTo.isNow()) { // T3
+            Shape shapeV = makeShape(treeT3V, vtFrom, vtTo);
+            for (IndexableField field : strategyT3V.createIndexableFields(shapeV)) document.add(field);
 
-            Shape shapeT = makeShape(tree_t3_T, tt_from, tt_from);
-            for (IndexableField field : strategy_t3_T.createIndexableFields(shapeT)) document.add(field);
+            Shape shapeT = makeShape(treeT3T, ttFrom, ttFrom);
+            for (IndexableField field : strategyT3T.createIndexableFields(shapeT)) document.add(field);
 
         } else { // T4
-            Shape shapeV = makeShape(tree_t4_V, vt_from, vt_to);
-            for (IndexableField field : strategy_t4_V.createIndexableFields(shapeV)) document.add(field);
+            Shape shapeV = makeShape(treeT4V, vtFrom, vtTo);
+            for (IndexableField field : strategyT4V.createIndexableFields(shapeV)) document.add(field);
 
-            Shape shapeT = makeShape(tree_t4_T, tt_from, tt_to);
-            for (IndexableField field : strategy_t4_T.createIndexableFields(shapeT)) document.add(field);
+            Shape shapeT = makeShape(treeT4T, ttFrom, ttTo);
+            for (IndexableField field : strategyT4T.createIndexableFields(shapeT)) document.add(field);
         }
     }
 
@@ -303,10 +326,10 @@ public class BitemporalMapper extends Mapper {
     }
 
     private BitemporalDateTime checkIfNow(Long in) {
-        if (in > this.nowBitemporalDateTimeMillis) {
+        if (in > nowBitemporalDateTimeMillis) {
             throw new IllegalArgumentException("BitemporalDateTime value: " + in +
-                                               " exceeds Max Value: " + this.nowBitemporalDateTimeMillis);
-        } else if (in < this.nowBitemporalDateTimeMillis) {
+                                               " exceeds Max Value: " + nowBitemporalDateTimeMillis);
+        } else if (in < nowBitemporalDateTimeMillis) {
             return new BitemporalDateTime(in);
         } else {
             return new BitemporalDateTime(Long.MAX_VALUE);
@@ -322,7 +345,7 @@ public class BitemporalMapper extends Mapper {
      * format values based in pattern.
      */
     public BitemporalDateTime parseBiTemporalDate(Object value) throws IllegalArgumentException {
-        Date opt = this.dateParser.parse(value);
+        Date opt = dateParser.parse(value);
         if (opt != null) {
             return checkIfNow(opt.getTime());
         } else {
@@ -355,7 +378,7 @@ public class BitemporalMapper extends Mapper {
                       .add("ttFrom", ttFrom)
                       .add("ttTo", ttTo)
                       .add("pattern", pattern)
-                      .add("nowValue", this.nowBitemporalDateTimeMillis)
+                      .add("nowValue", nowBitemporalDateTimeMillis)
                       .toString();
     }
 

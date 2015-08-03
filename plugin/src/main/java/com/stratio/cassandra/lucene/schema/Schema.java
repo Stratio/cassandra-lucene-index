@@ -45,7 +45,7 @@ public class Schema implements Closeable {
 
     private final Analyzer defaultAnalyzer;
 
-    private final Analyzer analyzer;
+    private final PerFieldAnalyzerWrapper perFieldAnalyzer;
 
     private final Set<String> mappedColumns;
 
@@ -72,7 +72,7 @@ public class Schema implements Closeable {
             perFieldAnalyzers.put(name, analyzer);
             mappedColumns.addAll(mapper.getMappedColumns());
         }
-        this.analyzer = new PerFieldAnalyzerWrapper(this.defaultAnalyzer, perFieldAnalyzers);
+        this.perFieldAnalyzer = new PerFieldAnalyzerWrapper(this.defaultAnalyzer, perFieldAnalyzers);
     }
 
     public Analyzer getDefaultAnalyzer() {
@@ -113,7 +113,7 @@ public class Schema implements Closeable {
      * @return The used {@link Analyzer} wrapper.
      */
     public Analyzer getAnalyzer() {
-        return analyzer;
+        return perFieldAnalyzer;
     }
 
     /**
@@ -128,10 +128,14 @@ public class Schema implements Closeable {
             StringBuilder sb = new StringBuilder();
             for (int j = 0; j <= i; j++) {
                 sb.append(components[j]);
-                if (j < i) sb.append('.');
+                if (j < i) {
+                    sb.append('.');
+                }
             }
             Mapper mapper = mappers.get(sb.toString());
-            if (mapper != null) return mapper;
+            if (mapper != null) {
+                return mapper;
+            }
         }
         return null;
     }
@@ -187,7 +191,7 @@ public class Schema implements Closeable {
     /** {@inheritDoc} */
     @Override
     public void close() {
-        analyzer.close();
+        perFieldAnalyzer.close();
     }
 
     /** {@inheritDoc} */
@@ -197,7 +201,7 @@ public class Schema implements Closeable {
                       .add("mappers", mappers)
                       .add("analyzers", analyzers)
                       .add("defaultAnalyzer", defaultAnalyzer)
-                      .add("analyzer", analyzer)
+                      .add("perFieldAnalyzer", perFieldAnalyzer)
                       .toString();
     }
 }

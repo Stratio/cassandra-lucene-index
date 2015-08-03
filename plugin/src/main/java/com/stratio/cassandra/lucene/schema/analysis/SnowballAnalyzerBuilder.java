@@ -173,16 +173,29 @@ public class SnowballAnalyzerBuilder extends AnalyzerBuilder {
         }
     }
 
+    /**
+     * A tartarus.org snowball {@link Analyzer}.
+     */
     public static class SnowballAnalyzer extends Analyzer {
 
         private String language;
         private CharArraySet stopwords;
 
+        /**
+         * Builds a new {@link SnowballAnalyzer} for the specified language and stopwords.
+         *
+         * @param language  The language. The supported languages are English, French, Spanish, Portuguese, Italian,
+         *                  Romanian, German, Dutch, Swedish, Norwegian, Danish, Russian, Finnish, Irish, Hungarian,
+         *                  Turkish, Armenian, Basque and Catalan.
+         * @param stopwords The comma separated stopwords {@code String}.
+         */
         public SnowballAnalyzer(String language, CharArraySet stopwords) {
             this.language = language;
             this.stopwords = stopwords;
         }
 
+        /** {@inheritDoc} */
+        @Override
         protected TokenStreamComponents createComponents(String fieldName) {
             final Tokenizer source = new StandardTokenizer();
             TokenStream result = new StandardFilter(source);

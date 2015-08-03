@@ -18,6 +18,8 @@ package com.stratio.cassandra.lucene.schema.mapping.builder;
 import com.stratio.cassandra.lucene.schema.mapping.DateMapper;
 import org.codehaus.jackson.annotate.JsonProperty;
 
+import java.text.SimpleDateFormat;
+
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
@@ -32,21 +34,45 @@ public class DateMapperBuilder extends MapperBuilder<DateMapper> {
     @JsonProperty("pattern")
     private String pattern;
 
+    /**
+     * Sets if the field supports searching.
+     *
+     * @param indexed if the field supports searching.
+     * @return This.
+     */
     public DateMapperBuilder indexed(Boolean indexed) {
         this.indexed = indexed;
         return this;
     }
 
+    /**
+     * Sets if the field supports sorting.
+     *
+     * @param sorted if the field supports sorting.
+     * @return This.
+     */
     public DateMapperBuilder sorted(Boolean sorted) {
         this.sorted = sorted;
         return this;
     }
 
+    /**
+     * Sets the {@link SimpleDateFormat} pattern to be used.
+     *
+     * @param pattern The {@link SimpleDateFormat} pattern to be used.
+     * @return This.
+     */
     public DateMapperBuilder pattern(String pattern) {
         this.pattern = pattern;
         return this;
     }
 
+    /**
+     * Returns the {@link DateMapper} represented by this {@link MapperBuilder}.
+     *
+     * @param name The name of the {@link DateMapper} to be built.
+     * @return The {@link DateMapper} represented by this.
+     */
     @Override
     public DateMapper build(String name) {
         return new DateMapper(name, indexed, sorted, pattern);

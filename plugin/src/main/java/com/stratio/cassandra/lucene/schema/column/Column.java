@@ -25,7 +25,7 @@ import java.nio.ByteBuffer;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class Column<T> {
+public final class Column<T> {
 
     /** The column's name. */
     private final String name;
@@ -52,6 +52,7 @@ public class Column<T> {
      * @param decomposedValue The decomposed value of the column to be created.
      * @param composedValue   The composed value of the column to be created.
      * @param type            The type/marshaller of the column to be created.
+     * @param isCollection    If the column is a CQL collection.
      */
     private Column(String name,
                    String nameSufix,

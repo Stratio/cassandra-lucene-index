@@ -15,6 +15,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * Class for building new {@link Schema}s both programmatically and from JSON.
+ *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class SchemaBuilder {
@@ -37,21 +39,46 @@ public class SchemaBuilder {
         this.mapperBuilders = mapperBuilders != null ? mapperBuilders : new HashMap<String, MapperBuilder>();
     }
 
+    /**
+     * Sets the name of the default {@link Analyzer}.
+     *
+     * @param name The name of the default {@link Analyzer}.
+     * @return This.
+     */
     public SchemaBuilder defaultAnalyzer(String name) {
         defaultAnalyzerName = name;
         return this;
     }
 
+    /**
+     * Adds a new {@link Analyzer}.
+     *
+     * @param name     The name of the {@link Analyzer} to be added.
+     * @param analyzer The builder of the {@link Analyzer} to be added.
+     * @return This.
+     */
     public SchemaBuilder analyzer(String name, AnalyzerBuilder analyzer) {
         analyzerBuilders.put(name, analyzer);
         return this;
     }
 
+    /**
+     * Adds a new {@link Mapper}.
+     *
+     * @param name   The name of the {@link Mapper} to be added.
+     * @param mapper The builder of the {@link Mapper} to be added.
+     * @return This.
+     */
     public SchemaBuilder mapper(String name, MapperBuilder mapper) {
         mapperBuilders.put(name, mapper);
         return this;
     }
 
+    /**
+     * Returns the {@link Schema} defined by this.
+     *
+     * @return The {@link Schema} defined by this.
+     */
     public Schema build() {
 
         Map<String, Mapper> mappers = new HashMap<>(mapperBuilders.size());
@@ -89,6 +116,12 @@ public class SchemaBuilder {
         return new Schema(defaultAnalyzer, mappers, analyzers);
     }
 
+    /**
+     * Returns the JSON representation of this builder.
+     *
+     * @return The JSON representation of this builder.
+     * @throws IOException If there are JSON mapping errors.
+     */
     public String toJson() throws IOException {
         return JsonSerializer.toString(this);
     }

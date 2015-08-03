@@ -32,21 +32,45 @@ public class StringMapperBuilder extends MapperBuilder<StringMapper> {
     @JsonProperty("case_sensitive")
     private Boolean caseSensitive;
 
+    /**
+     * Sets if the field supports searching.
+     *
+     * @param indexed if the field supports searching.
+     * @return This.
+     */
     public StringMapperBuilder indexed(Boolean indexed) {
         this.indexed = indexed;
         return this;
     }
 
+    /**
+     * Sets if the field supports sorting.
+     *
+     * @param sorted if the field supports sorting.
+     * @return This.
+     */
     public StringMapperBuilder sorted(Boolean sorted) {
         this.sorted = sorted;
         return this;
     }
 
+    /**
+     * Sets if the {@link StringMapper} to be built must be case sensitive.
+     *
+     * @param caseSensitive If the {@link StringMapper} to be built must be case sensitive.
+     * @return This.
+     */
     public StringMapperBuilder caseSensitive(Boolean caseSensitive) {
         this.caseSensitive = caseSensitive;
         return this;
     }
 
+    /**
+     * Returns the {@link StringMapper} represented by this {@link MapperBuilder}.
+     *
+     * @param name The name of the {@link StringMapper} to be built.
+     * @return The {@link StringMapper} represented by this.
+     */
     @Override
     public StringMapper build(String name) {
         return new StringMapper(name, indexed, sorted, caseSensitive);

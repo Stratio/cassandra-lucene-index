@@ -29,16 +29,34 @@ public class BlobMapperBuilder extends MapperBuilder<BlobMapper> {
     @JsonProperty("sorted")
     private Boolean sorted;
 
+    /**
+     * Sets if the field supports searching.
+     *
+     * @param indexed if the field supports searching.
+     * @return This.
+     */
     public BlobMapperBuilder indexed(Boolean indexed) {
         this.indexed = indexed;
         return this;
     }
 
+    /**
+     * Sets if the field supports sorting.
+     *
+     * @param sorted if the field supports sorting.
+     * @return This.
+     */
     public BlobMapperBuilder sorted(Boolean sorted) {
         this.sorted = sorted;
         return this;
     }
 
+    /**
+     * Returns the {@link BlobMapper} represented by this {@link MapperBuilder}.
+     *
+     * @param name The name of the {@link BlobMapper} to be built.
+     * @return The {@link BlobMapper} represented by this.
+     */
     @Override
     public BlobMapper build(String name) {
         return new BlobMapper(name, indexed, sorted);

@@ -133,10 +133,16 @@ public class GeoPointMapper extends Mapper {
         return bboxStrategy;
     }
 
+    /**
+     * Returns the maximum number of levels in the tree.
+     *
+     * @return The maximum number of levels in the tree.
+     */
     public int getMaxLevels() {
         return maxLevels;
     }
 
+    /** {@inheritDoc} */
     @Override
     public void addFields(Document document, Columns columns) {
 
@@ -158,6 +164,7 @@ public class GeoPointMapper extends Mapper {
         throw new UnsupportedOperationException(String.format("GeoPoint mapper '%s' does not support sorting", name));
     }
 
+    /** {@inheritDoc} */
     @Override
     public void validate(CFMetaData metadata) {
         validate(metadata, latitude);

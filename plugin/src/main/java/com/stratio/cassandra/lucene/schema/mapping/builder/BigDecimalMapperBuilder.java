@@ -35,26 +35,56 @@ public class BigDecimalMapperBuilder extends MapperBuilder<BigDecimalMapper> {
     @JsonProperty("decimal_digits")
     private Integer decimalDigits;
 
+    /**
+     * Sets if the field supports searching.
+     *
+     * @param indexed if the field supports searching.
+     * @return This.
+     */
     public BigDecimalMapperBuilder indexed(Boolean indexed) {
         this.indexed = indexed;
         return this;
     }
 
+    /**
+     * Sets if the field supports sorting.
+     *
+     * @param sorted if the field supports sorting.
+     * @return This.
+     */
     public BigDecimalMapperBuilder sorted(Boolean sorted) {
         this.sorted = sorted;
         return this;
     }
 
+    /**
+     * Sets the max number of digits for the integer part.
+     *
+     * @param integerDigits The max number of digits for the integer part.
+     * @return This.
+     */
     public BigDecimalMapperBuilder integerDigits(Integer integerDigits) {
         this.integerDigits = integerDigits;
         return this;
     }
 
+    /**
+     * Sets the max number of digits for the decimal part.
+     *
+     * @param decimalDigits The max number of digits for the decimal part.
+     * @return This.
+     */
     public BigDecimalMapperBuilder decimalDigits(Integer decimalDigits) {
         this.decimalDigits = decimalDigits;
         return this;
     }
 
+    /**
+     * Returns the {@link BigDecimalMapper} represented by this {@link MapperBuilder}.
+     *
+     * @param name The name of the {@link BigDecimalMapper} to be built.
+     * @return The {@link BigDecimalMapper} represented by this.
+     */
     @Override
     public BigDecimalMapper build(String name) {
         return new BigDecimalMapper(name, indexed, sorted, integerDigits, decimalDigits);
