@@ -15,7 +15,9 @@
  */
 package com.stratio.cassandra.lucene.schema.mapping.builder;
 
+import com.stratio.cassandra.lucene.schema.mapping.DateMapper;
 import com.stratio.cassandra.lucene.schema.mapping.DateRangeMapper;
+import com.stratio.cassandra.lucene.util.DateParser;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -50,7 +52,7 @@ public class DateRangeMapperBuilderTest extends AbstractMapperBuilderTest {
         assertEquals("field", mapper.getName());
         assertEquals("start", mapper.getStart());
         assertEquals("stop", mapper.getStop());
-        assertEquals(DateRangeMapper.DEFAULT_PATTERN, mapper.getPattern());
+        assertEquals(DateParser.DEFAULT_PATTERN, mapper.getPattern());
     }
 
     @Test

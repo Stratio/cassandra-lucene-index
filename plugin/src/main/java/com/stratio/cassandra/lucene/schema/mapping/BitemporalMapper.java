@@ -42,9 +42,6 @@ import java.util.Date;
  */
 public class BitemporalMapper extends Mapper {
 
-    /** The default {@link SimpleDateFormat} pattern. */
-    public static final String DEFAULT_PATTERN = "yyyy/MM/dd HH:mm:ss.SSS";
-
     /** The {@link DateParser} pattern. */
     private final String pattern;
 
@@ -128,8 +125,7 @@ public class BitemporalMapper extends Mapper {
             throw new IllegalArgumentException("ttTo column name is required");
         }
 
-        this.pattern = (pattern == null) ? DEFAULT_PATTERN : pattern;
-
+        this.pattern = pattern == null ? DateParser.DEFAULT_PATTERN : pattern;
         this.dateParser = new DateParser(this.pattern);
 
         this.vtFrom = vtFrom;

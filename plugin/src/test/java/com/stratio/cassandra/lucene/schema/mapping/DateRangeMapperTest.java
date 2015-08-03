@@ -17,6 +17,7 @@ package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
+import com.stratio.cassandra.lucene.util.DateParser;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.db.ColumnFamilyType;
 import org.apache.cassandra.db.composites.CellNameType;
@@ -44,7 +45,7 @@ public class DateRangeMapperTest {
 
     private static final String SHORT_PATTERN = "yyyy-MM-dd";
     private static final SimpleDateFormat ssdf = new SimpleDateFormat(SHORT_PATTERN);
-    private static final SimpleDateFormat lsdf = new SimpleDateFormat(DateRangeMapper.DEFAULT_PATTERN);
+    private static final SimpleDateFormat lsdf = new SimpleDateFormat(DateParser.DEFAULT_PATTERN);
 
     @Test
     public void testConstructorWithDefaultArgs() {
@@ -54,7 +55,7 @@ public class DateRangeMapperTest {
         assertFalse(mapper.isSorted());
         assertEquals("to", mapper.getStart());
         assertEquals("from", mapper.getStop());
-        assertEquals(DateRangeMapper.DEFAULT_PATTERN, mapper.getPattern());
+        assertEquals(DateParser.DEFAULT_PATTERN, mapper.getPattern());
         assertNotNull(mapper.getStrategy());
     }
 
@@ -140,9 +141,9 @@ public class DateRangeMapperTest {
     public void testGetStartFromStringColumnWithDefaultPattern() throws ParseException {
         DateRangeMapper mapper = new DateRangeMapper("field", "from", "to", null);
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("from", "2015/02/28 01:02:03.004", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("from", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
         columns.add(Column.fromComposed("to", 0, Int32Type.instance, false));
-        assertEquals(lsdf.parse("2015/02/28 01:02:03.004"), mapper.readStart(columns));
+        assertEquals(lsdf.parse("2015/02/28 01:02:03.004 GMT"), mapper.readStart(columns));
     }
 
     @Test
@@ -210,8 +211,8 @@ public class DateRangeMapperTest {
         DateRangeMapper mapper = new DateRangeMapper("field", "from", "to", null);
         Columns columns = new Columns();
         columns.add(Column.fromComposed("from", 0, Int32Type.instance, false));
-        columns.add(Column.fromComposed("to", "2015/02/28 01:02:03.004", UTF8Type.instance, false));
-        assertEquals(lsdf.parse("2015/02/28 01:02:03.004"), mapper.readStop(columns));
+        columns.add(Column.fromComposed("to", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
+        assertEquals(lsdf.parse("2015/02/28 01:02:03.004 GMT"), mapper.readStop(columns));
     }
 
     @Test

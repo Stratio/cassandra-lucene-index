@@ -42,10 +42,10 @@ import java.util.Date;
  */
 public class DateRangeMapper extends Mapper {
 
-    /** The default {@link SimpleDateFormat} pattern. */
-    public static final String DEFAULT_PATTERN = "yyyy/MM/dd HH:mm:ss.SSS";
-
+    /** The name of the column containing the start date. */
     private final String start;
+
+    /** The name of the column containing the stop date. */
     private final String stop;
 
     /** The {@link SimpleDateFormat} pattern. */
@@ -61,8 +61,8 @@ public class DateRangeMapper extends Mapper {
      * Builds a new {@link DateRangeMapper}.
      *
      * @param name    The name of the mapper.
-     * @param start   The column containing the start date.
-     * @param stop    The column containing the stop date.
+     * @param start   The name of the column containing the start date.
+     * @param stop    The name of the column containing the stop date.
      * @param pattern The {@link SimpleDateFormat} pattern to be used.
      */
     public DateRangeMapper(String name, String start, String stop, String pattern) {
@@ -92,7 +92,7 @@ public class DateRangeMapper extends Mapper {
         this.stop = stop;
         this.tree = DateRangePrefixTree.INSTANCE;
         this.strategy = new NumberRangePrefixTreeStrategy(tree, name);
-        this.pattern = pattern == null ? DEFAULT_PATTERN : pattern;
+        this.pattern = pattern == null ? DateParser.DEFAULT_PATTERN : pattern;
         this.dateParser = new DateParser(this.pattern);
     }
 

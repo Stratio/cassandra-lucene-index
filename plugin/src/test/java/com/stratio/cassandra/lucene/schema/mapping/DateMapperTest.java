@@ -15,6 +15,7 @@
  */
 package com.stratio.cassandra.lucene.schema.mapping;
 
+import com.stratio.cassandra.lucene.util.DateParser;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.DocValuesType;
 import org.apache.lucene.search.SortField;
@@ -36,7 +37,7 @@ public class DateMapperTest {
         DateMapper mapper = new DateMapper("field", null, null, null);
         assertEquals(Mapper.DEFAULT_INDEXED, mapper.isIndexed());
         assertEquals(Mapper.DEFAULT_SORTED, mapper.isSorted());
-        assertEquals(DateMapper.DEFAULT_PATTERN, mapper.getPattern());
+        assertEquals(DateParser.DEFAULT_PATTERN, mapper.getPattern());
     }
 
     @Test
@@ -157,8 +158,8 @@ public class DateMapperTest {
     @Test
     public void testValueStringWithoutPattern() throws ParseException {
         DateMapper mapper = new DateMapper("field", null, null, null);
-        long parsed = mapper.base("test", "2014/03/19 00:00:00.000");
-        assertEquals(sdf.parse("2014-03-19").getTime(), parsed);
+        long parsed = mapper.base("test", "2014/03/19 00:00:00.000 GMT");
+        assertEquals(new DateParser(null).parse("2014/03/19 00:00:00.000 GMT").getTime(), parsed);
     }
 
     @Test(expected = IllegalArgumentException.class)

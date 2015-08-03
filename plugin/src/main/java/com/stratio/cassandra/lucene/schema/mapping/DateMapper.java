@@ -42,9 +42,6 @@ import java.util.Date;
  */
 public class DateMapper extends SingleColumnMapper<Long> {
 
-    /** The default {@link SimpleDateFormat} pattern. */
-    public static final String DEFAULT_PATTERN = "yyyy/MM/dd HH:mm:ss.SSS";
-
     /** The {@link SimpleDateFormat} pattern. */
     private final String pattern;
 
@@ -72,7 +69,7 @@ public class DateMapper extends SingleColumnMapper<Long> {
               DoubleType.instance,
               DecimalType.instance,
               TimestampType.instance);
-        this.pattern = pattern == null ? DEFAULT_PATTERN : pattern;
+        this.pattern = pattern == null ? DateParser.DEFAULT_PATTERN : pattern;
         this.dateParser = new DateParser(this.pattern);
     }
 

@@ -1,5 +1,7 @@
 package com.stratio.cassandra.lucene.util;
 
+import com.google.common.base.Objects;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -12,19 +14,23 @@ import java.util.Date;
  */
 public class DateParser {
 
+    /** The default {@link SimpleDateFormat} pattern. */
+    public static final String DEFAULT_PATTERN = "yyyy/MM/dd HH:mm:ss.SSS z";
+
     /** The {@link SimpleDateFormat} pattern. */
-    private String pattern;
+    private final String pattern;
 
     /** The thread safe date format. */
-    private ThreadLocal<DateFormat> concurrentDateFormat;
+    private final ThreadLocal<DateFormat> concurrentDateFormat;
 
     /**
      * Constructor with pattern
      *
      * @param pattern the {@link SimpleDateFormat} pattern to use.
      */
-    public DateParser(final String pattern) {
-        this.pattern = pattern;
+    public DateParser(String pattern) {
+
+        this.pattern = pattern == null ? DEFAULT_PATTERN : pattern;
 
         // Validate pattern
         new SimpleDateFormat(this.pattern);
@@ -32,7 +38,7 @@ public class DateParser {
         this.concurrentDateFormat = new ThreadLocal<DateFormat>() {
             @Override
             protected DateFormat initialValue() {
-                return new SimpleDateFormat(pattern);
+                return new SimpleDateFormat(DateParser.this.pattern);
             }
         };
     }
@@ -62,5 +68,10 @@ public class DateParser {
         throw new IllegalArgumentException(String.format("Valid date required but found '%s', " +
                                                          "it can't be parsed by pattern '%s' and is not instance " +
                                                          "of Date nor Number", value, pattern));
+    }
+
+    @Override
+    public String toString() {
+        return pattern;
     }
 }
