@@ -1,5 +1,7 @@
 # Changelog
 
+## 2.1.8.2-SNAPSHOT ()
+
 ## 2.1.8.1 (31 July 2015)
 
  * Add complete support for CQL paging, even for top-k queries.
