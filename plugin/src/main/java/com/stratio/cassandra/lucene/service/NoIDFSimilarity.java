@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.cassandra.lucene.service;
 
 import org.apache.lucene.search.similarities.DefaultSimilarity;

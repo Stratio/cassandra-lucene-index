@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.stratio.cassandra.lucene.schema.mapping.builder;
 
-import com.stratio.cassandra.lucene.schema.mapping.DateMapper;
 import com.stratio.cassandra.lucene.schema.mapping.DateRangeMapper;
 import com.stratio.cassandra.lucene.util.DateParser;
 import org.junit.Test;
