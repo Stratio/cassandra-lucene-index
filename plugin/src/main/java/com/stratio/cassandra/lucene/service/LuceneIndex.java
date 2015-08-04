@@ -339,4 +339,15 @@ public class LuceneIndex implements LuceneIndexMBean {
         Log.info("%s refreshing readers", logName);
         searcherReopener.run();
     }
+
+    /**
+     * Waits for index searcher refresh.
+     *
+     * @param time  The desired minimum refreshing timestamp.
+     * @param maxMS maximum milliseconds to wait, or -1 to wait indefinitely.
+     * @throws InterruptedException If the thread wait is interrupted.
+     */
+    public void waitForRefresh(long time, int maxMS) throws InterruptedException {
+        searcherReopener.waitForGeneration(time, maxMS);
+    }
 }
