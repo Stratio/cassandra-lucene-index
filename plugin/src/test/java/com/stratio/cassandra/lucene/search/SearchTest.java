@@ -34,7 +34,8 @@ public class SearchTest {
 
     @Test
     public void testBuilderEmpty() {
-        Search search = new Search(null, null, null);
+        Search search = new Search(null, null, null, null);
+        assertFalse(search.forceRefresh());
         assertNotNull(search);
     }
 
@@ -43,8 +44,10 @@ public class SearchTest {
         Search search = search().query(match("field", "value"))
                                 .filter(match("field", "value"))
                                 .sort(sortField("field"))
+                                .forceRefresh(true)
                                 .build();
         assertNotNull(search);
+        assertTrue(search.forceRefresh());
     }
 
     @Test

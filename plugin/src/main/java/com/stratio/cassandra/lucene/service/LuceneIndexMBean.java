@@ -67,6 +67,8 @@ public interface LuceneIndexMBean {
 
     /**
      * Refreshes the index readers.
+     *
+     * @throws IOException If Lucene throws IO errors.
      */
-    void refresh();
+    void forceRefresh() throws IOException;
 }

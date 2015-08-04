@@ -280,6 +280,11 @@ public abstract class RowService {
 
         List<Row> rows = new LinkedList<>();
 
+        // Refresh index if needed
+        if (search.forceRefresh()) {
+            luceneIndex.forceRefresh();
+        }
+
         SearcherManager searcherManager = luceneIndex.getSearcherManager();
         IndexSearcher searcher = searcherManager.acquire();
         try {

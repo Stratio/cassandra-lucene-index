@@ -21,6 +21,7 @@ import com.stratio.cassandra.lucene.search.condition.builder.ConditionBuilder;
 import com.stratio.cassandra.lucene.search.sort.Sort;
 import com.stratio.cassandra.lucene.search.sort.builder.SortBuilder;
 import com.stratio.cassandra.lucene.search.sort.builder.SortFieldBuilder;
+import com.stratio.cassandra.lucene.util.Builder;
 import com.stratio.cassandra.lucene.util.JsonSerializer;
 import org.codehaus.jackson.annotate.JsonProperty;
 
@@ -31,7 +32,7 @@ import java.io.IOException;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class SearchBuilder {
+public class SearchBuilder implements Builder<Search> {
 
     /** The {@link Condition} for querying, maybe {@code null} meaning no querying. */
     @JsonProperty("query")
@@ -44,6 +45,10 @@ public class SearchBuilder {
     /** The {@link Sort} for the query, maybe {@code null} meaning no filtering. */
     @JsonProperty("sort")
     SortBuilder sortBuilder;
+
+    /** If this search must force the refresh the index before reading it. */
+    @JsonProperty("force_refresh")
+    private boolean forceRefresh;
 
     /**
      * Returns this builder with the specified querying condition.
@@ -90,6 +95,17 @@ public class SearchBuilder {
     }
 
     /**
+     * Sets if the {@link Search} to be built must forceRefresh the index before reading it.
+     *
+     * @param refresh If the {@link Search} to be built must forceRefresh the index before reading it.
+     * @return This builder with the specified forceRefresh.
+     */
+    public SearchBuilder forceRefresh(boolean refresh) {
+        this.forceRefresh = refresh;
+        return this;
+    }
+
+    /**
      * Returns the {@link Search} represented by this builder.
      *
      * @return The {@link Search} represented by this builder.
@@ -98,7 +114,7 @@ public class SearchBuilder {
         Condition query = queryBuilder == null ? null : queryBuilder.build();
         Condition filter = filterBuilder == null ? null : filterBuilder.build();
         Sort sort = sortBuilder == null ? null : sortBuilder.build();
-        return new Search(query, filter, sort);
+        return new Search(query, filter, sort, forceRefresh);
     }
 
     /**
