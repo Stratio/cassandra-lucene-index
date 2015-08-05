@@ -17,6 +17,7 @@
 package com.stratio.cassandra.lucene.search.condition;
 
 import com.google.common.base.Objects;
+import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
 import org.apache.lucene.index.Term;
@@ -53,7 +54,7 @@ public class RegexpCondition extends SingleFieldCondition {
         super(boost, field);
 
         if (value == null) {
-            throw new IllegalArgumentException("Field value required");
+            throw new IndexException("Field value required");
         }
 
         this.field = field;
@@ -70,8 +71,7 @@ public class RegexpCondition extends SingleFieldCondition {
             Term term = new Term(field, value);
             query = new RegexpQuery(term);
         } else {
-            String message = String.format("Regexp queries are not supported by %s mapper", clazz.getSimpleName());
-            throw new UnsupportedOperationException(message);
+            throw new IndexException("Regexp queries are not supported by '%s' mapper", clazz.getSimpleName());
         }
         query.setBoost(boost);
         return query;

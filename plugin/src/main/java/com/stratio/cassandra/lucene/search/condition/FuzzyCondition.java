@@ -17,6 +17,7 @@
 package com.stratio.cassandra.lucene.search.condition;
 
 import com.google.common.base.Objects;
+import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
 import org.apache.commons.lang3.StringUtils;
@@ -90,16 +91,16 @@ public class FuzzyCondition extends SingleFieldCondition {
         super(boost, field);
 
         if (StringUtils.isBlank(value)) {
-            throw new IllegalArgumentException("Field value required");
+            throw new IndexException("Field value required");
         }
         if (maxEdits != null && (maxEdits < 0 || maxEdits > 2)) {
-            throw new IllegalArgumentException("max_edits must be between 0 and 2");
+            throw new IndexException("max_edits must be between 0 and 2");
         }
         if (prefixLength != null && prefixLength < 0) {
-            throw new IllegalArgumentException("prefix_length must be positive.");
+            throw new IndexException("prefix_length must be positive.");
         }
         if (maxExpansions != null && maxExpansions < 0) {
-            throw new IllegalArgumentException("max_expansions must be positive.");
+            throw new IndexException("max_expansions must be positive.");
         }
 
         this.field = field;
@@ -121,8 +122,7 @@ public class FuzzyCondition extends SingleFieldCondition {
             query.setBoost(boost);
             return query;
         } else {
-            String message = String.format("Fuzzy queries are not supported by %s mapper", clazz.getSimpleName());
-            throw new UnsupportedOperationException(message);
+            throw new IndexException("Fuzzy queries are not supported by '%s' mapper", clazz.getSimpleName());
         }
     }
 

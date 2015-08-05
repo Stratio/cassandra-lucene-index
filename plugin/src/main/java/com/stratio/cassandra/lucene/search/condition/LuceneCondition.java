@@ -17,6 +17,7 @@
 package com.stratio.cassandra.lucene.search.condition;
 
 import com.google.common.base.Objects;
+import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.analysis.Analyzer;
@@ -52,7 +53,7 @@ public class LuceneCondition extends Condition {
     public LuceneCondition(Float boost, String defaultField, String query) {
         super(boost);
         if (StringUtils.isBlank(query)) {
-            throw new IllegalArgumentException("Query statement required");
+            throw new IndexException("Query statement required");
         }
         this.query = query;
         this.defaultField = defaultField == null ? DEFAULT_FIELD : defaultField;
@@ -70,7 +71,7 @@ public class LuceneCondition extends Condition {
             luceneQuery.setBoost(boost);
             return luceneQuery;
         } catch (ParseException e) {
-            throw new IllegalArgumentException("Error while parsing lucene syntax query", e);
+            throw new IndexException("Error while parsing lucene syntax query: %s", e.getMessage());
         }
     }
 

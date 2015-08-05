@@ -16,6 +16,7 @@
 
 package com.stratio.cassandra.lucene.search.condition;
 
+import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.GeoPointMapper;
 import com.stratio.cassandra.lucene.schema.mapping.UUIDMapper;
@@ -55,87 +56,87 @@ public class GeoBBoxConditionTest extends AbstractConditionTest {
         assertEquals(3, condition.maxLatitude, 0);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testConstructorWithNullField() {
         new GeoBBoxCondition(null, null, 2D, 3D, 0D, 1D);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testConstructorWithEmptyField() {
         new GeoBBoxCondition(null, "", 2D, 3D, 0D, 1D);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testConstructorWithBlankField() {
         new GeoBBoxCondition(null, " ", 2D, 3D, 0D, 1D);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testConstructorWithNullMinLongitude() {
         new GeoBBoxCondition(null, "name", 2D, 3D, null, 1D);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testConstructorWithToSmallMinLongitude() {
         new GeoBBoxCondition(null, "name", 2D, 3D, -181D, 1D);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testConstructorWithToBiglMinLongitude() {
         new GeoBBoxCondition(null, "name", 2D, 3D, 181D, 1D);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testConstructorWithNullMaxLongitude() {
         new GeoBBoxCondition(null, "name", 2D, 3D, 0D, null);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testConstructorWithTooSmallMaxLongitude() {
         new GeoBBoxCondition(null, "name", 2D, 3D, 0D, -181D);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testConstructorWithTooBigMaxLongitude() {
         new GeoBBoxCondition(null, "name", 2D, 3D, 0D, 181D);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testConstructorWithNullLatitude() {
         new GeoBBoxCondition(null, "name", null, 3D, 0D, 1D);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testConstructorWithTooSmallMinLatitude() {
         new GeoBBoxCondition(null, "name", -91D, 3D, 0D, 1D);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testConstructorWithTooBigMinLatitude() {
         new GeoBBoxCondition(null, "name", 91D, 3D, 0D, 1D);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testConstructorWithNullMaxLatitude() {
         new GeoBBoxCondition(null, "name", 2D, null, 0D, 1D);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testConstructorWithTooSmallMaxLatitude() {
         new GeoBBoxCondition(null, "name", 2D, -91D, 0D, 1D);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testConstructorWithTooBigMaxLatitude() {
         new GeoBBoxCondition(null, "name", 2D, 91D, 0D, 1D);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testConstructorWithMinLongitudeGreaterThanMaxLongitude() {
         new GeoBBoxCondition(null, "name", 3D, 3D, 2D, 1D);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testConstructorWithMinLatitudeGreaterThanMaxLatitude() {
         new GeoBBoxCondition(null, "name", 4D, 3D, 0D, 1D);
     }
@@ -151,7 +152,7 @@ public class GeoBBoxConditionTest extends AbstractConditionTest {
         assertTrue(query instanceof BooleanQuery);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testQueryWithoutValidMapper() {
         Schema schema = mockSchema("name", new UUIDMapper("name", null, null));
         GeoBBoxCondition condition = new GeoBBoxCondition(0.5f, "name", -90D, 90D, -180D, 180D);

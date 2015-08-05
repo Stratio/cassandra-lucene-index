@@ -16,6 +16,7 @@
 
 package com.stratio.cassandra.lucene.search.condition;
 
+import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.search.Query;
@@ -56,7 +57,7 @@ public class LuceneConditionTest extends AbstractConditionTest {
         assertEquals(query, condition.query);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testBuildWithoutQuery() {
         Schema schema = mock(Schema.class);
         when(schema.getAnalyzer()).thenReturn(new EnglishAnalyzer());
@@ -77,7 +78,7 @@ public class LuceneConditionTest extends AbstractConditionTest {
         assertEquals(0.7f, query.getBoost(), 0);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testQueryInvalid() {
         Schema schema = mock(Schema.class);
         when(schema.getAnalyzer()).thenReturn(new EnglishAnalyzer());

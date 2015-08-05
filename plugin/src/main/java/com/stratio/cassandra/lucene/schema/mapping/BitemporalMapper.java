@@ -18,6 +18,7 @@ package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.google.common.base.Objects;
 import com.spatial4j.core.shape.Shape;
+import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import com.stratio.cassandra.lucene.util.DateParser;
@@ -111,19 +112,19 @@ public class BitemporalMapper extends Mapper {
               Arrays.asList(vtFrom, vtTo, ttFrom, ttTo));
 
         if (StringUtils.isBlank(vtFrom)) {
-            throw new IllegalArgumentException("vtFrom column name is required");
+            throw new IndexException("vtFrom column name is required");
         }
 
         if (StringUtils.isBlank(vtTo)) {
-            throw new IllegalArgumentException("vtTo column name is required");
+            throw new IndexException("vtTo column name is required");
         }
 
         if (StringUtils.isBlank(ttFrom)) {
-            throw new IllegalArgumentException("ttFrom column name is required");
+            throw new IndexException("ttFrom column name is required");
         }
 
         if (StringUtils.isBlank(ttTo)) {
-            throw new IllegalArgumentException("ttTo column name is required");
+            throw new IndexException("ttTo column name is required");
         }
 
         this.pattern = pattern == null ? DateParser.DEFAULT_PATTERN : pattern;
@@ -229,7 +230,7 @@ public class BitemporalMapper extends Mapper {
             case 3:
                 return isValidOrTransaction ? strategyT4V : strategyT4T;
             default:
-                throw new IllegalArgumentException("Not valid strategy found");
+                throw new IndexException("Not valid strategy found");
         }
     }
 
@@ -251,7 +252,7 @@ public class BitemporalMapper extends Mapper {
             case 3:
                 return isValidOrTransaction ? treeT4V : treeT4T;
             default:
-                throw new IllegalArgumentException("Not valid tree found");
+                throw new IndexException("Not valid tree found");
         }
     }
 
@@ -317,15 +318,16 @@ public class BitemporalMapper extends Mapper {
     BitemporalDateTime readBitemporalDate(Columns columns, String fieldName) {
         Column column = columns.getColumnsByName(fieldName).getFirst();
         if (column == null) {
-            throw new IllegalArgumentException(fieldName + " column required");
+            throw new IndexException("'%s' column required", fieldName);
         }
         return this.parseBiTemporalDate(column.getComposedValue());
     }
 
     private BitemporalDateTime checkIfNow(Long in) {
         if (in > nowBitemporalDateTimeMillis) {
-            throw new IllegalArgumentException("BitemporalDateTime value: " + in +
-                                               " exceeds Max Value: " + nowBitemporalDateTimeMillis);
+            throw new IndexException("BitemporalDateTime value '%s' exceeds Max Value: '%s'",
+                                      in,
+                                      nowBitemporalDateTimeMillis);
         } else if (in < nowBitemporalDateTimeMillis) {
             return new BitemporalDateTime(in);
         } else {
@@ -341,7 +343,7 @@ public class BitemporalMapper extends Mapper {
      * @return a parsed {@link BitemporalDateTime} from an {@link Object}. it parses {@link Long} and {@link String}
      * format values based in pattern.
      */
-    public BitemporalDateTime parseBiTemporalDate(Object value) throws IllegalArgumentException {
+    public BitemporalDateTime parseBiTemporalDate(Object value) {
         Date opt = dateParser.parse(value);
         if (opt != null) {
             return checkIfNow(opt.getTime());
@@ -353,7 +355,7 @@ public class BitemporalMapper extends Mapper {
     /** {@inheritDoc} */
     @Override
     public SortField sortField(String name, boolean reverse) {
-        throw new UnsupportedOperationException(String.format("Bitemporal mapper '%s' does not support sorting", name));
+        throw new IndexException(String.format("Bitemporal mapper '%s' does not support sorting", name));
     }
 
     /** {@inheritDoc} */
@@ -398,7 +400,7 @@ public class BitemporalMapper extends Mapper {
          */
         public BitemporalDateTime(Long timestamp) {
             if (timestamp < 0L)
-                throw new IllegalArgumentException("Cannot build a BitemporalDateTime with a negative unix time");
+                throw new IndexException("Cannot build a BitemporalDateTime with a negative unix time");
             this.timestamp = timestamp;
         }
 

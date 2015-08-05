@@ -17,6 +17,7 @@
 package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.google.common.base.Objects;
+import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.util.Log;
 import org.apache.cassandra.db.marshal.AsciiType;
 import org.apache.cassandra.db.marshal.InetAddressType;
@@ -72,7 +73,7 @@ public class InetMapper extends KeywordMapper {
                 }
             }
         }
-        return error("Field '%s' requires an inet address, but found '%s'", name, value);
+        throw new IndexException("Field '%s' requires an inet address, but found '%s'", name, value);
     }
 
     /** {@inheritDoc} */

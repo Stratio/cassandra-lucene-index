@@ -17,6 +17,7 @@
 package com.stratio.cassandra.lucene.search.condition;
 
 import com.google.common.base.Objects;
+import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
 import org.apache.lucene.search.NumericRangeQuery;
@@ -110,8 +111,7 @@ public class RangeCondition extends SingleFieldCondition {
             Double upper = (Double) columnMapper.base(field, this.upper);
             query = NumericRangeQuery.newDoubleRange(field, lower, upper, includeLower, includeUpper);
         } else {
-            String message = String.format("Range queries are not supported by %s mapper", clazz.getSimpleName());
-            throw new UnsupportedOperationException(message);
+            throw new IndexException("Range queries are not supported by '%s' mapper", clazz.getSimpleName());
         }
         query.setBoost(boost);
         return query;

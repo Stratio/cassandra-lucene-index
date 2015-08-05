@@ -16,6 +16,7 @@
 
 package com.stratio.cassandra.lucene.search.condition;
 
+import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.DateRangeMapper;
 import com.stratio.cassandra.lucene.schema.mapping.UUIDMapper;
@@ -83,17 +84,17 @@ public class DateRangeConditionTest extends AbstractConditionTest {
         assertEquals(SpatialOperation.Contains, DateRangeCondition.parseSpatialOperation("CONTAINS"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testParseSpatialOperationNull() {
         DateRangeCondition.parseSpatialOperation(null);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testParseSpatialOperationEmpty() {
         DateRangeCondition.parseSpatialOperation("");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testParseSpatialOperationBlank() {
         DateRangeCondition.parseSpatialOperation(" ");
     }
@@ -113,7 +114,7 @@ public class DateRangeConditionTest extends AbstractConditionTest {
                 filter.toString());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testQueryWithoutValidMapper() {
         Schema schema = mockSchema("name", new UUIDMapper("name", null, null));
         DateRangeCondition condition = new DateRangeCondition(null, "name", 1, 2, null);

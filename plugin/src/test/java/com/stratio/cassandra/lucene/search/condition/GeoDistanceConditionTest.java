@@ -16,6 +16,7 @@
 
 package com.stratio.cassandra.lucene.search.condition;
 
+import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.GeoPointMapper;
 import com.stratio.cassandra.lucene.schema.mapping.UUIDMapper;
@@ -56,57 +57,57 @@ public class GeoDistanceConditionTest extends AbstractConditionTest {
         assertEquals("1yd", condition.maxDistance);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testConstructorWithNullField() {
         new GeoDistanceCondition(null, null, 90D, -180D, "1km", "3km");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testConstructorWithEmptyField() {
         new GeoDistanceCondition(null, "", 90D, -180D, "1km", "3km");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testConstructorWithBlankField() {
         new GeoDistanceCondition(null, " ", 90D, -180D, "1km", "3km");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testConstructorWithNullLongitude() {
         new GeoDistanceCondition(null, "name", 90D, null, "1km", "3km");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testConstructorWithToSmallLongitude() {
         new GeoDistanceCondition(null, "name", 90D, -181D, "1km", "3km");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testConstructorWithToBigLongitude() {
         new GeoDistanceCondition(null, "name", 90D, 181D, "1km", "3km");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testConstructorWithNullLatitude() {
         new GeoDistanceCondition(null, "name", null, -180D, "1km", "3km");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testConstructorWithTooSmallLatitude() {
         new GeoDistanceCondition(null, "name", -91D, -180D, "1km", "3km");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testConstructorWithTooBigLatitude() {
         new GeoDistanceCondition(null, "name", 91D, -180D, "1km", "3km");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testConstructorWithoutDistances() {
         new GeoDistanceCondition(null, "name", 90D, -180D, null, null);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testConstructorWithMinLongitudeGreaterThanMaxLongitude() {
         new GeoDistanceCondition(null, "name", 90D, -180D, "10km", "3km");
     }
@@ -130,7 +131,7 @@ public class GeoDistanceConditionTest extends AbstractConditionTest {
                      "d=0.0° 1.00km),detailLevel=8,prefixGridScanLevel=4)", filter.toString());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testQueryMin() {
         new GeoDistanceCondition(0.5f, "name", 90D, -180D, "3km", null);
     }
@@ -166,7 +167,7 @@ public class GeoDistanceConditionTest extends AbstractConditionTest {
                      "d=0.0° 3.00km),detailLevel=8,prefixGridScanLevel=4)", maxFilter.toString());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testQueryWithoutValidMapper() {
         Schema schema = mockSchema("name", new UUIDMapper("name", null, null));
         Condition condition = new GeoDistanceCondition(0.5f, "name", 90D, -180D, null, "3km");

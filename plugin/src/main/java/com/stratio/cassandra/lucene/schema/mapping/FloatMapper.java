@@ -17,6 +17,7 @@
 package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.google.common.base.Objects;
+import com.stratio.cassandra.lucene.IndexException;
 import org.apache.cassandra.db.marshal.AsciiType;
 import org.apache.cassandra.db.marshal.DecimalType;
 import org.apache.cassandra.db.marshal.DoubleType;
@@ -93,7 +94,7 @@ public class FloatMapper extends SingleColumnMapper<Float> {
                 // Ignore to fail below
             }
         }
-        return error("Field '%s' requires a float, but found '%s'", name, value);
+        throw new IndexException("Field '%s' requires a float, but found '%s'", name, value);
     }
 
     /** {@inheritDoc} */

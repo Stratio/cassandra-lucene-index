@@ -17,6 +17,7 @@
 package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.google.common.base.Objects;
+import com.stratio.cassandra.lucene.IndexException;
 import org.apache.cassandra.db.marshal.AsciiType;
 import org.apache.cassandra.db.marshal.Int32Type;
 import org.apache.cassandra.db.marshal.IntegerType;
@@ -61,7 +62,7 @@ public class BigIntegerMapper extends KeywordMapper {
               IntegerType.instance);
 
         if (digits != null && digits <= 0) {
-            throw new IllegalArgumentException("Positive digits required");
+            throw new IndexException("Positive digits required");
         }
 
         this.digits = digits == null ? DEFAULT_DIGITS : digits;
@@ -95,12 +96,12 @@ public class BigIntegerMapper extends KeywordMapper {
         try {
             bi = new BigInteger(svalue);
         } catch (NumberFormatException e) {
-            return error("Field '%s' requires a base 10 integer, but found '%s'", name, svalue);
+            throw new IndexException("Field '%s' requires a base 10 integer, but found '%s'", name, svalue);
         }
 
         // Check size
         if (bi.abs().toString().length() > digits) {
-            return error("Field '%s' with value '%s' has more than %d digits", name, value, digits);
+            throw new IndexException("Field '%s' with value '%s' has more than %d digits", name, value, digits);
         }
 
         // Map

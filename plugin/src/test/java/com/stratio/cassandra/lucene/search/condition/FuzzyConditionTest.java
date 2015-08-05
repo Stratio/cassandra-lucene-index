@@ -16,6 +16,7 @@
 
 package com.stratio.cassandra.lucene.search.condition;
 
+import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.analysis.PreBuiltAnalyzers;
 import com.stratio.cassandra.lucene.schema.mapping.IntegerMapper;
@@ -55,32 +56,32 @@ public class FuzzyConditionTest extends AbstractConditionTest {
         assertEquals(FuzzyCondition.DEFAULT_TRANSPOSITIONS, condition.transpositions);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testBuilderValueNull() {
         new FuzzyCondition(0.5f, "name", null, 1, 2, 49, true);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testBuilderValueBlank() {
         new FuzzyCondition(0.5f, "name", " ", 1, 2, 49, true);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testBuilderMaxEditsTooSmall() {
         new FuzzyCondition(0.5f, "name", "tr", 1, -2, 49, true);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testBuilderMaxEditsTooLarge() {
         new FuzzyCondition(0.5f, "name", "tr", 100, 2, 49, true);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testBuilderPrefixLengthInvalid() {
         new FuzzyCondition(0.5f, "name", "tr", -2, 2, 49, true);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testBuilderMaxExpansionsInvalid() {
         new FuzzyCondition(0.5f, "name", "tr", 1, 2, -1, true);
     }
@@ -105,7 +106,7 @@ public class FuzzyConditionTest extends AbstractConditionTest {
         assertEquals(0.5f, query.getBoost(), 0);
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test(expected = IndexException.class)
     public void testQueryInvalid() {
 
         Schema schema = mock(Schema.class);

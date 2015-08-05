@@ -16,6 +16,7 @@
 
 package com.stratio.cassandra.lucene.schema.mapping;
 
+import com.stratio.cassandra.lucene.IndexException;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.DocValuesType;
 import org.apache.lucene.search.SortField;
@@ -63,7 +64,7 @@ public class DoubleMapperTest {
         assertEquals(Double.valueOf(3.4), parsed);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueStringInvalid() {
         DoubleMapper mapper = new DoubleMapper("field", null, null, 1f);
         mapper.base("test", "error");

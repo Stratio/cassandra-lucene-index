@@ -16,6 +16,7 @@
 
 package com.stratio.cassandra.lucene.search.condition.builder;
 
+import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.search.SearchBuilder;
 import com.stratio.cassandra.lucene.search.sort.builder.SortFieldBuilder;
 import com.stratio.cassandra.lucene.util.JsonSerializer;
@@ -53,7 +54,7 @@ public class SearchBuilderTest {
         assertEquals(json, SearchBuilder.fromJson(json).toJson());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testFromJsonInvalid() {
         SearchBuilder.fromJson("error");
     }

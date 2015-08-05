@@ -17,6 +17,7 @@
 package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.google.common.base.Objects;
+import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.util.ByteBufferUtils;
 import org.apache.cassandra.db.marshal.AsciiType;
 import org.apache.cassandra.db.marshal.BytesType;
@@ -55,13 +56,16 @@ public class BlobMapper extends KeywordMapper {
             byte[] bytes = (byte[]) value;
             return ByteBufferUtils.toHex(bytes);
         } else if (value instanceof String) {
-            String string = (String) value;
-            string = string.replaceFirst("0x", "");
-            byte[] bytes = Hex.hexToBytes(string);
-            return Hex.bytesToHex(bytes);
-        } else {
-            return error("Field '%s' requires a byte array, but found '%s'", name, value);
+            try {
+                String string = (String) value;
+                string = string.replaceFirst("0x", "");
+                byte[] bytes = Hex.hexToBytes(string);
+                return Hex.bytesToHex(bytes);
+            } catch (NumberFormatException e) {
+                // Ignore to fail below
+            }
         }
+        throw new IndexException("Field '%s' requires a byte array, but found '%s'", name, value);
     }
 
     /** {@inheritDoc} */

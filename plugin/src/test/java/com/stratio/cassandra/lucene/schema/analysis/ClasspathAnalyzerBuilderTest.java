@@ -16,6 +16,7 @@
 
 package com.stratio.cassandra.lucene.schema.analysis;
 
+import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.util.JsonSerializer;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
@@ -38,7 +39,7 @@ public class ClasspathAnalyzerBuilderTest {
         assertEquals(EnglishAnalyzer.class, analyzer.getClass());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testBuildWithWrongClassName() {
         new ClasspathAnalyzerBuilder("abc").analyzer();
     }

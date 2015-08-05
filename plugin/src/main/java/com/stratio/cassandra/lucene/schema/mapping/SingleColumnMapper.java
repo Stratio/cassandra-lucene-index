@@ -79,10 +79,6 @@ public abstract class SingleColumnMapper<BASE> extends Mapper {
      */
     public abstract BASE base(String field, Object value);
 
-    protected BASE error(String msg, Object... args) {
-        throw new IllegalArgumentException(String.format(msg, args));
-    }
-
     @Override
     public void validate(CFMetaData metadata) {
         validate(metadata, name);

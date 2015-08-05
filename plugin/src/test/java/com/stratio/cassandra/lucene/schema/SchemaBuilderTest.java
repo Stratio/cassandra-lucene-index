@@ -16,6 +16,7 @@
 
 package com.stratio.cassandra.lucene.schema;
 
+import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.analysis.PreBuiltAnalyzers;
 import com.stratio.cassandra.lucene.schema.analysis.SnowballAnalyzerBuilder.SnowballAnalyzer;
 import com.stratio.cassandra.lucene.schema.mapping.*;
@@ -262,7 +263,7 @@ public class SchemaBuilderTest {
         schema.close();
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testParseJSONWithFailingDefaultAnalyzer() throws IOException {
         String json = "{default_analyzer : \"xyz\", fields : { id : {type : \"integer\"} } }'";
         SchemaBuilder.fromJson(json).build();

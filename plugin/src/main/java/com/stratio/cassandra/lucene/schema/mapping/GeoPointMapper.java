@@ -19,6 +19,7 @@ package com.stratio.cassandra.lucene.schema.mapping;
 import com.google.common.base.Objects;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.shape.Point;
+import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import org.apache.cassandra.config.CFMetaData;
@@ -83,11 +84,11 @@ public class GeoPointMapper extends Mapper {
               Arrays.asList(latitude, longitude));
 
         if (StringUtils.isBlank(latitude)) {
-            throw new IllegalArgumentException("latitude column name is required");
+            throw new IndexException("latitude column name is required");
         }
 
         if (StringUtils.isBlank(longitude)) {
-            throw new IllegalArgumentException("longitude column name is required");
+            throw new IndexException("longitude column name is required");
         }
 
         this.latitude = latitude;
@@ -162,7 +163,7 @@ public class GeoPointMapper extends Mapper {
     /** {@inheritDoc} */
     @Override
     public SortField sortField(String name, boolean reverse) {
-        throw new UnsupportedOperationException(String.format("GeoPoint mapper '%s' does not support sorting", name));
+        throw new IndexException("GeoPoint mapper '%s' does not support sorting", name);
     }
 
     /** {@inheritDoc} */
@@ -180,7 +181,7 @@ public class GeoPointMapper extends Mapper {
     double readLatitude(Columns columns) {
         Column column = columns.getColumnsByName(latitude).getFirst();
         if (column == null) {
-            throw new IllegalArgumentException("Latitude column required");
+            throw new IndexException("Latitude column required");
         }
         return readLatitude(column.getComposedValue());
     }
@@ -194,7 +195,7 @@ public class GeoPointMapper extends Mapper {
     double readLongitude(Columns columns) {
         Column column = columns.getColumnsByName(longitude).getFirst();
         if (column == null) {
-            throw new IllegalArgumentException("Longitude column required");
+            throw new IndexException("Longitude column required");
         }
         return readLongitude(column.getComposedValue());
     }
@@ -217,7 +218,7 @@ public class GeoPointMapper extends Mapper {
             }
         }
         if (latitude == null || latitude < -90.0 || latitude > 90) {
-            throw new IllegalArgumentException("Valid latitude required, but found " + value);
+            throw new IndexException("Valid latitude required, but found " + value);
         }
         return latitude;
     }
@@ -241,7 +242,7 @@ public class GeoPointMapper extends Mapper {
             }
         }
         if (longitude == null || longitude < -180.0 || longitude > 180) {
-            throw new IllegalArgumentException("Valid longitude required, but found " + value);
+            throw new IndexException("Valid longitude required, but found " + value);
         }
         return longitude;
     }

@@ -16,6 +16,7 @@
 
 package com.stratio.cassandra.lucene.search.condition;
 
+import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.BitemporalMapper;
 import com.stratio.cassandra.lucene.schema.mapping.UUIDMapper;
@@ -68,7 +69,7 @@ public class BitemporalConditionTest extends AbstractConditionTest {
         assertTrue(query instanceof BooleanQuery);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testQueryWithoutValidMapper() {
         Schema schema = mockSchema("name", new UUIDMapper("name", null, null));
         BitemporalCondition condition = new BitemporalCondition(null, "name", 1, 2, 3, 4, null);

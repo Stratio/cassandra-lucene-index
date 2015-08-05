@@ -16,6 +16,7 @@
 
 package com.stratio.cassandra.lucene.schema.mapping;
 
+import com.stratio.cassandra.lucene.IndexException;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.TimeUUIDType;
 import org.apache.cassandra.db.marshal.UUIDType;
@@ -83,34 +84,34 @@ public class UUIDMapperTest {
         assertEquals("0101e489d7c4c61dc4c4c61dc489d711e4b116123b93f75cba", parsed);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueStringInvalid() {
         UUIDMapper mapper = new UUIDMapper("field", true, true);
         mapper.base("test", "550e840");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueInteger() {
         UUIDMapper mapper = new UUIDMapper("field", true, true);
         String parsed = mapper.base("test", 3);
         assertEquals("3", parsed);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueLong() {
         UUIDMapper mapper = new UUIDMapper("field", true, true);
         String parsed = mapper.base("test", 3l);
         assertEquals("3", parsed);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueFloat() {
         UUIDMapper mapper = new UUIDMapper("field", true, true);
         String parsed = mapper.base("test", 3.6f);
         assertEquals("3.6", parsed);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueDouble() {
         UUIDMapper mapper = new UUIDMapper("field", true, true);
         String parsed = mapper.base("test", 3d);

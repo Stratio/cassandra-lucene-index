@@ -18,6 +18,7 @@ package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.google.common.base.Objects;
 import com.google.common.primitives.Longs;
+import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.util.ByteBufferUtils;
 import org.apache.cassandra.db.marshal.AsciiType;
 import org.apache.cassandra.db.marshal.TimeUUIDType;
@@ -54,12 +55,15 @@ public class UUIDMapper extends KeywordMapper {
             UUID uuid = (UUID) value;
             return serialize(uuid);
         } else if (value instanceof String) {
-            String string = (String) value;
-            UUID uuid = UUID.fromString(string);
-            return serialize(uuid);
-        } else {
-            return error("Field '%s' requires an UUID, but found '%s'", name, value);
+            try {
+                String string = (String) value;
+                UUID uuid = UUID.fromString(string);
+                return serialize(uuid);
+            } catch (IllegalArgumentException e) {
+                // Ignore to fail below
+            }
         }
+        throw new IndexException("Field '%s' requires an UUID, but found '%s'", name, value);
     }
 
     /** {@inheritDoc} */

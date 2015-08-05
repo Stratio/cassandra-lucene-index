@@ -16,6 +16,7 @@
 
 package com.stratio.cassandra.lucene.schema.analysis;
 
+import com.stratio.cassandra.lucene.IndexException;
 import org.apache.lucene.analysis.Analyzer;
 import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
@@ -51,7 +52,7 @@ public class ClasspathAnalyzerBuilder extends AnalyzerBuilder {
             Constructor<?> constructor = analyzerClass.getConstructor();
             return (Analyzer) constructor.newInstance();
         } catch (Exception e) {
-            throw new IllegalArgumentException("Analyzer not found: " + className, e);
+            throw new IndexException("Not found analyzer '%s'", className);
         }
     }
 }

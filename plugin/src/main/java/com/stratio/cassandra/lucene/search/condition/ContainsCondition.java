@@ -17,6 +17,7 @@
 package com.stratio.cassandra.lucene.search.condition;
 
 import com.google.common.base.Objects;
+import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
@@ -50,7 +51,7 @@ public class ContainsCondition extends SingleFieldCondition {
         super(boost, field);
 
         if (values == null || values.length == 0) {
-            throw new IllegalArgumentException("Field values required");
+            throw new IndexException("Field values required");
         }
 
         this.field = field;

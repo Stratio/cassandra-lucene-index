@@ -17,6 +17,7 @@
 package com.stratio.cassandra.lucene.search.condition;
 
 import com.google.common.base.Objects;
+import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
@@ -60,10 +61,10 @@ public class BooleanCondition extends Condition {
         this.not = not == null ? new LinkedList<Condition>() : not;
 
         if (this.must.isEmpty() && this.should.isEmpty() && this.not.isEmpty()) {
-            throw new IllegalArgumentException("Invalid Boolean Query: empty ");
+            throw new IndexException("Invalid Boolean Query: empty ");
         }
         if (this.must.isEmpty() && this.should.isEmpty()) {
-            throw new IllegalArgumentException("Invalid Boolean Query: lucene does not accept pure NOT queries: " +
+            throw new IndexException("Invalid Boolean Query: lucene does not accept pure NOT queries: " +
                                                "http://lucene.apache.org/core/2_9_4/queryparsersyntax.html#NOT " +
                                                "add a 'must : [{ type : \"match_all\" }]' in your query");
         }

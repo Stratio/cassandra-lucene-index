@@ -16,6 +16,7 @@
 
 package com.stratio.cassandra.lucene.schema.mapping;
 
+import com.stratio.cassandra.lucene.IndexException;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.DocValuesType;
 import org.junit.Test;
@@ -52,61 +53,61 @@ public class BigDecimalMapperTest {
         assertNull(parsed);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueIntegerDigitsZero() {
         new BigDecimalMapper("field", null, null, 0, 10);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueDecimalDigitsZero() {
         new BigDecimalMapper("field", null, null, 10, 0);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueBothDigitsZero() {
         new BigDecimalMapper("field", null, null, 0, 0);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueIntegerDigitsNegative() {
         new BigDecimalMapper("field", null, null, -1, 10);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueDecimalDigitsNegative() {
         new BigDecimalMapper("field", null, null, 10, -1);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueBothDigitsNegative() {
         new BigDecimalMapper("field", null, null, -1, -1);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueBooleanTrue() {
         BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, 100, 100);
         mapper.base("test", true);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueBooleanFalse() {
         BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, 100, 100);
         mapper.base("test", false);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueUUID() {
         BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, 100, 100);
         mapper.base("test", UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueDate() {
         BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, 100, 100);
         mapper.base("test", new Date());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueStringInvalid() {
         BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, 100, 100);
         mapper.base("test", "0s0");
@@ -195,25 +196,25 @@ public class BigDecimalMapperTest {
 
     // //////
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueTooBigInteger() {
         BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, 4, 4);
         mapper.base("test", 10000);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueTooBigDecimal() {
         BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, 4, 4);
         mapper.base("test", 42.00001);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueTooSmallInteger() {
         BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, 4, 4);
         mapper.base("test", -10000);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueTooSmallDecimal() {
         BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, 4, 4);
         mapper.base("test", -0.00001);

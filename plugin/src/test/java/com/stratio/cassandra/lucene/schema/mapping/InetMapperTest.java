@@ -16,6 +16,7 @@
 
 package com.stratio.cassandra.lucene.schema.mapping;
 
+import com.stratio.cassandra.lucene.IndexException;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.DocValuesType;
 import org.junit.Test;
@@ -49,37 +50,37 @@ public class InetMapperTest {
         assertNull(parsed);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueInteger() {
         InetMapper mapper = new InetMapper("field", null, null);
         mapper.base("test", 3);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueLong() {
         InetMapper mapper = new InetMapper("field", null, null);
         mapper.base("test", 3l);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueFloat() {
         InetMapper mapper = new InetMapper("field", null, null);
         mapper.base("test", 3.5f);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueDouble() {
         InetMapper mapper = new InetMapper("field", null, null);
         mapper.base("test", 3.6d);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueUUID() {
         InetMapper mapper = new InetMapper("field", null, null);
         mapper.base("test", UUID.randomUUID());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueStringInvalid() {
         InetMapper mapper = new InetMapper("field", null, null);
         mapper.base("test", "Hello");

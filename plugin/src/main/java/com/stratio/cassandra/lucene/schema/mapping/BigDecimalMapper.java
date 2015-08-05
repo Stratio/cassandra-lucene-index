@@ -17,6 +17,7 @@
 package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.google.common.base.Objects;
+import com.stratio.cassandra.lucene.IndexException;
 import org.apache.cassandra.db.marshal.AsciiType;
 import org.apache.cassandra.db.marshal.DecimalType;
 import org.apache.cassandra.db.marshal.DoubleType;
@@ -82,13 +83,13 @@ public class BigDecimalMapper extends KeywordMapper {
 
         // Setup integer part mapping
         if (integerDigits != null && integerDigits <= 0) {
-            throw new IllegalArgumentException("Positive integer part digits required");
+            throw new IndexException("Positive integer part digits required");
         }
         this.integerDigits = integerDigits == null ? DEFAULT_INTEGER_DIGITS : integerDigits;
 
         // Setup decimal part mapping
         if (decimalDigits != null && decimalDigits <= 0) {
-            throw new IllegalArgumentException("Positive decimal part digits required");
+            throw new IndexException("Positive decimal part digits required");
         }
         this.decimalDigits = decimalDigits == null ? DEFAULT_DECIMAL_DIGITS : decimalDigits;
 
@@ -131,7 +132,7 @@ public class BigDecimalMapper extends KeywordMapper {
         try {
             bd = new BigDecimal(value.toString());
         } catch (NumberFormatException e) {
-            return error("Field '%s' requires a base 10 decimal, but found '%s'", name, svalue);
+            throw new IndexException("Field '%s' requires a base 10 decimal, but found '%s'", name, svalue);
         }
 
         // Split integer and decimal part
@@ -141,10 +142,16 @@ public class BigDecimalMapper extends KeywordMapper {
         String decimalPart = parts.length == 1 ? "0" : parts[1];
 
         if (integerPart.replaceFirst("-", "").length() > integerDigits) {
-            return error("Field '%s' with value '%s' has more than %d integer digits", name, value, integerDigits);
+            throw new IndexException("Field '%s' with value '%s' has more than %d integer digits",
+                                      name,
+                                      value,
+                                      integerDigits);
         }
         if (decimalPart.length() > decimalDigits) {
-            return error("Field '%s' with value '%s' has more than %d decimal digits", name, value, decimalDigits);
+            throw new IndexException("Field '%s' with value '%s' has more than %d decimal digits",
+                                      name,
+                                      value,
+                                      decimalDigits);
         }
 
         BigDecimal complemented = bd.add(complement);

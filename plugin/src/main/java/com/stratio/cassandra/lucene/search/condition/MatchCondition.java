@@ -17,6 +17,7 @@
 package com.stratio.cassandra.lucene.search.condition;
 
 import com.google.common.base.Objects;
+import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
 import com.stratio.cassandra.lucene.schema.mapping.TextMapper;
@@ -54,7 +55,7 @@ public class MatchCondition extends SingleFieldCondition {
         super(boost, field);
 
         if (value == null) {
-            throw new IllegalArgumentException("Field value required");
+            throw new IndexException("Field value required");
         }
 
         this.field = field;
@@ -90,8 +91,7 @@ public class MatchCondition extends SingleFieldCondition {
             Double value = (Double) mapper.base(field, this.value);
             query = NumericRangeQuery.newDoubleRange(field, value, value, true, true);
         } else {
-            String message = String.format("Match queries are not supported by %s mapper", clazz.getSimpleName());
-            throw new UnsupportedOperationException(message);
+            throw new IndexException("Match queries are not supported by '%s' mapper", clazz.getSimpleName());
         }
         query.setBoost(boost);
         return query;

@@ -154,12 +154,10 @@ public class IndexConfig {
             try {
                 refreshSeconds = Double.parseDouble(refreshOption);
             } catch (NumberFormatException e) {
-                String msg = String.format("'%s' must be a strictly positive double", REFRESH_SECONDS_OPTION);
-                throw new RuntimeException(msg);
+                throw new IndexException("'%s' must be a strictly positive double", REFRESH_SECONDS_OPTION);
             }
             if (refreshSeconds <= 0) {
-                String msg = String.format("'%s' must be strictly positive", REFRESH_SECONDS_OPTION);
-                throw new RuntimeException(msg);
+                throw new IndexException("'%s' must be strictly positive", REFRESH_SECONDS_OPTION);
             } else {
                 return refreshSeconds;
             }
@@ -175,12 +173,10 @@ public class IndexConfig {
             try {
                 ramBufferMB = Integer.parseInt(ramBufferSizeOption);
             } catch (NumberFormatException e) {
-                String msg = String.format("'%s' must be a strictly positive integer", RAM_BUFFER_MB_OPTION);
-                throw new RuntimeException(msg);
+                throw new IndexException("'%s' must be a strictly positive integer", RAM_BUFFER_MB_OPTION);
             }
             if (ramBufferMB <= 0) {
-                String msg = String.format("'%s' must be strictly positive", RAM_BUFFER_MB_OPTION);
-                throw new RuntimeException(msg);
+                throw new IndexException("'%s' must be strictly positive", RAM_BUFFER_MB_OPTION);
             }
             return ramBufferMB;
         } else {
@@ -195,12 +191,10 @@ public class IndexConfig {
             try {
                 maxMergeMB = Integer.parseInt(maxMergeSizeMBOption);
             } catch (NumberFormatException e) {
-                String msg = String.format("'%s' must be a strictly positive integer", MAX_MERGE_MB_OPTION);
-                throw new RuntimeException(msg);
+                throw new IndexException("'%s' must be a strictly positive integer", MAX_MERGE_MB_OPTION);
             }
             if (maxMergeMB <= 0) {
-                String msg = String.format("'%s' must be strictly positive", MAX_MERGE_MB_OPTION);
-                throw new RuntimeException(msg);
+                throw new IndexException("'%s' must be strictly positive", MAX_MERGE_MB_OPTION);
             }
             return maxMergeMB;
         } else {
@@ -215,12 +209,10 @@ public class IndexConfig {
             try {
                 maxCachedMB = Integer.parseInt(maxCachedMBOption);
             } catch (NumberFormatException e) {
-                String msg = String.format("'%s'  must be a strictly positive integer", MAX_CACHED_MB_OPTION);
-                throw new RuntimeException(msg);
+                throw new IndexException("'%s' must be a strictly positive integer", MAX_CACHED_MB_OPTION);
             }
             if (maxCachedMB <= 0) {
-                String msg = String.format("'%s'  must be strictly positive", MAX_CACHED_MB_OPTION);
-                throw new RuntimeException(msg);
+                throw new IndexException("'%s' must be strictly positive", MAX_CACHED_MB_OPTION);
             }
             return maxCachedMB;
         } else {
@@ -235,8 +227,7 @@ public class IndexConfig {
             try {
                 indexingThreads = Integer.parseInt(indexPoolNumQueuesOption);
             } catch (NumberFormatException e) {
-                String msg = String.format("'%s'  must be a positive integer", INDEXING_THREADS_OPTION);
-                throw new RuntimeException(msg);
+                throw new IndexException("'%s' must be a positive integer", INDEXING_THREADS_OPTION);
             }
             return indexingThreads;
         } else {
@@ -251,12 +242,10 @@ public class IndexConfig {
             try {
                 indexingQueuesSize = Integer.parseInt(indexPoolQueuesSizeOption);
             } catch (NumberFormatException e) {
-                String msg = String.format("'%s'  must be a strictly positive integer", INDEXING_QUEUES_SIZE_OPTION);
-                throw new RuntimeException(msg);
+                throw new IndexException("'%s' must be a strictly positive integer", INDEXING_QUEUES_SIZE_OPTION);
             }
             if (indexingQueuesSize <= 0) {
-                String msg = String.format("'%s'  must be strictly positive", INDEXING_QUEUES_SIZE_OPTION);
-                throw new RuntimeException(msg);
+                throw new IndexException("'%s' must be strictly positive", INDEXING_QUEUES_SIZE_OPTION);
             }
             return indexingQueuesSize;
         } else {
@@ -272,13 +261,11 @@ public class IndexConfig {
                 schema = SchemaBuilder.fromJson(schemaOption).build();
                 schema.validate(metadata);
             } catch (Exception e) {
-                String msg = String.format("'%s' is invalid : %s", SCHEMA_OPTION, e.getMessage());
-                throw new RuntimeException(msg);
+                throw new IndexException("'%s' is invalid : %s", SCHEMA_OPTION, e.getMessage());
             }
             return schema;
         } else {
-            String msg = String.format("'%s' required", SCHEMA_OPTION);
-            throw new RuntimeException(msg);
+            throw new IndexException("'%s' required", SCHEMA_OPTION);
         }
     }
 

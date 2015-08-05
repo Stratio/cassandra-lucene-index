@@ -34,7 +34,6 @@ import org.apache.cassandra.db.index.SecondaryIndexSearcher;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.exceptions.InvalidRequestException;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -90,9 +89,10 @@ public class IndexSearcher extends SecondaryIndexSearcher {
             List<IndexExpression> filteredExpressions = filteredExpressions(clause);
             Search search = search(clause);
             return rowService.search(search, filteredExpressions, dataRange, limit, timestamp, after);
-        } catch (IOException e) {
-            Log.error(e, "Error while searching: %s", extendedFilter);
-            throw new RuntimeException(e);
+        } catch (IndexException e) {
+            throw e.traceError();
+        } catch (Exception e) {
+            throw new IndexException(e, "Error while searching: %s", extendedFilter);
         }
     }
 
@@ -128,7 +128,10 @@ public class IndexSearcher extends SecondaryIndexSearcher {
         try {
             String json = UTF8Type.instance.compose(indexExpression.value);
             SearchBuilder.fromJson(json).build().validate(schema);
+        } catch (IndexException e) {
+            throw new InvalidRequestException(e.getMessage());
         } catch (Exception e) {
+            Log.error(e, "Error while validating search: %s", indexExpression);
             throw new InvalidRequestException(e.getMessage());
         }
     }

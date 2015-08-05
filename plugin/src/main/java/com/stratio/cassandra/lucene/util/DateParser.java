@@ -16,6 +16,8 @@
 
 package com.stratio.cassandra.lucene.util;
 
+import com.stratio.cassandra.lucene.IndexException;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -79,9 +81,8 @@ public class DateParser {
         if (value instanceof Number) {
             return new Date(((Number) value).longValue());
         }
-        throw new IllegalArgumentException(String.format("Valid date required but found '%s', " +
-                                                         "it can't be parsed by pattern '%s' and is not instance " +
-                                                         "of Date nor Number", value, pattern));
+        throw new IndexException("Valid date required but found '%s', it can't be parsed by pattern '%s' " +
+                                 "and is not instance of Date nor Number", value, pattern);
     }
 
     @Override

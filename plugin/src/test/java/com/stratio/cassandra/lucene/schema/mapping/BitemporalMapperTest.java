@@ -16,6 +16,7 @@
 
 package com.stratio.cassandra.lucene.schema.mapping;
 
+import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.SchemaBuilder;
 import com.stratio.cassandra.lucene.schema.column.Column;
@@ -98,77 +99,77 @@ public class BitemporalMapperTest {
 
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testConstructorWithNullVtFrom() {
         new BitemporalMapper("field", null, "vtTo", "ttFrom", "ttTo", "yyyy/MM/dd", "2021/03/11");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testConstructorWithEmptyVtFrom() {
         new BitemporalMapper("field", "", "vtTo", "ttFrom", "ttTo", "yyyy/MM/dd", "2021/03/11");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testConstructorWithBlankVtFrom() {
         new BitemporalMapper("field", " ", "vtTo", "ttFrom", "ttTo", "yyyy/MM/dd", "2021/03/11");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testConstructorWithNullVtTo() {
         new BitemporalMapper("field", "vtFrom", null, "ttFrom", "ttTo", "yyyy/MM/dd", "2021/03/11");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testConstructorWithEmptyVtTo() {
         new BitemporalMapper("field", "vtFrom", "", "ttFrom", "ttTo", "yyyy/MM/dd", "2021/03/11");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testConstructorWithBlankVtTo() {
         new BitemporalMapper("field", "vtFrom", " ", "ttFrom", "ttTo", "yyyy/MM/dd", "2021/03/11");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testConstructorWithNullTtFrom() {
         new BitemporalMapper("field", "vtFrom", "vtTo", null, "ttTo", "yyyy/MM/dd", "2021/03/11");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testConstructorWithEmptyTtFrom() {
         new BitemporalMapper("field", "vtFrom", "vtTo", "", "ttTo", "yyyy/MM/dd", "2021/03/11");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testConstructorWithBlankTtFrom() {
         new BitemporalMapper("field", "vtFrom", "vtTo", " ", "ttTo", "yyyy/MM/dd", "2021/03/11");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testConstructorWithNullTtTo() {
         new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", null, "yyyy/MM/dd", "2021/03/11");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testConstructorWithEmptyTtTo() {
         new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "", "yyyy/MM/dd", "2021/03/11");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testConstructorWithBlankTtTo() {
         new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", " ", "yyyy/MM/dd", "2021/03/11");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testConstructorWithEmptyNowValue() {
         new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", "yyyy/MM/dd", "");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testConstructorWithBlankNowValue() {
         new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", "yyyy/MM/dd", " ");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testConstructorWithInvalidNowValue() {
         new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", "yyyy/MM/dd", "2021-03-11 00:00:00.001");
     }
@@ -767,7 +768,7 @@ public class BitemporalMapperTest {
         assertEquals(expectedDate, mapper.readBitemporalDate(columns, "vt_from").toDate());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testGetVtFromFromUnparseableStringColumn() {
         BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null, null);
 
@@ -780,13 +781,13 @@ public class BitemporalMapperTest {
         mapper.readBitemporalDate(columns, "vt_from");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testGetVtFromWithNullColumn() {
         BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null, null);
         mapper.readBitemporalDate(new Columns(), "vt_from");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testGetVtFromWithNegativeColumn() {
         BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null, null);
 
@@ -841,7 +842,7 @@ public class BitemporalMapperTest {
         assertEquals(expectedDate, mapper.readBitemporalDate(columns, "vt_to").toDate());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testGetVtToFromUnparseableStringColumn() {
         BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null, null);
 
@@ -854,7 +855,7 @@ public class BitemporalMapperTest {
         mapper.readBitemporalDate(columns, "vt_to");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testGetVtToWithNullColumn() {
         BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null, null);
         mapper.readBitemporalDate(new Columns(), "vt_to");
@@ -902,7 +903,7 @@ public class BitemporalMapperTest {
         assertEquals(expectedDate, mapper.readBitemporalDate(columns, "tt_from").toDate());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testGetTtFromFromUnparseableStringColumn() {
         BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null, null);
 
@@ -915,7 +916,7 @@ public class BitemporalMapperTest {
         mapper.readBitemporalDate(columns, "tt_from");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testGetTtFromWithNullColumn() {
         BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null, null);
         mapper.readBitemporalDate(new Columns(), "tt_from");
@@ -963,7 +964,7 @@ public class BitemporalMapperTest {
         assertEquals(expectedDate, mapper.readBitemporalDate(columns, "tt_to").toDate());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testGetTtToFromUnparseableStringColumn() {
         BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null, null);
 
@@ -976,13 +977,13 @@ public class BitemporalMapperTest {
         mapper.readBitemporalDate(columns, "tt_to");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testGetTtToWithNullColumn() {
         BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null, null);
         mapper.readBitemporalDate(new Columns(), "tt_to");
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test(expected = IndexException.class)
     public void testSortField() {
         BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null, null);
         mapper.sortField("field", false);
@@ -1107,7 +1108,7 @@ public class BitemporalMapperTest {
         new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null, null).validate(metadata);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValidateUnsupportedType() throws ConfigurationException {
 
         CellNameType nameType = new SimpleSparseCellNameType(UTF8Type.instance);
@@ -1119,7 +1120,7 @@ public class BitemporalMapperTest {
         new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null, null).validate(metadata);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValidateWithoutVtFromColumn() throws ConfigurationException {
         CellNameType nameType = new SimpleSparseCellNameType(UTF8Type.instance);
         CFMetaData metadata = new CFMetaData("ks", "cf", ColumnFamilyType.Standard, nameType);
@@ -1129,7 +1130,7 @@ public class BitemporalMapperTest {
         new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null, null).validate(metadata);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValidateWithoutVtToColumn() throws ConfigurationException {
         CellNameType nameType = new SimpleSparseCellNameType(UTF8Type.instance);
         CFMetaData metadata = new CFMetaData("ks", "cf", ColumnFamilyType.Standard, nameType);
@@ -1139,7 +1140,7 @@ public class BitemporalMapperTest {
         new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null, null).validate(metadata);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValidateWithoutTtFromColumn() throws ConfigurationException {
         CellNameType nameType = new SimpleSparseCellNameType(UTF8Type.instance);
         CFMetaData metadata = new CFMetaData("ks", "cf", ColumnFamilyType.Standard, nameType);
@@ -1149,7 +1150,7 @@ public class BitemporalMapperTest {
         new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null, null).validate(metadata);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValidateWithoutTtToColumn() throws ConfigurationException {
         CellNameType nameType = new SimpleSparseCellNameType(UTF8Type.instance);
         CFMetaData metadata = new CFMetaData("ks", "cf", ColumnFamilyType.Standard, nameType);

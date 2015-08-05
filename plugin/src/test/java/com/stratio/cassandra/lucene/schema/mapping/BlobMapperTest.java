@@ -16,6 +16,7 @@
 
 package com.stratio.cassandra.lucene.schema.mapping;
 
+import com.stratio.cassandra.lucene.IndexException;
 import org.apache.cassandra.utils.ByteBufferUtil;
 import org.apache.cassandra.utils.Hex;
 import org.apache.lucene.document.Field;
@@ -50,37 +51,37 @@ public class BlobMapperTest {
         assertNull(parsed);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueInteger() {
         BlobMapper mapper = new BlobMapper("field", null, null);
         mapper.base("test", 3);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueLong() {
         BlobMapper mapper = new BlobMapper("field", null, null);
         mapper.base("test", 3l);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueFloat() {
         BlobMapper mapper = new BlobMapper("field", null, null);
         mapper.base("test", 3.5f);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueDouble() {
         BlobMapper mapper = new BlobMapper("field", null, null);
         mapper.base("test", 3.6d);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueUUID() {
         BlobMapper mapper = new BlobMapper("field", null, null);
         mapper.base("test", UUID.randomUUID());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueStringInvalid() {
         BlobMapper mapper = new BlobMapper("field", null, null);
         mapper.base("test", "Hello");
@@ -128,7 +129,7 @@ public class BlobMapperTest {
         assertEquals("f1a2b3", parsed);
     }
 
-    @Test(expected = NumberFormatException.class)
+    @Test(expected = IndexException.class)
     public void testValueStringOdd() {
         BlobMapper mapper = new BlobMapper("field", null, null);
         mapper.base("test", "f");

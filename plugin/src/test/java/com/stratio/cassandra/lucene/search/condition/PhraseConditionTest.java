@@ -16,6 +16,7 @@
 
 package com.stratio.cassandra.lucene.search.condition;
 
+import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.TextMapper;
 import org.apache.lucene.search.PhraseQuery;
@@ -50,12 +51,12 @@ public class PhraseConditionTest extends AbstractConditionTest {
         assertEquals(PhraseCondition.DEFAULT_SLOP, condition.slop);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testBuildNullValues() {
         new PhraseCondition(null, "name", null, null);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testBuildNegativeSlop() {
         String value = "hello adios";
         new PhraseCondition(null, "name", value, -1);

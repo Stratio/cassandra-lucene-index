@@ -17,6 +17,7 @@
 package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.google.common.base.Objects;
+import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import com.stratio.cassandra.lucene.util.DateParser;
@@ -82,11 +83,11 @@ public class DateRangeMapper extends Mapper {
               Arrays.asList(start, stop));
 
         if (StringUtils.isBlank(start)) {
-            throw new IllegalArgumentException("start column name is required");
+            throw new IndexException("start column name is required");
         }
 
         if (StringUtils.isBlank(stop)) {
-            throw new IllegalArgumentException("stop column name is required");
+            throw new IndexException("stop column name is required");
         }
 
         this.start = start;
@@ -138,7 +139,7 @@ public class DateRangeMapper extends Mapper {
     /** {@inheritDoc} */
     @Override
     public SortField sortField(String name, boolean reverse) {
-        throw new UnsupportedOperationException(String.format("Date range mapper '%s' does not support sorting", name));
+        throw new IndexException("Date range mapper '%s' does not support sorting", name);
     }
 
     /**
@@ -189,9 +190,13 @@ public class DateRangeMapper extends Mapper {
      */
     Date readStart(Columns columns) {
         Column column = columns.getColumnsByName(start).getFirst();
-        if (column == null) throw new IllegalArgumentException("Start column required");
+        if (column == null) {
+            throw new IndexException("Start column required");
+        }
         Date start = base(column.getComposedValue());
-        if (stop == null) throw new IllegalArgumentException("Start date required");
+        if (stop == null) {
+            throw new IndexException("Start date required");
+        }
         return start;
     }
 
@@ -203,9 +208,13 @@ public class DateRangeMapper extends Mapper {
      */
     Date readStop(Columns columns) {
         Column column = columns.getColumnsByName(stop).getFirst();
-        if (column == null) throw new IllegalArgumentException("Stop column required");
+        if (column == null) {
+            throw new IndexException("Stop column required");
+        }
         Date stop = base(column.getComposedValue());
-        if (stop == null) throw new IllegalArgumentException("Stop date required");
+        if (stop == null) {
+            throw new IndexException("Stop date required");
+        }
         return stop;
     }
 

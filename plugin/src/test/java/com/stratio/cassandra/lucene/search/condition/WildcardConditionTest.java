@@ -16,6 +16,7 @@
 
 package com.stratio.cassandra.lucene.search.condition;
 
+import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.InetMapper;
 import com.stratio.cassandra.lucene.schema.mapping.IntegerMapper;
@@ -33,7 +34,7 @@ import static org.junit.Assert.assertNotNull;
  */
 public class WildcardConditionTest extends AbstractConditionTest {
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testBuildNullValue() {
         new WildcardCondition(0.1f, "field", null);
     }
@@ -70,7 +71,7 @@ public class WildcardConditionTest extends AbstractConditionTest {
         assertEquals(0.5f, query.getBoost(), 0);
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test(expected = IndexException.class)
     public void testInteger() {
 
         Schema schema = mockSchema("name", new IntegerMapper("name", null, null, 1f));

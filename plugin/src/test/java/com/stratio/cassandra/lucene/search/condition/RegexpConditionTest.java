@@ -16,6 +16,7 @@
 
 package com.stratio.cassandra.lucene.search.condition;
 
+import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.InetMapper;
 import com.stratio.cassandra.lucene.schema.mapping.IntegerMapper;
@@ -46,7 +47,7 @@ public class RegexpConditionTest extends AbstractConditionTest {
         assertEquals(Condition.DEFAULT_BOOST, condition.boost, 0);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testBuildNullValue() {
         new RegexpCondition(null, "field", null);
     }
@@ -80,7 +81,7 @@ public class RegexpConditionTest extends AbstractConditionTest {
         assertEquals(0.5f, query.getBoost(), 0);
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test(expected = IndexException.class)
     public void testInteger() {
 
         Schema schema = mockSchema("name", new IntegerMapper("name", null, null, 1f));

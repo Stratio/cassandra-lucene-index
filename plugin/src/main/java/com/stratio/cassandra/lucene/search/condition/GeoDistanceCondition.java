@@ -19,6 +19,7 @@ package com.stratio.cassandra.lucene.search.condition;
 import com.google.common.base.Objects;
 import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.shape.Circle;
+import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.GeoPointMapper;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
@@ -81,30 +82,30 @@ public class GeoDistanceCondition extends Condition {
         super(boost);
 
         if (StringUtils.isBlank(field)) {
-            throw new IllegalArgumentException("Field name required");
+            throw new IndexException("Field name required");
         }
 
         if (latitude == null) {
-            throw new IllegalArgumentException("latitude required");
+            throw new IndexException("latitude required");
         } else if (latitude < -90.0 || latitude > 90) {
-            throw new IllegalArgumentException("latitude must be between -90.0 and 90.0");
+            throw new IndexException("latitude must be between -90.0 and 90.0");
         }
 
         if (longitude == null) {
-            throw new IllegalArgumentException("longitude required");
+            throw new IndexException("longitude required");
         } else if (longitude < -180.0 || longitude > 180) {
-            throw new IllegalArgumentException("longitude must be between -180.0 and 180.0");
+            throw new IndexException("longitude must be between -180.0 and 180.0");
         }
 
         if (StringUtils.isBlank(maxDistance)) {
-            throw new IllegalArgumentException("max_distance must be provided");
+            throw new IndexException("max_distance must be provided");
         }
 
         minGeoDistance = minDistance == null ? null : GeoDistance.create(minDistance);
         maxGeoDistance = GeoDistance.create(maxDistance);
 
         if (minGeoDistance != null && minGeoDistance.compareTo(maxGeoDistance) >= 0) {
-            throw new IllegalArgumentException("min_distance must be lower than max_distance");
+            throw new IndexException("min_distance must be lower than max_distance");
         }
 
         this.field = field;
@@ -120,7 +121,7 @@ public class GeoDistanceCondition extends Condition {
 
         Mapper mapper = schema.getMapper(field);
         if (!(mapper instanceof GeoPointMapper)) {
-            throw new IllegalArgumentException("Geo point mapper required");
+            throw new IndexException("Geo point mapper required");
         }
         GeoPointMapper geoPointMapper = (GeoPointMapper) mapper;
         SpatialStrategy spatialStrategy = geoPointMapper.getDistanceStrategy();

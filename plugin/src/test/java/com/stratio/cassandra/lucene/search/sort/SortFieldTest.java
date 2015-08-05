@@ -16,6 +16,7 @@
 
 package com.stratio.cassandra.lucene.search.sort;
 
+import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.analysis.PreBuiltAnalyzers;
 import com.stratio.cassandra.lucene.schema.column.Column;
@@ -50,17 +51,17 @@ public class SortFieldTest {
         assertEquals(SortField.DEFAULT_REVERSE, sortField.isReverse());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testBuildNullField() {
         new SortField(null, null);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testBuildNBlankField() {
         new SortField(" ", null);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testBuildWithoutField() {
         new SortField(null, null);
     }
@@ -81,7 +82,7 @@ public class SortFieldTest {
         assertEquals(org.apache.lucene.search.SortField.class, luceneSortField.getClass());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testSortFieldWithoutMapper() {
         Schema schema = mock(Schema.class);
         when(schema.getAnalyzer()).thenReturn(PreBuiltAnalyzers.DEFAULT.get());

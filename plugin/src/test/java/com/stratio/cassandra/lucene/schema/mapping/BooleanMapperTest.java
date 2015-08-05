@@ -16,6 +16,7 @@
 
 package com.stratio.cassandra.lucene.schema.mapping;
 
+import com.stratio.cassandra.lucene.IndexException;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.DocValuesType;
 import org.junit.Test;
@@ -62,31 +63,31 @@ public class BooleanMapperTest {
         assertEquals("false", parsed);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueDate() {
         BooleanMapper mapper = new BooleanMapper("field", null, null);
         mapper.base("test", new Date());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueInteger() {
         BooleanMapper mapper = new BooleanMapper("field", null, null);
         mapper.base("test", 3);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueLong() {
         BooleanMapper mapper = new BooleanMapper("field", null, null);
         mapper.base("test", 3l);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueFloat() {
         BooleanMapper mapper = new BooleanMapper("field", null, null);
         mapper.base("test", 3.6f);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueDouble() {
         BooleanMapper mapper = new BooleanMapper("field", null, null);
         mapper.base("test", 3.5d);
@@ -134,13 +135,13 @@ public class BooleanMapperTest {
         assertEquals("false", parsed);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueStringInvalid() {
         BooleanMapper mapper = new BooleanMapper("field", null, null);
         mapper.base("test", "hello");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueUUID() {
         BooleanMapper mapper = new BooleanMapper("field", null, null);
         mapper.base("test", UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));

@@ -17,6 +17,7 @@
 package com.stratio.cassandra.lucene.search.sort;
 
 import com.google.common.base.Objects;
+import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
@@ -54,7 +55,7 @@ public class SortField {
     public SortField(String field, Boolean reverse) {
 
         if (field == null || StringUtils.isBlank(field)) {
-            throw new IllegalArgumentException("Field name required");
+            throw new IndexException("Field name required");
         }
 
         this.field = field;
@@ -89,9 +90,9 @@ public class SortField {
         if (field.equalsIgnoreCase("score")) return FIELD_SCORE;
         Mapper mapper = schema.getMapper(field);
         if (mapper == null) {
-            throw new IllegalArgumentException("No mapper found for sortFields field " + field);
+            throw new IndexException("No mapper found for sortFields field '%s'", field);
         } else if (!mapper.isSorted()) {
-            throw new IllegalArgumentException(String.format("Mapper '%s' is not sorted", mapper.getName()));
+            throw new IndexException("Mapper '%s' is not sorted", mapper.getName());
         } else {
             return mapper.sortField(field, reverse);
         }

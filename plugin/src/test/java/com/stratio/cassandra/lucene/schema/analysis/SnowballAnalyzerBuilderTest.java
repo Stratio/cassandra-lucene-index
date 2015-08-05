@@ -16,6 +16,7 @@
 
 package com.stratio.cassandra.lucene.schema.analysis;
 
+import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.util.JsonSerializer;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
@@ -35,12 +36,12 @@ import static org.junit.Assert.assertNotNull;
  */
 public class SnowballAnalyzerBuilderTest {
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testBuildNullLanguage() {
         new SnowballAnalyzerBuilder(null, null);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testBuildBlankLanguage() {
         new SnowballAnalyzerBuilder(" ", null);
     }
@@ -165,7 +166,7 @@ public class SnowballAnalyzerBuilderTest {
         testAnalyzer(builder, "organization", "organ");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testBuildWithoutLanguage() {
         AnalyzerBuilder builder = new SnowballAnalyzerBuilder(null, null);
         testAnalyzer(builder, "organization", "organ");

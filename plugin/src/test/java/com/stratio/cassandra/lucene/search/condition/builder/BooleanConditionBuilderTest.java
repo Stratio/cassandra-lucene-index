@@ -16,6 +16,7 @@
 
 package com.stratio.cassandra.lucene.search.condition.builder;
 
+import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.search.condition.BooleanCondition;
 import com.stratio.cassandra.lucene.search.condition.Condition;
 import org.junit.Test;
@@ -48,7 +49,7 @@ public class BooleanConditionBuilderTest extends AbstractConditionBuilderTest {
         assertEquals(6, condition.not.size());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testBuildDefaults() {
         BooleanConditionBuilder builder = new BooleanConditionBuilder();
         BooleanCondition condition = builder.build();

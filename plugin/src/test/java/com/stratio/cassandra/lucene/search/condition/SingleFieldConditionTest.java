@@ -16,6 +16,7 @@
 
 package com.stratio.cassandra.lucene.search.condition;
 
+import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
@@ -56,7 +57,7 @@ public class SingleFieldConditionTest extends AbstractConditionTest {
         assertEquals(Condition.DEFAULT_BOOST, condition.boost, 0);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testBuildNullField() {
         new SingleFieldCondition(null, null) {
             @Override
@@ -66,7 +67,7 @@ public class SingleFieldConditionTest extends AbstractConditionTest {
         };
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testBuildBlankField() {
         new SingleFieldCondition(null, " ") {
             @Override
@@ -95,7 +96,7 @@ public class SingleFieldConditionTest extends AbstractConditionTest {
 
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testGetMapperNotFound() {
 
         Schema schema = mock(Schema.class);

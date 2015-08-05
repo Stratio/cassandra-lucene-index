@@ -16,6 +16,7 @@
 
 package com.stratio.cassandra.lucene.search.condition;
 
+import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.BlobMapper;
 import com.stratio.cassandra.lucene.schema.mapping.DoubleMapper;
@@ -61,7 +62,7 @@ public class MatchConditionTest extends AbstractConditionTest {
         assertEquals(Condition.DEFAULT_BOOST, condition.boost, 0);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testBuildNullValue() {
         new MatchCondition(null, "field", null);
     }
@@ -223,7 +224,7 @@ public class MatchConditionTest extends AbstractConditionTest {
         assertEquals(0.5f, query.getBoost(), 0);
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test(expected = IndexException.class)
     public void testUnsupportedMapper() {
 
         SingleColumnMapper<UUID> mapper = new SingleColumnMapper<UUID>("field", null, null, UUIDType.instance) {

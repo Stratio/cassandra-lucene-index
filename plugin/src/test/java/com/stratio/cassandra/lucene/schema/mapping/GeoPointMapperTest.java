@@ -16,6 +16,7 @@
 
 package com.stratio.cassandra.lucene.schema.mapping;
 
+import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import org.apache.cassandra.config.CFMetaData;
@@ -61,32 +62,32 @@ public class GeoPointMapperTest {
         assertNotNull(mapper.getDistanceStrategy());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testConstructorWithNullLatitude() {
         new GeoPointMapper("field", null, "lon", null);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testConstructorWithEmptyLatitude() {
         new GeoPointMapper("field", "", "lon", null);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testConstructorWithBlankLatitude() {
         new GeoPointMapper("field", " ", "lon", null);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testConstructorWithNullLongitude() {
         new GeoPointMapper("field", "lat", null, null);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testConstructorWithEmptyLongitude() {
         new GeoPointMapper("field", "lat", "", null);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testConstructorWithBlankLongitude() {
         new GeoPointMapper("field", "lat", " ", null);
     }
@@ -136,7 +137,7 @@ public class GeoPointMapperTest {
         assertEquals(5.3d, mapper.readLatitude(columns), 0);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testGetLatitudeFromUnparseableStringColumn() {
         GeoPointMapper mapper = new GeoPointMapper("field", "lat", "lon", null);
         Columns columns = new Columns();
@@ -145,7 +146,7 @@ public class GeoPointMapperTest {
         mapper.readLatitude(columns);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testGetLatitudeWithNullColumn() {
         GeoPointMapper mapper = new GeoPointMapper("field", "lat", "lon", null);
         Columns columns = new Columns();
@@ -153,7 +154,7 @@ public class GeoPointMapperTest {
         assertEquals(5.3d, mapper.readLatitude(new Columns()), 0);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testGetLatitudeWithTooSmallColumnValue() {
         GeoPointMapper mapper = new GeoPointMapper("field", "lat", "lon", null);
         Columns columns = new Columns();
@@ -162,7 +163,7 @@ public class GeoPointMapperTest {
         mapper.readLatitude(columns);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testGetLatitudeWithTooBigColumnValue() {
         GeoPointMapper mapper = new GeoPointMapper("field", "lat", "lon", null);
         Columns columns = new Columns();
@@ -216,7 +217,7 @@ public class GeoPointMapperTest {
         assertEquals(5.3d, mapper.readLongitude(columns), 0);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testGetLongitudeFromUnparseableStringColumn() {
         GeoPointMapper mapper = new GeoPointMapper("field", "lat", "lon", null);
         Columns columns = new Columns();
@@ -225,7 +226,7 @@ public class GeoPointMapperTest {
         mapper.readLongitude(columns);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testGetLongitudeWithNullColumn() {
         GeoPointMapper mapper = new GeoPointMapper("field", "lat", "lon", null);
         Columns columns = new Columns();
@@ -233,7 +234,7 @@ public class GeoPointMapperTest {
         assertEquals(5.3d, mapper.readLongitude(new Columns()), 0);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testGetLongitudeWithWrongColumnType() {
         GeoPointMapper mapper = new GeoPointMapper("field", "lat", "lon", null);
         Columns columns = new Columns();
@@ -241,7 +242,7 @@ public class GeoPointMapperTest {
         assertEquals(5.3d, mapper.readLongitude(new Columns()), 0);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testGetLongitudeWithTooSmallColumnValue() {
         GeoPointMapper mapper = new GeoPointMapper("field", "lat", "lon", null);
         Columns columns = new Columns();
@@ -250,7 +251,7 @@ public class GeoPointMapperTest {
         mapper.readLongitude(columns);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testGetLongitudeWithTooBigColumnValue() {
         GeoPointMapper mapper = new GeoPointMapper("field", "lat", "lon", null);
         Columns columns = new Columns();
@@ -259,7 +260,7 @@ public class GeoPointMapperTest {
         mapper.readLongitude(columns);
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test(expected = IndexException.class)
     public void testSortField() {
         GeoPointMapper mapper = new GeoPointMapper("field", "lat", "lon", null);
         mapper.sortField("field", false);
@@ -297,7 +298,7 @@ public class GeoPointMapperTest {
         new GeoPointMapper("field", "lat", "lon", null).validate(metadata);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValidateUnsupportedType() throws ConfigurationException {
 
         CellNameType nameType = new SimpleSparseCellNameType(UTF8Type.instance);
@@ -308,7 +309,7 @@ public class GeoPointMapperTest {
         new GeoPointMapper("field", "lat", "lon", null).validate(metadata);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValidateWithoutLatitudeColumn() throws ConfigurationException {
         CellNameType nameType = new SimpleSparseCellNameType(UTF8Type.instance);
         CFMetaData metadata = new CFMetaData("ks", "cf", ColumnFamilyType.Standard, nameType);
@@ -317,7 +318,7 @@ public class GeoPointMapperTest {
         new GeoPointMapper("field", "lat", "lon", null).validate(metadata);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValidateWithouyLongitudeColumn() throws ConfigurationException {
         CellNameType nameType = new SimpleSparseCellNameType(UTF8Type.instance);
         CFMetaData metadata = new CFMetaData("ks", "cf", ColumnFamilyType.Standard, nameType);

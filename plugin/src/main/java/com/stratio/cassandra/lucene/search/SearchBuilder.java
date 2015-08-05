@@ -16,6 +16,7 @@
 
 package com.stratio.cassandra.lucene.search;
 
+import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.search.condition.Condition;
 import com.stratio.cassandra.lucene.search.condition.builder.ConditionBuilder;
 import com.stratio.cassandra.lucene.search.sort.Sort;
@@ -127,7 +128,7 @@ public class SearchBuilder implements Builder<Search> {
         try {
             return JsonSerializer.toString(this);
         } catch (IOException e) {
-            throw new IllegalArgumentException(String.format("Unformateable JSON search: %s", e.getMessage()), e);
+            throw new IndexException("Unformateable JSON search: %s", e.getMessage());
         }
     }
 
@@ -141,7 +142,7 @@ public class SearchBuilder implements Builder<Search> {
         try {
             return JsonSerializer.fromString(json, SearchBuilder.class);
         } catch (IOException e) {
-            throw new IllegalArgumentException(String.format("Unformateable JSON search: %s", e.getMessage()), e);
+            throw new IndexException("Unparseable JSON search: %s", e.getMessage());
         }
     }
 

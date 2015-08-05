@@ -17,6 +17,7 @@
 package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.google.common.base.Objects;
+import com.stratio.cassandra.lucene.IndexException;
 import org.apache.cassandra.db.marshal.AsciiType;
 import org.apache.cassandra.db.marshal.BooleanType;
 import org.apache.cassandra.db.marshal.UTF8Type;
@@ -60,7 +61,7 @@ public class BooleanMapper extends KeywordMapper {
                 return FALSE;
             }
         }
-        return error("Field '%s' requires a boolean, but found '%s'", name, value);
+        throw new IndexException("Field '%s' requires a boolean, but found '%s'", name, value);
     }
 
     /** {@inheritDoc} */

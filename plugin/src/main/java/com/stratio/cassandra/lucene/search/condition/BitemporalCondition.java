@@ -17,6 +17,7 @@
 package com.stratio.cassandra.lucene.search.condition;
 
 import com.google.common.base.Objects;
+import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.BitemporalMapper;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
@@ -108,7 +109,7 @@ public class BitemporalCondition extends Condition {
 
     private static SpatialOperation parseSpatialOperation(String operation) {
         if (operation == null) {
-            throw new IllegalArgumentException("Operation is required");
+            throw new IndexException("Operation is required");
         } else if (operation.equalsIgnoreCase("contains")) {
             return SpatialOperation.Contains;
         } else if (operation.equalsIgnoreCase("intersects")) {
@@ -116,7 +117,7 @@ public class BitemporalCondition extends Condition {
         } else if (operation.equalsIgnoreCase("is_within")) {
             return SpatialOperation.IsWithin;
         } else {
-            throw new IllegalArgumentException("Operation is invalid: " + operation);
+            throw new IndexException("Operation is invalid: " + operation);
         }
     }
 
@@ -127,7 +128,7 @@ public class BitemporalCondition extends Condition {
     public Query query(Schema schema) {
         Mapper mapper = schema.getMapper(field);
         if (!(mapper instanceof BitemporalMapper)) {
-            throw new IllegalArgumentException("BiTemporal mapper required");
+            throw new IndexException("Bitemporal mapper required");
         }
         BitemporalMapper bitemporalMapper = (BitemporalMapper) mapper;
 

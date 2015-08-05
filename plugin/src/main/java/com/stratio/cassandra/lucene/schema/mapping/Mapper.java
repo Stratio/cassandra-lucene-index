@@ -16,6 +16,7 @@
 
 package com.stratio.cassandra.lucene.schema.mapping;
 
+import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.analysis.PreBuiltAnalyzers;
 import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
@@ -88,7 +89,9 @@ public abstract class Mapper {
                      Boolean sorted,
                      List<AbstractType> supportedTypes,
                      List<String> mappedColumns) {
-        if (StringUtils.isBlank(name)) throw new IllegalArgumentException("Mapper name is required");
+        if (StringUtils.isBlank(name)) {
+            throw new IndexException("Mapper name is required");
+        }
         this.name = name;
         this.indexed = indexed == null ? DEFAULT_INDEXED : indexed;
         this.sorted = sorted == null ? DEFAULT_SORTED : sorted;
@@ -187,25 +190,25 @@ public abstract class Mapper {
 
         ColumnDefinition columnDefinition = metadata.getColumnDefinition(columnName);
         if (columnDefinition == null) {
-            throw new IllegalArgumentException(String.format("No column definition %s for mapper %s", name, this.name));
+            throw new IndexException("No column definition '%s' for mapper '%s'", name, this.name);
         }
 
         if (columnDefinition.isStatic()) {
-            throw new IllegalArgumentException("Lucene indexes are not allowed on static columns as " + name);
+            throw new IndexException("Lucene indexes are not allowed on static columns as '%s'", name);
         }
 
         AbstractType<?> type = columnDefinition.type;
         if (!supports(columnDefinition.type)) {
-            throw new IllegalArgumentException(String.format("'%s' is not supported by mapper '%s'", type, this.name));
+            throw new IndexException("'%s' is not supported by mapper '%s'", type, this.name);
         }
 
         // Avoid sorting in lists and sets
         if (type.isCollection() && sorted) {
             Kind kind = ((CollectionType<?>) type).kind;
             if (kind == SET) {
-                throw new IllegalArgumentException(String.format("'%s' can't be sorted because it's a set", name));
+                throw new IndexException("'%s' can't be sorted because it's a set", name);
             } else if (kind == LIST) {
-                throw new IllegalArgumentException(String.format("'%s' can't be sorted because it's a list", name));
+                throw new IndexException("'%s' can't be sorted because it's a list", name);
             }
         }
     }

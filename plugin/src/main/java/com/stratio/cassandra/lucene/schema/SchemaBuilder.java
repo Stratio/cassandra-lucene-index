@@ -16,6 +16,7 @@
 
 package com.stratio.cassandra.lucene.schema;
 
+import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.analysis.AnalyzerBuilder;
 import com.stratio.cassandra.lucene.schema.analysis.ClasspathAnalyzerBuilder;
 import com.stratio.cassandra.lucene.schema.analysis.PreBuiltAnalyzers;
@@ -123,7 +124,7 @@ public class SchemaBuilder {
                     try {
                         defaultAnalyzer = (new ClasspathAnalyzerBuilder(defaultAnalyzerName)).analyzer();
                     } catch (Exception e) {
-                        throw new IllegalArgumentException("Not found analyzer: " + defaultAnalyzerName);
+                        throw new IndexException("Not found analyzer: '%s'", defaultAnalyzerName);
                     }
                 }
                 analyzers.put(defaultAnalyzerName, defaultAnalyzer);
@@ -136,10 +137,14 @@ public class SchemaBuilder {
      * Returns the JSON representation of this builder.
      *
      * @return The JSON representation of this builder.
-     * @throws IOException If there are JSON mapping errors.
+     * @throws IndexException If there are JSON mapping errors.
      */
-    public String toJson() throws IOException {
-        return JsonSerializer.toString(this);
+    public String toJson() throws IndexException {
+        try {
+            return JsonSerializer.toString(this);
+        } catch (IOException e) {
+            throw new IndexException("Unformateable JSON schema: %s", e.getMessage());
+        }
     }
 
     /**
@@ -147,10 +152,14 @@ public class SchemaBuilder {
      *
      * @param json A {@code String} containing the JSON representation of the {@link Schema} to be parsed.
      * @return The {@link Schema} contained in the specified JSON {@code String}.
-     * @throws IOException If there are I/O errors.
+     * @throws IndexException If there are I/O errors.
      */
-    public static SchemaBuilder fromJson(String json) throws IOException {
-        return JsonSerializer.fromString(json, SchemaBuilder.class);
+    public static SchemaBuilder fromJson(String json) throws IndexException {
+        try {
+            return JsonSerializer.fromString(json, SchemaBuilder.class);
+        } catch (IOException e) {
+            throw new IndexException("Unparseable JSON schema: %s", e.getMessage());
+        }
     }
 
 }

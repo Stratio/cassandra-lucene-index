@@ -16,6 +16,7 @@
 
 package com.stratio.cassandra.lucene.schema.mapping;
 
+import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import com.stratio.cassandra.lucene.util.DateParser;
@@ -72,32 +73,32 @@ public class DateRangeMapperTest {
         assertNotNull(mapper.getStrategy());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testConstructorWithNullStart() {
         new DateRangeMapper("field", "to", null, null);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testConstructorWithEmptyStart() {
         new DateRangeMapper("field", "to", "", null);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testConstructorWithBlankStart() {
         new DateRangeMapper("field", "to", " ", null);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testConstructorWithNullStop() {
         new DateRangeMapper("field", "to", null, null);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testConstructorWithEmptyStop() {
         new DateRangeMapper("field", "to", "", null);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testConstructorWithBlankStop() {
         new DateRangeMapper("field", "to", " ", null);
     }
@@ -156,7 +157,7 @@ public class DateRangeMapperTest {
         assertEquals(ssdf.parse("2015-02-28"), mapper.readStart(columns));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testGetStartFromUnparseableStringColumn() {
         DateRangeMapper mapper = new DateRangeMapper("field", "from", "to", null);
         Columns columns = new Columns();
@@ -165,7 +166,7 @@ public class DateRangeMapperTest {
         mapper.readStart(columns);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testGetStartWithNullColumn() {
         DateRangeMapper mapper = new DateRangeMapper("field", "from", "to", null);
         mapper.readStart(new Columns());
@@ -225,7 +226,7 @@ public class DateRangeMapperTest {
         assertEquals(ssdf.parse("2015-02-28"), mapper.readStop(columns));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testGetStopFromUnparseableStringColumn() {
         DateRangeMapper mapper = new DateRangeMapper("field", "from", "to", null);
         Columns columns = new Columns();
@@ -234,13 +235,13 @@ public class DateRangeMapperTest {
         mapper.readStop(columns);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testGetStopWithNullColumn() {
         DateRangeMapper mapper = new DateRangeMapper("field", "from", "to", null);
         mapper.readStop(new Columns());
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test(expected = IndexException.class)
     public void testSortField() {
         DateRangeMapper mapper = new DateRangeMapper("field", "to", "from", null);
         mapper.sortField("field", false);
@@ -280,7 +281,7 @@ public class DateRangeMapperTest {
         new DateRangeMapper("field", "from", "to", null).validate(metadata);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValidateUnsupportedType() throws ConfigurationException {
 
         CellNameType nameType = new SimpleSparseCellNameType(UTF8Type.instance);
@@ -291,7 +292,7 @@ public class DateRangeMapperTest {
         new DateRangeMapper("field", "from", "to", null).validate(metadata);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValidateWithoutStartColumn() throws ConfigurationException {
         CellNameType nameType = new SimpleSparseCellNameType(UTF8Type.instance);
         CFMetaData metadata = new CFMetaData("ks", "cf", ColumnFamilyType.Standard, nameType);
@@ -300,7 +301,7 @@ public class DateRangeMapperTest {
         new DateRangeMapper("field", "from", "to", null).validate(metadata);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValidateWithoutStopColumn() throws ConfigurationException {
         CellNameType nameType = new SimpleSparseCellNameType(UTF8Type.instance);
         CFMetaData metadata = new CFMetaData("ks", "cf", ColumnFamilyType.Standard, nameType);

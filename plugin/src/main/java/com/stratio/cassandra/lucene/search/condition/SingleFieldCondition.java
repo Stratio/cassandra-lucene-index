@@ -16,6 +16,7 @@
 
 package com.stratio.cassandra.lucene.search.condition;
 
+import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
@@ -45,7 +46,7 @@ public abstract class SingleFieldCondition extends Condition {
     public SingleFieldCondition(Float boost, String field) {
         super(boost);
         if (StringUtils.isBlank(field)) {
-            throw new IllegalArgumentException("Field name required");
+            throw new IndexException("Field name required");
         }
         this.field = field;
     }
@@ -55,7 +56,7 @@ public abstract class SingleFieldCondition extends Condition {
         if (mapper != null && mapper instanceof SingleColumnMapper<?>) {
             return (SingleColumnMapper<?>) mapper;
         }
-        throw new IllegalArgumentException("Not found mapper for field " + field);
+        throw new IndexException("Not found mapper for field '%s'", field);
     }
 
 }

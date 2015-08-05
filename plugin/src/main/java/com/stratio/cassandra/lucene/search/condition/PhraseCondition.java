@@ -17,6 +17,7 @@
 package com.stratio.cassandra.lucene.search.condition;
 
 import com.google.common.base.Objects;
+import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
 import org.apache.lucene.analysis.Analyzer;
@@ -57,10 +58,10 @@ public class PhraseCondition extends SingleFieldCondition {
         super(boost, field);
 
         if (value == null) {
-            throw new IllegalArgumentException("Field value required");
+            throw new IndexException("Field value required");
         }
         if (slop != null && slop < 0) {
-            throw new IllegalArgumentException("Slop must be positive");
+            throw new IndexException("Slop must be positive");
         }
 
         this.field = field;
@@ -81,8 +82,7 @@ public class PhraseCondition extends SingleFieldCondition {
             query.setBoost(boost);
             return query;
         } else {
-            String message = String.format("Unsupported query %s for mapper %s", this, columnMapper);
-            throw new UnsupportedOperationException(message);
+            throw new IndexException("Query '%s' is not supported by mapper '%s'", this, columnMapper);
         }
     }
 

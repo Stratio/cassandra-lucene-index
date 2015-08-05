@@ -132,9 +132,10 @@ public class Index extends PerRowSecondaryIndex {
             rowService = RowService.build(baseCfs, columnDefinition);
 
             Log.info("Initialized index %s", logName);
+        } catch (IndexException e) {
+            throw e.traceError();
         } catch (Exception e) {
-            Log.error(e, "Error while initializing Lucene index %s", logName);
-            throw new RuntimeException(e);
+            throw new IndexException(e, "Error while initializing Lucene index %s", logName);
         }
     }
 
@@ -152,9 +153,10 @@ public class Index extends PerRowSecondaryIndex {
                 long timestamp = System.currentTimeMillis();
                 rowService.index(key, columnFamily, timestamp);
             }
+        } catch (IndexException e) {
+            throw e.traceError();
         } catch (Exception e) {
-            Log.error("Error while indexing row %s in Lucene index %s", key, logName);
-            throw new RuntimeException(e);
+            throw new IndexException(e, "Error while indexing row %s in Lucene index %s", key, logName);
         }
     }
 
@@ -169,9 +171,10 @@ public class Index extends PerRowSecondaryIndex {
         try {
             rowService.delete(key);
             rowService = null;
+        } catch (IndexException e) {
+            throw e.traceError();
         } catch (Exception e) {
-            Log.error(e, "Error deleting row %s", key);
-            throw new RuntimeException(e);
+            throw new IndexException(e, "Error deleting row %s", key);
         }
     }
 
@@ -190,6 +193,8 @@ public class Index extends PerRowSecondaryIndex {
             CFMetaData metadata = Schema.instance.getCFMetaData(ksName, cfName);
             new IndexConfig(metadata, columnDefinition.getIndexOptions());
             Log.debug("Lucene index options are valid");
+        } catch (IndexException e) {
+            throw e.traceError();
         } catch (Exception e) {
             String message = "Error while validating Lucene index options: " + e.getMessage();
             Log.error(e, message);
@@ -216,9 +221,10 @@ public class Index extends PerRowSecondaryIndex {
                 rowService = null;
             }
             Log.info("Removed Lucene index %s", logName);
+        } catch (IndexException e) {
+            throw e.traceError();
         } catch (Exception e) {
-            Log.error(e, "Error while removing Lucene index %s", logName);
-            throw new RuntimeException(e);
+            throw new IndexException(e, "Error while removing Lucene index %s", logName);
         }
     }
 
@@ -231,9 +237,10 @@ public class Index extends PerRowSecondaryIndex {
                 rowService = null;
             }
             Log.info("Invalidated Lucene index %s", logName);
+        } catch (IndexException e) {
+            throw e.traceError();
         } catch (Exception e) {
-            Log.error(e, "Error while invalidating Lucene index %s", logName);
-            throw new RuntimeException(e);
+            throw new IndexException(e, "Error while invalidating Lucene index %s", logName);
         }
     }
 
@@ -245,9 +252,10 @@ public class Index extends PerRowSecondaryIndex {
                 rowService.truncate();
             }
             Log.info("Truncated Lucene index %s", logName);
+        } catch (IndexException e) {
+            throw e.traceError();
         } catch (Exception e) {
-            Log.error(e, "Error while truncating Lucene index %s", logName);
-            throw new RuntimeException(e);
+            throw new IndexException(e, "Error while truncating Lucene index %s", logName);
         }
     }
 
@@ -261,9 +269,10 @@ public class Index extends PerRowSecondaryIndex {
         try {
             rowService.commit();
             Log.info("Flushed Lucene index %s", logName);
+        } catch (IndexException e) {
+            throw e.traceError();
         } catch (Exception e) {
-            Log.error(e, "Error while flushing Lucene index %s", logName);
-            throw new RuntimeException(e);
+            throw new IndexException(e, "Error while flushing Lucene index %s", logName);
         }
     }
 

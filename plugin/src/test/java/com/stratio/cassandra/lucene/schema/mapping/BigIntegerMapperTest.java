@@ -16,6 +16,7 @@
 
 package com.stratio.cassandra.lucene.schema.mapping;
 
+import com.stratio.cassandra.lucene.IndexException;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.DocValuesType;
 import org.junit.Test;
@@ -51,41 +52,41 @@ public class BigIntegerMapperTest {
         assertNull(parsed);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueDigitsZero() {
         new BigIntegerMapper("field", null, null, 0);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueDigitsNegative() {
         new BigIntegerMapper("field", null, null, -1);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueBooleanTrue() {
         BigIntegerMapper mapper = new BigIntegerMapper("field", null, null, 10);
         mapper.base("test", true);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueBooleanFalse() {
         BigIntegerMapper mapper = new BigIntegerMapper("field", null, null, 10);
         mapper.base("test", false);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueUUID() {
         BigIntegerMapper mapper = new BigIntegerMapper("field", null, null, 100);
         mapper.base("test", UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueDate() {
         BigIntegerMapper mapper = new BigIntegerMapper("field", null, null, 100);
         mapper.base("test", new Date());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueStringInvalid() {
         BigIntegerMapper mapper = new BigIntegerMapper("field", null, null, 10);
         mapper.base("test", "0s0");
@@ -246,31 +247,31 @@ public class BigIntegerMapperTest {
 
     // ///
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueFloatMinPositive() {
         BigIntegerMapper mapper = new BigIntegerMapper("field", null, null, 8);
         mapper.base("test", 1.0f);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueFloatMaxPositive() {
         BigIntegerMapper mapper = new BigIntegerMapper("field", null, null, 8);
         mapper.base("test", 99999999.0f);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueFloatMinNegative() {
         BigIntegerMapper mapper = new BigIntegerMapper("field", null, null, 8);
         mapper.base("test", -1.0f);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueFloatMaxNegative() {
         BigIntegerMapper mapper = new BigIntegerMapper("field", null, null, 8);
         mapper.base("test", -99999999.0f);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueFloatZero() {
         BigIntegerMapper mapper = new BigIntegerMapper("field", null, null, 8);
         mapper.base("test", 0.0f);
@@ -278,31 +279,31 @@ public class BigIntegerMapperTest {
 
     // ///
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueDoubleMinPositive() {
         BigIntegerMapper mapper = new BigIntegerMapper("field", null, null, 10);
         mapper.base("test", 1.0d);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueDoubleMaxPositive() {
         BigIntegerMapper mapper = new BigIntegerMapper("field", null, null, 10);
         mapper.base("test", 9999999999.0d);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueDoubleMinNegative() {
         BigIntegerMapper mapper = new BigIntegerMapper("field", null, null, 10);
         mapper.base("test", -1.0d);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueDoubleMaxNegative() {
         BigIntegerMapper mapper = new BigIntegerMapper("field", null, null, 10);
         mapper.base("test", -9999999999.0d);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueDoubleZero() {
         BigIntegerMapper mapper = new BigIntegerMapper("field", null, null, 10);
         mapper.base("test", 0.0d);
@@ -310,13 +311,13 @@ public class BigIntegerMapperTest {
 
     // /
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueTooBig() {
         BigIntegerMapper mapper = new BigIntegerMapper("field", null, null, 8);
         mapper.base("test", 100000000);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueTooSmall() {
         BigIntegerMapper mapper = new BigIntegerMapper("field", null, null, 8);
         mapper.base("test", -100000000);

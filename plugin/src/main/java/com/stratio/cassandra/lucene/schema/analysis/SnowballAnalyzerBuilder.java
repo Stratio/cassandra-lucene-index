@@ -16,6 +16,7 @@
 
 package com.stratio.cassandra.lucene.schema.analysis;
 
+import com.stratio.cassandra.lucene.IndexException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
@@ -79,7 +80,7 @@ public class SnowballAnalyzerBuilder extends AnalyzerBuilder {
 
         // Check language
         if (language == null || StringUtils.isBlank(language)) {
-            throw new IllegalArgumentException("Language must be specified");
+            throw new IndexException("Language must be specified");
         }
 
         this.language = language;
