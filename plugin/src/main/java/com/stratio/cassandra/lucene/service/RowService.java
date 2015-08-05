@@ -225,8 +225,15 @@ public abstract class RowService {
      * @throws IOException If there are I/O errors.
      */
     public final void delete() throws IOException {
+        flushIndexQueue();
         luceneIndex.delete();
         schema.close();
+    }
+
+    private void flushIndexQueue() {
+        if (indexQueue != null) {
+            indexQueue.await();
+        }
     }
 
     /**
@@ -278,12 +285,10 @@ public abstract class RowService {
         int numPages = 0;
         int numRows = 0;
 
-        List<Row> rows = new LinkedList<>();
-
         // Refresh index if needed
-        if (search.refresh()) {
-            luceneIndex.refresh();
-        }
+        maybeRefresh(search);
+
+        List<Row> rows = new LinkedList<>();
 
         SearcherManager searcherManager = luceneIndex.getSearcherManager();
         IndexSearcher searcher = searcherManager.acquire();
@@ -343,6 +348,13 @@ public abstract class RowService {
         Log.debug("Collected %d docs and %d rows in %d pages in %s", numDocs, numRows, numPages, searchTime);
 
         return rows;
+    }
+
+    private void maybeRefresh(Search search) throws IOException {
+        if (search.refresh()) {
+            flushIndexQueue();
+            luceneIndex.refresh();
+        }
     }
 
     /**

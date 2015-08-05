@@ -87,18 +87,29 @@ public class TaskQueue {
         }
     }
 
-    private void await() throws ExecutionException, InterruptedException {
-        Future<?>[] futures = new Future<?>[pools.length];
-        for (int i = 0; i < pools.length; i++) {
-            Future<?> future = pools[i].submit(new Runnable() {
-                @Override
-                public void run() {
-                }
-            });
-            futures[i] = future;
-        }
-        for (Future<?> future : futures) {
-            future.get();
+    public void await() {
+        lock.writeLock().lock();
+        try {
+            Future<?>[] futures = new Future<?>[pools.length];
+            for (int i = 0; i < pools.length; i++) {
+                Future<?> future = pools[i].submit(new Runnable() {
+                    @Override
+                    public void run() {
+                    }
+                });
+                futures[i] = future;
+            }
+            for (Future<?> future : futures) {
+                future.get();
+            }
+        } catch (InterruptedException e) {
+            Log.error(e, "Task queue await interrupted");
+            throw new RuntimeException(e);
+        } catch (ExecutionException e) {
+            Log.error(e, "Task queue await failed");
+            throw new RuntimeException(e);
+        } finally {
+            lock.writeLock().unlock();
         }
     }
 
@@ -113,12 +124,6 @@ public class TaskQueue {
         try {
             await();
             task.run();
-        } catch (InterruptedException e) {
-            Log.error(e, "Task queue isolated submission interrupted");
-            throw new RuntimeException(e);
-        } catch (Exception e) {
-            Log.error(e, "Task queue isolated submission failed");
-            throw new RuntimeException(e);
         } finally {
             lock.writeLock().unlock();
         }
