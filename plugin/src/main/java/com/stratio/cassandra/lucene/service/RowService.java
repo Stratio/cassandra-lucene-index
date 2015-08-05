@@ -281,8 +281,8 @@ public abstract class RowService {
         List<Row> rows = new LinkedList<>();
 
         // Refresh index if needed
-        if (search.forceRefresh()) {
-            luceneIndex.forceRefresh();
+        if (search.refresh()) {
+            luceneIndex.refresh();
         }
 
         SearcherManager searcherManager = luceneIndex.getSearcherManager();

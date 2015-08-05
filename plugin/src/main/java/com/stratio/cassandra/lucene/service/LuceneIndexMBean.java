@@ -70,5 +70,5 @@ public interface LuceneIndexMBean {
      *
      * @throws IOException If Lucene throws IO errors.
      */
-    void forceRefresh() throws IOException;
+    void refresh() throws IOException;
 }

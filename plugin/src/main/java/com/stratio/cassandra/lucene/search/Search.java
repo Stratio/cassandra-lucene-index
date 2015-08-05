@@ -46,7 +46,7 @@ public class Search {
     private final Sort sort;
 
     /** If this search must refresh the index before reading it. */
-    private final boolean forceRefresh;
+    private final boolean refresh;
 
     /**
      * Returns a new {@link Search} composed by the specified querying and filtering conditions.
@@ -55,13 +55,13 @@ public class Search {
      * @param filterCondition The {@link Condition} for filtering, maybe {@code null} meaning no filtering.
      * @param sort            The {@link Sort} for the query. Note that is the order in which the data will be read
      *                        before querying, not the order of the results after querying.
-     * @param forceRefresh    If this search must forceRefresh the index before reading it.
+     * @param refresh         If this search must refresh the index before reading it.
      */
-    public Search(Condition queryCondition, Condition filterCondition, Sort sort, Boolean forceRefresh) {
+    public Search(Condition queryCondition, Condition filterCondition, Sort sort, Boolean refresh) {
         this.queryCondition = queryCondition;
         this.filterCondition = filterCondition;
         this.sort = sort;
-        this.forceRefresh = forceRefresh == null ? DEFAULT_FORCE_REFRESH : forceRefresh;
+        this.refresh = refresh == null ? DEFAULT_FORCE_REFRESH : refresh;
     }
 
     /**
@@ -111,8 +111,8 @@ public class Search {
      *
      * @return {@code true} if this search needs to refresh the index before reading it, {@code false} otherwise.
      */
-    public boolean forceRefresh() {
-        return forceRefresh;
+    public boolean refresh() {
+        return refresh;
     }
 
     /**

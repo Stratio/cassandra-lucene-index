@@ -335,7 +335,7 @@ public class LuceneIndex implements LuceneIndexMBean {
      * Refreshes the index readers.
      */
     @Override
-    public void forceRefresh() throws IOException {
+    public void refresh() throws IOException {
         Log.info("%s refreshing readers", logName);
         commit();
         searcherManager.maybeRefreshBlocking();

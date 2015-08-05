@@ -47,8 +47,8 @@ public class SearchBuilder implements Builder<Search> {
     SortBuilder sortBuilder;
 
     /** If this search must force the refresh the index before reading it. */
-    @JsonProperty("force_refresh")
-    private boolean forceRefresh;
+    @JsonProperty("refresh")
+    private boolean refresh;
 
     /**
      * Returns this builder with the specified querying condition.
@@ -95,13 +95,13 @@ public class SearchBuilder implements Builder<Search> {
     }
 
     /**
-     * Sets if the {@link Search} to be built must forceRefresh the index before reading it.
+     * Sets if the {@link Search} to be built must refresh the index before reading it.
      *
-     * @param refresh If the {@link Search} to be built must forceRefresh the index before reading it.
-     * @return This builder with the specified forceRefresh.
+     * @param refresh If the {@link Search} to be built must refresh the index before reading it.
+     * @return This builder with the specified refresh.
      */
-    public SearchBuilder forceRefresh(boolean refresh) {
-        this.forceRefresh = refresh;
+    public SearchBuilder refresh(boolean refresh) {
+        this.refresh = refresh;
         return this;
     }
 
@@ -114,7 +114,7 @@ public class SearchBuilder implements Builder<Search> {
         Condition query = queryBuilder == null ? null : queryBuilder.build();
         Condition filter = filterBuilder == null ? null : filterBuilder.build();
         Sort sort = sortBuilder == null ? null : sortBuilder.build();
-        return new Search(query, filter, sort, forceRefresh);
+        return new Search(query, filter, sort, refresh);
     }
 
     /**
