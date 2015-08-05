@@ -7,9 +7,10 @@ Syntax:
 
     SELECT ( <fields> | * )
     FROM <table_name>
-    WHERE <magic_column> = '{ (   filter : <filter>  )?
-                              ( , query  : <query> )?
-                              ( , sort   : <sort>   )?
+    WHERE <magic_column> = '{ (   filter  : <filter>  )?
+                              ( , query   : <query>   )?
+                              ( , sort    : <sort>    )?
+                              ( , refresh : ( true | false ) )?
                             }';
 
 where <filter> and <query> are a JSON object:
@@ -43,6 +44,13 @@ queries.
 Additionally, relevance queries must touch all the nodes in the
 ring in order to find the globally best results, so definitely you should
 prefer filters over queries when no relevance nor sorting are needed.
+
+The “\ **refresh**\ ” option indicates if the search must commit pending
+writes and refresh the Lucene IndexSearcher before be performed. This way
+a search with “\ **refresh**\ ” set to true will view the most recent changes
+done to the index, independently of the index auto-refresh time. Please note
+that it is a costly operation, so you should not use it unless it is strictly
+necessary. The default value is false.
 
 Types of search and their options are summarized in the table below.
 Details for each of them are available in individual sections and the
