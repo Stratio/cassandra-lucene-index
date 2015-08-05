@@ -16,8 +16,10 @@
 
 package com.stratio.cassandra.lucene.service;
 
+import com.google.common.collect.Ordering;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.column.Columns;
+import com.stratio.cassandra.lucene.search.Search;
 import com.stratio.cassandra.lucene.util.ByteBufferUtils;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
@@ -36,6 +38,7 @@ import org.apache.lucene.search.SortField;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -169,11 +172,47 @@ public abstract class RowMapper {
     public abstract CellName makeCellName(ColumnFamily columnFamily);
 
     /**
-     * Returns a {@link RowComparator} using the same order that is used in Cassandra.
+     * Returns a {@link Row} {@link Comparator} using the same order that is used in Cassandra.
      *
-     * @return A {@link RowComparator} using the same order that is used in Cassandra.
+     * @return A {@link Row} {@link Comparator} using the same order that is used in Cassandra.
      */
-    public abstract RowComparator comparator();
+    protected abstract Comparator<Row> comparator();
+
+    /**
+     * Returns the {@link Comparator} to be used for ordering the {@link Row}s obtained from the specified {@link
+     * Search}. This {@link Comparator} is useful for merging the partial results obtained from running the specified
+     * {@link Search} against several indexes.
+     *
+     * @param search A {@link Search}.
+     * @return The {@link Comparator} to be used for ordering the {@link Row}s obtained from the specified {@link
+     * Search}.
+     */
+    public Comparator<Row> comparator(Search search) {
+        List<Comparator<Row>> comparators = new ArrayList<>();
+        if (search.usesSorting()) {
+            final Comparator<Columns> comparator = search.getSort().comparator();
+            comparators.add(new Comparator<Row>() {
+                @Override
+                public int compare(Row row1, Row row2) {
+                    Columns columns1 = columns(row1);
+                    Columns columns2 = columns(row2);
+                    return comparator.compare(columns1, columns2);
+                }
+            });
+        }
+        if (search.usesRelevance()) {
+            comparators.add(new Comparator<Row>() {
+                @Override
+                public int compare(Row row1, Row row2) {
+                    Float score1 = score(row1);
+                    Float score2 = score(row2);
+                    return score2.compareTo(score1);
+                }
+            });
+        }
+        comparators.add(comparator());
+        return Ordering.compound(comparators);
+    }
 
     /**
      * Returns the {@link SearchResult} defined by the specified {@link Document} and {@link ScoreDoc}.

@@ -51,20 +51,12 @@ public class IndexConfig {
     public static final String MAX_CACHED_MB_OPTION = "max_cached_mb";
     public static final int DEFAULT_MAX_CACHED_MB = 30;
 
-    public static final String INDEXING_THREADS_OPTION = "indexing_threads";
-    public static final int DEFAULT_INDEXING_THREADS = 0;
-
-    public static final String INDEXING_QUEUES_SIZE_OPTION = "indexing_queues_size";
-    public static final int DEFAULT_INDEXING_QUEUES_SIZE = 50;
-
     private final Schema schema;
     private final double refreshSeconds;
     private final Path path;
     private final int ramBufferMB;
     private final int maxMergeMB;
     private final int maxCachedMB;
-    private final int indexingThreads;
-    private final int indexingQueuesSize;
 
     /**
      * Builds a new {@link IndexConfig} for the column family defined by the specified metadata using the specified
@@ -78,8 +70,6 @@ public class IndexConfig {
         ramBufferMB = parseRamBufferMB(options);
         maxMergeMB = parseMaxMergeMB(options);
         maxCachedMB = parseMaxCachedMB(options);
-        indexingThreads = parseIndexingThreads(options);
-        indexingQueuesSize = parseIndexingQueuesSize(options);
         schema = parseSchema(options, metadata);
         path = parsePath(options, metadata);
     }
@@ -127,24 +117,6 @@ public class IndexConfig {
 
     public int getMaxCachedMB() {
         return maxCachedMB;
-    }
-
-    /**
-     * Returns the number of asynchronous indexing threads, where {@code 0} means synchronous indexing.
-     *
-     * @return The number of asynchronous indexing threads.
-     */
-    public int getIndexingThreads() {
-        return indexingThreads;
-    }
-
-    /**
-     * Returns the max number of queued documents per asynchronous indexing thread.
-     *
-     * @return The max number of queued documents per asynchronous indexing thread.
-     */
-    public int getIndexingQueuesSize() {
-        return indexingQueuesSize;
     }
 
     private static double parseRefresh(Map<String, String> options) {
@@ -220,39 +192,6 @@ public class IndexConfig {
         }
     }
 
-    private static int parseIndexingThreads(Map<String, String> options) {
-        String indexPoolNumQueuesOption = options.get(INDEXING_THREADS_OPTION);
-        int indexingThreads;
-        if (indexPoolNumQueuesOption != null) {
-            try {
-                indexingThreads = Integer.parseInt(indexPoolNumQueuesOption);
-            } catch (NumberFormatException e) {
-                throw new IndexException("'%s' must be a positive integer", INDEXING_THREADS_OPTION);
-            }
-            return indexingThreads;
-        } else {
-            return DEFAULT_INDEXING_THREADS;
-        }
-    }
-
-    private static int parseIndexingQueuesSize(Map<String, String> options) {
-        String indexPoolQueuesSizeOption = options.get(INDEXING_QUEUES_SIZE_OPTION);
-        int indexingQueuesSize;
-        if (indexPoolQueuesSizeOption != null) {
-            try {
-                indexingQueuesSize = Integer.parseInt(indexPoolQueuesSizeOption);
-            } catch (NumberFormatException e) {
-                throw new IndexException("'%s' must be a strictly positive integer", INDEXING_QUEUES_SIZE_OPTION);
-            }
-            if (indexingQueuesSize <= 0) {
-                throw new IndexException("'%s' must be strictly positive", INDEXING_QUEUES_SIZE_OPTION);
-            }
-            return indexingQueuesSize;
-        } else {
-            return DEFAULT_INDEXING_QUEUES_SIZE;
-        }
-    }
-
     private static Schema parseSchema(Map<String, String> options, CFMetaData metadata) {
         String schemaOption = options.get(SCHEMA_OPTION);
         Schema schema;
@@ -297,8 +236,6 @@ public class IndexConfig {
                       .add("ramBufferMB", ramBufferMB)
                       .add("maxMergeMB", maxMergeMB)
                       .add("maxCachedMB", maxCachedMB)
-                      .add("indexingThreads", indexingThreads)
-                      .add("indexingQueuesSize", indexingQueuesSize)
                       .toString();
     }
 }

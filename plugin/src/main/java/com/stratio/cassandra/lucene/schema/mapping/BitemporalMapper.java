@@ -326,8 +326,8 @@ public class BitemporalMapper extends Mapper {
     private BitemporalDateTime checkIfNow(Long in) {
         if (in > nowBitemporalDateTimeMillis) {
             throw new IndexException("BitemporalDateTime value '%s' exceeds Max Value: '%s'",
-                                      in,
-                                      nowBitemporalDateTimeMillis);
+                                     in,
+                                     nowBitemporalDateTimeMillis);
         } else if (in < nowBitemporalDateTimeMillis) {
             return new BitemporalDateTime(in);
         } else {
@@ -399,8 +399,7 @@ public class BitemporalMapper extends Mapper {
          * @param timestamp A timestamp.
          */
         public BitemporalDateTime(Long timestamp) {
-            if (timestamp < 0L)
-                throw new IndexException("Cannot build a BitemporalDateTime with a negative unix time");
+            if (timestamp < 0L) throw new IndexException("Cannot build a BitemporalDateTime with a negative unix time");
             this.timestamp = timestamp;
         }
 

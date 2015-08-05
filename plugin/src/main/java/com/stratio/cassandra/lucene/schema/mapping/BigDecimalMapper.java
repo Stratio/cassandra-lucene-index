@@ -143,15 +143,15 @@ public class BigDecimalMapper extends KeywordMapper {
 
         if (integerPart.replaceFirst("-", "").length() > integerDigits) {
             throw new IndexException("Field '%s' with value '%s' has more than %d integer digits",
-                                      name,
-                                      value,
-                                      integerDigits);
+                                     name,
+                                     value,
+                                     integerDigits);
         }
         if (decimalPart.length() > decimalDigits) {
             throw new IndexException("Field '%s' with value '%s' has more than %d decimal digits",
-                                      name,
-                                      value,
-                                      decimalDigits);
+                                     name,
+                                     value,
+                                     decimalDigits);
         }
 
         BigDecimal complemented = bd.add(complement);

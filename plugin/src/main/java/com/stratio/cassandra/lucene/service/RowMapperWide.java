@@ -16,6 +16,7 @@
 
 package com.stratio.cassandra.lucene.service;
 
+import com.google.common.collect.Ordering;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import org.apache.cassandra.config.CFMetaData;
@@ -43,6 +44,8 @@ import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.TermQuery;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -62,9 +65,6 @@ public class RowMapperWide extends RowMapper {
     /** The full key mapper. */
     private final FullKeyMapper fullKeyMapper;
 
-    /** The natural sorting comparator. */
-    private final RowComparator comparator;
-
     /**
      * Builds a new {@link RowMapperWide} for the specified column family metadata, indexed column definition and {@link
      * Schema}.
@@ -77,7 +77,6 @@ public class RowMapperWide extends RowMapper {
         super(metadata, columnDefinition, schema);
         this.clusteringKeyMapper = ClusteringKeyMapper.instance(metadata, schema);
         this.fullKeyMapper = FullKeyMapper.instance(partitionKeyMapper, clusteringKeyMapper);
-        this.comparator = new RowComparatorNatural(clusteringKeyMapper);
     }
 
     /** {@inheritDoc} */
@@ -126,8 +125,8 @@ public class RowMapperWide extends RowMapper {
 
     /** {@inheritDoc} */
     @Override
-    public RowComparator comparator() {
-        return comparator;
+    public Comparator<Row> comparator() {
+        return Ordering.compound(Arrays.asList(tokenMapper.comparator(), clusteringKeyMapper.comparator()));
     }
 
     /**

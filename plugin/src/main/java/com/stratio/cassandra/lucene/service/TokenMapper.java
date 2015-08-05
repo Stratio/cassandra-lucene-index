@@ -18,6 +18,7 @@ package com.stratio.cassandra.lucene.service;
 
 import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.db.DecoratedKey;
+import org.apache.cassandra.db.Row;
 import org.apache.cassandra.db.RowPosition;
 import org.apache.cassandra.dht.IPartitioner;
 import org.apache.cassandra.dht.Murmur3Partitioner;
@@ -25,6 +26,8 @@ import org.apache.cassandra.dht.Token;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.SortField;
+
+import java.util.Comparator;
 
 /**
  * Class for several row partitioning {@link Token} mappings between Cassandra and Lucene.
@@ -155,4 +158,14 @@ public abstract class TokenMapper {
         }
     }
 
+    public Comparator<Row> comparator() {
+        return new Comparator<Row>() {
+            @Override
+            public int compare(Row row1, Row row2) {
+                Token t1 = row1.key.getToken();
+                Token t2 = row2.key.getToken();
+                return t1.compareTo(t2);
+            }
+        };
+    }
 }

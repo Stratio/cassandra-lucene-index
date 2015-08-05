@@ -81,7 +81,7 @@ public class ClusteringKeyMapper {
     private ClusteringKeyMapper(CFMetaData metadata, Schema schema) {
         this.metadata = metadata;
         this.schema = schema;
-        this.cellNameType = metadata.comparator;
+        cellNameType = metadata.comparator;
     }
 
     /**
@@ -349,4 +349,15 @@ public class ClusteringKeyMapper {
         return ByteBufferUtils.toString(cellName.toByteBuffer(), cellNameType.asAbstractType());
     }
 
+    public Comparator<Row> comparator() {
+        return new Comparator<Row>() {
+            @Override
+            public int compare(Row row1, Row row2) {
+                CellNameType nameType = getType();
+                CellName name1 = clusteringKey(row1);
+                CellName name2 = clusteringKey(row2);
+                return nameType.compare(name1, name2);
+            }
+        };
+    }
 }

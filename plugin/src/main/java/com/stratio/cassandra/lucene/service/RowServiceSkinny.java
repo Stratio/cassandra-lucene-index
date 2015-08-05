@@ -76,7 +76,7 @@ public class RowServiceSkinny extends RowService {
 
     /** {@inheritDoc} */
     @Override
-    public void doIndex(ByteBuffer key, ColumnFamily columnFamily, long timestamp) throws IOException {
+    public void index(ByteBuffer key, ColumnFamily columnFamily, long timestamp) throws IOException {
         DecoratedKey partitionKey = rowMapper.partitionKey(key);
 
         if (columnFamily.iterator().hasNext()) { // Create or update row
@@ -97,7 +97,7 @@ public class RowServiceSkinny extends RowService {
 
     /** {@inheritDoc} */
     @Override
-    public void doDelete(DecoratedKey partitionKey) throws IOException {
+    public void delete(DecoratedKey partitionKey) throws IOException {
         Term term = rowMapper.term(partitionKey);
         luceneIndex.delete(term);
     }

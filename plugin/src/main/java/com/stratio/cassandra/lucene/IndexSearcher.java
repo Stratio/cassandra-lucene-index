@@ -200,7 +200,7 @@ public class IndexSearcher extends SecondaryIndexSearcher {
 
         // Remove duplicates and sort
         Search search = search(clause);
-        Comparator<Row> comparator = rowService.comparator(search);
+        Comparator<Row> comparator = mapper().comparator(search);
         TreeSet<Row> set = new TreeSet<>(comparator);
         set.addAll(rows);
         List<Row> result = new ArrayList<>(set);

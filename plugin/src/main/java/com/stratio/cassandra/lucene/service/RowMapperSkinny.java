@@ -38,6 +38,7 @@ import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.TermQuery;
 
 import java.nio.ByteBuffer;
+import java.util.Comparator;
 
 /**
  * {@link RowMapper} for skinny rows.
@@ -45,9 +46,6 @@ import java.nio.ByteBuffer;
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class RowMapperSkinny extends RowMapper {
-
-    /** The natural sorting comparator. */
-    private final RowComparator comparator;
 
     /**
      * Builds a new {@link RowMapperSkinny} for the specified column family metadata, indexed column definition and
@@ -59,7 +57,6 @@ public class RowMapperSkinny extends RowMapper {
      */
     RowMapperSkinny(CFMetaData metadata, ColumnDefinition columnDefinition, Schema schema) {
         super(metadata, columnDefinition, schema);
-        this.comparator = new RowComparatorNatural();
     }
 
     /** {@inheritDoc} */
@@ -132,8 +129,8 @@ public class RowMapperSkinny extends RowMapper {
 
     /** {@inheritDoc} */
     @Override
-    public RowComparator comparator() {
-        return comparator;
+    public Comparator<Row> comparator() {
+        return tokenMapper.comparator();
     }
 
     /** {@inheritDoc} */

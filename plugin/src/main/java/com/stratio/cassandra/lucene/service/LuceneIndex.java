@@ -79,8 +79,8 @@ public class LuceneIndex implements LuceneIndexMBean {
      * @param ramBufferMB    The index writer buffer size in MB.
      * @param maxMergeMB     NRTCachingDirectory max merge size in MB.
      * @param maxCachedMB    NRTCachingDirectory max cached MB.
-     * @param analyzer       The default {@link Analyzer}.
      * @param refreshSeconds The index readers refresh time in seconds. Writings are not visible until this time.
+     * @param analyzer       The default {@link Analyzer}.
      * @throws IOException If Lucene throws IO errors.
      */
     public LuceneIndex(String keyspace,
@@ -90,8 +90,8 @@ public class LuceneIndex implements LuceneIndexMBean {
                        Integer ramBufferMB,
                        Integer maxMergeMB,
                        Integer maxCachedMB,
-                       Analyzer analyzer,
-                       Double refreshSeconds) throws IOException {
+                       Double refreshSeconds,
+                       Analyzer analyzer) throws IOException {
         this.path = path;
         this.logName = String.format("Lucene index %s.%s.%s", keyspace, table, name);
 

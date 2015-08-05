@@ -68,9 +68,7 @@ public class LuceneIndexTest {
                                             path,
                                             IndexConfig.DEFAULT_RAM_BUFFER_MB,
                                             IndexConfig.DEFAULT_MAX_MERGE_MB,
-                                            IndexConfig.DEFAULT_MAX_CACHED_MB,
-                                            new StandardAnalyzer(),
-                                            REFRESH_SECONDS);
+                                            IndexConfig.DEFAULT_MAX_CACHED_MB, REFRESH_SECONDS, new StandardAnalyzer());
         Sort sort = new Sort(new SortField("field", SortField.Type.STRING));
         assertEquals(0, index.getNumDocs());
 

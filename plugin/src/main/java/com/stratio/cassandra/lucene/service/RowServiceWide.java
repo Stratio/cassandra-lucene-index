@@ -82,7 +82,7 @@ public class RowServiceWide extends RowService {
 
     /** {@inheritDoc} */
     @Override
-    public void doIndex(ByteBuffer key, ColumnFamily columnFamily, long timestamp) throws IOException {
+    public void index(ByteBuffer key, ColumnFamily columnFamily, long timestamp) throws IOException {
         DeletionInfo deletionInfo = columnFamily.deletionInfo();
         DecoratedKey partitionKey = rowMapper.partitionKey(key);
 
@@ -141,7 +141,7 @@ public class RowServiceWide extends RowService {
 
     /** {@inheritDoc} */
     @Override
-    public void doDelete(DecoratedKey partitionKey) throws IOException {
+    public void delete(DecoratedKey partitionKey) throws IOException {
         Term term = rowMapper.term(partitionKey);
         luceneIndex.delete(term);
     }
