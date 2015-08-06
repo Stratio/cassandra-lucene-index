@@ -55,8 +55,8 @@ public class DateRangeMapperTest {
         assertEquals("field", mapper.getName());
         assertTrue(mapper.isIndexed());
         assertFalse(mapper.isSorted());
-        assertEquals("to", mapper.getStart());
-        assertEquals("from", mapper.getStop());
+        assertEquals("to", mapper.getFrom());
+        assertEquals("from", mapper.getTo());
         assertEquals(DateParser.DEFAULT_PATTERN, mapper.getPattern());
         assertNotNull(mapper.getStrategy());
     }
@@ -67,182 +67,182 @@ public class DateRangeMapperTest {
         assertEquals("field", mapper.getName());
         assertTrue(mapper.isIndexed());
         assertFalse(mapper.isSorted());
-        assertEquals("to", mapper.getStart());
-        assertEquals("from", mapper.getStop());
+        assertEquals("to", mapper.getFrom());
+        assertEquals("from", mapper.getTo());
         assertEquals("yyyy/MM/dd", mapper.getPattern());
         assertNotNull(mapper.getStrategy());
     }
 
     @Test(expected = IndexException.class)
-    public void testConstructorWithNullStart() {
+    public void testConstructorWithNullFrom() {
         new DateRangeMapper("field", "to", null, null);
     }
 
     @Test(expected = IndexException.class)
-    public void testConstructorWithEmptyStart() {
+    public void testConstructorWithEmptyFrom() {
         new DateRangeMapper("field", "to", "", null);
     }
 
     @Test(expected = IndexException.class)
-    public void testConstructorWithBlankStart() {
+    public void testConstructorWithBlankFrom() {
         new DateRangeMapper("field", "to", " ", null);
     }
 
     @Test(expected = IndexException.class)
-    public void testConstructorWithNullStop() {
+    public void testConstructorWithNullTo() {
         new DateRangeMapper("field", "to", null, null);
     }
 
     @Test(expected = IndexException.class)
-    public void testConstructorWithEmptyStop() {
+    public void testConstructorWithEmptyTo() {
         new DateRangeMapper("field", "to", "", null);
     }
 
     @Test(expected = IndexException.class)
-    public void testConstructorWithBlankStop() {
+    public void testConstructorWithBlankTo() {
         new DateRangeMapper("field", "to", " ", null);
     }
 
     @Test()
-    public void testReadStartFromIntColumn() {
+    public void testReadFromFromIntColumn() {
         DateRangeMapper mapper = new DateRangeMapper("field", "from", "to", null);
         Columns columns = new Columns();
         columns.add(Column.fromComposed("from", 5, Int32Type.instance, false));
         columns.add(Column.fromComposed("to", 0, Int32Type.instance, false));
-        assertEquals(new Date(5), mapper.readStart(columns));
+        assertEquals(new Date(5), mapper.readFrom(columns));
     }
 
     @Test()
-    public void testGetStartFromLongColumn() {
+    public void testGetFromFromLongColumn() {
         DateRangeMapper mapper = new DateRangeMapper("field", "from", "to", null);
         Columns columns = new Columns();
         columns.add(Column.fromComposed("from", 5L, LongType.instance, false));
         columns.add(Column.fromComposed("to", 0, Int32Type.instance, false));
-        assertEquals(new Date(5), mapper.readStart(columns));
+        assertEquals(new Date(5), mapper.readFrom(columns));
     }
 
     @Test()
-    public void testGetStartFromFloatColumn() {
+    public void testGetFromFromFloatColumn() {
         DateRangeMapper mapper = new DateRangeMapper("field", "from", "to", null);
         Columns columns = new Columns();
         columns.add(Column.fromComposed("from", 5.3f, FloatType.instance, false));
         columns.add(Column.fromComposed("to", 0, Int32Type.instance, false));
-        assertEquals(new Date(5), mapper.readStart(columns));
+        assertEquals(new Date(5), mapper.readFrom(columns));
     }
 
     @Test()
-    public void testGetStartFromDoubleColumn() {
+    public void testGetFromFromDoubleColumn() {
         DateRangeMapper mapper = new DateRangeMapper("field", "from", "to", null);
         Columns columns = new Columns();
         columns.add(Column.fromComposed("from", 5.3D, DoubleType.instance, false));
         columns.add(Column.fromComposed("to", 0, Int32Type.instance, false));
-        assertEquals(new Date(5), mapper.readStart(columns));
+        assertEquals(new Date(5), mapper.readFrom(columns));
     }
 
     @Test
-    public void testGetStartFromStringColumnWithDefaultPattern() throws ParseException {
+    public void testGetFromFromStringColumnWithDefaultPattern() throws ParseException {
         DateRangeMapper mapper = new DateRangeMapper("field", "from", "to", null);
         Columns columns = new Columns();
         columns.add(Column.fromComposed("from", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
         columns.add(Column.fromComposed("to", 0, Int32Type.instance, false));
-        assertEquals(lsdf.parse("2015/02/28 01:02:03.004 GMT"), mapper.readStart(columns));
+        assertEquals(lsdf.parse("2015/02/28 01:02:03.004 GMT"), mapper.readFrom(columns));
     }
 
     @Test
-    public void testGetStartFromStringColumnWithCustomPattern() throws ParseException {
+    public void testGetFromFromStringColumnWithCustomPattern() throws ParseException {
         DateRangeMapper mapper = new DateRangeMapper("field", "from", "to", "yyyy-MM-dd");
         Columns columns = new Columns();
         columns.add(Column.fromComposed("from", "2015-02-28", UTF8Type.instance, false));
         columns.add(Column.fromComposed("to", 0, Int32Type.instance, false));
-        assertEquals(ssdf.parse("2015-02-28"), mapper.readStart(columns));
+        assertEquals(ssdf.parse("2015-02-28"), mapper.readFrom(columns));
     }
 
     @Test(expected = IndexException.class)
-    public void testGetStartFromUnparseableStringColumn() {
+    public void testGetFromFromUnparseableStringColumn() {
         DateRangeMapper mapper = new DateRangeMapper("field", "from", "to", null);
         Columns columns = new Columns();
         columns.add(Column.fromComposed("from", "abc", UTF8Type.instance, false));
         columns.add(Column.fromComposed("to", 0, Int32Type.instance, false));
-        mapper.readStart(columns);
+        mapper.readFrom(columns);
     }
 
     @Test
-    public void testGetStartWithNullColumn() {
+    public void testGetFromWithNullColumn() {
         DateRangeMapper mapper = new DateRangeMapper("field", "from", "to", null);
         Columns columns = new Columns();
         columns.add(Column.fromComposed("to", 0, Int32Type.instance, false));
-        assertNull(mapper.readStart(columns));
+        assertNull(mapper.readFrom(columns));
     }
 
     @Test()
-    public void testReadStopFromIntColumn() {
+    public void testReadToFromIntColumn() {
         DateRangeMapper mapper = new DateRangeMapper("field", "from", "to", null);
         Columns columns = new Columns();
         columns.add(Column.fromComposed("from", 0, Int32Type.instance, false));
         columns.add(Column.fromComposed("to", 5, Int32Type.instance, false));
-        assertEquals(new Date(5), mapper.readStop(columns));
+        assertEquals(new Date(5), mapper.readTo(columns));
     }
 
     @Test()
-    public void testGetStopFromLongColumn() {
+    public void testGetToFromLongColumn() {
         DateRangeMapper mapper = new DateRangeMapper("field", "from", "to", null);
         Columns columns = new Columns();
         columns.add(Column.fromComposed("from", 0, Int32Type.instance, false));
         columns.add(Column.fromComposed("to", 5L, LongType.instance, false));
-        assertEquals(new Date(5), mapper.readStop(columns));
+        assertEquals(new Date(5), mapper.readTo(columns));
     }
 
     @Test()
-    public void testGetStopFromFloatColumn() {
+    public void testGetToFromFloatColumn() {
         DateRangeMapper mapper = new DateRangeMapper("field", "from", "to", null);
         Columns columns = new Columns();
         columns.add(Column.fromComposed("from", 0, Int32Type.instance, false));
         columns.add(Column.fromComposed("to", 5.3f, FloatType.instance, false));
-        assertEquals(new Date(5), mapper.readStop(columns));
+        assertEquals(new Date(5), mapper.readTo(columns));
     }
 
     @Test()
-    public void testGetStopFromDoubleColumn() {
+    public void testGetToFromDoubleColumn() {
         DateRangeMapper mapper = new DateRangeMapper("field", "from", "to", null);
         Columns columns = new Columns();
         columns.add(Column.fromComposed("from", 0, Int32Type.instance, false));
         columns.add(Column.fromComposed("to", 5.3D, DoubleType.instance, false));
-        assertEquals(new Date(5), mapper.readStop(columns));
+        assertEquals(new Date(5), mapper.readTo(columns));
     }
 
     @Test
-    public void testGetStopFromStringColumnWithDefaultPattern() throws ParseException {
+    public void testGetToFromStringColumnWithDefaultPattern() throws ParseException {
         DateRangeMapper mapper = new DateRangeMapper("field", "from", "to", null);
         Columns columns = new Columns();
         columns.add(Column.fromComposed("from", 0, Int32Type.instance, false));
         columns.add(Column.fromComposed("to", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
-        assertEquals(lsdf.parse("2015/02/28 01:02:03.004 GMT"), mapper.readStop(columns));
+        assertEquals(lsdf.parse("2015/02/28 01:02:03.004 GMT"), mapper.readTo(columns));
     }
 
     @Test
-    public void testGetStopFromStringColumnWithCustomPattern() throws ParseException {
+    public void testGetToFromStringColumnWithCustomPattern() throws ParseException {
         DateRangeMapper mapper = new DateRangeMapper("field", "from", "to", "yyyy-MM-dd");
         Columns columns = new Columns();
         columns.add(Column.fromComposed("from", 0, Int32Type.instance, false));
         columns.add(Column.fromComposed("to", "2015-02-28", UTF8Type.instance, false));
-        assertEquals(ssdf.parse("2015-02-28"), mapper.readStop(columns));
+        assertEquals(ssdf.parse("2015-02-28"), mapper.readTo(columns));
     }
 
     @Test(expected = IndexException.class)
-    public void testGetStopFromUnparseableStringColumn() {
+    public void testGetToFromUnparseableStringColumn() {
         DateRangeMapper mapper = new DateRangeMapper("field", "from", "to", null);
         Columns columns = new Columns();
         columns.add(Column.fromComposed("from", 0, Int32Type.instance, false));
         columns.add(Column.fromComposed("to", "abc", UTF8Type.instance, false));
-        mapper.readStop(columns);
+        mapper.readTo(columns);
     }
 
     @Test
-    public void testGetStopWithNullColumn() {
+    public void testGetToWithNullColumn() {
         DateRangeMapper mapper = new DateRangeMapper("field", "from", "to", null);
         Columns columns = new Columns();
         columns.add(Column.fromComposed("from", 0, Int32Type.instance, false));
-        assertNull(mapper.readStop(columns));
+        assertNull(mapper.readTo(columns));
     }
 
     @Test(expected = IndexException.class)
@@ -306,7 +306,7 @@ public class DateRangeMapperTest {
     }
 
     @Test(expected = IndexException.class)
-    public void testValidateWithoutStartColumn() throws ConfigurationException {
+    public void testValidateWithoutFromColumn() throws ConfigurationException {
         CellNameType nameType = new SimpleSparseCellNameType(UTF8Type.instance);
         CFMetaData metadata = new CFMetaData("ks", "cf", ColumnFamilyType.Standard, nameType);
         metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("to"), FloatType.instance, 0));
@@ -315,7 +315,7 @@ public class DateRangeMapperTest {
     }
 
     @Test(expected = IndexException.class)
-    public void testValidateWithoutStopColumn() throws ConfigurationException {
+    public void testValidateWithoutToColumn() throws ConfigurationException {
         CellNameType nameType = new SimpleSparseCellNameType(UTF8Type.instance);
         CFMetaData metadata = new CFMetaData("ks", "cf", ColumnFamilyType.Standard, nameType);
         metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("from"), FloatType.instance, 0));
@@ -326,7 +326,7 @@ public class DateRangeMapperTest {
     @Test
     public void testToString() {
         DateRangeMapper mapper = new DateRangeMapper("field", "to", "from", "yyyy/MM/dd");
-        String exp = "DateRangeMapper{name=field, start=to, stop=from, pattern=yyyy/MM/dd}";
+        String exp = "DateRangeMapper{name=field, from=to, to=from, pattern=yyyy/MM/dd}";
         assertEquals(exp, mapper.toString());
     }
 }

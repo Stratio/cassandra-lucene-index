@@ -100,9 +100,9 @@ a “\ **boost**\ ” option that acts as a weight on the resulting score.
 +-----------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 | `Date range <#date-range-search>`__     | field           | string          |                                | Yes       |
 |                                         +-----------------+-----------------+--------------------------------+-----------+
-|                                         | start           | string/long     | 0                              | No        |
+|                                         | from            | string/long     | 0                              | No        |
 |                                         +-----------------+-----------------+--------------------------------+-----------+
-|                                         | stop            | string/long     | Integer.MAX_VALUE              | No        |
+|                                         | to              | string/long     | Integer.MAX_VALUE              | No        |
 |                                         +-----------------+-----------------+--------------------------------+-----------+
 |                                         | operation       | string          | is_within                      | No        |
 +-----------------------------------------+-----------------+-----------------+--------------------------------+-----------+
@@ -454,16 +454,16 @@ Syntax:
     FROM <table>
     WHERE <magic_column> = '{ (filter | query) : {
                                 type  : "date_range",
-                                (start : <start> ,)?
-                                (stop  : <stop> ,)?
+                                (from : <from> ,)?
+                                (to   : <to> ,)?
                                 (operation: <operation> )?
                               }}';
 
 where:
 
--  **start**: a string or a number being the beginning of the date
+-  **from**: a string or a number being the beginning of the date
    range.
--  **stop**: a string or a number being the end of the date range.
+-  **to**: a string or a number being the end of the date range.
 -  **operation**: the spatial operation to be performed, it can be
    **intersects**, **contains** and **is\_within**.
 
@@ -473,11 +473,11 @@ Example 1: will return rows where duration intersects "2014/01/01" and
 .. code-block:: sql
 
     SELECT * FROM test.users
-    WHERE stratio_col = '{  filter : {
-                        type   : "date_range",
-                        field  : "duration",
-                        start  : "2014/01/01",
-                        stop   : "2014/12/31",
+    WHERE stratio_col = '{ filter : {
+                        type      : "date_range",
+                        field     : "duration",
+                        from      : "2014/01/01",
+                        to        : "2014/12/31",
                         operation : "intersects"}}';
 
 Example 2: will return rows where duration contains "2014/06/01" and
@@ -486,11 +486,11 @@ Example 2: will return rows where duration contains "2014/06/01" and
 .. code-block:: sql
 
     SELECT * FROM test.users
-    WHERE stratio_col = '{  filter : {
-                        type   : "date_range",
-                        field  : "duration",
-                        start  : "2014/06/01",
-                        stop   : "2014/06/02",
+    WHERE stratio_col = '{ filter : {
+                        type      : "date_range",
+                        field     : "duration",
+                        from      : "2014/06/01",
+                        to        : "2014/06/02",
                         operation : "contains"}}';
 
 Example 3: will return rows where duration is within "2014/01/01" and
@@ -499,11 +499,11 @@ Example 3: will return rows where duration is within "2014/01/01" and
 .. code-block:: sql
 
     SELECT * FROM test.users
-    WHERE stratio_col = '{  filter : {
-                        type   : "date_range",
-                        field  : "duration",
-                        start  : "2014/01/01",
-                        stop   : "2014/12/31",
+    WHERE stratio_col = '{ filter : {
+                        type      : "date_range",
+                        field     : "duration",
+                        from      : "2014/01/01",
+                        to        : "2014/12/31",
                         operation : "is_within"}}';
 
 
@@ -601,6 +601,7 @@ between -90.0 and 90.0, and a longitude between -180.0 and
 180.0.
 
 .. code-block:: sql
+
     SELECT * FROM test.users
     WHERE stratio_col = '{filter : { type : "geo_bbox",
                                      field : "place",
@@ -614,6 +615,7 @@ between -90.0 and 90.0, and a longitude between 0.0 and
 10.0.
 
 .. code-block:: sql
+
     SELECT * FROM test.users
     WHERE stratio_col = '{filter : { type : "geo_bbox",
                                      field : "place",
@@ -628,6 +630,7 @@ between 0.0 and 10.0, and a longitude between -180.0 and
 180.0.
 
 .. code-block:: sql
+
     SELECT * FROM test.users
     WHERE stratio_col = '{filter : { type : "geo_bbox",
                                      field : "place",

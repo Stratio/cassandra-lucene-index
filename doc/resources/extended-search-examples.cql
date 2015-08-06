@@ -36,8 +36,8 @@ SELECT * FROM test.users
 WHERE stratio_col = '{  filter : {
                         type   : "date_range",
                         field  : "duration",
-                        start  : "2014/01/01",
-                        stop   : "2014/12/31",
+                        from   : "2014/01/01",
+                        to     : "2014/12/31",
                         operation : "intersects"}}';
 
 
@@ -45,8 +45,8 @@ SELECT * FROM test.users
 WHERE stratio_col = '{  filter : {
                         type   : "date_range",
                         field  : "duration",
-                        start  : "2014/06/01",
-                        stop   : "2014/06/02",
+                        from   : "2014/06/01",
+                        to     : "2014/06/02",
                         operation : "contains"}}';
 
 
@@ -54,8 +54,8 @@ SELECT * FROM test.users
 WHERE stratio_col = '{  filter : {
                         type   : "date_range",
                         field  : "duration",
-                        start  : "2014/01/01",
-                        stop   : "2014/12/31",
+                        from   : "2014/01/01",
+                        to     : "2014/12/31",
                         operation : "is_within"}}';
 
 

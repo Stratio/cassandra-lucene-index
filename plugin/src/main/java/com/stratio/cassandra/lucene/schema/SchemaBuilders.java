@@ -103,12 +103,12 @@ public class SchemaBuilders {
     /**
      * Returns a new {@link DateRangeMapperBuilder}.
      *
-     * @param start The column containing the start date.
-     * @param stop  The column containing the stop date.
+     * @param from The column containing the start date.
+     * @param to  The column containing the end date.
      * @return A new {@link DateRangeMapperBuilder}.
      */
-    public static DateRangeMapperBuilder dateRangeMapper(String start, String stop) {
-        return new DateRangeMapperBuilder(start, stop);
+    public static DateRangeMapperBuilder dateRangeMapper(String from, String to) {
+        return new DateRangeMapperBuilder(from, to);
     }
 
     /**

@@ -44,11 +44,11 @@ import java.util.Date;
  */
 public class DateRangeMapper extends Mapper {
 
-    /** The name of the column containing the start date. */
-    private final String start;
+    /** The name of the column containing the from date. */
+    private final String from;
 
-    /** The name of the column containing the stop date. */
-    private final String stop;
+    /** The name of the column containing the to date. */
+    private final String to;
 
     /** The {@link SimpleDateFormat} pattern. */
     private final String pattern;
@@ -63,11 +63,11 @@ public class DateRangeMapper extends Mapper {
      * Builds a new {@link DateRangeMapper}.
      *
      * @param name    The name of the mapper.
-     * @param start   The name of the column containing the start date.
-     * @param stop    The name of the column containing the stop date.
+     * @param from   The name of the column containing the from date.
+     * @param to    The name of the column containing the to date.
      * @param pattern The {@link SimpleDateFormat} pattern to be used.
      */
-    public DateRangeMapper(String name, String start, String stop, String pattern) {
+    public DateRangeMapper(String name, String from, String to, String pattern) {
         super(name,
               true,
               false,
@@ -80,18 +80,18 @@ public class DateRangeMapper extends Mapper {
                                           DoubleType.instance,
                                           DecimalType.instance,
                                           TimestampType.instance),
-              Arrays.asList(start, stop));
+              Arrays.asList(from, to));
 
-        if (StringUtils.isBlank(start)) {
-            throw new IndexException("start column name is required");
+        if (StringUtils.isBlank(from)) {
+            throw new IndexException("from column name is required");
         }
 
-        if (StringUtils.isBlank(stop)) {
-            throw new IndexException("stop column name is required");
+        if (StringUtils.isBlank(to)) {
+            throw new IndexException("to column name is required");
         }
 
-        this.start = start;
-        this.stop = stop;
+        this.from = from;
+        this.to = to;
         this.tree = DateRangePrefixTree.INSTANCE;
         this.strategy = new NumberRangePrefixTreeStrategy(tree, name);
         this.pattern = pattern == null ? DateParser.DEFAULT_PATTERN : pattern;
@@ -99,21 +99,21 @@ public class DateRangeMapper extends Mapper {
     }
 
     /**
-     * Returns the name of the column containing the start date.
+     * Returns the name of the column containing the from date.
      *
-     * @return The name of the column containing the start date.
+     * @return The name of the column containing the from date.
      */
-    public String getStart() {
-        return start;
+    public String getFrom() {
+        return from;
     }
 
     /**
-     * Returns the name of the column containing the stop date.
+     * Returns the name of the column containing the to date.
      *
-     * @return The name of the column containing the stop date.
+     * @return The name of the column containing the to date.
      */
-    public String getStop() {
-        return stop;
+    public String getTo() {
+        return to;
     }
 
     /**
@@ -129,18 +129,18 @@ public class DateRangeMapper extends Mapper {
     @Override
     public void addFields(Document document, Columns columns) {
 
-        Date start = readStart(columns);
-        Date stop = readStop(columns);
+        Date from = readFrom(columns);
+        Date to = readTo(columns);
 
-        if (start == null && stop == null) {
+        if (from == null && to == null) {
             return;
-        } else if (start == null) {
-            throw new IndexException("Start column required");
-        } else if (stop == null) {
-            throw new IndexException("Stop column required");
+        } else if (from == null) {
+            throw new IndexException("From column required");
+        } else if (to == null) {
+            throw new IndexException("To column required");
         }
 
-        NRShape shape = makeShape(start, stop);
+        NRShape shape = makeShape(from, to);
         for (IndexableField field : strategy.createIndexableFields(shape)) {
             document.add(field);
         }
@@ -166,8 +166,8 @@ public class DateRangeMapper extends Mapper {
     public String toString() {
         return Objects.toStringHelper(this)
                       .add("name", name)
-                      .add("start", start)
-                      .add("stop", stop)
+                      .add("from", from)
+                      .add("to", to)
                       .add("pattern", pattern)
                       .toString();
     }
@@ -175,57 +175,57 @@ public class DateRangeMapper extends Mapper {
     /** {@inheritDoc} */
     @Override
     public void validate(CFMetaData metadata) {
-        validate(metadata, start);
-        validate(metadata, stop);
+        validate(metadata, from);
+        validate(metadata, to);
     }
 
     /**
      * Makes an spatial shape representing the time range defined by the two specified dates.
      *
-     * @param start The start {@link Date}.
-     * @param stop  The stop {@link Date}.
+     * @param from The from {@link Date}.
+     * @param to  The to {@link Date}.
      * @return The spatial shape representing the time range defined by the two specified dates.
      */
-    public NRShape makeShape(Date start, Date stop) {
-        UnitNRShape startShape = tree.toUnitShape(start);
-        UnitNRShape stopShape = tree.toUnitShape(stop);
-        return tree.toRangeShape(startShape, stopShape);
+    public NRShape makeShape(Date from, Date to) {
+        UnitNRShape fromShape = tree.toUnitShape(from);
+        UnitNRShape toShape = tree.toUnitShape(to);
+        return tree.toRangeShape(fromShape, toShape);
     }
 
     /**
-     * Returns the start {@link Date} contained in the specified {@link Columns}.
+     * Returns the from {@link Date} contained in the specified {@link Columns}.
      *
-     * @param columns The {@link Columns} containing the start {@link Date}.
+     * @param columns The {@link Columns} containing the from {@link Date}.
      * @return The star {@link Date} contained in the specified {@link Columns}.
      */
-    Date readStart(Columns columns) {
-        Column column = columns.getColumnsByName(start).getFirst();
+    Date readFrom(Columns columns) {
+        Column column = columns.getColumnsByName(from).getFirst();
         if (column == null) {
             return null;
         }
-        Date start = base(column.getComposedValue());
-        if (stop == null) {
-            throw new IndexException("Start date required");
+        Date from = base(column.getComposedValue());
+        if (to == null) {
+            throw new IndexException("From date required");
         }
-        return start;
+        return from;
     }
 
     /**
-     * Returns the stop {@link Date} contained in the specified {@link Columns}.
+     * Returns the to {@link Date} contained in the specified {@link Columns}.
      *
-     * @param columns The {@link Columns} containing the stop {@link Date}.
-     * @return The stop {@link Date} contained in the specified {@link Columns}.
+     * @param columns The {@link Columns} containing the to {@link Date}.
+     * @return The to {@link Date} contained in the specified {@link Columns}.
      */
-    Date readStop(Columns columns) {
-        Column column = columns.getColumnsByName(stop).getFirst();
+    Date readTo(Columns columns) {
+        Column column = columns.getColumnsByName(to).getFirst();
         if (column == null) {
             return null;
         }
-        Date stop = base(column.getComposedValue());
-        if (stop == null) {
-            throw new IndexException("Stop date required");
+        Date to = base(column.getComposedValue());
+        if (to == null) {
+            throw new IndexException("To date required");
         }
-        return stop;
+        return to;
     }
 
     /**

@@ -36,11 +36,11 @@ import java.util.Date;
  */
 public class DateRangeCondition extends Condition {
 
-    /** The default start value. */
-    public static final int DEFAULT_START = 0;
+    /** The default from value. */
+    public static final int DEFAULT_FROM = 0;
 
-    /** The default stop value. */
-    public static final int DEFAULT_STOP = Integer.MAX_VALUE;
+    /** The default to value. */
+    public static final int DEFAULT_TO = Integer.MAX_VALUE;
 
     /** The default operation. */
     public static final String DEFAULT_OPERATION = "intersects";
@@ -49,16 +49,16 @@ public class DateRangeCondition extends Condition {
     public final String field;
 
     /** The lower accepted value. Maybe null meaning no lower limit. */
-    public final Object start;
+    public final Object from;
 
     /** The upper accepted value. Maybe null meaning no upper limit. */
-    public final Object stop;
+    public final Object to;
 
     /** The spatial operation to be performed. */
     public final String operation;
 
     /**
-     * Constructs a query selecting all fields greater/equal than {@code start} but less/equal than {@code stop}.
+     * Constructs a query selecting all fields greater/equal than {@code from} but less/equal than {@code to}.
      *
      * If an endpoint is null, it is said to be "open". Either or both endpoints may be open. Open endpoints may not be
      * exclusive (you can't select all but the first or last term without explicitly specifying the term to exclude.)
@@ -67,15 +67,15 @@ public class DateRangeCondition extends Condition {
      *                  weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link
      *                  #DEFAULT_BOOST} is used as default.
      * @param field     The name of the field to be matched.
-     * @param start     The lower accepted {@link Date}. Maybe {@code null} meaning no lower limit.
-     * @param stop      The upper accepted {@link Date}. Maybe {@code null} meaning no upper limit.
+     * @param from      The lower accepted {@link Date}. Maybe {@code null} meaning no lower limit.
+     * @param to        The upper accepted {@link Date}. Maybe {@code null} meaning no upper limit.
      * @param operation The spatial operation to be performed.
      */
-    public DateRangeCondition(Float boost, String field, Object start, Object stop, String operation) {
+    public DateRangeCondition(Float boost, String field, Object from, Object to, String operation) {
         super(boost);
         this.field = field;
-        this.start = start == null ? DEFAULT_START : start;
-        this.stop = stop == null ? DEFAULT_STOP : stop;
+        this.from = from == null ? DEFAULT_FROM : from;
+        this.to = to == null ? DEFAULT_TO : to;
         this.operation = operation == null ? DEFAULT_OPERATION : operation;
     }
 
@@ -92,10 +92,10 @@ public class DateRangeCondition extends Condition {
         DateRangeMapper mapper = (DateRangeMapper) columnMapper;
         SpatialStrategy strategy = mapper.getStrategy();
 
-        Date start = mapper.base(this.start);
-        Date stop = mapper.base(this.stop);
+        Date from = mapper.base(this.from);
+        Date to = mapper.base(this.to);
 
-        NRShape shape = mapper.makeShape(start, stop);
+        NRShape shape = mapper.makeShape(from, to);
 
         SpatialOperation spatialOperation = parseSpatialOperation(operation);
 
@@ -133,8 +133,8 @@ public class DateRangeCondition extends Condition {
         return Objects.toStringHelper(this)
                       .add("boost", boost)
                       .add("field", field)
-                      .add("start", start)
-                      .add("stop", stop)
+                      .add("from", from)
+                      .add("to", to)
                       .add("operation", operation)
                       .toString();
     }

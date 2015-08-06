@@ -26,11 +26,11 @@ import org.codehaus.jackson.annotate.JsonProperty;
  */
 public class DateRangeMapperBuilder extends MapperBuilder<DateRangeMapper> {
 
-    @JsonProperty("start")
-    private final String start;
+    @JsonProperty("from")
+    private final String from;
 
-    @JsonProperty("stop")
-    private final String stop;
+    @JsonProperty("to")
+    private final String to;
 
     @JsonProperty("pattern")
     private String pattern;
@@ -38,14 +38,20 @@ public class DateRangeMapperBuilder extends MapperBuilder<DateRangeMapper> {
     /**
      * Returns a new {@link DateRangeMapperBuilder}.
      *
-     * @param start The column containing the start date.
-     * @param stop  The column containing the stop date.
+     * @param from The column containing the from date.
+     * @param to   The column containing the to date.
      */
-    public DateRangeMapperBuilder(@JsonProperty("start") String start, @JsonProperty("stop") String stop) {
-        this.start = start;
-        this.stop = stop;
+    public DateRangeMapperBuilder(@JsonProperty("from") String from, @JsonProperty("to") String to) {
+        this.from = from;
+        this.to = to;
     }
 
+    /**
+     * Sets the date pattern to be used.
+     *
+     * @param pattern The date pattern to be used.
+     * @return This.
+     */
     public DateRangeMapperBuilder pattern(String pattern) {
         this.pattern = pattern;
         return this;
@@ -59,6 +65,6 @@ public class DateRangeMapperBuilder extends MapperBuilder<DateRangeMapper> {
      */
     @Override
     public DateRangeMapper build(String name) {
-        return new DateRangeMapper(name, start, stop, pattern);
+        return new DateRangeMapper(name, from, to, pattern);
     }
 }

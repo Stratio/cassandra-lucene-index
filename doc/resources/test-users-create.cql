@@ -49,7 +49,7 @@ WITH OPTIONS = {
                 food:{type:"string"}, 
                 bool:{type:"boolean"}, 
                 date:{type:"date", pattern:"yyyy/MM/dd"}, 
-                duration:{type:"date_range", start:"start_date", stop:"stop_date", pattern:"yyyy/MM/dd"},
+                duration:{type:"date_range", from:"start_date", to:"stop_date", pattern:"yyyy/MM/dd"},
                 place:{type:"geo_point", latitude:"latitude", longitude:"longitude"},
                 mapz:{type:"string"}, 
                 setz:{type:"string"}, 

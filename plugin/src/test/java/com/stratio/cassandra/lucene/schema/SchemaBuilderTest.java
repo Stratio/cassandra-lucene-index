@@ -47,7 +47,7 @@ public class SchemaBuilderTest {
                                 .mapper("blob", blobMapper())
                                 .mapper("bool", booleanMapper())
                                 .mapper("date", dateMapper())
-                                .mapper("date_range", dateRangeMapper("start", "stop"))
+                                .mapper("date_range", dateRangeMapper("from", "to"))
                                 .mapper("double", doubleMapper())
                                 .mapper("float", floatMapper())
                                 .mapper("geo", geoPointMapper("lat", "lon"))
@@ -90,7 +90,7 @@ public class SchemaBuilderTest {
                               .mapper("blob", blobMapper())
                               .mapper("bool", booleanMapper())
                               .mapper("date", dateMapper())
-                              .mapper("date_range", dateRangeMapper("start", "stop"))
+                              .mapper("date_range", dateRangeMapper("from", "to"))
                               .mapper("double", doubleMapper())
                               .mapper("float", floatMapper())
                               .mapper("geo", geoPointMapper("lat", "lon"))
@@ -112,7 +112,7 @@ public class SchemaBuilderTest {
                      "blob:{type:\"bytes\"}," +
                      "bool:{type:\"boolean\"}," +
                      "date:{type:\"date\"}," +
-                     "date_range:{type:\"date_range\",start:\"start\",stop:\"stop\"}," +
+                     "date_range:{type:\"date_range\",from:\"from\",to:\"to\"}," +
                      "double:{type:\"double\"}," +
                      "float:{type:\"float\"}," +
                      "geo:{type:\"geo_point\",latitude:\"lat\",longitude:\"lon\"}," +
@@ -137,7 +137,7 @@ public class SchemaBuilderTest {
                       "blob:{type:\"bytes\"}," +
                       "bool:{type:\"boolean\"}," +
                       "date:{type:\"date\"}," +
-                      "date_range:{type:\"date_range\",start:\"start\",stop:\"stop\"}," +
+                      "date_range:{type:\"date_range\",from:\"from\",to:\"to\"}," +
                       "double:{type:\"double\"}," +
                       "float:{type:\"float\"}," +
                       "geo:{type:\"geo_point\",latitude:\"lat\",longitude:\"lon\"}," +

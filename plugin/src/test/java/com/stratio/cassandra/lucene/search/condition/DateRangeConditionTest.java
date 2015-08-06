@@ -39,8 +39,8 @@ public class DateRangeConditionTest extends AbstractConditionTest {
         DateRangeCondition condition = new DateRangeCondition(null, "name", 1, 2, null);
         assertEquals(DateRangeCondition.DEFAULT_BOOST, condition.boost, 0);
         assertEquals("name", condition.field);
-        assertEquals(1, condition.start);
-        assertEquals(2, condition.stop);
+        assertEquals(1, condition.from);
+        assertEquals(2, condition.to);
         assertEquals(DateRangeCondition.DEFAULT_OPERATION, condition.operation);
     }
 
@@ -49,8 +49,8 @@ public class DateRangeConditionTest extends AbstractConditionTest {
         DateRangeCondition condition = new DateRangeCondition(0.5f, "name", 1, 2, "contains");
         assertEquals(0.5, condition.boost, 0);
         assertEquals("name", condition.field);
-        assertEquals(1, condition.start);
-        assertEquals(2, condition.stop);
+        assertEquals(1, condition.from);
+        assertEquals(2, condition.to);
         assertEquals("contains", condition.operation);
     }
 
@@ -123,12 +123,12 @@ public class DateRangeConditionTest extends AbstractConditionTest {
 
     @Test
     public void testToString() {
-        DateRangeCondition condition = dateRange("name").setStart(1)
-                                                        .setStop(2)
-                                                        .setOperation("contains")
+        DateRangeCondition condition = dateRange("name").from(1)
+                                                        .to(2)
+                                                        .operation("contains")
                                                         .boost(0.3)
                                                         .build();
-        assertEquals("DateRangeCondition{boost=0.3, field=name, start=1, stop=2, operation=contains}",
+        assertEquals("DateRangeCondition{boost=0.3, field=name, from=1, to=2, operation=contains}",
                      condition.toString());
     }
 }

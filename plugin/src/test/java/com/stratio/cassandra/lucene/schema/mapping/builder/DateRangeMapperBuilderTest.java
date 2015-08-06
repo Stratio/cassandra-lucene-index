@@ -31,39 +31,39 @@ public class DateRangeMapperBuilderTest extends AbstractMapperBuilderTest {
 
     @Test
     public void testBuild() {
-        DateRangeMapperBuilder builder = new DateRangeMapperBuilder("start", "stop").pattern("yyyy-MM-dd");
+        DateRangeMapperBuilder builder = new DateRangeMapperBuilder("from", "to").pattern("yyyy-MM-dd");
         DateRangeMapper mapper = builder.build("field");
         assertNotNull(mapper);
         assertTrue(mapper.isIndexed());
         assertFalse(mapper.isSorted());
         assertEquals("field", mapper.getName());
-        assertEquals("start", mapper.getStart());
-        assertEquals("stop", mapper.getStop());
+        assertEquals("from", mapper.getFrom());
+        assertEquals("to", mapper.getTo());
         assertEquals("yyyy-MM-dd", mapper.getPattern());
     }
 
     @Test
     public void testBuildDefaults() {
-        DateRangeMapperBuilder builder = new DateRangeMapperBuilder("start", "stop");
+        DateRangeMapperBuilder builder = new DateRangeMapperBuilder("from", "to");
         DateRangeMapper mapper = builder.build("field");
         assertNotNull(mapper);
         assertTrue(mapper.isIndexed());
         assertFalse(mapper.isSorted());
         assertEquals("field", mapper.getName());
-        assertEquals("start", mapper.getStart());
-        assertEquals("stop", mapper.getStop());
+        assertEquals("from", mapper.getFrom());
+        assertEquals("to", mapper.getTo());
         assertEquals(DateParser.DEFAULT_PATTERN, mapper.getPattern());
     }
 
     @Test
     public void testJsonSerialization() {
-        DateRangeMapperBuilder builder = new DateRangeMapperBuilder("start", "stop").pattern("yyyy-MM-dd");
-        testJsonSerialization(builder, "{type:\"date_range\",start:\"start\",stop:\"stop\",pattern:\"yyyy-MM-dd\"}");
+        DateRangeMapperBuilder builder = new DateRangeMapperBuilder("from", "to").pattern("yyyy-MM-dd");
+        testJsonSerialization(builder, "{type:\"date_range\",from:\"from\",to:\"to\",pattern:\"yyyy-MM-dd\"}");
     }
 
     @Test
     public void testJsonSerializationDefaults() {
-        DateRangeMapperBuilder builder = new DateRangeMapperBuilder("start", "stop");
-        testJsonSerialization(builder, "{type:\"date_range\",start:\"start\",stop:\"stop\"}");
+        DateRangeMapperBuilder builder = new DateRangeMapperBuilder("from", "to");
+        testJsonSerialization(builder, "{type:\"date_range\",from:\"from\",to:\"to\"}");
     }
 }
