@@ -62,6 +62,17 @@ public class BooleanConditionTest extends AbstractConditionTest {
     }
 
     @Test
+    public void testQueryPureNot() {
+        Schema schema = mock(Schema.class);
+        when(schema.getAnalyzer()).thenReturn(PreBuiltAnalyzers.DEFAULT.get());
+        when(schema.getMapper("name")).thenReturn(new StringMapper("name", null, null, null));
+        BooleanCondition condition = bool().not(match("name", "jonathan")).boost(0.4).build();
+        BooleanQuery query = (BooleanQuery) condition.query(schema);
+        assertEquals(2, query.getClauses().length);
+        assertEquals(0.4f, query.getBoost(), 0f);
+    }
+
+    @Test
     public void testToString() {
         BooleanCondition condition = bool().must(match("name", "jonathan"), match("age", 18))
                                            .should(match("color", "green"))

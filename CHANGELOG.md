@@ -3,10 +3,11 @@
 ## 2.1.8.2-SNAPSHOT ()
 
  * Add force index refresh option to searches
- * Remove unneeded asynchronous indexing queue
- * Change default date pattern to `yyyy/MM/dd HH:mm:ss.SSS z`
  * Add condition type `none` to return no rows
  * Rename `match_all` condition to `all`
+ * Allow resource-intensive pure negation searches
+ * Remove unneeded asynchronous indexing queue
+ * Change default date pattern to `yyyy/MM/dd HH:mm:ss.SSS z`
 
 ## 2.1.8.1 (31 July 2015)
 

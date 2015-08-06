@@ -527,13 +527,13 @@ Additionally, relevance queries must touch all the nodes in the
 ring in order to find the globally best results, so definitely you should
 prefer filters over queries when no relevance nor sorting are needed.
 
-The “\ **refresh**\ ” option indicates if the search must commit pending
+The "**refresh**" option indicates if the search must commit pending
 writes and refresh the Lucene IndexSearcher before be performed. This
-way a search with “\ **refresh**\ ” set to true will view the most recent
+way a search with "refresh" set to true will view the most recent
 changes done to the index, independently of the index auto-refresh time.
 Please note that it is a costly operation, so you should not use it unless
 it is strictly necessary. The default value is false. You can force the
-refreshing of all the index with an “\ none \” query with consistency ALL:
+refreshing of all the index with an "none" query with consistency "ALL":
 
 .. code-block:: sql
 
@@ -880,6 +880,15 @@ Example 4: will return zero rows independently of the index contents
 
     SELECT * FROM test.users
     WHERE stratio_col = '{filter : { type   : "boolean"} }';
+
+Example 5: will return rows where name does not end with “a”, which is
+a resource-intensive pure negation search
+
+.. code-block:: sql
+
+    SELECT * FROM test.users
+    WHERE stratio_col = '{filter : {
+                            not  : [{type : "wildcard", field : "name", value : "*a"}]}}';
 
 Contains search
 ===============
