@@ -26,7 +26,7 @@ import org.apache.lucene.search.Query;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class MatchAllCondition extends Condition {
+public class AllCondition extends Condition {
 
     /**
      * Constructor without field arguments.
@@ -35,7 +35,7 @@ public class MatchAllCondition extends Condition {
      *              weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link
      *              #DEFAULT_BOOST} is used as default.
      */
-    public MatchAllCondition(Float boost) {
+    public AllCondition(Float boost) {
         super(boost);
     }
 

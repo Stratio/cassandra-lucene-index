@@ -21,7 +21,7 @@ import com.stratio.cassandra.lucene.search.condition.BooleanCondition;
 import com.stratio.cassandra.lucene.search.condition.Condition;
 import org.junit.Test;
 
-import static com.stratio.cassandra.lucene.search.SearchBuilders.matchAll;
+import static com.stratio.cassandra.lucene.search.SearchBuilders.all;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -35,12 +35,12 @@ public class BooleanConditionBuilderTest extends AbstractConditionBuilderTest {
     @Test
     public void testBuild() {
         BooleanConditionBuilder builder = new BooleanConditionBuilder().boost(0.7f)
-                                                                       .must(matchAll())
-                                                                       .must(matchAll())
-                                                                       .should(matchAll(), matchAll())
-                                                                       .should(matchAll(), matchAll())
-                                                                       .not(matchAll(), matchAll(), matchAll())
-                                                                       .not(matchAll(), matchAll(), matchAll());
+                                                                       .must(all())
+                                                                       .must(all())
+                                                                       .should(all(), all())
+                                                                       .should(all(), all())
+                                                                       .not(all(), all(), all())
+                                                                       .not(all(), all(), all());
         BooleanCondition condition = builder.build();
         assertNotNull(condition);
         assertEquals(0.7f, condition.boost, 0);
@@ -62,8 +62,8 @@ public class BooleanConditionBuilderTest extends AbstractConditionBuilderTest {
 
     @Test
     public void testJsonSerialization() {
-        BooleanConditionBuilder builder = new BooleanConditionBuilder().boost(0.7f).must(matchAll());
-        testJsonSerialization(builder, "{type:\"boolean\",boost:0.7,must:[{type:\"match_all\"}],should:[],not:[]}");
+        BooleanConditionBuilder builder = new BooleanConditionBuilder().boost(0.7f).must(all());
+        testJsonSerialization(builder, "{type:\"boolean\",boost:0.7,must:[{type:\"all\"}],should:[],not:[]}");
     }
 
     @Test

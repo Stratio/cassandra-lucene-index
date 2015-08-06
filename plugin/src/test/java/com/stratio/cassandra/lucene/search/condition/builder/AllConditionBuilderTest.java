@@ -16,45 +16,45 @@
 
 package com.stratio.cassandra.lucene.search.condition.builder;
 
+import com.stratio.cassandra.lucene.search.condition.AllCondition;
 import com.stratio.cassandra.lucene.search.condition.Condition;
-import com.stratio.cassandra.lucene.search.condition.MatchAllCondition;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
- * Class for testing {@link MatchAllConditionBuilder}.
+ * Class for testing {@link AllConditionBuilder}.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class MatchAllConditionBuilderTest extends AbstractConditionBuilderTest {
+public class AllConditionBuilderTest extends AbstractConditionBuilderTest {
 
     @Test
     public void testBuild() {
-        MatchAllConditionBuilder builder = new MatchAllConditionBuilder().boost(0.7);
-        MatchAllCondition condition = builder.build();
+        AllConditionBuilder builder = new AllConditionBuilder().boost(0.7);
+        AllCondition condition = builder.build();
         assertNotNull(condition);
         assertEquals(0.7f, condition.boost, 0);
     }
 
     @Test
     public void testBuildDefaults() {
-        MatchAllConditionBuilder builder = new MatchAllConditionBuilder();
-        MatchAllCondition condition = builder.build();
+        AllConditionBuilder builder = new AllConditionBuilder();
+        AllCondition condition = builder.build();
         assertNotNull(condition);
         assertEquals(Condition.DEFAULT_BOOST, condition.boost, 0);
     }
 
     @Test
     public void testJsonSerialization() {
-        MatchAllConditionBuilder builder = new MatchAllConditionBuilder().boost(0.7);
-        testJsonSerialization(builder, "{type:\"match_all\",boost:0.7}");
+        AllConditionBuilder builder = new AllConditionBuilder().boost(0.7);
+        testJsonSerialization(builder, "{type:\"all\",boost:0.7}");
     }
 
     @Test
     public void testJsonSerializationDefaults() {
-        MatchAllConditionBuilder builder = new MatchAllConditionBuilder();
-        testJsonSerialization(builder, "{type:\"match_all\"}");
+        AllConditionBuilder builder = new AllConditionBuilder();
+        testJsonSerialization(builder, "{type:\"all\"}");
     }
 }

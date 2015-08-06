@@ -133,8 +133,7 @@ WHERE stratio_col = '{query : {
 
 -- Match all queries
 SELECT * FROM test.users
-WHERE stratio_col = '{filter : {
-                       type  : "match_all" }}';
+WHERE stratio_col = '{filter : { type  : "all" } }';
 
 -- Phrase queries
 SELECT * FROM test.users 

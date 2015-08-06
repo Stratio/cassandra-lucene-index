@@ -28,24 +28,24 @@ import static org.mockito.Mockito.mock;
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class MatchAllConditionTest extends AbstractConditionTest {
+public class AllConditionTest extends AbstractConditionTest {
 
     @Test
     public void testBuild() {
         Float boost = 0.7f;
-        MatchAllCondition condition = new MatchAllCondition(boost);
+        AllCondition condition = new AllCondition(boost);
         assertEquals(boost, condition.boost, 0);
     }
 
     @Test
     public void testBuildWithDefaults() {
-        MatchAllCondition condition = new MatchAllCondition(null);
+        AllCondition condition = new AllCondition(null);
         assertEquals(Condition.DEFAULT_BOOST, condition.boost, 0);
     }
 
     @Test
     public void testQuery() {
-        MatchAllCondition condition = new MatchAllCondition(0.7f);
+        AllCondition condition = new AllCondition(0.7f);
         Query query = condition.query(mock(Schema.class));
         assertNotNull(query);
         assertEquals(MatchAllDocsQuery.class, query.getClass());
@@ -54,8 +54,8 @@ public class MatchAllConditionTest extends AbstractConditionTest {
 
     @Test
     public void testToString() {
-        MatchAllCondition condition = new MatchAllCondition(0.7f);
-        assertEquals("MatchAllCondition{boost=0.7}", condition.toString());
+        AllCondition condition = new AllCondition(0.7f);
+        assertEquals("AllCondition{boost=0.7}", condition.toString());
     }
 
 }

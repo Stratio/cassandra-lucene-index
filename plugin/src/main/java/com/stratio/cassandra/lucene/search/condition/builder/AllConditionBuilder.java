@@ -16,30 +16,30 @@
 
 package com.stratio.cassandra.lucene.search.condition.builder;
 
-import com.stratio.cassandra.lucene.search.condition.MatchAllCondition;
+import com.stratio.cassandra.lucene.search.condition.AllCondition;
 import org.codehaus.jackson.annotate.JsonCreator;
 
 /**
- * {@link ConditionBuilder} for building a new {@link MatchAllCondition}.
+ * {@link ConditionBuilder} for building a new {@link AllCondition}.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class MatchAllConditionBuilder extends ConditionBuilder<MatchAllCondition, MatchAllConditionBuilder> {
+public class AllConditionBuilder extends ConditionBuilder<AllCondition, AllConditionBuilder> {
 
     /**
-     * Creates a new {@link MatchAllConditionBuilder}.
+     * Creates a new {@link AllConditionBuilder}.
      */
     @JsonCreator
-    public MatchAllConditionBuilder() {
+    public AllConditionBuilder() {
     }
 
     /**
-     * Returns the {@link MatchAllCondition} represented by this builder.
+     * Returns the {@link AllCondition} represented by this builder.
      *
-     * @return The {@link MatchAllCondition} represented by this builder.
+     * @return The {@link AllCondition} represented by this builder.
      */
     @Override
-    public MatchAllCondition build() {
-        return new MatchAllCondition(boost);
+    public AllCondition build() {
+        return new AllCondition(boost);
     }
 }

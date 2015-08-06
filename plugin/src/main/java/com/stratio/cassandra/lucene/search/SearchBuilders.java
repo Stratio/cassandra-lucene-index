@@ -75,6 +75,15 @@ public class SearchBuilders {
     }
 
     /**
+     * Returns a new {@link AllConditionBuilder} for the specified field and value.
+     *
+     * @return A new {@link AllConditionBuilder} for the specified field and value.
+     */
+    public static AllConditionBuilder all() {
+        return new AllConditionBuilder();
+    }
+
+    /**
      * Returns a new {@link FuzzyConditionBuilder} for the specified field and value.
      *
      * @param field The name of the field to be matched.
@@ -104,15 +113,6 @@ public class SearchBuilders {
      */
     public static MatchConditionBuilder match(String field, Object value) {
         return new MatchConditionBuilder(field, value);
-    }
-
-    /**
-     * Returns a new {@link MatchAllConditionBuilder} for the specified field and value.
-     *
-     * @return A new {@link MatchAllConditionBuilder} for the specified field and value.
-     */
-    public static MatchAllConditionBuilder matchAll() {
-        return new MatchAllConditionBuilder();
     }
 
     /**

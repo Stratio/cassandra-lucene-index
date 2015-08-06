@@ -66,7 +66,7 @@ public class BooleanCondition extends Condition {
         if (this.must.isEmpty() && this.should.isEmpty()) {
             throw new IndexException("Invalid Boolean Query: lucene does not accept pure NOT queries: " +
                                      "http://lucene.apache.org/core/2_9_4/queryparsersyntax.html#NOT " +
-                                     "add a 'must : [{ type : \"match_all\" }]' in your query");
+                                     "add a 'must : [{ type : \"all\" }]' in your query");
         }
 
     }

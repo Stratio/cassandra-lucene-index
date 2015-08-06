@@ -63,6 +63,8 @@ a “\ **boost**\ ” option that acts as a weight on the resulting score.
 +-----------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 | Search type                             | Option          | Value type      | Default value                  | Mandatory |
 +=========================================+=================+=================+================================+===========+
+| `All <#all-search>`__                   |                 |                 |                                |           |
++-----------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 | `Bitemporal <#bitemporal-search>`__     | field           | string          |                                | Yes       |
 |                                         +-----------------+-----------------+--------------------------------+-----------+
 |                                         | vt_from         | string/long     | 0L                             | No        |
@@ -129,8 +131,6 @@ a “\ **boost**\ ” option that acts as a weight on the resulting score.
 |                                         +-----------------+-----------------+--------------------------------+-----------+
 |                                         | value           | any             |                                | Yes       |
 +-----------------------------------------+-----------------+-----------------+--------------------------------+-----------+
-| `Match all <#match-all-search>`__       |                 |                 |                                |           |
-+-----------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 | `None <#none-search>`__                 |                 |                 |                                |           |
 +-----------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 | `Phrase <#phrase-search>`__             | field           | string          |                                | Yes       |
@@ -161,6 +161,24 @@ a “\ **boost**\ ” option that acts as a weight on the resulting score.
 |                                         +-----------------+-----------------+--------------------------------+-----------+
 |                                         | value           | string          |                                | Yes       |
 +-----------------------------------------+-----------------+-----------------+--------------------------------+-----------+
+
+All search
+==========
+
+Syntax:
+
+.. code-block:: sql
+
+    SELECT ( <fields> | * )
+    FROM <table>
+    WHERE <magic_column> = '{ (filter | query) : { type  : "all"} }';
+
+Example: will return all the indexed rows
+
+.. code-block:: sql
+
+    SELECT * FROM test.users
+    WHERE stratio_col = '{filter : { type  : "all" } }';
 
 Bitemporal search
 =================
@@ -689,24 +707,6 @@ Example 3: will return rows where date matches “2014/01/01″
                            type  : "match",
                            field : "date",
                            value : "2014/01/01" }}';
-
-Match all search
-================
-
-Syntax:
-
-.. code-block:: sql
-
-    SELECT ( <fields> | * )
-    FROM <table>
-    WHERE <magic_column> = '{ (filter | query) : { type  : "match_all"} }';
-
-Example: will return all the indexed rows
-
-.. code-block:: sql
-
-    SELECT * FROM test.users
-    WHERE stratio_col = '{filter : { type  : "match_all" } }';
 
 None search
 ===========

@@ -49,7 +49,7 @@ public class SearchBuildersTest {
 
     @Test
     public void testBool() throws IOException {
-        BooleanConditionBuilder builder = bool().must(matchAll());
+        BooleanConditionBuilder builder = bool().must(all());
         assertNotNull(builder);
         BooleanCondition condition = builder.build();
         assertNotNull(condition);
@@ -83,7 +83,7 @@ public class SearchBuildersTest {
 
     @Test
     public void testMatchAll() throws IOException {
-        MatchAllConditionBuilder builder = matchAll();
+        AllConditionBuilder builder = all();
         assertNotNull(builder);
         builder.build();
     }
@@ -157,7 +157,7 @@ public class SearchBuildersTest {
 
     @Test
     public void testQuery() throws IOException {
-        SearchBuilder builder = query(matchAll());
+        SearchBuilder builder = query(all());
         assertNotNull(builder);
         Search search = builder.build();
         Schema schema = mock(Schema.class);
@@ -167,7 +167,7 @@ public class SearchBuildersTest {
 
     @Test
     public void testFilter() throws IOException {
-        SearchBuilder builder = filter(matchAll());
+        SearchBuilder builder = filter(all());
         assertNotNull(builder);
         Search search = builder.build();
         Schema schema = mock(Schema.class);

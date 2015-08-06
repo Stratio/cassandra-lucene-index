@@ -28,22 +28,22 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
-@JsonSubTypes({@JsonSubTypes.Type(value = BooleanConditionBuilder.class, name = "boolean"),
+@JsonSubTypes({@JsonSubTypes.Type(value = AllConditionBuilder.class, name = "all"),
+               @JsonSubTypes.Type(value = BitemporalConditionBuilder.class, name = "bitemporal"),
+               @JsonSubTypes.Type(value = BooleanConditionBuilder.class, name = "boolean"),
                @JsonSubTypes.Type(value = ContainsConditionBuilder.class, name = "contains"),
+               @JsonSubTypes.Type(value = DateRangeConditionBuilder.class, name = "date_range"),
                @JsonSubTypes.Type(value = FuzzyConditionBuilder.class, name = "fuzzy"),
-               @JsonSubTypes.Type(value = LuceneConditionBuilder.class, name = "lucene"),
-               @JsonSubTypes.Type(value = MatchConditionBuilder.class, name = "match"),
-               @JsonSubTypes.Type(value = MatchAllConditionBuilder.class, name = "match_all"),
-               @JsonSubTypes.Type(value = NoneConditionBuilder.class, name = "none"),
-               @JsonSubTypes.Type(value = RangeConditionBuilder.class, name = "range"),
-               @JsonSubTypes.Type(value = PhraseConditionBuilder.class, name = "phrase"),
-               @JsonSubTypes.Type(value = PrefixConditionBuilder.class, name = "prefix"),
-               @JsonSubTypes.Type(value = RegexpConditionBuilder.class, name = "regexp"),
-               @JsonSubTypes.Type(value = WildcardConditionBuilder.class, name = "wildcard"),
                @JsonSubTypes.Type(value = GeoDistanceConditionBuilder.class, name = "geo_distance"),
                @JsonSubTypes.Type(value = GeoBBoxConditionBuilder.class, name = "geo_bbox"),
-               @JsonSubTypes.Type(value = DateRangeConditionBuilder.class, name = "date_range"),
-               @JsonSubTypes.Type(value = BitemporalConditionBuilder.class, name = "bitemporal")})
+               @JsonSubTypes.Type(value = LuceneConditionBuilder.class, name = "lucene"),
+               @JsonSubTypes.Type(value = MatchConditionBuilder.class, name = "match"),
+               @JsonSubTypes.Type(value = NoneConditionBuilder.class, name = "none"),
+               @JsonSubTypes.Type(value = PhraseConditionBuilder.class, name = "phrase"),
+               @JsonSubTypes.Type(value = PrefixConditionBuilder.class, name = "prefix"),
+               @JsonSubTypes.Type(value = RangeConditionBuilder.class, name = "range"),
+               @JsonSubTypes.Type(value = RegexpConditionBuilder.class, name = "regexp"),
+               @JsonSubTypes.Type(value = WildcardConditionBuilder.class, name = "wildcard")})
 public abstract class ConditionBuilder<T extends Condition, K extends ConditionBuilder<T, K>> implements Builder<T> {
 
     /** The boost for the {@link Condition} to be built. */
