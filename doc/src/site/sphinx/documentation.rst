@@ -528,11 +528,22 @@ ring in order to find the globally best results, so definitely you should
 prefer filters over queries when no relevance nor sorting are needed.
 
 The “\ **refresh**\ ” option indicates if the search must commit pending
-writes and refresh the Lucene IndexSearcher before be performed. This way
-a search with “\ **refresh**\ ” set to true will view the most recent changes
-done to the index, independently of the index auto-refresh time. Please note
-that it is a costly operation, so you should not use it unless it is strictly
-necessary. The default value is false.
+writes and refresh the Lucene IndexSearcher before be performed. This
+way a search with “\ **refresh**\ ” set to true will view the most recent
+changes done to the index, independently of the index auto-refresh time.
+Please note that it is a costly operation, so you should not use it unless
+it is strictly necessary. The default value is false. You can force the
+refreshing of all the index with an “\ none \” query with consistency ALL:
+
+.. code-block:: sql
+
+    CONSISTENCY ALL;
+    SELECT * FROM <table>
+    WHERE <magic_column> = '{query:{type:"none"}, refresh:true}';
+
+This way the subsequent searches will view all the writes done before this
+query, without needing to wait for the index auto refresh. It is useful to
+perform this operation before searching after a bulk data load.
 
 Types of search and their options are summarized in the table below.
 Details for each of them are available in individual sections and the
@@ -1056,6 +1067,7 @@ between -90.0 and 90.0, and a longitude between -180.0 and
 180.0.
 
 .. code-block:: sql
+
     SELECT * FROM test.users
     WHERE stratio_col = '{filter : { type : "geo_bbox",
                                      field : "place",
@@ -1069,6 +1081,7 @@ between -90.0 and 90.0, and a longitude between 0.0 and
 10.0.
 
 .. code-block:: sql
+
     SELECT * FROM test.users
     WHERE stratio_col = '{filter : { type : "geo_bbox",
                                      field : "place",
@@ -1083,6 +1096,7 @@ between 0.0 and 10.0, and a longitude between -180.0 and
 180.0.
 
 .. code-block:: sql
+
     SELECT * FROM test.users
     WHERE stratio_col = '{filter : { type : "geo_bbox",
                                      field : "place",
