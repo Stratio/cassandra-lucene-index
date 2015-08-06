@@ -8,6 +8,7 @@
  * Allow resource-intensive pure negation searches
  * Remove unneeded asynchronous indexing queue
  * Change default date pattern to `yyyy/MM/dd HH:mm:ss.SSS z`
+ * Fix multi-mappers when all columns are null (issue#28)
 
 ## 2.1.8.1 (31 July 2015)
 

@@ -128,8 +128,18 @@ public class DateRangeMapper extends Mapper {
     /** {@inheritDoc} */
     @Override
     public void addFields(Document document, Columns columns) {
+
         Date start = readStart(columns);
         Date stop = readStop(columns);
+
+        if (start == null && stop == null) {
+            return;
+        } else if (start == null) {
+            throw new IndexException("Start column required");
+        } else if (stop == null) {
+            throw new IndexException("Stop column required");
+        }
+
         NRShape shape = makeShape(start, stop);
         for (IndexableField field : strategy.createIndexableFields(shape)) {
             document.add(field);
@@ -191,7 +201,7 @@ public class DateRangeMapper extends Mapper {
     Date readStart(Columns columns) {
         Column column = columns.getColumnsByName(start).getFirst();
         if (column == null) {
-            throw new IndexException("Start column required");
+            return null;
         }
         Date start = base(column.getComposedValue());
         if (stop == null) {
@@ -209,7 +219,7 @@ public class DateRangeMapper extends Mapper {
     Date readStop(Columns columns) {
         Column column = columns.getColumnsByName(stop).getFirst();
         if (column == null) {
-            throw new IndexException("Stop column required");
+            return null;
         }
         Date stop = base(column.getComposedValue());
         if (stop == null) {
@@ -226,11 +236,6 @@ public class DateRangeMapper extends Mapper {
      * @return The {@link Date} represented by the specified object, or {@code null} if there is no one.
      */
     public Date base(Object value) {
-        Date opt = this.dateParser.parse(value);
-        if (opt == null) {
-            return null;
-        } else {
-            return opt;
-        }
+        return dateParser.parse(value);
     }
 }

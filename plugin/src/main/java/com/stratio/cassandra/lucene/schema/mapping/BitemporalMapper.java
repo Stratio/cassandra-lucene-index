@@ -112,19 +112,19 @@ public class BitemporalMapper extends Mapper {
               Arrays.asList(vtFrom, vtTo, ttFrom, ttTo));
 
         if (StringUtils.isBlank(vtFrom)) {
-            throw new IndexException("vtFrom column name is required");
+            throw new IndexException("vt_from column name is required");
         }
 
         if (StringUtils.isBlank(vtTo)) {
-            throw new IndexException("vtTo column name is required");
+            throw new IndexException("vt_to column name is required");
         }
 
         if (StringUtils.isBlank(ttFrom)) {
-            throw new IndexException("ttFrom column name is required");
+            throw new IndexException("tt_from column name is required");
         }
 
         if (StringUtils.isBlank(ttTo)) {
-            throw new IndexException("ttTo column name is required");
+            throw new IndexException("tt_to column name is required");
         }
 
         this.pattern = pattern == null ? DateParser.DEFAULT_PATTERN : pattern;
@@ -273,10 +273,23 @@ public class BitemporalMapper extends Mapper {
     /** {@inheritDoc} */
     @Override
     public void addFields(Document document, Columns columns) {
+
         BitemporalDateTime vtFrom = readBitemporalDate(columns, this.vtFrom);
         BitemporalDateTime vtTo = readBitemporalDate(columns, this.vtTo);
         BitemporalDateTime ttFrom = readBitemporalDate(columns, this.ttFrom);
         BitemporalDateTime ttTo = readBitemporalDate(columns, this.ttTo);
+
+        if (vtFrom == null && vtTo == null && ttFrom == null && ttTo == null) {
+            return;
+        } else if (vtFrom == null) {
+            throw new IndexException("vt_from column required");
+        } else if (vtTo == null) {
+            throw new IndexException("vt_to column required");
+        } else if (ttFrom == null) {
+            throw new IndexException("tt_from column required");
+        } else if (ttTo == null) {
+            throw new IndexException("tt_to column required");
+        }
 
         if (ttTo.isNow() && vtTo.isNow()) { // T1
             Shape shapeV = makeShape(treeT1V, vtFrom, vtFrom);
@@ -318,9 +331,9 @@ public class BitemporalMapper extends Mapper {
     BitemporalDateTime readBitemporalDate(Columns columns, String fieldName) {
         Column column = columns.getColumnsByName(fieldName).getFirst();
         if (column == null) {
-            throw new IndexException("'%s' column required", fieldName);
+            return null;
         }
-        return this.parseBiTemporalDate(column.getComposedValue());
+        return parseBiTemporalDate(column.getComposedValue());
     }
 
     private BitemporalDateTime checkIfNow(Long in) {
@@ -392,7 +405,7 @@ public class BitemporalMapper extends Mapper {
          * @param date A date.
          */
         public BitemporalDateTime(Date date) {
-            this.timestamp = date.getTime();
+            timestamp = date.getTime();
         }
 
         /**

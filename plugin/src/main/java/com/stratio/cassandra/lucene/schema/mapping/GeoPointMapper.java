@@ -150,6 +150,15 @@ public class GeoPointMapper extends Mapper {
 
         Double longitude = readLongitude(columns);
         Double latitude = readLatitude(columns);
+
+        if (longitude == null && latitude == null) {
+            return;
+        } else if (latitude == null) {
+            throw new IndexException("Latitude column required");
+        } else if (longitude == null) {
+            throw new IndexException("Longitude column required");
+        }
+
         Point point = SPATIAL_CONTEXT.makePoint(longitude, latitude);
 
         for (IndexableField field : distanceStrategy.createIndexableFields(point)) {
@@ -178,12 +187,9 @@ public class GeoPointMapper extends Mapper {
      *
      * @param columns The {@link Columns} containing the latitude.
      */
-    double readLatitude(Columns columns) {
+    Double readLatitude(Columns columns) {
         Column column = columns.getColumnsByName(latitude).getFirst();
-        if (column == null) {
-            throw new IndexException("Latitude column required");
-        }
-        return readLatitude(column.getComposedValue());
+        return column == null ? null : readLatitude(column.getComposedValue());
     }
 
     /**
@@ -192,12 +198,9 @@ public class GeoPointMapper extends Mapper {
      *
      * @param columns The {@link Columns} containing the latitude.
      */
-    double readLongitude(Columns columns) {
+    Double readLongitude(Columns columns) {
         Column column = columns.getColumnsByName(longitude).getFirst();
-        if (column == null) {
-            throw new IndexException("Longitude column required");
-        }
-        return readLongitude(column.getComposedValue());
+        return column == null ? null : readLongitude(column.getComposedValue());
     }
 
     /**

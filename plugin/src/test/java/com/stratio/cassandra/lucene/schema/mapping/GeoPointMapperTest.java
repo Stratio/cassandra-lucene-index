@@ -33,6 +33,8 @@ import org.apache.cassandra.exceptions.ConfigurationException;
 import org.apache.lucene.document.Document;
 import org.junit.Test;
 
+import java.util.UUID;
+
 import static org.apache.cassandra.config.ColumnDefinition.regularDef;
 import static org.junit.Assert.*;
 
@@ -146,12 +148,10 @@ public class GeoPointMapperTest {
         mapper.readLatitude(columns);
     }
 
-    @Test(expected = IndexException.class)
+    @Test
     public void testGetLatitudeWithNullColumn() {
         GeoPointMapper mapper = new GeoPointMapper("field", "lat", "lon", null);
-        Columns columns = new Columns();
-        columns.add(Column.fromComposed("lon", 0, Int32Type.instance, false));
-        assertEquals(5.3d, mapper.readLatitude(new Columns()), 0);
+        assertNull(mapper.readLatitude(new Columns()));
     }
 
     @Test(expected = IndexException.class)
@@ -226,12 +226,10 @@ public class GeoPointMapperTest {
         mapper.readLongitude(columns);
     }
 
-    @Test(expected = IndexException.class)
+    @Test
     public void testGetLongitudeWithNullColumn() {
         GeoPointMapper mapper = new GeoPointMapper("field", "lat", "lon", null);
-        Columns columns = new Columns();
-        columns.add(Column.fromComposed("lat", 0, Int32Type.instance, false));
-        assertEquals(5.3d, mapper.readLongitude(new Columns()), 0);
+        assertNull(mapper.readLongitude(new Columns()));
     }
 
     @Test(expected = IndexException.class)
@@ -239,7 +237,8 @@ public class GeoPointMapperTest {
         GeoPointMapper mapper = new GeoPointMapper("field", "lat", "lon", null);
         Columns columns = new Columns();
         columns.add(Column.fromComposed("lat", 0, Int32Type.instance, false));
-        assertEquals(5.3d, mapper.readLongitude(new Columns()), 0);
+        columns.add(Column.fromComposed("lon", UUID.randomUUID(), UUIDType.instance, false));
+        assertEquals(5.3d, mapper.readLongitude(columns), 0);
     }
 
     @Test(expected = IndexException.class)
@@ -278,6 +277,39 @@ public class GeoPointMapperTest {
         mapper.addFields(document, columns);
         assertEquals(1, document.getFields("field.dist").length);
         assertEquals(6, document.getFields().size());
+    }
+
+    @Test
+    public void testAddFieldsWithNullColumns() {
+        GeoPointMapper mapper = new GeoPointMapper("field", "lat", "lon", 10);
+
+        Columns columns = new Columns();
+
+        Document document = new Document();
+        mapper.addFields(document, columns);
+        assertEquals(0, document.getFields().size());
+    }
+
+    @Test(expected = IndexException.class)
+    public void testAddFieldsWithNullLatitude() {
+        GeoPointMapper mapper = new GeoPointMapper("field", "lat", "lon", 10);
+
+        Columns columns = new Columns();
+        columns.add(Column.fromComposed("lon", "30", UTF8Type.instance, false));
+
+        Document document = new Document();
+        mapper.addFields(document, columns);
+    }
+
+    @Test(expected = IndexException.class)
+    public void testAddFieldsWithNullLongitude() {
+        GeoPointMapper mapper = new GeoPointMapper("field", "lat", "lon", 10);
+
+        Columns columns = new Columns();
+        columns.add(Column.fromComposed("lat", 20, Int32Type.instance, false));
+
+        Document document = new Document();
+        mapper.addFields(document, columns);
     }
 
     @Test

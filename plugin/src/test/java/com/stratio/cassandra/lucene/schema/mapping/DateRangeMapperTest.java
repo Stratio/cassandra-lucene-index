@@ -166,10 +166,12 @@ public class DateRangeMapperTest {
         mapper.readStart(columns);
     }
 
-    @Test(expected = IndexException.class)
+    @Test
     public void testGetStartWithNullColumn() {
         DateRangeMapper mapper = new DateRangeMapper("field", "from", "to", null);
-        mapper.readStart(new Columns());
+        Columns columns = new Columns();
+        columns.add(Column.fromComposed("to", 0, Int32Type.instance, false));
+        assertNull(mapper.readStart(columns));
     }
 
     @Test()
@@ -235,10 +237,12 @@ public class DateRangeMapperTest {
         mapper.readStop(columns);
     }
 
-    @Test(expected = IndexException.class)
+    @Test
     public void testGetStopWithNullColumn() {
         DateRangeMapper mapper = new DateRangeMapper("field", "from", "to", null);
-        mapper.readStop(new Columns());
+        Columns columns = new Columns();
+        columns.add(Column.fromComposed("from", 0, Int32Type.instance, false));
+        assertNull(mapper.readStop(columns));
     }
 
     @Test(expected = IndexException.class)
@@ -261,6 +265,15 @@ public class DateRangeMapperTest {
         assertEquals(1, indexableFields.length);
         assertTrue(indexableFields[0] instanceof Field);
         assertEquals("field", indexableFields[0].name());
+    }
+
+    @Test
+    public void testAddFieldsWithNullColumns() {
+        DateRangeMapper mapper = new DateRangeMapper("field", "from", "to", null);
+        Columns columns = new Columns();
+        Document document = new Document();
+        mapper.addFields(document, columns);
+        assertEquals(0, document.getFields().size());
     }
 
     @Test

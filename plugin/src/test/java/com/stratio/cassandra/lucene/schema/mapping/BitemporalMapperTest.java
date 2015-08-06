@@ -58,7 +58,7 @@ public class BitemporalMapperTest {
         assertEquals("vtTo", mapper.getVtTo());
         assertEquals("ttFrom", mapper.getTtFrom());
         assertEquals("ttTo", mapper.getTtTo());
-        assertEquals((Long) Long.MAX_VALUE, (Long) mapper.getNowValue());
+        assertEquals((Long) Long.MAX_VALUE, mapper.getNowValue());
         assertEquals(DateParser.DEFAULT_PATTERN, mapper.getPattern());
         for (int i = 0; i <= 3; i++) {
             assertNotNull(mapper.getStrategy(i, true));
@@ -66,7 +66,6 @@ public class BitemporalMapperTest {
             assertNotNull(mapper.getTree(i, true));
             assertNotNull(mapper.getTree(i, false));
         }
-
     }
 
     @Test
@@ -781,10 +780,14 @@ public class BitemporalMapperTest {
         mapper.readBitemporalDate(columns, "vt_from");
     }
 
-    @Test(expected = IndexException.class)
+    @Test
     public void testGetVtFromWithNullColumn() {
         BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null, null);
-        mapper.readBitemporalDate(new Columns(), "vt_from");
+        Columns columns = new Columns();
+        columns.add(Column.fromComposed("vt_to", -1, Int32Type.instance, false));
+        columns.add(Column.fromComposed("tt_from", -1, Int32Type.instance, false));
+        columns.add(Column.fromComposed("tt_to", -1, Int32Type.instance, false));
+        assertNull(mapper.readBitemporalDate(columns, "vt_from"));
     }
 
     @Test(expected = IndexException.class)
@@ -855,10 +858,14 @@ public class BitemporalMapperTest {
         mapper.readBitemporalDate(columns, "vt_to");
     }
 
-    @Test(expected = IndexException.class)
+    @Test
     public void testGetVtToWithNullColumn() {
         BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null, null);
-        mapper.readBitemporalDate(new Columns(), "vt_to");
+        Columns columns = new Columns();
+        columns.add(Column.fromComposed("vt_from", -1, Int32Type.instance, false));
+        columns.add(Column.fromComposed("tt_from", -1, Int32Type.instance, false));
+        columns.add(Column.fromComposed("tt_to", -1, Int32Type.instance, false));
+        assertNull(mapper.readBitemporalDate(new Columns(), "vt_to"));
     }
 
     @Test
@@ -916,10 +923,14 @@ public class BitemporalMapperTest {
         mapper.readBitemporalDate(columns, "tt_from");
     }
 
-    @Test(expected = IndexException.class)
+    @Test
     public void testGetTtFromWithNullColumn() {
         BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null, null);
-        mapper.readBitemporalDate(new Columns(), "tt_from");
+        Columns columns = new Columns();
+        columns.add(Column.fromComposed("vt_from", -1, Int32Type.instance, false));
+        columns.add(Column.fromComposed("vt_to", -1, Int32Type.instance, false));
+        columns.add(Column.fromComposed("tt_to", -1, Int32Type.instance, false));
+        assertNull(mapper.readBitemporalDate(new Columns(), "tt_from"));
     }
 
     @Test
@@ -977,10 +988,14 @@ public class BitemporalMapperTest {
         mapper.readBitemporalDate(columns, "tt_to");
     }
 
-    @Test(expected = IndexException.class)
+    @Test
     public void testGetTtToWithNullColumn() {
         BitemporalMapper mapper = new BitemporalMapper("field", "vt_from", "vt_to", "tt_from", "tt_to", null, null);
-        mapper.readBitemporalDate(new Columns(), "tt_to");
+        Columns columns = new Columns();
+        columns.add(Column.fromComposed("vt_from", -1, Int32Type.instance, false));
+        columns.add(Column.fromComposed("vt_to", -1, Int32Type.instance, false));
+        columns.add(Column.fromComposed("tt_from", -1, Int32Type.instance, false));
+        assertNull(mapper.readBitemporalDate(new Columns(), "tt_to"));
     }
 
     @Test(expected = IndexException.class)
@@ -1087,6 +1102,15 @@ public class BitemporalMapperTest {
                                             "field.t2_t",
                                             "field.t3_v",
                                             "field.t3_t"});
+    }
+
+    @Test
+    public void testAddFieldsAllNull() {
+        BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null, null);
+        Columns columns = new Columns();
+        Document document = new Document();
+        mapper.addFields(document, columns);
+        assertEquals(0, document.getFields().size());
     }
 
     @Test
