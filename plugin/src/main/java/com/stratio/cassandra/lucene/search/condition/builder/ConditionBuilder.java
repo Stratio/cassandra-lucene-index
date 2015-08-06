@@ -34,6 +34,7 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
                @JsonSubTypes.Type(value = LuceneConditionBuilder.class, name = "lucene"),
                @JsonSubTypes.Type(value = MatchConditionBuilder.class, name = "match"),
                @JsonSubTypes.Type(value = MatchAllConditionBuilder.class, name = "match_all"),
+               @JsonSubTypes.Type(value = NoneConditionBuilder.class, name = "none"),
                @JsonSubTypes.Type(value = RangeConditionBuilder.class, name = "range"),
                @JsonSubTypes.Type(value = PhraseConditionBuilder.class, name = "phrase"),
                @JsonSubTypes.Type(value = PrefixConditionBuilder.class, name = "prefix"),

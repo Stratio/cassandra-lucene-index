@@ -23,7 +23,6 @@ import com.stratio.cassandra.lucene.schema.mapping.UUIDMapper;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.ConstantScoreQuery;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.spatial.prefix.IntersectsPrefixTreeFilter;
 import org.junit.Test;
 
 import static com.stratio.cassandra.lucene.search.SearchBuilders.geoBBox;

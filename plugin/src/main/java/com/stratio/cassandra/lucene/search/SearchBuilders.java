@@ -116,6 +116,15 @@ public class SearchBuilders {
     }
 
     /**
+     * Returns a new {@link NoneConditionBuilder} for the specified field and value.
+     *
+     * @return A new {@link NoneConditionBuilder} for the specified field and value.
+     */
+    public static NoneConditionBuilder none() {
+        return new NoneConditionBuilder();
+    }
+
+    /**
      * Returns a new {@link PhraseConditionBuilder} for the specified field and values.
      *
      * @param field The name of the field to be matched.

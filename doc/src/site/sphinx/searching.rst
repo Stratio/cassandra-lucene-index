@@ -131,6 +131,8 @@ a “\ **boost**\ ” option that acts as a weight on the resulting score.
 +-----------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 | `Match all <#match-all-search>`__       |                 |                 |                                |           |
 +-----------------------------------------+-----------------+-----------------+--------------------------------+-----------+
+| `None <#none-search>`__                 |                 |                 |                                |           |
++-----------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 | `Phrase <#phrase-search>`__             | field           | string          |                                | Yes       |
 |                                         +-----------------+-----------------+--------------------------------+-----------+
 |                                         | value           | string          |                                | Yes       |
@@ -208,8 +210,6 @@ First we create the table where all this data resides:
         lucene text,
         PRIMARY KEY (name, vt_from, tt_from)
     );
-
-
 
 
 Second, we create the index:
@@ -302,7 +302,6 @@ If the test case needs to know what the system was thinking at '2015/03/01' abou
     AND name='John';
 
 This code is available in CQL script here: `example_bitemporal.cql </doc/resources/example_bitemporal.cql>`__.
-
 
 Boolean search
 ==============
@@ -700,18 +699,32 @@ Syntax:
 
     SELECT ( <fields> | * )
     FROM <table>
-    WHERE <magic_column> = '{ (filter | query) : {
-                                type  : "match_all",
-                                field : <fieldname> ,
-                                value : <value> }}';
+    WHERE <magic_column> = '{ (filter | query) : { type  : "match_all"} }';
 
 Example: will return all the indexed rows
 
 .. code-block:: sql
 
     SELECT * FROM test.users
-    WHERE stratio_col = '{filter : {
-                           type  : "match_all" }}';
+    WHERE stratio_col = '{filter : { type  : "match_all" } }';
+
+None search
+===========
+
+Syntax:
+
+.. code-block:: sql
+
+    SELECT ( <fields> | * )
+    FROM <table>
+    WHERE <magic_column> = '{ (filter | query) : { type  : "none"} }';
+
+Example: will return no one of the indexed rows
+
+.. code-block:: sql
+
+    SELECT * FROM test.users
+    WHERE stratio_col = '{filter : { type  : "none" } }';
 
 Phrase search
 =============

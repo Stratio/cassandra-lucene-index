@@ -1208,9 +1208,9 @@ public class BitemporalMapperTest {
         Date date;
 
         try {
-            date=format.parse("2025/12/23");
+            date = format.parse("2025/12/23");
             String exp = "BitemporalMapper{name=field, vtFrom=vtFrom, vtTo=vtTo, ttFrom=ttFrom, ttTo=ttTo, " +
-                    "pattern=yyyy/MM/dd, nowValue="+date.getTime()+"}";
+                         "pattern=yyyy/MM/dd, nowValue=" + date.getTime() + "}";
             assertEquals(exp, mapper.toString());
         } catch (ParseException e) {
             e.printStackTrace();

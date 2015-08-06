@@ -21,6 +21,7 @@ Stratio's Cassandra Lucene Index
     - `Geo distance search <#geo-distance-search>`__
     - `Match search <#match-search>`__
     - `Match all search <#match-all-search>`__
+    - `None search <#none-search>`__
     - `Phrase search <#phrase-search>`__
     - `Prefix search <#prefix-search>`__
     - `Range search <#range-search>`__
@@ -612,6 +613,8 @@ a “\ **boost**\ ” option that acts as a weight on the resulting score.
 +-----------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 | `Match all <#match-all-search>`__       |                 |                 |                                |           |
 +-----------------------------------------+-----------------+-----------------+--------------------------------+-----------+
+| `None <#none-search>`__                 |                 |                 |                                |           |
++-----------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 | `Phrase <#phrase-search>`__             | field           | string          |                                | Yes       |
 |                                         +-----------------+-----------------+--------------------------------+-----------+
 |                                         | value           | string          |                                | Yes       |
@@ -1178,18 +1181,32 @@ Syntax:
 
     SELECT ( <fields> | * )
     FROM <table>
-    WHERE <magic_column> = '{ (filter | query) : {
-                                type  : "match_all",
-                                field : <fieldname> ,
-                                value : <value> }}';
+    WHERE <magic_column> = '{ (filter | query) : { type  : "match_all"} }';
 
 Example: will return all the indexed rows
 
 .. code-block:: sql
 
     SELECT * FROM test.users
-    WHERE stratio_col = '{filter : {
-                           type  : "match_all" }}';
+    WHERE stratio_col = '{filter : { type  : "match_all" } }';
+
+None search
+===========
+
+Syntax:
+
+.. code-block:: sql
+
+    SELECT ( <fields> | * )
+    FROM <table>
+    WHERE <magic_column> = '{ (filter | query) : { type  : "none"} }';
+
+Example: will return no one of the indexed rows
+
+.. code-block:: sql
+
+    SELECT * FROM test.users
+    WHERE stratio_col = '{filter : { type  : "none" } }';
 
 Phrase search
 =============

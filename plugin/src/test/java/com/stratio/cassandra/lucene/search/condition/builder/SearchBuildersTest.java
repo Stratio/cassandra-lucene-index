@@ -73,6 +73,15 @@ public class SearchBuildersTest {
     }
 
     @Test
+    public void testMatch() throws IOException {
+        MatchConditionBuilder builder = match("field", "value");
+        assertNotNull(builder);
+        MatchCondition condition = builder.build();
+        assertEquals("field", condition.field);
+        assertEquals("value", condition.value);
+    }
+
+    @Test
     public void testMatchAll() throws IOException {
         MatchAllConditionBuilder builder = matchAll();
         assertNotNull(builder);
@@ -80,12 +89,10 @@ public class SearchBuildersTest {
     }
 
     @Test
-    public void testMatch() throws IOException {
-        MatchConditionBuilder builder = match("field", "value");
+    public void testNone() throws IOException {
+        NoneConditionBuilder builder = none();
         assertNotNull(builder);
-        MatchCondition condition = builder.build();
-        assertEquals("field", condition.field);
-        assertEquals("value", condition.value);
+        builder.build();
     }
 
     @Test
