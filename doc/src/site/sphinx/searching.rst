@@ -392,6 +392,13 @@ Example 3: will return rows where name ends with “a” or food starts with
                             should : [{type : "wildcard", field : "name", value : "*a"},
                                       {type : "wildcard", field : "food", value : "tu*"}]}}';
 
+Example 4: will return zero rows independently of the index contents
+
+.. code-block:: sql
+
+    SELECT * FROM test.users
+    WHERE stratio_col = '{filter : { type   : "boolean"} }';
+
 Contains search
 ===============
 

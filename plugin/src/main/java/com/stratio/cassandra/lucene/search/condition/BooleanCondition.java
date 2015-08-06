@@ -60,10 +60,7 @@ public class BooleanCondition extends Condition {
         this.should = should == null ? new LinkedList<Condition>() : should;
         this.not = not == null ? new LinkedList<Condition>() : not;
 
-        if (this.must.isEmpty() && this.should.isEmpty() && this.not.isEmpty()) {
-            throw new IndexException("Invalid Boolean Query: empty ");
-        }
-        if (this.must.isEmpty() && this.should.isEmpty()) {
+        if (this.must.isEmpty() && this.should.isEmpty() && !this.not.isEmpty()) {
             throw new IndexException("Invalid Boolean Query: lucene does not accept pure NOT queries: " +
                                      "http://lucene.apache.org/core/2_9_4/queryparsersyntax.html#NOT " +
                                      "add a 'must : [{ type : \"all\" }]' in your query");
