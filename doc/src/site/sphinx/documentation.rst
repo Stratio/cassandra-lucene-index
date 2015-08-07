@@ -795,8 +795,8 @@ If you want to know what is the last info about where John resides, you perform 
 
 .. code-block:: sql
 
-    SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM census WHERE
-    lucene='{
+    SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM census
+    WHERE lucene = '{
         filter : {
             type : "bitemporal",
             field : "bitemporal",
@@ -813,8 +813,8 @@ If the test case needs to know what the system was thinking at '2015/03/01' abou
 
 .. code-block:: sql
 
-    SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM census WHERE
-    lucene='{
+    SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM census
+    WHERE lucene = '{
         filter : {
             type : "bitemporal",
             field : "bitemporal",
@@ -822,7 +822,7 @@ If the test case needs to know what the system was thinking at '2015/03/01' abou
             tt_to : "2015/03/01"
         }
     }'
-    AND name='John';
+    AND name = 'John';
 
 This code is available in CQL script here: `example_bitemporal.cql </doc/resources/example_bitemporal.cql>`__.
 
