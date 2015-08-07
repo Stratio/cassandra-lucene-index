@@ -29,8 +29,9 @@ where:
 Options, except “schema” and “directory\_path”, take a positive integer
 value enclosed in single quotes:
 
--  **refresh\_seconds**: number of seconds before refreshing the index
-   (between writers and readers). Defaults to ’60’.
+-  **refresh\_seconds**: number of seconds before auto-refreshing the
+   index reader. It is the max time taken for writes to be searchable
+   without forcing an index refresh. Defaults to '60'.
 -  **ram\_buffer\_mb**: size of the write buffer. Its content will be
    committed to disk when full. Defaults to ’64’.
 -  **max\_merge\_mb**: defaults to ’5’.

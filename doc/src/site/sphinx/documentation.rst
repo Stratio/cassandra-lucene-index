@@ -274,12 +274,13 @@ where:
 Options, except “schema” and “directory\_path”, take a positive integer
 value enclosed in single quotes:
 
--  **refresh\_seconds**: number of seconds before refreshing the index
-   (between writers and readers). Defaults to ’60’.
+-  **refresh\_seconds**: number of seconds before auto-refreshing the
+   index reader. It is the max time taken for writes to be searchable
+   without forcing an index refresh. Defaults to '60'.
 -  **ram\_buffer\_mb**: size of the write buffer. Its content will be
-   committed to disk when full. Defaults to ’64’.
--  **max\_merge\_mb**: defaults to ’5’.
--  **max\_cached\_mb**: defaults to ’30’.
+   committed to disk when full. Defaults to '64'.
+-  **max\_merge\_mb**: defaults to '5'.
+-  **max\_cached\_mb**: defaults to '30'.
 -  **directory\_path**: The path of the directory where the  Lucene index
    will be stored.
 -  **schema**: see below
@@ -509,31 +510,25 @@ and <sort> is another JSON object:
         <sort> := { fields : <sort_field> (, <sort_field> )* }
         <sort_field> := { field : <field> (, reverse : <reverse> )? }
 
-When searching by <filter>, without <query> or <sort> defined, then the
-results are returned in the Cassandra’s natural order, which is defined
-by the partitioner and the column name comparator.
+When searching by ``filter``, without any ``query`` or ``sort`` defined,
+then the results are returned in the Cassandra’s natural order, which is
+defined by the partitioner and the column name comparator. When searching
+by ``query``, results are returned sorted by descending relevance. The
+scores will be located in the column ``magic_column``. Sort option is used
+to specify the order in which the indexed rows will be traversed. When
+sorting is used, the query scoring is delayed.
 
-When searching by <query>, results are returned ***sorted by descending
-relevance***. The scores will be located in the column <magic_column>.
+Relevance queries must touch all the nodes in the ring in order to find
+the globally best results, so you should prefer filters over queries
+when no relevance nor sorting are needed.
 
-Sort option is used to specify the order in which the indexed rows will
-be traversed. When sorting is used, the query scoring is delayed.
-
-Filters can be combined with Cassandra paging, whereas queries and sorts
-can't be. So, you should disable paging when using relevance or sorting
-queries.
-
-Additionally, relevance queries must touch all the nodes in the
-ring in order to find the globally best results, so definitely you should
-prefer filters over queries when no relevance nor sorting are needed.
-
-The "**refresh**" option indicates if the search must commit pending
-writes and refresh the Lucene IndexSearcher before be performed. This
-way a search with "refresh" set to true will view the most recent
-changes done to the index, independently of the index auto-refresh time.
-Please note that it is a costly operation, so you should not use it unless
-it is strictly necessary. The default value is false. You can force the
-refreshing of all the index with an "none" query with consistency "ALL":
+The ``refresh`` boolean option indicates if the search must commit pending
+writes and refresh the Lucene IndexSearcher before being performed. This
+way a search with ``refresh`` set to true will view the most recent changes
+done to the index, independently of the index auto-refresh time.
+Please note that it is a costly operation, so you should not use it
+unless it is strictly necessary. The default value is false. You can force
+the refreshing of all the index with an ``none`` query with consistency ``ALL``:
 
 .. code-block:: sql
 
