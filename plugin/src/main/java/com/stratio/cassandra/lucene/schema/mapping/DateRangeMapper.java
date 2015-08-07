@@ -63,8 +63,8 @@ public class DateRangeMapper extends Mapper {
      * Builds a new {@link DateRangeMapper}.
      *
      * @param name    The name of the mapper.
-     * @param from   The name of the column containing the from date.
-     * @param to    The name of the column containing the to date.
+     * @param from    The name of the column containing the from date.
+     * @param to      The name of the column containing the to date.
      * @param pattern The {@link SimpleDateFormat} pattern to be used.
      */
     public DateRangeMapper(String name, String from, String to, String pattern) {
@@ -183,7 +183,7 @@ public class DateRangeMapper extends Mapper {
      * Makes an spatial shape representing the time range defined by the two specified dates.
      *
      * @param from The from {@link Date}.
-     * @param to  The to {@link Date}.
+     * @param to   The to {@link Date}.
      * @return The spatial shape representing the time range defined by the two specified dates.
      */
     public NRShape makeShape(Date from, Date to) {

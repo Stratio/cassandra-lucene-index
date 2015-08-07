@@ -37,10 +37,10 @@ import java.util.Date;
 public class DateRangeCondition extends Condition {
 
     /** The default from value. */
-    public static final int DEFAULT_FROM = 0;
+    public static final long DEFAULT_FROM = 0;
 
     /** The default to value. */
-    public static final int DEFAULT_TO = Integer.MAX_VALUE;
+    public static final long DEFAULT_TO = Long.MAX_VALUE;
 
     /** The default operation. */
     public static final String DEFAULT_OPERATION = "intersects";
