@@ -10,6 +10,7 @@
  * Change default date pattern to `yyyy/MM/dd HH:mm:ss.SSS z`
  * Fix multi-mappers when all columns are null (issue#28)
  * Rename `date_range` limits to `from` and `to`
+ * Add bitemporal search features
 
 ## 2.1.8.1 (31 July 2015)
 
