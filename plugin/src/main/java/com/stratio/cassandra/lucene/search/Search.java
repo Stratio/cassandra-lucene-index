@@ -65,18 +65,12 @@ public class Search {
     }
 
     /**
-     * Returns {@code true} if the results must be ordered by relevance. If {@code false}, then the results are sorted
-     * by the natural Cassandra's order. Results must be ordered by relevance if the querying condition is not {code
-     * null}.
+     * Returns {@code true} if this search requires full ranges scan, {code null} otherwise.
      *
-     * Relevance is used when the query condition is set, and it is not used when only the clusteringKeyFilter condition
-     * is set.
-     *
-     * @return {@code true} if the results must be ordered by relevance. If {@code false}, then the results must be
-     * sorted by the natural Cassandra's order.
+     * @return {@code true} if this search requires full ranges scan, {code null} otherwise.
      */
-    public boolean usesRelevanceOrSorting() {
-        return queryCondition != null || sort != null;
+    public boolean requiresFullScan() {
+        return usesRelevance() || usesSorting() || refresh && isEmpty();
     }
 
     /**
@@ -95,6 +89,15 @@ public class Search {
      */
     public boolean usesSorting() {
         return sort != null;
+    }
+
+    /**
+     * Returns {@code true} if this search doesn't specify any filter, query or sort, {@code false} otherwise.
+     *
+     * @return {@code true} if this search doesn't specify any filter, query or sort, {@code false} otherwise.
+     */
+    public boolean isEmpty() {
+        return queryCondition == null && filterCondition == null && sort == null;
     }
 
     /**

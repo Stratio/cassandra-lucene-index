@@ -528,13 +528,12 @@ way a search with ``refresh`` set to true will view the most recent changes
 done to the index, independently of the index auto-refresh time.
 Please note that it is a costly operation, so you should not use it
 unless it is strictly necessary. The default value is false. You can force
-the refreshing of all the index with an ``none`` query with consistency ``ALL``:
+the refreshing of all the index with an empty search with consistency ``ALL``:
 
 .. code-block:: sql
 
     CONSISTENCY ALL;
-    SELECT * FROM <table>
-    WHERE <magic_column> = '{query:{type:"none"}, refresh:true}';
+    SELECT * FROM <table> WHERE <magic_column> = '{refresh:true}';
 
 This way the subsequent searches will view all the writes done before this
 query, without needing to wait for the index auto refresh. It is useful to

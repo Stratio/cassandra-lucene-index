@@ -210,12 +210,15 @@ public abstract class RowService {
         int numPages = 0;
         int numRows = 0;
 
+        List<Row> rows = new LinkedList<>();
+
         // Refresh index if needed
         if (search.refresh()) {
             luceneIndex.refresh();
+            if (search.isEmpty()) {
+                return rows;
+            }
         }
-
-        List<Row> rows = new LinkedList<>();
 
         SearcherManager searcherManager = luceneIndex.getSearcherManager();
         IndexSearcher searcher = searcherManager.acquire();

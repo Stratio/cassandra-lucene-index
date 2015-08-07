@@ -188,7 +188,7 @@ public class IndexSearcher extends SecondaryIndexSearcher {
     @Override
     public boolean requiresScanningAllRanges(List<IndexExpression> clause) {
         Search search = search(clause);
-        return search.usesRelevanceOrSorting();
+        return search.requiresFullScan();
     }
 
     /** {@inheritDoc} */
