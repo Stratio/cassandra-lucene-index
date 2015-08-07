@@ -31,7 +31,7 @@ import java.util.Date;
 public class DateParser {
 
     /** The default {@link SimpleDateFormat} pattern. */
-    public static final String DEFAULT_PATTERN = "yyyy/MM/dd HH:mm:ss.SSS z";
+    public static final String DEFAULT_PATTERN = "yyyy/MM/dd HH:mm:ss.SSS Z";
 
     /** The {@link SimpleDateFormat} pattern. */
     private final String pattern;
