@@ -78,7 +78,7 @@ public class SearchTest {
     public void testRequiresFullScan() {
         assertTrue(search().query(match("field", "value")).build().requiresFullScan());
         assertFalse(search().filter(match("field", "value")).build().requiresFullScan());
-        assertTrue(search().filter(match("field", "value")).refresh(true).build().requiresFullScan());
+        assertFalse(search().filter(match("field", "value")).refresh(true).build().requiresFullScan());
         assertTrue(search().sort(sortField("field")).build().requiresFullScan());
         assertTrue(search().refresh(true).build().requiresFullScan());
         assertFalse(search().refresh(false).build().requiresFullScan());
