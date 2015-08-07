@@ -292,7 +292,8 @@ So, the system need to update last information from John,and insert the new. Thi
 
     BEGIN BATCH
         UPDATE census SET tt_to = '2015/06/29'
-        WHERE citizen_name = 'John' AND vt_from = '2015/01/01' AND tt_from = '2015/01/01' IF tt_to = '2200/12/31';
+        WHERE citizen_name = 'John' AND vt_from = '2015/01/01' AND tt_from = '2015/01/01'
+        IF tt_to = '2200/12/31';
 
         INSERT INTO census(citizen_name, city, vt_from, vt_to, tt_from, tt_to)
         VALUES ('John', 'Amsterdam', '2015/03/05', '2200/12/31', '2015/06/30', '2200/12/31');
