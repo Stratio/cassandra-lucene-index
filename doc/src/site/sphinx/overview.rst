@@ -131,6 +131,13 @@ a custom Lucene index on it with the following statement:
     };
 
 This will index all the columns in the table with the specified types, and it will be refreshed once per second.
+Alternatively, you can explicitly refresh all the index shards with an empty search with consistency ``ALL``:
+
+.. code-block:: sql
+
+    CONSISTENCY ALL
+    SELECT * FROM tweets WHERE lucene = '{refresh:true}';
+    CONSISTENCY QUORUM
 
 Now, to search for tweets within a certain date range:
 
@@ -138,6 +145,15 @@ Now, to search for tweets within a certain date range:
 
     SELECT * FROM tweets WHERE lucene='{
         filter : {type:"range", field:"time", lower:"2014/04/25", upper:"2014/05/1"}
+    }' limit 100;
+
+The same search can be performed forcing an explicit refresh of the involved index shards:
+
+.. code-block:: sql
+
+    SELECT * FROM tweets WHERE lucene='{
+        filter : {type:"range", field:"time", lower:"2014/04/25", upper:"2014/05/1"},
+        refresh : true
     }' limit 100;
 
 Now, to search the top 100 more relevant tweets where *body* field contains the phrase “big data gives organizations”

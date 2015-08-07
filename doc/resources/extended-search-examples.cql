@@ -1,5 +1,9 @@
 USE test;
 
+-- Refresh index
+SELECT * FROM test.users
+WHERE stratio_col = '{refresh : true}';
+
 -- Boolean queries
 SELECT * FROM test.users 
 WHERE stratio_col = '{query : {
