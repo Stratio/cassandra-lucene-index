@@ -39,6 +39,7 @@ import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.index.Term;
 import org.apache.lucene.search.*;
 
 import java.io.IOException;
@@ -182,6 +183,18 @@ public abstract class RowService {
     public final void commit() throws IOException {
         luceneIndex.commit();
     }
+
+    /**
+     * Returns the Lucene {@link Document}s represented by the specified Cassandra row associated with their identifying
+     * {@link Term}s.
+     *
+     * @param partitionKey A partition key.
+     * @param columnFamily A column family.
+     * @param timestamp    The operation time.
+     * @return The Lucene {@link Document}s represented by the specified Cassandra row associated with their identifying
+     * {@link Term}s.
+     */
+    public abstract Map<Term, Document> documents(DecoratedKey partitionKey, ColumnFamily columnFamily, long timestamp);
 
     /**
      * Returns the stored and indexed {@link Row}s satisfying the specified restrictions.

@@ -46,6 +46,7 @@ import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -149,6 +150,12 @@ public class LuceneIndex implements LuceneIndexMBean {
     public void upsert(Term term, Document document) throws IOException {
         Log.debug("%s update document %s with term %s", logName, document, term);
         indexWriter.updateDocument(term, document);
+    }
+
+    public void upsert(Map<Term, Document> documents) throws IOException {
+        for (Map.Entry<Term, Document> entry : documents.entrySet()) {
+            upsert(entry.getKey(), entry.getValue()); // Store document
+        }
     }
 
     /**
