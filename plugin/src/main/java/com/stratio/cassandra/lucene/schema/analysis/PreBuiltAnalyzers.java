@@ -17,11 +17,7 @@
 
 package com.stratio.cassandra.lucene.schema.analysis;
 
-import com.stratio.cassandra.lucene.util.Log;
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.AnalyzerWrapper;
-import org.apache.lucene.analysis.TokenFilter;
-import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.ar.ArabicAnalyzer;
 import org.apache.lucene.analysis.bg.BulgarianAnalyzer;
 import org.apache.lucene.analysis.br.BrazilianAnalyzer;
@@ -59,12 +55,8 @@ import org.apache.lucene.analysis.standard.ClassicAnalyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.analysis.sv.SwedishAnalyzer;
 import org.apache.lucene.analysis.th.ThaiAnalyzer;
-import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tr.TurkishAnalyzer;
-import org.apache.lucene.analysis.util.FilteringTokenFilter;
-import org.apache.lucene.index.IndexWriter;
 
-import java.io.IOException;
 import java.util.Locale;
 
 /**
@@ -384,52 +376,7 @@ public enum PreBuiltAnalyzers {
      * @return The {@link Analyzer} defined by this.
      */
     public Analyzer get() {
-        return new TokenLengthAnalyzer(instantiate());
+        return instantiate();
     }
 
-    /** {@link Analyzer} which discards too large tokens. */
-    static class TokenLengthAnalyzer extends AnalyzerWrapper {
-
-        private Analyzer analyzer;
-
-        private TokenLengthAnalyzer(Analyzer analyzer) {
-            super(Analyzer.GLOBAL_REUSE_STRATEGY);
-            this.analyzer = analyzer;
-        }
-
-        @Override
-        protected Analyzer getWrappedAnalyzer(String fieldName) {
-            return analyzer;
-        }
-
-        @Override
-        protected TokenStreamComponents wrapComponents(final String fieldName, TokenStreamComponents components) {
-            TokenFilter tokenFilter = new TokenLengthFilter(components.getTokenStream(), fieldName);
-            return new TokenStreamComponents(components.getTokenizer(), tokenFilter);
-        }
-    }
-
-    /** {@link FilteringTokenFilter} which discards too large tokens. */
-    static class TokenLengthFilter extends FilteringTokenFilter {
-
-        private final CharTermAttribute tm = addAttribute(CharTermAttribute.class);
-        private String fieldName;
-
-        private TokenLengthFilter(TokenStream tokenStream, String fieldName) {
-            super(tokenStream);
-            this.fieldName = fieldName;
-        }
-
-        @Override
-        protected boolean accept() throws IOException {
-            int maxSize = IndexWriter.MAX_TERM_LENGTH;
-            int size = tm.length();
-            if (size > maxSize) {
-                Log.warn("Discarding immense term in field='%s', Lucene only allows terms with at most " +
-                         "%s bytes in length; got %s", fieldName, maxSize, size);
-                return false;
-            }
-            return true;
-        }
-    }
 }

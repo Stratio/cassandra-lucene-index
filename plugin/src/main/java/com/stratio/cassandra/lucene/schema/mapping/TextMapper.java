@@ -33,8 +33,6 @@ import org.apache.lucene.util.BytesRef;
  */
 public class TextMapper extends SingleColumnMapper<String> {
 
-    public static final String DEFAULT_ANALYZER = PreBuiltAnalyzers.DEFAULT.name();
-
     /** The name of the Lucene {@link org.apache.lucene.analysis.Analyzer} to be used. */
     private final String analyzer;
 
@@ -63,7 +61,7 @@ public class TextMapper extends SingleColumnMapper<String> {
               TimestampType.instance,
               BytesType.instance,
               InetAddressType.instance);
-        this.analyzer = analyzer == null ? DEFAULT_ANALYZER : analyzer;
+        this.analyzer = analyzer;
     }
 
     /** {@inheritDoc} */

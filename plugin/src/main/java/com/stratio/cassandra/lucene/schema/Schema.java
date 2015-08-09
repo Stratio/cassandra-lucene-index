@@ -21,6 +21,7 @@ import com.stratio.cassandra.lucene.schema.analysis.ClasspathAnalyzerBuilder;
 import com.stratio.cassandra.lucene.schema.analysis.PreBuiltAnalyzers;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
+import com.stratio.cassandra.lucene.util.TokenLengthAnalyzer;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.analysis.Analyzer;
@@ -46,12 +47,12 @@ public class Schema implements Closeable {
 
     private final Analyzer defaultAnalyzer;
 
-    private final PerFieldAnalyzerWrapper perFieldAnalyzer;
+    private final Analyzer perFieldAnalyzer;
 
     private final Set<String> mappedColumns;
 
     /**
-     * Builds a new {@code Schema} for the specified {@link Mapper}s and {@link Analyzer}s.
+     * Returns a new {@code Schema} for the specified {@link Mapper}s and {@link Analyzer}s.
      *
      * @param defaultAnalyzer The default {@link Analyzer} to be used.
      * @param mappers         The per field {@link Mapper}s builders to be used.
@@ -69,15 +70,24 @@ public class Schema implements Closeable {
             String name = entry.getKey();
             Mapper mapper = entry.getValue();
             String analyzerName = mapper.getAnalyzer();
+            Analyzer analyzer;
             if (analyzerName != null) {
-                Analyzer analyzer = getAnalyzer(analyzerName);
+                analyzer = getAnalyzer(analyzerName);
+                analyzer = new TokenLengthAnalyzer(analyzer);
                 perFieldAnalyzers.put(name, analyzer);
             }
             mappedColumns.addAll(mapper.getMappedColumns());
         }
-        this.perFieldAnalyzer = new PerFieldAnalyzerWrapper(this.defaultAnalyzer, perFieldAnalyzers);
+        Analyzer filteredDefaultAnalyzer = new TokenLengthAnalyzer(this.defaultAnalyzer);
+        System.out.println("ANALYZER " + analyzers);
+        this.perFieldAnalyzer = new PerFieldAnalyzerWrapper(filteredDefaultAnalyzer, perFieldAnalyzers);
     }
 
+    /**
+     * Returns the default {@link Analyzer}.
+     *
+     * @return The default {@link Analyzer}.
+     */
     public Analyzer getDefaultAnalyzer() {
         return defaultAnalyzer;
     }
@@ -111,9 +121,9 @@ public class Schema implements Closeable {
     }
 
     /**
-     * Returns the used {@link Analyzer} wrapper.
+     * Returns the used filtered per field {@link Analyzer}.
      *
-     * @return The used {@link Analyzer} wrapper.
+     * @return The used filtered per field {@link Analyzer}.
      */
     public Analyzer getAnalyzer() {
         return perFieldAnalyzer;
