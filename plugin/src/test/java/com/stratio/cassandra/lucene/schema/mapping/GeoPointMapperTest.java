@@ -315,8 +315,7 @@ public class GeoPointMapperTest {
     @Test
     public void testExtractAnalyzers() {
         GeoPointMapper mapper = new GeoPointMapper("field", "lat", "lon", null);
-        String analyzer = mapper.getAnalyzer();
-        assertEquals(Mapper.KEYWORD_ANALYZER, analyzer);
+        assertNull(mapper.getAnalyzer());
     }
 
     @Test

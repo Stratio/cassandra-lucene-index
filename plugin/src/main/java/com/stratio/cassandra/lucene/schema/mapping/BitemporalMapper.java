@@ -212,6 +212,12 @@ public class BitemporalMapper extends Mapper {
         return nowBitemporalDateTimeMillis;
     }
 
+    /** {@inheritDoc} */
+    @Override
+    public String getAnalyzer() {
+        return null;
+    }
+
     /**
      * Returns the {@link NumberRangePrefixTreeStrategy} of the specified tree.
      *

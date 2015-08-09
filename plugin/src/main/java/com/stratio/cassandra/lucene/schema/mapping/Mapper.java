@@ -127,13 +127,11 @@ public abstract class Mapper {
     }
 
     /**
-     * Returns the name of the used {@link org.apache.lucene.analysis.Analyzer}.
+     * Returns the name of the used {@link org.apache.lucene.analysis.Analyzer}, or {@code null} if it is not analyzed.
      *
-     * @return The name of the used {@link org.apache.lucene.analysis.Analyzer}.
+     * @return The name of the used {@link org.apache.lucene.analysis.Analyzer}, or {@code null} if it is not analyzed.
      */
-    public String getAnalyzer() {
-        return KEYWORD_ANALYZER;
-    }
+    public abstract String getAnalyzer();
 
     /**
      * Adds to the specified {@link Document} the Lucene {@link org.apache.lucene.document.Field}s resulting from the

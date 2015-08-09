@@ -80,6 +80,12 @@ public class DoubleMapper extends SingleColumnMapper<Double> {
 
     /** {@inheritDoc} */
     @Override
+    public String getAnalyzer() {
+        return null;
+    }
+
+    /** {@inheritDoc} */
+    @Override
     public Double base(String name, Object value) {
         if (value == null) {
             return null;

@@ -173,8 +173,7 @@ public class LongMapperTest {
     @Test
     public void testExtractAnalyzers() {
         LongMapper mapper = new LongMapper("field", true, true, 1f);
-        String analyzer = mapper.getAnalyzer();
-        assertEquals(Mapper.KEYWORD_ANALYZER, analyzer);
+        assertNull(mapper.getAnalyzer());
     }
 
     @Test

@@ -88,6 +88,7 @@ public class RowServiceSkinny extends RowService {
             luceneIndex.delete(term);
         }
     }
+
     /** {@inheritDoc} */
     @Override
     public void delete(DecoratedKey partitionKey) throws IOException {
@@ -107,7 +108,6 @@ public class RowServiceSkinny extends RowService {
         Term term = rowMapper.term(partitionKey);
         return Collections.singletonMap(term, document);
     }
-
 
     /** {@inheritDoc} */
     @Override

@@ -279,8 +279,7 @@ public class DateRangeMapperTest {
     @Test
     public void testExtractAnalyzers() {
         DateRangeMapper mapper = new DateRangeMapper("field", "from", "to", null);
-        String analyzer = mapper.getAnalyzer();
-        assertEquals(Mapper.KEYWORD_ANALYZER, analyzer);
+        assertNull(mapper.getAnalyzer());
     }
 
     @Test

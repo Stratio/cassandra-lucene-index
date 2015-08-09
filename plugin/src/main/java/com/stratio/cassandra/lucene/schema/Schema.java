@@ -69,8 +69,10 @@ public class Schema implements Closeable {
             String name = entry.getKey();
             Mapper mapper = entry.getValue();
             String analyzerName = mapper.getAnalyzer();
-            Analyzer analyzer = getAnalyzer(analyzerName);
-            perFieldAnalyzers.put(name, analyzer);
+            if (analyzerName != null) {
+                Analyzer analyzer = getAnalyzer(analyzerName);
+                perFieldAnalyzers.put(name, analyzer);
+            }
             mappedColumns.addAll(mapper.getMappedColumns());
         }
         this.perFieldAnalyzer = new PerFieldAnalyzerWrapper(this.defaultAnalyzer, perFieldAnalyzers);

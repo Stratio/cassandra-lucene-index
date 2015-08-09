@@ -234,6 +234,11 @@ public class MatchConditionTest extends AbstractConditionTest {
             }
 
             @Override
+            public String getAnalyzer() {
+                return null;
+            }
+
+            @Override
             public Field sortedField(String name, UUID value) {
                 return null;
             }

@@ -127,6 +127,12 @@ public class DateRangeMapper extends Mapper {
 
     /** {@inheritDoc} */
     @Override
+    public String getAnalyzer() {
+        return null;
+    }
+
+    /** {@inheritDoc} */
+    @Override
     public void addFields(Document document, Columns columns) {
 
         Date from = readFrom(columns);

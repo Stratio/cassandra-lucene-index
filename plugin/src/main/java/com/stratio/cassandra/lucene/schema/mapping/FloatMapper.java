@@ -82,6 +82,12 @@ public class FloatMapper extends SingleColumnMapper<Float> {
 
     /** {@inheritDoc} */
     @Override
+    public String getAnalyzer() {
+        return null;
+    }
+
+    /** {@inheritDoc} */
+    @Override
     public Float base(String name, Object value) {
         if (value == null) {
             return null;

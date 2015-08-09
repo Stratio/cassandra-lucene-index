@@ -85,6 +85,12 @@ public class DateMapper extends SingleColumnMapper<Long> {
 
     /** {@inheritDoc} */
     @Override
+    public String getAnalyzer() {
+        return null;
+    }
+
+    /** {@inheritDoc} */
+    @Override
     public Long base(String name, Object value) {
         Date opt = this.dateParser.parse(value);
         if (opt == null) {

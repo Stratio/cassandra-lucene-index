@@ -18,8 +18,9 @@ package com.stratio.cassandra.lucene.schema.mapping;
 
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.document.FieldType;
 import org.apache.lucene.document.SortedDocValuesField;
-import org.apache.lucene.document.StringField;
+import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.SortField.Type;
 import org.apache.lucene.util.BytesRef;
@@ -30,6 +31,15 @@ import org.apache.lucene.util.BytesRef;
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public abstract class KeywordMapper extends SingleColumnMapper<String> {
+
+    static final FieldType FIELD_TYPE = new FieldType();
+
+    static {
+        FIELD_TYPE.setOmitNorms(true);
+        FIELD_TYPE.setIndexOptions(IndexOptions.DOCS);
+        FIELD_TYPE.setTokenized(true);
+        FIELD_TYPE.freeze();
+    }
 
     /**
      * Builds  a new {@link KeywordMapper}.
@@ -45,8 +55,14 @@ public abstract class KeywordMapper extends SingleColumnMapper<String> {
 
     /** {@inheritDoc} */
     @Override
+    public String getAnalyzer() {
+        return KEYWORD_ANALYZER;
+    }
+
+    /** {@inheritDoc} */
+    @Override
     public Field indexedField(String name, String value) {
-        return new StringField(name, value, STORE);
+        return new Field(name, value, FIELD_TYPE);
     }
 
     /** {@inheritDoc} */
