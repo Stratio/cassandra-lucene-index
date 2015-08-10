@@ -47,7 +47,7 @@ public class TextMapperBuilderTest extends AbstractMapperBuilderTest {
         assertEquals("field", mapper.getName());
         assertEquals(TextMapper.DEFAULT_INDEXED, mapper.isIndexed());
         assertEquals(TextMapper.DEFAULT_SORTED, mapper.isSorted());
-        assertEquals(TextMapper.DEFAULT_ANALYZER, mapper.getAnalyzer());
+        assertNull(mapper.getAnalyzer());
     }
 
     @Test

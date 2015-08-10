@@ -79,6 +79,12 @@ public class IntegerMapper extends SingleColumnMapper<Integer> {
 
     /** {@inheritDoc} */
     @Override
+    public String getAnalyzer() {
+        return null;
+    }
+
+    /** {@inheritDoc} */
+    @Override
     public Integer base(String name, Object value) {
         if (value == null) {
             return null;

@@ -171,8 +171,7 @@ public class DoubleMapperTest {
     @Test
     public void testExtractAnalyzers() {
         DoubleMapper mapper = new DoubleMapper("field", null, null, 1f);
-        String analyzer = mapper.getAnalyzer();
-        assertEquals(Mapper.KEYWORD_ANALYZER, analyzer);
+        assertNull(mapper.getAnalyzer());
     }
 
     @Test

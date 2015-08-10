@@ -44,16 +44,18 @@ writes and refresh the Lucene IndexSearcher before being performed. This
 way a search with ``refresh`` set to true will view the most recent changes
 done to the index, independently of the index auto-refresh time.
 Please note that it is a costly operation, so you should not use it
-unless it is strictly necessary. The default value is false. You can force
-the refreshing of all the index with an empty search with consistency ``ALL``:
+unless it is strictly necessary. The default value is false. You can
+explicitly refresh all the index shards with an empty search with consistency
+``ALL``, and the return to your desired consistency level:
 
 .. code-block:: sql
 
-    CONSISTENCY ALL;
+    CONSISTENCY ALL
     SELECT * FROM <table> WHERE <magic_column> = '{refresh:true}';
+    CONSISTENCY QUORUM
 
 This way the subsequent searches will view all the writes done before this
-query, without needing to wait for the index auto refresh. It is useful to
+operation, without needing to wait for the index auto refresh. It is useful to
 perform this operation before searching after a bulk data load.
 
 Types of search and their options are summarized in the table below.
@@ -95,7 +97,7 @@ a **boost** option that acts as a weight on the resulting score.
 |                                         +-----------------+-----------------+--------------------------------+-----------+
 |                                         | from            | string/long     | 0                              | No        |
 |                                         +-----------------+-----------------+--------------------------------+-----------+
-|                                         | to              | string/long     | Integer.MAX_VALUE              | No        |
+|                                         | to              | string/long     | Long.MAX_VALUE                 | No        |
 |                                         +-----------------+-----------------+--------------------------------+-----------+
 |                                         | operation       | string          | is_within                      | No        |
 +-----------------------------------------+-----------------+-----------------+--------------------------------+-----------+

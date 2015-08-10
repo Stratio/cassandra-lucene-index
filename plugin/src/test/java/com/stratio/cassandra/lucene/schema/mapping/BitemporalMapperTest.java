@@ -1116,8 +1116,7 @@ public class BitemporalMapperTest {
     @Test
     public void testExtractAnalyzers() {
         BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null, null);
-        String analyzer = mapper.getAnalyzer();
-        assertEquals(Mapper.KEYWORD_ANALYZER, analyzer);
+        assertNull(mapper.getAnalyzer());
     }
 
     @Test

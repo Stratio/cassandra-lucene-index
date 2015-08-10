@@ -22,7 +22,6 @@ import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.SortedDocValuesField;
-import org.apache.lucene.document.StringField;
 import org.apache.lucene.index.DocValuesType;
 import org.apache.lucene.index.IndexableField;
 import org.junit.Test;
@@ -202,7 +201,8 @@ public class StringMapperTest {
         mapper.addFields(document, columns);
         IndexableField[] indexableFields = document.getFields("field");
         assertEquals(2, indexableFields.length);
-        assertTrue(indexableFields[0] instanceof StringField);
+        assertTrue(indexableFields[0] instanceof Field);
+        assertEquals(KeywordMapper.FIELD_TYPE, indexableFields[0].fieldType());
         assertTrue(indexableFields[1] instanceof SortedDocValuesField);
     }
 

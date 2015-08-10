@@ -166,6 +166,13 @@ a custom Lucene index on it with the following statement:
     };
 
 This will index all the columns in the table with the specified types, and it will be refreshed once per second.
+Alternatively, you can explicitly refresh all the index shards with an empty search with consistency ``ALL``:
+
+.. code-block:: sql
+
+    CONSISTENCY ALL
+    SELECT * FROM tweets WHERE lucene = '{refresh:true}';
+    CONSISTENCY QUORUM
 
 Now, to search for tweets within a certain date range:
 
@@ -173,6 +180,15 @@ Now, to search for tweets within a certain date range:
 
     SELECT * FROM tweets WHERE lucene='{
         filter : {type:"range", field:"time", lower:"2014/04/25", upper:"2014/05/1"}
+    }' limit 100;
+
+The same search can be performed forcing an explicit refresh of the involved index shards:
+
+.. code-block:: sql
+
+    SELECT * FROM tweets WHERE lucene='{
+        filter : {type:"range", field:"time", lower:"2014/04/25", upper:"2014/05/1"},
+        refresh : true
     }' limit 100;
 
 Now, to search the top 100 more relevant tweets where *body* field contains the phrase “big data gives organizations”
@@ -356,7 +372,7 @@ default values are listed in the table below.
 +                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | tt_to           | string          |                                | Yes       |
 +                 +-----------------+-----------------+--------------------------------+-----------+
-|                 | pattern         | string          | yyyy/MM/dd HH:mm:ss.SSS z      | No        |
+|                 | pattern         | string          | yyyy/MM/dd HH:mm:ss.SSS Z      | No        |
 +                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | now_value       | object          | Long.MAX_VALUE                 | No        |
 +-----------------+-----------------+-----------------+--------------------------------+-----------+
@@ -372,13 +388,13 @@ default values are listed in the table below.
 |                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | sorted          | boolean         | false                          | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
-|                 | pattern         | string          | yyyy/MM/dd HH:mm:ss.SSS z      | No        |
+|                 | pattern         | string          | yyyy/MM/dd HH:mm:ss.SSS Z      | No        |
 +-----------------+-----------------+-----------------+--------------------------------+-----------+
 | date_range      | from            | string          |                                | Yes       |
 |                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | to              | string          |                                | Yes       |
 |                 +-----------------+-----------------+--------------------------------+-----------+
-|                 | pattern         | string          | yyyy/MM/dd HH:mm:ss.SSS z      | No        |
+|                 | pattern         | string          | yyyy/MM/dd HH:mm:ss.SSS Z      | No        |
 +-----------------+-----------------+-----------------+--------------------------------+-----------+
 | double          | indexed         | boolean         | true                           | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
@@ -528,16 +544,18 @@ writes and refresh the Lucene IndexSearcher before being performed. This
 way a search with ``refresh`` set to true will view the most recent changes
 done to the index, independently of the index auto-refresh time.
 Please note that it is a costly operation, so you should not use it
-unless it is strictly necessary. The default value is false. You can force
-the refreshing of all the index with an empty search with consistency ``ALL``:
+unless it is strictly necessary. The default value is false. You can
+explicitly refresh all the index shards with an empty search with consistency
+``ALL``, and the return to your desired consistency level:
 
 .. code-block:: sql
 
-    CONSISTENCY ALL;
+    CONSISTENCY ALL
     SELECT * FROM <table> WHERE <magic_column> = '{refresh:true}';
+    CONSISTENCY QUORUM
 
 This way the subsequent searches will view all the writes done before this
-query, without needing to wait for the index auto refresh. It is useful to
+operation, without needing to wait for the index auto refresh. It is useful to
 perform this operation before searching after a bulk data load.
 
 Types of search and their options are summarized in the table below.
@@ -579,7 +597,7 @@ a “\ **boost**\ ” option that acts as a weight on the resulting score.
 |                                         +-----------------+-----------------+--------------------------------+-----------+
 |                                         | from            | string/long     | 0                              | No        |
 |                                         +-----------------+-----------------+--------------------------------+-----------+
-|                                         | to              | string/long     | Integer.MAX_VALUE              | No        |
+|                                         | to              | string/long     | Long.MAX_VALUE                 | No        |
 |                                         +-----------------+-----------------+--------------------------------+-----------+
 |                                         | operation       | string          | is_within                      | No        |
 +-----------------------------------------+-----------------+-----------------+--------------------------------+-----------+

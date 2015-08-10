@@ -348,7 +348,6 @@ public class PreBuiltAnalyzersTest {
     public void testGetPreBuiltAnalyzerFromNameLowerCase() {
         Analyzer analyzer = PreBuiltAnalyzers.get("standard");
         assertNotNull(analyzer);
-        assertEquals(StandardAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
@@ -356,7 +355,6 @@ public class PreBuiltAnalyzersTest {
     public void testGetPreBuiltAnalyzerFromNameUpperCase() {
         Analyzer analyzer = PreBuiltAnalyzers.get("STANDARD");
         assertNotNull(analyzer);
-        assertEquals(StandardAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 

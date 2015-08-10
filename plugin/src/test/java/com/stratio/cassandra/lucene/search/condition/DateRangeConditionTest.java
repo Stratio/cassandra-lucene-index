@@ -123,11 +123,7 @@ public class DateRangeConditionTest extends AbstractConditionTest {
 
     @Test
     public void testToString() {
-        DateRangeCondition condition = dateRange("name").from(1)
-                                                        .to(2)
-                                                        .operation("contains")
-                                                        .boost(0.3)
-                                                        .build();
+        DateRangeCondition condition = dateRange("name").from(1).to(2).operation("contains").boost(0.3).build();
         assertEquals("DateRangeCondition{boost=0.3, field=name, from=1, to=2, operation=contains}",
                      condition.toString());
     }

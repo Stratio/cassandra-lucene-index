@@ -7,9 +7,11 @@
  * Rename `match_all` condition to `all`
  * Allow resource-intensive pure negation searches
  * Remove unneeded asynchronous indexing queue
- * Change default date pattern to `yyyy/MM/dd HH:mm:ss.SSS z`
+ * Change default date pattern to `yyyy/MM/dd HH:mm:ss.SSS Z`
  * Fix multi-mappers when all columns are null (issue#28)
  * Rename `date_range` limits to `from` and `to`
+ * Add bitemporal search features
+ * Silently discard tokens over 32766 bytes in length
 
 ## 2.1.8.1 (31 July 2015)
 

@@ -174,8 +174,7 @@ public class IntegerMapperTest {
     @Test
     public void testExtractAnalyzers() {
         IntegerMapper mapper = new IntegerMapper("field", null, null, 1f);
-        String analyzer = mapper.getAnalyzer();
-        assertEquals(Mapper.KEYWORD_ANALYZER, analyzer);
+        assertNull(mapper.getAnalyzer());
     }
 
     @Test

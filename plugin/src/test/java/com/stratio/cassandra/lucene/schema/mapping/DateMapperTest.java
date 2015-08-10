@@ -193,8 +193,7 @@ public class DateMapperTest {
     @Test
     public void testExtractAnalyzers() {
         DateMapper mapper = new DateMapper("field", null, null, PATTERN);
-        String analyzer = mapper.getAnalyzer();
-        assertEquals(Mapper.KEYWORD_ANALYZER, analyzer);
+        assertNull(mapper.getAnalyzer());
     }
 
     @Test

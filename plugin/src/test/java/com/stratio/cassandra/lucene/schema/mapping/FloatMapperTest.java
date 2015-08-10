@@ -173,8 +173,7 @@ public class FloatMapperTest {
     @Test
     public void testExtractAnalyzers() {
         FloatMapper mapper = new FloatMapper("field", null, null, 1f);
-        String analyzer = mapper.getAnalyzer();
-        assertEquals(Mapper.KEYWORD_ANALYZER, analyzer);
+        assertNull(mapper.getAnalyzer());
     }
 
     @Test

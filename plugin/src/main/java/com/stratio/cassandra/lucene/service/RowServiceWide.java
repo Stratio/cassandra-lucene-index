@@ -87,43 +87,8 @@ public class RowServiceWide extends RowService {
         DecoratedKey partitionKey = rowMapper.partitionKey(key);
 
         if (columnFamily.iterator().hasNext()) {
-
             columnFamily = cleanExpired(columnFamily, timestamp);
-            Map<CellName, ColumnFamily> incomingRows = rowMapper.splitRows(columnFamily);
-            Map<CellName, Columns> completeRows = new HashMap<>(incomingRows.size());
-            List<CellName> incompleteRows = new ArrayList<>(incomingRows.size());
-
-            // Separate complete and incomplete rows
-            for (Map.Entry<CellName, ColumnFamily> entry : incomingRows.entrySet()) {
-                CellName clusteringKey = entry.getKey();
-                ColumnFamily rowColumnFamily = entry.getValue();
-                Columns columns = rowMapper.columns(partitionKey, rowColumnFamily);
-                if (schema.mapsAll(columns)) {
-                    completeRows.put(clusteringKey, columns);
-                } else {
-                    incompleteRows.add(clusteringKey);
-                }
-            }
-
-            // Read incomplete rows from Cassandra storage engine
-            if (!incompleteRows.isEmpty()) {
-                for (Entry<CellName, ColumnFamily> entry : rows(partitionKey, incompleteRows, timestamp).entrySet()) {
-                    CellName clusteringKey = entry.getKey();
-                    ColumnFamily rowColumnFamily = entry.getValue();
-                    Columns columns = rowMapper.columns(partitionKey, rowColumnFamily);
-                    completeRows.put(clusteringKey, columns);
-                }
-            }
-
-            // Write rows into Lucene index
-            for (Entry<CellName, Columns> entry : completeRows.entrySet()) {
-                CellName clusteringKey = entry.getKey();
-                Columns columns = entry.getValue();
-                Document document = rowMapper.document(partitionKey, clusteringKey, columns);
-                Term term = rowMapper.term(partitionKey, clusteringKey);
-                luceneIndex.upsert(term, document);
-            }
-
+            luceneIndex.upsert(documents(partitionKey, columnFamily, timestamp));
         } else if (deletionInfo != null) {
             Iterator<RangeTombstone> iterator = deletionInfo.rangeIterator();
             if (iterator.hasNext()) {
@@ -144,6 +109,42 @@ public class RowServiceWide extends RowService {
     public void delete(DecoratedKey partitionKey) throws IOException {
         Term term = rowMapper.term(partitionKey);
         luceneIndex.delete(term);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Map<Term, Document> documents(DecoratedKey partitionKey, ColumnFamily columnFamily, long timestamp) {
+
+        Map<CellName, ColumnFamily> incomingRows = rowMapper.splitRows(columnFamily);
+        Map<Term, Document> documents = new HashMap<>(incomingRows.size());
+        List<CellName> incompleteRows = new ArrayList<>(incomingRows.size());
+
+        // Separate complete and incomplete rows
+        for (Map.Entry<CellName, ColumnFamily> entry : incomingRows.entrySet()) {
+            CellName clusteringKey = entry.getKey();
+            ColumnFamily rowColumnFamily = entry.getValue();
+            Columns columns = rowMapper.columns(partitionKey, rowColumnFamily);
+            if (schema.mapsAll(columns)) {
+                Term term = rowMapper.term(partitionKey, clusteringKey);
+                Document document = rowMapper.document(partitionKey, clusteringKey, columns);
+                documents.put(term, document);
+            } else {
+                incompleteRows.add(clusteringKey);
+            }
+        }
+
+        // Read incomplete rows from Cassandra storage engine
+        if (!incompleteRows.isEmpty()) {
+            for (Entry<CellName, ColumnFamily> entry : rows(partitionKey, incompleteRows, timestamp).entrySet()) {
+                CellName clusteringKey = entry.getKey();
+                ColumnFamily rowColumnFamily = entry.getValue();
+                Columns columns = rowMapper.columns(partitionKey, rowColumnFamily);
+                Term term = rowMapper.term(partitionKey, clusteringKey);
+                Document document = rowMapper.document(partitionKey, clusteringKey, columns);
+                documents.put(term, document);
+            }
+        }
+        return documents;
     }
 
     /**

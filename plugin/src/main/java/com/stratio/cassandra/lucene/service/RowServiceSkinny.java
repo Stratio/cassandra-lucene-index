@@ -30,8 +30,10 @@ import org.apache.lucene.search.ScoreDoc;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -78,17 +80,9 @@ public class RowServiceSkinny extends RowService {
     @Override
     public void index(ByteBuffer key, ColumnFamily columnFamily, long timestamp) throws IOException {
         DecoratedKey partitionKey = rowMapper.partitionKey(key);
-
         if (columnFamily.iterator().hasNext()) { // Create or update row
             columnFamily = cleanExpired(columnFamily, timestamp);
-            Columns columns = rowMapper.columns(partitionKey, columnFamily);
-            if (!schema.mapsAll(columns)) {
-                columnFamily = row(partitionKey, timestamp);
-                columns = rowMapper.columns(partitionKey, columnFamily);
-            }
-            Document document = rowMapper.document(partitionKey, columns);
-            Term term = rowMapper.term(partitionKey);
-            luceneIndex.upsert(term, document); // Store document
+            luceneIndex.upsert(documents(partitionKey, columnFamily, timestamp));
         } else if (columnFamily.deletionInfo() != null) { // Delete full row
             Term term = rowMapper.term(partitionKey);
             luceneIndex.delete(term);
@@ -100,6 +94,19 @@ public class RowServiceSkinny extends RowService {
     public void delete(DecoratedKey partitionKey) throws IOException {
         Term term = rowMapper.term(partitionKey);
         luceneIndex.delete(term);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Map<Term, Document> documents(DecoratedKey partitionKey, ColumnFamily columnFamily, long timestamp) {
+        Columns columns = rowMapper.columns(partitionKey, columnFamily);
+        if (!schema.mapsAll(columns)) {
+            columnFamily = row(partitionKey, timestamp);
+            columns = rowMapper.columns(partitionKey, columnFamily);
+        }
+        Document document = rowMapper.document(partitionKey, columns);
+        Term term = rowMapper.term(partitionKey);
+        return Collections.singletonMap(term, document);
     }
 
     /** {@inheritDoc} */
@@ -140,5 +147,4 @@ public class RowServiceSkinny extends RowService {
         }
         return null;
     }
-
 }

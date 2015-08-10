@@ -126,6 +126,11 @@ public class MapperTest {
             public void validate(CFMetaData metaData) {
 
             }
+
+            @Override
+            public String getAnalyzer() {
+                return null;
+            }
         };
         assertEquals(expected, mapper.supports(candidateType));
     }

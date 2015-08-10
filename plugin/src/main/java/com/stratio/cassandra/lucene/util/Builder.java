@@ -24,9 +24,9 @@ package com.stratio.cassandra.lucene.util;
 public interface Builder<T> {
 
     /**
-     * Returns the {@link T} represented by this builder.
+     * Returns the object represented by this builder.
      *
-     * @return The {@link T} represented by this builder.
+     * @return The object represented by this builder.
      */
     T build();
 }

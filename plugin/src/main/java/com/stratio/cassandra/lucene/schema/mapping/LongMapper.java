@@ -99,6 +99,12 @@ public class LongMapper extends SingleColumnMapper<Long> {
 
     /** {@inheritDoc} */
     @Override
+    public String getAnalyzer() {
+        return null;
+    }
+
+    /** {@inheritDoc} */
+    @Override
     public Long base(String name, Object value) {
         if (value == null) {
             return null;

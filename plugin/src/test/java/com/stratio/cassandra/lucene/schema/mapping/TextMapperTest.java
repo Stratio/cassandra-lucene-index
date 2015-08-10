@@ -32,7 +32,7 @@ public class TextMapperTest {
         TextMapper mapper = new TextMapper("field", null, null, null);
         assertEquals(Mapper.DEFAULT_INDEXED, mapper.isIndexed());
         assertEquals(Mapper.DEFAULT_SORTED, mapper.isSorted());
-        assertEquals(TextMapper.DEFAULT_ANALYZER, mapper.getAnalyzer());
+        assertNull(mapper.getAnalyzer());
     }
 
     @Test
