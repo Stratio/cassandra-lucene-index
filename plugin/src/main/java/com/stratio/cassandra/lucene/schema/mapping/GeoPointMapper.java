@@ -160,9 +160,9 @@ public class GeoPointMapper extends Mapper {
         if (longitude == null && latitude == null) {
             return;
         } else if (latitude == null) {
-            throw new IndexException("Latitude column required");
+            throw new IndexException("Latitude column required if there is a longitude");
         } else if (longitude == null) {
-            throw new IndexException("Longitude column required");
+            throw new IndexException("Longitude column required if there is a latitude");
         }
 
         Point point = SPATIAL_CONTEXT.makePoint(longitude, latitude);
@@ -210,7 +210,9 @@ public class GeoPointMapper extends Mapper {
     }
 
     /**
-     * Returns the latitude contained in the specified {@link Object}. A valid latitude must in the range [-90, 90].
+     * Returns the latitude contained in the specified {@link Object}.
+     *
+     * A valid latitude must in the range [-90, 90].
      *
      * @param value The {@link Object} containing the latitude.
      * @return The latitude.
@@ -227,14 +229,15 @@ public class GeoPointMapper extends Mapper {
             }
         }
         if (latitude == null || latitude < -90.0 || latitude > 90) {
-            throw new IndexException("Valid latitude required, but found " + value);
+            throw new IndexException("Latitude in range [-90, 90] required, but found '%s'", value);
         }
         return latitude;
     }
 
     /**
-     * Returns the longitude contained in the specified {@link Object}. A valid longitude must in the range [-180,
-     * 180].
+     * Returns the longitude contained in the specified {@link Object}.
+     *
+     * A valid longitude must in the range [-180, 180].
      *
      * @param value The {@link Object} containing the latitude.
      * @return The longitude.
@@ -251,11 +254,12 @@ public class GeoPointMapper extends Mapper {
             }
         }
         if (longitude == null || longitude < -180.0 || longitude > 180) {
-            throw new IndexException("Valid longitude required, but found " + value);
+            throw new IndexException("Longitude in range [-180, 180] required, but found '%s'", value);
         }
         return longitude;
     }
 
+    /** {@inheritDoc} */
     @Override
     public String toString() {
         return Objects.toStringHelper(this)

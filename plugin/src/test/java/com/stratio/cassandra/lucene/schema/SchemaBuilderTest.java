@@ -184,7 +184,7 @@ public class SchemaBuilderTest {
                       "    snowball_text : {" +
                       "      type:\"text\", " +
                       "      analyzer:\"org.apache.lucene.analysis.en.EnglishAnalyzer\"}," +
-                      "    default_text : { type:\"text\"}"  +
+                      "    default_text : { type:\"text\"}" +
                       "  }" +
                       " }'";
 
@@ -262,7 +262,9 @@ public class SchemaBuilderTest {
         Schema schema = SchemaBuilder.fromJson(json).build();
 
         Analyzer defaultAnalyzer = schema.getDefaultAnalyzer();
-        assertEquals("Expected default analyzer", PreBuiltAnalyzers.DEFAULT.get().getClass(), defaultAnalyzer.getClass());
+        assertEquals("Expected default analyzer",
+                     PreBuiltAnalyzers.DEFAULT.get().getClass(),
+                     defaultAnalyzer.getClass());
 
         Analyzer spanishAnalyzer = schema.getAnalyzer("spanish_analyzer");
         assertTrue("Expected SpanishAnalyzer", spanishAnalyzer instanceof SpanishAnalyzer);

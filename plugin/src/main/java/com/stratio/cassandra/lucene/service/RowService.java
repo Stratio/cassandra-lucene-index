@@ -86,7 +86,7 @@ public abstract class RowService {
         this.baseCfs = baseCfs;
         this.metadata = baseCfs.metadata;
 
-        IndexConfig config = new IndexConfig(metadata, columnDefinition.getIndexOptions());
+        IndexConfig config = new IndexConfig(metadata, columnDefinition);
 
         this.schema = config.getSchema();
         this.rowMapper = RowMapper.build(metadata, columnDefinition, schema);

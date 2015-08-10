@@ -20,6 +20,7 @@ import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.SchemaBuilder;
 import org.apache.cassandra.config.CFMetaData;
+import org.apache.cassandra.config.ColumnDefinition;
 import org.apache.cassandra.config.DatabaseDescriptor;
 
 import java.io.File;
@@ -62,16 +63,16 @@ public class IndexConfig {
      * Builds a new {@link IndexConfig} for the column family defined by the specified metadata using the specified
      * index options.
      *
-     * @param metadata The metadata of the indexed column family.
-     * @param options  The index options.
+     * @param metadata         The metadata of the indexed column family.
+     * @param columnDefinition The index column definition.
      */
-    public IndexConfig(CFMetaData metadata, Map<String, String> options) {
-        refreshSeconds = parseRefresh(options);
-        ramBufferMB = parseRamBufferMB(options);
-        maxMergeMB = parseMaxMergeMB(options);
-        maxCachedMB = parseMaxCachedMB(options);
-        schema = parseSchema(options, metadata);
-        path = parsePath(options, metadata);
+    public IndexConfig(CFMetaData metadata, ColumnDefinition columnDefinition) {
+        refreshSeconds = parseRefresh(columnDefinition.getIndexOptions());
+        ramBufferMB = parseRamBufferMB(columnDefinition.getIndexOptions());
+        maxMergeMB = parseMaxMergeMB(columnDefinition.getIndexOptions());
+        maxCachedMB = parseMaxCachedMB(columnDefinition.getIndexOptions());
+        schema = parseSchema(columnDefinition.getIndexOptions(), metadata);
+        path = parsePath(columnDefinition.getIndexOptions(), metadata);
     }
 
     /**

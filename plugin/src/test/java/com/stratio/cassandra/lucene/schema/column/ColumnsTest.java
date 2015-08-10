@@ -92,6 +92,6 @@ public class ColumnsTest {
 
     @Test
     public void testToString() {
-        assertEquals("Columns{columns=[]}", new Columns().toString());
+        assertEquals("Columns{}", new Columns().toString());
     }
 }
