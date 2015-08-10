@@ -158,6 +158,11 @@ public abstract class TokenMapper {
         }
     }
 
+    /**
+     * Returns a token based {@link Row} {@link Comparator}.
+     *
+     * @return A token based {@link Row} {@link Comparator}.
+     */
     public Comparator<Row> comparator() {
         return new Comparator<Row>() {
             @Override

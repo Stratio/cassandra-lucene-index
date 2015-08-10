@@ -17,7 +17,6 @@
 package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.google.common.base.Objects;
-import com.stratio.cassandra.lucene.schema.analysis.PreBuiltAnalyzers;
 import org.apache.cassandra.db.marshal.*;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.SortedDocValuesField;

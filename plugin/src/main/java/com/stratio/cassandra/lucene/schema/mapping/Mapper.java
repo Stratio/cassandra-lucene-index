@@ -211,7 +211,12 @@ public abstract class Mapper {
         }
     }
 
-    public abstract void validate(CFMetaData metaData);
+    /**
+     * Validates this {@link Mapper} against the specified {@link CFMetaData}.
+     *
+     * @param metadata A column family {@link CFMetaData}.
+     */
+    public abstract void validate(CFMetaData metadata);
 
     /**
      * Returns the names of the mapped Cassandra columns.

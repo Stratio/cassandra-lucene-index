@@ -45,6 +45,8 @@ public abstract class SingleColumnMapper<BASE> extends Mapper {
         super(name, indexed, sorted, Arrays.asList(supportedTypes), Collections.singletonList(name));
     }
 
+    /** {@inheritDoc} */
+    @Override
     public void addFields(Document document, Columns columns) {
         for (Column column : columns.getColumnsByName(name)) {
             String name = column.getFullName();
@@ -53,14 +55,39 @@ public abstract class SingleColumnMapper<BASE> extends Mapper {
         }
     }
 
-    public final void addFields(Document document, String name, Object value) {
+    /**
+     * Adds the specified column name and value to the specified {@link Document}.
+     *
+     * @param document A {@link Document}.
+     * @param name     The name of the column to be mapped.
+     * @param value    The value of the column to be mapped.
+     */
+    private void addFields(Document document, String name, Object value) {
         BASE base = base(name, value);
-        if (indexed) document.add(indexedField(name, base));
-        if (sorted) document.add(sortedField(name, base));
+        if (indexed) {
+            document.add(indexedField(name, base));
+        }
+        if (sorted) {
+            document.add(sortedField(name, base));
+        }
     }
 
+    /**
+     * Returns the {@link Field} to search for the mapped column.
+     *
+     * @param name  The name of the column.
+     * @param value The value of the column.
+     * @return The {@link Field} to search for the mapped column.
+     */
     public abstract Field indexedField(String name, BASE value);
 
+    /**
+     * Returns the {@link Field} to sort by the mapped column.
+     *
+     * @param name  The name of the column.
+     * @param value The value of the column.
+     * @return The {@link Field} to sort by the mapped column.
+     */
     public abstract Field sortedField(String name, BASE value);
 
     /**
@@ -79,6 +106,7 @@ public abstract class SingleColumnMapper<BASE> extends Mapper {
      */
     public abstract BASE base(String field, Object value);
 
+    /** {@inheritDoc} */
     @Override
     public void validate(CFMetaData metadata) {
         validate(metadata, name);

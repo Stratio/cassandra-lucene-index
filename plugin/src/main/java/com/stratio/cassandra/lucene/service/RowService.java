@@ -204,6 +204,7 @@ public abstract class RowService {
      * @param dataRange   A {@link DataRange} to be satisfied.
      * @param limit       The max number of {@link Row}s to be returned.
      * @param timestamp   The operation time stamp.
+     * @param after       A {@link RowKey} to start the search after.
      * @return The {@link Row}s satisfying the specified restrictions.
      * @throws IOException If there are I/O errors.
      */

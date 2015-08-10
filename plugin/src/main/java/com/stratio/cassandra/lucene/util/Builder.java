@@ -19,6 +19,7 @@ package com.stratio.cassandra.lucene.util;
 /**
  * Class for building complex objects.
  *
+ * @param <T> The type of the object to be built.
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public interface Builder<T> {

@@ -23,8 +23,10 @@ import org.codehaus.jackson.annotate.JsonSubTypes;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
 
 /**
- * Class for building new {@link Condition}s.
+ * {@link Builder} for creating new {@link Condition}s.
  *
+ * @param <T> The type of the {@link Condition} to be created.
+ * @param <K> The specific type of the {@link ConditionBuilder}.
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")

@@ -129,6 +129,12 @@ public class ClusteringKeyMapper {
         return iterator.hasNext() ? clusteringKey(iterator.next().name()) : null;
     }
 
+    /**
+     * Returns the clustering key contained in the specified {@link ByteBuffer}.
+     *
+     * @param bb A {@link ByteBuffer}.
+     * @return The clustering key contained in the specified {@link ByteBuffer}.
+     */
     public CellName clusteringKey(ByteBuffer bb) {
         return cellNameType.cellFromByteBuffer(bb);
     }
@@ -349,6 +355,11 @@ public class ClusteringKeyMapper {
         return ByteBufferUtils.toString(cellName.toByteBuffer(), cellNameType.asAbstractType());
     }
 
+    /**
+     * Returns a clustering key based {@link Row} {@link Comparator}.
+     *
+     * @return A clustering key based {@link Row} {@link Comparator}.
+     */
     public Comparator<Row> comparator() {
         return new Comparator<Row>() {
             @Override

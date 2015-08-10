@@ -51,7 +51,7 @@ public class SchemaTest {
         Map<String, Mapper> mappers = new HashMap<>();
         Schema schema = new Schema(new EnglishAnalyzer(), mappers, null);
         Analyzer analyzer = schema.getDefaultAnalyzer();
-        assertEquals(EnglishAnalyzer.class, analyzer.getClass());
+        assertEquals("Expected english analyzer", EnglishAnalyzer.class, analyzer.getClass());
         schema.close();
     }
 
@@ -60,7 +60,7 @@ public class SchemaTest {
         Map<String, Mapper> mappers = new HashMap<>();
         Schema schema = new Schema(null, mappers, null);
         Analyzer analyzer = schema.getDefaultAnalyzer();
-        assertEquals(PreBuiltAnalyzers.DEFAULT.get().getClass(), analyzer.getClass());
+        assertEquals("Expected default analyzer", PreBuiltAnalyzers.DEFAULT.get().getClass(), analyzer.getClass());
         schema.close();
     }
 
@@ -114,7 +114,7 @@ public class SchemaTest {
     public void testToString() {
 
         Schema schema = schema().mapper("field1", stringMapper()).mapper("field2", textMapper()).build();
-        assertNotNull(schema.toString());
+        assertNotNull("Expected not null schema", schema.toString());
         schema.close();
     }
 }

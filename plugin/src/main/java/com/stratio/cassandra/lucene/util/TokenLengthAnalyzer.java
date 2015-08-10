@@ -47,14 +47,11 @@ public class TokenLengthAnalyzer extends AnalyzerWrapper {
 
     /** {@inheritDoc} */
     @Override
-    public Analyzer getWrappedAnalyzer(String fieldName) {
+    protected Analyzer getWrappedAnalyzer(String fieldName) {
         return analyzer;
     }
 
-    public Analyzer getWrappedAnalyzer() {
-        return analyzer;
-    }
-
+    /** {@inheritDoc} */
     @Override
     protected TokenStreamComponents wrapComponents(final String fieldName, TokenStreamComponents components) {
         TokenFilter tokenFilter = new TokenLengthFilter(components.getTokenStream(), fieldName);
