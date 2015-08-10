@@ -25,7 +25,7 @@ import java.nio.ByteBuffer;
 import java.util.List;
 
 /**
- * Utility class with some {@link ByteBuffer}/ {@link org.apache.cassandra.db.marshal.AbstractType} utilities.
+ * Utility class with some {@link ByteBuffer}/{@link AbstractType} utilities.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
@@ -44,6 +44,12 @@ public class ByteBufferUtils {
         return bytes;
     }
 
+    /**
+     * Returns {@code true} if the specified {@link ByteBuffer} is empty, {@code false} otherwise.
+     *
+     * @param byteBuffer A {@link ByteBuffer}.
+     * @return {@code true} if the specified {@link ByteBuffer} is empty, {@code false} otherwise.
+     */
     public static boolean isEmpty(ByteBuffer byteBuffer) {
         return byteBuffer.remaining() == 0;
     }
@@ -112,16 +118,34 @@ public class ByteBufferUtils {
         return Base256Serializer.byteBuffer(string);
     }
 
+    /**
+     * Returns the hexadecimal {@code String} representation of the specified {@link ByteBuffer}.
+     *
+     * @param byteBuffer A {@link ByteBuffer}.
+     * @return The hexadecimal {@code String} representation of the specified {@link ByteBuffer}.
+     */
     public static String toHex(ByteBuffer byteBuffer) {
         return ByteBufferUtil.bytesToHex(byteBuffer);
     }
 
+    /**
+     * Returns the hexadecimal {@code String} representation of the specified {@code byte} array.
+     *
+     * @param bytes A {@code byte} array.
+     * @return The hexadecimal {@code String} representation of the specified {@code byte} array.
+     */
     public static String toHex(byte[] bytes) {
         return Hex.bytesToHex(bytes);
     }
 
-    public static String toHex(byte bytes) {
-        return Hex.bytesToHex(bytes);
+    /**
+     * Returns the hexadecimal {@code String} representation of the specified {@code byte}.
+     *
+     * @param b A {@code byte}.
+     * @return The hexadecimal {@code String} representation of the specified {@code byte}.
+     */
+    public static String toHex(byte b) {
+        return Hex.bytesToHex(b);
     }
 
 }

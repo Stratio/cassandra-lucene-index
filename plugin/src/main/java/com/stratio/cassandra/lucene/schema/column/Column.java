@@ -24,6 +24,7 @@ import java.nio.ByteBuffer;
 /**
  * A cell of a CQL3 logic {@link Column}, which in most cases is different from a storage engine column.
  *
+ * @param <T> The type of the column value.
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public final class Column<T> {

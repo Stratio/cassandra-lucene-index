@@ -30,34 +30,89 @@ public class Log {
 
     private static final Logger log = LoggerFactory.getLogger("stratio");
 
+    private Log() {
+    }
+
+    /**
+     * Logs a message at the INFO level.
+     *
+     * @param message The message string to be logged.
+     * @param options Arguments referenced by the format specifiers in the format message.
+     */
     public static void info(String message, Object... options) {
         log.info(String.format(message, format(options)));
     }
 
+    /**
+     * Logs a message at the INFO level.
+     *
+     * @param throwable The exception (throwable) to log.
+     * @param message   The message string to be logged.
+     * @param options   Arguments referenced by the format specifiers in the format message.
+     */
     public static void info(Throwable throwable, String message, Object... options) {
         log.info(String.format(message, format(options)), throwable);
     }
 
+    /**
+     * Logs a message at the DEBUG level.
+     *
+     * @param message The message string to be logged.
+     * @param options Arguments referenced by the format specifiers in the format message.
+     */
     public static void debug(String message, Object... options) {
         log.debug(String.format(message, format(options)));
     }
 
+    /**
+     * Logs a message at the DEBUG level.
+     *
+     * @param throwable The exception (throwable) to log.
+     * @param message   The message string to be logged.
+     * @param options   Arguments referenced by the format specifiers in the format message.
+     */
     public static void debug(Throwable throwable, String message, Object... options) {
         log.debug(String.format(message, format(options)), throwable);
     }
 
+    /**
+     * Logs a message at the ERROR level.
+     *
+     * @param message The message string to be logged.
+     * @param options Arguments referenced by the format specifiers in the format message.
+     */
     public static void error(String message, Object... options) {
         log.error(String.format(message, format(options)));
     }
 
+    /**
+     * Logs a message at the ERROR level.
+     *
+     * @param throwable The exception (throwable) to log.
+     * @param message   The message string to be logged.
+     * @param options   Arguments referenced by the format specifiers in the format message.
+     */
     public static void error(Throwable throwable, String message, Object... options) {
         log.error(String.format(message, format(options)), throwable);
     }
 
+    /**
+     * Logs a message at the WARN level.
+     *
+     * @param message The message string to be logged.
+     * @param options Arguments referenced by the format specifiers in the format message.
+     */
     public static void warn(String message, Object... options) {
         log.warn(String.format(message, format(options)));
     }
 
+    /**
+     * Logs a message at the WARN level.
+     *
+     * @param throwable The exception (throwable) to log.
+     * @param message   The message string to be logged.
+     * @param options   Arguments referenced by the format specifiers in the format message.
+     */
     public static void warn(Throwable throwable, String message, Object... options) {
         log.warn(String.format(message, format(options)), throwable);
     }
