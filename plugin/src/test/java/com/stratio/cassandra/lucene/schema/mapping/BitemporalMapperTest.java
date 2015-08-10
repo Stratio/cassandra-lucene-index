@@ -1047,30 +1047,29 @@ public class BitemporalMapperTest {
 
         Columns columns = new Columns();
         columns.add(Column.fromComposed("vtFrom", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("vtTo", Long.MAX_VALUE, LongType.instance, false));
+        columns.add(Column.fromComposed("vtTo", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
         columns.add(Column.fromComposed("ttFrom", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("ttTo", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("ttTo", Long.MAX_VALUE, LongType.instance, false));
         Document document = new Document();
         mapper.addFields(document, columns);
         testAddFieldsOnlyThese(document,
-                               new String[]{"field.t2_v", "field.t2_t"},
-                               new String[]{"field.t1_v",
-                                            "field.t1_t",
-                                            "field.t3_v",
-                                            "field.t3_t",
-                                            "field.t4_v",
-                                            "field.t4_t"});
+                new String[]{"field.t2_v", "field.t2_t"},
+                new String[]{"field.t1_v",
+                        "field.t1_t",
+                        "field.t3_v",
+                        "field.t3_t",
+                        "field.t4_v",
+                        "field.t4_t"});
     }
-
     @Test
     public void testAddFieldsT3() {
         BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null, null);
 
         Columns columns = new Columns();
         columns.add(Column.fromComposed("vtFrom", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("vtTo", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("vtTo", Long.MAX_VALUE, LongType.instance, false));
         columns.add(Column.fromComposed("ttFrom", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("ttTo", Long.MAX_VALUE, LongType.instance, false));
+        columns.add(Column.fromComposed("ttTo", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
         Document document = new Document();
         mapper.addFields(document, columns);
         testAddFieldsOnlyThese(document,
@@ -1082,6 +1081,8 @@ public class BitemporalMapperTest {
                                             "field.t4_v",
                                             "field.t4_t"});
     }
+
+
 
     @Test
     public void testAddFieldsT4() {
