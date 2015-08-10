@@ -99,7 +99,8 @@ containing the plugin and add it to the Cassandra’s classpath:
    ``cp plugin/target/cassandra-lucene-index-plugin-2.1.8.2-SNAPSHOT.jar <CASSANDRA_HOME>/lib/``
 -  Start/restart Cassandra as usual
 
-Alternatively, patching can also be done with this Maven profile, specifying the path of your Cassandra installation:
+Alternatively, patching can also be done with this Maven profile, specifying the path of your Cassandra installation,
+ this task also delete previous plugin's JAR versions in CASSANDRA_HOME/lib/ directory:
 
 .. code-block:: bash
 

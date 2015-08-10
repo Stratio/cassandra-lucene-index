@@ -116,8 +116,12 @@
                                 <phase>package</phase>
                                 <configuration>
                                     <target>
+                                        <delete verbose="true">
+                                            <fileset dir="${cassandra_home}/lib" includes="${project.artifactId}*.jar"/>
+                                        </delete>
                                         <copy file="${project.build.directory}/${project.build.finalName}.jar"
                                               toFile="${cassandra_home}/lib/${project.build.finalName}.jar"/>
+
                                     </target>
                                 </configuration>
                                 <goals>
