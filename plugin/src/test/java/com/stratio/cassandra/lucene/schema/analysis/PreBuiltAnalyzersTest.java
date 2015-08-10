@@ -17,7 +17,6 @@
 package com.stratio.cassandra.lucene.schema.analysis;
 
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.AnalyzerWrapper;
 import org.apache.lucene.analysis.ar.ArabicAnalyzer;
 import org.apache.lucene.analysis.bg.BulgarianAnalyzer;
 import org.apache.lucene.analysis.br.BrazilianAnalyzer;
@@ -67,280 +66,280 @@ public class PreBuiltAnalyzersTest {
 
     @Test
     public void testGetStandardPreBuiltAnalyzer() {
-        Analyzer analyzer = PreBuiltAnalyzers.STANDARD.instantiate();
+        Analyzer analyzer = PreBuiltAnalyzers.STANDARD.get();
         assertEquals(StandardAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetDefaultPreBuiltAnalyzer() {
-        Analyzer analyzer = PreBuiltAnalyzers.DEFAULT.instantiate();
+        Analyzer analyzer = PreBuiltAnalyzers.DEFAULT.get();
         assertEquals(StandardAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetKeywordPreBuiltAnalyzer() {
-        Analyzer analyzer = PreBuiltAnalyzers.KEYWORD.instantiate();
+        Analyzer analyzer = PreBuiltAnalyzers.KEYWORD.get();
         assertEquals(KeywordAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetStopPreBuiltAnalyzer() {
-        Analyzer analyzer = PreBuiltAnalyzers.STOP.instantiate();
+        Analyzer analyzer = PreBuiltAnalyzers.STOP.get();
         assertEquals(StopAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetWhitespacePreBuiltAnalyzer() {
-        Analyzer analyzer = PreBuiltAnalyzers.WHITESPACE.instantiate();
+        Analyzer analyzer = PreBuiltAnalyzers.WHITESPACE.get();
         assertEquals(WhitespaceAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetSimplePreBuiltAnalyzer() {
-        Analyzer analyzer = PreBuiltAnalyzers.SIMPLE.instantiate();
+        Analyzer analyzer = PreBuiltAnalyzers.SIMPLE.get();
         assertEquals(SimpleAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetClassicPreBuiltAnalyzer() {
-        Analyzer analyzer = PreBuiltAnalyzers.CLASSIC.instantiate();
+        Analyzer analyzer = PreBuiltAnalyzers.CLASSIC.get();
         assertEquals(ClassicAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetArabicPreBuiltAnalyzer() {
-        Analyzer analyzer = PreBuiltAnalyzers.ARABIC.instantiate();
+        Analyzer analyzer = PreBuiltAnalyzers.ARABIC.get();
         assertEquals(ArabicAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetArmenianPreBuiltAnalyzer() {
-        Analyzer analyzer = PreBuiltAnalyzers.ARMENIAN.instantiate();
+        Analyzer analyzer = PreBuiltAnalyzers.ARMENIAN.get();
         assertEquals(ArmenianAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetBasquePreBuiltAnalyzer() {
-        Analyzer analyzer = PreBuiltAnalyzers.BASQUE.instantiate();
+        Analyzer analyzer = PreBuiltAnalyzers.BASQUE.get();
         assertEquals(BasqueAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetBrazilianPreBuiltAnalyzer() {
-        Analyzer analyzer = PreBuiltAnalyzers.BRAZILIAN.instantiate();
+        Analyzer analyzer = PreBuiltAnalyzers.BRAZILIAN.get();
         assertEquals(BrazilianAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetBulgarianPreBuiltAnalyzer() {
-        Analyzer analyzer = PreBuiltAnalyzers.BULGARIAN.instantiate();
+        Analyzer analyzer = PreBuiltAnalyzers.BULGARIAN.get();
         assertEquals(BulgarianAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetCaatalanPreBuiltAnalyzer() {
-        Analyzer analyzer = PreBuiltAnalyzers.CATALAN.instantiate();
+        Analyzer analyzer = PreBuiltAnalyzers.CATALAN.get();
         assertEquals(CatalanAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetChinesePreBuiltAnalyzer() {
-        Analyzer analyzer = PreBuiltAnalyzers.CHINESE.instantiate();
+        Analyzer analyzer = PreBuiltAnalyzers.CHINESE.get();
         assertEquals(StandardAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetCjkPreBuiltAnalyzer() {
-        Analyzer analyzer = PreBuiltAnalyzers.CJK.instantiate();
+        Analyzer analyzer = PreBuiltAnalyzers.CJK.get();
         assertEquals(CJKAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetCzechPreBuiltAnalyzer() {
-        Analyzer analyzer = PreBuiltAnalyzers.CZECH.instantiate();
+        Analyzer analyzer = PreBuiltAnalyzers.CZECH.get();
         assertEquals(CzechAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetDutchPreBuiltAnalyzer() {
-        Analyzer analyzer = PreBuiltAnalyzers.DUTCH.instantiate();
+        Analyzer analyzer = PreBuiltAnalyzers.DUTCH.get();
         assertEquals(DutchAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetDanishPreBuiltAnalyzer() {
-        Analyzer analyzer = PreBuiltAnalyzers.DANISH.instantiate();
+        Analyzer analyzer = PreBuiltAnalyzers.DANISH.get();
         assertEquals(DanishAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetEnglishPreBuiltAnalyzer() {
-        Analyzer analyzer = PreBuiltAnalyzers.ENGLISH.instantiate();
+        Analyzer analyzer = PreBuiltAnalyzers.ENGLISH.get();
         assertEquals(EnglishAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetFinnishPreBuiltAnalyzer() {
-        Analyzer analyzer = PreBuiltAnalyzers.FINNISH.instantiate();
+        Analyzer analyzer = PreBuiltAnalyzers.FINNISH.get();
         assertEquals(FinnishAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetFrenchPreBuiltAnalyzer() {
-        Analyzer analyzer = PreBuiltAnalyzers.FRENCH.instantiate();
+        Analyzer analyzer = PreBuiltAnalyzers.FRENCH.get();
         assertEquals(FrenchAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetGalicianPreBuiltAnalyzer() {
-        Analyzer analyzer = PreBuiltAnalyzers.GALICIAN.instantiate();
+        Analyzer analyzer = PreBuiltAnalyzers.GALICIAN.get();
         assertEquals(GalicianAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetGermanPreBuiltAnalyzer() {
-        Analyzer analyzer = PreBuiltAnalyzers.GERMAN.instantiate();
+        Analyzer analyzer = PreBuiltAnalyzers.GERMAN.get();
         assertEquals(GermanAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetGreekPreBuiltAnalyzer() {
-        Analyzer analyzer = PreBuiltAnalyzers.GREEK.instantiate();
+        Analyzer analyzer = PreBuiltAnalyzers.GREEK.get();
         assertEquals(GreekAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetHindiPreBuiltAnalyzer() {
-        Analyzer analyzer = PreBuiltAnalyzers.HINDI.instantiate();
+        Analyzer analyzer = PreBuiltAnalyzers.HINDI.get();
         assertEquals(HindiAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetHungarianPreBuiltAnalyzer() {
-        Analyzer analyzer = PreBuiltAnalyzers.HUNGARIAN.instantiate();
+        Analyzer analyzer = PreBuiltAnalyzers.HUNGARIAN.get();
         assertEquals(HungarianAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetIndonesianPreBuiltAnalyzer() {
-        Analyzer analyzer = PreBuiltAnalyzers.INDONESIAN.instantiate();
+        Analyzer analyzer = PreBuiltAnalyzers.INDONESIAN.get();
         assertEquals(IndonesianAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetIrishPreBuiltAnalyzer() {
-        Analyzer analyzer = PreBuiltAnalyzers.IRISH.instantiate();
+        Analyzer analyzer = PreBuiltAnalyzers.IRISH.get();
         assertEquals(IrishAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetItalianPreBuiltAnalyzer() {
-        Analyzer analyzer = PreBuiltAnalyzers.ITALIAN.instantiate();
+        Analyzer analyzer = PreBuiltAnalyzers.ITALIAN.get();
         assertEquals(ItalianAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetLatvianPreBuiltAnalyzer() {
-        Analyzer analyzer = PreBuiltAnalyzers.LATVIAN.instantiate();
+        Analyzer analyzer = PreBuiltAnalyzers.LATVIAN.get();
         assertEquals(LatvianAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetNorwegianPreBuiltAnalyzer() {
-        Analyzer analyzer = PreBuiltAnalyzers.NORWEGIAN.instantiate();
+        Analyzer analyzer = PreBuiltAnalyzers.NORWEGIAN.get();
         assertEquals(NorwegianAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetPersianPreBuiltAnalyzer() {
-        Analyzer analyzer = PreBuiltAnalyzers.PERSIAN.instantiate();
+        Analyzer analyzer = PreBuiltAnalyzers.PERSIAN.get();
         assertEquals(PersianAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetPortuguesePreBuiltAnalyzer() {
-        Analyzer analyzer = PreBuiltAnalyzers.PORTUGUESE.instantiate();
+        Analyzer analyzer = PreBuiltAnalyzers.PORTUGUESE.get();
         assertEquals(PortugueseAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetRomanianPreBuiltAnalyzer() {
-        Analyzer analyzer = PreBuiltAnalyzers.ROMANIAN.instantiate();
+        Analyzer analyzer = PreBuiltAnalyzers.ROMANIAN.get();
         assertEquals(RomanianAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetRussianPreBuiltAnalyzer() {
-        Analyzer analyzer = PreBuiltAnalyzers.RUSSIAN.instantiate();
+        Analyzer analyzer = PreBuiltAnalyzers.RUSSIAN.get();
         assertEquals(RussianAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetSoraniPreBuiltAnalyzer() {
-        Analyzer analyzer = PreBuiltAnalyzers.SORANI.instantiate();
+        Analyzer analyzer = PreBuiltAnalyzers.SORANI.get();
         assertEquals(SoraniAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetSpanishPreBuiltAnalyzer() {
-        Analyzer analyzer = PreBuiltAnalyzers.SPANISH.instantiate();
+        Analyzer analyzer = PreBuiltAnalyzers.SPANISH.get();
         assertEquals(SpanishAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetSwedishPreBuiltAnalyzer() {
-        Analyzer analyzer = PreBuiltAnalyzers.SWEDISH.instantiate();
+        Analyzer analyzer = PreBuiltAnalyzers.SWEDISH.get();
         assertEquals(SwedishAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetTurkishPreBuiltAnalyzer() {
-        Analyzer analyzer = PreBuiltAnalyzers.TURKISH.instantiate();
+        Analyzer analyzer = PreBuiltAnalyzers.TURKISH.get();
         assertEquals(TurkishAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetThaiPreBuiltAnalyzer() {
-        Analyzer analyzer = PreBuiltAnalyzers.THAI.instantiate();
+        Analyzer analyzer = PreBuiltAnalyzers.THAI.get();
         assertEquals(ThaiAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }

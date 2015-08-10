@@ -35,20 +35,25 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Class for several columns mappings between Cassandra and Lucene.
+ * The user-defined mapping from Cassandra columns to Lucene documents.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class Schema implements Closeable {
 
+    /** The {@link Columns} {@link Mapper}s. */
     private final Map<String, Mapper> mappers;
 
+    /** The per field {@link Analyzer}s. */
     private final Map<String, Analyzer> analyzers;
 
+    /** The default {@link Analyzer}. */
     private final Analyzer defaultAnalyzer;
 
+    /** The wrapping all-in-one {@link Analyzer}. */
     private final Analyzer perFieldAnalyzer;
 
+    /** The names of the mapped columns. */
     private final Set<String> mappedColumns;
 
     /**
@@ -79,7 +84,6 @@ public class Schema implements Closeable {
             mappedColumns.addAll(mapper.getMappedColumns());
         }
         Analyzer filteredDefaultAnalyzer = new TokenLengthAnalyzer(this.defaultAnalyzer);
-        System.out.println("ANALYZER " + analyzers);
         this.perFieldAnalyzer = new PerFieldAnalyzerWrapper(filteredDefaultAnalyzer, perFieldAnalyzers);
     }
 

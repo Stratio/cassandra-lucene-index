@@ -66,28 +66,28 @@ public enum PreBuiltAnalyzers {
 
     STANDARD() {
         @Override
-        protected Analyzer instantiate() {
+        protected Analyzer build() {
             return new StandardAnalyzer();
         }
     },
 
     DEFAULT() {
         @Override
-        protected Analyzer instantiate() {
-            return STANDARD.instantiate();
+        protected Analyzer build() {
+            return STANDARD.build();
         }
     },
 
     KEYWORD() {
         @Override
-        protected Analyzer instantiate() {
+        protected Analyzer build() {
             return new KeywordAnalyzer();
         }
     },
 
     STOP {
         @Override
-        protected Analyzer instantiate() {
+        protected Analyzer build() {
             return new StopAnalyzer();
 
         }
@@ -95,7 +95,7 @@ public enum PreBuiltAnalyzers {
 
     WHITESPACE {
         @Override
-        protected Analyzer instantiate() {
+        protected Analyzer build() {
             return new WhitespaceAnalyzer();
 
         }
@@ -103,7 +103,7 @@ public enum PreBuiltAnalyzers {
 
     SIMPLE {
         @Override
-        protected Analyzer instantiate() {
+        protected Analyzer build() {
             return new SimpleAnalyzer();
 
         }
@@ -111,7 +111,7 @@ public enum PreBuiltAnalyzers {
 
     CLASSIC {
         @Override
-        protected Analyzer instantiate() {
+        protected Analyzer build() {
             return new ClassicAnalyzer();
 
         }
@@ -119,70 +119,70 @@ public enum PreBuiltAnalyzers {
 
     ARABIC {
         @Override
-        protected Analyzer instantiate() {
+        protected Analyzer build() {
             return new ArabicAnalyzer();
         }
     },
 
     ARMENIAN {
         @Override
-        protected Analyzer instantiate() {
+        protected Analyzer build() {
             return new ArmenianAnalyzer();
         }
     },
 
     BASQUE {
         @Override
-        protected Analyzer instantiate() {
+        protected Analyzer build() {
             return new BasqueAnalyzer();
         }
     },
 
     BRAZILIAN {
         @Override
-        protected Analyzer instantiate() {
+        protected Analyzer build() {
             return new BrazilianAnalyzer();
         }
     },
 
     BULGARIAN {
         @Override
-        protected Analyzer instantiate() {
+        protected Analyzer build() {
             return new BulgarianAnalyzer();
         }
     },
 
     CATALAN {
         @Override
-        protected Analyzer instantiate() {
+        protected Analyzer build() {
             return new CatalanAnalyzer();
         }
     },
 
     CHINESE() {
         @Override
-        protected Analyzer instantiate() {
+        protected Analyzer build() {
             return new StandardAnalyzer();
         }
     },
 
     CJK {
         @Override
-        protected Analyzer instantiate() {
+        protected Analyzer build() {
             return new CJKAnalyzer();
         }
     },
 
     CZECH {
         @Override
-        protected Analyzer instantiate() {
+        protected Analyzer build() {
             return new CzechAnalyzer();
         }
     },
 
     DUTCH {
         @Override
-        protected Analyzer instantiate() {
+        protected Analyzer build() {
             return new DutchAnalyzer();
 
         }
@@ -190,7 +190,7 @@ public enum PreBuiltAnalyzers {
 
     DANISH {
         @Override
-        protected Analyzer instantiate() {
+        protected Analyzer build() {
             return new DanishAnalyzer();
 
         }
@@ -198,49 +198,49 @@ public enum PreBuiltAnalyzers {
 
     ENGLISH {
         @Override
-        protected Analyzer instantiate() {
+        protected Analyzer build() {
             return new EnglishAnalyzer();
         }
     },
 
     FINNISH {
         @Override
-        protected Analyzer instantiate() {
+        protected Analyzer build() {
             return new FinnishAnalyzer();
         }
     },
 
     FRENCH {
         @Override
-        protected Analyzer instantiate() {
+        protected Analyzer build() {
             return new FrenchAnalyzer();
         }
     },
 
     GALICIAN {
         @Override
-        protected Analyzer instantiate() {
+        protected Analyzer build() {
             return new GalicianAnalyzer();
         }
     },
 
     GERMAN {
         @Override
-        protected Analyzer instantiate() {
+        protected Analyzer build() {
             return new GermanAnalyzer();
         }
     },
 
     GREEK {
         @Override
-        protected Analyzer instantiate() {
+        protected Analyzer build() {
             return new GreekAnalyzer();
         }
     },
 
     HINDI {
         @Override
-        protected Analyzer instantiate() {
+        protected Analyzer build() {
             return new HindiAnalyzer();
 
         }
@@ -248,63 +248,63 @@ public enum PreBuiltAnalyzers {
 
     HUNGARIAN {
         @Override
-        protected Analyzer instantiate() {
+        protected Analyzer build() {
             return new HungarianAnalyzer();
         }
     },
 
     INDONESIAN {
         @Override
-        protected Analyzer instantiate() {
+        protected Analyzer build() {
             return new IndonesianAnalyzer();
         }
     },
 
     IRISH {
         @Override
-        protected Analyzer instantiate() {
+        protected Analyzer build() {
             return new IrishAnalyzer();
         }
     },
 
     ITALIAN {
         @Override
-        protected Analyzer instantiate() {
+        protected Analyzer build() {
             return new ItalianAnalyzer();
         }
     },
 
     LATVIAN {
         @Override
-        protected Analyzer instantiate() {
+        protected Analyzer build() {
             return new LatvianAnalyzer();
         }
     },
 
     NORWEGIAN {
         @Override
-        protected Analyzer instantiate() {
+        protected Analyzer build() {
             return new NorwegianAnalyzer();
         }
     },
 
     PERSIAN {
         @Override
-        protected Analyzer instantiate() {
+        protected Analyzer build() {
             return new PersianAnalyzer();
         }
     },
 
     PORTUGUESE {
         @Override
-        protected Analyzer instantiate() {
+        protected Analyzer build() {
             return new PortugueseAnalyzer();
         }
     },
 
     ROMANIAN {
         @Override
-        protected Analyzer instantiate() {
+        protected Analyzer build() {
             return new RomanianAnalyzer();
 
         }
@@ -312,47 +312,52 @@ public enum PreBuiltAnalyzers {
 
     RUSSIAN {
         @Override
-        protected Analyzer instantiate() {
+        protected Analyzer build() {
             return new RussianAnalyzer();
         }
     },
 
     SORANI {
         @Override
-        protected Analyzer instantiate() {
+        protected Analyzer build() {
             return new SoraniAnalyzer();
         }
     },
 
     SPANISH {
         @Override
-        protected Analyzer instantiate() {
+        protected Analyzer build() {
             return new SpanishAnalyzer();
         }
     },
 
     SWEDISH {
         @Override
-        protected Analyzer instantiate() {
+        protected Analyzer build() {
             return new SwedishAnalyzer();
         }
     },
 
     TURKISH {
         @Override
-        protected Analyzer instantiate() {
+        protected Analyzer build() {
             return new TurkishAnalyzer();
         }
     },
 
     THAI {
         @Override
-        protected Analyzer instantiate() {
+        protected Analyzer build() {
             return new ThaiAnalyzer();
         }
     };
 
-    abstract Analyzer instantiate();
+    /**
+     * Returns a new instance of the defined {@link Analyzer}.
+     *
+     * @return A new instance of the defined {@link Analyzer}.
+     */
+    abstract Analyzer build();
 
     /**
      * Returns the prebuilt {@link Analyzer} identified by the specified name, or {@code null} if there is no such
@@ -376,7 +381,7 @@ public enum PreBuiltAnalyzers {
      * @return The {@link Analyzer} defined by this.
      */
     public Analyzer get() {
-        return instantiate();
+        return build();
     }
 
 }

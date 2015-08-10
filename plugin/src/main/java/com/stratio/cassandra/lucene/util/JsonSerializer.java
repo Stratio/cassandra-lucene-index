@@ -26,7 +26,7 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
 import java.io.IOException;
 
 /**
- * A JSON mapper based on {@link org.codehaus.jackson} annotations.
+ * A JSON mapper based on Codehaus {@link ObjectMapper} annotations.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
