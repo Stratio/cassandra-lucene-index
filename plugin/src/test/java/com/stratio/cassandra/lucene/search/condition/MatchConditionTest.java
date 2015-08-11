@@ -18,15 +18,7 @@ package com.stratio.cassandra.lucene.search.condition;
 
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.mapping.BlobMapper;
-import com.stratio.cassandra.lucene.schema.mapping.DoubleMapper;
-import com.stratio.cassandra.lucene.schema.mapping.FloatMapper;
-import com.stratio.cassandra.lucene.schema.mapping.InetMapper;
-import com.stratio.cassandra.lucene.schema.mapping.IntegerMapper;
-import com.stratio.cassandra.lucene.schema.mapping.LongMapper;
 import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
-import com.stratio.cassandra.lucene.schema.mapping.StringMapper;
-import com.stratio.cassandra.lucene.schema.mapping.TextMapper;
 import org.apache.cassandra.db.marshal.UUIDType;
 import org.apache.lucene.analysis.core.KeywordAnalyzer;
 import org.apache.lucene.document.Field;
@@ -38,6 +30,7 @@ import org.junit.Test;
 
 import java.util.UUID;
 
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
@@ -46,7 +39,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class MatchConditionTest extends AbstractConditionTest {
+public class MatchConditionTest {
 
     @Test
     public void testBuild() {
@@ -78,11 +71,9 @@ public class MatchConditionTest extends AbstractConditionTest {
     @Test
     public void testString() {
 
-        Schema schema = mock(Schema.class);
-        when(schema.getMapper("field")).thenReturn(new StringMapper("field", null, null, null));
-        when(schema.getAnalyzer()).thenReturn(new KeywordAnalyzer());
+        Schema schema = schema().mapper("name", stringMapper()).build();
 
-        MatchCondition matchCondition = new MatchCondition(0.5f, "field", "value");
+        MatchCondition matchCondition = new MatchCondition(0.5f, "name", "value");
         Query query = matchCondition.query(schema);
 
         assertNotNull(query);
@@ -94,7 +85,7 @@ public class MatchConditionTest extends AbstractConditionTest {
     @Test
     public void testStringStopwords() {
 
-        Schema schema = mockSchema("name", new TextMapper("name", null, null, "english"), "english");
+        Schema schema = schema().mapper("name", textMapper().analyzer("english")).build();
 
         MatchCondition matchCondition = new MatchCondition(0.5f, "name", "the");
         Query query = matchCondition.query(schema);
@@ -107,10 +98,9 @@ public class MatchConditionTest extends AbstractConditionTest {
     @Test
     public void testInteger() {
 
-        Schema schema = mock(Schema.class);
-        when(schema.getMapper("field")).thenReturn(new IntegerMapper("field", null, null, null));
+        Schema schema = schema().mapper("name", integerMapper()).build();
 
-        MatchCondition matchCondition = new MatchCondition(0.5f, "field", 42);
+        MatchCondition matchCondition = new MatchCondition(0.5f, "name", 42);
         Query query = matchCondition.query(schema);
 
         assertNotNull(query);
@@ -125,10 +115,9 @@ public class MatchConditionTest extends AbstractConditionTest {
     @Test
     public void testLong() {
 
-        Schema schema = mock(Schema.class);
-        when(schema.getMapper("field")).thenReturn(new LongMapper("field", null, null, 1f));
+        Schema schema = schema().mapper("name", longMapper()).build();
 
-        MatchCondition matchCondition = new MatchCondition(0.5f, "field", 42L);
+        MatchCondition matchCondition = new MatchCondition(0.5f, "name", 42L);
         Query query = matchCondition.query(schema);
 
         assertNotNull(query);
@@ -143,10 +132,9 @@ public class MatchConditionTest extends AbstractConditionTest {
     @Test
     public void testFloat() {
 
-        Schema schema = mock(Schema.class);
-        when(schema.getMapper("field")).thenReturn(new FloatMapper("field", null, null, 1f));
+        Schema schema = schema().mapper("name", floatMapper()).build();
 
-        MatchCondition matchCondition = new MatchCondition(0.5f, "field", 42.42F);
+        MatchCondition matchCondition = new MatchCondition(0.5f, "name", 42.42F);
         Query query = matchCondition.query(schema);
 
         assertNotNull(query);
@@ -161,10 +149,9 @@ public class MatchConditionTest extends AbstractConditionTest {
     @Test
     public void testDouble() {
 
-        Schema schema = mock(Schema.class);
-        when(schema.getMapper("field")).thenReturn(new DoubleMapper("field", null, null, 1f));
+        Schema schema = schema().mapper("name", doubleMapper()).build();
 
-        MatchCondition matchCondition = new MatchCondition(0.5f, "field", 42.42D);
+        MatchCondition matchCondition = new MatchCondition(0.5f, "name", 42.42D);
         Query query = matchCondition.query(schema);
 
         assertNotNull(query);
@@ -179,11 +166,9 @@ public class MatchConditionTest extends AbstractConditionTest {
     @Test
     public void testBlob() {
 
-        Schema schema = mock(Schema.class);
-        when(schema.getMapper("field")).thenReturn(new BlobMapper("field", null, null));
-        when(schema.getAnalyzer()).thenReturn(new KeywordAnalyzer());
+        Schema schema = schema().mapper("name", blobMapper()).build();
 
-        MatchCondition matchCondition = new MatchCondition(0.5f, "field", "0Fa1");
+        MatchCondition matchCondition = new MatchCondition(0.5f, "name", "0Fa1");
         Query query = matchCondition.query(schema);
 
         assertNotNull(query);
@@ -195,11 +180,9 @@ public class MatchConditionTest extends AbstractConditionTest {
     @Test
     public void testInetV4() {
 
-        Schema schema = mock(Schema.class);
-        when(schema.getMapper("field")).thenReturn(new InetMapper("field", null, null));
-        when(schema.getAnalyzer()).thenReturn(new KeywordAnalyzer());
+        Schema schema = schema().mapper("name", inetMapper()).build();
 
-        MatchCondition matchCondition = new MatchCondition(0.5f, "field", "192.168.0.01");
+        MatchCondition matchCondition = new MatchCondition(0.5f, "name", "192.168.0.01");
         Query query = matchCondition.query(schema);
 
         assertNotNull(query);
@@ -211,11 +194,9 @@ public class MatchConditionTest extends AbstractConditionTest {
     @Test
     public void testInetV6() {
 
-        Schema schema = mock(Schema.class);
-        when(schema.getMapper("field")).thenReturn(new InetMapper("field", null, null));
-        when(schema.getAnalyzer()).thenReturn(new KeywordAnalyzer());
+        Schema schema = schema().mapper("name", inetMapper()).build();
 
-        MatchCondition matchCondition = new MatchCondition(0.5f, "field", "2001:DB8:2de::0e13");
+        MatchCondition matchCondition = new MatchCondition(0.5f, "name", "2001:DB8:2de::0e13");
         Query query = matchCondition.query(schema);
 
         assertNotNull(query);
@@ -227,7 +208,7 @@ public class MatchConditionTest extends AbstractConditionTest {
     @Test(expected = IndexException.class)
     public void testUnsupportedMapper() {
 
-        SingleColumnMapper<UUID> mapper = new SingleColumnMapper<UUID>("field", null, null, UUIDType.instance) {
+        SingleColumnMapper<UUID> mapper = new SingleColumnMapper<UUID>("field", null, null, null, UUIDType.instance) {
             @Override
             public Field indexedField(String name, UUID value) {
                 return null;

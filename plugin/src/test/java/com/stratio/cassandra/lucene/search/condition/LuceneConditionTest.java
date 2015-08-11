@@ -31,7 +31,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class LuceneConditionTest extends AbstractConditionTest {
+public class LuceneConditionTest {
 
     @Test
     public void testBuild() {

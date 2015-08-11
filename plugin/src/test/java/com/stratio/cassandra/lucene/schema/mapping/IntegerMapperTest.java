@@ -28,7 +28,7 @@ public class IntegerMapperTest {
 
     @Test
     public void testConstructorWithoutArgs() {
-        IntegerMapper mapper = new IntegerMapper("field", null, null, null);
+        IntegerMapper mapper = new IntegerMapper("field", null, null, null, null);
         assertEquals("Indexed is not set to default value", Mapper.DEFAULT_INDEXED, mapper.isIndexed());
         assertEquals("Sorted is not set to default value", Mapper.DEFAULT_SORTED, mapper.isSorted());
         assertEquals("Boost is not set to default value", DoubleMapper.DEFAULT_BOOST, mapper.getBoost(), 1);
@@ -36,7 +36,7 @@ public class IntegerMapperTest {
 
     @Test
     public void testConstructorWithAllArgs() {
-        IntegerMapper mapper = new IntegerMapper("field", false, true, 2.3f);
+        IntegerMapper mapper = new IntegerMapper("field", null, false, true, 2.3f);
         assertFalse("Indexed is not properly set", mapper.isIndexed());
         assertTrue("Sorted is not properly set", mapper.isSorted());
         assertEquals("Boost is not properly set", 2.3f, mapper.getBoost(), 1);
@@ -44,7 +44,7 @@ public class IntegerMapperTest {
 
     @Test()
     public void testSortField() {
-        IntegerMapper mapper = new IntegerMapper("field", null, null, 2.3f);
+        IntegerMapper mapper = new IntegerMapper("field", null, null, null, 2.3f);
         SortField sortField = mapper.sortField("field", true);
         assertNotNull("Sort field is not created", sortField);
         assertTrue("Sort field reverse is wrong", sortField.getReverse());
@@ -52,48 +52,48 @@ public class IntegerMapperTest {
 
     @Test()
     public void testValueNull() {
-        IntegerMapper mapper = new IntegerMapper("field", null, null, 1f);
+        IntegerMapper mapper = new IntegerMapper("field", null, null, null, 1f);
         Integer parsed = mapper.base("test", null);
         assertNull("Base for nulls is wrong", parsed);
     }
 
     @Test()
     public void testValueString() {
-        IntegerMapper mapper = new IntegerMapper("field", null, null, 1f);
+        IntegerMapper mapper = new IntegerMapper("field", null, null, null, 1f);
         Integer parsed = mapper.base("test", "2.7");
         assertEquals("Base for strings is wrong", Integer.valueOf(2), parsed);
     }
 
     @Test(expected = IndexException.class)
     public void testValueStringInvalid() {
-        IntegerMapper mapper = new IntegerMapper("field", null, null, 1f);
+        IntegerMapper mapper = new IntegerMapper("field", null, null, null, 1f);
         mapper.base("test", "error");
     }
 
     @Test
     public void testValueInteger() {
-        IntegerMapper mapper = new IntegerMapper("field", null, null, 1f);
+        IntegerMapper mapper = new IntegerMapper("field", null, null, null, 1f);
         Integer parsed = mapper.base("test", 3);
         assertEquals("Base for integers is wrong", Integer.valueOf(3), parsed);
     }
 
     @Test
     public void testValueLong() {
-        IntegerMapper mapper = new IntegerMapper("field", null, null, 1f);
+        IntegerMapper mapper = new IntegerMapper("field", null, null, null, 1f);
         Integer parsed = mapper.base("test", 3l);
         assertEquals("Base for longs is wrong", Integer.valueOf(3), parsed);
     }
 
     @Test
     public void testValueFloatWithoutDecimal() {
-        IntegerMapper mapper = new IntegerMapper("field", null, null, 1f);
+        IntegerMapper mapper = new IntegerMapper("field", null, null, null, 1f);
         Integer parsed = mapper.base("test", 3f);
         assertEquals("Base for floats is wrong", Integer.valueOf(3), parsed);
     }
 
     @Test
     public void testValueFloatWithDecimalFloor() {
-        IntegerMapper mapper = new IntegerMapper("field", null, null, 1f);
+        IntegerMapper mapper = new IntegerMapper("field", null, null, null, 1f);
         Integer parsed = mapper.base("test", 3.5f);
         assertEquals("Base for floats is wrong", Integer.valueOf(3), parsed);
 
@@ -101,7 +101,7 @@ public class IntegerMapperTest {
 
     @Test
     public void testValueFloatWithDecimalCeil() {
-        IntegerMapper mapper = new IntegerMapper("field", null, null, 1f);
+        IntegerMapper mapper = new IntegerMapper("field", null, null, null, 1f);
         Integer parsed = mapper.base("test", 3.6f);
         assertEquals(Integer.valueOf(3), parsed);
 
@@ -109,14 +109,14 @@ public class IntegerMapperTest {
 
     @Test
     public void testValueDoubleWithoutDecimal() {
-        IntegerMapper mapper = new IntegerMapper("field", null, null, 1f);
+        IntegerMapper mapper = new IntegerMapper("field", null, null, null, 1f);
         Integer parsed = mapper.base("test", 3d);
         assertEquals("Base for doubles is wrong", Integer.valueOf(3), parsed);
     }
 
     @Test
     public void testValueDoubleWithDecimalFloor() {
-        IntegerMapper mapper = new IntegerMapper("field", null, null, 1f);
+        IntegerMapper mapper = new IntegerMapper("field", null, null, null, 1f);
         Integer parsed = mapper.base("test", 3.5d);
         assertEquals("Base for doubles is wrong", Integer.valueOf(3), parsed);
 
@@ -124,7 +124,7 @@ public class IntegerMapperTest {
 
     @Test
     public void testValueDoubleWithDecimalCeil() {
-        IntegerMapper mapper = new IntegerMapper("field", null, null, 1f);
+        IntegerMapper mapper = new IntegerMapper("field", null, null, null, 1f);
         Integer parsed = mapper.base("test", 3.6d);
         assertEquals("Base for doubles is wrong", Integer.valueOf(3), parsed);
 
@@ -132,14 +132,14 @@ public class IntegerMapperTest {
 
     @Test
     public void testValueStringWithoutDecimal() {
-        IntegerMapper mapper = new IntegerMapper("field", null, null, 1f);
+        IntegerMapper mapper = new IntegerMapper("field", null, null, null, 1f);
         Integer parsed = mapper.base("test", "3");
         assertEquals("Base for strings is wrong", Integer.valueOf(3), parsed);
     }
 
     @Test
     public void testValueStringWithDecimalFloor() {
-        IntegerMapper mapper = new IntegerMapper("field", null, null, 1f);
+        IntegerMapper mapper = new IntegerMapper("field", null, null, null, 1f);
         Integer parsed = mapper.base("test", "3.2");
         assertEquals("Base for strings is wrong", Integer.valueOf(3), parsed);
 
@@ -147,7 +147,7 @@ public class IntegerMapperTest {
 
     @Test
     public void testValueStringWithDecimalCeil() {
-        IntegerMapper mapper = new IntegerMapper("field", null, null, 1f);
+        IntegerMapper mapper = new IntegerMapper("field", null, null, null, 1f);
         Integer parsed = mapper.base("test", "3.2");
         assertEquals("Base for strings is wrong", Integer.valueOf(3), parsed);
 
@@ -155,7 +155,7 @@ public class IntegerMapperTest {
 
     @Test
     public void testIndexedField() {
-        IntegerMapper mapper = new IntegerMapper("field", true, true, 1f);
+        IntegerMapper mapper = new IntegerMapper("field", null, true, true, 1f);
         Field field = mapper.indexedField("name", 3);
         assertNotNull("Indexed field is not created", field);
         assertEquals("Indexed field value is wrong", 3, field.numericValue());
@@ -165,7 +165,7 @@ public class IntegerMapperTest {
 
     @Test
     public void testSortedField() {
-        IntegerMapper mapper = new IntegerMapper("field", true, true, 1f);
+        IntegerMapper mapper = new IntegerMapper("field", null, true, true, 1f);
         Field field = mapper.sortedField("name", 3);
         assertNotNull("Sorted field is not created", field);
         assertEquals("Sorted field type is wrong", DocValuesType.NUMERIC, field.fieldType().docValuesType());
@@ -173,15 +173,15 @@ public class IntegerMapperTest {
 
     @Test
     public void testExtractAnalyzers() {
-        IntegerMapper mapper = new IntegerMapper("field", null, null, 1f);
+        IntegerMapper mapper = new IntegerMapper("field", null, null, null, 1f);
         assertNull("Analyzer must be null", mapper.getAnalyzer());
     }
 
     @Test
     public void testToString() {
-        IntegerMapper mapper = new IntegerMapper("field", false, false, 1f);
+        IntegerMapper mapper = new IntegerMapper("field", null, false, false, 1f);
         assertEquals("Method #toString is wrong",
-                     "IntegerMapper{indexed=false, sorted=false, boost=1.0}",
+                     "IntegerMapper{name=field, indexed=false, sorted=false, column=field, boost=1.0}",
                      mapper.toString());
     }
 }

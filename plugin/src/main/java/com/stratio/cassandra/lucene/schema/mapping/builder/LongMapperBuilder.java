@@ -20,9 +20,11 @@ import com.stratio.cassandra.lucene.schema.mapping.LongMapper;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
+ * {@link SingleColumnMapperBuilder} to build a new {@link LongMapper}.
+ *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class LongMapperBuilder extends MapperBuilder<LongMapper> {
+public class LongMapperBuilder extends SingleColumnMapperBuilder<LongMapper> {
 
     @JsonProperty("indexed")
     private Boolean indexed;
@@ -74,6 +76,6 @@ public class LongMapperBuilder extends MapperBuilder<LongMapper> {
      */
     @Override
     public LongMapper build(String name) {
-        return new LongMapper(name, indexed, sorted, boost);
+        return new LongMapper(name, column, indexed, sorted, boost);
     }
 }

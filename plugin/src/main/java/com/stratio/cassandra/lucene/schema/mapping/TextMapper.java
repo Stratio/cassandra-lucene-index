@@ -16,7 +16,6 @@
 
 package com.stratio.cassandra.lucene.schema.mapping;
 
-import com.google.common.base.Objects;
 import org.apache.cassandra.db.marshal.*;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.SortedDocValuesField;
@@ -39,12 +38,14 @@ public class TextMapper extends SingleColumnMapper<String> {
      * Builds a new {@link TextMapper} using the specified Lucene {@link org.apache.lucene.analysis.Analyzer}.
      *
      * @param name     The name of the mapper.
+     * @param column   The name of the column to be mapped.
      * @param indexed  If the field supports searching.
      * @param sorted   If the field supports sorting.
      * @param analyzer The name of the Lucene {@link org.apache.lucene.analysis.Analyzer} to be used.
      */
-    public TextMapper(String name, Boolean indexed, Boolean sorted, String analyzer) {
+    public TextMapper(String name, String column, Boolean indexed, Boolean sorted, String analyzer) {
         super(name,
+              column,
               indexed,
               sorted,
               AsciiType.instance,
@@ -107,10 +108,6 @@ public class TextMapper extends SingleColumnMapper<String> {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                      .add("indexed", indexed)
-                      .add("sorted", sorted)
-                      .add("analyzer", analyzer)
-                      .toString();
+        return toStringHelper(this).add("analyzer", analyzer).toString();
     }
 }

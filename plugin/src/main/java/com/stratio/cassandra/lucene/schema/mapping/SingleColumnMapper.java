@@ -16,6 +16,7 @@
 
 package com.stratio.cassandra.lucene.schema.mapping;
 
+import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import org.apache.cassandra.config.CFMetaData;
@@ -33,23 +34,35 @@ import java.util.Collections;
  */
 public abstract class SingleColumnMapper<BASE> extends Mapper {
 
+    protected final String column;
+
     /**
      * Builds a new {@link SingleColumnMapper} supporting the specified types for indexing and clustering.
      *
      * @param name           The name of the mapper.
+     * @param column         The name of the column to be mapped.
      * @param indexed        If the field supports searching.
      * @param sorted         If the field supports sorting.
      * @param supportedTypes The supported Cassandra types for indexing.
      */
-    public SingleColumnMapper(String name, Boolean indexed, Boolean sorted, AbstractType... supportedTypes) {
-        super(name, indexed, sorted, Arrays.asList(supportedTypes), Collections.singletonList(name));
+    public SingleColumnMapper(String name,
+                              String column,
+                              Boolean indexed,
+                              Boolean sorted,
+                              AbstractType... supportedTypes) {
+        super(name,
+              indexed,
+              sorted,
+              Arrays.asList(supportedTypes),
+              Collections.singletonList(column == null ? name : column));
+        this.column = column == null ? name : column;
     }
 
     /** {@inheritDoc} */
     @Override
     public void addFields(Document document, Columns columns) {
-        for (Column column : columns.getColumnsByName(name)) {
-            String name = column.getFullName();
+        for (Column column : columns.getColumnsByName(this.column)) {
+            String name = column.getFullName(this.name);
             Object value = column.getComposedValue();
             addFields(document, name, value);
         }
@@ -109,7 +122,19 @@ public abstract class SingleColumnMapper<BASE> extends Mapper {
     /** {@inheritDoc} */
     @Override
     public void validate(CFMetaData metadata) {
-        validate(metadata, name);
+        validate(metadata, column);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    protected Objects.ToStringHelper toStringHelper(Object self) {
+        return super.toStringHelper(self).add("column", column);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        return toStringHelper(this).toString();
     }
 
 }

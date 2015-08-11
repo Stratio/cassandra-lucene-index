@@ -20,9 +20,11 @@ import com.stratio.cassandra.lucene.schema.mapping.BooleanMapper;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
+ * {@link SingleColumnMapperBuilder} to build a new {@link BooleanMapper}.
+ *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class BooleanMapperBuilder extends MapperBuilder<BooleanMapper> {
+public class BooleanMapperBuilder extends SingleColumnMapperBuilder<BooleanMapper> {
 
     @JsonProperty("indexed")
     private Boolean indexed;
@@ -60,6 +62,6 @@ public class BooleanMapperBuilder extends MapperBuilder<BooleanMapper> {
      */
     @Override
     public BooleanMapper build(String name) {
-        return new BooleanMapper(name, indexed, sorted);
+        return new BooleanMapper(name, column, indexed, sorted);
     }
 }

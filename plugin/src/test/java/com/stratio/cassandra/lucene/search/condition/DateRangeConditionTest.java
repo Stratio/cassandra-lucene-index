@@ -18,21 +18,20 @@ package com.stratio.cassandra.lucene.search.condition;
 
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.mapping.DateRangeMapper;
-import com.stratio.cassandra.lucene.schema.mapping.UUIDMapper;
 import org.apache.lucene.search.ConstantScoreQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.spatial.prefix.IntersectsPrefixTreeFilter;
 import org.apache.lucene.spatial.query.SpatialOperation;
 import org.junit.Test;
 
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
 import static com.stratio.cassandra.lucene.search.SearchBuilders.dateRange;
 import static org.junit.Assert.*;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class DateRangeConditionTest extends AbstractConditionTest {
+public class DateRangeConditionTest {
 
     @Test
     public void testConstructorWithDefaults() {
@@ -101,7 +100,9 @@ public class DateRangeConditionTest extends AbstractConditionTest {
 
     @Test
     public void testQuery() {
-        Schema schema = mockSchema("name", new DateRangeMapper("field", "to", "from", null));
+
+        Schema schema = schema().mapper("name", dateRangeMapper("to", "from")).build();
+
         DateRangeCondition condition = new DateRangeCondition(null, "name", 1, 2, null);
         Query query = condition.query(schema);
         assertNotNull(query);
@@ -109,14 +110,14 @@ public class DateRangeConditionTest extends AbstractConditionTest {
         query = ((ConstantScoreQuery) query).getQuery();
         assertTrue(query instanceof IntersectsPrefixTreeFilter);
         IntersectsPrefixTreeFilter filter = (IntersectsPrefixTreeFilter) query;
-        assertEquals(
-                "IntersectsPrefixTreeFilter(fieldName=field,queryShape=[1970-01-01T00:00:00.001 TO 1970-01-01T00:00:00.002],detailLevel=9,prefixGridScanLevel=7)",
-                filter.toString());
+        assertEquals("IntersectsPrefixTreeFilter(fieldName=name,queryShape=" +
+                     "[1970-01-01T00:00:00.001 TO 1970-01-01T00:00:00.002],detailLevel=9,prefixGridScanLevel=7)",
+                     filter.toString());
     }
 
     @Test(expected = IndexException.class)
     public void testQueryWithoutValidMapper() {
-        Schema schema = mockSchema("name", new UUIDMapper("name", null, null));
+        Schema schema = schema().mapper("name", UUIDMapper()).build();
         DateRangeCondition condition = new DateRangeCondition(null, "name", 1, 2, null);
         condition.query(schema);
     }

@@ -13,6 +13,7 @@
  * Add bitemporal search features
  * Silently discard tokens over 32766 bytes in length (just log)
  * Best effort mapping, per mapper errors are just logged
+ * Allow several mappers on the same column
 
 ## 2.1.8.1 (31 July 2015)
 

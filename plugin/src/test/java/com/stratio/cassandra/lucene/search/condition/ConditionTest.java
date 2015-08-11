@@ -30,7 +30,7 @@ import static org.mockito.Mockito.mock;
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class ConditionTest extends AbstractConditionTest {
+public class ConditionTest {
 
     @Test
     public void testConstructorWithBoost() {

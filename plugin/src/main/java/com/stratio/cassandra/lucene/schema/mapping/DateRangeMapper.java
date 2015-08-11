@@ -169,17 +169,6 @@ public class DateRangeMapper extends Mapper {
 
     /** {@inheritDoc} */
     @Override
-    public String toString() {
-        return Objects.toStringHelper(this)
-                      .add("name", name)
-                      .add("from", from)
-                      .add("to", to)
-                      .add("pattern", pattern)
-                      .toString();
-    }
-
-    /** {@inheritDoc} */
-    @Override
     public void validate(CFMetaData metadata) {
         validate(metadata, from);
         validate(metadata, to);
@@ -243,5 +232,16 @@ public class DateRangeMapper extends Mapper {
      */
     public Date base(Object value) {
         return dateParser.parse(value);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this)
+                      .add("name", name)
+                      .add("from", from)
+                      .add("to", to)
+                      .add("pattern", pattern)
+                      .toString();
     }
 }

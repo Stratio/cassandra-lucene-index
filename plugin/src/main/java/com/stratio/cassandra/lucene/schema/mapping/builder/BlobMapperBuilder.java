@@ -20,9 +20,11 @@ import com.stratio.cassandra.lucene.schema.mapping.BlobMapper;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
+ * {@link SingleColumnMapperBuilder} to build a new {@link BlobMapper}.
+ *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class BlobMapperBuilder extends MapperBuilder<BlobMapper> {
+public class BlobMapperBuilder extends SingleColumnMapperBuilder<BlobMapper> {
 
     @JsonProperty("indexed")
     private Boolean indexed;
@@ -60,6 +62,6 @@ public class BlobMapperBuilder extends MapperBuilder<BlobMapper> {
      */
     @Override
     public BlobMapper build(String name) {
-        return new BlobMapper(name, indexed, sorted);
+        return new BlobMapper(name, column, indexed, sorted);
     }
 }

@@ -20,9 +20,11 @@ import com.stratio.cassandra.lucene.schema.mapping.UUIDMapper;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
+ * {@link SingleColumnMapperBuilder} to build a new {@link UUIDMapper}.
+ *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class UUIDMapperBuilder extends MapperBuilder<UUIDMapper> {
+public class UUIDMapperBuilder extends SingleColumnMapperBuilder<UUIDMapper> {
 
     @JsonProperty("indexed")
     private Boolean indexed;
@@ -60,6 +62,6 @@ public class UUIDMapperBuilder extends MapperBuilder<UUIDMapper> {
      */
     @Override
     public UUIDMapper build(String name) {
-        return new UUIDMapper(name, indexed, sorted);
+        return new UUIDMapper(name, column, indexed, sorted);
     }
 }

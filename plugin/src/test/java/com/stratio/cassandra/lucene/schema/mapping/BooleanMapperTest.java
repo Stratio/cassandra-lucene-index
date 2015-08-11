@@ -30,126 +30,126 @@ public class BooleanMapperTest {
 
     @Test
     public void testConstructorWithoutArgs() {
-        BooleanMapper mapper = new BooleanMapper("field", null, null);
+        BooleanMapper mapper = new BooleanMapper("field", null, null, null);
         assertEquals(Mapper.DEFAULT_INDEXED, mapper.isIndexed());
         assertEquals(Mapper.DEFAULT_SORTED, mapper.isSorted());
     }
 
     @Test
     public void testConstructorWithAllArgs() {
-        BooleanMapper mapper = new BooleanMapper("field", false, true);
+        BooleanMapper mapper = new BooleanMapper("field", null, false, true);
         assertFalse(mapper.isIndexed());
         assertTrue(mapper.isSorted());
     }
 
     @Test()
     public void testValueNull() {
-        BooleanMapper mapper = new BooleanMapper("field", null, null);
+        BooleanMapper mapper = new BooleanMapper("field", null, null, null);
         String parsed = mapper.base("test", null);
         assertNull(parsed);
     }
 
     @Test
     public void testValueBooleanTrue() {
-        BooleanMapper mapper = new BooleanMapper("field", null, null);
+        BooleanMapper mapper = new BooleanMapper("field", null, null, null);
         String parsed = mapper.base("test", true);
         assertEquals("true", parsed);
     }
 
     @Test
     public void testValueBooleanFalse() {
-        BooleanMapper mapper = new BooleanMapper("field", null, null);
+        BooleanMapper mapper = new BooleanMapper("field", null, null, null);
         String parsed = mapper.base("test", false);
         assertEquals("false", parsed);
     }
 
     @Test(expected = IndexException.class)
     public void testValueDate() {
-        BooleanMapper mapper = new BooleanMapper("field", null, null);
+        BooleanMapper mapper = new BooleanMapper("field", null, null, null);
         mapper.base("test", new Date());
     }
 
     @Test(expected = IndexException.class)
     public void testValueInteger() {
-        BooleanMapper mapper = new BooleanMapper("field", null, null);
+        BooleanMapper mapper = new BooleanMapper("field", null, null, null);
         mapper.base("test", 3);
     }
 
     @Test(expected = IndexException.class)
     public void testValueLong() {
-        BooleanMapper mapper = new BooleanMapper("field", null, null);
+        BooleanMapper mapper = new BooleanMapper("field", null, null, null);
         mapper.base("test", 3l);
     }
 
     @Test(expected = IndexException.class)
     public void testValueFloat() {
-        BooleanMapper mapper = new BooleanMapper("field", null, null);
+        BooleanMapper mapper = new BooleanMapper("field", null, null, null);
         mapper.base("test", 3.6f);
     }
 
     @Test(expected = IndexException.class)
     public void testValueDouble() {
-        BooleanMapper mapper = new BooleanMapper("field", null, null);
+        BooleanMapper mapper = new BooleanMapper("field", null, null, null);
         mapper.base("test", 3.5d);
     }
 
     @Test
     public void testValueStringTrueLowercase() {
-        BooleanMapper mapper = new BooleanMapper("field", null, null);
+        BooleanMapper mapper = new BooleanMapper("field", null, null, null);
         String parsed = mapper.base("test", "true");
         assertEquals("true", parsed);
     }
 
     @Test
     public void testValueStringTrueUppercase() {
-        BooleanMapper mapper = new BooleanMapper("field", null, null);
+        BooleanMapper mapper = new BooleanMapper("field", null, null, null);
         String parsed = mapper.base("test", "TRUE");
         assertEquals("true", parsed);
     }
 
     @Test
     public void testValueStringTrueMixedCase() {
-        BooleanMapper mapper = new BooleanMapper("field", null, null);
+        BooleanMapper mapper = new BooleanMapper("field", null, null, null);
         String parsed = mapper.base("test", "TrUe");
         assertEquals("true", parsed);
     }
 
     @Test
     public void testValueStringFalseLowercase() {
-        BooleanMapper mapper = new BooleanMapper("field", null, null);
+        BooleanMapper mapper = new BooleanMapper("field", null, null, null);
         String parsed = mapper.base("test", "false");
         assertEquals("false", parsed);
     }
 
     @Test
     public void testValueStringFalseUppercase() {
-        BooleanMapper mapper = new BooleanMapper("field", null, null);
+        BooleanMapper mapper = new BooleanMapper("field", null, null, null);
         String parsed = mapper.base("test", "FALSE");
         assertEquals("false", parsed);
     }
 
     @Test
     public void testValueStringFalseMixedCase() {
-        BooleanMapper mapper = new BooleanMapper("field", null, null);
+        BooleanMapper mapper = new BooleanMapper("field", null, null, null);
         String parsed = mapper.base("test", "fALsE");
         assertEquals("false", parsed);
     }
 
     @Test(expected = IndexException.class)
     public void testValueStringInvalid() {
-        BooleanMapper mapper = new BooleanMapper("field", null, null);
+        BooleanMapper mapper = new BooleanMapper("field", null, null, null);
         mapper.base("test", "hello");
     }
 
     @Test(expected = IndexException.class)
     public void testValueUUID() {
-        BooleanMapper mapper = new BooleanMapper("field", null, null);
+        BooleanMapper mapper = new BooleanMapper("field", null, null, null);
         mapper.base("test", UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));
     }
 
     @Test
     public void testIndexedField() {
-        BooleanMapper mapper = new BooleanMapper("field", true, true);
+        BooleanMapper mapper = new BooleanMapper("field", null, true, true);
         Field field = mapper.indexedField("name", "true");
         assertNotNull(field);
         assertNotNull(field);
@@ -160,7 +160,7 @@ public class BooleanMapperTest {
 
     @Test
     public void testSortedField() {
-        BooleanMapper mapper = new BooleanMapper("field", true, false);
+        BooleanMapper mapper = new BooleanMapper("field", null, true, false);
         Field field = mapper.sortedField("name", "true");
         assertNotNull(field);
         assertEquals(DocValuesType.SORTED, field.fieldType().docValuesType());
@@ -168,14 +168,14 @@ public class BooleanMapperTest {
 
     @Test
     public void testExtractAnalyzers() {
-        BooleanMapper mapper = new BooleanMapper("field", null, null);
+        BooleanMapper mapper = new BooleanMapper("field", null, null, null);
         String analyzer = mapper.getAnalyzer();
         assertEquals(Mapper.KEYWORD_ANALYZER, analyzer);
     }
 
     @Test
     public void testToString() {
-        BooleanMapper mapper = new BooleanMapper("field", false, false);
-        assertEquals("BooleanMapper{indexed=false, sorted=false}", mapper.toString());
+        BooleanMapper mapper = new BooleanMapper("field", null, false, false);
+        assertEquals("BooleanMapper{name=field, indexed=false, sorted=false, column=field}", mapper.toString());
     }
 }

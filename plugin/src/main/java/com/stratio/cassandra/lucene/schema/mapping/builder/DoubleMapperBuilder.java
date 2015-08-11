@@ -20,9 +20,11 @@ import com.stratio.cassandra.lucene.schema.mapping.DoubleMapper;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
+ * {@link SingleColumnMapperBuilder} to build a new {@link DoubleMapper}.
+ *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class DoubleMapperBuilder extends MapperBuilder<DoubleMapper> {
+public class DoubleMapperBuilder extends SingleColumnMapperBuilder<DoubleMapper> {
 
     @JsonProperty("indexed")
     private Boolean indexed;
@@ -74,6 +76,6 @@ public class DoubleMapperBuilder extends MapperBuilder<DoubleMapper> {
      */
     @Override
     public DoubleMapper build(String name) {
-        return new DoubleMapper(name, indexed, sorted, boost);
+        return new DoubleMapper(name, column, indexed, sorted, boost);
     }
 }

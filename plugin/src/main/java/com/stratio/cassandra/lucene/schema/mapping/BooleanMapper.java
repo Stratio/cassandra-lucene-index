@@ -16,7 +16,6 @@
 
 package com.stratio.cassandra.lucene.schema.mapping;
 
-import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.IndexException;
 import org.apache.cassandra.db.marshal.AsciiType;
 import org.apache.cassandra.db.marshal.BooleanType;
@@ -39,11 +38,12 @@ public class BooleanMapper extends KeywordMapper {
      * Builds a new {@link BooleanMapper}.
      *
      * @param name    The name of the mapper.
+     * @param column  The name of the column to be mapped.
      * @param indexed If the field supports searching.
      * @param sorted  If the field supports sorting.
      */
-    public BooleanMapper(String name, Boolean indexed, Boolean sorted) {
-        super(name, indexed, sorted, AsciiType.instance, UTF8Type.instance, BooleanType.instance);
+    public BooleanMapper(String name, String column, Boolean indexed, Boolean sorted) {
+        super(name, column, indexed, sorted, AsciiType.instance, UTF8Type.instance, BooleanType.instance);
     }
 
     /** {@inheritDoc} */
@@ -62,12 +62,6 @@ public class BooleanMapper extends KeywordMapper {
             }
         }
         throw new IndexException("Field '%s' requires a boolean, but found '%s'", name, value);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public String toString() {
-        return Objects.toStringHelper(this).add("indexed", indexed).add("sorted", sorted).toString();
     }
 
 }

@@ -16,6 +16,7 @@
 
 package com.stratio.cassandra.lucene.schema.mapping;
 
+import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.analysis.PreBuiltAnalyzers;
 import com.stratio.cassandra.lucene.schema.column.Column;
@@ -248,4 +249,13 @@ public abstract class Mapper {
         return true;
     }
 
+    protected Objects.ToStringHelper toStringHelper(Object self) {
+        return Objects.toStringHelper(self).add("name", name).add("indexed", indexed).add("sorted", sorted);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        return toStringHelper(this).toString();
+    }
 }

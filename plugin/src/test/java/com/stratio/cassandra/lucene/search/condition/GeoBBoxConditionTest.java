@@ -18,20 +18,19 @@ package com.stratio.cassandra.lucene.search.condition;
 
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.mapping.GeoPointMapper;
-import com.stratio.cassandra.lucene.schema.mapping.UUIDMapper;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.ConstantScoreQuery;
 import org.apache.lucene.search.Query;
 import org.junit.Test;
 
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
 import static com.stratio.cassandra.lucene.search.SearchBuilders.geoBBox;
 import static org.junit.Assert.*;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class GeoBBoxConditionTest extends AbstractConditionTest {
+public class GeoBBoxConditionTest {
 
     @Test
     public void testConstructor() {
@@ -142,7 +141,7 @@ public class GeoBBoxConditionTest extends AbstractConditionTest {
 
     @Test
     public void testQuery() {
-        Schema schema = mockSchema("name", new GeoPointMapper("name", "lat", "lon", 8));
+        Schema schema = schema().mapper("name", geoPointMapper("lat", "lon").maxLevels(8)).build();
         GeoBBoxCondition condition = new GeoBBoxCondition(0.5f, "name", -90D, 90D, -180D, 180D);
         Query query = condition.query(schema);
         assertNotNull(query);
@@ -153,7 +152,7 @@ public class GeoBBoxConditionTest extends AbstractConditionTest {
 
     @Test(expected = IndexException.class)
     public void testQueryWithoutValidMapper() {
-        Schema schema = mockSchema("name", new UUIDMapper("name", null, null));
+        Schema schema = schema().mapper("name", UUIDMapper()).build();
         GeoBBoxCondition condition = new GeoBBoxCondition(0.5f, "name", -90D, 90D, -180D, 180D);
         condition.query(schema);
     }

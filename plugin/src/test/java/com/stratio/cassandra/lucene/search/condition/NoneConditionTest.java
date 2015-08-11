@@ -28,7 +28,7 @@ import static org.mockito.Mockito.mock;
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class NoneConditionTest extends AbstractConditionTest {
+public class NoneConditionTest {
 
     @Test
     public void testBuild() {

@@ -38,7 +38,7 @@ public class StringMapperTest {
 
     @Test
     public void testConstructorWithoutArgs() {
-        StringMapper mapper = new StringMapper("field", null, null, null);
+        StringMapper mapper = new StringMapper("field", null, null, null, null);
         assertEquals("Indexed is not set to default value", Mapper.DEFAULT_INDEXED, mapper.isIndexed());
         assertEquals("Sorted is not set to default value", Mapper.DEFAULT_SORTED, mapper.isSorted());
         assertEquals("Case sensitive is not set to default value",
@@ -48,7 +48,7 @@ public class StringMapperTest {
 
     @Test
     public void testConstructorWithAllArgs() {
-        StringMapper mapper = new StringMapper("field", false, true, false);
+        StringMapper mapper = new StringMapper("field", null, false, true, false);
         assertFalse("Indexed is not properly set", mapper.isIndexed());
         assertTrue("Sorted is not properly set", mapper.isSorted());
         assertFalse("Case sensitive is not properly set", mapper.isCaseSensitive());
@@ -56,35 +56,35 @@ public class StringMapperTest {
 
     @Test()
     public void testValueNull() {
-        StringMapper mapper = new StringMapper("field", true, true, true);
+        StringMapper mapper = new StringMapper("field", null, true, true, true);
         String parsed = mapper.base("test", null);
         assertNull("Base for nulls is wrong", parsed);
     }
 
     @Test
     public void testValueInteger() {
-        StringMapper mapper = new StringMapper("field", true, true, true);
+        StringMapper mapper = new StringMapper("field", null, true, true, true);
         String parsed = mapper.base("test", 3);
         assertEquals("Base for integers is wrong", "3", parsed);
     }
 
     @Test
     public void testValueLong() {
-        StringMapper mapper = new StringMapper("field", true, true, true);
+        StringMapper mapper = new StringMapper("field", null, true, true, true);
         String parsed = mapper.base("test", 3l);
         assertEquals("Base for longs is wrong", "3", parsed);
     }
 
     @Test
     public void testValueFloatWithoutDecimal() {
-        StringMapper mapper = new StringMapper("field", true, true, true);
+        StringMapper mapper = new StringMapper("field", null, true, true, true);
         String parsed = mapper.base("test", 3f);
         assertEquals("Base for floats is wrong", "3.0", parsed);
     }
 
     @Test
     public void testValueFloatWithDecimalFloor() {
-        StringMapper mapper = new StringMapper("field", true, true, true);
+        StringMapper mapper = new StringMapper("field", null, true, true, true);
         String parsed = mapper.base("test", 3.5f);
         assertEquals("Base for floats is wrong", "3.5", parsed);
 
@@ -92,21 +92,21 @@ public class StringMapperTest {
 
     @Test
     public void testValueFloatWithDecimalCeil() {
-        StringMapper mapper = new StringMapper("field", true, true, true);
+        StringMapper mapper = new StringMapper("field", null, true, true, true);
         String parsed = mapper.base("test", 3.6f);
         assertEquals("Base for floats is wrong", "3.6", parsed);
     }
 
     @Test
     public void testValueDoubleWithoutDecimal() {
-        StringMapper mapper = new StringMapper("field", true, true, true);
+        StringMapper mapper = new StringMapper("field", null, true, true, true);
         String parsed = mapper.base("test", 3d);
         assertEquals("Base for double is wrong", "3.0", parsed);
     }
 
     @Test
     public void testValueDoubleWithDecimalFloor() {
-        StringMapper mapper = new StringMapper("field", true, true, true);
+        StringMapper mapper = new StringMapper("field", null, true, true, true);
         String parsed = mapper.base("test", 3.5d);
         assertEquals("Base for double is wrong", "3.5", parsed);
 
@@ -114,7 +114,7 @@ public class StringMapperTest {
 
     @Test
     public void testValueDoubleWithDecimalCeil() {
-        StringMapper mapper = new StringMapper("field", true, true, true);
+        StringMapper mapper = new StringMapper("field", null, true, true, true);
         String parsed = mapper.base("test", 3.6d);
         assertEquals("Base for double is wrong", "3.6", parsed);
 
@@ -122,21 +122,21 @@ public class StringMapperTest {
 
     @Test
     public void testValueStringWithoutDecimal() {
-        StringMapper mapper = new StringMapper("field", true, true, true);
+        StringMapper mapper = new StringMapper("field", null, true, true, true);
         String parsed = mapper.base("test", "3");
         assertEquals("Base for strings is wrong", "3", parsed);
     }
 
     @Test
     public void testValueStringWithDecimalFloor() {
-        StringMapper mapper = new StringMapper("field", true, true, true);
+        StringMapper mapper = new StringMapper("field", null, true, true, true);
         String parsed = mapper.base("test", "3.2");
         assertEquals("Base for strings is wrong", "3.2", parsed);
     }
 
     @Test
     public void testValueStringWithDecimalCeil() {
-        StringMapper mapper = new StringMapper("field", true, true, true);
+        StringMapper mapper = new StringMapper("field", null, true, true, true);
         String parsed = mapper.base("test", "3.6");
         assertEquals("Base for strings is wrong", "3.6", parsed);
 
@@ -144,14 +144,14 @@ public class StringMapperTest {
 
     @Test
     public void testValueUUID() {
-        StringMapper mapper = new StringMapper("field", true, true, true);
+        StringMapper mapper = new StringMapper("field", null, true, true, true);
         String parsed = mapper.base("test", UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));
         assertEquals("Base for UUIDs is wrong", "550e8400-e29b-41d4-a716-446655440000", parsed);
     }
 
     @Test
     public void testIndexedField() {
-        StringMapper mapper = new StringMapper("field", true, true, true);
+        StringMapper mapper = new StringMapper("field", null, true, true, true);
         Field field = mapper.indexedField("name", "hello");
         assertNotNull("Indexed field name is not created", field);
         assertEquals("Indexed field name is wrong", "name", field.name());
@@ -161,7 +161,7 @@ public class StringMapperTest {
 
     @Test
     public void testSortedField() {
-        StringMapper mapper = new StringMapper("field", true, true, true);
+        StringMapper mapper = new StringMapper("field", null, true, true, true);
         Field field = mapper.sortedField("name", "hello");
         assertNotNull("Sorted field name is not created", field);
         assertEquals("Sorted field type is wrong", DocValuesType.SORTED, field.fieldType().docValuesType());
@@ -169,30 +169,30 @@ public class StringMapperTest {
 
     @Test
     public void testBaseCaseSensitiveDefault() {
-        StringMapper mapper = new StringMapper("field", true, true, null);
+        StringMapper mapper = new StringMapper("field", null, true, true, null);
         String base = mapper.base("name", "Hello");
         assertEquals("Base case sensitiveness is wrong", "Hello", base);
     }
 
     @Test
     public void testBaseCaseSensitiveTrue() {
-        StringMapper mapper = new StringMapper("field", true, true, true);
+        StringMapper mapper = new StringMapper("field", null, true, true, true);
         String base = mapper.base("name", "Hello");
         assertEquals("Base case sensitiveness is wrong", "Hello", base);
     }
 
     @Test
-    public void testBaseaseSensitiveFalse() {
-        StringMapper mapper = new StringMapper("field", true, true, false);
+    public void testBaseCaseSensitiveFalse() {
+        StringMapper mapper = new StringMapper("field", null, true, true, false);
         String base = mapper.base("name", "Hello");
         assertEquals("Base case sensitiveness is wrong", "hello", base);
     }
 
     @Test
     public void testAddFields() {
-        StringMapper mapper = new StringMapper("field", true, true, null);
+        StringMapper mapper = new StringMapper("field", null, true, true, null);
         Document document = new Document();
-        Column column = Column.fromComposed("field", "value", UTF8Type.instance, false);
+        Column column = Column.fromComposed("field", null, "value", UTF8Type.instance, false);
         Columns columns = new Columns(column);
         mapper.addFields(document, columns);
         IndexableField[] indexableFields = document.getFields("field");
@@ -204,16 +204,16 @@ public class StringMapperTest {
 
     @Test
     public void testExtractAnalyzers() {
-        StringMapper mapper = new StringMapper("field", true, true, true);
+        StringMapper mapper = new StringMapper("field", null, true, true, true);
         String analyzer = mapper.getAnalyzer();
         assertEquals("Method #getAnalyzer is wrong", Mapper.KEYWORD_ANALYZER, analyzer);
     }
 
     @Test
     public void testToString() {
-        StringMapper mapper = new StringMapper("field", false, false, false);
+        StringMapper mapper = new StringMapper("field", null, false, false, false);
         assertEquals("Method #toString is wrong",
-                     "StringMapper{indexed=false, sorted=false, caseSensitive=false}",
+                     "StringMapper{name=field, indexed=false, sorted=false, column=field, caseSensitive=false}",
                      mapper.toString());
     }
 }

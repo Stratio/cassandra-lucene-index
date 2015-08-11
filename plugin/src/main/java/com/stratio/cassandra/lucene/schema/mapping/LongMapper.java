@@ -16,7 +16,6 @@
 
 package com.stratio.cassandra.lucene.schema.mapping;
 
-import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.IndexException;
 import org.apache.cassandra.db.marshal.AsciiType;
 import org.apache.cassandra.db.marshal.DecimalType;
@@ -27,11 +26,8 @@ import org.apache.cassandra.db.marshal.IntegerType;
 import org.apache.cassandra.db.marshal.LongType;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.lucene.document.Field;
-import org.apache.lucene.document.FieldType;
 import org.apache.lucene.document.LongField;
 import org.apache.lucene.document.NumericDocValuesField;
-import org.apache.lucene.index.DocValuesType;
-import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.SortField.Type;
 
@@ -41,23 +37,6 @@ import org.apache.lucene.search.SortField.Type;
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class LongMapper extends SingleColumnMapper<Long> {
-
-    public static final FieldType NUMERIC_MULTIVALUED_TYPE = new FieldType();
-
-    static {
-        NUMERIC_MULTIVALUED_TYPE.setDocValuesType(DocValuesType.NUMERIC);
-        NUMERIC_MULTIVALUED_TYPE.freeze();
-    }
-
-    public static final FieldType TYPE_NOT_STORED = new FieldType();
-
-    static {
-        TYPE_NOT_STORED.setTokenized(true);
-        TYPE_NOT_STORED.setOmitNorms(true);
-        TYPE_NOT_STORED.setIndexOptions(IndexOptions.DOCS);
-        TYPE_NOT_STORED.setNumericType(FieldType.NumericType.LONG);
-        TYPE_NOT_STORED.freeze();
-    }
 
     /** The default boost. */
     public static final Float DEFAULT_BOOST = 1.0f;
@@ -69,12 +48,14 @@ public class LongMapper extends SingleColumnMapper<Long> {
      * Builds a new {@link LongMapper} using the specified boost.
      *
      * @param name    The name of the mapper.
+     * @param column  The name of the column to be mapped.
      * @param indexed If the field supports searching.
      * @param sorted  If the field supports sorting.
      * @param boost   The boost to be used.
      */
-    public LongMapper(String name, Boolean indexed, Boolean sorted, Float boost) {
+    public LongMapper(String name, String column, Boolean indexed, Boolean sorted, Float boost) {
         super(name,
+              column,
               indexed,
               sorted,
               AsciiType.instance,
@@ -149,10 +130,6 @@ public class LongMapper extends SingleColumnMapper<Long> {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                      .add("indexed", indexed)
-                      .add("sorted", sorted)
-                      .add("boost", boost)
-                      .toString();
+        return toStringHelper(this).add("boost", boost).toString();
     }
 }

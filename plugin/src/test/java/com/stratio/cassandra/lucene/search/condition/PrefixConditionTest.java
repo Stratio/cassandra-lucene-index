@@ -18,25 +18,23 @@ package com.stratio.cassandra.lucene.search.condition;
 
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.mapping.InetMapper;
-import com.stratio.cassandra.lucene.schema.mapping.IntegerMapper;
-import com.stratio.cassandra.lucene.schema.mapping.StringMapper;
 import org.apache.lucene.search.PrefixQuery;
 import org.apache.lucene.search.Query;
 import org.junit.Test;
 
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class PrefixConditionTest extends AbstractConditionTest {
+public class PrefixConditionTest {
 
     @Test
     public void testString() {
 
-        Schema schema = mockSchema("name", new StringMapper("name", true, true, null));
+        Schema schema = schema().mapper("name", stringMapper()).build();
 
         PrefixCondition prefixCondition = new PrefixCondition(0.5f, "name", "tr");
         Query query = prefixCondition.query(schema);
@@ -52,7 +50,7 @@ public class PrefixConditionTest extends AbstractConditionTest {
     @Test(expected = IndexException.class)
     public void testInteger() {
 
-        Schema schema = mockSchema("name", new IntegerMapper("name", null, null, 1f));
+        Schema schema = schema().mapper("name", integerMapper().indexed(false)).build();
 
         PrefixCondition prefixCondition = new PrefixCondition(0.5f, "name", "2*");
         prefixCondition.query(schema);
@@ -61,7 +59,7 @@ public class PrefixConditionTest extends AbstractConditionTest {
     @Test
     public void testInetV4() {
 
-        Schema schema = mockSchema("name", new InetMapper("name", null, null));
+        Schema schema = schema().mapper("name", inetMapper()).build();
 
         PrefixCondition wildcardCondition = new PrefixCondition(0.5f, "name", "192.168.");
         Query query = wildcardCondition.query(schema);
@@ -77,7 +75,7 @@ public class PrefixConditionTest extends AbstractConditionTest {
     @Test
     public void testInetV6() {
 
-        Schema schema = mockSchema("name", new InetMapper("name", null, null));
+        Schema schema = schema().mapper("name", inetMapper()).build();
 
         PrefixCondition wildcardCondition = new PrefixCondition(0.5f, "name", "2001:db8:2de:0:0:0:0:e");
         Query query = wildcardCondition.query(schema);

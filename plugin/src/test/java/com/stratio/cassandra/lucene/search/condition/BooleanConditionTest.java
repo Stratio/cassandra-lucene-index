@@ -18,11 +18,10 @@ package com.stratio.cassandra.lucene.search.condition;
 
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.analysis.PreBuiltAnalyzers;
-import com.stratio.cassandra.lucene.schema.mapping.IntegerMapper;
-import com.stratio.cassandra.lucene.schema.mapping.StringMapper;
 import org.apache.lucene.search.BooleanQuery;
 import org.junit.Test;
 
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
 import static com.stratio.cassandra.lucene.search.SearchBuilders.*;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -31,16 +30,17 @@ import static org.mockito.Mockito.when;
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class BooleanConditionTest extends AbstractConditionTest {
+public class BooleanConditionTest {
 
     @Test
     public void testQuery() {
-        Schema schema = mock(Schema.class);
-        when(schema.getAnalyzer()).thenReturn(PreBuiltAnalyzers.DEFAULT.get());
-        when(schema.getMapper("name")).thenReturn(new StringMapper("name", null, null, null));
-        when(schema.getMapper("color")).thenReturn(new StringMapper("color", null, null, null));
-        when(schema.getMapper("country")).thenReturn(new StringMapper("country", null, null, null));
-        when(schema.getMapper("age")).thenReturn(new IntegerMapper("age", null, null, null));
+
+        Schema schema = schema().mapper("name", stringMapper())
+                                .mapper("color", stringMapper())
+                                .mapper("country", stringMapper())
+                                .mapper("age", integerMapper())
+                                .defaultAnalyzer("default")
+                                .build();
         BooleanCondition condition = bool().must(match("name", "jonathan"), range("age").lower(18).includeLower(true))
                                            .should(match("color", "green"), match("color", "blue"))
                                            .not(match("country", "england"))
@@ -63,9 +63,7 @@ public class BooleanConditionTest extends AbstractConditionTest {
 
     @Test
     public void testQueryPureNot() {
-        Schema schema = mock(Schema.class);
-        when(schema.getAnalyzer()).thenReturn(PreBuiltAnalyzers.DEFAULT.get());
-        when(schema.getMapper("name")).thenReturn(new StringMapper("name", null, null, null));
+        Schema schema = schema().mapper("name", stringMapper()).build();
         BooleanCondition condition = bool().not(match("name", "jonathan")).boost(0.4).build();
         BooleanQuery query = (BooleanQuery) condition.query(schema);
         assertEquals(2, query.getClauses().length);

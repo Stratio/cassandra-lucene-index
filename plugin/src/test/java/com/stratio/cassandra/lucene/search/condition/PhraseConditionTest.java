@@ -18,18 +18,19 @@ package com.stratio.cassandra.lucene.search.condition;
 
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.mapping.TextMapper;
 import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.Query;
 import org.junit.Test;
 
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.schema;
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.textMapper;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class PhraseConditionTest extends AbstractConditionTest {
+public class PhraseConditionTest {
 
     @Test
     public void testBuild() {
@@ -65,7 +66,7 @@ public class PhraseConditionTest extends AbstractConditionTest {
     @Test
     public void testPhraseQuery() {
 
-        Schema schema = mockSchema("name", new TextMapper("name", true, true, "spanish"), "spanish");
+        Schema schema = schema().mapper("name", textMapper().analyzer("spanish")).build();
 
         String value = "hola adios  the    a";
         PhraseCondition condition = new PhraseCondition(0.5f, "name", value, 2);

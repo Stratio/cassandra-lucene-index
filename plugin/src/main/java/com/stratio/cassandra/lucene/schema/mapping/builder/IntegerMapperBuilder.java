@@ -20,9 +20,11 @@ import com.stratio.cassandra.lucene.schema.mapping.IntegerMapper;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
+ * {@link SingleColumnMapperBuilder} to build a new {@link IntegerMapper}.
+ *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class IntegerMapperBuilder extends MapperBuilder<IntegerMapper> {
+public class IntegerMapperBuilder extends SingleColumnMapperBuilder<IntegerMapper> {
 
     @JsonProperty("indexed")
     private Boolean indexed;
@@ -74,6 +76,6 @@ public class IntegerMapperBuilder extends MapperBuilder<IntegerMapper> {
      */
     @Override
     public IntegerMapper build(String name) {
-        return new IntegerMapper(name, indexed, sorted, boost);
+        return new IntegerMapper(name, column, indexed, sorted, boost);
     }
 }

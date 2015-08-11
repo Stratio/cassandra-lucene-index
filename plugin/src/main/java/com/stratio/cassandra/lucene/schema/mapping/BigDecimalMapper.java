@@ -16,7 +16,6 @@
 
 package com.stratio.cassandra.lucene.schema.mapping;
 
-import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.IndexException;
 import org.apache.cassandra.db.marshal.AsciiType;
 import org.apache.cassandra.db.marshal.DecimalType;
@@ -57,6 +56,7 @@ public class BigDecimalMapper extends KeywordMapper {
      * parts.
      *
      * @param name          The name of the mapper.
+     * @param column        The name of the column to be mapped.
      * @param indexed       If the field supports searching.
      * @param sorted        If the field supports sorting.
      * @param integerDigits The max number of digits for the integer part. If {@code null}, the {@link
@@ -65,11 +65,13 @@ public class BigDecimalMapper extends KeywordMapper {
      *                      #DEFAULT_DECIMAL_DIGITS} will be used.
      */
     public BigDecimalMapper(String name,
+                            String column,
                             Boolean indexed,
                             Boolean sorted,
                             Integer integerDigits,
                             Integer decimalDigits) {
         super(name,
+              column,
               indexed,
               sorted,
               AsciiType.instance,
@@ -166,12 +168,7 @@ public class BigDecimalMapper extends KeywordMapper {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                      .add("indexed", indexed)
-                      .add("sorted", sorted)
-                      .add("integerDigits", integerDigits)
-                      .add("decimalDigits", decimalDigits)
-                      .toString();
+        return toStringHelper(this).add("integerDigits", integerDigits).add("decimalDigits", decimalDigits).toString();
     }
 
 }

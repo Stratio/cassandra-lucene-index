@@ -16,7 +16,6 @@
 
 package com.stratio.cassandra.lucene.schema.mapping;
 
-import com.google.common.base.Objects;
 import com.google.common.primitives.Longs;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.util.ByteBufferUtils;
@@ -39,11 +38,19 @@ public class UUIDMapper extends KeywordMapper {
      * Builds a new {@link UUIDMapper}.
      *
      * @param name    The name of the mapper.
+     * @param column  The name of the column to be mapped.
      * @param indexed If the field supports searching.
      * @param sorted  If the field supports sorting.
      */
-    public UUIDMapper(String name, Boolean indexed, Boolean sorted) {
-        super(name, indexed, sorted, AsciiType.instance, UTF8Type.instance, UUIDType.instance, TimeUUIDType.instance);
+    public UUIDMapper(String name, String column, Boolean indexed, Boolean sorted) {
+        super(name,
+              column,
+              indexed,
+              sorted,
+              AsciiType.instance,
+              UTF8Type.instance,
+              UUIDType.instance,
+              TimeUUIDType.instance);
     }
 
     /** {@inheritDoc} */
@@ -64,12 +71,6 @@ public class UUIDMapper extends KeywordMapper {
             }
         }
         throw new IndexException("Field '%s' requires an UUID, but found '%s'", name, value);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public String toString() {
-        return Objects.toStringHelper(this).add("indexed", indexed).add("sorted", sorted).toString();
     }
 
     /**

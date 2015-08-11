@@ -20,9 +20,11 @@ import com.stratio.cassandra.lucene.schema.mapping.FloatMapper;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
+ * {@link SingleColumnMapperBuilder} to build a new {@link FloatMapper}.
+ *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class FloatMapperBuilder extends MapperBuilder<FloatMapper> {
+public class FloatMapperBuilder extends SingleColumnMapperBuilder<FloatMapper> {
 
     @JsonProperty("indexed")
     private Boolean indexed;
@@ -74,6 +76,6 @@ public class FloatMapperBuilder extends MapperBuilder<FloatMapper> {
      */
     @Override
     public FloatMapper build(String name) {
-        return new FloatMapper(name, indexed, sorted, boost);
+        return new FloatMapper(name, column, indexed, sorted, boost);
     }
 }
