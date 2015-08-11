@@ -1053,14 +1053,15 @@ public class BitemporalMapperTest {
         Document document = new Document();
         mapper.addFields(document, columns);
         testAddFieldsOnlyThese(document,
-                new String[]{"field.t2_v", "field.t2_t"},
-                new String[]{"field.t1_v",
-                        "field.t1_t",
-                        "field.t3_v",
-                        "field.t3_t",
-                        "field.t4_v",
-                        "field.t4_t"});
+                               new String[]{"field.t2_v", "field.t2_t"},
+                               new String[]{"field.t1_v",
+                                            "field.t1_t",
+                                            "field.t3_v",
+                                            "field.t3_t",
+                                            "field.t4_v",
+                                            "field.t4_t"});
     }
+
     @Test
     public void testAddFieldsT3() {
         BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null, null);
@@ -1081,8 +1082,6 @@ public class BitemporalMapperTest {
                                             "field.t4_v",
                                             "field.t4_t"});
     }
-
-
 
     @Test
     public void testAddFieldsT4() {

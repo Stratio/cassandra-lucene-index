@@ -132,7 +132,7 @@ public class MapperTest {
                 return null;
             }
         };
-        assertEquals(expected, mapper.supports(candidateType));
+        assertEquals("Method #supports is wrong", expected, mapper.supports(candidateType));
     }
 
 }
