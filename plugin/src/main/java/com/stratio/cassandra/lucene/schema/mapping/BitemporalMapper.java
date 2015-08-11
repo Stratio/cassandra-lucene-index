@@ -28,6 +28,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.document.IntField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.IndexableFieldType;
@@ -63,6 +64,8 @@ public class BitemporalMapper extends Mapper {
     private final String ttFrom;
     private final String ttTo;
 
+
+    private final String T1UT2FieldSuffix=".T1UT2";
     private Long nowBitemporalDateTimeMillis;
 
     // ttTo=now vtTo=now 2 DateRangePrefixTree
@@ -269,6 +272,11 @@ public class BitemporalMapper extends Mapper {
         }
     }
 
+
+    public String getT1UT2FieldName() {
+        return name+T1UT2FieldSuffix;
+
+    }
     /**
      * Build a {@link NRShape}.
      *
@@ -307,7 +315,7 @@ public class BitemporalMapper extends Mapper {
         if (ttTo.isNow() && vtTo.isNow()) { // T1
             Shape shapeV = makeShape(treeT1V, vtFrom, vtFrom);
             for (IndexableField field : strategyT1V.createIndexableFields(shapeV)) document.add(field);
-
+            document.add(new IntField(getT1UT2FieldName(),1,STORE));
 
             Shape shapeT = makeShape(treeT1T, ttFrom, ttFrom);
             for (IndexableField field : strategyT1T.createIndexableFields(shapeT)) document.add(field);
@@ -315,7 +323,7 @@ public class BitemporalMapper extends Mapper {
         } else if (ttTo.isNow()&& (!vtTo.isNow())) {// T2
             Shape shapeV = makeShape(treeT2V, vtFrom, vtTo);
             for (IndexableField field : strategyT2V.createIndexableFields(shapeV)) document.add(field);
-
+            document.add(new IntField(getT1UT2FieldName(),1,STORE));
             Shape shapeT = makeShape(treeT2T, ttFrom, ttFrom);
             for (IndexableField field : strategyT2T.createIndexableFields(shapeT)) document.add(field);
 
@@ -323,14 +331,14 @@ public class BitemporalMapper extends Mapper {
         } else if (!ttTo.isNow() && vtTo.isNow()) {// T3
             Shape shapeV = makeShape(treeT3V, vtFrom, vtFrom);
             for (IndexableField field : strategyT3V.createIndexableFields(shapeV)) document.add(field);
-
+            document.add(new IntField(getT1UT2FieldName(),0,STORE));
             Shape shapeT = makeShape(treeT3T, ttFrom, ttTo);
             for (IndexableField field : strategyT3T.createIndexableFields(shapeT)) document.add(field);
 
         } else { // T4
             Shape shapeV = makeShape(treeT4V, vtFrom, vtTo);
             for (IndexableField field : strategyT4V.createIndexableFields(shapeV)) document.add(field);
-
+            document.add(new IntField(getT1UT2FieldName(),0,STORE));
             Shape shapeT = makeShape(treeT4T, ttFrom, ttTo);
             for (IndexableField field : strategyT4T.createIndexableFields(shapeT)) document.add(field);
 
