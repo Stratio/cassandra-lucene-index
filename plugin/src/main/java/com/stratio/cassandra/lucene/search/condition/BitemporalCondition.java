@@ -16,12 +16,9 @@
 
 package com.stratio.cassandra.lucene.search.condition;
 
-import com.google.common.base.Objects;
-import com.stratio.cassandra.lucene.IndexException;
-import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.mapping.BitemporalMapper;
-import com.stratio.cassandra.lucene.schema.mapping.Mapper;
-import com.stratio.cassandra.lucene.util.Log;
+import static org.apache.lucene.search.BooleanClause.Occur.MUST;
+import static org.apache.lucene.search.BooleanClause.Occur.SHOULD;
+
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.NumericRangeQuery;
 import org.apache.lucene.search.Query;
@@ -30,8 +27,11 @@ import org.apache.lucene.spatial.prefix.tree.DateRangePrefixTree;
 import org.apache.lucene.spatial.query.SpatialArgs;
 import org.apache.lucene.spatial.query.SpatialOperation;
 
-import static org.apache.lucene.search.BooleanClause.Occur.MUST;
-import static org.apache.lucene.search.BooleanClause.Occur.SHOULD;
+import com.google.common.base.Objects;
+import com.stratio.cassandra.lucene.IndexException;
+import com.stratio.cassandra.lucene.schema.Schema;
+import com.stratio.cassandra.lucene.schema.mapping.BitemporalMapper;
+import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 
 /**
  * A {@link Condition} implementation that matches bi-temporal (four) fields within two range of values.
@@ -291,10 +291,7 @@ public class BitemporalCondition extends Condition {
                 query.add(t2Query, SHOULD);
             } else if ((vt_from.isMin()) && (vt_to.isMax())) { // [vtFrom, vtTo]==[tmin,tmax]])
                 //R1UR2
-
                 return NumericRangeQuery.newIntRange(bitemporalMapper.getT1UT2FieldName(),1,1,true,true);
-
-
             }
         }
         query.setBoost(boost);
