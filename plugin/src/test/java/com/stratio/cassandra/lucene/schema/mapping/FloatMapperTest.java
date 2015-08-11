@@ -29,39 +29,39 @@ public class FloatMapperTest {
     @Test
     public void testConstructorWithoutArgs() {
         FloatMapper mapper = new FloatMapper("field", null, null, null);
-        assertEquals(Mapper.DEFAULT_INDEXED, mapper.isIndexed());
-        assertEquals(Mapper.DEFAULT_SORTED, mapper.isSorted());
-        assertEquals(DoubleMapper.DEFAULT_BOOST, mapper.getBoost(), 1);
+        assertEquals("Indexed is not set to default value", Mapper.DEFAULT_INDEXED, mapper.isIndexed());
+        assertEquals("Sorted is not set to default value", Mapper.DEFAULT_SORTED, mapper.isSorted());
+        assertEquals("Boost is not set to default value", DoubleMapper.DEFAULT_BOOST, mapper.getBoost(), 1);
     }
 
     @Test
     public void testConstructorWithAllArgs() {
         FloatMapper mapper = new FloatMapper("field", false, true, 2.3f);
-        assertFalse(mapper.isIndexed());
-        assertTrue(mapper.isSorted());
-        assertEquals(2.3f, mapper.getBoost(), 1);
+        assertFalse("Indexed is not properly set", mapper.isIndexed());
+        assertTrue("Sorted is not properly set", mapper.isSorted());
+        assertEquals("Boost is not properly set", 2.3f, mapper.getBoost(), 1);
     }
 
     @Test()
     public void testSortField() {
         FloatMapper mapper = new FloatMapper("field", null, null, 2.3f);
         SortField sortField = mapper.sortField("field", true);
-        assertNotNull(sortField);
-        assertTrue(sortField.getReverse());
+        assertNotNull("Sort field is not created", sortField);
+        assertTrue("Sort field reverse is wrong", sortField.getReverse());
     }
 
     @Test()
     public void testValueNull() {
         FloatMapper mapper = new FloatMapper("field", null, null, 1f);
         Float parsed = mapper.base("test", null);
-        assertNull(parsed);
+        assertNull("Base for nulls is wrong", parsed);
     }
 
     @Test()
     public void testValueString() {
         FloatMapper mapper = new FloatMapper("field", null, null, 1f);
         Float parsed = mapper.base("test", "3.4");
-        assertEquals(Float.valueOf(3.4f), parsed);
+        assertEquals("Base for strings is wrong", Float.valueOf(3.4f), parsed);
     }
 
     @Test(expected = IndexException.class)
@@ -74,28 +74,28 @@ public class FloatMapperTest {
     public void testValueInteger() {
         FloatMapper mapper = new FloatMapper("field", null, null, 1f);
         Float parsed = mapper.base("test", 3);
-        assertEquals(Float.valueOf(3), parsed);
+        assertEquals("Base for integers is wrong", Float.valueOf(3), parsed);
     }
 
     @Test
     public void testValueLong() {
         FloatMapper mapper = new FloatMapper("field", null, null, 1f);
         Float parsed = mapper.base("test", 3l);
-        assertEquals(Float.valueOf(3), parsed);
+        assertEquals("Base for longs is wrong", Float.valueOf(3), parsed);
     }
 
     @Test
     public void testValueFloatWithoutDecimal() {
         FloatMapper mapper = new FloatMapper("field", null, null, 1f);
         Float parsed = mapper.base("test", 3f);
-        assertEquals(Float.valueOf(3), parsed);
+        assertEquals("Base for floats is wrong", Float.valueOf(3), parsed);
     }
 
     @Test
     public void testValueFloatWithDecimalFloor() {
         FloatMapper mapper = new FloatMapper("field", null, null, 1f);
         Float parsed = mapper.base("test", 3.5f);
-        assertEquals(Float.valueOf(3.5f), parsed);
+        assertEquals("Base for floats is wrong", Float.valueOf(3.5f), parsed);
 
     }
 
@@ -103,7 +103,7 @@ public class FloatMapperTest {
     public void testValueFloatWithDecimalCeil() {
         FloatMapper mapper = new FloatMapper("field", null, null, 1f);
         Float parsed = mapper.base("test", 3.6f);
-        assertEquals(Float.valueOf(3.6f), parsed);
+        assertEquals("Base for floats is wrong", Float.valueOf(3.6f), parsed);
 
     }
 
@@ -111,14 +111,14 @@ public class FloatMapperTest {
     public void testValueDoubleWithoutDecimal() {
         FloatMapper mapper = new FloatMapper("field", null, null, 1f);
         Float parsed = mapper.base("test", 3d);
-        assertEquals(Float.valueOf(3), parsed);
+        assertEquals("Base for doubles is wrong", Float.valueOf(3), parsed);
     }
 
     @Test
     public void testValueDoubleWithDecimalFloor() {
         FloatMapper mapper = new FloatMapper("field", null, null, 1f);
         Float parsed = mapper.base("test", 3.5d);
-        assertEquals(Float.valueOf(3.5f), parsed);
+        assertEquals("Base for doubles is wrong", Float.valueOf(3.5f), parsed);
 
     }
 
@@ -126,7 +126,7 @@ public class FloatMapperTest {
     public void testValueDoubleWithDecimalCeil() {
         FloatMapper mapper = new FloatMapper("field", null, null, 1f);
         Float parsed = mapper.base("test", 3.6d);
-        assertEquals(Float.valueOf(3.6f), parsed);
+        assertEquals("Base for doubles is wrong", Float.valueOf(3.6f), parsed);
 
     }
 
@@ -134,21 +134,21 @@ public class FloatMapperTest {
     public void testValueStringWithoutDecimal() {
         FloatMapper mapper = new FloatMapper("field", null, null, 1f);
         Float parsed = mapper.base("test", "3");
-        assertEquals(Float.valueOf(3), parsed);
+        assertEquals("Base for strings is wrong", Float.valueOf(3), parsed);
     }
 
     @Test
     public void testValueStringWithDecimalFloor() {
         FloatMapper mapper = new FloatMapper("field", null, null, 1f);
         Float parsed = mapper.base("test", "3.2");
-        assertEquals(Float.valueOf(3.2f), parsed);
+        assertEquals("Base for strings is wrong", Float.valueOf(3.2f), parsed);
     }
 
     @Test
     public void testValueStringWithDecimalCeil() {
         FloatMapper mapper = new FloatMapper("field", null, null, 1f);
         Float parsed = mapper.base("test", "3.6");
-        assertEquals(Float.valueOf(3.6f), parsed);
+        assertEquals("Base for strings is wrong", Float.valueOf(3.6f), parsed);
 
     }
 
@@ -156,29 +156,31 @@ public class FloatMapperTest {
     public void testIndexedField() {
         FloatMapper mapper = new FloatMapper("field", true, true, 1f);
         Field field = mapper.indexedField("name", 3.2f);
-        assertNotNull(field);
-        assertEquals(3.2f, field.numericValue());
-        assertEquals("name", field.name());
-        assertEquals(false, field.fieldType().stored());
+        assertNotNull("Indexed field is not created", field);
+        assertEquals("Indexed field value is wrong", 3.2f, field.numericValue());
+        assertEquals("Indexed field name is wrong", "name", field.name());
+        assertEquals("Indexed field type is wrong", false, field.fieldType().stored());
     }
 
     @Test
     public void testSortedField() {
         FloatMapper mapper = new FloatMapper("field", true, true, 1f);
         Field field = mapper.sortedField("name", 3.2f);
-        assertNotNull(field);
-        assertEquals(DocValuesType.NUMERIC, field.fieldType().docValuesType());
+        assertNotNull("Sorted field is not created", field);
+        assertEquals("Sorted field type is wrong", DocValuesType.NUMERIC, field.fieldType().docValuesType());
     }
 
     @Test
     public void testExtractAnalyzers() {
         FloatMapper mapper = new FloatMapper("field", null, null, 1f);
-        assertNull(mapper.getAnalyzer());
+        assertNull("Analyzer must be null", mapper.getAnalyzer());
     }
 
     @Test
     public void testToString() {
         FloatMapper mapper = new FloatMapper("field", false, false, 0.3f);
-        assertEquals("FloatMapper{indexed=false, sorted=false, boost=0.3}", mapper.toString());
+        assertEquals("Method #toString is wrong",
+                     "FloatMapper{indexed=false, sorted=false, boost=0.3}",
+                     mapper.toString());
     }
 }

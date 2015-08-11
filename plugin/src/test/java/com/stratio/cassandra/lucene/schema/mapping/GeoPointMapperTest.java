@@ -43,25 +43,27 @@ public class GeoPointMapperTest {
     @Test
     public void testConstructorWithDefaultArgs() {
         GeoPointMapper mapper = new GeoPointMapper("field", "lat", "lon", null);
-        assertEquals("field", mapper.getName());
-        assertTrue(mapper.isIndexed());
-        assertFalse(mapper.isSorted());
-        assertEquals("lat", mapper.getLatitude());
-        assertEquals("lon", mapper.getLongitude());
-        assertEquals(GeoPointMapper.DEFAULT_MAX_LEVELS, mapper.getMaxLevels());
-        assertNotNull(mapper.getDistanceStrategy());
+        assertEquals("Field name is not properly set", "field", mapper.getName());
+        assertTrue("Indexed is not properly set", mapper.isIndexed());
+        assertFalse("Sorted is not properly set", mapper.isSorted());
+        assertEquals("Latitude is not properly set", "lat", mapper.getLatitude());
+        assertEquals("Longitude is not properly set", "lon", mapper.getLongitude());
+        assertEquals("Max levels is not properly set", GeoPointMapper.DEFAULT_MAX_LEVELS, mapper.getMaxLevels());
+        assertNotNull("Spatial strategy for distances is not properly set", mapper.getDistanceStrategy());
+        assertNotNull("Spatial strategy for bounding boxes Latitude is not properly set", mapper.getBBoxStrategy());
     }
 
     @Test
     public void testConstructorWithAllArgs() {
         GeoPointMapper mapper = new GeoPointMapper("field", "lat", "lon", 7);
-        assertEquals("field", mapper.getName());
-        assertTrue(mapper.isIndexed());
-        assertFalse(mapper.isSorted());
-        assertEquals("lat", mapper.getLatitude());
-        assertEquals("lon", mapper.getLongitude());
-        assertEquals(7, mapper.getMaxLevels());
-        assertNotNull(mapper.getDistanceStrategy());
+        assertEquals("Field name is not properly set", "field", mapper.getName());
+        assertTrue("Indexed is not properly set", mapper.isIndexed());
+        assertFalse("Sorted is not properly set", mapper.isSorted());
+        assertEquals("Latitude is not properly set", "lat", mapper.getLatitude());
+        assertEquals("Longitude is not properly set", "lon", mapper.getLongitude());
+        assertEquals("Max levels is not properly set", 7, mapper.getMaxLevels());
+        assertNotNull("Spatial strategy for distances is not properly set", mapper.getDistanceStrategy());
+        assertNotNull("Spatial strategy for bounding boxes Latitude is not properly set", mapper.getBBoxStrategy());
     }
 
     @Test(expected = IndexException.class)
@@ -100,7 +102,7 @@ public class GeoPointMapperTest {
         Columns columns = new Columns();
         columns.add(Column.fromComposed("lat", 5, Int32Type.instance, false));
         columns.add(Column.fromComposed("lon", 0, Int32Type.instance, false));
-        assertEquals(5d, mapper.readLatitude(columns), 0);
+        assertEquals("Latitude is not properly parsed", 5d, mapper.readLatitude(columns), 0);
     }
 
     @Test()
@@ -109,7 +111,7 @@ public class GeoPointMapperTest {
         Columns columns = new Columns();
         columns.add(Column.fromComposed("lat", 5L, LongType.instance, false));
         columns.add(Column.fromComposed("lon", 0, Int32Type.instance, false));
-        assertEquals(5d, mapper.readLatitude(columns), 0);
+        assertEquals("Latitude is not properly parsed", 5d, mapper.readLatitude(columns), 0);
     }
 
     @Test()
@@ -118,7 +120,7 @@ public class GeoPointMapperTest {
         Columns columns = new Columns();
         columns.add(Column.fromComposed("lat", 5.3f, FloatType.instance, false));
         columns.add(Column.fromComposed("lon", 0, Int32Type.instance, false));
-        assertEquals(5.3f, mapper.readLatitude(columns), 0);
+        assertEquals("Latitude is not properly parsed", 5.3f, mapper.readLatitude(columns), 0);
     }
 
     @Test()
@@ -127,7 +129,7 @@ public class GeoPointMapperTest {
         Columns columns = new Columns();
         columns.add(Column.fromComposed("lat", 5.3D, DoubleType.instance, false));
         columns.add(Column.fromComposed("lon", 0, Int32Type.instance, false));
-        assertEquals(5.3d, mapper.readLatitude(columns), 0);
+        assertEquals("Latitude is not properly parsed", 5.3d, mapper.readLatitude(columns), 0);
     }
 
     @Test()
@@ -136,7 +138,7 @@ public class GeoPointMapperTest {
         Columns columns = new Columns();
         columns.add(Column.fromComposed("lat", "5.3", UTF8Type.instance, false));
         columns.add(Column.fromComposed("lon", 0, Int32Type.instance, false));
-        assertEquals(5.3d, mapper.readLatitude(columns), 0);
+        assertEquals("Latitude is not properly parsed", 5.3d, mapper.readLatitude(columns), 0);
     }
 
     @Test(expected = IndexException.class)
@@ -151,7 +153,7 @@ public class GeoPointMapperTest {
     @Test
     public void testGetLatitudeWithNullColumn() {
         GeoPointMapper mapper = new GeoPointMapper("field", "lat", "lon", null);
-        assertNull(mapper.readLatitude(new Columns()));
+        assertNull("Latitude is not properly parsed", mapper.readLatitude(new Columns()));
     }
 
     @Test(expected = IndexException.class)
@@ -178,7 +180,7 @@ public class GeoPointMapperTest {
         Columns columns = new Columns();
         columns.add(Column.fromComposed("lat", 0, Int32Type.instance, false));
         columns.add(Column.fromComposed("lon", 5, Int32Type.instance, false));
-        assertEquals(5d, mapper.readLongitude(columns), 0);
+        assertEquals("Longitude is not properly parsed", 5d, mapper.readLongitude(columns), 0);
     }
 
     @Test()
@@ -187,7 +189,7 @@ public class GeoPointMapperTest {
         Columns columns = new Columns();
         columns.add(Column.fromComposed("lat", 0, Int32Type.instance, false));
         columns.add(Column.fromComposed("lon", 5L, LongType.instance, false));
-        assertEquals(5d, mapper.readLongitude(columns), 0);
+        assertEquals("Longitude is not properly parsed", 5d, mapper.readLongitude(columns), 0);
     }
 
     @Test()
@@ -196,7 +198,7 @@ public class GeoPointMapperTest {
         Columns columns = new Columns();
         columns.add(Column.fromComposed("lat", 0, Int32Type.instance, false));
         columns.add(Column.fromComposed("lon", 5.3f, FloatType.instance, false));
-        assertEquals(5.3f, mapper.readLongitude(columns), 0);
+        assertEquals("Longitude is not properly parsed", 5.3f, mapper.readLongitude(columns), 0);
     }
 
     @Test()
@@ -205,7 +207,7 @@ public class GeoPointMapperTest {
         Columns columns = new Columns();
         columns.add(Column.fromComposed("lat", 0, Int32Type.instance, false));
         columns.add(Column.fromComposed("lon", 5.3D, DoubleType.instance, false));
-        assertEquals(5.3d, mapper.readLongitude(columns), 0);
+        assertEquals("Longitude is not properly parsed", 5.3d, mapper.readLongitude(columns), 0);
     }
 
     @Test()
@@ -214,7 +216,7 @@ public class GeoPointMapperTest {
         Columns columns = new Columns();
         columns.add(Column.fromComposed("lat", 0, Int32Type.instance, false));
         columns.add(Column.fromComposed("lon", "5.3", UTF8Type.instance, false));
-        assertEquals(5.3d, mapper.readLongitude(columns), 0);
+        assertEquals("Longitude is not properly parsed", 5.3d, mapper.readLongitude(columns), 0);
     }
 
     @Test(expected = IndexException.class)
@@ -229,7 +231,7 @@ public class GeoPointMapperTest {
     @Test
     public void testGetLongitudeWithNullColumn() {
         GeoPointMapper mapper = new GeoPointMapper("field", "lat", "lon", null);
-        assertNull(mapper.readLongitude(new Columns()));
+        assertNull("Longitude is not properly parsed", mapper.readLongitude(new Columns()));
     }
 
     @Test(expected = IndexException.class)
@@ -238,7 +240,7 @@ public class GeoPointMapperTest {
         Columns columns = new Columns();
         columns.add(Column.fromComposed("lat", 0, Int32Type.instance, false));
         columns.add(Column.fromComposed("lon", UUID.randomUUID(), UUIDType.instance, false));
-        assertEquals(5.3d, mapper.readLongitude(columns), 0);
+        assertEquals("Longitude is not properly parsed", 5.3d, mapper.readLongitude(columns), 0);
     }
 
     @Test(expected = IndexException.class)
@@ -275,8 +277,8 @@ public class GeoPointMapperTest {
 
         Document document = new Document();
         mapper.addFields(document, columns);
-        assertEquals(1, document.getFields("field.dist").length);
-        assertEquals(6, document.getFields().size());
+        assertEquals("Fields are not properly created", 1, document.getFields("field.dist").length);
+        assertEquals("Fields are not properly created", 6, document.getFields().size());
     }
 
     @Test
@@ -287,7 +289,7 @@ public class GeoPointMapperTest {
 
         Document document = new Document();
         mapper.addFields(document, columns);
-        assertEquals(0, document.getFields().size());
+        assertEquals("Fields are not properly created", 0, document.getFields().size());
     }
 
     @Test(expected = IndexException.class)
@@ -315,7 +317,7 @@ public class GeoPointMapperTest {
     @Test
     public void testExtractAnalyzers() {
         GeoPointMapper mapper = new GeoPointMapper("field", "lat", "lon", null);
-        assertNull(mapper.getAnalyzer());
+        assertNull("Analyzer must be null", mapper.getAnalyzer());
     }
 
     @Test
@@ -362,6 +364,6 @@ public class GeoPointMapperTest {
     public void testToString() {
         GeoPointMapper mapper = new GeoPointMapper("field", "lat", "lon", 7);
         String exp = "GeoPointMapper{name=field, latitude=lat, longitude=lon, maxLevels=7}";
-        assertEquals(exp, mapper.toString());
+        assertEquals("Method #toString is wrong", exp, mapper.toString());
     }
 }
