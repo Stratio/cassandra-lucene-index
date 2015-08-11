@@ -23,6 +23,7 @@ import com.stratio.cassandra.lucene.schema.mapping.BitemporalMapper;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 import com.stratio.cassandra.lucene.util.Log;
 import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.NumericRangeQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.spatial.prefix.NumberRangePrefixTreeStrategy;
 import org.apache.lucene.spatial.prefix.tree.DateRangePrefixTree;
@@ -293,8 +294,11 @@ public class BitemporalCondition extends Condition {
                 t2Query.add(tQueryT2, MUST);
                 query.add(t2Query, SHOULD);
             } else if ((vt_from.isMin()) && (vt_to.isMax())) { // [vtFrom, vtTo]==[tmin,tmax]])
-                //R1,R2
-                Log.debug("BITEMPCOND: making query to R1,R2--last");
+                //R1UR2
+
+                return NumericRangeQuery.newIntRange(bitemporalMapper.getT1UT2FieldName(), 1, 1, true, true);
+                
+                /*Log.debug("BITEMPCOND: making query to R1,R2--last");
                 Query vQueryT1 = makeNormalQuery(bitemporalMapper,
                                                  validTimeStrategies[0],
                                                  validTimeTrees[0],
@@ -322,7 +326,7 @@ public class BitemporalCondition extends Condition {
                 BooleanQuery t2Query = new BooleanQuery();
                 t2Query.add(vQueryT2, MUST);
                 t2Query.add(tQueryT2, MUST);
-                query.add(t2Query, SHOULD);
+                query.add(t2Query, SHOULD);*/
             }
         }
         query.setBoost(boost);
