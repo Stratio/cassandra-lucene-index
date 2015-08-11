@@ -33,7 +33,7 @@ public class Columns implements Iterable<Column> {
     /** The wrapped columns. */
     private final List<Column> columns;
 
-    /** Returns new an empty {@link Columns}. */
+    /** Returns an empty {@link Column} list. */
     public Columns() {
         this.columns = new LinkedList<>();
     }
@@ -133,6 +133,10 @@ public class Columns implements Iterable<Column> {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("columns", columns).toString();
+        Objects.ToStringHelper helper = Objects.toStringHelper(this);
+        for (Column column : columns) {
+            helper.add(column.getFullName(), column.getComposedValue());
+        }
+        return helper.toString();
     }
 }

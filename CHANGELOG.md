@@ -11,7 +11,8 @@
  * Fix multi-mappers when all columns are null (issue#28)
  * Rename `date_range` limits to `from` and `to`
  * Add bitemporal search features
- * Silently discard tokens over 32766 bytes in length
+ * Silently discard tokens over 32766 bytes in length (just log)
+ * Best effort mapping, per mapper errors are just logged
 
 ## 2.1.8.1 (31 July 2015)
 

@@ -17,10 +17,12 @@
 package com.stratio.cassandra.lucene.schema;
 
 import com.google.common.base.Objects;
+import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.analysis.ClasspathAnalyzerBuilder;
 import com.stratio.cassandra.lucene.schema.analysis.PreBuiltAnalyzers;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
+import com.stratio.cassandra.lucene.util.Log;
 import com.stratio.cassandra.lucene.util.TokenLengthAnalyzer;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.commons.lang3.StringUtils;
@@ -158,14 +160,35 @@ public class Schema implements Closeable {
     }
 
     /**
+     * Validates the specified {@link Columns} for mapping.
+     *
+     * @param columns The {@link Columns} to be validated.
+     */
+    public void validate(Columns columns) {
+        Document document = new Document();
+        for (Mapper mapper : mappers.values()) {
+            mapper.addFields(document, columns);
+        }
+    }
+
+    /**
      * Adds to the specified {@link Document} the Lucene fields representing the specified {@link Columns}.
+     *
+     * This is done in a best-effort way, so each mapper errors are logged and ignored.
      *
      * @param document The Lucene {@link Document} where the fields are going to be added.
      * @param columns  The {@link Columns} to be added.
      */
     public void addFields(Document document, Columns columns) {
         for (Mapper mapper : mappers.values()) {
-            mapper.addFields(document, columns);
+            try {
+                mapper.addFields(document, columns);
+            } catch (IndexException e) {
+                Log.error("Error in Lucene index:\n\twhile mapping : %s\n\twith mapper   : %s\n\tcaused by     : %s",
+                          columns,
+                          mapper,
+                          e.getMessage());
+            }
         }
     }
 

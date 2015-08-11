@@ -25,6 +25,8 @@ import com.stratio.cassandra.lucene.util.Log;
  */
 public class IndexException extends RuntimeException {
 
+    private Throwable cause;
+
     /**
      * Constructs a new index exception with the specified formatted detail message.
      *
@@ -46,6 +48,7 @@ public class IndexException extends RuntimeException {
      */
     public IndexException(Throwable cause, String message, Object... args) {
         super(String.format(message, args), cause);
+        this.cause = cause;
         Log.error(cause, message, args);
     }
 
@@ -54,8 +57,12 @@ public class IndexException extends RuntimeException {
      *
      * @return This.
      */
-    public IndexException traceError() {
-        Log.error(getCause(), getMessage());
+    public IndexException log() {
+        if (cause == null) {
+            Log.error(getMessage());
+        } else {
+            Log.error(getCause(), getMessage());
+        }
         return this;
     }
 }
