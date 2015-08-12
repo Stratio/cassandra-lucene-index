@@ -101,7 +101,7 @@ public class DateRangeConditionTest extends AbstractConditionTest {
 
     @Test
     public void testQuery() {
-        Schema schema = mockSchema("name", new DateRangeMapper("field", "to", "from", null));
+        Schema schema = mockSchema("name", new DateRangeMapper("field", "to", "from", "timestamp"));
         DateRangeCondition condition = new DateRangeCondition(null, "name", 1, 2, null);
         Query query = condition.query(schema);
         assertNotNull(query);

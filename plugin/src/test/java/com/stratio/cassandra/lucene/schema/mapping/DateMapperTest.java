@@ -32,6 +32,7 @@ import static org.junit.Assert.*;
 public class DateMapperTest {
 
     private static final String PATTERN = "yyyy-MM-dd";
+    private static final String TIMESTAMP_PATTERN = "timestamp";
     private static final SimpleDateFormat sdf = new SimpleDateFormat(PATTERN);
 
     @Test
@@ -86,28 +87,28 @@ public class DateMapperTest {
 
     @Test
     public void testValueInteger() {
-        DateMapper mapper = new DateMapper("field", null, null, PATTERN);
+        DateMapper mapper = new DateMapper("field", null, null, TIMESTAMP_PATTERN);
         Long parsed = mapper.base("test", 3);
         assertEquals(Long.valueOf(3), parsed);
     }
 
     @Test
     public void testValueLong() {
-        DateMapper mapper = new DateMapper("field", null, null, PATTERN);
+        DateMapper mapper = new DateMapper("field", null, null, TIMESTAMP_PATTERN);
         Long parsed = mapper.base("test", 3l);
         assertEquals(Long.valueOf(3), parsed);
     }
 
     @Test
     public void testValueFloatWithoutDecimal() {
-        DateMapper mapper = new DateMapper("field", null, null, PATTERN);
+        DateMapper mapper = new DateMapper("field", null, null, TIMESTAMP_PATTERN);
         Long parsed = mapper.base("test", 3f);
         assertEquals(Long.valueOf(3), parsed);
     }
 
     @Test
     public void testValueFloatWithDecimalFloor() {
-        DateMapper mapper = new DateMapper("field", null, null, PATTERN);
+        DateMapper mapper = new DateMapper("field", null, null, TIMESTAMP_PATTERN);
         Long parsed = mapper.base("test", 3.5f);
         assertEquals(Long.valueOf(3), parsed);
 
@@ -115,7 +116,7 @@ public class DateMapperTest {
 
     @Test
     public void testValueFloatWithDecimalCeil() {
-        DateMapper mapper = new DateMapper("field", null, null, PATTERN);
+        DateMapper mapper = new DateMapper("field", null, null, TIMESTAMP_PATTERN);
         Long parsed = mapper.base("test", 3.6f);
         assertEquals(Long.valueOf(3), parsed);
 
@@ -123,14 +124,14 @@ public class DateMapperTest {
 
     @Test
     public void testValueDoubleWithoutDecimal() {
-        DateMapper mapper = new DateMapper("field", null, null, PATTERN);
+        DateMapper mapper = new DateMapper("field", null, null, TIMESTAMP_PATTERN);
         Long parsed = mapper.base("test", 3d);
         assertEquals(Long.valueOf(3), parsed);
     }
 
     @Test
     public void testValueDoubleWithDecimalFloor() {
-        DateMapper mapper = new DateMapper("field", null, null, PATTERN);
+        DateMapper mapper = new DateMapper("field", null, null, TIMESTAMP_PATTERN);
         Long parsed = mapper.base("test", 3.5d);
         assertEquals(Long.valueOf(3), parsed);
 
@@ -138,7 +139,7 @@ public class DateMapperTest {
 
     @Test
     public void testValueDoubleWithDecimalCeil() {
-        DateMapper mapper = new DateMapper("field", null, null, PATTERN);
+        DateMapper mapper = new DateMapper("field", null, null, TIMESTAMP_PATTERN);
         Long parsed = mapper.base("test", 3.6d);
         assertEquals(Long.valueOf(3), parsed);
 
@@ -159,7 +160,7 @@ public class DateMapperTest {
 
     @Test
     public void testValueStringWithoutPattern() throws ParseException {
-        DateMapper mapper = new DateMapper("field", null, null, null);
+        DateMapper mapper = new DateMapper("field", null, null,null);
         long parsed = mapper.base("test", "2014/03/19 00:00:00.000 GMT");
         assertEquals(new DateParser(null).parse("2014/03/19 00:00:00.000 GMT").getTime(), parsed);
     }

@@ -46,6 +46,7 @@ import static org.junit.Assert.*;
 public class DateRangeMapperTest {
 
     private static final String SHORT_PATTERN = "yyyy-MM-dd";
+    private static final String TIMESTAMP_PATTERN = "timestamp";
     private static final SimpleDateFormat ssdf = new SimpleDateFormat(SHORT_PATTERN);
     private static final SimpleDateFormat lsdf = new SimpleDateFormat(DateParser.DEFAULT_PATTERN);
 
@@ -105,7 +106,7 @@ public class DateRangeMapperTest {
 
     @Test()
     public void testReadFromFromIntColumn() {
-        DateRangeMapper mapper = new DateRangeMapper("field", "from", "to", null);
+        DateRangeMapper mapper = new DateRangeMapper("field", "from", "to", TIMESTAMP_PATTERN);
         Columns columns = new Columns();
         columns.add(Column.fromComposed("from", 5, Int32Type.instance, false));
         columns.add(Column.fromComposed("to", 0, Int32Type.instance, false));
@@ -114,7 +115,7 @@ public class DateRangeMapperTest {
 
     @Test()
     public void testGetFromFromLongColumn() {
-        DateRangeMapper mapper = new DateRangeMapper("field", "from", "to", null);
+        DateRangeMapper mapper = new DateRangeMapper("field", "from", "to", TIMESTAMP_PATTERN);
         Columns columns = new Columns();
         columns.add(Column.fromComposed("from", 5L, LongType.instance, false));
         columns.add(Column.fromComposed("to", 0, Int32Type.instance, false));
@@ -123,7 +124,7 @@ public class DateRangeMapperTest {
 
     @Test()
     public void testGetFromFromFloatColumn() {
-        DateRangeMapper mapper = new DateRangeMapper("field", "from", "to", null);
+        DateRangeMapper mapper = new DateRangeMapper("field", "from", "to", TIMESTAMP_PATTERN);
         Columns columns = new Columns();
         columns.add(Column.fromComposed("from", 5.3f, FloatType.instance, false));
         columns.add(Column.fromComposed("to", 0, Int32Type.instance, false));
@@ -132,7 +133,7 @@ public class DateRangeMapperTest {
 
     @Test()
     public void testGetFromFromDoubleColumn() {
-        DateRangeMapper mapper = new DateRangeMapper("field", "from", "to", null);
+        DateRangeMapper mapper = new DateRangeMapper("field", "from", "to", TIMESTAMP_PATTERN);
         Columns columns = new Columns();
         columns.add(Column.fromComposed("from", 5.3D, DoubleType.instance, false));
         columns.add(Column.fromComposed("to", 0, Int32Type.instance, false));
@@ -150,7 +151,7 @@ public class DateRangeMapperTest {
 
     @Test
     public void testGetFromFromStringColumnWithCustomPattern() throws ParseException {
-        DateRangeMapper mapper = new DateRangeMapper("field", "from", "to", "yyyy-MM-dd");
+        DateRangeMapper mapper = new DateRangeMapper("field", "from", "to", SHORT_PATTERN);
         Columns columns = new Columns();
         columns.add(Column.fromComposed("from", "2015-02-28", UTF8Type.instance, false));
         columns.add(Column.fromComposed("to", 0, Int32Type.instance, false));
@@ -176,7 +177,7 @@ public class DateRangeMapperTest {
 
     @Test()
     public void testReadToFromIntColumn() {
-        DateRangeMapper mapper = new DateRangeMapper("field", "from", "to", null);
+        DateRangeMapper mapper = new DateRangeMapper("field", "from", "to", TIMESTAMP_PATTERN);
         Columns columns = new Columns();
         columns.add(Column.fromComposed("from", 0, Int32Type.instance, false));
         columns.add(Column.fromComposed("to", 5, Int32Type.instance, false));
@@ -185,7 +186,7 @@ public class DateRangeMapperTest {
 
     @Test()
     public void testGetToFromLongColumn() {
-        DateRangeMapper mapper = new DateRangeMapper("field", "from", "to", null);
+        DateRangeMapper mapper = new DateRangeMapper("field", "from", "to", TIMESTAMP_PATTERN);
         Columns columns = new Columns();
         columns.add(Column.fromComposed("from", 0, Int32Type.instance, false));
         columns.add(Column.fromComposed("to", 5L, LongType.instance, false));
@@ -194,7 +195,7 @@ public class DateRangeMapperTest {
 
     @Test()
     public void testGetToFromFloatColumn() {
-        DateRangeMapper mapper = new DateRangeMapper("field", "from", "to", null);
+        DateRangeMapper mapper = new DateRangeMapper("field", "from", "to", TIMESTAMP_PATTERN);
         Columns columns = new Columns();
         columns.add(Column.fromComposed("from", 0, Int32Type.instance, false));
         columns.add(Column.fromComposed("to", 5.3f, FloatType.instance, false));
@@ -203,7 +204,7 @@ public class DateRangeMapperTest {
 
     @Test()
     public void testGetToFromDoubleColumn() {
-        DateRangeMapper mapper = new DateRangeMapper("field", "from", "to", null);
+        DateRangeMapper mapper = new DateRangeMapper("field", "from", "to", TIMESTAMP_PATTERN);
         Columns columns = new Columns();
         columns.add(Column.fromComposed("from", 0, Int32Type.instance, false));
         columns.add(Column.fromComposed("to", 5.3D, DoubleType.instance, false));
@@ -253,7 +254,7 @@ public class DateRangeMapperTest {
 
     @Test
     public void testAddFields() {
-        DateRangeMapper mapper = new DateRangeMapper("field", "from", "to", null);
+        DateRangeMapper mapper = new DateRangeMapper("field", "from", "to", TIMESTAMP_PATTERN);
 
         Columns columns = new Columns();
         columns.add(Column.fromComposed("from", 20, Int32Type.instance, false));

@@ -61,7 +61,7 @@ public class BitemporalConditionTest extends AbstractConditionTest {
     @Test
     public void testQuery() {
         Schema schema = mockSchema("name",
-                                   new BitemporalMapper("name", "vtFrom", "vtTo", "ttFrom", "ttTo", null, null));
+                                   new BitemporalMapper("name", "vtFrom", "vtTo", "ttFrom", "ttTo", "timestamp", null));
         BitemporalCondition condition = new BitemporalCondition(0.5f, "name", 1, 2, 3, 4, null);
 
         Query query = condition.query(schema);
