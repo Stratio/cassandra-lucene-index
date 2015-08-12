@@ -33,6 +33,7 @@ import static org.junit.Assert.*;
  */
 public class DateRangeConditionTest {
 
+    private final String TIMESTAMP_PATTERN="timestamp";
     @Test
     public void testConstructorWithDefaults() {
         DateRangeCondition condition = new DateRangeCondition(null, "name", 1, 2, null);
@@ -101,7 +102,7 @@ public class DateRangeConditionTest {
     @Test
     public void testQuery() {
 
-        Schema schema = schema().mapper("name", dateRangeMapper("to", "from")).build();
+        Schema schema = schema().mapper("name", dateRangeMapper("to", "from").pattern(TIMESTAMP_PATTERN)).build();
 
         DateRangeCondition condition = new DateRangeCondition(null, "name", 1, 2, null);
         Query query = condition.query(schema);

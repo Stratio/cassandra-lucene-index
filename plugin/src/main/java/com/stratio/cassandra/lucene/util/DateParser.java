@@ -33,6 +33,9 @@ public class DateParser {
     /** The default {@link SimpleDateFormat} pattern. */
     public static final String DEFAULT_PATTERN = "yyyy/MM/dd HH:mm:ss.SSS Z";
 
+    /** The Timestamp defaultyString in pattern */
+    public static final String TIMESTAMP_PATTERN_FIELD="timestamp";
+
     /** The {@link SimpleDateFormat} pattern. */
     private final String pattern;
 
@@ -48,15 +51,19 @@ public class DateParser {
 
         this.pattern = pattern == null ? DEFAULT_PATTERN : pattern;
 
-        // Validate pattern
-        new SimpleDateFormat(this.pattern);
-
-        this.concurrentDateFormat = new ThreadLocal<DateFormat>() {
-            @Override
-            protected DateFormat initialValue() {
-                return new SimpleDateFormat(DateParser.this.pattern);
-            }
-        };
+        // Validate pattern if is not "timestamp"
+        if (!this.pattern.equals(TIMESTAMP_PATTERN_FIELD)) {
+            new SimpleDateFormat(this.pattern);
+            this.concurrentDateFormat = new ThreadLocal<DateFormat>() {
+                @Override
+                protected DateFormat initialValue() {
+                    return new SimpleDateFormat(DateParser.this.pattern);
+                }
+            };
+            this.concurrentDateFormat.get().setLenient(false);
+        } else {
+            this.concurrentDateFormat=null;
+        }
     }
 
     /**
@@ -71,15 +78,28 @@ public class DateParser {
             return null;
         }
         if (value instanceof Date) {
-            return (Date) value;
+            return (Date)value;
         }
-        try {
-            return concurrentDateFormat.get().parse(value.toString());
-        } catch (ParseException e) {
-            // Ignore
-        }
-        if (value instanceof Number) {
-            return new Date(((Number) value).longValue());
+        if (pattern.equals(TIMESTAMP_PATTERN_FIELD)) {
+            Long valueLong=null;
+            if (value instanceof Number) {
+                valueLong=((Number) value).longValue();
+            } else if (value instanceof Object) {
+                try {
+                    valueLong = Long.parseLong((value).toString());
+                } catch (NumberFormatException e) {
+                    //ignore to Fail
+                }
+            }
+            if (valueLong!=null) {
+                return new Date(valueLong);
+            }
+        } else {
+            try {
+                return concurrentDateFormat.get().parse(value.toString());
+            } catch (ParseException e) {
+                // Ignore to throw above Exception
+            }
         }
         throw new IndexException("Valid date required but found '%s', it can't be parsed by pattern '%s' " +
                                  "and is not instance of Date nor Number", value, pattern);
