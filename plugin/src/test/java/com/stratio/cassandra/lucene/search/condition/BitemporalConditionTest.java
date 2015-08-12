@@ -18,12 +18,11 @@ package com.stratio.cassandra.lucene.search.condition;
 
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.mapping.BitemporalMapper;
-import com.stratio.cassandra.lucene.schema.mapping.UUIDMapper;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 import org.junit.Test;
 
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
 import static com.stratio.cassandra.lucene.search.SearchBuilders.biTemporalSearch;
 import static org.junit.Assert.*;
 
@@ -31,7 +30,9 @@ import static org.junit.Assert.*;
  * @author Eduardo Alonso  {@literal <eduardoalonso@stratio.com>}
  */
 
-public class BitemporalConditionTest extends AbstractConditionTest {
+public class BitemporalConditionTest {
+
+    private static final String TIMESTAMP_PATTERN="timestamp";
 
     @Test
     public void testConstructorWithDefaults() {
@@ -60,8 +61,9 @@ public class BitemporalConditionTest extends AbstractConditionTest {
 
     @Test
     public void testQuery() {
-        Schema schema = mockSchema("name",
-                                   new BitemporalMapper("name", "vtFrom", "vtTo", "ttFrom", "ttTo", "timestamp", null));
+
+        Schema schema = schema().mapper("name", bitemporalMapper("vtFrom", "vtTo", "ttFrom", "ttTo").pattern(TIMESTAMP_PATTERN))
+                .build();
         BitemporalCondition condition = new BitemporalCondition(0.5f, "name", 1, 2, 3, 4, null);
 
         Query query = condition.query(schema);
@@ -71,7 +73,7 @@ public class BitemporalConditionTest extends AbstractConditionTest {
 
     @Test(expected = IndexException.class)
     public void testQueryWithoutValidMapper() {
-        Schema schema = mockSchema("name", new UUIDMapper("name", null, null));
+        Schema schema = schema().mapper("name", UUIDMapper()).build();
         BitemporalCondition condition = new BitemporalCondition(null, "name", 1, 2, 3, 4, null);
         condition.query(schema);
     }

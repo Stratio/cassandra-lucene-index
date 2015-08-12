@@ -22,12 +22,12 @@ import com.stratio.cassandra.lucene.schema.analysis.PreBuiltAnalyzers;
 import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
-import com.stratio.cassandra.lucene.schema.mapping.StringMapper;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.junit.Test;
 
 import java.util.Comparator;
 
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.stringMapper;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -69,7 +69,7 @@ public class SortFieldTest {
     @Test
     public void testSortField() {
 
-        Mapper mapper = new StringMapper("field", null, true, null);
+        Mapper mapper = stringMapper().sorted(true).build("field");
 
         Schema schema = mock(Schema.class);
         when(schema.getAnalyzer()).thenReturn(PreBuiltAnalyzers.DEFAULT.get());
@@ -94,10 +94,6 @@ public class SortFieldTest {
     @Test
     public void testComparatorNatural() {
 
-        Schema schema = mock(Schema.class);
-        when(schema.getAnalyzer()).thenReturn(PreBuiltAnalyzers.DEFAULT.get());
-        when(schema.getMapper("field")).thenReturn(new StringMapper("field", null, null, null));
-
         SortField sortField = new SortField("field", false);
         Comparator<Columns> comparator = sortField.comparator();
 
@@ -112,10 +108,6 @@ public class SortFieldTest {
 
     @Test
     public void testComparatorReverse() {
-
-        Schema schema = mock(Schema.class);
-        when(schema.getAnalyzer()).thenReturn(PreBuiltAnalyzers.DEFAULT.get());
-        when(schema.getMapper("field")).thenReturn(new StringMapper("field", null, null, null));
 
         SortField sortField = new SortField("field", true);
         Comparator<Columns> comparator = sortField.comparator();
@@ -159,7 +151,6 @@ public class SortFieldTest {
     @Test
     public void testEquals() {
         assertNotNull(new SortField("field", true));
-        assertFalse(new SortField("field", true).equals(""));
         assertEquals(new SortField("field", true), new SortField("field", true));
         assertFalse(new SortField("field1", true).equals(new SortField("field2", true)));
         assertFalse(new SortField("field", true).equals(new SortField("field", false)));

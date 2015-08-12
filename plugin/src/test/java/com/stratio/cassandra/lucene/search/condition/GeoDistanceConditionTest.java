@@ -18,8 +18,6 @@ package com.stratio.cassandra.lucene.search.condition;
 
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.mapping.GeoPointMapper;
-import com.stratio.cassandra.lucene.schema.mapping.UUIDMapper;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.ConstantScoreQuery;
@@ -27,13 +25,14 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.spatial.prefix.IntersectsPrefixTreeFilter;
 import org.junit.Test;
 
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
 import static com.stratio.cassandra.lucene.search.SearchBuilders.geoDistance;
 import static org.junit.Assert.*;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class GeoDistanceConditionTest extends AbstractConditionTest {
+public class GeoDistanceConditionTest {
 
     @Test
     public void testConstructor() {
@@ -114,7 +113,7 @@ public class GeoDistanceConditionTest extends AbstractConditionTest {
 
     @Test
     public void testQueryMax() {
-        Schema schema = mockSchema("name", new GeoPointMapper("name", "lat", "lon", 8));
+        Schema schema = schema().mapper("name", geoPointMapper("lat", "lon").maxLevels(8)).build();
         GeoDistanceCondition condition = new GeoDistanceCondition(0.5f, "name", 90D, -180D, null, "10hm");
         Query query = condition.query(schema);
         assertNotNull(query);
@@ -138,7 +137,7 @@ public class GeoDistanceConditionTest extends AbstractConditionTest {
 
     @Test
     public void testQueryMinMax() {
-        Schema schema = mockSchema("name", new GeoPointMapper("name", "lat", "lon", 8));
+        Schema schema = schema().mapper("name", geoPointMapper("lat", "lon").maxLevels(8)).build();
         GeoDistanceCondition condition = new GeoDistanceCondition(0.5f, "name", 90D, -180D, "1km", "3km");
         Query query = condition.query(schema);
         assertNotNull(query);
@@ -169,7 +168,7 @@ public class GeoDistanceConditionTest extends AbstractConditionTest {
 
     @Test(expected = IndexException.class)
     public void testQueryWithoutValidMapper() {
-        Schema schema = mockSchema("name", new UUIDMapper("name", null, null));
+        Schema schema = schema().mapper("name", UUIDMapper()).build();
         Condition condition = new GeoDistanceCondition(0.5f, "name", 90D, -180D, null, "3km");
         condition.query(schema);
     }

@@ -20,9 +20,11 @@ import com.stratio.cassandra.lucene.schema.mapping.StringMapper;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
+ * {@link SingleColumnMapperBuilder} to build a new {@link StringMapper}.
+ *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class StringMapperBuilder extends MapperBuilder<StringMapper> {
+public class StringMapperBuilder extends SingleColumnMapperBuilder<StringMapper> {
 
     @JsonProperty("indexed")
     private Boolean indexed;
@@ -74,6 +76,6 @@ public class StringMapperBuilder extends MapperBuilder<StringMapper> {
      */
     @Override
     public StringMapper build(String name) {
-        return new StringMapper(name, indexed, sorted, caseSensitive);
+        return new StringMapper(name, column, indexed, sorted, caseSensitive);
     }
 }

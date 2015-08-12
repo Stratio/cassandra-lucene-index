@@ -16,7 +16,6 @@
 
 package com.stratio.cassandra.lucene.schema.mapping;
 
-import com.google.common.base.Objects;
 import org.apache.cassandra.db.marshal.*;
 
 /**
@@ -36,12 +35,14 @@ public class StringMapper extends KeywordMapper {
      * Builds a new {@link StringMapper}.
      *
      * @param name          The name of the mapper.
+     * @param column        The name of the column to be mapped.
      * @param indexed       If the field supports searching.
      * @param sorted        If the field supports sorting.
      * @param caseSensitive If the analyzer must be case sensitive.
      */
-    public StringMapper(String name, Boolean indexed, Boolean sorted, Boolean caseSensitive) {
+    public StringMapper(String name, String column, Boolean indexed, Boolean sorted, Boolean caseSensitive) {
         super(name,
+              column,
               indexed,
               sorted,
               AsciiType.instance,
@@ -83,10 +84,6 @@ public class StringMapper extends KeywordMapper {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                      .add("indexed", indexed)
-                      .add("sorted", sorted)
-                      .add("caseSensitive", caseSensitive)
-                      .toString();
+        return toStringHelper(this).add("caseSensitive", caseSensitive).toString();
     }
 }

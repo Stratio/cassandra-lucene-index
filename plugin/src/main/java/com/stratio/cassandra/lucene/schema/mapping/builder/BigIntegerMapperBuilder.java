@@ -20,9 +20,11 @@ import com.stratio.cassandra.lucene.schema.mapping.BigIntegerMapper;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
+ * {@link SingleColumnMapperBuilder} to build a new {@link BigIntegerMapper}.
+ *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class BigIntegerMapperBuilder extends MapperBuilder<BigIntegerMapper> {
+public class BigIntegerMapperBuilder extends SingleColumnMapperBuilder<BigIntegerMapper> {
 
     @JsonProperty("indexed")
     private Boolean indexed;
@@ -74,6 +76,6 @@ public class BigIntegerMapperBuilder extends MapperBuilder<BigIntegerMapper> {
      */
     @Override
     public BigIntegerMapper build(String name) {
-        return new BigIntegerMapper(name, indexed, sorted, digits);
+        return new BigIntegerMapper(name, column, indexed, sorted, digits);
     }
 }

@@ -20,9 +20,11 @@ import com.stratio.cassandra.lucene.schema.mapping.InetMapper;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
+ * {@link SingleColumnMapperBuilder} to build a new {@link InetMapper}.
+ *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class InetMapperBuilder extends MapperBuilder<InetMapper> {
+public class InetMapperBuilder extends SingleColumnMapperBuilder<InetMapper> {
 
     @JsonProperty("indexed")
     private Boolean indexed;
@@ -60,6 +62,6 @@ public class InetMapperBuilder extends MapperBuilder<InetMapper> {
      */
     @Override
     public InetMapper build(String name) {
-        return new InetMapper(name, indexed, sorted);
+        return new InetMapper(name, column, indexed, sorted);
     }
 }

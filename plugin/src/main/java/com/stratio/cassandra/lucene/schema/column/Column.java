@@ -88,6 +88,14 @@ public final class Column<T> {
         return nameSufix == null ? name : name + "." + nameSufix;
     }
 
+    public String getFullName(String name) {
+        return nameSufix == null ? name : name + "." + nameSufix;
+    }
+
+    public String getNameSufix() {
+        return nameSufix;
+    }
+
     /**
      * Returns the {@link ByteBuffer} serialized value.
      *

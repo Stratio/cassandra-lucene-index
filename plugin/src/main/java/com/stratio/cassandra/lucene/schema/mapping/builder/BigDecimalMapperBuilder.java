@@ -20,9 +20,11 @@ import com.stratio.cassandra.lucene.schema.mapping.BigDecimalMapper;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
+ * {@link SingleColumnMapperBuilder} to build a new {@link BigDecimalMapper}.
+ *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class BigDecimalMapperBuilder extends MapperBuilder<BigDecimalMapper> {
+public class BigDecimalMapperBuilder extends SingleColumnMapperBuilder<BigDecimalMapper> {
 
     @JsonProperty("indexed")
     private Boolean indexed;
@@ -88,6 +90,6 @@ public class BigDecimalMapperBuilder extends MapperBuilder<BigDecimalMapper> {
      */
     @Override
     public BigDecimalMapper build(String name) {
-        return new BigDecimalMapper(name, indexed, sorted, integerDigits, decimalDigits);
+        return new BigDecimalMapper(name, column, indexed, sorted, integerDigits, decimalDigits);
     }
 }

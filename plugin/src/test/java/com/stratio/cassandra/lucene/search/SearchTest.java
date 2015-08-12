@@ -98,7 +98,7 @@ public class SearchTest {
 
     @Test
     public void testSort() {
-        Mapper mapper = new StringMapper("field", true, true, true);
+        Mapper mapper = new StringMapper("field", null, true, true, true);
         Schema schema = mock(Schema.class);
         when(schema.getAnalyzer()).thenReturn(PreBuiltAnalyzers.STANDARD.get());
         when(schema.getMapper("field")).thenReturn(mapper);
@@ -108,7 +108,7 @@ public class SearchTest {
 
     @Test
     public void testValidate() {
-        Mapper mapper = new StringMapper("field", true, true, true);
+        Mapper mapper = new StringMapper("field", null, true, true, true);
         Schema schema = mock(Schema.class);
         when(schema.getAnalyzer()).thenReturn(PreBuiltAnalyzers.STANDARD.get());
         when(schema.getMapper("field")).thenReturn(mapper);

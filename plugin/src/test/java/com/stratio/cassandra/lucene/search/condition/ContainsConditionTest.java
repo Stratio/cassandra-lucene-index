@@ -18,9 +18,6 @@ package com.stratio.cassandra.lucene.search.condition;
 
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.mapping.IntegerMapper;
-import com.stratio.cassandra.lucene.schema.mapping.StringMapper;
-import com.stratio.cassandra.lucene.schema.mapping.TextMapper;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
@@ -29,6 +26,7 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.junit.Test;
 
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -36,7 +34,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class ContainsConditionTest extends AbstractConditionTest {
+public class ContainsConditionTest {
 
     @Test
     public void testBuild() {
@@ -95,14 +93,11 @@ public class ContainsConditionTest extends AbstractConditionTest {
     public void testQueryNumeric() {
 
         Float boost = 0.7f;
-        String field = "test";
         Object[] values = new Object[]{1, 2, 3};
 
-        Schema schema = mock(Schema.class);
-        when(schema.getAnalyzer()).thenReturn(new EnglishAnalyzer());
-        when(schema.getMapper(field)).thenReturn(new IntegerMapper("field", null, null, null));
+        Schema schema = schema().mapper("name", integerMapper()).build();
 
-        ContainsCondition condition = new ContainsCondition(boost, field, values);
+        ContainsCondition condition = new ContainsCondition(boost, "name", values);
         Query query = condition.query(schema);
         assertNotNull(query);
 
@@ -121,14 +116,11 @@ public class ContainsConditionTest extends AbstractConditionTest {
     public void testQueryString() {
 
         Float boost = 0.7f;
-        String field = "test";
         Object[] values = new Object[]{"houses", "cats"};
 
-        Schema schema = mock(Schema.class);
-        when(schema.getAnalyzer()).thenReturn(new EnglishAnalyzer());
-        when(schema.getMapper(field)).thenReturn(new StringMapper("field", null, null, null));
+        Schema schema = schema().mapper("name", stringMapper()).build();
 
-        ContainsCondition condition = new ContainsCondition(boost, field, values);
+        ContainsCondition condition = new ContainsCondition(boost, "name", values);
         Query query = condition.query(schema);
         assertNotNull(query);
 
@@ -143,14 +135,11 @@ public class ContainsConditionTest extends AbstractConditionTest {
     public void testQueryText() {
 
         Float boost = 0.7f;
-        String field = "test";
         Object[] values = new Object[]{"houses", "cats"};
 
-        Schema schema = mock(Schema.class);
-        when(schema.getAnalyzer()).thenReturn(new EnglishAnalyzer());
-        when(schema.getMapper(field)).thenReturn(new TextMapper("field", null, null, null));
+        Schema schema = schema().mapper("name", textMapper()).defaultAnalyzer("english").build();
 
-        ContainsCondition condition = new ContainsCondition(boost, field, values);
+        ContainsCondition condition = new ContainsCondition(boost, "name", values);
         Query query = condition.query(schema);
         assertNotNull(query);
 

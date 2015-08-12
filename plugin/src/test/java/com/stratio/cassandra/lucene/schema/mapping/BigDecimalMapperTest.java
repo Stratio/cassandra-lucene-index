@@ -30,7 +30,7 @@ public class BigDecimalMapperTest {
 
     @Test
     public void testConstructorWithoutArgs() {
-        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, null);
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, null, null);
         assertEquals(Mapper.DEFAULT_INDEXED, mapper.isIndexed());
         assertEquals(Mapper.DEFAULT_SORTED, mapper.isSorted());
         assertEquals(BigDecimalMapper.DEFAULT_INTEGER_DIGITS, mapper.getIntegerDigits());
@@ -39,7 +39,7 @@ public class BigDecimalMapperTest {
 
     @Test
     public void testConstructorWithAllArgs() {
-        BigDecimalMapper mapper = new BigDecimalMapper("field", false, true, 10, 5);
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, false, true, 10, 5);
         assertFalse(mapper.isIndexed());
         assertTrue(mapper.isSorted());
         assertEquals(10, mapper.getIntegerDigits());
@@ -48,68 +48,68 @@ public class BigDecimalMapperTest {
 
     @Test()
     public void testValueNull() {
-        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, 10, 10);
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 10, 10);
         String parsed = mapper.base("test", null);
         assertNull(parsed);
     }
 
     @Test(expected = IndexException.class)
     public void testValueIntegerDigitsZero() {
-        new BigDecimalMapper("field", null, null, 0, 10);
+        new BigDecimalMapper("field", null, null, null, 0, 10);
     }
 
     @Test(expected = IndexException.class)
     public void testValueDecimalDigitsZero() {
-        new BigDecimalMapper("field", null, null, 10, 0);
+        new BigDecimalMapper("field", null, null, null, 10, 0);
     }
 
     @Test(expected = IndexException.class)
     public void testValueBothDigitsZero() {
-        new BigDecimalMapper("field", null, null, 0, 0);
+        new BigDecimalMapper("field", null, null, null, 0, 0);
     }
 
     @Test(expected = IndexException.class)
     public void testValueIntegerDigitsNegative() {
-        new BigDecimalMapper("field", null, null, -1, 10);
+        new BigDecimalMapper("field", null, null, null, -1, 10);
     }
 
     @Test(expected = IndexException.class)
     public void testValueDecimalDigitsNegative() {
-        new BigDecimalMapper("field", null, null, 10, -1);
+        new BigDecimalMapper("field", null, null, null, 10, -1);
     }
 
     @Test(expected = IndexException.class)
     public void testValueBothDigitsNegative() {
-        new BigDecimalMapper("field", null, null, -1, -1);
+        new BigDecimalMapper("field", null, null, null, -1, -1);
     }
 
     @Test(expected = IndexException.class)
     public void testValueBooleanTrue() {
-        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, 100, 100);
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 100, 100);
         mapper.base("test", true);
     }
 
     @Test(expected = IndexException.class)
     public void testValueBooleanFalse() {
-        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, 100, 100);
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 100, 100);
         mapper.base("test", false);
     }
 
     @Test(expected = IndexException.class)
     public void testValueUUID() {
-        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, 100, 100);
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 100, 100);
         mapper.base("test", UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));
     }
 
     @Test(expected = IndexException.class)
     public void testValueDate() {
-        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, 100, 100);
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 100, 100);
         mapper.base("test", new Date());
     }
 
     @Test(expected = IndexException.class)
     public void testValueStringInvalid() {
-        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, 100, 100);
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 100, 100);
         mapper.base("test", "0s0");
     }
 
@@ -117,42 +117,42 @@ public class BigDecimalMapperTest {
 
     @Test
     public void testValueStringMinPositive() {
-        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, 4, 4);
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 4, 4);
         String parsed = mapper.base("test", "1");
         assertEquals("10000.9999", parsed);
     }
 
     @Test
     public void testValueStringMaxPositive() {
-        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, 4, 4);
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 4, 4);
         String parsed = mapper.base("test", "9999.9999");
         assertEquals("19999.9998", parsed);
     }
 
     @Test
     public void testValueStringMinNegative() {
-        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, 4, 4);
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 4, 4);
         String parsed = mapper.base("test", "-1");
         assertEquals("09998.9999", parsed);
     }
 
     @Test
     public void testValueStringMaxNegative() {
-        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, 4, 4);
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 4, 4);
         String parsed = mapper.base("test", "-9999.9999");
         assertEquals("00000.0000", parsed);
     }
 
     @Test
     public void testValueStringZero() {
-        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, 4, 4);
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 4, 4);
         String parsed = mapper.base("test", "0");
         assertEquals("09999.9999", parsed);
     }
 
     @Test
     public void testValueStringLeadingZeros() {
-        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, 4, 4);
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 4, 4);
         String parsed = mapper.base("test", "000.042");
         assertEquals("10000.0419", parsed);
     }
@@ -161,35 +161,35 @@ public class BigDecimalMapperTest {
 
     @Test
     public void testValueIntegerMinPositive() {
-        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, 4, 4);
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 4, 4);
         String parsed = mapper.base("test", 1);
         assertEquals("10000.9999", parsed);
     }
 
     @Test
     public void testValueIntegerMaxPositive() {
-        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, 4, 4);
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 4, 4);
         String parsed = mapper.base("test", 9999.9999);
         assertEquals("19999.9998", parsed);
     }
 
     @Test
     public void testValueIntegerMinNegative() {
-        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, 4, 4);
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 4, 4);
         String parsed = mapper.base("test", -1);
         assertEquals("09998.9999", parsed);
     }
 
     @Test
     public void testValueIntegerMaxNegative() {
-        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, 4, 4);
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 4, 4);
         String parsed = mapper.base("test", -9999.9999);
         assertEquals("00000.0000", parsed);
     }
 
     @Test
     public void testValueIntegerZero() {
-        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, 4, 4);
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 4, 4);
         String parsed = mapper.base("test", 0);
         assertEquals("09999.9999", parsed);
     }
@@ -198,25 +198,25 @@ public class BigDecimalMapperTest {
 
     @Test(expected = IndexException.class)
     public void testValueTooBigInteger() {
-        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, 4, 4);
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 4, 4);
         mapper.base("test", 10000);
     }
 
     @Test(expected = IndexException.class)
     public void testValueTooBigDecimal() {
-        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, 4, 4);
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 4, 4);
         mapper.base("test", 42.00001);
     }
 
     @Test(expected = IndexException.class)
     public void testValueTooSmallInteger() {
-        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, 4, 4);
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 4, 4);
         mapper.base("test", -10000);
     }
 
     @Test(expected = IndexException.class)
     public void testValueTooSmallDecimal() {
-        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, 4, 4);
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 4, 4);
         mapper.base("test", -0.00001);
     }
 
@@ -224,7 +224,7 @@ public class BigDecimalMapperTest {
 
     @Test
     public void testValueIntegerNegativeMaxSort() {
-        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, 8, 100);
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 8, 100);
         String lower = mapper.base("test", -99999999);
         String upper = mapper.base("test", -99999998);
         int compare = lower.compareTo(upper);
@@ -233,7 +233,7 @@ public class BigDecimalMapperTest {
 
     @Test
     public void testValueIntegerNegativeMinSort() {
-        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, 8, 100);
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 8, 100);
         String lower = mapper.base("test", -2);
         String upper = mapper.base("test", -1);
         int compare = lower.compareTo(upper);
@@ -242,7 +242,7 @@ public class BigDecimalMapperTest {
 
     @Test
     public void testValueIntegerPositiveMaxSort() {
-        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, 8, 100);
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 8, 100);
         String lower = mapper.base("test", 99999998);
         String upper = mapper.base("test", 99999999);
         int compare = lower.compareTo(upper);
@@ -251,7 +251,7 @@ public class BigDecimalMapperTest {
 
     @Test
     public void testValueIntegerPositiveMinSort() {
-        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, 8, 100);
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 8, 100);
         String lower = mapper.base("test", 1);
         String upper = mapper.base("test", 2);
         int compare = lower.compareTo(upper);
@@ -260,7 +260,7 @@ public class BigDecimalMapperTest {
 
     @Test
     public void testValueIntegerNegativeZeroSort() {
-        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, 8, 100);
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 8, 100);
         String lower = mapper.base("test", -1);
         String upper = mapper.base("test", 0);
         int compare = lower.compareTo(upper);
@@ -269,7 +269,7 @@ public class BigDecimalMapperTest {
 
     @Test
     public void testValueIntegerPositiveZeroSort() {
-        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, 8, 100);
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 8, 100);
         String lower = mapper.base("test", 0);
         String upper = mapper.base("test", 1);
         int compare = lower.compareTo(upper);
@@ -278,7 +278,7 @@ public class BigDecimalMapperTest {
 
     @Test
     public void testValueIntegerExtremeSort() {
-        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, 8, 100);
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 8, 100);
         String lower = mapper.base("test", -99999999);
         String upper = mapper.base("test", 99999999);
         int compare = lower.compareTo(upper);
@@ -287,7 +287,7 @@ public class BigDecimalMapperTest {
 
     @Test
     public void testValueIntegerNegativePositiveSort() {
-        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, 8, 100);
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 8, 100);
         String lower = mapper.base("test", -1);
         String upper = mapper.base("test", 1);
         int compare = lower.compareTo(upper);
@@ -296,7 +296,7 @@ public class BigDecimalMapperTest {
 
     @Test
     public void testValueDecimalNegativeMaxSort() {
-        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, 2, 8);
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 2, 8);
         String lower = mapper.base("test", -0.99999999);
         String upper = mapper.base("test", -0.99999998);
         int compare = lower.compareTo(upper);
@@ -305,7 +305,7 @@ public class BigDecimalMapperTest {
 
     @Test
     public void testValueDecimalNegativeMinSort() {
-        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, 2, 8);
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 2, 8);
         String lower = mapper.base("test", -0.2);
         String upper = mapper.base("test", -0.1);
         int compare = lower.compareTo(upper);
@@ -314,7 +314,7 @@ public class BigDecimalMapperTest {
 
     @Test
     public void testValueDecimalPositiveMaxSort() {
-        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, 2, 8);
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 2, 8);
         String lower = mapper.base("test", 0.99999998);
         String upper = mapper.base("test", 0.99999999);
         int compare = lower.compareTo(upper);
@@ -323,7 +323,7 @@ public class BigDecimalMapperTest {
 
     @Test
     public void testValueDecimalPositiveMinSort() {
-        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, 2, 8);
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 2, 8);
         String lower = mapper.base("test", 0.1);
         String upper = mapper.base("test", 0.2);
         int compare = lower.compareTo(upper);
@@ -332,7 +332,7 @@ public class BigDecimalMapperTest {
 
     @Test
     public void testValueDecimalNegativeZeroSort() {
-        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, 2, 8);
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 2, 8);
         String lower = mapper.base("test", -0.1);
         String upper = mapper.base("test", 0.0);
         int compare = lower.compareTo(upper);
@@ -341,7 +341,7 @@ public class BigDecimalMapperTest {
 
     @Test
     public void testValueDecimalPositiveZeroSort() {
-        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, 2, 8);
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 2, 8);
         String lower = mapper.base("test", 0.0);
         String upper = mapper.base("test", 0.1);
         int compare = lower.compareTo(upper);
@@ -350,7 +350,7 @@ public class BigDecimalMapperTest {
 
     @Test
     public void testValueDecimalExtremeSort() {
-        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, 2, 8);
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 2, 8);
         String lower = mapper.base("test", -0.99999999);
         String upper = mapper.base("test", 0.99999999);
         int compare = lower.compareTo(upper);
@@ -359,7 +359,7 @@ public class BigDecimalMapperTest {
 
     @Test
     public void testValueDecimalNegativePositiveSort() {
-        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, 2, 8);
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 2, 8);
         String lower = mapper.base("test", -0.1);
         String upper = mapper.base("test", 0.1);
         int compare = lower.compareTo(upper);
@@ -370,7 +370,7 @@ public class BigDecimalMapperTest {
 
     @Test
     public void testValueNegativeMaxSort() {
-        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, 4, 4);
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 4, 4);
         String lower = mapper.base("test", -9999.9999);
         String upper = mapper.base("test", -9999.9998);
         int compare = lower.compareTo(upper);
@@ -379,7 +379,7 @@ public class BigDecimalMapperTest {
 
     @Test
     public void testValueNegativeMinSort() {
-        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, 4, 4);
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 4, 4);
         String lower = mapper.base("test", -0.0002);
         String upper = mapper.base("test", -0.0001);
         int compare = lower.compareTo(upper);
@@ -388,7 +388,7 @@ public class BigDecimalMapperTest {
 
     @Test
     public void testValuePositiveMaxSort() {
-        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, 4, 4);
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 4, 4);
         String lower = mapper.base("test", 9999.9998);
         String upper = mapper.base("test", 9999.9999);
         int compare = lower.compareTo(upper);
@@ -397,7 +397,7 @@ public class BigDecimalMapperTest {
 
     @Test
     public void testValuePositiveMinSort() {
-        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, 4, 4);
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 4, 4);
         String lower = mapper.base("test", 0.0001);
         String upper = mapper.base("test", 0.0002);
         int compare = lower.compareTo(upper);
@@ -406,7 +406,7 @@ public class BigDecimalMapperTest {
 
     @Test
     public void testValueNegativeZeroSort() {
-        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, 4, 4);
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 4, 4);
         String lower = mapper.base("test", -0.0001);
         String upper = mapper.base("test", 0.0);
         int compare = lower.compareTo(upper);
@@ -415,7 +415,7 @@ public class BigDecimalMapperTest {
 
     @Test
     public void testValuePositiveZeroSort() {
-        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, 4, 4);
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 4, 4);
         String lower = mapper.base("test", 0.0);
         String upper = mapper.base("test", 0.0001);
         int compare = lower.compareTo(upper);
@@ -424,7 +424,7 @@ public class BigDecimalMapperTest {
 
     @Test
     public void testValueExtremeSort() {
-        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, 4, 4);
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 4, 4);
         String lower = mapper.base("test", -9999.9999);
         String upper = mapper.base("test", 9999.9999);
         int compare = lower.compareTo(upper);
@@ -433,7 +433,7 @@ public class BigDecimalMapperTest {
 
     @Test
     public void testValueNegativePositiveSort() {
-        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, 4, 4);
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 4, 4);
         String lower = mapper.base("test", -2.4);
         String upper = mapper.base("test", 2.4);
         int compare = lower.compareTo(upper);
@@ -442,7 +442,7 @@ public class BigDecimalMapperTest {
 
     @Test
     public void testValuePositivePositionsSort() {
-        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, 4, 4);
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 4, 4);
         String lower = mapper.base("test", 1.9);
         String upper = mapper.base("test", 1.99);
         int compare = lower.compareTo(upper);
@@ -451,7 +451,7 @@ public class BigDecimalMapperTest {
 
     @Test
     public void testValueNegativePositionsSort() {
-        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, 4, 4);
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 4, 4);
         String lower = mapper.base("test", -1.9999);
         String upper = mapper.base("test", -1.9);
         int compare = lower.compareTo(upper);
@@ -460,7 +460,7 @@ public class BigDecimalMapperTest {
 
     @Test
     public void testIndexedField() {
-        BigDecimalMapper mapper = new BigDecimalMapper("field", true, null, 4, 4);
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, true, null, 4, 4);
         String base = mapper.base("name", "42.43");
         Field field = mapper.indexedField("name", base);
         assertNotNull(field);
@@ -471,7 +471,7 @@ public class BigDecimalMapperTest {
 
     @Test
     public void testSortedField() {
-        BigDecimalMapper mapper = new BigDecimalMapper("field", false, null, 4, 4);
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, false, null, 4, 4);
         String base = mapper.base("name", "42.43");
         Field field = mapper.sortedField("name", base);
         assertNotNull(field);
@@ -480,15 +480,15 @@ public class BigDecimalMapperTest {
 
     @Test
     public void testExtractAnalyzers() {
-        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, 10, 10);
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 10, 10);
         String analyzer = mapper.getAnalyzer();
         assertEquals(Mapper.KEYWORD_ANALYZER, analyzer);
     }
 
     @Test
     public void testToString() {
-        BigDecimalMapper mapper = new BigDecimalMapper("field", false, false, 8, 100);
-        assertEquals("BigDecimalMapper{indexed=false, sorted=false, integerDigits=8, decimalDigits=100}",
-                     mapper.toString());
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, false, false, 8, 100);
+        assertEquals("BigDecimalMapper{name=field, indexed=false, sorted=false, column=field, " +
+                     "integerDigits=8, decimalDigits=100}", mapper.toString());
     }
 }

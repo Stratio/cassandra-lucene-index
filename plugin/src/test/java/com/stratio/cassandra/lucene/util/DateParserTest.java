@@ -88,61 +88,6 @@ public class DateParserTest {
                 simpleDateFormat.format(dateOut));
     }
 
-    @Test
-    @Ignore
-    public void testParseValidWithMoreGranuralityDate() throws ParseException {
-
-        String longPattern="yyyy/MM/dd HH:mm:ss.SSS";
-        String pattern="yyyy/MM/dd";
-        DateParser dateParser= new DateParser(pattern);
-
-        String dateString="2015/11/03 12:34:45.025";
-        String dateStringToCompare="2015/11/03 00:00:00.000";
-
-        SimpleDateFormat simpleDateFormat= new SimpleDateFormat(longPattern);
-
-        Date date= simpleDateFormat.parse(dateString);
-        Date dateOut=dateParser.parse(date);
-
-        assertEquals("Long null parsed by DateParser(\"yyyy/MM/dd\") must return null",dateStringToCompare,simpleDateFormat.format
-                (dateOut));
-    }
-
-    @Test
-    @Ignore
-    public void testParseValidWithMoreGranuralityObject() {
-
-        String longPattern="yyyy/MM/dd HH:mm:ss.SSS";
-        String pattern="yyyy/MM/dd";
-        DateParser dateParser= new DateParser(pattern);
-
-        SimpleDateFormat simpleDateFormat= new SimpleDateFormat(longPattern);
-
-
-        String dateString="2015/11/03 12:34:45.025";
-        String dateStringToCompare="2015/11/03 00:00:00.000";
-        Date dateOut=dateParser.parse(dateString);
-
-
-        assertEquals("Long null parsed by DateParser(\"yyyy/MM/dd\") must return null",dateStringToCompare,
-                simpleDateFormat.format(dateOut));
-    }
-
-    @Test
-    @Ignore
-    public void testParseValidWithMoreGranuralityLong() {
-        String longPattern="yyyyMMddHHmmssSSS";
-        String pattern="yyyyMMdd";
-        DateParser dateParser= new DateParser(pattern);
-        SimpleDateFormat simpleDateFormat= new SimpleDateFormat(longPattern);
-        Long dateLong= 20151103121315554l;
-        String dateLongToCompare="20151103000000000";
-        Date dateOut=dateParser.parse(dateLong);
-        System.out.println("got: "+dateOut.toString());
-        assertEquals("Long null parsed by DateParser(\"yyyy/MM/dd\") must return null",dateLongToCompare,
-                dateOut.toString());
-    }
-
     @Test(expected = IndexException.class)
     public void testParseInvalidObject() throws ParseException {
         String pattern="yyyyMMdd";

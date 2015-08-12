@@ -18,21 +18,17 @@ package com.stratio.cassandra.lucene.search.condition;
 
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.analysis.PreBuiltAnalyzers;
-import com.stratio.cassandra.lucene.schema.mapping.IntegerMapper;
-import com.stratio.cassandra.lucene.schema.mapping.StringMapper;
 import org.apache.lucene.search.FuzzyQuery;
 import org.apache.lucene.search.Query;
 import org.junit.Test;
 
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class FuzzyConditionTest extends AbstractConditionTest {
+public class FuzzyConditionTest {
 
     @Test
     public void testBuilder() {
@@ -89,9 +85,7 @@ public class FuzzyConditionTest extends AbstractConditionTest {
     @Test
     public void testQuery() {
 
-        Schema schema = mock(Schema.class);
-        when(schema.getAnalyzer()).thenReturn(PreBuiltAnalyzers.STANDARD.get());
-        when(schema.getMapper("name")).thenReturn(new StringMapper("name", null, null, null));
+        Schema schema = schema().mapper("name", stringMapper()).build();
 
         FuzzyCondition condition = new FuzzyCondition(0.5f, "name", "tr", 1, 2, 49, true);
         Query query = condition.query(schema);
@@ -109,9 +103,7 @@ public class FuzzyConditionTest extends AbstractConditionTest {
     @Test(expected = IndexException.class)
     public void testQueryInvalid() {
 
-        Schema schema = mock(Schema.class);
-        when(schema.getAnalyzer()).thenReturn(PreBuiltAnalyzers.STANDARD.get());
-        when(schema.getMapper("name")).thenReturn(new IntegerMapper("name", null, null, null));
+        Schema schema = schema().mapper("name", integerMapper()).build();
 
         FuzzyCondition condition = new FuzzyCondition(0.5f, "name", "tr", 1, 2, 49, true);
         condition.query(schema);

@@ -17,29 +17,24 @@
 package com.stratio.cassandra.lucene.search.condition;
 
 import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.mapping.DoubleMapper;
-import com.stratio.cassandra.lucene.schema.mapping.FloatMapper;
-import com.stratio.cassandra.lucene.schema.mapping.InetMapper;
-import com.stratio.cassandra.lucene.schema.mapping.IntegerMapper;
-import com.stratio.cassandra.lucene.schema.mapping.LongMapper;
-import com.stratio.cassandra.lucene.schema.mapping.StringMapper;
 import org.apache.lucene.search.NumericRangeQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermRangeQuery;
 import org.junit.Test;
 
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
 import static com.stratio.cassandra.lucene.search.SearchBuilders.range;
 import static org.junit.Assert.*;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class RangeConditionTest extends AbstractConditionTest {
+public class RangeConditionTest {
 
     @Test
     public void testStringClose() {
 
-        Schema schema = mockSchema("name", new StringMapper("name", null, null, null));
+        Schema schema = schema().mapper("name", stringMapper()).build();
 
         RangeCondition rangeCondition = new RangeCondition(0.5f, "name", "alpha", "beta", true, true);
         Query query = rangeCondition.query(schema);
@@ -57,7 +52,7 @@ public class RangeConditionTest extends AbstractConditionTest {
     @Test
     public void testStringOpen() {
 
-        Schema schema = mockSchema("name", new StringMapper("name", null, null, null));
+        Schema schema = schema().mapper("name", stringMapper()).build();
 
         RangeCondition rangeCondition = new RangeCondition(0.5f, "name", "alpha", null, true, false);
         Query query = rangeCondition.query(schema);
@@ -76,7 +71,7 @@ public class RangeConditionTest extends AbstractConditionTest {
     @Test
     public void testIntegerClose() {
 
-        Schema schema = mockSchema("name", new IntegerMapper("name", null, null, 1f));
+        Schema schema = schema().mapper("name", integerMapper().boost(1f)).build();
 
         RangeCondition rangeCondition = new RangeCondition(0.5f, "name", 42, 43, false, false);
         Query query = rangeCondition.query(schema);
@@ -94,7 +89,7 @@ public class RangeConditionTest extends AbstractConditionTest {
     @Test
     public void testIntegerOpen() {
 
-        Schema schema = mockSchema("name", new IntegerMapper("name", null, null, 1f));
+        Schema schema = schema().mapper("name", integerMapper().boost(1f)).build();
 
         RangeCondition rangeCondition = new RangeCondition(0.5f, "name", 42, null, true, false);
         Query query = rangeCondition.query(schema);
@@ -112,7 +107,7 @@ public class RangeConditionTest extends AbstractConditionTest {
     @Test
     public void testLongClose() {
 
-        Schema schema = mockSchema("name", new LongMapper("name", true, true, 1f));
+        Schema schema = schema().mapper("name", longMapper().boost(1f)).build();
 
         RangeCondition rangeCondition = new RangeCondition(0.5f, "name", 42L, 43, false, false);
         Query query = rangeCondition.query(schema);
@@ -130,7 +125,7 @@ public class RangeConditionTest extends AbstractConditionTest {
     @Test
     public void testLongOpen() {
 
-        Schema schema = mockSchema("name", new LongMapper("name", true, true, 1f));
+        Schema schema = schema().mapper("name", longMapper().boost(1f)).build();
 
         RangeCondition rangeCondition = new RangeCondition(0.5f, "name", 42f, null, true, false);
         Query query = rangeCondition.query(schema);
@@ -148,7 +143,7 @@ public class RangeConditionTest extends AbstractConditionTest {
     @Test
     public void testFloatClose() {
 
-        Schema schema = mockSchema("name", new FloatMapper("name", null, null, 1f));
+        Schema schema = schema().mapper("name", floatMapper().boost(1f)).build();
 
         RangeCondition rangeCondition = new RangeCondition(0.5f, "name", 42.42D, 43.42F, false, false);
         Query query = rangeCondition.query(schema);
@@ -166,7 +161,7 @@ public class RangeConditionTest extends AbstractConditionTest {
     @Test
     public void testFloatOpen() {
 
-        Schema schema = mockSchema("name", new FloatMapper("name", null, null, 1f));
+        Schema schema = schema().mapper("name", floatMapper().boost(1f)).build();
 
         RangeCondition rangeCondition = new RangeCondition(0.5f, "name", 42.42f, null, true, false);
         Query query = rangeCondition.query(schema);
@@ -184,7 +179,7 @@ public class RangeConditionTest extends AbstractConditionTest {
     @Test
     public void testDoubleClose() {
 
-        Schema schema = mockSchema("name", new DoubleMapper("name", null, null, 1f));
+        Schema schema = schema().mapper("name", doubleMapper().boost(1f)).build();
 
         RangeCondition rangeCondition = new RangeCondition(0.5f, "name", 42.42D, 43.42D, false, false);
         Query query = rangeCondition.query(schema);
@@ -202,7 +197,7 @@ public class RangeConditionTest extends AbstractConditionTest {
     @Test
     public void testDoubleOpen() {
 
-        Schema schema = mockSchema("name", new DoubleMapper("name", null, null, 1f));
+        Schema schema = schema().mapper("name", doubleMapper().boost(1f)).build();
 
         RangeCondition rangeCondition = new RangeCondition(0.5f, "name", 42.42D, null, true, false);
         Query query = rangeCondition.query(schema);
@@ -220,7 +215,7 @@ public class RangeConditionTest extends AbstractConditionTest {
     @Test
     public void testInetV4() {
 
-        Schema schema = mockSchema("name", new InetMapper("name", null, null));
+        Schema schema = schema().mapper("name", inetMapper()).build();
 
         RangeCondition rangeCondition = new RangeCondition(0.5f, "name", "192.168.0.01", "192.168.0.045", true, true);
         Query query = rangeCondition.query(schema);
@@ -238,7 +233,7 @@ public class RangeConditionTest extends AbstractConditionTest {
     @Test
     public void testInetV6() {
 
-        Schema schema = mockSchema("name", new InetMapper("name", null, null));
+        Schema schema = schema().mapper("name", inetMapper()).build();
 
         RangeCondition rangeCondition = range("name").boost(0.5f)
                                                      .lower("2001:DB8:2de::e13")

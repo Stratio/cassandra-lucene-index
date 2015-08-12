@@ -20,7 +20,7 @@ import com.stratio.cassandra.lucene.schema.mapping.DateRangeMapper;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
- * Class for building a new {@link DateRangeMapper}.
+ * {@link MapperBuilder} to build a new {@link DateRangeMapper}.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */

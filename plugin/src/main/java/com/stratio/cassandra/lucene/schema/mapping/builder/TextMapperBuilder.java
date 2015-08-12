@@ -20,9 +20,11 @@ import com.stratio.cassandra.lucene.schema.mapping.TextMapper;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
+ * {@link SingleColumnMapperBuilder} to build a new {@link TextMapper}.
+ *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class TextMapperBuilder extends MapperBuilder<TextMapper> {
+public class TextMapperBuilder extends SingleColumnMapperBuilder<TextMapper> {
 
     @JsonProperty("indexed")
     private Boolean indexed;
@@ -74,6 +76,6 @@ public class TextMapperBuilder extends MapperBuilder<TextMapper> {
      */
     @Override
     public TextMapper build(String name) {
-        return new TextMapper(name, indexed, sorted, analyzer);
+        return new TextMapper(name, column, indexed, sorted, analyzer);
     }
 }

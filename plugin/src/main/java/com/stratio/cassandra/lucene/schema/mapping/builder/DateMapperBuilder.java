@@ -22,9 +22,11 @@ import org.codehaus.jackson.annotate.JsonProperty;
 import java.text.SimpleDateFormat;
 
 /**
+ * {@link SingleColumnMapperBuilder} to build a new {@link DateMapper}.
+ *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class DateMapperBuilder extends MapperBuilder<DateMapper> {
+public class DateMapperBuilder extends SingleColumnMapperBuilder<DateMapper> {
 
     @JsonProperty("indexed")
     private Boolean indexed;
@@ -76,6 +78,6 @@ public class DateMapperBuilder extends MapperBuilder<DateMapper> {
      */
     @Override
     public DateMapper build(String name) {
-        return new DateMapper(name, indexed, sorted, pattern);
+        return new DateMapper(name, column, indexed, sorted, pattern);
     }
 }

@@ -32,7 +32,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class SingleFieldConditionTest extends AbstractConditionTest {
+public class SingleFieldConditionTest {
 
     @Test
     public void testBuild() {
@@ -80,7 +80,7 @@ public class SingleFieldConditionTest extends AbstractConditionTest {
     @Test
     public void testGetMapper() {
 
-        SingleColumnMapper mapper = new StringMapper("field", null, null, null);
+        SingleColumnMapper mapper = new StringMapper("field", null, null, null, null);
         Schema schema = mock(Schema.class);
         when(schema.getMapper("field")).thenReturn(mapper);
 

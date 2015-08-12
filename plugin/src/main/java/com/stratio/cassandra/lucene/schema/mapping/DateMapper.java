@@ -16,7 +16,6 @@
 
 package com.stratio.cassandra.lucene.schema.mapping;
 
-import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.util.DateParser;
 import org.apache.cassandra.db.marshal.AsciiType;
 import org.apache.cassandra.db.marshal.DecimalType;
@@ -53,12 +52,14 @@ public class DateMapper extends SingleColumnMapper<Long> {
      * Builds a new {@link DateMapper} using the specified pattern.
      *
      * @param name    The name of the mapper.
+     * @param column  The name of the column to be mapped.
      * @param indexed If the field supports searching.
      * @param sorted  If the field supports sorting.
      * @param pattern The {@link SimpleDateFormat} pattern to be used.
      */
-    public DateMapper(String name, Boolean indexed, Boolean sorted, String pattern) {
+    public DateMapper(String name, String column, Boolean indexed, Boolean sorted, String pattern) {
         super(name,
+              column,
               indexed,
               sorted,
               AsciiType.instance,
@@ -127,10 +128,6 @@ public class DateMapper extends SingleColumnMapper<Long> {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                      .add("indexed", indexed)
-                      .add("sorted", sorted)
-                      .add("pattern", pattern)
-                      .toString();
+        return toStringHelper(this).add("pattern", pattern).toString();
     }
 }

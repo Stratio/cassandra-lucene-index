@@ -40,90 +40,90 @@ public class UUIDMapperTest {
 
     @Test
     public void testConstructorWithoutArgs() {
-        UUIDMapper mapper = new UUIDMapper("field", null, null);
+        UUIDMapper mapper = new UUIDMapper("field", null, null, null);
         assertEquals("Indexed must be default", Mapper.DEFAULT_INDEXED, mapper.isIndexed());
         assertEquals("Sorted must be default", Mapper.DEFAULT_SORTED, mapper.isSorted());
     }
 
     @Test
     public void testConstructorWithAllArgs() {
-        UUIDMapper mapper = new UUIDMapper("field", false, true);
+        UUIDMapper mapper = new UUIDMapper("field", null, false, true);
         assertFalse("Must be not indexed", mapper.isIndexed());
         assertTrue("Must be sorted", mapper.isSorted());
     }
 
     @Test
     public void testValueNull() {
-        UUIDMapper mapper = new UUIDMapper("field", true, true);
+        UUIDMapper mapper = new UUIDMapper("field", null, true, true);
         String parsed = mapper.base("test", null);
         assertNull("Base value must be null", parsed);
     }
 
     @Test
     public void testValueUUIDRandom() {
-        UUIDMapper mapper = new UUIDMapper("field", true, true);
+        UUIDMapper mapper = new UUIDMapper("field", null, true, true);
         String parsed = mapper.base("test", "550e8400-e29b-41d4-a716-446655440000");
         assertEquals("Base value is wrong", "04550e8400e29b41d4a716446655440000", parsed);
     }
 
     @Test
     public void testValueUUIDTimeBased() {
-        UUIDMapper mapper = new UUIDMapper("field", true, true);
+        UUIDMapper mapper = new UUIDMapper("field", null, true, true);
         String parsed = mapper.base("test", "c4c61dc4-89d7-11e4-b116-123b93f75cba");
         assertEquals("Base value is wrong", "0101e489d7c4c61dc4c4c61dc489d711e4b116123b93f75cba", parsed);
     }
 
     @Test
     public void testValueStringRandom() {
-        UUIDMapper mapper = new UUIDMapper("field", true, true);
+        UUIDMapper mapper = new UUIDMapper("field", null, true, true);
         String parsed = mapper.base("test", "550e8400-e29b-41d4-a716-446655440000");
         assertEquals("Base value is wrong", "04550e8400e29b41d4a716446655440000", parsed);
     }
 
     @Test
     public void testValueStringTimeBased() {
-        UUIDMapper mapper = new UUIDMapper("field", true, true);
+        UUIDMapper mapper = new UUIDMapper("field", null, true, true);
         String parsed = mapper.base("test", "c4c61dc4-89d7-11e4-b116-123b93f75cba");
         assertEquals("Base value is wrong", "0101e489d7c4c61dc4c4c61dc489d711e4b116123b93f75cba", parsed);
     }
 
     @Test(expected = IndexException.class)
     public void testValueStringInvalid() {
-        UUIDMapper mapper = new UUIDMapper("field", true, true);
+        UUIDMapper mapper = new UUIDMapper("field", null, true, true);
         mapper.base("test", "550e840");
     }
 
     @Test(expected = IndexException.class)
     public void testValueInteger() {
-        UUIDMapper mapper = new UUIDMapper("field", true, true);
+        UUIDMapper mapper = new UUIDMapper("field", null, true, true);
         String parsed = mapper.base("test", 3);
         assertEquals("Base value is wrong", "3", parsed);
     }
 
     @Test(expected = IndexException.class)
     public void testValueLong() {
-        UUIDMapper mapper = new UUIDMapper("field", true, true);
+        UUIDMapper mapper = new UUIDMapper("field", null, true, true);
         String parsed = mapper.base("test", 3l);
         assertEquals("Base value is wrong", "3", parsed);
     }
 
     @Test(expected = IndexException.class)
     public void testValueFloat() {
-        UUIDMapper mapper = new UUIDMapper("field", true, true);
+        UUIDMapper mapper = new UUIDMapper("field", null, true, true);
         String parsed = mapper.base("test", 3.6f);
         assertEquals("Base value is wrong", "3.6", parsed);
     }
 
     @Test(expected = IndexException.class)
     public void testValueDouble() {
-        UUIDMapper mapper = new UUIDMapper("field", true, true);
+        UUIDMapper mapper = new UUIDMapper("field", null, true, true);
         String parsed = mapper.base("test", 3d);
         assertEquals("Base value is wrong", "3.0", parsed);
     }
 
     @Test
     public void testIndexedField() {
-        UUIDMapper mapper = new UUIDMapper("field", true, true);
+        UUIDMapper mapper = new UUIDMapper("field", null, true, true);
         String base = mapper.base("name", "550e8400-e29b-41d4-a716-446655440000");
         Field field = mapper.indexedField("name", base);
         assertNotNull("Field must not be null", field);
@@ -134,7 +134,7 @@ public class UUIDMapperTest {
 
     @Test
     public void testSortedField() {
-        UUIDMapper mapper = new UUIDMapper("field", true, true);
+        UUIDMapper mapper = new UUIDMapper("field", null, true, true);
         String base = mapper.base("name", "550e8400-e29b-41d4-a716-446655440000");
         Field field = mapper.sortedField("name", base);
         assertNotNull("Field must not be null", field);
@@ -143,7 +143,7 @@ public class UUIDMapperTest {
 
     @Test
     public void testExtractAnalyzers() {
-        UUIDMapper mapper = new UUIDMapper("field", true, true);
+        UUIDMapper mapper = new UUIDMapper("field", null, true, true);
         String analyzer = mapper.getAnalyzer();
         assertEquals("Analyzer type is wrong", Mapper.KEYWORD_ANALYZER, analyzer);
     }
@@ -151,7 +151,7 @@ public class UUIDMapperTest {
     @Test
     public void testCompareDifferentTypes() {
 
-        UUIDMapper mapper = new UUIDMapper("field", true, true);
+        UUIDMapper mapper = new UUIDMapper("field", null, true, true);
 
         UUID uuidTimeBased = UUID.fromString("c4c61dc4-89d7-11e4-b116-123b93f75cba");
         UUID uuidRandom = UUID.fromString("c4c61dc4-89d7-41e4-b116-123b93f75cba");
@@ -171,7 +171,7 @@ public class UUIDMapperTest {
     @Test
     public void testCompareTimeUUID() {
 
-        UUIDMapper mapper = new UUIDMapper("field", true, true);
+        UUIDMapper mapper = new UUIDMapper("field", null, true, true);
 
         UUID uuid1 = UUID.fromString("d9b602c0-89d8-11e4-b116-123b93f75cba");
         UUID uuid2 = UUID.fromString("d9b6ff0e-89d8-11e4-b116-123b93f75cba");
@@ -191,7 +191,7 @@ public class UUIDMapperTest {
     @Test
     public void testCompareRandomUUID() throws InterruptedException {
 
-        UUIDMapper mapper = new UUIDMapper("field", true, true);
+        UUIDMapper mapper = new UUIDMapper("field", null, true, true);
 
         UUID uuid1 = UUID.fromString("5e9384d7-c72b-402a-aa13-2745f9b6b318");
         UUID uuid2 = UUID.fromString("eddfdc0d-76ee-4a5c-a155-3e5dd16ce1ae");
@@ -333,7 +333,9 @@ public class UUIDMapperTest {
 
     @Test
     public void testToString() {
-        UUIDMapper mapper = new UUIDMapper("field", false, false);
-        assertEquals("Method toString is wrong", "UUIDMapper{indexed=false, sorted=false}", mapper.toString());
+        UUIDMapper mapper = new UUIDMapper("field", null, false, false);
+        assertEquals("Method toString is wrong",
+                     "UUIDMapper{name=field, indexed=false, sorted=false, column=field}",
+                     mapper.toString());
     }
 }
