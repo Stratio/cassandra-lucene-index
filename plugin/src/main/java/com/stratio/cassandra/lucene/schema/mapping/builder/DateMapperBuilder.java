@@ -19,7 +19,6 @@ package com.stratio.cassandra.lucene.schema.mapping.builder;
 import com.stratio.cassandra.lucene.schema.mapping.DateMapper;
 import org.codehaus.jackson.annotate.JsonProperty;
 
-import java.text.SimpleDateFormat;
 
 /**
  * {@link SingleColumnMapperBuilder} to build a new {@link DateMapper}.
@@ -60,9 +59,9 @@ public class DateMapperBuilder extends SingleColumnMapperBuilder<DateMapper> {
     }
 
     /**
-     * Sets the {@link SimpleDateFormat} pattern to be used.
+     * Sets the date format pattern to be used.
      *
-     * @param pattern The {@link SimpleDateFormat} pattern to be used.
+     * @param pattern The date format pattern to be used.
      * @return This.
      */
     public DateMapperBuilder pattern(String pattern) {

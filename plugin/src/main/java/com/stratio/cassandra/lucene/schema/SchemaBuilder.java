@@ -45,15 +45,15 @@ public class SchemaBuilder {
     private final Map<String, AnalyzerBuilder> analyzerBuilders;
 
     @JsonProperty("fields")
-    private final Map<String, MapperBuilder> mapperBuilders;
+    private final Map<String, MapperBuilder<?>> mapperBuilders;
 
     @JsonCreator
     SchemaBuilder(@JsonProperty("default_analyzer") String defaultAnalyzerName,
                   @JsonProperty("analyzers") Map<String, AnalyzerBuilder> analyzerBuilders,
-                  @JsonProperty("fields") Map<String, MapperBuilder> mapperBuilders) {
+                  @JsonProperty("fields") Map<String, MapperBuilder<?>> mapperBuilders) {
         this.defaultAnalyzerName = defaultAnalyzerName;
         this.analyzerBuilders = analyzerBuilders != null ? analyzerBuilders : new HashMap<String, AnalyzerBuilder>();
-        this.mapperBuilders = mapperBuilders != null ? mapperBuilders : new HashMap<String, MapperBuilder>();
+        this.mapperBuilders = mapperBuilders != null ? mapperBuilders : new HashMap<String, MapperBuilder<?>>();
     }
 
     /**
@@ -86,7 +86,7 @@ public class SchemaBuilder {
      * @param mapper The builder of the {@link Mapper} to be added.
      * @return This.
      */
-    public SchemaBuilder mapper(String name, MapperBuilder mapper) {
+    public SchemaBuilder mapper(String name, MapperBuilder<?> mapper) {
         mapperBuilders.put(name, mapper);
         return this;
     }
@@ -99,9 +99,9 @@ public class SchemaBuilder {
     public Schema build() {
 
         Map<String, Mapper> mappers = new HashMap<>(mapperBuilders.size());
-        for (Map.Entry<String, MapperBuilder> entry : mapperBuilders.entrySet()) {
+        for (Map.Entry<String, MapperBuilder<?>> entry : mapperBuilders.entrySet()) {
             String name = entry.getKey();
-            MapperBuilder builder = entry.getValue();
+            MapperBuilder<?> builder = entry.getValue();
             Mapper mapper = builder.build(name);
             mappers.put(name, mapper);
         }

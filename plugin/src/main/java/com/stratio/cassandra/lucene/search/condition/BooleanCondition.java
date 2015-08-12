@@ -35,13 +35,13 @@ import java.util.List;
  */
 public class BooleanCondition extends Condition {
 
-    /** The mandatory conditions */
+    /** The mandatory conditions. */
     public final List<Condition> must;
 
-    /** The optional conditions */
+    /** The optional conditions. */
     public final List<Condition> should;
 
-    /** The mandatory not conditions */
+    /** The mandatory not conditions. */
     public final List<Condition> not;
 
     /**

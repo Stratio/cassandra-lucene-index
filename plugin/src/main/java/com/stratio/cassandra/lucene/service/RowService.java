@@ -351,7 +351,9 @@ public abstract class RowService {
      */
     private ScoreDoc after(IndexSearcher searcher, RowKey key, Query query, Sort sort) throws IOException {
         TimeCounter time = TimeCounter.create().start();
-        if (key == null) return null;
+        if (key == null) {
+            return null;
+        }
         Filter rowFilter = new QueryWrapperFilter(rowMapper.query(key));
         Query afterQuery = new FilteredQuery(query, rowFilter);
         Set<String> fields = Collections.emptySet();
@@ -399,8 +401,10 @@ public abstract class RowService {
         Operator operator = expression.operator;
         AbstractType<?> validator = def.type;
 
-        for (Column column : columns.getColumnsByName(name)) {
-            if (accepted(column, validator, operator, expectedValue)) return true;
+        for (Column<?> column : columns.getColumnsByName(name)) {
+            if (accepted(column, validator, operator, expectedValue)) {
+                return true;
+            }
         }
         return false;
     }
@@ -416,12 +420,16 @@ public abstract class RowService {
      * @return {@code true} if the specified {@link Column} satisfies the the specified expression, {@code false}
      * otherwise.
      */
-    private boolean accepted(Column column, AbstractType<?> validator, Operator operator, ByteBuffer value) {
+    private boolean accepted(Column<?> column, AbstractType<?> validator, Operator operator, ByteBuffer value) {
 
-        if (column == null) return false;
+        if (column == null) {
+            return false;
+        }
 
         ByteBuffer actualValue = column.getDecomposedValue();
-        if (actualValue == null) return false;
+        if (actualValue == null) {
+            return false;
+        }
 
         int comparison = validator.compare(actualValue, value);
         switch (operator) {

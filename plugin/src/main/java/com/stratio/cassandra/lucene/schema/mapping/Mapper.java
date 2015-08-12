@@ -71,7 +71,7 @@ public abstract class Mapper {
     protected final Boolean sorted;
 
     /** The supported Cassandra types for indexing. */
-    private final List<AbstractType> supportedTypes;
+    private final List<AbstractType<?>> supportedTypes;
 
     /** The names of the columns to be mapped. */
     private final List<String> mappedColumns;
@@ -88,7 +88,7 @@ public abstract class Mapper {
     protected Mapper(String name,
                      Boolean indexed,
                      Boolean sorted,
-                     List<AbstractType> supportedTypes,
+                     List<AbstractType<?>> supportedTypes,
                      List<String> mappedColumns) {
         if (StringUtils.isBlank(name)) {
             throw new IndexException("Mapper name is required");
@@ -171,7 +171,7 @@ public abstract class Mapper {
         }
 
         if (type instanceof ReversedType) {
-            ReversedType reversedType = (ReversedType) type;
+            ReversedType<?> reversedType = (ReversedType<?>) type;
             checkedType = reversedType.baseType;
         }
 
@@ -240,7 +240,7 @@ public abstract class Mapper {
             if (mapperColumns.isEmpty()) {
                 return false;
             }
-            for (Column column : mapperColumns) {
+            for (Column<?> column : mapperColumns) {
                 if (column.isCollection()) {
                     return false;
                 }

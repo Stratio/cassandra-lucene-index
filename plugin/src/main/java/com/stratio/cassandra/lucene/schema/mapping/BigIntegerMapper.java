@@ -36,6 +36,9 @@ public class BigIntegerMapper extends KeywordMapper {
     /** The default max number of digits. */
     public static final int DEFAULT_DIGITS = 32;
 
+    /** THe numeric base. */
+    private static final int BASE = 10;
+
     /** The max number of digits. */
     private final int digits;
 
@@ -67,7 +70,7 @@ public class BigIntegerMapper extends KeywordMapper {
         }
 
         this.digits = digits == null ? DEFAULT_DIGITS : digits;
-        complement = BigInteger.valueOf(10).pow(this.digits).subtract(BigInteger.valueOf(1));
+        complement = BigInteger.valueOf(BASE).pow(this.digits).subtract(BigInteger.valueOf(1));
         BigInteger maxValue = complement.multiply(BigInteger.valueOf(2));
         hexDigits = encode(maxValue).length();
     }

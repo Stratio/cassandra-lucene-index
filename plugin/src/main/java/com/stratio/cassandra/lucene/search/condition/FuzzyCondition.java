@@ -36,16 +36,16 @@ import org.apache.lucene.util.automaton.LevenshteinAutomata;
 public class FuzzyCondition extends SingleFieldCondition {
 
     /** The default Damerau-Levenshtein max distance. */
-    public final static int DEFAULT_MAX_EDITS = LevenshteinAutomata.MAXIMUM_SUPPORTED_DISTANCE;
+    public static final int DEFAULT_MAX_EDITS = LevenshteinAutomata.MAXIMUM_SUPPORTED_DISTANCE;
 
     /** The default length of common (non-fuzzy) prefix. */
-    public final static int DEFAULT_PREFIX_LENGTH = 0;
+    public static final int DEFAULT_PREFIX_LENGTH = 0;
 
     /** The default max expansions. */
-    public final static int DEFAULT_MAX_EXPANSIONS = 50;
+    public static final int DEFAULT_MAX_EXPANSIONS = 50;
 
     /** If transpositions should be treated as a primitive edit operation by default. */
-    public final static boolean DEFAULT_TRANSPOSITIONS = true;
+    public static final boolean DEFAULT_TRANSPOSITIONS = true;
 
     /** The name of the field to be matched. */
     public final String field;

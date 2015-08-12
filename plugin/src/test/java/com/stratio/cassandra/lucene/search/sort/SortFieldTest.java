@@ -21,13 +21,13 @@ import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.analysis.PreBuiltAnalyzers;
 import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
-import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.junit.Test;
 
 import java.util.Comparator;
 
-import static com.stratio.cassandra.lucene.schema.SchemaBuilders.stringMapper;
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
+import static org.apache.lucene.search.SortField.FIELD_SCORE;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -67,19 +67,81 @@ public class SortFieldTest {
     }
 
     @Test
+    public void testSortFieldDefaults() {
+
+        Schema schema = schema().mapper("field", stringMapper().sorted(true)).build();
+
+        SortField sortField = new SortField("field", null);
+        org.apache.lucene.search.SortField luceneSortField = sortField.sortField(schema);
+
+        assertNotNull("SortField is not created", luceneSortField);
+        assertEquals("SortField name is wrong", "field", luceneSortField.getField());
+        assertEquals("SortField reverse is wrong", SortField.DEFAULT_REVERSE, luceneSortField.getReverse());
+    }
+
+    @Test
     public void testSortField() {
 
-        Mapper mapper = stringMapper().sorted(true).build("field");
+        Schema schema = schema().mapper("field", stringMapper().sorted(true)).build();
 
-        Schema schema = mock(Schema.class);
-        when(schema.getAnalyzer()).thenReturn(PreBuiltAnalyzers.DEFAULT.get());
-        when(schema.getMapper("field")).thenReturn(mapper);
+        SortField sortField = new SortField("field", false);
+        org.apache.lucene.search.SortField luceneSortField = sortField.sortField(schema);
+
+        assertNotNull("SortField is not created", luceneSortField);
+        assertEquals("SortField name is wrong", "field", luceneSortField.getField());
+        assertFalse("SortField reverse is wrong", luceneSortField.getReverse());
+    }
+
+    @Test
+    public void testSortFieldReverse() {
+
+        Schema schema = schema().mapper("field", stringMapper().sorted(true)).build();
 
         SortField sortField = new SortField("field", true);
         org.apache.lucene.search.SortField luceneSortField = sortField.sortField(schema);
 
-        assertNotNull(luceneSortField);
-        assertEquals(org.apache.lucene.search.SortField.class, luceneSortField.getClass());
+        assertNotNull("SortField is not created", luceneSortField);
+        assertEquals("SortField name is wrong", "field", luceneSortField.getField());
+        assertTrue("sortField reverse is wrong", luceneSortField.getReverse());
+    }
+
+    @Test
+    public void testSortFieldScoreDefaults() {
+
+        Schema schema = schema().mapper("field", stringMapper().sorted(true)).build();
+
+        SortField sortField = new SortField("score", null);
+        org.apache.lucene.search.SortField luceneSortField = sortField.sortField(schema);
+
+        assertNotNull("SortField is not created", luceneSortField);
+        assertEquals("SortField type is wrong", FIELD_SCORE, luceneSortField);
+        assertEquals("SortField reverse is wrong", SortField.DEFAULT_REVERSE, luceneSortField.getReverse());
+    }
+
+    @Test
+    public void testSortFieldScore() {
+
+        Schema schema = schema().mapper("field", stringMapper().sorted(true)).build();
+
+        SortField sortField = new SortField("score", false);
+        org.apache.lucene.search.SortField luceneSortField = sortField.sortField(schema);
+
+        assertNotNull("SortField is not created", luceneSortField);
+        assertEquals("SortField type is wrong", FIELD_SCORE, luceneSortField);
+        assertFalse("SortField reverse is wrong", luceneSortField.getReverse());
+    }
+
+    @Test
+    public void testSortFieldScoreReverse() {
+
+        Schema schema = schema().mapper("field", stringMapper().sorted(true)).build();
+
+        SortField sortField = new SortField("score", true);
+        org.apache.lucene.search.SortField luceneSortField = sortField.sortField(schema);
+
+        assertNotNull("SortField is not created", luceneSortField);
+        assertEquals("SortField type is wrong", FIELD_SCORE, luceneSortField);
+        assertFalse("SortField reverse is wrong", luceneSortField.getReverse());
     }
 
     @Test(expected = IndexException.class)

@@ -33,7 +33,6 @@ import org.apache.lucene.spatial.prefix.tree.DateRangePrefixTree;
 import org.apache.lucene.spatial.prefix.tree.NumberRangePrefixTree.NRShape;
 import org.apache.lucene.spatial.prefix.tree.NumberRangePrefixTree.UnitNRShape;
 
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 
@@ -50,7 +49,7 @@ public class DateRangeMapper extends Mapper {
     /** The name of the column containing the to date. */
     private final String to;
 
-    /** The {@link SimpleDateFormat} pattern. */
+    /** The date format pattern. */
     private final String pattern;
 
     /** The {@link DateParser} */
@@ -65,13 +64,13 @@ public class DateRangeMapper extends Mapper {
      * @param name    The name of the mapper.
      * @param from    The name of the column containing the from date.
      * @param to      The name of the column containing the to date.
-     * @param pattern The {@link SimpleDateFormat} pattern to be used.
+     * @param pattern The date format pattern to be used.
      */
     public DateRangeMapper(String name, String from, String to, String pattern) {
         super(name,
               true,
               false,
-              Arrays.<AbstractType>asList(AsciiType.instance,
+              Arrays.<AbstractType<?>>asList(AsciiType.instance,
                                           UTF8Type.instance,
                                           Int32Type.instance,
                                           LongType.instance,
@@ -117,9 +116,9 @@ public class DateRangeMapper extends Mapper {
     }
 
     /**
-     * Returns the {@link SimpleDateFormat} pattern to be used.
+     * Returns the date format pattern to be used.
      *
-     * @return The {@link SimpleDateFormat} pattern to be used.
+     * @return The date format pattern to be used.
      */
     public String getPattern() {
         return pattern;
@@ -194,7 +193,7 @@ public class DateRangeMapper extends Mapper {
      * @return The star {@link Date} contained in the specified {@link Columns}.
      */
     Date readFrom(Columns columns) {
-        Column column = columns.getColumnsByName(from).getFirst();
+        Column<?> column = columns.getColumnsByName(from).getFirst();
         if (column == null) {
             return null;
         }
@@ -212,7 +211,7 @@ public class DateRangeMapper extends Mapper {
      * @return The to {@link Date} contained in the specified {@link Columns}.
      */
     Date readTo(Columns columns) {
-        Column column = columns.getColumnsByName(to).getFirst();
+        Column<?> column = columns.getColumnsByName(to).getFirst();
         if (column == null) {
             return null;
         }

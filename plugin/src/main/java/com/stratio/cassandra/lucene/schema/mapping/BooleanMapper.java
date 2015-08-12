@@ -54,14 +54,19 @@ public class BooleanMapper extends KeywordMapper {
         } else if (value instanceof Boolean) {
             return (Boolean) value ? TRUE : FALSE;
         } else if (value instanceof String) {
-            String s = (String) value;
-            if (s.equalsIgnoreCase(TRUE)) {
-                return TRUE;
-            } else if (s.equalsIgnoreCase(FALSE)) {
-                return FALSE;
-            }
+            return base(name, (String) value);
         }
         throw new IndexException("Field '%s' requires a boolean, but found '%s'", name, value);
+    }
+
+    private String base(String name, String value) {
+        if (value.equalsIgnoreCase(TRUE)) {
+            return TRUE;
+        } else if (value.equalsIgnoreCase(FALSE)) {
+            return FALSE;
+        } else {
+            throw new IndexException("Field '%s' requires '%s' or '%s', but found '%s'", TRUE, FALSE, name, value);
+        }
     }
 
 }

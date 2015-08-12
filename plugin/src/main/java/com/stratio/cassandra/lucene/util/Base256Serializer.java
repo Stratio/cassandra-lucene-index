@@ -27,6 +27,10 @@ import java.nio.ByteBuffer;
  */
 class Base256Serializer {
 
+    /** Private constructor to hide the implicit public one. */
+    private Base256Serializer() {
+    }
+
     /**
      * Returns the {@code char} array representation of the specified {@code byte} array.
      *

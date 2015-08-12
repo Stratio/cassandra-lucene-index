@@ -22,10 +22,8 @@ import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
-import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.commons.lang3.StringUtils;
 
-import java.nio.ByteBuffer;
 import java.util.Comparator;
 
 import static org.apache.lucene.search.SortField.FIELD_SCORE;
@@ -87,7 +85,9 @@ public class SortField {
      * @return the Lucene {@link org.apache.lucene.search.SortField} representing this {@link SortField}.
      */
     public org.apache.lucene.search.SortField sortField(Schema schema) {
-        if (field.equalsIgnoreCase("score")) return FIELD_SCORE;
+        if (field.equalsIgnoreCase("score")) {
+            return FIELD_SCORE;
+        }
         Mapper mapper = schema.getMapper(field);
         if (mapper == null) {
             throw new IndexException("No mapper found for sortFields field '%s'", field);
@@ -124,10 +124,7 @@ public class SortField {
                     return -1;
                 }
 
-                AbstractType<?> type = column1.getType();
-                ByteBuffer value1 = column1.getDecomposedValue();
-                ByteBuffer value2 = column2.getDecomposedValue();
-                return reverse ? type.compare(value2, value1) : type.compare(value1, value2);
+                return reverse ? column2.compareTo(column1) : column1.compareTo(column2);
             }
         };
     }
@@ -141,8 +138,12 @@ public class SortField {
     /** {@inheritDoc} */
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         SortField sortField = (SortField) o;
         return reverse == sortField.reverse && field.equals(sortField.field);
     }

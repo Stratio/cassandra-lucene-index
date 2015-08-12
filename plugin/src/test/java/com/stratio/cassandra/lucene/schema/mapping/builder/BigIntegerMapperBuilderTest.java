@@ -33,22 +33,22 @@ public class BigIntegerMapperBuilderTest extends AbstractMapperBuilderTest {
     public void testBuild() {
         BigIntegerMapperBuilder builder = new BigIntegerMapperBuilder().indexed(false).sorted(false).digits(6);
         BigIntegerMapper mapper = builder.build("field");
-        assertNotNull(mapper);
-        assertFalse(mapper.isIndexed());
-        assertFalse(mapper.isSorted());
-        assertEquals("field", mapper.getName());
-        assertEquals(6, mapper.getDigits());
+        assertNotNull("Mapper is not built", mapper);
+        assertFalse("Indexed is not set", mapper.isIndexed());
+        assertFalse("Sorted is not set", mapper.isSorted());
+        assertEquals("Name is not set", "field", mapper.getName());
+        assertEquals("Digits is not set", 6, mapper.getDigits());
     }
 
     @Test
     public void testBuildDefaults() {
         BigIntegerMapperBuilder builder = new BigIntegerMapperBuilder();
         BigIntegerMapper mapper = builder.build("field");
-        assertNotNull(mapper);
-        assertEquals(Mapper.DEFAULT_INDEXED, mapper.isIndexed());
-        assertEquals(Mapper.DEFAULT_SORTED, mapper.isSorted());
-        assertEquals("field", mapper.getName());
-        assertEquals(BigIntegerMapper.DEFAULT_DIGITS, mapper.getDigits());
+        assertNotNull("Mapper is not built", mapper);
+        assertEquals("Indexed is not set to default value", Mapper.DEFAULT_INDEXED, mapper.isIndexed());
+        assertEquals("Sorted is not set to default value", Mapper.DEFAULT_SORTED, mapper.isSorted());
+        assertEquals("Name is not set", "field", mapper.getName());
+        assertEquals("Digits is not set to default value", BigIntegerMapper.DEFAULT_DIGITS, mapper.getDigits());
     }
 
     @Test

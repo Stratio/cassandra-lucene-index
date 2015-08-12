@@ -17,8 +17,6 @@
 package com.stratio.cassandra.lucene.search.condition.builder;
 
 import com.stratio.cassandra.lucene.search.condition.DateRangeCondition;
-import com.stratio.cassandra.lucene.search.condition.GeoBBoxCondition;
-import com.stratio.cassandra.lucene.search.condition.GeoDistanceCondition;
 import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
 
@@ -89,9 +87,9 @@ public class DateRangeConditionBuilder extends ConditionBuilder<DateRangeConditi
     }
 
     /**
-     * Returns the {@link GeoDistanceCondition} represented by this builder.
+     * Returns the {@link DateRangeCondition} represented by this builder.
      *
-     * @return The {@link GeoDistanceCondition} represented by this builder.
+     * @return The {@link DateRangeCondition} represented by this builder.
      */
     @Override
     public DateRangeCondition build() {

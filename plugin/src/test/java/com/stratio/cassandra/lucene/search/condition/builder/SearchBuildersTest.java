@@ -19,7 +19,6 @@ package com.stratio.cassandra.lucene.search.condition.builder;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.search.Search;
 import com.stratio.cassandra.lucene.search.SearchBuilder;
-import com.stratio.cassandra.lucene.search.SearchBuilders;
 import com.stratio.cassandra.lucene.search.condition.BooleanCondition;
 import com.stratio.cassandra.lucene.search.condition.FuzzyCondition;
 import com.stratio.cassandra.lucene.search.condition.LuceneCondition;
@@ -41,7 +40,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 
 /**
- * Class for testing {@link SearchBuilders}.
+ * Class for testing {@link Search} builders.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */

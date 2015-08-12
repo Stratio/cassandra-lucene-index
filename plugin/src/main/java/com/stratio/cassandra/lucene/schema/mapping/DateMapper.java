@@ -32,7 +32,6 @@ import org.apache.lucene.document.NumericDocValuesField;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.SortField.Type;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -42,10 +41,10 @@ import java.util.Date;
  */
 public class DateMapper extends SingleColumnMapper<Long> {
 
-    /** The {@link SimpleDateFormat} pattern. */
+    /** The date format pattern. */
     private final String pattern;
 
-    /** The {@link DateParser} */
+    /** The {@link DateParser}. */
     private final DateParser dateParser;
 
     /**
@@ -55,7 +54,7 @@ public class DateMapper extends SingleColumnMapper<Long> {
      * @param column  The name of the column to be mapped.
      * @param indexed If the field supports searching.
      * @param sorted  If the field supports sorting.
-     * @param pattern The {@link SimpleDateFormat} pattern to be used.
+     * @param pattern The date format pattern to be used.
      */
     public DateMapper(String name, String column, Boolean indexed, Boolean sorted, String pattern) {
         super(name,

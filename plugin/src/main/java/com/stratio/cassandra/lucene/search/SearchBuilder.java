@@ -37,11 +37,11 @@ public class SearchBuilder implements Builder<Search> {
 
     /** The {@link Condition} for querying, maybe {@code null} meaning no querying. */
     @JsonProperty("query")
-    ConditionBuilder queryBuilder;
+    ConditionBuilder<?,?> queryBuilder;
 
     /** The {@link Condition} for filtering, maybe {@code null} meaning no filtering. */
     @JsonProperty("filter")
-    ConditionBuilder filterBuilder;
+    ConditionBuilder<?,?> filterBuilder;
 
     /** The {@link Sort} for the query, maybe {@code null} meaning no filtering. */
     @JsonProperty("sort")
@@ -57,7 +57,7 @@ public class SearchBuilder implements Builder<Search> {
      * @param queryBuilder The querying condition to be set.
      * @return This builder with the specified querying condition.
      */
-    public SearchBuilder query(ConditionBuilder queryBuilder) {
+    public SearchBuilder query(ConditionBuilder<?,?> queryBuilder) {
         this.queryBuilder = queryBuilder;
         return this;
     }
@@ -68,7 +68,7 @@ public class SearchBuilder implements Builder<Search> {
      * @param filterBuilder The filtering condition to be set.
      * @return This builder with the specified filtering condition.
      */
-    public SearchBuilder filter(ConditionBuilder filterBuilder) {
+    public SearchBuilder filter(ConditionBuilder<?,?> filterBuilder) {
         this.filterBuilder = filterBuilder;
         return this;
     }

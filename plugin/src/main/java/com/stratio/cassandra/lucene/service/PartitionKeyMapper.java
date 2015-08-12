@@ -24,7 +24,6 @@ import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
 import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.db.DecoratedKey;
-import org.apache.cassandra.db.Row;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.dht.IPartitioner;
 import org.apache.lucene.document.Document;
@@ -48,10 +47,17 @@ public class PartitionKeyMapper {
     /** The Lucene field name. */
     public static final String FIELD_NAME = "_partition_key";
 
-    private final IPartitioner partitioner; // The active active partition key
-    private final CFMetaData metadata; // The table metadata
-    private final Schema schema; // The mapping schema
-    private final AbstractType<?> type; // The partition key type
+    // The active active partition key
+    private final IPartitioner partitioner;
+
+    // The table metadata
+    private final CFMetaData metadata;
+
+    // The mapping schema
+    private final Schema schema;
+
+    // The partition key type.
+    private final AbstractType<?> type;
 
     /**
      * Returns a new {@code PartitionKeyMapper} according to the specified column family meta data.
@@ -137,11 +143,11 @@ public class PartitionKeyMapper {
     }
 
     /**
-     * Returns the columns contained in the partition key of the specified {@link Row}. Note that not all the contained
+     * Returns the columns contained in the partition key of the specified row. Note that not all the contained
      * columns are returned, but only those of the partition key.
      *
-     * @param partitionKey A {@link Row} partition key.
-     * @return The columns contained in the partition key of the specified {@link Row}.
+     * @param partitionKey A partition key.
+     * @return The columns contained in the partition key of the specified row.
      */
     public Columns columns(DecoratedKey partitionKey) {
         Columns columns = new Columns();

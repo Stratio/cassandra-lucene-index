@@ -51,7 +51,7 @@ public class LuceneStorageProxy {
 
     static {
         try {
-            Class clazz = StorageProxy.class;
+            Class<?> clazz = StorageProxy.class;
 
             getLiveSortedEndpoints = clazz.getDeclaredMethod("getLiveSortedEndpoints",
                                                              Keyspace.class,
@@ -70,10 +70,12 @@ public class LuceneStorageProxy {
         }
     }
 
-    public static List<InetAddress> getLiveSortedEndpoints(Keyspace keyspace, RingPosition pos) throws Exception {
+    @SuppressWarnings("unchecked")
+    public static List<InetAddress> getLiveSortedEndpoints(Keyspace keyspace, RingPosition<?> pos) throws Exception {
         return (List<InetAddress>) getLiveSortedEndpoints.invoke(StorageProxy.instance, keyspace, pos);
     }
 
+    @SuppressWarnings("unchecked")
     public static List<InetAddress> intersection(List<InetAddress> l1, List<InetAddress> l2) throws Exception {
         return (List<InetAddress>) intersection.invoke(StorageProxy.instance, l1, l2);
     }

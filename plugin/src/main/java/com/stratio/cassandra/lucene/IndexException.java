@@ -25,6 +25,8 @@ import com.stratio.cassandra.lucene.util.Log;
  */
 public class IndexException extends RuntimeException {
 
+    private static final long serialVersionUID = 2532456234653465436L;
+
     private Throwable cause;
 
     /**

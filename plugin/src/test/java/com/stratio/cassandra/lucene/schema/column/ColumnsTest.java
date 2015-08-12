@@ -57,8 +57,8 @@ public class ColumnsTest {
         Columns columns = new Columns();
         columns.add(new Columns().add(Column.fromComposed("field1", "value1", UTF8Type.instance, false))
                                  .add(Column.fromComposed("field2", "value2", UTF8Type.instance, false)));
-        List<Column> columnList = new ArrayList<>();
-        for (Column column : columns) {
+        List<Column<?>> columnList = new ArrayList<>();
+        for (Column<?> column : columns) {
             columnList.add(column);
         }
         assertEquals(2, columnList.size());

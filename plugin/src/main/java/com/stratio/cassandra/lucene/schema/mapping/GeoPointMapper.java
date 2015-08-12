@@ -73,7 +73,7 @@ public class GeoPointMapper extends Mapper {
         super(name,
               true,
               false,
-              Arrays.<AbstractType>asList(AsciiType.instance,
+              Arrays.<AbstractType<?>>asList(AsciiType.instance,
                                           UTF8Type.instance,
                                           Int32Type.instance,
                                           LongType.instance,
@@ -194,7 +194,7 @@ public class GeoPointMapper extends Mapper {
      * @param columns The {@link Columns} containing the latitude.
      */
     Double readLatitude(Columns columns) {
-        Column column = columns.getColumnsByName(latitude).getFirst();
+        Column<?> column = columns.getColumnsByName(latitude).getFirst();
         return column == null ? null : readLatitude(column.getComposedValue());
     }
 
@@ -205,7 +205,7 @@ public class GeoPointMapper extends Mapper {
      * @param columns The {@link Columns} containing the latitude.
      */
     Double readLongitude(Columns columns) {
-        Column column = columns.getColumnsByName(longitude).getFirst();
+        Column<?> column = columns.getColumnsByName(longitude).getFirst();
         return column == null ? null : readLongitude(column.getComposedValue());
     }
 

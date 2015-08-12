@@ -36,170 +36,175 @@ public class DateMapperTest {
 
     @Test
     public void testConstructorWithoutArgs() {
-        DateMapper mapper = new DateMapper("field", null, null, null, null);
-        assertEquals(Mapper.DEFAULT_INDEXED, mapper.isIndexed());
-        assertEquals(Mapper.DEFAULT_SORTED, mapper.isSorted());
-        assertEquals(DateParser.DEFAULT_PATTERN, mapper.getPattern());
+        DateMapper mapper = new DateMapper("name", null, null, null, null);
+        assertEquals("Name is not properly set", "name", mapper.getName());
+        assertEquals("Indexed is not set to default value", Mapper.DEFAULT_INDEXED, mapper.isIndexed());
+        assertEquals("Sorted is not set to default value", Mapper.DEFAULT_SORTED, mapper.isSorted());
+        assertEquals("Pattern is not set to default value", DateParser.DEFAULT_PATTERN, mapper.getPattern());
     }
 
     @Test
     public void testConstructorWithAllArgs() {
-        DateMapper mapper = new DateMapper("field", null, false, true, PATTERN);
-        assertFalse(mapper.isIndexed());
-        assertTrue(mapper.isSorted());
-        assertEquals(PATTERN, mapper.getPattern());
+        DateMapper mapper = new DateMapper("name", null, false, true, PATTERN);
+        assertEquals("Name is not properly set", "name", mapper.getName());
+        assertFalse("Indexed is not properly set", mapper.isIndexed());
+        assertTrue("Sorted is not properly set", mapper.isSorted());
+        assertEquals("Pattern is not properly set", PATTERN, mapper.getPattern());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithWrongPattern() {
-        new DateMapper("field", null, false, false, "hello");
+        new DateMapper("name", null, false, false, "hello");
     }
 
     @Test()
     public void testBaseClass() {
-        DateMapper mapper = new DateMapper("field", null, null, null, PATTERN);
-        assertEquals(Long.class, mapper.baseClass());
+        DateMapper mapper = new DateMapper("name", null, null, null, PATTERN);
+        assertEquals("Base class is wrong", Long.class, mapper.baseClass());
     }
 
     @Test()
     public void testSortField() {
-        DateMapper mapper = new DateMapper("field", null, null, null, PATTERN);
-        SortField sortField = mapper.sortField("field", true);
+        DateMapper mapper = new DateMapper("name", null, null, null, PATTERN);
+        SortField sortField = mapper.sortField("name", true);
         assertNotNull(sortField);
         assertTrue(sortField.getReverse());
     }
 
     @Test()
     public void testValueNull() {
-        DateMapper mapper = new DateMapper("field", null, null, null, PATTERN);
+        DateMapper mapper = new DateMapper("name", null, null, null, PATTERN);
         Long parsed = mapper.base("test", null);
-        assertNull(parsed);
+        assertNull("Base value is not properly parsed", parsed);
     }
 
     @Test
     public void testValueDate() {
-        DateMapper mapper = new DateMapper("field", null, null, null, PATTERN);
+        DateMapper mapper = new DateMapper("name", null, null, null, PATTERN);
         Date date = new Date();
         long parsed = mapper.base("test", date);
-        assertEquals(date.getTime(), parsed);
+        assertEquals("Base value is not properly parsed", date.getTime(), parsed);
     }
 
     @Test
     public void testValueInteger() {
-        DateMapper mapper = new DateMapper("field", null, null, null, PATTERN);
+        DateMapper mapper = new DateMapper("name", null, null, null, PATTERN);
         Long parsed = mapper.base("test", 3);
-        assertEquals(Long.valueOf(3), parsed);
+        assertEquals("Base value is not properly parsed", Long.valueOf(3), parsed);
     }
 
     @Test
     public void testValueLong() {
-        DateMapper mapper = new DateMapper("field", null, null, null, PATTERN);
+        DateMapper mapper = new DateMapper("name", null, null, null, PATTERN);
         Long parsed = mapper.base("test", 3l);
-        assertEquals(Long.valueOf(3), parsed);
+        assertEquals("Base value is not properly parsed", Long.valueOf(3), parsed);
     }
 
     @Test
     public void testValueFloatWithoutDecimal() {
-        DateMapper mapper = new DateMapper("field", null, null, null, PATTERN);
+        DateMapper mapper = new DateMapper("name", null, null, null, PATTERN);
         Long parsed = mapper.base("test", 3f);
-        assertEquals(Long.valueOf(3), parsed);
+        assertEquals("Base value is not properly parsed", Long.valueOf(3), parsed);
     }
 
     @Test
     public void testValueFloatWithDecimalFloor() {
-        DateMapper mapper = new DateMapper("field", null, null, null, PATTERN);
+        DateMapper mapper = new DateMapper("name", null, null, null, PATTERN);
         Long parsed = mapper.base("test", 3.5f);
-        assertEquals(Long.valueOf(3), parsed);
+        assertEquals("Base value is not properly parsed", Long.valueOf(3), parsed);
 
     }
 
     @Test
     public void testValueFloatWithDecimalCeil() {
-        DateMapper mapper = new DateMapper("field", null, null, null, PATTERN);
+        DateMapper mapper = new DateMapper("name", null, null, null, PATTERN);
         Long parsed = mapper.base("test", 3.6f);
-        assertEquals(Long.valueOf(3), parsed);
+        assertEquals("Base value is not properly parsed", Long.valueOf(3), parsed);
 
     }
 
     @Test
     public void testValueDoubleWithoutDecimal() {
-        DateMapper mapper = new DateMapper("field", null, null, null, PATTERN);
+        DateMapper mapper = new DateMapper("name", null, null, null, PATTERN);
         Long parsed = mapper.base("test", 3d);
-        assertEquals(Long.valueOf(3), parsed);
+        assertEquals("Base value is not properly parsed", Long.valueOf(3), parsed);
     }
 
     @Test
     public void testValueDoubleWithDecimalFloor() {
-        DateMapper mapper = new DateMapper("field", null, null, null, PATTERN);
+        DateMapper mapper = new DateMapper("name", null, null, null, PATTERN);
         Long parsed = mapper.base("test", 3.5d);
-        assertEquals(Long.valueOf(3), parsed);
+        assertEquals("Base value is not properly parsed", Long.valueOf(3), parsed);
 
     }
 
     @Test
     public void testValueDoubleWithDecimalCeil() {
-        DateMapper mapper = new DateMapper("field", null, null, null, PATTERN);
+        DateMapper mapper = new DateMapper("name", null, null, null, PATTERN);
         Long parsed = mapper.base("test", 3.6d);
-        assertEquals(Long.valueOf(3), parsed);
+        assertEquals("Base value is not properly parsed", Long.valueOf(3), parsed);
 
     }
 
     @Test
     public void testValueStringWithPattern() throws ParseException {
-        DateMapper mapper = new DateMapper("field", null, null, null, PATTERN);
+        DateMapper mapper = new DateMapper("name", null, null, null, PATTERN);
         long parsed = mapper.base("test", "2014-03-19");
-        assertEquals(sdf.parse("2014-03-19").getTime(), parsed);
+        assertEquals("Base value is not properly parsed", sdf.parse("2014-03-19").getTime(), parsed);
     }
 
     @Test(expected = IndexException.class)
     public void testValueStringWithPatternInvalid() {
-        DateMapper mapper = new DateMapper("field", null, null, null, PATTERN);
+        DateMapper mapper = new DateMapper("name", null, null, null, PATTERN);
         mapper.base("test", "2014/03/19");
     }
 
     @Test
     public void testValueStringWithoutPattern() throws ParseException {
-        DateMapper mapper = new DateMapper("field", null, null, null, null);
+        DateMapper mapper = new DateMapper("name", null, null, null, null);
         long parsed = mapper.base("test", "2014/03/19 00:00:00.000 GMT");
-        assertEquals(new DateParser(null).parse("2014/03/19 00:00:00.000 GMT").getTime(), parsed);
+        assertEquals("Base value is not properly parsed",
+                     new DateParser(null).parse("2014/03/19 00:00:00.000 GMT").getTime(),
+                     parsed);
     }
 
     @Test(expected = IndexException.class)
     public void testValueStringWithoutPatternInvalid() throws ParseException {
-        DateMapper mapper = new DateMapper("field", null, null, null, null);
+        DateMapper mapper = new DateMapper("name", null, null, null, null);
         mapper.base("test", "2014-03-19");
     }
 
     @Test
     public void testIndexedField() throws ParseException {
         long time = sdf.parse("2014-03-19").getTime();
-        DateMapper mapper = new DateMapper("field", null, true, null, PATTERN);
+        DateMapper mapper = new DateMapper("name", null, true, null, PATTERN);
         Field field = mapper.indexedField("name", time);
-        assertNotNull(field);
-        assertEquals(time, field.numericValue().longValue());
-        assertEquals("name", field.name());
-        assertEquals(false, field.fieldType().stored());
+        assertNotNull("Indexed field is not created", field);
+        assertEquals("Indexed field value is wrong", time, field.numericValue().longValue());
+        assertEquals("Indexed field name is wrong", "name", field.name());
+        assertEquals("Indexed field type is wrong", false, field.fieldType().stored());
     }
 
     @Test
     public void testSortedField() throws ParseException {
         long time = sdf.parse("2014-03-19").getTime();
-        DateMapper mapper = new DateMapper("field", null, null, true, PATTERN);
+        DateMapper mapper = new DateMapper("name", null, null, true, PATTERN);
         Field field = mapper.sortedField("name", time);
-        assertNotNull(field);
-        assertEquals(DocValuesType.NUMERIC, field.fieldType().docValuesType());
+        assertNotNull("Sorted field is not created", field);
+        assertEquals("Sorted field type is wrong", DocValuesType.NUMERIC, field.fieldType().docValuesType());
     }
 
     @Test
     public void testExtractAnalyzers() {
-        DateMapper mapper = new DateMapper("field", null, null, null, PATTERN);
-        assertNull(mapper.getAnalyzer());
+        DateMapper mapper = new DateMapper("name", null, null, null, PATTERN);
+        assertNull("Analyzer must be null", mapper.getAnalyzer());
     }
 
     @Test
     public void testToString() {
-        DateMapper mapper = new DateMapper("field", null, false, false, PATTERN);
-        assertEquals("DateMapper{name=field, indexed=false, sorted=false, column=field, pattern=yyyy-MM-dd}",
+        DateMapper mapper = new DateMapper("name", null, false, false, PATTERN);
+        assertEquals("Method #toString is wrong",
+                     "DateMapper{name=name, indexed=false, sorted=false, column=name, pattern=yyyy-MM-dd}",
                      mapper.toString());
     }
 }

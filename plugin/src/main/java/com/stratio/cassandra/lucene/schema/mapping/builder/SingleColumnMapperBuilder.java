@@ -24,7 +24,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public abstract class SingleColumnMapperBuilder<T extends SingleColumnMapper> extends MapperBuilder<T> {
+public abstract class SingleColumnMapperBuilder<T extends SingleColumnMapper<?>> extends MapperBuilder<T> {
 
     /** The name of the column to be mapped. */
     @JsonProperty("column")

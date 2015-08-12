@@ -31,6 +31,10 @@ import java.util.List;
  */
 public class ByteBufferUtils {
 
+    /** Private constructor to hide the implicit public one. */
+    private ByteBufferUtils() {
+    }
+
     /**
      * Returns the specified {@link ByteBuffer} as a byte array.
      *

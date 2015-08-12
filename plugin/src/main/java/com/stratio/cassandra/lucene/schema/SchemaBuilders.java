@@ -20,7 +20,6 @@ import com.stratio.cassandra.lucene.schema.analysis.AnalyzerBuilder;
 import com.stratio.cassandra.lucene.schema.analysis.ClasspathAnalyzerBuilder;
 import com.stratio.cassandra.lucene.schema.analysis.SnowballAnalyzerBuilder;
 import com.stratio.cassandra.lucene.schema.mapping.builder.*;
-import org.apache.lucene.analysis.Analyzer;
 
 import java.util.LinkedHashMap;
 
@@ -39,7 +38,7 @@ public class SchemaBuilders {
     public static SchemaBuilder schema() {
         return new SchemaBuilder(null,
                                  new LinkedHashMap<String, AnalyzerBuilder>(),
-                                 new LinkedHashMap<String, MapperBuilder>());
+                                 new LinkedHashMap<String, MapperBuilder<?>>());
     }
 
     /**
@@ -197,7 +196,7 @@ public class SchemaBuilders {
     /**
      * Returns a new {@link ClasspathAnalyzerBuilder}.
      *
-     * @param className An {@link Analyzer} full class name.
+     * @param className An {@link org.apache.lucene.analysis.Analyzer} full class name.
      * @return A new {@link ClasspathAnalyzerBuilder}.
      */
     public static ClasspathAnalyzerBuilder classpathAnalyzer(String className) {

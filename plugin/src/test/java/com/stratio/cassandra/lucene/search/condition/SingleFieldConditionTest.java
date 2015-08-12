@@ -19,7 +19,6 @@ package com.stratio.cassandra.lucene.search.condition;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
-import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
 import com.stratio.cassandra.lucene.schema.mapping.StringMapper;
 import org.apache.lucene.search.Query;
 import org.junit.Test;
@@ -80,7 +79,7 @@ public class SingleFieldConditionTest {
     @Test
     public void testGetMapper() {
 
-        SingleColumnMapper mapper = new StringMapper("field", null, null, null, null);
+        Mapper mapper = new StringMapper("field", null, null, null, null);
         Schema schema = mock(Schema.class);
         when(schema.getMapper("field")).thenReturn(mapper);
 

@@ -27,7 +27,7 @@ import java.nio.ByteBuffer;
  * @param <T> The type of the column value.
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public final class Column<T> {
+public final class Column<T> implements Comparable<Column<?>> {
 
     /** The column's name. */
     private final String name;
@@ -90,10 +90,6 @@ public final class Column<T> {
 
     public String getFullName(String name) {
         return nameSufix == null ? name : name + "." + nameSufix;
-    }
-
-    public String getNameSufix() {
-        return nameSufix;
     }
 
     /**
@@ -198,6 +194,17 @@ public final class Column<T> {
                                              boolean isCollection) {
         ByteBuffer decomposedValue = type.decompose(composedValue);
         return new Column<>(name, sufix, decomposedValue, composedValue, type, isCollection);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public int compareTo(Column<?> column2) {
+        if (column2 == null) {
+            return 1;
+        }
+        ByteBuffer value1 = decomposedValue;
+        ByteBuffer value2 = column2.getDecomposedValue();
+        return type.compare(value1, value2);
     }
 
     /** {@inheritDoc} */

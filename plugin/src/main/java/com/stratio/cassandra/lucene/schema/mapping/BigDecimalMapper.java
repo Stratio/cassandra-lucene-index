@@ -43,6 +43,9 @@ public class BigDecimalMapper extends KeywordMapper {
     /** The default max number of digits for the decimal part. */
     public static final int DEFAULT_DECIMAL_DIGITS = 32;
 
+    /** THe numeric base. */
+    private static final int BASE = 10;
+
     /** The max number of digits for the integer part. */
     private final int integerDigits;
 
@@ -96,8 +99,8 @@ public class BigDecimalMapper extends KeywordMapper {
         this.decimalDigits = decimalDigits == null ? DEFAULT_DECIMAL_DIGITS : decimalDigits;
 
         int totalDigits = this.integerDigits + this.decimalDigits;
-        BigDecimal divisor = BigDecimal.valueOf(10).pow(this.decimalDigits);
-        BigDecimal dividend = BigDecimal.valueOf(10).pow(totalDigits).subtract(BigDecimal.valueOf(1));
+        BigDecimal divisor = BigDecimal.valueOf(BASE).pow(this.decimalDigits);
+        BigDecimal dividend = BigDecimal.valueOf(BASE).pow(totalDigits).subtract(BigDecimal.valueOf(1));
         complement = dividend.divide(divisor);
     }
 

@@ -30,9 +30,10 @@ import java.util.Collections;
 /**
  * Class for mapping between Cassandra's columns and Lucene documents.
  *
+ * @param <T> THe base type.
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public abstract class SingleColumnMapper<BASE> extends Mapper {
+public abstract class SingleColumnMapper<T> extends Mapper {
 
     protected final String column;
 
@@ -49,7 +50,7 @@ public abstract class SingleColumnMapper<BASE> extends Mapper {
                               String column,
                               Boolean indexed,
                               Boolean sorted,
-                              AbstractType... supportedTypes) {
+                              AbstractType<?>... supportedTypes) {
         super(name,
               indexed,
               sorted,
@@ -61,7 +62,7 @@ public abstract class SingleColumnMapper<BASE> extends Mapper {
     /** {@inheritDoc} */
     @Override
     public void addFields(Document document, Columns columns) {
-        for (Column column : columns.getColumnsByName(this.column)) {
+        for (Column<?> column : columns.getColumnsByName(this.column)) {
             String name = column.getFullName(this.name);
             Object value = column.getComposedValue();
             addFields(document, name, value);
@@ -76,7 +77,7 @@ public abstract class SingleColumnMapper<BASE> extends Mapper {
      * @param value    The value of the column to be mapped.
      */
     private void addFields(Document document, String name, Object value) {
-        BASE base = base(name, value);
+        T base = base(name, value);
         if (indexed) {
             document.add(indexedField(name, base));
         }
@@ -92,7 +93,7 @@ public abstract class SingleColumnMapper<BASE> extends Mapper {
      * @param value The value of the column.
      * @return The {@link Field} to search for the mapped column.
      */
-    public abstract Field indexedField(String name, BASE value);
+    public abstract Field indexedField(String name, T value);
 
     /**
      * Returns the {@link Field} to sort by the mapped column.
@@ -101,14 +102,14 @@ public abstract class SingleColumnMapper<BASE> extends Mapper {
      * @param value The value of the column.
      * @return The {@link Field} to sort by the mapped column.
      */
-    public abstract Field sortedField(String name, BASE value);
+    public abstract Field sortedField(String name, T value);
 
     /**
      * Returns the Lucene type for this mapper.
      *
      * @return The Lucene type for this mapper.
      */
-    public abstract Class<BASE> baseClass();
+    public abstract Class<T> baseClass();
 
     /**
      * Returns the {@link Column} query value resulting from the mapping of the specified object.
@@ -117,7 +118,7 @@ public abstract class SingleColumnMapper<BASE> extends Mapper {
      * @param value The object to be mapped.
      * @return The {@link Column} index value resulting from the mapping of the specified object.
      */
-    public abstract BASE base(String field, Object value);
+    public abstract T base(String field, Object value);
 
     /** {@inheritDoc} */
     @Override

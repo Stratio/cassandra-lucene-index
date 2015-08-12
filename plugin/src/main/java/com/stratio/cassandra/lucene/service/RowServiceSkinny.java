@@ -80,10 +80,10 @@ public class RowServiceSkinny extends RowService {
     @Override
     public void index(ByteBuffer key, ColumnFamily columnFamily, long timestamp) throws IOException {
         DecoratedKey partitionKey = rowMapper.partitionKey(key);
-        if (columnFamily.iterator().hasNext()) { // Create or update row
+        if (columnFamily.iterator().hasNext()) {
             columnFamily = cleanExpired(columnFamily, timestamp);
             luceneIndex.upsert(documents(partitionKey, columnFamily, timestamp));
-        } else if (columnFamily.deletionInfo() != null) { // Delete full row
+        } else if (columnFamily.deletionInfo() != null) {
             Term term = rowMapper.term(partitionKey);
             luceneIndex.delete(term);
         }
@@ -118,7 +118,9 @@ public class RowServiceSkinny extends RowService {
             // Extract row from document
             DecoratedKey partitionKey = searchResult.getPartitionKey();
             ColumnFamily columnFamily = row(partitionKey, timestamp);
-            if (columnFamily == null) continue;
+            if (columnFamily == null) {
+                continue;
+            }
             Row row = new Row(partitionKey, columnFamily);
 
             // Return decorated row

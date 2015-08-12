@@ -53,7 +53,7 @@ public abstract class SingleFieldCondition extends Condition {
 
     protected SingleColumnMapper<?> getMapper(Schema schema, String field) {
         Mapper mapper = schema.getMapper(field);
-        if (mapper != null && mapper instanceof SingleColumnMapper<?>) {
+        if (mapper instanceof SingleColumnMapper<?>) {
             return (SingleColumnMapper<?>) mapper;
         }
         throw new IndexException("Not found mapper for field '%s'", field);

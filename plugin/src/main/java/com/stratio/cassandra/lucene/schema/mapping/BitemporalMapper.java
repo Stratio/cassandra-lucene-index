@@ -34,7 +34,6 @@ import org.apache.lucene.spatial.prefix.tree.DateRangePrefixTree;
 import org.apache.lucene.spatial.prefix.tree.NumberRangePrefixTree.NRShape;
 import org.apache.lucene.spatial.prefix.tree.NumberRangePrefixTree.UnitNRShape;
 
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 
@@ -102,7 +101,7 @@ public class BitemporalMapper extends Mapper {
         super(name,
               true,
               false,
-              Arrays.<AbstractType>asList(AsciiType.instance,
+              Arrays.<AbstractType<?>>asList(AsciiType.instance,
                                           UTF8Type.instance,
                                           Int32Type.instance,
                                           LongType.instance,
@@ -344,7 +343,7 @@ public class BitemporalMapper extends Mapper {
      * @return a {@link BitemporalDateTime} read from columns
      */
     BitemporalDateTime readBitemporalDate(Columns columns, String fieldName) {
-        Column column = columns.getColumnsByName(fieldName).getFirst();
+        Column<?> column = columns.getColumnsByName(fieldName).getFirst();
         if (column == null) {
             return null;
         }

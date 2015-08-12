@@ -20,8 +20,6 @@ import com.stratio.cassandra.lucene.schema.mapping.BitemporalMapper;
 import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
 
-import java.text.SimpleDateFormat;
-
 /**
  * {@link MapperBuilder} to build a new {@link BitemporalMapperBuilder}.
  *
@@ -73,9 +71,9 @@ public class BitemporalMapperBuilder extends MapperBuilder<BitemporalMapper> {
     }
 
     /**
-     * Sets the {@link SimpleDateFormat} pattern to be used.
+     * Sets the date format pattern to be used.
      *
-     * @param pattern The {@link SimpleDateFormat} pattern to be used.
+     * @param pattern The date format pattern to be used.
      * @return This.
      */
     public BitemporalMapperBuilder pattern(String pattern) {

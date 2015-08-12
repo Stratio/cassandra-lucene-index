@@ -48,7 +48,6 @@ import org.apache.cassandra.utils.Pair;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;

@@ -28,10 +28,10 @@ import java.util.List;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class Columns implements Iterable<Column> {
+public class Columns implements Iterable<Column<?>> {
 
     /** The wrapped columns. */
-    private final List<Column> columns;
+    private final List<Column<?>> columns;
 
     /** Returns an empty {@link Column} list. */
     public Columns() {
@@ -43,7 +43,7 @@ public class Columns implements Iterable<Column> {
      *
      * @param columns A list of {@link Column}s.
      */
-    public Columns(Column... columns) {
+    public Columns(Column<?>... columns) {
         this.columns = Arrays.asList(columns);
     }
 
@@ -53,7 +53,7 @@ public class Columns implements Iterable<Column> {
      * @param column the {@link Column} to be added.
      * @return this
      */
-    public Columns add(Column column) {
+    public Columns add(Column<?> column) {
         columns.add(column);
         return this;
     }
@@ -65,7 +65,7 @@ public class Columns implements Iterable<Column> {
      * @return this {@link Columns} with the specified {@link Column}s.
      */
     public Columns add(Columns columns) {
-        for (Column column : columns) {
+        for (Column<?> column : columns) {
             this.columns.add(column);
         }
         return this;
@@ -76,7 +76,7 @@ public class Columns implements Iterable<Column> {
      *
      * @return An iterator over the {@link Column}s in insert order.
      */
-    public Iterator<Column> iterator() {
+    public Iterator<Column<?>> iterator() {
         return columns.iterator();
     }
 
@@ -102,7 +102,7 @@ public class Columns implements Iterable<Column> {
      */
     public Columns getColumnsByFullName(String name) {
         Columns result = new Columns();
-        for (Column column : columns) {
+        for (Column<?> column : columns) {
             if (column.getFullName().equals(name)) {
                 result.add(column);
             }
@@ -118,7 +118,7 @@ public class Columns implements Iterable<Column> {
      */
     public Columns getColumnsByName(String name) {
         Columns result = new Columns();
-        for (Column column : columns) {
+        for (Column<?> column : columns) {
             if (column.getName().equals(name)) {
                 result.add(column);
             }
@@ -126,7 +126,7 @@ public class Columns implements Iterable<Column> {
         return result;
     }
 
-    public Column getFirst() {
+    public Column<?> getFirst() {
         return columns.isEmpty() ? null : columns.get(0);
     }
 
@@ -134,7 +134,7 @@ public class Columns implements Iterable<Column> {
     @Override
     public String toString() {
         Objects.ToStringHelper helper = Objects.toStringHelper(this);
-        for (Column column : columns) {
+        for (Column<?> column : columns) {
             helper.add(column.getFullName(), column.getComposedValue());
         }
         return helper.toString();

@@ -33,7 +33,7 @@ import java.util.List;
  */
 public class SortBuilder implements Builder<Sort> {
 
-    /** The {@link SortField}s */
+    /** The {@link SortField}s. */
     @JsonProperty("fields")
     final List<SortFieldBuilder> sortFieldBuilders;
 

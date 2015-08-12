@@ -60,16 +60,16 @@ import java.util.Map;
  */
 public class ClusteringKeyMapper {
 
-    /** The Lucene field name */
+    /** The Lucene field name. */
     public static final String FIELD_NAME = "_clustering_key";
 
-    /** The column family meta data */
+    /** The column family meta data. */
     private final CFMetaData metadata;
 
     /** The mapping schema. */
     private final Schema schema;
 
-    /** The type of the clustering key, which is the type of the column names */
+    /** The type of the clustering key, which is the type of the column names. */
     private final CellNameType cellNameType;
 
     /**

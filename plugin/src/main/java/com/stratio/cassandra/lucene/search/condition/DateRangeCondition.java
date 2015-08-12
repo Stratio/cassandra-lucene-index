@@ -92,10 +92,10 @@ public class DateRangeCondition extends Condition {
         DateRangeMapper mapper = (DateRangeMapper) columnMapper;
         SpatialStrategy strategy = mapper.getStrategy();
 
-        Date from = mapper.base(this.from);
-        Date to = mapper.base(this.to);
+        Date fromDate = mapper.base(from);
+        Date toDate = mapper.base(to);
 
-        NRShape shape = mapper.makeShape(from, to);
+        NRShape shape = mapper.makeShape(fromDate, toDate);
 
         SpatialOperation spatialOperation = parseSpatialOperation(operation);
 

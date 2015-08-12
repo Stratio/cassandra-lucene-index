@@ -106,7 +106,7 @@ public class ContainsConditionTest {
         BooleanClause[] booleanClauses = ((BooleanQuery) query).getClauses();
         assertEquals(values.length, booleanClauses.length);
         for (int i = 0; i < values.length; i++) {
-            NumericRangeQuery numericRangeQuery = (NumericRangeQuery) booleanClauses[i].getQuery();
+            NumericRangeQuery<?> numericRangeQuery = (NumericRangeQuery<?>) booleanClauses[i].getQuery();
             assertEquals(values[i], numericRangeQuery.getMin());
             assertEquals(values[i], numericRangeQuery.getMax());
         }

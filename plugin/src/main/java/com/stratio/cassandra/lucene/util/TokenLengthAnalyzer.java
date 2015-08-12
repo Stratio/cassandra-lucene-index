@@ -60,7 +60,7 @@ public class TokenLengthAnalyzer extends AnalyzerWrapper {
     }
 
     /** {@link FilteringTokenFilter} which discards too large tokens. */
-    static class TokenLengthFilter extends FilteringTokenFilter {
+    static final class TokenLengthFilter extends FilteringTokenFilter {
 
         private final CharTermAttribute tm = addAttribute(CharTermAttribute.class);
         private String fieldName;

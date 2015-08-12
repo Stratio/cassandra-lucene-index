@@ -34,16 +34,16 @@ public class AllConditionBuilderTest extends AbstractConditionBuilderTest {
     public void testBuild() {
         AllConditionBuilder builder = new AllConditionBuilder().boost(0.7);
         AllCondition condition = builder.build();
-        assertNotNull(condition);
-        assertEquals(0.7f, condition.boost, 0);
+        assertNotNull("Condition is not built", condition);
+        assertEquals("Boost is not properly set ", 0.7f, condition.boost, 0);
     }
 
     @Test
     public void testBuildDefaults() {
         AllConditionBuilder builder = new AllConditionBuilder();
         AllCondition condition = builder.build();
-        assertNotNull(condition);
-        assertEquals(Condition.DEFAULT_BOOST, condition.boost, 0);
+        assertNotNull("Condition is not built", condition);
+        assertEquals("Default boost is not properly set ", Condition.DEFAULT_BOOST, condition.boost, 0);
     }
 
     @Test

@@ -78,7 +78,9 @@ public class PhraseCondition extends SingleFieldCondition {
             Analyzer analyzer = schema.getAnalyzer();
             QueryBuilder queryBuilder = new QueryBuilder(analyzer);
             Query query = queryBuilder.createPhraseQuery(field, value, slop);
-            if (query == null) query = new BooleanQuery();
+            if (query == null) {
+                query = new BooleanQuery();
+            }
             query.setBoost(boost);
             return query;
         } else {

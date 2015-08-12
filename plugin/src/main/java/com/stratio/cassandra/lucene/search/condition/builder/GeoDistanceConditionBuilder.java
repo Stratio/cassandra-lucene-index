@@ -16,14 +16,12 @@
 
 package com.stratio.cassandra.lucene.search.condition.builder;
 
-import com.stratio.cassandra.lucene.search.condition.GeoBBoxCondition;
 import com.stratio.cassandra.lucene.search.condition.GeoDistanceCondition;
-import com.stratio.cassandra.lucene.util.GeoDistance;
 import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
- * {@link ConditionBuilder} for building a new {@link GeoBBoxCondition}.
+ * {@link ConditionBuilder} for building a new {@link GeoDistanceCondition}.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
@@ -69,9 +67,9 @@ public class GeoDistanceConditionBuilder extends ConditionBuilder<GeoDistanceCon
     }
 
     /**
-     * Sets the min allowed {@link GeoDistance}.
+     * Sets the min allowed distance.
      *
-     * @param minDistance The min allowed {@link GeoDistance}.
+     * @param minDistance The min allowed distance.
      * @return This.
      */
     public GeoDistanceConditionBuilder setMinDistance(String minDistance) {

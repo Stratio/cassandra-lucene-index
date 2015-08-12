@@ -26,8 +26,11 @@ import org.codehaus.jackson.annotate.JsonCreator;
  */
 public class GeoDistance implements Comparable<GeoDistance> {
 
-    private final double value; // The quantitative distance value
-    private final GeoDistanceUnit unit; // The distance unit
+    /** The quantitative distance value. */
+    private final double value;
+
+    /** The distance unit. */
+    private final GeoDistanceUnit unit;
 
     /**
      * Builds a new {@link GeoDistance} defined by the specified quantitative value and distance unit.

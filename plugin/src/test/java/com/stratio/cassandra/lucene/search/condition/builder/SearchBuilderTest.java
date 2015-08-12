@@ -36,8 +36,8 @@ public class SearchBuilderTest {
 
     @Test
     public void testBuild() throws IOException {
-        ConditionBuilder query = match("field1", "value2");
-        ConditionBuilder filter = match("field2", "value2");
+        ConditionBuilder<?,?> query = match("field1", "value2");
+        ConditionBuilder<?,?> filter = match("field2", "value2");
         SortFieldBuilder sort1 = sortField("field3");
         SortFieldBuilder sort2 = sortField("field4");
         SearchBuilder searchBuilder = new SearchBuilder().query(query).filter(filter).sort(sort1, sort2);
