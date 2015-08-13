@@ -1,5 +1,7 @@
 # Changelog
 
+## 2.1.8.3-SNAPSHOT ()
+
 ## 2.1.8.2 (13 August 2015)
 
  * Add force index refresh option to searches
