@@ -29,7 +29,7 @@ import static org.junit.Assert.assertEquals;
  */
 public abstract class AbstractConditionBuilderTest {
 
-    protected void testJsonSerialization(ConditionBuilder<?,?> conditionBuilder, String json) {
+    protected void testJsonSerialization(ConditionBuilder<?, ?> conditionBuilder, String json) {
         try {
             String json1 = JsonSerializer.toString(conditionBuilder);
             assertEquals(json, json1);

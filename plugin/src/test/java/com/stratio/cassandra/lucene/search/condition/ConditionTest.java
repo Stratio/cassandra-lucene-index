@@ -23,9 +23,9 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.QueryWrapperFilter;
 import org.junit.Test;
 
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.schema;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.mock;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
@@ -56,7 +56,7 @@ public class ConditionTest {
 
     @Test
     public void testFilter() {
-        Schema schema = mock(Schema.class);
+        Schema schema = schema().build();
         Condition condition = new Condition(null) {
             @Override
             public Query query(Schema schema) {

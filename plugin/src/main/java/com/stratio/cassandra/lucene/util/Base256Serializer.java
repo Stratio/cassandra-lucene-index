@@ -25,7 +25,7 @@ import java.nio.ByteBuffer;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-class Base256Serializer {
+public final class Base256Serializer {
 
     /** Private constructor to hide the implicit public one. */
     private Base256Serializer() {

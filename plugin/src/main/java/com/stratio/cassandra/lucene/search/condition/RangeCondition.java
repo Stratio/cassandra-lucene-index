@@ -16,10 +16,9 @@
 
 package com.stratio.cassandra.lucene.search.condition;
 
-import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.IndexException;
-import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
+import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.search.NumericRangeQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermRangeQuery;
@@ -29,16 +28,13 @@ import org.apache.lucene.search.TermRangeQuery;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class RangeCondition extends SingleFieldCondition {
+public class RangeCondition extends SingleColumnCondition {
 
     /** The default include lower option. */
     public static final boolean DEFAULT_INCLUDE_LOWER = false;
 
     /** The default include upper option. */
     public static final boolean DEFAULT_INCLUDE_UPPER = false;
-
-    /** The name of the field to be matched. */
-    public final String field;
 
     /** The lower accepted value. Maybe null meaning no lower limit. */
     public final Object lower;
@@ -75,7 +71,6 @@ public class RangeCondition extends SingleFieldCondition {
                           Boolean includeLower,
                           Boolean includeUpper) {
         super(boost, field);
-        this.field = field;
         this.lower = lowerValue;
         this.upper = upperValue;
         this.includeLower = includeLower == null ? DEFAULT_INCLUDE_LOWER : includeLower;
@@ -86,29 +81,28 @@ public class RangeCondition extends SingleFieldCondition {
      * {@inheritDoc}
      */
     @Override
-    public Query query(Schema schema) {
-        SingleColumnMapper<?> columnMapper = getMapper(schema, field);
-        Class<?> clazz = columnMapper.baseClass();
+    public Query query(SingleColumnMapper mapper, Analyzer analyzer) {
+        Class<?> clazz = mapper.baseClass();
         Query query;
         if (clazz == String.class) {
-            String start = (String) columnMapper.base(field, lower);
-            String stop = (String) columnMapper.base(field, upper);
+            String start = (String) mapper.base(field, lower);
+            String stop = (String) mapper.base(field, upper);
             query = TermRangeQuery.newStringRange(field, start, stop, includeLower, includeUpper);
         } else if (clazz == Integer.class) {
-            Integer start = (Integer) columnMapper.base(field, lower);
-            Integer stop = (Integer) columnMapper.base(field, upper);
+            Integer start = (Integer) mapper.base(field, lower);
+            Integer stop = (Integer) mapper.base(field, upper);
             query = NumericRangeQuery.newIntRange(field, start, stop, includeLower, includeUpper);
         } else if (clazz == Long.class) {
-            Long start = (Long) columnMapper.base(field, lower);
-            Long stop = (Long) columnMapper.base(field, upper);
+            Long start = (Long) mapper.base(field, lower);
+            Long stop = (Long) mapper.base(field, upper);
             query = NumericRangeQuery.newLongRange(field, start, stop, includeLower, includeUpper);
         } else if (clazz == Float.class) {
-            Float start = (Float) columnMapper.base(field, lower);
-            Float stop = (Float) columnMapper.base(field, upper);
+            Float start = (Float) mapper.base(field, lower);
+            Float stop = (Float) mapper.base(field, upper);
             query = NumericRangeQuery.newFloatRange(field, start, stop, includeLower, includeUpper);
         } else if (clazz == Double.class) {
-            Double start = (Double) columnMapper.base(field, lower);
-            Double stop = (Double) columnMapper.base(field, upper);
+            Double start = (Double) mapper.base(field, lower);
+            Double stop = (Double) mapper.base(field, upper);
             query = NumericRangeQuery.newDoubleRange(field, start, stop, includeLower, includeUpper);
         } else {
             throw new IndexException("Range queries are not supported by '%s' mapper", clazz.getSimpleName());
@@ -122,13 +116,10 @@ public class RangeCondition extends SingleFieldCondition {
      */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                      .add("boost", boost)
-                      .add("field", field)
-                      .add("lower", lower)
-                      .add("upper", upper)
-                      .add("includeLower", includeLower)
-                      .add("includeUpper", includeUpper)
-                      .toString();
+        return toStringHelper(this).add("lower", lower)
+                                   .add("upper", upper)
+                                   .add("includeLower", includeLower)
+                                   .add("includeUpper", includeUpper)
+                                   .toString();
     }
 }

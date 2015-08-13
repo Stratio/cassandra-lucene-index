@@ -143,8 +143,8 @@ public class PartitionKeyMapper {
     }
 
     /**
-     * Returns the columns contained in the partition key of the specified row. Note that not all the contained
-     * columns are returned, but only those of the partition key.
+     * Returns the columns contained in the partition key of the specified row. Note that not all the contained columns
+     * are returned, but only those of the partition key.
      *
      * @param partitionKey A partition key.
      * @return The columns contained in the partition key of the specified row.

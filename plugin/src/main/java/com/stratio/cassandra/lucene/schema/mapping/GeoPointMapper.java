@@ -51,6 +51,11 @@ import java.util.Arrays;
  */
 public class GeoPointMapper extends Mapper {
 
+    private static final double MIN_LATITUDE = -90.0;
+    private static final double MAX_LATITUDE = 90.0;
+    private static final double MIN_LONGITUDE = -180.0;
+    private static final double MAX_LONGITUDE = 180.0;
+
     public static final SpatialContext SPATIAL_CONTEXT = SpatialContext.GEO;
     public static final int DEFAULT_MAX_LEVELS = 11;
 
@@ -74,13 +79,13 @@ public class GeoPointMapper extends Mapper {
               true,
               false,
               Arrays.<AbstractType<?>>asList(AsciiType.instance,
-                                          UTF8Type.instance,
-                                          Int32Type.instance,
-                                          LongType.instance,
-                                          IntegerType.instance,
-                                          FloatType.instance,
-                                          DoubleType.instance,
-                                          DecimalType.instance),
+                                             UTF8Type.instance,
+                                             Int32Type.instance,
+                                             LongType.instance,
+                                             IntegerType.instance,
+                                             FloatType.instance,
+                                             DoubleType.instance,
+                                             DecimalType.instance),
               Arrays.asList(latitude, longitude));
 
         if (StringUtils.isBlank(latitude)) {
@@ -97,6 +102,46 @@ public class GeoPointMapper extends Mapper {
         SpatialPrefixTree grid = new GeohashPrefixTree(SPATIAL_CONTEXT, this.maxLevels);
         distanceStrategy = new RecursivePrefixTreeStrategy(grid, name + ".dist");
         bboxStrategy = new BBoxStrategy(SPATIAL_CONTEXT, name + ".bbox");
+    }
+
+    /**
+     * Checks if the specified latitude is correct.
+     *
+     * @param name     The name of the latitude field.
+     * @param latitude The value of the latitude field.
+     * @return The latitude.
+     */
+    public static Double checkLatitude(String name, Double latitude) {
+        if (latitude == null) {
+            throw new IndexException("%s required", name);
+        } else if (latitude < MIN_LATITUDE || latitude > MAX_LATITUDE) {
+            throw new IndexException("%s must be in range [%s, %s], but found '%s'",
+                                     name,
+                                     MIN_LATITUDE,
+                                     MAX_LATITUDE,
+                                     latitude);
+        }
+        return latitude;
+    }
+
+    /**
+     * Checks if the specified longitude is correct.
+     *
+     * @param name      The name of the longitude field.
+     * @param longitude The value of the longitude field.
+     * @return The longitude.
+     */
+    public static Double checkLongitude(String name, Double longitude) {
+        if (longitude == null) {
+            throw new IndexException("%s required", name);
+        } else if (longitude < MIN_LONGITUDE || longitude > MAX_LONGITUDE) {
+            throw new IndexException("%s must be in range [%s, %s], but found %s",
+                                     name,
+                                     MIN_LONGITUDE,
+                                     MAX_LONGITUDE,
+                                     longitude);
+        }
+        return longitude;
     }
 
     /**
@@ -214,24 +259,21 @@ public class GeoPointMapper extends Mapper {
      *
      * A valid latitude must in the range [-90, 90].
      *
-     * @param value The {@link Object} containing the latitude.
+     * @param o The {@link Object} containing the latitude.
      * @return The latitude.
      */
-    private static double readLatitude(Object value) {
-        Double latitude = null;
-        if (value instanceof Number) {
-            latitude = ((Number) value).doubleValue();
+    private double readLatitude(Object o) {
+        Double value;
+        if (o instanceof Number) {
+            value = ((Number) o).doubleValue();
         } else {
             try {
-                latitude = Double.valueOf(value.toString());
+                value = Double.valueOf(o.toString());
             } catch (NumberFormatException e) {
-                // Ignore to fail below
+                throw new IndexException("Unparseable latitude: %s", o);
             }
         }
-        if (latitude == null || latitude < -90.0 || latitude > 90) {
-            throw new IndexException("Latitude in range [-90, 90] required, but found '%s'", value);
-        }
-        return latitude;
+        return checkLatitude("latitude", value);
     }
 
     /**
@@ -239,24 +281,21 @@ public class GeoPointMapper extends Mapper {
      *
      * A valid longitude must in the range [-180, 180].
      *
-     * @param value The {@link Object} containing the latitude.
+     * @param o The {@link Object} containing the latitude.
      * @return The longitude.
      */
-    private static double readLongitude(Object value) {
-        Double longitude = null;
-        if (value instanceof Number) {
-            longitude = ((Number) value).doubleValue();
+    private static double readLongitude(Object o) {
+        Double value;
+        if (o instanceof Number) {
+            value = ((Number) o).doubleValue();
         } else {
             try {
-                longitude = Double.valueOf(value.toString());
+                value = Double.valueOf(o.toString());
             } catch (NumberFormatException e) {
-                // Ignore to fail below
+                throw new IndexException("Unparseable longitude: %s", o);
             }
         }
-        if (longitude == null || longitude < -180.0 || longitude > 180) {
-            throw new IndexException("Longitude in range [-180, 180] required, but found '%s'", value);
-        }
-        return longitude;
+        return checkLongitude("longitude", value);
     }
 
     /** {@inheritDoc} */

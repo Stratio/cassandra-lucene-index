@@ -34,7 +34,7 @@ public class DateParser {
     public static final String DEFAULT_PATTERN = "yyyy/MM/dd HH:mm:ss.SSS Z";
 
     /** The Timestamp defaultyString in pattern */
-    public static final String TIMESTAMP_PATTERN_FIELD="timestamp";
+    public static final String TIMESTAMP_PATTERN_FIELD = "timestamp";
 
     /** The {@link SimpleDateFormat} pattern. */
     private final String pattern;
@@ -62,7 +62,7 @@ public class DateParser {
             };
             this.concurrentDateFormat.get().setLenient(false);
         } else {
-            this.concurrentDateFormat=null;
+            this.concurrentDateFormat = null;
         }
     }
 
@@ -78,12 +78,12 @@ public class DateParser {
             return null;
         }
         if (value instanceof Date) {
-            return (Date)value;
+            return (Date) value;
         }
         if (pattern.equals(TIMESTAMP_PATTERN_FIELD)) {
-            Long valueLong=null;
+            Long valueLong = null;
             if (value instanceof Number) {
-                valueLong=((Number) value).longValue();
+                valueLong = ((Number) value).longValue();
             } else if (value instanceof Object) {
                 try {
                     valueLong = Long.parseLong((value).toString());
@@ -91,7 +91,7 @@ public class DateParser {
                     //ignore to Fail
                 }
             }
-            if (valueLong!=null) {
+            if (valueLong != null) {
                 return new Date(valueLong);
             }
         } else {

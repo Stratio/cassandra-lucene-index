@@ -17,15 +17,12 @@
 package com.stratio.cassandra.lucene.search.condition;
 
 import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.analysis.PreBuiltAnalyzers;
 import org.apache.lucene.search.BooleanQuery;
 import org.junit.Test;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
 import static com.stratio.cassandra.lucene.search.SearchBuilders.*;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
@@ -53,8 +50,7 @@ public class BooleanConditionTest {
 
     @Test
     public void testQueryEmpty() {
-        Schema schema = mock(Schema.class);
-        when(schema.getAnalyzer()).thenReturn(PreBuiltAnalyzers.DEFAULT.get());
+        Schema schema = schema().build();
         BooleanCondition condition = bool().boost(0.4).build();
         BooleanQuery query = (BooleanQuery) condition.query(schema);
         assertEquals(0, query.getClauses().length);

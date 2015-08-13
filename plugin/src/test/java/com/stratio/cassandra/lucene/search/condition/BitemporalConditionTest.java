@@ -32,7 +32,7 @@ import static org.junit.Assert.*;
 
 public class BitemporalConditionTest {
 
-    private static final String TIMESTAMP_PATTERN="timestamp";
+    private static final String TIMESTAMP_PATTERN = "timestamp";
 
     @Test
     public void testConstructorWithDefaults() {
@@ -62,8 +62,9 @@ public class BitemporalConditionTest {
     @Test
     public void testQuery() {
 
-        Schema schema = schema().mapper("name", bitemporalMapper("vtFrom", "vtTo", "ttFrom", "ttTo").pattern(TIMESTAMP_PATTERN))
-                .build();
+        Schema schema = schema().mapper("name",
+                                        bitemporalMapper("vtFrom", "vtTo", "ttFrom", "ttTo").pattern(TIMESTAMP_PATTERN))
+                                .build();
         BitemporalCondition condition = new BitemporalCondition(0.5f, "name", 1, 2, 3, 4, null);
 
         Query query = condition.query(schema);

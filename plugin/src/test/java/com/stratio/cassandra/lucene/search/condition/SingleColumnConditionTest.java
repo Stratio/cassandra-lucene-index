@@ -18,26 +18,27 @@ package com.stratio.cassandra.lucene.search.condition;
 
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.mapping.Mapper;
-import com.stratio.cassandra.lucene.schema.mapping.StringMapper;
+import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
 import org.junit.Test;
 
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.schema;
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.stringMapper;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class SingleFieldConditionTest {
+public class SingleColumnConditionTest {
 
     @Test
     public void testBuild() {
-        SingleFieldCondition condition = new SingleFieldCondition(0.5f, "field") {
+        SingleColumnCondition condition = new SingleColumnCondition(0.5f, "field") {
             @Override
-            public Query query(Schema schema) {
+            public Query query(SingleColumnMapper mapper, Analyzer analyzer) {
                 return null;
             }
         };
@@ -47,9 +48,9 @@ public class SingleFieldConditionTest {
 
     @Test
     public void testBuildDefaults() {
-        SingleFieldCondition condition = new SingleFieldCondition(null, "field") {
+        SingleColumnCondition condition = new SingleColumnCondition(null, "field") {
             @Override
-            public Query query(Schema schema) {
+            public Query query(SingleColumnMapper mapper, Analyzer analyzer) {
                 return null;
             }
         };
@@ -58,9 +59,9 @@ public class SingleFieldConditionTest {
 
     @Test(expected = IndexException.class)
     public void testBuildNullField() {
-        new SingleFieldCondition(null, null) {
+        new SingleColumnCondition(null, null) {
             @Override
-            public Query query(Schema schema) {
+            public Query query(SingleColumnMapper mapper, Analyzer analyzer) {
                 return null;
             }
         };
@@ -68,9 +69,9 @@ public class SingleFieldConditionTest {
 
     @Test(expected = IndexException.class)
     public void testBuildBlankField() {
-        new SingleFieldCondition(null, " ") {
+        new SingleColumnCondition(null, " ") {
             @Override
-            public Query query(Schema schema) {
+            public Query query(SingleColumnMapper mapper, Analyzer analyzer) {
                 return null;
             }
         };
@@ -78,37 +79,29 @@ public class SingleFieldConditionTest {
 
     @Test
     public void testGetMapper() {
-
-        Mapper mapper = new StringMapper("field", null, null, null, null);
-        Schema schema = mock(Schema.class);
-        when(schema.getMapper("field")).thenReturn(mapper);
-
-        SingleFieldCondition condition = new SingleFieldCondition(null, "field") {
+        Schema schema = schema().mapper("field", stringMapper()).build();
+        SingleColumnCondition condition = new SingleColumnCondition(null, "field") {
             @Override
-            public Query query(Schema schema) {
-                return null;
+            public Query query(SingleColumnMapper mapper, Analyzer analyzer) {
+                return new MatchAllDocsQuery();
             }
         };
-        Mapper out = condition.getMapper(schema, "field");
-        assertNotNull(out);
-        assertEquals(mapper, out);
+        Query query = condition.query(schema);
+        assertNotNull(query);
+        assertEquals(MatchAllDocsQuery.class, query.getClass());
 
     }
 
     @Test(expected = IndexException.class)
     public void testGetMapperNotFound() {
-
-        Schema schema = mock(Schema.class);
-        when(schema.getMapper("field")).thenReturn(null);
-
-        SingleFieldCondition condition = new SingleFieldCondition(null, "field") {
+        Schema schema = schema().build();
+        SingleColumnCondition condition = new SingleColumnCondition(null, "field") {
             @Override
-            public Query query(Schema schema) {
-                return null;
+            public Query query(SingleColumnMapper mapper, Analyzer analyzer) {
+                return new MatchAllDocsQuery();
             }
         };
-        condition.getMapper(schema, "field2");
-
+        condition.query(schema);
     }
 
 }

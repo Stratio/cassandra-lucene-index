@@ -16,16 +16,14 @@
 
 package com.stratio.cassandra.lucene.search.condition;
 
-import com.google.common.base.Objects;
 import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.shape.Circle;
 import com.stratio.cassandra.lucene.IndexException;
-import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.GeoPointMapper;
-import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 import com.stratio.cassandra.lucene.util.GeoDistance;
 import com.stratio.cassandra.lucene.util.GeoDistanceUnit;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.spatial.SpatialStrategy;
@@ -40,10 +38,7 @@ import static org.apache.lucene.search.BooleanClause.Occur.MUST_NOT;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class GeoDistanceCondition extends Condition {
-
-    /** The name of the field to be matched. */
-    public final String field;
+public class GeoDistanceCondition extends MapperCondition<GeoPointMapper> {
 
     /** The latitude of the reference point. */
     public final double latitude;
@@ -58,7 +53,6 @@ public class GeoDistanceCondition extends Condition {
     public final String maxDistance;
 
     private final GeoDistance minGeoDistance;
-
     private final GeoDistance maxGeoDistance;
 
     /**
@@ -79,23 +73,10 @@ public class GeoDistanceCondition extends Condition {
                                 Double longitude,
                                 String minDistance,
                                 String maxDistance) {
-        super(boost);
+        super(boost, field, GeoPointMapper.class);
 
-        if (StringUtils.isBlank(field)) {
-            throw new IndexException("Field name required");
-        }
-
-        if (latitude == null) {
-            throw new IndexException("latitude required");
-        } else if (latitude < -90.0 || latitude > 90) {
-            throw new IndexException("latitude must be between -90.0 and 90.0");
-        }
-
-        if (longitude == null) {
-            throw new IndexException("longitude required");
-        } else if (longitude < -180.0 || longitude > 180) {
-            throw new IndexException("longitude must be between -180.0 and 180.0");
-        }
+        this.latitude = GeoPointMapper.checkLatitude("latitude", latitude);
+        this.longitude = GeoPointMapper.checkLongitude("longitude", longitude);
 
         if (StringUtils.isBlank(maxDistance)) {
             throw new IndexException("max_distance must be provided");
@@ -108,23 +89,15 @@ public class GeoDistanceCondition extends Condition {
             throw new IndexException("min_distance must be lower than max_distance");
         }
 
-        this.field = field;
-        this.longitude = longitude;
-        this.latitude = latitude;
         this.minDistance = minDistance;
         this.maxDistance = maxDistance;
     }
 
     /** {@inheritDoc} */
     @Override
-    public Query query(Schema schema) {
+    public Query query(GeoPointMapper mapper, Analyzer analyzer) {
 
-        Mapper mapper = schema.getMapper(field);
-        if (!(mapper instanceof GeoPointMapper)) {
-            throw new IndexException("Geo point mapper required");
-        }
-        GeoPointMapper geoPointMapper = (GeoPointMapper) mapper;
-        SpatialStrategy spatialStrategy = geoPointMapper.getDistanceStrategy();
+        SpatialStrategy spatialStrategy = mapper.getDistanceStrategy();
 
         BooleanQuery query = new BooleanQuery();
         query.add(query(maxGeoDistance, spatialStrategy), FILTER);
@@ -146,12 +119,10 @@ public class GeoDistanceCondition extends Condition {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                      .add("field", field)
-                      .add("latitude", latitude)
-                      .add("longitude", longitude)
-                      .add("minDistance", minDistance)
-                      .add("maxDistance", maxDistance)
-                      .toString();
+        return toStringHelper(this).add("latitude", latitude)
+                                   .add("longitude", longitude)
+                                   .add("minDistance", minDistance)
+                                   .add("maxDistance", maxDistance)
+                                   .toString();
     }
 }

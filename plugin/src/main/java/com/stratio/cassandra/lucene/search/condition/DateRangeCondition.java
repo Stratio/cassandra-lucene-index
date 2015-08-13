@@ -16,11 +16,9 @@
 
 package com.stratio.cassandra.lucene.search.condition;
 
-import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.IndexException;
-import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.DateRangeMapper;
-import com.stratio.cassandra.lucene.schema.mapping.Mapper;
+import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.spatial.SpatialStrategy;
 import org.apache.lucene.spatial.prefix.tree.NumberRangePrefixTree.NRShape;
@@ -34,7 +32,7 @@ import java.util.Date;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class DateRangeCondition extends Condition {
+public class DateRangeCondition extends MapperCondition<DateRangeMapper> {
 
     /** The default from value. */
     public static final long DEFAULT_FROM = 0;
@@ -44,9 +42,6 @@ public class DateRangeCondition extends Condition {
 
     /** The default operation. */
     public static final String DEFAULT_OPERATION = "intersects";
-
-    /** The name of the field to be matched. */
-    public final String field;
 
     /** The lower accepted value. Maybe null meaning no lower limit. */
     public final Object from;
@@ -72,8 +67,7 @@ public class DateRangeCondition extends Condition {
      * @param operation The spatial operation to be performed.
      */
     public DateRangeCondition(Float boost, String field, Object from, Object to, String operation) {
-        super(boost);
-        this.field = field;
+        super(boost, field, DateRangeMapper.class);
         this.from = from == null ? DEFAULT_FROM : from;
         this.to = to == null ? DEFAULT_TO : to;
         this.operation = operation == null ? DEFAULT_OPERATION : operation;
@@ -83,13 +77,8 @@ public class DateRangeCondition extends Condition {
      * {@inheritDoc}
      */
     @Override
-    public Query query(Schema schema) {
+    public Query query(DateRangeMapper mapper, Analyzer analyzer) {
 
-        Mapper columnMapper = schema.getMapper(field);
-        if (!(columnMapper instanceof DateRangeMapper)) {
-            throw new IndexException("Date range mapper required");
-        }
-        DateRangeMapper mapper = (DateRangeMapper) columnMapper;
         SpatialStrategy strategy = mapper.getStrategy();
 
         Date fromDate = mapper.base(from);
@@ -130,12 +119,6 @@ public class DateRangeCondition extends Condition {
      */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                      .add("boost", boost)
-                      .add("field", field)
-                      .add("from", from)
-                      .add("to", to)
-                      .add("operation", operation)
-                      .toString();
+        return toStringHelper(this).add("from", from).add("to", to).add("operation", operation).toString();
     }
 }

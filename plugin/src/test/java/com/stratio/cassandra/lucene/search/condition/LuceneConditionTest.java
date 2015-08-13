@@ -18,15 +18,13 @@ package com.stratio.cassandra.lucene.search.condition;
 
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
-import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.junit.Test;
 
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.schema;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
@@ -35,8 +33,6 @@ public class LuceneConditionTest {
 
     @Test
     public void testBuild() {
-        Schema schema = mock(Schema.class);
-        when(schema.getAnalyzer()).thenReturn(new EnglishAnalyzer());
         Float boost = 0.7f;
         String defaultField = "field_1";
         String query = "field_2:houses";
@@ -48,8 +44,6 @@ public class LuceneConditionTest {
 
     @Test
     public void testBuildWithDefaults() {
-        Schema schema = mock(Schema.class);
-        when(schema.getAnalyzer()).thenReturn(new EnglishAnalyzer());
         String query = "field_2:houses";
         LuceneCondition condition = new LuceneCondition(null, null, query);
         assertEquals(Condition.DEFAULT_BOOST, condition.boost, 0);
@@ -59,16 +53,13 @@ public class LuceneConditionTest {
 
     @Test(expected = IndexException.class)
     public void testBuildWithoutQuery() {
-        Schema schema = mock(Schema.class);
-        when(schema.getAnalyzer()).thenReturn(new EnglishAnalyzer());
         new LuceneCondition(null, null, null);
     }
 
     @Test
     public void testQuery() {
 
-        Schema schema = mock(Schema.class);
-        when(schema.getAnalyzer()).thenReturn(new EnglishAnalyzer());
+        Schema schema = schema().defaultAnalyzer("english").build();
         LuceneCondition condition = new LuceneCondition(0.7f, "field_1", "field_2:houses");
         Query query = condition.query(schema);
         assertNotNull(query);
@@ -80,8 +71,7 @@ public class LuceneConditionTest {
 
     @Test(expected = IndexException.class)
     public void testQueryInvalid() {
-        Schema schema = mock(Schema.class);
-        when(schema.getAnalyzer()).thenReturn(new EnglishAnalyzer());
+        Schema schema = schema().defaultAnalyzer("english").build();
         LuceneCondition condition = new LuceneCondition(0.7f, "field_1", ":");
         condition.query(schema);
     }

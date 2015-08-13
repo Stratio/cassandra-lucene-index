@@ -33,7 +33,8 @@ import static org.junit.Assert.*;
  */
 public class DateRangeConditionTest {
 
-    private final String TIMESTAMP_PATTERN="timestamp";
+    private final String TIMESTAMP_PATTERN = "timestamp";
+
     @Test
     public void testConstructorWithDefaults() {
         DateRangeCondition condition = new DateRangeCondition(null, "name", 1, 2, null);

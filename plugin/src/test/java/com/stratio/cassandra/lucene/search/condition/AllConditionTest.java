@@ -21,9 +21,9 @@ import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
 import org.junit.Test;
 
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.schema;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.mock;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
@@ -46,7 +46,8 @@ public class AllConditionTest {
     @Test
     public void testQuery() {
         AllCondition condition = new AllCondition(0.7f);
-        Query query = condition.query(mock(Schema.class));
+        Schema schema = schema().build();
+        Query query = condition.query(schema);
         assertNotNull(query);
         assertEquals(MatchAllDocsQuery.class, query.getClass());
         assertEquals(0.7f, query.getBoost(), 0);

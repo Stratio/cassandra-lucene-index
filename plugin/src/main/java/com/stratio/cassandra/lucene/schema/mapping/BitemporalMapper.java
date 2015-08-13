@@ -88,7 +88,7 @@ public class BitemporalMapper extends Mapper {
      * @param vtTo    The column name containing the valid time stop.
      * @param ttFrom  The column name containing the transaction time start.
      * @param ttTo    The column name containing the transaction time stop.
-     * @param pattern The {@link SimpleDateFormat} pattern to be used.
+     * @param pattern The date format pattern to be used.
      */
     public BitemporalMapper(String name,
                             String vtFrom,
@@ -102,14 +102,14 @@ public class BitemporalMapper extends Mapper {
               true,
               false,
               Arrays.<AbstractType<?>>asList(AsciiType.instance,
-                                          UTF8Type.instance,
-                                          Int32Type.instance,
-                                          LongType.instance,
-                                          IntegerType.instance,
-                                          FloatType.instance,
-                                          DoubleType.instance,
-                                          DecimalType.instance,
-                                          TimestampType.instance),
+                                             UTF8Type.instance,
+                                             Int32Type.instance,
+                                             LongType.instance,
+                                             IntegerType.instance,
+                                             FloatType.instance,
+                                             DoubleType.instance,
+                                             DecimalType.instance,
+                                             TimestampType.instance),
               Arrays.asList(vtFrom, vtTo, ttFrom, ttTo));
 
         if (StringUtils.isBlank(vtFrom)) {

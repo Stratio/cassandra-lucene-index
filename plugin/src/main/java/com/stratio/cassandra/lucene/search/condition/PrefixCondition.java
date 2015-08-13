@@ -18,8 +18,8 @@ package com.stratio.cassandra.lucene.search.condition;
 
 import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.IndexException;
-import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
+import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.PrefixQuery;
 import org.apache.lucene.search.Query;
@@ -29,10 +29,7 @@ import org.apache.lucene.search.Query;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class PrefixCondition extends SingleFieldCondition {
-
-    /** The name of the field to be matched. */
-    public final String field;
+public class PrefixCondition extends SingleColumnCondition {
 
     /** The field prefix to be matched. */
     public final String value;
@@ -48,29 +45,23 @@ public class PrefixCondition extends SingleFieldCondition {
      */
     public PrefixCondition(Float boost, String field, String value) {
         super(boost, field);
-
         if (value == null) {
             throw new IndexException("Field value required");
         }
-
-        this.field = field;
         this.value = value;
     }
 
     /** {@inheritDoc} */
     @Override
-    public Query query(Schema schema) {
-        SingleColumnMapper<?> columnMapper = getMapper(schema, field);
-        Class<?> clazz = columnMapper.baseClass();
-        Query query;
-        if (clazz == String.class) {
+    public Query query(SingleColumnMapper mapper, Analyzer analyzer) {
+        if (mapper.baseClass() == String.class) {
             Term term = new Term(field, value);
-            query = new PrefixQuery(term);
+            Query query = new PrefixQuery(term);
+            query.setBoost(boost);
+            return query;
         } else {
-            throw new IndexException("Prefix queries are not supported by '%s' mapper", clazz.getSimpleName());
+            throw new IndexException("Prefix queries are not supported by mapper '%s' mapper", mapper);
         }
-        query.setBoost(boost);
-        return query;
     }
 
     /** {@inheritDoc} */

@@ -35,9 +35,9 @@ import org.junit.Test;
 
 import java.io.IOException;
 
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.schema;
 import static com.stratio.cassandra.lucene.search.SearchBuilders.*;
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
 
 /**
  * Class for testing {@link Search} builders.
@@ -159,7 +159,7 @@ public class SearchBuildersTest {
         SearchBuilder builder = query(all());
         assertNotNull(builder);
         Search search = builder.build();
-        Schema schema = mock(Schema.class);
+        Schema schema = schema().build();
         assertEquals(MatchAllDocsQuery.class, search.query(schema).getClass());
         assertNull(search.filter(schema));
     }
@@ -169,7 +169,7 @@ public class SearchBuildersTest {
         SearchBuilder builder = filter(all());
         assertNotNull(builder);
         Search search = builder.build();
-        Schema schema = mock(Schema.class);
+        Schema schema = schema().build();
         assertNull(search.query(schema));
         assertEquals(MatchAllDocsQuery.class, search.filter(schema).getClass());
     }
@@ -178,7 +178,7 @@ public class SearchBuildersTest {
     public void testSearch() throws IOException {
         SearchBuilder builder = search();
         Search search = builder.build();
-        Schema schema = mock(Schema.class);
+        Schema schema = schema().build();
         assertNull(search.query(schema));
         assertNull(search.filter(schema));
     }

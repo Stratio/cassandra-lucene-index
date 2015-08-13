@@ -176,8 +176,8 @@ public class GeoDistanceConditionTest {
     @Test
     public void testToString() {
         GeoDistanceCondition condition = geoDistance("name", -1D, 9, "3km").setMinDistance("1km").boost(0.4f).build();
-        assertEquals("GeoDistanceCondition{field=name, latitude=9.0, longitude=-1.0, minDistance=1km, maxDistance=3km}",
-                     condition.toString());
+        assertEquals("GeoDistanceCondition{boost=0.4, field=name, " +
+                     "latitude=9.0, longitude=-1.0, minDistance=1km, maxDistance=3km}", condition.toString());
     }
 
 }

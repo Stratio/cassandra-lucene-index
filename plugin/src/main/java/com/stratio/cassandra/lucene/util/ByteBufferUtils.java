@@ -29,7 +29,7 @@ import java.util.List;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class ByteBufferUtils {
+public final class ByteBufferUtils {
 
     /** Private constructor to hide the implicit public one. */
     private ByteBufferUtils() {

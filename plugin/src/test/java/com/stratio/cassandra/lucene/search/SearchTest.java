@@ -17,15 +17,12 @@
 package com.stratio.cassandra.lucene.search;
 
 import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.analysis.PreBuiltAnalyzers;
-import com.stratio.cassandra.lucene.schema.mapping.Mapper;
-import com.stratio.cassandra.lucene.schema.mapping.StringMapper;
 import org.junit.Test;
 
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.schema;
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.stringMapper;
 import static com.stratio.cassandra.lucene.search.SearchBuilders.*;
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
@@ -98,20 +95,14 @@ public class SearchTest {
 
     @Test
     public void testSort() {
-        Mapper mapper = new StringMapper("field", null, true, true, true);
-        Schema schema = mock(Schema.class);
-        when(schema.getAnalyzer()).thenReturn(PreBuiltAnalyzers.STANDARD.get());
-        when(schema.getMapper("field")).thenReturn(mapper);
+        Schema schema = schema().mapper("field", stringMapper().sorted(true)).build();
         assertNotNull(search().sort(sortField("field")).build().sortFields(schema));
         assertNull(search().query(match("field", "value")).build().sortFields(schema));
     }
 
     @Test
     public void testValidate() {
-        Mapper mapper = new StringMapper("field", null, true, true, true);
-        Schema schema = mock(Schema.class);
-        when(schema.getAnalyzer()).thenReturn(PreBuiltAnalyzers.STANDARD.get());
-        when(schema.getMapper("field")).thenReturn(mapper);
+        Schema schema = schema().mapper("field", stringMapper().sorted(true)).build();
         search().query(match("field", "value"))
                 .filter(match("field", "value"))
                 .sort(sortField("field"))

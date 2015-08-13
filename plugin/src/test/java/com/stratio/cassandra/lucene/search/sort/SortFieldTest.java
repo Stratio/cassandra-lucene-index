@@ -18,7 +18,6 @@ package com.stratio.cassandra.lucene.search.sort;
 
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.analysis.PreBuiltAnalyzers;
 import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import org.apache.cassandra.db.marshal.UTF8Type;
@@ -26,11 +25,10 @@ import org.junit.Test;
 
 import java.util.Comparator;
 
-import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.schema;
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.stringMapper;
 import static org.apache.lucene.search.SortField.FIELD_SCORE;
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
@@ -146,9 +144,7 @@ public class SortFieldTest {
 
     @Test(expected = IndexException.class)
     public void testSortFieldWithoutMapper() {
-        Schema schema = mock(Schema.class);
-        when(schema.getAnalyzer()).thenReturn(PreBuiltAnalyzers.DEFAULT.get());
-
+        Schema schema = schema().build();
         SortField sortField = new SortField("field", true);
         sortField.sortField(schema);
     }

@@ -18,7 +18,8 @@ package com.stratio.cassandra.lucene.search.condition;
 
 import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.IndexException;
-import com.stratio.cassandra.lucene.schema.Schema;
+import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
+import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
@@ -30,7 +31,7 @@ import java.util.Arrays;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class ContainsCondition extends SingleFieldCondition {
+public class ContainsCondition extends SingleColumnCondition {
 
     /** The name of the field to be matched. */
     public final String field;
@@ -60,11 +61,11 @@ public class ContainsCondition extends SingleFieldCondition {
 
     /** {@inheritDoc} */
     @Override
-    public Query query(Schema schema) {
+    public Query query(SingleColumnMapper mapper, Analyzer analyzer) {
         BooleanQuery query = new BooleanQuery();
         for (Object value : values) {
-            Condition condition = new MatchCondition(boost, field, value);
-            query.add(condition.query(schema), BooleanClause.Occur.SHOULD);
+            MatchCondition condition = new MatchCondition(boost, field, value);
+            query.add(condition.query(mapper, analyzer), BooleanClause.Occur.SHOULD);
         }
         query.setBoost(boost);
         return query;

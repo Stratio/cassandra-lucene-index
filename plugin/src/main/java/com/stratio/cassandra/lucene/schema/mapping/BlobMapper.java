@@ -50,30 +50,30 @@ public class BlobMapper extends KeywordMapper {
         if (value == null) {
             return null;
         } else if (value instanceof ByteBuffer) {
-            return base(name, (ByteBuffer) value);
+            return base((ByteBuffer) value);
         } else if (value instanceof byte[]) {
-            return base(name, (byte[]) value);
+            return base((byte[]) value);
         } else if (value instanceof String) {
-            return base(name, (String) value);
+            return base((String) value);
         }
         throw new IndexException("Field '%s' requires a byte array, but found '%s'", name, value);
     }
 
-    private String base(String name, ByteBuffer value) {
+    private String base(ByteBuffer value) {
         return ByteBufferUtils.toHex(value);
     }
 
-    private String base(String name, byte[] value) {
+    private String base(byte[] value) {
         return ByteBufferUtils.toHex(value);
     }
 
-    private String base(String name, String value) {
+    private String base(String value) throws NumberFormatException {
         try {
             value = value.replaceFirst("0x", "");
             byte[] bytes = Hex.hexToBytes(value);
             return Hex.bytesToHex(bytes);
         } catch (NumberFormatException e) {
-            throw new IndexException("Field '%s' must contain an hex array, but found '%s'", name, value);
+            throw new IndexException("Field '%s' requires an hex string, but found '%s'", name, value);
         }
     }
 }

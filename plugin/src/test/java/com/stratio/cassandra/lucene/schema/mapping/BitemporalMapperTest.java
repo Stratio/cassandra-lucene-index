@@ -1022,14 +1022,14 @@ public class BitemporalMapperTest {
 
     @Test
     public void testAddFieldsT1() {
-        String nowValue= "2100/01/01 00:00:00.001 GMT";
-        BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null,nowValue);
+        String nowValue = "2100/01/01 00:00:00.001 GMT";
+        BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null, nowValue);
 
         Columns columns = new Columns();
         columns.add(Column.fromComposed("vtFrom", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("vtTo",  nowValue, UTF8Type.instance, false));
+        columns.add(Column.fromComposed("vtTo", nowValue, UTF8Type.instance, false));
         columns.add(Column.fromComposed("ttFrom", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("ttTo",  nowValue, UTF8Type.instance, false));
+        columns.add(Column.fromComposed("ttTo", nowValue, UTF8Type.instance, false));
         Document document = new Document();
         mapper.addFields(document, columns);
         testAddFieldsOnlyThese(document,
@@ -1044,7 +1044,7 @@ public class BitemporalMapperTest {
 
     @Test
     public void testAddFieldsT2() {
-        String nowValue= "2100/01/01 00:00:00.000 GMT";
+        String nowValue = "2100/01/01 00:00:00.000 GMT";
         BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null, nowValue);
 
         Columns columns = new Columns();
@@ -1066,7 +1066,7 @@ public class BitemporalMapperTest {
 
     @Test
     public void testAddFieldsT3() {
-        String nowValue= "2100/01/01 00:00:00.000 GMT";
+        String nowValue = "2100/01/01 00:00:00.000 GMT";
         BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null, nowValue);
 
         Columns columns = new Columns();

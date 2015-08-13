@@ -18,9 +18,9 @@ package com.stratio.cassandra.lucene.search.condition;
 
 import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.IndexException;
-import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.FuzzyQuery;
 import org.apache.lucene.search.Query;
@@ -33,7 +33,7 @@ import org.apache.lucene.util.automaton.LevenshteinAutomata;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class FuzzyCondition extends SingleFieldCondition {
+public class FuzzyCondition extends SingleColumnCondition {
 
     /** The default Damerau-Levenshtein max distance. */
     public static final int DEFAULT_MAX_EDITS = LevenshteinAutomata.MAXIMUM_SUPPORTED_DISTANCE;
@@ -113,16 +113,14 @@ public class FuzzyCondition extends SingleFieldCondition {
 
     /** {@inheritDoc} */
     @Override
-    public Query query(Schema schema) {
-        SingleColumnMapper<?> columnMapper = getMapper(schema, field);
-        Class<?> clazz = columnMapper.baseClass();
-        if (clazz == String.class) {
+    public Query query(SingleColumnMapper mapper, Analyzer analyzer) {
+        if (mapper.baseClass() == String.class) {
             Term term = new Term(field, value);
             Query query = new FuzzyQuery(term, maxEdits, prefixLength, maxExpansions, transpositions);
             query.setBoost(boost);
             return query;
         } else {
-            throw new IndexException("Fuzzy queries are not supported by '%s' mapper", clazz.getSimpleName());
+            throw new IndexException("Fuzzy queries are not supported by mapper %s", mapper);
         }
     }
 

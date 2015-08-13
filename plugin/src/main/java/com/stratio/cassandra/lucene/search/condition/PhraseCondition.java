@@ -18,7 +18,6 @@ package com.stratio.cassandra.lucene.search.condition;
 
 import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.IndexException;
-import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.search.BooleanQuery;
@@ -30,13 +29,10 @@ import org.apache.lucene.util.QueryBuilder;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class PhraseCondition extends SingleFieldCondition {
+public class PhraseCondition extends SingleColumnCondition {
 
     /** The default umber of other words permitted between words in phrase. */
     public static final int DEFAULT_SLOP = 0;
-
-    /** The name of the field to be matched. */
-    public final String field;
 
     /** The phrase terms to be matched. */
     public final String value;
@@ -64,18 +60,14 @@ public class PhraseCondition extends SingleFieldCondition {
             throw new IndexException("Slop must be positive");
         }
 
-        this.field = field;
         this.value = value;
         this.slop = slop == null ? DEFAULT_SLOP : slop;
     }
 
     /** {@inheritDoc} */
     @Override
-    public Query query(Schema schema) {
-        SingleColumnMapper<?> columnMapper = getMapper(schema, field);
-        Class<?> clazz = columnMapper.baseClass();
-        if (clazz == String.class) {
-            Analyzer analyzer = schema.getAnalyzer();
+    public Query query(SingleColumnMapper mapper, Analyzer analyzer) {
+        if (mapper.baseClass() == String.class) {
             QueryBuilder queryBuilder = new QueryBuilder(analyzer);
             Query query = queryBuilder.createPhraseQuery(field, value, slop);
             if (query == null) {
@@ -84,7 +76,7 @@ public class PhraseCondition extends SingleFieldCondition {
             query.setBoost(boost);
             return query;
         } else {
-            throw new IndexException("Query '%s' is not supported by mapper '%s'", this, columnMapper);
+            throw new IndexException("Query '%s' is not supported by mapper '%s'", this, mapper);
         }
     }
 

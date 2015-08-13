@@ -21,9 +21,9 @@ import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 import org.junit.Test;
 
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.schema;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.mock;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
@@ -45,8 +45,9 @@ public class NoneConditionTest {
 
     @Test
     public void testQuery() {
+        Schema schema = schema().build();
         NoneCondition condition = new NoneCondition(0.7f);
-        Query query = condition.query(mock(Schema.class));
+        Query query = condition.query(schema);
         assertNotNull(query);
         assertEquals(BooleanQuery.class, query.getClass());
         assertEquals(0.7f, query.getBoost(), 0);

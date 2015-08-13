@@ -16,6 +16,7 @@
 
 package com.stratio.cassandra.lucene.search.condition;
 
+import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.schema.Schema;
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.Query;
@@ -66,4 +67,7 @@ public abstract class Condition {
         return new QueryWrapperFilter(query(schema));
     }
 
+    protected Objects.ToStringHelper toStringHelper(Object o) {
+        return Objects.toStringHelper(o).add("boost", boost);
+    }
 }

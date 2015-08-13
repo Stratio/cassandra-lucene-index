@@ -16,10 +16,9 @@
 
 package com.stratio.cassandra.lucene.search.condition;
 
-import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.IndexException;
-import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
+import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.RegexpQuery;
@@ -33,10 +32,7 @@ import org.apache.lucene.search.RegexpQuery;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class RegexpCondition extends SingleFieldCondition {
-
-    /** The name of the field to be matched. */
-    public final String field;
+public class RegexpCondition extends SingleColumnCondition {
 
     /** The wildcard expression to be matched. */
     public final String value;
@@ -52,34 +48,28 @@ public class RegexpCondition extends SingleFieldCondition {
      */
     public RegexpCondition(Float boost, String field, String value) {
         super(boost, field);
-
         if (value == null) {
             throw new IndexException("Field value required");
         }
-
-        this.field = field;
         this.value = value;
     }
 
     /** {@inheritDoc} */
     @Override
-    public Query query(Schema schema) {
-        SingleColumnMapper<?> columnMapper = getMapper(schema, field);
-        Class<?> clazz = columnMapper.baseClass();
-        Query query;
-        if (clazz == String.class) {
+    public Query query(SingleColumnMapper mapper, Analyzer analyzer) {
+        if (mapper.baseClass() == String.class) {
             Term term = new Term(field, value);
-            query = new RegexpQuery(term);
+            Query query = new RegexpQuery(term);
+            query.setBoost(boost);
+            return query;
         } else {
-            throw new IndexException("Regexp queries are not supported by '%s' mapper", clazz.getSimpleName());
+            throw new IndexException("Regexp queries are not supported by mapper '%s'", mapper);
         }
-        query.setBoost(boost);
-        return query;
     }
 
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("boost", boost).add("field", field).add("value", value).toString();
+        return toStringHelper(this).add("value", value).toString();
     }
 }

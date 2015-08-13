@@ -65,8 +65,8 @@ public final class RegularCellsMapper {
     }
 
     /**
-     * Returns the columns contained in the regular cells specified row. Note that not all the contained columns
-     * are returned, but only the regular cell ones.
+     * Returns the columns contained in the regular cells specified row. Note that not all the contained columns are
+     * returned, but only the regular cell ones.
      *
      * @param columnFamily A row column family.
      * @return The columns contained in the regular cells specified row.

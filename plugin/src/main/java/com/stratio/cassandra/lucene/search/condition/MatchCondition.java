@@ -16,9 +16,7 @@
 
 package com.stratio.cassandra.lucene.search.condition;
 
-import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.IndexException;
-import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
 import com.stratio.cassandra.lucene.schema.mapping.TextMapper;
 import org.apache.lucene.analysis.Analyzer;
@@ -34,10 +32,7 @@ import org.apache.lucene.util.QueryBuilder;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class MatchCondition extends SingleFieldCondition {
-
-    /** The name of the field to be matched. */
-    public final String field;
+public class MatchCondition extends SingleColumnCondition {
 
     /** The value of the field to be matched. */
     public final Object value;
@@ -53,24 +48,19 @@ public class MatchCondition extends SingleFieldCondition {
      */
     public MatchCondition(Float boost, String field, Object value) {
         super(boost, field);
-
         if (value == null) {
             throw new IndexException("Field value required");
         }
-
-        this.field = field;
         this.value = value;
     }
 
     /** {@inheritDoc} */
     @Override
-    public Query query(Schema schema) {
-        SingleColumnMapper<?> mapper = getMapper(schema, field);
+    public Query query(SingleColumnMapper mapper, Analyzer analyzer) {
         Class<?> clazz = mapper.baseClass();
         Query query;
         if (clazz == String.class) {
             String value = (String) mapper.base(field, this.value);
-            Analyzer analyzer = schema.getAnalyzer();
             if (mapper instanceof TextMapper) {
                 QueryBuilder queryBuilder = new QueryBuilder(analyzer);
                 query = queryBuilder.createPhraseQuery(field, value, 0);
@@ -91,7 +81,7 @@ public class MatchCondition extends SingleFieldCondition {
             Double value = (Double) mapper.base(field, this.value);
             query = NumericRangeQuery.newDoubleRange(field, value, value, true, true);
         } else {
-            throw new IndexException("Match queries are not supported by '%s' mapper", clazz.getSimpleName());
+            throw new IndexException("Match queries are not supported by mapper %s", mapper);
         }
         query.setBoost(boost);
         return query;
@@ -100,6 +90,6 @@ public class MatchCondition extends SingleFieldCondition {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("boost", boost).add("field", field).add("value", value).toString();
+        return toStringHelper(this).add("value", value).toString();
     }
 }

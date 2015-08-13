@@ -33,15 +33,15 @@ public class BooleanConditionBuilder extends ConditionBuilder<BooleanCondition, 
 
     /** The mandatory conditions. */
     @JsonProperty("must")
-    private List<ConditionBuilder<?,?>> must = new ArrayList<>();
+    private List<ConditionBuilder<?, ?>> must = new ArrayList<>();
 
     /** The optional conditions. */
     @JsonProperty("should")
-    private List<ConditionBuilder<?,?>> should = new ArrayList<>();
+    private List<ConditionBuilder<?, ?>> should = new ArrayList<>();
 
     /** The mandatory not conditions. */
     @JsonProperty("not")
-    private List<ConditionBuilder<?,?>> not = new ArrayList<>();
+    private List<ConditionBuilder<?, ?>> not = new ArrayList<>();
 
     /**
      * Returns this builder with the specified mandatory conditions.
@@ -49,7 +49,7 @@ public class BooleanConditionBuilder extends ConditionBuilder<BooleanCondition, 
      * @param conditionBuilders The mandatory conditions to be added.
      * @return this builder with the specified mandatory conditions.
      */
-    public BooleanConditionBuilder must(ConditionBuilder<?,?>... conditionBuilders) {
+    public BooleanConditionBuilder must(ConditionBuilder<?, ?>... conditionBuilders) {
         must.addAll(Arrays.asList(conditionBuilders));
         return this;
     }
@@ -60,7 +60,7 @@ public class BooleanConditionBuilder extends ConditionBuilder<BooleanCondition, 
      * @param conditionBuilders The optional conditions to be added.
      * @return this builder with the specified optional conditions.
      */
-    public BooleanConditionBuilder should(ConditionBuilder<?,?>... conditionBuilders) {
+    public BooleanConditionBuilder should(ConditionBuilder<?, ?>... conditionBuilders) {
         should.addAll(Arrays.asList(conditionBuilders));
         return this;
     }
@@ -71,7 +71,7 @@ public class BooleanConditionBuilder extends ConditionBuilder<BooleanCondition, 
      * @param conditionBuilders The mandatory not conditions to be added.
      * @return this builder with the specified mandatory not conditions.
      */
-    public BooleanConditionBuilder not(ConditionBuilder<?,?>... conditionBuilders) {
+    public BooleanConditionBuilder not(ConditionBuilder<?, ?>... conditionBuilders) {
         not.addAll(Arrays.asList(conditionBuilders));
         return this;
     }
@@ -85,19 +85,19 @@ public class BooleanConditionBuilder extends ConditionBuilder<BooleanCondition, 
     public BooleanCondition build() {
         List<Condition> mustConditions = new ArrayList<>();
         if (must != null) {
-            for (ConditionBuilder<?,?> conditionBuilder : must) {
+            for (ConditionBuilder<?, ?> conditionBuilder : must) {
                 mustConditions.add(conditionBuilder.build());
             }
         }
         List<Condition> shouldConditions = new ArrayList<>();
         if (should != null) {
-            for (ConditionBuilder<?,?> conditionBuilder : should) {
+            for (ConditionBuilder<?, ?> conditionBuilder : should) {
                 shouldConditions.add(conditionBuilder.build());
             }
         }
         List<Condition> notConditions = new ArrayList<>();
         if (not != null) {
-            for (ConditionBuilder<?,?> conditionBuilder : not) {
+            for (ConditionBuilder<?, ?> conditionBuilder : not) {
                 notConditions.add(conditionBuilder.build());
             }
         }

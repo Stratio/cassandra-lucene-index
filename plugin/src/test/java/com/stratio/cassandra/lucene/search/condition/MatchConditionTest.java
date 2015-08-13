@@ -18,9 +18,10 @@ package com.stratio.cassandra.lucene.search.condition;
 
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
+import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
+import com.stratio.cassandra.lucene.schema.mapping.builder.MapperBuilder;
 import org.apache.cassandra.db.marshal.UUIDType;
-import org.apache.lucene.analysis.core.KeywordAnalyzer;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.NumericRangeQuery;
@@ -33,8 +34,6 @@ import java.util.UUID;
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
@@ -208,7 +207,11 @@ public class MatchConditionTest {
     @Test(expected = IndexException.class)
     public void testUnsupportedMapper() {
 
-        SingleColumnMapper<UUID> mapper = new SingleColumnMapper<UUID>("field", null, null, null, UUIDType.instance) {
+        final SingleColumnMapper<UUID> mapper = new SingleColumnMapper<UUID>("field",
+                                                                             null,
+                                                                             null,
+                                                                             null,
+                                                                             UUIDType.instance) {
             @Override
             public Field indexedField(String name, UUID value) {
                 return null;
@@ -240,9 +243,12 @@ public class MatchConditionTest {
             }
         };
 
-        Schema schema = mock(Schema.class);
-        when(schema.getMapper("field")).thenReturn(mapper);
-        when(schema.getAnalyzer()).thenReturn(new KeywordAnalyzer());
+        Schema schema = schema().mapper("field", new MapperBuilder<Mapper>() {
+            @Override
+            public Mapper build(String name) {
+                return mapper;
+            }
+        }).build();
 
         MatchCondition matchCondition = new MatchCondition(0.5f, "field", "2001:DB8:2de::0e13");
         matchCondition.query(schema);

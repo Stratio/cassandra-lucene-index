@@ -18,7 +18,6 @@ package com.stratio.cassandra.lucene.search.condition;
 
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
-import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.NumericRangeQuery;
@@ -28,8 +27,6 @@ import org.junit.Test;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
@@ -38,8 +35,6 @@ public class ContainsConditionTest {
 
     @Test
     public void testBuild() {
-        Schema schema = mock(Schema.class);
-        when(schema.getAnalyzer()).thenReturn(new EnglishAnalyzer());
         Float boost = 0.7f;
         String field = "test";
         Object[] values = new Object[]{1, 2, 3};
@@ -51,8 +46,6 @@ public class ContainsConditionTest {
 
     @Test
     public void testBuildWithDefaults() {
-        Schema schema = mock(Schema.class);
-        when(schema.getAnalyzer()).thenReturn(new EnglishAnalyzer());
         String field = "test";
         Object[] values = new Object[]{1, 2, 3};
         ContainsCondition condition = new ContainsCondition(null, field, values);
@@ -63,29 +56,21 @@ public class ContainsConditionTest {
 
     @Test(expected = IndexException.class)
     public void testBuildWithNullField() {
-        Schema schema = mock(Schema.class);
-        when(schema.getAnalyzer()).thenReturn(new EnglishAnalyzer());
         new ContainsCondition(0.7f, null, 1, 2, 3);
     }
 
     @Test(expected = IndexException.class)
     public void testBuildWithBlankField() {
-        Schema schema = mock(Schema.class);
-        when(schema.getAnalyzer()).thenReturn(new EnglishAnalyzer());
         new ContainsCondition(0.7f, " ", 1, 2, 3);
     }
 
     @Test(expected = IndexException.class)
     public void testBuildWithNullValues() {
-        Schema schema = mock(Schema.class);
-        when(schema.getAnalyzer()).thenReturn(new EnglishAnalyzer());
         new ContainsCondition(0.7f, "values");
     }
 
     @Test(expected = IndexException.class)
     public void testBuildWithEmptyValues() {
-        Schema schema = mock(Schema.class);
-        when(schema.getAnalyzer()).thenReturn(new EnglishAnalyzer());
         new ContainsCondition(0.7f, "values");
     }
 

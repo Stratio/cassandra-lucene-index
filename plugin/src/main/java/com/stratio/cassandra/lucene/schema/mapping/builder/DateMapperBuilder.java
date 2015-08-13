@@ -19,7 +19,6 @@ package com.stratio.cassandra.lucene.schema.mapping.builder;
 import com.stratio.cassandra.lucene.schema.mapping.DateMapper;
 import org.codehaus.jackson.annotate.JsonProperty;
 
-
 /**
  * {@link SingleColumnMapperBuilder} to build a new {@link DateMapper}.
  *

@@ -52,7 +52,7 @@ public class DateRangeMapper extends Mapper {
     /** The date format pattern. */
     private final String pattern;
 
-    /** The {@link DateParser} */
+    /** The {@link DateParser}. */
     private final DateParser dateParser;
 
     private final DateRangePrefixTree tree;
@@ -71,14 +71,14 @@ public class DateRangeMapper extends Mapper {
               true,
               false,
               Arrays.<AbstractType<?>>asList(AsciiType.instance,
-                                          UTF8Type.instance,
-                                          Int32Type.instance,
-                                          LongType.instance,
-                                          IntegerType.instance,
-                                          FloatType.instance,
-                                          DoubleType.instance,
-                                          DecimalType.instance,
-                                          TimestampType.instance),
+                                             UTF8Type.instance,
+                                             Int32Type.instance,
+                                             LongType.instance,
+                                             IntegerType.instance,
+                                             FloatType.instance,
+                                             DoubleType.instance,
+                                             DecimalType.instance,
+                                             TimestampType.instance),
               Arrays.asList(from, to));
 
         if (StringUtils.isBlank(from)) {
@@ -134,18 +134,18 @@ public class DateRangeMapper extends Mapper {
     @Override
     public void addFields(Document document, Columns columns) {
 
-        Date from = readFrom(columns);
-        Date to = readTo(columns);
+        Date fromDate = readFrom(columns);
+        Date toDate = readTo(columns);
 
-        if (from == null && to == null) {
+        if (fromDate == null && toDate == null) {
             return;
-        } else if (from == null) {
+        } else if (fromDate == null) {
             throw new IndexException("From column required");
-        } else if (to == null) {
+        } else if (toDate == null) {
             throw new IndexException("To column required");
         }
 
-        NRShape shape = makeShape(from, to);
+        NRShape shape = makeShape(fromDate, toDate);
         for (IndexableField field : strategy.createIndexableFields(shape)) {
             document.add(field);
         }
@@ -197,11 +197,11 @@ public class DateRangeMapper extends Mapper {
         if (column == null) {
             return null;
         }
-        Date from = base(column.getComposedValue());
+        Date fromDate = base(column.getComposedValue());
         if (to == null) {
             throw new IndexException("From date required");
         }
-        return from;
+        return fromDate;
     }
 
     /**
@@ -215,11 +215,11 @@ public class DateRangeMapper extends Mapper {
         if (column == null) {
             return null;
         }
-        Date to = base(column.getComposedValue());
-        if (to == null) {
+        Date toDate = base(column.getComposedValue());
+        if (toDate == null) {
             throw new IndexException("To date required");
         }
-        return to;
+        return toDate;
     }
 
     /**

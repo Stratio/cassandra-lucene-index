@@ -17,46 +17,34 @@
 package com.stratio.cassandra.lucene.search.condition;
 
 import com.stratio.cassandra.lucene.IndexException;
-import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
 import org.apache.commons.lang3.StringUtils;
 
 /**
  * The abstract base class for queries.
  *
- * Known subclasses are: <ul> <li> {@link BooleanCondition} <li> {@link FuzzyCondition} <li> {@link MatchCondition} <li>
- * {@link PhraseCondition} <li> {@link PrefixCondition} <li> {@link RangeCondition} <li> {@link WildcardCondition}
- * </ul>
+ * Known subclasses are: <ul> <li> {@link FuzzyCondition} <li> {@link MatchCondition} <li> {@link PhraseCondition} <li>
+ * {@link PrefixCondition} <li> {@link RangeCondition} <li> {@link WildcardCondition} </ul>
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public abstract class SingleFieldCondition extends Condition {
+public abstract class SingleColumnCondition extends MapperCondition<SingleColumnMapper> {
 
     /** The name of the field to be matched. */
     public final String field;
 
     /**
-     * Abstract {@link SingleFieldCondition} builder receiving the boost to be used.
+     * Abstract {@link SingleColumnCondition} builder receiving the boost to be used.
      *
      * @param boost The boost for this query clause. Documents matching this clause will (in addition to the normal
      *              weightings) have their score multiplied by {@code boost}.
      * @param field The name of the field to be matched.
      */
-    public SingleFieldCondition(Float boost, String field) {
-        super(boost);
+    public SingleColumnCondition(Float boost, String field) {
+        super(boost, field, SingleColumnMapper.class);
         if (StringUtils.isBlank(field)) {
             throw new IndexException("Field name required");
         }
         this.field = field;
     }
-
-    protected SingleColumnMapper<?> getMapper(Schema schema, String field) {
-        Mapper mapper = schema.getMapper(field);
-        if (mapper instanceof SingleColumnMapper<?>) {
-            return (SingleColumnMapper<?>) mapper;
-        }
-        throw new IndexException("Not found mapper for field '%s'", field);
-    }
-
 }
