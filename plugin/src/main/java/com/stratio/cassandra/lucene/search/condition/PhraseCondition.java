@@ -66,7 +66,7 @@ public class PhraseCondition extends SingleColumnCondition {
 
     /** {@inheritDoc} */
     @Override
-    public Query query(SingleColumnMapper mapper, Analyzer analyzer) {
+    public Query query(SingleColumnMapper<?> mapper, Analyzer analyzer) {
         if (mapper.baseClass() == String.class) {
             QueryBuilder queryBuilder = new QueryBuilder(analyzer);
             Query query = queryBuilder.createPhraseQuery(field, value, slop);

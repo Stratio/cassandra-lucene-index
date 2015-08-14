@@ -23,7 +23,7 @@ import org.apache.commons.lang3.time.StopWatch;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class TimeCounter {
+public final class TimeCounter {
 
     private enum State {
         UNSTARTED, RUNNING, STOPPED

@@ -56,7 +56,7 @@ public class SchemaBuilderTest {
                                 .mapper("long", longMapper())
                                 .mapper("string", stringMapper())
                                 .mapper("text", textMapper())
-                                .mapper("uuid", UUIDMapper())
+                                .mapper("uuid", uuidMapper())
                                 .build();
         assertEquals("Failed schema building", EnglishAnalyzer.class, schema.getDefaultAnalyzer().getClass());
         assertEquals("Failed schema building", EnglishAnalyzer.class, schema.getAnalyzer("custom").getClass());
@@ -99,7 +99,7 @@ public class SchemaBuilderTest {
                               .mapper("long", longMapper())
                               .mapper("string", stringMapper())
                               .mapper("text", textMapper())
-                              .mapper("uuid", UUIDMapper())
+                              .mapper("uuid", uuidMapper())
                               .toJson();
         String expectedJson = "{default_analyzer:\"custom\"," +
                               "analyzers:{" +

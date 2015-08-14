@@ -26,6 +26,10 @@ import com.stratio.cassandra.lucene.search.sort.builder.SortFieldBuilder;
  */
 public class SearchBuilders {
 
+    /** Private constructor to hide the implicit public one. */
+    private SearchBuilders() {
+    }
+
     /**
      * Returns a new {@link SearchBuilder}.
      *
@@ -238,7 +242,7 @@ public class SearchBuilders {
      * @param field The name of the field to be sorted.
      * @return A new {@link BitemporalConditionBuilder} for the specified field.
      */
-    public static BitemporalConditionBuilder biTemporalSearch(String field) {
+    public static BitemporalConditionBuilder bitemporalSearch(String field) {
         return new BitemporalConditionBuilder(field);
     }
 }

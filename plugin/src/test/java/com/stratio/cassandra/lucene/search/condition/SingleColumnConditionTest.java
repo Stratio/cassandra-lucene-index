@@ -38,7 +38,7 @@ public class SingleColumnConditionTest {
     public void testBuild() {
         SingleColumnCondition condition = new SingleColumnCondition(0.5f, "field") {
             @Override
-            public Query query(SingleColumnMapper mapper, Analyzer analyzer) {
+            public Query query(SingleColumnMapper<?> mapper, Analyzer analyzer) {
                 return null;
             }
         };
@@ -50,7 +50,7 @@ public class SingleColumnConditionTest {
     public void testBuildDefaults() {
         SingleColumnCondition condition = new SingleColumnCondition(null, "field") {
             @Override
-            public Query query(SingleColumnMapper mapper, Analyzer analyzer) {
+            public Query query(SingleColumnMapper<?> mapper, Analyzer analyzer) {
                 return null;
             }
         };
@@ -61,7 +61,7 @@ public class SingleColumnConditionTest {
     public void testBuildNullField() {
         new SingleColumnCondition(null, null) {
             @Override
-            public Query query(SingleColumnMapper mapper, Analyzer analyzer) {
+            public Query query(SingleColumnMapper<?> mapper, Analyzer analyzer) {
                 return null;
             }
         };
@@ -71,7 +71,7 @@ public class SingleColumnConditionTest {
     public void testBuildBlankField() {
         new SingleColumnCondition(null, " ") {
             @Override
-            public Query query(SingleColumnMapper mapper, Analyzer analyzer) {
+            public Query query(SingleColumnMapper<?> mapper, Analyzer analyzer) {
                 return null;
             }
         };
@@ -82,7 +82,7 @@ public class SingleColumnConditionTest {
         Schema schema = schema().mapper("field", stringMapper()).build();
         SingleColumnCondition condition = new SingleColumnCondition(null, "field") {
             @Override
-            public Query query(SingleColumnMapper mapper, Analyzer analyzer) {
+            public Query query(SingleColumnMapper<?> mapper, Analyzer analyzer) {
                 return new MatchAllDocsQuery();
             }
         };
@@ -97,7 +97,7 @@ public class SingleColumnConditionTest {
         Schema schema = schema().build();
         SingleColumnCondition condition = new SingleColumnCondition(null, "field") {
             @Override
-            public Query query(SingleColumnMapper mapper, Analyzer analyzer) {
+            public Query query(SingleColumnMapper<?> mapper, Analyzer analyzer) {
                 return new MatchAllDocsQuery();
             }
         };

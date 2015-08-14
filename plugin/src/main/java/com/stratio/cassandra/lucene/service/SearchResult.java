@@ -27,9 +27,14 @@ import org.apache.lucene.search.ScoreDoc;
  */
 public class SearchResult {
 
-    private final DecoratedKey partitionKey; // The partition key
-    private final CellName clusteringKey; // The clustering key
-    private final ScoreDoc scoreDoc; // The search hit info
+    /** The partition key. */
+    private final DecoratedKey partitionKey;
+
+    /** The clustering key. */
+    private final CellName clusteringKey;
+
+    /**  The search hit info. */
+    private final ScoreDoc scoreDoc;
 
     /**
      * Builds a new {@link SearchResult} for the specified CQL3 row key and search hit info.
@@ -74,8 +79,12 @@ public class SearchResult {
     /** {@inheritDoc} */
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         SearchResult that = (SearchResult) o;
 

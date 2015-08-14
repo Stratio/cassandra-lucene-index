@@ -35,6 +35,10 @@ public class JsonSerializer {
     /** The embedded JSON serializer. */
     private static final ObjectMapper jsonMapper = new ObjectMapper();
 
+    /** Private constructor to hide the implicit public one. */
+    private JsonSerializer() {
+    }
+
     // Setup serialization options
     static {
         jsonMapper.configure(JsonGenerator.Feature.QUOTE_FIELD_NAMES, false);

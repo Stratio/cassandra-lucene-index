@@ -24,7 +24,7 @@ import org.codehaus.jackson.annotate.JsonCreator;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class GeoDistance implements Comparable<GeoDistance> {
+public final class GeoDistance implements Comparable<GeoDistance> {
 
     /** The quantitative distance value. */
     private final double value;
@@ -73,7 +73,6 @@ public class GeoDistance implements Comparable<GeoDistance> {
             double value = Double.parseDouble(json);
             return new GeoDistance(value, GeoDistanceUnit.METRES);
         } catch (Exception e) {
-            e.printStackTrace();
             throw new IllegalArgumentException("Unparseable distance: " + json);
         }
     }

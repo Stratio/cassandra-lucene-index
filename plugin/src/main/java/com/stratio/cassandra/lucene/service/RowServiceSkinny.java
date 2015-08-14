@@ -81,8 +81,8 @@ public class RowServiceSkinny extends RowService {
     public void index(ByteBuffer key, ColumnFamily columnFamily, long timestamp) throws IOException {
         DecoratedKey partitionKey = rowMapper.partitionKey(key);
         if (columnFamily.iterator().hasNext()) {
-            columnFamily = cleanExpired(columnFamily, timestamp);
-            luceneIndex.upsert(documents(partitionKey, columnFamily, timestamp));
+            ColumnFamily cleanColumnFamily = cleanExpired(columnFamily, timestamp);
+            luceneIndex.upsert(documents(partitionKey, cleanColumnFamily, timestamp));
         } else if (columnFamily.deletionInfo() != null) {
             Term term = rowMapper.term(partitionKey);
             luceneIndex.delete(term);
@@ -101,8 +101,8 @@ public class RowServiceSkinny extends RowService {
     public Map<Term, Document> documents(DecoratedKey partitionKey, ColumnFamily columnFamily, long timestamp) {
         Columns columns = rowMapper.columns(partitionKey, columnFamily);
         if (!schema.mapsAll(columns)) {
-            columnFamily = row(partitionKey, timestamp);
-            columns = rowMapper.columns(partitionKey, columnFamily);
+            ColumnFamily completeColumnFamily = row(partitionKey, timestamp);
+            columns = rowMapper.columns(partitionKey, completeColumnFamily);
         }
         Document document = rowMapper.document(partitionKey, columns);
         Term term = rowMapper.term(partitionKey);

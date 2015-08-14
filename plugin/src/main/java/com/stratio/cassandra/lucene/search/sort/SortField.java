@@ -106,27 +106,35 @@ public class SortField {
     public Comparator<Columns> comparator() {
         return new Comparator<Columns>() {
             public int compare(Columns o1, Columns o2) {
-
-                if (o1 == null) {
-                    return o2 == null ? 0 : 1;
-                }
-                if (o2 == null) {
-                    return -1;
-                }
-
-                Column<?> column1 = o1.getColumnsByFullName(field).getFirst();
-                Column<?> column2 = o2.getColumnsByFullName(field).getFirst();
-
-                if (column1 == null) {
-                    return column2 == null ? 0 : 1;
-                }
-                if (column2 == null) {
-                    return -1;
-                }
-
-                return reverse ? column2.compareTo(column1) : column1.compareTo(column2);
+                return SortField.this.compare(o1, o2);
             }
         };
+    }
+
+    private int compare(Columns o1, Columns o2) {
+
+        if (o1 == null) {
+            return o2 == null ? 0 : 1;
+        } else  if (o2 == null) {
+            return -1;
+        }
+
+        Column<?> column1 = o1.getColumnsByFullName(field).getFirst();
+        Column<?> column2 = o2.getColumnsByFullName(field).getFirst();
+
+        return compare(column1, column2);
+    }
+
+    private int compare(Column<?> column1, Column<?> column2) {
+        if (column1 == null) {
+            return column2 == null ? 0 : 1;
+        } else if (column2 == null) {
+            return -1;
+        } else if (reverse) {
+            return column2.compareTo(column1);
+        } else {
+            return column1.compareTo(column2);
+        }
     }
 
     /** {@inheritDoc} */

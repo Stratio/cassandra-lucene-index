@@ -38,7 +38,7 @@ import static org.apache.lucene.search.BooleanClause.Occur.MUST_NOT;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class GeoDistanceCondition extends MapperCondition<GeoPointMapper> {
+public class GeoDistanceCondition extends SingleMapperCondition<GeoPointMapper> {
 
     /** The latitude of the reference point. */
     public final double latitude;

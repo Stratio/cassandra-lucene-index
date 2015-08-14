@@ -23,7 +23,7 @@ import org.apache.lucene.search.Query;
 import org.junit.Test;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
-import static com.stratio.cassandra.lucene.search.SearchBuilders.biTemporalSearch;
+import static com.stratio.cassandra.lucene.search.SearchBuilders.bitemporalSearch;
 import static org.junit.Assert.*;
 
 /**
@@ -74,14 +74,14 @@ public class BitemporalConditionTest {
 
     @Test(expected = IndexException.class)
     public void testQueryWithoutValidMapper() {
-        Schema schema = schema().mapper("name", UUIDMapper()).build();
+        Schema schema = schema().mapper("name", uuidMapper()).build();
         BitemporalCondition condition = new BitemporalCondition(null, "name", 1, 2, 3, 4, null);
         condition.query(schema);
     }
 
     @Test
     public void testToString() {
-        BitemporalCondition condition = biTemporalSearch("name").vtFrom(1).vtTo(2).ttFrom(3).ttTo(4).boost(0.3).build();
+        BitemporalCondition condition = bitemporalSearch("name").vtFrom(1).vtTo(2).ttFrom(3).ttTo(4).boost(0.3).build();
         assertEquals("BitemporalCondition{boost=0.3, field=name, vtFrom=1, vtTo=2, ttFrom=3, ttTo=4}",
                      condition.toString());
     }

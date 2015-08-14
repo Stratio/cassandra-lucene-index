@@ -137,7 +137,6 @@ public class SchemaBuilder {
      * Returns the JSON representation of this builder.
      *
      * @return The JSON representation of this builder.
-     * @throws IndexException If there are JSON mapping errors.
      */
     public String toJson() throws IndexException {
         try {
@@ -152,7 +151,6 @@ public class SchemaBuilder {
      *
      * @param json A {@code String} containing the JSON representation of the {@link Schema} to be parsed.
      * @return The {@link Schema} contained in the specified JSON {@code String}.
-     * @throws IndexException If there are I/O errors.
      */
     public static SchemaBuilder fromJson(String json) throws IndexException {
         try {

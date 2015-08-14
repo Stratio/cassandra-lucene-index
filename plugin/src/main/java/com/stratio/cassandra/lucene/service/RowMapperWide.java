@@ -198,7 +198,9 @@ public class RowMapperWide extends RowMapper {
 
         if (!isSameToken) {
             Query rangeQuery = tokenMapper.query(startToken, stopToken, includeStart, includeStop);
-            if (rangeQuery != null) query.add(rangeQuery, SHOULD);
+            if (rangeQuery != null) {
+                query.add(rangeQuery, SHOULD);
+            }
         } else if (query.getClauses().length == 0) {
             return tokenMapper.query(startToken);
         }

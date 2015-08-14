@@ -42,7 +42,7 @@ import java.util.List;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class PartitionKeyMapper {
+public final class PartitionKeyMapper {
 
     /** The Lucene field name. */
     public static final String FIELD_NAME = "_partition_key";

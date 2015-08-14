@@ -17,8 +17,11 @@
 package com.stratio.cassandra.lucene.search.condition;
 
 import com.stratio.cassandra.lucene.IndexException;
+import com.stratio.cassandra.lucene.schema.Schema;
+import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.search.Query;
 
 /**
  * The abstract base class for queries.
@@ -28,10 +31,7 @@ import org.apache.commons.lang3.StringUtils;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public abstract class SingleColumnCondition extends MapperCondition<SingleColumnMapper> {
-
-    /** The name of the field to be matched. */
-    public final String field;
+public abstract class SingleColumnCondition extends SingleFieldCondition {
 
     /**
      * Abstract {@link SingleColumnCondition} builder receiving the boost to be used.
@@ -41,10 +41,31 @@ public abstract class SingleColumnCondition extends MapperCondition<SingleColumn
      * @param field The name of the field to be matched.
      */
     public SingleColumnCondition(Float boost, String field) {
-        super(boost, field, SingleColumnMapper.class);
-        if (StringUtils.isBlank(field)) {
-            throw new IndexException("Field name required");
-        }
-        this.field = field;
+        super(boost, field);
     }
+
+    /** {@inheritDoc} */
+    @Override
+    @SuppressWarnings("unchecked")
+    public final Query query(Schema schema) {
+        Mapper mapper = schema.getMapper(field);
+        if (mapper == null) {
+            throw new IndexException("No mapper found for field '%s'", field);
+        } else if (!SingleColumnMapper.class.isAssignableFrom(mapper.getClass())) {
+            throw new IndexException("Field '%s' requires a mapper of type '%s' but found '%s'",
+                                     field,
+                                     SingleColumnMapper.class.getSimpleName(),
+                                     mapper);
+        }
+        return query((SingleColumnMapper<?>) mapper, schema.getAnalyzer());
+    }
+
+    /**
+     * Returns the Lucene {@link Query} representation of this condition.
+     *
+     * @param mapper   The {@link Mapper} to be used.
+     * @param analyzer The {@link Schema} {@link Analyzer}.
+     * @return The Lucene {@link Query} representation of this condition.
+     */
+    public abstract Query query(SingleColumnMapper<?> mapper, Analyzer analyzer);
 }

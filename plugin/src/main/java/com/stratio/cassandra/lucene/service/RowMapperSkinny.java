@@ -102,7 +102,7 @@ public class RowMapperSkinny extends RowMapper {
         if (startPosition instanceof DecoratedKey) {
             DecoratedKey decoratedKey = (DecoratedKey) startPosition;
             IDiskAtomFilter filter = dataRange.columnFilter(decoratedKey.getKey());
-            if (filter != null && filter instanceof SliceQueryFilter) {
+            if (filter instanceof SliceQueryFilter) {
                 SliceQueryFilter sliceQueryFilter = (SliceQueryFilter) filter;
                 Composite startName = sliceQueryFilter.start();
                 if (startName != null && !startName.isEmpty()) {

@@ -56,30 +56,32 @@ public class MatchCondition extends SingleColumnCondition {
 
     /** {@inheritDoc} */
     @Override
-    public Query query(SingleColumnMapper mapper, Analyzer analyzer) {
+    public Query query(SingleColumnMapper<?> mapper, Analyzer analyzer) {
         Class<?> clazz = mapper.baseClass();
         Query query;
         if (clazz == String.class) {
-            String value = (String) mapper.base(field, this.value);
+            String base = (String) mapper.base(field, value);
             if (mapper instanceof TextMapper) {
                 QueryBuilder queryBuilder = new QueryBuilder(analyzer);
-                query = queryBuilder.createPhraseQuery(field, value, 0);
+                query = queryBuilder.createPhraseQuery(field, base, 0);
             } else {
-                query = new TermQuery(new Term(field, value));
+                query = new TermQuery(new Term(field, base));
             }
-            if (query == null) query = new BooleanQuery();
+            if (query == null) {
+                query = new BooleanQuery();
+            }
         } else if (clazz == Integer.class) {
-            Integer value = (Integer) mapper.base(field, this.value);
-            query = NumericRangeQuery.newIntRange(field, value, value, true, true);
+            Integer base = (Integer) mapper.base(field, value);
+            query = NumericRangeQuery.newIntRange(field, base, base, true, true);
         } else if (clazz == Long.class) {
-            Long value = (Long) mapper.base(field, this.value);
-            query = NumericRangeQuery.newLongRange(field, value, value, true, true);
+            Long base = (Long) mapper.base(field, value);
+            query = NumericRangeQuery.newLongRange(field, base, base, true, true);
         } else if (clazz == Float.class) {
-            Float value = (Float) mapper.base(field, this.value);
-            query = NumericRangeQuery.newFloatRange(field, value, value, true, true);
+            Float base = (Float) mapper.base(field, value);
+            query = NumericRangeQuery.newFloatRange(field, base, base, true, true);
         } else if (clazz == Double.class) {
-            Double value = (Double) mapper.base(field, this.value);
-            query = NumericRangeQuery.newDoubleRange(field, value, value, true, true);
+            Double base = (Double) mapper.base(field, value);
+            query = NumericRangeQuery.newDoubleRange(field, base, base, true, true);
         } else {
             throw new IndexException("Match queries are not supported by mapper %s", mapper);
         }

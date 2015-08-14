@@ -56,7 +56,7 @@ public class RegexpCondition extends SingleColumnCondition {
 
     /** {@inheritDoc} */
     @Override
-    public Query query(SingleColumnMapper mapper, Analyzer analyzer) {
+    public Query query(SingleColumnMapper<?> mapper, Analyzer analyzer) {
         if (mapper.baseClass() == String.class) {
             Term term = new Term(field, value);
             Query query = new RegexpQuery(term);

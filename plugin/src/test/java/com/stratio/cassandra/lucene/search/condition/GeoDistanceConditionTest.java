@@ -168,7 +168,7 @@ public class GeoDistanceConditionTest {
 
     @Test(expected = IndexException.class)
     public void testQueryWithoutValidMapper() {
-        Schema schema = schema().mapper("name", UUIDMapper()).build();
+        Schema schema = schema().mapper("name", uuidMapper()).build();
         Condition condition = new GeoDistanceCondition(0.5f, "name", 90D, -180D, null, "3km");
         condition.query(schema);
     }

@@ -26,7 +26,7 @@ import java.nio.ByteBuffer;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class Log {
+public final class Log {
 
     private static final Logger log = LoggerFactory.getLogger("stratio");
 

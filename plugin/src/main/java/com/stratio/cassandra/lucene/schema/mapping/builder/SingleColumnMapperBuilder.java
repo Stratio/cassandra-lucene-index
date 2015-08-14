@@ -22,6 +22,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
 /**
  * Abstract {@link MapperBuilder} for creating new {@link SingleColumnMapper}s.
  *
+ * @param <T> The {@link SingleColumnMapper} to be built.
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public abstract class SingleColumnMapperBuilder<T extends SingleColumnMapper<?>> extends MapperBuilder<T> {

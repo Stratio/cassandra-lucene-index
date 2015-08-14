@@ -81,7 +81,7 @@ public class RangeCondition extends SingleColumnCondition {
      * {@inheritDoc}
      */
     @Override
-    public Query query(SingleColumnMapper mapper, Analyzer analyzer) {
+    public Query query(SingleColumnMapper<?> mapper, Analyzer analyzer) {
         Class<?> clazz = mapper.baseClass();
         Query query;
         if (clazz == String.class) {

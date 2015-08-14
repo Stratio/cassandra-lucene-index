@@ -51,7 +51,7 @@ import static org.apache.cassandra.cql3.Operator.EQ;
 public class IndexSearcher extends SecondaryIndexSearcher {
 
     /** The name of the {@link IndexExpression} containing the last search {@link RowKey}. */
-    public final static ByteBuffer AFTER = UTF8Type.instance.fromString("search_after_doc");
+    public static final ByteBuffer AFTER = UTF8Type.instance.fromString("search_after_doc");
 
     private final Index index;
     private final RowService rowService;
@@ -145,7 +145,7 @@ public class IndexSearcher extends SecondaryIndexSearcher {
     private Search search(List<IndexExpression> clause) {
         IndexExpression indexedExpression = indexedExpression(clause);
         if (indexedExpression == null) {
-            throw new RuntimeException("There is no index expression in the clause");
+            throw new IndexException("There is no index expression in the clause");
         }
         String json = UTF8Type.instance.compose(indexedExpression.value);
         return SearchBuilder.fromJson(json).build();

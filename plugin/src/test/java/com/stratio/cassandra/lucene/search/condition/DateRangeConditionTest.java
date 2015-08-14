@@ -119,7 +119,7 @@ public class DateRangeConditionTest {
 
     @Test(expected = IndexException.class)
     public void testQueryWithoutValidMapper() {
-        Schema schema = schema().mapper("name", UUIDMapper()).build();
+        Schema schema = schema().mapper("name", uuidMapper()).build();
         DateRangeCondition condition = new DateRangeCondition(null, "name", 1, 2, null);
         condition.query(schema);
     }

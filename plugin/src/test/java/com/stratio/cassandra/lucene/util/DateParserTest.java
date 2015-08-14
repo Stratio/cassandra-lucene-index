@@ -103,7 +103,7 @@ public class DateParserTest {
         DateParser dateParser = new DateParser(pattern);
 
         Long dateLong = -20152345l;//invalid long not parseable
-        Date dateOut = dateParser.parse(dateLong);
+        dateParser.parse(dateLong);
         fail("DateParser(" +
              pattern +
              ").parse(" +
@@ -118,7 +118,7 @@ public class DateParserTest {
         DateParser dateParser = new DateParser(pattern);
 
         Long dateLong = 201523455859l;//invalid long not parseable
-        Date dateOut = dateParser.parse(dateLong);
+        dateParser.parse(dateLong);
         fail("DateParser(" +
              pattern +
              ").parse(" +
@@ -159,7 +159,7 @@ public class DateParserTest {
         DateParser dateParser = new DateParser(pattern);
 
         String dateString = "2015/03/02";
-        Date date = dateParser.parse(dateString);
+        dateParser.parse(dateString);
         fail("DateParser(" +
              pattern +
              ").parse(" +

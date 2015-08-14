@@ -152,7 +152,7 @@ public class GeoBBoxConditionTest {
 
     @Test(expected = IndexException.class)
     public void testQueryWithoutValidMapper() {
-        Schema schema = schema().mapper("name", UUIDMapper()).build();
+        Schema schema = schema().mapper("name", uuidMapper()).build();
         GeoBBoxCondition condition = new GeoBBoxCondition(0.5f, "name", -90D, 90D, -180D, 180D);
         condition.query(schema);
     }

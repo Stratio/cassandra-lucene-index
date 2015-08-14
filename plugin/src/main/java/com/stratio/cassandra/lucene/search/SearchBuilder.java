@@ -37,19 +37,23 @@ public class SearchBuilder implements Builder<Search> {
 
     /** The {@link Condition} for querying, maybe {@code null} meaning no querying. */
     @JsonProperty("query")
-    ConditionBuilder<?, ?> queryBuilder;
+    private ConditionBuilder<?, ?> queryBuilder;
 
     /** The {@link Condition} for filtering, maybe {@code null} meaning no filtering. */
     @JsonProperty("filter")
-    ConditionBuilder<?, ?> filterBuilder;
+    private ConditionBuilder<?, ?> filterBuilder;
 
     /** The {@link Sort} for the query, maybe {@code null} meaning no filtering. */
     @JsonProperty("sort")
-    SortBuilder sortBuilder;
+    private SortBuilder sortBuilder;
 
     /** If this search must force the refresh the index before reading it. */
     @JsonProperty("refresh")
     private boolean refresh;
+
+    /** Default constructor. */
+    public SearchBuilder() {
+    }
 
     /**
      * Returns this builder with the specified querying condition.
@@ -124,7 +128,7 @@ public class SearchBuilder implements Builder<Search> {
      * @return the JSON representation of this object.
      */
     public String toJson() {
-        build(); // Validate
+        build();
         try {
             return JsonSerializer.toString(this);
         } catch (IOException e) {

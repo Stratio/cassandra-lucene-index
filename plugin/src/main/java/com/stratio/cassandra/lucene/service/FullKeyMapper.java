@@ -37,10 +37,10 @@ import java.nio.ByteBuffer;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class FullKeyMapper {
+public final class FullKeyMapper {
 
     /** The Lucene field name. */
-    private static final String FIELD_NAME = "_full_key"; //  The Lucene field name
+    private static final String FIELD_NAME = "_full_key";
 
     /** The type of the full row key, which is composed by the partition and clustering key types. */
     private final CompositeType type;

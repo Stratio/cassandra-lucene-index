@@ -31,7 +31,7 @@ import org.apache.lucene.spatial.query.SpatialOperation;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class GeoBBoxCondition extends MapperCondition<GeoPointMapper> {
+public class GeoBBoxCondition extends SingleMapperCondition<GeoPointMapper> {
 
     /** The minimum accepted latitude. */
     public final double minLatitude;

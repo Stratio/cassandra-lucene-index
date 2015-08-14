@@ -189,7 +189,7 @@ public class SchemaBuilders {
      *
      * @return A new {@link UUIDMapperBuilder}.
      */
-    public static UUIDMapperBuilder UUIDMapper() {
+    public static UUIDMapperBuilder uuidMapper() {
         return new UUIDMapperBuilder();
     }
 

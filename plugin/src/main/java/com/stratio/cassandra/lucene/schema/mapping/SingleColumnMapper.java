@@ -62,9 +62,9 @@ public abstract class SingleColumnMapper<T> extends Mapper {
     /** {@inheritDoc} */
     @Override
     public void addFields(Document document, Columns columns) {
-        for (Column<?> column : columns.getColumnsByName(this.column)) {
-            String name = column.getFullName(this.name);
-            Object value = column.getComposedValue();
+        for (Column<?> c : columns.getColumnsByName(column)) {
+            String name = c.getFullName(this.name);
+            Object value = c.getComposedValue();
             addFields(document, name, value);
         }
     }

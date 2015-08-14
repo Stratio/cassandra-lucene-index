@@ -36,7 +36,7 @@ import static org.apache.lucene.search.BooleanClause.Occur.SHOULD;
  *
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
-public class BitemporalCondition extends MapperCondition<BitemporalMapper> {
+public class BitemporalCondition extends SingleMapperCondition<BitemporalMapper> {
 
     /** The default operation. */
     public static final String DEFAULT_OPERATION = "intersects";

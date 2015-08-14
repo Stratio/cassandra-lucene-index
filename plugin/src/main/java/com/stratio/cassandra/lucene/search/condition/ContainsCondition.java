@@ -61,7 +61,7 @@ public class ContainsCondition extends SingleColumnCondition {
 
     /** {@inheritDoc} */
     @Override
-    public Query query(SingleColumnMapper mapper, Analyzer analyzer) {
+    public Query query(SingleColumnMapper<?> mapper, Analyzer analyzer) {
         BooleanQuery query = new BooleanQuery();
         for (Object value : values) {
             MatchCondition condition = new MatchCondition(boost, field, value);

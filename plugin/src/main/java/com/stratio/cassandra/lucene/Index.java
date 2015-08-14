@@ -187,11 +187,11 @@ public class Index extends PerRowSecondaryIndex {
     public void validateOptions() throws ConfigurationException {
         Log.debug("Validating Lucene index options");
         try {
-            ColumnDefinition columnDefinition = columnDefs.iterator().next();
-            String ksName = columnDefinition.ksName;
-            String cfName = columnDefinition.cfName;
+            ColumnDefinition indexedColumnDefinition = columnDefs.iterator().next();
+            String ksName = indexedColumnDefinition.ksName;
+            String cfName = indexedColumnDefinition.cfName;
             CFMetaData metadata = Schema.instance.getCFMetaData(ksName, cfName);
-            new IndexConfig(metadata, columnDefinition);
+            new IndexConfig(metadata, indexedColumnDefinition);
             Log.debug("Lucene index options are valid");
         } catch (IndexException e) {
             throw e.log();

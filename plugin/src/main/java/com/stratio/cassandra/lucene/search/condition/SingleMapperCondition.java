@@ -16,26 +16,24 @@
 
 package com.stratio.cassandra.lucene.search.condition;
 
-import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.search.Query;
 
 /**
  * An abstract {@link Condition} directed to a specific mapper.
  *
+ * Known subclasses are: <ul> <li> {@link BitemporalCondition} <li> {@link DateRangeCondition} <li> {@link
+ * GeoDistanceCondition} <li> {@link GeoBBoxCondition} </ul>
+ *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public abstract class MapperCondition<T extends Mapper> extends Condition {
-
-    /** The name of the field to be matched. */
-    public final String field;
+public abstract class SingleMapperCondition<T extends Mapper> extends SingleFieldCondition {
 
     /** The type of the {@link Mapper}. */
-    private final Class<T> type;
+    protected final Class<? extends T> type;
 
     /**
      * Constructor using the boost and the name of the mapper.
@@ -46,21 +44,15 @@ public abstract class MapperCondition<T extends Mapper> extends Condition {
      * @param field The name of the field to be matched.
      * @param type  The type of the {@link Mapper}.
      */
-    protected MapperCondition(Float boost, String field, Class<T> type) {
-        super(boost);
-
-        if (StringUtils.isBlank(field)) {
-            throw new IndexException("Field name required");
-        }
-
-        this.field = field;
+    protected SingleMapperCondition(Float boost, String field, Class<? extends T> type) {
+        super(boost, field);
         this.type = type;
     }
 
     /** {@inheritDoc} */
     @Override
     @SuppressWarnings("unchecked")
-    public final Query query(Schema schema) {
+    public Query query(Schema schema) {
         Mapper mapper = schema.getMapper(field);
         if (mapper == null) {
             throw new IndexException("No mapper found for field '%s'", field);
@@ -78,8 +70,4 @@ public abstract class MapperCondition<T extends Mapper> extends Condition {
      * @return The Lucene {@link Query} representation of this condition.
      */
     public abstract Query query(T mapper, Analyzer analyzer);
-
-    protected Objects.ToStringHelper toStringHelper(Object o) {
-        return super.toStringHelper(o).add("field", field);
-    }
 }

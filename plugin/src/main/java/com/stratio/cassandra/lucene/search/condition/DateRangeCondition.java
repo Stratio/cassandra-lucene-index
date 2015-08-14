@@ -32,7 +32,7 @@ import java.util.Date;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class DateRangeCondition extends MapperCondition<DateRangeMapper> {
+public class DateRangeCondition extends SingleMapperCondition<DateRangeMapper> {
 
     /** The default from value. */
     public static final long DEFAULT_FROM = 0;

@@ -123,7 +123,7 @@ public class LuceneIndex implements LuceneIndexMBean {
                                                                 searcherManager,
                                                                 refreshSeconds,
                                                                 refreshSeconds);
-        searcherReopener.start(); // Start the refresher thread
+        searcherReopener.start();
 
         // Register JMX MBean
         try {
@@ -152,9 +152,17 @@ public class LuceneIndex implements LuceneIndexMBean {
         indexWriter.updateDocument(term, document);
     }
 
+    /**
+     * Updates the specified {@link Document}s by first deleting the documents containing {@code Term} and then adding
+     * the new document. The delete and then add are atomic as seen by a reader on the same index (flush may happen only
+     * after the add).
+     *
+     * @param documents The {@link Document}s to be added.
+     * @throws IOException If Lucene throws IO errors.
+     */
     public void upsert(Map<Term, Document> documents) throws IOException {
         for (Map.Entry<Term, Document> entry : documents.entrySet()) {
-            upsert(entry.getKey(), entry.getValue()); // Store document
+            upsert(entry.getKey(), entry.getValue());
         }
     }
 
@@ -247,12 +255,12 @@ public class LuceneIndex implements LuceneIndexMBean {
      * @return The found documents, sorted according to the supplied {@link Sort} instance.
      * @throws IOException If Lucene throws IO errors.
      */
-    public LinkedHashMap<Document, ScoreDoc> search(IndexSearcher searcher,
-                                                    Query query,
-                                                    Sort sort,
-                                                    ScoreDoc after,
-                                                    Integer count,
-                                                    Set<String> fieldsToLoad) throws IOException {
+    public Map<Document, ScoreDoc> search(IndexSearcher searcher,
+                                          Query query,
+                                          Sort sort,
+                                          ScoreDoc after,
+                                          Integer count,
+                                          Set<String> fieldsToLoad) throws IOException {
         Log.debug("%s search by query %s and sort %s", logName, query, sort);
 
         TopDocs topDocs;
