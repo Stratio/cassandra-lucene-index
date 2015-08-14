@@ -211,6 +211,8 @@ public class MatchConditionTest {
                                                                              null,
                                                                              null,
                                                                              null,
+                                                                             null,
+                                                                             UUID.class,
                                                                              UUIDType.instance) {
             @Override
             public Field indexedField(String name, UUID value) {
@@ -218,18 +220,8 @@ public class MatchConditionTest {
             }
 
             @Override
-            public String getAnalyzer() {
-                return null;
-            }
-
-            @Override
             public Field sortedField(String name, UUID value) {
                 return null;
-            }
-
-            @Override
-            public Class<UUID> baseClass() {
-                return UUID.class;
             }
 
             @Override
@@ -245,7 +237,7 @@ public class MatchConditionTest {
 
         Schema schema = schema().mapper("field", new MapperBuilder<Mapper>() {
             @Override
-            public Mapper build(String name) {
+            public Mapper build(String field) {
                 return mapper;
             }
         }).build();

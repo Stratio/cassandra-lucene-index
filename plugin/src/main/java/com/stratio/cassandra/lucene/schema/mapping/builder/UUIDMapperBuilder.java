@@ -17,51 +17,22 @@
 package com.stratio.cassandra.lucene.schema.mapping.builder;
 
 import com.stratio.cassandra.lucene.schema.mapping.UUIDMapper;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * {@link SingleColumnMapperBuilder} to build a new {@link UUIDMapper}.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class UUIDMapperBuilder extends SingleColumnMapperBuilder<UUIDMapper> {
-
-    @JsonProperty("indexed")
-    private Boolean indexed;
-
-    @JsonProperty("sorted")
-    private Boolean sorted;
-
-    /**
-     * Sets if the field supports searching.
-     *
-     * @param indexed if the field supports searching.
-     * @return This.
-     */
-    public UUIDMapperBuilder indexed(Boolean indexed) {
-        this.indexed = indexed;
-        return this;
-    }
-
-    /**
-     * Sets if the field supports sorting.
-     *
-     * @param sorted if the field supports sorting.
-     * @return This.
-     */
-    public UUIDMapperBuilder sorted(Boolean sorted) {
-        this.sorted = sorted;
-        return this;
-    }
+public class UUIDMapperBuilder extends SingleColumnMapperBuilder<UUIDMapper, UUIDMapperBuilder> {
 
     /**
      * Returns the {@link UUIDMapper} represented by this {@link MapperBuilder}.
      *
-     * @param name The name of the {@link UUIDMapper} to be built.
+     * @param field The name of the field to be built.
      * @return The {@link UUIDMapper} represented by this.
      */
     @Override
-    public UUIDMapper build(String name) {
-        return new UUIDMapper(name, column, indexed, sorted);
+    public UUIDMapper build(String field) {
+        return new UUIDMapper(field, column, indexed, sorted);
     }
 }

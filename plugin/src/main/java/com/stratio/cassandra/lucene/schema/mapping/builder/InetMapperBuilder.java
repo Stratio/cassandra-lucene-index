@@ -17,51 +17,22 @@
 package com.stratio.cassandra.lucene.schema.mapping.builder;
 
 import com.stratio.cassandra.lucene.schema.mapping.InetMapper;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * {@link SingleColumnMapperBuilder} to build a new {@link InetMapper}.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class InetMapperBuilder extends SingleColumnMapperBuilder<InetMapper> {
-
-    @JsonProperty("indexed")
-    private Boolean indexed;
-
-    @JsonProperty("sorted")
-    private Boolean sorted;
-
-    /**
-     * Sets if the field supports searching.
-     *
-     * @param indexed if the field supports searching.
-     * @return This.
-     */
-    public InetMapperBuilder indexed(Boolean indexed) {
-        this.indexed = indexed;
-        return this;
-    }
-
-    /**
-     * Sets if the field supports sorting.
-     *
-     * @param sorted if the field supports sorting.
-     * @return This.
-     */
-    public InetMapperBuilder sorted(Boolean sorted) {
-        this.sorted = sorted;
-        return this;
-    }
+public class InetMapperBuilder extends SingleColumnMapperBuilder<InetMapper, InetMapperBuilder> {
 
     /**
      * Returns the {@link InetMapper} represented by this {@link MapperBuilder}.
      *
-     * @param name The name of the {@link InetMapper} to be built.
+     * @param field The name of the field to be built.
      * @return The {@link InetMapper} represented by this.
      */
     @Override
-    public InetMapper build(String name) {
-        return new InetMapper(name, column, indexed, sorted);
+    public InetMapper build(String field) {
+        return new InetMapper(field, column, indexed, sorted);
     }
 }

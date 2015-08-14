@@ -17,6 +17,7 @@
 package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.stratio.cassandra.lucene.IndexException;
+import com.stratio.cassandra.lucene.schema.mapping.builder.BooleanMapperBuilder;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.DocValuesType;
 import org.junit.Test;
@@ -26,41 +27,61 @@ import java.util.UUID;
 
 import static org.junit.Assert.*;
 
-public class BooleanMapperTest {
+public class BooleanMapperTest extends AbstractMapperTest {
 
     @Test
     public void testConstructorWithoutArgs() {
-        BooleanMapper mapper = new BooleanMapper("field", null, null, null);
-        assertEquals(Mapper.DEFAULT_INDEXED, mapper.isIndexed());
-        assertEquals(Mapper.DEFAULT_SORTED, mapper.isSorted());
+        BooleanMapper mapper = new BooleanMapperBuilder().build("field");
+        assertEquals("Field is not properly set", "field", mapper.field);
+        assertEquals("Indexed is not set to default value", Mapper.DEFAULT_INDEXED, mapper.indexed);
+        assertEquals("Sorted is not set to default value", Mapper.DEFAULT_SORTED, mapper.sorted);
+        assertEquals("Column is not set to default value", "field", mapper.column);
+        assertEquals("Mapped columns are not properly set", 1, mapper.mappedColumns.size());
+        assertTrue("Mapped columns are not properly set", mapper.mappedColumns.contains("field"));
     }
 
     @Test
     public void testConstructorWithAllArgs() {
-        BooleanMapper mapper = new BooleanMapper("field", null, false, true);
-        assertFalse(mapper.isIndexed());
-        assertTrue(mapper.isSorted());
+        BooleanMapper mapper = new BooleanMapperBuilder().indexed(false).sorted(true).column("column").build("field");
+        assertEquals("Field is not properly set", "field", mapper.field);
+        assertFalse("Indexed is not properly set", mapper.indexed);
+        assertTrue("Sorted is not properly set", mapper.sorted);
+        assertEquals("Column is not properly set", "column", mapper.column);
+        assertEquals("Mapped columns are not properly set", 1, mapper.mappedColumns.size());
+        assertTrue("Mapped columns are not properly set", mapper.mappedColumns.contains("column"));
+    }
+
+    @Test
+    public void testJsonSerialization() {
+        BooleanMapperBuilder builder = new BooleanMapperBuilder().indexed(false).sorted(true).column("column");
+        testJson(builder, "{type:\"boolean\",indexed:false,sorted:true,column:\"column\"}");
+    }
+
+    @Test
+    public void testJsonSerializationDefaults() {
+        BooleanMapperBuilder builder = new BooleanMapperBuilder();
+        testJson(builder, "{type:\"boolean\"}");
     }
 
     @Test()
     public void testValueNull() {
         BooleanMapper mapper = new BooleanMapper("field", null, null, null);
         String parsed = mapper.base("test", null);
-        assertNull(parsed);
+        assertNull("Base value is not properly parsed", parsed);
     }
 
     @Test
     public void testValueBooleanTrue() {
         BooleanMapper mapper = new BooleanMapper("field", null, null, null);
         String parsed = mapper.base("test", true);
-        assertEquals("true", parsed);
+        assertEquals("Base value is not properly parsed", "true", parsed);
     }
 
     @Test
     public void testValueBooleanFalse() {
         BooleanMapper mapper = new BooleanMapper("field", null, null, null);
         String parsed = mapper.base("test", false);
-        assertEquals("false", parsed);
+        assertEquals("Base value is not properly parsed", "false", parsed);
     }
 
     @Test(expected = IndexException.class)
@@ -97,42 +118,42 @@ public class BooleanMapperTest {
     public void testValueStringTrueLowercase() {
         BooleanMapper mapper = new BooleanMapper("field", null, null, null);
         String parsed = mapper.base("test", "true");
-        assertEquals("true", parsed);
+        assertEquals("Base value is not properly parsed", "true", parsed);
     }
 
     @Test
     public void testValueStringTrueUppercase() {
         BooleanMapper mapper = new BooleanMapper("field", null, null, null);
         String parsed = mapper.base("test", "TRUE");
-        assertEquals("true", parsed);
+        assertEquals("Base value is not properly parsed", "true", parsed);
     }
 
     @Test
     public void testValueStringTrueMixedCase() {
         BooleanMapper mapper = new BooleanMapper("field", null, null, null);
         String parsed = mapper.base("test", "TrUe");
-        assertEquals("true", parsed);
+        assertEquals("Base value is not properly parsed", "true", parsed);
     }
 
     @Test
     public void testValueStringFalseLowercase() {
         BooleanMapper mapper = new BooleanMapper("field", null, null, null);
         String parsed = mapper.base("test", "false");
-        assertEquals("false", parsed);
+        assertEquals("Base value is not properly parsed", "false", parsed);
     }
 
     @Test
     public void testValueStringFalseUppercase() {
         BooleanMapper mapper = new BooleanMapper("field", null, null, null);
         String parsed = mapper.base("test", "FALSE");
-        assertEquals("false", parsed);
+        assertEquals("Base value is not properly parsed", "false", parsed);
     }
 
     @Test
     public void testValueStringFalseMixedCase() {
         BooleanMapper mapper = new BooleanMapper("field", null, null, null);
         String parsed = mapper.base("test", "fALsE");
-        assertEquals("false", parsed);
+        assertEquals("Base value is not properly parsed", "false", parsed);
     }
 
     @Test(expected = IndexException.class)
@@ -151,31 +172,31 @@ public class BooleanMapperTest {
     public void testIndexedField() {
         BooleanMapper mapper = new BooleanMapper("field", null, true, true);
         Field field = mapper.indexedField("name", "true");
-        assertNotNull(field);
-        assertNotNull(field);
-        assertEquals("true", field.stringValue());
-        assertEquals("name", field.name());
-        assertFalse(field.fieldType().stored());
+        assertNotNull("Indexed field is not created", field);
+        assertEquals("Indexed field value is wrong", "true", field.stringValue());
+        assertEquals("Indexed field name is wrong", "name", field.name());
+        assertFalse("Indexed field type is wrong", field.fieldType().stored());
     }
 
     @Test
     public void testSortedField() {
         BooleanMapper mapper = new BooleanMapper("field", null, true, false);
         Field field = mapper.sortedField("name", "true");
-        assertNotNull(field);
-        assertEquals(DocValuesType.SORTED, field.fieldType().docValuesType());
+        assertNotNull("Sorted field is not created", field);
+        assertEquals("Sorted field type is wrong", DocValuesType.SORTED, field.fieldType().docValuesType());
     }
 
     @Test
     public void testExtractAnalyzers() {
         BooleanMapper mapper = new BooleanMapper("field", null, null, null);
-        String analyzer = mapper.getAnalyzer();
-        assertEquals(Mapper.KEYWORD_ANALYZER, analyzer);
+        assertEquals("Analyzer must be keyword", Mapper.KEYWORD_ANALYZER, mapper.analyzer);
     }
 
     @Test
     public void testToString() {
         BooleanMapper mapper = new BooleanMapper("field", null, false, false);
-        assertEquals("BooleanMapper{name=field, indexed=false, sorted=false, column=field}", mapper.toString());
+        assertEquals("Method #toString is wrong",
+                     "BooleanMapper{field=field, indexed=false, sorted=false, column=field}",
+                     mapper.toString());
     }
 }

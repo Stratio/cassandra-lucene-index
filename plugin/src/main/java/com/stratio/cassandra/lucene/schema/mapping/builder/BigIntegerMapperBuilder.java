@@ -24,38 +24,10 @@ import org.codehaus.jackson.annotate.JsonProperty;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class BigIntegerMapperBuilder extends SingleColumnMapperBuilder<BigIntegerMapper> {
-
-    @JsonProperty("indexed")
-    private Boolean indexed;
-
-    @JsonProperty("sorted")
-    private Boolean sorted;
+public class BigIntegerMapperBuilder extends SingleColumnMapperBuilder<BigIntegerMapper, BigIntegerMapperBuilder> {
 
     @JsonProperty("digits")
     private Integer digits;
-
-    /**
-     * Sets if the field supports searching.
-     *
-     * @param indexed if the field supports searching.
-     * @return This.
-     */
-    public BigIntegerMapperBuilder indexed(Boolean indexed) {
-        this.indexed = indexed;
-        return this;
-    }
-
-    /**
-     * Sets if the field supports sorting.
-     *
-     * @param sorted if the field supports sorting.
-     * @return This.
-     */
-    public BigIntegerMapperBuilder sorted(Boolean sorted) {
-        this.sorted = sorted;
-        return this;
-    }
 
     /**
      * Sets the max number of digits.
@@ -71,11 +43,11 @@ public class BigIntegerMapperBuilder extends SingleColumnMapperBuilder<BigIntege
     /**
      * Returns the {@link BigIntegerMapper} represented by this {@link MapperBuilder}.
      *
-     * @param name The name of the {@link BigIntegerMapper} to be built.
+     * @param field The name of the field to be built.
      * @return The {@link BigIntegerMapper} represented by this.
      */
     @Override
-    public BigIntegerMapper build(String name) {
-        return new BigIntegerMapper(name, column, indexed, sorted, digits);
+    public BigIntegerMapper build(String field) {
+        return new BigIntegerMapper(field, column, indexed, sorted, digits);
     }
 }

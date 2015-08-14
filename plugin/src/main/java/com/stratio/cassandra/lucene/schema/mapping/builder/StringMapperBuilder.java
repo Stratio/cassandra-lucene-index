@@ -24,38 +24,10 @@ import org.codehaus.jackson.annotate.JsonProperty;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class StringMapperBuilder extends SingleColumnMapperBuilder<StringMapper> {
-
-    @JsonProperty("indexed")
-    private Boolean indexed;
-
-    @JsonProperty("sorted")
-    private Boolean sorted;
+public class StringMapperBuilder extends SingleColumnMapperBuilder<StringMapper, StringMapperBuilder> {
 
     @JsonProperty("case_sensitive")
     private Boolean caseSensitive;
-
-    /**
-     * Sets if the field supports searching.
-     *
-     * @param indexed if the field supports searching.
-     * @return This.
-     */
-    public StringMapperBuilder indexed(Boolean indexed) {
-        this.indexed = indexed;
-        return this;
-    }
-
-    /**
-     * Sets if the field supports sorting.
-     *
-     * @param sorted if the field supports sorting.
-     * @return This.
-     */
-    public StringMapperBuilder sorted(Boolean sorted) {
-        this.sorted = sorted;
-        return this;
-    }
 
     /**
      * Sets if the {@link StringMapper} to be built must be case sensitive.
@@ -71,11 +43,11 @@ public class StringMapperBuilder extends SingleColumnMapperBuilder<StringMapper>
     /**
      * Returns the {@link StringMapper} represented by this {@link MapperBuilder}.
      *
-     * @param name The name of the {@link StringMapper} to be built.
+     * @param field The name of the field to be built.
      * @return The {@link StringMapper} represented by this.
      */
     @Override
-    public StringMapper build(String name) {
-        return new StringMapper(name, column, indexed, sorted, caseSensitive);
+    public StringMapper build(String field) {
+        return new StringMapper(field, column, indexed, sorted, caseSensitive);
     }
 }

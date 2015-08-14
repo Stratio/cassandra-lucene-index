@@ -91,8 +91,8 @@ public class SortField {
         Mapper mapper = schema.getMapper(field);
         if (mapper == null) {
             throw new IndexException("No mapper found for sortFields field '%s'", field);
-        } else if (!mapper.isSorted()) {
-            throw new IndexException("Mapper '%s' is not sorted", mapper.getName());
+        } else if (!mapper.sorted) {
+            throw new IndexException("Mapper '%s' is not sorted", mapper.field);
         } else {
             return mapper.sortField(field, reverse);
         }
@@ -115,7 +115,7 @@ public class SortField {
 
         if (o1 == null) {
             return o2 == null ? 0 : 1;
-        } else  if (o2 == null) {
+        } else if (o2 == null) {
             return -1;
         }
 

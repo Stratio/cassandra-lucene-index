@@ -17,6 +17,7 @@
 package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.stratio.cassandra.lucene.IndexException;
+import com.stratio.cassandra.lucene.schema.mapping.builder.DateMapperBuilder;
 import com.stratio.cassandra.lucene.util.DateParser;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.DocValuesType;
@@ -29,7 +30,7 @@ import java.util.Date;
 
 import static org.junit.Assert.*;
 
-public class DateMapperTest {
+public class DateMapperTest extends AbstractMapperTest {
 
     private static final String PATTERN = "yyyy-MM-dd";
     private static final String TIMESTAMP_PATTERN = "timestamp";
@@ -37,20 +38,45 @@ public class DateMapperTest {
 
     @Test
     public void testConstructorWithoutArgs() {
-        DateMapper mapper = new DateMapper("name", null, null, null, null);
-        assertEquals("Name is not properly set", "name", mapper.getName());
-        assertEquals("Indexed is not set to default value", Mapper.DEFAULT_INDEXED, mapper.isIndexed());
-        assertEquals("Sorted is not set to default value", Mapper.DEFAULT_SORTED, mapper.isSorted());
-        assertEquals("Pattern is not set to default value", DateParser.DEFAULT_PATTERN, mapper.getPattern());
+        DateMapper mapper = new DateMapperBuilder().build("field");
+        assertEquals("Name is not properly set", "field", mapper.field);
+        assertEquals("Indexed is not set to default value", Mapper.DEFAULT_INDEXED, mapper.indexed);
+        assertEquals("Sorted is not set to default value", Mapper.DEFAULT_SORTED, mapper.sorted);
+        assertEquals("Column is not set to default value", "field", mapper.column);
+        assertEquals("Mapped columns are not properly set", 1, mapper.mappedColumns.size());
+        assertTrue("Mapped columns are not properly set", mapper.mappedColumns.contains("field"));
+        assertEquals("Pattern is not set to default value", DateParser.DEFAULT_PATTERN, mapper.pattern);
     }
 
     @Test
     public void testConstructorWithAllArgs() {
-        DateMapper mapper = new DateMapper("name", null, false, true, PATTERN);
-        assertEquals("Name is not properly set", "name", mapper.getName());
-        assertFalse("Indexed is not properly set", mapper.isIndexed());
-        assertTrue("Sorted is not properly set", mapper.isSorted());
-        assertEquals("Pattern is not properly set", PATTERN, mapper.getPattern());
+        DateMapper mapper = new DateMapperBuilder().indexed(false)
+                                                   .sorted(true)
+                                                   .column("column")
+                                                   .pattern(PATTERN)
+                                                   .build("field");
+        assertEquals("Name is not properly set", "field", mapper.field);
+        assertFalse("Indexed is not properly set", mapper.indexed);
+        assertTrue("Sorted is not properly set", mapper.sorted);
+        assertEquals("Column is not properly set", "column", mapper.column);
+        assertEquals("Mapped columns are not properly set", 1, mapper.mappedColumns.size());
+        assertTrue("Mapped columns are not properly set", mapper.mappedColumns.contains("column"));
+        assertEquals("Pattern is not properly set", PATTERN, mapper.pattern);
+    }
+
+    @Test
+    public void testJsonSerialization() {
+        DateMapperBuilder builder = new DateMapperBuilder().indexed(false)
+                                                           .sorted(true)
+                                                           .column("column")
+                                                           .pattern("yyyy-MM-dd");
+        testJson(builder, "{type:\"date\",indexed:false,sorted:true,column:\"column\",pattern:\"yyyy-MM-dd\"}");
+    }
+
+    @Test
+    public void testJsonSerializationDefaults() {
+        DateMapperBuilder builder = new DateMapperBuilder();
+        testJson(builder, "{type:\"date\"}");
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -61,7 +87,7 @@ public class DateMapperTest {
     @Test()
     public void testBaseClass() {
         DateMapper mapper = new DateMapper("name", null, null, null, PATTERN);
-        assertEquals("Base class is wrong", Long.class, mapper.baseClass());
+        assertEquals("Base class is wrong", Long.class, mapper.base);
     }
 
     @Test()
@@ -198,14 +224,14 @@ public class DateMapperTest {
     @Test
     public void testExtractAnalyzers() {
         DateMapper mapper = new DateMapper("name", null, null, null, PATTERN);
-        assertNull("Analyzer must be null", mapper.getAnalyzer());
+        assertNull("Analyzer must be null", mapper.analyzer);
     }
 
     @Test
     public void testToString() {
         DateMapper mapper = new DateMapper("name", null, false, false, PATTERN);
         assertEquals("Method #toString is wrong",
-                     "DateMapper{name=name, indexed=false, sorted=false, column=name, pattern=yyyy-MM-dd}",
+                     "DateMapper{field=name, indexed=false, sorted=false, column=name, pattern=yyyy-MM-dd}",
                      mapper.toString());
     }
 }

@@ -47,10 +47,10 @@ public class BigDecimalMapper extends KeywordMapper {
     private static final int BASE = 10;
 
     /** The max number of digits for the integer part. */
-    private final int integerDigits;
+    public final int integerDigits;
 
     /** The max number of digits for the decimal part. */
-    private final int decimalDigits;
+    public final int decimalDigits;
 
     private final BigDecimal complement;
 
@@ -58,7 +58,7 @@ public class BigDecimalMapper extends KeywordMapper {
      * Builds a new {@link BigDecimalMapper} using the specified max number of digits for the integer and decimal
      * parts.
      *
-     * @param name          The name of the mapper.
+     * @param field         The name of the field.
      * @param column        The name of the column to be mapped.
      * @param indexed       If the field supports searching.
      * @param sorted        If the field supports sorting.
@@ -67,13 +67,13 @@ public class BigDecimalMapper extends KeywordMapper {
      * @param decimalDigits The max number of digits for the decimal part. If {@code null}, the {@link
      *                      #DEFAULT_DECIMAL_DIGITS} will be used.
      */
-    public BigDecimalMapper(String name,
+    public BigDecimalMapper(String field,
                             String column,
                             Boolean indexed,
                             Boolean sorted,
                             Integer integerDigits,
                             Integer decimalDigits) {
-        super(name,
+        super(field,
               column,
               indexed,
               sorted,
@@ -102,24 +102,6 @@ public class BigDecimalMapper extends KeywordMapper {
         BigDecimal divisor = BigDecimal.valueOf(BASE).pow(this.decimalDigits);
         BigDecimal dividend = BigDecimal.valueOf(BASE).pow(totalDigits).subtract(BigDecimal.valueOf(1));
         complement = dividend.divide(divisor);
-    }
-
-    /**
-     * Returns the max number of digits for the integer part.
-     *
-     * @return The max number of digits for the integer part.
-     */
-    public int getIntegerDigits() {
-        return integerDigits;
-    }
-
-    /**
-     * Returns the max number of digits for the decimal part.
-     *
-     * @return The max number of digits for the decimal part.
-     */
-    public int getDecimalDigits() {
-        return decimalDigits;
     }
 
     /** {@inheritDoc} */

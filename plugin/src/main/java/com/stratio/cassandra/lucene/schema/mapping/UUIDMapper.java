@@ -37,13 +37,13 @@ public class UUIDMapper extends KeywordMapper {
     /**
      * Builds a new {@link UUIDMapper}.
      *
-     * @param name    The name of the mapper.
+     * @param field   The name of the field.
      * @param column  The name of the column to be mapped.
      * @param indexed If the field supports searching.
      * @param sorted  If the field supports sorting.
      */
-    public UUIDMapper(String name, String column, Boolean indexed, Boolean sorted) {
-        super(name,
+    public UUIDMapper(String field, String column, Boolean indexed, Boolean sorted) {
+        super(field,
               column,
               indexed,
               sorted,

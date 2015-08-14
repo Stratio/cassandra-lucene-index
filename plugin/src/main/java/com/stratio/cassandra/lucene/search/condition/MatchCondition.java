@@ -57,7 +57,7 @@ public class MatchCondition extends SingleColumnCondition {
     /** {@inheritDoc} */
     @Override
     public Query query(SingleColumnMapper<?> mapper, Analyzer analyzer) {
-        Class<?> clazz = mapper.baseClass();
+        Class<?> clazz = mapper.base;
         Query query;
         if (clazz == String.class) {
             String base = (String) mapper.base(field, value);

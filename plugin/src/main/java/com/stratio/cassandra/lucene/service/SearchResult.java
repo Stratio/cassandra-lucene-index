@@ -33,7 +33,7 @@ public class SearchResult {
     /** The clustering key. */
     private final CellName clusteringKey;
 
-    /**  The search hit info. */
+    /** The search hit info. */
     private final ScoreDoc scoreDoc;
 
     /**

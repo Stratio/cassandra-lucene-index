@@ -198,15 +198,15 @@ public class SchemaBuilderTest {
 
         Mapper spanishMapper = schema.getMapper("spanish_text");
         assertTrue("Expected TextMapper", spanishMapper instanceof TextMapper);
-        assertEquals("Expected spanish analyzer", SpanishAnalyzer.class.getName(), spanishMapper.getAnalyzer());
+        assertEquals("Expected spanish analyzer", SpanishAnalyzer.class.getName(), spanishMapper.analyzer);
 
         Mapper snowballMapper = schema.getMapper("snowball_text");
         assertTrue("Expected TextMapper", snowballMapper instanceof TextMapper);
-        assertEquals("Expected english analyzer", EnglishAnalyzer.class.getName(), snowballMapper.getAnalyzer());
+        assertEquals("Expected english analyzer", EnglishAnalyzer.class.getName(), snowballMapper.analyzer);
 
         Mapper defaultMapper = schema.getMapper("default_text");
         assertTrue("Expected TextMapper", defaultMapper instanceof TextMapper);
-        assertEquals("Expected english analyzer", EnglishAnalyzer.class.getName(), snowballMapper.getAnalyzer());
+        assertEquals("Expected english analyzer", EnglishAnalyzer.class.getName(), snowballMapper.analyzer);
 
         schema.close();
     }
@@ -235,11 +235,11 @@ public class SchemaBuilderTest {
 
         Mapper spanishMapper = schema.getMapper("spanish_text");
         assertTrue(spanishMapper instanceof TextMapper);
-        assertEquals("Expected SpanishAnalyzer", SpanishAnalyzer.class.getName(), spanishMapper.getAnalyzer());
+        assertEquals("Expected SpanishAnalyzer", SpanishAnalyzer.class.getName(), spanishMapper.analyzer);
 
         Mapper snowballMapper = schema.getMapper("snowball_text");
         assertTrue(snowballMapper instanceof TextMapper);
-        assertEquals("Expected EnglishAnalyzer", EnglishAnalyzer.class.getName(), snowballMapper.getAnalyzer());
+        assertEquals("Expected EnglishAnalyzer", EnglishAnalyzer.class.getName(), snowballMapper.analyzer);
 
         schema.close();
     }

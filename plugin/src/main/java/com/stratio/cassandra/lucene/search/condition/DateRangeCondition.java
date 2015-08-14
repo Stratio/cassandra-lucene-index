@@ -79,7 +79,7 @@ public class DateRangeCondition extends SingleMapperCondition<DateRangeMapper> {
     @Override
     public Query query(DateRangeMapper mapper, Analyzer analyzer) {
 
-        SpatialStrategy strategy = mapper.getStrategy();
+        SpatialStrategy strategy = mapper.strategy;
 
         Date fromDate = mapper.base(from);
         Date toDate = mapper.base(to);

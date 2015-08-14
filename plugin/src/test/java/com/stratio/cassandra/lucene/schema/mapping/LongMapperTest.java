@@ -17,6 +17,7 @@
 package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.stratio.cassandra.lucene.IndexException;
+import com.stratio.cassandra.lucene.schema.mapping.builder.LongMapperBuilder;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.DocValuesType;
 import org.apache.lucene.search.SortField;
@@ -24,22 +25,46 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class LongMapperTest {
+public class LongMapperTest extends AbstractMapperTest {
 
     @Test
     public void testConstructorWithoutArgs() {
-        LongMapper mapper = new LongMapper("field", null, null, null, null);
-        assertEquals("Indexed is not set to default value", Mapper.DEFAULT_INDEXED, mapper.isIndexed());
-        assertEquals("Sorted is not set to default value", Mapper.DEFAULT_SORTED, mapper.isSorted());
-        assertEquals("Boost is not set to default value", DoubleMapper.DEFAULT_BOOST, mapper.getBoost(), 1);
+        LongMapper mapper = new LongMapperBuilder().build("field");
+        assertEquals("Field is not set", "field", mapper.field);
+        assertEquals("Indexed is not set to default value", Mapper.DEFAULT_INDEXED, mapper.indexed);
+        assertEquals("Sorted is not set to default value", Mapper.DEFAULT_SORTED, mapper.sorted);
+        assertEquals("Column is not set to default value", "field", mapper.column);
+        assertEquals("Mapped columns are not set", 1, mapper.mappedColumns.size());
+        assertTrue("Mapped columns are not set", mapper.mappedColumns.contains("field"));
+        assertEquals("Boost is not set to default value", DoubleMapper.DEFAULT_BOOST, mapper.boost, 1);
     }
 
     @Test
     public void testConstructorWithAllArgs() {
-        LongMapper mapper = new LongMapper("field", null, false, true, 2.3f);
-        assertFalse("Indexed is not properly set", mapper.isIndexed());
-        assertTrue("Sorted is not properly set", mapper.isSorted());
-        assertEquals("Boost is not properly set", 2.3f, mapper.getBoost(), 1);
+        LongMapper mapper = new LongMapperBuilder().indexed(false)
+                                                   .sorted(true)
+                                                   .column("column")
+                                                   .boost(2.3f)
+                                                   .build("field");
+        assertEquals("Field is not set", "field", mapper.field);
+        assertFalse("Indexed is not set", mapper.indexed);
+        assertTrue("Sorted is not set", mapper.sorted);
+        assertEquals("Column is not set", "column", mapper.column);
+        assertEquals("Mapped columns are not set", 1, mapper.mappedColumns.size());
+        assertTrue("Mapped columns are not set", mapper.mappedColumns.contains("column"));
+        assertEquals("Boost is not set", 2.3f, mapper.boost, 1);
+    }
+
+    @Test
+    public void testJsonSerialization() {
+        LongMapperBuilder builder = new LongMapperBuilder().indexed(false).sorted(true).column("column").boost(0.3f);
+        testJson(builder, "{type:\"long\",indexed:false,sorted:true,column:\"column\",boost:0.3}");
+    }
+
+    @Test
+    public void testJsonSerializationDefaults() {
+        LongMapperBuilder builder = new LongMapperBuilder();
+        testJson(builder, "{type:\"long\"}");
     }
 
     @Test()
@@ -173,14 +198,14 @@ public class LongMapperTest {
     @Test
     public void testExtractAnalyzers() {
         LongMapper mapper = new LongMapper("field", null, true, true, 1f);
-        assertNull("Analyzer must be null", mapper.getAnalyzer());
+        assertNull("Analyzer must be null", mapper.analyzer);
     }
 
     @Test
     public void testToString() {
         LongMapper mapper = new LongMapper("field", null, false, false, 0.3f);
         assertEquals("Method #toString is wrong",
-                     "LongMapper{name=field, indexed=false, sorted=false, column=field, boost=0.3}",
+                     "LongMapper{field=field, indexed=false, sorted=false, column=field, boost=0.3}",
                      mapper.toString());
     }
 }

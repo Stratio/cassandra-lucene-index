@@ -111,7 +111,7 @@ public class MapperTest {
 
     private void testSupports(boolean expected, AbstractType<?> candidateType, AbstractType<?>... supportedTypes) {
 
-        Mapper mapper = new Mapper("field", null, null, Arrays.asList(supportedTypes), Arrays.asList("field")) {
+        Mapper mapper = new Mapper("field", null, null, null, Arrays.asList("field"), supportedTypes) {
             @Override
             public void addFields(Document document, Columns columns) {
 
@@ -125,11 +125,6 @@ public class MapperTest {
             @Override
             public void validate(CFMetaData metaData) {
 
-            }
-
-            @Override
-            public String getAnalyzer() {
-                return null;
             }
         };
         assertEquals("Method #supports is wrong", expected, mapper.supports(candidateType));

@@ -24,38 +24,10 @@ import org.codehaus.jackson.annotate.JsonProperty;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class TextMapperBuilder extends SingleColumnMapperBuilder<TextMapper> {
-
-    @JsonProperty("indexed")
-    private Boolean indexed;
-
-    @JsonProperty("sorted")
-    private Boolean sorted;
+public class TextMapperBuilder extends SingleColumnMapperBuilder<TextMapper, TextMapperBuilder> {
 
     @JsonProperty("analyzer")
     private String analyzer;
-
-    /**
-     * Sets if the field supports searching.
-     *
-     * @param indexed if the field supports searching.
-     * @return This.
-     */
-    public TextMapperBuilder indexed(Boolean indexed) {
-        this.indexed = indexed;
-        return this;
-    }
-
-    /**
-     * Sets if the field supports sorting.
-     *
-     * @param sorted if the field supports sorting.
-     * @return This.
-     */
-    public TextMapperBuilder sorted(Boolean sorted) {
-        this.sorted = sorted;
-        return this;
-    }
 
     /**
      * Sets the name of the {@link org.apache.lucene.analysis.Analyzer} to be used.
@@ -71,11 +43,11 @@ public class TextMapperBuilder extends SingleColumnMapperBuilder<TextMapper> {
     /**
      * Returns the {@link TextMapper} represented by this {@link MapperBuilder}.
      *
-     * @param name The name of the {@link TextMapper} to be built.
+     * @param field The name of the field to be built.
      * @return The {@link TextMapper} represented by this.
      */
     @Override
-    public TextMapper build(String name) {
-        return new TextMapper(name, column, indexed, sorted, analyzer);
+    public TextMapper build(String field) {
+        return new TextMapper(field, column, indexed, sorted, analyzer);
     }
 }

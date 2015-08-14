@@ -40,7 +40,7 @@ public class BigIntegerMapper extends KeywordMapper {
     private static final int BASE = 10;
 
     /** The max number of digits. */
-    private final int digits;
+    public final int digits;
 
     private final BigInteger complement;
     private final int hexDigits;
@@ -48,14 +48,14 @@ public class BigIntegerMapper extends KeywordMapper {
     /**
      * Builds a new {@link BigDecimalMapper} using the specified max number of digits.
      *
-     * @param name    The name of the mapper.
+     * @param field   The name of the field.
      * @param column  The name of the column to be mapped.
      * @param indexed If the field supports searching.
      * @param sorted  If the field supports sorting.
      * @param digits  The max number of digits. If {@code null}, the {@link #DEFAULT_DIGITS} will be used.
      */
-    public BigIntegerMapper(String name, String column, Boolean indexed, Boolean sorted, Integer digits) {
-        super(name,
+    public BigIntegerMapper(String field, String column, Boolean indexed, Boolean sorted, Integer digits) {
+        super(field,
               column,
               indexed,
               sorted,
@@ -112,15 +112,6 @@ public class BigIntegerMapper extends KeywordMapper {
         bi = bi.add(complement);
         String bis = encode(bi);
         return StringUtils.leftPad(bis, hexDigits + 1, '0');
-    }
-
-    /**
-     * Returns the max number of digits.
-     *
-     * @return The max number of digits.
-     */
-    public int getDigits() {
-        return digits;
     }
 
     /** {@inheritDoc} */

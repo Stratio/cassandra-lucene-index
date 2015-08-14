@@ -83,7 +83,7 @@ public class GeoBBoxCondition extends SingleMapperCondition<GeoPointMapper> {
     @Override
     public Query query(GeoPointMapper mapper, Analyzer analyzer) {
 
-        SpatialStrategy spatialStrategy = mapper.getBBoxStrategy();
+        SpatialStrategy spatialStrategy = mapper.bboxStrategy;
 
         SpatialContext context = GeoPointMapper.SPATIAL_CONTEXT;
         Rectangle rectangle = context.makeRectangle(minLongitude, maxLongitude, minLatitude, maxLatitude);

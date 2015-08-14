@@ -24,38 +24,10 @@ import org.codehaus.jackson.annotate.JsonProperty;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class DateMapperBuilder extends SingleColumnMapperBuilder<DateMapper> {
-
-    @JsonProperty("indexed")
-    private Boolean indexed;
-
-    @JsonProperty("sorted")
-    private Boolean sorted;
+public class DateMapperBuilder extends SingleColumnMapperBuilder<DateMapper, DateMapperBuilder> {
 
     @JsonProperty("pattern")
     private String pattern;
-
-    /**
-     * Sets if the field supports searching.
-     *
-     * @param indexed if the field supports searching.
-     * @return This.
-     */
-    public DateMapperBuilder indexed(Boolean indexed) {
-        this.indexed = indexed;
-        return this;
-    }
-
-    /**
-     * Sets if the field supports sorting.
-     *
-     * @param sorted if the field supports sorting.
-     * @return This.
-     */
-    public DateMapperBuilder sorted(Boolean sorted) {
-        this.sorted = sorted;
-        return this;
-    }
 
     /**
      * Sets the date format pattern to be used.
@@ -71,11 +43,11 @@ public class DateMapperBuilder extends SingleColumnMapperBuilder<DateMapper> {
     /**
      * Returns the {@link DateMapper} represented by this {@link MapperBuilder}.
      *
-     * @param name The name of the {@link DateMapper} to be built.
+     * @param field The name of the field to be built.
      * @return The {@link DateMapper} represented by this.
      */
     @Override
-    public DateMapper build(String name) {
-        return new DateMapper(name, column, indexed, sorted, pattern);
+    public DateMapper build(String field) {
+        return new DateMapper(field, column, indexed, sorted, pattern);
     }
 }

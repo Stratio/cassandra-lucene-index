@@ -17,51 +17,22 @@
 package com.stratio.cassandra.lucene.schema.mapping.builder;
 
 import com.stratio.cassandra.lucene.schema.mapping.BooleanMapper;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * {@link SingleColumnMapperBuilder} to build a new {@link BooleanMapper}.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class BooleanMapperBuilder extends SingleColumnMapperBuilder<BooleanMapper> {
-
-    @JsonProperty("indexed")
-    private Boolean indexed;
-
-    @JsonProperty("sorted")
-    private Boolean sorted;
-
-    /**
-     * Sets if the field supports searching.
-     *
-     * @param indexed if the field supports searching.
-     * @return This.
-     */
-    public BooleanMapperBuilder indexed(Boolean indexed) {
-        this.indexed = indexed;
-        return this;
-    }
-
-    /**
-     * Sets if the field supports sorting.
-     *
-     * @param sorted if the field supports sorting.
-     * @return This.
-     */
-    public BooleanMapperBuilder sorted(Boolean sorted) {
-        this.sorted = sorted;
-        return this;
-    }
+public class BooleanMapperBuilder extends SingleColumnMapperBuilder<BooleanMapper, BooleanMapperBuilder> {
 
     /**
      * Returns the {@link BooleanMapper} represented by this {@link MapperBuilder}.
      *
-     * @param name The name of the {@link BooleanMapper} to be built.
+     * @param field The name of the field to be built.
      * @return The {@link BooleanMapper} represented by this.
      */
     @Override
-    public BooleanMapper build(String name) {
-        return new BooleanMapper(name, column, indexed, sorted);
+    public BooleanMapper build(String field) {
+        return new BooleanMapper(field, column, indexed, sorted);
     }
 }

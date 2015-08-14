@@ -17,51 +17,22 @@
 package com.stratio.cassandra.lucene.schema.mapping.builder;
 
 import com.stratio.cassandra.lucene.schema.mapping.BlobMapper;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * {@link SingleColumnMapperBuilder} to build a new {@link BlobMapper}.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class BlobMapperBuilder extends SingleColumnMapperBuilder<BlobMapper> {
-
-    @JsonProperty("indexed")
-    private Boolean indexed;
-
-    @JsonProperty("sorted")
-    private Boolean sorted;
-
-    /**
-     * Sets if the field supports searching.
-     *
-     * @param indexed if the field supports searching.
-     * @return This.
-     */
-    public BlobMapperBuilder indexed(Boolean indexed) {
-        this.indexed = indexed;
-        return this;
-    }
-
-    /**
-     * Sets if the field supports sorting.
-     *
-     * @param sorted if the field supports sorting.
-     * @return This.
-     */
-    public BlobMapperBuilder sorted(Boolean sorted) {
-        this.sorted = sorted;
-        return this;
-    }
+public class BlobMapperBuilder extends SingleColumnMapperBuilder<BlobMapper, BlobMapperBuilder> {
 
     /**
      * Returns the {@link BlobMapper} represented by this {@link MapperBuilder}.
      *
-     * @param name The name of the {@link BlobMapper} to be built.
+     * @param field The name of the field to be built.
      * @return The {@link BlobMapper} represented by this.
      */
     @Override
-    public BlobMapper build(String name) {
-        return new BlobMapper(name, column, indexed, sorted);
+    public BlobMapper build(String field) {
+        return new BlobMapper(field, column, indexed, sorted);
     }
 }

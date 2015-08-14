@@ -18,6 +18,7 @@ package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
+import com.stratio.cassandra.lucene.schema.mapping.builder.StringMapperBuilder;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -34,24 +35,51 @@ import static org.junit.Assert.*;
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 
-public class StringMapperTest {
+public class StringMapperTest extends AbstractMapperTest {
 
     @Test
     public void testConstructorWithoutArgs() {
-        StringMapper mapper = new StringMapper("field", null, null, null, null);
-        assertEquals("Indexed is not set to default value", Mapper.DEFAULT_INDEXED, mapper.isIndexed());
-        assertEquals("Sorted is not set to default value", Mapper.DEFAULT_SORTED, mapper.isSorted());
+        StringMapper mapper = new StringMapperBuilder().build("field");
+        assertEquals("Field is not properly set", "field", mapper.field);
+        assertEquals("Indexed is not set to default value", Mapper.DEFAULT_INDEXED, mapper.indexed);
+        assertEquals("Sorted is not set to default value", Mapper.DEFAULT_SORTED, mapper.sorted);
+        assertEquals("Column is not set to default value", "field", mapper.column);
+        assertEquals("Mapped columns are not set", 1, mapper.mappedColumns.size());
+        assertTrue("Mapped columns are not set", mapper.mappedColumns.contains("field"));
         assertEquals("Case sensitive is not set to default value",
                      StringMapper.DEFAULT_CASE_SENSITIVE,
-                     mapper.isCaseSensitive());
+                     mapper.caseSensitive);
     }
 
     @Test
     public void testConstructorWithAllArgs() {
-        StringMapper mapper = new StringMapper("field", null, false, true, false);
-        assertFalse("Indexed is not properly set", mapper.isIndexed());
-        assertTrue("Sorted is not properly set", mapper.isSorted());
-        assertFalse("Case sensitive is not properly set", mapper.isCaseSensitive());
+        StringMapper mapper = new StringMapperBuilder().indexed(false)
+                                                       .sorted(true)
+                                                       .column("column")
+                                                       .caseSensitive(false)
+                                                       .build("field");
+        assertEquals("Field is not set", "field", mapper.field);
+        assertFalse("Indexed is not set", mapper.indexed);
+        assertTrue("Sorted is not set", mapper.sorted);
+        assertEquals("Column is not set", "column", mapper.column);
+        assertEquals("Mapped columns are not set", 1, mapper.mappedColumns.size());
+        assertTrue("Mapped columns are not set", mapper.mappedColumns.contains("column"));
+        assertFalse("Case sensitive is not set", mapper.caseSensitive);
+    }
+
+    @Test
+    public void testJsonSerialization() {
+        StringMapperBuilder builder = new StringMapperBuilder().indexed(false)
+                                                               .sorted(true)
+                                                               .column("column")
+                                                               .caseSensitive(false);
+        testJson(builder, "{type:\"string\",indexed:false,sorted:true,column:\"column\",case_sensitive:false}");
+    }
+
+    @Test
+    public void testJsonSerializationDefaults() {
+        StringMapperBuilder builder = new StringMapperBuilder();
+        testJson(builder, "{type:\"string\"}");
     }
 
     @Test()
@@ -205,7 +233,7 @@ public class StringMapperTest {
     @Test
     public void testExtractAnalyzers() {
         StringMapper mapper = new StringMapper("field", null, true, true, true);
-        String analyzer = mapper.getAnalyzer();
+        String analyzer = mapper.analyzer;
         assertEquals("Method #getAnalyzer is wrong", Mapper.KEYWORD_ANALYZER, analyzer);
     }
 
@@ -213,7 +241,7 @@ public class StringMapperTest {
     public void testToString() {
         StringMapper mapper = new StringMapper("field", null, false, false, false);
         assertEquals("Method #toString is wrong",
-                     "StringMapper{name=field, indexed=false, sorted=false, column=field, caseSensitive=false}",
+                     "StringMapper{field=field, indexed=false, sorted=false, column=field, caseSensitive=false}",
                      mapper.toString());
     }
 }

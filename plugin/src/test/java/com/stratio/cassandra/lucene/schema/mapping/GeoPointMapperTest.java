@@ -19,6 +19,7 @@ package com.stratio.cassandra.lucene.schema.mapping;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
+import com.stratio.cassandra.lucene.schema.mapping.builder.GeoPointMapperBuilder;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.db.ColumnFamilyType;
 import org.apache.cassandra.db.composites.CellNameType;
@@ -38,32 +39,47 @@ import java.util.UUID;
 import static org.apache.cassandra.config.ColumnDefinition.regularDef;
 import static org.junit.Assert.*;
 
-public class GeoPointMapperTest {
+public class GeoPointMapperTest extends AbstractMapperTest {
 
     @Test
     public void testConstructorWithDefaultArgs() {
-        GeoPointMapper mapper = new GeoPointMapper("field", "lat", "lon", null);
-        assertEquals("Field name is not properly set", "field", mapper.getName());
-        assertTrue("Indexed is not properly set", mapper.isIndexed());
-        assertFalse("Sorted is not properly set", mapper.isSorted());
-        assertEquals("Latitude is not properly set", "lat", mapper.getLatitude());
-        assertEquals("Longitude is not properly set", "lon", mapper.getLongitude());
-        assertEquals("Max levels is not properly set", GeoPointMapper.DEFAULT_MAX_LEVELS, mapper.getMaxLevels());
-        assertNotNull("Spatial strategy for distances is not properly set", mapper.getDistanceStrategy());
-        assertNotNull("Spatial strategy for bounding boxes Latitude is not properly set", mapper.getBBoxStrategy());
+        GeoPointMapper mapper = new GeoPointMapperBuilder("lat", "lon").build("field");
+        assertEquals("Field name is not properly set", "field", mapper.field);
+        assertTrue("Indexed is not properly set", mapper.indexed);
+        assertFalse("Sorted is not properly set", mapper.sorted);
+        assertEquals("Latitude is not properly set", "lat", mapper.latitude);
+        assertEquals("Longitude is not properly set", "lon", mapper.longitude);
+        assertEquals("Mapped columns are not properly set", 2, mapper.mappedColumns.size());
+        assertTrue("Mapped columns are not properly set", mapper.mappedColumns.contains("lat"));
+        assertTrue("Mapped columns are not properly set", mapper.mappedColumns.contains("lon"));
+        assertEquals("Max levels is not properly set", GeoPointMapper.DEFAULT_MAX_LEVELS, mapper.maxLevels);
+        assertNotNull("Spatial strategy for distances is not properly set", mapper.distanceStrategy);
+        assertNotNull("Spatial strategy for bounding boxes Latitude is not properly set", mapper.bboxStrategy);
     }
 
     @Test
     public void testConstructorWithAllArgs() {
-        GeoPointMapper mapper = new GeoPointMapper("field", "lat", "lon", 7);
-        assertEquals("Field name is not properly set", "field", mapper.getName());
-        assertTrue("Indexed is not properly set", mapper.isIndexed());
-        assertFalse("Sorted is not properly set", mapper.isSorted());
-        assertEquals("Latitude is not properly set", "lat", mapper.getLatitude());
-        assertEquals("Longitude is not properly set", "lon", mapper.getLongitude());
-        assertEquals("Max levels is not properly set", 7, mapper.getMaxLevels());
-        assertNotNull("Spatial strategy for distances is not properly set", mapper.getDistanceStrategy());
-        assertNotNull("Spatial strategy for bounding boxes Latitude is not properly set", mapper.getBBoxStrategy());
+        GeoPointMapper mapper = new GeoPointMapperBuilder("lat", "lon").maxLevels(5).build("field");
+        assertEquals("Field name is not properly set", "field", mapper.field);
+        assertTrue("Indexed is not properly set", mapper.indexed);
+        assertFalse("Sorted is not properly set", mapper.sorted);
+        assertEquals("Latitude is not properly set", "lat", mapper.latitude);
+        assertEquals("Longitude is not properly set", "lon", mapper.longitude);
+        assertEquals("Max levels is not properly set", 5, mapper.maxLevels);
+        assertNotNull("Spatial strategy for distances is not properly set", mapper.distanceStrategy);
+        assertNotNull("Spatial strategy for bounding boxes Latitude is not properly set", mapper.bboxStrategy);
+    }
+
+    @Test
+    public void testJsonSerialization() {
+        GeoPointMapperBuilder builder = new GeoPointMapperBuilder("lat", "lon").maxLevels(5);
+        testJson(builder, "{type:\"geo_point\",latitude:\"lat\",longitude:\"lon\",max_levels:5}");
+    }
+
+    @Test
+    public void testJsonSerializationDefaults() {
+        GeoPointMapperBuilder builder = new GeoPointMapperBuilder("lat", "lon");
+        testJson(builder, "{type:\"geo_point\",latitude:\"lat\",longitude:\"lon\"}");
     }
 
     @Test(expected = IndexException.class)
@@ -317,7 +333,7 @@ public class GeoPointMapperTest {
     @Test
     public void testExtractAnalyzers() {
         GeoPointMapper mapper = new GeoPointMapper("field", "lat", "lon", null);
-        assertNull("Analyzer must be null", mapper.getAnalyzer());
+        assertNull("Analyzer must be null", mapper.analyzer);
     }
 
     @Test
@@ -363,7 +379,7 @@ public class GeoPointMapperTest {
     @Test
     public void testToString() {
         GeoPointMapper mapper = new GeoPointMapper("field", "lat", "lon", 7);
-        String exp = "GeoPointMapper{name=field, latitude=lat, longitude=lon, maxLevels=7}";
+        String exp = "GeoPointMapper{field=field, latitude=lat, longitude=lon, maxLevels=7}";
         assertEquals("Method #toString is wrong", exp, mapper.toString());
     }
 }

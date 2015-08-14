@@ -114,7 +114,7 @@ public class FuzzyCondition extends SingleColumnCondition {
     /** {@inheritDoc} */
     @Override
     public Query query(SingleColumnMapper<?> mapper, Analyzer analyzer) {
-        if (mapper.baseClass() == String.class) {
+        if (mapper.base == String.class) {
             Term term = new Term(field, value);
             Query query = new FuzzyQuery(term, maxEdits, prefixLength, maxExpansions, transpositions);
             query.setBoost(boost);

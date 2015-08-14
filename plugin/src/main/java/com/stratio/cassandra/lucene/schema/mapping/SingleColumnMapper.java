@@ -17,14 +17,15 @@
 package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.google.common.base.Objects;
+import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.db.marshal.AbstractType;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 
-import java.util.Arrays;
 import java.util.Collections;
 
 /**
@@ -35,35 +36,48 @@ import java.util.Collections;
  */
 public abstract class SingleColumnMapper<T> extends Mapper {
 
-    protected final String column;
+    public final String column;
+
+    public final Class<T> base;
 
     /**
      * Builds a new {@link SingleColumnMapper} supporting the specified types for indexing and clustering.
      *
-     * @param name           The name of the mapper.
+     * @param field          The name of the field.
      * @param column         The name of the column to be mapped.
      * @param indexed        If the field supports searching.
      * @param sorted         If the field supports sorting.
+     * @param analyzer       The name of the analyzer to be used.
+     * @param base           The Lucene type for this mapper
      * @param supportedTypes The supported Cassandra types for indexing.
      */
-    public SingleColumnMapper(String name,
+    public SingleColumnMapper(String field,
                               String column,
                               Boolean indexed,
                               Boolean sorted,
+                              String analyzer,
+                              Class<T> base,
                               AbstractType<?>... supportedTypes) {
-        super(name,
+        super(field,
               indexed,
               sorted,
-              Arrays.asList(supportedTypes),
-              Collections.singletonList(column == null ? name : column));
-        this.column = column == null ? name : column;
+              analyzer,
+              Collections.singletonList(column == null ? field : column),
+              supportedTypes);
+
+        if (StringUtils.isWhitespace(column)) {
+            throw new IndexException("Column must not be whitespace, but found '%s'", column);
+        }
+
+        this.column = column == null ? field : column;
+        this.base = base;
     }
 
     /** {@inheritDoc} */
     @Override
     public void addFields(Document document, Columns columns) {
         for (Column<?> c : columns.getColumnsByName(column)) {
-            String name = c.getFullName(this.name);
+            String name = c.getFullName(field);
             Object value = c.getComposedValue();
             addFields(document, name, value);
         }
@@ -103,13 +117,6 @@ public abstract class SingleColumnMapper<T> extends Mapper {
      * @return The {@link Field} to sort by the mapped column.
      */
     public abstract Field sortedField(String name, T value);
-
-    /**
-     * Returns the Lucene type for this mapper.
-     *
-     * @return The Lucene type for this mapper.
-     */
-    public abstract Class<T> baseClass();
 
     /**
      * Returns the {@link Column} query value resulting from the mapping of the specified object.

@@ -24,41 +24,13 @@ import org.codehaus.jackson.annotate.JsonProperty;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class BigDecimalMapperBuilder extends SingleColumnMapperBuilder<BigDecimalMapper> {
-
-    @JsonProperty("indexed")
-    private Boolean indexed;
-
-    @JsonProperty("sorted")
-    private Boolean sorted;
+public class BigDecimalMapperBuilder extends SingleColumnMapperBuilder<BigDecimalMapper, BigDecimalMapperBuilder> {
 
     @JsonProperty("integer_digits")
     private Integer integerDigits;
 
     @JsonProperty("decimal_digits")
     private Integer decimalDigits;
-
-    /**
-     * Sets if the field supports searching.
-     *
-     * @param indexed if the field supports searching.
-     * @return This.
-     */
-    public BigDecimalMapperBuilder indexed(Boolean indexed) {
-        this.indexed = indexed;
-        return this;
-    }
-
-    /**
-     * Sets if the field supports sorting.
-     *
-     * @param sorted if the field supports sorting.
-     * @return This.
-     */
-    public BigDecimalMapperBuilder sorted(Boolean sorted) {
-        this.sorted = sorted;
-        return this;
-    }
 
     /**
      * Sets the max number of digits for the integer part.
@@ -85,11 +57,11 @@ public class BigDecimalMapperBuilder extends SingleColumnMapperBuilder<BigDecima
     /**
      * Returns the {@link BigDecimalMapper} represented by this {@link MapperBuilder}.
      *
-     * @param name The name of the {@link BigDecimalMapper} to be built.
+     * @param field The name of the field to be built.
      * @return The {@link BigDecimalMapper} represented by this.
      */
     @Override
-    public BigDecimalMapper build(String name) {
-        return new BigDecimalMapper(name, column, indexed, sorted, integerDigits, decimalDigits);
+    public BigDecimalMapper build(String field) {
+        return new BigDecimalMapper(field, column, indexed, sorted, integerDigits, decimalDigits);
     }
 }

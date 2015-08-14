@@ -44,23 +44,25 @@ public class FloatMapper extends SingleColumnMapper<Float> {
     public static final Float DEFAULT_BOOST = 1.0f;
 
     /** The boost. */
-    private final Float boost;
+    public final Float boost;
 
     /**
      * Builds a new {@link FloatMapper} using the specified boost.
      *
-     * @param name    The name of the mapper.
+     * @param field   The name of the field.
      * @param column  The name of the column to be mapped.
      * @param indexed If the field supports searching.
      * @param sorted  If the field supports sorting.
      * @param boost   The boost to be used.
      */
     @JsonCreator
-    public FloatMapper(String name, String column, Boolean indexed, Boolean sorted, Float boost) {
-        super(name,
+    public FloatMapper(String field, String column, Boolean indexed, Boolean sorted, Float boost) {
+        super(field,
               column,
               indexed,
               sorted,
+              null,
+              Float.class,
               AsciiType.instance,
               UTF8Type.instance,
               Int32Type.instance,
@@ -70,21 +72,6 @@ public class FloatMapper extends SingleColumnMapper<Float> {
               DoubleType.instance,
               DecimalType.instance);
         this.boost = boost == null ? DEFAULT_BOOST : boost;
-    }
-
-    /**
-     * Returns the boost to be used.
-     *
-     * @return The boost to be used.
-     */
-    public Float getBoost() {
-        return boost;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public String getAnalyzer() {
-        return null;
     }
 
     /** {@inheritDoc} */
@@ -123,12 +110,6 @@ public class FloatMapper extends SingleColumnMapper<Float> {
     @Override
     public SortField sortField(String name, boolean reverse) {
         return new SortField(name, Type.FLOAT, reverse);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public Class<Float> baseClass() {
-        return Float.class;
     }
 
     /** {@inheritDoc} */

@@ -31,23 +31,22 @@ import org.apache.lucene.util.BytesRef;
  */
 public class TextMapper extends SingleColumnMapper<String> {
 
-    /** The name of the Lucene {@link org.apache.lucene.analysis.Analyzer} to be used. */
-    private final String analyzer;
-
     /**
      * Builds a new {@link TextMapper} using the specified Lucene {@link org.apache.lucene.analysis.Analyzer}.
      *
-     * @param name     The name of the mapper.
+     * @param field    The name of the field.
      * @param column   The name of the column to be mapped.
      * @param indexed  If the field supports searching.
      * @param sorted   If the field supports sorting.
      * @param analyzer The name of the Lucene {@link org.apache.lucene.analysis.Analyzer} to be used.
      */
-    public TextMapper(String name, String column, Boolean indexed, Boolean sorted, String analyzer) {
-        super(name,
+    public TextMapper(String field, String column, Boolean indexed, Boolean sorted, String analyzer) {
+        super(field,
               column,
               indexed,
               sorted,
+              analyzer,
+              String.class,
               AsciiType.instance,
               UTF8Type.instance,
               Int32Type.instance,
@@ -61,13 +60,6 @@ public class TextMapper extends SingleColumnMapper<String> {
               TimestampType.instance,
               BytesType.instance,
               InetAddressType.instance);
-        this.analyzer = analyzer;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public String getAnalyzer() {
-        return analyzer;
     }
 
     /** {@inheritDoc} */
@@ -97,12 +89,6 @@ public class TextMapper extends SingleColumnMapper<String> {
     @Override
     public SortField sortField(String name, boolean reverse) {
         return new SortField(name, Type.STRING, reverse);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public Class<String> baseClass() {
-        return String.class;
     }
 
     /** {@inheritDoc} */

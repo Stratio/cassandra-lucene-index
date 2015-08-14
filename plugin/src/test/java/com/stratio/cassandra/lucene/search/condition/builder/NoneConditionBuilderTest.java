@@ -34,16 +34,16 @@ public class NoneConditionBuilderTest extends AbstractConditionBuilderTest {
     public void testBuild() {
         NoneConditionBuilder builder = new NoneConditionBuilder().boost(0.7);
         NoneCondition condition = builder.build();
-        assertNotNull(condition);
-        assertEquals(0.7f, condition.boost, 0);
+        assertNotNull("Condition is not built", condition);
+        assertEquals("Boost is not set", 0.7f, condition.boost, 0);
     }
 
     @Test
     public void testBuildDefaults() {
         NoneConditionBuilder builder = new NoneConditionBuilder();
         NoneCondition condition = builder.build();
-        assertNotNull(condition);
-        assertEquals(Condition.DEFAULT_BOOST, condition.boost, 0);
+        assertNotNull("Condition is not built", condition);
+        assertEquals("Boost is not set to default value", Condition.DEFAULT_BOOST, condition.boost, 0);
     }
 
     @Test

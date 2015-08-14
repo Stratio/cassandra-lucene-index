@@ -24,38 +24,10 @@ import org.codehaus.jackson.annotate.JsonProperty;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class DoubleMapperBuilder extends SingleColumnMapperBuilder<DoubleMapper> {
-
-    @JsonProperty("indexed")
-    private Boolean indexed;
-
-    @JsonProperty("sorted")
-    private Boolean sorted;
+public class DoubleMapperBuilder extends SingleColumnMapperBuilder<DoubleMapper, DoubleMapperBuilder> {
 
     @JsonProperty("boost")
     private Float boost;
-
-    /**
-     * Sets if the field supports searching.
-     *
-     * @param indexed if the field supports searching.
-     * @return This.
-     */
-    public DoubleMapperBuilder indexed(Boolean indexed) {
-        this.indexed = indexed;
-        return this;
-    }
-
-    /**
-     * Sets if the field supports sorting.
-     *
-     * @param sorted if the field supports sorting.
-     * @return This.
-     */
-    public DoubleMapperBuilder sorted(Boolean sorted) {
-        this.sorted = sorted;
-        return this;
-    }
 
     /**
      * Sets the boost to be used.
@@ -71,11 +43,11 @@ public class DoubleMapperBuilder extends SingleColumnMapperBuilder<DoubleMapper>
     /**
      * Returns the {@link DoubleMapper} represented by this {@link MapperBuilder}.
      *
-     * @param name The name of the {@link DoubleMapper} to be built.
+     * @param field The name of the field to be built.
      * @return The {@link DoubleMapper} represented by this.
      */
     @Override
-    public DoubleMapper build(String name) {
-        return new DoubleMapper(name, column, indexed, sorted, boost);
+    public DoubleMapper build(String field) {
+        return new DoubleMapper(field, column, indexed, sorted, boost);
     }
 }

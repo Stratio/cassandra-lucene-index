@@ -97,7 +97,7 @@ public class GeoDistanceCondition extends SingleMapperCondition<GeoPointMapper> 
     @Override
     public Query query(GeoPointMapper mapper, Analyzer analyzer) {
 
-        SpatialStrategy spatialStrategy = mapper.getDistanceStrategy();
+        SpatialStrategy spatialStrategy = mapper.distanceStrategy;
 
         BooleanQuery query = new BooleanQuery();
         query.add(query(maxGeoDistance, spatialStrategy), FILTER);

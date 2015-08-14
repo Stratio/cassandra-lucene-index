@@ -23,7 +23,6 @@ import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import org.apache.cassandra.config.CFMetaData;
-import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.AsciiType;
 import org.apache.cassandra.db.marshal.DecimalType;
 import org.apache.cassandra.db.marshal.DoubleType;
@@ -59,34 +58,35 @@ public class GeoPointMapper extends Mapper {
     public static final SpatialContext SPATIAL_CONTEXT = SpatialContext.GEO;
     public static final int DEFAULT_MAX_LEVELS = 11;
 
-    private final String latitude;
-    private final String longitude;
-    private final int maxLevels;
+    public final String latitude;
+    public final String longitude;
+    public final int maxLevels;
 
-    private final SpatialStrategy distanceStrategy;
-    private final SpatialStrategy bboxStrategy;
+    public final SpatialStrategy distanceStrategy;
+    public final SpatialStrategy bboxStrategy;
 
     /**
      * Builds a new {@link GeoPointMapper}.
      *
-     * @param name      The name of the mapper.
+     * @param field     The name of the field.
      * @param latitude  The name of the column containing the latitude.
      * @param longitude The name of the column containing the longitude.
      * @param maxLevels The maximum number of levels in the tree.
      */
-    public GeoPointMapper(String name, String latitude, String longitude, Integer maxLevels) {
-        super(name,
+    public GeoPointMapper(String field, String latitude, String longitude, Integer maxLevels) {
+        super(field,
               true,
               false,
-              Arrays.<AbstractType<?>>asList(AsciiType.instance,
-                                             UTF8Type.instance,
-                                             Int32Type.instance,
-                                             LongType.instance,
-                                             IntegerType.instance,
-                                             FloatType.instance,
-                                             DoubleType.instance,
-                                             DecimalType.instance),
-              Arrays.asList(latitude, longitude));
+              null,
+              Arrays.asList(latitude, longitude),
+              AsciiType.instance,
+              UTF8Type.instance,
+              Int32Type.instance,
+              LongType.instance,
+              IntegerType.instance,
+              FloatType.instance,
+              DoubleType.instance,
+              DecimalType.instance);
 
         if (StringUtils.isBlank(latitude)) {
             throw new IndexException("latitude column name is required");
@@ -100,8 +100,8 @@ public class GeoPointMapper extends Mapper {
         this.longitude = longitude;
         this.maxLevels = maxLevels == null ? DEFAULT_MAX_LEVELS : maxLevels;
         SpatialPrefixTree grid = new GeohashPrefixTree(SPATIAL_CONTEXT, this.maxLevels);
-        distanceStrategy = new RecursivePrefixTreeStrategy(grid, name + ".dist");
-        bboxStrategy = new BBoxStrategy(SPATIAL_CONTEXT, name + ".bbox");
+        distanceStrategy = new RecursivePrefixTreeStrategy(grid, field + ".dist");
+        bboxStrategy = new BBoxStrategy(SPATIAL_CONTEXT, field + ".bbox");
     }
 
     /**
@@ -142,57 +142,6 @@ public class GeoPointMapper extends Mapper {
                                      longitude);
         }
         return longitude;
-    }
-
-    /**
-     * Returns the name of the column containing the latitude.
-     *
-     * @return The name of the column containing the latitude.
-     */
-    public String getLatitude() {
-        return latitude;
-    }
-
-    /**
-     * Returns the name of the column containing the longitude.
-     *
-     * @return The name of the column containing the longitude.
-     */
-    public String getLongitude() {
-        return longitude;
-    }
-
-    /**
-     * Returns the used {@link SpatialStrategy} for distances.
-     *
-     * @return The used {@link SpatialStrategy} for distances.
-     */
-    public SpatialStrategy getDistanceStrategy() {
-        return distanceStrategy;
-    }
-
-    /**
-     * Returns the used {@link SpatialStrategy} for bounding boxes.
-     *
-     * @return The used {@link SpatialStrategy} for bounding boxes.
-     */
-    public SpatialStrategy getBBoxStrategy() {
-        return bboxStrategy;
-    }
-
-    /**
-     * Returns the maximum number of levels in the tree.
-     *
-     * @return The maximum number of levels in the tree.
-     */
-    public int getMaxLevels() {
-        return maxLevels;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public String getAnalyzer() {
-        return null;
     }
 
     /** {@inheritDoc} */
@@ -302,7 +251,7 @@ public class GeoPointMapper extends Mapper {
     @Override
     public String toString() {
         return Objects.toStringHelper(this)
-                      .add("name", name)
+                      .add("field", field)
                       .add("latitude", latitude)
                       .add("longitude", longitude)
                       .add("maxLevels", maxLevels)

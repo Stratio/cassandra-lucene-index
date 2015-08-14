@@ -43,22 +43,24 @@ public class DoubleMapper extends SingleColumnMapper<Double> {
     public static final float DEFAULT_BOOST = 1.0f;
 
     /** The boost. */
-    private final Float boost;
+    public final Float boost;
 
     /**
      * Builds a new {@link DoubleMapper} using the specified boost.
      *
-     * @param name    The name of the mapper.
+     * @param field   The name of the field.
      * @param column  The name of the column to be mapped.
      * @param indexed If the field supports searching.
      * @param sorted  If the field supports sorting.
      * @param boost   The boost to be used.
      */
-    public DoubleMapper(String name, String column, Boolean indexed, Boolean sorted, Float boost) {
-        super(name,
+    public DoubleMapper(String field, String column, Boolean indexed, Boolean sorted, Float boost) {
+        super(field,
               column,
               indexed,
               sorted,
+              null,
+              Double.class,
               AsciiType.instance,
               UTF8Type.instance,
               Int32Type.instance,
@@ -68,21 +70,6 @@ public class DoubleMapper extends SingleColumnMapper<Double> {
               DoubleType.instance,
               DecimalType.instance);
         this.boost = boost == null ? DEFAULT_BOOST : boost;
-    }
-
-    /**
-     * Returns the boost to be used.
-     *
-     * @return The boost to be used.
-     */
-    public float getBoost() {
-        return boost;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public String getAnalyzer() {
-        return null;
     }
 
     /** {@inheritDoc} */
@@ -121,12 +108,6 @@ public class DoubleMapper extends SingleColumnMapper<Double> {
     @Override
     public SortField sortField(String name, boolean reverse) {
         return new SortField(name, Type.DOUBLE, reverse);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public Class<Double> baseClass() {
-        return Double.class;
     }
 
     /** {@inheritDoc} */

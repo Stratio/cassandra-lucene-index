@@ -22,7 +22,15 @@ import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import com.stratio.cassandra.lucene.util.DateParser;
 import org.apache.cassandra.config.CFMetaData;
-import org.apache.cassandra.db.marshal.*;
+import org.apache.cassandra.db.marshal.AsciiType;
+import org.apache.cassandra.db.marshal.DecimalType;
+import org.apache.cassandra.db.marshal.DoubleType;
+import org.apache.cassandra.db.marshal.FloatType;
+import org.apache.cassandra.db.marshal.Int32Type;
+import org.apache.cassandra.db.marshal.IntegerType;
+import org.apache.cassandra.db.marshal.LongType;
+import org.apache.cassandra.db.marshal.TimestampType;
+import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexableField;
@@ -44,42 +52,45 @@ import java.util.Date;
 public class DateRangeMapper extends Mapper {
 
     /** The name of the column containing the from date. */
-    private final String from;
+    public final String from;
 
     /** The name of the column containing the to date. */
-    private final String to;
+    public final String to;
 
     /** The date format pattern. */
-    private final String pattern;
+    public final String pattern;
 
     /** The {@link DateParser}. */
     private final DateParser dateParser;
 
     private final DateRangePrefixTree tree;
-    private final NumberRangePrefixTreeStrategy strategy;
+
+    /** The {@link SpatialStrategy}. */
+    public final NumberRangePrefixTreeStrategy strategy;
 
     /**
      * Builds a new {@link DateRangeMapper}.
      *
-     * @param name    The name of the mapper.
+     * @param field   The name of the field.
      * @param from    The name of the column containing the from date.
      * @param to      The name of the column containing the to date.
      * @param pattern The date format pattern to be used.
      */
-    public DateRangeMapper(String name, String from, String to, String pattern) {
-        super(name,
+    public DateRangeMapper(String field, String from, String to, String pattern) {
+        super(field,
               true,
               false,
-              Arrays.<AbstractType<?>>asList(AsciiType.instance,
-                                             UTF8Type.instance,
-                                             Int32Type.instance,
-                                             LongType.instance,
-                                             IntegerType.instance,
-                                             FloatType.instance,
-                                             DoubleType.instance,
-                                             DecimalType.instance,
-                                             TimestampType.instance),
-              Arrays.asList(from, to));
+              null,
+              Arrays.asList(from, to),
+              AsciiType.instance,
+              UTF8Type.instance,
+              Int32Type.instance,
+              LongType.instance,
+              IntegerType.instance,
+              FloatType.instance,
+              DoubleType.instance,
+              DecimalType.instance,
+              TimestampType.instance);
 
         if (StringUtils.isBlank(from)) {
             throw new IndexException("from column name is required");
@@ -92,42 +103,9 @@ public class DateRangeMapper extends Mapper {
         this.from = from;
         this.to = to;
         this.tree = DateRangePrefixTree.INSTANCE;
-        this.strategy = new NumberRangePrefixTreeStrategy(tree, name);
+        this.strategy = new NumberRangePrefixTreeStrategy(tree, field);
         this.pattern = pattern == null ? DateParser.DEFAULT_PATTERN : pattern;
         this.dateParser = new DateParser(this.pattern);
-    }
-
-    /**
-     * Returns the name of the column containing the from date.
-     *
-     * @return The name of the column containing the from date.
-     */
-    public String getFrom() {
-        return from;
-    }
-
-    /**
-     * Returns the name of the column containing the to date.
-     *
-     * @return The name of the column containing the to date.
-     */
-    public String getTo() {
-        return to;
-    }
-
-    /**
-     * Returns the date format pattern to be used.
-     *
-     * @return The date format pattern to be used.
-     */
-    public String getPattern() {
-        return pattern;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public String getAnalyzer() {
-        return null;
     }
 
     /** {@inheritDoc} */
@@ -155,15 +133,6 @@ public class DateRangeMapper extends Mapper {
     @Override
     public SortField sortField(String name, boolean reverse) {
         throw new IndexException("Date range mapper '%s' does not support sorting", name);
-    }
-
-    /**
-     * Returns the used {@link SpatialStrategy}.
-     *
-     * @return The used {@link SpatialStrategy}.
-     */
-    public SpatialStrategy getStrategy() {
-        return strategy;
     }
 
     /** {@inheritDoc} */
@@ -237,7 +206,7 @@ public class DateRangeMapper extends Mapper {
     @Override
     public String toString() {
         return Objects.toStringHelper(this)
-                      .add("name", name)
+                      .add("field", field)
                       .add("from", from)
                       .add("to", to)
                       .add("pattern", pattern)

@@ -24,38 +24,10 @@ import org.codehaus.jackson.annotate.JsonProperty;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class FloatMapperBuilder extends SingleColumnMapperBuilder<FloatMapper> {
-
-    @JsonProperty("indexed")
-    private Boolean indexed;
-
-    @JsonProperty("sorted")
-    private Boolean sorted;
+public class FloatMapperBuilder extends SingleColumnMapperBuilder<FloatMapper, FloatMapperBuilder> {
 
     @JsonProperty("boost")
     private Float boost;
-
-    /**
-     * Sets if the field supports searching.
-     *
-     * @param indexed if the field supports searching.
-     * @return This.
-     */
-    public FloatMapperBuilder indexed(Boolean indexed) {
-        this.indexed = indexed;
-        return this;
-    }
-
-    /**
-     * Sets if the field supports sorting.
-     *
-     * @param sorted if the field supports sorting.
-     * @return This.
-     */
-    public FloatMapperBuilder sorted(Boolean sorted) {
-        this.sorted = sorted;
-        return this;
-    }
 
     /**
      * Sets the boost to be used.
@@ -71,11 +43,11 @@ public class FloatMapperBuilder extends SingleColumnMapperBuilder<FloatMapper> {
     /**
      * Returns the {@link FloatMapper} represented by this {@link MapperBuilder}.
      *
-     * @param name The name of the {@link FloatMapper} to be built.
+     * @param field The name of the field to be built.
      * @return The {@link FloatMapper} represented by this.
      */
     @Override
-    public FloatMapper build(String name) {
-        return new FloatMapper(name, column, indexed, sorted, boost);
+    public FloatMapper build(String field) {
+        return new FloatMapper(field, column, indexed, sorted, boost);
     }
 }

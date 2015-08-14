@@ -29,19 +29,19 @@ public class StringMapper extends KeywordMapper {
     public static final boolean DEFAULT_CASE_SENSITIVE = true;
 
     /** If it must be case sensitive. */
-    private final boolean caseSensitive;
+    public final boolean caseSensitive;
 
     /**
      * Builds a new {@link StringMapper}.
      *
-     * @param name          The name of the mapper.
+     * @param field         The name of the field.
      * @param column        The name of the column to be mapped.
      * @param indexed       If the field supports searching.
      * @param sorted        If the field supports sorting.
      * @param caseSensitive If the analyzer must be case sensitive.
      */
-    public StringMapper(String name, String column, Boolean indexed, Boolean sorted, Boolean caseSensitive) {
-        super(name,
+    public StringMapper(String field, String column, Boolean indexed, Boolean sorted, Boolean caseSensitive) {
+        super(field,
               column,
               indexed,
               sorted,
@@ -59,15 +59,6 @@ public class StringMapper extends KeywordMapper {
               BytesType.instance,
               InetAddressType.instance);
         this.caseSensitive = caseSensitive == null ? DEFAULT_CASE_SENSITIVE : caseSensitive;
-    }
-
-    /**
-     * Returns {@code true} if it's case sensitive, {@code false} otherwise.
-     *
-     * @return {@code true} if it's case sensitive, {@code false} otherwise.
-     */
-    public boolean isCaseSensitive() {
-        return caseSensitive;
     }
 
     /** {@inheritDoc} */

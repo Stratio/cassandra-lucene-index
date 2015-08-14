@@ -16,6 +16,7 @@
 
 package com.stratio.cassandra.lucene.schema.mapping;
 
+import com.stratio.cassandra.lucene.schema.mapping.builder.TextMapperBuilder;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.DocValuesType;
 import org.apache.lucene.search.SortField;
@@ -28,28 +29,55 @@ import static org.junit.Assert.*;
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class TextMapperTest {
+public class TextMapperTest extends AbstractMapperTest {
 
     @Test
     public void testConstructorWithoutArgs() {
-        TextMapper mapper = new TextMapper("field", null, null, null, null);
-        assertEquals("Indexed is not set to default value", Mapper.DEFAULT_INDEXED, mapper.isIndexed());
-        assertEquals("Sorted is not set to default value", Mapper.DEFAULT_SORTED, mapper.isSorted());
-        assertNull("Analyzer is not set to default value", mapper.getAnalyzer());
+        TextMapper mapper = new TextMapperBuilder().build("field");
+        assertEquals("Field is not set", "field", mapper.field);
+        assertEquals("Indexed is not set to default value", Mapper.DEFAULT_INDEXED, mapper.indexed);
+        assertEquals("Sorted is not set to default value", Mapper.DEFAULT_SORTED, mapper.sorted);
+        assertEquals("Column is not set to default value", "field", mapper.column);
+        assertEquals("Mapped columns are not set", 1, mapper.mappedColumns.size());
+        assertTrue("Mapped columns are not set", mapper.mappedColumns.contains("field"));
+        assertNull("Analyzer is not set to default value", mapper.analyzer);
     }
 
     @Test
     public void testConstructorWithAllArgs() {
-        TextMapper mapper = new TextMapper("field", null, false, true, "SpanishAnalyzer");
-        assertFalse("Indexed is not properly set", mapper.isIndexed());
-        assertTrue("Sorted is not properly set", mapper.isSorted());
-        assertEquals("Analyzer is not properly set", "SpanishAnalyzer", mapper.getAnalyzer());
+        TextMapper mapper = new TextMapperBuilder().indexed(false)
+                                                   .sorted(true)
+                                                   .column("column")
+                                                   .analyzer("spanish")
+                                                   .build("field");
+        assertEquals("Field is not set", "field", mapper.field);
+        assertFalse("Indexed is not set", mapper.indexed);
+        assertTrue("Sorted is not set", mapper.sorted);
+        assertEquals("Column is not set", "column", mapper.column);
+        assertEquals("Mapped columns are not set", 1, mapper.mappedColumns.size());
+        assertTrue("Mapped columns are not set", mapper.mappedColumns.contains("column"));
+        assertEquals("Analyzer is not set", "spanish", mapper.analyzer);
+    }
+
+    @Test
+    public void testJsonSerialization() {
+        TextMapperBuilder builder = new TextMapperBuilder().indexed(false)
+                                                           .sorted(true)
+                                                           .column("column")
+                                                           .analyzer("spanish");
+        testJson(builder, "{type:\"text\",indexed:false,sorted:true,column:\"column\",analyzer:\"spanish\"}");
+    }
+
+    @Test
+    public void testJsonSerializationDefaults() {
+        TextMapperBuilder builder = new TextMapperBuilder();
+        testJson(builder, "{type:\"text\"}");
     }
 
     @Test()
     public void testBaseClass() {
         TextMapper mapper = new TextMapper("field", null, false, true, "SpanishAnalyzer");
-        assertEquals("Base class is wrong", String.class, mapper.baseClass());
+        assertEquals("Base class is wrong", String.class, mapper.base);
     }
 
     @Test()
@@ -57,7 +85,7 @@ public class TextMapperTest {
         TextMapper mapper = new TextMapper("field", null, false, true, "SpanishAnalyzer");
         SortField sortField = mapper.sortField("field", true);
         assertNotNull("Sort field is omitted", sortField);
-        assertTrue("Sort field reverse is not properly set", sortField.getReverse());
+        assertTrue("Sort field reverse is not set", sortField.getReverse());
     }
 
     @Test()
@@ -175,16 +203,14 @@ public class TextMapperTest {
     @Test
     public void testExtractAnalyzers() {
         TextMapper mapper = new TextMapper("field", null, true, true, "org.apache.lucene.analysis.en.EnglishAnalyzer");
-        assertEquals("Method #getAnalyzer is wrong",
-                     "org.apache.lucene.analysis.en.EnglishAnalyzer",
-                     mapper.getAnalyzer());
+        assertEquals("Method #getAnalyzer is wrong", "org.apache.lucene.analysis.en.EnglishAnalyzer", mapper.analyzer);
     }
 
     @Test
     public void testToString() {
         TextMapper mapper = new TextMapper("field", null, false, false, "English");
         assertEquals("Method #toString is wrong",
-                     "TextMapper{name=field, indexed=false, sorted=false, column=field, analyzer=English}",
+                     "TextMapper{field=field, indexed=false, sorted=false, column=field, analyzer=English}",
                      mapper.toString());
     }
 }

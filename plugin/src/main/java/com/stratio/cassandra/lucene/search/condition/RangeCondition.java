@@ -82,7 +82,7 @@ public class RangeCondition extends SingleColumnCondition {
      */
     @Override
     public Query query(SingleColumnMapper<?> mapper, Analyzer analyzer) {
-        Class<?> clazz = mapper.baseClass();
+        Class<?> clazz = mapper.base;
         Query query;
         if (clazz == String.class) {
             String start = (String) mapper.base(field, lower);

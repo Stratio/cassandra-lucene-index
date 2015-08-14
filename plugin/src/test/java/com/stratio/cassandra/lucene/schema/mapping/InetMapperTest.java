@@ -17,6 +17,7 @@
 package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.stratio.cassandra.lucene.IndexException;
+import com.stratio.cassandra.lucene.schema.mapping.builder.InetMapperBuilder;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.DocValuesType;
 import org.junit.Test;
@@ -27,20 +28,40 @@ import java.util.UUID;
 
 import static org.junit.Assert.*;
 
-public class InetMapperTest {
+public class InetMapperTest extends AbstractMapperTest {
 
     @Test
     public void testConstructorWithoutArgs() {
-        InetMapper mapper = new InetMapper("field", null, null, null);
-        assertEquals("Indexed is not set to default value", Mapper.DEFAULT_INDEXED, mapper.isIndexed());
-        assertEquals("Sorted is not set to default value", Mapper.DEFAULT_SORTED, mapper.isSorted());
+        InetMapper mapper = new InetMapperBuilder().build("field");
+        assertEquals("Field is not properly set", "field", mapper.field);
+        assertEquals("Indexed is not set to default value", Mapper.DEFAULT_INDEXED, mapper.indexed);
+        assertEquals("Sorted is not set to default value", Mapper.DEFAULT_SORTED, mapper.sorted);
+        assertEquals("Column is not set to default value", "field", mapper.column);
+        assertEquals("Mapped columns are not properly set", 1, mapper.mappedColumns.size());
+        assertTrue("Mapped columns are not properly set", mapper.mappedColumns.contains("field"));
     }
 
     @Test
     public void testConstructorWithAllArgs() {
-        InetMapper mapper = new InetMapper("field", null, false, true);
-        assertFalse("Indexed is not properly set", mapper.isIndexed());
-        assertTrue("Sorted is not properly set", mapper.isSorted());
+        InetMapper mapper = new InetMapperBuilder().indexed(false).sorted(true).column("column").build("field");
+        assertEquals("Field is not properly set", "field", mapper.field);
+        assertFalse("Indexed is not properly set", mapper.indexed);
+        assertTrue("Sorted is not properly set", mapper.sorted);
+        assertEquals("Column is not properly set", "column", mapper.column);
+        assertEquals("Mapped columns are not properly set", 1, mapper.mappedColumns.size());
+        assertTrue("Mapped columns are not properly set", mapper.mappedColumns.contains("column"));
+    }
+
+    @Test
+    public void testJsonSerialization() {
+        InetMapperBuilder builder = new InetMapperBuilder().indexed(false).sorted(true).column("column");
+        testJson(builder, "{type:\"inet\",indexed:false,sorted:true,column:\"column\"}");
+    }
+
+    @Test
+    public void testJsonSerializationDefaults() {
+        InetMapperBuilder builder = new InetMapperBuilder();
+        testJson(builder, "{type:\"inet\"}");
     }
 
     @Test()
@@ -158,7 +179,7 @@ public class InetMapperTest {
     @Test
     public void testExtractAnalyzers() {
         InetMapper mapper = new InetMapper("field", null, null, null);
-        String analyzer = mapper.getAnalyzer();
+        String analyzer = mapper.analyzer;
         assertEquals("Analyzer must be null", Mapper.KEYWORD_ANALYZER, analyzer);
     }
 
@@ -166,7 +187,7 @@ public class InetMapperTest {
     public void testToString() {
         InetMapper mapper = new InetMapper("field", null, false, false);
         assertEquals("Method #toString is wrong",
-                     "InetMapper{name=field, indexed=false, sorted=false, column=field}",
+                     "InetMapper{field=field, indexed=false, sorted=false, column=field}",
                      mapper.toString());
     }
 }

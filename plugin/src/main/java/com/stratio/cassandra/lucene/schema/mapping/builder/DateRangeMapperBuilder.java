@@ -60,11 +60,11 @@ public class DateRangeMapperBuilder extends MapperBuilder<DateRangeMapper> {
     /**
      * Returns the {@link DateRangeMapper} represented by this {@link MapperBuilder}.
      *
-     * @param name The name of the {@link DateRangeMapper} to be built.
+     * @param field The name of the field to be built.
      * @return The {@link DateRangeMapper} represented by this.
      */
     @Override
-    public DateRangeMapper build(String name) {
-        return new DateRangeMapper(name, from, to, pattern);
+    public DateRangeMapper build(String field) {
+        return new DateRangeMapper(field, from, to, pattern);
     }
 }

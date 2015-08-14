@@ -24,38 +24,10 @@ import org.codehaus.jackson.annotate.JsonProperty;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class IntegerMapperBuilder extends SingleColumnMapperBuilder<IntegerMapper> {
-
-    @JsonProperty("indexed")
-    private Boolean indexed;
-
-    @JsonProperty("sorted")
-    private Boolean sorted;
+public class IntegerMapperBuilder extends SingleColumnMapperBuilder<IntegerMapper, IntegerMapperBuilder> {
 
     @JsonProperty("boost")
     private Float boost;
-
-    /**
-     * Sets if the field supports searching.
-     *
-     * @param indexed if the field supports searching.
-     * @return This.
-     */
-    public IntegerMapperBuilder indexed(Boolean indexed) {
-        this.indexed = indexed;
-        return this;
-    }
-
-    /**
-     * Sets if the field supports sorting.
-     *
-     * @param sorted if the field supports sorting.
-     * @return This.
-     */
-    public IntegerMapperBuilder sorted(Boolean sorted) {
-        this.sorted = sorted;
-        return this;
-    }
 
     /**
      * Sets the boost to be used.
@@ -71,11 +43,11 @@ public class IntegerMapperBuilder extends SingleColumnMapperBuilder<IntegerMappe
     /**
      * Returns the {@link IntegerMapper} represented by this {@link MapperBuilder}.
      *
-     * @param name The name of the {@link IntegerMapper} to be built.
+     * @param field The name of the field to be built.
      * @return The {@link IntegerMapper} represented by this.
      */
     @Override
-    public IntegerMapper build(String name) {
-        return new IntegerMapper(name, column, indexed, sorted, boost);
+    public IntegerMapper build(String field) {
+        return new IntegerMapper(field, column, indexed, sorted, boost);
     }
 }

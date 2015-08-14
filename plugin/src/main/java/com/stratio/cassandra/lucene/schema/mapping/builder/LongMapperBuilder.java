@@ -24,38 +24,10 @@ import org.codehaus.jackson.annotate.JsonProperty;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class LongMapperBuilder extends SingleColumnMapperBuilder<LongMapper> {
-
-    @JsonProperty("indexed")
-    private Boolean indexed;
-
-    @JsonProperty("sorted")
-    private Boolean sorted;
+public class LongMapperBuilder extends SingleColumnMapperBuilder<LongMapper, LongMapperBuilder> {
 
     @JsonProperty("boost")
     private Float boost;
-
-    /**
-     * Sets if the field supports searching.
-     *
-     * @param indexed if the field supports searching.
-     * @return This.
-     */
-    public LongMapperBuilder indexed(Boolean indexed) {
-        this.indexed = indexed;
-        return this;
-    }
-
-    /**
-     * Sets if the field supports sorting.
-     *
-     * @param sorted if the field supports sorting.
-     * @return This.
-     */
-    public LongMapperBuilder sorted(Boolean sorted) {
-        this.sorted = sorted;
-        return this;
-    }
 
     /**
      * Sets the boost to be used.
@@ -71,11 +43,11 @@ public class LongMapperBuilder extends SingleColumnMapperBuilder<LongMapper> {
     /**
      * Returns the {@link LongMapper} represented by this {@link MapperBuilder}.
      *
-     * @param name The name of the {@link LongMapper} to be built.
+     * @param field The name of the field to be built.
      * @return The {@link LongMapper} represented by this.
      */
     @Override
-    public LongMapper build(String name) {
-        return new LongMapper(name, column, indexed, sorted, boost);
+    public LongMapper build(String field) {
+        return new LongMapper(field, column, indexed, sorted, boost);
     }
 }

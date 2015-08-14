@@ -19,6 +19,7 @@ package com.stratio.cassandra.lucene.schema.mapping;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
+import com.stratio.cassandra.lucene.schema.mapping.builder.DateRangeMapperBuilder;
 import com.stratio.cassandra.lucene.util.DateParser;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.db.ColumnFamilyType;
@@ -43,7 +44,7 @@ import java.util.Date;
 import static org.apache.cassandra.config.ColumnDefinition.regularDef;
 import static org.junit.Assert.*;
 
-public class DateRangeMapperTest {
+public class DateRangeMapperTest extends AbstractMapperTest {
 
     private static final String SHORT_PATTERN = "yyyy-MM-dd";
     private static final String TIMESTAMP_PATTERN = "timestamp";
@@ -52,26 +53,41 @@ public class DateRangeMapperTest {
 
     @Test
     public void testConstructorWithDefaultArgs() {
-        DateRangeMapper mapper = new DateRangeMapper("name", "to", "from", null);
-        assertEquals("Name is not properly set", "name", mapper.getName());
-        assertTrue("Indexed is not set to default value", mapper.isIndexed());
-        assertFalse("Sorted is not set to default value", mapper.isSorted());
-        assertEquals("To is not set to default value", "to", mapper.getFrom());
-        assertEquals("From is not set to default value", "from", mapper.getTo());
-        assertEquals("Pattern is not set to default value", DateParser.DEFAULT_PATTERN, mapper.getPattern());
-        assertNotNull("Strategy is not set to default value", mapper.getStrategy());
+        DateRangeMapper mapper = new DateRangeMapperBuilder("from", "to").build("field");
+        assertEquals("Name is not properly set", "field", mapper.field);
+        assertTrue("Indexed is not set to default value", mapper.indexed);
+        assertFalse("Sorted is not set to default value", mapper.sorted);
+        assertEquals("From is not properly set", "from", mapper.from);
+        assertEquals("To is not properly set", "to", mapper.to);
+        assertEquals("Mapped columns are not properly set", 2, mapper.mappedColumns.size());
+        assertTrue("Mapped columns are not properly set", mapper.mappedColumns.contains("to"));
+        assertTrue("Mapped columns are not properly set", mapper.mappedColumns.contains("from"));
+        assertEquals("Pattern is not set to default value", DateParser.DEFAULT_PATTERN, mapper.pattern);
+        assertNotNull("Strategy is not set to default value", mapper.strategy);
     }
 
     @Test
     public void testConstructorWithAllArgs() {
-        DateRangeMapper mapper = new DateRangeMapper("name", "to", "from", "yyyy/MM/dd");
-        assertEquals("Name is not properly set", "name", mapper.getName());
-        assertTrue("Indexed is not properly set", mapper.isIndexed());
-        assertFalse("Sorted is not properly set", mapper.isSorted());
-        assertEquals("From is not properly set", "to", mapper.getFrom());
-        assertEquals("To is not properly set", "from", mapper.getTo());
-        assertEquals("Pattern is not properly set", "yyyy/MM/dd", mapper.getPattern());
-        assertNotNull("Strategy is not properly set", mapper.getStrategy());
+        DateRangeMapper mapper = new DateRangeMapperBuilder("from", "to").pattern("yyyy-MM-dd").build("field");
+        assertEquals("Name is not properly set", "field", mapper.field);
+        assertTrue("Indexed is not properly set", mapper.indexed);
+        assertFalse("Sorted is not properly set", mapper.sorted);
+        assertEquals("From is not properly set", "from", mapper.from);
+        assertEquals("To is not properly set", "to", mapper.to);
+        assertEquals("Pattern is not properly set", "yyyy-MM-dd", mapper.pattern);
+        assertNotNull("Strategy is not properly set", mapper.strategy);
+    }
+
+    @Test
+    public void testJsonSerialization() {
+        DateRangeMapperBuilder builder = new DateRangeMapperBuilder("from", "to").pattern("yyyy-MM-dd");
+        testJson(builder, "{type:\"date_range\",from:\"from\",to:\"to\",pattern:\"yyyy-MM-dd\"}");
+    }
+
+    @Test
+    public void testJsonSerializationDefaults() {
+        DateRangeMapperBuilder builder = new DateRangeMapperBuilder("from", "to");
+        testJson(builder, "{type:\"date_range\",from:\"from\",to:\"to\"}");
     }
 
     @Test(expected = IndexException.class)
@@ -282,7 +298,7 @@ public class DateRangeMapperTest {
     @Test
     public void testExtractAnalyzers() {
         DateRangeMapper mapper = new DateRangeMapper("name", "from", "to", null);
-        assertNull("Analyzer must be null", mapper.getAnalyzer());
+        assertNull("Analyzer must be null", mapper.analyzer);
     }
 
     @Test
@@ -325,8 +341,8 @@ public class DateRangeMapperTest {
 
     @Test
     public void testToString() {
-        DateRangeMapper mapper = new DateRangeMapper("name", "to", "from", "yyyy/MM/dd");
-        String exp = "DateRangeMapper{name=name, from=to, to=from, pattern=yyyy/MM/dd}";
+        DateRangeMapper mapper = new DateRangeMapper("field", "to", "from", "yyyy/MM/dd");
+        String exp = "DateRangeMapper{field=field, from=to, to=from, pattern=yyyy/MM/dd}";
         assertEquals("Method #toString is wrong", exp, mapper.toString());
     }
 }

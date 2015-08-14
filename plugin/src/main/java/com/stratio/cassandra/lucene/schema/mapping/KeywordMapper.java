@@ -44,20 +44,14 @@ public abstract class KeywordMapper extends SingleColumnMapper<String> {
     /**
      * Builds  a new {@link KeywordMapper}.
      *
-     * @param name           The name of the mapper.
+     * @param field          The name of the field.
      * @param column         The name of the column to be mapped.
      * @param indexed        If the field supports searching.
      * @param sorted         If the field supports sorting.
      * @param supportedTypes The supported Cassandra types for indexing.
      */
-    KeywordMapper(String name, String column, Boolean indexed, Boolean sorted, AbstractType<?>... supportedTypes) {
-        super(name, column, indexed, sorted, supportedTypes);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public String getAnalyzer() {
-        return KEYWORD_ANALYZER;
+    KeywordMapper(String field, String column, Boolean indexed, Boolean sorted, AbstractType<?>... supportedTypes) {
+        super(field, column, indexed, sorted, KEYWORD_ANALYZER, String.class, supportedTypes);
     }
 
     /** {@inheritDoc} */
@@ -76,11 +70,5 @@ public abstract class KeywordMapper extends SingleColumnMapper<String> {
     @Override
     public final SortField sortField(String name, boolean reverse) {
         return new SortField(name, Type.STRING_VAL, reverse);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public final Class<String> baseClass() {
-        return String.class;
     }
 }

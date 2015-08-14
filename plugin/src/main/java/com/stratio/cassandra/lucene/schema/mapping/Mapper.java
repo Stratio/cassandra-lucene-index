@@ -61,78 +61,50 @@ public abstract class Mapper {
     /** If the field must be sorted when no specified. */
     public static final boolean DEFAULT_SORTED = false;
 
-    /** The name of the mapper. */
-    protected final String name;
+    /** The name of the Lucene field. */
+    public final String field;
 
     /** If the field must be indexed. */
-    protected final Boolean indexed;
+    public final Boolean indexed;
 
     /** If the field must be sorted. */
-    protected final Boolean sorted;
+    public final Boolean sorted;
+
+    /** The name of the analyzer to be used. */
+    public final String analyzer;
 
     /** The supported Cassandra types for indexing. */
-    private final List<AbstractType<?>> supportedTypes;
+    public final AbstractType<?>[] supportedTypes;
 
     /** The names of the columns to be mapped. */
-    private final List<String> mappedColumns;
+    public final List<String> mappedColumns;
 
     /**
      * Builds a new {@link Mapper} supporting the specified types for indexing.
      *
-     * @param name           The name of the mapper.
+     * @param field          The name of the Lucene field.
      * @param indexed        If the field supports searching.
      * @param sorted         If the field supports sorting.
-     * @param supportedTypes The supported Cassandra types for indexing.
+     * @param analyzer       The name of the analyzer to be used.
      * @param mappedColumns  The names of the columns to be mapped.
+     * @param supportedTypes The supported Cassandra types for indexing.
      */
-    protected Mapper(String name,
+    protected Mapper(String field,
                      Boolean indexed,
                      Boolean sorted,
-                     List<AbstractType<?>> supportedTypes,
-                     List<String> mappedColumns) {
-        if (StringUtils.isBlank(name)) {
-            throw new IndexException("Mapper name is required");
+                     String analyzer,
+                     List<String> mappedColumns,
+                     AbstractType<?>... supportedTypes) {
+        if (StringUtils.isBlank(field)) {
+            throw new IndexException("Field name is required");
         }
-        this.name = name;
+        this.field = field;
         this.indexed = indexed == null ? DEFAULT_INDEXED : indexed;
         this.sorted = sorted == null ? DEFAULT_SORTED : sorted;
-        this.supportedTypes = supportedTypes;
+        this.analyzer = analyzer;
         this.mappedColumns = mappedColumns;
+        this.supportedTypes = supportedTypes;
     }
-
-    /**
-     * Returns the identifying name of this mapper.
-     *
-     * @return The identifying name of this mapper.
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * Returns {@code true} if the columns must be searchable, {@code false} otherwise.
-     *
-     * @return {@code true} if the columns must be searchable, {@code false} otherwise.
-     */
-    public boolean isIndexed() {
-        return indexed;
-    }
-
-    /**
-     * Returns {@code true} if the columns must be sortable, {@code false} otherwise.
-     *
-     * @return {@code true} if the columns must be sortable, {@code false} otherwise.
-     */
-    public boolean isSorted() {
-        return sorted;
-    }
-
-    /**
-     * Returns the name of the used {@link org.apache.lucene.analysis.Analyzer}, or {@code null} if it is not analyzed.
-     *
-     * @return The name of the used {@link org.apache.lucene.analysis.Analyzer}, or {@code null} if it is not analyzed.
-     */
-    public abstract String getAnalyzer();
 
     /**
      * Adds to the specified {@link Document} the Lucene {@link org.apache.lucene.document.Field}s resulting from the
@@ -189,7 +161,7 @@ public abstract class Mapper {
 
         ColumnDefinition columnDefinition = metadata.getColumnDefinition(columnName);
         if (columnDefinition == null) {
-            throw new IndexException("No column definition '%s' for mapper '%s'", name, this.name);
+            throw new IndexException("No column definition '%s' for mapper '%s'", name, field);
         }
 
         if (columnDefinition.isStatic()) {
@@ -198,7 +170,7 @@ public abstract class Mapper {
 
         AbstractType<?> type = columnDefinition.type;
         if (!supports(columnDefinition.type)) {
-            throw new IndexException("'%s' is not supported by mapper '%s'", type, this.name);
+            throw new IndexException("'%s' is not supported by mapper '%s'", type, field);
         }
 
         // Avoid sorting in lists and sets
@@ -218,15 +190,6 @@ public abstract class Mapper {
      * @param metadata A column family {@link CFMetaData}.
      */
     public abstract void validate(CFMetaData metadata);
-
-    /**
-     * Returns the names of the mapped Cassandra columns.
-     *
-     * @return The names of the mapped Cassandra columns.
-     */
-    public List<String> getMappedColumns() {
-        return mappedColumns;
-    }
 
     /**
      * Returns if the specified {@link Columns} contains the mapped columns.
@@ -250,7 +213,7 @@ public abstract class Mapper {
     }
 
     protected Objects.ToStringHelper toStringHelper(Object self) {
-        return Objects.toStringHelper(self).add("name", name).add("indexed", indexed).add("sorted", sorted);
+        return Objects.toStringHelper(self).add("field", field).add("indexed", indexed).add("sorted", sorted);
     }
 
     /** {@inheritDoc} */

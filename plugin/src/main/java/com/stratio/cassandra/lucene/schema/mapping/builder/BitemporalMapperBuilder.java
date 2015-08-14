@@ -95,11 +95,11 @@ public class BitemporalMapperBuilder extends MapperBuilder<BitemporalMapper> {
     /**
      * Returns the {@link BitemporalMapper} represented by this {@link MapperBuilder}.
      *
-     * @param name The name of the {@link BitemporalMapper} to be built.
+     * @param field The name of the field to be built.
      * @return The {@link BitemporalMapper} represented by this.
      */
     @Override
-    public BitemporalMapper build(String name) {
-        return new BitemporalMapper(name, vtFrom, vtTo, ttFrom, ttTo, pattern, nowValue);
+    public BitemporalMapper build(String field) {
+        return new BitemporalMapper(field, vtFrom, vtTo, ttFrom, ttTo, pattern, nowValue);
     }
 }

@@ -35,18 +35,18 @@ public class BlobMapper extends KeywordMapper {
     /**
      * Builds a new {@link BlobMapper}.
      *
-     * @param name    The name of the mapper.
+     * @param field   The name of the field.
      * @param column  The name of the column to be mapped.
      * @param indexed If the field supports searching.
      * @param sorted  If the field supports sorting.
      */
-    public BlobMapper(String name, String column, Boolean indexed, Boolean sorted) {
-        super(name, column, indexed, sorted, AsciiType.instance, UTF8Type.instance, BytesType.instance);
+    public BlobMapper(String field, String column, Boolean indexed, Boolean sorted) {
+        super(field, column, indexed, sorted, AsciiType.instance, UTF8Type.instance, BytesType.instance);
     }
 
     /** {@inheritDoc} */
     @Override
-    public String base(String name, Object value) {
+    public String base(String field, Object value) {
         if (value == null) {
             return null;
         } else if (value instanceof ByteBuffer) {
@@ -56,7 +56,7 @@ public class BlobMapper extends KeywordMapper {
         } else if (value instanceof String) {
             return base((String) value);
         }
-        throw new IndexException("Field '%s' requires a byte array, but found '%s'", name, value);
+        throw new IndexException("Field '%s' requires a byte array, but found '%s'", field, value);
     }
 
     private String base(ByteBuffer value) {
@@ -73,7 +73,7 @@ public class BlobMapper extends KeywordMapper {
             byte[] bytes = Hex.hexToBytes(value);
             return Hex.bytesToHex(bytes);
         } catch (NumberFormatException e) {
-            throw new IndexException("Field '%s' requires an hex string, but found '%s'", name, value);
+            throw new IndexException("Field '%s' requires an hex string, but found '%s'", field, value);
         }
     }
 }

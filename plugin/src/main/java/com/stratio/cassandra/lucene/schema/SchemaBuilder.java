@@ -82,12 +82,12 @@ public class SchemaBuilder {
     /**
      * Adds a new {@link Mapper}.
      *
-     * @param name   The name of the {@link Mapper} to be added.
+     * @param field  The name of the {@link Mapper} to be added.
      * @param mapper The builder of the {@link Mapper} to be added.
      * @return This.
      */
-    public SchemaBuilder mapper(String name, MapperBuilder<?> mapper) {
-        mapperBuilders.put(name, mapper);
+    public SchemaBuilder mapper(String field, MapperBuilder<?> mapper) {
+        mapperBuilders.put(field, mapper);
         return this;
     }
 

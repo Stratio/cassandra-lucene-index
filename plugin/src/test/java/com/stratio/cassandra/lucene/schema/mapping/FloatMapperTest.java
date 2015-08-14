@@ -17,6 +17,7 @@
 package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.stratio.cassandra.lucene.IndexException;
+import com.stratio.cassandra.lucene.schema.mapping.builder.FloatMapperBuilder;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.DocValuesType;
 import org.apache.lucene.search.SortField;
@@ -24,22 +25,46 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class FloatMapperTest {
+public class FloatMapperTest extends AbstractMapperTest {
 
     @Test
     public void testConstructorWithoutArgs() {
-        FloatMapper mapper = new FloatMapper("field", null, null, null, null);
-        assertEquals("Indexed is not set to default value", Mapper.DEFAULT_INDEXED, mapper.isIndexed());
-        assertEquals("Sorted is not set to default value", Mapper.DEFAULT_SORTED, mapper.isSorted());
-        assertEquals("Boost is not set to default value", DoubleMapper.DEFAULT_BOOST, mapper.getBoost(), 1);
+        FloatMapper mapper = new FloatMapperBuilder().build("field");
+        assertEquals("Field is not properly set", "field", mapper.field);
+        assertEquals("Indexed is not set to default value", Mapper.DEFAULT_INDEXED, mapper.indexed);
+        assertEquals("Sorted is not set to default value", Mapper.DEFAULT_SORTED, mapper.sorted);
+        assertEquals("Column is not set to default value", "field", mapper.column);
+        assertEquals("Mapped columns are not properly set", 1, mapper.mappedColumns.size());
+        assertTrue("Mapped columns are not properly set", mapper.mappedColumns.contains("field"));
+        assertEquals("Boost is not set to default value", DoubleMapper.DEFAULT_BOOST, mapper.boost, 1);
     }
 
     @Test
     public void testConstructorWithAllArgs() {
-        FloatMapper mapper = new FloatMapper("field", null, false, true, 2.3f);
-        assertFalse("Indexed is not properly set", mapper.isIndexed());
-        assertTrue("Sorted is not properly set", mapper.isSorted());
-        assertEquals("Boost is not properly set", 2.3f, mapper.getBoost(), 1);
+        FloatMapper mapper = new FloatMapperBuilder().indexed(false)
+                                                     .sorted(true)
+                                                     .column("column")
+                                                     .boost(0.3f)
+                                                     .build("field");
+        assertEquals("Field is not properly set", "field", mapper.field);
+        assertFalse("Indexed is not properly set", mapper.indexed);
+        assertTrue("Sorted is not properly set", mapper.sorted);
+        assertEquals("Column is not properly set", "column", mapper.column);
+        assertEquals("Mapped columns are not properly set", 1, mapper.mappedColumns.size());
+        assertTrue("Mapped columns are not properly set", mapper.mappedColumns.contains("column"));
+        assertEquals("Boost is not properly set", 0.3f, mapper.boost, 1);
+    }
+
+    @Test
+    public void testJsonSerialization() {
+        FloatMapperBuilder builder = new FloatMapperBuilder().indexed(false).sorted(true).column("column").boost(0.3f);
+        testJson(builder, "{type:\"float\",indexed:false,sorted:true,column:\"column\",boost:0.3}");
+    }
+
+    @Test
+    public void testJsonSerializationDefaults() {
+        FloatMapperBuilder builder = new FloatMapperBuilder();
+        testJson(builder, "{type:\"float\"}");
     }
 
     @Test()
@@ -173,14 +198,14 @@ public class FloatMapperTest {
     @Test
     public void testExtractAnalyzers() {
         FloatMapper mapper = new FloatMapper("field", null, null, null, 1f);
-        assertNull("Analyzer must be null", mapper.getAnalyzer());
+        assertNull("Analyzer must be null", mapper.analyzer);
     }
 
     @Test
     public void testToString() {
         FloatMapper mapper = new FloatMapper("field", null, false, false, 0.3f);
         assertEquals("Method #toString is wrong",
-                     "FloatMapper{name=field, indexed=false, sorted=false, column=field, boost=0.3}",
+                     "FloatMapper{field=field, indexed=false, sorted=false, column=field, boost=0.3}",
                      mapper.toString());
     }
 }

@@ -23,7 +23,15 @@ import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import com.stratio.cassandra.lucene.util.DateParser;
 import org.apache.cassandra.config.CFMetaData;
-import org.apache.cassandra.db.marshal.*;
+import org.apache.cassandra.db.marshal.AsciiType;
+import org.apache.cassandra.db.marshal.DecimalType;
+import org.apache.cassandra.db.marshal.DoubleType;
+import org.apache.cassandra.db.marshal.FloatType;
+import org.apache.cassandra.db.marshal.Int32Type;
+import org.apache.cassandra.db.marshal.IntegerType;
+import org.apache.cassandra.db.marshal.LongType;
+import org.apache.cassandra.db.marshal.TimestampType;
+import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.IntField;
@@ -45,19 +53,20 @@ import java.util.Date;
 public class BitemporalMapper extends Mapper {
 
     /** The {@link DateParser} pattern. */
-    private final String pattern;
+    public final String pattern;
 
     /** The {@link DateParser} */
     private final DateParser dateParser;
 
     /** Field names for the four fields. */
-    private final String vtFrom;
-    private final String vtTo;
-    private final String ttFrom;
-    private final String ttTo;
+    public final String vtFrom;
+    public final String vtTo;
+    public final String ttFrom;
+    public final String ttTo;
+
+    public final Long nowValue;
 
     private final String T1UT2FieldSuffix = ".T1UT2";
-    private Long nowBitemporalDateTimeMillis;
 
     // ttTo=now vtTo=now 2 DateRangePrefixTree
     private NumberRangePrefixTreeStrategy strategyT1V;
@@ -83,14 +92,14 @@ public class BitemporalMapper extends Mapper {
     /**
      * Builds a new {@link BitemporalMapper}.
      *
-     * @param name    the name of the mapper.
+     * @param field   the name of the field.
      * @param vtFrom  The column name containing the valid time start.
      * @param vtTo    The column name containing the valid time stop.
      * @param ttFrom  The column name containing the transaction time start.
      * @param ttTo    The column name containing the transaction time stop.
      * @param pattern The date format pattern to be used.
      */
-    public BitemporalMapper(String name,
+    public BitemporalMapper(String field,
                             String vtFrom,
                             String vtTo,
                             String ttFrom,
@@ -98,19 +107,20 @@ public class BitemporalMapper extends Mapper {
                             String pattern,
                             Object nowValue) {
 
-        super(name,
+        super(field,
               true,
               false,
-              Arrays.<AbstractType<?>>asList(AsciiType.instance,
-                                             UTF8Type.instance,
-                                             Int32Type.instance,
-                                             LongType.instance,
-                                             IntegerType.instance,
-                                             FloatType.instance,
-                                             DoubleType.instance,
-                                             DecimalType.instance,
-                                             TimestampType.instance),
-              Arrays.asList(vtFrom, vtTo, ttFrom, ttTo));
+              null,
+              Arrays.asList(vtFrom, vtTo, ttFrom, ttTo),
+              AsciiType.instance,
+              UTF8Type.instance,
+              Int32Type.instance,
+              LongType.instance,
+              IntegerType.instance,
+              FloatType.instance,
+              DoubleType.instance,
+              DecimalType.instance,
+              TimestampType.instance);
 
         if (StringUtils.isBlank(vtFrom)) {
             throw new IndexException("vt_from column name is required");
@@ -141,82 +151,27 @@ public class BitemporalMapper extends Mapper {
         // ttTo=now vtTo=now 2 DateRangePrefixTree
 
         treeT1V = DateRangePrefixTree.INSTANCE;
-        strategyT1V = new NumberRangePrefixTreeStrategy(treeT1V, name + ".t1_v");
+        strategyT1V = new NumberRangePrefixTreeStrategy(treeT1V, field + ".t1_v");
         treeT1T = DateRangePrefixTree.INSTANCE;
-        strategyT1T = new NumberRangePrefixTreeStrategy(treeT1T, name + ".t1_t");
+        strategyT1T = new NumberRangePrefixTreeStrategy(treeT1T, field + ".t1_t");
 
         treeT2V = DateRangePrefixTree.INSTANCE;
-        strategyT2V = new NumberRangePrefixTreeStrategy(treeT2V, name + ".t2_v");
+        strategyT2V = new NumberRangePrefixTreeStrategy(treeT2V, field + ".t2_v");
         treeT2T = DateRangePrefixTree.INSTANCE;
-        strategyT2T = new NumberRangePrefixTreeStrategy(treeT2T, name + ".t2_t");
+        strategyT2T = new NumberRangePrefixTreeStrategy(treeT2T, field + ".t2_t");
 
         treeT3V = DateRangePrefixTree.INSTANCE;
-        strategyT3V = new NumberRangePrefixTreeStrategy(treeT3V, name + ".t3_v");
+        strategyT3V = new NumberRangePrefixTreeStrategy(treeT3V, field + ".t3_v");
         treeT3T = DateRangePrefixTree.INSTANCE;
-        strategyT3T = new NumberRangePrefixTreeStrategy(treeT3T, name + ".t3_t");
+        strategyT3T = new NumberRangePrefixTreeStrategy(treeT3T, field + ".t3_t");
 
         treeT4V = DateRangePrefixTree.INSTANCE;
-        strategyT4V = new NumberRangePrefixTreeStrategy(treeT4V, name + ".t4_v");
+        strategyT4V = new NumberRangePrefixTreeStrategy(treeT4V, field + ".t4_v");
         treeT4T = DateRangePrefixTree.INSTANCE;
-        strategyT4T = new NumberRangePrefixTreeStrategy(treeT4T, name + ".t4_t");
+        strategyT4T = new NumberRangePrefixTreeStrategy(treeT4T, field + ".t4_t");
 
-        nowBitemporalDateTimeMillis = (nowValue == null) ? Long.MAX_VALUE : dateParser.parse(nowValue).getTime();
+        this.nowValue = (nowValue == null) ? Long.MAX_VALUE : dateParser.parse(nowValue).getTime();
 
-    }
-
-    public String getPattern() {
-        return pattern;
-    }
-
-    /**
-     * Returns the column name containing the valid time start.
-     *
-     * @return The column name containing the valid time start.
-     */
-    public String getVtFrom() {
-        return vtFrom;
-    }
-
-    /**
-     * Returns the column name containing the valid time stop.
-     *
-     * @return The column name containing the valid time stop.
-     */
-    public String getVtTo() {
-        return vtTo;
-    }
-
-    /**
-     * Returns the column name containing the transaction time start.
-     *
-     * @return The column name containing the transaction time start.
-     */
-    public String getTtFrom() {
-        return ttFrom;
-    }
-
-    /**
-     * Returns the column name containing the transaction time stop.
-     *
-     * @return The column name containing the transaction time stop.
-     */
-    public String getTtTo() {
-        return ttTo;
-    }
-
-    /**
-     * Returns the now value as UNIX timestamp.
-     *
-     * @return The now value as UNIX timestamp.
-     */
-    public Long getNowValue() {
-        return nowBitemporalDateTimeMillis;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public String getAnalyzer() {
-        return null;
     }
 
     /**
@@ -264,7 +219,7 @@ public class BitemporalMapper extends Mapper {
     }
 
     public String getT1UT2FieldName() {
-        return name + T1UT2FieldSuffix;
+        return field + T1UT2FieldSuffix;
 
     }
 
@@ -351,11 +306,10 @@ public class BitemporalMapper extends Mapper {
     }
 
     private BitemporalDateTime checkIfNow(Long in) {
-        if (in > nowBitemporalDateTimeMillis) {
+        if (in > nowValue) {
             throw new IndexException("BitemporalDateTime value '%s' exceeds Max Value: '%s'",
-                                     in,
-                                     nowBitemporalDateTimeMillis);
-        } else if (in < nowBitemporalDateTimeMillis) {
+                                     in, nowValue);
+        } else if (in < nowValue) {
             return new BitemporalDateTime(in);
         } else {
             return new BitemporalDateTime(Long.MAX_VALUE);
@@ -398,13 +352,13 @@ public class BitemporalMapper extends Mapper {
     @Override
     public String toString() {
         return Objects.toStringHelper(this)
-                      .add("name", name)
+                      .add("field", field)
                       .add("vtFrom", vtFrom)
                       .add("vtTo", vtTo)
                       .add("ttFrom", ttFrom)
                       .add("ttTo", ttTo)
                       .add("pattern", pattern)
-                      .add("nowValue", nowBitemporalDateTimeMillis)
+                      .add("nowValue", nowValue)
                       .toString();
     }
 

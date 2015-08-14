@@ -17,10 +17,9 @@
 package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.stratio.cassandra.lucene.IndexException;
-import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.SchemaBuilder;
 import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
+import com.stratio.cassandra.lucene.schema.mapping.builder.BitemporalMapperBuilder;
 import com.stratio.cassandra.lucene.util.DateParser;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.db.ColumnFamilyType;
@@ -46,20 +45,25 @@ import static org.junit.Assert.*;
 /**
  * @author eduardoalonso  {@literal <eduardoalonso@stratio.com>}
  */
-public class BitemporalMapperTest {
+public class BitemporalMapperTest extends AbstractMapperTest {
 
     @Test
     public void testConstructorWithDefaultArgs() {
-        BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null, null);
-        assertEquals("field", mapper.getName());
-        assertTrue(mapper.isIndexed());
-        assertFalse(mapper.isSorted());
-        assertEquals("vtFrom", mapper.getVtFrom());
-        assertEquals("vtTo", mapper.getVtTo());
-        assertEquals("ttFrom", mapper.getTtFrom());
-        assertEquals("ttTo", mapper.getTtTo());
-        assertEquals((Long) Long.MAX_VALUE, mapper.getNowValue());
-        assertEquals(DateParser.DEFAULT_PATTERN, mapper.getPattern());
+        BitemporalMapper mapper = new BitemporalMapperBuilder("vtFrom", "vtTo", "ttFrom", "ttTo").build("field");
+        assertEquals("field", mapper.field);
+        assertTrue(mapper.indexed);
+        assertFalse(mapper.sorted);
+        assertEquals("vtFrom", mapper.vtFrom);
+        assertEquals("vtTo", mapper.vtTo);
+        assertEquals("ttFrom", mapper.ttFrom);
+        assertEquals("ttTo", mapper.ttTo);
+        assertEquals("Mapped columns are not properly set", 4, mapper.mappedColumns.size());
+        assertTrue("Mapped columns are not set", mapper.mappedColumns.contains("vtFrom"));
+        assertTrue("Mapped columns are not set", mapper.mappedColumns.contains("vtTo"));
+        assertTrue("Mapped columns are not set", mapper.mappedColumns.contains("ttFrom"));
+        assertTrue("Mapped columns are not set", mapper.mappedColumns.contains("ttTo"));
+        assertEquals((Long) Long.MAX_VALUE, mapper.nowValue);
+        assertEquals(DateParser.DEFAULT_PATTERN, mapper.pattern);
         for (int i = 0; i <= 3; i++) {
             assertNotNull(mapper.getStrategy(i, true));
             assertNotNull(mapper.getStrategy(i, false));
@@ -70,22 +74,17 @@ public class BitemporalMapperTest {
 
     @Test
     public void testConstructorWithAllArgs() {
-
-        BitemporalMapper mapper = new BitemporalMapper("field",
-                                                       "vtFrom",
-                                                       "vtTo",
-                                                       "ttFrom",
-                                                       "ttTo",
-                                                       "yyyy/MM/dd",
-                                                       "2021/03/11");
-        assertEquals("field", mapper.getName());
-        assertTrue(mapper.isIndexed());
-        assertFalse(mapper.isSorted());
-        assertEquals("vtFrom", mapper.getVtFrom());
-        assertEquals("vtTo", mapper.getVtTo());
-        assertEquals("ttFrom", mapper.getTtFrom());
-        assertEquals("ttTo", mapper.getTtTo());
-        assertEquals("yyyy/MM/dd", mapper.getPattern());
+        BitemporalMapper mapper = new BitemporalMapperBuilder("vtFrom", "vtTo", "ttFrom", "ttTo").pattern("yyyy/MM/dd")
+                                                                                                 .nowValue("2021/03/11")
+                                                                                                 .build("field");
+        assertEquals("Field is not set", "field", mapper.field);
+        assertTrue("Indexed is not set", mapper.indexed);
+        assertFalse("Sorted is not set", mapper.sorted);
+        assertEquals("vtFrom", mapper.vtFrom);
+        assertEquals("vtTo", mapper.vtTo);
+        assertEquals("ttFrom", mapper.ttFrom);
+        assertEquals("ttTo", mapper.ttTo);
+        assertEquals("yyyy/MM/dd", mapper.pattern);
 
         assertEquals(mapper.parseBiTemporalDate("2021/03/11"), BitemporalMapper.BitemporalDateTime.MAX);
 
@@ -96,6 +95,21 @@ public class BitemporalMapperTest {
             assertNotNull(mapper.getTree(i, false));
         }
 
+    }
+
+    @Test
+    public void testParseJSONWithDefaultArgs() throws IOException {
+        BitemporalMapperBuilder builder = new BitemporalMapperBuilder("vtFrom", "vtTo", "ttFrom", "ttTo");
+        testJson(builder, "{type:\"bitemporal\",vt_from:\"vtFrom\",vt_to:\"vtTo\",tt_from:\"ttFrom\",tt_to:\"ttTo\"}");
+    }
+
+    @Test
+    public void testParseJSONWithAllArgs() throws IOException {
+        BitemporalMapperBuilder builder = new BitemporalMapperBuilder("vtFrom", "vtTo", "ttFrom", "ttTo").pattern(
+                "yyyy/MM/dd").nowValue("2021/03/11");
+        testJson(builder,
+                 "{type:\"bitemporal\",vt_from:\"vtFrom\",vt_to:\"vtTo\",tt_from:\"ttFrom\",tt_to:\"ttTo\"," +
+                 "pattern:\"yyyy/MM/dd\",now_value:\"2021/03/11\"}");
     }
 
     @Test(expected = IndexException.class)
@@ -1119,7 +1133,7 @@ public class BitemporalMapperTest {
     @Test
     public void testExtractAnalyzers() {
         BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null, null);
-        assertNull(mapper.getAnalyzer());
+        assertNull(mapper.analyzer);
     }
 
     @Test
@@ -1187,40 +1201,6 @@ public class BitemporalMapperTest {
     }
 
     @Test
-    public void testParseJSONWithDefaultArgs() throws IOException {
-        String json = "{fields:{temporal:{type:\"bitemporal\", vt_from:\"vtFrom\", vt_to:\"vtTo\", " +
-                      "tt_from:\"ttFrom\", tt_to:\"ttTo\"}}}";
-        Schema schema = SchemaBuilder.fromJson(json).build();
-        BitemporalMapper mapper = (BitemporalMapper) schema.getMapper("temporal");
-        assertEquals(BitemporalMapper.class, mapper.getClass());
-        assertEquals("temporal", mapper.getName());
-        assertEquals("vtFrom", mapper.getVtFrom());
-        assertEquals("vtTo", mapper.getVtTo());
-        assertEquals("ttFrom", mapper.getTtFrom());
-        assertEquals("ttTo", mapper.getTtTo());
-        assertTrue(mapper.isIndexed());
-        assertFalse(mapper.isSorted());
-        assertEquals(DateParser.DEFAULT_PATTERN, mapper.getPattern());
-    }
-
-    @Test
-    public void testParseJSONWithAllArgs() throws IOException {
-        String json = "{fields:{temporal:{type:\"bitemporal\", vt_from:\"vtFrom\", vt_to:\"vtTo\", " +
-                      "tt_from:\"ttFrom\", tt_to:\"ttTo\", pattern:\"yyyy/MM/dd\"}}}";
-        Schema schema = SchemaBuilder.fromJson(json).build();
-        BitemporalMapper mapper = (BitemporalMapper) schema.getMapper("temporal");
-        assertEquals(BitemporalMapper.class, mapper.getClass());
-        assertEquals("temporal", mapper.getName());
-        assertEquals("vtFrom", mapper.getVtFrom());
-        assertEquals("vtTo", mapper.getVtTo());
-        assertEquals("ttFrom", mapper.getTtFrom());
-        assertEquals("ttTo", mapper.getTtTo());
-        assertTrue(mapper.isIndexed());
-        assertFalse(mapper.isSorted());
-        assertEquals("yyyy/MM/dd", mapper.getPattern());
-    }
-
-    @Test
     public void testToString() {
         BitemporalMapper mapper = new BitemporalMapper("field",
                                                        "vtFrom",
@@ -1235,7 +1215,7 @@ public class BitemporalMapperTest {
 
         try {
             date = format.parse("2025/12/23");
-            String exp = "BitemporalMapper{name=field, vtFrom=vtFrom, vtTo=vtTo, ttFrom=ttFrom, ttTo=ttTo, " +
+            String exp = "BitemporalMapper{field=field, vtFrom=vtFrom, vtTo=vtTo, ttFrom=ttFrom, ttTo=ttTo, " +
                          "pattern=yyyy/MM/dd, nowValue=" + date.getTime() + "}";
             assertEquals(exp, mapper.toString());
         } catch (ParseException e) {

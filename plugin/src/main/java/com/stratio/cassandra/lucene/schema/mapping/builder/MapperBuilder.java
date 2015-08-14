@@ -48,8 +48,8 @@ public abstract class MapperBuilder<T extends Mapper> {
     /**
      * Returns the {@link Mapper} represented by this.
      *
-     * @param name The name of the {@link Mapper} to be built.
+     * @param field The name of the field to be built.
      * @return The {@link Mapper} represented by this.
      */
-    public abstract T build(String name);
+    public abstract T build(String field);
 }

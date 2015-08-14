@@ -42,7 +42,7 @@ import java.util.Date;
 public class DateMapper extends SingleColumnMapper<Long> {
 
     /** The date format pattern. */
-    private final String pattern;
+    public final String pattern;
 
     /** The {@link DateParser}. */
     private final DateParser dateParser;
@@ -50,17 +50,19 @@ public class DateMapper extends SingleColumnMapper<Long> {
     /**
      * Builds a new {@link DateMapper} using the specified pattern.
      *
-     * @param name    The name of the mapper.
+     * @param field   The name of the field.
      * @param column  The name of the column to be mapped.
      * @param indexed If the field supports searching.
      * @param sorted  If the field supports sorting.
      * @param pattern The date format pattern to be used.
      */
-    public DateMapper(String name, String column, Boolean indexed, Boolean sorted, String pattern) {
-        super(name,
+    public DateMapper(String field, String column, Boolean indexed, Boolean sorted, String pattern) {
+        super(field,
               column,
               indexed,
               sorted,
+              null,
+              Long.class,
               AsciiType.instance,
               UTF8Type.instance,
               Int32Type.instance,
@@ -72,21 +74,6 @@ public class DateMapper extends SingleColumnMapper<Long> {
               TimestampType.instance);
         this.pattern = pattern == null ? DateParser.DEFAULT_PATTERN : pattern;
         this.dateParser = new DateParser(this.pattern);
-    }
-
-    /**
-     * Returns the date format pattern to be used.
-     *
-     * @return The date format pattern to be used.
-     */
-    public String getPattern() {
-        return pattern;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public String getAnalyzer() {
-        return null;
     }
 
     /** {@inheritDoc} */
@@ -116,12 +103,6 @@ public class DateMapper extends SingleColumnMapper<Long> {
     @Override
     public SortField sortField(String name, boolean reverse) {
         return new SortField(name, Type.LONG, reverse);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public Class<Long> baseClass() {
-        return Long.class;
     }
 
     /** {@inheritDoc} */
