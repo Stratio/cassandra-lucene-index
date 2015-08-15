@@ -49,7 +49,8 @@ public class SchemaTest {
     @Test
     public void testGetDefaultAnalyzer() {
         Map<String, Mapper> mappers = new HashMap<>();
-        Schema schema = new Schema(new EnglishAnalyzer(), mappers, null);
+        Map<String, Analyzer> analyzers = new HashMap<>();
+        Schema schema = new Schema(new EnglishAnalyzer(), mappers, analyzers);
         Analyzer analyzer = schema.getDefaultAnalyzer();
         assertEquals("Expected english analyzer", EnglishAnalyzer.class, analyzer.getClass());
         schema.close();
@@ -58,24 +59,28 @@ public class SchemaTest {
     @Test
     public void testGetDefaultAnalyzerNotSpecified() {
         Map<String, Mapper> mappers = new HashMap<>();
-        Schema schema = new Schema(null, mappers, null);
+        Map<String, Analyzer> analyzers = new HashMap<>();
+        Schema schema = new Schema(new EnglishAnalyzer(), mappers, analyzers);
         Analyzer analyzer = schema.getDefaultAnalyzer();
-        assertEquals("Expected default analyzer", PreBuiltAnalyzers.DEFAULT.get().getClass(), analyzer.getClass());
+        assertEquals("Expected default analyzer", EnglishAnalyzer.class, analyzer.getClass());
         schema.close();
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testGetAnalyzerNotExistent() {
         Map<String, Mapper> mappers = new HashMap<>();
-        Schema schema = new Schema(new EnglishAnalyzer(), mappers, null);
-        schema.getAnalyzer("custom");
+        Map<String, Analyzer> analyzers = new HashMap<>();
+        Schema schema = new Schema(new EnglishAnalyzer(), mappers, analyzers);
+        Analyzer analyzer = schema.getAnalyzer("custom");
+        assertEquals("Expected default analyzer", EnglishAnalyzer.class, analyzer.getClass());
         schema.close();
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testGetAnalyzerNull() {
         Map<String, Mapper> mappers = new HashMap<>();
-        Schema schema = new Schema(new EnglishAnalyzer(), mappers, null);
+        Map<String, Analyzer> analyzers = new HashMap<>();
+        Schema schema = new Schema(new EnglishAnalyzer(), mappers, analyzers);
         schema.getAnalyzer(null);
         schema.close();
     }
@@ -83,7 +88,8 @@ public class SchemaTest {
     @Test(expected = IllegalArgumentException.class)
     public void testGetAnalyzerEmpty() {
         Map<String, Mapper> mappers = new HashMap<>();
-        Schema schema = new Schema(new EnglishAnalyzer(), mappers, null);
+        Map<String, Analyzer> analyzers = new HashMap<>();
+        Schema schema = new Schema(new EnglishAnalyzer(), mappers, analyzers);
         schema.getAnalyzer(" \t");
         schema.close();
     }

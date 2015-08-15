@@ -18,19 +18,15 @@ package com.stratio.cassandra.lucene.schema;
 
 import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.IndexException;
-import com.stratio.cassandra.lucene.schema.analysis.ClasspathAnalyzerBuilder;
-import com.stratio.cassandra.lucene.schema.analysis.PreBuiltAnalyzers;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 import com.stratio.cassandra.lucene.util.Log;
-import com.stratio.cassandra.lucene.util.PerNameAnalyzer;
+import com.stratio.cassandra.lucene.util.TokenLengthAnalyzer;
 import org.apache.cassandra.config.CFMetaData;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
 
 import java.io.Closeable;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -45,14 +41,8 @@ public class Schema implements Closeable {
     /** The {@link Columns} {@link Mapper}s. */
     private final Map<String, Mapper> mappers;
 
-    /** The per field {@link Analyzer}s. */
-    private final Map<String, Analyzer> analyzers;
-
-    /** The default {@link Analyzer}. */
-    private final Analyzer defaultAnalyzer;
-
     /** The wrapping all-in-one {@link Analyzer}. */
-    private final Analyzer perFieldAnalyzer;
+    private final SchemaAnalyzer analyzer;
 
     /** The names of the mapped columns. */
     private final Set<String> mappedColumns;
@@ -65,25 +55,21 @@ public class Schema implements Closeable {
      * @param analyzers       The per field {@link Analyzer}s to be used.
      */
     public Schema(Analyzer defaultAnalyzer, Map<String, Mapper> mappers, Map<String, Analyzer> analyzers) {
-
-        this.defaultAnalyzer = defaultAnalyzer != null ? defaultAnalyzer : PreBuiltAnalyzers.DEFAULT.get();
-        this.mappers = mappers != null ? mappers : new HashMap<String, Mapper>();
-        this.analyzers = analyzers != null ? analyzers : new HashMap<String, Analyzer>();
+        this.mappers = mappers;
+        this.analyzer = new SchemaAnalyzer(defaultAnalyzer, analyzers, mappers);
         mappedColumns = new HashSet<>();
-
-        Map<String, Analyzer> perFieldAnalyzers = new HashMap<>();
-        for (Map.Entry<String, Mapper> entry : this.mappers.entrySet()) {
-            String name = entry.getKey();
-            Mapper mapper = entry.getValue();
-            String analyzerName = mapper.analyzer;
-            Analyzer analyzer;
-            if (analyzerName != null) {
-                analyzer = getAnalyzer(analyzerName);
-                perFieldAnalyzers.put(name, analyzer);
-            }
+        for (Mapper mapper : this.mappers.values()) {
             mappedColumns.addAll(mapper.mappedColumns);
         }
-        this.perFieldAnalyzer = new PerNameAnalyzer(this.defaultAnalyzer, perFieldAnalyzers);
+    }
+
+    /**
+     * Returns the used {@link Analyzer}.
+     *
+     * @return The used {@link Analyzer}.
+     */
+    public Analyzer getAnalyzer() {
+        return analyzer;
     }
 
     /**
@@ -92,44 +78,16 @@ public class Schema implements Closeable {
      * @return The default {@link Analyzer}.
      */
     public Analyzer getDefaultAnalyzer() {
-        return defaultAnalyzer;
+        return analyzer.getDefaultAnalyzer().getAnalyzer();
     }
 
     /**
-     * Returns the {@link Analyzer} identified by the specified name. If there is no analyzer with the specified name,
-     * then it will be interpreted as a class name and it will be instantiated by reflection.
+     * Returns the {@link Analyzer} identified by the specified field name.
      *
-     * {@link IllegalArgumentException} is thrown if there is no {@link Analyzer} with such name.
-     *
-     * @param name The name of the {@link Analyzer} to be returned.
-     * @return The {@link Analyzer} identified by the specified name.
+     * @return The {@link Analyzer} identified by the specified field name.
      */
-    public Analyzer getAnalyzer(String name) {
-        if (StringUtils.isBlank(name)) {
-            throw new IllegalArgumentException("Not null nor empty analyzer name required");
-        }
-        Analyzer analyzer = analyzers.get(name);
-        if (analyzer == null) {
-            analyzer = PreBuiltAnalyzers.get(name);
-            if (analyzer == null) {
-                try {
-                    analyzer = (new ClasspathAnalyzerBuilder(name)).analyzer();
-                } catch (Exception e) {
-                    throw new IllegalArgumentException("Not found analyzer: " + name);
-                }
-            }
-            analyzers.put(name, analyzer);
-        }
-        return analyzer;
-    }
-
-    /**
-     * Returns the used filtered per field {@link Analyzer}.
-     *
-     * @return The used filtered per field {@link Analyzer}.
-     */
-    public Analyzer getAnalyzer() {
-        return perFieldAnalyzer;
+    public Analyzer getAnalyzer(String fieldName) {
+        return analyzer.getAnalyzer(fieldName).getAnalyzer();
     }
 
     /**
@@ -228,17 +186,12 @@ public class Schema implements Closeable {
     /** {@inheritDoc} */
     @Override
     public void close() {
-        perFieldAnalyzer.close();
+        analyzer.close();
     }
 
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                      .add("mappers", mappers)
-                      .add("analyzers", analyzers)
-                      .add("defaultAnalyzer", defaultAnalyzer)
-                      .add("perFieldAnalyzer", perFieldAnalyzer)
-                      .toString();
+        return Objects.toStringHelper(this).add("mappers", mappers).add("analyzer", analyzer).toString();
     }
 }

@@ -52,6 +52,15 @@ public class TokenLengthAnalyzer extends AnalyzerWrapper {
         return analyzer;
     }
 
+    /**
+     * Returns the wrapped {@link Analyzer}.
+     *
+     * @return The wrapped {@link Analyzer}.
+     */
+    public Analyzer getAnalyzer() {
+        return analyzer;
+    }
+
     /** {@inheritDoc} */
     @Override
     protected TokenStreamComponents wrapComponents(final String fieldName, TokenStreamComponents components) {
@@ -70,6 +79,7 @@ public class TokenLengthAnalyzer extends AnalyzerWrapper {
             this.fieldName = fieldName;
         }
 
+        /** {@inheritDoc} */
         @Override
         protected boolean accept() throws IOException {
             int maxSize = IndexWriter.MAX_TERM_LENGTH;
@@ -83,6 +93,7 @@ public class TokenLengthAnalyzer extends AnalyzerWrapper {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public String toString() {
         return Objects.toStringHelper(this).add("analyzer", analyzer).toString();

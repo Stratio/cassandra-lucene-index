@@ -55,12 +55,10 @@ public class SchemaBuilderTest {
                                 .mapper("int", integerMapper().boost(0.3f))
                                 .mapper("long", longMapper())
                                 .mapper("string", stringMapper())
-                                .mapper("text", textMapper())
+                                .mapper("text", textMapper().analyzer("snowball"))
                                 .mapper("uuid", uuidMapper())
                                 .build();
         assertEquals("Failed schema building", EnglishAnalyzer.class, schema.getDefaultAnalyzer().getClass());
-        assertEquals("Failed schema building", EnglishAnalyzer.class, schema.getAnalyzer("custom").getClass());
-        assertEquals("Failed schema building", SnowballAnalyzer.class, schema.getAnalyzer("snowball").getClass());
         assertEquals("Failed schema building", BigIntegerMapper.class, schema.getMapper("big_int").getClass());
         assertEquals("Failed schema building", BigDecimalMapper.class, schema.getMapper("big_dec").getClass());
         assertEquals("Failed schema building", BitemporalMapper.class, schema.getMapper("bitemporal").getClass());
@@ -76,6 +74,7 @@ public class SchemaBuilderTest {
         assertEquals("Failed schema building", LongMapper.class, schema.getMapper("long").getClass());
         assertEquals("Failed schema building", StringMapper.class, schema.getMapper("string").getClass());
         assertEquals("Failed schema building", TextMapper.class, schema.getMapper("text").getClass());
+        assertEquals("Failed schema building", SnowballAnalyzer.class, schema.getAnalyzer("text").getClass());
         assertEquals("Failed schema building", UUIDMapper.class, schema.getMapper("uuid").getClass());
     }
 
@@ -147,12 +146,10 @@ public class SchemaBuilderTest {
                       "int:{type:\"integer\",boost:0.3}," +
                       "long:{type:\"long\"}," +
                       "string:{type:\"string\"}," +
-                      "text:{type:\"text\"}," +
+                      "text:{type:\"text\",analyzer:\"snowball\"}," +
                       "uuid:{type:\"uuid\"}}}";
         Schema schema = SchemaBuilder.fromJson(json).build();
         assertEquals("Failed schema JSON parsing", EnglishAnalyzer.class, schema.getDefaultAnalyzer().getClass());
-        assertEquals("Failed schema JSON parsing", EnglishAnalyzer.class, schema.getAnalyzer("custom").getClass());
-        assertEquals("Failed schema JSON parsing", SnowballAnalyzer.class, schema.getAnalyzer("snowball").getClass());
         assertEquals("Failed schema JSON parsing", BigIntegerMapper.class, schema.getMapper("big_int").getClass());
         assertEquals("Failed schema JSON parsing", BigDecimalMapper.class, schema.getMapper("big_dec").getClass());
         assertEquals("Failed schema JSON parsing", BitemporalMapper.class, schema.getMapper("bitemporal").getClass());
@@ -168,6 +165,8 @@ public class SchemaBuilderTest {
         assertEquals("Failed schema JSON parsing", LongMapper.class, schema.getMapper("long").getClass());
         assertEquals("Failed schema JSON parsing", StringMapper.class, schema.getMapper("string").getClass());
         assertEquals("Failed schema JSON parsing", TextMapper.class, schema.getMapper("text").getClass());
+        assertEquals("Failed schema JSON parsing", SnowballAnalyzer.class, schema.getAnalyzer("text").getClass());
+        assertEquals("Failed schema JSON parsing", SnowballAnalyzer.class, schema.getAnalyzer("text.name").getClass());
         assertEquals("Failed schema JSON parsing", UUIDMapper.class, schema.getMapper("uuid").getClass());
     }
 
@@ -257,7 +256,7 @@ public class SchemaBuilderTest {
                       "      language:\"Spanish\", " +
                       "      stopwords : \"el,la,lo,lo,as,las,a,ante,con,contra\"}" +
                       "  }," +
-                      "  fields : { id : {type : \"integer\"} }" +
+                      "  fields : { id : {type : \"integer\"}, text : {type : \"text\"} }" +
                       " }'";
         Schema schema = SchemaBuilder.fromJson(json).build();
 
@@ -266,8 +265,10 @@ public class SchemaBuilderTest {
                      PreBuiltAnalyzers.DEFAULT.get().getClass(),
                      defaultAnalyzer.getClass());
 
-        Analyzer spanishAnalyzer = schema.getAnalyzer("spanish_analyzer");
-        assertTrue("Expected SpanishAnalyzer", spanishAnalyzer instanceof SpanishAnalyzer);
+        Analyzer textAnalyzer = schema.getAnalyzer("text");
+        assertEquals("Expected default analyzer", PreBuiltAnalyzers.DEFAULT.get().getClass(), textAnalyzer.getClass());
+        textAnalyzer = schema.getAnalyzer("text.name");
+        assertEquals("Expected default analyzer", PreBuiltAnalyzers.DEFAULT.get().getClass(), textAnalyzer.getClass());
 
         schema.close();
     }
