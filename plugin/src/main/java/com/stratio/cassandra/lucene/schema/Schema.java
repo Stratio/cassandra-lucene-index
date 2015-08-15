@@ -23,11 +23,10 @@ import com.stratio.cassandra.lucene.schema.analysis.PreBuiltAnalyzers;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 import com.stratio.cassandra.lucene.util.Log;
-import com.stratio.cassandra.lucene.util.TokenLengthAnalyzer;
+import com.stratio.cassandra.lucene.util.PerNameAnalyzer;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.miscellaneous.PerFieldAnalyzerWrapper;
 import org.apache.lucene.document.Document;
 
 import java.io.Closeable;
@@ -80,13 +79,11 @@ public class Schema implements Closeable {
             Analyzer analyzer;
             if (analyzerName != null) {
                 analyzer = getAnalyzer(analyzerName);
-                analyzer = new TokenLengthAnalyzer(analyzer);
                 perFieldAnalyzers.put(name, analyzer);
             }
             mappedColumns.addAll(mapper.mappedColumns);
         }
-        Analyzer filteredDefaultAnalyzer = new TokenLengthAnalyzer(this.defaultAnalyzer);
-        this.perFieldAnalyzer = new PerFieldAnalyzerWrapper(filteredDefaultAnalyzer, perFieldAnalyzers);
+        this.perFieldAnalyzer = new PerNameAnalyzer(this.defaultAnalyzer, perFieldAnalyzers);
     }
 
     /**
