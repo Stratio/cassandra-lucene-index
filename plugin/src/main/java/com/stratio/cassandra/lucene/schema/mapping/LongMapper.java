@@ -75,16 +75,14 @@ public class LongMapper extends SingleColumnMapper<Long> {
 
     /** {@inheritDoc} */
     @Override
-    public Long base(String name, Object value) {
-        if (value == null) {
-            return null;
-        } else if (value instanceof Number) {
+    protected Long doBase(String name, Object value) {
+        if (value instanceof Number) {
             return ((Number) value).longValue();
         } else if (value instanceof String) {
             try {
                 return Double.valueOf((String) value).longValue();
             } catch (NumberFormatException e) {
-                // Ignore to fail below
+                throw new IndexException("Field '%s' with value '%s' can not be parsed as long", name, value);
             }
         }
         throw new IndexException("Field '%s' requires a long, but found '%s'", name, value);

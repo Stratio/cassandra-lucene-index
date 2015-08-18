@@ -30,7 +30,11 @@ import java.util.LinkedHashMap;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class SchemaBuilders {
+public final class SchemaBuilders {
+
+    /** Private constructor to hide the implicit public one. */
+    private SchemaBuilders() {
+    }
 
     /**
      * Returns a new {@link SchemaBuilder}.

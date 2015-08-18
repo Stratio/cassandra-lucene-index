@@ -73,8 +73,7 @@ class ClusteringKeyQuery extends MultiTermQuery {
 
     private class FullKeyDataRangeFilteredTermsEnum extends FilteredTermsEnum {
 
-        /** {@inheritDoc} */
-        public FullKeyDataRangeFilteredTermsEnum(TermsEnum tenum) {
+        FullKeyDataRangeFilteredTermsEnum(TermsEnum tenum) {
             super(tenum);
             setInitialSeekTerm(new BytesRef());
         }

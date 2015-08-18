@@ -35,7 +35,7 @@ public class DateParser {
     /** The default {@link SimpleDateFormat} pattern. */
     public static final String DEFAULT_PATTERN = "yyyy/MM/dd HH:mm:ss.SSS Z";
 
-    /** The Timestamp defaultyString in pattern */
+    /** The Timestamp defaultyString in pattern. */
     public static final String TIMESTAMP_PATTERN_FIELD = "timestamp";
 
     /** The {@link SimpleDateFormat} pattern. */
@@ -45,7 +45,7 @@ public class DateParser {
     private final ThreadLocal<DateFormat> concurrentDateFormat;
 
     /**
-     * Constructor with pattern
+     * Constructor with pattern.
      *
      * @param pattern the {@link SimpleDateFormat} pattern to use.
      */
@@ -86,7 +86,7 @@ public class DateParser {
             Long valueLong = null;
             if (value instanceof Number) {
                 valueLong = ((Number) value).longValue();
-            } else if (value instanceof Object) {
+            } else {
                 try {
                     valueLong = Long.parseLong((value).toString());
                 } catch (NumberFormatException e) {

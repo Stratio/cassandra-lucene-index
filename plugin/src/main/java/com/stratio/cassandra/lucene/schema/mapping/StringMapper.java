@@ -65,13 +65,9 @@ public class StringMapper extends KeywordMapper {
 
     /** {@inheritDoc} */
     @Override
-    public String base(String name, Object value) {
-        if (value == null) {
-            return null;
-        } else {
-            String string = value.toString();
-            return caseSensitive ? string : string.toLowerCase();
-        }
+    protected String doBase(String name, Object value) {
+        String string = value.toString();
+        return caseSensitive ? string : string.toLowerCase();
     }
 
     /** {@inheritDoc} */

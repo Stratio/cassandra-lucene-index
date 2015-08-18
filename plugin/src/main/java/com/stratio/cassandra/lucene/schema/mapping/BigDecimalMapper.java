@@ -108,48 +108,48 @@ public class BigDecimalMapper extends KeywordMapper {
 
     /** {@inheritDoc} */
     @Override
-    public String base(String name, Object value) {
-
-        // Check not null
-        if (value == null) {
-            return null;
-        }
+    protected String doBase(String name, Object value) {
 
         // Parse big decimal
-        String svalue = value.toString();
         BigDecimal bd;
         try {
             bd = new BigDecimal(value.toString());
         } catch (NumberFormatException e) {
-            throw new IndexException("Field '%s' requires a base 10 decimal, but found '%s'", name, svalue);
+            throw new IndexException("Field '%s' requires a base 10 decimal, but found '%s'", name, value);
         }
 
         // Split integer and decimal part
         bd = bd.stripTrailingZeros();
         String[] parts = bd.toPlainString().split("\\.");
-        String integerPart = parts[0];
-        String decimalPart = parts.length == 1 ? "0" : parts[1];
+        validateIntegerPart(name, value, parts);
+        validateDecimalPart(name, value, parts);
 
+        BigDecimal complemented = bd.add(complement);
+        String bds[] = complemented.toString().split("\\.");
+        String integerPart = StringUtils.leftPad(bds[0], integerDigits + 1, '0');
+        String decimalPart = bds.length == 2 ? bds[1] : "0";
+
+        return integerPart + "." + decimalPart;
+    }
+
+    private void validateIntegerPart(String name, Object value, String[] parts) {
+        String integerPart = parts[0];
         if (integerPart.replaceFirst("-", "").length() > integerDigits) {
             throw new IndexException("Field '%s' with value '%s' has more than %d integer digits",
                                      name,
                                      value,
                                      integerDigits);
         }
+    }
+
+    private void validateDecimalPart(String name, Object value, String[] parts) {
+        String decimalPart = parts.length == 1 ? "0" : parts[1];
         if (decimalPart.length() > decimalDigits) {
             throw new IndexException("Field '%s' with value '%s' has more than %d decimal digits",
                                      name,
                                      value,
                                      decimalDigits);
         }
-
-        BigDecimal complemented = bd.add(complement);
-        String bds[] = complemented.toString().split("\\.");
-        integerPart = bds[0];
-        decimalPart = bds.length == 2 ? bds[1] : "0";
-        integerPart = StringUtils.leftPad(integerPart, integerDigits + 1, '0');
-
-        return integerPart + "." + decimalPart;
     }
 
     /** {@inheritDoc} */

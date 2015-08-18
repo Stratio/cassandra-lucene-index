@@ -74,7 +74,7 @@ public class LuceneIndexTest {
                                             REFRESH_SECONDS,
                                             new StandardAnalyzer());
         Sort sort = new Sort(new SortField("field", SortField.Type.STRING));
-        assertEquals(0, index.getNumDocs());
+        assertEquals("Index must be empty", 0, index.getNumDocs());
 
         Term term1 = new Term("field", "value1");
         Document document1 = new Document();
@@ -90,7 +90,7 @@ public class LuceneIndexTest {
 
         index.commit();
         Thread.sleep(REFRESH_MILLISECONDS);
-        assertEquals(2, index.getNumDocs());
+        assertEquals("Expected 2 documents",2, index.getNumDocs());
 
         Query query = new WildcardQuery(new Term("field", "value*"));
         Set<String> fields = Sets.newHashSet("field");
@@ -102,22 +102,22 @@ public class LuceneIndexTest {
 
         try {
             results = index.search(searcher, query, null, null, 1, fields);
-            assertEquals(1, results.size());
+            assertEquals("Expected 1 document",1, results.size());
             ScoreDoc last1 = results.values().iterator().next();
             results = index.search(searcher, query, null, last1, 1, fields);
-            assertEquals(1, results.size());
+            assertEquals("Expected 1 document",1, results.size());
 
             results = index.search(searcher, query, null, null, 1, fields);
-            assertEquals(1, results.size());
+            assertEquals("Expected 1 document",1, results.size());
             ScoreDoc last2 = results.values().iterator().next();
             results = index.search(searcher, query, null, last2, 1, fields);
-            assertEquals(1, results.size());
+            assertEquals("Expected 1 document",1, results.size());
 
             results = index.search(searcher, query, sort, null, 1, fields);
-            assertEquals(1, results.size());
+            assertEquals("Expected 1 document",1, results.size());
             ScoreDoc last3 = results.values().iterator().next();
             results = index.search(searcher, query, sort, last3, 1, fields);
-            assertEquals(1, results.size());
+            assertEquals("Expected 1 document",1, results.size());
         } finally {
             searcherManager.release(searcher);
         }
@@ -126,16 +126,16 @@ public class LuceneIndexTest {
         index.delete(term1);
         index.commit();
         Thread.sleep(WAIT_MILLISECONDS);
-        assertEquals(1, index.getNumDocs());
+        assertEquals("Expected 1 document",1, index.getNumDocs());
 
         // Delete by query
         index.upsert(term1, document1);
         index.commit();
         Thread.sleep(WAIT_MILLISECONDS);
-        assertEquals(2, index.getNumDocs());
+        assertEquals("Expected 2 documents",2, index.getNumDocs());
         index.delete(new TermQuery(term1));
         Thread.sleep(WAIT_MILLISECONDS);
-        assertEquals(1, index.getNumDocs());
+        assertEquals("Expected 1 document",1, index.getNumDocs());
 
         // Upsert
         index.upsert(term1, document1);
@@ -143,13 +143,13 @@ public class LuceneIndexTest {
         index.upsert(term2, document2);
         index.commit();
         Thread.sleep(WAIT_MILLISECONDS);
-        assertEquals(2, index.getNumDocs());
+        assertEquals("Expected 2 documents",2, index.getNumDocs());
 
         // Truncate
         index.truncate();
         index.commit();
         Thread.sleep(WAIT_MILLISECONDS);
-        assertEquals(0, index.getNumDocs());
+        assertEquals("Expected 0 documents",0, index.getNumDocs());
 
         // Delete
         index.delete();

@@ -89,12 +89,7 @@ public class BigIntegerMapper extends KeywordMapper {
 
     /** {@inheritDoc} */
     @Override
-    public String base(String name, Object value) {
-
-        // Check not null
-        if (value == null) {
-            return null;
-        }
+    protected String doBase(String name, Object value) {
 
         // Parse big decimal
         String svalue = value.toString();

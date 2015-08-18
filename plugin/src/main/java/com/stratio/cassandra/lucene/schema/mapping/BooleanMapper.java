@@ -50,10 +50,8 @@ public class BooleanMapper extends KeywordMapper {
 
     /** {@inheritDoc} */
     @Override
-    public String base(String name, Object value) {
-        if (value == null) {
-            return null;
-        } else if (value instanceof Boolean) {
+    protected String doBase(String name, Object value) {
+        if (value instanceof Boolean) {
             return (Boolean) value ? TRUE : FALSE;
         } else if (value instanceof String) {
             return base(name, (String) value);

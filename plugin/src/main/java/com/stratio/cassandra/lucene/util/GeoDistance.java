@@ -19,6 +19,7 @@
 package com.stratio.cassandra.lucene.util;
 
 import com.google.common.base.Objects;
+import com.stratio.cassandra.lucene.IndexException;
 import org.codehaus.jackson.annotate.JsonCreator;
 
 /**
@@ -75,7 +76,7 @@ public final class GeoDistance implements Comparable<GeoDistance> {
             double value = Double.parseDouble(json);
             return new GeoDistance(value, GeoDistanceUnit.METRES);
         } catch (Exception e) {
-            throw new IllegalArgumentException("Unparseable distance: " + json);
+            throw new IndexException(e, "Unparseable distance: %s", json);
         }
     }
 

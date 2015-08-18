@@ -80,8 +80,8 @@ public class DateMapper extends SingleColumnMapper<Long> {
 
     /** {@inheritDoc} */
     @Override
-    public Long base(String name, Object value) {
-        Date opt = this.dateParser.parse(value);
+    protected Long doBase(String name, Object value) {
+        Date opt = dateParser.parse(value);
         if (opt == null) {
             return null;
         } else {

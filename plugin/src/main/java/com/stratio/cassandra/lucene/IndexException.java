@@ -29,8 +29,6 @@ public class IndexException extends RuntimeException {
 
     private static final long serialVersionUID = 2532456234653465436L;
 
-    private Throwable cause;
-
     /**
      * Constructs a new index exception with the specified formatted detail message.
      *
@@ -52,21 +50,7 @@ public class IndexException extends RuntimeException {
      */
     public IndexException(Throwable cause, String message, Object... args) {
         super(String.format(message, args), cause);
-        this.cause = cause;
         Log.error(cause, message, args);
     }
 
-    /**
-     * Returns this index exception after logging the cause and the message.
-     *
-     * @return This.
-     */
-    public IndexException log() {
-        if (cause == null) {
-            Log.error(getMessage());
-        } else {
-            Log.error(getCause(), getMessage());
-        }
-        return this;
-    }
 }

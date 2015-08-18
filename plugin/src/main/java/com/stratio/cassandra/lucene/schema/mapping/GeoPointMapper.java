@@ -60,11 +60,19 @@ public class GeoPointMapper extends Mapper {
     public static final SpatialContext SPATIAL_CONTEXT = SpatialContext.GEO;
     public static final int DEFAULT_MAX_LEVELS = 11;
 
+    /** Tha name of the latitude column. */
     public final String latitude;
+
+    /** Tha name of the longitude column. */
     public final String longitude;
+
+    /** The max number of levels in the tree. */
     public final int maxLevels;
 
+    /** The spatial strategy for radial distance searches. */
     public final SpatialStrategy distanceStrategy;
+
+    /** The spatial strategy for bounding box searches. */
     public final SpatialStrategy bboxStrategy;
 
     /**
@@ -101,6 +109,7 @@ public class GeoPointMapper extends Mapper {
         this.latitude = latitude;
         this.longitude = longitude;
         this.maxLevels = maxLevels == null ? DEFAULT_MAX_LEVELS : maxLevels;
+
         SpatialPrefixTree grid = new GeohashPrefixTree(SPATIAL_CONTEXT, this.maxLevels);
         distanceStrategy = new RecursivePrefixTreeStrategy(grid, field + ".dist");
         bboxStrategy = new BBoxStrategy(SPATIAL_CONTEXT, field + ".bbox");
@@ -150,18 +159,18 @@ public class GeoPointMapper extends Mapper {
     @Override
     public void addFields(Document document, Columns columns) {
 
-        Double longitude = readLongitude(columns);
-        Double latitude = readLatitude(columns);
+        Double lon = readLongitude(columns);
+        Double lat = readLatitude(columns);
 
-        if (longitude == null && latitude == null) {
+        if (lon == null && lat == null) {
             return;
-        } else if (latitude == null) {
+        } else if (lat == null) {
             throw new IndexException("Latitude column required if there is a longitude");
-        } else if (longitude == null) {
+        } else if (lon == null) {
             throw new IndexException("Longitude column required if there is a latitude");
         }
 
-        Point point = SPATIAL_CONTEXT.makePoint(longitude, latitude);
+        Point point = SPATIAL_CONTEXT.makePoint(lon, lat);
 
         for (IndexableField field : distanceStrategy.createIndexableFields(point)) {
             document.add(field);

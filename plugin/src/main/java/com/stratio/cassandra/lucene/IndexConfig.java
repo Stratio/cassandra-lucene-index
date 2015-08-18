@@ -203,7 +203,7 @@ public class IndexConfig {
                 schema = SchemaBuilder.fromJson(schemaOption).build();
                 schema.validate(metadata);
             } catch (Exception e) {
-                throw new IndexException("'%s' is invalid : %s", SCHEMA_OPTION, e.getMessage());
+                throw new IndexException(e, "'%s' is invalid : %s", SCHEMA_OPTION, e.getMessage());
             }
             return schema;
         } else {

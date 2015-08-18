@@ -34,8 +34,7 @@ public class SearchTest {
     @Test
     public void testBuilderEmpty() {
         Search search = new Search(null, null, null, null);
-        assertFalse(search.refresh());
-        assertNotNull(search);
+        assertFalse("Default refresh is not set", search.refresh());
     }
 
     @Test
@@ -45,16 +44,16 @@ public class SearchTest {
                                 .sort(sortField("field"))
                                 .refresh(true)
                                 .build();
-        assertNotNull(search);
-        assertTrue(search.refresh());
+        assertTrue("Refresh is not set", search.refresh());
     }
 
     @Test
     public void testUsesRelevance() {
-        assertTrue(search().query(match("field", "value")).build().usesRelevance());
-        assertFalse(search().filter(match("field", "value")).build().usesRelevance());
-        assertFalse(search().sort(sortField("field")).build().usesRelevance());
-        assertTrue(search().query(match("field", "value"))
+        assertTrue("Use relevance is wrong", search().query(match("field", "value")).build().usesRelevance());
+        assertFalse("Use relevance is wrong", search().filter(match("field", "value")).build().usesRelevance());
+        assertFalse("Use relevance is wrong", search().sort(sortField("field")).build().usesRelevance());
+        assertTrue("Use relevance is wrong",
+                   search().query(match("field", "value"))
                            .filter(match("field", "value"))
                            .sort(sortField("field"))
                            .build()
@@ -63,10 +62,11 @@ public class SearchTest {
 
     @Test
     public void testUsesSorting() {
-        assertFalse(search().query(match("field", "value")).build().usesSorting());
-        assertFalse(search().filter(match("field", "value")).build().usesSorting());
-        assertTrue(search().sort(sortField("field")).build().usesSorting());
-        assertTrue(search().query(match("field", "value"))
+        assertFalse("Use sorting is wrong", search().query(match("field", "value")).build().usesSorting());
+        assertFalse("Use sorting is wrong", search().filter(match("field", "value")).build().usesSorting());
+        assertTrue("Use sorting is wrong", search().sort(sortField("field")).build().usesSorting());
+        assertTrue("Use sorting is wrong",
+                   search().query(match("field", "value"))
                            .filter(match("field", "value"))
                            .sort(sortField("field"))
                            .build()
@@ -75,14 +75,16 @@ public class SearchTest {
 
     @Test
     public void testRequiresFullScan() {
-        assertTrue(search().query(match("field", "value")).build().requiresFullScan());
-        assertFalse(search().filter(match("field", "value")).build().requiresFullScan());
-        assertFalse(search().filter(match("field", "value")).refresh(true).build().requiresFullScan());
-        assertTrue(search().sort(sortField("field")).build().requiresFullScan());
-        assertTrue(search().refresh(true).build().requiresFullScan());
-        assertFalse(search().refresh(false).build().requiresFullScan());
-        assertFalse(search().build().requiresFullScan());
-        assertTrue(search().query(match("field", "value"))
+        assertTrue("Requires full scan is wrong", search().query(match("field", "value")).build().requiresFullScan());
+        assertFalse("Requires full scan is wrong", search().filter(match("field", "value")).build().requiresFullScan());
+        assertFalse("Requires full scan is wrong",
+                    search().filter(match("field", "value")).refresh(true).build().requiresFullScan());
+        assertTrue("Requires full scan is wrong", search().sort(sortField("field")).build().requiresFullScan());
+        assertTrue("Requires full scan is wrong", search().refresh(true).build().requiresFullScan());
+        assertFalse("Requires full scan is wrong", search().refresh(false).build().requiresFullScan());
+        assertFalse("Requires full scan is wrong", search().build().requiresFullScan());
+        assertTrue("Requires full scan is wrong",
+                   search().query(match("field", "value"))
                            .filter(match("field", "value"))
                            .sort(sortField("field"))
                            .build()
@@ -91,15 +93,15 @@ public class SearchTest {
 
     @Test
     public void testGetSort() {
-        assertNotNull(search().sort(sortField("field")).build().getSort());
-        assertNull(search().query(match("field", "value")).build().getSort());
+        assertNotNull("Sort is wrong", search().sort(sortField("field")).build().getSort());
+        assertNull("Sort is wrong", search().query(match("field", "value")).build().getSort());
     }
 
     @Test
     public void testSort() {
         Schema schema = schema().mapper("field", stringMapper().sorted(true)).build();
-        assertNotNull(search().sort(sortField("field")).build().sortFields(schema));
-        assertNull(search().query(match("field", "value")).build().sortFields(schema));
+        assertNotNull("Sort fields is wrong", search().sort(sortField("field")).build().sortFields(schema));
+        assertNull("Sort fields is wrong", search().query(match("field", "value")).build().sortFields(schema));
     }
 
     @Test
@@ -118,9 +120,11 @@ public class SearchTest {
                                 .filter(match("field", "value"))
                                 .sort(sortField("field"))
                                 .build();
-        assertEquals("Search{queryCondition=MatchCondition{boost=1.0, field=field, value=value}, " +
+        assertEquals("Method #toString is wrong",
+                     "Search{queryCondition=MatchCondition{boost=1.0, field=field, value=value}, " +
                      "filterCondition=MatchCondition{boost=1.0, field=field, value=value}, " +
-                     "sort=Sort{sortFields=[SortField{field=field, reverse=false}]}}", search.toString());
+                     "sort=Sort{sortFields=[SortField{field=field, reverse=false}]}}",
+                     search.toString());
     }
 
 }

@@ -19,7 +19,6 @@
 package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.stratio.cassandra.lucene.IndexException;
-import com.stratio.cassandra.lucene.util.Log;
 import org.apache.cassandra.db.marshal.AsciiType;
 import org.apache.cassandra.db.marshal.InetAddressType;
 import org.apache.cassandra.db.marshal.UTF8Type;
@@ -57,24 +56,30 @@ public class InetMapper extends KeywordMapper {
 
     /** {@inheritDoc} */
     @Override
-    public String base(String name, Object value) {
-        if (value == null) {
-            return null;
-        } else if (value instanceof InetAddress) {
-            InetAddress inetAddress = (InetAddress) value;
-            return inetAddress.getHostAddress();
+    protected String doBase(String name, Object value) {
+        if (value instanceof InetAddress) {
+            return doBase(name, (InetAddress) value);
         } else if (value instanceof String) {
-            String svalue = (String) value;
-            if (IPV4_PATTERN.matcher(svalue).matches() ||
-                IPV6_PATTERN.matcher(svalue).matches() ||
-                IPV6_COMPRESSED_PATTERN.matcher(svalue).matches()) {
-                try {
-                    return InetAddress.getByName(svalue).getHostAddress();
-                } catch (UnknownHostException e) {
-                    Log.error(e, e.getMessage());
-                }
+            return doBase(name, (String) value);
+        } else {
+            throw new IndexException("Field '%s' requires an inet address, but found '%s'", name, value);
+        }
+    }
+
+    private String doBase(String name, InetAddress value) {
+        return value.getHostAddress();
+    }
+
+    private String doBase(String name, String value) {
+        if (IPV4_PATTERN.matcher(value).matches() ||
+            IPV6_PATTERN.matcher(value).matches() ||
+            IPV6_COMPRESSED_PATTERN.matcher(value).matches()) {
+            try {
+                return InetAddress.getByName(value).getHostAddress();
+            } catch (UnknownHostException e) {
+                throw new IndexException(e, "Unknown host exception for field '%s' with value '%s'", name, value);
             }
         }
-        throw new IndexException("Field '%s' requires an inet address, but found '%s'", name, value);
+        throw new IndexException("Field '%s' with value '%s' can not be parsed as an inet address", name, value);
     }
 }

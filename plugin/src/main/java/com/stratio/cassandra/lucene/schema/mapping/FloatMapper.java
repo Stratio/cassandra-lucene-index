@@ -78,16 +78,14 @@ public class FloatMapper extends SingleColumnMapper<Float> {
 
     /** {@inheritDoc} */
     @Override
-    public Float base(String name, Object value) {
-        if (value == null) {
-            return null;
-        } else if (value instanceof Number) {
+    protected Float doBase(String name, Object value) {
+        if (value instanceof Number) {
             return ((Number) value).floatValue();
         } else if (value instanceof String) {
             try {
                 return Double.valueOf((String) value).floatValue();
             } catch (NumberFormatException e) {
-                // Ignore to fail below
+                throw new IndexException("Field '%s' with value '%s' can not be parsed as float", name, value);
             }
         }
         throw new IndexException("Field '%s' requires a float, but found '%s'", name, value);

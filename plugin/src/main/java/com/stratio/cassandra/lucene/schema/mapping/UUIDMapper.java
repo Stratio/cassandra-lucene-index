@@ -57,10 +57,8 @@ public class UUIDMapper extends KeywordMapper {
 
     /** {@inheritDoc} */
     @Override
-    public String base(String name, Object value) {
-        if (value == null) {
-            return null;
-        } else if (value instanceof UUID) {
+    protected String doBase(String name, Object value) {
+        if (value instanceof UUID) {
             UUID uuid = (UUID) value;
             return serialize(uuid);
         } else if (value instanceof String) {
@@ -69,7 +67,7 @@ public class UUIDMapper extends KeywordMapper {
                 UUID uuid = UUID.fromString(string);
                 return serialize(uuid);
             } catch (IllegalArgumentException e) {
-                // Ignore to fail below
+                throw new IndexException("Field '%s' with value '%s' can not be parsed as UUID", name, value);
             }
         }
         throw new IndexException("Field '%s' requires an UUID, but found '%s'", name, value);

@@ -60,7 +60,7 @@ import java.util.Map;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class ClusteringKeyMapper {
+public final class ClusteringKeyMapper {
 
     /** The Lucene field name. */
     public static final String FIELD_NAME = "_clustering_key";

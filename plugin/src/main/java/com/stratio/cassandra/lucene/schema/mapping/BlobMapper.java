@@ -48,10 +48,8 @@ public class BlobMapper extends KeywordMapper {
 
     /** {@inheritDoc} */
     @Override
-    public String base(String field, Object value) {
-        if (value == null) {
-            return null;
-        } else if (value instanceof ByteBuffer) {
+    protected String doBase(String name, Object value) {
+        if (value instanceof ByteBuffer) {
             return base((ByteBuffer) value);
         } else if (value instanceof byte[]) {
             return base((byte[]) value);
@@ -69,13 +67,12 @@ public class BlobMapper extends KeywordMapper {
         return ByteBufferUtils.toHex(value);
     }
 
-    private String base(String value) throws NumberFormatException {
+    private String base(String value) {
         try {
-            value = value.replaceFirst("0x", "");
-            byte[] bytes = Hex.hexToBytes(value);
+            byte[] bytes = Hex.hexToBytes(value.replaceFirst("0x", ""));
             return Hex.bytesToHex(bytes);
         } catch (NumberFormatException e) {
-            throw new IndexException("Field '%s' requires an hex string, but found '%s'", field, value);
+            throw new IndexException(e, "Field '%s' requires an hex string, but found '%s'", field, value);
         }
     }
 }

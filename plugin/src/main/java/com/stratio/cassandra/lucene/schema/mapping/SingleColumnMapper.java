@@ -28,6 +28,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 
+import javax.validation.constraints.NotNull;
 import java.util.Collections;
 
 /**
@@ -38,8 +39,10 @@ import java.util.Collections;
  */
 public abstract class SingleColumnMapper<T> extends Mapper {
 
+    /** The name of the mapped column. */
     public final String column;
 
+    /** The Lucene type for this mapper. */
     public final Class<T> base;
 
     /**
@@ -50,7 +53,7 @@ public abstract class SingleColumnMapper<T> extends Mapper {
      * @param indexed        If the field supports searching.
      * @param sorted         If the field supports sorting.
      * @param analyzer       The name of the analyzer to be used.
-     * @param base           The Lucene type for this mapper
+     * @param base           The Lucene type for this mapper.
      * @param supportedTypes The supported Cassandra types for indexing.
      */
     public SingleColumnMapper(String field,
@@ -93,12 +96,14 @@ public abstract class SingleColumnMapper<T> extends Mapper {
      * @param value    The value of the column to be mapped.
      */
     private void addFields(Document document, String name, Object value) {
-        T base = base(name, value);
-        if (indexed) {
-            document.add(indexedField(name, base));
-        }
-        if (sorted) {
-            document.add(sortedField(name, base));
+        if (value != null) {
+            T b = base(name, value);
+            if (indexed) {
+                document.add(indexedField(name, b));
+            }
+            if (sorted) {
+                document.add(sortedField(name, b));
+            }
         }
     }
 
@@ -124,10 +129,14 @@ public abstract class SingleColumnMapper<T> extends Mapper {
      * Returns the {@link Column} query value resulting from the mapping of the specified object.
      *
      * @param field The field name.
-     * @param value The object to be mapped.
+     * @param value The object to be mapped, never is {@code null}.
      * @return The {@link Column} index value resulting from the mapping of the specified object.
      */
-    public abstract T base(String field, Object value);
+    public final T base(String field, Object value) {
+        return value == null ? null : doBase(field, value);
+    }
+
+    protected abstract T doBase(String field, @NotNull Object value);
 
     /** {@inheritDoc} */
     @Override

@@ -30,6 +30,7 @@ import org.apache.lucene.search.Query;
  * Known subclasses are: <ul> <li> {@link BitemporalCondition} <li> {@link DateRangeCondition} <li> {@link
  * GeoDistanceCondition} <li> {@link GeoBBoxCondition} </ul>
  *
+ * @param <T> The specific {@link Mapper} type.
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public abstract class SingleMapperCondition<T extends Mapper> extends SingleFieldCondition {

@@ -51,6 +51,8 @@ public class RowServiceWide extends RowService {
     /** The names of the Lucene fields to be loaded. */
     private static final Set<String> FIELDS_TO_LOAD;
 
+    private static final int ROWS_PER_SLICE_QUERY = 1000;
+
     static {
         FIELDS_TO_LOAD = new HashSet<>();
         FIELDS_TO_LOAD.add(PartitionKeyMapper.FIELD_NAME);
@@ -89,8 +91,8 @@ public class RowServiceWide extends RowService {
         DecoratedKey partitionKey = rowMapper.partitionKey(key);
 
         if (columnFamily.iterator().hasNext()) {
-            columnFamily = cleanExpired(columnFamily, timestamp);
-            luceneIndex.upsert(documents(partitionKey, columnFamily, timestamp));
+            ColumnFamily cleanColumnFamily = cleanExpired(columnFamily, timestamp);
+            luceneIndex.upsert(documents(partitionKey, cleanColumnFamily, timestamp));
         } else if (deletionInfo != null) {
             Iterator<RangeTombstone> iterator = deletionInfo.rangeIterator();
             if (iterator.hasNext()) {
@@ -177,7 +179,7 @@ public class RowServiceWide extends RowService {
         List<Row> rows = new ArrayList<>(searchResults.size());
         for (Map.Entry<DecoratedKey, List<CellName>> entry : keys.entrySet()) {
             DecoratedKey partitionKey = entry.getKey();
-            for (List<CellName> clusteringKeys : Lists.partition(entry.getValue(), 1000)) {
+            for (List<CellName> clusteringKeys : Lists.partition(entry.getValue(), ROWS_PER_SLICE_QUERY)) {
                 Map<CellName, ColumnFamily> partitionRows = rows(partitionKey, clusteringKeys, timestamp);
                 for (Map.Entry<CellName, ColumnFamily> entry1 : partitionRows.entrySet()) {
                     CellName clusteringKey = entry1.getKey();

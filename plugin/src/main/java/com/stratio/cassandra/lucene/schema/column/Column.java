@@ -90,6 +90,12 @@ public final class Column<T> implements Comparable<Column<?>> {
         return nameSufix == null ? name : name + "." + nameSufix;
     }
 
+    /**
+     * Returns the full column name appending the sufix.
+     *
+     * @param name A column name.
+     * @return The full column name appending the sufix.
+     */
     public String getFullName(String name) {
         return nameSufix == null ? name : name + "." + nameSufix;
     }

@@ -72,12 +72,8 @@ public abstract class TokenMapper {
      * @return A Lucene {@link Query} for retrieving the documents inside the specified {@link Token} range.
      */
     public Query query(Token lower, Token upper, boolean includeLower, boolean includeUpper) {
-        if (lower != null && upper != null) {
-            if (isMinimum(lower) && isMinimum(upper)) {
-                if (includeLower || includeUpper) {
-                    return null;
-                }
-            }
+        if (lower != null && upper != null && isMinimum(lower) && isMinimum(upper) && (includeLower || includeUpper)) {
+            return null;
         }
         return makeQuery(lower, upper, includeLower, includeUpper);
     }

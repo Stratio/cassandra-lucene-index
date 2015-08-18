@@ -227,7 +227,7 @@ public class MatchConditionTest {
             }
 
             @Override
-            public UUID base(String field, Object value) {
+            protected UUID doBase(String name, Object value) {
                 return null;
             }
 

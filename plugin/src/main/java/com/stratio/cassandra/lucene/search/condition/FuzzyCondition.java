@@ -18,7 +18,6 @@
 
 package com.stratio.cassandra.lucene.search.condition;
 
-import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
 import org.apache.commons.lang3.StringUtils;
@@ -48,9 +47,6 @@ public class FuzzyCondition extends SingleColumnCondition {
 
     /** If transpositions should be treated as a primitive edit operation by default. */
     public static final boolean DEFAULT_TRANSPOSITIONS = true;
-
-    /** The name of the field to be matched. */
-    public final String field;
 
     /** The fuzzy expression to be matched. */
     public final String value;
@@ -91,26 +87,57 @@ public class FuzzyCondition extends SingleColumnCondition {
                           Integer maxExpansions,
                           Boolean transpositions) {
         super(boost, field);
+        this.value = validateValue(value);
+        this.maxEdits = validateMaxEdits(maxEdits);
+        this.prefixLength = validatePrefixLength(prefixLength);
+        this.maxExpansions = validateMaxExpansions(maxExpansions);
+        this.transpositions = validateTranspositions(transpositions);
+    }
 
+    private static String validateValue(String value) {
         if (StringUtils.isBlank(value)) {
             throw new IndexException("Field value required");
+        } else {
+            return value;
         }
-        if (maxEdits != null && (maxEdits < 0 || maxEdits > 2)) {
-            throw new IndexException("max_edits must be between 0 and 2");
-        }
-        if (prefixLength != null && prefixLength < 0) {
-            throw new IndexException("prefix_length must be positive.");
-        }
-        if (maxExpansions != null && maxExpansions < 0) {
-            throw new IndexException("max_expansions must be positive.");
-        }
+    }
 
-        this.field = field;
-        this.value = value;
-        this.maxEdits = maxEdits == null ? DEFAULT_MAX_EDITS : maxEdits;
-        this.prefixLength = prefixLength == null ? DEFAULT_PREFIX_LENGTH : prefixLength;
-        this.maxExpansions = maxExpansions == null ? DEFAULT_MAX_EXPANSIONS : maxExpansions;
-        this.transpositions = transpositions == null ? DEFAULT_TRANSPOSITIONS : transpositions;
+    private static Integer validateMaxEdits(Integer maxEdits) {
+        if (maxEdits == null) {
+            return DEFAULT_MAX_EDITS;
+        } else if (maxEdits < 0 || maxEdits > 2) {
+            throw new IndexException("max_edits must be between 0 and 2");
+        } else {
+            return maxEdits;
+        }
+    }
+
+    private static Integer validatePrefixLength(Integer prefixLength) {
+        if (prefixLength == null) {
+            return DEFAULT_PREFIX_LENGTH;
+        } else if (prefixLength < 0) {
+            throw new IndexException("prefix_length must be positive.");
+        } else {
+            return prefixLength;
+        }
+    }
+
+    private static Integer validateMaxExpansions(Integer maxExpansions) {
+        if (maxExpansions == null) {
+            return DEFAULT_MAX_EXPANSIONS;
+        } else if (maxExpansions < 0) {
+            throw new IndexException("max_expansions must be positive.");
+        } else {
+            return maxExpansions;
+        }
+    }
+
+    private static Boolean validateTranspositions(Boolean transpositions) {
+        if (transpositions == null) {
+            return DEFAULT_TRANSPOSITIONS;
+        } else {
+            return transpositions;
+        }
     }
 
     /** {@inheritDoc} */
@@ -129,14 +156,11 @@ public class FuzzyCondition extends SingleColumnCondition {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                      .add("boost", boost)
-                      .add("field", field)
-                      .add("value", value)
-                      .add("maxEdits", maxEdits)
-                      .add("prefixLength", prefixLength)
-                      .add("maxExpansions", maxExpansions)
-                      .add("transpositions", transpositions)
-                      .toString();
+        return toStringHelper(this).add("value", value)
+                                   .add("maxEdits", maxEdits)
+                                   .add("prefixLength", prefixLength)
+                                   .add("maxExpansions", maxExpansions)
+                                   .add("transpositions", transpositions)
+                                   .toString();
     }
 }

@@ -140,10 +140,10 @@ public class Schema implements Closeable {
             try {
                 mapper.addFields(document, columns);
             } catch (IndexException e) {
-                Log.error("Error in Lucene index:\n\twhile mapping : %s\n\twith mapper   : %s\n\tcaused by     : %s",
-                          columns,
-                          mapper,
-                          e.getMessage());
+                Log.error(e, "Error in Lucene index:\n\t" +
+                             "while mapping : %s\n\t" +
+                             "with mapper   : %s\n\t" +
+                             "caused by     : %s", columns, mapper, e.getMessage());
             }
         }
     }

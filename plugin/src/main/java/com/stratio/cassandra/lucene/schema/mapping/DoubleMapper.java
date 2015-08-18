@@ -76,16 +76,14 @@ public class DoubleMapper extends SingleColumnMapper<Double> {
 
     /** {@inheritDoc} */
     @Override
-    public Double base(String name, Object value) {
-        if (value == null) {
-            return null;
-        } else if (value instanceof Number) {
+    protected Double doBase(String name, Object value) {
+        if (value instanceof Number) {
             return ((Number) value).doubleValue();
         } else if (value instanceof String) {
             try {
                 return Double.valueOf((String) value);
             } catch (NumberFormatException e) {
-                // Ignore to fail below
+                throw new IndexException("Field '%s' with value '%s' can not be parsed as double", name, value);
             }
         }
         throw new IndexException("Field '%s' requires a double, but found '%s'", name, value);

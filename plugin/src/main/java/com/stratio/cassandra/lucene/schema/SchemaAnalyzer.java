@@ -82,7 +82,7 @@ public class SchemaAnalyzer extends DelegatingAnalyzerWrapper {
                 try {
                     analyzer = (new ClasspathAnalyzerBuilder(name)).analyzer();
                 } catch (Exception e) {
-                    throw new IndexException("Not found analyzer '%s'", name);
+                    throw new IndexException(e, "Not found analyzer '%s'", name);
                 }
             }
         }

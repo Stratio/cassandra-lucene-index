@@ -66,12 +66,8 @@ public class TextMapper extends SingleColumnMapper<String> {
 
     /** {@inheritDoc} */
     @Override
-    public String base(String name, Object value) {
-        if (value == null) {
-            return null;
-        } else {
-            return value.toString();
-        }
+    protected String doBase(String name, Object value) {
+        return value.toString();
     }
 
     /** {@inheritDoc} */
