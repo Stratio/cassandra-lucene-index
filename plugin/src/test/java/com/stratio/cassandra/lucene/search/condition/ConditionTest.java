@@ -42,7 +42,7 @@ public class ConditionTest {
                 return null;
             }
         };
-        assertEquals(0.7f, condition.boost, 0.0f);
+        assertEquals("Query boost is wrong", 0.7f, condition.boost, 0);
     }
 
     @Test
@@ -53,7 +53,7 @@ public class ConditionTest {
                 return null;
             }
         };
-        assertEquals(Condition.DEFAULT_BOOST, condition.boost, 0.0f);
+        assertEquals("Query boost is wrong", Condition.DEFAULT_BOOST, condition.boost, 0);
     }
 
     @Test
@@ -66,12 +66,12 @@ public class ConditionTest {
             }
         };
         Filter filter = condition.filter(schema);
-        assertNotNull(filter);
-        assertEquals(QueryWrapperFilter.class, filter.getClass());
+        assertNotNull("Filter is not built", filter);
+        assertEquals("Filter type is wrong", QueryWrapperFilter.class, filter.getClass());
         QueryWrapperFilter queryWrapperFilter = (QueryWrapperFilter) filter;
         Query query = queryWrapperFilter.getQuery();
-        assertNotNull(query);
-        assertEquals(MatchAllDocsQuery.class, query.getClass());
+        assertNotNull("Query is not built", query);
+        assertEquals("Query type is wrong", MatchAllDocsQuery.class, query.getClass());
     }
 
 }

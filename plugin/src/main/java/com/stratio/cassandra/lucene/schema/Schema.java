@@ -22,10 +22,11 @@ import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
-import com.stratio.cassandra.lucene.util.Log;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
 import java.util.HashSet;
@@ -38,6 +39,8 @@ import java.util.Set;
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class Schema implements Closeable {
+
+    private static final Logger logger = LoggerFactory.getLogger(Schema.class);
 
     /** The {@link Columns} {@link Mapper}s. */
     private final Map<String, Mapper> mappers;
@@ -140,10 +143,10 @@ public class Schema implements Closeable {
             try {
                 mapper.addFields(document, columns);
             } catch (IndexException e) {
-                Log.error(e, "Error in Lucene index:\n\t" +
-                             "while mapping : %s\n\t" +
-                             "with mapper   : %s\n\t" +
-                             "caused by     : %s", columns, mapper, e.getMessage());
+                logger.error("Error in Lucene index:\n\t" +
+                             "while mapping : {}\n\t" +
+                             "with mapper   : {}\n\t" +
+                             "caused by     : {}", columns, mapper, e.getMessage());
             }
         }
     }

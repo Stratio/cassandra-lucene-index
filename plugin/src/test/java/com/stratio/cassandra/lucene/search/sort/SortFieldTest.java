@@ -40,15 +40,15 @@ public class SortFieldTest {
     @Test
     public void testBuild() {
         SortField sortField = new SortField("field", true);
-        assertEquals("field", sortField.getField());
-        assertTrue(sortField.isReverse());
+        assertEquals("SortField is not created", "field", sortField.getField());
+        assertTrue("SortField reverse is not set", sortField.isReverse());
     }
 
     @Test
     public void testBuildDefaults() {
         SortField sortField = new SortField("field", null);
-        assertEquals("field", sortField.getField());
-        assertEquals(SortField.DEFAULT_REVERSE, sortField.isReverse());
+        assertEquals("SortField is not created", "field", sortField.getField());
+        assertEquals("SortField reverse is not set to default", SortField.DEFAULT_REVERSE, sortField.isReverse());
     }
 
     @Test(expected = IndexException.class)
@@ -162,8 +162,8 @@ public class SortFieldTest {
         Columns columns1 = new Columns().add(lowerColumn);
         Columns columns2 = new Columns().add(upperColumn);
 
-        assertEquals(-25, comparator.compare(columns1, columns2));
-        assertEquals(0, comparator.compare(columns1, columns1));
+        assertEquals("SortField columns comparator is wrong", -25, comparator.compare(columns1, columns2));
+        assertEquals("SortField columns comparator is wrong", 0, comparator.compare(columns1, columns1));
     }
 
     @Test
@@ -177,8 +177,8 @@ public class SortFieldTest {
         Columns columns1 = new Columns().add(lowerColumn);
         Columns columns2 = new Columns().add(upperColumn);
 
-        assertEquals(25, comparator.compare(columns1, columns2));
-        assertEquals(0, comparator.compare(columns1, columns1));
+        assertEquals("SortField columns comparator is wrong", 25, comparator.compare(columns1, columns2));
+        assertEquals("SortField columns comparator is wrong", 0, comparator.compare(columns1, columns1));
     }
 
     @Test
@@ -190,9 +190,9 @@ public class SortFieldTest {
         Column<String> column = Column.fromComposed("field", "a", UTF8Type.instance, false);
         Columns columns = new Columns().add(column);
 
-        assertEquals(-1, comparator.compare(columns, null));
-        assertEquals(1, comparator.compare(null, columns));
-        assertEquals(0, comparator.compare(null, null));
+        assertEquals("SortField columns comparator is wrong", -1, comparator.compare(columns, null));
+        assertEquals("SortField columns comparator is wrong", 1, comparator.compare(null, columns));
+        assertEquals("SortField columns comparator is wrong", 0, comparator.compare(null, null));
     }
 
     @Test
@@ -204,21 +204,21 @@ public class SortFieldTest {
         Columns columns1 = new Columns().add(Column.fromComposed("field", "a", UTF8Type.instance, false));
         Columns columns2 = new Columns();
 
-        assertEquals(-1, comparator.compare(columns1, columns2));
-        assertEquals(1, comparator.compare(columns2, columns1));
+        assertEquals("SortField columns comparator is wrong", -1, comparator.compare(columns1, columns2));
+        assertEquals("SortField columns comparator is wrong", 1, comparator.compare(columns2, columns1));
     }
 
     @Test
     public void testEquals() {
-        assertNotNull(new SortField("field", true));
-        assertEquals(new SortField("field", true), new SortField("field", true));
-        assertFalse(new SortField("field1", true).equals(new SortField("field2", true)));
-        assertFalse(new SortField("field", true).equals(new SortField("field", false)));
+        assertNotNull("SortField equals is wrong", new SortField("field", true));
+        assertEquals("SortField equals is wrong", new SortField("field", true), new SortField("field", true));
+        assertFalse("SortField equals is wrong", new SortField("field1", true).equals(new SortField("field2", true)));
+        assertFalse("SortField equals is wrong", new SortField("field", true).equals(new SortField("field", false)));
     }
 
     @Test
     public void testToString() {
         SortField sortField = new SortField("field", null);
-        assertEquals("SortField{field=field, reverse=false}", sortField.toString());
+        assertEquals("Method #toString is wrong", "SortField{field=field, reverse=false}", sortField.toString());
     }
 }

@@ -41,8 +41,9 @@ public class SortBuilderTest {
         SortFieldBuilder sortFieldBuilder2 = new SortFieldBuilder("field2").reverse(false);
         SortBuilder sortBuilder = new SortBuilder(sortFieldBuilder1, sortFieldBuilder2);
         Sort sort = sortBuilder.build();
-        assertNotNull(sort);
-        assertArrayEquals(new SortField[]{sortFieldBuilder1.build(), sortFieldBuilder2.build()},
+        assertNotNull("Sort is not built", sort);
+        assertArrayEquals("Array based builder is wrong",
+                          new SortField[]{sortFieldBuilder1.build(), sortFieldBuilder2.build()},
                           sort.getSortFields().toArray());
 
     }
@@ -53,8 +54,9 @@ public class SortBuilderTest {
         SortFieldBuilder sortFieldBuilder2 = new SortFieldBuilder("field2").reverse(false);
         SortBuilder sortBuilder = new SortBuilder(Arrays.asList(sortFieldBuilder1, sortFieldBuilder2));
         Sort sort = sortBuilder.build();
-        assertNotNull(sort);
-        assertArrayEquals(new SortField[]{sortFieldBuilder1.build(), sortFieldBuilder2.build()},
+        assertNotNull("Sort is not built", sort);
+        assertArrayEquals("List based builder is wrong",
+                          new SortField[]{sortFieldBuilder1.build(), sortFieldBuilder2.build()},
                           sort.getSortFields().toArray());
     }
 
@@ -65,10 +67,10 @@ public class SortBuilderTest {
         SortFieldBuilder sortFieldBuilder3 = new SortFieldBuilder("field3");
         SortBuilder sortBuilder = new SortBuilder(sortFieldBuilder1, sortFieldBuilder2, sortFieldBuilder3);
         String json = JsonSerializer.toString(sortBuilder);
-        assertEquals("{fields:[{field:\"field1\",reverse:true}," +
-                     "{field:\"field2\"," +
-                     "reverse:false}," +
-                     "{field:\"field3\",reverse:false}]}", json);
+        assertEquals("Method #toString is wrong", "{fields:[{field:\"field1\",reverse:true}," +
+                                                  "{field:\"field2\"," +
+                                                  "reverse:false}," +
+                                                  "{field:\"field3\",reverse:false}]}", json);
 
     }
 }

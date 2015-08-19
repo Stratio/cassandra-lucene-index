@@ -16,10 +16,11 @@
  * under the License.
  */
 
-package com.stratio.cassandra.lucene.search.condition.builder;
+package com.stratio.cassandra.lucene.search;
 
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.search.SearchBuilder;
+import com.stratio.cassandra.lucene.search.condition.builder.ConditionBuilder;
 import com.stratio.cassandra.lucene.search.sort.builder.SortFieldBuilder;
 import com.stratio.cassandra.lucene.util.JsonSerializer;
 import org.junit.Test;
@@ -44,7 +45,7 @@ public class SearchBuilderTest {
         SortFieldBuilder sort2 = sortField("field4");
         SearchBuilder searchBuilder = new SearchBuilder().query(query).filter(filter).sort(sort1, sort2);
         String json = searchBuilder.toJson();
-        assertEquals(json, JsonSerializer.toString(searchBuilder));
+        assertEquals("JSON serialization is wrong", json, JsonSerializer.toString(searchBuilder));
     }
 
     @Test
@@ -53,7 +54,7 @@ public class SearchBuilderTest {
                                               .filter(match("field", "value"))
                                               .sort(sortField("field"));
         String json = searchBuilder.toJson();
-        assertEquals(json, SearchBuilder.fromJson(json).toJson());
+        assertEquals("JSON serialization is wrong", json, SearchBuilder.fromJson(json).toJson());
     }
 
     @Test(expected = IndexException.class)

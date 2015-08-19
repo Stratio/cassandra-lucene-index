@@ -20,6 +20,7 @@ package com.stratio.cassandra.lucene.search.condition;
 
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
+import com.stratio.cassandra.lucene.search.condition.builder.RegexpConditionBuilder;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.RegexpQuery;
 import org.junit.Test;
@@ -31,39 +32,58 @@ import static org.junit.Assert.assertNotNull;
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class RegexpConditionTest {
+public class RegexpConditionTest extends AbstractConditionTest {
 
     @Test
     public void testBuild() {
-        RegexpCondition condition = new RegexpCondition(0.5f, "field", "value");
-        assertEquals(0.5f, condition.boost, 0);
-        assertEquals("field", condition.field);
-        assertEquals("value", condition.value);
+        RegexpConditionBuilder builder = new RegexpConditionBuilder("field", "value").boost(0.7f);
+        RegexpCondition condition = builder.build();
+        assertNotNull("Condition is not built", condition);
+        assertEquals("Boost is not set", 0.7f, condition.boost, 0);
+        assertEquals("Field is not set", "field", condition.field);
+        assertEquals("Value is not set", "value", condition.value);
     }
 
     @Test
     public void testBuildDefaults() {
-        RegexpCondition condition = new RegexpCondition(null, "field", "value");
-        assertEquals(Condition.DEFAULT_BOOST, condition.boost, 0);
+        RegexpConditionBuilder builder = new RegexpConditionBuilder("field", "value");
+        RegexpCondition condition = builder.build();
+        assertNotNull(condition);
+        assertNotNull("Condition is not built", condition);
+        assertEquals("Boost is not set to default", Condition.DEFAULT_BOOST, condition.boost, 0);
+        assertEquals("Field is not set", "field", condition.field);
+        assertEquals("Value is not set", "value", condition.value);
     }
 
     @Test(expected = IndexException.class)
     public void testBuildNullValue() {
-        new RegexpCondition(null, "field", null);
+        new RegexpConditionBuilder("field", null).build();
     }
 
     @Test
-    public void testBuildBlankValue() {
+    public void testJsonSerialization() {
+        RegexpConditionBuilder builder = new RegexpConditionBuilder("field", "value").boost(0.7f);
+        testJsonSerialization(builder, "{type:\"regexp\",field:\"field\",value:\"value\",boost:0.7}");
+    }
+
+    @Test
+    public void testJsonSerializationDefaults() {
+        RegexpConditionBuilder builder = new RegexpConditionBuilder("field", "value");
+        testJsonSerialization(builder, "{type:\"regexp\",field:\"field\",value:\"value\"}");
+    }
+
+    @Test
+    public void testBlankValue() {
 
         Schema schema = schema().mapper("name", stringMapper().indexed(true).sorted(true)).build();
 
         RegexpCondition condition = new RegexpCondition(0.5f, "name", " ");
         Query query = condition.query(schema);
 
-        assertNotNull(query);
-        assertEquals(RegexpQuery.class, query.getClass());
-        RegexpQuery luceneQuery = (RegexpQuery) query;
-        assertEquals("name", luceneQuery.getField());
+        assertNotNull("Query is not built", query);
+        assertEquals("Query type is wrong", RegexpQuery.class, query.getClass());
+        RegexpQuery regexQuery = (RegexpQuery) query;
+        assertEquals("name", regexQuery.getField());
         assertEquals(0.5f, query.getBoost(), 0);
     }
 
@@ -75,11 +95,11 @@ public class RegexpConditionTest {
         RegexpCondition condition = new RegexpCondition(0.5f, "name", "tr*");
         Query query = condition.query(schema);
 
-        assertNotNull(query);
-        assertEquals(RegexpQuery.class, query.getClass());
-        RegexpQuery luceneQuery = (RegexpQuery) query;
-        assertEquals("name", luceneQuery.getField());
-        assertEquals(0.5f, query.getBoost(), 0);
+        assertNotNull("Query is not built", query);
+        assertEquals("Query type is wrong", RegexpQuery.class, query.getClass());
+        RegexpQuery regexQuery = (RegexpQuery) query;
+        assertEquals("Query field is wrong", "name", regexQuery.getField());
+        assertEquals("Query boost is wrong", 0.5f, query.getBoost(), 0);
     }
 
     @Test(expected = IndexException.class)
@@ -99,11 +119,11 @@ public class RegexpConditionTest {
         RegexpCondition condition = new RegexpCondition(0.5f, "name", "192.168.*");
         Query query = condition.query(schema);
 
-        assertNotNull(query);
-        assertEquals(RegexpQuery.class, query.getClass());
-        RegexpQuery luceneQuery = (RegexpQuery) query;
-        assertEquals("name", luceneQuery.getField());
-        assertEquals(0.5f, query.getBoost(), 0);
+        assertNotNull("Query is not built", query);
+        assertEquals("Query type is wrong", RegexpQuery.class, query.getClass());
+        RegexpQuery regexQuery = (RegexpQuery) query;
+        assertEquals("Query field is wrong", "name", regexQuery.getField());
+        assertEquals("Query boost is wrong", 0.5f, query.getBoost(), 0);
     }
 
     @Test
@@ -114,17 +134,19 @@ public class RegexpConditionTest {
         RegexpCondition regexpCondition = new RegexpCondition(0.5f, "name", "2001:db8:2de:0:0:0:0:e*");
         Query query = regexpCondition.query(schema);
 
-        assertNotNull(query);
-        assertEquals(RegexpQuery.class, query.getClass());
-        RegexpQuery luceneQuery = (RegexpQuery) query;
-        assertEquals("name", luceneQuery.getField());
-        assertEquals(0.5f, query.getBoost(), 0);
+        assertNotNull("Query is not built", query);
+        assertEquals("Query type is wrong", RegexpQuery.class, query.getClass());
+        RegexpQuery regexQuery = (RegexpQuery) query;
+        assertEquals("Query field is wrong", "name", regexQuery.getField());
+        assertEquals("Query boost is wrong", 0.5f, query.getBoost(), 0);
     }
 
     @Test
     public void testToString() {
         RegexpCondition condition = new RegexpCondition(0.5f, "name", "2001:db8:2de:0:0:0:0:e*");
-        assertEquals("RegexpCondition{boost=0.5, field=name, value=2001:db8:2de:0:0:0:0:e*}", condition.toString());
+        assertEquals("Method #toString is wrong",
+                     "RegexpCondition{boost=0.5, field=name, value=2001:db8:2de:0:0:0:0:e*}",
+                     condition.toString());
     }
 
 }

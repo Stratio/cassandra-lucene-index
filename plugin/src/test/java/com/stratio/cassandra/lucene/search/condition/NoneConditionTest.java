@@ -19,6 +19,7 @@
 package com.stratio.cassandra.lucene.search.condition;
 
 import com.stratio.cassandra.lucene.schema.Schema;
+import com.stratio.cassandra.lucene.search.condition.builder.NoneConditionBuilder;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 import org.junit.Test;
@@ -30,19 +31,34 @@ import static org.junit.Assert.assertNotNull;
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class NoneConditionTest {
+public class NoneConditionTest extends AbstractConditionTest {
 
     @Test
     public void testBuild() {
-        Float boost = 0.7f;
-        NoneCondition condition = new NoneCondition(boost);
-        assertEquals(boost, condition.boost, 0);
+        NoneConditionBuilder builder = new NoneConditionBuilder().boost(0.7f);
+        NoneCondition condition = builder.build();
+        assertNotNull("Condition is not built", condition);
+        assertEquals("Boost is not set", 0.7f, condition.boost, 0);
     }
 
     @Test
-    public void testBuildWithDefaults() {
-        NoneCondition condition = new NoneCondition(null);
-        assertEquals(Condition.DEFAULT_BOOST, condition.boost, 0);
+    public void testBuildDefaults() {
+        NoneConditionBuilder builder = new NoneConditionBuilder();
+        NoneCondition condition = builder.build();
+        assertNotNull("Condition is not built", condition);
+        assertEquals("Boost is not set to default", Condition.DEFAULT_BOOST, condition.boost, 0);
+    }
+
+    @Test
+    public void testJsonSerialization() {
+        NoneConditionBuilder builder = new NoneConditionBuilder().boost(0.7);
+        testJsonSerialization(builder, "{type:\"none\",boost:0.7}");
+    }
+
+    @Test
+    public void testJsonSerializationDefaults() {
+        NoneConditionBuilder builder = new NoneConditionBuilder();
+        testJsonSerialization(builder, "{type:\"none\"}");
     }
 
     @Test
@@ -50,15 +66,15 @@ public class NoneConditionTest {
         Schema schema = schema().build();
         NoneCondition condition = new NoneCondition(0.7f);
         Query query = condition.query(schema);
-        assertNotNull(query);
-        assertEquals(BooleanQuery.class, query.getClass());
-        assertEquals(0.7f, query.getBoost(), 0);
+        assertNotNull("Query is not built", query);
+        assertEquals("Query type is wrong", BooleanQuery.class, query.getClass());
+        assertEquals("Query boost is wrong", 0.7f, query.getBoost(), 0);
     }
 
     @Test
     public void testToString() {
         NoneCondition condition = new NoneCondition(0.7f);
-        assertEquals("NoneCondition{boost=0.7}", condition.toString());
+        assertEquals("Method #toString is wrong", "NoneCondition{boost=0.7}", condition.toString());
     }
 
 }

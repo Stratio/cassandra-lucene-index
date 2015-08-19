@@ -16,14 +16,17 @@
  * under the License.
  */
 
-package org.apache.cassandra.cql3;
+package com.stratio.cassandra.lucene;
 
-import com.stratio.cassandra.lucene.IndexSearcher;
 import com.stratio.cassandra.lucene.service.RowKeys;
 import com.stratio.cassandra.lucene.service.RowMapper;
 import com.stratio.cassandra.lucene.util.ByteBufferUtils;
-import com.stratio.cassandra.lucene.util.Log;
 import com.stratio.cassandra.lucene.util.TimeCounter;
+import org.apache.cassandra.cql3.BatchQueryOptions;
+import org.apache.cassandra.cql3.CQLStatement;
+import org.apache.cassandra.cql3.QueryHandler;
+import org.apache.cassandra.cql3.QueryOptions;
+import org.apache.cassandra.cql3.QueryProcessor;
 import org.apache.cassandra.cql3.statements.BatchStatement;
 import org.apache.cassandra.cql3.statements.ParsedStatement;
 import org.apache.cassandra.cql3.statements.SelectStatement;
@@ -47,6 +50,8 @@ import org.apache.cassandra.service.pager.PagingState;
 import org.apache.cassandra.transport.messages.ResultMessage;
 import org.apache.cassandra.utils.MD5Digest;
 import org.apache.cassandra.utils.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -59,7 +64,9 @@ import java.util.List;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class LuceneQueryHandler implements QueryHandler {
+public class IndexQueryHandler implements QueryHandler {
+
+    private static final Logger logger = LoggerFactory.getLogger(IndexQueryHandler.class);
 
     static QueryProcessor cqlProcessor = QueryProcessor.instance;
 
@@ -124,7 +131,7 @@ public class LuceneQueryHandler implements QueryHandler {
                 try {
                     TimeCounter time = TimeCounter.create().start();
                     ResultMessage msg = process((IndexSearcher) searcher, expressions, select, state, options);
-                    Log.debug("Total Lucene query time: %s\n", time.stop());
+                    logger.debug("Total Lucene query time: %s\n", time.stop());
                     return msg;
                 } catch (RequestExecutionException | RequestValidationException e) {
                     throw e;

@@ -19,12 +19,14 @@
 package com.stratio.cassandra.lucene.search.condition;
 
 import com.google.common.base.Objects;
+import com.stratio.cassandra.lucene.Index;
 import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.util.Log;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -36,6 +38,8 @@ import java.util.List;
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class BooleanCondition extends Condition {
+
+    private static final Logger logger = LoggerFactory.getLogger(BooleanCondition.class);
 
     /** The mandatory conditions. */
     public final List<Condition> must;
@@ -79,7 +83,7 @@ public class BooleanCondition extends Condition {
             luceneQuery.add(query.query(schema), Occur.MUST_NOT);
         }
         if (must.isEmpty() && should.isEmpty() && !not.isEmpty()) {
-            Log.warn("Performing resource-intensive pure negation search");
+            logger.warn("Performing resource-intensive pure negation search");
             luceneQuery.add(new MatchAllDocsQuery(), Occur.FILTER);
         }
         return luceneQuery;

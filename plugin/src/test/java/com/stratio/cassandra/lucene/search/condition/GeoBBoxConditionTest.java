@@ -20,6 +20,7 @@ package com.stratio.cassandra.lucene.search.condition;
 
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
+import com.stratio.cassandra.lucene.search.condition.builder.GeoBBoxConditionBuilder;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.ConstantScoreQuery;
 import org.apache.lucene.search.Query;
@@ -32,11 +33,12 @@ import static org.junit.Assert.*;
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class GeoBBoxConditionTest {
+public class GeoBBoxConditionTest extends AbstractConditionTest {
 
     @Test
-    public void testConstructor() {
-        GeoBBoxCondition condition = new GeoBBoxCondition(0.5f, "name", -90D, 90D, -180D, 180D);
+    public void testBuild() {
+        GeoBBoxConditionBuilder builder = new GeoBBoxConditionBuilder("name", -90D, 90D, -180D, 180D).boost(0.5f);
+        GeoBBoxCondition condition = builder.build();
         assertEquals(0.5, condition.boost, 0);
         assertEquals("name", condition.field);
         assertEquals(-180, condition.minLongitude, 0);
@@ -46,8 +48,9 @@ public class GeoBBoxConditionTest {
     }
 
     @Test
-    public void testConstructorWithDefaults() {
-        GeoBBoxCondition condition = new GeoBBoxCondition(null, "name", 2D, 3D, 0D, 1D);
+    public void testBuildDefaults() {
+        GeoBBoxConditionBuilder builder = new GeoBBoxConditionBuilder("name", 2D, 3D, 0D, 1D);
+        GeoBBoxCondition condition = builder.build();
         assertEquals(GeoBBoxCondition.DEFAULT_BOOST, condition.boost, 0);
         assertEquals("name", condition.field);
         assertEquals(0, condition.minLongitude, 0);
@@ -57,87 +60,87 @@ public class GeoBBoxConditionTest {
     }
 
     @Test(expected = IndexException.class)
-    public void testConstructorWithNullField() {
+    public void testBuildNullField() {
         new GeoBBoxCondition(null, null, 2D, 3D, 0D, 1D);
     }
 
     @Test(expected = IndexException.class)
-    public void testConstructorWithEmptyField() {
+    public void testBuildEmptyField() {
         new GeoBBoxCondition(null, "", 2D, 3D, 0D, 1D);
     }
 
     @Test(expected = IndexException.class)
-    public void testConstructorWithBlankField() {
+    public void testBuildBlankField() {
         new GeoBBoxCondition(null, " ", 2D, 3D, 0D, 1D);
     }
 
     @Test(expected = IndexException.class)
-    public void testConstructorWithNullMinLongitude() {
+    public void testBuildNullMinLongitude() {
         new GeoBBoxCondition(null, "name", 2D, 3D, null, 1D);
     }
 
     @Test(expected = IndexException.class)
-    public void testConstructorWithToSmallMinLongitude() {
+    public void testBuildToSmallMinLongitude() {
         new GeoBBoxCondition(null, "name", 2D, 3D, -181D, 1D);
     }
 
     @Test(expected = IndexException.class)
-    public void testConstructorWithToBiglMinLongitude() {
+    public void testBuildTooBiglMinLongitude() {
         new GeoBBoxCondition(null, "name", 2D, 3D, 181D, 1D);
     }
 
     @Test(expected = IndexException.class)
-    public void testConstructorWithNullMaxLongitude() {
+    public void testBuildNullMaxLongitude() {
         new GeoBBoxCondition(null, "name", 2D, 3D, 0D, null);
     }
 
     @Test(expected = IndexException.class)
-    public void testConstructorWithTooSmallMaxLongitude() {
+    public void testBuildTooSmallMaxLongitude() {
         new GeoBBoxCondition(null, "name", 2D, 3D, 0D, -181D);
     }
 
     @Test(expected = IndexException.class)
-    public void testConstructorWithTooBigMaxLongitude() {
+    public void testBuildTooBigMaxLongitude() {
         new GeoBBoxCondition(null, "name", 2D, 3D, 0D, 181D);
     }
 
     @Test(expected = IndexException.class)
-    public void testConstructorWithNullLatitude() {
+    public void testBuildNullLatitude() {
         new GeoBBoxCondition(null, "name", null, 3D, 0D, 1D);
     }
 
     @Test(expected = IndexException.class)
-    public void testConstructorWithTooSmallMinLatitude() {
+    public void testBuildTooSmallMinLatitude() {
         new GeoBBoxCondition(null, "name", -91D, 3D, 0D, 1D);
     }
 
     @Test(expected = IndexException.class)
-    public void testConstructorWithTooBigMinLatitude() {
+    public void testBuildTooBigMinLatitude() {
         new GeoBBoxCondition(null, "name", 91D, 3D, 0D, 1D);
     }
 
     @Test(expected = IndexException.class)
-    public void testConstructorWithNullMaxLatitude() {
+    public void testBuildNullMaxLatitude() {
         new GeoBBoxCondition(null, "name", 2D, null, 0D, 1D);
     }
 
     @Test(expected = IndexException.class)
-    public void testConstructorWithTooSmallMaxLatitude() {
+    public void testBuildTooSmallMaxLatitude() {
         new GeoBBoxCondition(null, "name", 2D, -91D, 0D, 1D);
     }
 
     @Test(expected = IndexException.class)
-    public void testConstructorWithTooBigMaxLatitude() {
+    public void testBuildTooBigMaxLatitude() {
         new GeoBBoxCondition(null, "name", 2D, 91D, 0D, 1D);
     }
 
     @Test(expected = IndexException.class)
-    public void testConstructorWithMinLongitudeGreaterThanMaxLongitude() {
+    public void testBuildMinLongitudeGreaterThanMaxLongitude() {
         new GeoBBoxCondition(null, "name", 3D, 3D, 2D, 1D);
     }
 
     @Test(expected = IndexException.class)
-    public void testConstructorWithMinLatitudeGreaterThanMaxLatitude() {
+    public void testBuildMinLatitudeGreaterThanMaxLatitude() {
         new GeoBBoxCondition(null, "name", 4D, 3D, 0D, 1D);
     }
 
@@ -146,14 +149,14 @@ public class GeoBBoxConditionTest {
         Schema schema = schema().mapper("name", geoPointMapper("lat", "lon").maxLevels(8)).build();
         GeoBBoxCondition condition = new GeoBBoxCondition(0.5f, "name", -90D, 90D, -180D, 180D);
         Query query = condition.query(schema);
-        assertNotNull(query);
-        assertTrue(query instanceof ConstantScoreQuery);
+        assertNotNull("Query is wrong is not built", query);
+        assertTrue("Query type is wrong", query instanceof ConstantScoreQuery);
         query = ((ConstantScoreQuery) query).getQuery();
-        assertTrue(query instanceof BooleanQuery);
+        assertTrue("Query type is wrong", query instanceof BooleanQuery);
     }
 
     @Test(expected = IndexException.class)
-    public void testQueryWithoutValidMapper() {
+    public void testQueryoutValidMapper() {
         Schema schema = schema().mapper("name", uuidMapper()).build();
         GeoBBoxCondition condition = new GeoBBoxCondition(0.5f, "name", -90D, 90D, -180D, 180D);
         condition.query(schema);
@@ -162,7 +165,8 @@ public class GeoBBoxConditionTest {
     @Test
     public void testToString() {
         GeoBBoxCondition condition = geoBBox("name", -180D, 180D, -90D, 90D).boost(0.5f).build();
-        assertEquals("GeoBBoxCondition{boost=0.5, field=name, " +
+        assertEquals("Method #toString is wrong",
+                     "GeoBBoxCondition{boost=0.5, field=name, " +
                      "minLatitude=-90.0, maxLatitude=90.0, minLongitude=-180.0, maxLongitude=180.0}",
                      condition.toString());
     }

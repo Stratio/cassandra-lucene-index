@@ -20,6 +20,7 @@ package com.stratio.cassandra.lucene.search.condition;
 
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
+import com.stratio.cassandra.lucene.search.condition.builder.PhraseConditionBuilder;
 import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.Query;
 import org.junit.Test;
@@ -32,37 +33,50 @@ import static org.junit.Assert.assertNotNull;
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class PhraseConditionTest {
+public class PhraseConditionTest extends AbstractConditionTest {
 
     @Test
     public void testBuild() {
-        String value = "hello adios";
-        PhraseCondition condition = new PhraseCondition(0.5f, "name", value, 2);
-        assertEquals(0.5f, condition.boost, 0);
-        assertEquals("name", condition.field);
-        assertEquals(value, condition.value);
-        assertEquals(2, condition.slop);
+        PhraseConditionBuilder builder = new PhraseConditionBuilder("field", "value1 value2").slop(2).boost(0.7f);
+        PhraseCondition condition = builder.build();
+        assertNotNull("Condition is not built", condition);
+        assertEquals("Boost is not set", 0.7f, condition.boost, 0);
+        assertEquals("Field is not set", "field", condition.field);
+        assertEquals("Value is not set", "value1 value2", condition.value);
+        assertEquals("Slop is not set", 2, condition.slop);
     }
 
     @Test
     public void testBuildDefaults() {
-        String value = "hello adios";
-        PhraseCondition condition = new PhraseCondition(null, "name", value, null);
-        assertEquals(PhraseCondition.DEFAULT_BOOST, condition.boost, 0);
-        assertEquals("name", condition.field);
-        assertEquals(value, condition.value);
-        assertEquals(PhraseCondition.DEFAULT_SLOP, condition.slop);
+        PhraseConditionBuilder builder = new PhraseConditionBuilder("field", "value1 value2");
+        PhraseCondition condition = builder.build();
+        assertNotNull("Condition is not built", condition);
+        assertEquals("Boost is not set to default", Condition.DEFAULT_BOOST, condition.boost, 0);
+        assertEquals("Field is not set", "field", condition.field);
+        assertEquals("Value is not set", "value1 value2", condition.value);
+        assertEquals("Slop is not set to default", PhraseCondition.DEFAULT_SLOP, condition.slop);
     }
 
     @Test(expected = IndexException.class)
     public void testBuildNullValues() {
-        new PhraseCondition(null, "name", null, null);
+        new PhraseConditionBuilder("field", null).build();
     }
 
     @Test(expected = IndexException.class)
     public void testBuildNegativeSlop() {
-        String value = "hello adios";
-        new PhraseCondition(null, "name", value, -1);
+        new PhraseConditionBuilder("field", "value1 value2").slop(-1).build();
+    }
+
+    @Test
+    public void testJsonSerialization() {
+        PhraseConditionBuilder builder = new PhraseConditionBuilder("field", "value1 value2").slop(2).boost(0.7f);
+        testJsonSerialization(builder, "{type:\"phrase\",field:\"field\",value:\"value1 value2\",boost:0.7,slop:2}");
+    }
+
+    @Test
+    public void testJsonSerializationDefaults() {
+        PhraseConditionBuilder builder = new PhraseConditionBuilder("field", "value1 value2");
+        testJsonSerialization(builder, "{type:\"phrase\",field:\"field\",value:\"value1 value2\"}");
     }
 
     @Test
@@ -73,18 +87,22 @@ public class PhraseConditionTest {
         String value = "hola adios  the    a";
         PhraseCondition condition = new PhraseCondition(0.5f, "name", value, 2);
         Query query = condition.query(schema);
-        assertNotNull(query);
-        assertEquals(PhraseQuery.class, query.getClass());
+
+        assertNotNull("Query is not built", query);
+        assertEquals("Query type is wrong", PhraseQuery.class, query.getClass());
+
         PhraseQuery luceneQuery = (PhraseQuery) query;
-        assertEquals(3, luceneQuery.getTerms().length);
-        assertEquals(2, luceneQuery.getSlop());
-        assertEquals(0.5f, query.getBoost(), 0);
+        assertEquals("Query terms are wrong", 3, luceneQuery.getTerms().length);
+        assertEquals("Query slop is wrong", 2, luceneQuery.getSlop());
+        assertEquals("Query boost is wrong", 0.5f, query.getBoost(), 0);
     }
 
     @Test
     public void testToString() {
         PhraseCondition condition = new PhraseCondition(0.5f, "name", "hola adios", 2);
-        assertEquals("PhraseCondition{boost=0.5, field=name, value=hola adios, slop=2}", condition.toString());
+        assertEquals("Method #toString is wrong",
+                     "PhraseCondition{boost=0.5, field=name, value=hola adios, slop=2}",
+                     condition.toString());
     }
 
 }

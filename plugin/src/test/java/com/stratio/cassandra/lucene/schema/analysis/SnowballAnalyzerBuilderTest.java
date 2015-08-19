@@ -196,9 +196,9 @@ public class SnowballAnalyzerBuilderTest {
 
     private void testAnalyzer(AnalyzerBuilder builder, String value, String... expected) {
         Analyzer analyzer = builder.analyzer();
-        assertNotNull(analyzer);
+        assertNotNull("Expected not null analyzer", analyzer);
         List<String> tokens = analyze(value, analyzer);
-        assertArrayEquals(expected, tokens.toArray());
+        assertArrayEquals("Tokens are not the expected", expected, tokens.toArray());
         analyzer.close();
     }
 

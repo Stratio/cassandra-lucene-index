@@ -16,11 +16,9 @@
  * under the License.
  */
 
-package com.stratio.cassandra.lucene.search.condition.builder;
+package com.stratio.cassandra.lucene.search;
 
 import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.search.Search;
-import com.stratio.cassandra.lucene.search.SearchBuilder;
 import com.stratio.cassandra.lucene.search.condition.BooleanCondition;
 import com.stratio.cassandra.lucene.search.condition.FuzzyCondition;
 import com.stratio.cassandra.lucene.search.condition.LuceneCondition;
@@ -30,6 +28,7 @@ import com.stratio.cassandra.lucene.search.condition.PrefixCondition;
 import com.stratio.cassandra.lucene.search.condition.RangeCondition;
 import com.stratio.cassandra.lucene.search.condition.RegexpCondition;
 import com.stratio.cassandra.lucene.search.condition.WildcardCondition;
+import com.stratio.cassandra.lucene.search.condition.builder.*;
 import com.stratio.cassandra.lucene.search.sort.SortField;
 import com.stratio.cassandra.lucene.search.sort.builder.SortFieldBuilder;
 import org.apache.lucene.search.MatchAllDocsQuery;
@@ -51,129 +50,129 @@ public class SearchBuildersTest {
     @Test
     public void testBool() throws IOException {
         BooleanConditionBuilder builder = bool().must(all());
-        assertNotNull(builder);
+        assertNotNull("Condition builder is not built", builder);
         BooleanCondition condition = builder.build();
-        assertNotNull(condition);
+        assertNotNull("Condition is not built", condition);
     }
 
     @Test
     public void testFuzzy() throws IOException {
         FuzzyConditionBuilder builder = fuzzy("field", "value");
-        assertNotNull(builder);
+        assertNotNull("Condition builder is not built", builder);
         FuzzyCondition condition = builder.build();
-        assertEquals("field", condition.field);
-        assertEquals("value", condition.value);
+        assertEquals("Condition field is not set", "field", condition.field);
+        assertEquals("Condition value is not set", "value", condition.value);
     }
 
     @Test
     public void testLucene() throws IOException {
         LuceneConditionBuilder builder = lucene("field:value");
-        assertNotNull(builder);
+        assertNotNull("Condition builder is not built", builder);
         LuceneCondition condition = builder.build();
-        assertEquals("field:value", condition.query);
+        assertEquals("Condition query is not set", "field:value", condition.query);
     }
 
     @Test
     public void testMatch() throws IOException {
         MatchConditionBuilder builder = match("field", "value");
-        assertNotNull(builder);
+        assertNotNull("Condition builder is not built", builder);
         MatchCondition condition = builder.build();
-        assertEquals("field", condition.field);
-        assertEquals("value", condition.value);
+        assertEquals("Condition field is not set", "field", condition.field);
+        assertEquals("Condition value is not set", "value", condition.value);
     }
 
     @Test
     public void testMatchAll() throws IOException {
         AllConditionBuilder builder = all();
-        assertNotNull(builder);
+        assertNotNull("Condition builder is not built", builder);
         builder.build();
     }
 
     @Test
     public void testNone() throws IOException {
         NoneConditionBuilder builder = none();
-        assertNotNull(builder);
+        assertNotNull("Condition builder is not built", builder);
         builder.build();
     }
 
     @Test
     public void testPhrase() throws IOException {
         PhraseConditionBuilder builder = phrase("field", "value1 value2");
-        assertNotNull(builder);
+        assertNotNull("Condition builder is not built", builder);
         PhraseCondition condition = builder.build();
-        assertEquals("field", condition.field);
-        assertEquals("value1 value2", condition.value);
+        assertEquals("Condition field is not set", "field", condition.field);
+        assertEquals("Condition value is not set", "value1 value2", condition.value);
     }
 
     @Test
     public void testPrefix() throws IOException {
         PrefixConditionBuilder builder = prefix("field", "value");
-        assertNotNull(builder);
+        assertNotNull("Condition builder is not built", builder);
         PrefixCondition condition = builder.build();
-        assertEquals("field", condition.field);
-        assertEquals("value", condition.value);
+        assertEquals("Condition field is not set", "field", condition.field);
+        assertEquals("Condition value is not set", "value", condition.value);
     }
 
     @Test
     public void testRange() throws IOException {
         RangeConditionBuilder builder = range("field");
-        assertNotNull(builder);
+        assertNotNull("Condition builder is not built", builder);
         RangeCondition condition = builder.build();
-        assertEquals("field", condition.field);
+        assertEquals("Condition field is not set", "field", condition.field);
     }
 
     @Test
     public void testRegexp() throws IOException {
         RegexpConditionBuilder builder = regexp("field", "value");
-        assertNotNull(builder);
+        assertNotNull("Condition builder is not built", builder);
         RegexpCondition condition = builder.build();
-        assertEquals("field", condition.field);
-        assertEquals("value", condition.value);
+        assertEquals("Condition field is not set", "field", condition.field);
+        assertEquals("Condition value is not set", "value", condition.value);
     }
 
     @Test
     public void testWildcard() throws IOException {
         WildcardConditionBuilder builder = wildcard("field", "value");
-        assertNotNull(builder);
+        assertNotNull("Condition builder is not built", builder);
         WildcardCondition condition = builder.build();
-        assertEquals("field", condition.field);
-        assertEquals("value", condition.value);
+        assertEquals("Condition field is not set", "field", condition.field);
+        assertEquals("Condition value is not set", "value", condition.value);
     }
 
     @Test
     public void testSortField() throws IOException {
         SortFieldBuilder builder = sortField("field");
-        assertNotNull(builder);
+        assertNotNull("Condition builder is not built", builder);
         SortField sortField = builder.build();
-        assertEquals("field", sortField.field);
+        assertEquals("Field is not set", "field", sortField.field);
     }
 
     @Test
     public void testSort() throws IOException {
         SearchBuilder builder = sort(sortField("field"));
-        assertNotNull(builder);
+        assertNotNull("Condition builder is not built", builder);
         Search search = builder.build();
-        assertEquals("field", search.getSort().getSortFields().iterator().next().field);
+        assertEquals("Field is not set", "field", search.getSort().getSortFields().iterator().next().field);
     }
 
     @Test
     public void testQuery() throws IOException {
         SearchBuilder builder = query(all());
-        assertNotNull(builder);
+        assertNotNull("Condition builder is not built", builder);
         Search search = builder.build();
         Schema schema = schema().build();
-        assertEquals(MatchAllDocsQuery.class, search.query(schema).getClass());
-        assertNull(search.filter(schema));
+        assertEquals("Query type is wrong", MatchAllDocsQuery.class, search.query(schema).getClass());
+        assertNull("Filter must be null", search.filter(schema));
     }
 
     @Test
     public void testFilter() throws IOException {
         SearchBuilder builder = filter(all());
-        assertNotNull(builder);
+        assertNotNull("Condition builder is not built", builder);
         Search search = builder.build();
         Schema schema = schema().build();
-        assertNull(search.query(schema));
-        assertEquals(MatchAllDocsQuery.class, search.filter(schema).getClass());
+        assertNull("Query type is not built", search.query(schema));
+        assertEquals("Query type is wrong", MatchAllDocsQuery.class, search.filter(schema).getClass());
     }
 
     @Test
@@ -181,7 +180,7 @@ public class SearchBuildersTest {
         SearchBuilder builder = search();
         Search search = builder.build();
         Schema schema = schema().build();
-        assertNull(search.query(schema));
-        assertNull(search.filter(schema));
+        assertNull("Query must be null", search.query(schema));
+        assertNull("Filter must be null", search.filter(schema));
     }
 }

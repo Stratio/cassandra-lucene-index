@@ -16,8 +16,9 @@
  * under the License.
  */
 
-package com.stratio.cassandra.lucene.search.condition.builder;
+package com.stratio.cassandra.lucene.search.condition;
 
+import com.stratio.cassandra.lucene.search.condition.builder.ConditionBuilder;
 import com.stratio.cassandra.lucene.util.JsonSerializer;
 
 import java.io.IOException;
@@ -29,14 +30,14 @@ import static org.junit.Assert.assertEquals;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public abstract class AbstractConditionBuilderTest {
+public abstract class AbstractConditionTest {
 
     protected void testJsonSerialization(ConditionBuilder<?, ?> conditionBuilder, String json) {
         try {
             String json1 = JsonSerializer.toString(conditionBuilder);
-            assertEquals(json, json1);
+            assertEquals("JSON serialization is wrong", json, json1);
             String json2 = JsonSerializer.toString(JsonSerializer.fromString(json1, ConditionBuilder.class));
-            assertEquals(json1, json2);
+            assertEquals("JSON serialization is wrong", json1, json2);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

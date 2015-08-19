@@ -20,6 +20,7 @@ package com.stratio.cassandra.lucene.search.condition;
 
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
+import com.stratio.cassandra.lucene.search.condition.builder.DateRangeConditionBuilder;
 import org.apache.lucene.search.ConstantScoreQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.spatial.prefix.IntersectsPrefixTreeFilter;
@@ -28,33 +29,85 @@ import org.junit.Test;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
 import static com.stratio.cassandra.lucene.search.SearchBuilders.dateRange;
+import static com.stratio.cassandra.lucene.search.condition.Condition.DEFAULT_BOOST;
+import static com.stratio.cassandra.lucene.search.condition.DateRangeCondition.*;
 import static org.junit.Assert.*;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class DateRangeConditionTest {
+public class DateRangeConditionTest extends AbstractConditionTest {
 
-    private final String TIMESTAMP_PATTERN = "timestamp";
+    private static final String TIMESTAMP_PATTERN = "timestamp";
 
     @Test
-    public void testConstructorWithDefaults() {
-        DateRangeCondition condition = new DateRangeCondition(null, "name", 1, 2, null);
-        assertEquals(DateRangeCondition.DEFAULT_BOOST, condition.boost, 0);
-        assertEquals("name", condition.field);
-        assertEquals(1, condition.from);
-        assertEquals(2, condition.to);
-        assertEquals(DateRangeCondition.DEFAULT_OPERATION, condition.operation);
+    public void testBuildString() {
+        DateRangeConditionBuilder builder = new DateRangeConditionBuilder("field").boost(0.4)
+                                                                                  .from("2015/01/05")
+                                                                                  .to("2015/01/08")
+                                                                                  .operation("intersects");
+        DateRangeCondition condition = builder.build();
+        assertNotNull("Condition is not built", condition);
+        assertEquals("Boost is not set", 0.4f, condition.boost, 0);
+        assertEquals("Field is not set", "field", condition.field);
+        assertEquals("From is not set", "2015/01/05", condition.from);
+        assertEquals("To is not set", "2015/01/08", condition.to);
+        assertEquals("Operation is not set", "intersects", condition.operation);
     }
 
     @Test
-    public void testConstructorWithAllArgs() {
-        DateRangeCondition condition = new DateRangeCondition(0.5f, "name", 1, 2, "contains");
-        assertEquals(0.5, condition.boost, 0);
-        assertEquals("name", condition.field);
-        assertEquals(1, condition.from);
-        assertEquals(2, condition.to);
-        assertEquals("contains", condition.operation);
+    public void testBuildNumber() {
+        DateRangeConditionBuilder builder = new DateRangeConditionBuilder("field").boost(0.4)
+                                                                                  .from(1)
+                                                                                  .to(2)
+                                                                                  .operation("is_within");
+        DateRangeCondition condition = builder.build();
+        assertNotNull("Condition is not built", condition);
+        assertEquals("Boost is not set", 0.4f, condition.boost, 0);
+        assertEquals("Field is not set", "field", condition.field);
+        assertEquals("From is not set", 1, condition.from);
+        assertEquals("To is not set", 2, condition.to);
+        assertEquals("Operation is not set", "is_within", condition.operation);
+    }
+
+    @Test
+    public void testBuildDefaults() {
+        DateRangeConditionBuilder builder = new DateRangeConditionBuilder("field");
+        DateRangeCondition condition = builder.build();
+        assertNotNull("Condition is not built", condition);
+        assertEquals("Boost is not set to default", DEFAULT_BOOST, condition.boost, 0);
+        assertEquals("Field is not set", "field", condition.field);
+        assertEquals("From is not set to default", DEFAULT_FROM, condition.from);
+        assertEquals("To is not set to default", DEFAULT_TO, condition.to);
+        assertEquals("Operation is not set to default", DEFAULT_OPERATION, condition.operation);
+    }
+
+    @Test
+    public void testJsonSerializationString() {
+        DateRangeConditionBuilder builder = new DateRangeConditionBuilder("field").boost(0.4)
+                                                                                  .from("from")
+                                                                                  .to("to")
+                                                                                  .operation("intersects");
+        testJsonSerialization(builder,
+                              "{type:\"date_range\",field:\"field\",boost:0.4," +
+                              "from:\"from\",to:\"to\",operation:\"intersects\"}");
+    }
+
+    @Test
+    public void testJsonSerializationNumber() {
+        DateRangeConditionBuilder builder = new DateRangeConditionBuilder("field").boost(0.4)
+                                                                                  .from("2015/01/05")
+                                                                                  .to("2015/01/08")
+                                                                                  .operation("contains");
+        testJsonSerialization(builder,
+                              "{type:\"date_range\",field:\"field\",boost:0.4," +
+                              "from:\"2015/01/05\",to:\"2015/01/08\",operation:\"contains\"}");
+    }
+
+    @Test
+    public void testJsonSerializationDefaults() {
+        DateRangeConditionBuilder builder = new DateRangeConditionBuilder("field");
+        testJsonSerialization(builder, "{type:\"date_range\",field:\"field\"}");
     }
 
     @Test
@@ -109,12 +162,13 @@ public class DateRangeConditionTest {
 
         DateRangeCondition condition = new DateRangeCondition(null, "name", 1, 2, null);
         Query query = condition.query(schema);
-        assertNotNull(query);
-        assertTrue(query instanceof ConstantScoreQuery);
+        assertNotNull("Query is not built", query);
+        assertTrue("Query type is wrong", query instanceof ConstantScoreQuery);
         query = ((ConstantScoreQuery) query).getQuery();
-        assertTrue(query instanceof IntersectsPrefixTreeFilter);
+        assertTrue("Query type is wrong", query instanceof IntersectsPrefixTreeFilter);
         IntersectsPrefixTreeFilter filter = (IntersectsPrefixTreeFilter) query;
-        assertEquals("IntersectsPrefixTreeFilter(fieldName=name,queryShape=" +
+        assertEquals("Query is wrong",
+                     "IntersectsPrefixTreeFilter(fieldName=name,queryShape=" +
                      "[1970-01-01T00:00:00.001 TO 1970-01-01T00:00:00.002],detailLevel=9,prefixGridScanLevel=7)",
                      filter.toString());
     }
@@ -129,7 +183,8 @@ public class DateRangeConditionTest {
     @Test
     public void testToString() {
         DateRangeCondition condition = dateRange("name").from(1).to(2).operation("contains").boost(0.3).build();
-        assertEquals("DateRangeCondition{boost=0.3, field=name, from=1, to=2, operation=contains}",
+        assertEquals("Method #toString is wrong",
+                     "DateRangeCondition{boost=0.3, field=name, from=1, to=2, operation=contains}",
                      condition.toString());
     }
 }

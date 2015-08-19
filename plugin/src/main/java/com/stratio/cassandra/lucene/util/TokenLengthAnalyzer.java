@@ -26,6 +26,8 @@ import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.util.FilteringTokenFilter;
 import org.apache.lucene.index.IndexWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
@@ -35,6 +37,8 @@ import java.io.IOException;
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class TokenLengthAnalyzer extends AnalyzerWrapper {
+
+    private static final Logger logger = LoggerFactory.getLogger(TokenLengthAnalyzer.class);
 
     private Analyzer analyzer;
 
@@ -87,8 +91,9 @@ public class TokenLengthAnalyzer extends AnalyzerWrapper {
             int maxSize = IndexWriter.MAX_TERM_LENGTH;
             int size = tm.length();
             if (size > maxSize) {
-                Log.error("Discarding immense term in field='%s', Lucene only allows terms with at most " +
-                          "%s bytes in length; got %s", fieldName, maxSize, size);
+                logger.error("Discarding immense term in field='{}', " +
+                             "Lucene only allows terms with at most " +
+                             "{} bytes in length; got {}", fieldName, maxSize, size);
                 return false;
             }
             return true;

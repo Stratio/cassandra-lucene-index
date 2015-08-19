@@ -19,17 +19,59 @@
 package com.stratio.cassandra.lucene.search.condition;
 
 import com.stratio.cassandra.lucene.schema.Schema;
+import com.stratio.cassandra.lucene.search.condition.builder.BooleanConditionBuilder;
 import org.apache.lucene.search.BooleanQuery;
 import org.junit.Test;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
 import static com.stratio.cassandra.lucene.search.SearchBuilders.*;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class BooleanConditionTest {
+public class BooleanConditionTest extends AbstractConditionTest {
+
+    @Test
+    public void testBuild() {
+        BooleanConditionBuilder builder = new BooleanConditionBuilder().boost(0.7f)
+                                                                       .must(all())
+                                                                       .must(all())
+                                                                       .should(all(), all())
+                                                                       .should(all(), all())
+                                                                       .not(all(), all(), all())
+                                                                       .not(all(), all(), all());
+        BooleanCondition condition = builder.build();
+        assertNotNull("Condition is not built", condition);
+        assertEquals("Boost is not set", 0.7f, condition.boost, 0);
+        assertEquals("Must is not set", 2, condition.must.size());
+        assertEquals("Should is not set", 4, condition.should.size());
+        assertEquals("Not is not set", 6, condition.not.size());
+    }
+
+    @Test
+    public void testBuildDefaults() {
+        BooleanConditionBuilder builder = new BooleanConditionBuilder();
+        BooleanCondition condition = builder.build();
+        assertNotNull("Condition is not built", condition);
+        assertEquals("Boost is not set to default", Condition.DEFAULT_BOOST, condition.boost, 0);
+        assertEquals("Must is not set", 0, condition.must.size());
+        assertEquals("Should is not set", 0, condition.should.size());
+        assertEquals("Not is not set", 0, condition.not.size());
+    }
+
+    @Test
+    public void testJsonSerialization() {
+        BooleanConditionBuilder builder = new BooleanConditionBuilder().boost(0.7f).must(all());
+        testJsonSerialization(builder, "{type:\"boolean\",boost:0.7,must:[{type:\"all\"}],should:[],not:[]}");
+    }
+
+    @Test
+    public void testJsonSerializationDefaults() {
+        BooleanConditionBuilder builder = new BooleanConditionBuilder();
+        testJsonSerialization(builder, "{type:\"boolean\",must:[],should:[],not:[]}");
+    }
 
     @Test
     public void testQuery() {
@@ -46,8 +88,8 @@ public class BooleanConditionTest {
                                            .boost(0.4f)
                                            .build();
         BooleanQuery query = (BooleanQuery) condition.query(schema);
-        assertEquals(5, query.getClauses().length);
-        assertEquals(0.4f, query.getBoost(), 0f);
+        assertEquals("Query count clauses is wrong", 5, query.getClauses().length);
+        assertEquals("Query boost is wrong", 0.4f, query.getBoost(), 0f);
     }
 
     @Test
@@ -55,8 +97,8 @@ public class BooleanConditionTest {
         Schema schema = schema().build();
         BooleanCondition condition = bool().boost(0.4).build();
         BooleanQuery query = (BooleanQuery) condition.query(schema);
-        assertEquals(0, query.getClauses().length);
-        assertEquals(0.4f, query.getBoost(), 0f);
+        assertEquals("Query count clauses is wrong", 0, query.getClauses().length);
+        assertEquals("Query boost is wrong", 0.4f, query.getBoost(), 0f);
     }
 
     @Test
@@ -64,8 +106,8 @@ public class BooleanConditionTest {
         Schema schema = schema().mapper("name", stringMapper()).build();
         BooleanCondition condition = bool().not(match("name", "jonathan")).boost(0.4).build();
         BooleanQuery query = (BooleanQuery) condition.query(schema);
-        assertEquals(2, query.getClauses().length);
-        assertEquals(0.4f, query.getBoost(), 0f);
+        assertEquals("Query count clauses is wrong", 2, query.getClauses().length);
+        assertEquals("Query boost is wrong", 0.4f, query.getBoost(), 0f);
     }
 
     @Test
@@ -75,11 +117,13 @@ public class BooleanConditionTest {
                                            .not(match("country", "england"))
                                            .boost(0.5f)
                                            .build();
-        assertEquals("BooleanCondition{boost=0.5, " +
+        assertEquals("Method #toString is wrong",
+                     "BooleanCondition{boost=0.5, " +
                      "must=[MatchCondition{boost=1.0, field=name, value=jonathan}, " +
                      "MatchCondition{boost=1.0, field=age, value=18}], " +
                      "should=[MatchCondition{boost=1.0, field=color, value=green}], " +
-                     "not=[MatchCondition{boost=1.0, field=country, value=england}]}", condition.toString());
+                     "not=[MatchCondition{boost=1.0, field=country, value=england}]}",
+                     condition.toString());
     }
 
 }

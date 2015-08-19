@@ -38,7 +38,7 @@ public class ClasspathAnalyzerBuilderTest {
         String className = "org.apache.lucene.analysis.en.EnglishAnalyzer";
         ClasspathAnalyzerBuilder builder = new ClasspathAnalyzerBuilder(className);
         Analyzer analyzer = builder.analyzer();
-        assertEquals(EnglishAnalyzer.class, analyzer.getClass());
+        assertEquals("Expected EnglishAnalyzer class", EnglishAnalyzer.class, analyzer.getClass());
     }
 
     @Test(expected = IndexException.class)
@@ -51,7 +51,7 @@ public class ClasspathAnalyzerBuilderTest {
         String json = "{type:\"classpath\", class:\"org.apache.lucene.analysis.en.EnglishAnalyzer\"}";
         AnalyzerBuilder builder = JsonSerializer.fromString(json, AnalyzerBuilder.class);
         Analyzer analyzer = builder.analyzer();
-        assertEquals(EnglishAnalyzer.class, analyzer.getClass());
+        assertEquals("Expected EnglishAnalyzer class", EnglishAnalyzer.class, analyzer.getClass());
     }
 
     @Test(expected = IOException.class)

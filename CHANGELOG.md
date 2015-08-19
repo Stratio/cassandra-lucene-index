@@ -2,6 +2,7 @@
 
 ## 2.1.8.3-SNAPSHOT ()
  * Fix analyzer selection in maps (issue#18)
+ * Change logger fixed name from `stratio` to class-based `com.stratio`
 
 ## 2.1.8.2 (13 August 2015)
 

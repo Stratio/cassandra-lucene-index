@@ -44,8 +44,8 @@ public class SingleColumnConditionTest {
                 return null;
             }
         };
-        assertEquals(0.5f, condition.boost, 0);
-        assertEquals("field", condition.field);
+        assertEquals("Boost is not properly set", 0.5f, condition.boost, 0);
+        assertEquals("Field name is not properly set", "field", condition.field);
     }
 
     @Test
@@ -56,7 +56,7 @@ public class SingleColumnConditionTest {
                 return null;
             }
         };
-        assertEquals(Condition.DEFAULT_BOOST, condition.boost, 0);
+        assertEquals("Boost is not set to default value", Condition.DEFAULT_BOOST, condition.boost, 0);
     }
 
     @Test(expected = IndexException.class)
@@ -89,8 +89,8 @@ public class SingleColumnConditionTest {
             }
         };
         Query query = condition.query(schema);
-        assertNotNull(query);
-        assertEquals(MatchAllDocsQuery.class, query.getClass());
+        assertNotNull("Query is not built", query);
+        assertEquals("Query type is wrong", MatchAllDocsQuery.class, query.getClass());
 
     }
 

@@ -25,7 +25,6 @@ import com.stratio.cassandra.lucene.search.SearchBuilder;
 import com.stratio.cassandra.lucene.service.RowKey;
 import com.stratio.cassandra.lucene.service.RowMapper;
 import com.stratio.cassandra.lucene.service.RowService;
-import com.stratio.cassandra.lucene.util.Log;
 import com.stratio.cassandra.lucene.util.TimeCounter;
 import org.apache.cassandra.db.DataRange;
 import org.apache.cassandra.db.IndexExpression;
@@ -35,6 +34,8 @@ import org.apache.cassandra.db.index.SecondaryIndexManager;
 import org.apache.cassandra.db.index.SecondaryIndexSearcher;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.exceptions.InvalidRequestException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -51,6 +52,8 @@ import static org.apache.cassandra.cql3.Operator.EQ;
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class IndexSearcher extends SecondaryIndexSearcher {
+
+    private static final Logger logger = LoggerFactory.getLogger(IndexSearcher.class);
 
     /** The name of the {@link IndexExpression} containing the last search {@link RowKey}. */
     public static final ByteBuffer AFTER = UTF8Type.instance.fromString("search_after_doc");
@@ -131,7 +134,7 @@ public class IndexSearcher extends SecondaryIndexSearcher {
         } catch (IndexException e) {
             throw new InvalidRequestException(e.getMessage());
         } catch (Exception e) {
-            Log.error(e, "Error while validating search: %s", indexExpression);
+            logger.error("Error while validating search", e);
             throw new InvalidRequestException(e.getMessage());
         }
     }
@@ -205,11 +208,10 @@ public class IndexSearcher extends SecondaryIndexSearcher {
         set.addAll(rows);
         List<Row> result = new ArrayList<>(set);
 
-        String comparatorName = comparator.getClass().getSimpleName();
         int endSize = result.size();
         sortTime.stop();
 
-        Log.debug("Sorted %d rows to %d with comparator %s in %s\n", startSize, endSize, comparatorName, sortTime);
+        logger.debug("Sorted {} rows to {} in {}", startSize, endSize, sortTime);
 
         return result;
     }

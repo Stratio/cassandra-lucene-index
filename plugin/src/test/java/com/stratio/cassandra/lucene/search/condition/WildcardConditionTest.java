@@ -21,6 +21,7 @@ package com.stratio.cassandra.lucene.search.condition;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.search.SearchBuilders;
+import com.stratio.cassandra.lucene.search.condition.builder.WildcardConditionBuilder;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.WildcardQuery;
 import org.junit.Test;
@@ -32,47 +33,79 @@ import static org.junit.Assert.assertNotNull;
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class WildcardConditionTest {
+public class WildcardConditionTest extends AbstractConditionTest {
+
+    @Test
+    public void testBuild() {
+        WildcardConditionBuilder builder = new WildcardConditionBuilder("field", "value").boost(0.7f);
+        WildcardCondition condition = builder.build();
+        assertNotNull("Condition is not built", condition);
+        assertEquals("Boost is not set", 0.7f, condition.boost, 0);
+        assertEquals("Field is not set", "field", condition.field);
+        assertEquals("Value is not set", "value", condition.value);
+    }
+
+    @Test
+    public void testBuildDefaults() {
+        WildcardConditionBuilder builder = new WildcardConditionBuilder("field", "value");
+        WildcardCondition condition = builder.build();
+        assertNotNull("Condition is not built", condition);
+        assertEquals("Boost is not set", Condition.DEFAULT_BOOST, condition.boost, 0);
+        assertEquals("Field is not set", "field", condition.field);
+        assertEquals("Value is not set", "value", condition.value);
+    }
+
+    @Test
+    public void testJsonSerialization() {
+        WildcardConditionBuilder builder = new WildcardConditionBuilder("field", "value").boost(0.7f);
+        testJsonSerialization(builder, "{type:\"wildcard\",field:\"field\",value:\"value\",boost:0.7}");
+    }
+
+    @Test
+    public void testJsonSerializationDefaults() {
+        WildcardConditionBuilder builder = new WildcardConditionBuilder("field", "value");
+        testJsonSerialization(builder, "{type:\"wildcard\",field:\"field\",value:\"value\"}");
+    }
 
     @Test(expected = IndexException.class)
-    public void testBuildNullValue() {
+    public void testNullValue() {
         new WildcardCondition(0.1f, "field", null);
     }
 
     @Test
-    public void testBuildBlankValue() {
+    public void testBlankValue() {
 
         Schema schema = schema().mapper("name", stringMapper().indexed(true).sorted(true)).build();
 
         WildcardCondition wildcardCondition = new WildcardCondition(0.5f, "name", " ");
         Query query = wildcardCondition.query(schema);
 
-        assertNotNull(query);
-        assertEquals(WildcardQuery.class, query.getClass());
-        WildcardQuery luceneQuery = (WildcardQuery) query;
-        assertEquals("name", luceneQuery.getField());
-        assertEquals(" ", luceneQuery.getTerm().text());
-        assertEquals(0.5f, query.getBoost(), 0);
+        assertNotNull("Query is not built", query);
+        assertEquals("Expected wildcard query", WildcardQuery.class, query.getClass());
+        WildcardQuery wildcardQuery = (WildcardQuery) query;
+        assertEquals("Field name is not properly set", "name", wildcardQuery.getField());
+        assertEquals("Term text is not properly set", " ", wildcardQuery.getTerm().text());
+        assertEquals("Boost is not properly set", 0.5f, query.getBoost(), 0);
     }
 
     @Test
-    public void testString() {
+    public void testStringValue() {
 
         Schema schema = schema().mapper("name", stringMapper().indexed(true).sorted(true)).build();
 
         WildcardCondition wildcardCondition = new WildcardCondition(0.5f, "name", "tr*");
         Query query = wildcardCondition.query(schema);
 
-        assertNotNull(query);
-        assertEquals(WildcardQuery.class, query.getClass());
-        WildcardQuery luceneQuery = (WildcardQuery) query;
-        assertEquals("name", luceneQuery.getField());
-        assertEquals("tr*", luceneQuery.getTerm().text());
-        assertEquals(0.5f, query.getBoost(), 0);
+        assertNotNull("Query is not built", query);
+        assertEquals("Expected wildcard query", WildcardQuery.class, query.getClass());
+        WildcardQuery wildcardQuery = (WildcardQuery) query;
+        assertEquals("Field name is not properly set", "name", wildcardQuery.getField());
+        assertEquals("Term text is not properly set", "tr*", wildcardQuery.getTerm().text());
+        assertEquals("Boost is not properly set", 0.5f, query.getBoost(), 0);
     }
 
     @Test(expected = IndexException.class)
-    public void testInteger() {
+    public void testIntegerValue() {
 
         Schema schema = schema().mapper("name", integerMapper()).build();
 
@@ -81,41 +114,43 @@ public class WildcardConditionTest {
     }
 
     @Test
-    public void testInetV4() {
+    public void testInetV4Value() {
 
         Schema schema = schema().mapper("name", inetMapper()).build();
 
         WildcardCondition wildcardCondition = new WildcardCondition(0.5f, "name", "192.168.*");
         Query query = wildcardCondition.query(schema);
 
-        assertNotNull(query);
-        assertEquals(WildcardQuery.class, query.getClass());
-        WildcardQuery luceneQuery = (WildcardQuery) query;
-        assertEquals("name", luceneQuery.getField());
-        assertEquals("192.168.*", luceneQuery.getTerm().text());
-        assertEquals(0.5f, query.getBoost(), 0);
+        assertNotNull("Query is not built", query);
+        assertEquals("Expected wildcard query", WildcardQuery.class, query.getClass());
+        WildcardQuery wildcardQuery = (WildcardQuery) query;
+        assertEquals("Field name is not properly set", "name", wildcardQuery.getField());
+        assertEquals("Term text is not properly set", "192.168.*", wildcardQuery.getTerm().text());
+        assertEquals("Boost is not properly set", 0.5f, query.getBoost(), 0);
     }
 
     @Test
-    public void testInetV6() {
+    public void testInetV6Value() {
 
         Schema schema = schema().mapper("name", inetMapper()).build();
 
         WildcardCondition condition = new WildcardCondition(0.5f, "name", "2001:db8:2de:0:0:0:0:e*");
         Query query = condition.query(schema);
 
-        assertNotNull(query);
-        assertEquals(WildcardQuery.class, query.getClass());
-        WildcardQuery luceneQuery = (WildcardQuery) query;
-        assertEquals("name", luceneQuery.getField());
-        assertEquals("2001:db8:2de:0:0:0:0:e*", luceneQuery.getTerm().text());
-        assertEquals(0.5f, query.getBoost(), 0);
+        assertNotNull("Query is not built", query);
+        assertEquals("Expected wildcard query", WildcardQuery.class, query.getClass());
+        WildcardQuery wildcardQuery = (WildcardQuery) query;
+        assertEquals("Field name is not properly set", "name", wildcardQuery.getField());
+        assertEquals("Term text is not properly set", "2001:db8:2de:0:0:0:0:e*", wildcardQuery.getTerm().text());
+        assertEquals("Boost is not properly set", 0.5f, query.getBoost(), 0);
     }
 
     @Test
     public void testToString() {
         WildcardCondition condition = SearchBuilders.wildcard("name", "aaa*").boost(0.5f).build();
-        assertEquals("WildcardCondition{boost=0.5, field=name, value=aaa*}", condition.toString());
+        assertEquals("Method #toString is wrong",
+                     "WildcardCondition{boost=0.5, field=name, value=aaa*}",
+                     condition.toString());
     }
 
 }

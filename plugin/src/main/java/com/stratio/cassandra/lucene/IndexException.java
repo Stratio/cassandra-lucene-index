@@ -18,8 +18,6 @@
 
 package com.stratio.cassandra.lucene;
 
-import com.stratio.cassandra.lucene.util.Log;
-
 /**
  * {@code RuntimeException} to be thrown when there are schema-related errors.
  *
@@ -50,7 +48,6 @@ public class IndexException extends RuntimeException {
      */
     public IndexException(Throwable cause, String message, Object... args) {
         super(String.format(message, args), cause);
-        Log.error(cause, message, args);
     }
 
 }

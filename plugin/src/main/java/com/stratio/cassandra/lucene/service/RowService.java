@@ -23,7 +23,6 @@ import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import com.stratio.cassandra.lucene.search.Search;
-import com.stratio.cassandra.lucene.util.Log;
 import com.stratio.cassandra.lucene.util.TimeCounter;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
@@ -43,6 +42,8 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -65,8 +66,12 @@ import static org.apache.lucene.search.SortField.FIELD_SCORE;
  */
 public abstract class RowService {
 
+    private static final Logger logger = LoggerFactory.getLogger(RowService.class);
+
     /** The max number of rows to be read per iteration. */
     private static final int MAX_PAGE_SIZE = 100000;
+
+    /** The default number of rows to be read per iteration. */
     private static final int FILTERING_PAGE_SIZE = 1000;
 
     final ColumnFamilyStore baseCfs;
@@ -216,7 +221,7 @@ public abstract class RowService {
                                   final int limit,
                                   long timestamp,
                                   RowKey after) throws IOException {
-        Log.debug("Searching with search %s ", search);
+        logger.debug("Searching with search {} ", search);
 
         // Setup stats
         TimeCounter searchTime = TimeCounter.create().start();
@@ -289,9 +294,9 @@ public abstract class RowService {
         Collections.sort(rows, comparator);
 
         searchTime.stop();
-        Log.debug("Lucene time: %s", luceneTime);
-        Log.debug("Cassandra time: %s", collectTime);
-        Log.debug("Collected %d docs and %d rows in %d pages in %s", numDocs, numRows, numPages, searchTime);
+        logger.debug("Lucene time: {}", luceneTime);
+        logger.debug("Cassandra time: {}", collectTime);
+        logger.debug("Collected {} docs and {} rows in {} pages in {}", numDocs, numRows, numPages, searchTime);
 
         return rows;
     }
@@ -337,6 +342,7 @@ public abstract class RowService {
         } else if (search.usesRelevance()) {
             return new Sort(ArrayUtils.addAll(new SortField[]{FIELD_SCORE}, rowMapper.sortFields()));
         } else {
+//            return null;
             return new Sort(rowMapper.sortFields());
         }
     }
@@ -361,7 +367,7 @@ public abstract class RowService {
         Set<String> fields = Collections.emptySet();
         Map<Document, ScoreDoc> results = luceneIndex.search(searcher, afterQuery, sort, null, 1, fields);
         ScoreDoc scoreDoc = results.isEmpty() ? null : results.values().iterator().next();
-        Log.debug("Search after time: %s", time.stop());
+        logger.debug("Search after time: {}", time.stop());
         return scoreDoc;
     }
 
