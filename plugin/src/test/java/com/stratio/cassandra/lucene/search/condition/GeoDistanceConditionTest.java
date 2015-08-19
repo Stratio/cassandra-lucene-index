@@ -150,11 +150,11 @@ public class GeoDistanceConditionTest extends AbstractConditionTest {
         assertEquals("Query num clauses is wrong", 2, booleanQuery.getClauses().length);
 
         BooleanClause minClause = booleanQuery.getClauses()[1];
-        assertEquals(BooleanClause.Occur.MUST_NOT, minClause.getOccur());
+        assertEquals("Query is wrong", BooleanClause.Occur.MUST_NOT, minClause.getOccur());
         query = minClause.getQuery();
-        assertTrue(query instanceof ConstantScoreQuery);
+        assertTrue("Query is wrong", query instanceof ConstantScoreQuery);
         query = ((ConstantScoreQuery) query).getQuery();
-        assertTrue(query instanceof IntersectsPrefixTreeFilter);
+        assertTrue("Query is wrong", query instanceof IntersectsPrefixTreeFilter);
         IntersectsPrefixTreeFilter minFilter = (IntersectsPrefixTreeFilter) query;
         assertEquals("Query is wrong",
                      "IntersectsPrefixTreeFilter(fieldName=name.dist,queryShape=Circle(Pt(x=-180.0,y=90.0), " +
@@ -162,7 +162,7 @@ public class GeoDistanceConditionTest extends AbstractConditionTest {
                      minFilter.toString());
 
         BooleanClause maxClause = booleanQuery.getClauses()[0];
-        assertEquals(BooleanClause.Occur.FILTER, maxClause.getOccur());
+        assertEquals("Query is wrong", BooleanClause.Occur.FILTER, maxClause.getOccur());
         query = maxClause.getQuery();
         assertTrue("Query type is wrong", query instanceof ConstantScoreQuery);
         query = ((ConstantScoreQuery) query).getQuery();

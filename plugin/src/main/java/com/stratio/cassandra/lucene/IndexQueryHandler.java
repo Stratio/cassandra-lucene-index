@@ -133,17 +133,16 @@ public class IndexQueryHandler implements QueryHandler {
             ColumnFamilyStore cfs = Keyspace.open(select.keyspace()).getColumnFamilyStore(select.columnFamily());
             SecondaryIndexManager secondaryIndexManager = cfs.indexManager;
             SecondaryIndexSearcher searcher = secondaryIndexManager.getHighestSelectivityIndexSearcher(expressions);
-            if (searcher != null && searcher instanceof IndexSearcher) {
+            if (searcher instanceof IndexSearcher) {
                 try {
                     TimeCounter time = TimeCounter.create().start();
                     ResultMessage msg = process((IndexSearcher) searcher, expressions, select, state, options);
-                    logger.debug("Total Lucene query time: %s\n", time.stop());
+                    logger.debug("Total Lucene query time: {}\n", time.stop());
                     return msg;
                 } catch (RequestExecutionException | RequestValidationException e) {
                     throw e;
                 } catch (Exception e) {
-                    e.printStackTrace();
-                    throw new RuntimeException(e);
+                    throw new IndexException(e);
                 }
             }
         }
@@ -151,11 +150,11 @@ public class IndexQueryHandler implements QueryHandler {
         return cqlProcessor.processStatement(prepared, state, options);
     }
 
-    public ResultMessage process(IndexSearcher searcher,
-                                 List<IndexExpression> expressions,
-                                 SelectStatement statement,
-                                 QueryState state,
-                                 QueryOptions options) throws Exception {
+    private ResultMessage process(IndexSearcher searcher,
+                                  List<IndexExpression> expressions,
+                                  SelectStatement statement,
+                                  QueryState state,
+                                  QueryOptions options) throws Exception {
 
         ClientState clientState = state.getClientState();
         statement.checkAccess(clientState);
@@ -170,7 +169,9 @@ public class IndexQueryHandler implements QueryHandler {
         long now = System.currentTimeMillis();
 
         ConsistencyLevel cl = options.getConsistency();
-        if (cl == null) throw new InvalidRequestException("Invalid empty consistency level");
+        if (cl == null) {
+            throw new InvalidRequestException("Invalid empty consistency level");
+        }
         cl.validateForRead(ks);
 
         IDiskAtomFilter filter = makeFilter(statement, options, limit);

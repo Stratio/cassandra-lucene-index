@@ -57,7 +57,7 @@ public class BitemporalMapper extends Mapper {
     /** The {@link DateParser} pattern. */
     public final String pattern;
 
-    /** The {@link DateParser} */
+    /** The {@link DateParser}. */
     private final DateParser dateParser;
 
     /** The name of the column containing the valid time start. **/
@@ -75,7 +75,7 @@ public class BitemporalMapper extends Mapper {
     /** The NOW Value. **/
     public final Long nowValue;
 
-    private final String T1UT2FieldSuffix = ".T1UT2";
+    private static final String T1UT2_FIELD_SUFFIX = ".T1UT2";
 
     // ttTo=now vtTo=now 2 DateRangePrefixTree
     private NumberRangePrefixTreeStrategy strategyT1V;
@@ -101,12 +101,13 @@ public class BitemporalMapper extends Mapper {
     /**
      * Builds a new {@link BitemporalMapper}.
      *
-     * @param field   the name of the field.
-     * @param vtFrom  The column name containing the valid time start.
-     * @param vtTo    The column name containing the valid time stop.
-     * @param ttFrom  The column name containing the transaction time start.
-     * @param ttTo    The column name containing the transaction time stop.
-     * @param pattern The date format pattern to be used.
+     * @param field    the name of the field.
+     * @param vtFrom   The column name containing the valid time start.
+     * @param vtTo     The column name containing the valid time stop.
+     * @param ttFrom   The column name containing the transaction time start.
+     * @param ttTo     The column name containing the transaction time stop.
+     * @param pattern  The date format pattern to be used.
+     * @param nowValue The value representing now.
      */
     public BitemporalMapper(String field,
                             String vtFrom,
@@ -228,7 +229,7 @@ public class BitemporalMapper extends Mapper {
     }
 
     public String getT1UT2FieldName() {
-        return field + T1UT2FieldSuffix;
+        return field + T1UT2_FIELD_SUFFIX;
 
     }
 
@@ -271,11 +272,10 @@ public class BitemporalMapper extends Mapper {
             Shape shapeV = makeShape(treeT1V, vtFrom, vtFrom);
             for (IndexableField field : strategyT1V.createIndexableFields(shapeV)) document.add(field);
             document.add(new IntField(getT1UT2FieldName(), 1, STORE));
-
             Shape shapeT = makeShape(treeT1T, ttFrom, ttFrom);
             for (IndexableField field : strategyT1T.createIndexableFields(shapeT)) document.add(field);
 
-        } else if (ttTo.isNow() && (!vtTo.isNow())) {// T2
+        } else if (ttTo.isNow() && (!vtTo.isNow())) { // T2
             Shape shapeV = makeShape(treeT2V, vtFrom, vtTo);
             for (IndexableField field : strategyT2V.createIndexableFields(shapeV)) document.add(field);
             document.add(new IntField(getT1UT2FieldName(), 1, STORE));

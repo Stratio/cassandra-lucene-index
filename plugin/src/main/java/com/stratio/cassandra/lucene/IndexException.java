@@ -40,14 +40,21 @@ public class IndexException extends RuntimeException {
     /**
      * Constructs a new index exception with the specified formatted detail message.
      *
-     * It also logs  the cause and the message.
-     *
      * @param cause   The cause.
      * @param message The detail message.
      * @param args    Arguments referenced by the format specifiers in the format message.
      */
     public IndexException(Throwable cause, String message, Object... args) {
         super(String.format(message, args), cause);
+    }
+
+    /**
+     * Constructs a new index exception with the specified cause.
+     *
+     * @param cause The cause.
+     */
+    public IndexException(Throwable cause) {
+        super(cause);
     }
 
 }
