@@ -21,6 +21,7 @@ package com.stratio.cassandra.lucene.schema.mapping;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
+import com.stratio.cassandra.lucene.schema.mapping.BitemporalMapper.BitemporalDateTime;
 import com.stratio.cassandra.lucene.schema.mapping.builder.BitemporalMapperBuilder;
 import com.stratio.cassandra.lucene.util.DateParser;
 import org.apache.cassandra.config.CFMetaData;
@@ -52,25 +53,20 @@ public class BitemporalMapperTest extends AbstractMapperTest {
     @Test
     public void testConstructorWithDefaultArgs() {
         BitemporalMapper mapper = new BitemporalMapperBuilder("vtFrom", "vtTo", "ttFrom", "ttTo").build("field");
-        assertEquals("field", mapper.field);
-        assertTrue(mapper.indexed);
-        assertFalse(mapper.sorted);
-        assertEquals("vtFrom", mapper.vtFrom);
-        assertEquals("vtTo", mapper.vtTo);
-        assertEquals("ttFrom", mapper.ttFrom);
-        assertEquals("ttTo", mapper.ttTo);
-        assertEquals("Mapped columns are not properly set", 4, mapper.mappedColumns.size());
-        assertTrue("Mapped columns are not set", mapper.mappedColumns.contains("vtFrom"));
-        assertTrue("Mapped columns are not set", mapper.mappedColumns.contains("vtTo"));
-        assertTrue("Mapped columns are not set", mapper.mappedColumns.contains("ttFrom"));
-        assertTrue("Mapped columns are not set", mapper.mappedColumns.contains("ttTo"));
-        assertEquals((Long) Long.MAX_VALUE, mapper.nowValue);
-        assertEquals(DateParser.DEFAULT_PATTERN, mapper.pattern);
+        assertEquals("Field is not set", "field", mapper.field);
+        assertTrue("Indexed is not set", mapper.indexed);
+        assertFalse("Sorted is not set", mapper.sorted);
+        assertEquals("vtFrom is not set", "vtFrom", mapper.vtFrom);
+        assertEquals("vtTo is not set", "vtTo", mapper.vtTo);
+        assertEquals("ttFrom is not set", "ttFrom", mapper.ttFrom);
+        assertEquals("ttTo is not set", "ttTo", mapper.ttTo);
+        assertEquals("Now value is not set to default", Long.MAX_VALUE, mapper.nowValue, 0);
+        assertEquals("Date pattern is not set to default", DateParser.DEFAULT_PATTERN, mapper.pattern);
         for (int i = 0; i <= 3; i++) {
-            assertNotNull(mapper.getStrategy(i, true));
-            assertNotNull(mapper.getStrategy(i, false));
-            assertNotNull(mapper.getTree(i, true));
-            assertNotNull(mapper.getTree(i, false));
+            assertNotNull("Strategies are wrong", mapper.getStrategy(i, true));
+            assertNotNull("Strategies are wrong", mapper.getStrategy(i, false));
+            assertNotNull("Strategies are wrong", mapper.getTree(i, true));
+            assertNotNull("Strategies are wrong", mapper.getTree(i, false));
         }
     }
 
@@ -82,21 +78,29 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         assertEquals("Field is not set", "field", mapper.field);
         assertTrue("Indexed is not set", mapper.indexed);
         assertFalse("Sorted is not set", mapper.sorted);
-        assertEquals("vtFrom", mapper.vtFrom);
-        assertEquals("vtTo", mapper.vtTo);
-        assertEquals("ttFrom", mapper.ttFrom);
-        assertEquals("ttTo", mapper.ttTo);
-        assertEquals("yyyy/MM/dd", mapper.pattern);
+        assertEquals("vtFrom is not set", "vtFrom", mapper.vtFrom);
+        assertEquals("vtTo is not set", "vtTo", mapper.vtTo);
+        assertEquals("ttFrom is not set", "ttFrom", mapper.ttFrom);
+        assertEquals("ttTo is not set", "ttTo", mapper.ttTo);
 
-        assertEquals(mapper.parseBiTemporalDate("2021/03/11"), BitemporalMapper.BitemporalDateTime.MAX);
+        assertEquals("Date pattern is wrong", mapper.parseBiTemporalDate("2021/03/11"), BitemporalDateTime.MAX);
 
         for (int i = 0; i <= 3; i++) {
-            assertNotNull(mapper.getStrategy(i, true));
-            assertNotNull(mapper.getStrategy(i, false));
-            assertNotNull(mapper.getTree(i, true));
-            assertNotNull(mapper.getTree(i, false));
+            assertNotNull("Strategies are wrong", mapper.getStrategy(i, true));
+            assertNotNull("Strategies are wrong", mapper.getStrategy(i, false));
+            assertNotNull("Strategies are wrong", mapper.getTree(i, true));
+            assertNotNull("Strategies are wrong", mapper.getTree(i, false));
         }
+    }
 
+    @Test
+    public void testMappedColumns() {
+        BitemporalMapper mapper = new BitemporalMapperBuilder("vtFrom", "vtTo", "ttFrom", "ttTo").build("field");
+        assertEquals("Mapped columns are not properly set", 4, mapper.mappedColumns.size());
+        assertTrue("Mapped columns are not set", mapper.mappedColumns.contains("vtFrom"));
+        assertTrue("Mapped columns are not set", mapper.mappedColumns.contains("vtTo"));
+        assertTrue("Mapped columns are not set", mapper.mappedColumns.contains("ttFrom"));
+        assertTrue("Mapped columns are not set", mapper.mappedColumns.contains("ttTo"));
     }
 
     @Test
@@ -197,7 +201,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         columns.add(Column.fromComposed("vtTo", 0, Int32Type.instance, false));
         columns.add(Column.fromComposed("ttFrom", 0, Int32Type.instance, false));
         columns.add(Column.fromComposed("ttTo", 0, Int32Type.instance, false));
-        assertEquals(new BitemporalMapper.BitemporalDateTime(5L), mapper.readBitemporalDate(columns, "vtFrom"));
+        assertEquals("Date parsing is wrong", new BitemporalDateTime(5L), mapper.readBitemporalDate(columns, "vtFrom"));
     }
 
     @Test()
@@ -208,7 +212,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         columns.add(Column.fromComposed("vtTo", 0L, LongType.instance, false));
         columns.add(Column.fromComposed("ttFrom", 0L, LongType.instance, false));
         columns.add(Column.fromComposed("ttTo", 0L, LongType.instance, false));
-        assertEquals(new BitemporalMapper.BitemporalDateTime(5L), mapper.readBitemporalDate(columns, "vtFrom"));
+        assertEquals("Date parsing is wrong", new BitemporalDateTime(5L), mapper.readBitemporalDate(columns, "vtFrom"));
     }
 
     @Test()
@@ -219,7 +223,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         columns.add(Column.fromComposed("vtTo", BigInteger.valueOf(0), IntegerType.instance, false));
         columns.add(Column.fromComposed("ttFrom", BigInteger.valueOf(0), IntegerType.instance, false));
         columns.add(Column.fromComposed("ttTo", BigInteger.valueOf(0), IntegerType.instance, false));
-        assertEquals(new BitemporalMapper.BitemporalDateTime(5L), mapper.readBitemporalDate(columns, "vtFrom"));
+        assertEquals("Date parsing is wrong", new BitemporalDateTime(5L), mapper.readBitemporalDate(columns, "vtFrom"));
     }
 
     @Test()
@@ -230,7 +234,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         columns.add(Column.fromComposed("vtTo", 0.0f, FloatType.instance, false));
         columns.add(Column.fromComposed("ttFrom", 0.0f, FloatType.instance, false));
         columns.add(Column.fromComposed("ttTo", 0.0f, FloatType.instance, false));
-        assertEquals(new BitemporalMapper.BitemporalDateTime(5L), mapper.readBitemporalDate(columns, "vtFrom"));
+        assertEquals("Date parsing is wrong", new BitemporalDateTime(5L), mapper.readBitemporalDate(columns, "vtFrom"));
     }
 
     @Test()
@@ -241,7 +245,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         columns.add(Column.fromComposed("vtTo", 0.0, DoubleType.instance, false));
         columns.add(Column.fromComposed("ttFrom", 0.0, DoubleType.instance, false));
         columns.add(Column.fromComposed("ttTo", 0.0, DoubleType.instance, false));
-        assertEquals(new BitemporalMapper.BitemporalDateTime(5L), mapper.readBitemporalDate(columns, "vtFrom"));
+        assertEquals("Date parsing is wrong", new BitemporalDateTime(5L), mapper.readBitemporalDate(columns, "vtFrom"));
     }
 
     @Test()
@@ -252,7 +256,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         columns.add(Column.fromComposed("vtTo", BigDecimal.valueOf(0.0), DecimalType.instance, false));
         columns.add(Column.fromComposed("ttFrom", BigDecimal.valueOf(0.0), DecimalType.instance, false));
         columns.add(Column.fromComposed("ttTo", BigDecimal.valueOf(0.0), DecimalType.instance, false));
-        assertEquals(new BitemporalMapper.BitemporalDateTime(5L), mapper.readBitemporalDate(columns, "vtFrom"));
+        assertEquals("Date parsing is wrong", new BitemporalDateTime(5L), mapper.readBitemporalDate(columns, "vtFrom"));
     }
 
     @Test()
@@ -276,7 +280,9 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        assertEquals(new BitemporalMapper.BitemporalDateTime(date), mapper.readBitemporalDate(columns, "vtFrom"));
+        assertEquals("Date parsing is wrong",
+                     new BitemporalDateTime(date),
+                     mapper.readBitemporalDate(columns, "vtFrom"));
     }
 
     @Test()
@@ -300,7 +306,9 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        assertEquals(new BitemporalMapper.BitemporalDateTime(date), mapper.readBitemporalDate(columns, "vtFrom"));
+        assertEquals("Date parsing is wrong",
+                     new BitemporalDateTime(date),
+                     mapper.readBitemporalDate(columns, "vtFrom"));
     }
 
     @Test()
@@ -324,7 +332,9 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         columns.add(Column.fromComposed("vtTo", date, TimestampType.instance, false));
         columns.add(Column.fromComposed("ttFrom", date, TimestampType.instance, false));
         columns.add(Column.fromComposed("ttTo", date, TimestampType.instance, false));
-        assertEquals(new BitemporalMapper.BitemporalDateTime(date), mapper.readBitemporalDate(columns, "vtFrom"));
+        assertEquals("Date parsing is wrong",
+                     new BitemporalDateTime(date),
+                     mapper.readBitemporalDate(columns, "vtFrom"));
     }
 
     @Test()
@@ -335,7 +345,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         columns.add(Column.fromComposed("vtTo", 5, Int32Type.instance, false));
         columns.add(Column.fromComposed("ttFrom", 0, Int32Type.instance, false));
         columns.add(Column.fromComposed("ttTo", 0, Int32Type.instance, false));
-        assertEquals(new BitemporalMapper.BitemporalDateTime(5L), mapper.readBitemporalDate(columns, "vtTo"));
+        assertEquals("Date parsing is wrong", new BitemporalDateTime(5L), mapper.readBitemporalDate(columns, "vtTo"));
     }
 
     @Test()
@@ -346,7 +356,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         columns.add(Column.fromComposed("vtTo", 5L, LongType.instance, false));
         columns.add(Column.fromComposed("ttFrom", 0L, LongType.instance, false));
         columns.add(Column.fromComposed("ttTo", 0L, LongType.instance, false));
-        assertEquals(new BitemporalMapper.BitemporalDateTime(5L), mapper.readBitemporalDate(columns, "vtTo"));
+        assertEquals("Date parsing is wrong", new BitemporalDateTime(5L), mapper.readBitemporalDate(columns, "vtTo"));
     }
 
     @Test()
@@ -357,7 +367,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         columns.add(Column.fromComposed("vtTo", BigInteger.valueOf(5), IntegerType.instance, false));
         columns.add(Column.fromComposed("ttFrom", BigInteger.valueOf(0), IntegerType.instance, false));
         columns.add(Column.fromComposed("ttTo", BigInteger.valueOf(0), IntegerType.instance, false));
-        assertEquals(new BitemporalMapper.BitemporalDateTime(5L), mapper.readBitemporalDate(columns, "vtTo"));
+        assertEquals("Date parsing is wrong", new BitemporalDateTime(5L), mapper.readBitemporalDate(columns, "vtTo"));
     }
 
     @Test()
@@ -368,7 +378,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         columns.add(Column.fromComposed("vtTo", 5.0f, FloatType.instance, false));
         columns.add(Column.fromComposed("ttFrom", 0.0f, FloatType.instance, false));
         columns.add(Column.fromComposed("ttTo", 0.0f, FloatType.instance, false));
-        assertEquals(new BitemporalMapper.BitemporalDateTime(5L), mapper.readBitemporalDate(columns, "vtTo"));
+        assertEquals("Date parsing is wrong", new BitemporalDateTime(5L), mapper.readBitemporalDate(columns, "vtTo"));
     }
 
     @Test()
@@ -379,7 +389,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         columns.add(Column.fromComposed("vtTo", 5.0, DoubleType.instance, false));
         columns.add(Column.fromComposed("ttFrom", 0.0, DoubleType.instance, false));
         columns.add(Column.fromComposed("ttTo", 0.0, DoubleType.instance, false));
-        assertEquals(new BitemporalMapper.BitemporalDateTime(5L), mapper.readBitemporalDate(columns, "vtTo"));
+        assertEquals("Date parsing is wrong", new BitemporalDateTime(5L), mapper.readBitemporalDate(columns, "vtTo"));
     }
 
     @Test()
@@ -390,7 +400,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         columns.add(Column.fromComposed("vtTo", BigDecimal.valueOf(5.0), DecimalType.instance, false));
         columns.add(Column.fromComposed("ttFrom", BigDecimal.valueOf(0.0), DecimalType.instance, false));
         columns.add(Column.fromComposed("ttTo", BigDecimal.valueOf(0.0), DecimalType.instance, false));
-        assertEquals(new BitemporalMapper.BitemporalDateTime(5L), mapper.readBitemporalDate(columns, "vtTo"));
+        assertEquals("Date parsing is wrong", new BitemporalDateTime(5L), mapper.readBitemporalDate(columns, "vtTo"));
     }
 
     @Test()
@@ -414,7 +424,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        assertEquals(new BitemporalMapper.BitemporalDateTime(date), mapper.readBitemporalDate(columns, "vtTo"));
+        assertEquals("Date parsing is wrong", new BitemporalDateTime(date), mapper.readBitemporalDate(columns, "vtTo"));
     }
 
     @Test()
@@ -438,7 +448,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        assertEquals(new BitemporalMapper.BitemporalDateTime(date), mapper.readBitemporalDate(columns, "vtTo"));
+        assertEquals("Date parsing is wrong", new BitemporalDateTime(date), mapper.readBitemporalDate(columns, "vtTo"));
     }
 
     @Test()
@@ -462,7 +472,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         columns.add(Column.fromComposed("vtTo", date, TimestampType.instance, false));
         columns.add(Column.fromComposed("ttFrom", date, TimestampType.instance, false));
         columns.add(Column.fromComposed("ttTo", date, TimestampType.instance, false));
-        assertEquals(new BitemporalMapper.BitemporalDateTime(date), mapper.readBitemporalDate(columns, "vtTo"));
+        assertEquals("Date parsing is wrong", new BitemporalDateTime(date), mapper.readBitemporalDate(columns, "vtTo"));
     }
 
     @Test()
@@ -473,7 +483,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         columns.add(Column.fromComposed("vtTo", 0, Int32Type.instance, false));
         columns.add(Column.fromComposed("ttFrom", 5, Int32Type.instance, false));
         columns.add(Column.fromComposed("ttTo", 0, Int32Type.instance, false));
-        assertEquals(new BitemporalMapper.BitemporalDateTime(5L), mapper.readBitemporalDate(columns, "ttFrom"));
+        assertEquals("Date parsing is wrong", new BitemporalDateTime(5L), mapper.readBitemporalDate(columns, "ttFrom"));
     }
 
     @Test()
@@ -484,7 +494,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         columns.add(Column.fromComposed("vtTo", 0L, LongType.instance, false));
         columns.add(Column.fromComposed("ttFrom", 5L, LongType.instance, false));
         columns.add(Column.fromComposed("ttTo", 0L, LongType.instance, false));
-        assertEquals(new BitemporalMapper.BitemporalDateTime(5L), mapper.readBitemporalDate(columns, "ttFrom"));
+        assertEquals("Date parsing is wrong", new BitemporalDateTime(5L), mapper.readBitemporalDate(columns, "ttFrom"));
     }
 
     @Test()
@@ -495,7 +505,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         columns.add(Column.fromComposed("vtTo", BigInteger.valueOf(0), IntegerType.instance, false));
         columns.add(Column.fromComposed("ttFrom", BigInteger.valueOf(5), IntegerType.instance, false));
         columns.add(Column.fromComposed("ttTo", BigInteger.valueOf(0), IntegerType.instance, false));
-        assertEquals(new BitemporalMapper.BitemporalDateTime(5L), mapper.readBitemporalDate(columns, "ttFrom"));
+        assertEquals("Date parsing is wrong", new BitemporalDateTime(5L), mapper.readBitemporalDate(columns, "ttFrom"));
     }
 
     @Test()
@@ -506,7 +516,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         columns.add(Column.fromComposed("vtTo", 0.0f, FloatType.instance, false));
         columns.add(Column.fromComposed("ttFrom", 5.0f, FloatType.instance, false));
         columns.add(Column.fromComposed("ttTo", 0.0f, FloatType.instance, false));
-        assertEquals(new BitemporalMapper.BitemporalDateTime(5L), mapper.readBitemporalDate(columns, "ttFrom"));
+        assertEquals("Date parsing is wrong", new BitemporalDateTime(5L), mapper.readBitemporalDate(columns, "ttFrom"));
     }
 
     @Test()
@@ -517,7 +527,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         columns.add(Column.fromComposed("vtTo", 0.0, DoubleType.instance, false));
         columns.add(Column.fromComposed("ttFrom", 5.0, DoubleType.instance, false));
         columns.add(Column.fromComposed("ttTo", 0.0, DoubleType.instance, false));
-        assertEquals(new BitemporalMapper.BitemporalDateTime(5L), mapper.readBitemporalDate(columns, "ttFrom"));
+        assertEquals("Date parsing is wrong", new BitemporalDateTime(5L), mapper.readBitemporalDate(columns, "ttFrom"));
     }
 
     @Test()
@@ -528,7 +538,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         columns.add(Column.fromComposed("vtTo", BigDecimal.valueOf(0.0), DecimalType.instance, false));
         columns.add(Column.fromComposed("ttFrom", BigDecimal.valueOf(5.0), DecimalType.instance, false));
         columns.add(Column.fromComposed("ttTo", BigDecimal.valueOf(0.0), DecimalType.instance, false));
-        assertEquals(new BitemporalMapper.BitemporalDateTime(5L), mapper.readBitemporalDate(columns, "ttFrom"));
+        assertEquals("Date parsing is wrong", new BitemporalDateTime(5L), mapper.readBitemporalDate(columns, "ttFrom"));
     }
 
     @Test()
@@ -552,7 +562,9 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        assertEquals(new BitemporalMapper.BitemporalDateTime(date), mapper.readBitemporalDate(columns, "ttFrom"));
+        assertEquals("Date parsing is wrong",
+                     new BitemporalDateTime(date),
+                     mapper.readBitemporalDate(columns, "ttFrom"));
     }
 
     @Test()
@@ -576,7 +588,9 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        assertEquals(new BitemporalMapper.BitemporalDateTime(date), mapper.readBitemporalDate(columns, "ttFrom"));
+        assertEquals("Date parsing is wrong",
+                     new BitemporalDateTime(date),
+                     mapper.readBitemporalDate(columns, "ttFrom"));
     }
 
     @Test()
@@ -600,7 +614,9 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         columns.add(Column.fromComposed("vtTo", date, TimestampType.instance, false));
         columns.add(Column.fromComposed("ttFrom", date, TimestampType.instance, false));
         columns.add(Column.fromComposed("ttTo", date, TimestampType.instance, false));
-        assertEquals(new BitemporalMapper.BitemporalDateTime(date), mapper.readBitemporalDate(columns, "ttFrom"));
+        assertEquals("Date parsing is wrong",
+                     new BitemporalDateTime(date),
+                     mapper.readBitemporalDate(columns, "ttFrom"));
     }
 
     @Test()
@@ -611,7 +627,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         columns.add(Column.fromComposed("vtTo", 0, Int32Type.instance, false));
         columns.add(Column.fromComposed("ttFrom", 0, Int32Type.instance, false));
         columns.add(Column.fromComposed("ttTo", 5, Int32Type.instance, false));
-        assertEquals(new BitemporalMapper.BitemporalDateTime(5L), mapper.readBitemporalDate(columns, "ttTo"));
+        assertEquals("Date parsing is wrong", new BitemporalDateTime(5L), mapper.readBitemporalDate(columns, "ttTo"));
     }
 
     @Test()
@@ -622,7 +638,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         columns.add(Column.fromComposed("vtTo", 0L, LongType.instance, false));
         columns.add(Column.fromComposed("ttFrom", 0L, LongType.instance, false));
         columns.add(Column.fromComposed("ttTo", 5L, LongType.instance, false));
-        assertEquals(new BitemporalMapper.BitemporalDateTime(5L), mapper.readBitemporalDate(columns, "ttTo"));
+        assertEquals("Date parsing is wrong", new BitemporalDateTime(5L), mapper.readBitemporalDate(columns, "ttTo"));
     }
 
     @Test()
@@ -633,7 +649,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         columns.add(Column.fromComposed("vtTo", BigInteger.valueOf(0), IntegerType.instance, false));
         columns.add(Column.fromComposed("ttFrom", BigInteger.valueOf(0), IntegerType.instance, false));
         columns.add(Column.fromComposed("ttTo", BigInteger.valueOf(5), IntegerType.instance, false));
-        assertEquals(new BitemporalMapper.BitemporalDateTime(5L), mapper.readBitemporalDate(columns, "ttTo"));
+        assertEquals("Date parsing is wrong", new BitemporalDateTime(5L), mapper.readBitemporalDate(columns, "ttTo"));
     }
 
     @Test()
@@ -644,7 +660,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         columns.add(Column.fromComposed("vtTo", 0.0f, FloatType.instance, false));
         columns.add(Column.fromComposed("ttFrom", 0.0f, FloatType.instance, false));
         columns.add(Column.fromComposed("ttTo", 5.0f, FloatType.instance, false));
-        assertEquals(new BitemporalMapper.BitemporalDateTime(5L), mapper.readBitemporalDate(columns, "ttTo"));
+        assertEquals("Date parsing is wrong", new BitemporalDateTime(5L), mapper.readBitemporalDate(columns, "ttTo"));
     }
 
     @Test()
@@ -655,7 +671,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         columns.add(Column.fromComposed("vtTo", 0.0, DoubleType.instance, false));
         columns.add(Column.fromComposed("ttFrom", 0.0, DoubleType.instance, false));
         columns.add(Column.fromComposed("ttTo", 5.0, DoubleType.instance, false));
-        assertEquals(new BitemporalMapper.BitemporalDateTime(5L), mapper.readBitemporalDate(columns, "ttTo"));
+        assertEquals("Date parsing is wrong", new BitemporalDateTime(5L), mapper.readBitemporalDate(columns, "ttTo"));
     }
 
     @Test()
@@ -666,7 +682,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         columns.add(Column.fromComposed("vtTo", BigDecimal.valueOf(0.0), DecimalType.instance, false));
         columns.add(Column.fromComposed("ttFrom", BigDecimal.valueOf(0.0), DecimalType.instance, false));
         columns.add(Column.fromComposed("ttTo", BigDecimal.valueOf(5.0), DecimalType.instance, false));
-        assertEquals(new BitemporalMapper.BitemporalDateTime(5L), mapper.readBitemporalDate(columns, "ttTo"));
+        assertEquals("Date parsing is wrong", new BitemporalDateTime(5L), mapper.readBitemporalDate(columns, "ttTo"));
     }
 
     @Test()
@@ -690,7 +706,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        assertEquals(new BitemporalMapper.BitemporalDateTime(date), mapper.readBitemporalDate(columns, "ttTo"));
+        assertEquals("Date parsing is wrong", new BitemporalDateTime(date), mapper.readBitemporalDate(columns, "ttTo"));
     }
 
     @Test()
@@ -714,7 +730,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        assertEquals(new BitemporalMapper.BitemporalDateTime(date), mapper.readBitemporalDate(columns, "ttTo"));
+        assertEquals("Date parsing is wrong", new BitemporalDateTime(date), mapper.readBitemporalDate(columns, "ttTo"));
     }
 
     @Test()
@@ -738,7 +754,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         columns.add(Column.fromComposed("vtTo", date, TimestampType.instance, false));
         columns.add(Column.fromComposed("ttFrom", date, TimestampType.instance, false));
         columns.add(Column.fromComposed("ttTo", date, TimestampType.instance, false));
-        assertEquals(new BitemporalMapper.BitemporalDateTime(date), mapper.readBitemporalDate(columns, "ttTo"));
+        assertEquals("Date parsing is wrong", new BitemporalDateTime(date), mapper.readBitemporalDate(columns, "ttTo"));
     }
 
     @Test
@@ -756,7 +772,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         columns.add(Column.fromComposed("tt_from", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
         columns.add(Column.fromComposed("tt_to", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
 
-        assertEquals(expectedDate, mapper.readBitemporalDate(columns, "vt_from").toDate());
+        assertEquals("Date parsing is wrong", expectedDate, mapper.readBitemporalDate(columns, "vt_from").toDate());
     }
 
     @Test
@@ -780,7 +796,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         columns.add(Column.fromComposed("tt_from", "2015-02-28", UTF8Type.instance, false));
         columns.add(Column.fromComposed("tt_to", "2015-02-28", UTF8Type.instance, false));
 
-        assertEquals(expectedDate, mapper.readBitemporalDate(columns, "vt_from").toDate());
+        assertEquals("Date parsing is wrong", expectedDate, mapper.readBitemporalDate(columns, "vt_from").toDate());
     }
 
     @Test(expected = IndexException.class)
@@ -834,7 +850,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         columns.add(Column.fromComposed("tt_from", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
         columns.add(Column.fromComposed("tt_to", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
 
-        assertEquals(expectedDate, mapper.readBitemporalDate(columns, "vt_to").toDate());
+        assertEquals("Date parsing is wrong", expectedDate, mapper.readBitemporalDate(columns, "vt_to").toDate());
     }
 
     @Test
@@ -858,7 +874,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         columns.add(Column.fromComposed("tt_from", "2015-02-28", UTF8Type.instance, false));
         columns.add(Column.fromComposed("tt_to", "2015-02-28", UTF8Type.instance, false));
 
-        assertEquals(expectedDate, mapper.readBitemporalDate(columns, "vt_to").toDate());
+        assertEquals("Date parsing is wrong", expectedDate, mapper.readBitemporalDate(columns, "vt_to").toDate());
     }
 
     @Test(expected = IndexException.class)
@@ -899,7 +915,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         columns.add(Column.fromComposed("tt_from", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
         columns.add(Column.fromComposed("tt_to", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
 
-        assertEquals(expectedDate, mapper.readBitemporalDate(columns, "tt_from").toDate());
+        assertEquals("Date parsing is wrong", expectedDate, mapper.readBitemporalDate(columns, "tt_from").toDate());
     }
 
     @Test
@@ -923,7 +939,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         columns.add(Column.fromComposed("tt_from", "2015-02-28", UTF8Type.instance, false));
         columns.add(Column.fromComposed("tt_to", "2015-02-28", UTF8Type.instance, false));
 
-        assertEquals(expectedDate, mapper.readBitemporalDate(columns, "tt_from").toDate());
+        assertEquals("Date parsing is wrong", expectedDate, mapper.readBitemporalDate(columns, "tt_from").toDate());
     }
 
     @Test(expected = IndexException.class)
@@ -964,7 +980,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         columns.add(Column.fromComposed("tt_from", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
         columns.add(Column.fromComposed("tt_to", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
 
-        assertEquals(expectedDate, mapper.readBitemporalDate(columns, "tt_to").toDate());
+        assertEquals("Date parsing is wrong", expectedDate, mapper.readBitemporalDate(columns, "tt_to").toDate());
     }
 
     @Test
@@ -988,7 +1004,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         columns.add(Column.fromComposed("tt_from", "2015-02-28", UTF8Type.instance, false));
         columns.add(Column.fromComposed("tt_to", "2015-02-28", UTF8Type.instance, false));
 
-        assertEquals(expectedDate, mapper.readBitemporalDate(columns, "tt_to").toDate());
+        assertEquals("Date parsing is wrong", expectedDate, mapper.readBitemporalDate(columns, "tt_to").toDate());
     }
 
     @Test(expected = IndexException.class)
@@ -1011,7 +1027,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         columns.add(Column.fromComposed("vt_from", -1, Int32Type.instance, false));
         columns.add(Column.fromComposed("vt_to", -1, Int32Type.instance, false));
         columns.add(Column.fromComposed("tt_from", -1, Int32Type.instance, false));
-        assertNull(mapper.readBitemporalDate(new Columns(), "tt_to"));
+        assertNull("Date parsing is wrong", mapper.readBitemporalDate(new Columns(), "tt_to"));
     }
 
     @Test(expected = IndexException.class)
@@ -1025,14 +1041,14 @@ public class BitemporalMapperTest extends AbstractMapperTest {
                                         String[] nonWishedIndexedFieldNames) {
         for (String wishedIndexedFieldName : wishedIndexedFieldNames) {
             IndexableField[] indexableFields = doc.getFields(wishedIndexedFieldName);
-            assertEquals(1, indexableFields.length);
-            assertTrue(indexableFields[0] instanceof Field);
-            assertEquals(wishedIndexedFieldName, indexableFields[0].name());
+            assertEquals("Add fields is wrong", 1, indexableFields.length);
+            assertTrue("Add fields is wrong", indexableFields[0] instanceof Field);
+            assertEquals("Add fields is wrong", wishedIndexedFieldName, indexableFields[0].name());
         }
 
         for (String nonWishedIndexedFieldName : nonWishedIndexedFieldNames) {
             IndexableField[] indexableFields = doc.getFields(nonWishedIndexedFieldName);
-            assertEquals(0, indexableFields.length);
+            assertEquals("Add fields is wrong", 0, indexableFields.length);
         }
     }
 
@@ -1129,13 +1145,13 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         Columns columns = new Columns();
         Document document = new Document();
         mapper.addFields(document, columns);
-        assertEquals(0, document.getFields().size());
+        assertEquals("Null columns should produce no fields", 0, document.getFields().size());
     }
 
     @Test
     public void testExtractAnalyzers() {
         BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null, null);
-        assertNull(mapper.analyzer);
+        assertNull("Analyzer should be null", mapper.analyzer);
     }
 
     @Test
@@ -1219,7 +1235,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
             date = format.parse("2025/12/23");
             String exp = "BitemporalMapper{field=field, vtFrom=vtFrom, vtTo=vtTo, ttFrom=ttFrom, ttTo=ttTo, " +
                          "pattern=yyyy/MM/dd, nowValue=" + date.getTime() + "}";
-            assertEquals(exp, mapper.toString());
+            assertEquals("Method #toString is wrong", exp, mapper.toString());
         } catch (ParseException e) {
             e.printStackTrace();
         }

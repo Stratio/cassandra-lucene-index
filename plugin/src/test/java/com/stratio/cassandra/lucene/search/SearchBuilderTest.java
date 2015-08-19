@@ -19,7 +19,6 @@
 package com.stratio.cassandra.lucene.search;
 
 import com.stratio.cassandra.lucene.IndexException;
-import com.stratio.cassandra.lucene.search.SearchBuilder;
 import com.stratio.cassandra.lucene.search.condition.builder.ConditionBuilder;
 import com.stratio.cassandra.lucene.search.sort.builder.SortFieldBuilder;
 import com.stratio.cassandra.lucene.util.JsonSerializer;

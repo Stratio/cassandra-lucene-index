@@ -26,7 +26,7 @@ import com.stratio.cassandra.lucene.search.sort.builder.SortFieldBuilder;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class SearchBuilders {
+public final class SearchBuilders {
 
     /** Private constructor to hide the implicit public one. */
     private SearchBuilders() {

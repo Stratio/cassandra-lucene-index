@@ -148,7 +148,7 @@ public final class ClusteringKeyMapper {
      * @param columnDefinition The column definition.
      * @return A storage engine column name.
      */
-    public final CellName makeCellName(CellName cellName, ColumnDefinition columnDefinition) {
+    public CellName makeCellName(CellName cellName, ColumnDefinition columnDefinition) {
         return cellNameType.create(start(cellName), columnDefinition);
     }
 
@@ -158,7 +158,7 @@ public final class ClusteringKeyMapper {
      * @param row A {@link Row}.
      * @return The first clustering key contained in the specified row.
      */
-    public final CellName clusteringKey(Row row) {
+    public CellName clusteringKey(Row row) {
         return clusteringKey(row.cf);
     }
 
@@ -168,7 +168,7 @@ public final class ClusteringKeyMapper {
      * @param document A {@link Document}.
      * @return The clustering key contained in the specified {@link CellName}.
      */
-    public final CellName clusteringKey(Document document) {
+    public CellName clusteringKey(Document document) {
         String string = document.get(FIELD_NAME);
         ByteBuffer bb = ByteBufferUtils.fromString(string);
         return cellNameType.cellFromByteBuffer(bb);
@@ -180,7 +180,7 @@ public final class ClusteringKeyMapper {
      * @param bytesRef The {@link BytesRef} containing the raw clustering key to be get.
      * @return The clustering key contained in the specified Lucene field value.
      */
-    public final CellName clusteringKey(BytesRef bytesRef) {
+    public CellName clusteringKey(BytesRef bytesRef) {
         String string = bytesRef.utf8ToString();
         ByteBuffer bb = ByteBufferUtils.fromString(string);
         return cellNameType.cellFromByteBuffer(bb);
@@ -233,7 +233,7 @@ public final class ClusteringKeyMapper {
      * @param columnFamily A {@link ColumnFamily}.
      * @return The {@link Columns} representing the data contained in the specified {@link ColumnFamily}.
      */
-    public final Columns columns(ColumnFamily columnFamily) {
+    public Columns columns(ColumnFamily columnFamily) {
         int numClusteringColumns = metadata.clusteringColumns().size();
         Columns columns = new Columns();
         if (numClusteringColumns > 0) {
@@ -259,7 +259,7 @@ public final class ClusteringKeyMapper {
      * @param columnFamily A {@link ColumnFamily}.
      * @return A map associating clustering keys with its {@link ColumnFamily}.
      */
-    public final Map<CellName, ColumnFamily> splitRows(ColumnFamily columnFamily) {
+    public Map<CellName, ColumnFamily> splitRows(ColumnFamily columnFamily) {
         Map<CellName, ColumnFamily> columnFamilies = new LinkedHashMap<>();
         for (Cell cell : columnFamily) {
             CellName cellName = cell.name();
@@ -282,7 +282,7 @@ public final class ClusteringKeyMapper {
      * @param clusteringKeys A sorted list of clustering keys.
      * @return The specified clustering keys as an array of {@link ColumnSlice}s.
      */
-    public final ColumnSlice[] columnSlices(List<CellName> clusteringKeys) {
+    public ColumnSlice[] columnSlices(List<CellName> clusteringKeys) {
         List<CellName> sortedClusteringKeys = sort(clusteringKeys);
         ColumnSlice[] columnSlices = new ColumnSlice[clusteringKeys.size()];
         int i = 0;
@@ -353,7 +353,7 @@ public final class ClusteringKeyMapper {
      * @param cellName A cell name.
      * @return The {@code String} human-readable representation of the specified cell name.
      */
-    public final String toString(Composite cellName) {
+    public String toString(Composite cellName) {
         return ByteBufferUtils.toString(cellName.toByteBuffer(), cellNameType.asAbstractType());
     }
 

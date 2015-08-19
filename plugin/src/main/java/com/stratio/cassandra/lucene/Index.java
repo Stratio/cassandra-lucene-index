@@ -63,7 +63,7 @@ public class Index extends PerRowSecondaryIndex {
 
             field.set(null, new IndexQueryHandler());
         } catch (Exception e) {
-            logger.error("Unable to set Lucene CQL query handler");
+            logger.error("Unable to set Lucene CQL query handler", e);
         }
     }
 

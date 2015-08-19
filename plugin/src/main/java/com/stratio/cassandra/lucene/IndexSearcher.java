@@ -131,8 +131,6 @@ public class IndexSearcher extends SecondaryIndexSearcher {
         try {
             String json = UTF8Type.instance.compose(indexExpression.value);
             SearchBuilder.fromJson(json).build().validate(schema);
-        } catch (IndexException e) {
-            throw new InvalidRequestException(e.getMessage());
         } catch (Exception e) {
             logger.error("Error while validating search", e);
             throw new InvalidRequestException(e.getMessage());

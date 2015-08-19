@@ -67,7 +67,7 @@ public class UUIDMapper extends KeywordMapper {
                 UUID uuid = UUID.fromString(string);
                 return serialize(uuid);
             } catch (IllegalArgumentException e) {
-                throw new IndexException("Field '%s' with value '%s' can not be parsed as UUID", name, value);
+                throw new IndexException(e, "Field '%s' with value '%s' can not be parsed as UUID", name, value);
             }
         }
         throw new IndexException("Field '%s' requires an UUID, but found '%s'", name, value);

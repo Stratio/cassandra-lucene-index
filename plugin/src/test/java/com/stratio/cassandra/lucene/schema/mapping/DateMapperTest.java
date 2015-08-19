@@ -96,8 +96,8 @@ public class DateMapperTest extends AbstractMapperTest {
     public void testSortField() {
         DateMapper mapper = new DateMapper("name", null, null, null, PATTERN);
         SortField sortField = mapper.sortField("name", true);
-        assertNotNull(sortField);
-        assertTrue(sortField.getReverse());
+        assertNotNull("SortField is not built", sortField);
+        assertTrue("SortField reverse is wrong", sortField.getReverse());
     }
 
     @Test()

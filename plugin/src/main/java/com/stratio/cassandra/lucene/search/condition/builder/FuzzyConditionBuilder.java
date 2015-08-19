@@ -54,7 +54,7 @@ public class FuzzyConditionBuilder extends ConditionBuilder<FuzzyCondition, Fuzz
     private Boolean transpositions;
 
     /**
-     * Returns a new {@link FuzzyConditionBuilder}
+     * Returns a new {@link FuzzyConditionBuilder}.
      *
      * @param field the name of the field to be matched.
      * @param value the value of the field to be matched.

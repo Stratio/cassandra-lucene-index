@@ -78,33 +78,39 @@ public class DateParser {
     public Date parse(Object value) {
         if (value == null) {
             return null;
-        }
-        if (value instanceof Date) {
+        } else if (value instanceof Date) {
             return (Date) value;
+        } else if (pattern.equals(TIMESTAMP_PATTERN_FIELD)) {
+            return parseAsTimestamp(value);
+        } else {
+            return parseAsFormattedDate(value);
         }
-        if (pattern.equals(TIMESTAMP_PATTERN_FIELD)) {
-            Long valueLong = null;
-            if (value instanceof Number) {
-                valueLong = ((Number) value).longValue();
-            } else {
-                try {
-                    valueLong = Long.parseLong((value).toString());
-                } catch (NumberFormatException e) {
-                    //ignore to Fail
-                }
-            }
-            if (valueLong != null) {
-                return new Date(valueLong);
-            }
+    }
+
+    private Date parseAsTimestamp(Object value) {
+        Long valueLong;
+        if (value instanceof Number) {
+            valueLong = ((Number) value).longValue();
         } else {
             try {
-                return concurrentDateFormat.get().parse(value.toString());
-            } catch (ParseException e) {
-                // Ignore to throw above Exception
+                valueLong = Long.parseLong((value).toString());
+            } catch (NumberFormatException e) {
+                valueLong = null;
             }
         }
-        throw new IndexException("Valid date required but found '%s', it can't be parsed by pattern '%s' " +
-                                 "and is not instance of Date nor Number", value, pattern);
+        if (valueLong != null) {
+            return new Date(valueLong);
+        } else {
+            throw new IndexException("Valid timestamp required but found '%s'", value);
+        }
+    }
+
+    private Date parseAsFormattedDate(Object value) {
+        try {
+            return concurrentDateFormat.get().parse(value.toString());
+        } catch (ParseException e) {
+            throw new IndexException("Required date with pattern '%s' but found '%s'", pattern, value);
+        }
     }
 
     @Override

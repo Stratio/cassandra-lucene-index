@@ -152,7 +152,7 @@ public class UUIDMapperTest extends AbstractMapperTest {
         assertNotNull("Field must not be null", field);
         assertEquals("Field name is wrong", "name", field.name());
         assertEquals("Field value is wrong", base, field.stringValue());
-        assertFalse(field.fieldType().stored());
+        assertFalse("Field type is wrong", field.fieldType().stored());
     }
 
     @Test
@@ -328,7 +328,7 @@ public class UUIDMapperTest extends AbstractMapperTest {
             }
         });
 
-        assertEquals(expectedList.size(), actualList.size());
+        assertEquals("Native and term comparisons are different", expectedList.size(), actualList.size());
         for (int i = 0; i < expectedList.size(); i++) {
             UUID expectedUUID = expectedList.get(i);
             UUID actualUUID = actualList.get(i);

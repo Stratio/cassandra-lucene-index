@@ -247,7 +247,7 @@ public class MatchConditionTest extends AbstractConditionTest {
 
         assertNotNull("Query is not built", query);
         assertEquals("Query type is wrong", TermQuery.class, query.getClass());
-        
+
         TermQuery termQuery = (TermQuery) query;
         assertEquals("Query value is wrong", "2001:db8:2de:0:0:0:0:e13", termQuery.getTerm().bytes().utf8ToString());
         assertEquals("Query boost is wrong", 0.5f, query.getBoost(), 0);

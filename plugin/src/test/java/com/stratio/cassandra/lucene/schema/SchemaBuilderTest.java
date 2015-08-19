@@ -43,41 +43,61 @@ public class SchemaBuilderTest {
         Schema schema = schema().defaultAnalyzer("custom")
                                 .analyzer("custom", classpathAnalyzer("org.apache.lucene.analysis.en.EnglishAnalyzer"))
                                 .analyzer("snowball", snowballAnalyzer("English", "the,at"))
-                                .mapper("big_int", bigIntegerMapper().digits(10))
-                                .mapper("big_dec", bigDecimalMapper().indexed(false).sorted(true))
-                                .mapper("bitemporal", bitemporalMapper("vt_from", "vt_to", "tt_from", "tt_to"))
                                 .mapper("blob", blobMapper())
                                 .mapper("bool", booleanMapper())
                                 .mapper("date", dateMapper())
-                                .mapper("date_range", dateRangeMapper("from", "to"))
                                 .mapper("double", doubleMapper())
                                 .mapper("float", floatMapper())
-                                .mapper("geo", geoPointMapper("lat", "lon"))
                                 .mapper("inet", inetMapper())
-                                .mapper("int", integerMapper().boost(0.3f))
-                                .mapper("long", longMapper())
                                 .mapper("string", stringMapper())
                                 .mapper("text", textMapper().analyzer("snowball"))
                                 .mapper("uuid", uuidMapper())
                                 .build();
         assertEquals("Failed schema building", EnglishAnalyzer.class, schema.getDefaultAnalyzer().getClass());
-        assertEquals("Failed schema building", BigIntegerMapper.class, schema.getMapper("big_int").getClass());
-        assertEquals("Failed schema building", BigDecimalMapper.class, schema.getMapper("big_dec").getClass());
-        assertEquals("Failed schema building", BitemporalMapper.class, schema.getMapper("bitemporal").getClass());
         assertEquals("Failed schema building", BlobMapper.class, schema.getMapper("blob").getClass());
         assertEquals("Failed schema building", BooleanMapper.class, schema.getMapper("bool").getClass());
         assertEquals("Failed schema building", DateMapper.class, schema.getMapper("date").getClass());
-        assertEquals("Failed schema building", DateRangeMapper.class, schema.getMapper("date_range").getClass());
-        assertEquals("Failed schema building", DoubleMapper.class, schema.getMapper("double").getClass());
-        assertEquals("Failed schema building", FloatMapper.class, schema.getMapper("float").getClass());
-        assertEquals("Failed schema building", GeoPointMapper.class, schema.getMapper("geo").getClass());
         assertEquals("Failed schema building", InetMapper.class, schema.getMapper("inet").getClass());
-        assertEquals("Failed schema building", IntegerMapper.class, schema.getMapper("int").getClass());
-        assertEquals("Failed schema building", LongMapper.class, schema.getMapper("long").getClass());
         assertEquals("Failed schema building", StringMapper.class, schema.getMapper("string").getClass());
         assertEquals("Failed schema building", TextMapper.class, schema.getMapper("text").getClass());
         assertEquals("Failed schema building", SnowballAnalyzer.class, schema.getAnalyzer("text").getClass());
         assertEquals("Failed schema building", UUIDMapper.class, schema.getMapper("uuid").getClass());
+    }
+
+    @Test
+    public void testBuildNumeric() throws Exception {
+        Schema schema = schema().defaultAnalyzer("custom")
+                                .analyzer("custom", classpathAnalyzer("org.apache.lucene.analysis.en.EnglishAnalyzer"))
+                                .analyzer("snowball", snowballAnalyzer("English", "the,at"))
+                                .mapper("big_int", bigIntegerMapper().digits(10))
+                                .mapper("big_dec", bigDecimalMapper().indexed(false).sorted(true))
+                                .mapper("double", doubleMapper())
+                                .mapper("float", floatMapper())
+                                .mapper("int", integerMapper().boost(0.3f))
+                                .mapper("long", longMapper())
+                                .build();
+        assertEquals("Failed schema building", EnglishAnalyzer.class, schema.getDefaultAnalyzer().getClass());
+        assertEquals("Failed schema building", BigIntegerMapper.class, schema.getMapper("big_int").getClass());
+        assertEquals("Failed schema building", BigDecimalMapper.class, schema.getMapper("big_dec").getClass());
+        assertEquals("Failed schema building", DoubleMapper.class, schema.getMapper("double").getClass());
+        assertEquals("Failed schema building", FloatMapper.class, schema.getMapper("float").getClass());
+        assertEquals("Failed schema building", IntegerMapper.class, schema.getMapper("int").getClass());
+        assertEquals("Failed schema building", LongMapper.class, schema.getMapper("long").getClass());
+    }
+
+    @Test
+    public void testBuildComplex() throws Exception {
+        Schema schema = schema().defaultAnalyzer("custom")
+                                .analyzer("custom", classpathAnalyzer("org.apache.lucene.analysis.en.EnglishAnalyzer"))
+                                .analyzer("snowball", snowballAnalyzer("English", "the,at"))
+                                .mapper("bitemporal", bitemporalMapper("vt_from", "vt_to", "tt_from", "tt_to"))
+                                .mapper("date_range", dateRangeMapper("from", "to"))
+                                .mapper("geo", geoPointMapper("lat", "lon"))
+                                .build();
+        assertEquals("Failed schema building", EnglishAnalyzer.class, schema.getDefaultAnalyzer().getClass());
+        assertEquals("Failed schema building", BitemporalMapper.class, schema.getMapper("bitemporal").getClass());
+        assertEquals("Failed schema building", DateRangeMapper.class, schema.getMapper("date_range").getClass());
+        assertEquals("Failed schema building", GeoPointMapper.class, schema.getMapper("geo").getClass());
     }
 
     @Test
@@ -128,7 +148,36 @@ public class SchemaBuilderTest {
     }
 
     @Test
-    public void testFromJson() throws IOException {
+    public void testFromJsonRegular() throws IOException {
+        String json = "{analyzers:{" +
+                      "custom:{type:\"classpath\",class:\"org.apache.lucene.analysis.en.EnglishAnalyzer\"}," +
+                      "snowball:{type:\"snowball\",language:\"English\",stopwords:\"the,at\"}}," +
+                      "default_analyzer:\"custom\"," +
+                      "fields:" +
+                      "{" +
+                      "blob:{type:\"bytes\"}," +
+                      "bool:{type:\"boolean\"}," +
+                      "date:{type:\"date\"}," +
+                      "inet:{type:\"inet\"}," +
+                      "string:{type:\"string\"}," +
+                      "text:{type:\"text\",analyzer:\"snowball\"}," +
+                      "uuid:{type:\"uuid\"}" +
+                      "}}";
+        Schema schema = SchemaBuilder.fromJson(json).build();
+        assertEquals("Failed schema JSON parsing", EnglishAnalyzer.class, schema.getDefaultAnalyzer().getClass());
+        assertEquals("Failed schema JSON parsing", BlobMapper.class, schema.getMapper("blob").getClass());
+        assertEquals("Failed schema JSON parsing", BooleanMapper.class, schema.getMapper("bool").getClass());
+        assertEquals("Failed schema JSON parsing", DateMapper.class, schema.getMapper("date").getClass());
+        assertEquals("Failed schema JSON parsing", InetMapper.class, schema.getMapper("inet").getClass());
+        assertEquals("Failed schema JSON parsing", StringMapper.class, schema.getMapper("string").getClass());
+        assertEquals("Failed schema JSON parsing", TextMapper.class, schema.getMapper("text").getClass());
+        assertEquals("Failed schema JSON parsing", SnowballAnalyzer.class, schema.getAnalyzer("text").getClass());
+        assertEquals("Failed schema JSON parsing", SnowballAnalyzer.class, schema.getAnalyzer("text.name").getClass());
+        assertEquals("Failed schema JSON parsing", UUIDMapper.class, schema.getMapper("uuid").getClass());
+    }
+
+    @Test
+    public void testFromJsonNumeric() throws IOException {
         String json = "{analyzers:{" +
                       "custom:{type:\"classpath\",class:\"org.apache.lucene.analysis.en.EnglishAnalyzer\"}," +
                       "snowball:{type:\"snowball\",language:\"English\",stopwords:\"the,at\"}}," +
@@ -136,40 +185,37 @@ public class SchemaBuilderTest {
                       "fields:" +
                       "{big_int:{type:\"bigint\",digits:10}," +
                       "big_dec:{type:\"bigdec\",indexed:false,sorted:true}," +
-                      "bitemporal:{type:\"bitemporal\",vt_from:\"vtFrom\",vt_to:\"vtTo\",tt_from:\"ttFrom\",tt_to:\"ttTo\"}," +
-                      "blob:{type:\"bytes\"}," +
-                      "bool:{type:\"boolean\"}," +
-                      "date:{type:\"date\"}," +
-                      "date_range:{type:\"date_range\",from:\"from\",to:\"to\"}," +
                       "double:{type:\"double\"}," +
                       "float:{type:\"float\"}," +
-                      "geo:{type:\"geo_point\",latitude:\"lat\",longitude:\"lon\"}," +
-                      "inet:{type:\"inet\"}," +
-                      "int:{type:\"integer\",boost:0.3}," +
-                      "long:{type:\"long\"}," +
-                      "string:{type:\"string\"}," +
-                      "text:{type:\"text\",analyzer:\"snowball\"}," +
-                      "uuid:{type:\"uuid\"}}}";
+                      "int:{type:\"integer\"}," +
+                      "long:{type:\"long\"}}}";
         Schema schema = SchemaBuilder.fromJson(json).build();
         assertEquals("Failed schema JSON parsing", EnglishAnalyzer.class, schema.getDefaultAnalyzer().getClass());
         assertEquals("Failed schema JSON parsing", BigIntegerMapper.class, schema.getMapper("big_int").getClass());
         assertEquals("Failed schema JSON parsing", BigDecimalMapper.class, schema.getMapper("big_dec").getClass());
-        assertEquals("Failed schema JSON parsing", BitemporalMapper.class, schema.getMapper("bitemporal").getClass());
-        assertEquals("Failed schema JSON parsing", BlobMapper.class, schema.getMapper("blob").getClass());
-        assertEquals("Failed schema JSON parsing", BooleanMapper.class, schema.getMapper("bool").getClass());
-        assertEquals("Failed schema JSON parsing", DateMapper.class, schema.getMapper("date").getClass());
-        assertEquals("Failed schema JSON parsing", DateRangeMapper.class, schema.getMapper("date_range").getClass());
         assertEquals("Failed schema JSON parsing", DoubleMapper.class, schema.getMapper("double").getClass());
         assertEquals("Failed schema JSON parsing", FloatMapper.class, schema.getMapper("float").getClass());
-        assertEquals("Failed schema JSON parsing", GeoPointMapper.class, schema.getMapper("geo").getClass());
-        assertEquals("Failed schema JSON parsing", InetMapper.class, schema.getMapper("inet").getClass());
         assertEquals("Failed schema JSON parsing", IntegerMapper.class, schema.getMapper("int").getClass());
         assertEquals("Failed schema JSON parsing", LongMapper.class, schema.getMapper("long").getClass());
-        assertEquals("Failed schema JSON parsing", StringMapper.class, schema.getMapper("string").getClass());
-        assertEquals("Failed schema JSON parsing", TextMapper.class, schema.getMapper("text").getClass());
-        assertEquals("Failed schema JSON parsing", SnowballAnalyzer.class, schema.getAnalyzer("text").getClass());
-        assertEquals("Failed schema JSON parsing", SnowballAnalyzer.class, schema.getAnalyzer("text.name").getClass());
-        assertEquals("Failed schema JSON parsing", UUIDMapper.class, schema.getMapper("uuid").getClass());
+    }
+
+    @Test
+    public void testFromJsonComplex() throws IOException {
+        String json = "{analyzers:{" +
+                      "custom:{type:\"classpath\",class:\"org.apache.lucene.analysis.en.EnglishAnalyzer\"}," +
+                      "snowball:{type:\"snowball\",language:\"English\",stopwords:\"the,at\"}}," +
+                      "default_analyzer:\"custom\"," +
+                      "fields:" +
+                      "{" +
+                      "bitemporal:{type:\"bitemporal\",vt_from:\"vtFrom\",vt_to:\"vtTo\",tt_from:\"ttFrom\",tt_to:\"ttTo\"}," +
+                      "date_range:{type:\"date_range\",from:\"from\",to:\"to\"}," +
+                      "geo:{type:\"geo_point\",latitude:\"lat\",longitude:\"lon\"}" +
+                      "}}";
+        Schema schema = SchemaBuilder.fromJson(json).build();
+        assertEquals("Failed schema JSON parsing", EnglishAnalyzer.class, schema.getDefaultAnalyzer().getClass());
+        assertEquals("Failed schema JSON parsing", BitemporalMapper.class, schema.getMapper("bitemporal").getClass());
+        assertEquals("Failed schema JSON parsing", DateRangeMapper.class, schema.getMapper("date_range").getClass());
+        assertEquals("Failed schema JSON parsing", GeoPointMapper.class, schema.getMapper("geo").getClass());
     }
 
     @Test

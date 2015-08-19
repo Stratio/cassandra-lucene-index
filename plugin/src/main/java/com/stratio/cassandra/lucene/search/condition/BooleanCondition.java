@@ -19,7 +19,6 @@
 package com.stratio.cassandra.lucene.search.condition;
 
 import com.google.common.base.Objects;
-import com.stratio.cassandra.lucene.Index;
 import com.stratio.cassandra.lucene.schema.Schema;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;

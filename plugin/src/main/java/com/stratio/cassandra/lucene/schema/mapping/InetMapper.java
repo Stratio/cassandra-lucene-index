@@ -58,16 +58,12 @@ public class InetMapper extends KeywordMapper {
     @Override
     protected String doBase(String name, Object value) {
         if (value instanceof InetAddress) {
-            return doBase(name, (InetAddress) value);
+            return ((InetAddress) value).getHostAddress();
         } else if (value instanceof String) {
             return doBase(name, (String) value);
         } else {
             throw new IndexException("Field '%s' requires an inet address, but found '%s'", name, value);
         }
-    }
-
-    private String doBase(String name, InetAddress value) {
-        return value.getHostAddress();
     }
 
     private String doBase(String name, String value) {

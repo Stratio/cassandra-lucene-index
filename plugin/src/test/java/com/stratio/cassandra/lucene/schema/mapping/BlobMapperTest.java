@@ -133,7 +133,7 @@ public class BlobMapperTest extends AbstractMapperTest {
     public void testValueStringLowerCaseWithPrefix() {
         BlobMapper mapper = new BlobMapper("field", null, null, null);
         String parsed = mapper.base("test", "0xf1");
-        assertEquals("f1", parsed);
+        assertEquals("Base value is not properly parsed", "f1", parsed);
     }
 
     @Test

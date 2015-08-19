@@ -133,7 +133,7 @@ public class IntegerMapperTest extends AbstractMapperTest {
     public void testValueFloatWithDecimalCeil() {
         IntegerMapper mapper = new IntegerMapper("field", null, null, null, 1f);
         Integer parsed = mapper.base("test", 3.6f);
-        assertEquals(Integer.valueOf(3), parsed);
+        assertEquals("Base for floats is wrong", Integer.valueOf(3), parsed);
 
     }
 
