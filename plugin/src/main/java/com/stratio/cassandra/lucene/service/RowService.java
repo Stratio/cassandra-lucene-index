@@ -318,16 +318,16 @@ public abstract class RowService {
             return new MatchAllDocsQuery();
         }
         BooleanQuery booleanQuery = new BooleanQuery();
-        if (query != null) {
-            booleanQuery.add(query, MUST);
+        if (range != null) {
+            booleanQuery.add(range, FILTER);
         }
         if (filter != null) {
             booleanQuery.add(filter, FILTER);
         }
-        if (range != null) {
-            booleanQuery.add(range, FILTER);
+        if (query != null) {
+            booleanQuery.add(query, MUST);
         }
-        return booleanQuery;
+        return new CachingWrapperQuery(booleanQuery);
     }
 
     /**
