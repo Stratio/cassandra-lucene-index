@@ -60,12 +60,19 @@ public class BitemporalMapper extends Mapper {
     /** The {@link DateParser} */
     private final DateParser dateParser;
 
-    /** Field names for the four fields. */
+    /** The name of the column containing the valid time start. **/
     public final String vtFrom;
+
+    /** The name of the column containing the valid time stop. **/
     public final String vtTo;
+
+    /** The name of the column containing the transaction time start. **/
     public final String ttFrom;
+
+    /** The name of the column containing the transaction time stop. **/
     public final String ttTo;
 
+    /** The NOW Value. **/
     public final Long nowValue;
 
     private final String T1UT2FieldSuffix = ".T1UT2";

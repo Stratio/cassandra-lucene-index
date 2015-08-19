@@ -112,7 +112,7 @@ public class ContainsConditionTest extends AbstractConditionTest {
         assertEquals("Query type is wrong", BooleanQuery.class, query.getClass());
 
         BooleanQuery booleanQuery = (BooleanQuery) query;
-        assertEquals(0.7f, query.getBoost(), 0);
+        assertEquals("Boost is not set", 0.7f, query.getBoost(), 0);
         BooleanClause[] clauses = booleanQuery.getClauses();
         assertEquals("Query is wrong", values.length, clauses.length);
         for (int i = 0; i < values.length; i++) {

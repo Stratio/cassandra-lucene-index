@@ -48,7 +48,6 @@ public class RegexpConditionTest extends AbstractConditionTest {
     public void testBuildDefaults() {
         RegexpConditionBuilder builder = new RegexpConditionBuilder("field", "value");
         RegexpCondition condition = builder.build();
-        assertNotNull(condition);
         assertNotNull("Condition is not built", condition);
         assertEquals("Boost is not set to default", Condition.DEFAULT_BOOST, condition.boost, 0);
         assertEquals("Field is not set", "field", condition.field);
@@ -83,8 +82,8 @@ public class RegexpConditionTest extends AbstractConditionTest {
         assertNotNull("Query is not built", query);
         assertEquals("Query type is wrong", RegexpQuery.class, query.getClass());
         RegexpQuery regexQuery = (RegexpQuery) query;
-        assertEquals("name", regexQuery.getField());
-        assertEquals(0.5f, query.getBoost(), 0);
+        assertEquals("Query field is wrong", "name", regexQuery.getField());
+        assertEquals("Query boost is wrong", 0.5f, query.getBoost(), 0);
     }
 
     @Test

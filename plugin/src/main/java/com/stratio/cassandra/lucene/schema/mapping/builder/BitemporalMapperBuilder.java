@@ -29,27 +29,27 @@ import org.codehaus.jackson.annotate.JsonProperty;
  */
 public class BitemporalMapperBuilder extends MapperBuilder<BitemporalMapper> {
 
-    /** The name of the column containing the vtStart **/
+    /** The name of the column containing the valid time start. **/
     @JsonProperty("vt_from")
     private final String vtFrom;
 
-    /** The name of the column containing the vtEnd **/
+    /** The name of the column containing the valid time stop. **/
     @JsonProperty("vt_to")
     private final String vtTo;
 
-    /** The name of the column containing the ttStart **/
+    /** The name of the column containing the transaction time start. **/
     @JsonProperty("tt_from")
     private final String ttFrom;
 
-    /** The name of the column containing the ttEnd **/
+    /** The name of the column containing the transaction time stop. **/
     @JsonProperty("tt_to")
     private final String ttTo;
 
-    /** Pattern of DateTime **/
+    /** The date pattern. **/
     @JsonProperty("pattern")
     private String pattern;
 
-    /** NOW Value **/
+    /** The NOW Value. **/
     @JsonProperty("now_value")
     private Object nowValue;
 

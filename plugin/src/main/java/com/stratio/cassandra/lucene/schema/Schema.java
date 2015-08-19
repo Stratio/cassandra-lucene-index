@@ -88,6 +88,7 @@ public class Schema implements Closeable {
     /**
      * Returns the {@link Analyzer} identified by the specified field name.
      *
+     * @param fieldName A field name.
      * @return The {@link Analyzer} identified by the specified field name.
      */
     public Analyzer getAnalyzer(String fieldName) {

@@ -39,23 +39,23 @@ public class GeoDistanceConditionTest extends AbstractConditionTest {
     @Test
     public void testConstructor() {
         GeoDistanceCondition condition = new GeoDistanceCondition(0.5f, "name", 90D, -180D, "3km", "10km");
-        assertEquals(0.5, condition.boost, 0);
-        assertEquals("name", condition.field);
-        assertEquals(-180, condition.longitude, 0);
-        assertEquals(90, condition.latitude, 0);
-        assertEquals("3km", condition.minDistance);
-        assertEquals("10km", condition.maxDistance);
+        assertEquals("Boost is not set", 0.5, condition.boost, 0);
+        assertEquals("Field is not set", "name", condition.field);
+        assertEquals("Longitude is not set", -180, condition.longitude, 0);
+        assertEquals("Latitude is not set", 90, condition.latitude, 0);
+        assertEquals("Min distance is not set", "3km", condition.minDistance);
+        assertEquals("Max distance is not set", "10km", condition.maxDistance);
     }
 
     @Test
     public void testConstructorWithDefaults() {
         GeoDistanceCondition condition = new GeoDistanceCondition(null, "name", 90D, -180D, null, "1yd");
-        assertEquals(GeoBBoxCondition.DEFAULT_BOOST, condition.boost, 0);
-        assertEquals("name", condition.field);
-        assertEquals(-180, condition.longitude, 0);
-        assertEquals(90, condition.latitude, 0);
-        assertNull(condition.minDistance);
-        assertEquals("1yd", condition.maxDistance);
+        assertEquals("Boost is not to default", Condition.DEFAULT_BOOST, condition.boost, 0);
+        assertEquals("Field is not set", "name", condition.field);
+        assertEquals("Longitude is not set", -180, condition.longitude, 0);
+        assertEquals("Latitude is not set", 90, condition.latitude, 0);
+        assertNull("Min distance is not set", condition.minDistance);
+        assertEquals("Max distance is not set", "1yd", condition.maxDistance);
     }
 
     @Test(expected = IndexException.class)

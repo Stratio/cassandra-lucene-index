@@ -39,24 +39,24 @@ public class GeoBBoxConditionTest extends AbstractConditionTest {
     public void testBuild() {
         GeoBBoxConditionBuilder builder = new GeoBBoxConditionBuilder("name", -90D, 90D, -180D, 180D).boost(0.5f);
         GeoBBoxCondition condition = builder.build();
-        assertEquals(0.5, condition.boost, 0);
-        assertEquals("name", condition.field);
-        assertEquals(-180, condition.minLongitude, 0);
-        assertEquals(180, condition.maxLongitude, 0);
-        assertEquals(-90, condition.minLatitude, 0);
-        assertEquals(90, condition.maxLatitude, 0);
+        assertEquals("Boost is not set", 0.5, condition.boost, 0);
+        assertEquals("Field is not set", "name", condition.field);
+        assertEquals("Min longitude is not set", -180, condition.minLongitude, 0);
+        assertEquals("Max longitude is not set", 180, condition.maxLongitude, 0);
+        assertEquals("Min latitude is not set", -90, condition.minLatitude, 0);
+        assertEquals("Max latitude is not set", 90, condition.maxLatitude, 0);
     }
 
     @Test
     public void testBuildDefaults() {
         GeoBBoxConditionBuilder builder = new GeoBBoxConditionBuilder("name", 2D, 3D, 0D, 1D);
         GeoBBoxCondition condition = builder.build();
-        assertEquals(GeoBBoxCondition.DEFAULT_BOOST, condition.boost, 0);
-        assertEquals("name", condition.field);
-        assertEquals(0, condition.minLongitude, 0);
-        assertEquals(1, condition.maxLongitude, 0);
-        assertEquals(2, condition.minLatitude, 0);
-        assertEquals(3, condition.maxLatitude, 0);
+        assertEquals("Boost is not to default", GeoBBoxCondition.DEFAULT_BOOST, condition.boost, 0);
+        assertEquals("Field is not set", "name", condition.field);
+        assertEquals("Min longitude is not set", 0, condition.minLongitude, 0);
+        assertEquals("Max longitude is not set", 1, condition.maxLongitude, 0);
+        assertEquals("Min latitude is not set", 2, condition.minLatitude, 0);
+        assertEquals("Max latitude is not set", 3, condition.maxLatitude, 0);
     }
 
     @Test(expected = IndexException.class)

@@ -153,9 +153,7 @@ public class DateParserTest {
         Date date = dateParser.parse(dateString);
 
         Date dateToCompare = new Date(Long.parseLong(dateString));
-        assertEquals("DateParser(" + pattern + ").parse(" + dateString.toString() + ") wrong parsed.",
-                     dateToCompare,
-                     date);
+        assertEquals("DateParser(" + pattern + ").parse(" + dateString + ") wrong parsed.", dateToCompare, date);
     }
 
     @Test
@@ -166,9 +164,7 @@ public class DateParserTest {
         Date date = dateParser.parse(dateLong);
 
         Date dateToCompare = new Date(dateLong);
-        assertEquals("DateParser(" + pattern + ").parse(" + dateLong.toString() + ") wrong parsed.",
-                     dateToCompare,
-                     date);
+        assertEquals(String.format("DateParser(%s).parse(%s) wrong parsed.", pattern, dateLong), dateToCompare, date);
     }
 
     @Test(expected = IndexException.class)
@@ -178,11 +174,9 @@ public class DateParserTest {
 
         String dateString = "2015/03/02";
         dateParser.parse(dateString);
-        fail("DateParser(" +
-             pattern +
-             ").parse(" +
-             dateString.toString() +
-             ") Must generate IndexException and does not do it");
+        fail(String.format("DateParser(%s).parse(%s) Must generate IndexException and does not do it",
+                           pattern,
+                           dateString));
     }
 
 }

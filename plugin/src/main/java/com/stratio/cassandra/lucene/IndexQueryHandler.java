@@ -54,6 +54,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -70,13 +71,15 @@ public class IndexQueryHandler implements QueryHandler {
 
     static QueryProcessor cqlProcessor = QueryProcessor.instance;
 
-    private IDiskAtomFilter makeFilter(SelectStatement statement, QueryOptions options, int limit) throws Exception {
+    private IDiskAtomFilter makeFilter(SelectStatement statement, QueryOptions options, int limit)
+    throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
         Method method = SelectStatement.class.getDeclaredMethod("makeFilter", QueryOptions.class, int.class);
         method.setAccessible(true);
         return (IDiskAtomFilter) method.invoke(statement, options, limit);
     }
 
-    private static boolean isCount(SelectStatement selectStatement) throws Exception {
+    private static boolean isCount(SelectStatement selectStatement)
+    throws IllegalAccessException, NoSuchFieldException {
         Field field = SelectStatement.Parameters.class.getDeclaredField("isCount");
         field.setAccessible(true);
         return (boolean) field.get(selectStatement.parameters);
@@ -116,10 +119,13 @@ public class IndexQueryHandler implements QueryHandler {
         ParsedStatement.Prepared p = QueryProcessor.getStatement(query, state.getClientState());
         options.prepare(p.boundNames);
         CQLStatement prepared = p.statement;
-        if (prepared.getBoundTerms() != options.getValues().size())
+        if (prepared.getBoundTerms() != options.getValues().size()) {
             throw new InvalidRequestException("Invalid amount of bind variables");
+        }
 
-        if (!state.getClientState().isInternal) QueryProcessor.metrics.regularStatementsExecuted.inc();
+        if (!state.getClientState().isInternal) {
+            QueryProcessor.metrics.regularStatementsExecuted.inc();
+        }
 
         if (prepared instanceof SelectStatement) {
             SelectStatement select = (SelectStatement) prepared;

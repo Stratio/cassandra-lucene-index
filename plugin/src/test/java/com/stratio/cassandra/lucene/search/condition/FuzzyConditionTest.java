@@ -26,7 +26,6 @@ import org.apache.lucene.search.Query;
 import org.junit.Test;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
-import static com.stratio.cassandra.lucene.search.condition.Condition.DEFAULT_BOOST;
 import static com.stratio.cassandra.lucene.search.condition.FuzzyCondition.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -124,7 +123,7 @@ public class FuzzyConditionTest extends AbstractConditionTest {
         FuzzyCondition condition = new FuzzyCondition(0.5f, "name", "tr", 1, 2, 49, true);
         Query query = condition.query(schema);
 
-        assertNotNull(query);
+        assertNotNull("Query is not built", query);
         assertEquals("Query type is wrong", FuzzyQuery.class, query.getClass());
 
         FuzzyQuery fuzzyQuery = (FuzzyQuery) query;

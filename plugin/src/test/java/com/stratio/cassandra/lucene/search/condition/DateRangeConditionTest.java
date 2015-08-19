@@ -24,13 +24,12 @@ import com.stratio.cassandra.lucene.search.condition.builder.DateRangeConditionB
 import org.apache.lucene.search.ConstantScoreQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.spatial.prefix.IntersectsPrefixTreeFilter;
-import org.apache.lucene.spatial.query.SpatialOperation;
 import org.junit.Test;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
 import static com.stratio.cassandra.lucene.search.SearchBuilders.dateRange;
-import static com.stratio.cassandra.lucene.search.condition.Condition.DEFAULT_BOOST;
 import static com.stratio.cassandra.lucene.search.condition.DateRangeCondition.*;
+import static org.apache.lucene.spatial.query.SpatialOperation.*;
 import static org.junit.Assert.*;
 
 /**
@@ -112,47 +111,47 @@ public class DateRangeConditionTest extends AbstractConditionTest {
 
     @Test
     public void testParseSpatialOperationIntersectsLowerCase() {
-        assertEquals(SpatialOperation.Intersects, DateRangeCondition.parseSpatialOperation("intersects"));
+        assertEquals("Operation is not properly parsed", Intersects, parseSpatialOperation("intersects"));
     }
 
     @Test
     public void testParseSpatialOperationIntersectsUpperCase() {
-        assertEquals(SpatialOperation.Intersects, DateRangeCondition.parseSpatialOperation("INTERSECTS"));
+        assertEquals("Operation is not properly parsed", Intersects, parseSpatialOperation("INTERSECTS"));
     }
 
     @Test
     public void testParseSpatialOperationIsWithinLowerCase() {
-        assertEquals(SpatialOperation.IsWithin, DateRangeCondition.parseSpatialOperation("is_within"));
+        assertEquals("Operation is not properly parsed", IsWithin, parseSpatialOperation("is_within"));
     }
 
     @Test
     public void testParseSpatialOperationIsWithinUpperCase() {
-        assertEquals(SpatialOperation.IsWithin, DateRangeCondition.parseSpatialOperation("IS_WITHIN"));
+        assertEquals("Operation is not properly parsed", IsWithin, parseSpatialOperation("IS_WITHIN"));
     }
 
     @Test
     public void testParseSpatialOperationIContainsLowerCase() {
-        assertEquals(SpatialOperation.Contains, DateRangeCondition.parseSpatialOperation("contains"));
+        assertEquals("Operation is not properly parsed", Contains, parseSpatialOperation("contains"));
     }
 
     @Test
     public void testParseSpatialOperationContainsUpperCase() {
-        assertEquals(SpatialOperation.Contains, DateRangeCondition.parseSpatialOperation("CONTAINS"));
+        assertEquals("Operation is not properly parsed", Contains, parseSpatialOperation("CONTAINS"));
     }
 
     @Test(expected = IndexException.class)
     public void testParseSpatialOperationNull() {
-        DateRangeCondition.parseSpatialOperation(null);
+        parseSpatialOperation(null);
     }
 
     @Test(expected = IndexException.class)
     public void testParseSpatialOperationEmpty() {
-        DateRangeCondition.parseSpatialOperation("");
+        parseSpatialOperation("");
     }
 
     @Test(expected = IndexException.class)
     public void testParseSpatialOperationBlank() {
-        DateRangeCondition.parseSpatialOperation(" ");
+        parseSpatialOperation(" ");
     }
 
     @Test

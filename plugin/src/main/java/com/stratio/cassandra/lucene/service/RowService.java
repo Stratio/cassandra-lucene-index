@@ -342,7 +342,6 @@ public abstract class RowService {
         } else if (search.usesRelevance()) {
             return new Sort(ArrayUtils.addAll(new SortField[]{FIELD_SCORE}, rowMapper.sortFields()));
         } else {
-//            return null;
             return new Sort(rowMapper.sortFields());
         }
     }

@@ -32,7 +32,7 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.search.SortField;
 import org.junit.Test;
 
-import java.util.Arrays;
+import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
 
@@ -113,7 +113,7 @@ public class MapperTest {
 
     private void testSupports(boolean expected, AbstractType<?> candidateType, AbstractType<?>... supportedTypes) {
 
-        Mapper mapper = new Mapper("field", null, null, null, Arrays.asList("field"), supportedTypes) {
+        Mapper mapper = new Mapper("field", null, null, null, Collections.singletonList("field"), supportedTypes) {
             @Override
             public void addFields(Document document, Columns columns) {
 
