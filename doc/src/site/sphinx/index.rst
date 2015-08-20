@@ -9,4 +9,5 @@ Stratio's Cassandra Lucene Index
     searching
     spark_and_hadoop
     jmx_interface
+    performance_tips
     using_sandbox
