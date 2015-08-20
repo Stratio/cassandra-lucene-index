@@ -149,7 +149,8 @@ The examples are based in a table called sensors, his table with its keyspace an
 					sensor_name : {type:"string"},
 					sensor_type : {type:"string"},
 					temp_value : {type:"float"},
-					place : {type:"geo_point", latitude:"latitude", longitude:"longitude"}
+					place : {type:"geo_point", latitude:"latitude", 
+							longitude:"longitude"}
 				}
 			}'
 		};
