@@ -121,7 +121,8 @@ The examples are based in a table called sensors, his table with its keyspace an
 .. code-block:: sql
 
 	--create keyspace
-	CREATE KEYSPACE spark_example_keyspace with replication = {'class':'SimpleStrategy', 'replication_factor': 1};
+	CREATE KEYSPACE spark_example_keyspace 
+	WITH replication = {'class':'SimpleStrategy', 'replication_factor': 1};
 	
 	USE spark_example_keyspace;
 	
