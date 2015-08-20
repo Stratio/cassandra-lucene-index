@@ -1,25 +1,26 @@
 /*
- * Copyright 2014, Stratio.
+ * Licensed to STRATIO (C) under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.  The STRATIO (C) licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
+
 package com.stratio.cassandra.lucene.search.condition;
 
+import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.mapping.IntegerMapper;
-import com.stratio.cassandra.lucene.schema.mapping.StringMapper;
-import com.stratio.cassandra.lucene.schema.mapping.TextMapper;
-import org.apache.lucene.analysis.en.EnglishAnalyzer;
+import com.stratio.cassandra.lucene.search.condition.builder.ContainsConditionBuilder;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.NumericRangeQuery;
@@ -27,9 +28,8 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.junit.Test;
 
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
@@ -37,81 +37,88 @@ import static org.mockito.Mockito.when;
 public class ContainsConditionTest extends AbstractConditionTest {
 
     @Test
-    public void testBuild() {
-        Schema schema = mock(Schema.class);
-        when(schema.getAnalyzer()).thenReturn(new EnglishAnalyzer());
-        Float boost = 0.7f;
-        String field = "test";
-        Object[] values = new Object[]{1, 2, 3};
-        ContainsCondition condition = new ContainsCondition(boost, field, values);
-        assertEquals(boost, condition.boost, 0);
-        assertEquals(field, condition.field);
-        assertArrayEquals(values, condition.values);
+    public void testBuildDefaults() {
+        Object[] values = new Object[]{"a", "b"};
+        ContainsCondition condition = new ContainsConditionBuilder("field", values).build();
+        assertNotNull("Condition is not built", condition);
+        assertEquals("Boost is not set to default", Condition.DEFAULT_BOOST, condition.boost, 0);
+        assertEquals("Field is not set", "field", condition.field);
+        assertArrayEquals("Values is not set", values, condition.values);
     }
 
     @Test
-    public void testBuildWithDefaults() {
-        Schema schema = mock(Schema.class);
-        when(schema.getAnalyzer()).thenReturn(new EnglishAnalyzer());
-        String field = "test";
-        Object[] values = new Object[]{1, 2, 3};
-        ContainsCondition condition = new ContainsCondition(null, field, values);
-        assertEquals(Condition.DEFAULT_BOOST, condition.boost, 0);
-        assertEquals(field, condition.field);
-        assertArrayEquals(values, condition.values);
+    public void testBuildStrings() {
+        Object[] values = new Object[]{"a", "b"};
+        ContainsCondition condition = new ContainsConditionBuilder("field", values).boost(0.7).build();
+        assertNotNull("Condition is not built", condition);
+        assertEquals("Boost is not set", 0.7f, condition.boost, 0);
+        assertEquals("Field is not set", "field", condition.field);
+        assertArrayEquals("Values is not set", values, condition.values);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
+    public void testBuildNumbers() {
+        Object[] values = new Object[]{1, 2, -3};
+        ContainsCondition condition = new ContainsConditionBuilder("field", values).boost(0.7).build();
+        assertNotNull("Condition is not built", condition);
+        assertEquals("Boost is not set", 0.7f, condition.boost, 0);
+        assertEquals("Field is not set", "field", condition.field);
+        assertArrayEquals("Values is not set", values, condition.values);
+    }
+
+    @Test(expected = IndexException.class)
     public void testBuildWithNullField() {
-        Schema schema = mock(Schema.class);
-        when(schema.getAnalyzer()).thenReturn(new EnglishAnalyzer());
         new ContainsCondition(0.7f, null, 1, 2, 3);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testBuildWithBlankField() {
-        Schema schema = mock(Schema.class);
-        when(schema.getAnalyzer()).thenReturn(new EnglishAnalyzer());
         new ContainsCondition(0.7f, " ", 1, 2, 3);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testBuildWithNullValues() {
-        Schema schema = mock(Schema.class);
-        when(schema.getAnalyzer()).thenReturn(new EnglishAnalyzer());
         new ContainsCondition(0.7f, "values");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testBuildWithEmptyValues() {
-        Schema schema = mock(Schema.class);
-        when(schema.getAnalyzer()).thenReturn(new EnglishAnalyzer());
         new ContainsCondition(0.7f, "values");
+    }
+
+    @Test
+    public void testJsonSerializationStrings() {
+        ContainsConditionBuilder builder = new ContainsConditionBuilder("field", "a", "b").boost(0.7);
+        testJsonSerialization(builder, "{type:\"contains\",field:\"field\",values:[\"a\",\"b\"],boost:0.7}");
+    }
+
+    @Test
+    public void testJsonSerializationNumbers() {
+        ContainsConditionBuilder builder = new ContainsConditionBuilder("field", 1, 2, -3).boost(0.7);
+        testJsonSerialization(builder, "{type:\"contains\",field:\"field\",values:[1,2,-3],boost:0.7}");
     }
 
     @Test
     public void testQueryNumeric() {
 
         Float boost = 0.7f;
-        String field = "test";
         Object[] values = new Object[]{1, 2, 3};
 
-        Schema schema = mock(Schema.class);
-        when(schema.getAnalyzer()).thenReturn(new EnglishAnalyzer());
-        when(schema.getMapper(field)).thenReturn(new IntegerMapper("field", null, null, null));
+        Schema schema = schema().mapper("name", integerMapper()).build();
 
-        ContainsCondition condition = new ContainsCondition(boost, field, values);
+        ContainsCondition condition = new ContainsCondition(boost, "name", values);
         Query query = condition.query(schema);
-        assertNotNull(query);
+        assertNotNull("Query is not built", query);
+        assertEquals("Query type is wrong", BooleanQuery.class, query.getClass());
 
-        assertEquals(BooleanQuery.class, query.getClass());
-        assertEquals(0.7f, query.getBoost(), 0);
-        BooleanClause[] booleanClauses = ((BooleanQuery) query).getClauses();
-        assertEquals(values.length, booleanClauses.length);
+        BooleanQuery booleanQuery = (BooleanQuery) query;
+        assertEquals("Boost is not set", 0.7f, query.getBoost(), 0);
+        BooleanClause[] clauses = booleanQuery.getClauses();
+        assertEquals("Query is wrong", values.length, clauses.length);
         for (int i = 0; i < values.length; i++) {
-            NumericRangeQuery numericRangeQuery = (NumericRangeQuery) booleanClauses[i].getQuery();
-            assertEquals(values[i], numericRangeQuery.getMin());
-            assertEquals(values[i], numericRangeQuery.getMax());
+            NumericRangeQuery<?> numericRangeQuery = (NumericRangeQuery<?>) clauses[i].getQuery();
+            assertEquals("Query is wrong", values[i], numericRangeQuery.getMin());
+            assertEquals("Query is wrong", values[i], numericRangeQuery.getMax());
         }
     }
 
@@ -119,50 +126,48 @@ public class ContainsConditionTest extends AbstractConditionTest {
     public void testQueryString() {
 
         Float boost = 0.7f;
-        String field = "test";
         Object[] values = new Object[]{"houses", "cats"};
 
-        Schema schema = mock(Schema.class);
-        when(schema.getAnalyzer()).thenReturn(new EnglishAnalyzer());
-        when(schema.getMapper(field)).thenReturn(new StringMapper("field", null, null, null));
+        Schema schema = schema().mapper("name", stringMapper()).build();
 
-        ContainsCondition condition = new ContainsCondition(boost, field, values);
+        ContainsCondition condition = new ContainsCondition(boost, "name", values);
         Query query = condition.query(schema);
-        assertNotNull(query);
+        assertNotNull("Query is not built", query);
+        assertEquals("Query type is wrong", BooleanQuery.class, query.getClass());
 
-        assertEquals(BooleanQuery.class, query.getClass());
-        assertEquals(0.7f, query.getBoost(), 0);
-        BooleanClause[] booleanClauses = ((BooleanQuery) query).getClauses();
-        assertEquals("houses", ((TermQuery) booleanClauses[0].getQuery()).getTerm().bytes().utf8ToString());
-        assertEquals("cats", ((TermQuery) booleanClauses[1].getQuery()).getTerm().bytes().utf8ToString());
+        BooleanQuery booleanQuery = (BooleanQuery) query;
+        assertEquals("Query boost is wrong", 0.7f, query.getBoost(), 0);
+        BooleanClause[] clauses = booleanQuery.getClauses();
+        assertEquals("Query is wrong", "houses", ((TermQuery) clauses[0].getQuery()).getTerm().bytes().utf8ToString());
+        assertEquals("Query is wrong", "cats", ((TermQuery) clauses[1].getQuery()).getTerm().bytes().utf8ToString());
     }
 
     @Test
     public void testQueryText() {
 
         Float boost = 0.7f;
-        String field = "test";
         Object[] values = new Object[]{"houses", "cats"};
 
-        Schema schema = mock(Schema.class);
-        when(schema.getAnalyzer()).thenReturn(new EnglishAnalyzer());
-        when(schema.getMapper(field)).thenReturn(new TextMapper("field", null, null, null));
+        Schema schema = schema().mapper("name", textMapper()).defaultAnalyzer("english").build();
 
-        ContainsCondition condition = new ContainsCondition(boost, field, values);
+        ContainsCondition condition = new ContainsCondition(boost, "name", values);
         Query query = condition.query(schema);
-        assertNotNull(query);
+        assertNotNull("Query is not built", query);
+        assertEquals("Query type is wrong", BooleanQuery.class, query.getClass());
 
-        assertEquals(BooleanQuery.class, query.getClass());
-        assertEquals(0.7f, query.getBoost(), 0);
-        BooleanClause[] booleanClauses = ((BooleanQuery) query).getClauses();
-        assertEquals("hous", ((TermQuery) booleanClauses[0].getQuery()).getTerm().bytes().utf8ToString());
-        assertEquals("cat", ((TermQuery) booleanClauses[1].getQuery()).getTerm().bytes().utf8ToString());
+        BooleanQuery booleanQuery = (BooleanQuery) query;
+        assertEquals("Query boost is wrong", 0.7f, query.getBoost(), 0);
+        BooleanClause[] clauses = booleanQuery.getClauses();
+        assertEquals("Query is wrong", "hous", ((TermQuery) clauses[0].getQuery()).getTerm().bytes().utf8ToString());
+        assertEquals("Query is wrong", "cat", ((TermQuery) clauses[1].getQuery()).getTerm().bytes().utf8ToString());
     }
 
     @Test
     public void testToString() {
         ContainsCondition condition = new ContainsCondition(0.7f, "field", "value1", "value2");
-        assertEquals("ContainsCondition{boost=0.7, field=field, values=[value1, value2]}", condition.toString());
+        assertEquals("Method #toString is wrong",
+                     "ContainsCondition{boost=0.7, field=field, values=[value1, value2]}",
+                     condition.toString());
     }
 
 }

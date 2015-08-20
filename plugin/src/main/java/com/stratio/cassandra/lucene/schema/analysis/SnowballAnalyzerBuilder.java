@@ -1,20 +1,24 @@
 /*
- * Copyright 2015, Stratio.
+ * Licensed to STRATIO (C) under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.  The STRATIO (C) licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
+
 package com.stratio.cassandra.lucene.schema.analysis;
 
+import com.stratio.cassandra.lucene.IndexException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
@@ -78,7 +82,7 @@ public class SnowballAnalyzerBuilder extends AnalyzerBuilder {
 
         // Check language
         if (language == null || StringUtils.isBlank(language)) {
-            throw new IllegalArgumentException("Language must be specified");
+            throw new IndexException("Language must be specified");
         }
 
         this.language = language;
@@ -173,16 +177,29 @@ public class SnowballAnalyzerBuilder extends AnalyzerBuilder {
         }
     }
 
+    /**
+     * A tartarus.org snowball {@link Analyzer}.
+     */
     public static class SnowballAnalyzer extends Analyzer {
 
         private String language;
         private CharArraySet stopwords;
 
+        /**
+         * Builds a new {@link SnowballAnalyzer} for the specified language and stopwords.
+         *
+         * @param language  The language. The supported languages are English, French, Spanish, Portuguese, Italian,
+         *                  Romanian, German, Dutch, Swedish, Norwegian, Danish, Russian, Finnish, Irish, Hungarian,
+         *                  Turkish, Armenian, Basque and Catalan.
+         * @param stopwords The comma separated stopwords {@code String}.
+         */
         public SnowballAnalyzer(String language, CharArraySet stopwords) {
             this.language = language;
             this.stopwords = stopwords;
         }
 
+        /** {@inheritDoc} */
+        @Override
         protected TokenStreamComponents createComponents(String fieldName) {
             final Tokenizer source = new StandardTokenizer();
             TokenStream result = new StandardFilter(source);

@@ -1,27 +1,28 @@
 /*
- * Copyright 2014, Stratio.
+ * Licensed to STRATIO (C) under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.  The STRATIO (C) licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
+
 package com.stratio.cassandra.lucene;
 
 import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.service.RowService;
-import com.stratio.cassandra.lucene.util.Log;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
 import org.apache.cassandra.config.Schema;
-import org.apache.cassandra.cql3.LuceneQueryHandler;
 import org.apache.cassandra.db.ColumnFamily;
 import org.apache.cassandra.db.ColumnFamilyStore;
 import org.apache.cassandra.db.DecoratedKey;
@@ -32,6 +33,8 @@ import org.apache.cassandra.db.index.SecondaryIndexSearcher;
 import org.apache.cassandra.exceptions.ConfigurationException;
 import org.apache.cassandra.service.ClientState;
 import org.apache.cassandra.utils.concurrent.OpOrder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -46,6 +49,8 @@ import java.util.Set;
  */
 public class Index extends PerRowSecondaryIndex {
 
+    private static final Logger logger = LoggerFactory.getLogger(Index.class);
+
     // Setup CQL query handler
     static {
         try {
@@ -56,9 +61,9 @@ public class Index extends PerRowSecondaryIndex {
             modifiersField.setAccessible(true);
             modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
 
-            field.set(null, new LuceneQueryHandler());
+            field.set(null, new IndexQueryHandler());
         } catch (Exception e) {
-            Log.error("Unable to set Lucene CQL query handler");
+            logger.error("Unable to set Lucene CQL query handler", e);
         }
     }
 
@@ -73,6 +78,7 @@ public class Index extends PerRowSecondaryIndex {
 
     private RowService rowService;
 
+    /** {@inheritDoc} */
     @Override
     public String getIndexName() {
         return indexName;
@@ -114,9 +120,10 @@ public class Index extends PerRowSecondaryIndex {
         return columnDefinition;
     }
 
+    /** {@inheritDoc} */
     @Override
     public void init() {
-        Log.info("Initializing Lucene index");
+        logger.info("Initializing Lucene index");
         try {
             // Load column family info
             secondaryIndexManager = baseCfs.indexManager;
@@ -130,150 +137,140 @@ public class Index extends PerRowSecondaryIndex {
             // Build row mapper
             rowService = RowService.build(baseCfs, columnDefinition);
 
-            Log.info("Initialized index %s", logName);
+            logger.info("Initialized index {}", logName);
         } catch (Exception e) {
-            Log.error(e, "Error while initializing Lucene index %s", logName);
-            throw new RuntimeException(e);
+            throw new IndexException(e, "Error while initializing Lucene index %s", logName);
         }
     }
 
-    /**
-     * Index the given row.
-     *
-     * @param key          The partition key.
-     * @param columnFamily The column family data to be indexed
-     */
+    /** {@inheritDoc} */
     @Override
     public void index(ByteBuffer key, ColumnFamily columnFamily) {
-        Log.debug("Indexing row %s in Lucene index %s", key, logName);
+        logger.debug("Indexing row {} in Lucene index {}", key, logName);
         try {
             if (rowService != null) {
                 long timestamp = System.currentTimeMillis();
                 rowService.index(key, columnFamily, timestamp);
             }
         } catch (Exception e) {
-            Log.error("Error while indexing row %s in Lucene index %s", key, logName);
-            throw new RuntimeException(e);
+            throw new IndexException(e, "Error while indexing row %s in Lucene index %s", key, logName);
         }
     }
 
-    /**
-     * cleans up deleted columns from cassandra cleanup compaction
-     *
-     * @param key The partition key of the physical row to be deleted.
-     */
+    /** {@inheritDoc} */
     @Override
     public void delete(DecoratedKey key, OpOrder.Group opGroup) {
-        Log.debug("Removing row %s from Lucene index %s", key, logName);
+        logger.debug("Removing row %s from Lucene index {}", key, logName);
         try {
             rowService.delete(key);
             rowService = null;
         } catch (Exception e) {
-            Log.error(e, "Error deleting row %s", key);
-            throw new RuntimeException(e);
+            throw new IndexException(e, "Error deleting row %s", key);
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public boolean indexes(CellName cellName) {
         return true;
     }
 
+    /** {@inheritDoc} */
     @Override
     public void validateOptions() throws ConfigurationException {
-        Log.debug("Validating Lucene index options");
+        logger.debug("Validating Lucene index options");
         try {
-            ColumnDefinition columnDefinition = columnDefs.iterator().next();
-            String ksName = columnDefinition.ksName;
-            String cfName = columnDefinition.cfName;
+            ColumnDefinition indexedColumnDefinition = columnDefs.iterator().next();
+            String ksName = indexedColumnDefinition.ksName;
+            String cfName = indexedColumnDefinition.cfName;
             CFMetaData metadata = Schema.instance.getCFMetaData(ksName, cfName);
-            new IndexConfig(metadata, columnDefinition.getIndexOptions());
-            Log.debug("Lucene index options are valid");
-        } catch (Exception e) {
-            String message = "Error while validating Lucene index options: " + e.getMessage();
-            Log.error(e, message);
-            throw new ConfigurationException(message, e);
+            new IndexConfig(metadata, indexedColumnDefinition);
+            logger.debug("Lucene index options are valid");
+        } catch (IndexException e) {
+            throw new ConfigurationException(e.getMessage(), e);
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public long estimateResultRows() {
         return 1;
     }
 
+    /** {@inheritDoc} */
     @Override
     public ColumnFamilyStore getIndexCfs() {
         return null;
     }
 
+    /** {@inheritDoc} */
     @Override
     public void removeIndex(ByteBuffer columnName) {
-        Log.info("Removing Lucene index %s", logName);
+        logger.info("Removing Lucene index {}", logName);
         try {
             if (rowService != null) {
                 rowService.delete();
                 rowService = null;
             }
-            Log.info("Removed Lucene index %s", logName);
+            logger.info("Removed Lucene index {}", logName);
         } catch (Exception e) {
-            Log.error(e, "Error while removing Lucene index %s", logName);
-            throw new RuntimeException(e);
+            throw new IndexException(e, "Error while removing Lucene index %s", logName);
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public void invalidate() {
-        Log.info("Invalidating Lucene index %s", logName);
+        logger.info("Invalidating Lucene index {}", logName);
         try {
             if (rowService != null) {
                 rowService.delete();
                 rowService = null;
             }
-            Log.info("Invalidated Lucene index %s", logName);
+            logger.info("Invalidated Lucene index {}", logName);
         } catch (Exception e) {
-            Log.error(e, "Error while invalidating Lucene index %s", logName);
-            throw new RuntimeException(e);
+            throw new IndexException(e, "Error while invalidating Lucene index %s", logName);
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public void truncateBlocking(long truncatedAt) {
-        Log.info("Truncating Lucene index %s", logName);
+        logger.info("Truncating Lucene index {}", logName);
         try {
             if (rowService != null) {
                 rowService.truncate();
             }
-            Log.info("Truncated Lucene index %s", logName);
+            logger.info("Truncated Lucene index {}", logName);
         } catch (Exception e) {
-            Log.error(e, "Error while truncating Lucene index %s", logName);
-            throw new RuntimeException(e);
+            throw new IndexException(e, "Error while truncating Lucene index %s", logName);
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public void reload() {
     }
 
+    /** {@inheritDoc} */
     @Override
     public void forceBlockingFlush() {
-        Log.info("Flushing Lucene index %s", logName);
+        logger.info("Flushing Lucene index {}", logName);
         try {
             rowService.commit();
-            Log.info("Flushed Lucene index %s", logName);
+            logger.info("Flushed Lucene index {}", logName);
         } catch (Exception e) {
-            Log.error(e, "Error while flushing Lucene index %s", logName);
-            throw new RuntimeException(e);
+            throw new IndexException(e, "Error while flushing Lucene index %s", logName);
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     protected SecondaryIndexSearcher createSecondaryIndexSearcher(Set<ByteBuffer> columns) {
         return new IndexSearcher(secondaryIndexManager, this, columns, rowService);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String toString() {
         return Objects.toStringHelper(this)

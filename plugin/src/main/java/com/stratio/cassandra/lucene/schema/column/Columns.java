@@ -1,18 +1,21 @@
 /*
- * Copyright 2014, Stratio.
+ * Licensed to STRATIO (C) under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.  The STRATIO (C) licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
+
 package com.stratio.cassandra.lucene.schema.column;
 
 import com.google.common.base.Objects;
@@ -27,17 +30,22 @@ import java.util.List;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class Columns implements Iterable<Column> {
+public class Columns implements Iterable<Column<?>> {
 
     /** The wrapped columns. */
-    private final List<Column> columns;
+    private final List<Column<?>> columns;
 
-    /** Constructs an empty {@link Column} list. */
+    /** Returns an empty {@link Column} list. */
     public Columns() {
         this.columns = new LinkedList<>();
     }
 
-    public Columns(Column... columns) {
+    /**
+     * Returns a new {@link Columns} composed by the specified {@link Column}s.
+     *
+     * @param columns A list of {@link Column}s.
+     */
+    public Columns(Column<?>... columns) {
         this.columns = Arrays.asList(columns);
     }
 
@@ -47,7 +55,7 @@ public class Columns implements Iterable<Column> {
      * @param column the {@link Column} to be added.
      * @return this
      */
-    public Columns add(Column column) {
+    public Columns add(Column<?> column) {
         columns.add(column);
         return this;
     }
@@ -59,7 +67,7 @@ public class Columns implements Iterable<Column> {
      * @return this {@link Columns} with the specified {@link Column}s.
      */
     public Columns add(Columns columns) {
-        for (Column column : columns) {
+        for (Column<?> column : columns) {
             this.columns.add(column);
         }
         return this;
@@ -70,7 +78,7 @@ public class Columns implements Iterable<Column> {
      *
      * @return An iterator over the {@link Column}s in insert order.
      */
-    public Iterator<Column> iterator() {
+    public Iterator<Column<?>> iterator() {
         return columns.iterator();
     }
 
@@ -96,7 +104,7 @@ public class Columns implements Iterable<Column> {
      */
     public Columns getColumnsByFullName(String name) {
         Columns result = new Columns();
-        for (Column column : columns) {
+        for (Column<?> column : columns) {
             if (column.getFullName().equals(name)) {
                 result.add(column);
             }
@@ -112,7 +120,7 @@ public class Columns implements Iterable<Column> {
      */
     public Columns getColumnsByName(String name) {
         Columns result = new Columns();
-        for (Column column : columns) {
+        for (Column<?> column : columns) {
             if (column.getName().equals(name)) {
                 result.add(column);
             }
@@ -120,13 +128,17 @@ public class Columns implements Iterable<Column> {
         return result;
     }
 
-    public Column getFirst() {
+    public Column<?> getFirst() {
         return columns.isEmpty() ? null : columns.get(0);
     }
 
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("columns", columns).toString();
+        Objects.ToStringHelper helper = Objects.toStringHelper(this);
+        for (Column<?> column : columns) {
+            helper.add(column.getFullName(), column.getComposedValue());
+        }
+        return helper.toString();
     }
 }

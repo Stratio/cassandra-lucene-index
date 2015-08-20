@@ -1,27 +1,28 @@
 /*
- * Copyright 2015, Stratio.
+ * Licensed to STRATIO (C) under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.  The STRATIO (C) licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
+
 package com.stratio.cassandra.lucene.search.condition;
 
-import com.google.common.base.Objects;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.shape.Rectangle;
-import com.stratio.cassandra.lucene.schema.Schema;
+import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.mapping.GeoPointMapper;
-import com.stratio.cassandra.lucene.schema.mapping.Mapper;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.spatial.SpatialStrategy;
 import org.apache.lucene.spatial.query.SpatialArgs;
@@ -32,10 +33,7 @@ import org.apache.lucene.spatial.query.SpatialOperation;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class GeoBBoxCondition extends Condition {
-
-    /** The name of the field to be matched. */
-    public final String field;
+public class GeoBBoxCondition extends SingleMapperCondition<GeoPointMapper> {
 
     /** The minimum accepted latitude. */
     public final double minLatitude;
@@ -67,61 +65,27 @@ public class GeoBBoxCondition extends Condition {
                             Double maxLatitude,
                             Double minLongitude,
                             Double maxLongitude) {
-        super(boost);
+        super(boost, field, GeoPointMapper.class);
 
-        if (StringUtils.isBlank(field)) {
-            throw new IllegalArgumentException("Field name required");
-        }
-
-        if (minLatitude == null) {
-            throw new IllegalArgumentException("min_latitude required");
-        } else if (minLatitude < -90.0 || minLatitude > 90) {
-            throw new IllegalArgumentException("min_latitude must be between -90.0 and 90");
-        }
-
-        if (maxLatitude == null) {
-            throw new IllegalArgumentException("max_latitude required");
-        } else if (maxLatitude < -90.0 || maxLatitude > 90) {
-            throw new IllegalArgumentException("max_latitude must be between -90.0 and 90");
-        }
-
-        if (minLongitude == null) {
-            throw new IllegalArgumentException("min_longitude required");
-        } else if (minLongitude < -180.0 || minLongitude > 180) {
-            throw new IllegalArgumentException("min_longitude must be between -180.0 and 180");
-        }
-
-        if (maxLongitude == null) {
-            throw new IllegalArgumentException("max_longitude required");
-        } else if (maxLongitude < -180.0 || maxLongitude > 180) {
-            throw new IllegalArgumentException("max_longitude must be between -180.0 and 180");
-        }
+        this.minLatitude = GeoPointMapper.checkLatitude("min_latitude", minLatitude);
+        this.maxLatitude = GeoPointMapper.checkLatitude("max_latitude", maxLatitude);
+        this.minLongitude = GeoPointMapper.checkLongitude("min_longitude", minLongitude);
+        this.maxLongitude = GeoPointMapper.checkLongitude("max_longitude", maxLongitude);
 
         if (minLongitude > maxLongitude) {
-            throw new IllegalArgumentException("min_longitude must be lower than max_longitude");
+            throw new IndexException("min_longitude must be lower than max_longitude");
         }
 
         if (minLatitude > maxLatitude) {
-            throw new IllegalArgumentException("min_latitude must be lower than max_latitude");
+            throw new IndexException("min_latitude must be lower than max_latitude");
         }
-
-        this.field = field;
-        this.minLongitude = minLongitude;
-        this.maxLongitude = maxLongitude;
-        this.minLatitude = minLatitude;
-        this.maxLatitude = maxLatitude;
     }
 
     /** {@inheritDoc} */
     @Override
-    public Query query(Schema schema) {
+    public Query query(GeoPointMapper mapper, Analyzer analyzer) {
 
-        Mapper mapper = schema.getMapper(field);
-        if (!(mapper instanceof GeoPointMapper)) {
-            throw new IllegalArgumentException("Geo point mapper required");
-        }
-        GeoPointMapper geoPointMapper = (GeoPointMapper) mapper;
-        SpatialStrategy spatialStrategy = geoPointMapper.getBBoxStrategy();
+        SpatialStrategy spatialStrategy = mapper.bboxStrategy;
 
         SpatialContext context = GeoPointMapper.SPATIAL_CONTEXT;
         Rectangle rectangle = context.makeRectangle(minLongitude, maxLongitude, minLatitude, maxLatitude);
@@ -135,13 +99,10 @@ public class GeoBBoxCondition extends Condition {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                      .add("boost", boost)
-                      .add("field", field)
-                      .add("minLatitude", minLatitude)
-                      .add("maxLatitude", maxLatitude)
-                      .add("minLongitude", minLongitude)
-                      .add("maxLongitude", maxLongitude)
-                      .toString();
+        return toStringHelper(this).add("minLatitude", minLatitude)
+                                   .add("maxLatitude", maxLatitude)
+                                   .add("minLongitude", minLongitude)
+                                   .add("maxLongitude", maxLongitude)
+                                   .toString();
     }
 }

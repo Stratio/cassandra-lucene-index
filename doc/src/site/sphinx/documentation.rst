@@ -12,6 +12,7 @@ Stratio's Cassandra Lucene Index
     - `Mapping <#mapping>`__
     - `Example <#example>`__
 - `Searching <#searching>`__
+    - `All search <#all-search>`__
     - `Bitemporal search <#bitemporal-search>`__
     - `Boolean search <#boolean-search>`__
     - `Contains search <#contains-search>`__
@@ -20,7 +21,7 @@ Stratio's Cassandra Lucene Index
     - `Geo bounding box search <#geo-bbox-search>`__
     - `Geo distance search <#geo-distance-search>`__
     - `Match search <#match-search>`__
-    - `Match all search <#match-all-search>`__
+    - `None search <#none-search>`__
     - `Phrase search <#phrase-search>`__
     - `Prefix search <#prefix-search>`__
     - `Range search <#range-search>`__
@@ -30,6 +31,13 @@ Stratio's Cassandra Lucene Index
     - `Token range searches <#token-range-searches>`__
     - `Paging <#paging>`__
 - `JMX interface <#jmx-interface>`__
+- `Performance tips <#performance-tips>`__
+    - `Disable virtual nodes <#disable-virtual-nodes>`__
+    - `Use a separate disk <#use-a-separate-disk>`__
+    - `Index only what you need <#index-only-what-you-need>`__
+    - `Use a low refresh rate <#use-a-low-refresh-rate>`__
+    - `Prefer filters over queries <#prefer-filters-over-queries>`__
+    - `Use a large page size <#use-a-large-page-size>`__
 
 Overview
 ********
@@ -95,10 +103,11 @@ containing the plugin and add it to the Cassandra’s classpath:
 
 -  Build the plugin with Maven: ``mvn clean package``
 -  Copy the generated JAR to the lib folder of your compatible Cassandra installation:
-   ``cp plugin/target/cassandra-lucene-index-plugin-2.1.8.1.jar <CASSANDRA_HOME>/lib/``
+   ``cp plugin/target/cassandra-lucene-index-plugin-2.1.8.4-SNAPSHOT.jar <CASSANDRA_HOME>/lib/``
 -  Start/restart Cassandra as usual
 
-Alternatively, patching can also be done with this Maven profile, specifying the path of your Cassandra installation:
+Alternatively, patching can also be done with this Maven profile, specifying the path of your Cassandra installation,
+ this task also delete previous plugin's JAR versions in CASSANDRA_HOME/lib/ directory:
 
 .. code-block:: bash
 
@@ -164,6 +173,13 @@ a custom Lucene index on it with the following statement:
     };
 
 This will index all the columns in the table with the specified types, and it will be refreshed once per second.
+Alternatively, you can explicitly refresh all the index shards with an empty search with consistency ``ALL``:
+
+.. code-block:: sql
+
+    CONSISTENCY ALL
+    SELECT * FROM tweets WHERE lucene = '{refresh:true}';
+    CONSISTENCY QUORUM
 
 Now, to search for tweets within a certain date range:
 
@@ -171,6 +187,15 @@ Now, to search for tweets within a certain date range:
 
     SELECT * FROM tweets WHERE lucene='{
         filter : {type:"range", field:"time", lower:"2014/04/25", upper:"2014/05/1"}
+    }' limit 100;
+
+The same search can be performed forcing an explicit refresh of the involved index shards:
+
+.. code-block:: sql
+
+    SELECT * FROM tweets WHERE lucene='{
+        filter : {type:"range", field:"time", lower:"2014/04/25", upper:"2014/05/1"},
+        refresh : true
     }' limit 100;
 
 Now, to search the top 100 more relevant tweets where *body* field contains the phrase “big data gives organizations”
@@ -267,25 +292,19 @@ where:
                    ('ram_buffer_mb'        : '<int_value>',)?
                    ('max_merge_mb'         : '<int_value>',)?
                    ('max_cached_mb'        : '<int_value>',)?
-                   ('indexing_threads'     : '<int_value>',)?
-                   ('indexing_queues_size' : '<int_value>',)?
                    ('directory_path'       : '<string_value>',)?
                    'schema'                : '<schema_definition>'};
 
 Options, except “schema” and “directory\_path”, take a positive integer
 value enclosed in single quotes:
 
--  **refresh\_seconds**: number of seconds before refreshing the index
-   (between writers and readers). Defaults to ’60’.
+-  **refresh\_seconds**: number of seconds before auto-refreshing the
+   index reader. It is the max time taken for writes to be searchable
+   without forcing an index refresh. Defaults to '60'.
 -  **ram\_buffer\_mb**: size of the write buffer. Its content will be
-   committed to disk when full. Defaults to ’64’.
--  **max\_merge\_mb**: defaults to ’5’.
--  **max\_cached\_mb**: defaults to ’30’.
--  **indexing\_threads**: number of asynchronous indexing threads. ’0’
-   means synchronous indexing. Defaults to ’0’.
--  **indexing\_queues\_size**: max number of queued documents per
-   asynchronous indexing thread. Defaults to ’50’.
-   Defaults to ’50’.
+   committed to disk when full. Defaults to '64'.
+-  **max\_merge\_mb**: defaults to '5'.
+-  **max\_cached\_mb**: defaults to '30'.
 -  **directory\_path**: The path of the directory where the  Lucene index
    will be stored.
 -  **schema**: see below
@@ -332,13 +351,16 @@ default values are listed in the table below.
 Mapping
 =======
 
-Field mapping definition options depend on the field type. Details and
-default values are listed in the table below.
+Field mapping definition options specify how the CQL rows will be mapped to Lucene documents.
+Several mappers can be applied to the same CQL column/s.
+Details and default values are listed in the table below.
 
 +-----------------+-----------------+-----------------+--------------------------------+-----------+
 | Mapper type     | Option          | Value type      | Default value                  | Mandatory |
 +=================+=================+=================+================================+===========+
-| bigdec          | indexed         | boolean         | true                           | No        |
+| bigdec          | column          | string          | mapper_name of the schema      | No        |
+|                 +-----------------+-----------------+--------------------------------+-----------+
+|                 | indexed         | boolean         | true                           | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | sorted          | boolean         | false                          | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
@@ -346,52 +368,64 @@ default values are listed in the table below.
 |                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | decimal_digits  | integer         | 32                             | No        |
 +-----------------+-----------------+-----------------+--------------------------------+-----------+
-| bigint          | indexed         | boolean         | true                           | No        |
+| bigint          | column          | string          | mapper_name of the schema      | No        |
+|                 +-----------------+-----------------+--------------------------------+-----------+
+|                 | indexed         | boolean         | true                           | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | sorted          | boolean         | false                          | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | digits          | integer         | 32                             | No        |
 +-----------------+-----------------+-----------------+--------------------------------+-----------+
 | bitemporal      | vt_from         | string          |                                | Yes       |
-+                 +-----------------+-----------------+--------------------------------+-----------+
+|                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | vt_to           | string          |                                | Yes       |
-+                 +-----------------+-----------------+--------------------------------+-----------+
+|                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | tt_from         | string          |                                | Yes       |
-+                 +-----------------+-----------------+--------------------------------+-----------+
+|                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | tt_to           | string          |                                | Yes       |
-+                 +-----------------+-----------------+--------------------------------+-----------+
-|                 | pattern         | string          | yyyy/MM/dd HH:mm:ss.SSS        | No        |
-+                 +-----------------+-----------------+--------------------------------+-----------+
+|                 +-----------------+-----------------+--------------------------------+-----------+
+|                 | pattern         | string          | yyyy/MM/dd HH:mm:ss.SSS Z      | No        |
+|                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | now_value       | object          | Long.MAX_VALUE                 | No        |
 +-----------------+-----------------+-----------------+--------------------------------+-----------+
-| blob            | indexed         | boolean         | true                           | No        |
+| blob            | column          | string          | mapper_name of the schema      | No        |
+|                 +-----------------+-----------------+--------------------------------+-----------+
+|                 | indexed         | boolean         | true                           | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | sorted          | boolean         | false                          | No        |
 +-----------------+-----------------+-----------------+--------------------------------+-----------+
-| boolean         | indexed         | boolean         | true                           | No        |
+| boolean         | column          | string          | mapper_name of the schema      | No        |
+|                 +-----------------+-----------------+--------------------------------+-----------+
+|                 | indexed         | boolean         | true                           | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | sorted          | boolean         | false                          | No        |
 +-----------------+-----------------+-----------------+--------------------------------+-----------+
-| date            | indexed         | boolean         | true                           | No        |
+| date            | column          | string          | mapper_name of the schema      | No        |
+|                 +-----------------+-----------------+--------------------------------+-----------+
+|                 | indexed         | boolean         | true                           | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | sorted          | boolean         | false                          | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
-|                 | pattern         | string          | yyyy/MM/dd HH:mm:ss.SSS        | No        |
+|                 | pattern         | string          | yyyy/MM/dd HH:mm:ss.SSS Z      | No        |
 +-----------------+-----------------+-----------------+--------------------------------+-----------+
-| date_range      | start           | string          |                                | Yes       |
+| date_range      | from            | string          |                                | Yes       |
 |                 +-----------------+-----------------+--------------------------------+-----------+
-|                 | stop            | string          |                                | Yes       |
+|                 | to              | string          |                                | Yes       |
 |                 +-----------------+-----------------+--------------------------------+-----------+
-|                 | pattern         | string          | yyyy/MM/dd HH:mm:ss.SSS        | No        |
+|                 | pattern         | string          | yyyy/MM/dd HH:mm:ss.SSS Z      | No        |
 +-----------------+-----------------+-----------------+--------------------------------+-----------+
-| double          | indexed         | boolean         | true                           | No        |
+| double          | column          | string          | mapper_name of the schema      | No        |
+|                 +-----------------+-----------------+--------------------------------+-----------+
+|                 | indexed         | boolean         | true                           | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | sorted          | boolean         | false                          | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | boost           | integer         | 0.1f                           | No        |
 +-----------------+-----------------+-----------------+--------------------------------+-----------+
-| float           | indexed         | boolean         | true                           | No        |
-+                 +-----------------+-----------------+--------------------------------+-----------+
+| float           | column          | string          | mapper_name of the schema      | No        |
+|                 +-----------------+-----------------+--------------------------------+-----------+
+|                 | indexed         | boolean         | true                           | No        |
+|                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | sorted          | boolean         | false                          | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | boost           | integer         | 0.1f                           | No        |
@@ -402,39 +436,51 @@ default values are listed in the table below.
 |                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | max_levels      | integer         | 11                             | No        |
 +-----------------+-----------------+-----------------+--------------------------------+-----------+
-| inet            | indexed         | boolean         | true                           | No        |
+| inet            | column          | string          | mapper_name of the schema      | No        |
+|                 +-----------------+-----------------+--------------------------------+-----------+
+|                 | indexed         | boolean         | true                           | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | sorted          | boolean         | false                          | No        |
 +-----------------+-----------------+-----------------+--------------------------------+-----------+
-| integer         | indexed         | boolean         | true                           | No        |
+| integer         | column          | string          | mapper_name of the schema      | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
-|                 | sorted          | boolean         | false                          | No        |
-|                 +-----------------+-----------------+--------------------------------+-----------+
-|                 | boost           | integer         | 0.1f                           | No        |
-+-----------------+-----------------+-----------------+--------------------------------+-----------+
-| long            | indexed         | boolean         | true                           | No        |
+|                 | indexed         | boolean         | true                           | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | sorted          | boolean         | false                          | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | boost           | integer         | 0.1f                           | No        |
 +-----------------+-----------------+-----------------+--------------------------------+-----------+
-| string          | indexed         | boolean         | true                           | No        |
+| long            | column          | string          | mapper_name of the schema      | No        |
+|                 +-----------------+-----------------+--------------------------------+-----------+
+|                 | indexed         | boolean         | true                           | No        |
+|                 +-----------------+-----------------+--------------------------------+-----------+
+|                 | sorted          | boolean         | false                          | No        |
+|                 +-----------------+-----------------+--------------------------------+-----------+
+|                 | boost           | integer         | 0.1f                           | No        |
++-----------------+-----------------+-----------------+--------------------------------+-----------+
+| string          | column          | string          | mapper_name of the schema      | No        |
+|                 +-----------------+-----------------+--------------------------------+-----------+
+|                 | indexed         | boolean         | true                           | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | sorted          | boolean         | false                          | No        |
 +-----------------+-----------------+-----------------+--------------------------------+-----------+
-| text            | indexed         | boolean         | true                           | No        |
+| text            | column          | string          | mapper_name of the schema      | No        |
+|                 +-----------------+-----------------+--------------------------------+-----------+
+|                 | indexed         | boolean         | true                           | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | sorted          | boolean         | false                          | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | analyzer        | string          | default_analyzer of the schema | No        |
 +-----------------+-----------------+-----------------+--------------------------------+-----------+
-| uuid            | indexed         | boolean         | true                           | No        |
+| uuid            | column          | string          | mapper_name of the schema      | No        |
+|                 +-----------------+-----------------+--------------------------------+-----------+
+|                 | indexed         | boolean         | true                           | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | sorted          | boolean         | false                          | No        |
 +-----------------+-----------------+-----------------+--------------------------------+-----------+
 
-Most mapping definitions have an “\ **indexed**\ ” option indicating if
-the field is searchable, it is true by default. There is also a “\ **sorted**\ ” option
+Most mapping definitions have an ``indexed`` option indicating if
+the field is searchable, it is true by default. There is also a ``sorted`` option
 specifying if it is possible to sort rows by the corresponding field, false by default. List and set
 columns can't be sorted because they produce multivalued fields.
 These options should be set to false when no needed in order to have a smaller and faster index.
@@ -461,9 +507,6 @@ Cassandra shell:
         'ram_buffer_mb'        : '64',
         'max_merge_mb'         : '5',
         'max_cached_mb'        : '30',
-        'indexing_threads'     : '4',
-        'indexing_queues_size' : '50',
-        'paging_cache_size'    : '100',
         'schema' : '{
             analyzers : {
                   my_custom_analyzer : {
@@ -498,9 +541,10 @@ Syntax:
 
     SELECT ( <fields> | * )
     FROM <table_name>
-    WHERE <magic_column> = '{ (   filter : <filter>  )?
-                              ( , query  : <query> )?
-                              ( , sort   : <sort>   )?
+    WHERE <magic_column> = '{ (   filter  : <filter>  )?
+                              ( , query   : <query>   )?
+                              ( , sort    : <sort>    )?
+                              ( , refresh : ( true | false ) )?
                             }';
 
 where <filter> and <query> are a JSON object:
@@ -517,23 +561,36 @@ and <sort> is another JSON object:
         <sort> := { fields : <sort_field> (, <sort_field> )* }
         <sort_field> := { field : <field> (, reverse : <reverse> )? }
 
-When searching by <filter>, without <query> or <sort> defined, then the
-results are returned in the Cassandra’s natural order, which is defined
-by the partitioner and the column name comparator.
+When searching by ``filter``, without any ``query`` or ``sort`` defined,
+then the results are returned in the Cassandra’s natural order, which is
+defined by the partitioner and the column name comparator. When searching
+by ``query``, results are returned sorted by descending relevance. The
+scores will be located in the column ``magic_column``. Sort option is used
+to specify the order in which the indexed rows will be traversed. When
+sorting is used, the query scoring is delayed.
 
-When searching by <query>, results are returned ***sorted by descending
-relevance***. The scores will be located in the column <magic_column>.
+Relevance queries must touch all the nodes in the ring in order to find
+the globally best results, so you should prefer filters over queries
+when no relevance nor sorting are needed.
 
-Sort option is used to specify the order in which the indexed rows will
-be traversed. When sorting is used, the query scoring is delayed.
+The ``refresh`` boolean option indicates if the search must commit pending
+writes and refresh the Lucene IndexSearcher before being performed. This
+way a search with ``refresh`` set to true will view the most recent changes
+done to the index, independently of the index auto-refresh time.
+Please note that it is a costly operation, so you should not use it
+unless it is strictly necessary. The default value is false. You can
+explicitly refresh all the index shards with an empty search with consistency
+``ALL``, and the return to your desired consistency level:
 
-Filters can be combined with Cassandra paging, whereas queries and sorts
-can't be. So, you should disable paging when using relevance or sorting
-queries.
+.. code-block:: sql
 
-Additionally, relevance queries must touch all the nodes in the
-ring in order to find the globally best results, so definitely you should
-prefer filters over queries when no relevance nor sorting are needed.
+    CONSISTENCY ALL
+    SELECT * FROM <table> WHERE <magic_column> = '{refresh:true}';
+    CONSISTENCY QUORUM
+
+This way the subsequent searches will view all the writes done before this
+operation, without needing to wait for the index auto refresh. It is useful to
+perform this operation before searching after a bulk data load.
 
 Types of search and their options are summarized in the table below.
 Details for each of them are available in individual sections and the
@@ -546,6 +603,8 @@ a “\ **boost**\ ” option that acts as a weight on the resulting score.
 +-----------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 | Search type                             | Option          | Value type      | Default value                  | Mandatory |
 +=========================================+=================+=================+================================+===========+
+| `All <#all-search>`__                   |                 |                 |                                |           |
++-----------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 | `Bitemporal <#bitemporal-search>`__     | field           | string          |                                | Yes       |
 |                                         +-----------------+-----------------+--------------------------------+-----------+
 |                                         | vt_from         | string/long     | 0L                             | No        |
@@ -570,9 +629,9 @@ a “\ **boost**\ ” option that acts as a weight on the resulting score.
 +-----------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 | `Date range <#date-range-search>`__     | field           | string          |                                | Yes       |
 |                                         +-----------------+-----------------+--------------------------------+-----------+
-|                                         | start           | string/long     | 0                              | No        |
+|                                         | from            | string/long     | 0                              | No        |
 |                                         +-----------------+-----------------+--------------------------------+-----------+
-|                                         | stop            | string/long     | Integer.MAX_VALUE              | No        |
+|                                         | to              | string/long     | Long.MAX_VALUE                 | No        |
 |                                         +-----------------+-----------------+--------------------------------+-----------+
 |                                         | operation       | string          | is_within                      | No        |
 +-----------------------------------------+-----------------+-----------------+--------------------------------+-----------+
@@ -612,7 +671,7 @@ a “\ **boost**\ ” option that acts as a weight on the resulting score.
 |                                         +-----------------+-----------------+--------------------------------+-----------+
 |                                         | value           | any             |                                | Yes       |
 +-----------------------------------------+-----------------+-----------------+--------------------------------+-----------+
-| `Match all <#match-all-search>`__       |                 |                 |                                |           |
+| `None <#none-search>`__                 |                 |                 |                                |           |
 +-----------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 | `Phrase <#phrase-search>`__             | field           | string          |                                | Yes       |
 |                                         +-----------------+-----------------+--------------------------------+-----------+
@@ -642,6 +701,24 @@ a “\ **boost**\ ” option that acts as a weight on the resulting score.
 |                                         +-----------------+-----------------+--------------------------------+-----------+
 |                                         | value           | string          |                                | Yes       |
 +-----------------------------------------+-----------------+-----------------+--------------------------------+-----------+
+
+All search
+==========
+
+Syntax:
+
+.. code-block:: sql
+
+    SELECT ( <fields> | * )
+    FROM <table>
+    WHERE <magic_column> = '{ (filter | query) : { type  : "all"} }';
+
+Example: will return all the indexed rows
+
+.. code-block:: sql
+
+    SELECT * FROM test.users
+    WHERE stratio_col = '{filter : { type  : "all" } }';
 
 Bitemporal search
 =================
@@ -719,11 +796,20 @@ We insert the population of 5 citizens lives in each city from 2015/01/01 until 
 
 .. code-block:: sql
 
-    INSERT INTO census(citizen_name, city, vt_from, vt_to, tt_from, tt_to) VALUES ('John', 'Madrid', '2015/01/01', '2200/12/31', '2015/01/01', '2200/12/31');
-    INSERT INTO census(citizen_name, city, vt_from, vt_to, tt_from, tt_to) VALUES ('Margaret', 'Barcelona', '2015/01/01', '2200/12/31', '2015/01/01', '2200/12/31');
-    INSERT INTO census(citizen_name, city, vt_from, vt_to, tt_from, tt_to) VALUES ('Cristian', 'Ceuta', '2015/01/01', '2200/12/31', '2015/01/01', '2200/12/31');
-    INSERT INTO census(citizen_name, city, vt_from, vt_to, tt_from, tt_to) VALUES ('Edward', 'New York','2015/01/01', '2200/12/31', '2015/01/01', '2200/12/31');
-    INSERT INTO census(citizen_name, city, vt_from, vt_to, tt_from, tt_to) VALUES ('Johnatan', 'San Francisco', '2015/01/01', '2200/12/31', '2015/01/01', '2200/12/31');
+    INSERT INTO census(citizen_name, city, vt_from, vt_to, tt_from, tt_to)
+    VALUES ('John', 'Madrid', '2015/01/01', '2200/12/31', '2015/01/01', '2200/12/31');
+
+    INSERT INTO census(citizen_name, city, vt_from, vt_to, tt_from, tt_to)
+    VALUES ('Margaret', 'Barcelona', '2015/01/01', '2200/12/31', '2015/01/01', '2200/12/31');
+
+    INSERT INTO census(citizen_name, city, vt_from, vt_to, tt_from, tt_to)
+    VALUES ('Cristian', 'Ceuta', '2015/01/01', '2200/12/31', '2015/01/01', '2200/12/31');
+
+    INSERT INTO census(citizen_name, city, vt_from, vt_to, tt_from, tt_to)
+    VALUES ('Edward', 'New York','2015/01/01', '2200/12/31', '2015/01/01', '2200/12/31');
+
+    INSERT INTO census(citizen_name, city, vt_from, vt_to, tt_from, tt_to)
+    VALUES ('Johnatan', 'San Francisco', '2015/01/01', '2200/12/31', '2015/01/01', '2200/12/31');
 
 
 John moves to Amsterdam in '2015/03/05' but he does not comunicate this to census bureau until '2015/06/29' because he need it to apply for taxes reduction.
@@ -734,8 +820,12 @@ So, the system need to update last information from John,and insert the new. Thi
 .. code-block:: sql
 
     BEGIN BATCH
-    UPDATE census SET tt_to = '2015/06/29' WHERE citizen_name = 'John' AND vt_from = '2015/01/01' AND tt_from = '2015/01/01' IF tt_to = '2200/12/31';
-    INSERT INTO census(citizen_name, city, vt_from, vt_to, tt_from, tt_to) VALUES ('John', 'Amsterdam', '2015/03/05', '2200/12/31', '2015/06/30', '2200/12/31');
+        UPDATE census SET tt_to = '2015/06/29'
+        WHERE citizen_name = 'John' AND vt_from = '2015/01/01' AND tt_from = '2015/01/01'
+        IF tt_to = '2200/12/31';
+
+        INSERT INTO census(citizen_name, city, vt_from, vt_to, tt_from, tt_to)
+        VALUES ('John', 'Amsterdam', '2015/03/05', '2200/12/31', '2015/06/30', '2200/12/31');
     APPLY BATCH;
 
 Now , we can see the main difference between valid time and transaction time. The system knows from '2015/01/01' to '2015/06/29' that John resides in Madrid from '2015/01/01' until now, and resides in Amsterdam from '2015/03/05' until now.
@@ -753,8 +843,8 @@ If you want to know what is the last info about where John resides, you perform 
 
 .. code-block:: sql
 
-    SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM census WHERE
-    lucene='{
+    SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM census
+    WHERE lucene = '{
         filter : {
             type : "bitemporal",
             field : "bitemporal",
@@ -771,8 +861,8 @@ If the test case needs to know what the system was thinking at '2015/03/01' abou
 
 .. code-block:: sql
 
-    SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM census WHERE
-    lucene='{
+    SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM census
+    WHERE lucene = '{
         filter : {
             type : "bitemporal",
             field : "bitemporal",
@@ -780,7 +870,7 @@ If the test case needs to know what the system was thinking at '2015/03/01' abou
             tt_to : "2015/03/01"
         }
     }'
-    AND name='John';
+    AND name = 'John';
 
 This code is available in CQL script here: `example_bitemporal.cql </doc/resources/example_bitemporal.cql>`__.
 
@@ -844,6 +934,22 @@ Example 3: will return rows where name ends with “a” or food starts with
                             should : [{type : "wildcard", field : "name", value : "*a"},
                                       {type : "wildcard", field : "food", value : "tu*"}]}}';
 
+Example 4: will return zero rows independently of the index contents
+
+.. code-block:: sql
+
+    SELECT * FROM test.users
+    WHERE stratio_col = '{filter : { type   : "boolean"} }';
+
+Example 5: will return rows where name does not end with “a”, which is
+a resource-intensive pure negation search
+
+.. code-block:: sql
+
+    SELECT * FROM test.users
+    WHERE stratio_col = '{filter : {
+                            not  : [{type : "wildcard", field : "name", value : "*a"}]}}';
+
 Contains search
 ===============
 
@@ -890,16 +996,16 @@ Syntax:
     FROM <table>
     WHERE <magic_column> = '{ (filter | query) : {
                                 type  : "date_range",
-                                (start : <start> ,)?
-                                (stop  : <stop> ,)?
+                                (from : <from> ,)?
+                                (to   : <to> ,)?
                                 (operation: <operation> )?
                               }}';
 
 where:
 
--  **start**: a string or a number being the beginning of the date
+-  **from**: a string or a number being the beginning of the date
    range.
--  **stop**: a string or a number being the end of the date range.
+-  **to**: a string or a number being the end of the date range.
 -  **operation**: the spatial operation to be performed, it can be
    **intersects**, **contains** and **is\_within**.
 
@@ -909,11 +1015,11 @@ Example 1: will return rows where duration intersects "2014/01/01" and
 .. code-block:: sql
 
     SELECT * FROM test.users
-    WHERE stratio_col = '{  filter : {
-                        type   : "date_range",
-                        field  : "duration",
-                        start  : "2014/01/01",
-                        stop   : "2014/12/31",
+    WHERE stratio_col = '{ filter : {
+                        type      : "date_range",
+                        field     : "duration",
+                        from      : "2014/01/01",
+                        to        : "2014/12/31",
                         operation : "intersects"}}';
 
 Example 2: will return rows where duration contains "2014/06/01" and
@@ -922,11 +1028,11 @@ Example 2: will return rows where duration contains "2014/06/01" and
 .. code-block:: sql
 
     SELECT * FROM test.users
-    WHERE stratio_col = '{  filter : {
-                        type   : "date_range",
-                        field  : "duration",
-                        start  : "2014/06/01",
-                        stop   : "2014/06/02",
+    WHERE stratio_col = '{ filter : {
+                        type      : "date_range",
+                        field     : "duration",
+                        from      : "2014/06/01",
+                        to        : "2014/06/02",
                         operation : "contains"}}';
 
 Example 3: will return rows where duration is within "2014/01/01" and
@@ -935,11 +1041,11 @@ Example 3: will return rows where duration is within "2014/01/01" and
 .. code-block:: sql
 
     SELECT * FROM test.users
-    WHERE stratio_col = '{  filter : {
-                        type   : "date_range",
-                        field  : "duration",
-                        start  : "2014/01/01",
-                        stop   : "2014/12/31",
+    WHERE stratio_col = '{ filter : {
+                        type      : "date_range",
+                        field     : "duration",
+                        from      : "2014/01/01",
+                        to        : "2014/12/31",
                         operation : "is_within"}}';
 
 
@@ -1037,6 +1143,7 @@ between -90.0 and 90.0, and a longitude between -180.0 and
 180.0.
 
 .. code-block:: sql
+
     SELECT * FROM test.users
     WHERE stratio_col = '{filter : { type : "geo_bbox",
                                      field : "place",
@@ -1050,6 +1157,7 @@ between -90.0 and 90.0, and a longitude between 0.0 and
 10.0.
 
 .. code-block:: sql
+
     SELECT * FROM test.users
     WHERE stratio_col = '{filter : { type : "geo_bbox",
                                      field : "place",
@@ -1064,6 +1172,7 @@ between 0.0 and 10.0, and a longitude between -180.0 and
 180.0.
 
 .. code-block:: sql
+
     SELECT * FROM test.users
     WHERE stratio_col = '{filter : { type : "geo_bbox",
                                      field : "place",
@@ -1171,8 +1280,8 @@ Example 3: will return rows where date matches “2014/01/01″
                            field : "date",
                            value : "2014/01/01" }}';
 
-Match all search
-================
+None search
+===========
 
 Syntax:
 
@@ -1180,18 +1289,14 @@ Syntax:
 
     SELECT ( <fields> | * )
     FROM <table>
-    WHERE <magic_column> = '{ (filter | query) : {
-                                type  : "match_all",
-                                field : <fieldname> ,
-                                value : <value> }}';
+    WHERE <magic_column> = '{ (filter | query) : { type  : "none"} }';
 
-Example: will return all the indexed rows
+Example: will return no one of the indexed rows
 
 .. code-block:: sql
 
     SELECT * FROM test.users
-    WHERE stratio_col = '{filter : {
-                           type  : "match_all" }}';
+    WHERE stratio_col = '{filter : { type  : "none" } }';
 
 Phrase search
 =============
@@ -1475,3 +1580,80 @@ distributed index.
 | forceMergeDeletes | Operation | Optimizes the index forcing merge segments containing deletions, leaving the specified number of segments. It also includes a boolean parameter to block until all merging completes. |
 +-------------------+-----------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 
+Performance tips
+****************
+
+Lucene index plugin performance varies depending upon several factors
+depending on the use case and you should probably do some tuning work.
+However, there is some general advice.
+
+Disable virtual nodes
+=====================
+
+Although virtual nodes are fully supported, we recommend turning them off.
+In the same way as virtual nodes use to be problematic with analytical tools as Spark, Hadoop and Solr,
+Lucene indexes performance goes down because each node query is split into several data range sub-queries.
+
+Use a separate disk
+===================
+
+You will get better performance using a separate disk for the Lucene index files.
+You can set the place where the index will be stored using the `directory_path` option:
+
+.. code-block:: sql
+
+    CREATE CUSTOM INDEX tweets_index ON tweets (lucene)
+    USING 'com.stratio.cassandra.lucene.Index'
+    WITH OPTIONS = {
+        'directory_path' : '<lucene_disk>',
+        ...
+    };
+
+
+Index only what you need
+========================
+
+The more fields you index, the more resources will be consumed.
+So you should carefully study which kind of queries are you going to use before creating the schema.
+You should also be careful choosing the ``indexed`` and ``sorted`` options of the mappers,
+because each of them creates at least on field per Cassandra column, doing your index larger and slower.
+
+Use a low refresh rate
+======================
+
+You can choose any index refresh rate you need,
+and you can expect a good behaviour even with a refresh rate of just one second.
+The default refresh rate is 60 seconds, which is a pretty conservative value.
+However, high refresh rates imply a higher general resources consumption.
+So you should use a refresh rate as low as your use case allows.
+You can set the refresh rate using the `refresh` option:
+
+.. code-block:: sql
+
+    CREATE CUSTOM INDEX tweets_index ON tweets (lucene)
+    USING 'com.stratio.cassandra.lucene.Index'
+    WITH OPTIONS = {
+        'refresh' : '<refresh_rate>',
+        ...
+    };
+
+Prefer filters over queries
+===========================
+
+Query searches involve relevance so they should be sent to all nodes in the
+cluster in order to find the globally best results.
+However, filters have a chance to find the results in a subset of the nodes.
+So if you are not interested in relevance sorting then you should prefer filters over queries.
+
+Use a large page size
+=====================
+
+Cassandra native paging is fully supported even for top-k queries,
+and we do not discourage its use in any way.
+However getting n rows in a page is always faster than retrieving the same n rows in two or more pages.
+For that reason, if you are interested in retrieving the best 200 rows matching a search,
+then you should ideally use a page size of 200.
+In the other hand, if you want to retrieve thousands or millions of rows,
+then you should use a high page size, maybe 1000 rows per page.
+Page size can be set in cqlsh in a per-session basis using the command `PAGING``
+and in Java driver its set in a per-query basis using the attribute `pageSize``.

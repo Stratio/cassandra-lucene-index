@@ -1,18 +1,21 @@
 /*
- * Copyright 2015, Stratio.
+ * Licensed to STRATIO (C) under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.  The STRATIO (C) licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
+
 package com.stratio.cassandra.lucene.schema;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.schema;
@@ -52,33 +55,38 @@ public class SchemaTest {
     @Test
     public void testGetDefaultAnalyzer() {
         Map<String, Mapper> mappers = new HashMap<>();
-        Schema schema = new Schema(new EnglishAnalyzer(), mappers, null);
+        Map<String, Analyzer> analyzers = new HashMap<>();
+        Schema schema = new Schema(new EnglishAnalyzer(), mappers, analyzers);
         Analyzer analyzer = schema.getDefaultAnalyzer();
-        assertEquals(EnglishAnalyzer.class, analyzer.getClass());
+        assertEquals("Expected english analyzer", EnglishAnalyzer.class, analyzer.getClass());
         schema.close();
     }
 
     @Test
     public void testGetDefaultAnalyzerNotSpecified() {
         Map<String, Mapper> mappers = new HashMap<>();
-        Schema schema = new Schema(null, mappers, null);
+        Map<String, Analyzer> analyzers = new HashMap<>();
+        Schema schema = new Schema(new EnglishAnalyzer(), mappers, analyzers);
         Analyzer analyzer = schema.getDefaultAnalyzer();
-        assertEquals(PreBuiltAnalyzers.DEFAULT.get().getClass(), analyzer.getClass());
+        assertEquals("Expected default analyzer", EnglishAnalyzer.class, analyzer.getClass());
         schema.close();
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testGetAnalyzerNotExistent() {
         Map<String, Mapper> mappers = new HashMap<>();
-        Schema schema = new Schema(new EnglishAnalyzer(), mappers, null);
-        schema.getAnalyzer("custom");
+        Map<String, Analyzer> analyzers = new HashMap<>();
+        Schema schema = new Schema(new EnglishAnalyzer(), mappers, analyzers);
+        Analyzer analyzer = schema.getAnalyzer("custom");
+        assertEquals("Expected default analyzer", EnglishAnalyzer.class, analyzer.getClass());
         schema.close();
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testGetAnalyzerNull() {
         Map<String, Mapper> mappers = new HashMap<>();
-        Schema schema = new Schema(new EnglishAnalyzer(), mappers, null);
+        Map<String, Analyzer> analyzers = new HashMap<>();
+        Schema schema = new Schema(new EnglishAnalyzer(), mappers, analyzers);
         schema.getAnalyzer(null);
         schema.close();
     }
@@ -86,7 +94,8 @@ public class SchemaTest {
     @Test(expected = IllegalArgumentException.class)
     public void testGetAnalyzerEmpty() {
         Map<String, Mapper> mappers = new HashMap<>();
-        Schema schema = new Schema(new EnglishAnalyzer(), mappers, null);
+        Map<String, Analyzer> analyzers = new HashMap<>();
+        Schema schema = new Schema(new EnglishAnalyzer(), mappers, analyzers);
         schema.getAnalyzer(" \t");
         schema.close();
     }
@@ -117,7 +126,7 @@ public class SchemaTest {
     public void testToString() {
 
         Schema schema = schema().mapper("field1", stringMapper()).mapper("field2", textMapper()).build();
-        assertNotNull(schema.toString());
+        assertNotNull("Expected not null schema", schema.toString());
         schema.close();
     }
 }

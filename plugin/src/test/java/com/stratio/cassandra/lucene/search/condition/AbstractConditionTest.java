@@ -1,51 +1,45 @@
 /*
- * Copyright 2014, Stratio.
+ * Licensed to STRATIO (C) under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.  The STRATIO (C) licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
+
 package com.stratio.cassandra.lucene.search.condition;
 
-import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.analysis.PreBuiltAnalyzers;
-import com.stratio.cassandra.lucene.schema.mapping.Mapper;
-import org.apache.lucene.analysis.Analyzer;
+import com.stratio.cassandra.lucene.search.condition.builder.ConditionBuilder;
+import com.stratio.cassandra.lucene.util.JsonSerializer;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
 
 /**
+ * Abstract class for {@link ConditionBuilder} tests.
+ *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class AbstractConditionTest {
+public abstract class AbstractConditionTest {
 
-    protected Schema mockSchema(String mapperName, Mapper mapper) {
-        Schema schema = mock(Schema.class);
-        when(schema.getAnalyzer()).thenReturn(PreBuiltAnalyzers.KEYWORD.get());
-        when(schema.getMapper(mapperName)).thenReturn(mapper);
-        return schema;
-    }
-
-    protected Schema mockSchema(String mapperName, Mapper mapper, Analyzer analyzer) {
-        Schema schema = mock(Schema.class);
-        when(schema.getAnalyzer()).thenReturn(analyzer);
-        when(schema.getMapper(mapperName)).thenReturn(mapper);
-        return schema;
-    }
-
-    protected Schema mockSchema(String mapperName, Mapper mapper, String analyzer) {
-        Schema schema = mock(Schema.class);
-        when(schema.getAnalyzer()).thenReturn(PreBuiltAnalyzers.get(analyzer));
-        when(schema.getMapper(mapperName)).thenReturn(mapper);
-        return schema;
+    protected void testJsonSerialization(ConditionBuilder<?, ?> conditionBuilder, String json) {
+        try {
+            String json1 = JsonSerializer.toString(conditionBuilder);
+            assertEquals("JSON serialization is wrong", json, json1);
+            String json2 = JsonSerializer.toString(JsonSerializer.fromString(json1, ConditionBuilder.class));
+            assertEquals("JSON serialization is wrong", json1, json2);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

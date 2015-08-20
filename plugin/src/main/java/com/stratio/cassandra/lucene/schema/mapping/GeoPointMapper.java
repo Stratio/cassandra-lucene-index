@@ -1,27 +1,30 @@
 /*
- * Copyright 2015, Stratio.
+ * Licensed to STRATIO (C) under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.  The STRATIO (C) licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
+
 package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.google.common.base.Objects;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.shape.Point;
+import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import org.apache.cassandra.config.CFMetaData;
-import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.AsciiType;
 import org.apache.cassandra.db.marshal.DecimalType;
 import org.apache.cassandra.db.marshal.DoubleType;
@@ -49,100 +52,125 @@ import java.util.Arrays;
  */
 public class GeoPointMapper extends Mapper {
 
+    private static final double MIN_LATITUDE = -90.0;
+    private static final double MAX_LATITUDE = 90.0;
+    private static final double MIN_LONGITUDE = -180.0;
+    private static final double MAX_LONGITUDE = 180.0;
+
     public static final SpatialContext SPATIAL_CONTEXT = SpatialContext.GEO;
     public static final int DEFAULT_MAX_LEVELS = 11;
 
-    private final String latitude;
-    private final String longitude;
-    private final int maxLevels;
+    /** Tha name of the latitude column. */
+    public final String latitude;
 
-    private final SpatialStrategy distanceStrategy;
-    private final SpatialStrategy bboxStrategy;
+    /** Tha name of the longitude column. */
+    public final String longitude;
+
+    /** The max number of levels in the tree. */
+    public final int maxLevels;
+
+    /** The spatial strategy for radial distance searches. */
+    public final SpatialStrategy distanceStrategy;
+
+    /** The spatial strategy for bounding box searches. */
+    public final SpatialStrategy bboxStrategy;
 
     /**
      * Builds a new {@link GeoPointMapper}.
      *
-     * @param name      The name of the mapper.
+     * @param field     The name of the field.
      * @param latitude  The name of the column containing the latitude.
      * @param longitude The name of the column containing the longitude.
      * @param maxLevels The maximum number of levels in the tree.
      */
-    public GeoPointMapper(String name, String latitude, String longitude, Integer maxLevels) {
-        super(name,
+    public GeoPointMapper(String field, String latitude, String longitude, Integer maxLevels) {
+        super(field,
               true,
               false,
-              Arrays.<AbstractType>asList(AsciiType.instance,
-                                          UTF8Type.instance,
-                                          Int32Type.instance,
-                                          LongType.instance,
-                                          IntegerType.instance,
-                                          FloatType.instance,
-                                          DoubleType.instance,
-                                          DecimalType.instance),
-              Arrays.asList(latitude, longitude));
+              null,
+              Arrays.asList(latitude, longitude),
+              AsciiType.instance,
+              UTF8Type.instance,
+              Int32Type.instance,
+              LongType.instance,
+              IntegerType.instance,
+              FloatType.instance,
+              DoubleType.instance,
+              DecimalType.instance);
 
         if (StringUtils.isBlank(latitude)) {
-            throw new IllegalArgumentException("latitude column name is required");
+            throw new IndexException("latitude column name is required");
         }
 
         if (StringUtils.isBlank(longitude)) {
-            throw new IllegalArgumentException("longitude column name is required");
+            throw new IndexException("longitude column name is required");
         }
 
         this.latitude = latitude;
         this.longitude = longitude;
         this.maxLevels = maxLevels == null ? DEFAULT_MAX_LEVELS : maxLevels;
+
         SpatialPrefixTree grid = new GeohashPrefixTree(SPATIAL_CONTEXT, this.maxLevels);
-        distanceStrategy = new RecursivePrefixTreeStrategy(grid, name + ".dist");
-        bboxStrategy = new BBoxStrategy(SPATIAL_CONTEXT, name + ".bbox");
+        distanceStrategy = new RecursivePrefixTreeStrategy(grid, field + ".dist");
+        bboxStrategy = new BBoxStrategy(SPATIAL_CONTEXT, field + ".bbox");
     }
 
     /**
-     * Returns the name of the column containing the latitude.
+     * Checks if the specified latitude is correct.
      *
-     * @return The name of the column containing the latitude.
+     * @param name     The name of the latitude field.
+     * @param latitude The value of the latitude field.
+     * @return The latitude.
      */
-    public String getLatitude() {
+    public static Double checkLatitude(String name, Double latitude) {
+        if (latitude == null) {
+            throw new IndexException("%s required", name);
+        } else if (latitude < MIN_LATITUDE || latitude > MAX_LATITUDE) {
+            throw new IndexException("%s must be in range [%s, %s], but found '%s'",
+                                     name,
+                                     MIN_LATITUDE,
+                                     MAX_LATITUDE,
+                                     latitude);
+        }
         return latitude;
     }
 
     /**
-     * Returns the name of the column containing the longitude.
+     * Checks if the specified longitude is correct.
      *
-     * @return The name of the column containing the longitude.
+     * @param name      The name of the longitude field.
+     * @param longitude The value of the longitude field.
+     * @return The longitude.
      */
-    public String getLongitude() {
+    public static Double checkLongitude(String name, Double longitude) {
+        if (longitude == null) {
+            throw new IndexException("%s required", name);
+        } else if (longitude < MIN_LONGITUDE || longitude > MAX_LONGITUDE) {
+            throw new IndexException("%s must be in range [%s, %s], but found %s",
+                                     name,
+                                     MIN_LONGITUDE,
+                                     MAX_LONGITUDE,
+                                     longitude);
+        }
         return longitude;
     }
 
-    /**
-     * Returns the used {@link SpatialStrategy} for distances.
-     *
-     * @return The used {@link SpatialStrategy} for distances.
-     */
-    public SpatialStrategy getDistanceStrategy() {
-        return distanceStrategy;
-    }
-
-    /**
-     * Returns the used {@link SpatialStrategy} for bounding boxes.
-     *
-     * @return The used {@link SpatialStrategy} for bounding boxes.
-     */
-    public SpatialStrategy getBBoxStrategy() {
-        return bboxStrategy;
-    }
-
-    public int getMaxLevels() {
-        return maxLevels;
-    }
-
+    /** {@inheritDoc} */
     @Override
     public void addFields(Document document, Columns columns) {
 
-        Double longitude = readLongitude(columns);
-        Double latitude = readLatitude(columns);
-        Point point = SPATIAL_CONTEXT.makePoint(longitude, latitude);
+        Double lon = readLongitude(columns);
+        Double lat = readLatitude(columns);
+
+        if (lon == null && lat == null) {
+            return;
+        } else if (lat == null) {
+            throw new IndexException("Latitude column required if there is a longitude");
+        } else if (lon == null) {
+            throw new IndexException("Longitude column required if there is a latitude");
+        }
+
+        Point point = SPATIAL_CONTEXT.makePoint(lon, lat);
 
         for (IndexableField field : distanceStrategy.createIndexableFields(point)) {
             document.add(field);
@@ -155,9 +183,10 @@ public class GeoPointMapper extends Mapper {
     /** {@inheritDoc} */
     @Override
     public SortField sortField(String name, boolean reverse) {
-        throw new UnsupportedOperationException(String.format("GeoPoint mapper '%s' does not support sorting", name));
+        throw new IndexException("GeoPoint mapper '%s' does not support sorting", name);
     }
 
+    /** {@inheritDoc} */
     @Override
     public void validate(CFMetaData metadata) {
         validate(metadata, latitude);
@@ -169,12 +198,9 @@ public class GeoPointMapper extends Mapper {
      *
      * @param columns The {@link Columns} containing the latitude.
      */
-    double readLatitude(Columns columns) {
-        Column column = columns.getColumnsByName(latitude).getFirst();
-        if (column == null) {
-            throw new IllegalArgumentException("Latitude column required");
-        }
-        return readLatitude(column.getComposedValue());
+    Double readLatitude(Columns columns) {
+        Column<?> column = columns.getColumnsByName(latitude).getFirst();
+        return column == null ? null : readLatitude(column.getComposedValue());
     }
 
     /**
@@ -183,65 +209,60 @@ public class GeoPointMapper extends Mapper {
      *
      * @param columns The {@link Columns} containing the latitude.
      */
-    double readLongitude(Columns columns) {
-        Column column = columns.getColumnsByName(longitude).getFirst();
-        if (column == null) {
-            throw new IllegalArgumentException("Longitude column required");
-        }
-        return readLongitude(column.getComposedValue());
+    Double readLongitude(Columns columns) {
+        Column<?> column = columns.getColumnsByName(longitude).getFirst();
+        return column == null ? null : readLongitude(column.getComposedValue());
     }
 
     /**
-     * Returns the latitude contained in the specified {@link Object}. A valid latitude must in the range [-90, 90].
+     * Returns the latitude contained in the specified {@link Object}.
      *
-     * @param value The {@link Object} containing the latitude.
+     * A valid latitude must in the range [-90, 90].
+     *
+     * @param o The {@link Object} containing the latitude.
      * @return The latitude.
      */
-    private static double readLatitude(Object value) {
-        Double latitude = null;
-        if (value instanceof Number) {
-            latitude = ((Number) value).doubleValue();
+    private double readLatitude(Object o) {
+        Double value;
+        if (o instanceof Number) {
+            value = ((Number) o).doubleValue();
         } else {
             try {
-                latitude = Double.valueOf(value.toString());
+                value = Double.valueOf(o.toString());
             } catch (NumberFormatException e) {
-                // Ignore to fail below
+                throw new IndexException("Unparseable latitude: %s", o);
             }
         }
-        if (latitude == null || latitude < -90.0 || latitude > 90) {
-            throw new IllegalArgumentException("Valid latitude required, but found " + value);
-        }
-        return latitude;
+        return checkLatitude("latitude", value);
     }
 
     /**
-     * Returns the longitude contained in the specified {@link Object}. A valid longitude must in the range [-180,
-     * 180].
+     * Returns the longitude contained in the specified {@link Object}.
      *
-     * @param value The {@link Object} containing the latitude.
+     * A valid longitude must in the range [-180, 180].
+     *
+     * @param o The {@link Object} containing the latitude.
      * @return The longitude.
      */
-    private static double readLongitude(Object value) {
-        Double longitude = null;
-        if (value instanceof Number) {
-            longitude = ((Number) value).doubleValue();
+    private static double readLongitude(Object o) {
+        Double value;
+        if (o instanceof Number) {
+            value = ((Number) o).doubleValue();
         } else {
             try {
-                longitude = Double.valueOf(value.toString());
+                value = Double.valueOf(o.toString());
             } catch (NumberFormatException e) {
-                // Ignore to fail below
+                throw new IndexException("Unparseable longitude: %s", o);
             }
         }
-        if (longitude == null || longitude < -180.0 || longitude > 180) {
-            throw new IllegalArgumentException("Valid longitude required, but found " + value);
-        }
-        return longitude;
+        return checkLongitude("longitude", value);
     }
 
+    /** {@inheritDoc} */
     @Override
     public String toString() {
         return Objects.toStringHelper(this)
-                      .add("name", name)
+                      .add("field", field)
                       .add("latitude", latitude)
                       .add("longitude", longitude)
                       .add("maxLevels", maxLevels)

@@ -1,22 +1,23 @@
 /*
- * Copyright 2014, Stratio.
+ * Licensed to STRATIO (C) under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.  The STRATIO (C) licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
+
 package com.stratio.cassandra.lucene.schema.mapping;
 
-import com.google.common.base.Objects;
-import com.stratio.cassandra.lucene.schema.analysis.PreBuiltAnalyzers;
 import org.apache.cassandra.db.marshal.*;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.SortedDocValuesField;
@@ -32,23 +33,22 @@ import org.apache.lucene.util.BytesRef;
  */
 public class TextMapper extends SingleColumnMapper<String> {
 
-    public static final String DEFAULT_ANALYZER = PreBuiltAnalyzers.DEFAULT.name();
-
-    /** The name of the Lucene {@link org.apache.lucene.analysis.Analyzer} to be used. */
-    private final String analyzer;
-
     /**
      * Builds a new {@link TextMapper} using the specified Lucene {@link org.apache.lucene.analysis.Analyzer}.
      *
-     * @param name     The name of the mapper.
+     * @param field    The name of the field.
+     * @param column   The name of the column to be mapped.
      * @param indexed  If the field supports searching.
      * @param sorted   If the field supports sorting.
      * @param analyzer The name of the Lucene {@link org.apache.lucene.analysis.Analyzer} to be used.
      */
-    public TextMapper(String name, Boolean indexed, Boolean sorted, String analyzer) {
-        super(name,
+    public TextMapper(String field, String column, Boolean indexed, Boolean sorted, String analyzer) {
+        super(field,
+              column,
               indexed,
               sorted,
+              analyzer,
+              String.class,
               AsciiType.instance,
               UTF8Type.instance,
               Int32Type.instance,
@@ -62,23 +62,12 @@ public class TextMapper extends SingleColumnMapper<String> {
               TimestampType.instance,
               BytesType.instance,
               InetAddressType.instance);
-        this.analyzer = analyzer == null ? DEFAULT_ANALYZER : analyzer;
     }
 
     /** {@inheritDoc} */
     @Override
-    public String getAnalyzer() {
-        return analyzer;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public String base(String name, Object value) {
-        if (value == null) {
-            return null;
-        } else {
-            return value.toString();
-        }
+    protected String doBase(String name, Object value) {
+        return value.toString();
     }
 
     /** {@inheritDoc} */
@@ -102,17 +91,7 @@ public class TextMapper extends SingleColumnMapper<String> {
 
     /** {@inheritDoc} */
     @Override
-    public Class<String> baseClass() {
-        return String.class;
-    }
-
-    /** {@inheritDoc} */
-    @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                      .add("indexed", indexed)
-                      .add("sorted", sorted)
-                      .add("analyzer", analyzer)
-                      .toString();
+        return toStringHelper(this).add("analyzer", analyzer).toString();
     }
 }

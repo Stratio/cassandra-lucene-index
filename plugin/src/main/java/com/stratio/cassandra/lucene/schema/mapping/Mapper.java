@@ -1,20 +1,25 @@
 /*
- * Copyright 2014, Stratio.
+ * Licensed to STRATIO (C) under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.  The STRATIO (C) licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
+
 package com.stratio.cassandra.lucene.schema.mapping;
 
+import com.google.common.base.Objects;
+import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.analysis.PreBuiltAnalyzers;
 import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
@@ -58,77 +63,49 @@ public abstract class Mapper {
     /** If the field must be sorted when no specified. */
     public static final boolean DEFAULT_SORTED = false;
 
-    /** The name of the mapper. */
-    protected final String name;
+    /** The name of the Lucene field. */
+    public final String field;
 
     /** If the field must be indexed. */
-    protected final Boolean indexed;
+    public final Boolean indexed;
 
     /** If the field must be sorted. */
-    protected final Boolean sorted;
+    public final Boolean sorted;
+
+    /** The name of the analyzer to be used. */
+    public final String analyzer;
 
     /** The supported Cassandra types for indexing. */
-    private final List<AbstractType> supportedTypes;
+    public final AbstractType<?>[] supportedTypes;
 
     /** The names of the columns to be mapped. */
-    private final List<String> mappedColumns;
+    public final List<String> mappedColumns;
 
     /**
      * Builds a new {@link Mapper} supporting the specified types for indexing.
      *
-     * @param name           The name of the mapper.
+     * @param field          The name of the Lucene field.
      * @param indexed        If the field supports searching.
      * @param sorted         If the field supports sorting.
-     * @param supportedTypes The supported Cassandra types for indexing.
+     * @param analyzer       The name of the analyzer to be used.
      * @param mappedColumns  The names of the columns to be mapped.
+     * @param supportedTypes The supported Cassandra types for indexing.
      */
-    protected Mapper(String name,
+    protected Mapper(String field,
                      Boolean indexed,
                      Boolean sorted,
-                     List<AbstractType> supportedTypes,
-                     List<String> mappedColumns) {
-        if (StringUtils.isBlank(name)) throw new IllegalArgumentException("Mapper name is required");
-        this.name = name;
+                     String analyzer,
+                     List<String> mappedColumns,
+                     AbstractType<?>... supportedTypes) {
+        if (StringUtils.isBlank(field)) {
+            throw new IndexException("Field name is required");
+        }
+        this.field = field;
         this.indexed = indexed == null ? DEFAULT_INDEXED : indexed;
         this.sorted = sorted == null ? DEFAULT_SORTED : sorted;
-        this.supportedTypes = supportedTypes;
+        this.analyzer = analyzer;
         this.mappedColumns = mappedColumns;
-    }
-
-    /**
-     * Returns the identifying name of this mapper.
-     *
-     * @return The identifying name of this mapper.
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * Returns {@code true} if the columns must be searchable, {@code false} otherwise.
-     *
-     * @return {@code true} if the columns must be searchable, {@code false} otherwise.
-     */
-    public boolean isIndexed() {
-        return indexed;
-    }
-
-    /**
-     * Returns {@code true} if the columns must be sortable, {@code false} otherwise.
-     *
-     * @return {@code true} if the columns must be sortable, {@code false} otherwise.
-     */
-    public boolean isSorted() {
-        return sorted;
-    }
-
-    /**
-     * Returns the name of the used {@link org.apache.lucene.analysis.Analyzer}.
-     *
-     * @return The name of the used {@link org.apache.lucene.analysis.Analyzer}.
-     */
-    public String getAnalyzer() {
-        return KEYWORD_ANALYZER;
+        this.supportedTypes = supportedTypes;
     }
 
     /**
@@ -168,7 +145,7 @@ public abstract class Mapper {
         }
 
         if (type instanceof ReversedType) {
-            ReversedType reversedType = (ReversedType) type;
+            ReversedType<?> reversedType = (ReversedType<?>) type;
             checkedType = reversedType.baseType;
         }
 
@@ -186,39 +163,35 @@ public abstract class Mapper {
 
         ColumnDefinition columnDefinition = metadata.getColumnDefinition(columnName);
         if (columnDefinition == null) {
-            throw new IllegalArgumentException(String.format("No column definition %s for mapper %s", name, this.name));
+            throw new IndexException("No column definition '%s' for mapper '%s'", name, field);
         }
 
         if (columnDefinition.isStatic()) {
-            throw new IllegalArgumentException("Lucene indexes are not allowed on static columns as " + name);
+            throw new IndexException("Lucene indexes are not allowed on static columns as '%s'", name);
         }
 
         AbstractType<?> type = columnDefinition.type;
         if (!supports(columnDefinition.type)) {
-            throw new IllegalArgumentException(String.format("'%s' is not supported by mapper '%s'", type, this.name));
+            throw new IndexException("'%s' is not supported by mapper '%s'", type, field);
         }
 
         // Avoid sorting in lists and sets
         if (type.isCollection() && sorted) {
             Kind kind = ((CollectionType<?>) type).kind;
             if (kind == SET) {
-                throw new IllegalArgumentException(String.format("'%s' can't be sorted because it's a set", name));
+                throw new IndexException("'%s' can't be sorted because it's a set", name);
             } else if (kind == LIST) {
-                throw new IllegalArgumentException(String.format("'%s' can't be sorted because it's a list", name));
+                throw new IndexException("'%s' can't be sorted because it's a list", name);
             }
         }
     }
 
-    public abstract void validate(CFMetaData metaData);
-
     /**
-     * Returns the names of the mapped Cassandra columns.
+     * Validates this {@link Mapper} against the specified {@link CFMetaData}.
      *
-     * @return The names of the mapped Cassandra columns.
+     * @param metadata A column family {@link CFMetaData}.
      */
-    public List<String> getMappedColumns() {
-        return mappedColumns;
-    }
+    public abstract void validate(CFMetaData metadata);
 
     /**
      * Returns if the specified {@link Columns} contains the mapped columns.
@@ -232,7 +205,7 @@ public abstract class Mapper {
             if (mapperColumns.isEmpty()) {
                 return false;
             }
-            for (Column column : mapperColumns) {
+            for (Column<?> column : mapperColumns) {
                 if (column.isCollection()) {
                     return false;
                 }
@@ -241,4 +214,13 @@ public abstract class Mapper {
         return true;
     }
 
+    protected Objects.ToStringHelper toStringHelper(Object self) {
+        return Objects.toStringHelper(self).add("field", field).add("indexed", indexed).add("sorted", sorted);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        return toStringHelper(this).toString();
+    }
 }

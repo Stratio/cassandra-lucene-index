@@ -1,18 +1,21 @@
 /*
- * Copyright 2014, Stratio.
+ * Licensed to STRATIO (C) under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.  The STRATIO (C) licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
+
 package com.stratio.cassandra.lucene.util;
 
 import org.apache.cassandra.db.marshal.AbstractType;
@@ -24,11 +27,15 @@ import java.nio.ByteBuffer;
 import java.util.List;
 
 /**
- * Utility class with some {@link ByteBuffer}/ {@link org.apache.cassandra.db.marshal.AbstractType} utilities.
+ * Utility class with some {@link ByteBuffer}/{@link AbstractType} utilities.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class ByteBufferUtils {
+public final class ByteBufferUtils {
+
+    /** Private constructor to hide the implicit public one. */
+    private ByteBufferUtils() {
+    }
 
     /**
      * Returns the specified {@link ByteBuffer} as a byte array.
@@ -43,6 +50,12 @@ public class ByteBufferUtils {
         return bytes;
     }
 
+    /**
+     * Returns {@code true} if the specified {@link ByteBuffer} is empty, {@code false} otherwise.
+     *
+     * @param byteBuffer A {@link ByteBuffer}.
+     * @return {@code true} if the specified {@link ByteBuffer} is empty, {@code false} otherwise.
+     */
     public static boolean isEmpty(ByteBuffer byteBuffer) {
         return byteBuffer.remaining() == 0;
     }
@@ -111,16 +124,34 @@ public class ByteBufferUtils {
         return Base256Serializer.byteBuffer(string);
     }
 
+    /**
+     * Returns the hexadecimal {@code String} representation of the specified {@link ByteBuffer}.
+     *
+     * @param byteBuffer A {@link ByteBuffer}.
+     * @return The hexadecimal {@code String} representation of the specified {@link ByteBuffer}.
+     */
     public static String toHex(ByteBuffer byteBuffer) {
         return ByteBufferUtil.bytesToHex(byteBuffer);
     }
 
+    /**
+     * Returns the hexadecimal {@code String} representation of the specified {@code byte} array.
+     *
+     * @param bytes A {@code byte} array.
+     * @return The hexadecimal {@code String} representation of the specified {@code byte} array.
+     */
     public static String toHex(byte[] bytes) {
         return Hex.bytesToHex(bytes);
     }
 
-    public static String toHex(byte bytes) {
-        return Hex.bytesToHex(bytes);
+    /**
+     * Returns the hexadecimal {@code String} representation of the specified {@code byte}.
+     *
+     * @param b A {@code byte}.
+     * @return The hexadecimal {@code String} representation of the specified {@code byte}.
+     */
+    public static String toHex(byte b) {
+        return Hex.bytesToHex(b);
     }
 
 }

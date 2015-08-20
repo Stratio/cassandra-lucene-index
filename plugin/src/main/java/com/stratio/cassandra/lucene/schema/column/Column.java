@@ -1,18 +1,21 @@
 /*
- * Copyright 2014, Stratio.
+ * Licensed to STRATIO (C) under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.  The STRATIO (C) licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
+
 package com.stratio.cassandra.lucene.schema.column;
 
 import com.google.common.base.Objects;
@@ -23,9 +26,10 @@ import java.nio.ByteBuffer;
 /**
  * A cell of a CQL3 logic {@link Column}, which in most cases is different from a storage engine column.
  *
+ * @param <T> The type of the column value.
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class Column<T> {
+public final class Column<T> implements Comparable<Column<?>> {
 
     /** The column's name. */
     private final String name;
@@ -52,6 +56,7 @@ public class Column<T> {
      * @param decomposedValue The decomposed value of the column to be created.
      * @param composedValue   The composed value of the column to be created.
      * @param type            The type/marshaller of the column to be created.
+     * @param isCollection    If the column is a CQL collection.
      */
     private Column(String name,
                    String nameSufix,
@@ -82,6 +87,16 @@ public class Column<T> {
      * @return The full name, which is formed by the column name and sufix.
      */
     public String getFullName() {
+        return nameSufix == null ? name : name + "." + nameSufix;
+    }
+
+    /**
+     * Returns the full column name appending the sufix.
+     *
+     * @param name A column name.
+     * @return The full column name appending the sufix.
+     */
+    public String getFullName(String name) {
         return nameSufix == null ? name : name + "." + nameSufix;
     }
 
@@ -187,6 +202,17 @@ public class Column<T> {
                                              boolean isCollection) {
         ByteBuffer decomposedValue = type.decompose(composedValue);
         return new Column<>(name, sufix, decomposedValue, composedValue, type, isCollection);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public int compareTo(Column<?> column2) {
+        if (column2 == null) {
+            return 1;
+        }
+        ByteBuffer value1 = decomposedValue;
+        ByteBuffer value2 = column2.getDecomposedValue();
+        return type.compare(value1, value2);
     }
 
     /** {@inheritDoc} */

@@ -1,15 +1,30 @@
+/*
+ * Licensed to STRATIO (C) under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.  The STRATIO (C) licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package com.stratio.cassandra.lucene.search;
 
 import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.analysis.PreBuiltAnalyzers;
-import com.stratio.cassandra.lucene.schema.mapping.Mapper;
-import com.stratio.cassandra.lucene.schema.mapping.StringMapper;
 import org.junit.Test;
 
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.schema;
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.stringMapper;
 import static com.stratio.cassandra.lucene.search.SearchBuilders.*;
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
@@ -18,8 +33,8 @@ public class SearchTest {
 
     @Test
     public void testBuilderEmpty() {
-        Search search = new Search(null, null, null);
-        assertNotNull(search);
+        Search search = new Search(null, null, null, null);
+        assertFalse("Default refresh is not set", search.refresh());
     }
 
     @Test
@@ -27,16 +42,18 @@ public class SearchTest {
         Search search = search().query(match("field", "value"))
                                 .filter(match("field", "value"))
                                 .sort(sortField("field"))
+                                .refresh(true)
                                 .build();
-        assertNotNull(search);
+        assertTrue("Refresh is not set", search.refresh());
     }
 
     @Test
     public void testUsesRelevance() {
-        assertTrue(search().query(match("field", "value")).build().usesRelevance());
-        assertFalse(search().filter(match("field", "value")).build().usesRelevance());
-        assertFalse(search().sort(sortField("field")).build().usesRelevance());
-        assertTrue(search().query(match("field", "value"))
+        assertTrue("Use relevance is wrong", search().query(match("field", "value")).build().usesRelevance());
+        assertFalse("Use relevance is wrong", search().filter(match("field", "value")).build().usesRelevance());
+        assertFalse("Use relevance is wrong", search().sort(sortField("field")).build().usesRelevance());
+        assertTrue("Use relevance is wrong",
+                   search().query(match("field", "value"))
                            .filter(match("field", "value"))
                            .sort(sortField("field"))
                            .build()
@@ -45,10 +62,11 @@ public class SearchTest {
 
     @Test
     public void testUsesSorting() {
-        assertFalse(search().query(match("field", "value")).build().usesSorting());
-        assertFalse(search().filter(match("field", "value")).build().usesSorting());
-        assertTrue(search().sort(sortField("field")).build().usesSorting());
-        assertTrue(search().query(match("field", "value"))
+        assertFalse("Use sorting is wrong", search().query(match("field", "value")).build().usesSorting());
+        assertFalse("Use sorting is wrong", search().filter(match("field", "value")).build().usesSorting());
+        assertTrue("Use sorting is wrong", search().sort(sortField("field")).build().usesSorting());
+        assertTrue("Use sorting is wrong",
+                   search().query(match("field", "value"))
                            .filter(match("field", "value"))
                            .sort(sortField("field"))
                            .build()
@@ -56,39 +74,39 @@ public class SearchTest {
     }
 
     @Test
-    public void testUsesRelevanceOrSorting() {
-        assertTrue(search().query(match("field", "value")).build().usesRelevanceOrSorting());
-        assertFalse(search().filter(match("field", "value")).build().usesRelevanceOrSorting());
-        assertTrue(search().sort(sortField("field")).build().usesRelevanceOrSorting());
-        assertTrue(search().query(match("field", "value"))
+    public void testRequiresFullScan() {
+        assertTrue("Requires full scan is wrong", search().query(match("field", "value")).build().requiresFullScan());
+        assertFalse("Requires full scan is wrong", search().filter(match("field", "value")).build().requiresFullScan());
+        assertFalse("Requires full scan is wrong",
+                    search().filter(match("field", "value")).refresh(true).build().requiresFullScan());
+        assertTrue("Requires full scan is wrong", search().sort(sortField("field")).build().requiresFullScan());
+        assertTrue("Requires full scan is wrong", search().refresh(true).build().requiresFullScan());
+        assertFalse("Requires full scan is wrong", search().refresh(false).build().requiresFullScan());
+        assertFalse("Requires full scan is wrong", search().build().requiresFullScan());
+        assertTrue("Requires full scan is wrong",
+                   search().query(match("field", "value"))
                            .filter(match("field", "value"))
                            .sort(sortField("field"))
                            .build()
-                           .usesRelevance());
+                           .requiresFullScan());
     }
 
     @Test
     public void testGetSort() {
-        assertNotNull(search().sort(sortField("field")).build().getSort());
-        assertNull(search().query(match("field", "value")).build().getSort());
+        assertNotNull("Sort is wrong", search().sort(sortField("field")).build().getSort());
+        assertNull("Sort is wrong", search().query(match("field", "value")).build().getSort());
     }
 
     @Test
     public void testSort() {
-        Mapper mapper = new StringMapper("field", true, true, true);
-        Schema schema = mock(Schema.class);
-        when(schema.getAnalyzer()).thenReturn(PreBuiltAnalyzers.STANDARD.get());
-        when(schema.getMapper("field")).thenReturn(mapper);
-        assertNotNull(search().sort(sortField("field")).build().sortFields(schema));
-        assertNull(search().query(match("field", "value")).build().sortFields(schema));
+        Schema schema = schema().mapper("field", stringMapper().sorted(true)).build();
+        assertNotNull("Sort fields is wrong", search().sort(sortField("field")).build().sortFields(schema));
+        assertNull("Sort fields is wrong", search().query(match("field", "value")).build().sortFields(schema));
     }
 
     @Test
     public void testValidate() {
-        Mapper mapper = new StringMapper("field", true, true, true);
-        Schema schema = mock(Schema.class);
-        when(schema.getAnalyzer()).thenReturn(PreBuiltAnalyzers.STANDARD.get());
-        when(schema.getMapper("field")).thenReturn(mapper);
+        Schema schema = schema().mapper("field", stringMapper().sorted(true)).build();
         search().query(match("field", "value"))
                 .filter(match("field", "value"))
                 .sort(sortField("field"))
@@ -102,9 +120,11 @@ public class SearchTest {
                                 .filter(match("field", "value"))
                                 .sort(sortField("field"))
                                 .build();
-        assertEquals("Search{queryCondition=MatchCondition{boost=1.0, field=field, value=value}, " +
+        assertEquals("Method #toString is wrong",
+                     "Search{queryCondition=MatchCondition{boost=1.0, field=field, value=value}, " +
                      "filterCondition=MatchCondition{boost=1.0, field=field, value=value}, " +
-                     "sort=Sort{sortFields=[SortField{field=field, reverse=false}]}}", search.toString());
+                     "sort=Sort{sortFields=[SortField{field=field, reverse=false}]}}",
+                     search.toString());
     }
 
 }

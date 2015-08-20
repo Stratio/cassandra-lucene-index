@@ -1,54 +1,55 @@
 /*
- * Copyright 2015, Stratio.
+ * Licensed to STRATIO (C) under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.  The STRATIO (C) licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
+
 package com.stratio.cassandra.lucene.schema.mapping.builder;
 
 import com.stratio.cassandra.lucene.schema.mapping.FloatMapper;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
+ * {@link SingleColumnMapperBuilder} to build a new {@link FloatMapper}.
+ *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class FloatMapperBuilder extends MapperBuilder<FloatMapper> {
-
-    @JsonProperty("indexed")
-    private Boolean indexed;
-
-    @JsonProperty("sorted")
-    private Boolean sorted;
+public class FloatMapperBuilder extends SingleColumnMapperBuilder<FloatMapper, FloatMapperBuilder> {
 
     @JsonProperty("boost")
     private Float boost;
 
-    public FloatMapperBuilder indexed(Boolean indexed) {
-        this.indexed = indexed;
-        return this;
-    }
-
-    public FloatMapperBuilder sorted(Boolean sorted) {
-        this.sorted = sorted;
-        return this;
-    }
-
+    /**
+     * Sets the boost to be used.
+     *
+     * @param boost The boost to be used.
+     * @return This.
+     */
     public FloatMapperBuilder boost(Float boost) {
         this.boost = boost;
         return this;
     }
 
+    /**
+     * Returns the {@link FloatMapper} represented by this {@link MapperBuilder}.
+     *
+     * @param field The name of the field to be built.
+     * @return The {@link FloatMapper} represented by this.
+     */
     @Override
-    public FloatMapper build(String name) {
-        return new FloatMapper(name, indexed, sorted, boost);
+    public FloatMapper build(String field) {
+        return new FloatMapper(field, column, indexed, sorted, boost);
     }
 }

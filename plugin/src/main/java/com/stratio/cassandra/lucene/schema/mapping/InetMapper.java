@@ -1,22 +1,24 @@
 /*
- * Copyright 2014, Stratio.
+ * Licensed to STRATIO (C) under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.  The STRATIO (C) licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
+
 package com.stratio.cassandra.lucene.schema.mapping;
 
-import com.google.common.base.Objects;
-import com.stratio.cassandra.lucene.util.Log;
+import com.stratio.cassandra.lucene.IndexException;
 import org.apache.cassandra.db.marshal.AsciiType;
 import org.apache.cassandra.db.marshal.InetAddressType;
 import org.apache.cassandra.db.marshal.UTF8Type;
@@ -43,40 +45,37 @@ public class InetMapper extends KeywordMapper {
     /**
      * Builds a new {@link InetMapper}.
      *
-     * @param name    The name of the mapper.
+     * @param field   The name of the field.
+     * @param column  The name of the column to be mapped.
      * @param indexed If the field supports searching.
      * @param sorted  If the field supports sorting.
      */
-    public InetMapper(String name, Boolean indexed, Boolean sorted) {
-        super(name, indexed, sorted, AsciiType.instance, UTF8Type.instance, InetAddressType.instance);
+    public InetMapper(String field, String column, Boolean indexed, Boolean sorted) {
+        super(field, column, indexed, sorted, AsciiType.instance, UTF8Type.instance, InetAddressType.instance);
     }
 
     /** {@inheritDoc} */
     @Override
-    public String base(String name, Object value) {
-        if (value == null) {
-            return null;
-        } else if (value instanceof InetAddress) {
-            InetAddress inetAddress = (InetAddress) value;
-            return inetAddress.getHostAddress();
+    protected String doBase(String name, Object value) {
+        if (value instanceof InetAddress) {
+            return ((InetAddress) value).getHostAddress();
         } else if (value instanceof String) {
-            String svalue = (String) value;
-            if (IPV4_PATTERN.matcher(svalue).matches() ||
-                IPV6_PATTERN.matcher(svalue).matches() ||
-                IPV6_COMPRESSED_PATTERN.matcher(svalue).matches()) {
-                try {
-                    return InetAddress.getByName(svalue).getHostAddress();
-                } catch (UnknownHostException e) {
-                    Log.error(e, e.getMessage());
-                }
+            return doBase(name, (String) value);
+        } else {
+            throw new IndexException("Field '%s' requires an inet address, but found '%s'", name, value);
+        }
+    }
+
+    private String doBase(String name, String value) {
+        if (IPV4_PATTERN.matcher(value).matches() ||
+            IPV6_PATTERN.matcher(value).matches() ||
+            IPV6_COMPRESSED_PATTERN.matcher(value).matches()) {
+            try {
+                return InetAddress.getByName(value).getHostAddress();
+            } catch (UnknownHostException e) {
+                throw new IndexException(e, "Unknown host exception for field '%s' with value '%s'", name, value);
             }
         }
-        return error("Field '%s' requires an inet address, but found '%s'", name, value);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public String toString() {
-        return Objects.toStringHelper(this).add("indexed", indexed).add("sorted", sorted).toString();
+        throw new IndexException("Field '%s' with value '%s' can not be parsed as an inet address", name, value);
     }
 }

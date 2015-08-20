@@ -23,25 +23,19 @@ where:
                    ('ram_buffer_mb'        : '<int_value>',)?
                    ('max_merge_mb'         : '<int_value>',)?
                    ('max_cached_mb'        : '<int_value>',)?
-                   ('indexing_threads'     : '<int_value>',)?
-                   ('indexing_queues_size' : '<int_value>',)?
                    ('directory_path'       : '<string_value>',)?
                    'schema'                : '<schema_definition>'};
 
 Options, except “schema” and “directory\_path”, take a positive integer
 value enclosed in single quotes:
 
--  **refresh\_seconds**: number of seconds before refreshing the index
-   (between writers and readers). Defaults to ’60’.
+-  **refresh\_seconds**: number of seconds before auto-refreshing the
+   index reader. It is the max time taken for writes to be searchable
+   without forcing an index refresh. Defaults to '60'.
 -  **ram\_buffer\_mb**: size of the write buffer. Its content will be
    committed to disk when full. Defaults to ’64’.
 -  **max\_merge\_mb**: defaults to ’5’.
 -  **max\_cached\_mb**: defaults to ’30’.
--  **indexing\_threads**: number of asynchronous indexing threads. ’0’
-   means synchronous indexing. Defaults to ’0’.
--  **indexing\_queues\_size**: max number of queued documents per
-   asynchronous indexing thread. Defaults to ’50’.
-   Defaults to ’50’.
 -  **directory\_path**: The path of the directory where the  Lucene index
    will be stored.
 -  **schema**: see below
@@ -51,7 +45,7 @@ value enclosed in single quotes:
     <schema_definition> := {
         (analyzers : { <analyzer_definition> (, <analyzer_definition>)* } ,)?
         (default_analyzer : "<analyzer_name>",)?
-        fields : { <field_definition> (, <field_definition>)* }
+        fields : { <mapping_definition> (, <mapping_definition>)* }
     }
 
 Where default\_analyzer defaults to
@@ -65,8 +59,8 @@ Where default\_analyzer defaults to
 
 .. code-block:: sql
 
-    <field_definition> := <column_name> : {
-        type : "<field_type>" (, <option> : "<value>")*
+    <mapping_definition> := <mapper_name> : {
+        type : "<mapper_type>" (, <option> : "<value>")*
     }
 
 Analysis
@@ -88,13 +82,16 @@ default values are listed in the table below.
 Mapping
 =======
 
-Field mapping definition options depend on the field type. Details and
-default values are listed in the table below.
+Field mapping definition options specify how the CQL rows will be mapped to Lucene documents.
+Several mappers can be applied to the same CQL column/s.
+Details and default values are listed in the table below.
 
 +-----------------+-----------------+-----------------+--------------------------------+-----------+
 | Mapper type     | Option          | Value type      | Default value                  | Mandatory |
 +=================+=================+=================+================================+===========+
-| bigdec          | indexed         | boolean         | true                           | No        |
+| bigdec          | column          | string          | mapper_name of the schema      | No        |
+|                 +-----------------+-----------------+--------------------------------+-----------+
+|                 | indexed         | boolean         | true                           | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | sorted          | boolean         | false                          | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
@@ -102,52 +99,64 @@ default values are listed in the table below.
 |                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | decimal_digits  | integer         | 32                             | No        |
 +-----------------+-----------------+-----------------+--------------------------------+-----------+
-| bigint          | indexed         | boolean         | true                           | No        |
+| bigint          | column          | string          | mapper_name of the schema      | No        |
+|                 +-----------------+-----------------+--------------------------------+-----------+
+|                 | indexed         | boolean         | true                           | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | sorted          | boolean         | false                          | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | digits          | integer         | 32                             | No        |
 +-----------------+-----------------+-----------------+--------------------------------+-----------+
 | bitemporal      | vt_from         | string          |                                | Yes       |
-+                 +-----------------+-----------------+--------------------------------+-----------+
+|                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | vt_to           | string          |                                | Yes       |
-+                 +-----------------+-----------------+--------------------------------+-----------+
+|                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | tt_from         | string          |                                | Yes       |
-+                 +-----------------+-----------------+--------------------------------+-----------+
+|                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | tt_to           | string          |                                | Yes       |
-+                 +-----------------+-----------------+--------------------------------+-----------+
-|                 | pattern         | string          | yyyy/MM/dd HH:mm:ss.SSS        | No        |
-+                 +-----------------+-----------------+--------------------------------+-----------+
+|                 +-----------------+-----------------+--------------------------------+-----------+
+|                 | pattern         | string          | yyyy/MM/dd HH:mm:ss.SSS Z      | No        |
+|                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | now_value       | object          | Long.MAX_VALUE                 | No        |
 +-----------------+-----------------+-----------------+--------------------------------+-----------+
-| blob            | indexed         | boolean         | true                           | No        |
+| blob            | column          | string          | mapper_name of the schema      | No        |
+|                 +-----------------+-----------------+--------------------------------+-----------+
+|                 | indexed         | boolean         | true                           | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | sorted          | boolean         | false                          | No        |
 +-----------------+-----------------+-----------------+--------------------------------+-----------+
-| boolean         | indexed         | boolean         | true                           | No        |
+| boolean         | column          | string          | mapper_name of the schema      | No        |
+|                 +-----------------+-----------------+--------------------------------+-----------+
+|                 | indexed         | boolean         | true                           | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | sorted          | boolean         | false                          | No        |
 +-----------------+-----------------+-----------------+--------------------------------+-----------+
-| date            | indexed         | boolean         | true                           | No        |
+| date            | column          | string          | mapper_name of the schema      | No        |
+|                 +-----------------+-----------------+--------------------------------+-----------+
+|                 | indexed         | boolean         | true                           | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | sorted          | boolean         | false                          | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
-|                 | pattern         | string          | yyyy/MM/dd HH:mm:ss.SSS        | No        |
+|                 | pattern         | string          | yyyy/MM/dd HH:mm:ss.SSS Z      | No        |
 +-----------------+-----------------+-----------------+--------------------------------+-----------+
-| date_range      | start           | string          |                                | Yes       |
+| date_range      | from            | string          |                                | Yes       |
 |                 +-----------------+-----------------+--------------------------------+-----------+
-|                 | stop            | string          |                                | Yes       |
+|                 | to              | string          |                                | Yes       |
 |                 +-----------------+-----------------+--------------------------------+-----------+
-|                 | pattern         | string          | yyyy/MM/dd HH:mm:ss.SSS        | No        |
+|                 | pattern         | string          | yyyy/MM/dd HH:mm:ss.SSS Z      | No        |
 +-----------------+-----------------+-----------------+--------------------------------+-----------+
-| double          | indexed         | boolean         | true                           | No        |
+| double          | column          | string          | mapper_name of the schema      | No        |
+|                 +-----------------+-----------------+--------------------------------+-----------+
+|                 | indexed         | boolean         | true                           | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | sorted          | boolean         | false                          | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | boost           | integer         | 0.1f                           | No        |
 +-----------------+-----------------+-----------------+--------------------------------+-----------+
-| float           | indexed         | boolean         | true                           | No        |
-+                 +-----------------+-----------------+--------------------------------+-----------+
+| float           | column          | string          | mapper_name of the schema      | No        |
+|                 +-----------------+-----------------+--------------------------------+-----------+
+|                 | indexed         | boolean         | true                           | No        |
+|                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | sorted          | boolean         | false                          | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | boost           | integer         | 0.1f                           | No        |
@@ -158,39 +167,51 @@ default values are listed in the table below.
 |                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | max_levels      | integer         | 11                             | No        |
 +-----------------+-----------------+-----------------+--------------------------------+-----------+
-| inet            | indexed         | boolean         | true                           | No        |
+| inet            | column          | string          | mapper_name of the schema      | No        |
+|                 +-----------------+-----------------+--------------------------------+-----------+
+|                 | indexed         | boolean         | true                           | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | sorted          | boolean         | false                          | No        |
 +-----------------+-----------------+-----------------+--------------------------------+-----------+
-| integer         | indexed         | boolean         | true                           | No        |
+| integer         | column          | string          | mapper_name of the schema      | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
-|                 | sorted          | boolean         | false                          | No        |
-|                 +-----------------+-----------------+--------------------------------+-----------+
-|                 | boost           | integer         | 0.1f                           | No        |
-+-----------------+-----------------+-----------------+--------------------------------+-----------+
-| long            | indexed         | boolean         | true                           | No        |
+|                 | indexed         | boolean         | true                           | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | sorted          | boolean         | false                          | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | boost           | integer         | 0.1f                           | No        |
 +-----------------+-----------------+-----------------+--------------------------------+-----------+
-| string          | indexed         | boolean         | true                           | No        |
+| long            | column          | string          | mapper_name of the schema      | No        |
+|                 +-----------------+-----------------+--------------------------------+-----------+
+|                 | indexed         | boolean         | true                           | No        |
+|                 +-----------------+-----------------+--------------------------------+-----------+
+|                 | sorted          | boolean         | false                          | No        |
+|                 +-----------------+-----------------+--------------------------------+-----------+
+|                 | boost           | integer         | 0.1f                           | No        |
++-----------------+-----------------+-----------------+--------------------------------+-----------+
+| string          | column          | string          | mapper_name of the schema      | No        |
+|                 +-----------------+-----------------+--------------------------------+-----------+
+|                 | indexed         | boolean         | true                           | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | sorted          | boolean         | false                          | No        |
 +-----------------+-----------------+-----------------+--------------------------------+-----------+
-| text            | indexed         | boolean         | true                           | No        |
+| text            | column          | string          | mapper_name of the schema      | No        |
+|                 +-----------------+-----------------+--------------------------------+-----------+
+|                 | indexed         | boolean         | true                           | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | sorted          | boolean         | false                          | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | analyzer        | string          | default_analyzer of the schema | No        |
 +-----------------+-----------------+-----------------+--------------------------------+-----------+
-| uuid            | indexed         | boolean         | true                           | No        |
+| uuid            | column          | string          | mapper_name of the schema      | No        |
+|                 +-----------------+-----------------+--------------------------------+-----------+
+|                 | indexed         | boolean         | true                           | No        |
 |                 +-----------------+-----------------+--------------------------------+-----------+
 |                 | sorted          | boolean         | false                          | No        |
 +-----------------+-----------------+-----------------+--------------------------------+-----------+
 
-Most mapping definitions have an “\ **indexed**\ ” option indicating if
-the field is searchable, it is true by default. There is also a “\ **sorted**\ ” option
+Most mapping definitions have an ``indexed`` option indicating if
+the field is searchable, it is true by default. There is also a ``sorted`` option
 specifying if it is possible to sort rows by the corresponding field, false by default. List and set
 columns can't be sorted because they produce multivalued fields.
 These options should be set to false when no needed in order to have a smaller and faster index.
@@ -205,7 +226,7 @@ Example
 This code below and the one for creating the corresponding keyspace and
 table is available in a CQL script that can be sourced from the
 Cassandra shell:
-`test-users-create.cql <resources/test-users-create.cql>`__.
+`test-users-create.cql </doc/resources/test-users-create.cql>`__.
 
 .. code-block:: sql
 
@@ -217,9 +238,6 @@ Cassandra shell:
         'ram_buffer_mb'        : '64',
         'max_merge_mb'         : '5',
         'max_cached_mb'        : '30',
-        'indexing_threads'     : '4',
-        'indexing_queues_size' : '50',
-        'paging_cache_size'    : '100',
         'schema' : '{
             analyzers : {
                   my_custom_analyzer : {

@@ -34,8 +34,7 @@ CREATE CUSTOM INDEX IF NOT EXISTS users_index
 ON  test.users (stratio_col) 
 USING 'com.stratio.cassandra.lucene.Index'
 WITH OPTIONS = {
-      'refresh_seconds':'1', 
-      'num_cached_filters':'1',
+      'refresh_seconds':'1',
       'ram_buffer_mb':'64', 
       'max_merge_mb':'5', 
       'max_cached_mb':'30',
@@ -49,14 +48,15 @@ WITH OPTIONS = {
                 food:{type:"string"}, 
                 bool:{type:"boolean"}, 
                 date:{type:"date", pattern:"yyyy/MM/dd"}, 
-                duration:{type:"date_range", start:"start_date", stop:"stop_date", pattern:"yyyy/MM/dd"},
+                duration:{type:"date_range", from:"start_date", to:"stop_date", pattern:"yyyy/MM/dd"},
                 place:{type:"geo_point", latitude:"latitude", longitude:"longitude"},
                 mapz:{type:"string"}, 
                 setz:{type:"string"}, 
                 listz:{type:"string"}, 
-                phrase:{type:"text", 
-                analyzer:"spanish"}}
-}'};
+                phrase:{type:"text", analyzer:"spanish"}
+               }
+      }'
+};
 
 -- populate table
 INSERT INTO test.users (name, gender, age, animal, food, number, bool, setz, listz, mapz, start_date, stop_date, latitude, longitude) VALUES ( 'Joe', 'male', -2, 'monkey', 'chips', 1, true, {'s1', 's2'}, ['l1', 'l2'], {'k1':'v1','k2':'v2'}, '2014/01/01','2014/01/31',-87.8, 0.5);

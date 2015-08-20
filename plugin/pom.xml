@@ -26,7 +26,7 @@
     <parent>
         <groupId>com.stratio.cassandra</groupId>
         <artifactId>cassandra-lucene-index-parent</artifactId>
-        <version>2.1.8.1</version>
+        <version>2.1.8.4-SNAPSHOT</version>
     </parent>
 
     <packaging>jar</packaging>
@@ -59,12 +59,6 @@
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-queryparser</artifactId>
             <version>${lucene.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <version>1.10.19</version>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -116,8 +110,12 @@
                                 <phase>package</phase>
                                 <configuration>
                                     <target>
+                                        <delete verbose="true">
+                                            <fileset dir="${cassandra_home}/lib" includes="${project.artifactId}*.jar"/>
+                                        </delete>
                                         <copy file="${project.build.directory}/${project.build.finalName}.jar"
                                               toFile="${cassandra_home}/lib/${project.build.finalName}.jar"/>
+
                                     </target>
                                 </configuration>
                                 <goals>

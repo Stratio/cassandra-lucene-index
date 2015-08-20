@@ -1,21 +1,23 @@
 /*
- * Copyright 2014, Stratio.
+ * Licensed to STRATIO (C) under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.  The STRATIO (C) licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
+
 package com.stratio.cassandra.lucene.service;
 
-import com.stratio.cassandra.lucene.util.Log;
 import org.apache.cassandra.io.util.FileUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
@@ -37,6 +39,8 @@ import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.NRTCachingDirectory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.management.MBeanException;
 import javax.management.ObjectName;
@@ -45,6 +49,7 @@ import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -53,6 +58,8 @@ import java.util.Set;
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class LuceneIndex implements LuceneIndexMBean {
+
+    private static final Logger logger = LoggerFactory.getLogger(LuceneIndex.class);
 
     private final Path path;
     private final String logName;
@@ -78,8 +85,8 @@ public class LuceneIndex implements LuceneIndexMBean {
      * @param ramBufferMB    The index writer buffer size in MB.
      * @param maxMergeMB     NRTCachingDirectory max merge size in MB.
      * @param maxCachedMB    NRTCachingDirectory max cached MB.
-     * @param analyzer       The default {@link Analyzer}.
      * @param refreshSeconds The index readers refresh time in seconds. Writings are not visible until this time.
+     * @param analyzer       The default {@link Analyzer}.
      * @throws IOException If Lucene throws IO errors.
      */
     public LuceneIndex(String keyspace,
@@ -89,8 +96,8 @@ public class LuceneIndex implements LuceneIndexMBean {
                        Integer ramBufferMB,
                        Integer maxMergeMB,
                        Integer maxCachedMB,
-                       Analyzer analyzer,
-                       Double refreshSeconds) throws IOException {
+                       Double refreshSeconds,
+                       Analyzer analyzer) throws IOException {
         this.path = path;
         this.logName = String.format("Lucene index %s.%s.%s", keyspace, table, name);
 
@@ -121,7 +128,7 @@ public class LuceneIndex implements LuceneIndexMBean {
                                                                 searcherManager,
                                                                 refreshSeconds,
                                                                 refreshSeconds);
-        searcherReopener.start(); // Start the refresher thread
+        searcherReopener.start();
 
         // Register JMX MBean
         try {
@@ -132,7 +139,7 @@ public class LuceneIndex implements LuceneIndexMBean {
                     name));
             ManagementFactory.getPlatformMBeanServer().registerMBean(this, objectName);
         } catch (MBeanException | OperationsException e) {
-            Log.error(e, "Error while registering MBean");
+            logger.error("Error while registering MBean", e);
         }
     }
 
@@ -146,8 +153,22 @@ public class LuceneIndex implements LuceneIndexMBean {
      * @throws IOException If Lucene throws IO errors.
      */
     public void upsert(Term term, Document document) throws IOException {
-        Log.debug("%s update document %s with term %s", logName, document, term);
+        logger.debug("{} update document {} with term {}", logName, document, term);
         indexWriter.updateDocument(term, document);
+    }
+
+    /**
+     * Updates the specified {@link Document}s by first deleting the documents containing {@code Term} and then adding
+     * the new document. The delete and then add are atomic as seen by a reader on the same index (flush may happen only
+     * after the add).
+     *
+     * @param documents The {@link Document}s to be added.
+     * @throws IOException If Lucene throws IO errors.
+     */
+    public void upsert(Map<Term, Document> documents) throws IOException {
+        for (Map.Entry<Term, Document> entry : documents.entrySet()) {
+            upsert(entry.getKey(), entry.getValue());
+        }
     }
 
     /**
@@ -157,7 +178,7 @@ public class LuceneIndex implements LuceneIndexMBean {
      * @throws IOException If Lucene throws IO errors.
      */
     public void delete(Term term) throws IOException {
-        Log.debug(String.format("%s delete by term %s", logName, term));
+        logger.debug("{} delete by term {}", logName, term);
         indexWriter.deleteDocuments(term);
     }
 
@@ -168,7 +189,7 @@ public class LuceneIndex implements LuceneIndexMBean {
      * @throws IOException If Lucene throws IO errors.
      */
     public void delete(Query query) throws IOException {
-        Log.debug("%s deleting by query %s", logName, query);
+        logger.debug("{} deleting by query {}", logName, query);
         indexWriter.deleteDocuments(query);
     }
 
@@ -179,7 +200,7 @@ public class LuceneIndex implements LuceneIndexMBean {
      */
     public void truncate() throws IOException {
         indexWriter.deleteAll();
-        Log.info("%s truncated", logName);
+        logger.info("{} truncated", logName);
     }
 
     /**
@@ -190,7 +211,7 @@ public class LuceneIndex implements LuceneIndexMBean {
     @Override
     public void commit() throws IOException {
         indexWriter.commit();
-        Log.info("%s committed", logName);
+        logger.info("{} committed", logName);
     }
 
     /**
@@ -206,9 +227,9 @@ public class LuceneIndex implements LuceneIndexMBean {
         try {
             ManagementFactory.getPlatformMBeanServer().unregisterMBean(objectName);
         } catch (MBeanException | OperationsException e) {
-            Log.error(e, "Error while removing MBean");
+            logger.error("Error while removing MBean", e);
         }
-        Log.info("%s closed", logName);
+        logger.info("{} closed", logName);
     }
 
     /**
@@ -219,7 +240,7 @@ public class LuceneIndex implements LuceneIndexMBean {
     public void delete() throws IOException {
         close();
         FileUtils.deleteRecursive(path.toFile());
-        Log.info("%s removed", logName);
+        logger.info("{} removed", logName);
     }
 
     public SearcherManager getSearcherManager() {
@@ -239,13 +260,13 @@ public class LuceneIndex implements LuceneIndexMBean {
      * @return The found documents, sorted according to the supplied {@link Sort} instance.
      * @throws IOException If Lucene throws IO errors.
      */
-    public LinkedHashMap<Document, ScoreDoc> search(IndexSearcher searcher,
-                                                    Query query,
-                                                    Sort sort,
-                                                    ScoreDoc after,
-                                                    Integer count,
-                                                    Set<String> fieldsToLoad) throws IOException {
-        Log.debug("%s search by query %s and sort %s", logName, query, sort);
+    public Map<Document, ScoreDoc> search(IndexSearcher searcher,
+                                          Query query,
+                                          Sort sort,
+                                          ScoreDoc after,
+                                          Integer count,
+                                          Set<String> fieldsToLoad) throws IOException {
+        logger.debug("{} search by query {} and sort {}", logName, query, sort);
 
         TopDocs topDocs;
         if (sort == null) {
@@ -273,7 +294,7 @@ public class LuceneIndex implements LuceneIndexMBean {
      */
     @Override
     public long getNumDocs() throws IOException {
-        Log.debug("%s get num docs", logName);
+        logger.debug("{} get num docs", logName);
         IndexSearcher searcher = searcherManager.acquire();
         try {
             return searcher.getIndexReader().numDocs();
@@ -290,7 +311,7 @@ public class LuceneIndex implements LuceneIndexMBean {
      */
     @Override
     public long getNumDeletedDocs() throws IOException {
-        Log.debug("%s get num deleted docs", logName);
+        logger.debug("{} get num deleted docs", logName);
         IndexSearcher searcher = searcherManager.acquire();
         try {
             return searcher.getIndexReader().numDeletedDocs();
@@ -309,10 +330,10 @@ public class LuceneIndex implements LuceneIndexMBean {
      */
     @Override
     public void forceMerge(int maxNumSegments, boolean doWait) throws IOException {
-        Log.info("%s merging index segments to %d", logName, maxNumSegments);
+        logger.info("{} merging index segments to {}", logName, maxNumSegments);
         indexWriter.forceMerge(maxNumSegments, doWait);
         indexWriter.commit();
-        Log.info("%s segments merge completed", logName);
+        logger.info("{} segments merge completed", logName);
     }
 
     /**
@@ -324,18 +345,19 @@ public class LuceneIndex implements LuceneIndexMBean {
      */
     @Override
     public void forceMergeDeletes(boolean doWait) throws IOException {
-        Log.info("%s merging index segments with deletions", logName);
+        logger.info("{} merging index segments with deletions", logName);
         indexWriter.forceMergeDeletes(doWait);
         indexWriter.commit();
-        Log.info("%s merging index segments with deletions completed", logName);
+        logger.info("{} merging index segments with deletions completed", logName);
     }
 
     /**
      * Refreshes the index readers.
      */
     @Override
-    public void refresh() {
-        Log.info("%s refreshing readers", logName);
-        searcherReopener.run();
+    public void refresh() throws IOException {
+        logger.info("{} refreshing readers", logName);
+        commit();
+        searcherManager.maybeRefreshBlocking();
     }
 }

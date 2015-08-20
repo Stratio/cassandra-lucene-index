@@ -62,10 +62,11 @@ containing the plugin and add it to the Cassandra’s classpath:
 
 -  Build the plugin with Maven: ``mvn clean package``
 -  Copy the generated JAR to the lib folder of your compatible Cassandra installation:
-   ``cp plugin/target/cassandra-lucene-index-plugin-2.1.8.1.jar <CASSANDRA_HOME>/lib/``
+   ``cp plugin/target/cassandra-lucene-index-plugin-2.1.8.4-SNAPSHOT.jar <CASSANDRA_HOME>/lib/``
 -  Start/restart Cassandra as usual
 
-Alternatively, patching can also be done with this Maven profile, specifying the path of your Cassandra installation:
+Alternatively, patching can also be done with this Maven profile, specifying the path of your Cassandra installation,
+ this task also delete previous plugin's JAR versions in CASSANDRA_HOME/lib/ directory:
 
 .. code-block:: bash
 
@@ -131,6 +132,13 @@ a custom Lucene index on it with the following statement:
     };
 
 This will index all the columns in the table with the specified types, and it will be refreshed once per second.
+Alternatively, you can explicitly refresh all the index shards with an empty search with consistency ``ALL``:
+
+.. code-block:: sql
+
+    CONSISTENCY ALL
+    SELECT * FROM tweets WHERE lucene = '{refresh:true}';
+    CONSISTENCY QUORUM
 
 Now, to search for tweets within a certain date range:
 
@@ -138,6 +146,15 @@ Now, to search for tweets within a certain date range:
 
     SELECT * FROM tweets WHERE lucene='{
         filter : {type:"range", field:"time", lower:"2014/04/25", upper:"2014/05/1"}
+    }' limit 100;
+
+The same search can be performed forcing an explicit refresh of the involved index shards:
+
+.. code-block:: sql
+
+    SELECT * FROM tweets WHERE lucene='{
+        filter : {type:"range", field:"time", lower:"2014/04/25", upper:"2014/05/1"},
+        refresh : true
     }' limit 100;
 
 Now, to search the top 100 more relevant tweets where *body* field contains the phrase “big data gives organizations”

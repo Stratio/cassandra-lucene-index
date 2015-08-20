@@ -1,18 +1,21 @@
 /*
- * Copyright 2015, Stratio.
+ * Licensed to STRATIO (C) under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.  The STRATIO (C) licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
+
 package com.stratio.cassandra.lucene.schema.analysis;
 
 import org.apache.lucene.analysis.Analyzer;
@@ -66,303 +69,301 @@ public class PreBuiltAnalyzersTest {
     @Test
     public void testGetStandardPreBuiltAnalyzer() {
         Analyzer analyzer = PreBuiltAnalyzers.STANDARD.get();
-        assertEquals(StandardAnalyzer.class, analyzer.getClass());
+        assertEquals("Expected another type of analyzer", StandardAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetDefaultPreBuiltAnalyzer() {
         Analyzer analyzer = PreBuiltAnalyzers.DEFAULT.get();
-        assertEquals(StandardAnalyzer.class, analyzer.getClass());
+        assertEquals("Expected another type of analyzer", StandardAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetKeywordPreBuiltAnalyzer() {
         Analyzer analyzer = PreBuiltAnalyzers.KEYWORD.get();
-        assertEquals(KeywordAnalyzer.class, analyzer.getClass());
+        assertEquals("Expected another type of analyzer", KeywordAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetStopPreBuiltAnalyzer() {
         Analyzer analyzer = PreBuiltAnalyzers.STOP.get();
-        assertEquals(StopAnalyzer.class, analyzer.getClass());
+        assertEquals("Expected another type of analyzer", StopAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetWhitespacePreBuiltAnalyzer() {
         Analyzer analyzer = PreBuiltAnalyzers.WHITESPACE.get();
-        assertEquals(WhitespaceAnalyzer.class, analyzer.getClass());
+        assertEquals("Expected another type of analyzer", WhitespaceAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetSimplePreBuiltAnalyzer() {
         Analyzer analyzer = PreBuiltAnalyzers.SIMPLE.get();
-        assertEquals(SimpleAnalyzer.class, analyzer.getClass());
+        assertEquals("Expected another type of analyzer", SimpleAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetClassicPreBuiltAnalyzer() {
         Analyzer analyzer = PreBuiltAnalyzers.CLASSIC.get();
-        assertEquals(ClassicAnalyzer.class, analyzer.getClass());
+        assertEquals("Expected another type of analyzer", ClassicAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetArabicPreBuiltAnalyzer() {
         Analyzer analyzer = PreBuiltAnalyzers.ARABIC.get();
-        assertEquals(ArabicAnalyzer.class, analyzer.getClass());
+        assertEquals("Expected another type of analyzer", ArabicAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetArmenianPreBuiltAnalyzer() {
         Analyzer analyzer = PreBuiltAnalyzers.ARMENIAN.get();
-        assertEquals(ArmenianAnalyzer.class, analyzer.getClass());
+        assertEquals("Expected another type of analyzer", ArmenianAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetBasquePreBuiltAnalyzer() {
         Analyzer analyzer = PreBuiltAnalyzers.BASQUE.get();
-        assertEquals(BasqueAnalyzer.class, analyzer.getClass());
+        assertEquals("Expected another type of analyzer", BasqueAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetBrazilianPreBuiltAnalyzer() {
         Analyzer analyzer = PreBuiltAnalyzers.BRAZILIAN.get();
-        assertEquals(BrazilianAnalyzer.class, analyzer.getClass());
+        assertEquals("Expected another type of analyzer", BrazilianAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetBulgarianPreBuiltAnalyzer() {
         Analyzer analyzer = PreBuiltAnalyzers.BULGARIAN.get();
-        assertEquals(BulgarianAnalyzer.class, analyzer.getClass());
+        assertEquals("Expected another type of analyzer", BulgarianAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetCaatalanPreBuiltAnalyzer() {
         Analyzer analyzer = PreBuiltAnalyzers.CATALAN.get();
-        assertEquals(CatalanAnalyzer.class, analyzer.getClass());
+        assertEquals("Expected another type of analyzer", CatalanAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetChinesePreBuiltAnalyzer() {
         Analyzer analyzer = PreBuiltAnalyzers.CHINESE.get();
-        assertEquals(StandardAnalyzer.class, analyzer.getClass());
+        assertEquals("Expected another type of analyzer", StandardAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetCjkPreBuiltAnalyzer() {
         Analyzer analyzer = PreBuiltAnalyzers.CJK.get();
-        assertEquals(CJKAnalyzer.class, analyzer.getClass());
+        assertEquals("Expected another type of analyzer", CJKAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetCzechPreBuiltAnalyzer() {
         Analyzer analyzer = PreBuiltAnalyzers.CZECH.get();
-        assertEquals(CzechAnalyzer.class, analyzer.getClass());
+        assertEquals("Expected another type of analyzer", CzechAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetDutchPreBuiltAnalyzer() {
         Analyzer analyzer = PreBuiltAnalyzers.DUTCH.get();
-        assertEquals(DutchAnalyzer.class, analyzer.getClass());
+        assertEquals("Expected another type of analyzer", DutchAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetDanishPreBuiltAnalyzer() {
         Analyzer analyzer = PreBuiltAnalyzers.DANISH.get();
-        assertEquals(DanishAnalyzer.class, analyzer.getClass());
+        assertEquals("Expected another type of analyzer", DanishAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetEnglishPreBuiltAnalyzer() {
         Analyzer analyzer = PreBuiltAnalyzers.ENGLISH.get();
-        assertEquals(EnglishAnalyzer.class, analyzer.getClass());
+        assertEquals("Expected another type of analyzer", EnglishAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetFinnishPreBuiltAnalyzer() {
         Analyzer analyzer = PreBuiltAnalyzers.FINNISH.get();
-        assertEquals(FinnishAnalyzer.class, analyzer.getClass());
+        assertEquals("Expected another type of analyzer", FinnishAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetFrenchPreBuiltAnalyzer() {
         Analyzer analyzer = PreBuiltAnalyzers.FRENCH.get();
-        assertEquals(FrenchAnalyzer.class, analyzer.getClass());
+        assertEquals("Expected another type of analyzer", FrenchAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetGalicianPreBuiltAnalyzer() {
         Analyzer analyzer = PreBuiltAnalyzers.GALICIAN.get();
-        assertEquals(GalicianAnalyzer.class, analyzer.getClass());
+        assertEquals("Expected another type of analyzer", GalicianAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetGermanPreBuiltAnalyzer() {
         Analyzer analyzer = PreBuiltAnalyzers.GERMAN.get();
-        assertEquals(GermanAnalyzer.class, analyzer.getClass());
+        assertEquals("Expected another type of analyzer", GermanAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetGreekPreBuiltAnalyzer() {
         Analyzer analyzer = PreBuiltAnalyzers.GREEK.get();
-        assertEquals(GreekAnalyzer.class, analyzer.getClass());
+        assertEquals("Expected another type of analyzer", GreekAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetHindiPreBuiltAnalyzer() {
         Analyzer analyzer = PreBuiltAnalyzers.HINDI.get();
-        assertEquals(HindiAnalyzer.class, analyzer.getClass());
+        assertEquals("Expected another type of analyzer", HindiAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetHungarianPreBuiltAnalyzer() {
         Analyzer analyzer = PreBuiltAnalyzers.HUNGARIAN.get();
-        assertEquals(HungarianAnalyzer.class, analyzer.getClass());
+        assertEquals("Expected another type of analyzer", HungarianAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetIndonesianPreBuiltAnalyzer() {
         Analyzer analyzer = PreBuiltAnalyzers.INDONESIAN.get();
-        assertEquals(IndonesianAnalyzer.class, analyzer.getClass());
+        assertEquals("Expected another type of analyzer", IndonesianAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetIrishPreBuiltAnalyzer() {
         Analyzer analyzer = PreBuiltAnalyzers.IRISH.get();
-        assertEquals(IrishAnalyzer.class, analyzer.getClass());
+        assertEquals("Expected another type of analyzer", IrishAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetItalianPreBuiltAnalyzer() {
         Analyzer analyzer = PreBuiltAnalyzers.ITALIAN.get();
-        assertEquals(ItalianAnalyzer.class, analyzer.getClass());
+        assertEquals("Expected another type of analyzer", ItalianAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetLatvianPreBuiltAnalyzer() {
         Analyzer analyzer = PreBuiltAnalyzers.LATVIAN.get();
-        assertEquals(LatvianAnalyzer.class, analyzer.getClass());
+        assertEquals("Expected another type of analyzer", LatvianAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetNorwegianPreBuiltAnalyzer() {
         Analyzer analyzer = PreBuiltAnalyzers.NORWEGIAN.get();
-        assertEquals(NorwegianAnalyzer.class, analyzer.getClass());
+        assertEquals("Expected another type of analyzer", NorwegianAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetPersianPreBuiltAnalyzer() {
         Analyzer analyzer = PreBuiltAnalyzers.PERSIAN.get();
-        assertEquals(PersianAnalyzer.class, analyzer.getClass());
+        assertEquals("Expected another type of analyzer", PersianAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetPortuguesePreBuiltAnalyzer() {
         Analyzer analyzer = PreBuiltAnalyzers.PORTUGUESE.get();
-        assertEquals(PortugueseAnalyzer.class, analyzer.getClass());
+        assertEquals("Expected another type of analyzer", PortugueseAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetRomanianPreBuiltAnalyzer() {
         Analyzer analyzer = PreBuiltAnalyzers.ROMANIAN.get();
-        assertEquals(RomanianAnalyzer.class, analyzer.getClass());
+        assertEquals("Expected another type of analyzer", RomanianAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetRussianPreBuiltAnalyzer() {
         Analyzer analyzer = PreBuiltAnalyzers.RUSSIAN.get();
-        assertEquals(RussianAnalyzer.class, analyzer.getClass());
+        assertEquals("Expected another type of analyzer", RussianAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetSoraniPreBuiltAnalyzer() {
         Analyzer analyzer = PreBuiltAnalyzers.SORANI.get();
-        assertEquals(SoraniAnalyzer.class, analyzer.getClass());
+        assertEquals("Expected another type of analyzer", SoraniAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetSpanishPreBuiltAnalyzer() {
         Analyzer analyzer = PreBuiltAnalyzers.SPANISH.get();
-        assertEquals(SpanishAnalyzer.class, analyzer.getClass());
+        assertEquals("Expected another type of analyzer", SpanishAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetSwedishPreBuiltAnalyzer() {
         Analyzer analyzer = PreBuiltAnalyzers.SWEDISH.get();
-        assertEquals(SwedishAnalyzer.class, analyzer.getClass());
+        assertEquals("Expected another type of analyzer", SwedishAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetTurkishPreBuiltAnalyzer() {
         Analyzer analyzer = PreBuiltAnalyzers.TURKISH.get();
-        assertEquals(TurkishAnalyzer.class, analyzer.getClass());
+        assertEquals("Expected another type of analyzer", TurkishAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetThaiPreBuiltAnalyzer() {
         Analyzer analyzer = PreBuiltAnalyzers.THAI.get();
-        assertEquals(ThaiAnalyzer.class, analyzer.getClass());
+        assertEquals("Expected another type of analyzer", ThaiAnalyzer.class, analyzer.getClass());
         analyzer.close();
     }
 
     @Test
     public void testGetPreBuiltAnalyzerFromNameLowerCase() {
         Analyzer analyzer = PreBuiltAnalyzers.get("standard");
-        assertNotNull(analyzer);
-        assertEquals(StandardAnalyzer.class, analyzer.getClass());
+        assertNotNull("Expected null analyzer", analyzer);
         analyzer.close();
     }
 
     @Test
     public void testGetPreBuiltAnalyzerFromNameUpperCase() {
         Analyzer analyzer = PreBuiltAnalyzers.get("STANDARD");
-        assertNotNull(analyzer);
-        assertEquals(StandardAnalyzer.class, analyzer.getClass());
+        assertNotNull("Expected null analyzer", analyzer);
         analyzer.close();
     }
 
     @Test
     public void testGetPreBuiltAnalyzerUnexistent() {
         Analyzer analyzer = PreBuiltAnalyzers.get("unexistent");
-        assertNull(analyzer);
+        assertNull("Expected null analyzer", analyzer);
     }
 
 }

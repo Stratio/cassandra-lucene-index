@@ -1,26 +1,38 @@
 /*
- * Copyright 2015, Stratio.
+ * Licensed to STRATIO (C) under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.  The STRATIO (C) licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
+
 package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.google.common.base.Objects;
+import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import com.stratio.cassandra.lucene.util.DateParser;
 import org.apache.cassandra.config.CFMetaData;
-import org.apache.cassandra.db.marshal.*;
+import org.apache.cassandra.db.marshal.AsciiType;
+import org.apache.cassandra.db.marshal.DecimalType;
+import org.apache.cassandra.db.marshal.DoubleType;
+import org.apache.cassandra.db.marshal.FloatType;
+import org.apache.cassandra.db.marshal.Int32Type;
+import org.apache.cassandra.db.marshal.IntegerType;
+import org.apache.cassandra.db.marshal.LongType;
+import org.apache.cassandra.db.marshal.TimestampType;
+import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexableField;
@@ -31,7 +43,6 @@ import org.apache.lucene.spatial.prefix.tree.DateRangePrefixTree;
 import org.apache.lucene.spatial.prefix.tree.NumberRangePrefixTree.NRShape;
 import org.apache.lucene.spatial.prefix.tree.NumberRangePrefixTree.UnitNRShape;
 
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 
@@ -42,78 +53,79 @@ import java.util.Date;
  */
 public class DateRangeMapper extends Mapper {
 
-    /** The default {@link SimpleDateFormat} pattern. */
-    public static final String DEFAULT_PATTERN = "yyyy/MM/dd HH:mm:ss.SSS";
+    /** The name of the column containing the from date. */
+    public final String from;
 
-    private final String start;
-    private final String stop;
+    /** The name of the column containing the to date. */
+    public final String to;
 
-    /** The {@link SimpleDateFormat} pattern. */
-    private final String pattern;
+    /** The date format pattern. */
+    public final String pattern;
 
-    /** The {@link DateParser} */
+    /** The {@link DateParser}. */
     private final DateParser dateParser;
 
     private final DateRangePrefixTree tree;
-    private final NumberRangePrefixTreeStrategy strategy;
+
+    /** The {@link SpatialStrategy}. */
+    public final NumberRangePrefixTreeStrategy strategy;
 
     /**
      * Builds a new {@link DateRangeMapper}.
      *
-     * @param name    The name of the mapper.
-     * @param start   The column containing the start {@link Date}.
-     * @param stop    The column containing the stop {@link Date}.
-     * @param pattern The {@link SimpleDateFormat} pattern to be used.
+     * @param field   The name of the field.
+     * @param from    The name of the column containing the from date.
+     * @param to      The name of the column containing the to date.
+     * @param pattern The date format pattern to be used.
      */
-    public DateRangeMapper(String name, String start, String stop, String pattern) {
-        super(name,
+    public DateRangeMapper(String field, String from, String to, String pattern) {
+        super(field,
               true,
               false,
-              Arrays.<AbstractType>asList(AsciiType.instance,
-                                          UTF8Type.instance,
-                                          Int32Type.instance,
-                                          LongType.instance,
-                                          IntegerType.instance,
-                                          FloatType.instance,
-                                          DoubleType.instance,
-                                          DecimalType.instance,
-                                          TimestampType.instance),
-              Arrays.asList(start, stop));
+              null,
+              Arrays.asList(from, to),
+              AsciiType.instance,
+              UTF8Type.instance,
+              Int32Type.instance,
+              LongType.instance,
+              IntegerType.instance,
+              FloatType.instance,
+              DoubleType.instance,
+              DecimalType.instance,
+              TimestampType.instance);
 
-        if (StringUtils.isBlank(start)) {
-            throw new IllegalArgumentException("start column name is required");
+        if (StringUtils.isBlank(from)) {
+            throw new IndexException("from column name is required");
         }
 
-        if (StringUtils.isBlank(stop)) {
-            throw new IllegalArgumentException("stop column name is required");
+        if (StringUtils.isBlank(to)) {
+            throw new IndexException("to column name is required");
         }
 
-        this.start = start;
-        this.stop = stop;
+        this.from = from;
+        this.to = to;
         this.tree = DateRangePrefixTree.INSTANCE;
-        this.strategy = new NumberRangePrefixTreeStrategy(tree, name);
-        this.pattern = pattern == null ? DEFAULT_PATTERN : pattern;
+        this.strategy = new NumberRangePrefixTreeStrategy(tree, field);
+        this.pattern = pattern == null ? DateParser.DEFAULT_PATTERN : pattern;
         this.dateParser = new DateParser(this.pattern);
-    }
-
-    public String getStart() {
-        return start;
-    }
-
-    public String getStop() {
-        return stop;
-    }
-
-    public String getPattern() {
-        return pattern;
     }
 
     /** {@inheritDoc} */
     @Override
     public void addFields(Document document, Columns columns) {
-        Date start = readStart(columns);
-        Date stop = readStop(columns);
-        NRShape shape = makeShape(start, stop);
+
+        Date fromDate = readFrom(columns);
+        Date toDate = readTo(columns);
+
+        if (fromDate == null && toDate == null) {
+            return;
+        } else if (fromDate == null) {
+            throw new IndexException("From column required");
+        } else if (toDate == null) {
+            throw new IndexException("To column required");
+        }
+
+        NRShape shape = makeShape(fromDate, toDate);
         for (IndexableField field : strategy.createIndexableFields(shape)) {
             document.add(field);
         }
@@ -122,75 +134,63 @@ public class DateRangeMapper extends Mapper {
     /** {@inheritDoc} */
     @Override
     public SortField sortField(String name, boolean reverse) {
-        throw new UnsupportedOperationException(String.format("Date range mapper '%s' does not support sorting", name));
-    }
-
-    /**
-     * Returns the used {@link SpatialStrategy}.
-     *
-     * @return The used {@link SpatialStrategy}.
-     */
-    public SpatialStrategy getStrategy() {
-        return strategy;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public String toString() {
-        return Objects.toStringHelper(this)
-                      .add("name", name)
-                      .add("start", start)
-                      .add("stop", stop)
-                      .add("pattern", pattern)
-                      .toString();
+        throw new IndexException("Date range mapper '%s' does not support sorting", name);
     }
 
     /** {@inheritDoc} */
     @Override
     public void validate(CFMetaData metadata) {
-        validate(metadata, start);
-        validate(metadata, stop);
+        validate(metadata, from);
+        validate(metadata, to);
     }
 
     /**
      * Makes an spatial shape representing the time range defined by the two specified dates.
      *
-     * @param start The start {@link Date}.
-     * @param stop  The stop {@link Date}.
+     * @param from The from {@link Date}.
+     * @param to   The to {@link Date}.
      * @return The spatial shape representing the time range defined by the two specified dates.
      */
-    public NRShape makeShape(Date start, Date stop) {
-        UnitNRShape startShape = tree.toUnitShape(start);
-        UnitNRShape stopShape = tree.toUnitShape(stop);
-        return tree.toRangeShape(startShape, stopShape);
+    public NRShape makeShape(Date from, Date to) {
+        UnitNRShape fromShape = tree.toUnitShape(from);
+        UnitNRShape toShape = tree.toUnitShape(to);
+        return tree.toRangeShape(fromShape, toShape);
     }
 
     /**
-     * Returns the start {@link Date} contained in the specified {@link Columns}.
+     * Returns the from {@link Date} contained in the specified {@link Columns}.
      *
-     * @param columns The {@link Columns} containing the start {@link Date}.
+     * @param columns The {@link Columns} containing the from {@link Date}.
      * @return The star {@link Date} contained in the specified {@link Columns}.
      */
-    Date readStart(Columns columns) {
-        Column column = columns.getColumnsByName(start).getFirst();
-        if (column == null) throw new IllegalArgumentException("Start column required");
-        Date start = base(column.getComposedValue());
-        if (stop == null) throw new IllegalArgumentException("Start date required");
-        return start;
+    Date readFrom(Columns columns) {
+        Column<?> column = columns.getColumnsByName(from).getFirst();
+        if (column == null) {
+            return null;
+        }
+        Date fromDate = base(column.getComposedValue());
+        if (to == null) {
+            throw new IndexException("From date required");
+        }
+        return fromDate;
     }
 
     /**
-     * Returns the stop {@link Date} contained in the specified {@link Columns}.
+     * Returns the to {@link Date} contained in the specified {@link Columns}.
      *
-     * @param columns The {@link Columns} containing the stop {@link Date}.
-     * @return The stop {@link Date} contained in the specified {@link Columns}.
+     * @param columns The {@link Columns} containing the to {@link Date}.
+     * @return The to {@link Date} contained in the specified {@link Columns}.
      */
-    Date readStop(Columns columns) {
-        Column column = columns.getColumnsByName(stop).getFirst();
-        if (column == null) throw new IllegalArgumentException("Stop column required");
-        Date stop = base(column.getComposedValue());
-        if (stop == null) throw new IllegalArgumentException("Stop date required");
-        return stop;
+    Date readTo(Columns columns) {
+        Column<?> column = columns.getColumnsByName(to).getFirst();
+        if (column == null) {
+            return null;
+        }
+        Date toDate = base(column.getComposedValue());
+        if (toDate == null) {
+            throw new IndexException("To date required");
+        }
+        return toDate;
     }
 
     /**
@@ -201,11 +201,17 @@ public class DateRangeMapper extends Mapper {
      * @return The {@link Date} represented by the specified object, or {@code null} if there is no one.
      */
     public Date base(Object value) {
-        Date opt = this.dateParser.parse(value);
-        if (opt == null) {
-            return null;
-        } else {
-            return opt;
-        }
+        return dateParser.parse(value);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this)
+                      .add("field", field)
+                      .add("from", from)
+                      .add("to", to)
+                      .add("pattern", pattern)
+                      .toString();
     }
 }

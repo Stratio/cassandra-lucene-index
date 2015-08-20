@@ -1,24 +1,27 @@
 /*
- * Copyright 2014, Stratio.
+ * Licensed to STRATIO (C) under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.  The STRATIO (C) licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
+
 package com.stratio.cassandra.lucene.search.condition;
 
-import com.google.common.base.Objects;
-import com.stratio.cassandra.lucene.schema.Schema;
+import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.FuzzyQuery;
 import org.apache.lucene.search.Query;
@@ -31,22 +34,19 @@ import org.apache.lucene.util.automaton.LevenshteinAutomata;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class FuzzyCondition extends SingleFieldCondition {
+public class FuzzyCondition extends SingleColumnCondition {
 
     /** The default Damerau-Levenshtein max distance. */
-    public final static int DEFAULT_MAX_EDITS = LevenshteinAutomata.MAXIMUM_SUPPORTED_DISTANCE;
+    public static final int DEFAULT_MAX_EDITS = LevenshteinAutomata.MAXIMUM_SUPPORTED_DISTANCE;
 
     /** The default length of common (non-fuzzy) prefix. */
-    public final static int DEFAULT_PREFIX_LENGTH = 0;
+    public static final int DEFAULT_PREFIX_LENGTH = 0;
 
     /** The default max expansions. */
-    public final static int DEFAULT_MAX_EXPANSIONS = 50;
+    public static final int DEFAULT_MAX_EXPANSIONS = 50;
 
     /** If transpositions should be treated as a primitive edit operation by default. */
-    public final static boolean DEFAULT_TRANSPOSITIONS = true;
-
-    /** The name of the field to be matched. */
-    public final String field;
+    public static final boolean DEFAULT_TRANSPOSITIONS = true;
 
     /** The fuzzy expression to be matched. */
     public final String value;
@@ -87,55 +87,80 @@ public class FuzzyCondition extends SingleFieldCondition {
                           Integer maxExpansions,
                           Boolean transpositions) {
         super(boost, field);
+        this.value = validateValue(value);
+        this.maxEdits = validateMaxEdits(maxEdits);
+        this.prefixLength = validatePrefixLength(prefixLength);
+        this.maxExpansions = validateMaxExpansions(maxExpansions);
+        this.transpositions = validateTranspositions(transpositions);
+    }
 
+    private static String validateValue(String value) {
         if (StringUtils.isBlank(value)) {
-            throw new IllegalArgumentException("Field value required");
+            throw new IndexException("Field value required");
+        } else {
+            return value;
         }
-        if (maxEdits != null && (maxEdits < 0 || maxEdits > 2)) {
-            throw new IllegalArgumentException("max_edits must be between 0 and 2");
-        }
-        if (prefixLength != null && prefixLength < 0) {
-            throw new IllegalArgumentException("prefix_length must be positive.");
-        }
-        if (maxExpansions != null && maxExpansions < 0) {
-            throw new IllegalArgumentException("max_expansions must be positive.");
-        }
+    }
 
-        this.field = field;
-        this.value = value;
-        this.maxEdits = maxEdits == null ? DEFAULT_MAX_EDITS : maxEdits;
-        this.prefixLength = prefixLength == null ? DEFAULT_PREFIX_LENGTH : prefixLength;
-        this.maxExpansions = maxExpansions == null ? DEFAULT_MAX_EXPANSIONS : maxExpansions;
-        this.transpositions = transpositions == null ? DEFAULT_TRANSPOSITIONS : transpositions;
+    private static Integer validateMaxEdits(Integer maxEdits) {
+        if (maxEdits == null) {
+            return DEFAULT_MAX_EDITS;
+        } else if (maxEdits < 0 || maxEdits > 2) {
+            throw new IndexException("max_edits must be between 0 and 2");
+        } else {
+            return maxEdits;
+        }
+    }
+
+    private static Integer validatePrefixLength(Integer prefixLength) {
+        if (prefixLength == null) {
+            return DEFAULT_PREFIX_LENGTH;
+        } else if (prefixLength < 0) {
+            throw new IndexException("prefix_length must be positive.");
+        } else {
+            return prefixLength;
+        }
+    }
+
+    private static Integer validateMaxExpansions(Integer maxExpansions) {
+        if (maxExpansions == null) {
+            return DEFAULT_MAX_EXPANSIONS;
+        } else if (maxExpansions < 0) {
+            throw new IndexException("max_expansions must be positive.");
+        } else {
+            return maxExpansions;
+        }
+    }
+
+    private static Boolean validateTranspositions(Boolean transpositions) {
+        if (transpositions == null) {
+            return DEFAULT_TRANSPOSITIONS;
+        } else {
+            return transpositions;
+        }
     }
 
     /** {@inheritDoc} */
     @Override
-    public Query query(Schema schema) {
-        SingleColumnMapper<?> columnMapper = getMapper(schema, field);
-        Class<?> clazz = columnMapper.baseClass();
-        if (clazz == String.class) {
+    public Query query(SingleColumnMapper<?> mapper, Analyzer analyzer) {
+        if (mapper.base == String.class) {
             Term term = new Term(field, value);
             Query query = new FuzzyQuery(term, maxEdits, prefixLength, maxExpansions, transpositions);
             query.setBoost(boost);
             return query;
         } else {
-            String message = String.format("Fuzzy queries are not supported by %s mapper", clazz.getSimpleName());
-            throw new UnsupportedOperationException(message);
+            throw new IndexException("Fuzzy queries are not supported by mapper %s", mapper);
         }
     }
 
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                      .add("boost", boost)
-                      .add("field", field)
-                      .add("value", value)
-                      .add("maxEdits", maxEdits)
-                      .add("prefixLength", prefixLength)
-                      .add("maxExpansions", maxExpansions)
-                      .add("transpositions", transpositions)
-                      .toString();
+        return toStringHelper(this).add("value", value)
+                                   .add("maxEdits", maxEdits)
+                                   .add("prefixLength", prefixLength)
+                                   .add("maxExpansions", maxExpansions)
+                                   .add("transpositions", transpositions)
+                                   .toString();
     }
 }

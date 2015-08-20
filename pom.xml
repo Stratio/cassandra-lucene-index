@@ -32,9 +32,9 @@
     <groupId>com.stratio.cassandra</groupId>
     <artifactId>cassandra-lucene-index-parent</artifactId>
     <packaging>pom</packaging>
-    <version>2.1.8.1</version>
-    <name>Cassandra Lucene index parent</name>
-    <description>Cassandra Lucene index parent</description>
+    <version>2.1.8.4-SNAPSHOT</version>
+    <name>Cassandra Lucene index</name>
+    <description>Cassandra Lucene index</description>
 
     <modules>
         <module>doc</module>
@@ -78,6 +78,7 @@
         <maven.compiler.target>1.7</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <cassandra.version>2.2.0</cassandra.version>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <lucene.version>5.2.1</lucene.version>
         <coverage.data.dir>${project.build.outputDirectory}</coverage.data.dir>
     </properties>

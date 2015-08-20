@@ -1,5 +1,27 @@
 # Changelog
 
+## 2.1.8.4-SNAPSHOT ()
+
+## 2.1.8.3 (20 August 2015)
+ * Fix analyzer selection in maps (issue#18)
+ * Change logger fixed name from `stratio` to class-based `com.stratio`
+ * Add performance tips section to documentation
+
+## 2.1.8.2 (13 August 2015)
+
+ * Add force index refresh option to searches
+ * Add condition type `none` to return no rows
+ * Rename `match_all` condition to `all`
+ * Allow resource-intensive pure negation searches
+ * Remove unneeded asynchronous indexing queue
+ * Change default date pattern to `yyyy/MM/dd HH:mm:ss.SSS Z`
+ * Fix multi-mappers when all columns are null (issue#28)
+ * Rename `date_range` limits to `from` and `to`
+ * Add bitemporal search features
+ * Silently discard tokens over 32766 bytes in length (just log)
+ * Best effort mapping, per mapper errors are just logged
+ * Allow several mappers on the same column
+
 ## 2.1.8.1 (31 July 2015)
 
  * Add complete support for CQL paging, even for top-k queries.

@@ -1,31 +1,33 @@
 /*
- * Copyright 2014, Stratio.
+ * Licensed to STRATIO (C) under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.  The STRATIO (C) licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
+
 package com.stratio.cassandra.lucene.search.condition;
 
-import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.mapping.Mapper;
-import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
+import com.google.common.base.Objects;
+import com.stratio.cassandra.lucene.IndexException;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * The abstract base class for queries.
+ * The abstract base class for queries directed to a specific field which name should be specified.
  *
- * Known subclasses are: <ul> <li> {@link BooleanCondition} <li> {@link FuzzyCondition} <li> {@link MatchCondition} <li>
- * {@link PhraseCondition} <li> {@link PrefixCondition} <li> {@link RangeCondition} <li> {@link WildcardCondition}
- * </ul>
+ * Known subclasses are: <ul> <li> {@link FuzzyCondition} <li> {@link MatchCondition} <li> {@link PhraseCondition} <li>
+ * {@link PrefixCondition} <li> {@link RangeCondition} <li> {@link WildcardCondition} <li> {@link BitemporalCondition}
+ * <li> {@link DateRangeCondition} <li> {@link GeoDistanceCondition} <li> {@link GeoBBoxCondition} </ul>
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
@@ -43,18 +45,15 @@ public abstract class SingleFieldCondition extends Condition {
      */
     public SingleFieldCondition(Float boost, String field) {
         super(boost);
+
         if (StringUtils.isBlank(field)) {
-            throw new IllegalArgumentException("Field name required");
+            throw new IndexException("Field name required");
         }
+
         this.field = field;
     }
 
-    protected SingleColumnMapper<?> getMapper(Schema schema, String field) {
-        Mapper mapper = schema.getMapper(field);
-        if (mapper != null && mapper instanceof SingleColumnMapper<?>) {
-            return (SingleColumnMapper<?>) mapper;
-        }
-        throw new IllegalArgumentException("Not found mapper for field " + field);
+    protected Objects.ToStringHelper toStringHelper(Object o) {
+        return super.toStringHelper(o).add("field", field);
     }
-
 }

@@ -1,18 +1,21 @@
 /*
- * Copyright 2014, Stratio.
+ * Licensed to STRATIO (C) under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.  The STRATIO (C) licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
+
 package com.stratio.cassandra.lucene.service;
 
 import com.stratio.cassandra.lucene.schema.Schema;
@@ -57,18 +60,18 @@ import java.util.Map;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class ClusteringKeyMapper {
+public final class ClusteringKeyMapper {
 
-    /** The Lucene field name */
+    /** The Lucene field name. */
     public static final String FIELD_NAME = "_clustering_key";
 
-    /** The column family meta data */
+    /** The column family meta data. */
     private final CFMetaData metadata;
 
     /** The mapping schema. */
     private final Schema schema;
 
-    /** The type of the clustering key, which is the type of the column names */
+    /** The type of the clustering key, which is the type of the column names. */
     private final CellNameType cellNameType;
 
     /**
@@ -80,7 +83,7 @@ public class ClusteringKeyMapper {
     private ClusteringKeyMapper(CFMetaData metadata, Schema schema) {
         this.metadata = metadata;
         this.schema = schema;
-        this.cellNameType = metadata.comparator;
+        cellNameType = metadata.comparator;
     }
 
     /**
@@ -128,6 +131,12 @@ public class ClusteringKeyMapper {
         return iterator.hasNext() ? clusteringKey(iterator.next().name()) : null;
     }
 
+    /**
+     * Returns the clustering key contained in the specified {@link ByteBuffer}.
+     *
+     * @param bb A {@link ByteBuffer}.
+     * @return The clustering key contained in the specified {@link ByteBuffer}.
+     */
     public CellName clusteringKey(ByteBuffer bb) {
         return cellNameType.cellFromByteBuffer(bb);
     }
@@ -139,7 +148,7 @@ public class ClusteringKeyMapper {
      * @param columnDefinition The column definition.
      * @return A storage engine column name.
      */
-    public final CellName makeCellName(CellName cellName, ColumnDefinition columnDefinition) {
+    public CellName makeCellName(CellName cellName, ColumnDefinition columnDefinition) {
         return cellNameType.create(start(cellName), columnDefinition);
     }
 
@@ -149,7 +158,7 @@ public class ClusteringKeyMapper {
      * @param row A {@link Row}.
      * @return The first clustering key contained in the specified row.
      */
-    public final CellName clusteringKey(Row row) {
+    public CellName clusteringKey(Row row) {
         return clusteringKey(row.cf);
     }
 
@@ -159,7 +168,7 @@ public class ClusteringKeyMapper {
      * @param document A {@link Document}.
      * @return The clustering key contained in the specified {@link CellName}.
      */
-    public final CellName clusteringKey(Document document) {
+    public CellName clusteringKey(Document document) {
         String string = document.get(FIELD_NAME);
         ByteBuffer bb = ByteBufferUtils.fromString(string);
         return cellNameType.cellFromByteBuffer(bb);
@@ -171,7 +180,7 @@ public class ClusteringKeyMapper {
      * @param bytesRef The {@link BytesRef} containing the raw clustering key to be get.
      * @return The clustering key contained in the specified Lucene field value.
      */
-    public final CellName clusteringKey(BytesRef bytesRef) {
+    public CellName clusteringKey(BytesRef bytesRef) {
         String string = bytesRef.utf8ToString();
         ByteBuffer bb = ByteBufferUtils.fromString(string);
         return cellNameType.cellFromByteBuffer(bb);
@@ -224,7 +233,7 @@ public class ClusteringKeyMapper {
      * @param columnFamily A {@link ColumnFamily}.
      * @return The {@link Columns} representing the data contained in the specified {@link ColumnFamily}.
      */
-    public final Columns columns(ColumnFamily columnFamily) {
+    public Columns columns(ColumnFamily columnFamily) {
         int numClusteringColumns = metadata.clusteringColumns().size();
         Columns columns = new Columns();
         if (numClusteringColumns > 0) {
@@ -250,7 +259,7 @@ public class ClusteringKeyMapper {
      * @param columnFamily A {@link ColumnFamily}.
      * @return A map associating clustering keys with its {@link ColumnFamily}.
      */
-    public final Map<CellName, ColumnFamily> splitRows(ColumnFamily columnFamily) {
+    public Map<CellName, ColumnFamily> splitRows(ColumnFamily columnFamily) {
         Map<CellName, ColumnFamily> columnFamilies = new LinkedHashMap<>();
         for (Cell cell : columnFamily) {
             CellName cellName = cell.name();
@@ -273,7 +282,7 @@ public class ClusteringKeyMapper {
      * @param clusteringKeys A sorted list of clustering keys.
      * @return The specified clustering keys as an array of {@link ColumnSlice}s.
      */
-    public final ColumnSlice[] columnSlices(List<CellName> clusteringKeys) {
+    public ColumnSlice[] columnSlices(List<CellName> clusteringKeys) {
         List<CellName> sortedClusteringKeys = sort(clusteringKeys);
         ColumnSlice[] columnSlices = new ColumnSlice[clusteringKeys.size()];
         int i = 0;
@@ -344,8 +353,24 @@ public class ClusteringKeyMapper {
      * @param cellName A cell name.
      * @return The {@code String} human-readable representation of the specified cell name.
      */
-    public final String toString(Composite cellName) {
+    public String toString(Composite cellName) {
         return ByteBufferUtils.toString(cellName.toByteBuffer(), cellNameType.asAbstractType());
     }
 
+    /**
+     * Returns a clustering key based {@link Row} {@link Comparator}.
+     *
+     * @return A clustering key based {@link Row} {@link Comparator}.
+     */
+    public Comparator<Row> comparator() {
+        return new Comparator<Row>() {
+            @Override
+            public int compare(Row row1, Row row2) {
+                CellNameType nameType = getType();
+                CellName name1 = clusteringKey(row1);
+                CellName name2 = clusteringKey(row2);
+                return nameType.compare(name1, name2);
+            }
+        };
+    }
 }

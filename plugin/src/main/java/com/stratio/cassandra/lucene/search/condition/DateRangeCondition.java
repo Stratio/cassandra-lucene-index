@@ -1,24 +1,26 @@
 /*
- * Copyright 2014, Stratio.
+ * Licensed to STRATIO (C) under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.  The STRATIO (C) licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
+
 package com.stratio.cassandra.lucene.search.condition;
 
-import com.google.common.base.Objects;
-import com.stratio.cassandra.lucene.schema.Schema;
+import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.mapping.DateRangeMapper;
-import com.stratio.cassandra.lucene.schema.mapping.Mapper;
+import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.spatial.SpatialStrategy;
 import org.apache.lucene.spatial.prefix.tree.NumberRangePrefixTree.NRShape;
@@ -32,31 +34,28 @@ import java.util.Date;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class DateRangeCondition extends Condition {
+public class DateRangeCondition extends SingleMapperCondition<DateRangeMapper> {
 
-    /** The default start value. */
-    public static final int DEFAULT_START = 0;
+    /** The default from value. */
+    public static final long DEFAULT_FROM = 0;
 
-    /** The default stop value. */
-    public static final int DEFAULT_STOP = Integer.MAX_VALUE;
+    /** The default to value. */
+    public static final long DEFAULT_TO = Long.MAX_VALUE;
 
     /** The default operation. */
     public static final String DEFAULT_OPERATION = "intersects";
 
-    /** The name of the field to be matched. */
-    public final String field;
-
     /** The lower accepted value. Maybe null meaning no lower limit. */
-    public final Object start;
+    public final Object from;
 
     /** The upper accepted value. Maybe null meaning no upper limit. */
-    public final Object stop;
+    public final Object to;
 
     /** The spatial operation to be performed. */
     public final String operation;
 
     /**
-     * Constructs a query selecting all fields greater/equal than {@code start} but less/equal than {@code stop}.
+     * Constructs a query selecting all fields greater/equal than {@code from} but less/equal than {@code to}.
      *
      * If an endpoint is null, it is said to be "open". Either or both endpoints may be open. Open endpoints may not be
      * exclusive (you can't select all but the first or last term without explicitly specifying the term to exclude.)
@@ -65,15 +64,14 @@ public class DateRangeCondition extends Condition {
      *                  weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link
      *                  #DEFAULT_BOOST} is used as default.
      * @param field     The name of the field to be matched.
-     * @param start     The lower accepted {@link Date}. Maybe {@code null} meaning no lower limit.
-     * @param stop      The upper accepted {@link Date}. Maybe {@code null} meaning no upper limit.
+     * @param from      The lower accepted {@link Date}. Maybe {@code null} meaning no lower limit.
+     * @param to        The upper accepted {@link Date}. Maybe {@code null} meaning no upper limit.
      * @param operation The spatial operation to be performed.
      */
-    public DateRangeCondition(Float boost, String field, Object start, Object stop, String operation) {
-        super(boost);
-        this.field = field;
-        this.start = start == null ? DEFAULT_START : start;
-        this.stop = stop == null ? DEFAULT_STOP : stop;
+    public DateRangeCondition(Float boost, String field, Object from, Object to, String operation) {
+        super(boost, field, DateRangeMapper.class);
+        this.from = from == null ? DEFAULT_FROM : from;
+        this.to = to == null ? DEFAULT_TO : to;
         this.operation = operation == null ? DEFAULT_OPERATION : operation;
     }
 
@@ -81,19 +79,14 @@ public class DateRangeCondition extends Condition {
      * {@inheritDoc}
      */
     @Override
-    public Query query(Schema schema) {
+    public Query query(DateRangeMapper mapper, Analyzer analyzer) {
 
-        Mapper columnMapper = schema.getMapper(field);
-        if (!(columnMapper instanceof DateRangeMapper)) {
-            throw new IllegalArgumentException("Date range mapper required");
-        }
-        DateRangeMapper mapper = (DateRangeMapper) columnMapper;
-        SpatialStrategy strategy = mapper.getStrategy();
+        SpatialStrategy strategy = mapper.strategy;
 
-        Date start = mapper.base(this.start);
-        Date stop = mapper.base(this.stop);
+        Date fromDate = mapper.base(from);
+        Date toDate = mapper.base(to);
 
-        NRShape shape = mapper.makeShape(start, stop);
+        NRShape shape = mapper.makeShape(fromDate, toDate);
 
         SpatialOperation spatialOperation = parseSpatialOperation(operation);
 
@@ -111,7 +104,7 @@ public class DateRangeCondition extends Condition {
      */
     static SpatialOperation parseSpatialOperation(String operation) {
         if (operation == null) {
-            throw new IllegalArgumentException("Operation is required");
+            throw new IndexException("Operation is required");
         } else if (operation.equalsIgnoreCase("is_within")) {
             return SpatialOperation.IsWithin;
         } else if (operation.equalsIgnoreCase("contains")) {
@@ -119,7 +112,7 @@ public class DateRangeCondition extends Condition {
         } else if (operation.equalsIgnoreCase("intersects")) {
             return SpatialOperation.Intersects;
         } else {
-            throw new IllegalArgumentException("Operation is invalid: " + operation);
+            throw new IndexException("Operation is invalid: " + operation);
         }
     }
 
@@ -128,12 +121,6 @@ public class DateRangeCondition extends Condition {
      */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                      .add("boost", boost)
-                      .add("field", field)
-                      .add("start", start)
-                      .add("stop", stop)
-                      .add("operation", operation)
-                      .toString();
+        return toStringHelper(this).add("from", from).add("to", to).add("operation", operation).toString();
     }
 }

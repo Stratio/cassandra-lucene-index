@@ -1,18 +1,21 @@
 /*
- * Copyright 2014, Stratio.
+ * Licensed to STRATIO (C) under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.  The STRATIO (C) licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
+
 package com.stratio.cassandra.lucene.search;
 
 import com.google.common.base.Objects;
@@ -30,7 +33,9 @@ import org.apache.lucene.search.SortField;
  */
 public class Search {
 
-    /** he {@link Condition} for querying, maybe {@code null} meaning no querying. */
+    private static final boolean DEFAULT_FORCE_REFRESH = false;
+
+    /** The {@link Condition} for querying, maybe {@code null} meaning no querying. */
     private final Condition queryCondition;
 
     /** The {@link Condition} for filtering, maybe {@code null} meaning no filtering. */
@@ -42,6 +47,9 @@ public class Search {
      */
     private final Sort sort;
 
+    /** If this search must refresh the index before reading it. */
+    private final boolean refresh;
+
     /**
      * Returns a new {@link Search} composed by the specified querying and filtering conditions.
      *
@@ -49,26 +57,22 @@ public class Search {
      * @param filterCondition The {@link Condition} for filtering, maybe {@code null} meaning no filtering.
      * @param sort            The {@link Sort} for the query. Note that is the order in which the data will be read
      *                        before querying, not the order of the results after querying.
+     * @param refresh         If this search must refresh the index before reading it.
      */
-    public Search(Condition queryCondition, Condition filterCondition, Sort sort) {
+    public Search(Condition queryCondition, Condition filterCondition, Sort sort, Boolean refresh) {
         this.queryCondition = queryCondition;
         this.filterCondition = filterCondition;
         this.sort = sort;
+        this.refresh = refresh == null ? DEFAULT_FORCE_REFRESH : refresh;
     }
 
     /**
-     * Returns {@code true} if the results must be ordered by relevance. If {@code false}, then the results are sorted
-     * by the natural Cassandra's order. Results must be ordered by relevance if the querying condition is not {code
-     * null}.
+     * Returns {@code true} if this search requires full ranges scan, {code null} otherwise.
      *
-     * Relevance is used when the query condition is set, and it is not used when only the clusteringKeyFilter condition
-     * is set.
-     *
-     * @return {@code true} if the results must be ordered by relevance. If {@code false}, then the results must be
-     * sorted by the natural Cassandra's order.
+     * @return {@code true} if this search requires full ranges scan, {code null} otherwise.
      */
-    public boolean usesRelevanceOrSorting() {
-        return queryCondition != null || sort != null;
+    public boolean requiresFullScan() {
+        return usesRelevance() || usesSorting() || refresh && isEmpty();
     }
 
     /**
@@ -90,12 +94,30 @@ public class Search {
     }
 
     /**
+     * Returns {@code true} if this search doesn't specify any filter, query or sort, {@code false} otherwise.
+     *
+     * @return {@code true} if this search doesn't specify any filter, query or sort, {@code false} otherwise.
+     */
+    public boolean isEmpty() {
+        return queryCondition == null && filterCondition == null && sort == null;
+    }
+
+    /**
      * Returns the field sorting to be used, maybe {@code null} meaning no field sorting.
      *
      * @return The field sorting to be used, maybe {@code null} meaning no field sorting.
      */
     public Sort getSort() {
         return this.sort;
+    }
+
+    /**
+     * Returns if this search needs to refresh the index before reading it.
+     *
+     * @return {@code true} if this search needs to refresh the index before reading it, {@code false} otherwise.
+     */
+    public boolean refresh() {
+        return refresh;
     }
 
     /**

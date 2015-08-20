@@ -1,21 +1,23 @@
 /*
- * Copyright 2014, Stratio.
+ * Licensed to STRATIO (C) under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.  The STRATIO (C) licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
+
 package com.stratio.cassandra.lucene.schema.mapping;
 
-import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.util.DateParser;
 import org.apache.cassandra.db.marshal.AsciiType;
 import org.apache.cassandra.db.marshal.DecimalType;
@@ -32,7 +34,6 @@ import org.apache.lucene.document.NumericDocValuesField;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.SortField.Type;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -42,27 +43,28 @@ import java.util.Date;
  */
 public class DateMapper extends SingleColumnMapper<Long> {
 
-    /** The default {@link SimpleDateFormat} pattern. */
-    public static final String DEFAULT_PATTERN = "yyyy/MM/dd HH:mm:ss.SSS";
+    /** The date format pattern. */
+    public final String pattern;
 
-    /** The {@link SimpleDateFormat} pattern. */
-    private final String pattern;
-
-    /** The {@link DateParser} */
+    /** The {@link DateParser}. */
     private final DateParser dateParser;
 
     /**
      * Builds a new {@link DateMapper} using the specified pattern.
      *
-     * @param name    The name of the mapper.
+     * @param field   The name of the field.
+     * @param column  The name of the column to be mapped.
      * @param indexed If the field supports searching.
      * @param sorted  If the field supports sorting.
-     * @param pattern The {@link SimpleDateFormat} pattern to be used.
+     * @param pattern The date format pattern to be used.
      */
-    public DateMapper(String name, Boolean indexed, Boolean sorted, String pattern) {
-        super(name,
+    public DateMapper(String field, String column, Boolean indexed, Boolean sorted, String pattern) {
+        super(field,
+              column,
               indexed,
               sorted,
+              null,
+              Long.class,
               AsciiType.instance,
               UTF8Type.instance,
               Int32Type.instance,
@@ -72,18 +74,14 @@ public class DateMapper extends SingleColumnMapper<Long> {
               DoubleType.instance,
               DecimalType.instance,
               TimestampType.instance);
-        this.pattern = pattern == null ? DEFAULT_PATTERN : pattern;
+        this.pattern = pattern == null ? DateParser.DEFAULT_PATTERN : pattern;
         this.dateParser = new DateParser(this.pattern);
-    }
-
-    public String getPattern() {
-        return pattern;
     }
 
     /** {@inheritDoc} */
     @Override
-    public Long base(String name, Object value) {
-        Date opt = this.dateParser.parse(value);
+    protected Long doBase(String name, Object value) {
+        Date opt = dateParser.parse(value);
         if (opt == null) {
             return null;
         } else {
@@ -111,17 +109,7 @@ public class DateMapper extends SingleColumnMapper<Long> {
 
     /** {@inheritDoc} */
     @Override
-    public Class<Long> baseClass() {
-        return Long.class;
-    }
-
-    /** {@inheritDoc} */
-    @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                      .add("indexed", indexed)
-                      .add("sorted", sorted)
-                      .add("pattern", pattern)
-                      .toString();
+        return toStringHelper(this).add("pattern", pattern).toString();
     }
 }

@@ -1,119 +1,98 @@
 /*
- * Copyright 2014, Stratio.
+ * Licensed to STRATIO (C) under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.  The STRATIO (C) licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
+
 package com.stratio.cassandra.lucene.schema;
 
 import com.google.common.base.Objects;
-import com.stratio.cassandra.lucene.schema.analysis.ClasspathAnalyzerBuilder;
-import com.stratio.cassandra.lucene.schema.analysis.PreBuiltAnalyzers;
+import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 import org.apache.cassandra.config.CFMetaData;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.miscellaneous.PerFieldAnalyzerWrapper;
 import org.apache.lucene.document.Document;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 /**
- * Class for several columns mappings between Cassandra and Lucene.
+ * The user-defined mapping from Cassandra columns to Lucene documents.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class Schema implements Closeable {
 
+    private static final Logger logger = LoggerFactory.getLogger(Schema.class);
+
+    /** The {@link Columns} {@link Mapper}s. */
     private final Map<String, Mapper> mappers;
 
-    private final Map<String, Analyzer> analyzers;
+    /** The wrapping all-in-one {@link Analyzer}. */
+    private final SchemaAnalyzer analyzer;
 
-    private final Analyzer defaultAnalyzer;
-
-    private final Analyzer analyzer;
-
+    /** The names of the mapped columns. */
     private final Set<String> mappedColumns;
 
     /**
-     * Builds a new {@code Schema} for the specified {@link Mapper}s and {@link Analyzer}s.
+     * Returns a new {@code Schema} for the specified {@link Mapper}s and {@link Analyzer}s.
      *
      * @param defaultAnalyzer The default {@link Analyzer} to be used.
      * @param mappers         The per field {@link Mapper}s builders to be used.
      * @param analyzers       The per field {@link Analyzer}s to be used.
      */
     public Schema(Analyzer defaultAnalyzer, Map<String, Mapper> mappers, Map<String, Analyzer> analyzers) {
-
-        this.defaultAnalyzer = defaultAnalyzer != null ? defaultAnalyzer : PreBuiltAnalyzers.DEFAULT.get();
-        this.mappers = mappers != null ? mappers : new HashMap<String, Mapper>();
-        this.analyzers = analyzers != null ? analyzers : new HashMap<String, Analyzer>();
+        this.mappers = mappers;
+        this.analyzer = new SchemaAnalyzer(defaultAnalyzer, analyzers, mappers);
         mappedColumns = new HashSet<>();
-
-        Map<String, Analyzer> perFieldAnalyzers = new HashMap<>();
-        for (Map.Entry<String, Mapper> entry : this.mappers.entrySet()) {
-            String name = entry.getKey();
-            Mapper mapper = entry.getValue();
-            String analyzerName = mapper.getAnalyzer();
-            Analyzer analyzer = getAnalyzer(analyzerName);
-            perFieldAnalyzers.put(name, analyzer);
-            mappedColumns.addAll(mapper.getMappedColumns());
+        for (Mapper mapper : this.mappers.values()) {
+            mappedColumns.addAll(mapper.mappedColumns);
         }
-        this.analyzer = new PerFieldAnalyzerWrapper(this.defaultAnalyzer, perFieldAnalyzers);
-    }
-
-    public Analyzer getDefaultAnalyzer() {
-        return defaultAnalyzer;
     }
 
     /**
-     * Returns the {@link Analyzer} identified by the specified name. If there is no analyzer with the specified name,
-     * then it will be interpreted as a class name and it will be instantiated by reflection.
+     * Returns the used {@link Analyzer}.
      *
-     * {@link IllegalArgumentException} is thrown if there is no {@link Analyzer} with such name.
-     *
-     * @param name The name of the {@link Analyzer} to be returned.
-     * @return The {@link Analyzer} identified by the specified name.
-     */
-    public Analyzer getAnalyzer(String name) {
-        if (StringUtils.isBlank(name)) {
-            throw new IllegalArgumentException("Not null nor empty analyzer name required");
-        }
-        Analyzer analyzer = analyzers.get(name);
-        if (analyzer == null) {
-            analyzer = PreBuiltAnalyzers.get(name);
-            if (analyzer == null) {
-                try {
-                    analyzer = (new ClasspathAnalyzerBuilder(name)).analyzer();
-                } catch (Exception e) {
-                    throw new IllegalArgumentException("Not found analyzer: " + name);
-                }
-            }
-            analyzers.put(name, analyzer);
-        }
-        return analyzer;
-    }
-
-    /**
-     * Returns the used {@link Analyzer} wrapper.
-     *
-     * @return The used {@link Analyzer} wrapper.
+     * @return The used {@link Analyzer}.
      */
     public Analyzer getAnalyzer() {
         return analyzer;
+    }
+
+    /**
+     * Returns the default {@link Analyzer}.
+     *
+     * @return The default {@link Analyzer}.
+     */
+    public Analyzer getDefaultAnalyzer() {
+        return analyzer.getDefaultAnalyzer().getAnalyzer();
+    }
+
+    /**
+     * Returns the {@link Analyzer} identified by the specified field name.
+     *
+     * @param fieldName A field name.
+     * @return The {@link Analyzer} identified by the specified field name.
+     */
+    public Analyzer getAnalyzer(String fieldName) {
+        return analyzer.getAnalyzer(fieldName).getAnalyzer();
     }
 
     /**
@@ -128,23 +107,48 @@ public class Schema implements Closeable {
             StringBuilder sb = new StringBuilder();
             for (int j = 0; j <= i; j++) {
                 sb.append(components[j]);
-                if (j < i) sb.append('.');
+                if (j < i) {
+                    sb.append('.');
+                }
             }
             Mapper mapper = mappers.get(sb.toString());
-            if (mapper != null) return mapper;
+            if (mapper != null) {
+                return mapper;
+            }
         }
         return null;
     }
 
     /**
+     * Validates the specified {@link Columns} for mapping.
+     *
+     * @param columns The {@link Columns} to be validated.
+     */
+    public void validate(Columns columns) {
+        Document document = new Document();
+        for (Mapper mapper : mappers.values()) {
+            mapper.addFields(document, columns);
+        }
+    }
+
+    /**
      * Adds to the specified {@link Document} the Lucene fields representing the specified {@link Columns}.
+     *
+     * This is done in a best-effort way, so each mapper errors are logged and ignored.
      *
      * @param document The Lucene {@link Document} where the fields are going to be added.
      * @param columns  The {@link Columns} to be added.
      */
     public void addFields(Document document, Columns columns) {
         for (Mapper mapper : mappers.values()) {
-            mapper.addFields(document, columns);
+            try {
+                mapper.addFields(document, columns);
+            } catch (IndexException e) {
+                logger.error("Error in Lucene index:\n\t" +
+                             "while mapping : {}\n\t" +
+                             "with mapper   : {}\n\t" +
+                             "caused by     : {}", columns, mapper, e.getMessage());
+            }
         }
     }
 
@@ -193,11 +197,6 @@ public class Schema implements Closeable {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                      .add("mappers", mappers)
-                      .add("analyzers", analyzers)
-                      .add("defaultAnalyzer", defaultAnalyzer)
-                      .add("analyzer", analyzer)
-                      .toString();
+        return Objects.toStringHelper(this).add("mappers", mappers).add("analyzer", analyzer).toString();
     }
 }

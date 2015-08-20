@@ -1,18 +1,21 @@
 /*
- * Copyright 2014, Stratio.
+ * Licensed to STRATIO (C) under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.  The STRATIO (C) licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
+
 package com.stratio.cassandra.lucene;
 
 import com.google.common.base.Objects;
@@ -22,7 +25,6 @@ import com.stratio.cassandra.lucene.search.SearchBuilder;
 import com.stratio.cassandra.lucene.service.RowKey;
 import com.stratio.cassandra.lucene.service.RowMapper;
 import com.stratio.cassandra.lucene.service.RowService;
-import com.stratio.cassandra.lucene.util.Log;
 import com.stratio.cassandra.lucene.util.TimeCounter;
 import org.apache.cassandra.db.DataRange;
 import org.apache.cassandra.db.IndexExpression;
@@ -32,8 +34,9 @@ import org.apache.cassandra.db.index.SecondaryIndexManager;
 import org.apache.cassandra.db.index.SecondaryIndexSearcher;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.exceptions.InvalidRequestException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -50,8 +53,10 @@ import static org.apache.cassandra.cql3.Operator.EQ;
  */
 public class IndexSearcher extends SecondaryIndexSearcher {
 
+    private static final Logger logger = LoggerFactory.getLogger(IndexSearcher.class);
+
     /** The name of the {@link IndexExpression} containing the last search {@link RowKey}. */
-    public final static ByteBuffer AFTER = UTF8Type.instance.fromString("search_after_doc");
+    public static final ByteBuffer AFTER = UTF8Type.instance.fromString("search_after_doc");
 
     private final Index index;
     private final RowService rowService;
@@ -89,9 +94,8 @@ public class IndexSearcher extends SecondaryIndexSearcher {
             List<IndexExpression> filteredExpressions = filteredExpressions(clause);
             Search search = search(clause);
             return rowService.search(search, filteredExpressions, dataRange, limit, timestamp, after);
-        } catch (IOException e) {
-            Log.error(e, "Error while searching: %s", extendedFilter);
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            throw new IndexException(e, "Error while searching: %s", extendedFilter);
         }
     }
 
@@ -128,6 +132,7 @@ public class IndexSearcher extends SecondaryIndexSearcher {
             String json = UTF8Type.instance.compose(indexExpression.value);
             SearchBuilder.fromJson(json).build().validate(schema);
         } catch (Exception e) {
+            logger.error("Error while validating search", e);
             throw new InvalidRequestException(e.getMessage());
         }
     }
@@ -141,7 +146,7 @@ public class IndexSearcher extends SecondaryIndexSearcher {
     private Search search(List<IndexExpression> clause) {
         IndexExpression indexedExpression = indexedExpression(clause);
         if (indexedExpression == null) {
-            throw new RuntimeException("There is no index expression in the clause");
+            throw new IndexException("There is no index expression in the clause");
         }
         String json = UTF8Type.instance.compose(indexedExpression.value);
         return SearchBuilder.fromJson(json).build();
@@ -184,7 +189,7 @@ public class IndexSearcher extends SecondaryIndexSearcher {
     @Override
     public boolean requiresScanningAllRanges(List<IndexExpression> clause) {
         Search search = search(clause);
-        return search.usesRelevanceOrSorting();
+        return search.requiresFullScan();
     }
 
     /** {@inheritDoc} */
@@ -196,16 +201,15 @@ public class IndexSearcher extends SecondaryIndexSearcher {
 
         // Remove duplicates and sort
         Search search = search(clause);
-        Comparator<Row> comparator = rowService.comparator(search);
+        Comparator<Row> comparator = mapper().comparator(search);
         TreeSet<Row> set = new TreeSet<>(comparator);
         set.addAll(rows);
         List<Row> result = new ArrayList<>(set);
 
-        String comparatorName = comparator.getClass().getSimpleName();
         int endSize = result.size();
         sortTime.stop();
 
-        Log.debug("Sorted %d rows to %d with comparator %s in %s\n", startSize, endSize, comparatorName, sortTime);
+        logger.debug("Sorted {} rows to {} in {}", startSize, endSize, sortTime);
 
         return result;
     }

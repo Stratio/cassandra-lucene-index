@@ -1,21 +1,24 @@
 /*
- * Copyright 2014, Stratio.
+ * Licensed to STRATIO (C) under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.  The STRATIO (C) licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
+
 package com.stratio.cassandra.lucene.schema.mapping;
 
-import com.google.common.base.Objects;
+import com.stratio.cassandra.lucene.IndexException;
 import org.apache.cassandra.db.marshal.AsciiType;
 import org.apache.cassandra.db.marshal.DecimalType;
 import org.apache.cassandra.db.marshal.DoubleType;
@@ -42,11 +45,14 @@ public class BigDecimalMapper extends KeywordMapper {
     /** The default max number of digits for the decimal part. */
     public static final int DEFAULT_DECIMAL_DIGITS = 32;
 
+    /** THe numeric base. */
+    private static final int BASE = 10;
+
     /** The max number of digits for the integer part. */
-    private final int integerDigits;
+    public final int integerDigits;
 
     /** The max number of digits for the decimal part. */
-    private final int decimalDigits;
+    public final int decimalDigits;
 
     private final BigDecimal complement;
 
@@ -54,7 +60,8 @@ public class BigDecimalMapper extends KeywordMapper {
      * Builds a new {@link BigDecimalMapper} using the specified max number of digits for the integer and decimal
      * parts.
      *
-     * @param name          The name of the mapper.
+     * @param field         The name of the field.
+     * @param column        The name of the column to be mapped.
      * @param indexed       If the field supports searching.
      * @param sorted        If the field supports sorting.
      * @param integerDigits The max number of digits for the integer part. If {@code null}, the {@link
@@ -62,12 +69,14 @@ public class BigDecimalMapper extends KeywordMapper {
      * @param decimalDigits The max number of digits for the decimal part. If {@code null}, the {@link
      *                      #DEFAULT_DECIMAL_DIGITS} will be used.
      */
-    public BigDecimalMapper(String name,
+    public BigDecimalMapper(String field,
+                            String column,
                             Boolean indexed,
                             Boolean sorted,
                             Integer integerDigits,
                             Integer decimalDigits) {
-        super(name,
+        super(field,
+              column,
               indexed,
               sorted,
               AsciiType.instance,
@@ -81,89 +90,72 @@ public class BigDecimalMapper extends KeywordMapper {
 
         // Setup integer part mapping
         if (integerDigits != null && integerDigits <= 0) {
-            throw new IllegalArgumentException("Positive integer part digits required");
+            throw new IndexException("Positive integer part digits required");
         }
         this.integerDigits = integerDigits == null ? DEFAULT_INTEGER_DIGITS : integerDigits;
 
         // Setup decimal part mapping
         if (decimalDigits != null && decimalDigits <= 0) {
-            throw new IllegalArgumentException("Positive decimal part digits required");
+            throw new IndexException("Positive decimal part digits required");
         }
         this.decimalDigits = decimalDigits == null ? DEFAULT_DECIMAL_DIGITS : decimalDigits;
 
         int totalDigits = this.integerDigits + this.decimalDigits;
-        BigDecimal divisor = BigDecimal.valueOf(10).pow(this.decimalDigits);
-        BigDecimal dividend = BigDecimal.valueOf(10).pow(totalDigits).subtract(BigDecimal.valueOf(1));
+        BigDecimal divisor = BigDecimal.valueOf(BASE).pow(this.decimalDigits);
+        BigDecimal dividend = BigDecimal.valueOf(BASE).pow(totalDigits).subtract(BigDecimal.valueOf(1));
         complement = dividend.divide(divisor);
-    }
-
-    /**
-     * Returns the max number of digits for the integer part.
-     *
-     * @return The max number of digits for the integer part.
-     */
-    public int getIntegerDigits() {
-        return integerDigits;
-    }
-
-    /**
-     * Returns the max number of digits for the decimal part.
-     *
-     * @return The max number of digits for the decimal part.
-     */
-    public int getDecimalDigits() {
-        return decimalDigits;
     }
 
     /** {@inheritDoc} */
     @Override
-    public String base(String name, Object value) {
-
-        // Check not null
-        if (value == null) {
-            return null;
-        }
+    protected String doBase(String name, Object value) {
 
         // Parse big decimal
-        String svalue = value.toString();
         BigDecimal bd;
         try {
             bd = new BigDecimal(value.toString());
         } catch (NumberFormatException e) {
-            return error("Field '%s' requires a base 10 decimal, but found '%s'", name, svalue);
+            throw new IndexException("Field '%s' requires a base 10 decimal, but found '%s'", name, value);
         }
 
         // Split integer and decimal part
         bd = bd.stripTrailingZeros();
         String[] parts = bd.toPlainString().split("\\.");
-        String integerPart = parts[0];
-        String decimalPart = parts.length == 1 ? "0" : parts[1];
-
-        if (integerPart.replaceFirst("-", "").length() > integerDigits) {
-            return error("Field '%s' with value '%s' has more than %d integer digits", name, value, integerDigits);
-        }
-        if (decimalPart.length() > decimalDigits) {
-            return error("Field '%s' with value '%s' has more than %d decimal digits", name, value, decimalDigits);
-        }
+        validateIntegerPart(name, value, parts);
+        validateDecimalPart(name, value, parts);
 
         BigDecimal complemented = bd.add(complement);
         String bds[] = complemented.toString().split("\\.");
-        integerPart = bds[0];
-        decimalPart = bds.length == 2 ? bds[1] : "0";
-        integerPart = StringUtils.leftPad(integerPart, integerDigits + 1, '0');
+        String integerPart = StringUtils.leftPad(bds[0], integerDigits + 1, '0');
+        String decimalPart = bds.length == 2 ? bds[1] : "0";
 
         return integerPart + "." + decimalPart;
+    }
+
+    private void validateIntegerPart(String name, Object value, String[] parts) {
+        String integerPart = parts[0];
+        if (integerPart.replaceFirst("-", "").length() > integerDigits) {
+            throw new IndexException("Field '%s' with value '%s' has more than %d integer digits",
+                                     name,
+                                     value,
+                                     integerDigits);
+        }
+    }
+
+    private void validateDecimalPart(String name, Object value, String[] parts) {
+        String decimalPart = parts.length == 1 ? "0" : parts[1];
+        if (decimalPart.length() > decimalDigits) {
+            throw new IndexException("Field '%s' with value '%s' has more than %d decimal digits",
+                                     name,
+                                     value,
+                                     decimalDigits);
+        }
     }
 
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                      .add("indexed", indexed)
-                      .add("sorted", sorted)
-                      .add("integerDigits", integerDigits)
-                      .add("decimalDigits", decimalDigits)
-                      .toString();
+        return toStringHelper(this).add("integerDigits", integerDigits).add("decimalDigits", decimalDigits).toString();
     }
 
 }

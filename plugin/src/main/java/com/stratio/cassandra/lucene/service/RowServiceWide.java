@@ -1,18 +1,21 @@
 /*
- * Copyright 2014, Stratio.
+ * Licensed to STRATIO (C) under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.  The STRATIO (C) licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
+
 package com.stratio.cassandra.lucene.service;
 
 import com.google.common.collect.Lists;
@@ -48,6 +51,8 @@ public class RowServiceWide extends RowService {
     /** The names of the Lucene fields to be loaded. */
     private static final Set<String> FIELDS_TO_LOAD;
 
+    private static final int ROWS_PER_SLICE_QUERY = 1000;
+
     static {
         FIELDS_TO_LOAD = new HashSet<>();
         FIELDS_TO_LOAD.add(PartitionKeyMapper.FIELD_NAME);
@@ -81,48 +86,13 @@ public class RowServiceWide extends RowService {
 
     /** {@inheritDoc} */
     @Override
-    public void doIndex(ByteBuffer key, ColumnFamily columnFamily, long timestamp) throws IOException {
+    public void index(ByteBuffer key, ColumnFamily columnFamily, long timestamp) throws IOException {
         DeletionInfo deletionInfo = columnFamily.deletionInfo();
         DecoratedKey partitionKey = rowMapper.partitionKey(key);
 
         if (columnFamily.iterator().hasNext()) {
-
-            columnFamily = cleanExpired(columnFamily, timestamp);
-            Map<CellName, ColumnFamily> incomingRows = rowMapper.splitRows(columnFamily);
-            Map<CellName, Columns> completeRows = new HashMap<>(incomingRows.size());
-            List<CellName> incompleteRows = new ArrayList<>(incomingRows.size());
-
-            // Separate complete and incomplete rows
-            for (Map.Entry<CellName, ColumnFamily> entry : incomingRows.entrySet()) {
-                CellName clusteringKey = entry.getKey();
-                ColumnFamily rowColumnFamily = entry.getValue();
-                Columns columns = rowMapper.columns(partitionKey, rowColumnFamily);
-                if (schema.mapsAll(columns)) {
-                    completeRows.put(clusteringKey, columns);
-                } else {
-                    incompleteRows.add(clusteringKey);
-                }
-            }
-
-            // Read incomplete rows from Cassandra storage engine
-            if (!incompleteRows.isEmpty()) {
-                for (Entry<CellName, ColumnFamily> entry : rows(partitionKey, incompleteRows, timestamp).entrySet()) {
-                    CellName clusteringKey = entry.getKey();
-                    ColumnFamily rowColumnFamily = entry.getValue();
-                    Columns columns = rowMapper.columns(partitionKey, rowColumnFamily);
-                    completeRows.put(clusteringKey, columns);
-                }
-            }
-
-            // Write rows into Lucene index
-            for (Entry<CellName, Columns> entry : completeRows.entrySet()) {
-                CellName clusteringKey = entry.getKey();
-                Columns columns = entry.getValue();
-                Document document = rowMapper.document(partitionKey, clusteringKey, columns);
-                Term term = rowMapper.term(partitionKey, clusteringKey);
-                luceneIndex.upsert(term, document);
-            }
-
+            ColumnFamily cleanColumnFamily = cleanExpired(columnFamily, timestamp);
+            luceneIndex.upsert(documents(partitionKey, cleanColumnFamily, timestamp));
         } else if (deletionInfo != null) {
             Iterator<RangeTombstone> iterator = deletionInfo.rangeIterator();
             if (iterator.hasNext()) {
@@ -140,9 +110,45 @@ public class RowServiceWide extends RowService {
 
     /** {@inheritDoc} */
     @Override
-    public void doDelete(DecoratedKey partitionKey) throws IOException {
+    public void delete(DecoratedKey partitionKey) throws IOException {
         Term term = rowMapper.term(partitionKey);
         luceneIndex.delete(term);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Map<Term, Document> documents(DecoratedKey partitionKey, ColumnFamily columnFamily, long timestamp) {
+
+        Map<CellName, ColumnFamily> incomingRows = rowMapper.splitRows(columnFamily);
+        Map<Term, Document> documents = new HashMap<>(incomingRows.size());
+        List<CellName> incompleteRows = new ArrayList<>(incomingRows.size());
+
+        // Separate complete and incomplete rows
+        for (Map.Entry<CellName, ColumnFamily> entry : incomingRows.entrySet()) {
+            CellName clusteringKey = entry.getKey();
+            ColumnFamily rowColumnFamily = entry.getValue();
+            Columns columns = rowMapper.columns(partitionKey, rowColumnFamily);
+            if (schema.mapsAll(columns)) {
+                Term term = rowMapper.term(partitionKey, clusteringKey);
+                Document document = rowMapper.document(partitionKey, clusteringKey, columns);
+                documents.put(term, document);
+            } else {
+                incompleteRows.add(clusteringKey);
+            }
+        }
+
+        // Read incomplete rows from Cassandra storage engine
+        if (!incompleteRows.isEmpty()) {
+            for (Entry<CellName, ColumnFamily> entry : rows(partitionKey, incompleteRows, timestamp).entrySet()) {
+                CellName clusteringKey = entry.getKey();
+                ColumnFamily rowColumnFamily = entry.getValue();
+                Columns columns = rowMapper.columns(partitionKey, rowColumnFamily);
+                Term term = rowMapper.term(partitionKey, clusteringKey);
+                Document document = rowMapper.document(partitionKey, clusteringKey, columns);
+                documents.put(term, document);
+            }
+        }
+        return documents;
     }
 
     /**
@@ -173,7 +179,7 @@ public class RowServiceWide extends RowService {
         List<Row> rows = new ArrayList<>(searchResults.size());
         for (Map.Entry<DecoratedKey, List<CellName>> entry : keys.entrySet()) {
             DecoratedKey partitionKey = entry.getKey();
-            for (List<CellName> clusteringKeys : Lists.partition(entry.getValue(), 1000)) {
+            for (List<CellName> clusteringKeys : Lists.partition(entry.getValue(), ROWS_PER_SLICE_QUERY)) {
                 Map<CellName, ColumnFamily> partitionRows = rows(partitionKey, clusteringKeys, timestamp);
                 for (Map.Entry<CellName, ColumnFamily> entry1 : partitionRows.entrySet()) {
                     CellName clusteringKey = entry1.getKey();

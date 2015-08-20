@@ -1,18 +1,21 @@
 /*
- * Copyright 2014, Stratio.
+ * Licensed to STRATIO (C) under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.  The STRATIO (C) licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
+
 package com.stratio.cassandra.lucene.service;
 
 import com.stratio.cassandra.lucene.schema.column.Columns;
@@ -29,8 +32,10 @@ import org.apache.lucene.search.ScoreDoc;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -75,20 +80,12 @@ public class RowServiceSkinny extends RowService {
 
     /** {@inheritDoc} */
     @Override
-    public void doIndex(ByteBuffer key, ColumnFamily columnFamily, long timestamp) throws IOException {
+    public void index(ByteBuffer key, ColumnFamily columnFamily, long timestamp) throws IOException {
         DecoratedKey partitionKey = rowMapper.partitionKey(key);
-
-        if (columnFamily.iterator().hasNext()) { // Create or update row
-            columnFamily = cleanExpired(columnFamily, timestamp);
-            Columns columns = rowMapper.columns(partitionKey, columnFamily);
-            if (!schema.mapsAll(columns)) {
-                columnFamily = row(partitionKey, timestamp);
-                columns = rowMapper.columns(partitionKey, columnFamily);
-            }
-            Document document = rowMapper.document(partitionKey, columns);
-            Term term = rowMapper.term(partitionKey);
-            luceneIndex.upsert(term, document); // Store document
-        } else if (columnFamily.deletionInfo() != null) { // Delete full row
+        if (columnFamily.iterator().hasNext()) {
+            ColumnFamily cleanColumnFamily = cleanExpired(columnFamily, timestamp);
+            luceneIndex.upsert(documents(partitionKey, cleanColumnFamily, timestamp));
+        } else if (columnFamily.deletionInfo() != null) {
             Term term = rowMapper.term(partitionKey);
             luceneIndex.delete(term);
         }
@@ -96,9 +93,22 @@ public class RowServiceSkinny extends RowService {
 
     /** {@inheritDoc} */
     @Override
-    public void doDelete(DecoratedKey partitionKey) throws IOException {
+    public void delete(DecoratedKey partitionKey) throws IOException {
         Term term = rowMapper.term(partitionKey);
         luceneIndex.delete(term);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Map<Term, Document> documents(DecoratedKey partitionKey, ColumnFamily columnFamily, long timestamp) {
+        Columns columns = rowMapper.columns(partitionKey, columnFamily);
+        if (!schema.mapsAll(columns)) {
+            ColumnFamily completeColumnFamily = row(partitionKey, timestamp);
+            columns = rowMapper.columns(partitionKey, completeColumnFamily);
+        }
+        Document document = rowMapper.document(partitionKey, columns);
+        Term term = rowMapper.term(partitionKey);
+        return Collections.singletonMap(term, document);
     }
 
     /** {@inheritDoc} */
@@ -110,7 +120,9 @@ public class RowServiceSkinny extends RowService {
             // Extract row from document
             DecoratedKey partitionKey = searchResult.getPartitionKey();
             ColumnFamily columnFamily = row(partitionKey, timestamp);
-            if (columnFamily == null) continue;
+            if (columnFamily == null) {
+                continue;
+            }
             Row row = new Row(partitionKey, columnFamily);
 
             // Return decorated row
@@ -139,5 +151,4 @@ public class RowServiceSkinny extends RowService {
         }
         return null;
     }
-
 }

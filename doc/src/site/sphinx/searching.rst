@@ -7,9 +7,10 @@ Syntax:
 
     SELECT ( <fields> | * )
     FROM <table_name>
-    WHERE <magic_column> = '{ (   filter : <filter>  )?
-                              ( , query  : <query> )?
-                              ( , sort   : <sort>   )?
+    WHERE <magic_column> = '{ (   filter  : <filter>  )?
+                              ( , query   : <query>   )?
+                              ( , sort    : <sort>    )?
+                              ( , refresh : ( true | false ) )?
                             }';
 
 where <filter> and <query> are a JSON object:
@@ -26,23 +27,36 @@ and <sort> is another JSON object:
         <sort> := { fields : <sort_field> (, <sort_field> )* }
         <sort_field> := { field : <field> (, reverse : <reverse> )? }
 
-When searching by <filter>, without <query> or <sort> defined, then the
-results are returned in the Cassandra’s natural order, which is defined
-by the partitioner and the column name comparator.
+When searching by ``filter``, without any ``query`` or ``sort`` defined,
+then the results are returned in the Cassandra’s natural order, which is
+defined by the partitioner and the column name comparator. When searching
+by ``query``, results are returned sorted by descending relevance. The
+scores will be located in the column ``magic_column``. Sort option is used
+to specify the order in which the indexed rows will be traversed. When
+sorting is used, the query scoring is delayed.
 
-When searching by <query>, results are returned ***sorted by descending
-relevance***. The scores will be located in the column <magic_column>.
+Relevance queries must touch all the nodes in the ring in order to find
+the globally best results, so you should prefer filters over queries
+when no relevance nor sorting are needed.
 
-Sort option is used to specify the order in which the indexed rows will
-be traversed. When sorting is used, the query scoring is delayed.
+The ``refresh`` boolean option indicates if the search must commit pending
+writes and refresh the Lucene IndexSearcher before being performed. This
+way a search with ``refresh`` set to true will view the most recent changes
+done to the index, independently of the index auto-refresh time.
+Please note that it is a costly operation, so you should not use it
+unless it is strictly necessary. The default value is false. You can
+explicitly refresh all the index shards with an empty search with consistency
+``ALL``, and the return to your desired consistency level:
 
-Filters can be combined with Cassandra paging, whereas queries and sorts
-can't be. So, you should disable paging when using relevance or sorting
-queries.
+.. code-block:: sql
 
-Additionally, relevance queries must touch all the nodes in the
-ring in order to find the globally best results, so definitely you should
-prefer filters over queries when no relevance nor sorting are needed.
+    CONSISTENCY ALL
+    SELECT * FROM <table> WHERE <magic_column> = '{refresh:true}';
+    CONSISTENCY QUORUM
+
+This way the subsequent searches will view all the writes done before this
+operation, without needing to wait for the index auto refresh. It is useful to
+perform this operation before searching after a bulk data load.
 
 Types of search and their options are summarized in the table below.
 Details for each of them are available in individual sections and the
@@ -50,11 +64,13 @@ examples can be downloaded as a CQL script:
 `extended-search-examples.cql </doc/resources/extended-search-examples.cql>`__.
 
 In addition to the options described in the table, all search types have
-a “\ **boost**\ ” option that acts as a weight on the resulting score.
+a **boost** option that acts as a weight on the resulting score.
 
 +-----------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 | Search type                             | Option          | Value type      | Default value                  | Mandatory |
 +=========================================+=================+=================+================================+===========+
+| `All <#all-search>`__                   |                 |                 |                                |           |
++-----------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 | `Bitemporal <#bitemporal-search>`__     | field           | string          |                                | Yes       |
 |                                         +-----------------+-----------------+--------------------------------+-----------+
 |                                         | vt_from         | string/long     | 0L                             | No        |
@@ -79,9 +95,9 @@ a “\ **boost**\ ” option that acts as a weight on the resulting score.
 +-----------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 | `Date range <#date-range-search>`__     | field           | string          |                                | Yes       |
 |                                         +-----------------+-----------------+--------------------------------+-----------+
-|                                         | start           | string/long     | 0                              | No        |
+|                                         | from            | string/long     | 0                              | No        |
 |                                         +-----------------+-----------------+--------------------------------+-----------+
-|                                         | stop            | string/long     | Integer.MAX_VALUE              | No        |
+|                                         | to              | string/long     | Long.MAX_VALUE                 | No        |
 |                                         +-----------------+-----------------+--------------------------------+-----------+
 |                                         | operation       | string          | is_within                      | No        |
 +-----------------------------------------+-----------------+-----------------+--------------------------------+-----------+
@@ -121,7 +137,7 @@ a “\ **boost**\ ” option that acts as a weight on the resulting score.
 |                                         +-----------------+-----------------+--------------------------------+-----------+
 |                                         | value           | any             |                                | Yes       |
 +-----------------------------------------+-----------------+-----------------+--------------------------------+-----------+
-| `Match all <#match-all-search>`__       |                 |                 |                                |           |
+| `None <#none-search>`__                 |                 |                 |                                |           |
 +-----------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 | `Phrase <#phrase-search>`__             | field           | string          |                                | Yes       |
 |                                         +-----------------+-----------------+--------------------------------+-----------+
@@ -151,6 +167,24 @@ a “\ **boost**\ ” option that acts as a weight on the resulting score.
 |                                         +-----------------+-----------------+--------------------------------+-----------+
 |                                         | value           | string          |                                | Yes       |
 +-----------------------------------------+-----------------+-----------------+--------------------------------+-----------+
+
+All search
+==========
+
+Syntax:
+
+.. code-block:: sql
+
+    SELECT ( <fields> | * )
+    FROM <table>
+    WHERE <magic_column> = '{ (filter | query) : { type  : "all"} }';
+
+Example: will return all the indexed rows
+
+.. code-block:: sql
+
+    SELECT * FROM test.users
+    WHERE stratio_col = '{filter : { type  : "all" } }';
 
 Bitemporal search
 =================
@@ -202,8 +236,6 @@ First we create the table where all this data resides:
     );
 
 
-
-
 Second, we create the index:
 
 .. code-block:: sql
@@ -230,11 +262,20 @@ We insert the population of 5 citizens lives in each city from 2015/01/01 until 
 
 .. code-block:: sql
 
-    INSERT INTO census(citizen_name, city, vt_from, vt_to, tt_from, tt_to) VALUES ('John', 'Madrid', '2015/01/01', '2200/12/31', '2015/01/01', '2200/12/31');
-    INSERT INTO census(citizen_name, city, vt_from, vt_to, tt_from, tt_to) VALUES ('Margaret', 'Barcelona', '2015/01/01', '2200/12/31', '2015/01/01', '2200/12/31');
-    INSERT INTO census(citizen_name, city, vt_from, vt_to, tt_from, tt_to) VALUES ('Cristian', 'Ceuta', '2015/01/01', '2200/12/31', '2015/01/01', '2200/12/31');
-    INSERT INTO census(citizen_name, city, vt_from, vt_to, tt_from, tt_to) VALUES ('Edward', 'New York','2015/01/01', '2200/12/31', '2015/01/01', '2200/12/31');
-    INSERT INTO census(citizen_name, city, vt_from, vt_to, tt_from, tt_to) VALUES ('Johnatan', 'San Francisco', '2015/01/01', '2200/12/31', '2015/01/01', '2200/12/31');
+    INSERT INTO census(citizen_name, city, vt_from, vt_to, tt_from, tt_to)
+    VALUES ('John', 'Madrid', '2015/01/01', '2200/12/31', '2015/01/01', '2200/12/31');
+
+    INSERT INTO census(citizen_name, city, vt_from, vt_to, tt_from, tt_to)
+    VALUES ('Margaret', 'Barcelona', '2015/01/01', '2200/12/31', '2015/01/01', '2200/12/31');
+
+    INSERT INTO census(citizen_name, city, vt_from, vt_to, tt_from, tt_to)
+    VALUES ('Cristian', 'Ceuta', '2015/01/01', '2200/12/31', '2015/01/01', '2200/12/31');
+
+    INSERT INTO census(citizen_name, city, vt_from, vt_to, tt_from, tt_to)
+    VALUES ('Edward', 'New York','2015/01/01', '2200/12/31', '2015/01/01', '2200/12/31');
+
+    INSERT INTO census(citizen_name, city, vt_from, vt_to, tt_from, tt_to)
+    VALUES ('Johnatan', 'San Francisco', '2015/01/01', '2200/12/31', '2015/01/01', '2200/12/31');
 
 
 John moves to Amsterdam in '2015/03/05' but he does not comunicate this to census bureau until '2015/06/29' because he need it to apply for taxes reduction.
@@ -245,8 +286,12 @@ So, the system need to update last information from John,and insert the new. Thi
 .. code-block:: sql
 
     BEGIN BATCH
-    UPDATE census SET tt_to = '2015/06/29' WHERE citizen_name = 'John' AND vt_from = '2015/01/01' AND tt_from = '2015/01/01' IF tt_to = '2200/12/31';
-    INSERT INTO census(citizen_name, city, vt_from, vt_to, tt_from, tt_to) VALUES ('John', 'Amsterdam', '2015/03/05', '2200/12/31', '2015/06/30', '2200/12/31');
+        UPDATE census SET tt_to = '2015/06/29'
+        WHERE citizen_name = 'John' AND vt_from = '2015/01/01' AND tt_from = '2015/01/01'
+        IF tt_to = '2200/12/31';
+
+        INSERT INTO census(citizen_name, city, vt_from, vt_to, tt_from, tt_to)
+        VALUES ('John', 'Amsterdam', '2015/03/05', '2200/12/31', '2015/06/30', '2200/12/31');
     APPLY BATCH;
 
 Now , we can see the main difference between valid time and transaction time. The system knows from '2015/01/01' to '2015/06/29' that John resides in Madrid from '2015/01/01' until now, and resides in Amsterdam from '2015/03/05' until now.
@@ -264,8 +309,8 @@ If you want to know what is the last info about where John resides, you perform 
 
 .. code-block:: sql
 
-    SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM census WHERE
-    lucene='{
+    SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM census
+    WHERE lucene = '{
         filter : {
             type : "bitemporal",
             field : "bitemporal",
@@ -282,8 +327,8 @@ If the test case needs to know what the system was thinking at '2015/03/01' abou
 
 .. code-block:: sql
 
-    SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM census WHERE
-    lucene='{
+    SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM census
+    WHERE lucene = '{
         filter : {
             type : "bitemporal",
             field : "bitemporal",
@@ -291,10 +336,9 @@ If the test case needs to know what the system was thinking at '2015/03/01' abou
             tt_to : "2015/03/01"
         }
     }'
-    AND name='John';
+    AND name = 'John';
 
 This code is available in CQL script here: `example_bitemporal.cql </doc/resources/example_bitemporal.cql>`__.
-
 
 Boolean search
 ==============
@@ -356,6 +400,22 @@ Example 3: will return rows where name ends with “a” or food starts with
                             should : [{type : "wildcard", field : "name", value : "*a"},
                                       {type : "wildcard", field : "food", value : "tu*"}]}}';
 
+Example 4: will return zero rows independently of the index contents
+
+.. code-block:: sql
+
+    SELECT * FROM test.users
+    WHERE stratio_col = '{filter : { type   : "boolean"} }';
+
+Example 5: will return rows where name does not end with “a”, which is
+a resource-intensive pure negation search
+
+.. code-block:: sql
+
+    SELECT * FROM test.users
+    WHERE stratio_col = '{filter : {
+                            not  : [{type : "wildcard", field : "name", value : "*a"}]}}';
+
 Contains search
 ===============
 
@@ -402,16 +462,16 @@ Syntax:
     FROM <table>
     WHERE <magic_column> = '{ (filter | query) : {
                                 type  : "date_range",
-                                (start : <start> ,)?
-                                (stop  : <stop> ,)?
+                                (from : <from> ,)?
+                                (to   : <to> ,)?
                                 (operation: <operation> )?
                               }}';
 
 where:
 
--  **start**: a string or a number being the beginning of the date
+-  **from**: a string or a number being the beginning of the date
    range.
--  **stop**: a string or a number being the end of the date range.
+-  **to**: a string or a number being the end of the date range.
 -  **operation**: the spatial operation to be performed, it can be
    **intersects**, **contains** and **is\_within**.
 
@@ -421,11 +481,11 @@ Example 1: will return rows where duration intersects "2014/01/01" and
 .. code-block:: sql
 
     SELECT * FROM test.users
-    WHERE stratio_col = '{  filter : {
-                        type   : "date_range",
-                        field  : "duration",
-                        start  : "2014/01/01",
-                        stop   : "2014/12/31",
+    WHERE stratio_col = '{ filter : {
+                        type      : "date_range",
+                        field     : "duration",
+                        from      : "2014/01/01",
+                        to        : "2014/12/31",
                         operation : "intersects"}}';
 
 Example 2: will return rows where duration contains "2014/06/01" and
@@ -434,11 +494,11 @@ Example 2: will return rows where duration contains "2014/06/01" and
 .. code-block:: sql
 
     SELECT * FROM test.users
-    WHERE stratio_col = '{  filter : {
-                        type   : "date_range",
-                        field  : "duration",
-                        start  : "2014/06/01",
-                        stop   : "2014/06/02",
+    WHERE stratio_col = '{ filter : {
+                        type      : "date_range",
+                        field     : "duration",
+                        from      : "2014/06/01",
+                        to        : "2014/06/02",
                         operation : "contains"}}';
 
 Example 3: will return rows where duration is within "2014/01/01" and
@@ -447,11 +507,11 @@ Example 3: will return rows where duration is within "2014/01/01" and
 .. code-block:: sql
 
     SELECT * FROM test.users
-    WHERE stratio_col = '{  filter : {
-                        type   : "date_range",
-                        field  : "duration",
-                        start  : "2014/01/01",
-                        stop   : "2014/12/31",
+    WHERE stratio_col = '{ filter : {
+                        type      : "date_range",
+                        field     : "duration",
+                        from      : "2014/01/01",
+                        to        : "2014/12/31",
                         operation : "is_within"}}';
 
 
@@ -549,6 +609,7 @@ between -90.0 and 90.0, and a longitude between -180.0 and
 180.0.
 
 .. code-block:: sql
+
     SELECT * FROM test.users
     WHERE stratio_col = '{filter : { type : "geo_bbox",
                                      field : "place",
@@ -562,6 +623,7 @@ between -90.0 and 90.0, and a longitude between 0.0 and
 10.0.
 
 .. code-block:: sql
+
     SELECT * FROM test.users
     WHERE stratio_col = '{filter : { type : "geo_bbox",
                                      field : "place",
@@ -576,6 +638,7 @@ between 0.0 and 10.0, and a longitude between -180.0 and
 180.0.
 
 .. code-block:: sql
+
     SELECT * FROM test.users
     WHERE stratio_col = '{filter : { type : "geo_bbox",
                                      field : "place",
@@ -683,8 +746,8 @@ Example 3: will return rows where date matches “2014/01/01″
                            field : "date",
                            value : "2014/01/01" }}';
 
-Match all search
-================
+None search
+===========
 
 Syntax:
 
@@ -692,18 +755,14 @@ Syntax:
 
     SELECT ( <fields> | * )
     FROM <table>
-    WHERE <magic_column> = '{ (filter | query) : {
-                                type  : "match_all",
-                                field : <fieldname> ,
-                                value : <value> }}';
+    WHERE <magic_column> = '{ (filter | query) : { type  : "none"} }';
 
-Example: will return all the indexed rows
+Example: will return no one of the indexed rows
 
 .. code-block:: sql
 
     SELECT * FROM test.users
-    WHERE stratio_col = '{filter : {
-                           type  : "match_all" }}';
+    WHERE stratio_col = '{filter : { type  : "none" } }';
 
 Phrase search
 =============

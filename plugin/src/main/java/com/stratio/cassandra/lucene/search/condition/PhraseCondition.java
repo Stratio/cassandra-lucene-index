@@ -1,22 +1,25 @@
 /*
- * Copyright 2014, Stratio.
+ * Licensed to STRATIO (C) under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.  The STRATIO (C) licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
+
 package com.stratio.cassandra.lucene.search.condition;
 
 import com.google.common.base.Objects;
-import com.stratio.cassandra.lucene.schema.Schema;
+import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.search.BooleanQuery;
@@ -28,13 +31,10 @@ import org.apache.lucene.util.QueryBuilder;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class PhraseCondition extends SingleFieldCondition {
+public class PhraseCondition extends SingleColumnCondition {
 
     /** The default umber of other words permitted between words in phrase. */
     public static final int DEFAULT_SLOP = 0;
-
-    /** The name of the field to be matched. */
-    public final String field;
 
     /** The phrase terms to be matched. */
     public final String value;
@@ -56,32 +56,29 @@ public class PhraseCondition extends SingleFieldCondition {
         super(boost, field);
 
         if (value == null) {
-            throw new IllegalArgumentException("Field value required");
+            throw new IndexException("Field value required");
         }
         if (slop != null && slop < 0) {
-            throw new IllegalArgumentException("Slop must be positive");
+            throw new IndexException("Slop must be positive");
         }
 
-        this.field = field;
         this.value = value;
         this.slop = slop == null ? DEFAULT_SLOP : slop;
     }
 
     /** {@inheritDoc} */
     @Override
-    public Query query(Schema schema) {
-        SingleColumnMapper<?> columnMapper = getMapper(schema, field);
-        Class<?> clazz = columnMapper.baseClass();
-        if (clazz == String.class) {
-            Analyzer analyzer = schema.getAnalyzer();
+    public Query query(SingleColumnMapper<?> mapper, Analyzer analyzer) {
+        if (mapper.base == String.class) {
             QueryBuilder queryBuilder = new QueryBuilder(analyzer);
             Query query = queryBuilder.createPhraseQuery(field, value, slop);
-            if (query == null) query = new BooleanQuery();
+            if (query == null) {
+                query = new BooleanQuery();
+            }
             query.setBoost(boost);
             return query;
         } else {
-            String message = String.format("Unsupported query %s for mapper %s", this, columnMapper);
-            throw new UnsupportedOperationException(message);
+            throw new IndexException("Query '%s' is not supported by mapper '%s'", this, mapper);
         }
     }
 

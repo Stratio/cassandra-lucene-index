@@ -1,20 +1,25 @@
 /*
- * Copyright 2014, Stratio.
+ * Licensed to STRATIO (C) under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.  The STRATIO (C) licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
+
 package com.stratio.cassandra.lucene.schema.mapping;
 
+import com.stratio.cassandra.lucene.IndexException;
+import com.stratio.cassandra.lucene.schema.mapping.builder.BlobMapperBuilder;
 import org.apache.cassandra.utils.ByteBufferUtil;
 import org.apache.cassandra.utils.Hex;
 import org.apache.lucene.document.Field;
@@ -26,160 +31,178 @@ import java.util.UUID;
 
 import static org.junit.Assert.*;
 
-public class BlobMapperTest {
+public class BlobMapperTest extends AbstractMapperTest {
 
     @Test
     public void testConstructorWithoutArgs() {
-        BlobMapper mapper = new BlobMapper("field", null, null);
-        assertEquals(Mapper.DEFAULT_INDEXED, mapper.isIndexed());
-        assertEquals(Mapper.DEFAULT_SORTED, mapper.isSorted());
+        BlobMapper mapper = new BlobMapperBuilder().build("field");
+        assertEquals("Field is not properly set", "field", mapper.field);
+        assertEquals("Indexed is not set to default value", Mapper.DEFAULT_INDEXED, mapper.indexed);
+        assertEquals("Sorted is not set to default value", Mapper.DEFAULT_SORTED, mapper.sorted);
+        assertEquals("Column is not set to default value", "field", mapper.column);
+        assertEquals("Mapped columns are not properly set", 1, mapper.mappedColumns.size());
+        assertTrue("Mapped columns are not properly set", mapper.mappedColumns.contains("field"));
     }
 
     @Test
     public void testConstructorWithAllArgs() {
-        BlobMapper mapper = new BlobMapper("field", false, true);
-        assertFalse(mapper.isIndexed());
-        assertTrue(mapper.isSorted());
+        BlobMapper mapper = new BlobMapperBuilder().indexed(false).sorted(true).column("column").build("field");
+        assertEquals("Field is not properly set", "field", mapper.field);
+        assertFalse("Indexed is not properly set", mapper.indexed);
+        assertTrue("Sorted is not properly set", mapper.sorted);
+        assertEquals("Column is not properly set", "column", mapper.column);
+    }
+
+    @Test
+    public void testJsonSerialization() {
+        BlobMapperBuilder builder = new BlobMapperBuilder().indexed(false).sorted(true).column("column");
+        testJson(builder, "{type:\"bytes\",indexed:false,sorted:true,column:\"column\"}");
+    }
+
+    @Test
+    public void testJsonSerializationDefaults() {
+        BlobMapperBuilder builder = new BlobMapperBuilder();
+        testJson(builder, "{type:\"bytes\"}");
     }
 
     @Test()
     public void testValueNull() {
-        BlobMapper mapper = new BlobMapper("field", null, null);
+        BlobMapper mapper = new BlobMapper("field", null, null, null);
         String parsed = mapper.base("test", null);
-        assertNull(parsed);
+        assertNull("Base value is not properly parsed", parsed);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueInteger() {
-        BlobMapper mapper = new BlobMapper("field", null, null);
+        BlobMapper mapper = new BlobMapper("field", null, null, null);
         mapper.base("test", 3);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueLong() {
-        BlobMapper mapper = new BlobMapper("field", null, null);
+        BlobMapper mapper = new BlobMapper("field", null, null, null);
         mapper.base("test", 3l);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueFloat() {
-        BlobMapper mapper = new BlobMapper("field", null, null);
+        BlobMapper mapper = new BlobMapper("field", null, null, null);
         mapper.base("test", 3.5f);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueDouble() {
-        BlobMapper mapper = new BlobMapper("field", null, null);
+        BlobMapper mapper = new BlobMapper("field", null, null, null);
         mapper.base("test", 3.6d);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueUUID() {
-        BlobMapper mapper = new BlobMapper("field", null, null);
+        BlobMapper mapper = new BlobMapper("field", null, null, null);
         mapper.base("test", UUID.randomUUID());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IndexException.class)
     public void testValueStringInvalid() {
-        BlobMapper mapper = new BlobMapper("field", null, null);
+        BlobMapper mapper = new BlobMapper("field", null, null, null);
         mapper.base("test", "Hello");
     }
 
     @Test
     public void testValueStringLowerCaseWithoutPrefix() {
-        BlobMapper mapper = new BlobMapper("field", null, null);
+        BlobMapper mapper = new BlobMapper("field", null, null, null);
         String parsed = mapper.base("test", "f1");
-        assertEquals("f1", parsed);
+        assertEquals("Base value is not properly parsed", "f1", parsed);
     }
 
     @Test
     public void testValueStringUpperCaseWithoutPrefix() {
-        BlobMapper mapper = new BlobMapper("field", null, null);
+        BlobMapper mapper = new BlobMapper("field", null, null, null);
         String parsed = mapper.base("test", "F1");
-        assertEquals("f1", parsed);
+        assertEquals("Base value is not properly parsed", "f1", parsed);
     }
 
     @Test
     public void testValueStringMixedCaseWithoutPrefix() {
-        BlobMapper mapper = new BlobMapper("field", null, null);
+        BlobMapper mapper = new BlobMapper("field", null, null, null);
         String parsed = mapper.base("test", "F1a2B3");
-        assertEquals("f1a2b3", parsed);
+        assertEquals("Base value is not properly parsed", "f1a2b3", parsed);
     }
 
     @Test
     public void testValueStringLowerCaseWithPrefix() {
-        BlobMapper mapper = new BlobMapper("field", null, null);
+        BlobMapper mapper = new BlobMapper("field", null, null, null);
         String parsed = mapper.base("test", "0xf1");
-        assertEquals("f1", parsed);
+        assertEquals("Base value is not properly parsed", "f1", parsed);
     }
 
     @Test
     public void testValueStringUpperCaseWithPrefix() {
-        BlobMapper mapper = new BlobMapper("field", null, null);
+        BlobMapper mapper = new BlobMapper("field", null, null, null);
         String parsed = mapper.base("test", "0xF1");
-        assertEquals("f1", parsed);
+        assertEquals("Base value is not properly parsed", "f1", parsed);
     }
 
     @Test
     public void testValueStringMixedCaseWithPrefix() {
-        BlobMapper mapper = new BlobMapper("field", null, null);
+        BlobMapper mapper = new BlobMapper("field", null, null, null);
         String parsed = mapper.base("test", "0xF1a2B3");
-        assertEquals("f1a2b3", parsed);
+        assertEquals("Base value is not properly parsed", "f1a2b3", parsed);
     }
 
-    @Test(expected = NumberFormatException.class)
+    @Test(expected = IndexException.class)
     public void testValueStringOdd() {
-        BlobMapper mapper = new BlobMapper("field", null, null);
+        BlobMapper mapper = new BlobMapper("field", null, null, null);
         mapper.base("test", "f");
     }
 
     @Test
     public void testValueByteBuffer() {
-        BlobMapper mapper = new BlobMapper("field", null, null);
+        BlobMapper mapper = new BlobMapper("field", null, null, null);
         ByteBuffer bb = ByteBufferUtil.hexToBytes("f1");
         String parsed = mapper.base("test", bb);
-        assertEquals("f1", parsed);
+        assertEquals("Base value is not properly parsed", "f1", parsed);
     }
 
     @Test
     public void testValueBytes() {
-        BlobMapper mapper = new BlobMapper("field", null, null);
+        BlobMapper mapper = new BlobMapper("field", null, null, null);
         byte[] bytes = Hex.hexToBytes("f1");
         String parsed = mapper.base("test", bytes);
-        assertEquals("f1", parsed);
+        assertEquals("Base value is not properly parsed", "f1", parsed);
     }
 
     @Test
     public void testIndexedField() {
-        BlobMapper mapper = new BlobMapper("field", true, null);
+        BlobMapper mapper = new BlobMapper("field", null, true, null);
         String base = mapper.base("name", "f1B2");
         Field field = mapper.indexedField("name", base);
-        assertNotNull(field);
-        assertNotNull(field);
-        assertEquals(base, field.stringValue());
-        assertEquals("name", field.name());
-        assertEquals(false, field.fieldType().stored());
+        assertNotNull("Indexed field is not created", field);
+        assertEquals("Indexed field value is wrong", base, field.stringValue());
+        assertEquals("Indexed field name is wrong", "name", field.name());
+        assertEquals("Indexed field type is wrong", false, field.fieldType().stored());
     }
 
     @Test
     public void testSortedField() {
-        BlobMapper mapper = new BlobMapper("field", true, false);
+        BlobMapper mapper = new BlobMapper("field", null, true, false);
         String base = mapper.base("name", "f1B2");
         Field field = mapper.sortedField("name", base);
-        assertNotNull(field);
-        assertEquals(DocValuesType.SORTED, field.fieldType().docValuesType());
+        assertNotNull("Sorted field is not created", field);
+        assertEquals("Sorted field type is wrong", DocValuesType.SORTED, field.fieldType().docValuesType());
     }
 
     @Test
     public void testExtractAnalyzers() {
-        BlobMapper mapper = new BlobMapper("field", null, null);
-        String analyzer = mapper.getAnalyzer();
-        assertEquals(Mapper.KEYWORD_ANALYZER, analyzer);
+        BlobMapper mapper = new BlobMapper("field", null, null, null);
+        assertEquals("Analyzer must be keyword", Mapper.KEYWORD_ANALYZER, mapper.analyzer);
     }
 
     @Test
     public void testToString() {
-        BlobMapper mapper = new BlobMapper("field", false, false);
-        assertEquals("BlobMapper{indexed=false, sorted=false}", mapper.toString());
+        BlobMapper mapper = new BlobMapper("field", null, false, false);
+        assertEquals("Method #toString is wrong",
+                     "BlobMapper{field=field, indexed=false, sorted=false, column=field}",
+                     mapper.toString());
     }
 }
