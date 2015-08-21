@@ -1,11 +1,11 @@
 --create keyspace
-CREATE KEYSPACE spark_example_keyspace WITH replication = {'class':'SimpleStrategy', 'replication_factor': 1};
+CREATE KEYSPACE IF NOT EXISTS spark_example_keyspace WITH replication = {'class':'SimpleStrategy', 'replication_factor': 1};
 
 USE spark_example_keyspace;
 
 
 --create sensor table 
-CREATE TABLE sensors_table (
+CREATE TABLE IF NOT EXISTS sensors (
     id int PRIMARY KEY,
     latitude float,
     longitude float,
@@ -17,7 +17,7 @@ CREATE TABLE sensors_table (
 
 
 --create index 
-CREATE CUSTOM INDEX sensors_index ON spark_example_keyspace.sensors_table (lucene) 
+CREATE CUSTOM INDEX IF NOT EXISTS sensors_index ON spark_example_keyspace.sensors (lucene)
 	USING 'com.stratio.cassandra.lucene.Index' 
 	WITH OPTIONS = {
 		'refresh_seconds' : '0.1',

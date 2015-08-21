@@ -57,6 +57,7 @@ if [ "$SPARK_MASTER" ]; then
 	echo "Starting cassandra"
 	#start cassandra 1
 	nohup cassandra
+
 fi
 echo "After Starting cassandra"
 #if env variable SPARK_MASTER set, start spark as slave connecting to that master 

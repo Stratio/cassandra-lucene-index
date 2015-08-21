@@ -37,14 +37,15 @@ Go to docker containers directory
 
 .. code-block:: bash
 
-    cd spark-examples/resources/docker/cassandra.spark.docker_image/
+    cd examples/spark/resources/docker
     
     
 Build the docker container, this will take a while, please be patient 
 
 .. code-block:: bash
 	
-	docker build -t stratio/cassandra_spark
+	docker build -t stratio/cassandra_spark .
+
 Second step , deploy the cluster 
 --------------------------------
 
@@ -73,6 +74,19 @@ CASSANDRA_SEEDS_IP with the worker1 ip
 	stratio/cassandra_spark
 
 
+You can execute all this step by using docker inspect, simply execute this script
+
+.. code-block:: bash
+
+	docker run -d --name spark_master stratio/cassandra_spark &&
+	export SPARK_MASTER_IP=$(docker inspect -f  '{{ .NetworkSettings.IPAddress }}' spark_master) &&
+	docker run -d -e SPARK_MASTER=$SPARK_MASTER_IP --name worker1 stratio/cassandra_spark &&
+	export CASSANDRA_SEEDS=$(docker inspect -f  '{{ .NetworkSettings.IPAddress }}' worker1) &&
+	docker run -d -e SPARK_MASTER=$SPARK_MASTER_IP -e CASSANDRA_SEEDS=$CASSANDRA_SEEDS --name worker2 stratio/cassandra_spark &&
+	docker run -d -e SPARK_MASTER=$SPARK_MASTER_IP -e CASSANDRA_SEEDS=$CASSANDRA_SEEDS --name worker3 stratio/cassandra_spark
+
+
+
 
 Now you have a cassandra/spark running cluster. You can check the Spark cluster in spark master web
 : 
@@ -98,25 +112,21 @@ Open a terminal in any of the workers
 
 	docker exec -it worker1 /bin/bash 
 
-Go to /home/example
 
-.. code-block:: bash
-
-	cd /home/example
-	
-Run CreateTable&Populate.cql script by CQL shell 
+Run CreateTableAndPopulate.cql script located in /home/example directory  by CQL shell
 	
 .. code-block:: bash
 
-	cqlsh WORKER1_IP -f CreateTable&Populate.cql
+	cqlsh -f /home/example/CreateTableAndPopulate.cql $(hostname --ip-address)
 	
 
 Examples 
 --------
 
-Now having the cluster deployed and populated data you can run the examples.  
+Now having the cluster deployed and data populated, you can run the examples.
 
-The examples are based in a table called sensors, his table with its keyspace and custom index is created with file 
+The examples are based in a table called sensors, his table with its keyspace and custom index is created with file
+CreateTableAndPopulate.cql
 
 .. code-block:: sql
 
@@ -128,7 +138,7 @@ The examples are based in a table called sensors, his table with its keyspace an
 	
 	
 	--create sensor table 
-	CREATE TABLE sensors_table (
+	CREATE TABLE sensors (
 		id int PRIMARY KEY,
 		latitude float,
 		longitude float,
@@ -140,7 +150,7 @@ The examples are based in a table called sensors, his table with its keyspace an
 
 	
 	--create index 
-	CREATE CUSTOM INDEX sensors_index ON spark_example_keyspace.sensors_table (lucene) 
+	CREATE CUSTOM INDEX sensors_index ON spark_example_keyspace.sensors (lucene)
 		USING 'com.stratio.cassandra.lucene.Index' 
 		WITH OPTIONS = {
 			'refresh_seconds' : '0.1',
@@ -156,7 +166,7 @@ The examples are based in a table called sensors, his table with its keyspace an
 		};
 
 
-The examples calcules the mean of temp_value based in several CQL lucene queries, every example can be executed via 
+The examples calculates the mean of temp_value based in several CQL lucene queries, every example can be executed via
 spark-submit or in a spark-shell
  
  
@@ -168,7 +178,7 @@ Example 1 calculate mean temp of all values
 .. code-block:: bash
 
  	spark-submit --class com.stratio.cassandra.examples.calcAllMean --master spark://172.17.0.2:7077 --deploy-mode 
- 	client ./spark-example-2.1.8.4-SNAPSHOT.jar 
+ 	client ./spark-2.1.8.4-SNAPSHOT.jar
  	
  	
 .. code-block:: bash 

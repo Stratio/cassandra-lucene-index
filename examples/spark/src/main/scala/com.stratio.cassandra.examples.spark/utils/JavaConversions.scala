@@ -1,4 +1,4 @@
-package com.stratio.cassandra.examples.utils
+package com.stratio.cassandra.examples.spark.utils
 
 import com.stratio.cassandra.lucene.search.condition.builder.ConditionBuilder
 

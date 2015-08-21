@@ -1,23 +1,26 @@
-package com.stratio.cassandra.examples
+package com.stratio.cassandra.examples.spark
 
 /* SimpleApp.scala */
 
 
 import com.datastax.spark.connector._
+import com.stratio.cassandra.lucene.search.SearchBuilders._
 import org.apache.spark.{SparkConf, SparkContext}
 
 
-object calcAllMean {
+object calcMeanByType {
   def main(args: Array[String]) {
 
     val KEYSPACE: String = "spark_example_keyspace"
     val TABLE: String = "sensors_table"
-
+    val INDEX_COLUMN_CONSTANT: String = "lucene"
     var totalMean = 0.0f
+
+    val luceneQuery: String = search.refresh(true).filter(`match`("sensor_type", "plane")).toJson
 
     val sc : SparkContext = new SparkContext(new SparkConf)
 
-    val tempRdd=sc.cassandraTable(KEYSPACE, TABLE).select("temp_value").map[Float]((row)=>row.getFloat("temp_value"))
+    val tempRdd=sc.cassandraTable(KEYSPACE, TABLE).select("temp_value").where(INDEX_COLUMN_CONSTANT,luceneQuery).map[Float]((row)=>row.getFloat("temp_value"))
 
     val totalNumElems: Long =tempRdd.count()
 
@@ -27,6 +30,6 @@ object calcAllMean {
       totalMean = totalTempPairRdd.first()._2 / totalNumElems.asInstanceOf[Float]
     }
 
-    println("Mean calculed on all data mean: %s , numRows: %s", totalMean, totalNumElems)
+    println("Mean calculated on all data mean: %s , numRows: %s", totalMean, totalNumElems)
   }
 }

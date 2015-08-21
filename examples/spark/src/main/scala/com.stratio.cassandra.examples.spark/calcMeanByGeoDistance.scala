@@ -1,4 +1,4 @@
-package com.stratio.cassandra.examples
+package com.stratio.cassandra.examples.spark
 
 /* SimpleApp.scala */
 
@@ -6,7 +6,7 @@ package com.stratio.cassandra.examples
 import com.datastax.spark.connector._
 import com.stratio.cassandra.lucene.search.SearchBuilders._
 import org.apache.spark.{SparkConf, SparkContext}
-import com.stratio.cassandra.examples.utils.JavaConversions._
+
 
 object calcMeanByGeoDistance {
   def main(args: Array[String]) {
@@ -30,6 +30,6 @@ object calcMeanByGeoDistance {
       totalMean = totalTempPairRdd.first()._2 / totalNumElems.asInstanceOf[Float]
     }
 
-    println("Mean calculed on all data mean: %s , numRows: %s", totalMean, totalNumElems)
+    println("Mean calculated on all data mean: %s , numRows: %s", totalMean, totalNumElems)
   }
 }
