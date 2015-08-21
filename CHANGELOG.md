@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.1.8.4-SNAPSHOT ()
+## 2.2.0.0-SNAPSHOT ()
 
 ## 2.1.8.3 (20 August 2015)
  * Fix analyzer selection in maps (issue#18)
