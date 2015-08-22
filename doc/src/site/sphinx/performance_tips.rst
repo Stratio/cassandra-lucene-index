@@ -5,6 +5,38 @@ Lucene index plugin performance varies depending upon several factors
 depending on the use case and you should probably do some tuning work.
 However, there is some general advice.
 
+Choose the right use case
+=========================
+
+Lucene searches are much more time and resource consuming than their Cassandra counterparts,
+not being an alternative to Apache Cassandra denormalized tables, inverted indexes, and/or
+secondary indexes.
+In most cases, it is a bad idea to model a system with simple skinny rows and try to satisfy
+all queries with Lucene.
+For example, the following search could be more efficiently addressed using a denormalized table:
+
+.. code-block:: sql
+
+    SELECT * FROM users
+    WHERE lucene = '{filter : {
+                      type  : "match",
+                      field : "name",
+                      value : "Alice" }}';
+
+However, this search could be a good use case for Lucene just because there is no easy counterpart:
+
+.. code-block:: sql
+
+    SELECT * FROM users
+    WHERE lucene = '{filter : {
+                       type : "boolean",
+                       must : [{type : "regexp", field : "name", value : "[J][aeiou]{2}.*"},
+                               {type:"range", field:"birthday", lower:"2014/04/25", upper:"2014/05/1"}]}}';
+
+Lucene indexes are intended to be used in those cases that can't be efficiently addressed
+with Apache Cassandra common techniques, such as full-text queries, multidimensional queries,
+geospatial search and bitemporal data models.
+
 Disable virtual nodes
 =====================
 

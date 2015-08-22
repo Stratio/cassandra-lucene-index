@@ -32,6 +32,7 @@ Stratio's Cassandra Lucene Index
     - `Paging <#paging>`__
 - `JMX interface <#jmx-interface>`__
 - `Performance tips <#performance-tips>`__
+    - `Choose the right use case <#choose-the-right-use-case>`__
     - `Disable virtual nodes <#disable-virtual-nodes>`__
     - `Use a separate disk <#use-a-separate-disk>`__
     - `Index only what you need <#index-only-what-you-need>`__
@@ -53,6 +54,11 @@ Spark <https://spark.apache.org/>`__ and `Apache
 Hadoop <https://hadoop.apache.org/>`__, allowing you to filter data at
 database level. This speeds up jobs reducing the amount of data to be
 collected and processed.
+
+This project is not intended to replace Apache Cassandra denormalized
+tables, inverted indexes, and/or secondary indexes. It is just a tool
+to perform some kind of queries which are really hard to be addressed
+using Apache Cassandra out of the box features.
 
 Indexing is achieved through a Lucene based implementation of Cassandra
 secondary indexes, where each node of the cluster indexes its own data.
@@ -1586,6 +1592,38 @@ Performance tips
 Lucene index plugin performance varies depending upon several factors
 depending on the use case and you should probably do some tuning work.
 However, there is some general advice.
+
+Choose the right use case
+=========================
+
+Lucene searches are much more time and resource consuming than their Cassandra counterparts,
+not being an alternative to Apache Cassandra denormalized tables, inverted indexes, and/or
+secondary indexes.
+In most cases, it is a bad idea to model a system with simple skinny rows and try to satisfy
+all queries with Lucene.
+For example, the following search could be more efficiently addressed using a denormalized table:
+
+.. code-block:: sql
+
+    SELECT * FROM users
+    WHERE lucene = '{filter : {
+                      type  : "match",
+                      field : "name",
+                      value : "Alice" }}';
+
+However, this search could be a good use case for Lucene just because there is no easy counterpart:
+
+.. code-block:: sql
+
+    SELECT * FROM users
+    WHERE lucene = '{filter : {
+                       type : "boolean",
+                       must : [{type : "regexp", field : "name", value : "[J][aeiou]{2}.*"},
+                               {type:"range", field:"birthday", lower:"2014/04/25", upper:"2014/05/1"}]}}';
+
+Lucene indexes are intended to be used in those cases that can't be efficiently addressed
+with Apache Cassandra common techniques, such as full-text queries, multidimensional queries,
+geospatial search and bitemporal data models.
 
 Disable virtual nodes
 =====================
