@@ -18,15 +18,20 @@
 
 package com.stratio.cassandra.lucene;
 
-import com.stratio.cassandra.lucene.service.RowKeys;
-import com.stratio.cassandra.lucene.service.RowMapper;
-import com.stratio.cassandra.lucene.util.ByteBufferUtils;
-import com.stratio.cassandra.lucene.util.TimeCounter;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.cassandra.cql3.BatchQueryOptions;
 import org.apache.cassandra.cql3.CQLStatement;
 import org.apache.cassandra.cql3.QueryHandler;
 import org.apache.cassandra.cql3.QueryOptions;
 import org.apache.cassandra.cql3.QueryProcessor;
+import org.apache.cassandra.cql3.functions.Function;
 import org.apache.cassandra.cql3.statements.BatchStatement;
 import org.apache.cassandra.cql3.statements.ParsedStatement;
 import org.apache.cassandra.cql3.statements.SelectStatement;
@@ -53,12 +58,10 @@ import org.apache.cassandra.utils.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.List;
+import com.stratio.cassandra.lucene.service.RowKeys;
+import com.stratio.cassandra.lucene.service.RowMapper;
+import com.stratio.cassandra.lucene.util.ByteBufferUtils;
+import com.stratio.cassandra.lucene.util.TimeCounter;
 
 /**
  * Abstract {@link QueryHandler} to be used with Lucene searches.
@@ -78,15 +81,21 @@ public class IndexQueryHandler implements QueryHandler {
         return (IDiskAtomFilter) method.invoke(statement, options, limit);
     }
 
-    private static boolean isCount(SelectStatement selectStatement)
-    throws IllegalAccessException, NoSuchFieldException {
-        Field field = SelectStatement.Parameters.class.getDeclaredField("isCount");
-        field.setAccessible(true);
-        return (boolean) field.get(selectStatement.parameters);
+    private static boolean isCount(SelectStatement selectStatement) throws Exception {
+        if(selectStatement.getFunctions() != null) {
+            Iterator<Function> functions = selectStatement.getFunctions().iterator(); 
+            while(functions.hasNext()) {
+                Function function = functions.next();
+                if(function.isAggregate() && (function.name().equals("countRows") || function.name().equals("count"))) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     @Override
-    public ResultMessage.Prepared prepare(String query, QueryState state) throws RequestValidationException {
+    public ResultMessage.Prepared prepare(String query, QueryState state, Map<String, ByteBuffer> customPayload) throws RequestValidationException {
         return cqlProcessor.prepare(query, state);
     }
 
@@ -101,19 +110,19 @@ public class IndexQueryHandler implements QueryHandler {
     }
 
     @Override
-    public ResultMessage processPrepared(CQLStatement statement, QueryState state, QueryOptions options)
+    public ResultMessage processPrepared(CQLStatement statement, QueryState state, QueryOptions options, Map<String, ByteBuffer> customPayload)
     throws RequestExecutionException, RequestValidationException {
         return cqlProcessor.processPrepared(statement, state, options);
     }
 
     @Override
-    public ResultMessage processBatch(BatchStatement statement, QueryState state, BatchQueryOptions options)
+    public ResultMessage processBatch(BatchStatement statement, QueryState state, BatchQueryOptions options, Map<String, ByteBuffer> customPayload)
     throws RequestExecutionException, RequestValidationException {
         return cqlProcessor.processBatch(statement, state, options);
     }
 
     @Override
-    public ResultMessage process(String query, QueryState state, QueryOptions options)
+    public ResultMessage process(String query, QueryState state, QueryOptions options, Map<String, ByteBuffer> customPayload)
     throws RequestExecutionException, RequestValidationException {
 
         ParsedStatement.Prepared p = QueryProcessor.getStatement(query, state.getClientState());
@@ -175,8 +184,7 @@ public class IndexQueryHandler implements QueryHandler {
         cl.validateForRead(ks);
 
         IDiskAtomFilter filter = makeFilter(statement, options, limit);
-        AbstractBounds<RowPosition> range = statement.getKeyBounds(options);
-
+        AbstractBounds<RowPosition> range = statement.getRestrictions().getPartitionKeyBounds(options);
         RowMapper mapper = searcher.mapper();
         PagingState pagingState = options.getPagingState();
         RowKeys rowKeys = null;
@@ -220,4 +228,5 @@ public class IndexQueryHandler implements QueryHandler {
         }
         return msg;
     }
+
 }
