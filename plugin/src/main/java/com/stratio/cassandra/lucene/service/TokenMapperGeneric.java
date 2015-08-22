@@ -37,6 +37,8 @@ import org.apache.lucene.util.BytesRef;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * {@link TokenMapper} to be used when any {@link org.apache.cassandra.dht.IPartitioner} when there is not a more
@@ -84,8 +86,8 @@ public class TokenMapperGeneric extends TokenMapper {
 
     /** {@inheritDoc} */
     @Override
-    public SortField[] sortFields() {
-        return new SortField[]{new SortField(FIELD_NAME, new FieldComparatorSource() {
+    public List<SortField> sortFields() {
+        return Collections.singletonList(new SortField(FIELD_NAME, new FieldComparatorSource() {
             @Override
             public FieldComparator<?> newComparator(String field, int hits, int sort, boolean reversed)
             throws IOException {
@@ -96,7 +98,7 @@ public class TokenMapperGeneric extends TokenMapper {
                     }
                 };
             }
-        })};
+        }));
     }
 
     /**

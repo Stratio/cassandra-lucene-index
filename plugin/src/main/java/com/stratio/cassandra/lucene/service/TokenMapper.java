@@ -30,6 +30,7 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.SortField;
 
 import java.util.Comparator;
+import java.util.List;
 
 /**
  * Class for several row partitioning {@link Token} mappings between Cassandra and Lucene.
@@ -111,11 +112,11 @@ public abstract class TokenMapper {
     protected abstract Query makeQuery(Token lower, Token upper, boolean includeLower, boolean includeUpper);
 
     /**
-     * Returns a Lucene {@link SortField} array for sorting documents/rows according to the current partitioner.
+     * Returns a Lucene {@link SortField} list for sorting documents/rows according to the current partitioner.
      *
-     * @return A Lucene {@link SortField} array for sorting documents/rows according to the current partitioner.
+     * @return A Lucene {@link SortField} list for sorting documents/rows according to the current partitioner.
      */
-    public abstract SortField[] sortFields();
+    public abstract List<SortField> sortFields();
 
     /**
      * Returns {@code true} if the specified lower row position kind must be included in the filtered range, {@code

@@ -157,7 +157,7 @@ public class RowServiceWide extends RowService {
      * The {@link Row} is a logical one.
      */
     @Override
-    protected List<Row> rows(List<SearchResult> searchResults, long timestamp, boolean relevance) {
+    protected List<Row> rows(List<SearchResult> searchResults, long timestamp, int scorePosition) {
 
         // Group key queries by partition keys
         Map<String, ScoreDoc> scoresByClusteringKey = new HashMap<>(searchResults.size());
@@ -185,10 +185,10 @@ public class RowServiceWide extends RowService {
                     CellName clusteringKey = entry1.getKey();
                     ColumnFamily columnFamily = entry1.getValue();
                     Row row = new Row(partitionKey, columnFamily);
-                    if (relevance) {
+                    if (scorePosition >= 0) {
                         String rowHash = rowMapper.hash(partitionKey, clusteringKey);
                         ScoreDoc scoreDoc = scoresByClusteringKey.get(rowHash);
-                        row = addScoreColumn(row, timestamp, scoreDoc);
+                        row = addScoreColumn(row, timestamp, scoreDoc, scorePosition);
                     }
                     rows.add(row);
                 }

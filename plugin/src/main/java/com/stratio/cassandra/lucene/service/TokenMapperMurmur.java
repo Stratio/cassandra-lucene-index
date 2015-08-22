@@ -29,6 +29,9 @@ import org.apache.lucene.search.NumericRangeQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.SortField;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
  * {@link PartitionKeyMapper} to be used when {@link org.apache.cassandra.dht.Murmur3Partitioner} is used. It indexes
  * the token long value as a Lucene long field.
@@ -92,8 +95,8 @@ public class TokenMapperMurmur extends TokenMapper {
 
     /** {@inheritDoc} */
     @Override
-    public SortField[] sortFields() {
-        return new SortField[]{new SortField(FIELD_NAME, SortField.Type.LONG)};
+    public List<SortField> sortFields() {
+        return Collections.singletonList(new SortField(FIELD_NAME, SortField.Type.LONG));
     }
 
 }

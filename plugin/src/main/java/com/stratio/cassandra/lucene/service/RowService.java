@@ -78,6 +78,7 @@ public abstract class RowService {
     final RowMapper rowMapper;
     final CFMetaData metadata;
     final LuceneIndex luceneIndex;
+    final List<SortField> keySortFields;
 
     protected final Schema schema;
 
@@ -91,12 +92,13 @@ public abstract class RowService {
     protected RowService(ColumnFamilyStore baseCfs, ColumnDefinition columnDefinition) throws IOException {
 
         this.baseCfs = baseCfs;
-        this.metadata = baseCfs.metadata;
+        metadata = baseCfs.metadata;
 
         IndexConfig config = new IndexConfig(metadata, columnDefinition);
 
-        this.schema = config.getSchema();
-        this.rowMapper = RowMapper.build(metadata, columnDefinition, schema);
+        schema = config.getSchema();
+        rowMapper = RowMapper.build(metadata, columnDefinition, schema);
+        keySortFields = rowMapper.sortFields();
 
         this.luceneIndex = new LuceneIndex(columnDefinition.ksName,
                                            columnDefinition.cfName,
@@ -248,6 +250,7 @@ public abstract class RowService {
             // Setup search arguments
             Query query = query(search, dataRange);
             Sort sort = sort(search);
+            int scorePosition = scorePosition(search);
             ScoreDoc last = after(searcher, after, query, sort);
             int page = Math.min(limit, MAX_PAGE_SIZE);
             boolean maybeMore;
@@ -269,7 +272,7 @@ public abstract class RowService {
 
                 // Collect rows from Cassandra
                 collectTime.start();
-                for (Row row : rows(searchResults, timestamp, search.usesRelevance())) {
+                for (Row row : rows(searchResults, timestamp, scorePosition)) {
                     if (accepted(row, expressions)) {
                         rows.add(row);
                         numRows++;
@@ -337,12 +340,22 @@ public abstract class RowService {
      * @return A {@link Sort} for the specified {@link Search}.
      */
     private Sort sort(Search search) {
+        List<SortField> sortFields = new ArrayList<>();
         if (search.usesSorting()) {
-            return new Sort(ArrayUtils.addAll(search.sortFields(schema), rowMapper.sortFields()));
-        } else if (search.usesRelevance()) {
-            return new Sort(ArrayUtils.addAll(new SortField[]{FIELD_SCORE}, rowMapper.sortFields()));
+            sortFields.addAll(search.sortFields(schema));
+        }
+        if (search.usesRelevance()) {
+            sortFields.add(FIELD_SCORE);
+        }
+        sortFields.addAll(keySortFields);
+        return new Sort(sortFields.toArray(new SortField[sortFields.size()]));
+    }
+
+    private int scorePosition(Search search) {
+        if (search.usesRelevance()) {
+            return search.usesSorting() ? search.sortFields(schema).size() : 0;
         } else {
-            return new Sort(rowMapper.sortFields());
+            return -1;
         }
     }
 
@@ -459,12 +472,12 @@ public abstract class RowService {
      * Returns the {@link Row}s identified by the specified {@link Document}s, using the specified time stamp to ignore
      * deleted columns. The {@link Row}s are retrieved from the storage engine, so it involves IO operations.
      *
-     * @param searchResults The {@link SearchResult}s
-     * @param timestamp     The time stamp to ignore deleted columns.
-     * @param relevance     If the search uses relevance.
+     * @param results   The {@link SearchResult}s
+     * @param timestamp The time stamp to ignore deleted columns.
+     * @param scorePosition The position where score column is placed.
      * @return The {@link Row}s identified by the specified {@link Document}s
      */
-    protected abstract List<Row> rows(List<SearchResult> searchResults, long timestamp, boolean relevance);
+    protected abstract List<Row> rows(List<SearchResult> results, long timestamp, int scorePosition);
 
     /**
      * Returns a {@link ColumnFamily} composed by the non expired {@link Cell}s of the specified  {@link ColumnFamily}.
@@ -489,15 +502,18 @@ public abstract class RowService {
      * @param row       A {@link Row}.
      * @param timestamp The score column timestamp.
      * @param scoreDoc  The score column value.
+     * @param scorePosition The position where score column is placed.
      * @return The {@link Row} with the score.
      */
-    protected Row addScoreColumn(Row row, long timestamp, ScoreDoc scoreDoc) {
+    protected Row addScoreColumn(Row row, long timestamp, ScoreDoc scoreDoc, int scorePosition) {
+
         ColumnFamily cf = row.cf;
         CellName cellName = rowMapper.makeCellName(cf);
-        Float score = Float.parseFloat(((FieldDoc) scoreDoc).fields[0].toString());
-        ByteBuffer cellValue = UTF8Type.instance.decompose(score.toString());
+        FieldDoc fieldDoc = (FieldDoc) scoreDoc;
+        Float score = Float.parseFloat(fieldDoc.fields[scorePosition].toString());
 
         ColumnFamily dcf = ArrayBackedSortedColumns.factory.create(baseCfs.metadata);
+        ByteBuffer cellValue = UTF8Type.instance.decompose(score.toString());
         dcf.addColumn(cellName, cellValue, timestamp);
         dcf.addAll(row.cf);
 

@@ -317,8 +317,8 @@ public final class ClusteringKeyMapper {
      *
      * @return A Lucene {@link SortField} array for sorting documents/rows according to the column family name.
      */
-    public SortField[] sortFields() {
-        return new SortField[]{new SortField(FIELD_NAME, new FieldComparatorSource() {
+    public List<SortField> sortFields() {
+        return Collections.singletonList(new SortField(FIELD_NAME, new FieldComparatorSource() {
             @Override
             public FieldComparator<?> newComparator(String field, int hits, int sort, boolean reversed)
             throws IOException {
@@ -331,7 +331,7 @@ public final class ClusteringKeyMapper {
                     }
                 };
             }
-        })};
+        }));
     }
 
     /**

@@ -113,7 +113,7 @@ public class RowServiceSkinny extends RowService {
 
     /** {@inheritDoc} */
     @Override
-    protected List<Row> rows(List<SearchResult> searchResults, long timestamp, boolean relevance) {
+    protected List<Row> rows(List<SearchResult> searchResults, long timestamp, int scorePosition) {
         List<Row> rows = new ArrayList<>(searchResults.size());
         for (SearchResult searchResult : searchResults) {
 
@@ -126,9 +126,9 @@ public class RowServiceSkinny extends RowService {
             Row row = new Row(partitionKey, columnFamily);
 
             // Return decorated row
-            if (relevance) {
+            if (scorePosition >= 0) {
                 ScoreDoc scoreDoc = searchResult.getScoreDoc();
-                row = addScoreColumn(row, timestamp, scoreDoc);
+                row = addScoreColumn(row, timestamp, scoreDoc, scorePosition);
             }
             rows.add(row);
         }

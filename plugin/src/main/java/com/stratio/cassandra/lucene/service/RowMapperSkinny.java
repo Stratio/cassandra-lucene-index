@@ -41,6 +41,7 @@ import org.apache.lucene.search.TermQuery;
 
 import java.nio.ByteBuffer;
 import java.util.Comparator;
+import java.util.List;
 
 /**
  * {@link RowMapper} for skinny rows.
@@ -88,7 +89,7 @@ public class RowMapperSkinny extends RowMapper {
 
     /** {@inheritDoc} */
     @Override
-    public SortField[] sortFields() {
+    public List<SortField> sortFields() {
         return tokenMapper.sortFields();
     }
 

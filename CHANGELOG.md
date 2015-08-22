@@ -1,6 +1,7 @@
 # Changelog
 
 ## 2.1.8.4-SNAPSHOT ()
+ * Fix bug in searches with both sorting and relevance
 
 ## 2.1.8.3 (20 August 2015)
  * Fix analyzer selection in maps (issue#18)

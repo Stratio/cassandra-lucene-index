@@ -46,6 +46,7 @@ import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.TermQuery;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -112,10 +113,11 @@ public class RowMapperWide extends RowMapper {
 
     /** {@inheritDoc} */
     @Override
-    public SortField[] sortFields() {
-        SortField[] partitionKeySort = tokenMapper.sortFields();
-        SortField[] clusteringKeySort = clusteringKeyMapper.sortFields();
-        return ArrayUtils.addAll(partitionKeySort, clusteringKeySort);
+    public List<SortField> sortFields() {
+        List<SortField> sortFields = new ArrayList<>();
+        sortFields.addAll(tokenMapper.sortFields());
+        sortFields.addAll(clusteringKeyMapper.sortFields());
+        return sortFields;
     }
 
     /** {@inheritDoc} */
