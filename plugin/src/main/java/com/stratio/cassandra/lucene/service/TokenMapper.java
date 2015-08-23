@@ -76,7 +76,7 @@ public abstract class TokenMapper {
         if (lower != null && upper != null && isMinimum(lower) && isMinimum(upper) && (includeLower || includeUpper)) {
             return null;
         }
-        return makeQuery(lower, upper, includeLower, includeUpper);
+        return doQuery(lower, upper, includeLower, includeUpper);
     }
 
     /**
@@ -109,7 +109,7 @@ public abstract class TokenMapper {
      * @param includeUpper If the {@code upperValue} is included in the range.
      * @return A Lucene {@link Query} for retrieving the documents inside the specified {@link Token} range.
      */
-    protected abstract Query makeQuery(Token lower, Token upper, boolean includeLower, boolean includeUpper);
+    protected abstract Query doQuery(Token lower, Token upper, boolean includeLower, boolean includeUpper);
 
     /**
      * Returns a Lucene {@link SortField} list for sorting documents/rows according to the current partitioner.

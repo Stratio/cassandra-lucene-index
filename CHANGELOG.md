@@ -2,6 +2,7 @@
 
 ## 2.1.8.4-SNAPSHOT ()
  * Fix bug in searches with both sorting and relevance
+ * Improve wide rows data range filtering to increase performance
 
 ## 2.1.8.3 (20 August 2015)
  * Fix analyzer selection in maps (issue#18)

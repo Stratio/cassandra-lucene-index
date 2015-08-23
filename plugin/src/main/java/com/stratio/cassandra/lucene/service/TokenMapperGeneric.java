@@ -72,7 +72,7 @@ public class TokenMapperGeneric extends TokenMapper {
 
     /** {@inheritDoc} */
     @Override
-    protected Query makeQuery(Token lower, Token upper, boolean includeLower, boolean includeUpper) {
+    protected Query doQuery(Token lower, Token upper, boolean includeLower, boolean includeUpper) {
         return new TokenQuery(lower, upper, includeLower, includeUpper, this);
     }
 

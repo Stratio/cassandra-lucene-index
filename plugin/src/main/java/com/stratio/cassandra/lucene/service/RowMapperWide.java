@@ -35,7 +35,6 @@ import org.apache.cassandra.db.filter.ColumnSlice;
 import org.apache.cassandra.db.filter.SliceQueryFilter;
 import org.apache.cassandra.dht.Token;
 import org.apache.cassandra.utils.ByteBufferUtil;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause;
@@ -52,7 +51,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
-import static org.apache.lucene.search.BooleanClause.Occur.MUST;
+import static org.apache.lucene.search.BooleanClause.Occur.FILTER;
 import static org.apache.lucene.search.BooleanClause.Occur.SHOULD;
 
 /**
@@ -156,12 +155,8 @@ public class RowMapperWide extends RowMapper {
         return fullKeyMapper.term(partitionKey, clusteringKey);
     }
 
-    /**
-     * Returns the Lucene {@link Query} to get the {@link Document}s satisfying the specified {@link DataRange}.
-     *
-     * @param dataRange A {@link DataRange}.
-     * @return The Lucene {@link Query} to get the {@link Document}s satisfying the specified {@link DataRange}.
-     */
+    /** {@inheritDoc} */
+    @Override
     public Query query(DataRange dataRange) {
 
         RowPosition startPosition = dataRange.startKey();
@@ -169,7 +164,7 @@ public class RowMapperWide extends RowMapper {
         Token startToken = startPosition.getToken();
         Token stopToken = stopPosition.getToken();
         boolean isSameToken = startToken.compareTo(stopToken) == 0 && !tokenMapper.isMinimum(startToken);
-        BooleanClause.Occur occur = isSameToken ? MUST : SHOULD;
+        BooleanClause.Occur occur = isSameToken ? FILTER : SHOULD;
         boolean includeStart = tokenMapper.includeStart(startPosition);
         boolean includeStop = tokenMapper.includeStop(stopPosition);
 
@@ -186,16 +181,16 @@ public class RowMapperWide extends RowMapper {
 
         if (!startName.isEmpty()) {
             BooleanQuery q = new BooleanQuery();
-            q.add(tokenMapper.query(startToken), MUST);
-            q.add(clusteringKeyMapper.query(startName, null), MUST);
+            q.add(tokenMapper.query(startToken), FILTER);
+            q.add(clusteringKeyMapper.query(startName, null), FILTER);
             query.add(q, occur);
             includeStart = false;
         }
 
         if (!stopName.isEmpty()) {
             BooleanQuery q = new BooleanQuery();
-            q.add(tokenMapper.query(stopToken), MUST);
-            q.add(clusteringKeyMapper.query(null, stopName), MUST);
+            q.add(tokenMapper.query(stopToken), FILTER);
+            q.add(clusteringKeyMapper.query(null, stopName), FILTER);
             query.add(q, occur);
             includeStop = false;
         }
@@ -232,8 +227,8 @@ public class RowMapperWide extends RowMapper {
      */
     public Query query(DecoratedKey partitionKey, RangeTombstone rangeTombstone) {
         BooleanQuery query = new BooleanQuery();
-        query.add(partitionKeyMapper.query(partitionKey), MUST);
-        query.add(clusteringKeyMapper.query(rangeTombstone.min, rangeTombstone.max), MUST);
+        query.add(partitionKeyMapper.query(partitionKey), FILTER);
+        query.add(clusteringKeyMapper.query(rangeTombstone.min, rangeTombstone.max), FILTER);
         return query;
     }
 

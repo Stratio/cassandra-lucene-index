@@ -78,7 +78,7 @@ public class TokenMapperMurmur extends TokenMapper {
 
     /** {@inheritDoc} */
     @Override
-    protected Query makeQuery(Token lower, Token upper, boolean includeLower, boolean includeUpper) {
+    protected Query doQuery(Token lower, Token upper, boolean includeLower, boolean includeUpper) {
         Long start = lower == null ? null : (Long) lower.getTokenValue();
         Long stop = upper == null ? null : (Long) upper.getTokenValue();
         if (lower != null && lower.isMinimum()) {
