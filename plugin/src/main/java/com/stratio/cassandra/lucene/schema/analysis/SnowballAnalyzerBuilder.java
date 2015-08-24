@@ -182,8 +182,8 @@ public class SnowballAnalyzerBuilder extends AnalyzerBuilder {
      */
     public static class SnowballAnalyzer extends Analyzer {
 
-        private String language;
-        private CharArraySet stopwords;
+        private final String language;
+        private final CharArraySet stopwords;
 
         /**
          * Builds a new {@link SnowballAnalyzer} for the specified language and stopwords.

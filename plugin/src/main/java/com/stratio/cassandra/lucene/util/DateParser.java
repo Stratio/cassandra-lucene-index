@@ -32,10 +32,10 @@ import java.util.Date;
  */
 public class DateParser {
 
-    /** The default {@link SimpleDateFormat} pattern. */
+    /** The default date pattern for {@code String}s. */
     public static final String DEFAULT_PATTERN = "yyyy/MM/dd HH:mm:ss.SSS Z";
 
-    /** The Timestamp defaultyString in pattern. */
+    /** The pattern value for timestamps. */
     public static final String TIMESTAMP_PATTERN_FIELD = "timestamp";
 
     /** The {@link SimpleDateFormat} pattern. */

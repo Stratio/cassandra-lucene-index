@@ -69,7 +69,7 @@ public class IndexQueryHandler implements QueryHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(IndexQueryHandler.class);
 
-    static QueryProcessor cqlProcessor = QueryProcessor.instance;
+    private static final QueryProcessor cqlProcessor = QueryProcessor.instance;
 
     private IDiskAtomFilter makeFilter(SelectStatement statement, QueryOptions options, int limit)
     throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {

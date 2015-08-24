@@ -78,7 +78,7 @@ public class PhraseCondition extends SingleColumnCondition {
             query.setBoost(boost);
             return query;
         } else {
-            throw new IndexException("Query '%s' is not supported by mapper '%s'", this, mapper);
+            throw new IndexException("Phrase queries are not supported by mapper '%s'", mapper);
         }
     }
 

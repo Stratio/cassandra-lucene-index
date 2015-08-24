@@ -25,7 +25,7 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.search.Query;
 
 /**
- * An abstract {@link Condition} directed to a specific mapper.
+ * An abstract {@link Condition} using a specific {@link Mapper}.
  *
  * Known subclasses are: <ul> <li> {@link BitemporalCondition} <li> {@link DateRangeCondition} <li> {@link
  * GeoDistanceCondition} <li> {@link GeoBBoxCondition} </ul>

@@ -20,7 +20,6 @@ package com.stratio.cassandra.lucene.search.condition;
 
 import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.schema.Schema;
-import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
@@ -29,6 +28,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.LinkedList;
 import java.util.List;
+
+import static org.apache.lucene.search.BooleanClause.Occur.*;
 
 /**
  * A {@link Condition} that matches documents matching boolean combinations of other queries, e.g. {@link
@@ -73,17 +74,17 @@ public class BooleanCondition extends Condition {
         BooleanQuery luceneQuery = new BooleanQuery();
         luceneQuery.setBoost(boost);
         for (Condition query : must) {
-            luceneQuery.add(query.query(schema), Occur.MUST);
+            luceneQuery.add(query.query(schema), MUST);
         }
         for (Condition query : should) {
-            luceneQuery.add(query.query(schema), Occur.SHOULD);
+            luceneQuery.add(query.query(schema), SHOULD);
         }
         for (Condition query : not) {
-            luceneQuery.add(query.query(schema), Occur.MUST_NOT);
+            luceneQuery.add(query.query(schema), MUST_NOT);
         }
         if (must.isEmpty() && should.isEmpty() && !not.isEmpty()) {
             logger.warn("Performing resource-intensive pure negation search");
-            luceneQuery.add(new MatchAllDocsQuery(), Occur.FILTER);
+            luceneQuery.add(new MatchAllDocsQuery(), FILTER);
         }
         return luceneQuery;
     }
