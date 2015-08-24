@@ -99,15 +99,15 @@ public abstract class RowService {
         rowMapper = RowMapper.build(metadata, columnDefinition, schema);
         keySortFields = rowMapper.sortFields();
 
-        this.luceneIndex = new LuceneIndex(columnDefinition.ksName,
-                                           columnDefinition.cfName,
-                                           columnDefinition.getIndexName(),
-                                           config.getPath(),
-                                           config.getRamBufferMB(),
-                                           config.getMaxMergeMB(),
-                                           config.getMaxCachedMB(),
-                                           config.getRefreshSeconds(),
-                                           schema.getAnalyzer());
+        luceneIndex = new LuceneIndex(columnDefinition.ksName,
+                                      columnDefinition.cfName,
+                                      columnDefinition.getIndexName(),
+                                      config.getPath(),
+                                      config.getRamBufferMB(),
+                                      config.getMaxMergeMB(),
+                                      config.getMaxCachedMB(),
+                                      config.getRefreshSeconds(),
+                                      schema.getAnalyzer());
     }
 
     /**
@@ -451,6 +451,10 @@ public abstract class RowService {
         }
 
         int comparison = validator.compare(actualValue, value);
+        return accepted(operator, comparison);
+    }
+
+    private boolean accepted(Operator operator, int comparison) {
         switch (operator) {
             case EQ:
                 return comparison == 0;

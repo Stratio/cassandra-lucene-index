@@ -62,7 +62,7 @@ public class LuceneIndex implements LuceneIndexMBean {
     private static final Logger logger = LoggerFactory.getLogger(LuceneIndex.class);
 
     private final Path path;
-    private final String logName;
+    private final String name;
 
     private final Directory directory;
     private final IndexWriter indexWriter;
@@ -99,7 +99,7 @@ public class LuceneIndex implements LuceneIndexMBean {
                        Double refreshSeconds,
                        Analyzer analyzer) throws IOException {
         this.path = path;
-        this.logName = String.format("Lucene index %s.%s.%s", keyspace, table, name);
+        this.name = String.format("Lucene index %s.%s.%s", keyspace, table, name);
 
         // Open or create directory
         FSDirectory fsDirectory = FSDirectory.open(path);
@@ -153,7 +153,7 @@ public class LuceneIndex implements LuceneIndexMBean {
      * @throws IOException If Lucene throws IO errors.
      */
     public void upsert(Term term, Document document) throws IOException {
-        logger.debug("{} update document {} with term {}", logName, document, term);
+        logger.debug("{} update document {} with term {}", name, document, term);
         indexWriter.updateDocument(term, document);
     }
 
@@ -178,7 +178,7 @@ public class LuceneIndex implements LuceneIndexMBean {
      * @throws IOException If Lucene throws IO errors.
      */
     public void delete(Term term) throws IOException {
-        logger.debug("{} delete by term {}", logName, term);
+        logger.debug("{} delete by term {}", name, term);
         indexWriter.deleteDocuments(term);
     }
 
@@ -189,7 +189,7 @@ public class LuceneIndex implements LuceneIndexMBean {
      * @throws IOException If Lucene throws IO errors.
      */
     public void delete(Query query) throws IOException {
-        logger.debug("{} deleting by query {}", logName, query);
+        logger.debug("{} deleting by query {}", name, query);
         indexWriter.deleteDocuments(query);
     }
 
@@ -200,7 +200,7 @@ public class LuceneIndex implements LuceneIndexMBean {
      */
     public void truncate() throws IOException {
         indexWriter.deleteAll();
-        logger.info("{} truncated", logName);
+        logger.info("{} truncated", name);
     }
 
     /**
@@ -211,7 +211,7 @@ public class LuceneIndex implements LuceneIndexMBean {
     @Override
     public void commit() throws IOException {
         indexWriter.commit();
-        logger.info("{} committed", logName);
+        logger.info("{} committed", name);
     }
 
     /**
@@ -229,7 +229,7 @@ public class LuceneIndex implements LuceneIndexMBean {
         } catch (MBeanException | OperationsException e) {
             logger.error("Error while removing MBean", e);
         }
-        logger.info("{} closed", logName);
+        logger.info("{} closed", name);
     }
 
     /**
@@ -240,7 +240,7 @@ public class LuceneIndex implements LuceneIndexMBean {
     public void delete() throws IOException {
         close();
         FileUtils.deleteRecursive(path.toFile());
-        logger.info("{} removed", logName);
+        logger.info("{} removed", name);
     }
 
     public SearcherManager getSearcherManager() {
@@ -266,7 +266,7 @@ public class LuceneIndex implements LuceneIndexMBean {
                                           ScoreDoc after,
                                           Integer count,
                                           Set<String> fieldsToLoad) throws IOException {
-        logger.debug("{} search by query {} and sort {}", logName, query, sort);
+        logger.debug("{} search by query {} and sort {}", name, query, sort);
 
         TopDocs topDocs = searcher.searchAfter(after, query, count, sort);
         ScoreDoc[] scoreDocs = topDocs.scoreDocs;
@@ -289,7 +289,7 @@ public class LuceneIndex implements LuceneIndexMBean {
      */
     @Override
     public long getNumDocs() throws IOException {
-        logger.debug("{} get num docs", logName);
+        logger.debug("{} get num docs", name);
         IndexSearcher searcher = searcherManager.acquire();
         try {
             return searcher.getIndexReader().numDocs();
@@ -306,7 +306,7 @@ public class LuceneIndex implements LuceneIndexMBean {
      */
     @Override
     public long getNumDeletedDocs() throws IOException {
-        logger.debug("{} get num deleted docs", logName);
+        logger.debug("{} get num deleted docs", name);
         IndexSearcher searcher = searcherManager.acquire();
         try {
             return searcher.getIndexReader().numDeletedDocs();
@@ -325,10 +325,10 @@ public class LuceneIndex implements LuceneIndexMBean {
      */
     @Override
     public void forceMerge(int maxNumSegments, boolean doWait) throws IOException {
-        logger.info("{} merging index segments to {}", logName, maxNumSegments);
+        logger.info("{} merging index segments to {}", name, maxNumSegments);
         indexWriter.forceMerge(maxNumSegments, doWait);
         indexWriter.commit();
-        logger.info("{} segments merge completed", logName);
+        logger.info("{} segments merge completed", name);
     }
 
     /**
@@ -340,10 +340,10 @@ public class LuceneIndex implements LuceneIndexMBean {
      */
     @Override
     public void forceMergeDeletes(boolean doWait) throws IOException {
-        logger.info("{} merging index segments with deletions", logName);
+        logger.info("{} merging index segments with deletions", name);
         indexWriter.forceMergeDeletes(doWait);
         indexWriter.commit();
-        logger.info("{} merging index segments with deletions completed", logName);
+        logger.info("{} merging index segments with deletions completed", name);
     }
 
     /**
@@ -351,7 +351,7 @@ public class LuceneIndex implements LuceneIndexMBean {
      */
     @Override
     public void refresh() throws IOException {
-        logger.info("{} refreshing readers", logName);
+        logger.info("{} refreshing readers", name);
         commit();
         searcherManager.maybeRefreshBlocking();
     }

@@ -19,7 +19,6 @@
 package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.stratio.cassandra.lucene.schema.column.Columns;
-import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.IntegerType;
 import org.apache.cassandra.db.marshal.ListType;
@@ -122,11 +121,6 @@ public class MapperTest {
             @Override
             public SortField sortField(String name, boolean reverse) {
                 return null;
-            }
-
-            @Override
-            public void validate(CFMetaData metaData) {
-
             }
         };
         assertEquals("Method #supports is wrong", expected, mapper.supports(candidateType));

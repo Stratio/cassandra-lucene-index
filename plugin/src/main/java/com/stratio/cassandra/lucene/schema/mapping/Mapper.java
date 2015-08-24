@@ -20,7 +20,7 @@ package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.IndexException;
-import com.stratio.cassandra.lucene.schema.analysis.PreBuiltAnalyzers;
+import com.stratio.cassandra.lucene.schema.analysis.StandardAnalyzers;
 import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import org.apache.cassandra.config.CFMetaData;
@@ -52,7 +52,7 @@ import static org.apache.cassandra.db.marshal.CollectionType.Kind.SET;
 public abstract class Mapper {
 
     /** A no-action getAnalyzer for not tokenized {@link Mapper} implementations. */
-    static final String KEYWORD_ANALYZER = PreBuiltAnalyzers.KEYWORD.toString();
+    static final String KEYWORD_ANALYZER = StandardAnalyzers.KEYWORD.toString();
 
     /** The store field in Lucene default option. */
     static final Store STORE = Store.NO;
@@ -157,21 +157,43 @@ public abstract class Mapper {
         return false;
     }
 
-    protected void validate(CFMetaData metadata, String name) {
+    /**
+     * Validates this {@link Mapper} against the specified {@link CFMetaData}.
+     *
+     * @param metadata A column family {@link CFMetaData}.
+     */
+    public final void validate(CFMetaData metadata) {
+        for (String column : mappedColumns) {
+            validate(metadata, column);
+        }
+    }
 
-        ByteBuffer columnName = UTF8Type.instance.decompose(name);
-
+    /**
+     * Validates this {@link Mapper} against the specified column.
+     *
+     * @param metadata A column family {@link CFMetaData}.
+     * @param column   The name of the column to be validated.
+     */
+    private void validate(CFMetaData metadata, String column) {
+        ByteBuffer columnName = UTF8Type.instance.decompose(column);
         ColumnDefinition columnDefinition = metadata.getColumnDefinition(columnName);
         if (columnDefinition == null) {
-            throw new IndexException("No column definition '%s' for mapper '%s'", name, field);
+            throw new IndexException("No column definition '%s' for mapper '%s'", column, field);
         }
+        validate(columnDefinition, column);
+    }
 
+    private void validate(ColumnDefinition columnDefinition, String column) {
         if (columnDefinition.isStatic()) {
-            throw new IndexException("Lucene indexes are not allowed on static columns as '%s'", name);
+            throw new IndexException("Lucene indexes are not allowed on static columns as '%s'", column);
         }
+        validate(columnDefinition.type, column);
+    }
 
-        AbstractType<?> type = columnDefinition.type;
-        if (!supports(columnDefinition.type)) {
+    private void validate(AbstractType<?> type, String column) {
+
+        // Check type
+        if (!supports(type)) {
             throw new IndexException("'%s' is not supported by mapper '%s'", type, field);
         }
 
@@ -179,19 +201,12 @@ public abstract class Mapper {
         if (type.isCollection() && sorted) {
             Kind kind = ((CollectionType<?>) type).kind;
             if (kind == SET) {
-                throw new IndexException("'%s' can't be sorted because it's a set", name);
+                throw new IndexException("'%s' can't be sorted because it's a set", column);
             } else if (kind == LIST) {
-                throw new IndexException("'%s' can't be sorted because it's a list", name);
+                throw new IndexException("'%s' can't be sorted because it's a list", column);
             }
         }
     }
-
-    /**
-     * Validates this {@link Mapper} against the specified {@link CFMetaData}.
-     *
-     * @param metadata A column family {@link CFMetaData}.
-     */
-    public abstract void validate(CFMetaData metadata);
 
     /**
      * Returns if the specified {@link Columns} contains the mapped columns.

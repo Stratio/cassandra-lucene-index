@@ -24,7 +24,6 @@ import com.spatial4j.core.shape.Point;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
-import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.db.marshal.AsciiType;
 import org.apache.cassandra.db.marshal.DecimalType;
 import org.apache.cassandra.db.marshal.DoubleType;
@@ -184,13 +183,6 @@ public class GeoPointMapper extends Mapper {
     @Override
     public SortField sortField(String name, boolean reverse) {
         throw new IndexException("GeoPoint mapper '%s' does not support sorting", name);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void validate(CFMetaData metadata) {
-        validate(metadata, latitude);
-        validate(metadata, longitude);
     }
 
     /**
