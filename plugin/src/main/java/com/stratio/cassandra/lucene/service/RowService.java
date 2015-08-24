@@ -38,7 +38,6 @@ import org.apache.cassandra.db.Row;
 import org.apache.cassandra.db.composites.CellName;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.UTF8Type;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.*;
@@ -472,8 +471,8 @@ public abstract class RowService {
      * Returns the {@link Row}s identified by the specified {@link Document}s, using the specified time stamp to ignore
      * deleted columns. The {@link Row}s are retrieved from the storage engine, so it involves IO operations.
      *
-     * @param results   The {@link SearchResult}s
-     * @param timestamp The time stamp to ignore deleted columns.
+     * @param results       The {@link SearchResult}s
+     * @param timestamp     The time stamp to ignore deleted columns.
      * @param scorePosition The position where score column is placed.
      * @return The {@link Row}s identified by the specified {@link Document}s
      */
@@ -499,9 +498,9 @@ public abstract class RowService {
     /**
      * Adds to the specified {@link Row} the specified Lucene score column.
      *
-     * @param row       A {@link Row}.
-     * @param timestamp The score column timestamp.
-     * @param scoreDoc  The score column value.
+     * @param row           A {@link Row}.
+     * @param timestamp     The score column timestamp.
+     * @param scoreDoc      The score column value.
      * @param scorePosition The position where score column is placed.
      * @return The {@link Row} with the score.
      */

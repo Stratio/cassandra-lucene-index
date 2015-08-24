@@ -268,12 +268,7 @@ public class LuceneIndex implements LuceneIndexMBean {
                                           Set<String> fieldsToLoad) throws IOException {
         logger.debug("{} search by query {} and sort {}", logName, query, sort);
 
-        TopDocs topDocs;
-        if (sort == null) {
-            topDocs = searcher.searchAfter(after, query, count);
-        } else {
-            topDocs = searcher.searchAfter(after, query, count, sort);
-        }
+        TopDocs topDocs = searcher.searchAfter(after, query, count, sort);
         ScoreDoc[] scoreDocs = topDocs.scoreDocs;
 
         // Collect the documents from query result

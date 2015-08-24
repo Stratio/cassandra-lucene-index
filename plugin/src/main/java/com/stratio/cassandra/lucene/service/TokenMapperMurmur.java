@@ -25,6 +25,7 @@ import org.apache.lucene.document.FieldType;
 import org.apache.lucene.document.LongField;
 import org.apache.lucene.index.DocValuesType;
 import org.apache.lucene.index.IndexOptions;
+import org.apache.lucene.search.DocValuesRangeQuery;
 import org.apache.lucene.search.NumericRangeQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.SortField;
@@ -65,38 +66,34 @@ public class TokenMapperMurmur extends TokenMapper {
     /** {@inheritDoc} */
     @Override
     public void addFields(Document document, DecoratedKey partitionKey) {
-        Long value = (Long) partitionKey.getToken().getTokenValue();
+        Token token = partitionKey.getToken();
+        Long value = value(token);
         document.add(new LongField(FIELD_NAME, value, FIELD_TYPE));
     }
 
     /** {@inheritDoc} */
     @Override
     public Query query(Token token) {
-        Long value = (Long) token.getTokenValue();
+        Long value = value(token);
         return NumericRangeQuery.newLongRange(FIELD_NAME, value, value, true, true);
     }
 
     /** {@inheritDoc} */
     @Override
     protected Query doQuery(Token lower, Token upper, boolean includeLower, boolean includeUpper) {
-        Long start = lower == null ? null : (Long) lower.getTokenValue();
-        Long stop = upper == null ? null : (Long) upper.getTokenValue();
-        if (lower != null && lower.isMinimum()) {
-            start = null;
-        }
-        if (upper != null && upper.isMinimum()) {
-            stop = null;
-        }
-        if (start == null && stop == null) {
-            return null;
-        }
-        return NumericRangeQuery.newLongRange(FIELD_NAME, start, stop, includeLower, includeUpper);
+        Long start = lower == null || lower.isMinimum() ? null : value(lower);
+        Long stop = upper == null || upper.isMinimum() ? null : value(upper);
+        return DocValuesRangeQuery.newLongRange(FIELD_NAME, start, stop, includeLower, includeUpper);
     }
 
     /** {@inheritDoc} */
     @Override
     public List<SortField> sortFields() {
         return Collections.singletonList(new SortField(FIELD_NAME, SortField.Type.LONG));
+    }
+
+    private static Long value(Token token) {
+        return (Long) token.getTokenValue();
     }
 
 }

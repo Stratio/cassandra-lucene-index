@@ -101,18 +101,6 @@ public class LuceneIndexTest {
         IndexSearcher searcher = searcherManager.acquire();
 
         try {
-            results = index.search(searcher, query, null, null, 1, fields);
-            assertEquals("Expected 1 document", 1, results.size());
-            ScoreDoc last1 = results.values().iterator().next();
-            results = index.search(searcher, query, null, last1, 1, fields);
-            assertEquals("Expected 1 document", 1, results.size());
-
-            results = index.search(searcher, query, null, null, 1, fields);
-            assertEquals("Expected 1 document", 1, results.size());
-            ScoreDoc last2 = results.values().iterator().next();
-            results = index.search(searcher, query, null, last2, 1, fields);
-            assertEquals("Expected 1 document", 1, results.size());
-
             results = index.search(searcher, query, sort, null, 1, fields);
             assertEquals("Expected 1 document", 1, results.size());
             ScoreDoc last3 = results.values().iterator().next();
