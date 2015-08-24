@@ -64,6 +64,26 @@ public class RowKey {
         return clusteringKey;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        RowKey rowKey = (RowKey) o;
+
+        if (partitionKey != null ? !partitionKey.equals(rowKey.partitionKey) : rowKey.partitionKey != null)
+            return false;
+        return !(clusteringKey != null ? !clusteringKey.equals(rowKey.clusteringKey) : rowKey.clusteringKey != null);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = partitionKey != null ? partitionKey.hashCode() : 0;
+        result = 31 * result + (clusteringKey != null ? clusteringKey.hashCode() : 0);
+        return result;
+    }
+
     /** {@inheritDoc} */
     @Override
     public String toString() {

@@ -54,6 +54,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static java.lang.Math.max;
+import static java.lang.Math.min;
 import static org.apache.lucene.search.BooleanClause.Occur.FILTER;
 import static org.apache.lucene.search.BooleanClause.Occur.MUST;
 import static org.apache.lucene.search.SortField.FIELD_SCORE;
@@ -70,8 +72,8 @@ public abstract class RowService {
     /** The max number of rows to be read per iteration. */
     private static final int MAX_PAGE_SIZE = 100000;
 
-    /** The default number of rows to be read per iteration. */
-    private static final int FILTERING_PAGE_SIZE = 1000;
+    /** The min number of rows to be read per iteration. */
+    private static final int MIN_PAGE_SIZE = 1000;
 
     final ColumnFamilyStore baseCfs;
     final RowMapper rowMapper;
@@ -222,12 +224,11 @@ public abstract class RowService {
                                   final int limit,
                                   long timestamp,
                                   RowKey after) throws IOException {
-        logger.debug("Searching with search {} ", search);
 
         // Setup stats
-        TimeCounter searchTime = TimeCounter.create().start();
-        TimeCounter luceneTime = TimeCounter.create();
-        TimeCounter collectTime = TimeCounter.create();
+        TimeCounter afterTime = TimeCounter.create();
+        TimeCounter queryTime = TimeCounter.create();
+        TimeCounter storeTime = TimeCounter.create();
         int numDocs = 0;
         int numPages = 0;
         int numRows = 0;
@@ -242,21 +243,28 @@ public abstract class RowService {
             }
         }
 
+        // Setup search
+        Query query = query(search, dataRange);
+        Sort sort = sort(search);
+
+        // Setup paging
+        int scorePosition = scorePosition(search);
+        int page = min(limit, MAX_PAGE_SIZE);
+        boolean mayBeMoreDocs;
+        int remainingRows;
+
         SearcherManager searcherManager = luceneIndex.getSearcherManager();
         IndexSearcher searcher = searcherManager.acquire();
         try {
 
-            // Setup search arguments
-            Query query = query(search, dataRange);
-            Sort sort = sort(search);
-            int scorePosition = scorePosition(search);
+            // Get last position
+            afterTime.start();
             ScoreDoc last = after(searcher, after, query, sort);
-            int page = Math.min(limit, MAX_PAGE_SIZE);
-            boolean maybeMore;
+            afterTime.stop();
 
             do {
                 // Search rows identifiers in Lucene
-                luceneTime.start();
+                queryTime.start();
                 Set<String> fields = fieldsToLoad();
                 Map<Document, ScoreDoc> docs = luceneIndex.search(searcher, query, sort, last, page, fields);
                 List<SearchResult> searchResults = new ArrayList<>(docs.size());
@@ -267,25 +275,26 @@ public abstract class RowService {
                     searchResults.add(rowMapper.searchResult(document, scoreDoc));
                 }
                 numDocs += searchResults.size();
-                luceneTime.stop();
+                queryTime.stop();
 
                 // Collect rows from Cassandra
-                collectTime.start();
+                storeTime.start();
                 for (Row row : rows(searchResults, timestamp, scorePosition)) {
                     if (accepted(row, expressions)) {
                         rows.add(row);
                         numRows++;
                     }
                 }
-                collectTime.stop();
+                storeTime.stop();
 
                 // Setup next iteration
-                maybeMore = searchResults.size() == page;
-                page = Math.min(Math.max(FILTERING_PAGE_SIZE, numRows - limit), MAX_PAGE_SIZE);
+                mayBeMoreDocs = searchResults.size() == page;
+                remainingRows = limit - numRows;
+                page = min(max(MIN_PAGE_SIZE, remainingRows), MAX_PAGE_SIZE);
                 numPages++;
 
                 // Iterate while there are still documents to read and we don't have enough rows
-            } while (maybeMore && rows.size() < limit);
+            } while (mayBeMoreDocs && remainingRows > 0);
 
         } finally {
             searcherManager.release(searcher);
@@ -295,10 +304,15 @@ public abstract class RowService {
         Comparator<Row> comparator = rowMapper.comparator(search);
         Collections.sort(rows, comparator);
 
-        searchTime.stop();
-        logger.debug("Lucene time: {}", luceneTime);
-        logger.debug("Cassandra time: {}", collectTime);
-        logger.debug("Collected {} docs and {} rows in {} pages in {}", numDocs, numRows, numPages, searchTime);
+        logger.debug("Search     : {}", search);
+        logger.debug("Query      : {}", query);
+        logger.debug("Sort       : {}", sort);
+        logger.debug("After time : {}", afterTime);
+        logger.debug("Query time : {}", queryTime);
+        logger.debug("Store time : {}", storeTime);
+        logger.debug("Count docs : {}", numDocs);
+        logger.debug("Count rows : {}", numRows);
+        logger.debug("Count page : {}", numPages);
 
         return rows;
     }
@@ -369,17 +383,15 @@ public abstract class RowService {
      * @throws IOException If there are I/O errors.
      */
     private ScoreDoc after(IndexSearcher searcher, RowKey key, Query query, Sort sort) throws IOException {
-        TimeCounter time = TimeCounter.create().start();
         if (key == null) {
             return null;
         }
-        Filter rowFilter = new QueryWrapperFilter(rowMapper.query(key));
-        Query afterQuery = new FilteredQuery(query, rowFilter);
+        BooleanQuery afterQuery = new BooleanQuery();
+        afterQuery.add(rowMapper.query(key), FILTER);
+        afterQuery.add(query, MUST);
         Set<String> fields = Collections.emptySet();
         Map<Document, ScoreDoc> results = luceneIndex.search(searcher, afterQuery, sort, null, 1, fields);
-        ScoreDoc scoreDoc = results.isEmpty() ? null : results.values().iterator().next();
-        logger.debug("Search after time: {}", time.stop());
-        return scoreDoc;
+        return results.isEmpty() ? null : results.values().iterator().next();
     }
 
     /**

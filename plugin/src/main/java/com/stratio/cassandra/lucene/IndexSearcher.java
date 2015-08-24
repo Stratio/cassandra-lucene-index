@@ -209,7 +209,7 @@ public class IndexSearcher extends SecondaryIndexSearcher {
         int endSize = result.size();
         sortTime.stop();
 
-        logger.debug("Sorted {} rows to {} in {}", startSize, endSize, sortTime);
+        logger.debug("Processed {} rows to {} in {}", startSize, endSize, sortTime);
 
         return result;
     }

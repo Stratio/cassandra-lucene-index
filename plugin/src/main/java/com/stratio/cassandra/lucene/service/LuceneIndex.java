@@ -248,15 +248,15 @@ public class LuceneIndex implements LuceneIndexMBean {
     }
 
     /**
-     * Finds the top {@code count} hits for {@code query}, applying {@code clusteringKeyFilter} if non-null, and sorting
-     * the hits by the criteria in {@code sortFields}.
+     * Finds the top {@code count} hits for {@code query}, applying {@code clusteringKeyFilter} if non-null and sorting
+     * the hits by {@code sort}.
      *
-     * @param searcher     The {@link IndexSearcher} to be used.
-     * @param query        The {@link Query} to search for.
-     * @param sort         The {@link Sort} to be applied.
-     * @param after        The starting {@link SearchResult}.
-     * @param count        Return only the top {@code count} results.
-     * @param fieldsToLoad The name of the fields to be loaded.
+     * @param searcher The {@link IndexSearcher} to be used.
+     * @param query    The {@link Query} to search for.
+     * @param sort     The {@link Sort} to be applied.
+     * @param after    The starting {@link ScoreDoc}.
+     * @param count    The max number of results to be collected.
+     * @param fields   The names of the fields to be loaded.
      * @return The found documents, sorted according to the supplied {@link Sort} instance.
      * @throws IOException If Lucene throws IO errors.
      */
@@ -265,16 +265,16 @@ public class LuceneIndex implements LuceneIndexMBean {
                                           Sort sort,
                                           ScoreDoc after,
                                           Integer count,
-                                          Set<String> fieldsToLoad) throws IOException {
-        logger.debug("{} search by query {} and sort {}", name, query, sort);
+                                          Set<String> fields) throws IOException {
 
+        // Search for top documents
         TopDocs topDocs = searcher.searchAfter(after, query, count, sort);
         ScoreDoc[] scoreDocs = topDocs.scoreDocs;
 
         // Collect the documents from query result
         LinkedHashMap<Document, ScoreDoc> searchResults = new LinkedHashMap<>();
         for (ScoreDoc scoreDoc : scoreDocs) {
-            Document document = searcher.doc(scoreDoc.doc, fieldsToLoad);
+            Document document = searcher.doc(scoreDoc.doc, fields);
             searchResults.put(document, scoreDoc);
         }
 
