@@ -70,10 +70,10 @@ public abstract class RowService {
     private static final Logger logger = LoggerFactory.getLogger(RowService.class);
 
     /** The max number of rows to be read per iteration. */
-    private static final int MAX_PAGE_SIZE = 100000;
+    private static final int MAX_PAGE_SIZE = 10000;
 
     /** The min number of rows to be read per iteration. */
-    private static final int MIN_PAGE_SIZE = 1000;
+    private static final int MIN_PAGE_SIZE = 100;
 
     final ColumnFamilyStore baseCfs;
     final RowMapper rowMapper;
