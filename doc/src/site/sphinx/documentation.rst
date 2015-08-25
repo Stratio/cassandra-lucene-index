@@ -33,6 +33,7 @@ Stratio's Cassandra Lucene Index
 - `JMX interface <#jmx-interface>`__
 - `Performance tips <#performance-tips>`__
     - `Choose the right use case <#choose-the-right-use-case>`__
+    - `Use the latest version <#use-the-latest-version>`__
     - `Disable virtual nodes <#disable-virtual-nodes>`__
     - `Use a separate disk <#use-a-separate-disk>`__
     - `Index only what you need <#index-only-what-you-need>`__
@@ -1624,6 +1625,13 @@ However, this search could be a good use case for Lucene just because there is n
 Lucene indexes are intended to be used in those cases that can't be efficiently addressed
 with Apache Cassandra common techniques, such as full-text queries, multidimensional queries,
 geospatial search and bitemporal data models.
+
+Use the latest version
+======================
+
+Each new version might be as fast or faster than the previous one,
+so please try to use the latest version if possible.
+You can find the list of changes and performance improvements at `changelog file </CHANGELOG.md>`__.
 
 Disable virtual nodes
 =====================

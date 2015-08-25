@@ -37,6 +37,13 @@ Lucene indexes are intended to be used in those cases that can't be efficiently 
 with Apache Cassandra common techniques, such as full-text queries, multidimensional queries,
 geospatial search and bitemporal data models.
 
+Use the latest version
+======================
+
+Each new version might be as fast or faster than the previous one,
+so please try to use the latest version if possible.
+You can find the list of changes and performance improvements at `changelog file </CHANGELOG.md>`__.
+
 Disable virtual nodes
 =====================
 
