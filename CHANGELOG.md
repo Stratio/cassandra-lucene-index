@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.1.8.4-SNAPSHOT ()
+## 2.1.8.4 (upcoming)
  * Fix bug in searches with both sorting and relevance
  * Improve wide rows data range filtering to increase performance
  * Use doc values in token range filters to increase performance
