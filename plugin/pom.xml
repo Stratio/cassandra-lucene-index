@@ -112,7 +112,7 @@
                             <contactEmail>cassandra@stratio.com</contactEmail>
                             <deb>
                                 <section>devel</section>
-                                <depends>stratio-cassandra-2.1.8-1</depends
+                                <depends>stratio-cassandra-2.1.8-1</depends>
                             </deb>
                             <rpm>
                                 <group>stratio</group>
