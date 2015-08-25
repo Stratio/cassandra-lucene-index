@@ -98,6 +98,19 @@
             <id>package</id>
             <build>
                 <plugins>
+                  <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>build-helper-maven-plugin</artifactId>
+                        <version>1.9.1</version>
+                        <executions>
+                          <execution>
+                            <id>parse-version</id>
+                            <goals>
+                              <goal>parse-version</goal>
+                            </goals>
+                          </execution>
+                        </executions>
+                    </plugin>
                     <plugin>
                         <groupId>com.stratio.mojo.unix</groupId>
                         <artifactId>unix-maven-plugin</artifactId>
@@ -112,11 +125,11 @@
                             <contactEmail>cassandra@stratio.com</contactEmail>
                             <deb>
                                 <section>devel</section>
-                                <depends>stratio-cassandra=2.1.8</depends>
+                                <depends>stratio-cassandra=${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}</depends>
                             </deb>
                             <rpm>
                                 <group>stratio</group>
-                                <requires>stratio-cassandra-2.1.8-1</requires>
+                                <requires>stratio-cassandra-${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}-1</requires>
                             </rpm>
                             <name>Stratio Cassandra Lucene index</name>
                             <excludeDirectoryAttributes>                               
