@@ -333,17 +333,17 @@ public abstract class RowService {
         if (query == null && filter == null && range == null) {
             return new MatchAllDocsQuery();
         }
-        BooleanQuery booleanQuery = new BooleanQuery();
+        BooleanQuery.Builder builder = new BooleanQuery.Builder();
         if (range != null) {
-            booleanQuery.add(range, FILTER);
+            builder.add(range, FILTER);
         }
         if (filter != null) {
-            booleanQuery.add(filter, FILTER);
+            builder.add(filter, FILTER);
         }
         if (query != null) {
-            booleanQuery.add(query, MUST);
+            builder.add(query, MUST);
         }
-        return new CachingWrapperQuery(booleanQuery);
+        return new CachingWrapperQuery(builder.build());
     }
 
     /**
@@ -386,9 +386,12 @@ public abstract class RowService {
         if (key == null) {
             return null;
         }
-        BooleanQuery afterQuery = new BooleanQuery();
-        afterQuery.add(rowMapper.query(key), FILTER);
-        afterQuery.add(query, MUST);
+
+        BooleanQuery.Builder builder = new BooleanQuery.Builder();
+        builder.add(rowMapper.query(key), FILTER);
+        builder.add(query, MUST);
+        Query afterQuery = builder.build();
+
         Set<String> fields = Collections.emptySet();
         Map<Document, ScoreDoc> results = luceneIndex.search(searcher, afterQuery, sort, null, 1, fields);
         return results.isEmpty() ? null : results.values().iterator().next();

@@ -36,7 +36,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.search.SortField;
-import org.apache.lucene.spatial.SpatialStrategy;
 import org.apache.lucene.spatial.prefix.NumberRangePrefixTreeStrategy;
 import org.apache.lucene.spatial.prefix.tree.DateRangePrefixTree;
 import org.apache.lucene.spatial.prefix.tree.NumberRangePrefixTree.NRShape;
@@ -66,7 +65,7 @@ public class DateRangeMapper extends Mapper {
 
     private final DateRangePrefixTree tree;
 
-    /** The {@link SpatialStrategy}. */
+    /** The {@link NumberRangePrefixTreeStrategy}. */
     public final NumberRangePrefixTreeStrategy strategy;
 
     /**

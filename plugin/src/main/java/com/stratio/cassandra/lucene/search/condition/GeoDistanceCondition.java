@@ -101,11 +101,12 @@ public class GeoDistanceCondition extends SingleMapperCondition<GeoPointMapper> 
 
         SpatialStrategy spatialStrategy = mapper.distanceStrategy;
 
-        BooleanQuery query = new BooleanQuery();
-        query.add(query(maxGeoDistance, spatialStrategy), FILTER);
+        BooleanQuery.Builder builder = new BooleanQuery.Builder();
+        builder.add(query(maxGeoDistance, spatialStrategy), FILTER);
         if (minGeoDistance != null) {
-            query.add(query(minGeoDistance, spatialStrategy), MUST_NOT);
+            builder.add(query(minGeoDistance, spatialStrategy), MUST_NOT);
         }
+        Query query = builder.build();
         query.setBoost(boost);
         return query;
     }

@@ -70,7 +70,7 @@ public class MatchCondition extends SingleColumnCondition {
                 query = new TermQuery(new Term(field, base));
             }
             if (query == null) {
-                query = new BooleanQuery();
+                query = new BooleanQuery.Builder().build();
             }
         } else if (clazz == Integer.class) {
             Integer base = (Integer) mapper.base(field, value);

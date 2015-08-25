@@ -35,9 +35,10 @@ import org.apache.cassandra.db.composites.Composite;
 import org.apache.cassandra.db.filter.ColumnSlice;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field.Store;
-import org.apache.lucene.document.SortedDocValuesField;
-import org.apache.lucene.document.StringField;
+import org.apache.lucene.document.Field;
+import org.apache.lucene.document.FieldType;
+import org.apache.lucene.index.DocValuesType;
+import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.search.FieldComparator;
 import org.apache.lucene.search.FieldComparatorSource;
 import org.apache.lucene.search.Query;
@@ -61,6 +62,18 @@ import java.util.Map;
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public final class ClusteringKeyMapper {
+
+    /** The Lucene field type. */
+    public static final FieldType FIELD_TYPE = new FieldType();
+
+    static {
+        FIELD_TYPE.setOmitNorms(true);
+        FIELD_TYPE.setIndexOptions(IndexOptions.DOCS);
+        FIELD_TYPE.setTokenized(false);
+        FIELD_TYPE.setStored(true);
+        FIELD_TYPE.setDocValuesType(DocValuesType.SORTED);
+        FIELD_TYPE.freeze();
+    }
 
     /** The Lucene field name. */
     public static final String FIELD_NAME = "_clustering_key";
@@ -114,8 +127,7 @@ public final class ClusteringKeyMapper {
      */
     public void addFields(Document document, CellName cellName) {
         BytesRef bytesRef = bytesRef(cellName);
-        document.add(new StringField(FIELD_NAME, bytesRef, Store.YES));
-        document.add(new SortedDocValuesField(FIELD_NAME, bytesRef));
+        document.add(new Field(FIELD_NAME, bytesRef, FIELD_TYPE));
     }
 
     /**

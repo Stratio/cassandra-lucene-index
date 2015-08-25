@@ -177,34 +177,36 @@ public class RowMapperWide extends RowMapper {
         Composite startName = sqf.start();
         Composite stopName = sqf.finish();
 
-        BooleanQuery query = new BooleanQuery();
+        BooleanQuery.Builder builder = new BooleanQuery.Builder();
 
         if (!startName.isEmpty()) {
-            BooleanQuery q = new BooleanQuery();
-            q.add(tokenMapper.query(startToken), FILTER);
-            q.add(clusteringKeyMapper.query(startName, null), FILTER);
-            query.add(q, occur);
+            BooleanQuery.Builder b = new BooleanQuery.Builder();
+            b.add(tokenMapper.query(startToken), FILTER);
+            b.add(clusteringKeyMapper.query(startName, null), FILTER);
+            builder.add(b.build(), occur);
             includeStart = false;
         }
 
         if (!stopName.isEmpty()) {
-            BooleanQuery q = new BooleanQuery();
-            q.add(tokenMapper.query(stopToken), FILTER);
-            q.add(clusteringKeyMapper.query(null, stopName), FILTER);
-            query.add(q, occur);
+            BooleanQuery.Builder b = new BooleanQuery.Builder();
+            b.add(tokenMapper.query(stopToken), FILTER);
+            b.add(clusteringKeyMapper.query(null, stopName), FILTER);
+            builder.add(b.build(), occur);
             includeStop = false;
         }
 
+        BooleanQuery query = builder.build();
         if (!isSameToken) {
             Query rangeQuery = tokenMapper.query(startToken, stopToken, includeStart, includeStop);
             if (rangeQuery != null) {
-                query.add(rangeQuery, SHOULD);
+                builder.add(rangeQuery, SHOULD);
+                query = builder.build();
             }
-        } else if (query.getClauses().length == 0) {
+        } else if (query.clauses().isEmpty()) {
             return tokenMapper.query(startToken);
         }
 
-        return query.getClauses().length == 0 ? null : query;
+        return query.clauses().isEmpty() ? null : query;
     }
 
     /** {@inheritDoc} */
@@ -226,10 +228,10 @@ public class RowMapperWide extends RowMapper {
      * RangeTombstone}.
      */
     public Query query(DecoratedKey partitionKey, RangeTombstone rangeTombstone) {
-        BooleanQuery query = new BooleanQuery();
-        query.add(partitionKeyMapper.query(partitionKey), FILTER);
-        query.add(clusteringKeyMapper.query(rangeTombstone.min, rangeTombstone.max), FILTER);
-        return query;
+        BooleanQuery.Builder builder = new BooleanQuery.Builder();
+        builder.add(partitionKeyMapper.query(partitionKey), FILTER);
+        builder.add(clusteringKeyMapper.query(rangeTombstone.min, rangeTombstone.max), FILTER);
+        return builder.build();
     }
 
     /**

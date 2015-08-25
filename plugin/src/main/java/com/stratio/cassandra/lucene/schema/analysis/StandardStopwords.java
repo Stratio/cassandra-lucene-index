@@ -18,7 +18,6 @@
 
 package com.stratio.cassandra.lucene.schema.analysis;
 
-import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.ca.CatalanAnalyzer;
 import org.apache.lucene.analysis.da.DanishAnalyzer;
 import org.apache.lucene.analysis.de.GermanAnalyzer;
@@ -42,7 +41,7 @@ import org.apache.lucene.analysis.util.CharArraySet;
 import java.util.Locale;
 
 /**
- * Prebuilt Lucene {@link Analyzer} stopwords that can be instantiated by language name.
+ * Prebuilt Lucene analyzer stopwords that can be instantiated by language name.
  */
 public enum StandardStopwords {
 
@@ -173,18 +172,18 @@ public enum StandardStopwords {
     };
 
     /**
-     * Returns a new instance of the defined {@link Analyzer}.
+     * Returns a new instance of the defined analyzer.
      *
-     * @return A new instance of the defined {@link Analyzer}.
+     * @return A new instance of the defined analyzer.
      */
     abstract CharArraySet build();
 
     /**
-     * Returns the prebuilt {@link Analyzer} stopwords identified by the specified name, or {@code null} if there is no
+     * Returns the prebuilt analyzer stopwords identified by the specified name, or {@code null} if there is no
      * such stopwords.
      *
-     * @param name A {@link Analyzer} stopwords name.
-     * @return The prebuilt {@link Analyzer} stopwords identified by the specified name, or {@code null} if there is no
+     * @param name A analyzer stopwords name.
+     * @return The prebuilt analyzer stopwords identified by the specified name, or {@code null} if there is no
      * such stopwords.
      */
     public static CharArraySet get(String name) {
@@ -196,9 +195,9 @@ public enum StandardStopwords {
     }
 
     /**
-     * Returns the {@link Analyzer} stopwords defined by this.
+     * Returns the analyzer stopwords defined by this.
      *
-     * @return The {@link Analyzer} stopwords defined by this.
+     * @return The analyzer stopwords defined by this.
      */
     public CharArraySet get() {
         return build();

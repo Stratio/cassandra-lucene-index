@@ -71,22 +71,23 @@ public class BooleanCondition extends Condition {
     /** {@inheritDoc} */
     @Override
     public Query query(Schema schema) {
-        BooleanQuery luceneQuery = new BooleanQuery();
-        luceneQuery.setBoost(boost);
-        for (Condition query : must) {
-            luceneQuery.add(query.query(schema), MUST);
+        BooleanQuery.Builder builder = new BooleanQuery.Builder();
+        for (Condition condition : must) {
+            builder.add(condition.query(schema), MUST);
         }
-        for (Condition query : should) {
-            luceneQuery.add(query.query(schema), SHOULD);
+        for (Condition condition : should) {
+            builder.add(condition.query(schema), SHOULD);
         }
-        for (Condition query : not) {
-            luceneQuery.add(query.query(schema), MUST_NOT);
+        for (Condition condition : not) {
+            builder.add(condition.query(schema), MUST_NOT);
         }
         if (must.isEmpty() && should.isEmpty() && !not.isEmpty()) {
             logger.warn("Performing resource-intensive pure negation search");
-            luceneQuery.add(new MatchAllDocsQuery(), FILTER);
+            builder.add(new MatchAllDocsQuery(), FILTER);
         }
-        return luceneQuery;
+        Query query = builder.build();
+        query.setBoost(boost);
+        return query;
     }
 
     /** {@inheritDoc} */
