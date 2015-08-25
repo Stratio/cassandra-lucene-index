@@ -64,9 +64,8 @@ public class TokenMapperGeneric extends TokenMapper {
     @Override
     public void addFields(Document document, DecoratedKey partitionKey) {
         ByteBuffer bb = factory.toByteArray(partitionKey.getToken());
-        String serialized = ByteBufferUtils.toString(bb);
-        BytesRef bytesRef = new BytesRef(serialized);
-        document.add(new StringField(FIELD_NAME, serialized, Store.NO));
+        BytesRef bytesRef = ByteBufferUtils.bytesRef(bb);
+        document.add(new StringField(FIELD_NAME, bytesRef, Store.NO));
         document.add(new SortedDocValuesField(FIELD_NAME, bytesRef));
     }
 
@@ -108,8 +107,7 @@ public class TokenMapperGeneric extends TokenMapper {
      * @return The Cassandra {@link Token} represented by the specified Lucene {@link BytesRef}.
      */
     Token token(BytesRef bytesRef) {
-        String string = bytesRef.utf8ToString();
-        ByteBuffer bb = ByteBufferUtils.fromString(string);
+        ByteBuffer bb = ByteBufferUtils.byteBuffer(bytesRef);
         return factory.fromByteArray(bb);
     }
 

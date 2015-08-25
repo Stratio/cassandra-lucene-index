@@ -2,8 +2,9 @@
 
 ## 2.1.8.4-SNAPSHOT ()
  * Fix bug in searches with both sorting and relevance
- * Improve wide rows data range filtering to increase performance
- * Use doc values in token range filters to increase performance
+ * Improve wide rows data range filtering to increase search performance
+ * Use doc values in token range filters to increase search performance
+ * Replace base 256 by BytesRef to increase general performance (breaks backward compatibility)
 
 ## 2.1.8.3 (20 August 2015)
  * Fix analyzer selection in maps (issue#18)

@@ -35,7 +35,7 @@ import org.apache.cassandra.db.composites.Composite;
 import org.apache.cassandra.db.filter.ColumnSlice;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
+import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.document.SortedDocValuesField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.search.FieldComparator;
@@ -113,9 +113,8 @@ public final class ClusteringKeyMapper {
      * @param cellName A cell name containing the clustering key to be added.
      */
     public void addFields(Document document, CellName cellName) {
-        String serializedKey = ByteBufferUtils.toString(cellName.toByteBuffer());
-        BytesRef bytesRef = new BytesRef(serializedKey);
-        document.add(new StringField(FIELD_NAME, serializedKey, Field.Store.YES));
+        BytesRef bytesRef = bytesRef(cellName);
+        document.add(new StringField(FIELD_NAME, bytesRef, Store.YES));
         document.add(new SortedDocValuesField(FIELD_NAME, bytesRef));
     }
 
@@ -169,8 +168,8 @@ public final class ClusteringKeyMapper {
      * @return The clustering key contained in the specified {@link CellName}.
      */
     public CellName clusteringKey(Document document) {
-        String string = document.get(FIELD_NAME);
-        ByteBuffer bb = ByteBufferUtils.fromString(string);
+        BytesRef bytesRef = document.getBinaryValue(FIELD_NAME);
+        ByteBuffer bb = ByteBufferUtils.byteBuffer(bytesRef);
         return cellNameType.cellFromByteBuffer(bb);
     }
 
@@ -181,9 +180,8 @@ public final class ClusteringKeyMapper {
      * @return The clustering key contained in the specified Lucene field value.
      */
     public CellName clusteringKey(BytesRef bytesRef) {
-        String string = bytesRef.utf8ToString();
-        ByteBuffer bb = ByteBufferUtils.fromString(string);
-        return cellNameType.cellFromByteBuffer(bb);
+        ByteBuffer bb = ByteBufferUtils.byteBuffer(bytesRef);
+        return clusteringKey(bb);
     }
 
     /**
@@ -200,6 +198,11 @@ public final class ClusteringKeyMapper {
         }
         Composite prefix = builder.build();
         return cellNameType.rowMarker(prefix);
+    }
+
+    private BytesRef bytesRef(CellName clusteringKey) {
+        ByteBuffer bb = clusteringKey.toByteBuffer();
+        return ByteBufferUtils.bytesRef(bb);
     }
 
     /**
