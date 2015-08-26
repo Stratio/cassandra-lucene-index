@@ -18,15 +18,9 @@
 
 package com.stratio.cassandra.lucene.service;
 
-import com.stratio.cassandra.lucene.schema.Schema;
+import com.stratio.cassandra.lucene.IndexConfig;
 import com.stratio.cassandra.lucene.schema.column.Columns;
-import org.apache.cassandra.config.CFMetaData;
-import org.apache.cassandra.config.ColumnDefinition;
-import org.apache.cassandra.db.ColumnFamily;
-import org.apache.cassandra.db.DataRange;
-import org.apache.cassandra.db.DecoratedKey;
-import org.apache.cassandra.db.Row;
-import org.apache.cassandra.db.RowPosition;
+import org.apache.cassandra.db.*;
 import org.apache.cassandra.db.composites.CellName;
 import org.apache.cassandra.db.composites.Composite;
 import org.apache.cassandra.db.filter.IDiskAtomFilter;
@@ -51,15 +45,12 @@ import java.util.List;
 public class RowMapperSkinny extends RowMapper {
 
     /**
-     * Builds a new {@link RowMapperSkinny} for the specified column family metadata, indexed column definition and
-     * {@link Schema}.
+     * Builds a new {@link RowMapperSkinny} for the specified {@link IndexConfig}.
      *
-     * @param metadata         The indexed column family metadata.
-     * @param columnDefinition The indexed column definition.
-     * @param schema           The mapping {@link Schema}.
+     * @param config The {@link IndexConfig}.
      */
-    RowMapperSkinny(CFMetaData metadata, ColumnDefinition columnDefinition, Schema schema) {
-        super(metadata, columnDefinition, schema);
+    RowMapperSkinny(IndexConfig config) {
+        super(config);
     }
 
     /** {@inheritDoc} */

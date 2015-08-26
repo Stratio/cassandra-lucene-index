@@ -18,7 +18,6 @@
 
 package com.stratio.cassandra.lucene;
 
-import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.search.Search;
 import com.stratio.cassandra.lucene.search.SearchBuilder;
@@ -38,11 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 import static org.apache.cassandra.cql3.Operator.EQ;
 
@@ -58,7 +53,6 @@ public class IndexSearcher extends SecondaryIndexSearcher {
     /** The name of the {@link IndexExpression} containing the last search {@link RowKey}. */
     public static final ByteBuffer AFTER = UTF8Type.instance.fromString("search_after_doc");
 
-    private final Index index;
     private final RowService rowService;
     private final Schema schema;
     private final ByteBuffer indexedColumnName;
@@ -76,7 +70,6 @@ public class IndexSearcher extends SecondaryIndexSearcher {
                          Set<ByteBuffer> columns,
                          RowService rowService) {
         super(indexManager, columns);
-        this.index = index;
         this.rowService = rowService;
         schema = rowService.getSchema();
         indexedColumnName = index.getColumnDefinition().name.bytes;
@@ -212,17 +205,6 @@ public class IndexSearcher extends SecondaryIndexSearcher {
         logger.debug("Processed {} rows to {} in {}", startSize, endSize, sortTime);
 
         return result;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public String toString() {
-        return Objects.toStringHelper(this)
-                      .add("index", index.getIndexName())
-                      .add("keyspace", index.getKeyspaceName())
-                      .add("table", index.getTableName())
-                      .add("column", index.getColumnName())
-                      .toString();
     }
 
     /**

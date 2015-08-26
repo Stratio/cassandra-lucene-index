@@ -34,8 +34,8 @@ public final class Column<T> implements Comparable<Column<?>> {
     /** The column's name. */
     private final String name;
 
-    /** The column's name sufix used for maps. */
-    private final String nameSufix;
+    /** The column's name suffix used for maps. */
+    private final String nameSuffix;
 
     /** The column's value as {@link ByteBuffer}. */
     private final T composedValue;
@@ -49,23 +49,23 @@ public final class Column<T> implements Comparable<Column<?>> {
     private final boolean isCollection;
 
     /**
-     * Builds a new {@link Column} with the specified name, name sufix, value, and type.
+     * Builds a new {@link Column} with the specified name, name suffix, value, and type.
      *
      * @param name            The name of the column to be created.
-     * @param nameSufix       The name sufix of the column to be created.
+     * @param nameSuffix       The name suffix of the column to be created.
      * @param decomposedValue The decomposed value of the column to be created.
      * @param composedValue   The composed value of the column to be created.
      * @param type            The type/marshaller of the column to be created.
      * @param isCollection    If the column is a CQL collection.
      */
     private Column(String name,
-                   String nameSufix,
+                   String nameSuffix,
                    ByteBuffer decomposedValue,
                    T composedValue,
                    AbstractType<T> type,
                    boolean isCollection) {
         this.name = name;
-        this.nameSufix = nameSufix;
+        this.nameSuffix = nameSuffix;
         this.composedValue = composedValue;
         this.decomposedValue = decomposedValue;
         this.type = type;
@@ -82,22 +82,22 @@ public final class Column<T> implements Comparable<Column<?>> {
     }
 
     /**
-     * Returns the full name, which is formed by the column name and sufix.
+     * Returns the full name, which is formed by the column name and suffix.
      *
-     * @return The full name, which is formed by the column name and sufix.
+     * @return The full name, which is formed by the column name and suffix.
      */
     public String getFullName() {
-        return nameSufix == null ? name : name + "." + nameSufix;
+        return nameSuffix == null ? name : name + "." + nameSuffix;
     }
 
     /**
-     * Returns the full column name appending the sufix.
+     * Returns the full column name appending the suffix.
      *
      * @param name A column name.
-     * @return The full column name appending the sufix.
+     * @return The full column name appending the suffix.
      */
     public String getFullName(String name) {
-        return nameSufix == null ? name : name + "." + nameSufix;
+        return nameSuffix == null ? name : name + "." + nameSuffix;
     }
 
     /**
@@ -153,7 +153,7 @@ public final class Column<T> implements Comparable<Column<?>> {
      * Returns the {@link Column} defined by the specified name, raw value and type.
      *
      * @param name            The column name.
-     * @param nameSufix       The column name sufix.
+     * @param nameSuffix       The column name suffix.
      * @param decomposedValue The column raw value.
      * @param type            The column type/marshaller.
      * @param isCollection    If the {@link Column} belongs to a collection.
@@ -161,12 +161,12 @@ public final class Column<T> implements Comparable<Column<?>> {
      * @return A {@link Column}.
      */
     public static <T> Column<T> fromDecomposed(String name,
-                                               String nameSufix,
+                                               String nameSuffix,
                                                ByteBuffer decomposedValue,
                                                AbstractType<T> type,
                                                boolean isCollection) {
         T composedValue = type.compose(decomposedValue);
-        return new Column<>(name, nameSufix, decomposedValue, composedValue, type, isCollection);
+        return new Column<>(name, nameSuffix, decomposedValue, composedValue, type, isCollection);
     }
 
     /**
@@ -188,7 +188,7 @@ public final class Column<T> implements Comparable<Column<?>> {
      * Returns the {@link Column} defined by the specified name, value and type.
      *
      * @param name          The column name.
-     * @param sufix         The column name sufix.
+     * @param suffix         The column name suffix.
      * @param composedValue The column composed value.
      * @param type          The column type/marshaller.
      * @param isCollection  If the {@link Column} belongs to a collection.
@@ -196,16 +196,17 @@ public final class Column<T> implements Comparable<Column<?>> {
      * @return A {@link Column}.
      */
     public static <T> Column<T> fromComposed(String name,
-                                             String sufix,
+                                             String suffix,
                                              T composedValue,
                                              AbstractType<T> type,
                                              boolean isCollection) {
         ByteBuffer decomposedValue = type.decompose(composedValue);
-        return new Column<>(name, sufix, decomposedValue, composedValue, type, isCollection);
+        return new Column<>(name, suffix, decomposedValue, composedValue, type, isCollection);
     }
 
     /** {@inheritDoc} */
     @Override
+    @SuppressWarnings("NullableProblems")
     public int compareTo(Column<?> column2) {
         if (column2 == null) {
             return 1;

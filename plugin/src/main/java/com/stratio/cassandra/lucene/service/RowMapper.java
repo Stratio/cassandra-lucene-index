@@ -19,17 +19,14 @@
 package com.stratio.cassandra.lucene.service;
 
 import com.google.common.collect.Ordering;
+import com.stratio.cassandra.lucene.IndexConfig;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import com.stratio.cassandra.lucene.search.Search;
 import com.stratio.cassandra.lucene.util.ByteBufferUtils;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
-import org.apache.cassandra.db.Cell;
-import org.apache.cassandra.db.ColumnFamily;
-import org.apache.cassandra.db.DataRange;
-import org.apache.cassandra.db.DecoratedKey;
-import org.apache.cassandra.db.Row;
+import org.apache.cassandra.db.*;
 import org.apache.cassandra.db.composites.CellName;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.lucene.document.Document;
@@ -69,38 +66,27 @@ public abstract class RowMapper {
     final RegularCellsMapper regularCellsMapper;
 
     /**
-     * Builds a new {@link RowMapper} for the specified column family metadata, indexed column definition and {@link
-     * Schema}.
+     * Builds a new {@link RowMapper} for the specified {@link IndexConfig}.
      *
-     * @param metadata         The indexed column family metadata.
-     * @param columnDefinition The indexed column definition.
-     * @param schema           The mapping {@link Schema}.
+     * @param config The {@link IndexConfig}.
      */
-    RowMapper(CFMetaData metadata, ColumnDefinition columnDefinition, Schema schema) {
-        this.metadata = metadata;
-        this.columnDefinition = columnDefinition;
-        this.schema = schema;
+    RowMapper(IndexConfig config) {
+        this.metadata = config.getMetadata();
+        this.columnDefinition = config.getColumnDefinition();
+        this.schema = config.getSchema();
         this.tokenMapper = TokenMapper.instance();
         this.partitionKeyMapper = PartitionKeyMapper.instance(metadata, schema);
         this.regularCellsMapper = RegularCellsMapper.instance(metadata, schema);
     }
 
     /**
-     * Returns a new {@link RowMapper} for the specified column family metadata, indexed column definition and {@link
-     * Schema}.
+     * Returns a new {@link RowMapper} for the specified {@link IndexConfig}.
      *
-     * @param metadata         The indexed column family metadata.
-     * @param columnDefinition The indexed column definition.
-     * @param schema           The mapping {@link Schema}.
-     * @return A new {@link RowMapper} for the specified column family metadata, indexed column definition and {@link
-     * Schema}.
+     * @param config The {@link IndexConfig}.
+     * @return A new {@link RowMapper} for the specified {@link IndexConfig}.
      */
-    public static RowMapper build(CFMetaData metadata, ColumnDefinition columnDefinition, Schema schema) {
-        if (metadata.clusteringColumns().size() > 0) {
-            return new RowMapperWide(metadata, columnDefinition, schema);
-        } else {
-            return new RowMapperSkinny(metadata, columnDefinition, schema);
-        }
+    public static RowMapper build(IndexConfig config) {
+        return config.isWide() ? new RowMapperWide(config): new RowMapperSkinny(config);
     }
 
     /**

@@ -18,24 +18,11 @@
 
 package com.stratio.cassandra.lucene.service;
 
+import com.stratio.cassandra.lucene.IndexConfig;
 import org.apache.cassandra.io.util.FileUtils;
-import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.IndexWriterConfig;
-import org.apache.lucene.index.Term;
-import org.apache.lucene.index.TieredMergePolicy;
-import org.apache.lucene.index.TrackingIndexWriter;
-import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.ControlledRealTimeReopenThread;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.SearcherFactory;
-import org.apache.lucene.search.SearcherManager;
-import org.apache.lucene.search.Sort;
-import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.index.*;
+import org.apache.lucene.search.*;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.NRTCachingDirectory;
@@ -76,42 +63,26 @@ public class LuceneIndex implements LuceneIndexMBean {
     }
 
     /**
-     * Builds a new {@code RowDirectory} using the specified directory path and analyzer.
+     * Builds a new {@link LuceneIndex} using the specified {@link IndexConfig}.
      *
-     * @param keyspace       The keyspace name.
-     * @param table          The table name.
-     * @param name           The index name.
-     * @param path           The path of the directory in where the Lucene files will be stored.
-     * @param ramBufferMB    The index writer buffer size in MB.
-     * @param maxMergeMB     NRTCachingDirectory max merge size in MB.
-     * @param maxCachedMB    NRTCachingDirectory max cached MB.
-     * @param refreshSeconds The index readers refresh time in seconds. Writings are not visible until this time.
-     * @param analyzer       The default {@link Analyzer}.
+     * @param config The {@link IndexConfig}.
      * @throws IOException If Lucene throws IO errors.
      */
-    public LuceneIndex(String keyspace,
-                       String table,
-                       String name,
-                       Path path,
-                       Integer ramBufferMB,
-                       Integer maxMergeMB,
-                       Integer maxCachedMB,
-                       Double refreshSeconds,
-                       Analyzer analyzer) throws IOException {
-        this.path = path;
-        this.name = String.format("Lucene index %s.%s.%s", keyspace, table, name);
+    public LuceneIndex(IndexConfig config) throws IOException {
+        this.path = config.getPath();
+        this.name = config.getName();
 
         // Open or create directory
         FSDirectory fsDirectory = FSDirectory.open(path);
-        directory = new NRTCachingDirectory(fsDirectory, maxMergeMB, maxCachedMB);
+        directory = new NRTCachingDirectory(fsDirectory, config.getMaxMergeMB(), config.getMaxCachedMB());
 
         // Setup index writer
-        IndexWriterConfig config = new IndexWriterConfig(analyzer);
-        config.setRAMBufferSizeMB(ramBufferMB);
-        config.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
-        config.setUseCompoundFile(true);
-        config.setMergePolicy(new TieredMergePolicy());
-        indexWriter = new IndexWriter(directory, config);
+        IndexWriterConfig indexWriterConfig = new IndexWriterConfig(config.getAnalyzer());
+        indexWriterConfig.setRAMBufferSizeMB(config.getRamBufferMB());
+        indexWriterConfig.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
+        indexWriterConfig.setUseCompoundFile(true);
+        indexWriterConfig.setMergePolicy(new TieredMergePolicy());
+        indexWriter = new IndexWriter(directory, indexWriterConfig);
 
         // Setup NRT search
         SearcherFactory searcherFactory = new SearcherFactory() {
@@ -126,16 +97,16 @@ public class LuceneIndex implements LuceneIndexMBean {
         searcherManager = new SearcherManager(indexWriter, true, searcherFactory);
         searcherReopener = new ControlledRealTimeReopenThread<>(trackingIndexWriter,
                                                                 searcherManager,
-                                                                refreshSeconds,
-                                                                refreshSeconds);
+                                                                config.getRefreshSeconds(),
+                                                                config.getRefreshSeconds());
         searcherReopener.start();
 
         // Register JMX MBean
         try {
             objectName = new ObjectName(String.format(
                     "com.stratio.cassandra.lucene:type=LuceneIndexes,keyspace=%s,table=%s,index=%s",
-                    keyspace,
-                    table,
+                    config.getKeyspaceName(),
+                    config.getTableName(),
                     name));
             ManagementFactory.getPlatformMBeanServer().registerMBean(this, objectName);
         } catch (MBeanException | OperationsException e) {

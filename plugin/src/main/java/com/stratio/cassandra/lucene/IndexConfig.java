@@ -24,6 +24,7 @@ import com.stratio.cassandra.lucene.schema.SchemaBuilder;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
 import org.apache.cassandra.config.DatabaseDescriptor;
+import org.apache.lucene.analysis.Analyzer;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -54,6 +55,9 @@ public class IndexConfig {
     public static final String MAX_CACHED_MB_OPTION = "max_cached_mb";
     public static final int DEFAULT_MAX_CACHED_MB = 30;
 
+    private final ColumnDefinition columnDefinition;
+    private final CFMetaData metadata;
+    private final Map<String, String> options;
     private final Schema schema;
     private final double refreshSeconds;
     private final Path path;
@@ -65,16 +69,82 @@ public class IndexConfig {
      * Builds a new {@link IndexConfig} for the column family defined by the specified metadata using the specified
      * index options.
      *
-     * @param metadata         The metadata of the indexed column family.
+     * @param metadata         The indexed column family metadata.
      * @param columnDefinition The index column definition.
      */
     public IndexConfig(CFMetaData metadata, ColumnDefinition columnDefinition) {
-        refreshSeconds = parseRefresh(columnDefinition.getIndexOptions());
-        ramBufferMB = parseRamBufferMB(columnDefinition.getIndexOptions());
-        maxMergeMB = parseMaxMergeMB(columnDefinition.getIndexOptions());
-        maxCachedMB = parseMaxCachedMB(columnDefinition.getIndexOptions());
-        schema = parseSchema(columnDefinition.getIndexOptions(), metadata);
-        path = parsePath(columnDefinition.getIndexOptions(), metadata);
+        this.metadata = metadata;
+        this.columnDefinition = columnDefinition;
+        options = columnDefinition.getIndexOptions();
+        refreshSeconds = parseRefresh();
+        ramBufferMB = parseRamBufferMB();
+        maxMergeMB = parseMaxMergeMB();
+        maxCachedMB = parseMaxCachedMB();
+        schema = parseSchema();
+        path = parsePath();
+    }
+
+    /**
+     * Returns the {@link CFMetaData} to be used.
+     *
+     * @return The {@link CFMetaData} to be used.
+     */
+    public CFMetaData getMetadata() {
+        return metadata;
+    }
+
+    /**
+     * Returns the {@link ColumnDefinition} to be used.
+     *
+     * @return The {@link ColumnDefinition} to be used.
+     */
+    public ColumnDefinition getColumnDefinition() {
+        return columnDefinition;
+    }
+
+    /**
+     * Returns the name of the keyspace to be used.
+     *
+     * @return The name of the keyspace to be used.
+     */
+    public String getKeyspaceName() {
+        return columnDefinition.ksName;
+    }
+
+    /**
+     * Returns the name of the table to be used.
+     *
+     * @return The name of the table to be used.
+     */
+    public String getTableName() {
+        return columnDefinition.cfName;
+    }
+
+    /**
+     * Returns the name of the index to be used.
+     *
+     * @return The name of the index to be used.
+     */
+    public String getIndexName() {
+        return columnDefinition.getIndexName();
+    }
+
+    /**
+     * Returns the full qualified name of the index.
+     *
+     * @return The full qualified name of the index.
+     */
+    public String getName() {
+        return String.format("%s.%s.%s", getKeyspaceName(), getTableName(), getIndexName());
+    }
+
+    /**
+     * Returns {@code true} if the index uses wide rows, {@code false} otherwise.
+     *
+     * @return {@code true} if the index uses wide rows, {@code false} otherwise.
+     */
+    public boolean isWide() {
+        return metadata.clusteringColumns().size() > 0;
     }
 
     /**
@@ -84,6 +154,15 @@ public class IndexConfig {
      */
     public Schema getSchema() {
         return schema;
+    }
+
+    /**
+     * Returns the {@link Analyzer} to be used.
+     *
+     * @return The {@link Analyzer} to be used.
+     */
+    public Analyzer getAnalyzer() {
+        return schema.getAnalyzer();
     }
 
     /**
@@ -122,7 +201,7 @@ public class IndexConfig {
         return maxCachedMB;
     }
 
-    private static double parseRefresh(Map<String, String> options) {
+    private double parseRefresh() {
         String refreshOption = options.get(REFRESH_SECONDS_OPTION);
         double refreshSeconds;
         if (refreshOption != null) {
@@ -141,7 +220,7 @@ public class IndexConfig {
         }
     }
 
-    private static int parseRamBufferMB(Map<String, String> options) {
+    private int parseRamBufferMB() {
         String ramBufferSizeOption = options.get(RAM_BUFFER_MB_OPTION);
         int ramBufferMB;
         if (ramBufferSizeOption != null) {
@@ -159,7 +238,7 @@ public class IndexConfig {
         }
     }
 
-    private static int parseMaxMergeMB(Map<String, String> options) {
+    private int parseMaxMergeMB() {
         String maxMergeSizeMBOption = options.get(MAX_MERGE_MB_OPTION);
         int maxMergeMB;
         if (maxMergeSizeMBOption != null) {
@@ -177,7 +256,7 @@ public class IndexConfig {
         }
     }
 
-    private static int parseMaxCachedMB(Map<String, String> options) {
+    private int parseMaxCachedMB() {
         String maxCachedMBOption = options.get(MAX_CACHED_MB_OPTION);
         int maxCachedMB;
         if (maxCachedMBOption != null) {
@@ -195,7 +274,7 @@ public class IndexConfig {
         }
     }
 
-    private static Schema parseSchema(Map<String, String> options, CFMetaData metadata) {
+    private Schema parseSchema() {
         String schemaOption = options.get(SCHEMA_OPTION);
         Schema schema;
         if (schemaOption != null && !schemaOption.trim().isEmpty()) {
@@ -211,7 +290,7 @@ public class IndexConfig {
         }
     }
 
-    private static Path parsePath(Map<String, String> options, CFMetaData metadata) {
+    private Path parsePath() {
         String pathOption = options.get(DIRECTORY_PATH_OPTION);
         if (pathOption == null) {
             String pathString = DatabaseDescriptor.getAllDataFileLocations()[0] +

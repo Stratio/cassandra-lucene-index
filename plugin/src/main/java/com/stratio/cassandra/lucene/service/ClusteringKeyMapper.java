@@ -47,13 +47,7 @@ import org.apache.lucene.util.BytesRef;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Class for several clustering key mappings between Cassandra and Lucene. This class must be used only with column

@@ -24,15 +24,7 @@ import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import com.stratio.cassandra.lucene.util.DateParser;
-import org.apache.cassandra.db.marshal.AsciiType;
-import org.apache.cassandra.db.marshal.DecimalType;
-import org.apache.cassandra.db.marshal.DoubleType;
-import org.apache.cassandra.db.marshal.FloatType;
-import org.apache.cassandra.db.marshal.Int32Type;
-import org.apache.cassandra.db.marshal.IntegerType;
-import org.apache.cassandra.db.marshal.LongType;
-import org.apache.cassandra.db.marshal.TimestampType;
-import org.apache.cassandra.db.marshal.UTF8Type;
+import org.apache.cassandra.db.marshal.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.IntField;
@@ -274,14 +266,14 @@ public class BitemporalMapper extends Mapper {
             Shape shapeT = makeShape(treeT1T, ttFrom, ttFrom);
             for (IndexableField field : strategyT1T.createIndexableFields(shapeT)) document.add(field);
 
-        } else if (ttTo.isNow() && (!vtTo.isNow())) { // T2
+        } else if (ttTo.isNow() ) { // T2
             Shape shapeV = makeShape(treeT2V, vtFrom, vtTo);
             for (IndexableField field : strategyT2V.createIndexableFields(shapeV)) document.add(field);
             document.add(new IntField(getT1UT2FieldName(), 1, STORE));
             Shape shapeT = makeShape(treeT2T, ttFrom, ttFrom);
             for (IndexableField field : strategyT2T.createIndexableFields(shapeT)) document.add(field);
 
-        } else if (!ttTo.isNow() && vtTo.isNow()) {// T3
+        } else if (vtTo.isNow()) {// T3
             Shape shapeV = makeShape(treeT3V, vtFrom, vtFrom);
             for (IndexableField field : strategyT3V.createIndexableFields(shapeV)) document.add(field);
             document.add(new IntField(getT1UT2FieldName(), 0, STORE));
@@ -399,6 +391,7 @@ public class BitemporalMapper extends Mapper {
         }
 
         @Override
+        @SuppressWarnings("NullableProblems")
         public int compareTo(BitemporalDateTime other) {
             return timestamp.compareTo(other.timestamp);
         }

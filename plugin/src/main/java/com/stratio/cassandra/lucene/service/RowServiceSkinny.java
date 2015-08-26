@@ -18,8 +18,8 @@
 
 package com.stratio.cassandra.lucene.service;
 
+import com.stratio.cassandra.lucene.IndexConfig;
 import com.stratio.cassandra.lucene.schema.column.Columns;
-import org.apache.cassandra.config.ColumnDefinition;
 import org.apache.cassandra.db.ColumnFamily;
 import org.apache.cassandra.db.ColumnFamilyStore;
 import org.apache.cassandra.db.DecoratedKey;
@@ -31,12 +31,7 @@ import org.apache.lucene.search.ScoreDoc;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * {@link RowService} that manages simple rows.
@@ -54,18 +49,18 @@ public class RowServiceSkinny extends RowService {
     }
 
     /** The used row mapper. */
-    private final RowMapperSkinny rowMapper;
+    private final RowMapperSkinny mapper;
 
     /**
-     * Returns a new {@code RowServiceSimple} for manage simple rows.
+     * Returns a new {@code RowServiceSimple} to manage simple rows.
      *
-     * @param baseCfs          The base column family store.
-     * @param columnDefinition The indexed column definition.
+     * @param cfs The indexed {@link ColumnFamilyStore}.
+     * @param config The {@link IndexConfig}.
      * @throws IOException If there are I/O errors.
      */
-    public RowServiceSkinny(ColumnFamilyStore baseCfs, ColumnDefinition columnDefinition) throws IOException {
-        super(baseCfs, columnDefinition);
-        this.rowMapper = (RowMapperSkinny) super.rowMapper;
+    public RowServiceSkinny(ColumnFamilyStore cfs, IndexConfig config) throws IOException {
+        super(cfs, config);
+        this.mapper = (RowMapperSkinny) super.mapper;
     }
 
     /**
@@ -81,33 +76,33 @@ public class RowServiceSkinny extends RowService {
     /** {@inheritDoc} */
     @Override
     public void index(ByteBuffer key, ColumnFamily columnFamily, long timestamp) throws IOException {
-        DecoratedKey partitionKey = rowMapper.partitionKey(key);
+        DecoratedKey partitionKey = mapper.partitionKey(key);
         if (columnFamily.iterator().hasNext()) {
             ColumnFamily cleanColumnFamily = cleanExpired(columnFamily, timestamp);
-            luceneIndex.upsert(documents(partitionKey, cleanColumnFamily, timestamp));
+            lucene.upsert(documents(partitionKey, cleanColumnFamily, timestamp));
         } else if (columnFamily.deletionInfo() != null) {
-            Term term = rowMapper.term(partitionKey);
-            luceneIndex.delete(term);
+            Term term = mapper.term(partitionKey);
+            lucene.delete(term);
         }
     }
 
     /** {@inheritDoc} */
     @Override
     public void delete(DecoratedKey partitionKey) throws IOException {
-        Term term = rowMapper.term(partitionKey);
-        luceneIndex.delete(term);
+        Term term = mapper.term(partitionKey);
+        lucene.delete(term);
     }
 
     /** {@inheritDoc} */
     @Override
     public Map<Term, Document> documents(DecoratedKey partitionKey, ColumnFamily columnFamily, long timestamp) {
-        Columns columns = rowMapper.columns(partitionKey, columnFamily);
+        Columns columns = mapper.columns(partitionKey, columnFamily);
         if (!schema.mapsAll(columns)) {
             ColumnFamily completeColumnFamily = row(partitionKey, timestamp);
-            columns = rowMapper.columns(partitionKey, completeColumnFamily);
+            columns = mapper.columns(partitionKey, completeColumnFamily);
         }
-        Document document = rowMapper.document(partitionKey, columns);
-        Term term = rowMapper.term(partitionKey);
+        Document document = mapper.document(partitionKey, columns);
+        Term term = mapper.term(partitionKey);
         return Collections.singletonMap(term, document);
     }
 

@@ -72,5 +72,6 @@ public abstract class SingleMapperCondition<T extends Mapper> extends SingleFiel
      * @param analyzer The {@link Schema} {@link Analyzer}.
      * @return The Lucene {@link Query} representation of this condition.
      */
+    @SuppressWarnings("UnusedParameters")
     public abstract Query query(T mapper, Analyzer analyzer);
 }
