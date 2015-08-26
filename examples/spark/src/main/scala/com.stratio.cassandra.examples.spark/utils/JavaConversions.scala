@@ -9,7 +9,7 @@ object JavaConversions {
 
   import scala.language.implicitConversions
 
-  implicit def conditionBuilder[K,V](cb: ConditionBuilder): ConditionBuilder[Nothing,Nothing]  =
+  implicit def conditionBuilder[K,V](cb: ConditionBuilder[_,_]): ConditionBuilder[Nothing,Nothing]  =
     cb.asInstanceOf[ConditionBuilder[Nothing,Nothing]]
 
 }

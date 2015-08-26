@@ -183,7 +183,7 @@ INSERT INTO sensors(id,sensor_name,sensor_type ,latitude,longitude,temp_value) V
 INSERT INTO sensors(id,sensor_name,sensor_type ,latitude,longitude,temp_value) VALUES (149,'name_207','skycraper',-34.92411,-59.2132,41.45726);
 INSERT INTO sensors(id,sensor_name,sensor_type ,latitude,longitude,temp_value) VALUES (150,'name_488','plane',32.06516,104.24365,44.57165);
 INSERT INTO sensors(id,sensor_name,sensor_type ,latitude,longitude,temp_value) VALUES (151,'name_681','ground',2.46912,-120.09829,41.63284);
-INSERT INTO sensors(id,sensor_name,sensor_type ,latitude,longitude,temp_value) VALUES (152,'name_94','skycraper',-25.28529,-20.8212,20166);
+INSERT INTO sensors(id,sensor_name,sensor_type ,latitude,longitude,temp_value) VALUES (152,'name_94','skycraper',-25.28529,-20.8212,20.166);
 INSERT INTO sensors(id,sensor_name,sensor_type ,latitude,longitude,temp_value) VALUES (153,'name_356','skycraper',34.11443,-61.99424,1.84537);
 INSERT INTO sensors(id,sensor_name,sensor_type ,latitude,longitude,temp_value) VALUES (154,'name_215','ground',48.07359,146.4368,38.27013);
 INSERT INTO sensors(id,sensor_name,sensor_type ,latitude,longitude,temp_value) VALUES (155,'name_499','ground',-70.80905,45.41267,42.99908);
@@ -269,7 +269,7 @@ INSERT INTO sensors(id,sensor_name,sensor_type ,latitude,longitude,temp_value) V
 INSERT INTO sensors(id,sensor_name,sensor_type ,latitude,longitude,temp_value) VALUES (235,'name_623','plane',65.78278,168.44885,17.66698);
 INSERT INTO sensors(id,sensor_name,sensor_type ,latitude,longitude,temp_value) VALUES (236,'name_108','ground',-56.59047,5.37274,5.16105);
 INSERT INTO sensors(id,sensor_name,sensor_type ,latitude,longitude,temp_value) VALUES (237,'name_794','plane',40.51933,-53.86594,15.21462);
-INSERT INTO sensors(id,sensor_name,sensor_type ,latitude,longitude,temp_value) VALUES (238,'name_766','plane',3.51543,101.94971,36658);
+INSERT INTO sensors(id,sensor_name,sensor_type ,latitude,longitude,temp_value) VALUES (238,'name_766','plane',3.51543,101.94971,36.658);
 INSERT INTO sensors(id,sensor_name,sensor_type ,latitude,longitude,temp_value) VALUES (239,'name_878','plane',49.53624,93.36887,24.44);
 INSERT INTO sensors(id,sensor_name,sensor_type ,latitude,longitude,temp_value) VALUES (240,'name_762','ground',-0.620445,-117.89635,35.90919);
 INSERT INTO sensors(id,sensor_name,sensor_type ,latitude,longitude,temp_value) VALUES (241,'name_223','ground',-74.5738,7.48297,24.65242);
@@ -313,7 +313,7 @@ INSERT INTO sensors(id,sensor_name,sensor_type ,latitude,longitude,temp_value) V
 INSERT INTO sensors(id,sensor_name,sensor_type ,latitude,longitude,temp_value) VALUES (279,'name_995','plane',-67.61938,-9.07791,27.88213);
 INSERT INTO sensors(id,sensor_name,sensor_type ,latitude,longitude,temp_value) VALUES (280,'name_87','plane',23.47651,-15.18436,43.37767);
 INSERT INTO sensors(id,sensor_name,sensor_type ,latitude,longitude,temp_value) VALUES (281,'name_878','plane',-83.86285,116.50638,27.42664);
-INSERT INTO sensors(id,sensor_name,sensor_type ,latitude,longitude,temp_value) VALUES (282,'name_995','plane',51.69595,6.11795,41262);
+INSERT INTO sensors(id,sensor_name,sensor_type ,latitude,longitude,temp_value) VALUES (282,'name_995','plane',51.69595,6.11795,41.262);
 INSERT INTO sensors(id,sensor_name,sensor_type ,latitude,longitude,temp_value) VALUES (283,'name_445','skycraper',-46.24897,-57.26604,20.28252);
 INSERT INTO sensors(id,sensor_name,sensor_type ,latitude,longitude,temp_value) VALUES (284,'name_251','plane',-79.07249,79.25226,14.76592);
 INSERT INTO sensors(id,sensor_name,sensor_type ,latitude,longitude,temp_value) VALUES (285,'name_494','skycraper',59.79933,15.05592,6.63945);
@@ -355,7 +355,7 @@ INSERT INTO sensors(id,sensor_name,sensor_type ,latitude,longitude,temp_value) V
 INSERT INTO sensors(id,sensor_name,sensor_type ,latitude,longitude,temp_value) VALUES (321,'name_363','plane',41.35912,-34.21141,14.80304);
 INSERT INTO sensors(id,sensor_name,sensor_type ,latitude,longitude,temp_value) VALUES (322,'name_133','plane',14.56409,95.35806,36.79158);
 INSERT INTO sensors(id,sensor_name,sensor_type ,latitude,longitude,temp_value) VALUES (323,'name_839','ground',-89.84838,123.07315,16.12642);
-INSERT INTO sensors(id,sensor_name,sensor_type ,latitude,longitude,temp_value) VALUES (324,'name_758','plane',-89.20848,37.12759,1105);
+INSERT INTO sensors(id,sensor_name,sensor_type ,latitude,longitude,temp_value) VALUES (324,'name_758','plane',-89.20848,37.12759,11.05);
 INSERT INTO sensors(id,sensor_name,sensor_type ,latitude,longitude,temp_value) VALUES (325,'name_352','ground',-37.4062,-133.61874,25.21213);
 INSERT INTO sensors(id,sensor_name,sensor_type ,latitude,longitude,temp_value) VALUES (326,'name_661','ground',6.1432,62.82146,27.49205);
 INSERT INTO sensors(id,sensor_name,sensor_type ,latitude,longitude,temp_value) VALUES (327,'name_278','skycraper',-43.70278,3.44516,25.40711);
@@ -841,7 +841,7 @@ INSERT INTO sensors(id,sensor_name,sensor_type ,latitude,longitude,temp_value) V
 INSERT INTO sensors(id,sensor_name,sensor_type ,latitude,longitude,temp_value) VALUES (807,'name_315','skycraper',60.56212,30.37033,43.78275);
 INSERT INTO sensors(id,sensor_name,sensor_type ,latitude,longitude,temp_value) VALUES (808,'name_349','plane',-14.45759,-141.99097,27.58877);
 INSERT INTO sensors(id,sensor_name,sensor_type ,latitude,longitude,temp_value) VALUES (809,'name_465','ground',78.54959,-67.49876,34.78523);
-INSERT INTO sensors(id,sensor_name,sensor_type ,latitude,longitude,temp_value) VALUES (810,'name_373','skycraper',51.43187,-176.03917,18424);
+INSERT INTO sensors(id,sensor_name,sensor_type ,latitude,longitude,temp_value) VALUES (810,'name_373','skycraper',51.43187,-176.03917,18.424);
 INSERT INTO sensors(id,sensor_name,sensor_type ,latitude,longitude,temp_value) VALUES (811,'name_17','ground',-28.42628,-88.2097,13.68147);
 INSERT INTO sensors(id,sensor_name,sensor_type ,latitude,longitude,temp_value) VALUES (812,'name_748','ground',-35.18244,-42.52574,20.60048);
 INSERT INTO sensors(id,sensor_name,sensor_type ,latitude,longitude,temp_value) VALUES (813,'name_115','skycraper',70.43611,-60.50632,32.19632);

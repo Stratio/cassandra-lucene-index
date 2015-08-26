@@ -166,32 +166,45 @@ CreateTableAndPopulate.cql
 		};
 
 
-The examples calculates the mean of temp_value based in several CQL lucene queries, every example can be executed via
-spark-submit or in a spark-shell
- 
+The examples calculates the mean of temp_value based in several CQL lucene queries.
+
+
+Every example can be executed via spark-submit or in a spark-shell. To run in spark-shell run above line to start
+spark-shell in any of the workers
+
+.. code-block:: bash
+
+ 	spark-shell --master spark://$SPARK_MASTER:7077 --jars /home/example/spark-2.1.8.4-SNAPSHOT.jar
+
+
+ 	As you can see the spark-shell examples are just like the scala code just taking out the SparkContext contruction
+ 	 line because spark-shell builds it while starting
  
 Example 1 calculate mean temp of all values 
 -------------------------------------------
 
+	This example calculates the mean off all (1000 rows) temp values.
 
+	From terminal:
 
 .. code-block:: bash
 
- 	spark-submit --class com.stratio.cassandra.examples.calcAllMean --master spark://172.17.0.2:7077 --deploy-mode 
- 	client ./spark-2.1.8.4-SNAPSHOT.jar
+ 	spark-submit --class com.stratio.cassandra.examples.spark.calcAllMean --master spark://$SPARK_MASTER:7077 \
+ 	--deploy-mode client /home/example/spark-2.1.8.4-SNAPSHOT.jar
  	
- 	
+
+ 	From spark-shell:
+
 .. code-block:: bash 
 
-	spark-shell
-	
+	import com.datastax.spark.connector._
+
  	val KEYSPACE: String = "spark_example_keyspace"
-    val TABLE: String = "sensors_table"
+    val TABLE: String = "sensors"
 
     var totalMean = 0.0f
 
-    val sc : SparkContext = new SparkContext(new SparkConf)
-
+	  sc.addJar("/home/example/spark-2.1.8.4-SNAPSHOT.jar")
     val tempRdd=sc.cassandraTable(KEYSPACE, TABLE).select("temp_value").map[Float]((row)=>row.getFloat("temp_value"))
 
     val totalNumElems: Long =tempRdd.count()
@@ -199,29 +212,154 @@ Example 1 calculate mean temp of all values
     if (totalNumElems>0) {
       val pairTempRdd = tempRdd.map(s => (1, s))
       val totalTempPairRdd = pairTempRdd.reduceByKey((a, b) => a + b)
-      totalMean = totalTempPairRdd.first()._2 / totalNumElems.asInstanceOf[Float]
+      totalMean = totalTempPairRdd.first()._2 / totalNumElems.toFloat
     }
 
-    println("Mean calculed on all data mean: %s , numRows: %s", totalMean, totalNumElems)
+    println("Mean calculated on all data, mean: "+totalMean.toString +" numRows: "+ totalNumElems.toString)
+
  	
  	
 Example 2 calculate mean temp of only sensors with sensor_type match "plane" 
 ----------------------------------------------------------------------------
 
+.. code-block:: bash
+
+ 	spark-submit --class com.stratio.cassandra.examples.spark.calcMeanByType --master spark://$SPARK_MASTER:7077 \
+ 	--deploy-mode client /home/example/spark-2.1.8.4-SNAPSHOT.jar
+
+
+
+From spark-shell:
+
+.. code-block:: bash
+
+	import com.datastax.spark.connector._
+	import com.stratio.cassandra.lucene.search.SearchBuilders._
+
+ 	val KEYSPACE: String = "spark_example_keyspace"
+    val TABLE: String = "sensors"
+    val INDEX_COLUMN_CONSTANT: String = "lucene"
+    var totalMean = 0.0f
+
+    val luceneQuery: String = search.refresh(true).filter(`match`("sensor_type", "plane")).toJson
+
+	val tempRdd=sc.cassandraTable(KEYSPACE, TABLE).select("temp_value").where(INDEX_COLUMN_CONSTANT+ "= ?",luceneQuery).map[Float]((row)=>row.getFloat("temp_value"))
+
+    val totalNumElems: Long =tempRdd.count()
+
+    if (totalNumElems>0) {
+      val pairTempRdd = tempRdd.map(s => (1, s))
+      val totalTempPairRdd = pairTempRdd.reduceByKey((a, b) => a + b)
+      totalMean = totalTempPairRdd.first()._2 / totalNumElems.toFloat
+    }
+
+    println("Mean calculated on type query data, mean: "+totalMean.toString+", numRows: "+ totalNumElems.toString)
 
 
 Example 3 calculate mean temp of only sensors whose position in inside [(-10.0, 10.0), (-10.0, 10.0)] 
 -----------------------------------------------------------------------------------------------------
+
+.. code-block:: bash
+
+ 	spark-submit --class com.stratio.cassandra.examples.spark.calcMeanByBBOX --master spark://$SPARK_MASTER:7077 \
+ 	--deploy-mode client /home/example/spark-2.1.8.4-SNAPSHOT.jar
+
+
+From spark-shell:
+
+.. code-block:: bash
+
+    import com.datastax.spark.connector._
+	import com.stratio.cassandra.lucene.search.SearchBuilders._
+
+	val KEYSPACE: String = "spark_example_keyspace"
+    val TABLE: String = "sensors"
+    val INDEX_COLUMN_CONSTANT: String = "lucene"
+    var totalMean = 0.0f
+
+ 	val luceneQuery = search.refresh(true).filter(geoBBox("place", -10.0f, 10.0f, -10.0f, 10.0f)).toJson
+
+  	val tempRdd=sc.cassandraTable(KEYSPACE, TABLE).select("temp_value")
+      .where(INDEX_COLUMN_CONSTANT+ "= ?", luceneQuery).map[Float]((row)=>row.getFloat("temp_value"))
+
+    val totalNumElems: Long =tempRdd.count()
+
+    if (totalNumElems>0) {
+      val pairTempRdd = tempRdd.map(s => (1, s))
+      val totalTempPairRdd = pairTempRdd.reduceByKey((a, b) => a + b)
+      totalMean = totalTempPairRdd.first()._2 / totalNumElems.toFloat
+    }
+
+    println("Mean calculated on BBOX query data, mean: "+totalMean.toString+" , numRows: "+ totalNumElems.toString)
 
 
 
 Example 4 calculate mean temp of only sensors whose position distance from [0.0, 0.0] is less than 100000km
 ------------------------------------------------------------------------------------------------------------
 
+.. code-block:: bash
+
+ 	spark-submit --class com.stratio.cassandra.examples.spark.calcMeanByGeoDistance --master spark://$SPARK_MASTER:7077 \
+ 	--deploy-mode client /home/example/spark-2.1.8.4-SNAPSHOT.jar
+
+From spark-shell:
+
+.. code-block:: bash
+
+	import com.datastax.spark.connector._
+	import com.stratio.cassandra.lucene.search.SearchBuilders._
+
+ 	val KEYSPACE: String = "spark_example_keyspace"
+    val TABLE: String = "sensors"
+    val INDEX_COLUMN_CONSTANT: String = "lucene"
+    var totalMean = 0.0f
+
+    val luceneQuery = search.refresh(true).filter(geoDistance("place", 0.0f, 0.0f, "100000km")).toJson
+
+    val tempRdd=sc.cassandraTable(KEYSPACE, TABLE).select("temp_value").where(INDEX_COLUMN_CONSTANT+ "= ?",
+    luceneQuery).map[Float]((row)=>row.getFloat("temp_value"))
+
+    val totalNumElems: Long =tempRdd.count()
+
+    if (totalNumElems>0) {
+      val pairTempRdd = tempRdd.map(s => (1, s))
+      val totalTempPairRdd = pairTempRdd.reduceByKey((a, b) => a + b)
+      totalMean = totalTempPairRdd.first()._2 / totalNumElems.toFloat
+    }
+
+    println("Mean calculated on GeoDistance data, mean: "+totalMean.toString+" , numRows: "+totalNumElems.toString)
 
 Example 5 calculate mean temp of only sensors whose temp >= 30.0 
 ----------------------------------------------------------------
 
 
+.. code-block:: bash
 
+ 	spark-submit --class com.stratio.cassandra.examples.spark.calcMeanByRange --master spark://$SPARK_MASTER:7077 \
+ 	--deploy-mode client /home/example/spark-2.1.8.4-SNAPSHOT.jar
 
+From spark-shell:
+
+.. code-block:: bash
+
+	import com.datastax.spark.connector._
+	import com.stratio.cassandra.lucene.search.SearchBuilders._
+
+	val KEYSPACE: String = "spark_example_keyspace"
+    val TABLE: String = "sensors"
+    val INDEX_COLUMN_CONSTANT: String = "lucene"
+    var totalMean = 0.0f
+
+    val luceneQuery: String = search.refresh(true).filter(range("temp_value").includeLower(true).lower(30.0f)).toJson
+
+	val tempRdd=sc.cassandraTable(KEYSPACE, TABLE).select("temp_value").where(INDEX_COLUMN_CONSTANT+ "= ?",luceneQuery).map[Float]((row)=>row.getFloat("temp_value"))
+
+    val totalNumElems: Long =tempRdd.count()
+
+    if (totalNumElems>0) {
+      val pairTempRdd = tempRdd.map(s => (1, s))
+      val totalTempPairRdd = pairTempRdd.reduceByKey((a, b) => a + b)
+      totalMean = totalTempPairRdd.first()._2 / totalNumElems.toFloat
+    }
+
+    println("Mean calculated on range type data, mean: "+totalMean.toString+" , numRows: "+ totalNumElems.toString)
