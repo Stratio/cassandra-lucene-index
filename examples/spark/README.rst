@@ -1,27 +1,33 @@
-Stratio’s Cassandra Lucene Index Spark Examples 
-===============================================
+Cassandra Lucene Index Spark Examples
+=====================================
 
 Here you have some Spark examples over Cassandra Lucene queries
 
 
+- `Requirements <#requirements>`__
+	- `Download and compile <#download_and_compile>`__
+	- `Build docker container <#build_docker_container>`__
+	- `Deploy the cluster <#deploy_cluster>`__
+	- `Create example environment <#create_example_environment>`__
+- `Examples <#examples>`__
+	- `Example 1: Usual cassandra query<#example 1>`__
+	- `Example 2: Lucene match query<#example 2>`__
+	- `Example 3: Geo-spatial bounding box query<#example 3>`__
+	- `Example 4: Geo-spatial distance query<#example 4>`__
+	- `Example 5: Range query<#example 5>`__
 
-Pre requisites
---------------
+
+Requirements
+------------
 
 To be able to run these examples we have created a Debian-based Docker container with java 7.80.15 maven 3.3.3, Spark
 1.4.1 with Apache Hadoop 2.6, Apache Cassandra 2.1.8 and Stratio’s Cassandra Lucene Index 2.1.8.1.
 Once the docker container is built know every user can deploy a cluster with one machine acting as Spark Master and
-others with Spark Workers and Cassandra. Here we show you all the steps you have to follow before getting the entire
+others as Spark Workers and Cassandra nodes. Here we show you all the steps you have to follow before getting the entire
 cluster working.
 
-First step, build the docker container
-++++++++++++++++++++++++++++++++++++++
-
-If you don't have docker installed then run:
-
-.. code-block:: bash
-
-    sudo apt-get install docker 
+Download and compile the project
+++++++++++++++++++++++++++++++++
 
 Download a fresh version of this project :
 
@@ -33,14 +39,24 @@ Compile and package it
 
 .. code-block:: bash
 
-	mvn clean package 
+	mvn clean package
 
-Go to Docker containers directory:
+
+Build docker container
+++++++++++++++++++++++
+
+If you don't have docker installed then run:
+
+.. code-block:: bash
+
+    sudo apt-get install docker 
+
+
+Go to Docker containers directory from cassandra lucene index base directory:
 
 .. code-block:: bash
 
     cd examples/spark/resources/docker
-    
     
 Build the Docker container, this will take a while, please be patient
 
@@ -48,8 +64,8 @@ Build the Docker container, this will take a while, please be patient
 	
 	docker build -t stratio/cassandra_spark .
 
-Second step, deploy the cluster
-+++++++++++++++++++++++++++++++
+Deploy the cluster
+++++++++++++++++++
 
 As mentioned before there are two types of machines in our cluster, one is Spark Master, you can run it like this
 
@@ -58,8 +74,9 @@ As mentioned before there are two types of machines in our cluster, one is Spark
 	docker run -i -t --rm --name spark_master stratio/cassandra_spark
 
 The other type of machine contains a Spark worker and Cassandra node, this machine needs to know which one is the
-SPARK Master so we proportionate the Spark master ip (you get the ip from log output in terminal running spark
+Spark master so we proportionate the Spark master ip (you can get the ip from log output in terminal running spark
 master machine )
+
 Run the first so:
 
 .. code-block:: bash
@@ -68,7 +85,7 @@ Run the first so:
 
 
 The rest of worker machines need almost one cassandra_seeds ip in order to form the ring so we proportionate the 
-CASSANDRA_SEEDS_IP with the worker1 ip 
+CASSANDRA_SEEDS_IP with the worker1 ip
 
 .. code-block:: bash
 
@@ -76,7 +93,8 @@ CASSANDRA_SEEDS_IP with the worker1 ip
 	--name worker2 stratio/cassandra_spark
 
 
-You can execute all this step by using docker inspect, simply execute this script
+You can execute the entire cluster deploy of a spark master and 3 spark workers by using docker inspect,
+simply execute this script
 
 .. code-block:: bash
 
@@ -89,12 +107,11 @@ You can execute all this step by using docker inspect, simply execute this scrip
 	docker run -d -e SPARK_MASTER=$SPARK_MASTER_IP -e CASSANDRA_SEEDS=$CASSANDRA_SEEDS \
 	--name worker3 stratio/cassandra_spark
 
-Now you have a Cassandra/Spark running cluster. You can check the Spark cluster in spark master web
-: 
-SPARK_MASTER_IP:8080
+Now you have a Cassandra/Spark running cluster. You can check the Spark cluster in spark master website
+http://SPARK_MASTER_IP:8080
 
 
-You will see the N spark workers attached to the Spark master 
+You will see the 3 spark workers attached to the Spark master
 
 or the cassandra ring running in host terminal 
 
@@ -102,11 +119,11 @@ or the cassandra ring running in host terminal
 
 	docker exec -it worker1 nodetool status
 
-Third step, create the table and populate it
-++++++++++++++++++++++++++++++++++++++++++++
+Create example cassandra keyspace and populate it
++++++++++++++++++++++++++++++++++++++++++++++++++
 
-When you have your cluster running you can execute the CreateTable&Populate.cql, this file with the jar containing
-examples' code is in /home/example in docker containers, so you dont have to copy anything.
+When you have your cluster running you can execute the CreateTableAndPopulate.cql, this file with the jar containing
+examples' code is in /home/example in docker containers, so you don't need to copy anything.
  
 Open a terminal in any of the workers 
 
@@ -184,8 +201,8 @@ spark-shell in any of the workers
 As you can see the spark-shell examples are just like the scala code just taking out the SparkContext contruction
 line because spark-shell builds it while starting
  
-Example 1: Calculate mean temperature of all values
-+++++++++++++++++++++++++++++++++++++++++++++++++++
+Example 1: Usual cassandra query
+++++++++++++++++++++++++++++++++
 
 This example calculates the mean off all (1000 rows) temp values.
 
@@ -225,8 +242,12 @@ From spark-shell:
 
  	
  	
-Example 2: Calculate mean temp of only sensors with sensor_type match "plane"
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Example 2: Lucene match query
++++++++++++++++++++++++++++++
+
+This example calculates the mean temp of sensors with sensor_type match "plane"
+
+From terminal:
 
 .. code-block:: bash
 
@@ -266,8 +287,12 @@ From spark-shell:
 			+", numRows: "+ totalNumElems.toString)
 
 
-Example 3: Calculate mean temp of only sensors whose position in inside [(-10.0, 10.0), (-10.0, 10.0)]
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Example 3: Geo-spatial bounding box query
++++++++++++++++++++++++++++++++++++++++++
+
+This example calculates the mean temp of sensors whose position in inside bounding box [(-10.0, 10.0), (-10.0, 10.0)]
+
+From terminal:
 
 .. code-block:: bash
 
@@ -306,8 +331,12 @@ From spark-shell:
 
 
 
-Example 4: Calculate mean temp of only sensors whose position distance from [0.0, 0.0] is less than 100000km
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Example 4: Geo-spatial distance query
++++++++++++++++++++++++++++++++++++++
+
+This example calculates the mean temp of sensors whose position distance from [0.0, 0.0] is less than 100000km
+
+From terminal:
 
 .. code-block:: bash
 
@@ -344,9 +373,12 @@ From spark-shell:
 	println("Mean calculated on GeoDistance data, mean: "+totalMean.toString
 			+" , numRows: "+totalNumElems.toString)
 
-Example 5: Calculate mean temp of only sensors whose temp >= 30.0
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Example 5: Range query
+++++++++++++++++++++++
 
+This example calculates the mean temp of sensors whose temp >= 30.0
+
+From terminal:
 
 .. code-block:: bash
 
