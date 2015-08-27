@@ -1,27 +1,29 @@
 Stratio’s Cassandra Lucene Index Spark Examples 
 ===============================================
 
-Here you have some Spark examples over cassandra lucene queries
+Here you have some Spark examples over Cassandra Lucene queries
 
 
 
 Pre requisites
 --------------
 
-To be able to run these examples we have created a debian-based Docker container with java 7.80.15 maven 3.3.3, Spark
- 1.4.1 with hadoop 2.6, cassandra 2.1.8 and cassandra-lucene-plugin 2.1.8.1. Once the docker container is builded 
- know every user can deploy a cluster with one machine acting as Spark Master and others with spark Workers and 
- Cassandra. Here we show you all steps you have to run before getting the entire cluster
-First step, build the docker container
---------------------------------------
+To be able to run these examples we have created a Debian-based Docker container with java 7.80.15 maven 3.3.3, Spark
+1.4.1 with Apache Hadoop 2.6, Apache Cassandra 2.1.8 and Stratio’s Cassandra Lucene Index 2.1.8.1.
+Once the docker container is built know every user can deploy a cluster with one machine acting as Spark Master and
+others with Spark Workers and Cassandra. Here we show you all the steps you have to follow before getting the entire
+cluster working.
 
-If you don't have docker installed run 
+First step, build the docker container
+++++++++++++++++++++++++++++++++++++++
+
+If you don't have docker installed then run:
 
 .. code-block:: bash
 
     sudo apt-get install docker 
 
-Download a fresh version of this project 
+Download a fresh version of this project :
 
 .. code-block:: bash
 
@@ -33,30 +35,30 @@ Compile and package it
 
 	mvn clean package 
 
-Go to docker containers directory
+Go to Docker containers directory:
 
 .. code-block:: bash
 
     cd examples/spark/resources/docker
     
     
-Build the docker container, this will take a while, please be patient 
+Build the Docker container, this will take a while, please be patient
 
 .. code-block:: bash
 	
 	docker build -t stratio/cassandra_spark .
 
-Second step , deploy the cluster 
---------------------------------
+Second step, deploy the cluster
++++++++++++++++++++++++++++++++
 
-As mentioned before there are two types of machienes in our cluster, one is Spark Master, you can run it like this 
+As mentioned before there are two types of machines in our cluster, one is Spark Master, you can run it like this
 
 .. code-block:: bash
 
 	docker run -i -t --rm --name spark_master stratio/cassandra_spark
 
-The other type of machine contains a spark_worker and cassandra node, this machine needs to know which one is the 
-SPARK Master so we proportionate the spark master ip (you get the ip from log output in terminal running spark 
+The other type of machine contains a Spark worker and Cassandra node, this machine needs to know which one is the
+SPARK Master so we proportionate the Spark master ip (you get the ip from log output in terminal running spark
 master machine )
 Run the first so:
 
@@ -85,10 +87,7 @@ You can execute all this step by using docker inspect, simply execute this scrip
 	docker run -d -e SPARK_MASTER=$SPARK_MASTER_IP -e CASSANDRA_SEEDS=$CASSANDRA_SEEDS --name worker2 stratio/cassandra_spark &&
 	docker run -d -e SPARK_MASTER=$SPARK_MASTER_IP -e CASSANDRA_SEEDS=$CASSANDRA_SEEDS --name worker3 stratio/cassandra_spark
 
-
-
-
-Now you have a cassandra/spark running cluster. You can check the Spark cluster in spark master web
+Now you have a Cassandra/Spark running cluster. You can check the Spark cluster in spark master web
 : 
 SPARK_MASTER_IP:8080
 
@@ -99,11 +98,12 @@ or the cassandra ring running in host terminal
 
 .. code-block:: bash
 
-	docker exec -it worker1 nodetool status 
-Third step, Create Table and Populate it 
-----------------------------------------
+	docker exec -it worker1 nodetool status
 
-When you have your cluster running you can execute the CreateTable&Populate.cql, this file with the jar containingg 
+Third step, create the table and populate it
+++++++++++++++++++++++++++++++++++++++++++++
+
+When you have your cluster running you can execute the CreateTable&Populate.cql, this file with the jar containing
 examples' code is in /home/example in docker containers, so you dont have to copy anything.
  
 Open a terminal in any of the workers 
@@ -158,9 +158,10 @@ CreateTableAndPopulate.cql
 				fields : {
 					sensor_name : {type:"string"},
 					sensor_type : {type:"string"},
-					temp_value : {type:"float"},
-					place : {type:"geo_point", latitude:"latitude", 
-							longitude:"longitude"}
+					temp_value  : {type:"float"},
+					place : {type      :"geo_point",
+					         latitude  :"latitude",
+							 longitude :"longitude"}
 				}
 			}'
 		};
@@ -177,11 +178,12 @@ spark-shell in any of the workers
  	spark-shell --master spark://$SPARK_MASTER:7077 --jars /home/example/spark-2.1.8.4-SNAPSHOT.jar
 
 
-As you can see the spark-shell examples are just like the scala code just taking out the SparkContext contruction
- 	 line because spark-shell builds it while starting
+
+As you can see the spark-shell examples are just like the scala code just taking out the SparkContext contruction 
+line because spark-shell builds it while starting
  
-Example 1 calculate mean temp of all values 
--------------------------------------------
+Example 1: Calculate mean temperature of all values
++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 	This example calculates the mean off all (1000 rows) temp values.
 
@@ -219,8 +221,8 @@ From spark-shell:
 
  	
  	
-Example 2 calculate mean temp of only sensors with sensor_type match "plane" 
-----------------------------------------------------------------------------
+Example 2: Calculate mean temp of only sensors with sensor_type match "plane"
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 .. code-block:: bash
 
@@ -257,8 +259,8 @@ From spark-shell:
 	println("Mean calculated on type query data, mean: "+totalMean.toString+", numRows: "+ totalNumElems.toString)
 
 
-Example 3 calculate mean temp of only sensors whose position in inside [(-10.0, 10.0), (-10.0, 10.0)] 
------------------------------------------------------------------------------------------------------
+Example 3: Calculate mean temp of only sensors whose position in inside [(-10.0, 10.0), (-10.0, 10.0)]
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 .. code-block:: bash
 
@@ -296,8 +298,8 @@ From spark-shell:
 
 
 
-Example 4 calculate mean temp of only sensors whose position distance from [0.0, 0.0] is less than 100000km
-------------------------------------------------------------------------------------------------------------
+Example 4: Calculate mean temp of only sensors whose position distance from [0.0, 0.0] is less than 100000km
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 .. code-block:: bash
 
@@ -332,8 +334,8 @@ From spark-shell:
 
 	println("Mean calculated on GeoDistance data, mean: "+totalMean.toString+" , numRows: "+totalNumElems.toString)
 
-Example 5 calculate mean temp of only sensors whose temp >= 30.0 
-----------------------------------------------------------------
+Example 5: Calculate mean temp of only sensors whose temp >= 30.0
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
 .. code-block:: bash
