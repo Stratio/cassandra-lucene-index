@@ -437,7 +437,6 @@ public class BitemporalMapper extends Mapper {
         }
 
         @Override
-        @SuppressWarnings("NullableProblems")
         public int compareTo(BitemporalDateTime other) {
             return timestamp.compareTo(other.timestamp);
         }

@@ -206,7 +206,6 @@ public final class Column<T> implements Comparable<Column<?>> {
 
     /** {@inheritDoc} */
     @Override
-    @SuppressWarnings("NullableProblems")
     public int compareTo(Column<?> column2) {
         if (column2 == null) {
             return 1;

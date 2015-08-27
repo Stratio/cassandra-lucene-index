@@ -187,7 +187,6 @@ public class GeoDistanceCondition extends SingleMapperCondition<GeoPointMapper> 
 
         /** {@inheritDoc} */
         @Override
-        @SuppressWarnings("NullableProblems")
         public int compareTo(GeoDistance other) {
             return getValue(GeoDistanceUnit.MILLIMETRES).compareTo(other.getValue(GeoDistanceUnit.MILLIMETRES));
         }
