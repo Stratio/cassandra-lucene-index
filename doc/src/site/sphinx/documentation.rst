@@ -1516,7 +1516,7 @@ Spark and Hadoop integrations are fully supported because Lucene searches
 can be combined with token range restrictions and pagination, which are the
 basis of MapReduce frameworks support.
 
-Please refer to `Spark examples for Cassandra Lucene Index <../../../../examples/spark/README.rst>`__.
+Please refer to `Spark examples for Cassandra Lucene Index <../../../../examples/spark>`__.
 
 Token Range Searches
 ====================
