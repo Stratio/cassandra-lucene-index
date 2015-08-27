@@ -249,44 +249,81 @@ public class BitemporalMapper extends Mapper {
 
         if (vtFrom == null && vtTo == null && ttFrom == null && ttTo == null) {
             return;
-        } else if (vtFrom == null) {
-            throw new IndexException("vt_from column required");
-        } else if (vtTo == null) {
-            throw new IndexException("vt_to column required");
-        } else if (ttFrom == null) {
-            throw new IndexException("tt_from column required");
-        } else if (ttTo == null) {
-            throw new IndexException("tt_to column required");
         }
+
+        validate(vtFrom, vtTo, ttFrom, ttTo);
 
         if (ttTo.isNow() && vtTo.isNow()) { // T1
             Shape shapeV = makeShape(treeT1V, vtFrom, vtFrom);
-            for (IndexableField field : strategyT1V.createIndexableFields(shapeV)) document.add(field);
+            for (IndexableField field : strategyT1V.createIndexableFields(shapeV)) {
+                document.add(field);
+            }
             document.add(new IntField(getT1UT2FieldName(), 1, STORE));
             Shape shapeT = makeShape(treeT1T, ttFrom, ttFrom);
-            for (IndexableField field : strategyT1T.createIndexableFields(shapeT)) document.add(field);
+            for (IndexableField field : strategyT1T.createIndexableFields(shapeT)) {
+                document.add(field);
+            }
 
-        } else if (ttTo.isNow() ) { // T2
+        } else if (ttTo.isNow()) { // T2
             Shape shapeV = makeShape(treeT2V, vtFrom, vtTo);
-            for (IndexableField field : strategyT2V.createIndexableFields(shapeV)) document.add(field);
+            for (IndexableField field : strategyT2V.createIndexableFields(shapeV)) {
+                document.add(field);
+            }
             document.add(new IntField(getT1UT2FieldName(), 1, STORE));
             Shape shapeT = makeShape(treeT2T, ttFrom, ttFrom);
-            for (IndexableField field : strategyT2T.createIndexableFields(shapeT)) document.add(field);
+            for (IndexableField field : strategyT2T.createIndexableFields(shapeT)) {
+                document.add(field);
+            }
 
         } else if (vtTo.isNow()) {// T3
             Shape shapeV = makeShape(treeT3V, vtFrom, vtFrom);
-            for (IndexableField field : strategyT3V.createIndexableFields(shapeV)) document.add(field);
+            for (IndexableField field : strategyT3V.createIndexableFields(shapeV)) {
+                document.add(field);
+            }
             document.add(new IntField(getT1UT2FieldName(), 0, STORE));
             Shape shapeT = makeShape(treeT3T, ttFrom, ttTo);
-            for (IndexableField field : strategyT3T.createIndexableFields(shapeT)) document.add(field);
+            for (IndexableField field : strategyT3T.createIndexableFields(shapeT)) {
+                document.add(field);
+            }
 
         } else { // T4
             Shape shapeV = makeShape(treeT4V, vtFrom, vtTo);
-            for (IndexableField field : strategyT4V.createIndexableFields(shapeV)) document.add(field);
+            for (IndexableField field : strategyT4V.createIndexableFields(shapeV)) {
+                document.add(field);
+            }
             document.add(new IntField(getT1UT2FieldName(), 0, STORE));
             Shape shapeT = makeShape(treeT4T, ttFrom, ttTo);
-            for (IndexableField field : strategyT4T.createIndexableFields(shapeT)) document.add(field);
+            for (IndexableField field : strategyT4T.createIndexableFields(shapeT)) {
+                document.add(field);
+            }
 
+        }
+    }
+
+
+    private void validate(BitemporalDateTime vtFrom, BitemporalDateTime vtTo, BitemporalDateTime ttFrom,
+                          BitemporalDateTime ttTo) {
+        if (vtFrom == null) {
+            throw new IndexException("vt_from column required");
+        }
+        if (vtTo == null) {
+            throw new IndexException("vt_to column required");
+        }
+        if (ttFrom == null) {
+            throw new IndexException("tt_from column required");
+        }
+        if (ttTo == null) {
+            throw new IndexException("tt_to column required");
+        }
+        if (vtFrom.after(vtTo)) {
+            throw new IndexException("vt_from:'%s' is after vt_to:'%s'",
+                                     vtTo.toString(dateParser),
+                                     vtFrom.toString(dateParser));
+        }
+        if (ttFrom.after(ttTo)) {
+            throw new IndexException("tt_from:'%s' is after tt_to:'%s'",
+                                     ttTo.toString(dateParser),
+                                     ttFrom.toString(dateParser));
         }
     }
 
@@ -302,7 +339,7 @@ public class BitemporalMapper extends Mapper {
         if (column == null) {
             return null;
         }
-        return parseBiTemporalDate(column.getComposedValue());
+        return parseBitemporalDate(column.getComposedValue());
     }
 
     private BitemporalDateTime checkIfNow(Long in) {
@@ -323,7 +360,7 @@ public class BitemporalMapper extends Mapper {
      * @return a parsed {@link BitemporalDateTime} from an {@link Object}. it parses {@link Long} and {@link String}
      * format values based in pattern.
      */
-    public BitemporalDateTime parseBiTemporalDate(Object value) {
+    public BitemporalDateTime parseBitemporalDate(Object value) {
         Date opt = dateParser.parse(value);
         if (opt != null) {
             return checkIfNow(opt.getTime());
@@ -358,20 +395,25 @@ public class BitemporalMapper extends Mapper {
         public static final BitemporalDateTime MIN = new BitemporalDateTime(0L);
 
         private final Long timestamp;
+        private final Date date;
 
         /**
          * @param date A date.
          */
         public BitemporalDateTime(Date date) {
             timestamp = date.getTime();
+            this.date = date;
         }
 
         /**
          * @param timestamp A timestamp.
          */
         public BitemporalDateTime(Long timestamp) {
-            if (timestamp < 0L) throw new IndexException("Cannot build a BitemporalDateTime with a negative unix time");
+            if (timestamp < 0L) {
+                throw new IndexException("Cannot build a BitemporalDateTime with a negative unix time");
+            }
             this.timestamp = timestamp;
+            date = new Date(timestamp);
         }
 
         public boolean isNow() {
@@ -387,7 +429,11 @@ public class BitemporalMapper extends Mapper {
         }
 
         public Date toDate() {
-            return new Date(timestamp);
+            return date;
+        }
+
+        public boolean after(BitemporalDateTime time) {
+            return date.after(time.date);
         }
 
         @Override
@@ -411,11 +457,19 @@ public class BitemporalMapper extends Mapper {
             return timestamp.toString();
         }
 
+        public String toString(DateParser dateParser) {
+            return dateParser.toString(date);
+        }
+
         /** {@inheritDoc} */
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
             BitemporalDateTime that = (BitemporalDateTime) o;
             return timestamp.equals(that.timestamp);
         }

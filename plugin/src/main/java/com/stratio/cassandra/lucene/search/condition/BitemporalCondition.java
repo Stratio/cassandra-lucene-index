@@ -124,16 +124,16 @@ public class BitemporalCondition extends SingleMapperCondition<BitemporalMapper>
 
         BitemporalDateTime vt_from = this.vtFrom == null ?
                                      new BitemporalDateTime(DEFAULT_FROM) :
-                                     mapper.parseBiTemporalDate(this.vtFrom);
+                                     mapper.parseBitemporalDate(this.vtFrom);
         BitemporalDateTime vt_to = this.vtTo == null ?
                                    new BitemporalDateTime(DEFAULT_TO) :
-                                   mapper.parseBiTemporalDate(this.vtTo);
+                                   mapper.parseBitemporalDate(this.vtTo);
         BitemporalDateTime tt_from = this.ttFrom == null ?
                                      new BitemporalDateTime(DEFAULT_FROM) :
-                                     mapper.parseBiTemporalDate(this.ttFrom);
+                                     mapper.parseBitemporalDate(this.ttFrom);
         BitemporalDateTime tt_to = this.ttTo == null ?
                                    new BitemporalDateTime(DEFAULT_TO) :
-                                   mapper.parseBiTemporalDate(this.ttTo);
+                                   mapper.parseBitemporalDate(this.ttTo);
         BooleanQuery.Builder builder = new BooleanQuery.Builder();
         NumberRangePrefixTreeStrategy[] validTimeStrategies = new NumberRangePrefixTreeStrategy[4];
         DateRangePrefixTree[] validTimeTrees = new DateRangePrefixTree[4];

@@ -117,4 +117,12 @@ public class DateParser {
     public String toString() {
         return pattern;
     }
+
+    public String toString(Date date) {
+        if (pattern.equals(TIMESTAMP_PATTERN_FIELD)){
+            return ((Long)date.getTime()).toString();
+        } else {
+            return concurrentDateFormat.get().format(date);
+        }
+    }
 }

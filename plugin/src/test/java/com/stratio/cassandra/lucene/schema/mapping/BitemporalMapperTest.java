@@ -83,7 +83,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         assertEquals("ttFrom is not set", "ttFrom", mapper.ttFrom);
         assertEquals("ttTo is not set", "ttTo", mapper.ttTo);
 
-        assertEquals("Date pattern is wrong", mapper.parseBiTemporalDate("2021/03/11"), BitemporalDateTime.MAX);
+        assertEquals("Date pattern is wrong", mapper.parseBitemporalDate("2021/03/11"), BitemporalDateTime.MAX);
 
         for (int i = 0; i <= 3; i++) {
             assertNotNull("Strategies are wrong", mapper.getStrategy(i, true));
@@ -1146,6 +1146,80 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         Document document = new Document();
         mapper.addFields(document, columns);
         assertEquals("Null columns should produce no fields", 0, document.getFields().size());
+    }
+
+    @Test(expected = IndexException.class)
+    public void testAddFieldsVtFromNull() {
+        BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null, null);
+
+        Columns columns = new Columns();
+        columns.add(Column.fromComposed("vtTo"  , "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("ttFrom", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("ttTo", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
+
+        mapper.addFields(new Document(), columns);
+    }
+
+    @Test(expected = IndexException.class)
+    public void testAddFieldsVtToNull() {
+        BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null, null);
+
+        Columns columns = new Columns();
+        columns.add(Column.fromComposed("vtFrom", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("ttFrom", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("ttTo", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
+
+        mapper.addFields(new Document(), columns);
+    }
+
+    @Test(expected = IndexException.class)
+    public void testAddFieldsTtFromNull() {
+        BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null, null);
+
+        Columns columns = new Columns();
+        columns.add(Column.fromComposed("vtFrom", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("vtTo"  , "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("ttTo", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
+
+        mapper.addFields(new Document(), columns);
+    }
+
+    @Test(expected = IndexException.class)
+    public void testAddFieldsTtToNull() {
+        BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null, null);
+
+        Columns columns = new Columns();
+        columns.add(Column.fromComposed("vtFrom", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("vtTo"  , "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("ttFrom", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
+
+        mapper.addFields(new Document(), columns);
+    }
+
+    @Test(expected = IndexException.class)
+    public void testAddFieldsVtFromAfterVtToNull() {
+        BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null, null);
+
+        Columns columns = new Columns();
+        columns.add(Column.fromComposed("vtFrom", "2015/02/28 01:02:03.005 GMT", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("vtTo"  , "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("ttFrom", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("ttTo"  , "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
+
+        mapper.addFields(new Document(), columns);
+    }
+
+    @Test(expected = IndexException.class)
+    public void testAddFieldsTtFromAfterTtToNull() {
+        BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null, null);
+
+        Columns columns = new Columns();
+        columns.add(Column.fromComposed("vtFrom", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("vtTo"  , "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("ttFrom", "2015/02/28 01:02:03.005 GMT", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("ttTo"  , "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
+
+        mapper.addFields(new Document(), columns);
     }
 
     @Test

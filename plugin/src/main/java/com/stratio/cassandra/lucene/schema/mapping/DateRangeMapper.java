@@ -109,15 +109,27 @@ public class DateRangeMapper extends Mapper {
 
         if (fromDate == null && toDate == null) {
             return;
-        } else if (fromDate == null) {
-            throw new IndexException("From column required");
-        } else if (toDate == null) {
-            throw new IndexException("To column required");
         }
+
+        validate(fromDate, toDate);
 
         NRShape shape = makeShape(fromDate, toDate);
         for (IndexableField field : strategy.createIndexableFields(shape)) {
             document.add(field);
+        }
+    }
+
+    private void validate(Date from, Date to) {
+        if (from == null) {
+            throw new IndexException("From column required");
+        }
+        if (to == null) {
+            throw new IndexException("To column required");
+        }
+        if (from.after(to)) {
+            throw new IndexException("From:'%s' is after To:'%s'",
+                                     dateParser.toString(to),
+                                     dateParser.toString(from));
         }
     }
 
