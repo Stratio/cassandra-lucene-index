@@ -5,16 +5,16 @@ Here you have some Spark examples over Cassandra Lucene queries
 
 
 - `Requirements <#requirements>`__
-	- `Download and compile <#download_and_compile>`__
-	- `Build docker container <#build_docker_container>`__
-	- `Deploy the cluster <#deploy_cluster>`__
-	- `Create example environment <#create_example_environment>`__
+	- `Download and compile <#download-and-compile>`__
+	- `Build docker container <#build-docker-container>`__
+	- `Deploy the cluster <#deploy-the-cluster>`__
+	- `Create example environment <#create-example-environment>`__
 - `Examples <#examples>`__
-	- `Example 1: Usual cassandra query<#example 1>`__
-	- `Example 2: Lucene match query<#example 2>`__
-	- `Example 3: Geo-spatial bounding box query<#example 3>`__
-	- `Example 4: Geo-spatial distance query<#example 4>`__
-	- `Example 5: Range query<#example 5>`__
+	- `Example 1: Usual cassandra query <#example-1:-usual-cassandra-query>`__
+	- `Example 2: Match query <#Example-2:-match-query>`__
+	- `Example 3: Geo-spatial bounding box query <#Example-3:-Geo-spatial-bounding-box-query>`__
+	- `Example 4: Geo-spatial distance query <#Example-4:-Geo-spatial-distance-query>`__
+	- `Example 5: Range query <#Example-5:-Range-query>`__
 
 
 Requirements
@@ -26,8 +26,8 @@ Once the docker container is built know every user can deploy a cluster with one
 others as Spark Workers and Cassandra nodes. Here we show you all the steps you have to follow before getting the entire
 cluster working.
 
-Download and compile the project
-++++++++++++++++++++++++++++++++
+Download and compile
+++++++++++++++++++++
 
 Download a fresh version of this project :
 
@@ -119,8 +119,8 @@ or the cassandra ring running in host terminal
 
 	docker exec -it worker1 nodetool status
 
-Create example cassandra keyspace and populate it
-+++++++++++++++++++++++++++++++++++++++++++++++++
+Create example environment
+++++++++++++++++++++++++++
 
 When you have your cluster running you can execute the CreateTableAndPopulate.cql, this file with the jar containing
 examples' code is in /home/example in docker containers, so you don't need to copy anything.
@@ -242,8 +242,8 @@ From spark-shell:
 
  	
  	
-Example 2: Lucene match query
-+++++++++++++++++++++++++++++
+Example 2: Match query
+++++++++++++++++++++++
 
 This example calculates the mean temp of sensors with sensor_type match "plane"
 
