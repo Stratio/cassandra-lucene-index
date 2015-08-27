@@ -10,11 +10,11 @@ Here you have some Spark examples over Cassandra Lucene queries
 	- `Deploy the cluster <#deploy-the-cluster>`__
 	- `Create example environment <#create-example-environment>`__
 - `Examples <#examples>`__
-	- `Example 1: Usual cassandra query <#example-1:-usual-cassandra-query>`__
-	- `Example 2: Match query <#Example-2\:-match-query>`__
-	- `Example 3: Geo-spatial bounding box query <#Example-3:-Geo-spatial-bounding-box-query>`__
-	- `Example 4: Geo-spatial distance query <#Example-4:-Geo-spatial-distance-query>`__
-	- `Example 5: Range query <#Example-5:-Range-query>`__
+	- `Usual cassandra query <#usual-cassandra-query>`__
+	- `Match query <#match-query>`__
+	- `Geo-spatial bounding box query <#geo-spatial-bounding-box-query>`__
+	- `Geo-spatial distance query <#geo-spatial-distance-query>`__
+	- `Range query <#range-query>`__
 
 
 Requirements
@@ -201,8 +201,8 @@ spark-shell in any of the workers
 As you can see the spark-shell examples are just like the scala code just taking out the SparkContext contruction
 line because spark-shell builds it while starting
  
-Example 1: Usual cassandra query
-++++++++++++++++++++++++++++++++
+Usual cassandra query
++++++++++++++++++++++
 
 This example calculates the mean off all (1000 rows) temp values.
 
@@ -242,8 +242,8 @@ From spark-shell:
 
  	
  	
-Example 2: Match query
-++++++++++++++++++++++
+Match query
++++++++++++
 
 This example calculates the mean temp of sensors with sensor_type match "plane"
 
@@ -287,8 +287,8 @@ From spark-shell:
 			+", numRows: "+ totalNumElems.toString)
 
 
-Example 3: Geo-spatial bounding box query
-+++++++++++++++++++++++++++++++++++++++++
+Geo-spatial bounding box query
+++++++++++++++++++++++++++++++
 
 This example calculates the mean temp of sensors whose position in inside bounding box [(-10.0, 10.0), (-10.0, 10.0)]
 
@@ -331,8 +331,8 @@ From spark-shell:
 
 
 
-Example 4: Geo-spatial distance query
-+++++++++++++++++++++++++++++++++++++
+Geo-spatial distance query
+++++++++++++++++++++++++++
 
 This example calculates the mean temp of sensors whose position distance from [0.0, 0.0] is less than 100000km
 
@@ -373,8 +373,8 @@ From spark-shell:
 	println("Mean calculated on GeoDistance data, mean: "+totalMean.toString
 			+" , numRows: "+totalNumElems.toString)
 
-Example 5: Range query
-++++++++++++++++++++++
+Range query
++++++++++++
 
 This example calculates the mean temp of sensors whose temp >= 30.0
 
