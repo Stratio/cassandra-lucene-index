@@ -39,7 +39,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends git
 
 # Configuration: Cassandra Version & Plugin Version
 ENV CASSANDRA_VERSION 2.1.8
-ENV PLUGIN_VERSION $CASSANDRA_VERSION.1
+ENV PLUGIN_VERSION $CASSANDRA_VERSION.4
 
 RUN apt-key adv --keyserver ha.pool.sks-keyservers.net --recv-keys 514A2AD631A57A16DD0047EC749D6EEC0353B12C
 

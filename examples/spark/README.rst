@@ -1,9 +1,6 @@
 Cassandra Lucene Index Spark Examples
 =====================================
 
-Here you have some Spark examples over Cassandra Lucene queries
-
-
 - `Requirements <#requirements>`__
 	- `Download and compile <#download-and-compile>`__
 	- `Build docker container <#build-docker-container>`__
@@ -20,8 +17,8 @@ Here you have some Spark examples over Cassandra Lucene queries
 Requirements
 ------------
 
-To be able to run these examples we have created a Debian-based Docker container with java 7.80.15 maven 3.3.3, Spark
-1.4.1 with Apache Hadoop 2.6, Apache Cassandra 2.1.8 and Stratio’s Cassandra Lucene Index 2.1.8.1.
+To be able to run these examples we have created a Debian-based Docker container with Java 7.80.15 Maven 3.3.3, Spark
+1.4.1 with Apache Hadoop 2.6, Apache Cassandra 2.1.8 and Stratio’s Cassandra Lucene Index 2.1.8.4.
 Once the docker container is built know every user can deploy a cluster with one machine acting as Spark Master and
 others as Spark Workers and Cassandra nodes. Here we show you all the steps you have to follow before getting the entire
 cluster working.
@@ -122,7 +119,7 @@ or the cassandra ring running in host terminal
 Create example environment
 ++++++++++++++++++++++++++
 
-When you have your cluster running you can execute the CreateTableAndPopulate.cql, this file with the jar containing
+When you have your cluster running you can execute the CreateTableAndPopulate.cql, this file with the JAR containing
 examples' code is in /home/example in docker containers, so you don't need to copy anything.
  
 Open a terminal in any of the workers 
@@ -198,7 +195,7 @@ spark-shell in any of the workers
 
 
 
-As you can see the spark-shell examples are just like the scala code just taking out the SparkContext contruction
+As you can see the spark-shell examples are just like the scala code just taking out the SparkContext construction
 line because spark-shell builds it while starting
  
 Usual cassandra query
@@ -290,7 +287,7 @@ From spark-shell:
 Geo-spatial bounding box query
 ++++++++++++++++++++++++++++++
 
-This example calculates the mean temp of sensors whose position in inside bounding box [(-10.0, 10.0), (-10.0, 10.0)]
+This example calculates the mean temperature of sensors whose position in inside bounding box [(-10.0, 10.0), (-10.0, 10.0)]
 
 From terminal:
 
@@ -334,7 +331,7 @@ From spark-shell:
 Geo-spatial distance query
 ++++++++++++++++++++++++++
 
-This example calculates the mean temp of sensors whose position distance from [0.0, 0.0] is less than 100000km
+This example calculates the mean temperature of sensors whose position distance from [0.0, 0.0] is less than 100000km.
 
 From terminal:
 
@@ -376,7 +373,7 @@ From spark-shell:
 Range query
 +++++++++++
 
-This example calculates the mean temp of sensors whose temp >= 30.0
+This example calculates the mean temperature of sensors whose temp >= 30.0.
 
 From terminal:
 
