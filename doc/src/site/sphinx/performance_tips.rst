@@ -2,7 +2,7 @@ Performance tips
 ****************
 
 Lucene index plugin performance varies depending upon several factors
-depending on the use case and you should probably do some tuning work.
+regarding to the use case and you should probably do some tuning work.
 However, there is some general advice.
 
 Choose the right use case
@@ -66,6 +66,13 @@ You can set the place where the index will be stored using the `directory_path` 
         ...
     };
 
+Disregard the first query
+=========================
+
+Lucene makes a huge use of caching,
+so the first query done to an index will be specially slow dou to the cost of initializing caches.
+Thus, you should disregard the first query when measuring performance.
+
 
 Index only what you need
 ========================
@@ -110,9 +117,7 @@ and we do not discourage its use in any way.
 However getting n rows in a page is always faster than retrieving the same n rows in two or more pages.
 For that reason, if you are interested in retrieving the best 200 rows matching a search,
 then you should ideally use a page size of 200.
-In the other hand, if you want to retrieve thousands or millions of rows,
+On the other hand, if you want to retrieve thousands or millions of rows,
 then you should use a high page size, maybe 1000 rows per page.
 Page size can be set in cqlsh in a per-session basis using the command `PAGING``
 and in Java driver its set in a per-query basis using the attribute `pageSize``.
-
-

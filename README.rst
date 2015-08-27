@@ -26,7 +26,8 @@ tables, inverted indexes, and/or secondary indexes. It is just a tool
 to perform some kind of queries which are really hard to be addressed
 using Apache Cassandra out of the box features.
 
-More detailed information is available at `Stratio’s Cassandra Lucene Index documentation <doc/src/site/sphinx/documentation.rst>`__.
+More detailed information is available at `Stratio’s Cassandra Lucene Index documentation <doc/src/site/sphinx/documentation.rst>`__,
+as well as `Spark examples for Cassandra Lucene Index <examples/spark>`__.
 
 Features
 --------
