@@ -3,17 +3,18 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>examples</artifactId>
         <groupId>com.stratio.cassandra</groupId>
+        <artifactId>cassandra-lucene-index-examples</artifactId>
         <version>2.1.8.4-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
 
-    <artifactId>spark</artifactId>
+    <artifactId>cassandra-lucene-index-examples-spark</artifactId>
 
-    <name>Cassandra Lucene Index plugin spark examples</name>
-    <description>Cassandra Lucene Index plugin spark examples</description>
+    <name>Cassandra Lucene Index plugin Spark examples</name>
+    <description>Cassandra Lucene Index plugin Spark examples</description>
+
     <dependencies>
         <dependency>
             <groupId>com.datastax.spark</groupId>
@@ -28,14 +29,16 @@
         <dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
-            <version>2.10.4</version>
+            <version>2.10.5</version>
         </dependency>
     </dependencies>
+
     <build>
         <plugins>
             <plugin>
                 <groupId>org.scala-tools</groupId>
                 <artifactId>maven-scala-plugin</artifactId>
+                <version>2.15.2</version>
                 <executions>
                     <execution>
                         <goals>

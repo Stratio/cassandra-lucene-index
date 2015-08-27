@@ -32,7 +32,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Variation of {@link org.apache.lucene.analysis.miscellaneous.PerFieldAnalyzerWrapper} to be used with CQL.
+ * Variation of {@link DelegatingAnalyzerWrapper} to be used with CQL.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
