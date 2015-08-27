@@ -72,8 +72,8 @@ CASSANDRA_SEEDS_IP with the worker1 ip
 
 .. code-block:: bash
 
-	docker run -i -t --rm -e SPARK_MASTER=[SPARK_MASTER_IP] -e CASSANDRA_SEEDS=[WORKER1_IP] --name worker2 
-	stratio/cassandra_spark
+	docker run -i -t --rm -e SPARK_MASTER=[SPARK_MASTER_IP] -e CASSANDRA_SEEDS=[WORKER1_IP] \
+	--name worker2 stratio/cassandra_spark
 
 
 You can execute all this step by using docker inspect, simply execute this script
@@ -84,8 +84,10 @@ You can execute all this step by using docker inspect, simply execute this scrip
 	export SPARK_MASTER_IP=$(docker inspect -f  '{{ .NetworkSettings.IPAddress }}' spark_master) &&
 	docker run -d -e SPARK_MASTER=$SPARK_MASTER_IP --name worker1 stratio/cassandra_spark &&
 	export CASSANDRA_SEEDS=$(docker inspect -f  '{{ .NetworkSettings.IPAddress }}' worker1) &&
-	docker run -d -e SPARK_MASTER=$SPARK_MASTER_IP -e CASSANDRA_SEEDS=$CASSANDRA_SEEDS --name worker2 stratio/cassandra_spark &&
-	docker run -d -e SPARK_MASTER=$SPARK_MASTER_IP -e CASSANDRA_SEEDS=$CASSANDRA_SEEDS --name worker3 stratio/cassandra_spark
+	docker run -d -e SPARK_MASTER=$SPARK_MASTER_IP -e CASSANDRA_SEEDS=$CASSANDRA_SEEDS \
+	--name worker2 stratio/cassandra_spark &&
+	docker run -d -e SPARK_MASTER=$SPARK_MASTER_IP -e CASSANDRA_SEEDS=$CASSANDRA_SEEDS \
+	--name worker3 stratio/cassandra_spark
 
 Now you have a Cassandra/Spark running cluster. You can check the Spark cluster in spark master web
 : 
@@ -179,15 +181,15 @@ spark-shell in any of the workers
 
 
 
-As you can see the spark-shell examples are just like the scala code just taking out the SparkContext contruction 
+As you can see the spark-shell examples are just like the scala code just taking out the SparkContext contruction
 line because spark-shell builds it while starting
  
 Example 1: Calculate mean temperature of all values
 +++++++++++++++++++++++++++++++++++++++++++++++++++
 
-	This example calculates the mean off all (1000 rows) temp values.
+This example calculates the mean off all (1000 rows) temp values.
 
-	From terminal:
+From terminal:
 
 .. code-block:: bash
 
@@ -208,7 +210,8 @@ From spark-shell:
 	var totalMean = 0.0f
 
 	sc.addJar("/home/example/spark-2.1.8.4-SNAPSHOT.jar")
-	val tempRdd=sc.cassandraTable(KEYSPACE, TABLE).select("temp_value").map[Float]((row)=>row.getFloat("temp_value"))
+	val tempRdd=sc.cassandraTable(KEYSPACE, TABLE).select("temp_value")
+				.map[Float]((row)=>row.getFloat("temp_value"))
 
 	val totalNumElems: Long =tempRdd.count()
 
@@ -217,7 +220,8 @@ From spark-shell:
 		val totalTempPairRdd = pairTempRdd.reduceByKey((a, b) => a + b)
 		totalMean = totalTempPairRdd.first()._2 / totalNumElems.toFloat
 	}
-	println("Mean calculated on all data, mean: "+totalMean.toString +" numRows: "+ totalNumElems.toString)
+	println("Mean calculated on all data, mean: "+totalMean.toString
+			+" numRows: "+ totalNumElems.toString)
 
  	
  	
@@ -246,7 +250,9 @@ From spark-shell:
 
 	val luceneQuery: String = search.refresh(true).filter(`match`("sensor_type", "plane")).toJson
 
-	val tempRdd=sc.cassandraTable(KEYSPACE, TABLE).select("temp_value").where(INDEX_COLUMN_CONSTANT+ "= ?",luceneQuery).map[Float]((row)=>row.getFloat("temp_value"))
+	val tempRdd=sc.cassandraTable(KEYSPACE, TABLE).select("temp_value")
+				.where(INDEX_COLUMN_CONSTANT+ "= ?",luceneQuery)
+				.map[Float]((row)=>row.getFloat("temp_value"))
 
 	val totalNumElems: Long =tempRdd.count()
 
@@ -256,7 +262,8 @@ From spark-shell:
 		totalMean = totalTempPairRdd.first()._2 / totalNumElems.toFloat
 	}
 
-	println("Mean calculated on type query data, mean: "+totalMean.toString+", numRows: "+ totalNumElems.toString)
+	println("Mean calculated on type query data, mean: "+totalMean.toString
+			+", numRows: "+ totalNumElems.toString)
 
 
 Example 3: Calculate mean temp of only sensors whose position in inside [(-10.0, 10.0), (-10.0, 10.0)]
@@ -294,7 +301,8 @@ From spark-shell:
 		totalMean = totalTempPairRdd.first()._2 / totalNumElems.toFloat
 	}
 
-	println("Mean calculated on BBOX query data, mean: "+totalMean.toString+" , numRows: "+ totalNumElems.toString)
+	println("Mean calculated on BBOX query data, mean: "+totalMean.toString
+			+" , numRows: "+ totalNumElems.toString)
 
 
 
@@ -321,8 +329,9 @@ From spark-shell:
 
 	val luceneQuery = search.refresh(true).filter(geoDistance("place", 0.0f, 0.0f, "100000km")).toJson
 
-	val tempRdd=sc.cassandraTable(KEYSPACE, TABLE).select("temp_value").where(INDEX_COLUMN_CONSTANT+ "= ?",
-	luceneQuery).map[Float]((row)=>row.getFloat("temp_value"))
+	val tempRdd=sc.cassandraTable(KEYSPACE, TABLE).select("temp_value")
+				.where(INDEX_COLUMN_CONSTANT+ "= ?",luceneQuery)
+				.map[Float]((row)=>row.getFloat("temp_value"))
 
 	val totalNumElems: Long =tempRdd.count()
 
@@ -332,7 +341,8 @@ From spark-shell:
 		totalMean = totalTempPairRdd.first()._2 / totalNumElems.toFloat
 	}
 
-	println("Mean calculated on GeoDistance data, mean: "+totalMean.toString+" , numRows: "+totalNumElems.toString)
+	println("Mean calculated on GeoDistance data, mean: "+totalMean.toString
+			+" , numRows: "+totalNumElems.toString)
 
 Example 5: Calculate mean temp of only sensors whose temp >= 30.0
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -356,9 +366,12 @@ From spark-shell:
 	val INDEX_COLUMN_CONSTANT: String = "lucene"
 	var totalMean = 0.0f
 
-	val luceneQuery: String = search.refresh(true).filter(range("temp_value").includeLower(true).lower(30.0f)).toJson
+	val luceneQuery: String = search.refresh(true).filter(range("temp_value").includeLower(true)
+								.lower(30.0f)).toJson
 
-	val tempRdd=sc.cassandraTable(KEYSPACE, TABLE).select("temp_value").where(INDEX_COLUMN_CONSTANT+ "= ?",luceneQuery).map[Float]((row)=>row.getFloat("temp_value"))
+	val tempRdd=sc.cassandraTable(KEYSPACE, TABLE).select("temp_value")
+				.where(INDEX_COLUMN_CONSTANT+ "= ?",luceneQuery)
+				.map[Float]((row)=>row.getFloat("temp_value"))
 
 	val totalNumElems: Long =tempRdd.count()
 
@@ -368,4 +381,5 @@ From spark-shell:
 		totalMean = totalTempPairRdd.first()._2 / totalNumElems.toFloat
 	}
 
-	println("Mean calculated on range type data, mean: "+totalMean.toString+" , numRows: "+ totalNumElems.toString)
+	println("Mean calculated on range type data, mean: "+totalMean.toString
+		+" , numRows: "+ totalNumElems.toString)
