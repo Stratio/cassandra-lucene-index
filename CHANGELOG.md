@@ -9,6 +9,7 @@
  * Don't propagate internal index exceptions
  * Allow the deletion of old unsupported indexes
  * Detect wrong sorting in date ranges (issue#36) 
+ * Add Spark examples
 
 ## 2.1.8.3 (20 August 2015)
  * Fix analyzer selection in maps (issue#18)
