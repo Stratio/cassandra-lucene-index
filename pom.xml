@@ -39,7 +39,6 @@
     <modules>
         <module>doc</module>
         <module>plugin</module>
-        <module>examples</module>
     </modules>
 
     <licenses>
