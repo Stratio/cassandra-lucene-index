@@ -10,8 +10,8 @@ Here you have some Spark examples over Cassandra Lucene queries
 	- `Deploy the cluster <#deploy-the-cluster>`__
 	- `Create example environment <#create-example-environment>`__
 - `Examples <#examples>`__
-	- `Example 1: Usual cassandra query`__
-	- `Example 2: Match query <#Example-2:-match-query>`__
+	- `Example 1: Usual cassandra query <#example-1:-usual-cassandra-query>`__
+	- `Example 2: Match query <#Example-2\:-match-query>`__
 	- `Example 3: Geo-spatial bounding box query <#Example-3:-Geo-spatial-bounding-box-query>`__
 	- `Example 4: Geo-spatial distance query <#Example-4:-Geo-spatial-distance-query>`__
 	- `Example 5: Range query <#Example-5:-Range-query>`__
