@@ -28,15 +28,13 @@ import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.document.SortedDocValuesField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.search.FieldComparator;
-import org.apache.lucene.search.FieldComparatorSource;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.SortField;
-import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.*;
 import org.apache.lucene.util.BytesRef;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * {@link TokenMapper} to be used when any {@link org.apache.cassandra.dht.IPartitioner} when there is not a more
@@ -62,15 +60,14 @@ public class TokenMapperGeneric extends TokenMapper {
     @Override
     public void addFields(Document document, DecoratedKey partitionKey) {
         ByteBuffer bb = factory.toByteArray(partitionKey.getToken());
-        String serialized = ByteBufferUtils.toString(bb);
-        BytesRef bytesRef = new BytesRef(serialized);
-        document.add(new StringField(FIELD_NAME, serialized, Store.NO));
+        BytesRef bytesRef = ByteBufferUtils.bytesRef(bb);
+        document.add(new StringField(FIELD_NAME, bytesRef, Store.NO));
         document.add(new SortedDocValuesField(FIELD_NAME, bytesRef));
     }
 
     /** {@inheritDoc} */
     @Override
-    protected Query makeQuery(Token lower, Token upper, boolean includeLower, boolean includeUpper) {
+    protected Query doQuery(Token lower, Token upper, boolean includeLower, boolean includeUpper) {
         return new TokenQuery(lower, upper, includeLower, includeUpper, this);
     }
 
@@ -84,8 +81,8 @@ public class TokenMapperGeneric extends TokenMapper {
 
     /** {@inheritDoc} */
     @Override
-    public SortField[] sortFields() {
-        return new SortField[]{new SortField(FIELD_NAME, new FieldComparatorSource() {
+    public List<SortField> sortFields() {
+        return Collections.singletonList(new SortField(FIELD_NAME, new FieldComparatorSource() {
             @Override
             public FieldComparator<?> newComparator(String field, int hits, int sort, boolean reversed)
             throws IOException {
@@ -96,7 +93,7 @@ public class TokenMapperGeneric extends TokenMapper {
                     }
                 };
             }
-        })};
+        }));
     }
 
     /**
@@ -106,8 +103,7 @@ public class TokenMapperGeneric extends TokenMapper {
      * @return The Cassandra {@link Token} represented by the specified Lucene {@link BytesRef}.
      */
     Token token(BytesRef bytesRef) {
-        String string = bytesRef.utf8ToString();
-        ByteBuffer bb = ByteBufferUtils.fromString(string);
+        ByteBuffer bb = ByteBufferUtils.byteBuffer(bytesRef);
         return factory.fromByteArray(bb);
     }
 

@@ -120,8 +120,8 @@ public class GeoDistanceConditionTest extends AbstractConditionTest {
         Query query = condition.query(schema);
         assertNotNull("Query is not built", query);
         BooleanQuery booleanQuery = (BooleanQuery) query;
-        assertEquals("Query num clauses is wrong", 1, booleanQuery.getClauses().length);
-        BooleanClause maxClause = booleanQuery.getClauses()[0];
+        assertEquals("Query num clauses is wrong", 1, booleanQuery.clauses().size());
+        BooleanClause maxClause = booleanQuery.clauses().get(0);
         assertEquals("Query occur is wrong", BooleanClause.Occur.FILTER, maxClause.getOccur());
         query = maxClause.getQuery();
         assertTrue("Query type is wrong", query instanceof ConstantScoreQuery);
@@ -147,9 +147,9 @@ public class GeoDistanceConditionTest extends AbstractConditionTest {
         assertNotNull("Query is not built", query);
         assertTrue("Query type is wrong", query instanceof BooleanQuery);
         BooleanQuery booleanQuery = (BooleanQuery) query;
-        assertEquals("Query num clauses is wrong", 2, booleanQuery.getClauses().length);
+        assertEquals("Query num clauses is wrong", 2, booleanQuery.clauses().size());
 
-        BooleanClause minClause = booleanQuery.getClauses()[1];
+        BooleanClause minClause = booleanQuery.clauses().get(1);
         assertEquals("Query is wrong", BooleanClause.Occur.MUST_NOT, minClause.getOccur());
         query = minClause.getQuery();
         assertTrue("Query is wrong", query instanceof ConstantScoreQuery);
@@ -161,7 +161,7 @@ public class GeoDistanceConditionTest extends AbstractConditionTest {
                      "d=0.0° 1.00km),detailLevel=8,prefixGridScanLevel=4)",
                      minFilter.toString());
 
-        BooleanClause maxClause = booleanQuery.getClauses()[0];
+        BooleanClause maxClause = booleanQuery.clauses().get(0);
         assertEquals("Query is wrong", BooleanClause.Occur.FILTER, maxClause.getOccur());
         query = maxClause.getQuery();
         assertTrue("Query type is wrong", query instanceof ConstantScoreQuery);

@@ -297,6 +297,32 @@ public class DateRangeMapperTest extends AbstractMapperTest {
         assertEquals("Null columns must not produce fields", 0, document.getFields().size());
     }
 
+    @Test(expected = IndexException.class)
+    public void testAddFieldsWithBadSortColumns() {
+        DateRangeMapper mapper = new DateRangeMapper("name", "from", "to", TIMESTAMP_PATTERN);
+
+        Columns columns = new Columns();
+        columns.add(Column.fromComposed("from", 2, Int32Type.instance, false));
+        columns.add(Column.fromComposed("to", 1, Int32Type.instance, false));
+
+        Document document = new Document();
+        mapper.addFields(document, columns);
+    }
+
+    @Test
+    public void testAddFieldsWithSameColumns() {
+        DateRangeMapper mapper = new DateRangeMapper("name", "from", "to", TIMESTAMP_PATTERN);
+
+        Columns columns = new Columns();
+        columns.add(Column.fromComposed("from", 1, Int32Type.instance, false));
+        columns.add(Column.fromComposed("to", 1, Int32Type.instance, false));
+
+        Document document = new Document();
+        mapper.addFields(document, columns);
+        IndexableField[] indexableFields = document.getFields("name");
+        assertEquals("Indexed field is not created", 1, indexableFields.length);
+    }
+
     @Test
     public void testExtractAnalyzers() {
         DateRangeMapper mapper = new DateRangeMapper("name", "from", "to", null);

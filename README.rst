@@ -21,6 +21,11 @@ Adding Lucene filters in the jobs input can dramatically reduce the amount of da
 Any cell in the tables can be indexed, including those in the primary key as well as collections. Wide rows are also
 supported. You can scan token/key ranges, apply additional CQL3 clauses and page on the filtered results.
 
+This project is not intended to replace Apache Cassandra denormalized
+tables, inverted indexes, and/or secondary indexes. It is just a tool
+to perform some kind of queries which are really hard to be addressed
+using Apache Cassandra out of the box features.
+
 More detailed information is available at `Stratio’s Cassandra Lucene Index documentation <doc/src/site/sphinx/documentation.rst>`__.
 
 Features
@@ -65,7 +70,7 @@ containing the plugin and add it to the Cassandra’s classpath:
 
 -  Build the plugin with Maven: ``mvn clean package``
 -  Copy the generated JAR to the lib folder of your compatible Cassandra installation:
-   ``cp plugin/target/cassandra-lucene-index-plugin-2.1.8.4-SNAPSHOT.jar <CASSANDRA_HOME>/lib/``
+   ``cp plugin/target/cassandra-lucene-index-plugin-2.1.8.5-SNAPSHOT.jar <CASSANDRA_HOME>/lib/``
 -  Start/restart Cassandra as usual
 
 Alternatively, patching can also be done with this Maven profile, specifying the path of your Cassandra installation,

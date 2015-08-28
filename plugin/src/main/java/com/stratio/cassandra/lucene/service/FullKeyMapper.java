@@ -30,6 +30,7 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.util.BytesRef;
 
 import java.nio.ByteBuffer;
 
@@ -120,9 +121,9 @@ public final class FullKeyMapper {
      * @param clusteringKey A clustering key.
      */
     public void addFields(Document document, DecoratedKey partitionKey, CellName clusteringKey) {
-        ByteBuffer fullKey = byteBuffer(partitionKey, clusteringKey);
-        String string = ByteBufferUtils.toString(fullKey);
-        Field field = new StringField(FIELD_NAME, string, Store.NO);
+        ByteBuffer bb = byteBuffer(partitionKey, clusteringKey);
+        BytesRef bytesRef = ByteBufferUtils.bytesRef(bb);
+        Field field = new StringField(FIELD_NAME, bytesRef, Store.NO);
         document.add(field);
     }
 
@@ -135,8 +136,9 @@ public final class FullKeyMapper {
      * @return The Lucene {@link Term} representing the full row key formed by the specified key pair.
      */
     public Term term(DecoratedKey partitionKey, CellName clusteringKey) {
-        ByteBuffer fullKey = byteBuffer(partitionKey, clusteringKey);
-        return new Term(FIELD_NAME, ByteBufferUtils.toString(fullKey));
+        ByteBuffer bb = byteBuffer(partitionKey, clusteringKey);
+        BytesRef bytesRef = ByteBufferUtils.bytesRef(bb);
+        return new Term(FIELD_NAME, bytesRef);
     }
 
 }

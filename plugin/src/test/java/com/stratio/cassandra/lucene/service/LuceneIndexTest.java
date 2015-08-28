@@ -26,27 +26,21 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.document.SortedDocValuesField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.SearcherManager;
-import org.apache.lucene.search.Sort;
-import org.apache.lucene.search.SortField;
-import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.search.WildcardQuery;
+import org.apache.lucene.search.*;
 import org.apache.lucene.util.BytesRef;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
 import static junit.framework.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
@@ -63,16 +57,16 @@ public class LuceneIndexTest {
     @Test
     public void testCRUD() throws IOException, InterruptedException {
 
-        Path path = Paths.get(folder.newFolder("directory" + UUID.randomUUID()).getPath());
-        LuceneIndex index = new LuceneIndex("ks",
-                                            "cf",
-                                            "idx",
-                                            path,
-                                            IndexConfig.DEFAULT_RAM_BUFFER_MB,
-                                            IndexConfig.DEFAULT_MAX_MERGE_MB,
-                                            IndexConfig.DEFAULT_MAX_CACHED_MB,
-                                            REFRESH_SECONDS,
-                                            new StandardAnalyzer());
+        IndexConfig config = mock(IndexConfig.class);
+        when(config.getName()).thenReturn("test_index");
+        when(config.getPath()).thenReturn(Paths.get(folder.newFolder("directory" + UUID.randomUUID()).getPath()));
+        when(config.getRamBufferMB()).thenReturn(IndexConfig.DEFAULT_RAM_BUFFER_MB);
+        when(config.getMaxMergeMB()).thenReturn(IndexConfig.DEFAULT_MAX_MERGE_MB);
+        when(config.getMaxCachedMB()).thenReturn(IndexConfig.DEFAULT_MAX_CACHED_MB);
+        when(config.getRefreshSeconds()).thenReturn(REFRESH_SECONDS);
+        when(config.getAnalyzer()).thenReturn(new StandardAnalyzer());
+
+        LuceneIndex index = new LuceneIndex(config);
         Sort sort = new Sort(new SortField("field", SortField.Type.STRING));
         assertEquals("Index must be empty", 0, index.getNumDocs());
 
@@ -101,18 +95,6 @@ public class LuceneIndexTest {
         IndexSearcher searcher = searcherManager.acquire();
 
         try {
-            results = index.search(searcher, query, null, null, 1, fields);
-            assertEquals("Expected 1 document", 1, results.size());
-            ScoreDoc last1 = results.values().iterator().next();
-            results = index.search(searcher, query, null, last1, 1, fields);
-            assertEquals("Expected 1 document", 1, results.size());
-
-            results = index.search(searcher, query, null, null, 1, fields);
-            assertEquals("Expected 1 document", 1, results.size());
-            ScoreDoc last2 = results.values().iterator().next();
-            results = index.search(searcher, query, null, last2, 1, fields);
-            assertEquals("Expected 1 document", 1, results.size());
-
             results = index.search(searcher, query, sort, null, 1, fields);
             assertEquals("Expected 1 document", 1, results.size());
             ScoreDoc last3 = results.values().iterator().next();

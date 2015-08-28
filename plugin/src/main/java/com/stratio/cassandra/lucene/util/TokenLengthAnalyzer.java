@@ -40,7 +40,7 @@ public class TokenLengthAnalyzer extends AnalyzerWrapper {
 
     private static final Logger logger = LoggerFactory.getLogger(TokenLengthAnalyzer.class);
 
-    private Analyzer analyzer;
+    private final Analyzer analyzer;
 
     /**
      * Builds a new {@link TokenLengthAnalyzer} which wraps the specified {@link Analyzer}.
@@ -78,7 +78,7 @@ public class TokenLengthAnalyzer extends AnalyzerWrapper {
     static final class TokenLengthFilter extends FilteringTokenFilter {
 
         private final CharTermAttribute tm = addAttribute(CharTermAttribute.class);
-        private String fieldName;
+        private final String fieldName;
 
         private TokenLengthFilter(TokenStream tokenStream, String fieldName) {
             super(tokenStream);

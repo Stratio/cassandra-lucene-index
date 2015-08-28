@@ -2,8 +2,47 @@ Performance tips
 ****************
 
 Lucene index plugin performance varies depending upon several factors
-depending on the use case and you should probably do some tuning work.
+regarding to the use case and you should probably do some tuning work.
 However, there is some general advice.
+
+Choose the right use case
+=========================
+
+Lucene searches are much more time and resource consuming than their Cassandra counterparts,
+not being an alternative to Apache Cassandra denormalized tables, inverted indexes, and/or
+secondary indexes.
+In most cases, it is a bad idea to model a system with simple skinny rows and try to satisfy
+all queries with Lucene.
+For example, the following search could be more efficiently addressed using a denormalized table:
+
+.. code-block:: sql
+
+    SELECT * FROM users
+    WHERE lucene = '{filter : {
+                      type  : "match",
+                      field : "name",
+                      value : "Alice" }}';
+
+However, this search could be a good use case for Lucene just because there is no easy counterpart:
+
+.. code-block:: sql
+
+    SELECT * FROM users
+    WHERE lucene = '{filter : {
+                       type : "boolean",
+                       must : [{type : "regexp", field : "name", value : "[J][aeiou]{2}.*"},
+                               {type:"range", field:"birthday", lower:"2014/04/25", upper:"2014/05/1"}]}}';
+
+Lucene indexes are intended to be used in those cases that can't be efficiently addressed
+with Apache Cassandra common techniques, such as full-text queries, multidimensional queries,
+geospatial search and bitemporal data models.
+
+Use the latest version
+======================
+
+Each new version might be as fast or faster than the previous one,
+so please try to use the latest version if possible.
+You can find the list of changes and performance improvements at `changelog file </CHANGELOG.md>`__.
 
 Disable virtual nodes
 =====================
@@ -26,6 +65,13 @@ You can set the place where the index will be stored using the `directory_path` 
         'directory_path' : '<lucene_disk>',
         ...
     };
+
+Disregard the first query
+=========================
+
+Lucene makes a huge use of caching,
+so the first query done to an index will be specially slow dou to the cost of initializing caches.
+Thus, you should disregard the first query when measuring performance.
 
 
 Index only what you need
@@ -71,9 +117,7 @@ and we do not discourage its use in any way.
 However getting n rows in a page is always faster than retrieving the same n rows in two or more pages.
 For that reason, if you are interested in retrieving the best 200 rows matching a search,
 then you should ideally use a page size of 200.
-In the other hand, if you want to retrieve thousands or millions of rows,
+On the other hand, if you want to retrieve thousands or millions of rows,
 then you should use a high page size, maybe 1000 rows per page.
 Page size can be set in cqlsh in a per-session basis using the command `PAGING``
 and in Java driver its set in a per-query basis using the attribute `pageSize``.
-
-

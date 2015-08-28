@@ -68,10 +68,10 @@ public class Sort implements Iterable<SortField> {
      * @param schema The {@link Schema} to be used.
      * @return the Lucene {@link Sort} representing this {@link Sort}.
      */
-    public org.apache.lucene.search.SortField[] sortFields(Schema schema) {
-        org.apache.lucene.search.SortField[] fields = new org.apache.lucene.search.SortField[sortFields.size()];
-        for (int i = 0; i < sortFields.size(); i++) {
-            fields[i] = sortFields.get(i).sortField(schema);
+    public List<org.apache.lucene.search.SortField> sortFields(Schema schema) {
+        List<org.apache.lucene.search.SortField> fields = new ArrayList<>(sortFields.size());
+        for (SortField sortField : sortFields) {
+            fields.add(sortField.sortField(schema));
         }
         return fields;
     }

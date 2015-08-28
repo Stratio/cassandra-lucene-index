@@ -19,14 +19,9 @@
 package com.stratio.cassandra.lucene.service;
 
 import com.google.common.collect.Lists;
+import com.stratio.cassandra.lucene.IndexConfig;
 import com.stratio.cassandra.lucene.schema.column.Columns;
-import org.apache.cassandra.config.ColumnDefinition;
-import org.apache.cassandra.db.ColumnFamily;
-import org.apache.cassandra.db.ColumnFamilyStore;
-import org.apache.cassandra.db.DecoratedKey;
-import org.apache.cassandra.db.DeletionInfo;
-import org.apache.cassandra.db.RangeTombstone;
-import org.apache.cassandra.db.Row;
+import org.apache.cassandra.db.*;
 import org.apache.cassandra.db.composites.CellName;
 import org.apache.cassandra.db.filter.ColumnSlice;
 import org.apache.cassandra.db.filter.QueryFilter;
@@ -51,27 +46,27 @@ public class RowServiceWide extends RowService {
     /** The names of the Lucene fields to be loaded. */
     private static final Set<String> FIELDS_TO_LOAD;
 
-    private static final int ROWS_PER_SLICE_QUERY = 1000;
-
     static {
         FIELDS_TO_LOAD = new HashSet<>();
         FIELDS_TO_LOAD.add(PartitionKeyMapper.FIELD_NAME);
         FIELDS_TO_LOAD.add(ClusteringKeyMapper.FIELD_NAME);
     }
 
+    private static final int ROWS_PER_SLICE_QUERY = 1000;
+
     /** The used row mapper. */
-    private final RowMapperWide rowMapper;
+    private final RowMapperWide mapper;
 
     /**
-     * Returns a new {@code RowServiceWide} for manage wide rows.
+     * Returns a new {@code RowServiceWide} to manage wide rows.
      *
-     * @param baseCfs          The base column family store.
-     * @param columnDefinition The indexed column definition.
+     * @param cfs The indexed {@link ColumnFamilyStore}.
+     * @param config The {@link IndexConfig}.
      * @throws IOException If there are I/O errors.
      */
-    public RowServiceWide(ColumnFamilyStore baseCfs, ColumnDefinition columnDefinition) throws IOException {
-        super(baseCfs, columnDefinition);
-        this.rowMapper = (RowMapperWide) super.rowMapper;
+    public RowServiceWide(ColumnFamilyStore cfs, IndexConfig config) throws IOException {
+        super(cfs, config);
+        this.mapper = (RowMapperWide) super.mapper;
     }
 
     /**
@@ -88,22 +83,22 @@ public class RowServiceWide extends RowService {
     @Override
     public void index(ByteBuffer key, ColumnFamily columnFamily, long timestamp) throws IOException {
         DeletionInfo deletionInfo = columnFamily.deletionInfo();
-        DecoratedKey partitionKey = rowMapper.partitionKey(key);
+        DecoratedKey partitionKey = mapper.partitionKey(key);
 
         if (columnFamily.iterator().hasNext()) {
             ColumnFamily cleanColumnFamily = cleanExpired(columnFamily, timestamp);
-            luceneIndex.upsert(documents(partitionKey, cleanColumnFamily, timestamp));
+            lucene.upsert(documents(partitionKey, cleanColumnFamily, timestamp));
         } else if (deletionInfo != null) {
             Iterator<RangeTombstone> iterator = deletionInfo.rangeIterator();
             if (iterator.hasNext()) {
                 while (iterator.hasNext()) {
                     RangeTombstone rangeTombstone = iterator.next();
-                    Query query = rowMapper.query(partitionKey, rangeTombstone);
-                    luceneIndex.delete(query);
+                    Query query = mapper.query(partitionKey, rangeTombstone);
+                    lucene.delete(query);
                 }
             } else {
-                Term term = rowMapper.term(partitionKey);
-                luceneIndex.delete(term);
+                Term term = mapper.term(partitionKey);
+                lucene.delete(term);
             }
         }
     }
@@ -111,15 +106,15 @@ public class RowServiceWide extends RowService {
     /** {@inheritDoc} */
     @Override
     public void delete(DecoratedKey partitionKey) throws IOException {
-        Term term = rowMapper.term(partitionKey);
-        luceneIndex.delete(term);
+        Term term = mapper.term(partitionKey);
+        lucene.delete(term);
     }
 
     /** {@inheritDoc} */
     @Override
     public Map<Term, Document> documents(DecoratedKey partitionKey, ColumnFamily columnFamily, long timestamp) {
 
-        Map<CellName, ColumnFamily> incomingRows = rowMapper.splitRows(columnFamily);
+        Map<CellName, ColumnFamily> incomingRows = mapper.splitRows(columnFamily);
         Map<Term, Document> documents = new HashMap<>(incomingRows.size());
         List<CellName> incompleteRows = new ArrayList<>(incomingRows.size());
 
@@ -127,10 +122,10 @@ public class RowServiceWide extends RowService {
         for (Map.Entry<CellName, ColumnFamily> entry : incomingRows.entrySet()) {
             CellName clusteringKey = entry.getKey();
             ColumnFamily rowColumnFamily = entry.getValue();
-            Columns columns = rowMapper.columns(partitionKey, rowColumnFamily);
+            Columns columns = mapper.columns(partitionKey, rowColumnFamily);
             if (schema.mapsAll(columns)) {
-                Term term = rowMapper.term(partitionKey, clusteringKey);
-                Document document = rowMapper.document(partitionKey, clusteringKey, columns);
+                Term term = mapper.term(partitionKey, clusteringKey);
+                Document document = mapper.document(partitionKey, clusteringKey, columns);
                 documents.put(term, document);
             } else {
                 incompleteRows.add(clusteringKey);
@@ -142,9 +137,9 @@ public class RowServiceWide extends RowService {
             for (Entry<CellName, ColumnFamily> entry : rows(partitionKey, incompleteRows, timestamp).entrySet()) {
                 CellName clusteringKey = entry.getKey();
                 ColumnFamily rowColumnFamily = entry.getValue();
-                Columns columns = rowMapper.columns(partitionKey, rowColumnFamily);
-                Term term = rowMapper.term(partitionKey, clusteringKey);
-                Document document = rowMapper.document(partitionKey, clusteringKey, columns);
+                Columns columns = mapper.columns(partitionKey, rowColumnFamily);
+                Term term = mapper.term(partitionKey, clusteringKey);
+                Document document = mapper.document(partitionKey, clusteringKey, columns);
                 documents.put(term, document);
             }
         }
@@ -157,7 +152,7 @@ public class RowServiceWide extends RowService {
      * The {@link Row} is a logical one.
      */
     @Override
-    protected List<Row> rows(List<SearchResult> searchResults, long timestamp, boolean relevance) {
+    protected List<Row> rows(List<SearchResult> searchResults, long timestamp, int scorePosition) {
 
         // Group key queries by partition keys
         Map<String, ScoreDoc> scoresByClusteringKey = new HashMap<>(searchResults.size());
@@ -166,7 +161,7 @@ public class RowServiceWide extends RowService {
             DecoratedKey partitionKey = searchResult.getPartitionKey();
             CellName clusteringKey = searchResult.getClusteringKey();
             ScoreDoc scoreDoc = searchResult.getScoreDoc();
-            String rowHash = rowMapper.hash(partitionKey, clusteringKey);
+            String rowHash = mapper.hash(partitionKey, clusteringKey);
             scoresByClusteringKey.put(rowHash, scoreDoc);
             List<CellName> clusteringKeys = keys.get(partitionKey);
             if (clusteringKeys == null) {
@@ -185,10 +180,10 @@ public class RowServiceWide extends RowService {
                     CellName clusteringKey = entry1.getKey();
                     ColumnFamily columnFamily = entry1.getValue();
                     Row row = new Row(partitionKey, columnFamily);
-                    if (relevance) {
-                        String rowHash = rowMapper.hash(partitionKey, clusteringKey);
+                    if (scorePosition >= 0) {
+                        String rowHash = mapper.hash(partitionKey, clusteringKey);
                         ScoreDoc scoreDoc = scoresByClusteringKey.get(rowHash);
-                        row = addScoreColumn(row, timestamp, scoreDoc);
+                        row = addScoreColumn(row, timestamp, scoreDoc, scorePosition);
                     }
                     rows.add(row);
                 }
@@ -207,7 +202,7 @@ public class RowServiceWide extends RowService {
      * @return The CQL3 {@link Row} identified by the specified key pair.
      */
     private Map<CellName, ColumnFamily> rows(DecoratedKey partitionKey, List<CellName> clusteringKeys, long timestamp) {
-        ColumnSlice[] slices = rowMapper.columnSlices(clusteringKeys);
+        ColumnSlice[] slices = mapper.columnSlices(clusteringKeys);
 
         if (baseCfs.metadata.hasStaticColumns()) {
             LinkedList<ColumnSlice> l = new LinkedList<>(Arrays.asList(slices));
@@ -231,7 +226,7 @@ public class RowServiceWide extends RowService {
         ColumnFamily cleanQueryColumnFamily = cleanExpired(queryColumnFamily, timestamp);
 
         // Split and return CQL3 row column families
-        return rowMapper.splitRows(cleanQueryColumnFamily);
+        return mapper.splitRows(cleanQueryColumnFamily);
     }
 
 }

@@ -13,6 +13,11 @@ Hadoop <https://hadoop.apache.org/>`__, allowing you to filter data at
 database level. This speeds up jobs reducing the amount of data to be
 collected and processed.
 
+This project is not intended to replace Apache Cassandra denormalized
+tables, inverted indexes, and/or secondary indexes. It is just a tool
+to perform some kind of queries which are really hard to be addressed
+using Apache Cassandra out of the box features.
+
 Indexing is achieved through a Lucene based implementation of Cassandra
 secondary indexes, where each node of the cluster indexes its own data.
 Stratio Cassandra is one of the core modules on which Stratio's BigData
@@ -62,7 +67,7 @@ containing the plugin and add it to the Cassandra’s classpath:
 
 -  Build the plugin with Maven: ``mvn clean package``
 -  Copy the generated JAR to the lib folder of your compatible Cassandra installation:
-   ``cp plugin/target/cassandra-lucene-index-plugin-2.1.8.4-SNAPSHOT.jar <CASSANDRA_HOME>/lib/``
+   ``cp plugin/target/cassandra-lucene-index-plugin-2.1.8.5-SNAPSHOT.jar <CASSANDRA_HOME>/lib/``
 -  Start/restart Cassandra as usual
 
 Alternatively, patching can also be done with this Maven profile, specifying the path of your Cassandra installation,

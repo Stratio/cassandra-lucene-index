@@ -107,7 +107,7 @@ public class RangeCondition extends SingleColumnCondition {
             Double stop = (Double) mapper.base(field, upper);
             query = NumericRangeQuery.newDoubleRange(field, start, stop, includeLower, includeUpper);
         } else {
-            throw new IndexException("Range queries are not supported by '%s' mapper", clazz.getSimpleName());
+            throw new IndexException("Range queries are not supported by mapper '%s'", mapper);
         }
         query.setBoost(boost);
         return query;

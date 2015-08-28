@@ -23,21 +23,11 @@ import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import com.stratio.cassandra.lucene.util.DateParser;
-import org.apache.cassandra.config.CFMetaData;
-import org.apache.cassandra.db.marshal.AsciiType;
-import org.apache.cassandra.db.marshal.DecimalType;
-import org.apache.cassandra.db.marshal.DoubleType;
-import org.apache.cassandra.db.marshal.FloatType;
-import org.apache.cassandra.db.marshal.Int32Type;
-import org.apache.cassandra.db.marshal.IntegerType;
-import org.apache.cassandra.db.marshal.LongType;
-import org.apache.cassandra.db.marshal.TimestampType;
-import org.apache.cassandra.db.marshal.UTF8Type;
+import org.apache.cassandra.db.marshal.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.search.SortField;
-import org.apache.lucene.spatial.SpatialStrategy;
 import org.apache.lucene.spatial.prefix.NumberRangePrefixTreeStrategy;
 import org.apache.lucene.spatial.prefix.tree.DateRangePrefixTree;
 import org.apache.lucene.spatial.prefix.tree.NumberRangePrefixTree.NRShape;
@@ -67,7 +57,7 @@ public class DateRangeMapper extends Mapper {
 
     private final DateRangePrefixTree tree;
 
-    /** The {@link SpatialStrategy}. */
+    /** The {@link NumberRangePrefixTreeStrategy}. */
     public final NumberRangePrefixTreeStrategy strategy;
 
     /**
@@ -119,11 +109,9 @@ public class DateRangeMapper extends Mapper {
 
         if (fromDate == null && toDate == null) {
             return;
-        } else if (fromDate == null) {
-            throw new IndexException("From column required");
-        } else if (toDate == null) {
-            throw new IndexException("To column required");
         }
+
+        validate(fromDate, toDate);
 
         NRShape shape = makeShape(fromDate, toDate);
         for (IndexableField field : strategy.createIndexableFields(shape)) {
@@ -131,17 +119,24 @@ public class DateRangeMapper extends Mapper {
         }
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public SortField sortField(String name, boolean reverse) {
-        throw new IndexException("Date range mapper '%s' does not support sorting", name);
+    private void validate(Date from, Date to) {
+        if (from == null) {
+            throw new IndexException("From column required");
+        }
+        if (to == null) {
+            throw new IndexException("To column required");
+        }
+        if (from.after(to)) {
+            throw new IndexException("From:'%s' is after To:'%s'",
+                                     dateParser.toString(to),
+                                     dateParser.toString(from));
+        }
     }
 
     /** {@inheritDoc} */
     @Override
-    public void validate(CFMetaData metadata) {
-        validate(metadata, from);
-        validate(metadata, to);
+    public SortField sortField(String name, boolean reverse) {
+        throw new IndexException("Date range mapper '%s' does not support sorting", name);
     }
 
     /**

@@ -58,11 +58,13 @@ class ClusteringKeyQuery extends MultiTermQuery {
         this.type = mapper.getType();
     }
 
+    /** {@inheritDoc} */
     @Override
     protected TermsEnum getTermsEnum(Terms terms, AttributeSource atts) throws IOException {
         return new FullKeyDataRangeFilteredTermsEnum(terms.iterator());
     }
 
+    /** {@inheritDoc} */
     @Override
     public String toString(String field) {
         return new ToStringBuilder(this).append("field", field)
@@ -78,6 +80,7 @@ class ClusteringKeyQuery extends MultiTermQuery {
             setInitialSeekTerm(new BytesRef());
         }
 
+        /** {@inheritDoc} */
         @Override
         protected AcceptStatus accept(BytesRef term) {
             CellName clusteringKey = mapper.clusteringKey(term);

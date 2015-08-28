@@ -26,7 +26,7 @@
     <parent>
         <groupId>com.stratio.cassandra</groupId>
         <artifactId>cassandra-lucene-index-parent</artifactId>
-        <version>2.1.8.4-SNAPSHOT</version>
+        <version>2.1.8.5-SNAPSHOT</version>
     </parent>
 
     <packaging>jar</packaging>
@@ -59,6 +59,12 @@
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-queryparser</artifactId>
             <version>${lucene.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>1.10.19</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -94,6 +100,88 @@
     </build>
 
     <profiles>
+    	<profile>
+            <id>package</id>
+            <build>
+                <plugins>
+                  <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>build-helper-maven-plugin</artifactId>
+                        <version>1.9.1</version>
+                        <executions>
+                          <execution>
+                            <id>parse-version</id>
+                            <goals>
+                              <goal>parse-version</goal>
+                            </goals>
+                          </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>com.stratio.mojo.unix</groupId>
+                        <artifactId>unix-maven-plugin</artifactId>
+                        <version>1.1.6</version>
+                        <extensions>true</extensions>
+                        <inherited>false</inherited>
+                        <configuration>
+                        	<outputFileName>stratio-cassandra-lucene-index</outputFileName>
+                            <contact>
+                                <![CDATA[Stratio Cassandra<cassandra@stratio.com>]]>
+                            </contact>
+                            <contactEmail>cassandra@stratio.com</contactEmail>
+                            <deb>
+                                <section>devel</section>
+                                <depends>stratio-cassandra (=${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion})</depends>
+                            </deb>
+                            <rpm>
+                                <group>stratio</group>
+                                <requires>stratio-cassandra = ${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}</requires>
+                            </rpm>
+                            <name>Stratio Cassandra Lucene index</name>
+                            <excludeDirectoryAttributes>                               
+                                <dir>/opt</dir>                                
+                            </excludeDirectoryAttributes>
+                            <assembly>                                
+                                <copyFile>
+                                    <path>target/${project.build.finalName}.jar</path>
+                                    <toFile>/opt/sds/cassandra/lib/${project.build.finalName}.jar</toFile>
+                                </copyFile>
+                            </assembly>
+                            <defaults>
+                                <directoryAttributes>
+                                    <mode>0775</mode>
+                                </directoryAttributes>
+                                <fileAttributes>
+                                    <mode>0644</mode>
+                                </fileAttributes>
+                            </defaults>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>deb</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>package-deb</goal>
+                                </goals>
+                                <configuration>
+                                    <architecture>all</architecture>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>rpm</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>package-rpm</goal>
+                                </goals>
+                                <configuration>
+                                    <architecture>noarch</architecture>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
         <profile>
             <id>patch</id>
             <properties>

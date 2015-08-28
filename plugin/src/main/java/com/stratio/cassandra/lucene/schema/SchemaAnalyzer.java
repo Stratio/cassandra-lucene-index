@@ -21,7 +21,7 @@ package com.stratio.cassandra.lucene.schema;
 import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.analysis.ClasspathAnalyzerBuilder;
-import com.stratio.cassandra.lucene.schema.analysis.PreBuiltAnalyzers;
+import com.stratio.cassandra.lucene.schema.analysis.StandardAnalyzers;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 import com.stratio.cassandra.lucene.util.TokenLengthAnalyzer;
 import org.apache.commons.lang3.StringUtils;
@@ -32,7 +32,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Variation of {@link org.apache.lucene.analysis.miscellaneous.PerFieldAnalyzerWrapper} to be used with CQL.
+ * Variation of {@link DelegatingAnalyzerWrapper} to be used with CQL.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
@@ -77,7 +77,7 @@ public class SchemaAnalyzer extends DelegatingAnalyzerWrapper {
         }
         Analyzer analyzer = analyzers.get(name);
         if (analyzer == null) {
-            analyzer = PreBuiltAnalyzers.get(name);
+            analyzer = StandardAnalyzers.get(name);
             if (analyzer == null) {
                 try {
                     analyzer = (new ClasspathAnalyzerBuilder(name)).analyzer();

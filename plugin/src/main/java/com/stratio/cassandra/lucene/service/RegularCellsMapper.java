@@ -116,8 +116,8 @@ public final class RegularCellsMapper {
                         AbstractType<?> type = collectionType.valueComparator();
                         ByteBuffer keyValue = cellName.collectionElement();
                         AbstractType<?> keyType = collectionType.nameComparator();
-                        String nameSufix = keyType.compose(keyValue).toString();
-                        columns.add(Column.fromDecomposed(name, nameSufix, cellValue, type, true));
+                        String nameSuffix = keyType.compose(keyValue).toString();
+                        columns.add(Column.fromDecomposed(name, nameSuffix, cellValue, type, true));
                         break;
                     }
                 }

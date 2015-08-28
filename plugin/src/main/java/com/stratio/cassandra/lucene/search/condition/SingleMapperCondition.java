@@ -25,7 +25,7 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.search.Query;
 
 /**
- * An abstract {@link Condition} directed to a specific mapper.
+ * An abstract {@link Condition} using a specific {@link Mapper}.
  *
  * Known subclasses are: <ul> <li> {@link BitemporalCondition} <li> {@link DateRangeCondition} <li> {@link
  * GeoDistanceCondition} <li> {@link GeoBBoxCondition} </ul>
@@ -72,5 +72,6 @@ public abstract class SingleMapperCondition<T extends Mapper> extends SingleFiel
      * @param analyzer The {@link Schema} {@link Analyzer}.
      * @return The Lucene {@link Query} representation of this condition.
      */
+    @SuppressWarnings("UnusedParameters")
     public abstract Query query(T mapper, Analyzer analyzer);
 }

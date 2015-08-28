@@ -73,12 +73,12 @@ public class PhraseCondition extends SingleColumnCondition {
             QueryBuilder queryBuilder = new QueryBuilder(analyzer);
             Query query = queryBuilder.createPhraseQuery(field, value, slop);
             if (query == null) {
-                query = new BooleanQuery();
+                query = new BooleanQuery.Builder().build();
             }
             query.setBoost(boost);
             return query;
         } else {
-            throw new IndexException("Query '%s' is not supported by mapper '%s'", this, mapper);
+            throw new IndexException("Phrase queries are not supported by mapper '%s'", mapper);
         }
     }
 
