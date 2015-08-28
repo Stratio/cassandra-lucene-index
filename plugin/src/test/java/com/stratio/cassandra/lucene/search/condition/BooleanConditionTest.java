@@ -88,7 +88,7 @@ public class BooleanConditionTest extends AbstractConditionTest {
                                            .boost(0.4f)
                                            .build();
         BooleanQuery query = (BooleanQuery) condition.query(schema);
-        assertEquals("Query count clauses is wrong", 5, query.getClauses().length);
+        assertEquals("Query count clauses is wrong", 5, query.clauses().size());
         assertEquals("Query boost is wrong", 0.4f, query.getBoost(), 0f);
     }
 
@@ -97,7 +97,7 @@ public class BooleanConditionTest extends AbstractConditionTest {
         Schema schema = schema().build();
         BooleanCondition condition = bool().boost(0.4).build();
         BooleanQuery query = (BooleanQuery) condition.query(schema);
-        assertEquals("Query count clauses is wrong", 0, query.getClauses().length);
+        assertEquals("Query count clauses is wrong", 0, query.clauses().size());
         assertEquals("Query boost is wrong", 0.4f, query.getBoost(), 0f);
     }
 
@@ -106,7 +106,7 @@ public class BooleanConditionTest extends AbstractConditionTest {
         Schema schema = schema().mapper("name", stringMapper()).build();
         BooleanCondition condition = bool().not(match("name", "jonathan")).boost(0.4).build();
         BooleanQuery query = (BooleanQuery) condition.query(schema);
-        assertEquals("Query count clauses is wrong", 2, query.getClauses().length);
+        assertEquals("Query count clauses is wrong", 2, query.clauses().size());
         assertEquals("Query boost is wrong", 0.4f, query.getBoost(), 0f);
     }
 

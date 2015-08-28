@@ -18,17 +18,7 @@
 
 package com.stratio.cassandra.lucene.schema;
 
-import static com.stratio.cassandra.lucene.schema.SchemaBuilders.schema;
-import static com.stratio.cassandra.lucene.schema.SchemaBuilders.stringMapper;
-import static com.stratio.cassandra.lucene.schema.SchemaBuilders.textMapper;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.db.marshal.AsciiType;
 import org.apache.cassandra.db.marshal.IntegerType;
@@ -44,8 +34,14 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.junit.Test;
 
-import com.stratio.cassandra.lucene.schema.analysis.PreBuiltAnalyzers;
-import com.stratio.cassandra.lucene.schema.mapping.Mapper;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}

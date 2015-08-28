@@ -36,8 +36,9 @@ import org.apache.cassandra.db.filter.ColumnSlice;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
-import org.apache.lucene.document.SortedDocValuesField;
-import org.apache.lucene.document.StringField;
+import org.apache.lucene.document.FieldType;
+import org.apache.lucene.index.DocValuesType;
+import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.search.FieldComparator;
 import org.apache.lucene.search.FieldComparatorSource;
 import org.apache.lucene.search.Query;
@@ -46,13 +47,7 @@ import org.apache.lucene.util.BytesRef;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Class for several clustering key mappings between Cassandra and Lucene. This class must be used only with column
@@ -61,6 +56,18 @@ import java.util.Map;
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public final class ClusteringKeyMapper {
+
+    /** The Lucene field type. */
+    public static final FieldType FIELD_TYPE = new FieldType();
+
+    static {
+        FIELD_TYPE.setOmitNorms(true);
+        FIELD_TYPE.setIndexOptions(IndexOptions.DOCS);
+        FIELD_TYPE.setTokenized(false);
+        FIELD_TYPE.setStored(true);
+        FIELD_TYPE.setDocValuesType(DocValuesType.SORTED);
+        FIELD_TYPE.freeze();
+    }
 
     /** The Lucene field name. */
     public static final String FIELD_NAME = "_clustering_key";
@@ -113,10 +120,8 @@ public final class ClusteringKeyMapper {
      * @param cellName A cell name containing the clustering key to be added.
      */
     public void addFields(Document document, CellName cellName) {
-        String serializedKey = ByteBufferUtils.toString(cellName.toByteBuffer());
-        BytesRef bytesRef = new BytesRef(serializedKey);
-        document.add(new StringField(FIELD_NAME, serializedKey, Field.Store.YES));
-        document.add(new SortedDocValuesField(FIELD_NAME, bytesRef));
+        BytesRef bytesRef = bytesRef(cellName);
+        document.add(new Field(FIELD_NAME, bytesRef, FIELD_TYPE));
     }
 
     /**
@@ -169,8 +174,8 @@ public final class ClusteringKeyMapper {
      * @return The clustering key contained in the specified {@link CellName}.
      */
     public CellName clusteringKey(Document document) {
-        String string = document.get(FIELD_NAME);
-        ByteBuffer bb = ByteBufferUtils.fromString(string);
+        BytesRef bytesRef = document.getBinaryValue(FIELD_NAME);
+        ByteBuffer bb = ByteBufferUtils.byteBuffer(bytesRef);
         return cellNameType.cellFromByteBuffer(bb);
     }
 
@@ -181,9 +186,8 @@ public final class ClusteringKeyMapper {
      * @return The clustering key contained in the specified Lucene field value.
      */
     public CellName clusteringKey(BytesRef bytesRef) {
-        String string = bytesRef.utf8ToString();
-        ByteBuffer bb = ByteBufferUtils.fromString(string);
-        return cellNameType.cellFromByteBuffer(bb);
+        ByteBuffer bb = ByteBufferUtils.byteBuffer(bytesRef);
+        return clusteringKey(bb);
     }
 
     /**
@@ -200,6 +204,11 @@ public final class ClusteringKeyMapper {
         }
         Composite prefix = builder.build();
         return cellNameType.rowMarker(prefix);
+    }
+
+    private BytesRef bytesRef(CellName clusteringKey) {
+        ByteBuffer bb = clusteringKey.toByteBuffer();
+        return ByteBufferUtils.bytesRef(bb);
     }
 
     /**
@@ -317,8 +326,8 @@ public final class ClusteringKeyMapper {
      *
      * @return A Lucene {@link SortField} array for sorting documents/rows according to the column family name.
      */
-    public SortField[] sortFields() {
-        return new SortField[]{new SortField(FIELD_NAME, new FieldComparatorSource() {
+    public List<SortField> sortFields() {
+        return Collections.singletonList(new SortField(FIELD_NAME, new FieldComparatorSource() {
             @Override
             public FieldComparator<?> newComparator(String field, int hits, int sort, boolean reversed)
             throws IOException {
@@ -331,7 +340,7 @@ public final class ClusteringKeyMapper {
                     }
                 };
             }
-        })};
+        }));
     }
 
     /**

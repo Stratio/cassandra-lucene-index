@@ -1,8 +1,22 @@
 # Changelog
 
-## 2.2.0.0-SNAPSHOT ()
+## 2.2.0.0-SNAPSHOT (upcoming)
+
+ * Upgrade to Apache Cassandra 2.2.0
+
+## 2.1.8.4 (27 August 2015)
+
+ * Fix searches with both sorting and relevance
+ * Improve wide rows data range filtering to increase performance
+ * Use doc values in token range filters to increase performance
+ * Replace base 256 by BytesRef (breaks backward compatibility)
+ * Upgrade to Lucene 5.3.0
+ * Don't propagate internal index exceptions
+ * Allow the deletion of old unsupported indexes
+ * Detect wrong sorting in date ranges (issue#36) 
 
 ## 2.1.8.3 (20 August 2015)
+
  * Fix analyzer selection in maps (issue#18)
  * Change logger fixed name from `stratio` to class-based `com.stratio`
  * Add performance tips section to documentation

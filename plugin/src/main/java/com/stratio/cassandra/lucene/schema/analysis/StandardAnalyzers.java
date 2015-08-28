@@ -63,7 +63,7 @@ import java.util.Locale;
 /**
  * Prebuilt Lucene {@link Analyzer}s that can be instantiated by name.
  */
-public enum PreBuiltAnalyzers {
+public enum StandardAnalyzers {
 
     STANDARD() {
         @Override
@@ -371,7 +371,7 @@ public enum PreBuiltAnalyzers {
     public static Analyzer get(String name) {
         try {
             return valueOf(name.toUpperCase(Locale.ROOT)).get();
-        } catch (IllegalArgumentException ie) {
+        } catch (IllegalArgumentException e) {
             return null;
         }
     }

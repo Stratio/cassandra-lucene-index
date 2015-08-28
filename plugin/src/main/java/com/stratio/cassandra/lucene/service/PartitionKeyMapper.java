@@ -35,6 +35,7 @@ import org.apache.lucene.document.StringField;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.util.BytesRef;
 
 import java.nio.ByteBuffer;
 import java.util.List;
@@ -96,8 +97,9 @@ public final class PartitionKeyMapper {
      * @param partitionKey The raw partition key to be converted.
      */
     public void addFields(Document document, DecoratedKey partitionKey) {
-        String serializedKey = ByteBufferUtils.toString(partitionKey.getKey());
-        Field field = new StringField(FIELD_NAME, serializedKey, Store.YES);
+        ByteBuffer bb = partitionKey.getKey();
+        BytesRef bytesRef = ByteBufferUtils.bytesRef(bb);
+        Field field = new StringField(FIELD_NAME, bytesRef, Store.YES);
         document.add(field);
     }
 
@@ -108,8 +110,9 @@ public final class PartitionKeyMapper {
      * @return The specified raw partition key as a Lucene {@link Term}.
      */
     public Term term(DecoratedKey partitionKey) {
-        String serializedKey = ByteBufferUtils.toString(partitionKey.getKey());
-        return new Term(FIELD_NAME, serializedKey);
+        ByteBuffer bb = partitionKey.getKey();
+        BytesRef bytesRef = ByteBufferUtils.bytesRef(bb);
+        return new Term(FIELD_NAME, bytesRef);
     }
 
     /**
@@ -129,9 +132,9 @@ public final class PartitionKeyMapper {
      * @return The {@link DecoratedKey} contained in the specified Lucene {@link Document}.
      */
     public DecoratedKey partitionKey(Document document) {
-        String string = document.get(FIELD_NAME);
-        ByteBuffer partitionKey = ByteBufferUtils.fromString(string);
-        return partitionKey(partitionKey);
+        BytesRef bytesRef = document.getBinaryValue(FIELD_NAME);
+        ByteBuffer bb = ByteBufferUtils.byteBuffer(bytesRef);
+        return partitionKey(bb);
     }
 
     /**

@@ -13,6 +13,11 @@ Hadoop <https://hadoop.apache.org/>`__, allowing you to filter data at
 database level. This speeds up jobs reducing the amount of data to be
 collected and processed.
 
+This project is not intended to replace Apache Cassandra denormalized
+tables, inverted indexes, and/or secondary indexes. It is just a tool
+to perform some kind of queries which are really hard to be addressed
+using Apache Cassandra out of the box features.
+
 Indexing is achieved through a Lucene based implementation of Cassandra
 secondary indexes, where each node of the cluster indexes its own data.
 Stratio Cassandra is one of the core modules on which Stratio's BigData
@@ -50,7 +55,7 @@ Not yet supported:
 Requirements
 ============
 
--  Cassandra 2.1.8
+-  Cassandra 2.2.0
 -  Java >= 1.7 (OpenJDK and Sun have been tested)
 -  Maven >= 3.0
 

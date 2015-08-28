@@ -21,7 +21,7 @@ package com.stratio.cassandra.lucene.schema;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.analysis.AnalyzerBuilder;
 import com.stratio.cassandra.lucene.schema.analysis.ClasspathAnalyzerBuilder;
-import com.stratio.cassandra.lucene.schema.analysis.PreBuiltAnalyzers;
+import com.stratio.cassandra.lucene.schema.analysis.StandardAnalyzers;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 import com.stratio.cassandra.lucene.schema.mapping.builder.MapperBuilder;
 import com.stratio.cassandra.lucene.util.JsonSerializer;
@@ -117,11 +117,11 @@ public class SchemaBuilder {
 
         Analyzer defaultAnalyzer;
         if (defaultAnalyzerName == null) {
-            defaultAnalyzer = PreBuiltAnalyzers.DEFAULT.get();
+            defaultAnalyzer = StandardAnalyzers.DEFAULT.get();
         } else {
             defaultAnalyzer = analyzers.get(defaultAnalyzerName);
             if (defaultAnalyzer == null) {
-                defaultAnalyzer = PreBuiltAnalyzers.get(defaultAnalyzerName);
+                defaultAnalyzer = StandardAnalyzers.get(defaultAnalyzerName);
                 if (defaultAnalyzer == null) {
                     try {
                         defaultAnalyzer = (new ClasspathAnalyzerBuilder(defaultAnalyzerName)).analyzer();

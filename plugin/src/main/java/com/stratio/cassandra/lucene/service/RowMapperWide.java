@@ -19,39 +19,23 @@
 package com.stratio.cassandra.lucene.service;
 
 import com.google.common.collect.Ordering;
-import com.stratio.cassandra.lucene.schema.Schema;
+import com.stratio.cassandra.lucene.IndexConfig;
 import com.stratio.cassandra.lucene.schema.column.Columns;
-import org.apache.cassandra.config.CFMetaData;
-import org.apache.cassandra.config.ColumnDefinition;
-import org.apache.cassandra.db.ColumnFamily;
-import org.apache.cassandra.db.DataRange;
-import org.apache.cassandra.db.DecoratedKey;
-import org.apache.cassandra.db.RangeTombstone;
-import org.apache.cassandra.db.Row;
-import org.apache.cassandra.db.RowPosition;
+import org.apache.cassandra.db.*;
 import org.apache.cassandra.db.composites.CellName;
 import org.apache.cassandra.db.composites.Composite;
 import org.apache.cassandra.db.filter.ColumnSlice;
 import org.apache.cassandra.db.filter.SliceQueryFilter;
 import org.apache.cassandra.dht.Token;
 import org.apache.cassandra.utils.ByteBufferUtil;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.search.BooleanClause;
-import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.SortField;
-import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.*;
 
 import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import static org.apache.lucene.search.BooleanClause.Occur.MUST;
+import static org.apache.lucene.search.BooleanClause.Occur.FILTER;
 import static org.apache.lucene.search.BooleanClause.Occur.SHOULD;
 
 /**
@@ -68,15 +52,12 @@ public class RowMapperWide extends RowMapper {
     private final FullKeyMapper fullKeyMapper;
 
     /**
-     * Builds a new {@link RowMapperWide} for the specified column family metadata, indexed column definition and {@link
-     * Schema}.
+     * Builds a new {@link RowMapperWide} for the specified {@link IndexConfig}.
      *
-     * @param metadata         The indexed column family metadata.
-     * @param columnDefinition The indexed column definition.
-     * @param schema           The mapping {@link Schema}.
+     * @param config The {@link IndexConfig}.
      */
-    RowMapperWide(CFMetaData metadata, ColumnDefinition columnDefinition, Schema schema) {
-        super(metadata, columnDefinition, schema);
+    RowMapperWide(IndexConfig config) {
+        super(config);
         this.clusteringKeyMapper = ClusteringKeyMapper.instance(metadata, schema);
         this.fullKeyMapper = FullKeyMapper.instance(partitionKeyMapper, clusteringKeyMapper);
     }
@@ -112,10 +93,11 @@ public class RowMapperWide extends RowMapper {
 
     /** {@inheritDoc} */
     @Override
-    public SortField[] sortFields() {
-        SortField[] partitionKeySort = tokenMapper.sortFields();
-        SortField[] clusteringKeySort = clusteringKeyMapper.sortFields();
-        return ArrayUtils.addAll(partitionKeySort, clusteringKeySort);
+    public List<SortField> sortFields() {
+        List<SortField> sortFields = new ArrayList<>();
+        sortFields.addAll(tokenMapper.sortFields());
+        sortFields.addAll(clusteringKeyMapper.sortFields());
+        return sortFields;
     }
 
     /** {@inheritDoc} */
@@ -154,12 +136,8 @@ public class RowMapperWide extends RowMapper {
         return fullKeyMapper.term(partitionKey, clusteringKey);
     }
 
-    /**
-     * Returns the Lucene {@link Query} to get the {@link Document}s satisfying the specified {@link DataRange}.
-     *
-     * @param dataRange A {@link DataRange}.
-     * @return The Lucene {@link Query} to get the {@link Document}s satisfying the specified {@link DataRange}.
-     */
+    /** {@inheritDoc} */
+    @Override
     public Query query(DataRange dataRange) {
 
         RowPosition startPosition = dataRange.startKey();
@@ -167,7 +145,7 @@ public class RowMapperWide extends RowMapper {
         Token startToken = startPosition.getToken();
         Token stopToken = stopPosition.getToken();
         boolean isSameToken = startToken.compareTo(stopToken) == 0 && !tokenMapper.isMinimum(startToken);
-        BooleanClause.Occur occur = isSameToken ? MUST : SHOULD;
+        BooleanClause.Occur occur = isSameToken ? FILTER : SHOULD;
         boolean includeStart = tokenMapper.includeStart(startPosition);
         boolean includeStop = tokenMapper.includeStop(stopPosition);
 
@@ -180,34 +158,36 @@ public class RowMapperWide extends RowMapper {
         Composite startName = sqf.start();
         Composite stopName = sqf.finish();
 
-        BooleanQuery query = new BooleanQuery();
+        BooleanQuery.Builder builder = new BooleanQuery.Builder();
 
         if (!startName.isEmpty()) {
-            BooleanQuery q = new BooleanQuery();
-            q.add(tokenMapper.query(startToken), MUST);
-            q.add(clusteringKeyMapper.query(startName, null), MUST);
-            query.add(q, occur);
+            BooleanQuery.Builder b = new BooleanQuery.Builder();
+            b.add(tokenMapper.query(startToken), FILTER);
+            b.add(clusteringKeyMapper.query(startName, null), FILTER);
+            builder.add(b.build(), occur);
             includeStart = false;
         }
 
         if (!stopName.isEmpty()) {
-            BooleanQuery q = new BooleanQuery();
-            q.add(tokenMapper.query(stopToken), MUST);
-            q.add(clusteringKeyMapper.query(null, stopName), MUST);
-            query.add(q, occur);
+            BooleanQuery.Builder b = new BooleanQuery.Builder();
+            b.add(tokenMapper.query(stopToken), FILTER);
+            b.add(clusteringKeyMapper.query(null, stopName), FILTER);
+            builder.add(b.build(), occur);
             includeStop = false;
         }
 
+        BooleanQuery query = builder.build();
         if (!isSameToken) {
             Query rangeQuery = tokenMapper.query(startToken, stopToken, includeStart, includeStop);
             if (rangeQuery != null) {
-                query.add(rangeQuery, SHOULD);
+                builder.add(rangeQuery, SHOULD);
+                query = builder.build();
             }
-        } else if (query.getClauses().length == 0) {
+        } else if (query.clauses().isEmpty()) {
             return tokenMapper.query(startToken);
         }
 
-        return query.getClauses().length == 0 ? null : query;
+        return query.clauses().isEmpty() ? null : query;
     }
 
     /** {@inheritDoc} */
@@ -229,10 +209,10 @@ public class RowMapperWide extends RowMapper {
      * RangeTombstone}.
      */
     public Query query(DecoratedKey partitionKey, RangeTombstone rangeTombstone) {
-        BooleanQuery query = new BooleanQuery();
-        query.add(partitionKeyMapper.query(partitionKey), MUST);
-        query.add(clusteringKeyMapper.query(rangeTombstone.min, rangeTombstone.max), MUST);
-        return query;
+        BooleanQuery.Builder builder = new BooleanQuery.Builder();
+        builder.add(partitionKeyMapper.query(partitionKey), FILTER);
+        builder.add(clusteringKeyMapper.query(rangeTombstone.min, rangeTombstone.max), FILTER);
+        return builder.build();
     }
 
     /**

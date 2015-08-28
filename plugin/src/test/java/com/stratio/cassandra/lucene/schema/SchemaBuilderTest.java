@@ -19,8 +19,8 @@
 package com.stratio.cassandra.lucene.schema;
 
 import com.stratio.cassandra.lucene.IndexException;
-import com.stratio.cassandra.lucene.schema.analysis.PreBuiltAnalyzers;
 import com.stratio.cassandra.lucene.schema.analysis.SnowballAnalyzerBuilder.SnowballAnalyzer;
+import com.stratio.cassandra.lucene.schema.analysis.StandardAnalyzers;
 import com.stratio.cassandra.lucene.schema.mapping.*;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
@@ -310,13 +310,13 @@ public class SchemaBuilderTest {
 
         Analyzer defaultAnalyzer = schema.getDefaultAnalyzer();
         assertEquals("Expected default analyzer",
-                     PreBuiltAnalyzers.DEFAULT.get().getClass(),
+                     StandardAnalyzers.DEFAULT.get().getClass(),
                      defaultAnalyzer.getClass());
 
         Analyzer textAnalyzer = schema.getAnalyzer("text");
-        assertEquals("Expected default analyzer", PreBuiltAnalyzers.DEFAULT.get().getClass(), textAnalyzer.getClass());
+        assertEquals("Expected default analyzer", StandardAnalyzers.DEFAULT.get().getClass(), textAnalyzer.getClass());
         textAnalyzer = schema.getAnalyzer("text.name");
-        assertEquals("Expected default analyzer", PreBuiltAnalyzers.DEFAULT.get().getClass(), textAnalyzer.getClass());
+        assertEquals("Expected default analyzer", StandardAnalyzers.DEFAULT.get().getClass(), textAnalyzer.getClass());
 
         schema.close();
     }

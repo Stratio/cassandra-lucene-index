@@ -28,6 +28,8 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.junit.Test;
 
+import java.util.List;
+
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
 import static org.junit.Assert.*;
 
@@ -113,10 +115,10 @@ public class ContainsConditionTest extends AbstractConditionTest {
 
         BooleanQuery booleanQuery = (BooleanQuery) query;
         assertEquals("Boost is not set", 0.7f, query.getBoost(), 0);
-        BooleanClause[] clauses = booleanQuery.getClauses();
-        assertEquals("Query is wrong", values.length, clauses.length);
+        List<BooleanClause> clauses = booleanQuery.clauses();
+        assertEquals("Query is wrong", values.length, clauses.size());
         for (int i = 0; i < values.length; i++) {
-            NumericRangeQuery<?> numericRangeQuery = (NumericRangeQuery<?>) clauses[i].getQuery();
+            NumericRangeQuery<?> numericRangeQuery = (NumericRangeQuery<?>) clauses.get(i).getQuery();
             assertEquals("Query is wrong", values[i], numericRangeQuery.getMin());
             assertEquals("Query is wrong", values[i], numericRangeQuery.getMax());
         }
@@ -137,9 +139,11 @@ public class ContainsConditionTest extends AbstractConditionTest {
 
         BooleanQuery booleanQuery = (BooleanQuery) query;
         assertEquals("Query boost is wrong", 0.7f, query.getBoost(), 0);
-        BooleanClause[] clauses = booleanQuery.getClauses();
-        assertEquals("Query is wrong", "houses", ((TermQuery) clauses[0].getQuery()).getTerm().bytes().utf8ToString());
-        assertEquals("Query is wrong", "cats", ((TermQuery) clauses[1].getQuery()).getTerm().bytes().utf8ToString());
+        List<BooleanClause> clauses = booleanQuery.clauses();
+        TermQuery termQuery1 = (TermQuery) clauses.get(0).getQuery();
+        TermQuery termQuery2 = (TermQuery) clauses.get(1).getQuery();
+        assertEquals("Query is wrong", "houses", termQuery1.getTerm().bytes().utf8ToString());
+        assertEquals("Query is wrong", "cats", termQuery2.getTerm().bytes().utf8ToString());
     }
 
     @Test
@@ -157,9 +161,11 @@ public class ContainsConditionTest extends AbstractConditionTest {
 
         BooleanQuery booleanQuery = (BooleanQuery) query;
         assertEquals("Query boost is wrong", 0.7f, query.getBoost(), 0);
-        BooleanClause[] clauses = booleanQuery.getClauses();
-        assertEquals("Query is wrong", "hous", ((TermQuery) clauses[0].getQuery()).getTerm().bytes().utf8ToString());
-        assertEquals("Query is wrong", "cat", ((TermQuery) clauses[1].getQuery()).getTerm().bytes().utf8ToString());
+        List<BooleanClause> clauses = booleanQuery.clauses();
+        TermQuery termQuery1 = (TermQuery) clauses.get(0).getQuery();
+        TermQuery termQuery2 = (TermQuery) clauses.get(1).getQuery();
+        assertEquals("Query is wrong", "hous", termQuery1.getTerm().bytes().utf8ToString());
+        assertEquals("Query is wrong", "cat", termQuery2.getTerm().bytes().utf8ToString());
     }
 
     @Test

@@ -25,6 +25,8 @@ import com.stratio.cassandra.lucene.search.sort.Sort;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.SortField;
 
+import java.util.List;
+
 /**
  * Class representing an Lucene index search. It is formed by an optional querying {@link Condition} and an optional
  * filtering {@link Condition}. It can be translated to a Lucene {@link Query} using a {@link Schema}.
@@ -127,7 +129,7 @@ public class Search {
      * @param schema A {@link Schema}.
      * @return The Lucene {@link SortField}s represented by this using {@code schema}.
      */
-    public SortField[] sortFields(Schema schema) {
+    public List<SortField> sortFields(Schema schema) {
         return sort == null ? null : sort.sortFields(schema);
     }
 

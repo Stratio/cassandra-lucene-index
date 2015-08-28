@@ -83,7 +83,7 @@ public class IndexQueryHandler implements QueryHandler {
 
     private static boolean isCount(SelectStatement selectStatement) throws Exception {
         if(selectStatement.getFunctions() != null) {
-            Iterator<Function> functions = selectStatement.getFunctions().iterator(); 
+            Iterator<Function> functions = selectStatement.getFunctions().iterator();
             while(functions.hasNext()) {
                 Function function = functions.next();
                 if(function.isAggregate() && (function.name().equals("countRows") || function.name().equals("count"))) {

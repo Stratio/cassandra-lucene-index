@@ -27,18 +27,10 @@ import com.stratio.cassandra.lucene.util.TimeCounter;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
 import org.apache.cassandra.cql3.Operator;
-import org.apache.cassandra.db.ArrayBackedSortedColumns;
-import org.apache.cassandra.db.Cell;
-import org.apache.cassandra.db.ColumnFamily;
-import org.apache.cassandra.db.ColumnFamilyStore;
-import org.apache.cassandra.db.DataRange;
-import org.apache.cassandra.db.DecoratedKey;
-import org.apache.cassandra.db.IndexExpression;
-import org.apache.cassandra.db.Row;
+import org.apache.cassandra.db.*;
 import org.apache.cassandra.db.composites.CellName;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.UTF8Type;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.*;
@@ -47,14 +39,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
+import static java.lang.Math.max;
+import static java.lang.Math.min;
 import static org.apache.lucene.search.BooleanClause.Occur.FILTER;
 import static org.apache.lucene.search.BooleanClause.Occur.MUST;
 import static org.apache.lucene.search.SortField.FIELD_SCORE;
@@ -69,61 +57,45 @@ public abstract class RowService {
     private static final Logger logger = LoggerFactory.getLogger(RowService.class);
 
     /** The max number of rows to be read per iteration. */
-    private static final int MAX_PAGE_SIZE = 100000;
+    private static final int MAX_PAGE_SIZE = 10000;
 
-    /** The default number of rows to be read per iteration. */
-    private static final int FILTERING_PAGE_SIZE = 1000;
+    /** The min number of rows to be read per iteration. */
+    private static final int MIN_PAGE_SIZE = 100;
 
     final ColumnFamilyStore baseCfs;
-    final RowMapper rowMapper;
     final CFMetaData metadata;
-    final LuceneIndex luceneIndex;
+    final RowMapper mapper;
+    final LuceneIndex lucene;
+    final List<SortField> keySortFields;
 
     protected final Schema schema;
 
     /**
-     * Returns a new {@code RowService}.
+     * Returns a new {@code RowService} for the specified {@link IndexConfig}.
      *
-     * @param baseCfs          The base column family store.
-     * @param columnDefinition The indexed column definition.
+     * @param cfs The indexed {@link ColumnFamilyStore}.
+     * @param config The {@link IndexConfig}.
      * @throws IOException If there are I/O errors.
      */
-    protected RowService(ColumnFamilyStore baseCfs, ColumnDefinition columnDefinition) throws IOException {
-
-        this.baseCfs = baseCfs;
-        this.metadata = baseCfs.metadata;
-
-        IndexConfig config = new IndexConfig(metadata, columnDefinition);
-
-        this.schema = config.getSchema();
-        this.rowMapper = RowMapper.build(metadata, columnDefinition, schema);
-
-        this.luceneIndex = new LuceneIndex(columnDefinition.ksName,
-                                           columnDefinition.cfName,
-                                           columnDefinition.getIndexName(),
-                                           config.getPath(),
-                                           config.getRamBufferMB(),
-                                           config.getMaxMergeMB(),
-                                           config.getMaxCachedMB(),
-                                           config.getRefreshSeconds(),
-                                           schema.getAnalyzer());
+    protected RowService(ColumnFamilyStore cfs, IndexConfig config) throws IOException {
+        baseCfs = cfs;
+        metadata = config.getMetadata();
+        schema = config.getSchema();
+        lucene = new LuceneIndex(config);
+        mapper = RowMapper.build(config);
+        keySortFields = mapper.sortFields();
     }
 
     /**
-     * Returns a new {@link RowService} for the specified {@link ColumnFamilyStore} and {@link ColumnDefinition}.
+     * Returns a new {@link RowService} for the specified {@link IndexConfig}.
      *
-     * @param baseCfs          The {@link ColumnFamilyStore} associated to the managed index.
-     * @param columnDefinition The {@link ColumnDefinition} of the indexed column.
-     * @return A new {@link RowService} for the specified {@link ColumnFamilyStore} and {@link ColumnDefinition}.
+     * @param cfs The indexed {@link ColumnFamilyStore}.
+     * @param config The {@link IndexConfig}.
+     * @return A new {@link RowService} for the specified {@link IndexConfig}.
      * @throws IOException If there are I/O errors.
      */
-    public static RowService build(ColumnFamilyStore baseCfs, ColumnDefinition columnDefinition) throws IOException {
-        int clusteringPosition = baseCfs.metadata.clusteringColumns().size();
-        if (clusteringPosition > 0) {
-            return new RowServiceWide(baseCfs, columnDefinition);
-        } else {
-            return new RowServiceSkinny(baseCfs, columnDefinition);
-        }
+    public static RowService build(ColumnFamilyStore cfs, IndexConfig config) throws IOException {
+        return config.isWide() ? new RowServiceWide(cfs, config): new RowServiceSkinny(cfs, config);
     }
 
     /**
@@ -169,7 +141,7 @@ public abstract class RowService {
      * @throws IOException If there are I/O errors.
      */
     public final void truncate() throws IOException {
-        luceneIndex.truncate();
+        lucene.truncate();
     }
 
     /**
@@ -178,7 +150,7 @@ public abstract class RowService {
      * @throws IOException If there are I/O errors.
      */
     public final void delete() throws IOException {
-        luceneIndex.delete();
+        lucene.delete();
         schema.close();
     }
 
@@ -188,7 +160,7 @@ public abstract class RowService {
      * @throws IOException If there are I/O errors.
      */
     public final void commit() throws IOException {
-        luceneIndex.commit();
+        lucene.commit();
     }
 
     /**
@@ -201,7 +173,7 @@ public abstract class RowService {
      * @return The Lucene {@link Document}s represented by the specified Cassandra row associated with their identifying
      * {@link Term}s.
      */
-    public abstract Map<Term, Document> documents(DecoratedKey partitionKey, ColumnFamily columnFamily, long timestamp);
+    abstract Map<Term, Document> documents(DecoratedKey partitionKey, ColumnFamily columnFamily, long timestamp);
 
     /**
      * Returns the stored and indexed {@link Row}s satisfying the specified restrictions.
@@ -221,12 +193,11 @@ public abstract class RowService {
                                   final int limit,
                                   long timestamp,
                                   RowKey after) throws IOException {
-        logger.debug("Searching with search {} ", search);
 
         // Setup stats
-        TimeCounter searchTime = TimeCounter.create().start();
-        TimeCounter luceneTime = TimeCounter.create();
-        TimeCounter collectTime = TimeCounter.create();
+        TimeCounter afterTime = TimeCounter.create();
+        TimeCounter queryTime = TimeCounter.create();
+        TimeCounter storeTime = TimeCounter.create();
         int numDocs = 0;
         int numPages = 0;
         int numRows = 0;
@@ -235,68 +206,82 @@ public abstract class RowService {
 
         // Refresh index if needed
         if (search.refresh()) {
-            luceneIndex.refresh();
+            lucene.refresh();
             if (search.isEmpty()) {
                 return rows;
             }
         }
 
-        SearcherManager searcherManager = luceneIndex.getSearcherManager();
+        // Setup search
+        Query query = query(search, dataRange);
+        Sort sort = sort(search);
+
+        // Setup paging
+        int scorePosition = scorePosition(search);
+        int page = min(limit, MAX_PAGE_SIZE);
+        boolean mayBeMoreDocs;
+        int remainingRows;
+
+        SearcherManager searcherManager = lucene.getSearcherManager();
         IndexSearcher searcher = searcherManager.acquire();
         try {
 
-            // Setup search arguments
-            Query query = query(search, dataRange);
-            Sort sort = sort(search);
+            // Get last position
+            afterTime.start();
             ScoreDoc last = after(searcher, after, query, sort);
-            int page = Math.min(limit, MAX_PAGE_SIZE);
-            boolean maybeMore;
+            afterTime.stop();
 
             do {
                 // Search rows identifiers in Lucene
-                luceneTime.start();
+                queryTime.start();
                 Set<String> fields = fieldsToLoad();
-                Map<Document, ScoreDoc> docs = luceneIndex.search(searcher, query, sort, last, page, fields);
+                Map<Document, ScoreDoc> docs = lucene.search(searcher, query, sort, last, page, fields);
                 List<SearchResult> searchResults = new ArrayList<>(docs.size());
                 for (Map.Entry<Document, ScoreDoc> entry : docs.entrySet()) {
                     Document document = entry.getKey();
                     ScoreDoc scoreDoc = entry.getValue();
                     last = scoreDoc;
-                    searchResults.add(rowMapper.searchResult(document, scoreDoc));
+                    searchResults.add(mapper.searchResult(document, scoreDoc));
                 }
                 numDocs += searchResults.size();
-                luceneTime.stop();
+                queryTime.stop();
 
                 // Collect rows from Cassandra
-                collectTime.start();
-                for (Row row : rows(searchResults, timestamp, search.usesRelevance())) {
+                storeTime.start();
+                for (Row row : rows(searchResults, timestamp, scorePosition)) {
                     if (accepted(row, expressions)) {
                         rows.add(row);
                         numRows++;
                     }
                 }
-                collectTime.stop();
+                storeTime.stop();
 
                 // Setup next iteration
-                maybeMore = searchResults.size() == page;
-                page = Math.min(Math.max(FILTERING_PAGE_SIZE, numRows - limit), MAX_PAGE_SIZE);
+                mayBeMoreDocs = searchResults.size() == page;
+                remainingRows = limit - numRows;
+                page = min(max(MIN_PAGE_SIZE, remainingRows), MAX_PAGE_SIZE);
                 numPages++;
 
                 // Iterate while there are still documents to read and we don't have enough rows
-            } while (maybeMore && rows.size() < limit);
+            } while (mayBeMoreDocs && remainingRows > 0);
 
         } finally {
             searcherManager.release(searcher);
         }
 
         // Ensure sorting
-        Comparator<Row> comparator = rowMapper.comparator(search);
+        Comparator<Row> comparator = mapper.comparator(search);
         Collections.sort(rows, comparator);
 
-        searchTime.stop();
-        logger.debug("Lucene time: {}", luceneTime);
-        logger.debug("Cassandra time: {}", collectTime);
-        logger.debug("Collected {} docs and {} rows in {} pages in {}", numDocs, numRows, numPages, searchTime);
+        logger.debug("Search     : {}", search);
+        logger.debug("Query      : {}", query);
+        logger.debug("Sort       : {}", sort);
+        logger.debug("After time : {}", afterTime);
+        logger.debug("Query time : {}", queryTime);
+        logger.debug("Store time : {}", storeTime);
+        logger.debug("Count docs : {}", numDocs);
+        logger.debug("Count rows : {}", numRows);
+        logger.debug("Count page : {}", numPages);
 
         return rows;
     }
@@ -311,23 +296,23 @@ public abstract class RowService {
      * DataRange}.
      */
     public Query query(Search search, DataRange dataRange) {
-        Query range = rowMapper.query(dataRange);
+        Query range = mapper.query(dataRange);
         Query query = search.query(schema);
         Query filter = search.filter(schema);
         if (query == null && filter == null && range == null) {
             return new MatchAllDocsQuery();
         }
-        BooleanQuery booleanQuery = new BooleanQuery();
+        BooleanQuery.Builder builder = new BooleanQuery.Builder();
         if (range != null) {
-            booleanQuery.add(range, FILTER);
+            builder.add(range, FILTER);
         }
         if (filter != null) {
-            booleanQuery.add(filter, FILTER);
+            builder.add(filter, FILTER);
         }
         if (query != null) {
-            booleanQuery.add(query, MUST);
+            builder.add(query, MUST);
         }
-        return new CachingWrapperQuery(booleanQuery);
+        return new CachingWrapperQuery(builder.build());
     }
 
     /**
@@ -337,12 +322,22 @@ public abstract class RowService {
      * @return A {@link Sort} for the specified {@link Search}.
      */
     private Sort sort(Search search) {
+        List<SortField> sortFields = new ArrayList<>();
         if (search.usesSorting()) {
-            return new Sort(ArrayUtils.addAll(search.sortFields(schema), rowMapper.sortFields()));
-        } else if (search.usesRelevance()) {
-            return new Sort(ArrayUtils.addAll(new SortField[]{FIELD_SCORE}, rowMapper.sortFields()));
+            sortFields.addAll(search.sortFields(schema));
+        }
+        if (search.usesRelevance()) {
+            sortFields.add(FIELD_SCORE);
+        }
+        sortFields.addAll(keySortFields);
+        return new Sort(sortFields.toArray(new SortField[sortFields.size()]));
+    }
+
+    private int scorePosition(Search search) {
+        if (search.usesRelevance()) {
+            return search.usesSorting() ? search.sortFields(schema).size() : 0;
         } else {
-            return new Sort(rowMapper.sortFields());
+            return -1;
         }
     }
 
@@ -357,17 +352,18 @@ public abstract class RowService {
      * @throws IOException If there are I/O errors.
      */
     private ScoreDoc after(IndexSearcher searcher, RowKey key, Query query, Sort sort) throws IOException {
-        TimeCounter time = TimeCounter.create().start();
         if (key == null) {
             return null;
         }
-        Filter rowFilter = new QueryWrapperFilter(rowMapper.query(key));
-        Query afterQuery = new FilteredQuery(query, rowFilter);
+
+        BooleanQuery.Builder builder = new BooleanQuery.Builder();
+        builder.add(mapper.query(key), FILTER);
+        builder.add(query, MUST);
+        Query afterQuery = builder.build();
+
         Set<String> fields = Collections.emptySet();
-        Map<Document, ScoreDoc> results = luceneIndex.search(searcher, afterQuery, sort, null, 1, fields);
-        ScoreDoc scoreDoc = results.isEmpty() ? null : results.values().iterator().next();
-        logger.debug("Search after time: {}", time.stop());
-        return scoreDoc;
+        Map<Document, ScoreDoc> results = lucene.search(searcher, afterQuery, sort, null, 1, fields);
+        return results.isEmpty() ? null : results.values().iterator().next();
     }
 
     /**
@@ -381,7 +377,7 @@ public abstract class RowService {
      */
     private boolean accepted(Row row, List<IndexExpression> expressions) {
         if (!expressions.isEmpty()) {
-            Columns columns = rowMapper.columns(row);
+            Columns columns = mapper.columns(row);
             for (IndexExpression expression : expressions) {
                 if (!accepted(columns, expression)) {
                     return false;
@@ -439,6 +435,10 @@ public abstract class RowService {
         }
 
         int comparison = validator.compare(actualValue, value);
+        return accepted(operator, comparison);
+    }
+
+    private boolean accepted(Operator operator, int comparison) {
         switch (operator) {
             case EQ:
                 return comparison == 0;
@@ -459,12 +459,12 @@ public abstract class RowService {
      * Returns the {@link Row}s identified by the specified {@link Document}s, using the specified time stamp to ignore
      * deleted columns. The {@link Row}s are retrieved from the storage engine, so it involves IO operations.
      *
-     * @param searchResults The {@link SearchResult}s
+     * @param results       The {@link SearchResult}s
      * @param timestamp     The time stamp to ignore deleted columns.
-     * @param relevance     If the search uses relevance.
+     * @param scorePosition The position where score column is placed.
      * @return The {@link Row}s identified by the specified {@link Document}s
      */
-    protected abstract List<Row> rows(List<SearchResult> searchResults, long timestamp, boolean relevance);
+    protected abstract List<Row> rows(List<SearchResult> results, long timestamp, int scorePosition);
 
     /**
      * Returns a {@link ColumnFamily} composed by the non expired {@link Cell}s of the specified  {@link ColumnFamily}.
@@ -486,18 +486,21 @@ public abstract class RowService {
     /**
      * Adds to the specified {@link Row} the specified Lucene score column.
      *
-     * @param row       A {@link Row}.
-     * @param timestamp The score column timestamp.
-     * @param scoreDoc  The score column value.
+     * @param row           A {@link Row}.
+     * @param timestamp     The score column timestamp.
+     * @param scoreDoc      The score column value.
+     * @param scorePosition The position where score column is placed.
      * @return The {@link Row} with the score.
      */
-    protected Row addScoreColumn(Row row, long timestamp, ScoreDoc scoreDoc) {
+    protected Row addScoreColumn(Row row, long timestamp, ScoreDoc scoreDoc, int scorePosition) {
+
         ColumnFamily cf = row.cf;
-        CellName cellName = rowMapper.makeCellName(cf);
-        Float score = Float.parseFloat(((FieldDoc) scoreDoc).fields[0].toString());
-        ByteBuffer cellValue = UTF8Type.instance.decompose(score.toString());
+        CellName cellName = mapper.makeCellName(cf);
+        FieldDoc fieldDoc = (FieldDoc) scoreDoc;
+        Float score = Float.parseFloat(fieldDoc.fields[scorePosition].toString());
 
         ColumnFamily dcf = ArrayBackedSortedColumns.factory.create(baseCfs.metadata);
+        ByteBuffer cellValue = UTF8Type.instance.decompose(score.toString());
         dcf.addColumn(cellName, cellValue, timestamp);
         dcf.addAll(row.cf);
 
@@ -510,6 +513,6 @@ public abstract class RowService {
      * @return The used {@link RowMapper}.
      */
     public RowMapper mapper() {
-        return rowMapper;
+        return mapper;
     }
 }

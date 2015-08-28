@@ -18,7 +18,6 @@
 
 package com.stratio.cassandra.lucene;
 
-import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.service.RowService;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
@@ -28,9 +27,9 @@ import org.apache.cassandra.db.ColumnFamilyStore;
 import org.apache.cassandra.db.DecoratedKey;
 import org.apache.cassandra.db.composites.CellName;
 import org.apache.cassandra.db.index.PerRowSecondaryIndex;
-import org.apache.cassandra.db.index.SecondaryIndexManager;
 import org.apache.cassandra.db.index.SecondaryIndexSearcher;
 import org.apache.cassandra.exceptions.ConfigurationException;
+import org.apache.cassandra.io.util.FileUtils;
 import org.apache.cassandra.service.ClientState;
 import org.apache.cassandra.utils.concurrent.OpOrder;
 import org.slf4j.Logger;
@@ -67,49 +66,11 @@ public class Index extends PerRowSecondaryIndex {
         }
     }
 
-    private SecondaryIndexManager secondaryIndexManager;
     private ColumnDefinition columnDefinition;
-
-    private String keyspaceName;
-    private String tableName;
     private String indexName;
-    private String columnName;
-    private String logName;
-
-    private RowService rowService;
-
-    /** {@inheritDoc} */
-    @Override
-    public String getIndexName() {
-        return indexName;
-    }
-
-    /**
-     * Returns the indexed keyspace name.
-     *
-     * @return The indexed keyspace name.
-     */
-    public String getKeyspaceName() {
-        return keyspaceName;
-    }
-
-    /**
-     * Returns the indexed table name.
-     *
-     * @return The indexed table name.
-     */
-    public String getTableName() {
-        return tableName;
-    }
-
-    /**
-     * Returns the indexed column name.
-     *
-     * @return The indexed column name.
-     */
-    public String getColumnName() {
-        return columnName;
-    }
+    private IndexConfig indexConfig;
+    private String name;
+    private RowService service;
 
     /**
      * Returns the indexed column definition.
@@ -122,50 +83,48 @@ public class Index extends PerRowSecondaryIndex {
 
     /** {@inheritDoc} */
     @Override
+    public String getIndexName() {
+        return indexName;
+    }
+
+    /** {@inheritDoc} */
+    @Override
     public void init() {
         logger.info("Initializing Lucene index");
         try {
             // Load column family info
-            secondaryIndexManager = baseCfs.indexManager;
             columnDefinition = columnDefs.iterator().next();
             indexName = columnDefinition.getIndexName();
-            keyspaceName = baseCfs.metadata.ksName;
-            tableName = baseCfs.metadata.cfName;
-            columnName = columnDefinition.name.toString();
-            logName = String.format("%s.%s.%s", keyspaceName, tableName, indexName);
-
-            // Build row mapper
-            rowService = RowService.build(baseCfs, columnDefinition);
-
-            logger.info("Initialized index {}", logName);
+            indexConfig = newIndexConfig();
+            name = indexConfig.getName();
+            service = RowService.build(baseCfs, indexConfig);
+            logger.info("Initialized index {}", name);
         } catch (Exception e) {
-            throw new IndexException(e, "Error while initializing Lucene index %s", logName);
+            logger.error("Error initializing Lucene index " + name, e);
         }
     }
 
     /** {@inheritDoc} */
     @Override
     public void index(ByteBuffer key, ColumnFamily columnFamily) {
-        logger.debug("Indexing row {} in Lucene index {}", key, logName);
+        logger.debug("Indexing row in Lucene index {}", name);
         try {
-            if (rowService != null) {
-                long timestamp = System.currentTimeMillis();
-                rowService.index(key, columnFamily, timestamp);
-            }
+            long timestamp = System.currentTimeMillis();
+            service.index(key, columnFamily, timestamp);
         } catch (Exception e) {
-            throw new IndexException(e, "Error while indexing row %s in Lucene index %s", key, logName);
+            logger.error("Error indexing row in Lucene index " + name, e);
         }
     }
 
     /** {@inheritDoc} */
     @Override
     public void delete(DecoratedKey key, OpOrder.Group opGroup) {
-        logger.debug("Removing row %s from Lucene index {}", key, logName);
+        logger.debug("Removing row from Lucene index {}", name);
         try {
-            rowService.delete(key);
-            rowService = null;
+            service.delete(key);
+            service = null;
         } catch (Exception e) {
-            throw new IndexException(e, "Error deleting row %s", key);
+            logger.error("Error deleting row in Lucene index " + name, e);
         }
     }
 
@@ -180,11 +139,7 @@ public class Index extends PerRowSecondaryIndex {
     public void validateOptions() throws ConfigurationException {
         logger.debug("Validating Lucene index options");
         try {
-            ColumnDefinition indexedColumnDefinition = columnDefs.iterator().next();
-            String ksName = indexedColumnDefinition.ksName;
-            String cfName = indexedColumnDefinition.cfName;
-            CFMetaData metadata = Schema.instance.getCFMetaData(ksName, cfName);
-            new IndexConfig(metadata, indexedColumnDefinition);
+            newIndexConfig();
             logger.debug("Lucene index options are valid");
         } catch (IndexException e) {
             throw new ConfigurationException(e.getMessage(), e);
@@ -206,44 +161,52 @@ public class Index extends PerRowSecondaryIndex {
     /** {@inheritDoc} */
     @Override
     public void removeIndex(ByteBuffer columnName) {
-        logger.info("Removing Lucene index {}", logName);
+        logger.info("Removing Lucene index {}", name);
         try {
-            if (rowService != null) {
-                rowService.delete();
-                rowService = null;
-            }
-            logger.info("Removed Lucene index {}", logName);
+            removeIndex();
+            logger.info("Removed Lucene index {}", name);
         } catch (Exception e) {
-            throw new IndexException(e, "Error while removing Lucene index %s", logName);
+            logger.error("Error removing Lucene index " + name, e);
         }
     }
 
     /** {@inheritDoc} */
     @Override
     public void invalidate() {
-        logger.info("Invalidating Lucene index {}", logName);
+        logger.info("Invalidating Lucene index {}", name);
         try {
-            if (rowService != null) {
-                rowService.delete();
-                rowService = null;
-            }
-            logger.info("Invalidated Lucene index {}", logName);
+            removeIndex();
+            logger.info("Invalidated Lucene index {}", name);
         } catch (Exception e) {
-            throw new IndexException(e, "Error while invalidating Lucene index %s", logName);
+            logger.error("Error invalidating Lucene index " + name, e);
         }
+    }
+
+    private void removeIndex() {
+        try {
+            service.delete();
+        } catch (Exception e) {
+            FileUtils.deleteRecursive(indexConfig.getPath().toFile());
+        }
+    }
+
+    private IndexConfig newIndexConfig() {
+        ColumnDefinition columnDefinition = columnDefs.iterator().next();
+        String ksName = columnDefinition.ksName;
+        String cfName = columnDefinition.cfName;
+        CFMetaData metadata = Schema.instance.getCFMetaData(ksName, cfName);
+        return new IndexConfig(metadata, columnDefinition);
     }
 
     /** {@inheritDoc} */
     @Override
     public void truncateBlocking(long truncatedAt) {
-        logger.info("Truncating Lucene index {}", logName);
+        logger.info("Truncating Lucene index {}", name);
         try {
-            if (rowService != null) {
-                rowService.truncate();
-            }
-            logger.info("Truncated Lucene index {}", logName);
+            service.truncate();
+            logger.info("Truncated Lucene index {}", name);
         } catch (Exception e) {
-            throw new IndexException(e, "Error while truncating Lucene index %s", logName);
+            logger.error("Error truncating Lucene index " + name, e);
         }
     }
 
@@ -255,29 +218,24 @@ public class Index extends PerRowSecondaryIndex {
     /** {@inheritDoc} */
     @Override
     public void forceBlockingFlush() {
-        logger.info("Flushing Lucene index {}", logName);
+        logger.info("Flushing Lucene index {}", name);
         try {
-            rowService.commit();
-            logger.info("Flushed Lucene index {}", logName);
+            service.commit();
+            logger.info("Flushed Lucene index {}", name);
         } catch (Exception e) {
-            throw new IndexException(e, "Error while flushing Lucene index %s", logName);
+            logger.error("Error flushing Lucene index " + name, e);
         }
     }
 
     /** {@inheritDoc} */
     @Override
     protected SecondaryIndexSearcher createSecondaryIndexSearcher(Set<ByteBuffer> columns) {
-        return new IndexSearcher(secondaryIndexManager, this, columns, rowService);
+        return new IndexSearcher(baseCfs.indexManager, this, columns, service);
     }
 
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                      .add("indexName", indexName)
-                      .add("keyspaceName", keyspaceName)
-                      .add("tableName", tableName)
-                      .add("columnName", columnName)
-                      .toString();
+        return name;
     }
 }

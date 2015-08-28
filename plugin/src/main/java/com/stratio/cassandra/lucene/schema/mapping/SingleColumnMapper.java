@@ -22,7 +22,6 @@ import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
-import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.document.Document;
@@ -137,12 +136,6 @@ public abstract class SingleColumnMapper<T> extends Mapper {
     }
 
     protected abstract T doBase(String field, @NotNull Object value);
-
-    /** {@inheritDoc} */
-    @Override
-    public void validate(CFMetaData metadata) {
-        validate(metadata, column);
-    }
 
     /** {@inheritDoc} */
     @Override

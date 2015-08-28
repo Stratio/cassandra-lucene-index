@@ -70,7 +70,7 @@ public class MatchCondition extends SingleColumnCondition {
                 query = new TermQuery(new Term(field, base));
             }
             if (query == null) {
-                query = new BooleanQuery();
+                query = new BooleanQuery.Builder().build();
             }
         } else if (clazz == Integer.class) {
             Integer base = (Integer) mapper.base(field, value);
@@ -85,7 +85,7 @@ public class MatchCondition extends SingleColumnCondition {
             Double base = (Double) mapper.base(field, value);
             query = NumericRangeQuery.newDoubleRange(field, base, base, true, true);
         } else {
-            throw new IndexException("Match queries are not supported by mapper %s", mapper);
+            throw new IndexException("Match queries are not supported by mapper '%s'", mapper);
         }
         query.setBoost(boost);
         return query;
