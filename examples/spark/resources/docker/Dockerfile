@@ -83,8 +83,7 @@ COPY docker-entrypoint.sh /docker-entrypoint.sh
 
 RUN mkdir /home/example
 
-COPY spark-2.1.8.4-SNAPSHOT.jar /home/example/spark-2.1.8.4-SNAPSHOT.jar
-
+COPY cassandra-lucene-index-plugin-spark-examples-2.1.8.4-SNAPSHOT.jar /home/example/spark-2.1.8.4-SNAPSHOT.jar
 COPY CreateTableAndPopulate.cql /home/example/
 
 ENTRYPOINT ["/docker-entrypoint.sh"]

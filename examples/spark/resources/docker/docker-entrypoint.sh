@@ -9,7 +9,7 @@ fi
 #if it is a worker it starts cassandra 
 if [ "$SPARK_MASTER" ]; then
 	echo "second if-casandra"
-	# TODO detect if this is a restart if necessary
+
 	: ${CASSANDRA_LISTEN_ADDRESS='auto'}
 	if [ "$CASSANDRA_LISTEN_ADDRESS" = 'auto' ]; then
 		CASSANDRA_LISTEN_ADDRESS="$(hostname --ip-address)"

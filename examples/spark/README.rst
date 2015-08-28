@@ -228,12 +228,13 @@ From spark-shell:
 
 	sc.addJar("/home/example/spark-2.1.8.4-SNAPSHOT.jar")
 	val tempRdd=sc.cassandraTable(KEYSPACE, TABLE).select("temp_value")
-				.map[Float]((row)=>row.getFloat("temp_value"))
 
-	val totalNumElems: Long =tempRdd.count()
+	val temperatureRdd=tempRdd.map[Float]((row)=>row.getFloat("temp_value"))
+
+	val totalNumElems: Long =temperatureRdd.count()
 
 	if (totalNumElems>0) {
-		val pairTempRdd = tempRdd.map(s => (1, s))
+		val pairTempRdd = temperatureRdd.map(s => (1, s))
 		val totalTempPairRdd = pairTempRdd.reduceByKey((a, b) => a + b)
 		totalMean = totalTempPairRdd.first()._2 / totalNumElems.toFloat
 	}
@@ -272,13 +273,14 @@ From spark-shell:
 	val luceneQuery: String = search.refresh(true).filter(`match`("sensor_type", "plane")).toJson
 
 	val tempRdd=sc.cassandraTable(KEYSPACE, TABLE).select("temp_value")
-				.where(INDEX_COLUMN_CONSTANT+ "= ?",luceneQuery)
-				.map[Float]((row)=>row.getFloat("temp_value"))
+	val whereRdd=tempRdd.where(INDEX_COLUMN_CONSTANT+ "= ?",luceneQuery)
 
-	val totalNumElems: Long =tempRdd.count()
+	val mapRdd=whereRdd.map[Float]((row)=>row.getFloat("temp_value"))
+
+	val totalNumElems: Long =mapRdd.count()
 
 	if (totalNumElems>0) {
-		val pairTempRdd = tempRdd.map(s => (1, s))
+		val pairTempRdd = mapRdd.map(s => (1, s))
 		val totalTempPairRdd = pairTempRdd.reduceByKey((a, b) => a + b)
 		totalMean = totalTempPairRdd.first()._2 / totalNumElems.toFloat
 	}
@@ -316,12 +318,13 @@ From spark-shell:
 	val luceneQuery = search.refresh(true).filter(geoBBox("place", -10.0f, 10.0f, -10.0f, 10.0f)).toJson
 
 	val tempRdd=sc.cassandraTable(KEYSPACE, TABLE).select("temp_value")
-	.where(INDEX_COLUMN_CONSTANT+ "= ?", luceneQuery).map[Float]((row)=>row.getFloat("temp_value"))
+	val whereRdd=tempRdd.where(INDEX_COLUMN_CONSTANT+ "= ?", luceneQuery)
+	val mapRdd=whereRdd.map[Float]((row)=>row.getFloat("temp_value"))
 
-	val totalNumElems: Long =tempRdd.count()
+	val totalNumElems: Long =mapRdd.count()
 
 	if (totalNumElems>0) {
-		val pairTempRdd = tempRdd.map(s => (1, s))
+		val pairTempRdd = mapRdd.map(s => (1, s))
 		val totalTempPairRdd = pairTempRdd.reduceByKey((a, b) => a + b)
 		totalMean = totalTempPairRdd.first()._2 / totalNumElems.toFloat
 	}
@@ -359,13 +362,13 @@ From spark-shell:
 	val luceneQuery = search.refresh(true).filter(geoDistance("place", 0.0f, 0.0f, "100000km")).toJson
 
 	val tempRdd=sc.cassandraTable(KEYSPACE, TABLE).select("temp_value")
-				.where(INDEX_COLUMN_CONSTANT+ "= ?",luceneQuery)
-				.map[Float]((row)=>row.getFloat("temp_value"))
+	val whereRdd=tempRdd.where(INDEX_COLUMN_CONSTANT+ "= ?",luceneQuery)
+	val mapRdd=whereRdd.map[Float]((row)=>row.getFloat("temp_value"))
 
-	val totalNumElems: Long =tempRdd.count()
+	val totalNumElems: Long =mapRdd.count()
 
 	if (totalNumElems>0) {
-		val pairTempRdd = tempRdd.map(s => (1, s))
+		val pairTempRdd = mapRdd.map(s => (1, s))
 		val totalTempPairRdd = pairTempRdd.reduceByKey((a, b) => a + b)
 		totalMean = totalTempPairRdd.first()._2 / totalNumElems.toFloat
 	}
@@ -398,17 +401,18 @@ From spark-shell:
 	val INDEX_COLUMN_CONSTANT: String = "lucene"
 	var totalMean = 0.0f
 
-	val luceneQuery: String = search.refresh(true).filter(range("temp_value").includeLower(true)
-								.lower(30.0f)).toJson
+	val luceneQueryAux = range("temp_value").includeLower(true).lower(30.0f)
+	val luceneQuery: String=search.refresh(true).filter(luceneQueryAux).toJson
+
 
 	val tempRdd=sc.cassandraTable(KEYSPACE, TABLE).select("temp_value")
-				.where(INDEX_COLUMN_CONSTANT+ "= ?",luceneQuery)
-				.map[Float]((row)=>row.getFloat("temp_value"))
+	val whereRdd=tempRdd.where(INDEX_COLUMN_CONSTANT+ "= ?",luceneQuery)
+	val mapRdd=whereRdd.map[Float]((row)=>row.getFloat("temp_value"))
 
-	val totalNumElems: Long =tempRdd.count()
+	val totalNumElems: Long =mapRdd.count()
 
 	if (totalNumElems>0) {
-		val pairTempRdd = tempRdd.map(s => (1, s))
+		val pairTempRdd = mapRdd.map(s => (1, s))
 		val totalTempPairRdd = pairTempRdd.reduceByKey((a, b) => a + b)
 		totalMean = totalTempPairRdd.first()._2 / totalNumElems.toFloat
 	}
