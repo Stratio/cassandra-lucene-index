@@ -21,7 +21,7 @@ Requirements
 ------------
 
 To be able to run these examples we have created a Debian-based Docker container with java 7.80.15 maven 3.3.3, Spark
-1.4.1 with Apache Hadoop 2.6, Apache Cassandra 2.1.8 and Stratio’s Cassandra Lucene Index 2.1.8.1.
+1.4.1 with Apache Hadoop 2.6, Apache Cassandra 2.1.8 and Stratio’s Cassandra Lucene Index 2.1.8.5.
 Once the docker container is built know every user can deploy a cluster with one machine acting as Spark Master and
 others as Spark Workers and Cassandra nodes. Here we show you all the steps you have to follow before getting the entire
 cluster working.
@@ -194,7 +194,7 @@ spark-shell in any of the workers
 
 .. code-block:: bash
 
-     spark-shell --master spark://$SPARK_MASTER:7077 --jars /home/example/spark-2.1.8.4-SNAPSHOT.jar
+     spark-shell --master spark://$SPARK_MASTER:7077 --jars /home/example/cassandra-lucene-index-plugin-examples-spark.jar
 
 
 
@@ -212,7 +212,7 @@ From terminal:
 
      spark-submit --class com.stratio.cassandra.examples.spark.calcAllMean \
      --master spark://$SPARK_MASTER:7077 \
-     --deploy-mode client /home/example/spark-2.1.8.4-SNAPSHOT.jar
+     --deploy-mode client /home/example/cassandra-lucene-index-plugin-examples-spark.jar
      
 
 From spark-shell:
@@ -226,7 +226,6 @@ From spark-shell:
 
     var totalMean = 0.0f
 
-    sc.addJar("/home/example/spark-2.1.8.4-SNAPSHOT.jar")
     val tempRdd=sc.cassandraTable(KEYSPACE, TABLE).select("temp_value")
 
     val temperatureRdd=tempRdd.map[Float]((row)=>row.getFloat("temp_value"))
@@ -254,7 +253,7 @@ From terminal:
 
      spark-submit --class com.stratio.cassandra.examples.spark.calcMeanByType \
      --master spark://$SPARK_MASTER:7077 \
-     --deploy-mode client /home/example/spark-2.1.8.4-SNAPSHOT.jar
+     --deploy-mode client /home/example/cassandra-lucene-index-plugin-examples-spark.jar
 
 
 
@@ -300,7 +299,7 @@ From terminal:
 
      spark-submit --class com.stratio.cassandra.examples.spark.calcMeanByBBOX \
      --master spark://$SPARK_MASTER:7077 \
-     --deploy-mode client /home/example/spark-2.1.8.4-SNAPSHOT.jar
+     --deploy-mode client /home/example/cassandra-lucene-index-plugin-examples-spark.jar
 
 
 From spark-shell:
@@ -345,7 +344,7 @@ From terminal:
 
      spark-submit --class com.stratio.cassandra.examples.spark.calcMeanByGeoDistance \
      --master spark://$SPARK_MASTER:7077 \
-     --deploy-mode client /home/example/spark-2.1.8.4-SNAPSHOT.jar
+     --deploy-mode client /home/example/cassandra-lucene-index-plugin-examples-spark.jar
 
 From spark-shell:
 
@@ -387,7 +386,7 @@ From terminal:
 
      spark-submit --class com.stratio.cassandra.examples.spark.calcMeanByRange \
      --master spark://$SPARK_MASTER:7077 \
-     --deploy-mode client /home/example/spark-2.1.8.4-SNAPSHOT.jar
+     --deploy-mode client /home/example/cassandra-lucene-index-plugin-examples-spark.jar
 
 From spark-shell:
 
