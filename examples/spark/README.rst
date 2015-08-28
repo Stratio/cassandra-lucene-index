@@ -22,7 +22,7 @@ Requirements
 
 To be able to run these examples we have created a Debian-based Docker container with java 7.80.15 maven 3.3.3, Spark
 1.4.1 with Apache Hadoop 2.6, Apache Cassandra 2.1.8 and Stratio’s Cassandra Lucene Index 2.1.8.5.
-Once the docker container is built know every user can deploy a cluster with one machine acting as Spark Master and
+Once the Docker container is built know every user can deploy a cluster with one machine acting as Spark Master and
 others as Spark Workers and Cassandra nodes. Here we show you all the steps you have to follow before getting the entire
 cluster working.
 
@@ -198,7 +198,7 @@ spark-shell in any of the workers
 
 
 
-As you can see the spark-shell examples are just like the scala code just taking out the SparkContext contruction
+As you can see the spark-shell examples are just like the Scala code just taking out the SparkContext contruction
 line because spark-shell builds it while starting
  
 Usual cassandra query
