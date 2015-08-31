@@ -6,11 +6,11 @@ Here you have some Spark examples over Cassandra Lucene queries
 
 - `Requirements <#requirements>`__
     - `Download and compile <#download-and-compile>`__
-    - `Build docker container <#build-docker-container>`__
+    - `Build Docker container <#build-docker-container>`__
     - `Deploy the cluster <#deploy-the-cluster>`__
     - `Create example environment <#create-example-environment>`__
 - `Examples <#examples>`__
-    - `Usual cassandra query <#usual-cassandra-query>`__
+    - `Usual Cassandra query <#usual-cassandra-query>`__
     - `Match query <#match-query>`__
     - `Geo-spatial bounding box query <#geo-spatial-bounding-box-query>`__
     - `Geo-spatial distance query <#geo-spatial-distance-query>`__
@@ -42,17 +42,17 @@ Compile and package it
     mvn clean package
 
 
-Build docker container
+Build Docker container
 ++++++++++++++++++++++
 
-If you don't have docker installed then run:
+If you don't have Docker installed then run:
 
 .. code-block:: bash
 
     sudo apt-get install docker 
 
 
-Go to Docker containers directory from cassandra lucene index base directory:
+Go to Docker containers directory from Cassandra Lucene index base directory:
 
 .. code-block:: bash
 
@@ -186,7 +186,7 @@ CreateTableAndPopulate.cql
         };
 
 
-The examples calculates the mean of temp_value based in several CQL lucene queries.
+The examples calculates the mean of temp_value based in several CQL Lucene queries.
 
 
 Every example can be executed via spark-submit or in a spark-shell. To run in spark-shell run above line to start
@@ -201,7 +201,7 @@ spark-shell in any of the workers
 As you can see the spark-shell examples are just like the Scala code just taking out the SparkContext contruction
 line because spark-shell builds it while starting
  
-Usual cassandra query
+Usual Cassandra query
 +++++++++++++++++++++
 
 This example calculates the mean off all (1000 rows) temp values.
