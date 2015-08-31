@@ -2,6 +2,9 @@
 
 ## 2.1.8.5-SNAPSHOT (upcoming)
 
+ * Add Spark examples module
+ * Remove problematic logback.xml
+
 ## 2.1.8.4 (27 August 2015)
 
  * Fix searches with both sorting and relevance
