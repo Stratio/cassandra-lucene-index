@@ -35,7 +35,7 @@ Download a fresh version of this project :
 
     git clone https://github.com/Stratio/cassandra-lucene-index.git
 
-Compile and package it
+Compile and package it:
 
 .. code-block:: bash
 
@@ -58,7 +58,7 @@ Go to Docker containers directory from Cassandra Lucene index base directory:
 
     cd examples/spark/resources/docker
     
-Build the Docker container, this will take a while, please be patient
+Build the Docker container, this will take a while, please be patient:
 
 .. code-block:: bash
     
@@ -67,7 +67,7 @@ Build the Docker container, this will take a while, please be patient
 Deploy the cluster
 ++++++++++++++++++
 
-As mentioned before there are two types of machines in our cluster, one is Spark Master, you can run it like this
+As mentioned before there are two types of machines in our cluster, one is Spark Master, you can run it like this:
 
 .. code-block:: bash
 
@@ -113,7 +113,7 @@ http://SPARK_MASTER_IP:8080
 
 You will see the 3 spark workers attached to the Spark master
 
-or the cassandra ring running in host terminal 
+or the Cassandra ring running in host terminal
 
 .. code-block:: bash
 
@@ -198,13 +198,13 @@ spark-shell in any of the workers
 
 
 
-As you can see the spark-shell examples are just like the Scala code just taking out the SparkContext contruction
-line because spark-shell builds it while starting
+As you can see the spark-shell examples are just like the Scala code just taking out the SparkContext construction
+line because spark-shell builds it while starting.
  
 Usual Cassandra query
 +++++++++++++++++++++
 
-This example calculates the mean off all (1000 rows) temp values.
+This example calculates the mean off all (1000 rows) temperatures values.
 
 From terminal:
 
@@ -245,7 +245,7 @@ From spark-shell:
 Match query
 +++++++++++
 
-This example calculates the mean temp of sensors with sensor_type match "plane"
+This example calculates the mean temperature of sensors with sensor_type match "plane".
 
 From terminal:
 
@@ -291,7 +291,8 @@ From spark-shell:
 Geo-spatial bounding box query
 ++++++++++++++++++++++++++++++
 
-This example calculates the mean temp of sensors whose position in inside bounding box [(-10.0, 10.0), (-10.0, 10.0)]
+This example calculates the mean tempperature of sensors whose position in inside bounding
+box [(-10.0, 10.0), (-10.0, 10.0)].
 
 From terminal:
 
@@ -336,7 +337,7 @@ From spark-shell:
 Geo-spatial distance query
 ++++++++++++++++++++++++++
 
-This example calculates the mean temp of sensors whose position distance from [0.0, 0.0] is less than 100000km
+This example calculates the mean temperature of sensors whose position distance from [0.0, 0.0] is less than 100000km.
 
 From terminal:
 
@@ -378,7 +379,7 @@ From spark-shell:
 Range query
 +++++++++++
 
-This example calculates the mean temp of sensors whose temp >= 30.0
+This example calculates the mean temperature of sensors whose temp >= 30.0
 
 From terminal:
 
