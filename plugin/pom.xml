@@ -131,7 +131,7 @@
                             <contactEmail>cassandra@stratio.com</contactEmail>
                             <deb>
                                 <section>devel</section>
-                                <depends>stratio-cassandra (=${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion})</depends>
+                                <depends>stratio-cassandra (= ${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion})</depends>
                             </deb>
                             <rpm>
                                 <group>stratio</group>
