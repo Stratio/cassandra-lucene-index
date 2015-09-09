@@ -1,5 +1,7 @@
 # Changelog
 
+## 2.1.10.0-SNAPSHOT (upcoming)
+
 ## 2.1.9.0 (9 September 2015)
 
  * Upgrade to Apache Cassandra 2.1.9
