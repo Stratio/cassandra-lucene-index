@@ -1,5 +1,0 @@
-<configuration scan="false">
-
-    <logger level="ERROR" name="com.stratio"/>
-
-</configuration>
