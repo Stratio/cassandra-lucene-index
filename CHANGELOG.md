@@ -1,8 +1,11 @@
 # Changelog
 
-## 2.1.8.5 (upcoming)
+## 2.1.9.0 (9 September 2015)
 
- * Add Spark examples module
+ * Upgrade to Apache Cassandra 2.1.9
+ 
+## 2.1.8.5 (9 September 2015)
+
  * Remove problematic logback.xml
 
 ## 2.1.8.4 (27 August 2015)
