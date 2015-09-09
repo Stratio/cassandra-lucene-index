@@ -1,6 +1,9 @@
 # Changelog
 
-## 2.1.8.5-SNAPSHOT (upcoming)
+## 2.1.8.5 (upcoming)
+
+ * Add Spark examples module
+ * Remove problematic logback.xml
 
 ## 2.1.8.4 (27 August 2015)
 
