@@ -71,9 +71,9 @@ public class SchemaAnalyzer extends DelegatingAnalyzerWrapper {
      * @param name The name of the {@link Analyzer} to be returned.
      * @return The {@link Analyzer} identified by the specified name.
      */
-    private static Analyzer getAnalyzer(Map<String, Analyzer> analyzers, String name) {
+    protected static Analyzer getAnalyzer(Map<String, Analyzer> analyzers, String name) {
         if (StringUtils.isBlank(name)) {
-            throw new IllegalArgumentException("Not empty analyzer name required");
+            throw new IndexException("Not empty analyzer name required");
         }
         Analyzer analyzer = analyzers.get(name);
         if (analyzer == null) {

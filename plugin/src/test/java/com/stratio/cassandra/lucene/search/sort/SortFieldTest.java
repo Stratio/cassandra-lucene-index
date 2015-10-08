@@ -105,6 +105,13 @@ public class SortFieldTest {
         assertTrue("sortField reverse is wrong", luceneSortField.getReverse());
     }
 
+    @Test(expected = IndexException.class)
+    public void testSortFieldUnsorted() {
+        Schema schema = schema().mapper("field", stringMapper().sorted(false)).build();
+        SortField sortField = new SortField("field", false);
+        sortField.sortField(schema);
+    }
+
     @Test
     public void testSortFieldScoreDefaults() {
 
@@ -209,11 +216,47 @@ public class SortFieldTest {
     }
 
     @Test
+    public void testCompareColumn() {
+
+        SortField sortField = new SortField("field", true);
+
+        Column column1 = Column.fromComposed("field", "a", UTF8Type.instance, false);
+        Column column2 = Column.fromComposed("field", "z", UTF8Type.instance, false);
+
+        assertEquals("SortField compare is wrong", 25, sortField.compare(column1, column2));
+        assertEquals("SortField compare is wrong", -25, sortField.compare(column2, column1));
+        assertEquals("SortField compare is wrong", 1, sortField.compare(nullColumn(), column1));
+        assertEquals("SortField compare is wrong", -1, sortField.compare(column2, nullColumn()));
+        assertEquals("SortField compare is wrong", 0, sortField.compare(nullColumn(), nullColumn()));
+    }
+
+    private static Column nullColumn() {
+        return null;
+    }
+
+    private static SortField nullSortField() {
+        return null;
+    }
+
+    private static Object nullInt() {
+        return null;
+    }
+
+    @Test
     public void testEquals() {
-        assertNotNull("SortField equals is wrong", new SortField("field", true));
-        assertEquals("SortField equals is wrong", new SortField("field", true), new SortField("field", true));
-        assertFalse("SortField equals is wrong", new SortField("field1", true).equals(new SortField("field2", true)));
-        assertFalse("SortField equals is wrong", new SortField("field", true).equals(new SortField("field", false)));
+        SortField sortField = new SortField("field", true);
+        assertEquals("SortField equals is wrong", sortField, sortField);
+        assertEquals("SortField equals is wrong", sortField, new SortField("field", true));
+        assertFalse("SortField equals is wrong", sortField.equals(new SortField("field2", true)));
+        assertFalse("SortField equals is wrong", sortField.equals(new SortField("field", false)));
+        assertFalse("SortField equals is wrong", sortField.equals(nullInt()));
+        assertFalse("SortField equals is wrong", sortField.equals(nullSortField()));
+    }
+
+    @Test
+    public void testHashCode() {
+        assertEquals("SortField equals is wrong", -1274708409, new SortField("field", true).hashCode());
+        assertEquals("SortField equals is wrong", -1274708410, new SortField("field", false).hashCode());
     }
 
     @Test

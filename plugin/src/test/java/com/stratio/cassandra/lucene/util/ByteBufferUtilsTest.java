@@ -42,17 +42,49 @@ public class ByteBufferUtilsTest {
         ByteBuffer in = type.decompose("monkey", 1);
         BytesRef bytesRef = ByteBufferUtils.bytesRef(in);
         ByteBuffer out = ByteBufferUtils.byteBuffer(bytesRef);
-        assertEquals("Conversion between ByteBuffer and  BytesRef is failing",
-                     0,
-                     ByteBufferUtil.compareUnsigned(in, out));
+        assertEquals("Failing conversion between ByteBuffer and BytesRef", 0, ByteBufferUtil.compareUnsigned(in, out));
     }
 
     @Test
-    public void testToString() throws Exception {
+    public void testIsEmptyTrue() {
+        ByteBuffer bb = ByteBuffer.allocate(0);
+        assertTrue(ByteBufferUtils.isEmpty(bb));
+    }
+
+    @Test
+    public void testIsEmptyFalse() {
+        ByteBuffer bb = ByteBuffer.allocate(10);
+        assertFalse(ByteBufferUtils.isEmpty(bb));
+    }
+
+    @Test
+    public void testSplit() {
+        ByteBuffer bb = UTF8Type.instance.decompose("test");
+        assertEquals("Must be split to one element", 1, ByteBufferUtils.split(bb, UTF8Type.instance).length);
+    }
+
+    @Test
+    public void testSplitComposite() {
+        CompositeType type = CompositeType.getInstance(UTF8Type.instance, Int32Type.instance);
+        ByteBuffer bb = type.builder()
+                            .add(UTF8Type.instance.decompose("1"))
+                            .add(Int32Type.instance.decompose(1))
+                            .build();
+        assertEquals("Must be split to two elements", 2, ByteBufferUtils.split(bb, type).length);
+    }
+
+    @Test
+    public void testToString() {
+        ByteBuffer bb = UTF8Type.instance.decompose("test");
+        String string = ByteBufferUtils.toString(bb, UTF8Type.instance);
+        assertEquals("Abstract type string conversion is failing", "test", string);
+    }
+
+    @Test
+    public void testToStringComposite() throws Exception {
         CompositeType type = CompositeType.getInstance(UTF8Type.instance, Int32Type.instance);
         ByteBuffer bb = type.decompose("monkey", 1);
         String string = ByteBufferUtils.toString(bb, type);
-        assertEquals("Abstract type string conversion is failing", "monkey:1", string);
+        assertEquals("Composite type string conversion is failing", "monkey:1", string);
     }
-
 }

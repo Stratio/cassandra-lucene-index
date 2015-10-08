@@ -113,7 +113,7 @@ public class SortField {
         };
     }
 
-    private int compare(Columns o1, Columns o2) {
+    protected int compare(Columns o1, Columns o2) {
 
         if (o1 == null) {
             return o2 == null ? 0 : 1;
@@ -127,7 +127,7 @@ public class SortField {
         return compare(column1, column2);
     }
 
-    private int compare(Column<?> column1, Column<?> column2) {
+    protected int compare(Column<?> column1, Column<?> column2) {
         if (column1 == null) {
             return column2 == null ? 0 : 1;
         } else if (column2 == null) {

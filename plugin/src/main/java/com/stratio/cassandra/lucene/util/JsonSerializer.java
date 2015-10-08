@@ -34,15 +34,13 @@ import java.io.IOException;
  */
 public final class JsonSerializer {
 
+    private static JsonSerializer INSTANCE = new JsonSerializer();
+
     /** The embedded JSON serializer. */
-    private static final ObjectMapper jsonMapper = new ObjectMapper();
+    private final ObjectMapper jsonMapper = new ObjectMapper();
 
     /** Private constructor to hide the implicit public one. */
     private JsonSerializer() {
-    }
-
-    // Setup serialization options
-    static {
         jsonMapper.configure(JsonGenerator.Feature.QUOTE_FIELD_NAMES, false);
         jsonMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
         jsonMapper.configure(SerializationConfig.Feature.AUTO_DETECT_IS_GETTERS, false);
@@ -58,7 +56,7 @@ public final class JsonSerializer {
      * @throws IOException If there are serialization problems.
      */
     public static String toString(Object value) throws IOException {
-        return jsonMapper.writeValueAsString(value);
+        return INSTANCE.jsonMapper.writeValueAsString(value);
     }
 
     /**
@@ -71,6 +69,6 @@ public final class JsonSerializer {
      * @throws IOException If there are parsing problems.
      */
     public static <T> T fromString(String value, Class<T> valueType) throws IOException {
-        return jsonMapper.readValue(value, valueType);
+        return INSTANCE.jsonMapper.readValue(value, valueType);
     }
 }

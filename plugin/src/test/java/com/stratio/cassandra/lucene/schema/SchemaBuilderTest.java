@@ -86,6 +86,11 @@ public class SchemaBuilderTest {
     }
 
     @Test
+    public void testBuildNulls() throws Exception {
+        new SchemaBuilder(null, null,null);
+    }
+
+    @Test
     public void testBuildComplex() throws Exception {
         Schema schema = schema().defaultAnalyzer("custom")
                                 .analyzer("custom", classpathAnalyzer("org.apache.lucene.analysis.en.EnglishAnalyzer"))
