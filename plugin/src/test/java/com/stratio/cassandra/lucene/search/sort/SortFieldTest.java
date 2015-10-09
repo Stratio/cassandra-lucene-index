@@ -254,6 +254,13 @@ public class SortFieldTest {
     }
 
     @Test
+    public void testEqualsWithNull() {
+        SortField sortField = new SortField("field", true);
+        assertFalse("SortField equals is wrong", sortField.equals(null));
+        assertFalse("SortField equals is wrong", sortField.equals(new Integer(0)));
+    }
+
+    @Test
     public void testHashCode() {
         assertEquals("SortField equals is wrong", -1274708409, new SortField("field", true).hashCode());
         assertEquals("SortField equals is wrong", -1274708410, new SortField("field", false).hashCode());
