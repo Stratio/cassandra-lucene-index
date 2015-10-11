@@ -29,6 +29,10 @@ import org.apache.lucene.analysis.Analyzer;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -55,6 +59,9 @@ public class IndexConfig {
     public static final String MAX_CACHED_MB_OPTION = "max_cached_mb";
     public static final int DEFAULT_MAX_CACHED_MB = 30;
 
+    public static final String EXCLUDED_DATA_CENTERS_OPTION = "excluded_data_centers";
+    public static final List<String> DEFAULT_EXCLUDED_DATA_CENTERS = Collections.emptyList();
+
     private final ColumnDefinition columnDefinition;
     private final CFMetaData metadata;
     private final Map<String, String> options;
@@ -64,6 +71,7 @@ public class IndexConfig {
     private final int ramBufferMB;
     private final int maxMergeMB;
     private final int maxCachedMB;
+    private final List<String> excludedDataCenters;
 
     /**
      * Builds a new {@link IndexConfig} for the column family defined by the specified metadata using the specified
@@ -82,6 +90,7 @@ public class IndexConfig {
         maxCachedMB = parseMaxCachedMB();
         schema = parseSchema();
         path = parsePath();
+        excludedDataCenters = parseExcludedDataCenters();
     }
 
     /**
@@ -173,6 +182,15 @@ public class IndexConfig {
      */
     public Path getPath() {
         return path;
+    }
+
+    /**
+     * Returns the list of excluded data centers.
+     *
+     * @return The list of excluded data centers.
+     */
+    public List<String> getExcludedDataCenters() {
+        return excludedDataCenters;
     }
 
     /**
@@ -305,6 +323,16 @@ public class IndexConfig {
             return Paths.get(pathString);
         } else {
             return Paths.get(pathOption);
+        }
+    }
+
+    private List<String> parseExcludedDataCenters() {
+        String excludedDataCentersOption = options.get(EXCLUDED_DATA_CENTERS_OPTION);
+        if (excludedDataCentersOption != null) {
+            String[] array = excludedDataCentersOption.trim().split(",");
+            return Arrays.asList(array);
+        } else {
+            return DEFAULT_EXCLUDED_DATA_CENTERS;
         }
     }
 
