@@ -191,9 +191,9 @@ public class SchemaTest {
     @Test
     public void testGetMapper() {
         Schema schema = SchemaBuilders.schema().mapper("field1", stringMapper()).build();
-        assertNotNull("Expected true",schema.getMapper("field1"));
-        assertNotNull("Expected true",schema.getMapper("field1.a"));
-        assertNotNull("Expected true",schema.getMapper("field1.a.b"));
+        assertNotNull("Expected true", schema.getMapper("field1"));
+        assertNotNull("Expected true", schema.getMapper("field1.a"));
+        assertNotNull("Expected true", schema.getMapper("field1.a.b"));
         schema.close();
     }
 

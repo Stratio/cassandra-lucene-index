@@ -1153,7 +1153,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         BitemporalMapper mapper = new BitemporalMapper("field", "vtFrom", "vtTo", "ttFrom", "ttTo", null, null);
 
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("vtTo"  , "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("vtTo", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
         columns.add(Column.fromComposed("ttFrom", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
         columns.add(Column.fromComposed("ttTo", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
 
@@ -1178,7 +1178,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
 
         Columns columns = new Columns();
         columns.add(Column.fromComposed("vtFrom", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("vtTo"  , "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("vtTo", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
         columns.add(Column.fromComposed("ttTo", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
 
         mapper.addFields(new Document(), columns);
@@ -1190,7 +1190,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
 
         Columns columns = new Columns();
         columns.add(Column.fromComposed("vtFrom", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("vtTo"  , "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("vtTo", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
         columns.add(Column.fromComposed("ttFrom", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
 
         mapper.addFields(new Document(), columns);
@@ -1202,9 +1202,9 @@ public class BitemporalMapperTest extends AbstractMapperTest {
 
         Columns columns = new Columns();
         columns.add(Column.fromComposed("vtFrom", "2015/02/28 01:02:03.005 GMT", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("vtTo"  , "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("vtTo", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
         columns.add(Column.fromComposed("ttFrom", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("ttTo"  , "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("ttTo", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
 
         mapper.addFields(new Document(), columns);
     }
@@ -1215,9 +1215,9 @@ public class BitemporalMapperTest extends AbstractMapperTest {
 
         Columns columns = new Columns();
         columns.add(Column.fromComposed("vtFrom", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("vtTo"  , "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("vtTo", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
         columns.add(Column.fromComposed("ttFrom", "2015/02/28 01:02:03.005 GMT", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("ttTo"  , "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("ttTo", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
 
         mapper.addFields(new Document(), columns);
     }
