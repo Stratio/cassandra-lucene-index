@@ -19,12 +19,13 @@ where:
 
 .. code-block:: sql
 
-    <options> := { ('refresh_seconds'      : '<int_value>',)?
-                   ('ram_buffer_mb'        : '<int_value>',)?
-                   ('max_merge_mb'         : '<int_value>',)?
-                   ('max_cached_mb'        : '<int_value>',)?
-                   ('directory_path'       : '<string_value>',)?
-                   'schema'                : '<schema_definition>'};
+    <options> := { ('refresh_seconds'       : '<int_value>',)?
+                   ('ram_buffer_mb'         : '<int_value>',)?
+                   ('max_merge_mb'          : '<int_value>',)?
+                   ('max_cached_mb'         : '<int_value>',)?
+                   ('directory_path'        : '<string_value>',)?
+                   ('excluded_data_centers' : '<string_value>',)?
+                   'schema'                 : '<schema_definition>'};
 
 Options, except “schema” and “directory\_path”, take a positive integer
 value enclosed in single quotes:
@@ -38,6 +39,9 @@ value enclosed in single quotes:
 -  **max\_cached\_mb**: defaults to ’30’.
 -  **directory\_path**: The path of the directory where the  Lucene index
    will be stored.
+-  **excluded\_data\_centers**: The comma-separated list of the data centers
+   to be excluded. The index will be created on this data centers but all the
+   write operations will be silently ignored.
 -  **schema**: see below
 
 .. code-block:: sql
@@ -234,10 +238,11 @@ Cassandra shell:
     ON test.users (stratio_col)
     USING 'com.stratio.cassandra.lucene.Index'
     WITH OPTIONS = {
-        'refresh_seconds'      : '60',
-        'ram_buffer_mb'        : '64',
-        'max_merge_mb'         : '5',
-        'max_cached_mb'        : '30',
+        'refresh_seconds'       : '60',
+        'ram_buffer_mb'         : '64',
+        'max_merge_mb'          : '5',
+        'max_cached_mb'         : '30',
+        'excluded_data_centers' : 'dc2,dc3',
         'schema' : '{
             analyzers : {
                   my_custom_analyzer : {

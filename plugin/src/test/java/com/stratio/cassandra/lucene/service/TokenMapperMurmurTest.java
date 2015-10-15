@@ -18,177 +18,71 @@
 
 package com.stratio.cassandra.lucene.service;
 
+
 import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
-import static org.junit.Assert.assertNotNull;
+import static junit.framework.Assert.assertNotNull;
 
 import java.util.List;
 
-import org.apache.cassandra.db.BufferDecoratedKey;
 import org.apache.cassandra.db.DecoratedKey;
-import org.apache.cassandra.dht.LongToken;
+import org.apache.cassandra.db.marshal.UTF8Type;
+import org.apache.cassandra.dht.Murmur3Partitioner;
 import org.apache.cassandra.dht.Token;
-import org.apache.cassandra.utils.ByteBufferUtil;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
-import org.apache.lucene.document.LongField;
-import org.apache.lucene.search.NumericRangeQuery;
+import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.SortField;
 import org.junit.Test;
 
 /**
- * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
+ * Unit tests for {@link TokenMapperMurmur}.
+ *
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
+
  */
 public class TokenMapperMurmurTest {
 
+
     @Test
-    public void testCRUD() {
+    public void testAddFields() {
+        Murmur3Partitioner partitioner = new Murmur3Partitioner();
+        TokenMapperMurmur mapper = new TokenMapperMurmur();
+        DecoratedKey key = partitioner.decorateKey(UTF8Type.instance.decompose("key"));
+        Document document = new Document();
+        mapper.addFields(document, key);
+        IndexableField field = document.getField(TokenMapperMurmur.FIELD_NAME);
+        assertNotNull("Field should be added", field);
+        assertEquals("Hash value is wrong", -6847573755651342660L, field.numericValue());
+    }
 
+    @Test
+    public void testSortFields() {
+        TokenMapperMurmur mapper = new TokenMapperMurmur();
+        List<SortField> sortFields = mapper.sortFields();
+        assertNotNull("Sort fields should be not null", sortFields);
+        assertEquals("Sort fields should contain a single element", 1, sortFields.size());
+    }
 
-        TokenMapperMurmur tokenMapperMurmur = new TokenMapperMurmur();
-        assertNotNull("TokenMapperMurmur constructor returning null", tokenMapperMurmur);
-        DecoratedKey decoratedKey = new BufferDecoratedKey(new LongToken((long) 10), ByteBufferUtil.EMPTY_BYTE_BUFFER);
-        Document doc = new Document();
+    @Test
+    public void testQueryToken() {
+        Murmur3Partitioner partitioner = new Murmur3Partitioner();
+        DecoratedKey key = partitioner.decorateKey(UTF8Type.instance.decompose("key"));
+        Token token = key.getToken();
+        TokenMapperMurmur mapper = new TokenMapperMurmur();
+        Query query = mapper.query(token);
+        assertNotNull("Query should be not null", query);
+        assertEquals("Hash value is wrong",
+                     "_token_murmur:[-6847573755651342660 TO -6847573755651342660]",
+                     query.toString());
+    }
 
-        tokenMapperMurmur.addFields(doc, decoratedKey);
-        Field field = (Field) doc.getField("_token_murmur");
-        LongField longField = (LongField) field;
-        assertNotNull("tokenMapperMurmur addFields to Document must add al least one Field to Doc", field);
-        assertEquals("tokenMapperMurmur addFields to Document must include a LongField with name and value ", field
-                .name(), "_token_murmur");
-
-        assertEquals("tokenMapperMurmur addFields to Document must include a LongField with name and value ",
-                longField.numericValue().longValue(), decoratedKey.getToken().getTokenValue());
-
-
-        Token token =decoratedKey.getToken();
-
-        Query query= tokenMapperMurmur.query(token);
-        assertTrue("Query builded in TokenMapperMurmur must be NuemericRangeQuery",query instanceof NumericRangeQuery);
-
-        NumericRangeQuery numericRangeQuery=(NumericRangeQuery)query;
-
-        assertEquals("Min long in NumericRangeQuery must be token value",numericRangeQuery.getMin(), token.getTokenValue());
-        assertEquals("Max long in NumericRangeQuery must be token value",numericRangeQuery.getMax(),token.getTokenValue());
-
-
-        List<SortField> listSort=tokenMapperMurmur.sortFields();
-        assertEquals("TokenMapperMurmur.sortFields() must return a 1 elem list",listSort.size(),1);
-
-        SortField sortField=listSort.get(0);
-
-        assertEquals("SortField returned by TokenMapperMurmur.sortFields() must be equal to SortField(FIELD_NAME, "
-                + "SortField.Type.LONG)", sortField, new SortField(TokenMapperMurmur.FIELD_NAME, SortField.Type.LONG));
-
-        /* need to cock StorageService.getPartitioner
-        Token minToken = new LongToken(Long.MIN_VALUE);
-        Token maxToken= new LongToken(Long.MAX_VALUE);
-
-        Token normalToken1= new LongToken(10l);
-        Token normalToken2= new LongToken(20l);
-
-        Query usualQuery=tokenMapperMurmur.doQuery(normalToken1,normalToken2,false, false);
-
-        assertNotNull(usualQuery);
-        assertTrue("TokenMapperMurmur.doQuery must return a DocValuesRangeQuery", usualQuery instanceof
-                DocValuesRangeQuery);
-
-
-
-
-        Query compareQuery=DocValuesRangeQuery.newLongRange(TokenMapperMurmur.FIELD_NAME,(Long)
-                normalToken1.getTokenValue(),(Long) normalToken2.getTokenValue(), false, false);
-
-
-        assertEquals(usualQuery,compareQuery);
-
-
-        usualQuery=tokenMapperMurmur.doQuery(normalToken1,normalToken2,false, true);
-
-        assertNotNull(usualQuery);
-        assertTrue("TokenMapperMurmur.doQuery must return a DocValuesRangeQuery", usualQuery instanceof
-                DocValuesRangeQuery);
-
-        compareQuery=DocValuesRangeQuery.newLongRange(TokenMapperMurmur.FIELD_NAME,(Long)
-                normalToken1.getTokenValue(),(Long) normalToken2.getTokenValue(), false, true);
-
-
-        assertEquals(usualQuery,compareQuery);
-
-
-        usualQuery=tokenMapperMurmur.doQuery(normalToken1,normalToken2,true, false);
-
-        assertNotNull(usualQuery);
-        assertTrue("TokenMapperMurmur.doQuery must return a DocValuesRangeQuery", usualQuery instanceof
-                DocValuesRangeQuery);
-
-        compareQuery=DocValuesRangeQuery.newLongRange(TokenMapperMurmur.FIELD_NAME,(Long)
-                normalToken1.getTokenValue(),(Long) normalToken2.getTokenValue(), true, false);
-
-
-        assertEquals(usualQuery,compareQuery);
-
-        usualQuery=tokenMapperMurmur.doQuery(normalToken1,normalToken2,true, true);
-
-        assertNotNull(usualQuery);
-        assertTrue("TokenMapperMurmur.doQuery must return a DocValuesRangeQuery", usualQuery instanceof
-                DocValuesRangeQuery);
-
-        compareQuery=DocValuesRangeQuery.newLongRange(TokenMapperMurmur.FIELD_NAME,(Long)
-                normalToken1.getTokenValue(),(Long) normalToken2.getTokenValue(), true, true);
-
-
-        assertEquals(usualQuery,compareQuery);
-
-        Query minNullQuery=tokenMapperMurmur.doQuery(null,normalToken2,false, false);
-
-        assertNotNull(minNullQuery);
-        assertTrue("TokenMapperMurmur.doQuery must return a DocValuesRangeQuery", minNullQuery instanceof
-                DocValuesRangeQuery);
-
-        compareQuery=DocValuesRangeQuery.newLongRange(TokenMapperMurmur.FIELD_NAME,null,(Long) normalToken2
-                .getTokenValue(), false, false);
-
-        assertEquals(minNullQuery,compareQuery);
-
-        Query maxNullQuery=tokenMapperMurmur.doQuery(normalToken1,null,false, false);
-
-        assertNotNull(maxNullQuery);
-        assertTrue("TokenMapperMurmur.doQuery must return a DocValuesRangeQuery", maxNullQuery instanceof
-                DocValuesRangeQuery);
-
-        compareQuery=DocValuesRangeQuery.newLongRange(TokenMapperMurmur.FIELD_NAME,(Long) normalToken1
-                .getTokenValue(),null, false, false);
-
-        assertEquals(maxNullQuery,compareQuery);
-
-
-
-        Query minQuery=tokenMapperMurmur.doQuery(minToken,normalToken2,false, false);
-
-        assertNotNull(minQuery);
-        assertTrue("TokenMapperMurmur.doQuery must return a DocValuesRangeQuery", minQuery instanceof
-                DocValuesRangeQuery);
-
-        compareQuery=DocValuesRangeQuery.newLongRange(TokenMapperMurmur.FIELD_NAME,null,(Long) normalToken2
-                .getTokenValue(), false, false);
-
-        assertEquals(minQuery,compareQuery);
-
-
-        Query maxQuery=tokenMapperMurmur.doQuery(normalToken1,maxToken,false, false);
-
-        assertNotNull(maxQuery);
-        assertTrue("TokenMapperMurmur.doQuery must return a DocValuesRangeQuery", maxQuery instanceof
-                DocValuesRangeQuery);
-
-        compareQuery=DocValuesRangeQuery.newLongRange(TokenMapperMurmur.FIELD_NAME,(Long) normalToken1
-                .getTokenValue(),null, false, false);
-
-        assertEquals(maxQuery,compareQuery);
-
-        */
-
+    @Test
+    public void testValue() {
+        Murmur3Partitioner partitioner = new Murmur3Partitioner();
+        DecoratedKey key = partitioner.decorateKey(UTF8Type.instance.decompose("key"));
+        Token token = key.getToken();
+        long value = TokenMapperMurmur.value(token);
+        assertEquals("Hash value is wrong", -6847573755651342660L, value);
     }
 }
+

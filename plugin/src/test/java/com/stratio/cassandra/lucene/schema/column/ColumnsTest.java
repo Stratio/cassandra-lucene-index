@@ -103,6 +103,8 @@ public class ColumnsTest {
         columns.add(Column.fromComposed("field1", "item1", "value1", UTF8Type.instance, false));
         columns.add(Column.fromComposed("field1", "item2", "value1", UTF8Type.instance, false));
         columns.add(Column.fromComposed("field2", "item1", "value2", UTF8Type.instance, false));
-        assertEquals("Method #toString is wrong", "Columns{field1.item1=value1, field1.item2=value1, field2.item1=value2}", columns.toString());
+        assertEquals("Method #toString is wrong",
+                     "Columns{field1.item1=value1, field1.item2=value1, field2.item1=value2}",
+                     columns.toString());
     }
 }

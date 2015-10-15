@@ -87,7 +87,7 @@ public class SchemaBuilderTest {
 
     @Test
     public void testBuildNulls() throws Exception {
-        new SchemaBuilder(null, null,null);
+        new SchemaBuilder(null, null, null);
     }
 
     @Test

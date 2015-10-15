@@ -42,10 +42,12 @@ import java.util.List;
 public class TokenMapperMurmur extends TokenMapper {
 
     /** The Lucene field name. */
+
     static final String FIELD_NAME = "_token_murmur";
 
     /** The Lucene field type. */
     static final FieldType FIELD_TYPE = new FieldType();
+
 
     static {
         FIELD_TYPE.setTokenized(true);
@@ -92,7 +94,7 @@ public class TokenMapperMurmur extends TokenMapper {
         return Collections.singletonList(new SortField(FIELD_NAME, SortField.Type.LONG));
     }
 
-    private static Long value(Token token) {
+    static Long value(Token token) {
         return (Long) token.getTokenValue();
     }
 

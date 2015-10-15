@@ -21,6 +21,7 @@ package com.stratio.cassandra.lucene;
 import com.stratio.cassandra.lucene.service.RowService;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
+import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.config.Schema;
 import org.apache.cassandra.db.ColumnFamily;
 import org.apache.cassandra.db.ColumnFamilyStore;
@@ -71,6 +72,7 @@ public class Index extends PerRowSecondaryIndex {
     private IndexConfig indexConfig;
     private String name;
     private RowService service;
+    private boolean isExcluded;
 
     /**
      * Returns the indexed column definition.
@@ -99,6 +101,10 @@ public class Index extends PerRowSecondaryIndex {
             name = indexConfig.getName();
             service = RowService.build(baseCfs, indexConfig);
             logger.info("Initialized index {}", name);
+            isExcluded = indexConfig.getExcludedDataCenters().contains(DatabaseDescriptor.getLocalDataCenter());
+            if (isExcluded) {
+                logger.info("All writes to this index will be ignored");
+            }
         } catch (Exception e) {
             logger.error("Error initializing Lucene index " + name, e);
         }
@@ -107,24 +113,32 @@ public class Index extends PerRowSecondaryIndex {
     /** {@inheritDoc} */
     @Override
     public void index(ByteBuffer key, ColumnFamily columnFamily) {
-        logger.debug("Indexing row in Lucene index {}", name);
-        try {
-            long timestamp = System.currentTimeMillis();
-            service.index(key, columnFamily, timestamp);
-        } catch (Exception e) {
-            logger.error("Error indexing row in Lucene index " + name, e);
+        if (!isExcluded) {
+            logger.debug("Indexing row in Lucene index {}", name);
+            try {
+                long timestamp = System.currentTimeMillis();
+                service.index(key, columnFamily, timestamp);
+            } catch (Exception e) {
+                logger.error("Error indexing row in Lucene index " + name, e);
+            }
+        } else {
+            logger.debug("Ignoring excluded indexing in Lucene index {}", name);
         }
     }
 
     /** {@inheritDoc} */
     @Override
     public void delete(DecoratedKey key, OpOrder.Group opGroup) {
-        logger.debug("Removing row from Lucene index {}", name);
-        try {
-            service.delete(key);
-            service = null;
-        } catch (Exception e) {
-            logger.error("Error deleting row in Lucene index " + name, e);
+        if (!isExcluded) {
+            logger.debug("Removing row from Lucene index {}", name);
+            try {
+                service.delete(key);
+                service = null;
+            } catch (Exception e) {
+                logger.error("Error deleting row in Lucene index " + name, e);
+            }
+        } else {
+            logger.debug("Ignoring excluded deletion in Lucene index {}", name);
         }
     }
 

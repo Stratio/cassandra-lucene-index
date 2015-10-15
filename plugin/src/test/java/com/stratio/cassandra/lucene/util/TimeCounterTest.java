@@ -19,7 +19,9 @@
 package com.stratio.cassandra.lucene.util;
 
 import org.junit.Test;
-import static junit.framework.Assert.*;
+
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertTrue;
 
 /**
  * Tests for {@link TimeCounter}.

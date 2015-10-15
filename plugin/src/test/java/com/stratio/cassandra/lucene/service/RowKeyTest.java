@@ -54,7 +54,7 @@ public class RowKeyTest {
         DecoratedKey decoratedKey=new BufferDecoratedKey(new LongToken((long) 10), ByteBufferUtil.EMPTY_BYTE_BUFFER);
         CellName clusteringKey=CellNames.simpleSparse(new ColumnIdentifier("aaaa", false));
         RowKey rowKey= new RowKey(decoratedKey,clusteringKey);
-        System.out.println("clustering key:" +clusteringKey.toString());
+
         assertEquals("RowKey.toString must return","RowKey{partitionKey=DecoratedKey(10, ), "
                 + "clusteringKey="+clusteringKey.toString()+"}",rowKey.toString());
     }
