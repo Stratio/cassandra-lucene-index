@@ -206,7 +206,7 @@ public final class ClusteringKeyMapper {
         return cellNameType.rowMarker(prefix);
     }
 
-    private BytesRef bytesRef(CellName clusteringKey) {
+    BytesRef bytesRef(CellName clusteringKey) {
         ByteBuffer bb = clusteringKey.toByteBuffer();
         return ByteBufferUtils.bytesRef(bb);
     }

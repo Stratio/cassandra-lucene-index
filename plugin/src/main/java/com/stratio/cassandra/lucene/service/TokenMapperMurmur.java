@@ -42,10 +42,10 @@ import java.util.List;
 public class TokenMapperMurmur extends TokenMapper {
 
     /** The Lucene field name. */
-    private static final String FIELD_NAME = "_token_murmur";
+    static final String FIELD_NAME = "_token_murmur";
 
     /** The Lucene field type. */
-    private static final FieldType FIELD_TYPE = new FieldType();
+    static final FieldType FIELD_TYPE = new FieldType();
 
     static {
         FIELD_TYPE.setTokenized(true);
