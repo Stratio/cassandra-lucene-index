@@ -24,6 +24,7 @@ import com.stratio.cassandra.lucene.schema.mapping.builder.MapperBuilder;
 import com.stratio.cassandra.lucene.search.condition.builder.BitemporalConditionBuilder;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.spatial.query.SpatialOperation;
 import org.junit.Test;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
@@ -130,5 +131,28 @@ public class BitemporalConditionTest extends AbstractConditionTest {
         assertEquals("Method #toString is wrong",
                      "BitemporalCondition{boost=0.3, field=name, vtFrom=1, vtTo=2, ttFrom=3, ttTo=4}",
                      condition.toString());
+    }
+
+    @Test
+    public void testParseOperation() {
+
+        SpatialOperation operation=BitemporalCondition.parseSpatialOperation("intersects");
+        assertEquals("BitemporalCondition does not parse intersects well",operation,SpatialOperation.Intersects);
+
+        operation=BitemporalCondition.parseSpatialOperation("contains");
+        assertEquals("BitemporalCondition does not parse contains well",operation,SpatialOperation.Contains);
+
+        operation=BitemporalCondition.parseSpatialOperation("is_within");
+        assertEquals("BitemporalCondition does not parse is_within well",operation,SpatialOperation.IsWithin);
+    }
+
+    @Test(expected = IndexException.class)
+    public void testNullParseOperation() {
+        BitemporalCondition.parseSpatialOperation(null);
+    }
+
+    @Test(expected = IndexException.class)
+    public void testInvalidOperation() {
+        BitemporalCondition.parseSpatialOperation("invalidOp");
     }
 }
