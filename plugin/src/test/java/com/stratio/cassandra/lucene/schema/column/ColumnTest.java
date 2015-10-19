@@ -119,4 +119,16 @@ public class ColumnTest {
                      column.toString());
         assertTrue("Column isCollection is wrong", column.isCollection());
     }
+
+    @Test
+    public void testCompareToWithNull() {
+        String name = "my";
+        String sufix = "column";
+        LongType type = LongType.instance;
+        Long composedValue = 5L;
+        ByteBuffer decomposedValue = type.decompose(composedValue);
+        Column<Long> column = Column.fromDecomposed(name, sufix, decomposedValue, type, true);
+        assertEquals("Column equals is wrong", 1, column.compareTo(null));
+
+    }
 }

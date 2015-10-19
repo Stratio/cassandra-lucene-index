@@ -105,7 +105,7 @@ public class BitemporalCondition extends SingleMapperCondition<BitemporalMapper>
         return strategy.makeQuery(args);
     }
 
-    private static SpatialOperation parseSpatialOperation(String operation) {
+    static SpatialOperation parseSpatialOperation(String operation) {
         if (operation == null) {
             throw new IndexException("Operation is required");
         } else if (operation.equalsIgnoreCase("contains")) {

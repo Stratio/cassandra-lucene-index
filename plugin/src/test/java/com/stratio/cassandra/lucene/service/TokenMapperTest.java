@@ -40,7 +40,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import static junit.framework.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 /**
  * Unit tests for {@link TokenMapperMurmur}.
@@ -158,7 +158,7 @@ public class TokenMapperTest {
     public void testIncludeStart() {
         RowPosition position = Mockito.mock(RowPosition.class);
         when(position.kind()).thenReturn(RowPosition.Kind.MAX_BOUND);
-        assertFalse("Include start is wrong",mapper.includeStart(position));
+        assertFalse("Include start is wrong", mapper.includeStart(position));
         when(position.kind()).thenReturn(RowPosition.Kind.MIN_BOUND);
         assertTrue("Include start is wrong", mapper.includeStart(position));
         when(position.kind()).thenReturn(RowPosition.Kind.ROW_KEY);

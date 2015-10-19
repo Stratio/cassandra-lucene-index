@@ -20,6 +20,7 @@ package com.stratio.cassandra.lucene.search.sort.builder;
 
 import com.stratio.cassandra.lucene.search.sort.Sort;
 import com.stratio.cassandra.lucene.search.sort.SortField;
+import com.stratio.cassandra.lucene.util.Builder;
 import com.stratio.cassandra.lucene.util.JsonSerializer;
 import org.junit.Test;
 
@@ -45,6 +46,8 @@ public class SortBuilderTest {
         assertArrayEquals("Array based builder is wrong",
                           new SortField[]{sortFieldBuilder1.build(), sortFieldBuilder2.build()},
                           sort.getSortFields().toArray());
+
+        assertNotNull("SortBuilder is mnot instance of Builder<Sort>", sortBuilder instanceof Builder);
 
     }
 

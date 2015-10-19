@@ -33,7 +33,8 @@ import org.junit.Test;
 
 import java.util.List;
 
-import static junit.framework.Assert.*;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
 
 /**
  * Unit tests for {@link TokenMapperMurmur}.
@@ -110,3 +111,4 @@ public class TokenMapperMurmurTest {
         return decoratedKey(value).getToken();
     }
 }
+

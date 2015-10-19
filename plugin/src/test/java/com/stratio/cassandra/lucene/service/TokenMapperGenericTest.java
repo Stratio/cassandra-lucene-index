@@ -76,7 +76,7 @@ public class TokenMapperGenericTest {
 
     @Test
     @SuppressWarnings("unchecked")
-    public void testSortFields() throws IOException{
+    public void testSortFields() throws IOException {
         List<SortField> sortFields = mapper.sortFields();
         assertNotNull("Sort fields should be not null", sortFields);
         assertEquals("Sort fields should contain a single element", 1, sortFields.size());
