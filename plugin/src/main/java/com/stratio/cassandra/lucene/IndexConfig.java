@@ -29,7 +29,6 @@ import org.apache.lucene.analysis.Analyzer;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -65,13 +64,13 @@ public class IndexConfig {
     private final ColumnDefinition columnDefinition;
     private final CFMetaData metadata;
     private final Map<String, String> options;
-    private final Schema schema;
-    private final double refreshSeconds;
-    private final Path path;
-    private final int ramBufferMB;
-    private final int maxMergeMB;
-    private final int maxCachedMB;
-    private final List<String> excludedDataCenters;
+    private Schema schema;
+    private double refreshSeconds = DEFAULT_REFRESH_SECONDS;
+    private Path path;
+    private int ramBufferMB = DEFAULT_RAM_BUFFER_MB;
+    private int maxMergeMB = DEFAULT_MAX_MERGE_MB;
+    private int maxCachedMB = DEFAULT_MAX_CACHED_MB;
+    private List<String> excludedDataCenters = DEFAULT_EXCLUDED_DATA_CENTERS;
 
     /**
      * Builds a new {@link IndexConfig} for the column family defined by the specified metadata using the specified
@@ -84,13 +83,13 @@ public class IndexConfig {
         this.metadata = metadata;
         this.columnDefinition = columnDefinition;
         options = columnDefinition.getIndexOptions();
-        refreshSeconds = parseRefresh();
-        ramBufferMB = parseRamBufferMB();
-        maxMergeMB = parseMaxMergeMB();
-        maxCachedMB = parseMaxCachedMB();
-        schema = parseSchema();
-        path = parsePath();
-        excludedDataCenters = parseExcludedDataCenters();
+        parseRefresh();
+        parseRamBufferMB();
+        parseMaxMergeMB();
+        parseMaxCachedMB();
+        parseSchema();
+        parsePath();
+        parseExcludedDataCenters();
     }
 
     /**
@@ -219,9 +218,8 @@ public class IndexConfig {
         return maxCachedMB;
     }
 
-    private double parseRefresh() {
+    private void parseRefresh() {
         String refreshOption = options.get(REFRESH_SECONDS_OPTION);
-        double refreshSeconds;
         if (refreshOption != null) {
             try {
                 refreshSeconds = Double.parseDouble(refreshOption);
@@ -230,17 +228,14 @@ public class IndexConfig {
             }
             if (refreshSeconds <= 0) {
                 throw new IndexException("'%s' must be strictly positive", REFRESH_SECONDS_OPTION);
-            } else {
-                return refreshSeconds;
             }
         } else {
-            return DEFAULT_REFRESH_SECONDS;
+            refreshSeconds = DEFAULT_REFRESH_SECONDS;
         }
     }
 
-    private int parseRamBufferMB() {
+    private void parseRamBufferMB() {
         String ramBufferSizeOption = options.get(RAM_BUFFER_MB_OPTION);
-        int ramBufferMB;
         if (ramBufferSizeOption != null) {
             try {
                 ramBufferMB = Integer.parseInt(ramBufferSizeOption);
@@ -250,15 +245,11 @@ public class IndexConfig {
             if (ramBufferMB <= 0) {
                 throw new IndexException("'%s' must be strictly positive", RAM_BUFFER_MB_OPTION);
             }
-            return ramBufferMB;
-        } else {
-            return DEFAULT_RAM_BUFFER_MB;
         }
     }
 
-    private int parseMaxMergeMB() {
+    private void parseMaxMergeMB() {
         String maxMergeSizeMBOption = options.get(MAX_MERGE_MB_OPTION);
-        int maxMergeMB;
         if (maxMergeSizeMBOption != null) {
             try {
                 maxMergeMB = Integer.parseInt(maxMergeSizeMBOption);
@@ -268,15 +259,11 @@ public class IndexConfig {
             if (maxMergeMB <= 0) {
                 throw new IndexException("'%s' must be strictly positive", MAX_MERGE_MB_OPTION);
             }
-            return maxMergeMB;
-        } else {
-            return DEFAULT_MAX_MERGE_MB;
         }
     }
 
-    private int parseMaxCachedMB() {
+    private void parseMaxCachedMB() {
         String maxCachedMBOption = options.get(MAX_CACHED_MB_OPTION);
-        int maxCachedMB;
         if (maxCachedMBOption != null) {
             try {
                 maxCachedMB = Integer.parseInt(maxCachedMBOption);
@@ -286,15 +273,11 @@ public class IndexConfig {
             if (maxCachedMB <= 0) {
                 throw new IndexException("'%s' must be strictly positive", MAX_CACHED_MB_OPTION);
             }
-            return maxCachedMB;
-        } else {
-            return DEFAULT_MAX_CACHED_MB;
         }
     }
 
-    private Schema parseSchema() {
+    private void parseSchema() {
         String schemaOption = options.get(SCHEMA_OPTION);
-        Schema schema;
         if (schemaOption != null && !schemaOption.trim().isEmpty()) {
             try {
                 schema = SchemaBuilder.fromJson(schemaOption).build();
@@ -302,13 +285,12 @@ public class IndexConfig {
             } catch (Exception e) {
                 throw new IndexException(e, "'%s' is invalid : %s", SCHEMA_OPTION, e.getMessage());
             }
-            return schema;
         } else {
             throw new IndexException("'%s' required", SCHEMA_OPTION);
         }
     }
 
-    private Path parsePath() {
+    private void parsePath() {
         String pathOption = options.get(DIRECTORY_PATH_OPTION);
         if (pathOption == null) {
             String pathString = DatabaseDescriptor.getAllDataFileLocations()[0] +
@@ -320,19 +302,17 @@ public class IndexConfig {
                                 metadata.cfId +
                                 File.separatorChar +
                                 INDEXES_DIR_NAME;
-            return Paths.get(pathString);
+            path = Paths.get(pathString);
         } else {
-            return Paths.get(pathOption);
+            path = Paths.get(pathOption);
         }
     }
 
-    private List<String> parseExcludedDataCenters() {
+    private void parseExcludedDataCenters() {
         String excludedDataCentersOption = options.get(EXCLUDED_DATA_CENTERS_OPTION);
         if (excludedDataCentersOption != null) {
             String[] array = excludedDataCentersOption.trim().split(",");
-            return Arrays.asList(array);
-        } else {
-            return DEFAULT_EXCLUDED_DATA_CENTERS;
+            excludedDataCenters = Arrays.asList(array);
         }
     }
 
@@ -346,6 +326,7 @@ public class IndexConfig {
                       .add("ramBufferMB", ramBufferMB)
                       .add("maxMergeMB", maxMergeMB)
                       .add("maxCachedMB", maxCachedMB)
+                      .add("excludedDataCenters", excludedDataCenters)
                       .toString();
     }
 }

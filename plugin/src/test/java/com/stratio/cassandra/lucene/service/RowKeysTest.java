@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 /**
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
@@ -104,11 +104,9 @@ public class RowKeysTest {
 
         int num = 4;
         for (RowKey rowKeyAux : rowKeys) {
-            if ((rowKeyAux != rowKey) && (rowKeyAux != rowKey2) && (rowKeyAux != rowKey3) && (rowKeyAux != rowKey4)) {
-                assertTrue("iterator returns a item that is npot added", true);
-            } else {
-                num--;
-            }
+            assertFalse("iterator returns a item that is npot added",
+                        rowKeyAux != rowKey && rowKeyAux != rowKey2 && rowKeyAux != rowKey3 && rowKeyAux != rowKey4);
+            num--;
         }
         assertEquals("iterator return more items than expected ", num, 0);
 

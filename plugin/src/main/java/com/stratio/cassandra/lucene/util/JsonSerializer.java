@@ -34,7 +34,7 @@ import java.io.IOException;
  */
 public final class JsonSerializer {
 
-    private static JsonSerializer INSTANCE = new JsonSerializer();
+    private static final JsonSerializer INSTANCE = new JsonSerializer();
 
     /** The embedded JSON serializer. */
     private final ObjectMapper jsonMapper = new ObjectMapper();
