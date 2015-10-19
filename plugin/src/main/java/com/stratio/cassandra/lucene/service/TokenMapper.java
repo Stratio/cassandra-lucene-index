@@ -127,16 +127,7 @@ public abstract class TokenMapper {
      * false} otherwise.
      */
     public boolean includeStart(RowPosition rowPosition) {
-        switch (rowPosition.kind()) {
-            case MAX_BOUND:
-                return false;
-            case MIN_BOUND:
-                return true;
-            case ROW_KEY:
-                return true;
-            default:
-                throw new IllegalArgumentException();
-        }
+        return rowPosition.kind() != RowPosition.Kind.MAX_BOUND;
     }
 
     /**
@@ -148,16 +139,7 @@ public abstract class TokenMapper {
      * false} otherwise.
      */
     public boolean includeStop(RowPosition rowPosition) {
-        switch (rowPosition.kind()) {
-            case MAX_BOUND:
-                return true;
-            case MIN_BOUND:
-                return false;
-            case ROW_KEY:
-                return true;
-            default:
-                throw new IllegalArgumentException();
-        }
+        return rowPosition.kind() != RowPosition.Kind.MIN_BOUND;
     }
 
     /**
