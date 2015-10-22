@@ -62,12 +62,6 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         assertEquals("ttTo is not set", "ttTo", mapper.ttTo);
         assertEquals("Now value is not set to default", Long.MAX_VALUE, mapper.nowValue, 0);
         assertEquals("Date pattern is not set to default", DateParser.DEFAULT_PATTERN, mapper.pattern);
-        for (int i = 0; i <= 3; i++) {
-            assertNotNull("Strategies are wrong", mapper.getStrategy(i, true));
-            assertNotNull("Strategies are wrong", mapper.getStrategy(i, false));
-            assertNotNull("Strategies are wrong", mapper.getTree(i, true));
-            assertNotNull("Strategies are wrong", mapper.getTree(i, false));
-        }
     }
 
     @Test
@@ -82,15 +76,8 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         assertEquals("vtTo is not set", "vtTo", mapper.vtTo);
         assertEquals("ttFrom is not set", "ttFrom", mapper.ttFrom);
         assertEquals("ttTo is not set", "ttTo", mapper.ttTo);
-
         assertEquals("Date pattern is wrong", mapper.parseBitemporalDate("2021/03/11"), BitemporalDateTime.MAX);
 
-        for (int i = 0; i <= 3; i++) {
-            assertNotNull("Strategies are wrong", mapper.getStrategy(i, true));
-            assertNotNull("Strategies are wrong", mapper.getStrategy(i, false));
-            assertNotNull("Strategies are wrong", mapper.getTree(i, true));
-            assertNotNull("Strategies are wrong", mapper.getTree(i, false));
-        }
     }
 
     @Test
@@ -1064,14 +1051,9 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         columns.add(Column.fromComposed("ttTo", nowValue, UTF8Type.instance, false));
         Document document = new Document();
         mapper.addFields(document, columns);
-        testAddFieldsOnlyThese(document,
-                               new String[]{"field.t1_v", "field.t1_t"},
-                               new String[]{"field.t2_v",
-                                            "field.t2_t",
-                                            "field.t3_v",
-                                            "field.t3_t",
-                                            "field.t4_v",
-                                            "field.t4_t"});
+        testAddFieldsOnlyThese( document,
+                                new String[]{"field.ttFrom", "field.ttTo", "field.vtFrom", "field.vtTo"},
+                                new String[0]);
     }
 
     @Test
@@ -1086,14 +1068,9 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         columns.add(Column.fromComposed("ttTo", nowValue, UTF8Type.instance, false));
         Document document = new Document();
         mapper.addFields(document, columns);
-        testAddFieldsOnlyThese(document,
-                               new String[]{"field.t2_v", "field.t2_t"},
-                               new String[]{"field.t1_v",
-                                            "field.t1_t",
-                                            "field.t3_v",
-                                            "field.t3_t",
-                                            "field.t4_v",
-                                            "field.t4_t"});
+        testAddFieldsOnlyThese( document,
+                                new String[]{"field.ttFrom", "field.ttTo", "field.vtFrom", "field.vtTo"},
+                                new String[0]);
     }
 
     @Test
@@ -1108,14 +1085,9 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         columns.add(Column.fromComposed("ttTo", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
         Document document = new Document();
         mapper.addFields(document, columns);
-        testAddFieldsOnlyThese(document,
-                               new String[]{"field.t3_v", "field.t3_t"},
-                               new String[]{"field.t1_v",
-                                            "field.t1_t",
-                                            "field.t2_v",
-                                            "field.t2_t",
-                                            "field.t4_v",
-                                            "field.t4_t"});
+        testAddFieldsOnlyThese( document,
+                                new String[]{"field.ttFrom", "field.ttTo", "field.vtFrom", "field.vtTo"},
+                                new String[0]);
     }
 
     @Test
@@ -1129,14 +1101,9 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         columns.add(Column.fromComposed("ttTo", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance, false));
         Document document = new Document();
         mapper.addFields(document, columns);
-        testAddFieldsOnlyThese(document,
-                               new String[]{"field.t4_v", "field.t4_t"},
-                               new String[]{"field.t1_v",
-                                            "field.t1_t",
-                                            "field.t2_v",
-                                            "field.t2_t",
-                                            "field.t3_v",
-                                            "field.t3_t"});
+        testAddFieldsOnlyThese( document,
+                                new String[]{"field.ttFrom", "field.ttTo", "field.vtFrom", "field.vtTo"},
+                                new String[0]);
     }
 
     @Test

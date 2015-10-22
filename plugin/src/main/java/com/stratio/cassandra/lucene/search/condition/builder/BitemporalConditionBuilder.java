@@ -49,10 +49,6 @@ public class BitemporalConditionBuilder extends ConditionBuilder<BitemporalCondi
     @JsonProperty("tt_to")
     private Object ttTo;
 
-    /** The spatial operation to be performed. */
-    @JsonProperty("operation")
-    private String operation;
-
     /**
      * Returns a new {@link BitemporalConditionBuilder} with the specified field reference point.
      *
@@ -108,23 +104,12 @@ public class BitemporalConditionBuilder extends ConditionBuilder<BitemporalCondi
     }
 
     /**
-     * Sets the spatial operation to be performed.
-     *
-     * @param operation The spatial operation to be performed.
-     * @return This.
-     */
-    public BitemporalConditionBuilder operation(String operation) {
-        this.operation = operation;
-        return this;
-    }
-
-    /**
      * Returns the {@link BitemporalCondition} represented by this builder.
      *
      * @return The {@link BitemporalCondition} represented by this builder.
      */
     @Override
     public BitemporalCondition build() {
-        return new BitemporalCondition(boost, field, vtFrom, vtTo, ttFrom, ttTo, operation);
+        return new BitemporalCondition(boost, field, vtFrom, vtTo, ttFrom, ttTo);
     }
 }

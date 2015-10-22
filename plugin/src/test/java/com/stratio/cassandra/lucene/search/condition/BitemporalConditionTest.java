@@ -29,7 +29,6 @@ import org.junit.Test;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
 import static com.stratio.cassandra.lucene.search.SearchBuilders.bitemporalSearch;
-import static com.stratio.cassandra.lucene.search.condition.BitemporalCondition.DEFAULT_OPERATION;
 import static com.stratio.cassandra.lucene.search.condition.Condition.DEFAULT_BOOST;
 import static org.junit.Assert.*;
 
@@ -47,7 +46,6 @@ public class BitemporalConditionTest extends AbstractConditionTest {
                                                                                .ttTo(2L)
                                                                                .vtFrom(3L)
                                                                                .vtTo(4L)
-                                                                               .operation("intersects")
                                                                                .build();
         assertNotNull("Condition is not built", condition);
         assertEquals("Boost is not set", 0.7f, condition.boost, 0);
@@ -56,7 +54,6 @@ public class BitemporalConditionTest extends AbstractConditionTest {
         assertEquals("tt_to is not set", 2l, condition.ttTo);
         assertEquals("vt_from is not set", 3l, condition.vtFrom);
         assertEquals("vt_to is not set", 4l, condition.vtTo);
-        assertEquals("Operation is not set", "intersects", condition.operation);
     }
 
     @Test
@@ -66,7 +63,6 @@ public class BitemporalConditionTest extends AbstractConditionTest {
                                                                                .ttTo("2013/03/20 11:45:32.333")
                                                                                .vtFrom("2012/03/20 11:45:32.333")
                                                                                .vtTo("2011/03/20 11:45:32.333")
-                                                                               .operation("intersects")
                                                                                .build();
         assertNotNull("Condition is not built", condition);
         assertEquals("Boost is not set", 0.7f, condition.boost, 0);
@@ -75,7 +71,6 @@ public class BitemporalConditionTest extends AbstractConditionTest {
         assertEquals("tt_to is not set", "2013/03/20 11:45:32.333", condition.ttTo);
         assertEquals("vt_from is not set", "2012/03/20 11:45:32.333", condition.vtFrom);
         assertEquals("vt_to is not set", "2011/03/20 11:45:32.333", condition.vtTo);
-        assertEquals("Operation is not set", "intersects", condition.operation);
     }
 
     @Test
@@ -88,7 +83,6 @@ public class BitemporalConditionTest extends AbstractConditionTest {
         assertNull("tt_to is not set to default", condition.ttTo);
         assertNull("vt_from is not set to default", condition.vtFrom);
         assertNull("vt_to is not set to default", condition.vtTo);
-        assertEquals("Operation is not set to default", DEFAULT_OPERATION, condition.operation);
     }
 
     @Test
@@ -111,7 +105,7 @@ public class BitemporalConditionTest extends AbstractConditionTest {
                                                           "ttFrom",
                                                           "ttTo").pattern(TIMESTAMP_PATTERN);
         Schema schema = schema().mapper("name", mapperBuilder).build();
-        BitemporalCondition condition = new BitemporalCondition(0.5f, "name", 1, 2, 3, 4, null);
+        BitemporalCondition condition = new BitemporalCondition(0.5f, "name", 1, 2, 3, 4);
 
         Query query = condition.query(schema);
         assertNotNull("Query is not built", query);
@@ -121,7 +115,7 @@ public class BitemporalConditionTest extends AbstractConditionTest {
     @Test(expected = IndexException.class)
     public void testQueryWithoutValidMapper() {
         Schema schema = schema().mapper("name", uuidMapper()).build();
-        BitemporalCondition condition = new BitemporalCondition(null, "name", 1, 2, 3, 4, null);
+        BitemporalCondition condition = new BitemporalCondition(null, "name", 1, 2, 3, 4);
         condition.query(schema);
     }
 
@@ -133,26 +127,4 @@ public class BitemporalConditionTest extends AbstractConditionTest {
                      condition.toString());
     }
 
-    @Test
-    public void testParseOperation() {
-
-        SpatialOperation operation=BitemporalCondition.parseSpatialOperation("intersects");
-        assertEquals("BitemporalCondition does not parse intersects well",operation,SpatialOperation.Intersects);
-
-        operation=BitemporalCondition.parseSpatialOperation("contains");
-        assertEquals("BitemporalCondition does not parse contains well",operation,SpatialOperation.Contains);
-
-        operation=BitemporalCondition.parseSpatialOperation("is_within");
-        assertEquals("BitemporalCondition does not parse is_within well",operation,SpatialOperation.IsWithin);
-    }
-
-    @Test(expected = IndexException.class)
-    public void testNullParseOperation() {
-        BitemporalCondition.parseSpatialOperation(null);
-    }
-
-    @Test(expected = IndexException.class)
-    public void testInvalidOperation() {
-        BitemporalCondition.parseSpatialOperation("invalidOp");
-    }
 }
