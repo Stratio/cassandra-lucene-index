@@ -47,7 +47,7 @@ public class SortBuilderTest {
                           new SortField[]{sortFieldBuilder1.build(), sortFieldBuilder2.build()},
                           sort.getSortFields().toArray());
 
-        assertNotNull("SortBuilder is mnot instance of Builder<Sort>",sortBuilder instanceof Builder);
+        assertNotNull("SortBuilder is mnot instance of Builder<Sort>", sortBuilder instanceof Builder);
 
     }
 

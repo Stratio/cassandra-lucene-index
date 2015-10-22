@@ -18,8 +18,6 @@
 
 package com.stratio.cassandra.lucene.service;
 
-import static org.junit.Assert.assertEquals;
-
 import org.apache.cassandra.cql3.ColumnIdentifier;
 import org.apache.cassandra.db.BufferDecoratedKey;
 import org.apache.cassandra.db.DecoratedKey;
@@ -29,36 +27,37 @@ import org.apache.cassandra.dht.LongToken;
 import org.apache.cassandra.utils.ByteBufferUtil;
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
+
 /**
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
 public class RowKeyTest {
 
-
     @Test
     public void tesRowKey() {
-        DecoratedKey decoratedKey=new BufferDecoratedKey(new LongToken((long) 10), ByteBufferUtil.EMPTY_BYTE_BUFFER);
-        CellName clusteringKey=CellNames.simpleSparse(new ColumnIdentifier("aaaa", false));
-        RowKey rowKey= new RowKey(decoratedKey,clusteringKey);
+        DecoratedKey decoratedKey = new BufferDecoratedKey(new LongToken((long) 10), ByteBufferUtil.EMPTY_BYTE_BUFFER);
+        CellName clusteringKey = CellNames.simpleSparse(new ColumnIdentifier("aaaa", false));
+        RowKey rowKey = new RowKey(decoratedKey, clusteringKey);
 
+        assertEquals("RowKey.getPartitionKey must return the same passsed as parameter",
+                     rowKey.getPartitionKey(),
+                     decoratedKey);
 
-        assertEquals("RowKey.getPartitionKey must return the same passsed as parameter", rowKey.getPartitionKey(),
-                decoratedKey);
-
-        assertEquals("RowKey.getClusteringKey must return the same passsed as parameter", rowKey.getClusteringKey(),
-                clusteringKey);
+        assertEquals("RowKey.getClusteringKey must return the same passsed as parameter",
+                     rowKey.getClusteringKey(),
+                     clusteringKey);
     }
 
     @Test
     public void testToString() {
-        DecoratedKey decoratedKey=new BufferDecoratedKey(new LongToken((long) 10), ByteBufferUtil.EMPTY_BYTE_BUFFER);
-        CellName clusteringKey=CellNames.simpleSparse(new ColumnIdentifier("aaaa", false));
-        RowKey rowKey= new RowKey(decoratedKey,clusteringKey);
+        DecoratedKey decoratedKey = new BufferDecoratedKey(new LongToken((long) 10), ByteBufferUtil.EMPTY_BYTE_BUFFER);
+        CellName clusteringKey = CellNames.simpleSparse(new ColumnIdentifier("aaaa", false));
+        RowKey rowKey = new RowKey(decoratedKey, clusteringKey);
 
-        assertEquals("RowKey.toString must return","RowKey{partitionKey=DecoratedKey(10, ), "
-                + "clusteringKey="+clusteringKey.toString()+"}",rowKey.toString());
+        assertEquals("RowKey.toString must return",
+                     "RowKey{partitionKey=DecoratedKey(10, ), " + "clusteringKey=" + clusteringKey.toString() + "}",
+                     rowKey.toString());
     }
-
-
 
 }

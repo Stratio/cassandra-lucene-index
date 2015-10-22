@@ -200,16 +200,17 @@ public class Index extends PerRowSecondaryIndex {
         try {
             service.delete();
         } catch (Exception e) {
+            logger.error("Error while removing index", e);
             FileUtils.deleteRecursive(indexConfig.getPath().toFile());
         }
     }
 
     private IndexConfig newIndexConfig() {
-        ColumnDefinition columnDefinition = columnDefs.iterator().next();
-        String ksName = columnDefinition.ksName;
-        String cfName = columnDefinition.cfName;
+        ColumnDefinition cfDef = columnDefs.iterator().next();
+        String ksName = cfDef.ksName;
+        String cfName = cfDef.cfName;
         CFMetaData metadata = Schema.instance.getCFMetaData(ksName, cfName);
-        return new IndexConfig(metadata, columnDefinition);
+        return new IndexConfig(metadata, cfDef);
     }
 
     /** {@inheritDoc} */

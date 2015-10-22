@@ -118,9 +118,15 @@ public class DateParser {
         return pattern;
     }
 
+    /**
+     * Returns the {@link String} representation of the specified {@link Date}.
+     *
+     * @param date A {@link Date}.
+     * @return The {@link String} representation of the specified {@link Date}.
+     */
     public String toString(Date date) {
-        if (pattern.equals(TIMESTAMP_PATTERN_FIELD)){
-            return ((Long)date.getTime()).toString();
+        if (pattern.equals(TIMESTAMP_PATTERN_FIELD)) {
+            return ((Long) date.getTime()).toString();
         } else {
             return concurrentDateFormat.get().format(date);
         }

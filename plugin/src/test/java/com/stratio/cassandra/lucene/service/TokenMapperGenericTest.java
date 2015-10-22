@@ -22,15 +22,19 @@ import org.apache.cassandra.config.Config;
 import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.db.DecoratedKey;
 import org.apache.cassandra.db.marshal.UTF8Type;
-import org.apache.cassandra.dht.Murmur3Partitioner;
+import org.apache.cassandra.dht.RandomPartitioner;
 import org.apache.cassandra.dht.Token;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexableField;
+import org.apache.lucene.search.FieldComparator;
+import org.apache.lucene.search.FieldComparatorSource;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.SortField;
+import org.apache.lucene.util.BytesRef;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.List;
 
 import static junit.framework.Assert.assertEquals;
@@ -41,20 +45,21 @@ import static junit.framework.Assert.assertNotNull;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class TokenMapperMurmurTest {
+public class TokenMapperGenericTest {
 
-    private static final Murmur3Partitioner partitioner = new Murmur3Partitioner();
-    private static final TokenMapperMurmur mapper = new TokenMapperMurmur();
+    private static final RandomPartitioner partitioner = new RandomPartitioner();
+    private static TokenMapperGeneric mapper;
 
     @BeforeClass
     public static void beforeClass() {
         Config.setClientMode(true);
         DatabaseDescriptor.setPartitioner(partitioner);
+        mapper = new TokenMapperGeneric();
     }
 
     @Test
     public void testInstance() {
-        assertEquals("Expected Murmur mapper", TokenMapperMurmur.class, TokenMapper.instance().getClass());
+        assertEquals("Expected order preserving mapper", TokenMapperGeneric.class, TokenMapper.instance().getClass());
     }
 
     @Test
@@ -62,16 +67,27 @@ public class TokenMapperMurmurTest {
         DecoratedKey key = partitioner.decorateKey(UTF8Type.instance.decompose("key"));
         Document document = new Document();
         mapper.addFields(document, key);
-        IndexableField field = document.getField(TokenMapperMurmur.FIELD_NAME);
+        IndexableField field = document.getField(TokenMapperGeneric.FIELD_NAME);
         assertNotNull("Field should be added", field);
-        assertEquals("Hash value is wrong", -6847573755651342660L, field.numericValue());
+        assertEquals("Hash value is wrong",
+                     "[3c 6e b 8a 9c 15 22 4a 82 28 b9 a9 8c a1 53 1d]",
+                     field.binaryValue().toString());
     }
 
     @Test
-    public void testSortFields() {
+    @SuppressWarnings("unchecked")
+    public void testSortFields() throws IOException {
         List<SortField> sortFields = mapper.sortFields();
         assertNotNull("Sort fields should be not null", sortFields);
         assertEquals("Sort fields should contain a single element", 1, sortFields.size());
+        for (SortField sortField : sortFields) {
+            FieldComparatorSource comparatorSource = sortField.getComparatorSource();
+            assertNotNull("Sort field comparator should be not null", comparatorSource);
+            FieldComparator fieldComparator = comparatorSource.newComparator(TokenMapperGeneric.FIELD_NAME, 1, 0, true);
+            BytesRef value1 = mapper.bytesRef(token("k1"));
+            BytesRef value2 = mapper.bytesRef(token("k2"));
+            fieldComparator.compareValues(value1, value2);
+        }
     }
 
     @Test
@@ -80,7 +96,7 @@ public class TokenMapperMurmurTest {
         Query query = mapper.query(token);
         assertNotNull("Query should be not null", query);
         assertEquals("Hash value is wrong",
-                     "_token_murmur:[-6847573755651342660 TO -6847573755651342660]",
+                     "_token_generic:[3c 6e b 8a 9c 15 22 4a 82 28 b9 a9 8c a1 53 1d]",
                      query.toString());
     }
 
@@ -90,17 +106,25 @@ public class TokenMapperMurmurTest {
         Token token2 = token("key2");
         Query query = mapper.query(token1, token2, true, false);
         assertNotNull("Query should be not null", query);
-        assertEquals("Hash value is wrong",
-                     "_token_murmur:[1573573083296714675 TO 8482869187405483569}",
-                     query.toString());
     }
 
     @Test
     public void testValue() {
         DecoratedKey key = decoratedKey("key");
         Token token = key.getToken();
-        long value = TokenMapperMurmur.value(token);
-        assertEquals("Hash value is wrong", -6847573755651342660L, value);
+        BytesRef value = mapper.bytesRef(token);
+        assertNotNull("Value is wrong", value);
+        assertEquals("Value is wrong", "[3c 6e b 8a 9c 15 22 4a 82 28 b9 a9 8c a1 53 1d]", value.toString());
+    }
+
+    @Test
+    public void testToken() {
+        DecoratedKey key = decoratedKey("key");
+        Token expectedToken = key.getToken();
+        BytesRef value = mapper.bytesRef(expectedToken);
+        Token actualToken = mapper.token(value);
+        assertNotNull("Token is wrong", actualToken);
+        assertEquals("Token is wrong", expectedToken, actualToken);
     }
 
     private static DecoratedKey decoratedKey(String value) {
@@ -111,4 +135,3 @@ public class TokenMapperMurmurTest {
         return decoratedKey(value).getToken();
     }
 }
-

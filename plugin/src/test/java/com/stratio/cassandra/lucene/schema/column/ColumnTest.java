@@ -25,7 +25,6 @@ import org.junit.Test;
 import java.nio.ByteBuffer;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -121,7 +120,6 @@ public class ColumnTest {
         assertTrue("Column isCollection is wrong", column.isCollection());
     }
 
-
     @Test
     public void testCompareToWithNull() {
         String name = "my";
@@ -130,7 +128,7 @@ public class ColumnTest {
         Long composedValue = 5L;
         ByteBuffer decomposedValue = type.decompose(composedValue);
         Column<Long> column = Column.fromDecomposed(name, sufix, decomposedValue, type, true);
-        assertEquals("Column equals is wrong",1,column.compareTo(null));
+        assertEquals("Column equals is wrong", 1, column.compareTo(null));
 
     }
 }

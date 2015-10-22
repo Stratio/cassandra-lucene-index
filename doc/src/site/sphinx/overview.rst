@@ -52,6 +52,25 @@ Not yet supported:
 -  CQL user defined types
 -  Static columns
 
+Architecture
+============
+
+Indexing is achieved through a Lucene based implementation of Apache Cassandra secondary indexes.
+Cassandra's secondary indexes are local indexes,
+meaning that each node of the cluster indexes it's own data.
+As usual in Cassandra, each node can act as search coordinator.
+The coordinator node sends the searches to all the involved nodes,
+and then it post-processes the returned rows to return the required ones.
+This post-processing is particularly important in top-k queries.
+
+Regarding to the Cassandra-Lucene mapping, each node has a single Lucene index per indexed table,
+and each logic CQL row is mapped to a Lucene document.
+This documents are composed by the user-defined fields, the primary key and the partitioner's token.
+Indexing is done in a synchronous fashion at the storage layer, so each row upsert implies a document upsert.
+This adds an extra cost for write operations, which is the price of the provided search features.
+As long as indexing is done below the distribution layer,
+replication has been already achieved when the rows come to the index.
+
 Requirements
 ============
 

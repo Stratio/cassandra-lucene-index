@@ -18,27 +18,9 @@
 
 package com.stratio.cassandra.lucene.service;
 
-import static com.stratio.cassandra.lucene.schema.SchemaBuilders.stringMapper;
-import static com.stratio.cassandra.lucene.schema.SchemaBuilders.textMapper;
-import static junit.framework.Assert.assertEquals;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.cassandra.config.CFMetaData;
-import org.apache.cassandra.db.marshal.AsciiType;
-import org.apache.cassandra.db.marshal.IntegerType;
-import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.exceptions.ConfigurationException;
 import org.apache.cassandra.exceptions.InvalidRequestException;
-import org.apache.cassandra.thrift.CfDef;
-import org.apache.cassandra.thrift.ColumnDef;
-import org.apache.cassandra.thrift.IndexType;
-import org.apache.cassandra.utils.ByteBufferUtil;
 import org.junit.Test;
-
-import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.SchemaBuilders;
 
 /**
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}

@@ -18,15 +18,8 @@
 
 package com.stratio.cassandra.lucene.service;
 
-import static com.stratio.cassandra.lucene.schema.SchemaBuilders.stringMapper;
-import static com.stratio.cassandra.lucene.schema.SchemaBuilders.textMapper;
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
+import com.stratio.cassandra.lucene.schema.Schema;
+import com.stratio.cassandra.lucene.schema.SchemaBuilders;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.cql3.ColumnIdentifier;
 import org.apache.cassandra.db.composites.CellName;
@@ -47,8 +40,14 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.SchemaBuilders;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.stringMapper;
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.textMapper;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
 
 /**
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
@@ -63,57 +62,56 @@ public class ClusteringKeyMapperTest {
     public TemporaryFolder folder = new TemporaryFolder();
 
     @Test
-    public void testCRUD() throws IOException, InterruptedException,
-            InvalidRequestException, ConfigurationException {
+    public void testCRUD() throws IOException, InterruptedException, InvalidRequestException, ConfigurationException {
         List<ColumnDef> columnDefinitions = new ArrayList<>();
         columnDefinitions.add(new ColumnDef(ByteBufferUtil.bytes("field1"),
-                UTF8Type.class.getCanonicalName()).setIndex_name("field1")
-                .setIndex_type(IndexType.KEYS));
+                                            UTF8Type.class.getCanonicalName()).setIndex_name("field1")
+                                                                              .setIndex_type(IndexType.KEYS));
 
         columnDefinitions.add(new ColumnDef(ByteBufferUtil.bytes("field2"),
-                IntegerType.class.getCanonicalName()).setIndex_name("field2")
-                .setIndex_type(IndexType.KEYS));
+                                            IntegerType.class.getCanonicalName()).setIndex_name("field2")
+                                                                                 .setIndex_type(IndexType.KEYS));
         CfDef cfDef = new CfDef().setDefault_validation_class(AsciiType.class.getCanonicalName())
-                .setColumn_metadata(columnDefinitions)
-                .setKeyspace("Keyspace1")
-                .setName("Standard1");
+                                 .setColumn_metadata(columnDefinitions)
+                                 .setKeyspace("Keyspace1")
+                                 .setName("Standard1");
 
         CFMetaData metadata = CFMetaData.fromThrift(cfDef);
         Schema schema = SchemaBuilders.schema().mapper("field1", stringMapper()).mapper("field2", textMapper()).build();
 
+        ClusteringKeyMapper clusteringKeyMapper = ClusteringKeyMapper.instance(metadata, schema);
 
-        ClusteringKeyMapper clusteringKeyMapper=ClusteringKeyMapper.instance(metadata,schema);
-
-        assertEquals("clustering KeyMapper ",clusteringKeyMapper.getType(),metadata.comparator);
+        assertEquals("clustering KeyMapper ", clusteringKeyMapper.getType(), metadata.comparator);
     }
 
     @Test
     public void testAddFields() throws InvalidRequestException, ConfigurationException {
         List<ColumnDef> columnDefinitions = new ArrayList<>();
         columnDefinitions.add(new ColumnDef(ByteBufferUtil.bytes("field1"),
-                UTF8Type.class.getCanonicalName()).setIndex_name("field1")
-                .setIndex_type(IndexType.KEYS));
+                                            UTF8Type.class.getCanonicalName()).setIndex_name("field1")
+                                                                              .setIndex_type(IndexType.KEYS));
 
         columnDefinitions.add(new ColumnDef(ByteBufferUtil.bytes("field2"),
-                IntegerType.class.getCanonicalName()).setIndex_name("field2")
-                .setIndex_type(IndexType.KEYS));
+                                            IntegerType.class.getCanonicalName()).setIndex_name("field2")
+                                                                                 .setIndex_type(IndexType.KEYS));
         CfDef cfDef = new CfDef().setDefault_validation_class(AsciiType.class.getCanonicalName())
-                .setColumn_metadata(columnDefinitions)
-                .setKeyspace("Keyspace1")
-                .setName("Standard1");
+                                 .setColumn_metadata(columnDefinitions)
+                                 .setKeyspace("Keyspace1")
+                                 .setName("Standard1");
 
         CFMetaData metadata = CFMetaData.fromThrift(cfDef);
         Schema schema = SchemaBuilders.schema().mapper("field1", stringMapper()).mapper("field2", textMapper()).build();
-        ClusteringKeyMapper clusteringKeyMapper=ClusteringKeyMapper.instance(metadata,schema);
+        ClusteringKeyMapper clusteringKeyMapper = ClusteringKeyMapper.instance(metadata, schema);
 
-        CellName cellName= CellNames.simpleSparse(new ColumnIdentifier("aaaa",false));
-        Document doc= new Document();
+        CellName cellName = CellNames.simpleSparse(new ColumnIdentifier("aaaa", false));
+        Document doc = new Document();
 
-        clusteringKeyMapper.addFields(doc,cellName);
-        Field field= (Field) doc.getField(ClusteringKeyMapper.FIELD_NAME);
+        clusteringKeyMapper.addFields(doc, cellName);
+        Field field = (Field) doc.getField(ClusteringKeyMapper.FIELD_NAME);
         assertNotNull("clusteringKeyMapper addFields to Document must add al least one Field to Doc", field);
-        assertEquals("clusteringKeyMapper.byteRef included in Document must be equal",clusteringKeyMapper.bytesRef
-                (cellName),field.binaryValue());
+        assertEquals("clusteringKeyMapper.byteRef included in Document must be equal",
+                     clusteringKeyMapper.bytesRef(cellName),
+                     field.binaryValue());
 
     }
 
@@ -121,22 +119,20 @@ public class ClusteringKeyMapperTest {
     public void testClusteringKeyFromColumnFamily() throws InvalidRequestException, ConfigurationException {
         List<ColumnDef> columnDefinitions = new ArrayList<>();
         columnDefinitions.add(new ColumnDef(ByteBufferUtil.bytes("field1"),
-                UTF8Type.class.getCanonicalName()).setIndex_name("field1")
-                .setIndex_type(IndexType.KEYS));
+                                            UTF8Type.class.getCanonicalName()).setIndex_name("field1")
+                                                                              .setIndex_type(IndexType.KEYS));
 
         columnDefinitions.add(new ColumnDef(ByteBufferUtil.bytes("field2"),
-                IntegerType.class.getCanonicalName()).setIndex_name("field2")
-                .setIndex_type(IndexType.KEYS));
+                                            IntegerType.class.getCanonicalName()).setIndex_name("field2")
+                                                                                 .setIndex_type(IndexType.KEYS));
         CfDef cfDef = new CfDef().setDefault_validation_class(AsciiType.class.getCanonicalName())
-                .setColumn_metadata(columnDefinitions)
-                .setKeyspace("Keyspace1")
-                .setName("Standard1");
+                                 .setColumn_metadata(columnDefinitions)
+                                 .setKeyspace("Keyspace1")
+                                 .setName("Standard1");
 
         CFMetaData metadata = CFMetaData.fromThrift(cfDef);
         Schema schema = SchemaBuilders.schema().mapper("field1", stringMapper()).mapper("field2", textMapper()).build();
-        ClusteringKeyMapper clusteringKeyMapper=ClusteringKeyMapper.instance(metadata,schema);
-
-
+        ClusteringKeyMapper clusteringKeyMapper = ClusteringKeyMapper.instance(metadata, schema);
 
     }
 
@@ -145,32 +141,30 @@ public class ClusteringKeyMapperTest {
 
         List<ColumnDef> columnDefinitions = new ArrayList<>();
         columnDefinitions.add(new ColumnDef(ByteBufferUtil.bytes("field1"),
-                UTF8Type.class.getCanonicalName()).setIndex_name("field1")
-                .setIndex_type(IndexType.KEYS));
+                                            UTF8Type.class.getCanonicalName()).setIndex_name("field1")
+                                                                              .setIndex_type(IndexType.KEYS));
 
         columnDefinitions.add(new ColumnDef(ByteBufferUtil.bytes("field2"),
-                IntegerType.class.getCanonicalName()).setIndex_name("field2")
-                .setIndex_type(IndexType.KEYS));
+                                            IntegerType.class.getCanonicalName()).setIndex_name("field2")
+                                                                                 .setIndex_type(IndexType.KEYS));
         CfDef cfDef = new CfDef().setDefault_validation_class(AsciiType.class.getCanonicalName())
-                .setColumn_metadata(columnDefinitions)
-                .setKeyspace("Keyspace1")
-                .setName("Standard1");
+                                 .setColumn_metadata(columnDefinitions)
+                                 .setKeyspace("Keyspace1")
+                                 .setName("Standard1");
 
         CFMetaData metadata = CFMetaData.fromThrift(cfDef);
-        Schema schema = SchemaBuilders.schema().mapper("field1", stringMapper()).mapper("field2", textMapper()).build
-                ();
-        ClusteringKeyMapper clusteringKeyMapper=ClusteringKeyMapper.instance(metadata,schema);
+        Schema schema = SchemaBuilders.schema().mapper("field1", stringMapper()).mapper("field2", textMapper()).build();
+        ClusteringKeyMapper clusteringKeyMapper = ClusteringKeyMapper.instance(metadata, schema);
 
-        CellName cellName= CellNames.simpleSparse(new ColumnIdentifier("aaaa",false));
-        Document doc= new Document();
+        CellName cellName = CellNames.simpleSparse(new ColumnIdentifier("aaaa", false));
+        Document doc = new Document();
 
-        clusteringKeyMapper.addFields(doc,cellName);
+        clusteringKeyMapper.addFields(doc, cellName);
 
-        CellName cellName2=clusteringKeyMapper.clusteringKey(doc);
+        CellName cellName2 = clusteringKeyMapper.clusteringKey(doc);
 
-        assertEquals("CellName added to Document must be equal like returned by clusteringKeymapper.clusteringkey"
-                + "(doc)",cellName,cellName2);
-
+        assertEquals("CellName added to Document must be equal like returned by clusteringKeymapper.clusteringkey" +
+                     "(doc)", cellName, cellName2);
 
     }
 
@@ -178,33 +172,31 @@ public class ClusteringKeyMapperTest {
     public void testClusteringKeyFromByteRef() throws InvalidRequestException, ConfigurationException {
         List<ColumnDef> columnDefinitions = new ArrayList<>();
         columnDefinitions.add(new ColumnDef(ByteBufferUtil.bytes("field1"),
-                UTF8Type.class.getCanonicalName()).setIndex_name("field1")
-                .setIndex_type(IndexType.KEYS));
+                                            UTF8Type.class.getCanonicalName()).setIndex_name("field1")
+                                                                              .setIndex_type(IndexType.KEYS));
 
         columnDefinitions.add(new ColumnDef(ByteBufferUtil.bytes("field2"),
-                IntegerType.class.getCanonicalName()).setIndex_name("field2")
-                .setIndex_type(IndexType.KEYS));
+                                            IntegerType.class.getCanonicalName()).setIndex_name("field2")
+                                                                                 .setIndex_type(IndexType.KEYS));
         CfDef cfDef = new CfDef().setDefault_validation_class(AsciiType.class.getCanonicalName())
-                .setColumn_metadata(columnDefinitions)
-                .setKeyspace("Keyspace1")
-                .setName("Standard1");
+                                 .setColumn_metadata(columnDefinitions)
+                                 .setKeyspace("Keyspace1")
+                                 .setName("Standard1");
 
         CFMetaData metadata = CFMetaData.fromThrift(cfDef);
         Schema schema = SchemaBuilders.schema().mapper("field1", stringMapper()).mapper("field2", textMapper()).build();
-        ClusteringKeyMapper clusteringKeyMapper=ClusteringKeyMapper.instance(metadata,schema);
-        CellName cellName= CellNames.simpleSparse(new ColumnIdentifier("aaaa",false));
+        ClusteringKeyMapper clusteringKeyMapper = ClusteringKeyMapper.instance(metadata, schema);
+        CellName cellName = CellNames.simpleSparse(new ColumnIdentifier("aaaa", false));
 
-        BytesRef bytesRef=clusteringKeyMapper.bytesRef(cellName);
-        CellName cellName2=clusteringKeyMapper.clusteringKey(bytesRef);
-        assertEquals("clusteringKeyMapper.clusteringKey(bytesRef(cellName)) must be equal to cellName",cellName,cellName2);
+        BytesRef bytesRef = clusteringKeyMapper.bytesRef(cellName);
+        CellName cellName2 = clusteringKeyMapper.clusteringKey(bytesRef);
+        assertEquals("clusteringKeyMapper.clusteringKey(bytesRef(cellName)) must be equal to cellName",
+                     cellName,
+                     cellName2);
     }
 
     @Test
     public void testClusteringÇKeyFromRow() {
-
-
-
-
 
     }
 }

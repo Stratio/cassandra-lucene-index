@@ -18,10 +18,7 @@
 
 package com.stratio.cassandra.lucene.service;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
+import junit.framework.Assert;
 import org.apache.cassandra.cql3.ColumnIdentifier;
 import org.apache.cassandra.db.BufferDecoratedKey;
 import org.apache.cassandra.db.DecoratedKey;
@@ -32,7 +29,7 @@ import org.apache.cassandra.utils.ByteBufferUtil;
 import org.apache.lucene.search.ScoreDoc;
 import org.junit.Test;
 
-import junit.framework.Assert;
+import static org.junit.Assert.*;
 
 /**
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
@@ -41,122 +38,122 @@ public class SearchResultTest {
 
     @Test
     public void testConstructor() {
-        DecoratedKey decoratedKey=new BufferDecoratedKey(new LongToken((long) 10), ByteBufferUtil.EMPTY_BYTE_BUFFER);
-        CellName clusteringKey= CellNames.simpleSparse(new ColumnIdentifier("aaaa", false));
-        ScoreDoc scoreDoc= new ScoreDoc(1,2.0f);
-        SearchResult searchResult= new SearchResult(decoratedKey,clusteringKey,scoreDoc);
-        
-        Assert.assertNotNull("SearchResult constructor must not return a null object",searchResult);
+        DecoratedKey decoratedKey = new BufferDecoratedKey(new LongToken((long) 10), ByteBufferUtil.EMPTY_BYTE_BUFFER);
+        CellName clusteringKey = CellNames.simpleSparse(new ColumnIdentifier("aaaa", false));
+        ScoreDoc scoreDoc = new ScoreDoc(1, 2.0f);
+        SearchResult searchResult = new SearchResult(decoratedKey, clusteringKey, scoreDoc);
+
+        Assert.assertNotNull("SearchResult constructor must not return a null object", searchResult);
 
     }
 
     @Test
     public void testGetPartitionKey() {
-        DecoratedKey decoratedKey=new BufferDecoratedKey(new LongToken((long) 10), ByteBufferUtil.EMPTY_BYTE_BUFFER);
-        CellName clusteringKey= CellNames.simpleSparse(new ColumnIdentifier("aaaa", false));
-        ScoreDoc scoreDoc= new ScoreDoc(1,2.0f);
-        SearchResult searchResult= new SearchResult(decoratedKey,clusteringKey,scoreDoc);
+        DecoratedKey decoratedKey = new BufferDecoratedKey(new LongToken((long) 10), ByteBufferUtil.EMPTY_BYTE_BUFFER);
+        CellName clusteringKey = CellNames.simpleSparse(new ColumnIdentifier("aaaa", false));
+        ScoreDoc scoreDoc = new ScoreDoc(1, 2.0f);
+        SearchResult searchResult = new SearchResult(decoratedKey, clusteringKey, scoreDoc);
 
         Assert.assertEquals("SearchResult getPartitionKey must return the same object passed as parameter",
-                decoratedKey,searchResult.getPartitionKey());
+                            decoratedKey,
+                            searchResult.getPartitionKey());
 
     }
 
     @Test
     public void testGetClusteringKey() {
-        DecoratedKey decoratedKey=new BufferDecoratedKey(new LongToken((long) 10), ByteBufferUtil.EMPTY_BYTE_BUFFER);
-        CellName clusteringKey= CellNames.simpleSparse(new ColumnIdentifier("aaaa", false));
-        ScoreDoc scoreDoc= new ScoreDoc(1,2.0f);
-        SearchResult searchResult= new SearchResult(decoratedKey,clusteringKey,scoreDoc);
+        DecoratedKey decoratedKey = new BufferDecoratedKey(new LongToken((long) 10), ByteBufferUtil.EMPTY_BYTE_BUFFER);
+        CellName clusteringKey = CellNames.simpleSparse(new ColumnIdentifier("aaaa", false));
+        ScoreDoc scoreDoc = new ScoreDoc(1, 2.0f);
+        SearchResult searchResult = new SearchResult(decoratedKey, clusteringKey, scoreDoc);
 
-        Assert.assertEquals("SearchResult getClusteringKey must return the same object passed as parameter", clusteringKey,
-                searchResult.getClusteringKey());
+        Assert.assertEquals("SearchResult getClusteringKey must return the same object passed as parameter",
+                            clusteringKey,
+                            searchResult.getClusteringKey());
 
     }
 
     @Test
     public void testGetScoreDoc() {
-        DecoratedKey decoratedKey=new BufferDecoratedKey(new LongToken((long) 10), ByteBufferUtil.EMPTY_BYTE_BUFFER);
-        CellName clusteringKey= CellNames.simpleSparse(new ColumnIdentifier("aaaa", false));
-        ScoreDoc scoreDoc= new ScoreDoc(1,2.0f);
-        SearchResult searchResult= new SearchResult(decoratedKey,clusteringKey,scoreDoc);
+        DecoratedKey decoratedKey = new BufferDecoratedKey(new LongToken((long) 10), ByteBufferUtil.EMPTY_BYTE_BUFFER);
+        CellName clusteringKey = CellNames.simpleSparse(new ColumnIdentifier("aaaa", false));
+        ScoreDoc scoreDoc = new ScoreDoc(1, 2.0f);
+        SearchResult searchResult = new SearchResult(decoratedKey, clusteringKey, scoreDoc);
 
-        Assert.assertEquals("SearchResult getScoreDoc must not return a null object", scoreDoc,
-                searchResult.getScoreDoc());
+        Assert.assertEquals("SearchResult getScoreDoc must not return a null object",
+                            scoreDoc,
+                            searchResult.getScoreDoc());
     }
 
     @Test
     public void testEquals() {
-        DecoratedKey decoratedKey=new BufferDecoratedKey(new LongToken((long) 10), ByteBufferUtil.EMPTY_BYTE_BUFFER);
-        CellName clusteringKey= CellNames.simpleSparse(new ColumnIdentifier("aaaa", false));
-        ScoreDoc scoreDoc= new ScoreDoc(1,2.0f);
-        SearchResult searchResult= new SearchResult(decoratedKey,clusteringKey,scoreDoc);
-        SearchResult searchResult2= new SearchResult(decoratedKey,clusteringKey,scoreDoc);
+        DecoratedKey decoratedKey = new BufferDecoratedKey(new LongToken((long) 10), ByteBufferUtil.EMPTY_BYTE_BUFFER);
+        CellName clusteringKey = CellNames.simpleSparse(new ColumnIdentifier("aaaa", false));
+        ScoreDoc scoreDoc = new ScoreDoc(1, 2.0f);
+        SearchResult searchResult = new SearchResult(decoratedKey, clusteringKey, scoreDoc);
+        SearchResult searchResult2 = new SearchResult(decoratedKey, clusteringKey, scoreDoc);
 
-        assertTrue("SearchResult constructed with same parameters must return equals",searchResult.equals
-                (searchResult2));
+        assertTrue("SearchResult constructed with same parameters must return equals",
+                   searchResult.equals(searchResult2));
 
     }
 
     @Test
     public void testEqualsSameObject() {
-        DecoratedKey decoratedKey=new BufferDecoratedKey(new LongToken((long) 10), ByteBufferUtil.EMPTY_BYTE_BUFFER);
-        CellName clusteringKey= CellNames.simpleSparse(new ColumnIdentifier("aaaa", false));
-        ScoreDoc scoreDoc= new ScoreDoc(1,2.0f);
-        SearchResult searchResult= new SearchResult(decoratedKey,clusteringKey,scoreDoc);
+        DecoratedKey decoratedKey = new BufferDecoratedKey(new LongToken((long) 10), ByteBufferUtil.EMPTY_BYTE_BUFFER);
+        CellName clusteringKey = CellNames.simpleSparse(new ColumnIdentifier("aaaa", false));
+        ScoreDoc scoreDoc = new ScoreDoc(1, 2.0f);
+        SearchResult searchResult1 = new SearchResult(decoratedKey, clusteringKey, scoreDoc);
+        SearchResult searchResult2 = new SearchResult(decoratedKey, clusteringKey, scoreDoc);
 
-        assertTrue("SearchResult equals(SearchResult) must return true with the same object",searchResult.equals
-                (searchResult));
+        assertTrue("SearchResult equals(SearchResult) must return true with the same object",
+                   searchResult1.equals(searchResult2));
     }
 
     @Test
     public void testEqualsNull() {
-        DecoratedKey decoratedKey=new BufferDecoratedKey(new LongToken((long) 10), ByteBufferUtil.EMPTY_BYTE_BUFFER);
-        CellName clusteringKey= CellNames.simpleSparse(new ColumnIdentifier("aaaa", false));
-        ScoreDoc scoreDoc= new ScoreDoc(1,2.0f);
-        SearchResult searchResult= new SearchResult(decoratedKey,clusteringKey,scoreDoc);
-
-        assertFalse("SearchResult equals(SearchResult) must return false with null object", searchResult.equals
-                (null));
+        DecoratedKey decoratedKey = new BufferDecoratedKey(new LongToken((long) 10), ByteBufferUtil.EMPTY_BYTE_BUFFER);
+        CellName clusteringKey = CellNames.simpleSparse(new ColumnIdentifier("aaaa", false));
+        ScoreDoc scoreDoc = new ScoreDoc(1, 2.0f);
+        SearchResult searchResult = new SearchResult(decoratedKey, clusteringKey, scoreDoc);
+        assertFalse("SearchResult equals(SearchResult) must return false with null object", searchResult.equals(null));
     }
 
     @Test
     public void testEqualsObject() {
-        DecoratedKey decoratedKey=new BufferDecoratedKey(new LongToken((long) 10), ByteBufferUtil.EMPTY_BYTE_BUFFER);
-        CellName clusteringKey= CellNames.simpleSparse(new ColumnIdentifier("aaaa", false));
-        ScoreDoc scoreDoc= new ScoreDoc(1,2.0f);
-        SearchResult searchResult= new SearchResult(decoratedKey,clusteringKey,scoreDoc);
-        Object dummy= new Object();
-        assertFalse("SearchResult equals(SearchResult) must return true with another object", searchResult.equals
-                (dummy));
+        DecoratedKey decoratedKey = new BufferDecoratedKey(new LongToken((long) 10), ByteBufferUtil.EMPTY_BYTE_BUFFER);
+        CellName clusteringKey = CellNames.simpleSparse(new ColumnIdentifier("aaaa", false));
+        ScoreDoc scoreDoc = new ScoreDoc(1, 2.0f);
+        SearchResult searchResult = new SearchResult(decoratedKey, clusteringKey, scoreDoc);
+        Object dummy = new Object();
+        assertFalse("SearchResult equals(SearchResult) must return true with another object",
+                    searchResult.equals(dummy));
     }
 
     @Test
     public void testEqualsSameScoreDoc() {
-        DecoratedKey decoratedKey=new BufferDecoratedKey(new LongToken((long) 10), ByteBufferUtil.EMPTY_BYTE_BUFFER);
-        CellName clusteringKey= CellNames.simpleSparse(new ColumnIdentifier("aaaa", false));
-        ScoreDoc scoreDoc= new ScoreDoc(1,2.0f);
-        SearchResult searchResult= new SearchResult(decoratedKey,clusteringKey,scoreDoc);
+        DecoratedKey decoratedKey = new BufferDecoratedKey(new LongToken((long) 10), ByteBufferUtil.EMPTY_BYTE_BUFFER);
+        CellName clusteringKey = CellNames.simpleSparse(new ColumnIdentifier("aaaa", false));
+        ScoreDoc scoreDoc = new ScoreDoc(1, 2.0f);
+        SearchResult searchResult = new SearchResult(decoratedKey, clusteringKey, scoreDoc);
 
-        DecoratedKey decoratedKey2=new BufferDecoratedKey(new LongToken((long) 35), ByteBufferUtil.EMPTY_BYTE_BUFFER);
-        CellName clusteringKey2= CellNames.simpleSparse(new ColumnIdentifier("bbbb", true));
-        ScoreDoc scoreDoc2= new ScoreDoc(1,7.0f);
-        SearchResult searchResult2= new SearchResult(decoratedKey2,clusteringKey2,scoreDoc2);
+        DecoratedKey decoratedKey2 = new BufferDecoratedKey(new LongToken((long) 35), ByteBufferUtil.EMPTY_BYTE_BUFFER);
+        CellName clusteringKey2 = CellNames.simpleSparse(new ColumnIdentifier("bbbb", true));
+        ScoreDoc scoreDoc2 = new ScoreDoc(1, 7.0f);
+        SearchResult searchResult2 = new SearchResult(decoratedKey2, clusteringKey2, scoreDoc2);
 
-        assertTrue("SearchResult object with same scoreDoc.doc, equals(SearchResult) must return true ",searchResult.equals
-                (searchResult2));
+        assertTrue("SearchResult object with same scoreDoc.doc, equals(SearchResult) must return true ",
+                   searchResult.equals(searchResult2));
     }
-
 
     @Test
     public void testHashDoc() {
 
-        DecoratedKey decoratedKey=new BufferDecoratedKey(new LongToken((long) 10), ByteBufferUtil.EMPTY_BYTE_BUFFER);
-        CellName clusteringKey= CellNames.simpleSparse(new ColumnIdentifier("aaaa", false));
-        ScoreDoc scoreDoc= new ScoreDoc(1,2.0f);
-        SearchResult searchResult= new SearchResult(decoratedKey,clusteringKey,scoreDoc);
-        assertEquals("SearchResult hashCode must be equals to scoreDoc.doc", scoreDoc.doc, searchResult
-                .hashCode());
+        DecoratedKey decoratedKey = new BufferDecoratedKey(new LongToken((long) 10), ByteBufferUtil.EMPTY_BYTE_BUFFER);
+        CellName clusteringKey = CellNames.simpleSparse(new ColumnIdentifier("aaaa", false));
+        ScoreDoc scoreDoc = new ScoreDoc(1, 2.0f);
+        SearchResult searchResult = new SearchResult(decoratedKey, clusteringKey, scoreDoc);
+        assertEquals("SearchResult hashCode must be equals to scoreDoc.doc", scoreDoc.doc, searchResult.hashCode());
 
     }
 

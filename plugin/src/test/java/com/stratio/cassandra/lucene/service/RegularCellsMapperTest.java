@@ -18,13 +18,8 @@
 
 package com.stratio.cassandra.lucene.service;
 
-import static com.stratio.cassandra.lucene.schema.SchemaBuilders.stringMapper;
-import static com.stratio.cassandra.lucene.schema.SchemaBuilders.textMapper;
-import static org.junit.Assert.assertNotNull;
-
-import java.util.ArrayList;
-import java.util.List;
-
+import com.stratio.cassandra.lucene.schema.Schema;
+import com.stratio.cassandra.lucene.schema.SchemaBuilders;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.db.marshal.AsciiType;
 import org.apache.cassandra.db.marshal.IntegerType;
@@ -37,8 +32,12 @@ import org.apache.cassandra.thrift.IndexType;
 import org.apache.cassandra.utils.ByteBufferUtil;
 import org.junit.Test;
 
-import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.SchemaBuilders;
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.stringMapper;
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.textMapper;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
@@ -49,24 +48,23 @@ public class RegularCellsMapperTest {
     public void testConstructorRegularCellsMapper() throws InvalidRequestException, ConfigurationException {
         List<ColumnDef> columnDefinitions = new ArrayList<>();
         columnDefinitions.add(new ColumnDef(ByteBufferUtil.bytes("field1"),
-                UTF8Type.class.getCanonicalName()).setIndex_name("field1")
-                .setIndex_type(IndexType.KEYS));
+                                            UTF8Type.class.getCanonicalName()).setIndex_name("field1")
+                                                                              .setIndex_type(IndexType.KEYS));
 
         columnDefinitions.add(new ColumnDef(ByteBufferUtil.bytes("field2"),
-                IntegerType.class.getCanonicalName()).setIndex_name("field2")
-                .setIndex_type(IndexType.KEYS));
+                                            IntegerType.class.getCanonicalName()).setIndex_name("field2")
+                                                                                 .setIndex_type(IndexType.KEYS));
         CfDef cfDef = new CfDef().setDefault_validation_class(AsciiType.class.getCanonicalName())
-                .setColumn_metadata(columnDefinitions)
-                .setKeyspace("Keyspace1")
-                .setName("Standard1");
+                                 .setColumn_metadata(columnDefinitions)
+                                 .setKeyspace("Keyspace1")
+                                 .setName("Standard1");
 
         CFMetaData metadata = CFMetaData.fromThrift(cfDef);
         Schema schema = SchemaBuilders.schema().mapper("field1", stringMapper()).mapper("field2", textMapper()).build();
-        RegularCellsMapper regularCellsMapper= RegularCellsMapper.instance(metadata,schema);
+        RegularCellsMapper regularCellsMapper = RegularCellsMapper.instance(metadata, schema);
 
         assertNotNull(regularCellsMapper);
 
     }
-
 
 }

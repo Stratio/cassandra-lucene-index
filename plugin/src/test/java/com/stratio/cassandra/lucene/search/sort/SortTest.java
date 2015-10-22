@@ -28,6 +28,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -81,15 +82,15 @@ public class SortTest {
         int numElems = 0;
         for (SortField sortF : sort) {
             numElems += 1;
-            if ((!sortF.equals(sortField)) && (!sortF.equals(sortField2)) && (!sortF.equals(sortField3))) {
-                assertTrue("Sort iterator not returning all the sortFields", true);
-            }
+            assertFalse("Sort iterator not returning all the sortFields",
+                        !sortF.equals(sortField) && !sortF.equals(sortField2) && !sortF.equals(sortField3));
         }
         assertEquals("Sort build with 3 elements iterator must return 3 elems", numElems, 3);
     }
 
     @Test
     public void testComparator() {
+
         SortField sortField = new SortField("field", false);
         SortField sortField2 = new SortField("field_2", false);
         SortField sortField3 = new SortField("field_3", false);
@@ -101,56 +102,32 @@ public class SortTest {
 
         Comparator<Columns> comparator = sort.comparator();
 
-        Column<String> column = Column.fromComposed("field", "a", UTF8Type.instance, false);
+        Column<String> column1 = Column.fromComposed("field", "a", UTF8Type.instance, false);
         Column<String> column2 = Column.fromComposed("field", "b", UTF8Type.instance, false);
         Column<String> column3 = Column.fromComposed("field", "c", UTF8Type.instance, false);
-        Column<String> column4 = Column.fromComposed("field", "d", UTF8Type.instance, false);
-        Column<String> column5 = Column.fromComposed("field", "e", UTF8Type.instance, false);
 
         Column<String> columnField2_1 = Column.fromComposed("field_2", "a", UTF8Type.instance, false);
         Column<String> columnField2_2 = Column.fromComposed("field_2", "b", UTF8Type.instance, false);
         Column<String> columnField2_3 = Column.fromComposed("field_2", "c", UTF8Type.instance, false);
-        Column<String> columnField2_4 = Column.fromComposed("field_2", "d", UTF8Type.instance, false);
-        Column<String> columnField2_5 = Column.fromComposed("field_2", "e", UTF8Type.instance, false);
 
         Column<String> columnField3_1 = Column.fromComposed("field_3", "e", UTF8Type.instance, false);
         Column<String> columnField3_2 = Column.fromComposed("field_3", "d", UTF8Type.instance, false);
         Column<String> columnField3_3 = Column.fromComposed("field_3", "c", UTF8Type.instance, false);
-        Column<String> columnField3_4 = Column.fromComposed("field_3", "b", UTF8Type.instance, false);
-        Column<String> columnField3_5 = Column.fromComposed("field_3", "a", UTF8Type.instance, false);
 
-        Columns columns1 = new Columns().add(column).add(columnField2_1).add(columnField3_1);
+        Columns columns1 = new Columns().add(column1).add(columnField2_1).add(columnField3_1);
         Columns columns2 = new Columns().add(column2).add(columnField2_2).add(columnField3_2);
         Columns columns3 = new Columns().add(column3).add(columnField2_3).add(columnField3_3);
-        Columns columns4 = new Columns().add(column4).add(columnField2_4).add(columnField3_4);
-        Columns columns5 = new Columns().add(column5).add(columnField2_5).add(columnField3_5);
 
         assertEquals("SortField columns comparator is wrong", -1, comparator.compare(columns1, columns2));
         assertEquals("SortField columns comparator is wrong", -2, comparator.compare(columns1, columns3));
-        assertEquals("SortField columns comparator is wrong", -3, comparator.compare(columns1, columns4));
-        assertEquals("SortField columns comparator is wrong", -4, comparator.compare(columns1, columns5));
         assertEquals("SortField columns comparator is wrong", -1, comparator.compare(columns2, columns3));
-        assertEquals("SortField columns comparator is wrong", -2, comparator.compare(columns2, columns4));
-        assertEquals("SortField columns comparator is wrong", -3, comparator.compare(columns2, columns5));
-        assertEquals("SortField columns comparator is wrong", -1, comparator.compare(columns3, columns4));
-        assertEquals("SortField columns comparator is wrong", -2, comparator.compare(columns3, columns5));
-        assertEquals("SortField columns comparator is wrong", -1, comparator.compare(columns4, columns5));
 
         assertEquals("SortField columns comparator is wrong", 1, comparator.compare(columns2, columns1));
         assertEquals("SortField columns comparator is wrong", 2, comparator.compare(columns3, columns1));
-        assertEquals("SortField columns comparator is wrong", 3, comparator.compare(columns4, columns1));
-        assertEquals("SortField columns comparator is wrong", 4, comparator.compare(columns5, columns1));
         assertEquals("SortField columns comparator is wrong", 1, comparator.compare(columns3, columns2));
-        assertEquals("SortField columns comparator is wrong", 2, comparator.compare(columns4, columns2));
-        assertEquals("SortField columns comparator is wrong", 3, comparator.compare(columns5, columns2));
-        assertEquals("SortField columns comparator is wrong", 1, comparator.compare(columns4, columns3));
-        assertEquals("SortField columns comparator is wrong", 2, comparator.compare(columns5, columns3));
-        assertEquals("SortField columns comparator is wrong", 1, comparator.compare(columns5, columns4));
 
         assertEquals("SortField columns comparator is wrong", 0, comparator.compare(columns1, columns1));
         assertEquals("SortField columns comparator is wrong", 0, comparator.compare(columns2, columns2));
         assertEquals("SortField columns comparator is wrong", 0, comparator.compare(columns3, columns3));
-        assertEquals("SortField columns comparator is wrong", 0, comparator.compare(columns4, columns4));
-        assertEquals("SortField columns comparator is wrong", 0, comparator.compare(columns5, columns5));
     }
 }

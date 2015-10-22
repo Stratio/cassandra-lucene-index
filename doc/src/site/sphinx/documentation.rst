@@ -4,6 +4,7 @@ Stratio's Cassandra Lucene Index
 
 - `Overview <#overview>`__
     - `Features <#features>`__
+    - `Architecture <#architecture>`__
     - `Requirements <#requirements>`__
     - `Installation <#installation>`__
     - `Example <#example>`__
@@ -96,6 +97,25 @@ Not yet supported:
 -  CQL user defined types
 -  Static columns
 
+Architecture
+============
+
+Indexing is achieved through a Lucene based implementation of Apache Cassandra secondary indexes.
+Cassandra's secondary indexes are local indexes,
+meaning that each node of the cluster indexes it's own data.
+As usual in Cassandra, each node can act as search coordinator.
+The coordinator node sends the searches to all the involved nodes,
+and then it post-processes the returned rows to return the required ones.
+This post-processing is particularly important in top-k queries.
+
+Regarding to the Cassandra-Lucene mapping, each node has a single Lucene index per indexed table,
+and each logic CQL row is mapped to a Lucene document.
+This documents are composed by the user-defined fields, the primary key and the partitioner's token.
+Indexing is done in a synchronous fashion at the storage layer, so each row upsert implies a document upsert.
+This adds an extra cost for write operations, which is the price of the provided search features.
+As long as indexing is done below the distribution layer,
+replication has been already achieved when the rows come to the index.
+
 Requirements
 ============
 
@@ -112,10 +132,10 @@ containing the plugin and add it to the Cassandra’s classpath:
 -  Build the plugin with Maven: ``mvn clean package``
 -  Copy the generated JAR to the lib folder of your compatible Cassandra installation:
    ``cp plugin/target/cassandra-lucene-index-plugin-*.jar <CASSANDRA_HOME>/lib/``
--  Start/restart Cassandra as usual
+-  Start/restart Cassandra as usual.
 
 Alternatively, patching can also be done with this Maven profile, specifying the path of your Cassandra installation,
- this task also delete previous plugin's JAR versions in CASSANDRA_HOME/lib/ directory:
+this task also delete previous plugin's JAR versions in CASSANDRA_HOME/lib/ directory:
 
 .. code-block:: bash
 
