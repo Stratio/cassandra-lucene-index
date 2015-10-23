@@ -5,6 +5,7 @@
  * Upgrade to Apache Cassandra 2.1.10
  * Add ability to exclude data centers from indexing (issue#44)
  * Add support for predictions in bitemporal index (issue#46)
+ * Add asynchronous indexing queue
 
 ## 2.1.9.0 (9 September 2015)
 

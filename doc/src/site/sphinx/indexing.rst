@@ -23,6 +23,8 @@ where:
                    ('ram_buffer_mb'         : '<int_value>',)?
                    ('max_merge_mb'          : '<int_value>',)?
                    ('max_cached_mb'         : '<int_value>',)?
+                   ('indexing_threads'      : '<int_value>',)?
+                   ('indexing_queues_size'  : '<int_value>',)?
                    ('directory_path'        : '<string_value>',)?
                    ('excluded_data_centers' : '<string_value>',)?
                    'schema'                 : '<schema_definition>'};
@@ -37,6 +39,10 @@ value enclosed in single quotes:
    committed to disk when full. Defaults to ’64’.
 -  **max\_merge\_mb**: defaults to ’5’.
 -  **max\_cached\_mb**: defaults to ’30’.
+-  **indexing\_threads**: number of asynchronous indexing threads. ’0’
+   means synchronous indexing. Defaults to ’0’.
+-  **indexing\_queues\_size**: max number of queued documents per
+   asynchronous indexing thread. Defaults to ’50’.
 -  **directory\_path**: The path of the directory where the  Lucene index
    will be stored.
 -  **excluded\_data\_centers**: The comma-separated list of the data centers

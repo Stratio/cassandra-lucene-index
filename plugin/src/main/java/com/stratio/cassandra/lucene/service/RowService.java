@@ -23,11 +23,19 @@ import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import com.stratio.cassandra.lucene.search.Search;
+import com.stratio.cassandra.lucene.util.TaskQueue;
 import com.stratio.cassandra.lucene.util.TimeCounter;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
 import org.apache.cassandra.cql3.Operator;
-import org.apache.cassandra.db.*;
+import org.apache.cassandra.db.ArrayBackedSortedColumns;
+import org.apache.cassandra.db.Cell;
+import org.apache.cassandra.db.ColumnFamily;
+import org.apache.cassandra.db.ColumnFamilyStore;
+import org.apache.cassandra.db.DataRange;
+import org.apache.cassandra.db.DecoratedKey;
+import org.apache.cassandra.db.IndexExpression;
+import org.apache.cassandra.db.Row;
 import org.apache.cassandra.db.composites.CellName;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.UTF8Type;
@@ -39,7 +47,13 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
@@ -69,11 +83,12 @@ public abstract class RowService {
     final List<SortField> keySortFields;
 
     protected final Schema schema;
+    private final TaskQueue indexQueue;
 
     /**
      * Returns a new {@code RowService} for the specified {@link IndexConfig}.
      *
-     * @param cfs The indexed {@link ColumnFamilyStore}.
+     * @param cfs    The indexed {@link ColumnFamilyStore}.
      * @param config The {@link IndexConfig}.
      * @throws IOException If there are I/O errors.
      */
@@ -84,18 +99,21 @@ public abstract class RowService {
         lucene = new LuceneIndex(config);
         mapper = RowMapper.build(config);
         keySortFields = mapper.sortFields();
+
+        int threads = config.getIndexingThreads();
+        indexQueue = threads > 0 ? new TaskQueue(threads, config.getIndexingQueuesSize()) : null;
     }
 
     /**
      * Returns a new {@link RowService} for the specified {@link IndexConfig}.
      *
-     * @param cfs The indexed {@link ColumnFamilyStore}.
+     * @param cfs    The indexed {@link ColumnFamilyStore}.
      * @param config The {@link IndexConfig}.
      * @return A new {@link RowService} for the specified {@link IndexConfig}.
      * @throws IOException If there are I/O errors.
      */
     public static RowService build(ColumnFamilyStore cfs, IndexConfig config) throws IOException {
-        return config.isWide() ? new RowServiceWide(cfs, config): new RowServiceSkinny(cfs, config);
+        return config.isWide() ? new RowServiceWide(cfs, config) : new RowServiceSkinny(cfs, config);
     }
 
     /**
@@ -125,7 +143,56 @@ public abstract class RowService {
      * @param timestamp    The insertion time.
      * @throws IOException If there are I/O errors.
      */
-    public abstract void index(ByteBuffer key, ColumnFamily columnFamily, long timestamp) throws IOException;
+    public void index(final ByteBuffer key, final ColumnFamily columnFamily, final long timestamp) throws IOException {
+        if (indexQueue == null) {
+            doIndex(key, columnFamily, timestamp);
+        } else {
+            indexQueue.submitAsynchronous(key, new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        doIndex(key, columnFamily, timestamp);
+                    } catch (Exception e) {
+                        logger.error("Unrecoverable error during asynchronously indexing", e);
+                    }
+                }
+            });
+        }
+    }
+
+    /**
+     * Puts in the Lucene index the Cassandra's the row identified by the specified partition key and the clustering
+     * keys contained in the specified {@link ColumnFamily}.
+     *
+     * @param key          A partition key.
+     * @param columnFamily A {@link ColumnFamily} with a single common cluster key.
+     * @param timestamp    The insertion time.
+     * @throws IOException If there are I/O errors.
+     */
+    protected abstract void doIndex(ByteBuffer key, ColumnFamily columnFamily, long timestamp) throws IOException;
+
+    /**
+     * Deletes the partition identified by the specified partition key. This operation is performed asynchronously.
+     *
+     * @param partitionKey The partition key identifying the partition to be deleted.
+     * @throws IOException If there are I/O errors.
+     */
+    public void delete(final DecoratedKey partitionKey) throws IOException {
+        if (indexQueue == null) {
+            doDelete(partitionKey);
+        } else {
+            indexQueue.submitAsynchronous(partitionKey, new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        doDelete(partitionKey);
+                    } catch (Exception e) {
+                        logger.error("Unrecoverable error during asynchronous deletion", e);
+                    }
+                }
+            });
+        }
+    }
 
     /**
      * Deletes the partition identified by the specified partition key.
@@ -133,7 +200,7 @@ public abstract class RowService {
      * @param partitionKey The partition key identifying the partition to be deleted.
      * @throws IOException If there are I/O errors.
      */
-    public abstract void delete(DecoratedKey partitionKey) throws IOException;
+    protected abstract void doDelete(DecoratedKey partitionKey) throws IOException;
 
     /**
      * Deletes all the {@link Document}s.
@@ -150,6 +217,9 @@ public abstract class RowService {
      * @throws IOException If there are I/O errors.
      */
     public final void delete() throws IOException {
+        if (indexQueue != null) {
+            indexQueue.shutdown();
+        }
         lucene.delete();
         schema.close();
     }
@@ -160,6 +230,9 @@ public abstract class RowService {
      * @throws IOException If there are I/O errors.
      */
     public final void commit() throws IOException {
+        if (indexQueue != null) {
+            indexQueue.await();
+        }
         lucene.commit();
     }
 
@@ -206,6 +279,9 @@ public abstract class RowService {
 
         // Refresh index if needed
         if (search.refresh()) {
+            if (indexQueue != null) {
+                indexQueue.await();
+            }
             lucene.refresh();
             if (search.isEmpty()) {
                 return rows;

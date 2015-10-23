@@ -75,7 +75,7 @@ public class RowServiceSkinny extends RowService {
 
     /** {@inheritDoc} */
     @Override
-    public void index(ByteBuffer key, ColumnFamily columnFamily, long timestamp) throws IOException {
+    public void doIndex(ByteBuffer key, ColumnFamily columnFamily, long timestamp) throws IOException {
         DecoratedKey partitionKey = mapper.partitionKey(key);
         if (columnFamily.iterator().hasNext()) {
             ColumnFamily cleanColumnFamily = cleanExpired(columnFamily, timestamp);
@@ -88,7 +88,7 @@ public class RowServiceSkinny extends RowService {
 
     /** {@inheritDoc} */
     @Override
-    public void delete(DecoratedKey partitionKey) throws IOException {
+    public void doDelete(DecoratedKey partitionKey) throws IOException {
         Term term = mapper.term(partitionKey);
         lucene.delete(term);
     }

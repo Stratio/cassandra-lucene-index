@@ -58,6 +58,12 @@ public class IndexConfig {
     public static final String MAX_CACHED_MB_OPTION = "max_cached_mb";
     public static final int DEFAULT_MAX_CACHED_MB = 30;
 
+    public static final String INDEXING_THREADS_OPTION = "indexing_threads";
+    public static final int DEFAULT_INDEXING_THREADS = 0;
+
+    public static final String INDEXING_QUEUES_SIZE_OPTION = "indexing_queues_size";
+    public static final int DEFAULT_INDEXING_QUEUES_SIZE = 50;
+
     public static final String EXCLUDED_DATA_CENTERS_OPTION = "excluded_data_centers";
     public static final List<String> DEFAULT_EXCLUDED_DATA_CENTERS = Collections.emptyList();
 
@@ -70,6 +76,8 @@ public class IndexConfig {
     private int ramBufferMB = DEFAULT_RAM_BUFFER_MB;
     private int maxMergeMB = DEFAULT_MAX_MERGE_MB;
     private int maxCachedMB = DEFAULT_MAX_CACHED_MB;
+    private int indexingThreads = DEFAULT_INDEXING_THREADS;
+    private int indexingQueuesSize = DEFAULT_INDEXING_QUEUES_SIZE;
     private List<String> excludedDataCenters = DEFAULT_EXCLUDED_DATA_CENTERS;
 
     /**
@@ -89,6 +97,8 @@ public class IndexConfig {
         parseMaxCachedMB();
         parseSchema();
         parsePath();
+        parseIndexingThreads();
+        parseIndexingQueuesSize();
         parseExcludedDataCenters();
     }
 
@@ -218,6 +228,24 @@ public class IndexConfig {
         return maxCachedMB;
     }
 
+    /**
+     * Returns the number of asynchronous indexing threads, where {@code 0} means synchronous indexing.
+     *
+     * @return The number of asynchronous indexing threads.
+     */
+    public int getIndexingThreads() {
+        return indexingThreads;
+    }
+
+    /**
+     * Returns the max number of queued documents per asynchronous indexing thread.
+     *
+     * @return The max number of queued documents per asynchronous indexing thread.
+     */
+    public int getIndexingQueuesSize() {
+        return indexingQueuesSize;
+    }
+
     private void parseRefresh() {
         String refreshOption = options.get(REFRESH_SECONDS_OPTION);
         if (refreshOption != null) {
@@ -305,6 +333,31 @@ public class IndexConfig {
             path = Paths.get(pathString);
         } else {
             path = Paths.get(pathOption);
+        }
+    }
+
+    private void parseIndexingThreads() {
+        String indexPoolNumQueuesOption = options.get(INDEXING_THREADS_OPTION);
+        if (indexPoolNumQueuesOption != null) {
+            try {
+                indexingThreads = Integer.parseInt(indexPoolNumQueuesOption);
+            } catch (NumberFormatException e) {
+                throw new IndexException("'%s' must be a positive integer", INDEXING_THREADS_OPTION);
+            }
+        }
+    }
+
+    private void parseIndexingQueuesSize() {
+        String indexPoolQueuesSizeOption = options.get(INDEXING_QUEUES_SIZE_OPTION);
+        if (indexPoolQueuesSizeOption != null) {
+            try {
+                indexingQueuesSize = Integer.parseInt(indexPoolQueuesSizeOption);
+            } catch (NumberFormatException e) {
+                throw new IndexException("'%s' must be a strictly positive integer", INDEXING_QUEUES_SIZE_OPTION);
+            }
+            if (indexingQueuesSize <= 0) {
+                throw new IndexException("'%s' must be strictly positive", INDEXING_QUEUES_SIZE_OPTION);
+            }
         }
     }
 
