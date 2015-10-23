@@ -19,22 +19,23 @@
 package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.google.common.base.Objects;
-import com.spatial4j.core.shape.Shape;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import com.stratio.cassandra.lucene.util.DateParser;
-import org.apache.cassandra.db.marshal.*;
+import org.apache.cassandra.db.marshal.AsciiType;
+import org.apache.cassandra.db.marshal.DecimalType;
+import org.apache.cassandra.db.marshal.DoubleType;
+import org.apache.cassandra.db.marshal.FloatType;
+import org.apache.cassandra.db.marshal.Int32Type;
+import org.apache.cassandra.db.marshal.IntegerType;
+import org.apache.cassandra.db.marshal.LongType;
+import org.apache.cassandra.db.marshal.TimestampType;
+import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.document.IntField;
 import org.apache.lucene.document.LongField;
-import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.search.SortField;
-import org.apache.lucene.spatial.prefix.NumberRangePrefixTreeStrategy;
-import org.apache.lucene.spatial.prefix.tree.DateRangePrefixTree;
-import org.apache.lucene.spatial.prefix.tree.NumberRangePrefixTree.NRShape;
-import org.apache.lucene.spatial.prefix.tree.NumberRangePrefixTree.UnitNRShape;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -126,9 +127,7 @@ public class BitemporalMapper extends Mapper {
         this.ttTo = ttTo;
 
         // Validate pattern
-
         this.nowValue = (nowValue == null) ? Long.MAX_VALUE : dateParser.parse(nowValue).getTime();
-
     }
 
     /** {@inheritDoc} */
@@ -146,14 +145,15 @@ public class BitemporalMapper extends Mapper {
 
         validate(vtFrom, vtTo, ttFrom, ttTo);
 
-        document.add(new LongField(this.field+".vtFrom",vtFrom.toDate().getTime(),STORE));
-        document.add(new LongField(this.field+".vtTo",vtTo.toDate().getTime(),STORE));
-        document.add(new LongField(this.field+".ttFrom",ttFrom.toDate().getTime(),STORE));
-        document.add(new LongField(this.field+".ttTo",ttTo.toDate().getTime(),STORE));
+        document.add(new LongField(field + ".vtFrom", vtFrom.toDate().getTime(), STORE));
+        document.add(new LongField(field + ".vtTo", vtTo.toDate().getTime(), STORE));
+        document.add(new LongField(field + ".ttFrom", ttFrom.toDate().getTime(), STORE));
+        document.add(new LongField(field + ".ttTo", ttTo.toDate().getTime(), STORE));
     }
 
-
-    private void validate(BitemporalDateTime vtFrom, BitemporalDateTime vtTo, BitemporalDateTime ttFrom,
+    private void validate(BitemporalDateTime vtFrom,
+                          BitemporalDateTime vtTo,
+                          BitemporalDateTime ttFrom,
                           BitemporalDateTime ttTo) {
         if (vtFrom == null) {
             throw new IndexException("vt_from column required");
@@ -295,7 +295,7 @@ public class BitemporalMapper extends Mapper {
 
         public static BitemporalDateTime max(BitemporalDateTime bt1, BitemporalDateTime bt2) {
             int result = bt1.compareTo(bt2);
-            return (result <= 0)? bt2: bt1;
+            return (result <= 0) ? bt2 : bt1;
         }
 
         /** {@inheritDoc} */
