@@ -126,7 +126,7 @@ Requirements
 Installation
 ============
 
-SStratio’s Cassandra Lucene Index is distributed as a plugin for Apache Cassandra. Thus, you just need to build a JAR
+Stratio’s Cassandra Lucene Index is distributed as a plugin for Apache Cassandra. Thus, you just need to build a JAR
 containing the plugin and add it to the Cassandra’s classpath:
 
 -  Build the plugin with Maven: ``mvn clean package``

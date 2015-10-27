@@ -29,6 +29,7 @@ import org.apache.cassandra.exceptions.InvalidRequestException;
 import org.apache.cassandra.thrift.CfDef;
 import org.apache.cassandra.thrift.ColumnDef;
 import org.apache.cassandra.thrift.IndexType;
+import org.apache.cassandra.thrift.ThriftConversion;
 import org.apache.cassandra.utils.ByteBufferUtil;
 import org.junit.Test;
 
@@ -59,7 +60,7 @@ public class RegularCellsMapperTest {
                                  .setKeyspace("Keyspace1")
                                  .setName("Standard1");
 
-        CFMetaData metadata = CFMetaData.fromThrift(cfDef);
+        CFMetaData metadata = ThriftConversion.fromThrift(cfDef);
         Schema schema = SchemaBuilders.schema().mapper("field1", stringMapper()).mapper("field2", textMapper()).build();
         RegularCellsMapper regularCellsMapper = RegularCellsMapper.instance(metadata, schema);
 

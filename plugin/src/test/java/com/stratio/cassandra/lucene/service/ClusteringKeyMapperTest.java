@@ -32,6 +32,7 @@ import org.apache.cassandra.exceptions.InvalidRequestException;
 import org.apache.cassandra.thrift.CfDef;
 import org.apache.cassandra.thrift.ColumnDef;
 import org.apache.cassandra.thrift.IndexType;
+import org.apache.cassandra.thrift.ThriftConversion;
 import org.apache.cassandra.utils.ByteBufferUtil;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -44,6 +45,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.apache.cassandra.dht.Murmur3Partitioner.LongToken;
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.stringMapper;
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.textMapper;
 import static junit.framework.Assert.assertEquals;
@@ -76,7 +78,7 @@ public class ClusteringKeyMapperTest {
                                  .setKeyspace("Keyspace1")
                                  .setName("Standard1");
 
-        CFMetaData metadata = CFMetaData.fromThrift(cfDef);
+        CFMetaData metadata = ThriftConversion.fromThrift(cfDef);
         Schema schema = SchemaBuilders.schema().mapper("field1", stringMapper()).mapper("field2", textMapper()).build();
 
         ClusteringKeyMapper clusteringKeyMapper = ClusteringKeyMapper.instance(metadata, schema);
@@ -99,7 +101,7 @@ public class ClusteringKeyMapperTest {
                                  .setKeyspace("Keyspace1")
                                  .setName("Standard1");
 
-        CFMetaData metadata = CFMetaData.fromThrift(cfDef);
+        CFMetaData metadata = ThriftConversion.fromThrift(cfDef);
         Schema schema = SchemaBuilders.schema().mapper("field1", stringMapper()).mapper("field2", textMapper()).build();
         ClusteringKeyMapper clusteringKeyMapper = ClusteringKeyMapper.instance(metadata, schema);
 
@@ -130,7 +132,7 @@ public class ClusteringKeyMapperTest {
                                  .setKeyspace("Keyspace1")
                                  .setName("Standard1");
 
-        CFMetaData metadata = CFMetaData.fromThrift(cfDef);
+        CFMetaData metadata = ThriftConversion.fromThrift(cfDef);
         Schema schema = SchemaBuilders.schema().mapper("field1", stringMapper()).mapper("field2", textMapper()).build();
         ClusteringKeyMapper clusteringKeyMapper = ClusteringKeyMapper.instance(metadata, schema);
 
@@ -152,7 +154,7 @@ public class ClusteringKeyMapperTest {
                                  .setKeyspace("Keyspace1")
                                  .setName("Standard1");
 
-        CFMetaData metadata = CFMetaData.fromThrift(cfDef);
+        CFMetaData metadata = ThriftConversion.fromThrift(cfDef);
         Schema schema = SchemaBuilders.schema().mapper("field1", stringMapper()).mapper("field2", textMapper()).build();
         ClusteringKeyMapper clusteringKeyMapper = ClusteringKeyMapper.instance(metadata, schema);
 
@@ -183,7 +185,7 @@ public class ClusteringKeyMapperTest {
                                  .setKeyspace("Keyspace1")
                                  .setName("Standard1");
 
-        CFMetaData metadata = CFMetaData.fromThrift(cfDef);
+        CFMetaData metadata = ThriftConversion.fromThrift(cfDef);
         Schema schema = SchemaBuilders.schema().mapper("field1", stringMapper()).mapper("field2", textMapper()).build();
         ClusteringKeyMapper clusteringKeyMapper = ClusteringKeyMapper.instance(metadata, schema);
         CellName cellName = CellNames.simpleSparse(new ColumnIdentifier("aaaa", false));

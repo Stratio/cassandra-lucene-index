@@ -74,7 +74,11 @@ replication has been already achieved when the rows come to the index.
 Requirements
 ============
 
+<<<<<<< HEAD
 -  Cassandra (identified by the three first numbers of the plugin version)
+=======
+-  Cassandra 2.2.0
+>>>>>>> feature/upgrade_to_cassandra_2.2.0
 -  Java >= 1.7 (OpenJDK and Sun have been tested)
 -  Maven >= 3.0
 
@@ -87,10 +91,10 @@ containing the plugin and add it to the Cassandra’s classpath:
 -  Build the plugin with Maven: ``mvn clean package``
 -  Copy the generated JAR to the lib folder of your compatible Cassandra installation:
    ``cp plugin/target/cassandra-lucene-index-plugin-*.jar <CASSANDRA_HOME>/lib/``
--  Start/restart Cassandra as usual
+-  Start/restart Cassandra as usual.
 
 Alternatively, patching can also be done with this Maven profile, specifying the path of your Cassandra installation,
- this task also delete previous plugin's JAR versions in CASSANDRA_HOME/lib/ directory:
+this task also delete previous plugin's JAR versions in CASSANDRA_HOME/lib/ directory:
 
 .. code-block:: bash
 

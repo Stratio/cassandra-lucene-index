@@ -23,13 +23,13 @@ import org.apache.cassandra.db.BufferDecoratedKey;
 import org.apache.cassandra.db.DecoratedKey;
 import org.apache.cassandra.db.composites.CellName;
 import org.apache.cassandra.db.composites.CellNames;
-import org.apache.cassandra.dht.LongToken;
 import org.apache.cassandra.utils.ByteBufferUtil;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.apache.cassandra.dht.Murmur3Partitioner.LongToken;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
