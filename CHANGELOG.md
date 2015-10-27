@@ -1,6 +1,10 @@
 # Changelog
 
-## 2.1.10.0-SNAPSHOT (upcoming)
+## 2.1.11.0 (27 October 2015)
+
+ * Upgrade to Apache Cassandra 2.1.11
+
+## 2.1.10.0 (27 October 2015)
 
  * Upgrade to Apache Cassandra 2.1.10
  * Add ability to exclude data centers from indexing (issue#44)
