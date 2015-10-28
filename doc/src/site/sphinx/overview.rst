@@ -74,11 +74,8 @@ replication has been already achieved when the rows come to the index.
 Requirements
 ============
 
-<<<<<<< HEAD
+
 -  Cassandra (identified by the three first numbers of the plugin version)
-=======
--  Cassandra 2.2.0
->>>>>>> feature/upgrade_to_cassandra_2.2.0
 -  Java >= 1.7 (OpenJDK and Sun have been tested)
 -  Maven >= 3.0
 
