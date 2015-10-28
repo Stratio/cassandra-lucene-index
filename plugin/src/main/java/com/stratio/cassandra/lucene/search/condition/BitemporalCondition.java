@@ -27,6 +27,7 @@ import static com.stratio.cassandra.lucene.schema.mapping.BitemporalMapper.Bitem
 import static org.apache.lucene.search.BooleanClause.Occur.MUST;
 import static org.apache.lucene.search.BooleanClause.Occur.SHOULD;
 import static org.apache.lucene.search.NumericRangeQuery.newLongRange;
+import static com.stratio.cassandra.lucene.schema.mapping.BitemporalMapper.*;
 
 /**
  * A {@link Condition} implementation that matches bi-temporal (four) fields within two range of values.
@@ -88,21 +89,21 @@ public class BitemporalCondition extends SingleMapperCondition<BitemporalMapper>
         BooleanQuery.Builder builder = new BooleanQuery.Builder();
 
         BooleanQuery.Builder validBuilder = new BooleanQuery.Builder();
-        validBuilder.add(newLongRange(field + BitemporalMapper.VT_FROM_FIELD_SUFFIX, vtFromTime, vtToTime, true, true), SHOULD);
-        validBuilder.add(newLongRange(field + BitemporalMapper.VT_TO_FIELD_SUFFIX, vtFromTime, vtToTime, true, true), SHOULD);
+        validBuilder.add(newLongRange(field + VT_FROM_FIELD_SUFFIX, vtFromTime, vtToTime, true, true), SHOULD);
+        validBuilder.add(newLongRange(field + VT_TO_FIELD_SUFFIX, vtFromTime, vtToTime, true, true), SHOULD);
 
         BooleanQuery.Builder containsValidBuilder = new BooleanQuery.Builder();
-        containsValidBuilder.add(newLongRange(field + BitemporalMapper.VT_FROM_FIELD_SUFFIX, minTime, vtFromTime, true, true), MUST);
-        containsValidBuilder.add(newLongRange(field + BitemporalMapper.VT_TO_FIELD_SUFFIX, vtToTime, maxTime, true, true), MUST);
+        containsValidBuilder.add(newLongRange(field + VT_FROM_FIELD_SUFFIX, minTime, vtFromTime, true, true), MUST);
+        containsValidBuilder.add(newLongRange(field + VT_TO_FIELD_SUFFIX, vtToTime, maxTime, true, true), MUST);
         validBuilder.add(containsValidBuilder.build(), SHOULD);
 
         BooleanQuery.Builder transactionBuilder = new BooleanQuery.Builder();
-        transactionBuilder.add(newLongRange(field + BitemporalMapper.TT_FROM_FIELD_SUFFIX, ttFromTime, ttToTime, true, true), SHOULD);
-        transactionBuilder.add(newLongRange(field + BitemporalMapper.TT_TO_FIELD_SUFFIX, ttFromTime, ttToTime, true, true), SHOULD);
+        transactionBuilder.add(newLongRange(field + TT_FROM_FIELD_SUFFIX, ttFromTime, ttToTime, true, true), SHOULD);
+        transactionBuilder.add(newLongRange(field + TT_TO_FIELD_SUFFIX, ttFromTime, ttToTime, true, true), SHOULD);
 
         BooleanQuery.Builder containsTransactionBuilder = new BooleanQuery.Builder();
-        containsTransactionBuilder.add(newLongRange(field + BitemporalMapper.TT_FROM_FIELD_SUFFIX, minTime, ttFromTime, true, true), MUST);
-        containsTransactionBuilder.add(newLongRange(field + BitemporalMapper.TT_TO_FIELD_SUFFIX, ttToTime, maxTime, true, true), MUST);
+        containsTransactionBuilder.add(newLongRange(field + TT_FROM_FIELD_SUFFIX, minTime, ttFromTime, true, true), MUST);
+        containsTransactionBuilder.add(newLongRange(field + TT_TO_FIELD_SUFFIX, ttToTime, maxTime, true, true), MUST);
         transactionBuilder.add(containsTransactionBuilder.build(), SHOULD);
 
         builder.add(validBuilder.build(), MUST);
