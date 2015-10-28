@@ -24,11 +24,11 @@ import org.apache.cassandra.db.BufferDecoratedKey;
 import org.apache.cassandra.db.DecoratedKey;
 import org.apache.cassandra.db.composites.CellName;
 import org.apache.cassandra.db.composites.CellNames;
-import org.apache.cassandra.dht.LongToken;
 import org.apache.cassandra.utils.ByteBufferUtil;
 import org.apache.lucene.search.ScoreDoc;
 import org.junit.Test;
 
+import static org.apache.cassandra.dht.Murmur3Partitioner.LongToken;
 import static org.junit.Assert.*;
 
 /**

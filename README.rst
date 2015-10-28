@@ -70,7 +70,11 @@ containing the plugin and add it to the Cassandra’s classpath:
 
 -  Build the plugin with Maven: ``mvn clean package``
 -  Copy the generated JAR to the lib folder of your compatible Cassandra installation:
+<<<<<<< HEAD
    ``cp plugin/target/cassandra-lucene-index-plugin-*.jar <CASSANDRA_HOME>/lib/``
+=======
+   ``cp plugin/target/cassandra-lucene-index-plugin-2.2.0.0-SNAPSHOT.jar <CASSANDRA_HOME>/lib/``
+>>>>>>> feature/upgrade_to_cassandra_2.2.0
 -  Start/restart Cassandra as usual
 
 Alternatively, patching can also be done with this Maven profile, specifying the path of your Cassandra installation,

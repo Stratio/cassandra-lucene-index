@@ -106,8 +106,8 @@ html_theme = 'stratio'
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
-html_theme_options = {    
-    'versions' : ['2.1.8.5-SNAPSHOT'],
+html_theme_options = {
+    'versions' : ['2.2.0.0-SNAPSHOT'],
     'github' : 'https://github.com/Stratio/cassandra-lucene-index',
     'jira': '',
     'module_name' : 'cassandra lucene index'
