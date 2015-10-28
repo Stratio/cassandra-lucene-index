@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.1.11.1-SNAPSHOT (upcoming)
+
+ * Fixed bitemporal bug (issue#46)
+ 
 ## 2.1.11.0 (27 October 2015)
 
  * Upgrade to Apache Cassandra 2.1.11
