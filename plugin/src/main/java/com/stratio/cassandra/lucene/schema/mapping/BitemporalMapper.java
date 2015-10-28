@@ -53,6 +53,18 @@ public class BitemporalMapper extends Mapper {
     /** The {@link DateParser}. */
     private final DateParser dateParser;
 
+    /** The lucene Field suffix for vt_from */
+    public static final String VT_FROM_FIELD_SUFFIX=".vtFrom";
+
+    /** The lucene Field suffix for vt_to */
+    public static final String VT_TO_FIELD_SUFFIX=".vtTo";
+
+    /** The lucene Field suffix for tt_from */
+    public static final String TT_FROM_FIELD_SUFFIX=".ttFrom";
+
+    /** The lucene Field suffix for tt_to */
+    public static final String TT_TO_FIELD_SUFFIX=".ttTo";
+
     /** The name of the column containing the valid time start. **/
     public final String vtFrom;
 
@@ -145,10 +157,10 @@ public class BitemporalMapper extends Mapper {
 
         validate(vtFrom, vtTo, ttFrom, ttTo);
 
-        document.add(new LongField(field + ".vtFrom", vtFrom.toDate().getTime(), STORE));
-        document.add(new LongField(field + ".vtTo", vtTo.toDate().getTime(), STORE));
-        document.add(new LongField(field + ".ttFrom", ttFrom.toDate().getTime(), STORE));
-        document.add(new LongField(field + ".ttTo", ttTo.toDate().getTime(), STORE));
+        document.add(new LongField(field + VT_FROM_FIELD_SUFFIX, vtFrom.toDate().getTime(), STORE));
+        document.add(new LongField(field + VT_TO_FIELD_SUFFIX, vtTo.toDate().getTime(), STORE));
+        document.add(new LongField(field + TT_FROM_FIELD_SUFFIX, ttFrom.toDate().getTime(), STORE));
+        document.add(new LongField(field + TT_TO_FIELD_SUFFIX, ttTo.toDate().getTime(), STORE));
     }
 
     private void validate(BitemporalDateTime vtFrom,
