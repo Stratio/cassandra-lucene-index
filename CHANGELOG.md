@@ -3,6 +3,7 @@
 ## 2.1.11.1-SNAPSHOT (upcoming)
 
  * Fixed bitemporal bug (issue#46)
+ * Fixed default directory path
  
 ## 2.1.11.0 (27 October 2015)
 
