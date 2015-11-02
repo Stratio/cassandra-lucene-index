@@ -158,7 +158,6 @@ public class Schema implements Closeable {
      * @param metadata A column family metadata.
      */
     public void validate(CFMetaData metadata) {
-        logger.debug("Schema validate");
         for (Mapper mapper : mappers.values()) {
             mapper.validate(metadata);
         }
@@ -171,10 +170,10 @@ public class Schema implements Closeable {
      * @return {@code true} if there is any mapper mapping the specified column, {@code false} otherwise.
      */
     public boolean maps(String column) {
-        for (String mappedColumn: mappedColumns) {
-            String name=mappedColumn;
+        for (String mappedColumn : mappedColumns) {
+            String name = mappedColumn;
             if (name.contains(".")) {
-                name=name.substring(0,name.indexOf("."));
+                name = name.substring(0, name.indexOf("."));
             }
             if (column.equals(name)) {
                 return true;

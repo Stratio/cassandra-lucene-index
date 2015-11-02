@@ -25,8 +25,15 @@ import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
-import org.apache.cassandra.db.marshal.*;
+import org.apache.cassandra.db.marshal.AbstractType;
+import org.apache.cassandra.db.marshal.CollectionType;
 import org.apache.cassandra.db.marshal.CollectionType.Kind;
+import org.apache.cassandra.db.marshal.ListType;
+import org.apache.cassandra.db.marshal.MapType;
+import org.apache.cassandra.db.marshal.ReversedType;
+import org.apache.cassandra.db.marshal.SetType;
+import org.apache.cassandra.db.marshal.UTF8Type;
+import org.apache.cassandra.db.marshal.UserType;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field.Store;
@@ -36,6 +43,7 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import static org.apache.cassandra.db.marshal.CollectionType.Kind.LIST;
 import static org.apache.cassandra.db.marshal.CollectionType.Kind.SET;
@@ -165,6 +173,57 @@ public abstract class Mapper {
         }
     }
 
+    /**
+     * Find the child Node {@link AbstractType} by name
+     *
+     * @param parent   the parent {@link AbstractType}
+     * @param leafName the leaf Node name
+     * @return the Child {@link AbstractType} if exists
+     */
+    private AbstractType<?> findChildNode(AbstractType<?> parent, String leafName) {
+        if (parent instanceof UserType) {
+            UserType userType = (UserType) parent;
+            for (int i = 0; i < userType.fieldNames().size(); i++) {
+                if (userType.fieldNameAsString(i).equals(leafName)) {
+                    return userType.fieldType(i);
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Validates this {@link Mapper} against the specified UDT type column.
+     *
+     * @param metadata A column family {@link CFMetaData}.
+     * @param column   The name of the UDT column to be validated.
+     */
+    private void validateUDT(CFMetaData metadata, String column) {
+        String[] names = column.split(Pattern.quote("."));
+        int numMatches = names.length;
+
+        ByteBuffer parentColName = UTF8Type.instance.decompose(names[0]);
+        ColumnDefinition parentCD = metadata.getColumnDefinition(parentColName);
+        if (parentCD == null) {
+            throw new IndexException("No column definition '%s' for mapper '%s'", parentColName, field);
+        }
+
+        if (parentCD.isStatic()) {
+            throw new IndexException("Lucene indexes are not allowed on static columns as '%s'", column);
+        }
+        AbstractType<?> actualType = parentCD.type;
+        String columnIterator = names[0];
+        for (int i = 1; i < names.length; i++) {
+            columnIterator += "." + names[i];
+            actualType = findChildNode(actualType, names[i]);
+            if (actualType == null) {
+                throw new IndexException("No column definition '%s' for mapper '%s'", columnIterator, field);
+            }
+            if (i == (numMatches - 1)) {
+                validate(actualType, columnIterator);
+            }
+        }
+    }
 
     /**
      * Validates this {@link Mapper} against the specified column.
@@ -173,26 +232,19 @@ public abstract class Mapper {
      * @param column   The name of the column to be validated.
      */
     private void validate(CFMetaData metadata, String column) {
-        logger.debug("MApper validating... column: "+column);
-        String name;
         if (column.contains(".")) {
-            name=column.substring(0,column.indexOf("."));
+            validateUDT(metadata, column);
         } else {
-            name= column;
+            ByteBuffer columnName = UTF8Type.instance.decompose(column);
+            ColumnDefinition columnDefinition = metadata.getColumnDefinition(columnName);
+            if (columnDefinition == null) {
+                throw new IndexException("No column definition '%s' for mapper '%s'", column, field);
+            }
+            validate(columnDefinition, column);
         }
-        logger.debug("Mapper validating: name: "+name);
-        ByteBuffer columnName = UTF8Type.instance.decompose(name);
-        ColumnDefinition columnDefinition = metadata.getColumnDefinition(columnName);
-        if (columnDefinition == null) {
-            throw new IndexException("No column definition '%s' for mapper '%s'", column, field);
-        }
-        logger.debug("Mapper validating: name: "+name+ " columnDefinition: "+columnDefinition.toString());
-        validate(columnDefinition, column);
-
     }
 
     private void validate(ColumnDefinition columnDefinition, String column) {
-        logger.debug("Mapper validating CDef column: "+column);
         if (columnDefinition.isStatic()) {
             throw new IndexException("Lucene indexes are not allowed on static columns as '%s'", column);
         }
@@ -201,48 +253,20 @@ public abstract class Mapper {
 
     private void validate(AbstractType<?> type, String column) {
 
-        logger.debug("Mapper validating AbstractType: column: "+column);
-        if (type instanceof UserType) {
-            logger.debug("Mapper validating AbstractType: userType ");
-            UserType userType=(UserType)type;
-            int pointIndex=column.lastIndexOf(".");
-            if (pointIndex==-1) {//there is no leaf node, it is parent node
-                if (!supports(userType)) {
-                    throw new IndexException("'%s' is not supported by mapper '%s'", type, field);
-                }
-            } else {//there is leaf node
-                String leafColumn= column.substring(column.lastIndexOf(".")+1,column.length());
-                logger.debug("Mapper validating AbstractType: userType leafColumnName: "+leafColumn);
-                boolean found=false;
-                for (int i=0;i<userType.fieldNames().size();i++) {
-                    if (userType.fieldNameAsString(i).equals(leafColumn)) {
-                        found=true;
-                        if (!supports(userType.fieldType(i))) {
-                            throw new IndexException("'%s' is not supported by mapper '%s'", userType.fieldType(i), field);
-                        }
-                    }
-                }
-                if (!found) {
-                    throw new IndexException("No column definition '%s' for mapper '%s'", column, field);
-                }
-            }
-        } else {
-            // Check type
-            if (!supports(type)) {
-                throw new IndexException("'%s' is not supported by mapper '%s'", type, field);
-            }
-
-            // Avoid sorting in lists and sets
-            if (type.isCollection() && sorted) {
-                Kind kind = ((CollectionType<?>) type).kind;
-                if (kind == SET) {
-                    throw new IndexException("'%s' can't be sorted because it's a set", column);
-                } else if (kind == LIST) {
-                    throw new IndexException("'%s' can't be sorted because it's a list", column);
-                }
-            }
+        // Check type
+        if (!supports(type)) {
+            throw new IndexException("'%s' is not supported by mapper '%s'", type, field);
         }
 
+        // Avoid sorting in lists and sets
+        if (type.isCollection() && sorted) {
+            Kind kind = ((CollectionType<?>) type).kind;
+            if (kind == SET) {
+                throw new IndexException("'%s' can't be sorted because it's a set", column);
+            } else if (kind == LIST) {
+                throw new IndexException("'%s' can't be sorted because it's a list", column);
+            }
+        }
     }
 
     /**
