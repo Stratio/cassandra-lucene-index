@@ -171,10 +171,7 @@ public class Schema implements Closeable {
      */
     public boolean maps(String column) {
         for (String mappedColumn : mappedColumns) {
-            String name = mappedColumn;
-            if (name.contains(".")) {
-                name = name.substring(0, name.indexOf("."));
-            }
+            String name = mappedColumn.contains(".")?mappedColumn.substring(0, mappedColumn.indexOf(".")):mappedColumn;
             if (column.equals(name)) {
                 return true;
             }

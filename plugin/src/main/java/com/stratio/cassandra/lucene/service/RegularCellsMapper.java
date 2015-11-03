@@ -29,8 +29,9 @@ import org.apache.cassandra.db.composites.CellName;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.CollectionType;
 import org.apache.cassandra.db.marshal.UserType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.cassandra.serializers.CollectionSerializer;
+import org.apache.cassandra.serializers.MapSerializer;
+import org.apache.cassandra.transport.Server;
 
 import java.nio.ByteBuffer;
 
@@ -41,7 +42,6 @@ import java.nio.ByteBuffer;
  */
 public final class RegularCellsMapper {
 
-    private static final Logger logger = LoggerFactory.getLogger(RegularCellsMapper.class);
     /** The column family metadata. */
     private final CFMetaData metadata;
 
@@ -70,11 +70,57 @@ public final class RegularCellsMapper {
         return new RegularCellsMapper(metadata, schema);
     }
 
-    private Columns processUserTypeConstents(ByteBuffer name, AbstractType<?> type) {
+    private Columns processUserTypeContents(String name, ByteBuffer value, UserType userType) {
         Columns columns = new Columns();
+        ByteBuffer[] values = userType.split(value);
+        for (int i = 0; i < userType.fieldNames().size(); i++) {
+            String fieldName = name+"."+userType.fieldNameAsString(i);
+            AbstractType<?> type = userType.fieldType(i);
+            if (type.isCollection()) {
 
+                CollectionType<?> collectionType = (CollectionType<?>) type;
+                switch (collectionType.kind) {
+                    case SET: {
+                        AbstractType<?> nameType = collectionType.nameComparator();
+                        int colSize= CollectionSerializer.readCollectionSize(values[i], Server.CURRENT_VERSION);
+                        for (int j=0;j<colSize;j++) {
+                            columns.add(Column.fromDecomposed(fieldName,CollectionSerializer.readValue(values[i], Server.CURRENT_VERSION), nameType, true));
+                        }
+                        break;
+                    }
+                    case LIST: {
+                        AbstractType<?> valueType = collectionType.valueComparator();
+                        int colSize= CollectionSerializer.readCollectionSize(values[i], Server.CURRENT_VERSION);
+                        for (int j=0;j<colSize;j++) {
+                            columns.add(Column.fromDecomposed(fieldName, CollectionSerializer.readValue(values[i],
+                                                                                                        Server.CURRENT_VERSION), valueType, true));
+                        }
+                        break;
+                    }
+                    case MAP: {
+                        AbstractType<?> keyType = collectionType.nameComparator();
+                        AbstractType<?> valueType = collectionType.valueComparator();
+                        int colSize= MapSerializer.readCollectionSize(values[i], Server.CURRENT_VERSION);
+
+                        for (int j=0;j<colSize;j++) {
+                            ByteBuffer mapKey=MapSerializer.readValue(values[i], Server.CURRENT_VERSION);
+                            ByteBuffer mapValue=MapSerializer.readValue(values[i], Server.CURRENT_VERSION);
+                            String nameSuffix = keyType.compose(mapKey).toString();
+                            columns.add(Column.fromDecomposed(fieldName, nameSuffix, mapValue, valueType, true));
+                        }
+                        break;
+                    }
+                }
+            } else if (type instanceof UserType) {
+                UserType childType= (UserType) type;
+                columns.add(processUserTypeContents(fieldName, values[i], childType));
+            } else {
+                columns.add(Column.fromDecomposed(fieldName, values[i], type, false));
+            }
+        }
         return columns;
     }
+
 
     private Columns process(Cell cell, AbstractType<?> valueType) {
         Columns columns = new Columns();
@@ -86,7 +132,6 @@ public final class RegularCellsMapper {
                 case SET: {
                     AbstractType<?> type = collectionType.nameComparator();
                     ByteBuffer value = cell.name().collectionElement();
-
                     columns.add(Column.fromDecomposed(name, value, type, true));
                     break;
                 }
@@ -105,25 +150,12 @@ public final class RegularCellsMapper {
                 }
             }
         } else if (valueType instanceof UserType) {
-            logger.debug("Is a usertype ");
             UserType userType = (UserType) valueType;
-            ByteBuffer[] values = userType.split(cell.value());
-            for (int i = 0; i < userType.fieldNames().size(); i++) {
-                String fieldName = userType.fieldNameAsString(i);
-                AbstractType<?> type = userType.fieldType(i);
-
-                logger.debug("Is a usertype name: " +
-                             fieldName +
-                             " type:" +
-                             type +
-                             " value: " + type.getString(values[i]));
-
-                columns.add(Column.fromDecomposed(name + "." + fieldName, values[i], type, true));
-            }
+            columns.add(processUserTypeContents(cell.name().cql3ColumnName(metadata).toString(), cell.value(), userType));
         } else {
             columns.add(Column.fromDecomposed(name, cell.value(), valueType, false));
         }
-        logger.debug("RegularCellMapper returnin process cell: "+columns.toString());
+
         return columns;
     }
 
@@ -137,33 +169,29 @@ public final class RegularCellsMapper {
     public Columns columns(ColumnFamily columnFamily) {
 
         Columns columns = new Columns();
-        logger.debug("RegularCellMaper: columns...");
         // Stuff for grouping collection columns (sets, lists and maps)
         String name;
-
         for (Cell cell : columnFamily) {
-            logger.debug("RegularCellMaper: getting columns for cell: "+cell.name().toString());
+
             CellName cellName = cell.name();
             name = cellName.cql3ColumnName(metadata).toString();
+            if (name.length()==0) continue;
 
             if (!schema.maps(name)) {
-                logger.debug("RegularCellMaper: schema doesnot map that name:"+ name);
                 continue;
             }
 
             ColumnDefinition columnDefinition = metadata.getColumnDefinition(cellName);
             if (columnDefinition == null) {
-                logger.debug("RegularCellMaper: there is no columnDefinition ");
                 continue;
             }
 
             AbstractType<?> valueType = columnDefinition.type;
-            logger.debug("RegularCellMaper: cell cql3 name: " + name + " ColumnDefinition Type: " + valueType.toString());
 
             columns.add(process(cell,valueType));
 
         }
-        logger.debug("Columns : "+ columns.toString());
         return columns;
     }
 }
+
