@@ -205,7 +205,7 @@ public abstract class Mapper {
         ByteBuffer parentColName = UTF8Type.instance.decompose(names[0]);
         ColumnDefinition parentCD = metadata.getColumnDefinition(parentColName);
         if (parentCD == null) {
-            throw new IndexException("No column definition '%s' for mapper '%s'", parentColName, field);
+            throw new IndexException("No column definition '%s' for mapper '%s'", names[0], field);
         }
 
         if (parentCD.isStatic()) {
