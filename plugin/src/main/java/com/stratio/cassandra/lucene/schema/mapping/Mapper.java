@@ -147,6 +147,7 @@ public abstract class Mapper {
             } else if (type instanceof SetType) {
                 checkedType = ((SetType<?>) type).getElementsType();
             }
+            return supports(checkedType);
         }
 
         if (type instanceof ReversedType) {
@@ -187,6 +188,19 @@ public abstract class Mapper {
                 if (userType.fieldNameAsString(i).equals(leafName)) {
                     return userType.fieldType(i);
                 }
+            }
+        }
+        if (parent.isCollection()) {
+            CollectionType<?>  collType= (CollectionType<?>) parent;
+            switch (collType.kind) {
+                case SET:
+                    return findChildNode(collType.nameComparator(),leafName);
+                case LIST:
+                    return findChildNode(collType.valueComparator(),leafName);
+                case MAP:
+                    return findChildNode(collType.valueComparator(),leafName);
+                default:
+                    break;
             }
         }
         return null;
@@ -282,7 +296,7 @@ public abstract class Mapper {
                 return false;
             }
             for (Column<?> column : mapperColumns) {
-                if (column.isCollection()) {
+                if (column.isMultiCell()) {
                     return false;
                 }
             }

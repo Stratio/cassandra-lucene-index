@@ -20,6 +20,7 @@ package com.stratio.cassandra.lucene.schema;
 
 import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.IndexException;
+import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 import org.apache.cassandra.config.CFMetaData;
@@ -32,6 +33,7 @@ import java.io.Closeable;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 /**
  * The user-defined mapping from Cassandra columns to Lucene documents.
@@ -102,6 +104,18 @@ public class Schema implements Closeable {
      * @return The {@link Mapper} identified by the specified field name, or {@code null} if not found.
      */
     public Mapper getMapper(String field) {
+
+        //TODO revise this method
+        if (field.contains(Column.mapSeparator)) {
+            String[] components= field.split(Pattern.quote(Column.mapSeparator));
+            if (components.length>1) {
+                Mapper mapper = mappers.get(components[0]);
+                if (mapper != null) {
+                    return mapper;
+                }
+            }
+        }
+
         String[] components = field.split("\\.");
         for (int i = components.length - 1; i >= 0; i--) {
             StringBuilder sb = new StringBuilder();
