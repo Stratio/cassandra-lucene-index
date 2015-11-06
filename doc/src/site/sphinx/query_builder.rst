@@ -36,8 +36,8 @@ And you can also build searches in a similar fashion:
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     Search search = search().filter(match("user", "adelapena"))
-                                .query(phrase("message", "cassandra rules"))
-                                .sort(field("date").reverse(true))
-                                .refresh(true);
+                            .query(phrase("message", "cassandra rules"))
+                            .sort(field("date").reverse(true))
+                            .refresh(true);
     ResultSet rs = session.execute(select().from("table").where(eq(indexColumn, search.build()));
 
