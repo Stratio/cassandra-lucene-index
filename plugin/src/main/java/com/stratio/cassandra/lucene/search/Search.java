@@ -50,7 +50,7 @@ public class Search {
     private final Sort sort;
 
     /** If this search must refresh the index before reading it. */
-    private final boolean refresh;
+    private final Boolean refresh;
 
     /**
      * Returns a new {@link Search} composed by the specified querying and filtering conditions.

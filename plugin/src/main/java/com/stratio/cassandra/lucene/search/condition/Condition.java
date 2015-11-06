@@ -27,9 +27,10 @@ import org.apache.lucene.search.QueryWrapperFilter;
 /**
  * The abstract base class for queries.
  *
- * Known subclasses are: <ul> <li> {@link BooleanCondition} <li> {@link ContainsCondition} <li> {@link FuzzyCondition}
- * <li> {@link MatchCondition} <li> {@link PhraseCondition} <li> {@link PrefixCondition} <li> {@link RangeCondition}
- * <li> {@link WildcardCondition} <li> {@link GeoDistanceCondition} <li> {@link GeoBBoxCondition} </ul>
+ * Known subclasses are: <ul> <li> {@link AllCondition} <li> {@link BitemporalCondition} <li> {@link ContainsCondition}
+ * <li> {@link FuzzyCondition} <li> {@link MatchCondition} <li> {@link PhraseCondition} <li> {@link PrefixCondition}
+ * <li> {@link RangeCondition} <li> {@link WildcardCondition} <li> {@link GeoDistanceCondition}
+ * <li> {@link GeoBBoxCondition} </ul>
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */

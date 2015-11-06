@@ -1,0 +1,86 @@
+/*
+ * Licensed to STRATIO (C) under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.  The STRATIO (C) licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+package com.stratio.cassandra.lucene.builder.search.condition;
+
+import com.stratio.cassandra.lucene.builder.Builder;
+import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.annotate.JsonSubTypes;
+import org.codehaus.jackson.annotate.JsonTypeInfo;
+
+/**
+ * The abstract base class for queries.
+ *
+ * Known subclasses are: <ul> <li> {@link AllCondition} <li> {@link BitemporalCondition} <li> {@link ContainsCondition}
+ * <li> {@link FuzzyCondition} <li> {@link MatchCondition} <li> {@link PhraseCondition} <li> {@link PrefixCondition}
+ * <li> {@link RangeCondition} <li> {@link WildcardCondition} <li> {@link GeoDistanceCondition}
+ * <li> {@link GeoBBoxCondition} </ul>
+ *
+ * @author Andres de la Pena {@literal <adelapena@stratio.com>}
+ */
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+@JsonSubTypes({@JsonSubTypes.Type(value = AllCondition.class, name = "all"),
+               @JsonSubTypes.Type(value = BitemporalCondition.class, name = "bitemporal"),
+               @JsonSubTypes.Type(value = BooleanCondition.class, name = "boolean"),
+               @JsonSubTypes.Type(value = ContainsCondition.class, name = "contains"),
+               @JsonSubTypes.Type(value = DateRangeCondition.class, name = "date_range"),
+               @JsonSubTypes.Type(value = FuzzyCondition.class, name = "fuzzy"),
+               @JsonSubTypes.Type(value = GeoDistanceCondition.class, name = "geo_distance"),
+               @JsonSubTypes.Type(value = GeoBBoxCondition.class, name = "geo_bbox"),
+               @JsonSubTypes.Type(value = LuceneCondition.class, name = "lucene"),
+               @JsonSubTypes.Type(value = MatchCondition.class, name = "match"),
+               @JsonSubTypes.Type(value = NoneCondition.class, name = "none"),
+               @JsonSubTypes.Type(value = PhraseCondition.class, name = "phrase"),
+               @JsonSubTypes.Type(value = PrefixCondition.class, name = "prefix"),
+               @JsonSubTypes.Type(value = RangeCondition.class, name = "range"),
+               @JsonSubTypes.Type(value = RegexpCondition.class, name = "regexp"),
+               @JsonSubTypes.Type(value = WildcardCondition.class, name = "wildcard")})
+public abstract class Condition extends Builder {
+
+    /** The boost for the {@code Condition} to be built. */
+    @JsonProperty("boost")
+    Float boost;
+
+    /**
+     * Sets the boost for the {@code Condition} to be built. Documents matching this condition will (in addition to the
+     * normal weightings) have their score multiplied by {@code boost}. If {@code null}, then {@code
+     * Condition#DEFAULT_BOOST}
+     *
+     * @param boost The boost for the {@code Condition} to be built.
+     * @return This builder with the specified boost.
+     */
+    @SuppressWarnings("unchecked")
+    public Condition boost(float boost) {
+        this.boost = boost;
+        return this;
+    }
+
+    /**
+     * Sets the boost for the {@code Condition} to be built. Documents matching this condition will (in addition to the
+     * normal weightings) have their score multiplied by {@code boost}. If {@code null}, then {@code
+     * Condition#DEFAULT_BOOST}
+     *
+     * @param boost The boost for the {@code Condition} to be built.
+     * @return This builder with the specified boost.
+     */
+    @SuppressWarnings("unchecked")
+    public Condition boost(Number boost) {
+        this.boost = boost == null ? null : boost.floatValue();
+        return this;
+    }
+}
