@@ -37,7 +37,7 @@ public final class Column<T> implements Comparable<Column<?>> {
     /** The column's name suffix used for maps. */
     private final String mapsSuffix;
 
-
+    /** The default mapKeys separator. */
     public static final String mapSeparator="$";
 
     /** The column's value as {@link ByteBuffer}. */
