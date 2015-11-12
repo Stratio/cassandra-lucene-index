@@ -23,7 +23,7 @@ import com.stratio.cassandra.lucene.builder.index.schema.analysis.Analyzer;
 import com.stratio.cassandra.lucene.builder.index.schema.mapping.Mapper;
 import org.codehaus.jackson.annotate.JsonProperty;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -62,7 +62,7 @@ public class Schema extends Builder {
      */
     public Schema analyzer(String name, Analyzer analyzer) {
         if (analyzers == null) {
-            analyzers = new HashMap<>();
+            analyzers = new LinkedHashMap<>();
         }
         analyzers.put(name, analyzer);
         return this;
@@ -77,7 +77,7 @@ public class Schema extends Builder {
      */
     public Schema mapper(String field, Mapper mapper) {
         if (mappers == null) {
-            mappers = new HashMap<>();
+            mappers = new LinkedHashMap<>();
         }
         mappers.put(field, mapper);
         return this;

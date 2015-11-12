@@ -125,7 +125,7 @@ public class BooleanTest extends AbstractSearchTest {
     }
 
     @Test
-    public void booleanQueruWithBoostTest() {
+    public void booleanQueryWithBoostTest() {
 
         List<Row> rows1 = query(bool().must(fuzzy("inet_1", "127.1.1.1").boost(9.9))
                                             .must(fuzzy("inet_1", "127.1.0.1").boost(0.001))
