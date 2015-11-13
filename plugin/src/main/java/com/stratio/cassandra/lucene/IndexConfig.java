@@ -23,7 +23,7 @@ import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.SchemaBuilder;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
-import org.apache.cassandra.config.DatabaseDescriptor;
+import org.apache.cassandra.db.Directories;
 import org.apache.lucene.analysis.Analyzer;
 
 import java.io.File;
@@ -321,16 +321,9 @@ public class IndexConfig {
     private void parsePath() {
         String pathOption = options.get(DIRECTORY_PATH_OPTION);
         if (pathOption == null) {
-            String pathString = DatabaseDescriptor.getAllDataFileLocations()[0] +
-                                File.separatorChar +
-                                metadata.ksName +
-                                File.separatorChar +
-                                metadata.cfName +
-                                "-" +
-                                metadata.cfId +
-                                File.separatorChar +
-                                INDEXES_DIR_NAME;
-            path = Paths.get(pathString);
+            Directories directories = new Directories(metadata);
+            String basePath = directories.getDirectoryForNewSSTables().getAbsolutePath();
+            path = Paths.get(basePath + File.separator + INDEXES_DIR_NAME);
         } else {
             path = Paths.get(pathOption);
         }

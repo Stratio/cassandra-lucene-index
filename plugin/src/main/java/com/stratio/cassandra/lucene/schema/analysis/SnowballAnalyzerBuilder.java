@@ -64,7 +64,7 @@ public class SnowballAnalyzerBuilder extends AnalyzerBuilder {
                                    @JsonProperty("stopwords") String stopwords) {
 
         // Check language
-        if (language == null || StringUtils.isBlank(language)) {
+        if (StringUtils.isBlank(language)) {
             throw new IndexException("Language must be specified");
         }
 

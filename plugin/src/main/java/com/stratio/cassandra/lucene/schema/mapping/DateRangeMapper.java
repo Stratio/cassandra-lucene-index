@@ -37,7 +37,7 @@ import java.util.Arrays;
 import java.util.Date;
 
 /**
- * A {@link Mapper} to map 1-dimensional ranges of dates.
+ * A {@link Mapper} to map 1-dimensional date ranges.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */

@@ -170,7 +170,7 @@ Now, to search for tweets within a certain date range:
 .. code-block:: sql
 
     SELECT * FROM tweets WHERE lucene='{
-        filter : {type:"range", field:"time", lower:"2014/04/25", upper:"2014/05/1"}
+        filter : {type:"range", field:"time", lower:"2014/04/25", upper:"2014/05/01"}
     }' limit 100;
 
 The same search can be performed forcing an explicit refresh of the involved index shards:
@@ -178,7 +178,7 @@ The same search can be performed forcing an explicit refresh of the involved ind
 .. code-block:: sql
 
     SELECT * FROM tweets WHERE lucene='{
-        filter : {type:"range", field:"time", lower:"2014/04/25", upper:"2014/05/1"},
+        filter : {type:"range", field:"time", lower:"2014/04/25", upper:"2014/05/01"},
         refresh : true
     }' limit 100;
 
@@ -188,7 +188,7 @@ within the aforementioned date range:
 .. code-block:: sql
 
     SELECT * FROM tweets WHERE lucene='{
-        filter : {type:"range", field:"time", lower:"2014/04/25", upper:"2014/05/1"},
+        filter : {type:"range", field:"time", lower:"2014/04/25", upper:"2014/05/01"},
         query  : {type:"phrase", field:"body", value:"big data gives organizations", slop:1}
     }' limit 100;
 
@@ -198,7 +198,7 @@ To refine the search to get only the tweets written by users whose name starts w
 
     SELECT * FROM tweets WHERE lucene='{
         filter : {type:"boolean", must:[
-                       {type:"range", field:"time", lower:"2014/04/25", upper:"2014/05/1"},
+                       {type:"range", field:"time", lower:"2014/04/25", upper:"2014/05/01"},
                        {type:"prefix", field:"user", value:"a"} ] },
         query  : {type:"phrase", field:"body", value:"big data gives organizations", slop:1}
     }' limit 100;
@@ -209,7 +209,7 @@ To get the 100 more recent filtered results you can use the *sort* option:
 
     SELECT * FROM tweets WHERE lucene='{
         filter : {type:"boolean", must:[
-                       {type:"range", field:"time", lower:"2014/04/25", upper:"2014/05/1"},
+                       {type:"range", field:"time", lower:"2014/04/25", upper:"2014/05/01"},
                        {type:"prefix", field:"user", value:"a"} ] },
         query  : {type:"phrase", field:"body", value:"big data gives organizations", slop:1},
         sort   : {fields: [ {field:"time", reverse:true} ] }
@@ -221,7 +221,7 @@ The previous search can be restricted to a geographical bounding box:
 
     SELECT * FROM tweets WHERE lucene='{
         filter : {type:"boolean", must:[
-                       {type:"range", field:"time", lower:"2014/04/25", upper:"2014/05/1"},
+                       {type:"range", field:"time", lower:"2014/04/25", upper:"2014/05/01"},
                        {type:"prefix", field:"user", value:"a"},
                        {type:"geo_bbox",
                         field:"place",
@@ -240,7 +240,7 @@ position:
 
     SELECT * FROM tweets WHERE lucene='{
         filter : {type:"boolean", must:[
-                       {type:"range", field:"time", lower:"2014/04/25", upper:"2014/05/1"},
+                       {type:"range", field:"time", lower:"2014/04/25", upper:"2014/05/01"},
                        {type:"prefix", field:"user", value:"a"},
                        {type:"geo_distance",
                         field:"place",

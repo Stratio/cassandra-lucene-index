@@ -7,6 +7,7 @@ Stratio's Cassandra Lucene Index
     overview
     indexing
     searching
+    query_builder
     spark_and_hadoop
     jmx_interface
     performance_tips
