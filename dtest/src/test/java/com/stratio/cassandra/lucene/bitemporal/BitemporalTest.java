@@ -34,7 +34,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 import static com.stratio.cassandra.lucene.builder.Builder.bitemporal;
@@ -348,12 +347,7 @@ public class BitemporalTest extends BaseTest {
     }
 
     private void tearDown(CassandraUtils cu) {
-        cu.dropIndex()
-
-          .dropTable()
-
-          .dropKeyspace();
-
+        cu.dropIndex().dropTable().dropKeyspace();
     }
 
 
@@ -466,7 +460,7 @@ public class BitemporalTest extends BaseTest {
               .value("tt_to", 9223372036854775807l);
 
         batch.add(insert);
-        ResultSet result = cu.getSession().execute(batch);
+        ResultSet result = cu.execute(batch);
 
         assertTrue("batch execution didnt worked", result.wasApplied());
 

@@ -31,26 +31,26 @@ public class BaseTest {
 
     public static final Logger logger = LoggerFactory.getLogger("TEST");
 
-    @Rule
-    public TestWatchman watcher = new TestWatchman() {
-
-        long startTime;
-
-        @Override
-        public void succeeded(FrameworkMethod method) {
-            long time = System.currentTimeMillis() - startTime;
-            logger.info(String.format("Test %s succeeded in %d ms", method.getName(), time));
-        }
-
-        @Override
-        public void failed(Throwable e, FrameworkMethod method) {
-            long time = System.currentTimeMillis() - startTime;
-            logger.info(String.format("Test %s failed in %d ms", method.getName(), time));
-        }
-
-        @Override
-        public void starting(FrameworkMethod method) {
-            startTime = System.currentTimeMillis();
-        }
-    };
+//    @Rule
+//    public TestWatchman watcher = new TestWatchman() {
+//
+//        long startTime;
+//
+//        @Override
+//        public void succeeded(FrameworkMethod method) {
+//            long time = System.currentTimeMillis() - startTime;
+//            logger.info(String.format("Test %s succeeded in %d ms", method.getName(), time));
+//        }
+//
+//        @Override
+//        public void failed(Throwable e, FrameworkMethod method) {
+//            long time = System.currentTimeMillis() - startTime;
+//            logger.info(String.format("Test %s failed in %d ms", method.getName(), time));
+//        }
+//
+//        @Override
+//        public void starting(FrameworkMethod method) {
+//            startTime = System.currentTimeMillis();
+//        }
+//    };
 }

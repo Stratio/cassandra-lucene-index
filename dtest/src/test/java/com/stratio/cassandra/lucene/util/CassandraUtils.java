@@ -32,9 +32,10 @@ import org.slf4j.Logger;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import static com.datastax.driver.core.querybuilder.QueryBuilder.eq;
-import static com.stratio.cassandra.lucene.TestingConstants.*;
+import static com.stratio.cassandra.lucene.util.CassandraConfig.*;
 import static com.stratio.cassandra.lucene.builder.Builder.*;
 
 /**
@@ -44,74 +45,42 @@ public class CassandraUtils {
 
     protected static final Logger logger = BaseTest.logger;
 
-    private static Session session;
+    private Session session;
 
-    private final ConsistencyLevel consistencyLevel;
     private final String keyspace;
     private final String table;
     private final String index;
-    private final Integer fetchSize;
     private final String qualifiedTable;
     private final Map<String, String> columns;
     private final Map<String, Mapper> mappers;
     private final List<String> partitionKey;
     private final List<String> clusteringKey;
     private final String indexColumn;
-    private final String replicationFactor;
 
     public static CassandraUtilsBuilder builder(String name) {
         return new CassandraUtilsBuilder(name);
     }
 
-    public CassandraUtils(String host,
-                          String keyspace,
+    public CassandraUtils(String keyspace,
                           String table,
                           String index,
-                          Integer fetchSize,
                           Map<String, String> columns,
                           Map<String, Mapper> mappers,
                           List<String> partitionKey,
                           List<String> clusteringKey,
                           String indexColumn) {
 
-        String consistencyLevelString = System.getProperty(CONSISTENCY_LEVEL_CONSTANT_NAME);
-
-        if (consistencyLevelString == null) {
-            consistencyLevelString = DEFAULT_CONSISTENCY_LEVEL;
-        }
-
-        consistencyLevel = ConsistencyLevel.valueOf(consistencyLevelString);
-
-        prepareSession(host, consistencyLevel);
-
-        String replicationFactorString = System.getProperty(REPLICATION_FACTOR_CONSTANT_NAME);
-
-        if (replicationFactorString == null || Integer.parseInt(replicationFactorString) < 1) {
-            replicationFactorString = DEFAULT_REPLICATION_FACTOR;
-        }
-
-        this.replicationFactor = replicationFactorString;
+        session = CassandraConnection.session;
 
         this.keyspace = keyspace;
         this.table = table;
         this.index = index;
-        this.fetchSize = fetchSize;
         this.columns = columns;
         this.mappers = mappers;
         this.partitionKey = partitionKey;
         this.clusteringKey = clusteringKey;
         this.indexColumn = indexColumn;
         qualifiedTable = keyspace + "." + table;
-    }
-
-    public static synchronized void prepareSession(String host,ConsistencyLevel consistencyLevel) {
-        if (session == null) {
-            Cluster cluster = Cluster.builder().addContactPoint(host).build();
-            cluster.getConfiguration().getQueryOptions().setConsistencyLevel(consistencyLevel);
-            cluster.getConfiguration().getQueryOptions().setFetchSize(Integer.MAX_VALUE);
-            cluster.getConfiguration().getSocketOptions().setReadTimeoutMillis(600000);
-            session = cluster.connect();
-        }
     }
 
     public String getKeyspace() {
@@ -126,47 +95,19 @@ public class CassandraUtils {
         return indexColumn;
     }
 
-    public Integer getFetchSize() {
-        return fetchSize;
+    public ResultSet execute(Statement statement) {
+        return CassandraConnection.execute(statement);
     }
 
-    protected List<Row> execute(StringBuilder sb) {
-        return execute(sb.toString(), fetchSize).all();
-    }
-
-    protected List<Row> execute(StringBuilder sb, int fetchSize) {
-        return execute(sb.toString(), fetchSize).all();
-    }
-
-    protected List<Row> execute(Statement statement) {
-        return execute(statement.toString(), fetchSize).all();
-    }
-
-    protected List<Row> execute(Statement statement, int fetchSize) {
-        return execute(statement.toString(), fetchSize).all();
-    }
-
-    public List<Row> execute(String query) {
-        return execute(query, fetchSize).all();
-    }
-
-    public ResultSet executeQuery(String query) {
-        return execute(query, fetchSize);
-    }
-
-    protected ResultSet execute(String query, int fetchSize) {
+    ResultSet execute(String query) {
         if (!query.endsWith(";")) {
             query += ";";
         }
-        logger.debug("CQL: " + query);
-        Statement statement = new SimpleStatement(query);
-        statement.setFetchSize(fetchSize).setConsistencyLevel(consistencyLevel);
-        return session.execute(statement);
+        return execute(new SimpleStatement(query));
     }
 
-
-    public Session getSession() {
-        return session;
+    ResultSet execute(StringBuilder query) {
+        return  execute(query.toString());
     }
 
     public CassandraUtils waitForIndexing() {
@@ -174,7 +115,7 @@ public class CassandraUtils {
         // Waiting for the custom index to be refreshed
         logger.debug("Waiting for the index to be created...");
         try {
-            Thread.sleep(INDEX_WAIT_MILLISECONDS);
+            TimeUnit.SECONDS.sleep(WAIT_FOR_INDEXING);
         } catch (InterruptedException e) {
             logger.error("Interruption caught during a Thread.sleep; index might be unstable");
         }
@@ -196,7 +137,7 @@ public class CassandraUtils {
                                    .append(keyspace)
                                    .append(" with replication = ")
                                    .append("{'class' : 'SimpleStrategy', 'replication_factor' : '")
-                                   .append(replicationFactor)
+                                   .append(REPLICATION)
                                    .append("' };"));
         return this;
     }
@@ -236,8 +177,8 @@ public class CassandraUtils {
 
     public CassandraUtils createIndex() {
         Index index = index(keyspace, table, indexColumn).name(this.index)
-                                                         .refreshSeconds(INDEX_REFRESH_SECONDS)
-                                                         .indexingThreads(INDEXING_THREADS);
+                                                         .refreshSeconds(REFRESH)
+                                                         .indexingThreads(THREADS);
         for (Map.Entry<String, Mapper> entry : mappers.entrySet()) {
             index.mapper(entry.getKey(), entry.getValue());
         }
@@ -261,8 +202,7 @@ public class CassandraUtils {
                                    .where(eq(indexColumn, search.build()))
                                    .and(eq(name, value))
                                    .limit(limit)
-                                   .allowFiltering()
-                                   .setConsistencyLevel(consistencyLevel));
+                                   .allowFiltering()).all();
     }
 
     @SafeVarargs

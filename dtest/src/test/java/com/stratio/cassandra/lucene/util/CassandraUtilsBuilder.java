@@ -23,7 +23,8 @@ import com.stratio.cassandra.lucene.builder.index.schema.mapping.SingleColumnMap
 
 import java.util.*;
 
-import static com.stratio.cassandra.lucene.TestingConstants.*;
+
+import static com.stratio.cassandra.lucene.util.CassandraConfig.*;
 import static com.stratio.cassandra.lucene.builder.Builder.*;
 
 /**
@@ -32,15 +33,13 @@ import static com.stratio.cassandra.lucene.builder.Builder.*;
 public class CassandraUtilsBuilder {
 
     private final String name;
-    private String host = CASSANDRA_LOCALHOST_CONSTANT;
-    private String table = TABLE_NAME_CONSTANT;
-    private String index = INDEX_NAME_CONSTANT;
-    private Integer fetchSize = FETCH_SIZE;
+    private String table = TABLE;
+    private String index = INDEX;
+    private String column = COLUMN;
     private Map<String, String> columns;
     private Map<String, Mapper> mappers;
     private List<String> partitionKey;
     private List<String> clusteringKey;
-    private String indexColumn = INDEX_COLUMN_CONSTANT;
 
     CassandraUtilsBuilder(String name) {
         super();
@@ -49,11 +48,6 @@ public class CassandraUtilsBuilder {
         this.mappers = new HashMap<>();
         this.partitionKey = new ArrayList<>();
         this.clusteringKey = new ArrayList<>();
-    }
-
-    public CassandraUtilsBuilder withHost(String host) {
-        this.host = host;
-        return this;
     }
 
     public CassandraUtilsBuilder withTable(String table) {
@@ -67,12 +61,7 @@ public class CassandraUtilsBuilder {
     }
 
     public CassandraUtilsBuilder withIndexColumn(String indexColumn) {
-        this.indexColumn = indexColumn;
-        return this;
-    }
-
-    public CassandraUtilsBuilder withFetchSize(Integer fetchSize) {
-        this.fetchSize = fetchSize;
+        this.column = indexColumn;
         return this;
     }
 
@@ -151,15 +140,13 @@ public class CassandraUtilsBuilder {
 
     public CassandraUtils build() {
         String keyspace = name + "_" + Math.abs(new Random().nextLong());
-        return new CassandraUtils(host,
-                                  keyspace,
+        return new CassandraUtils(keyspace,
                                   table,
                                   index,
-                                  fetchSize,
                                   columns,
                                   mappers,
                                   partitionKey,
                                   clusteringKey,
-                                  indexColumn);
+                                  column);
     }
 }

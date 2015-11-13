@@ -116,6 +116,8 @@
                                 <goal>verify</goal>
                             </goals>
                             <configuration>
+                                <parallel>suites</parallel>
+                                <threadCountSuites>4</threadCountSuites>
                                 <includes>
                                     <include>**/AllSuite.java</include>
                                 </includes>

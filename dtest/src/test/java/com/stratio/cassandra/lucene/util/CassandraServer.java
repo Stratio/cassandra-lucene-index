@@ -3,8 +3,6 @@ package com.stratio.cassandra.lucene.util;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import com.google.common.io.Resources;
-import org.apache.cassandra.config.DatabaseDescriptor;
-import org.apache.cassandra.db.commitlog.CommitLog;
 import org.apache.cassandra.exceptions.ConfigurationException;
 import org.apache.cassandra.io.util.FileUtils;
 import org.apache.cassandra.service.CassandraDaemon;
@@ -23,10 +21,13 @@ import java.util.concurrent.TimeUnit;
  */
 public class CassandraServer {
 
-    private static Logger log = LoggerFactory.getLogger(CassandraServer.class);
+    private static final Logger log = LoggerFactory.getLogger("TEST");
+    private static final int START_SLEEP_TIME = 40;
 
     private final String yamlFilePath;
-    static CassandraDaemon cassandraDaemon;
+    private CassandraDaemon cassandraDaemon;
+    private File dir;
+    private ExecutorService executor = Executors.newSingleThreadExecutor();
 
     public CassandraServer() {
         this("/cassandra.yaml");
@@ -35,8 +36,6 @@ public class CassandraServer {
     public CassandraServer(String yamlFile) {
         this.yamlFilePath = yamlFile;
     }
-
-    static ExecutorService executor = Executors.newSingleThreadExecutor();
 
     /**
      * Set embedded cassandra up and spawn it in a new thread.
@@ -49,7 +48,7 @@ public class CassandraServer {
                                InterruptedException, ConfigurationException {
 
         // Create temp dir to store data
-        File dir = Files.createTempDir();
+        dir = Files.createTempDir();
         String dirPath = dir.getAbsolutePath();
         log.info("Storing Cassandra files in " + dirPath);
 
@@ -68,34 +67,24 @@ public class CassandraServer {
         System.setProperty("log4j.configuration", "file:" + dirPath + "/logback.xml");
         System.setProperty("cassandra-foreground", "true");
 
-        cleanupAndLeaveDirs();
-        log.info("Starting executor");
-
         executor.execute(new CassandraRunner());
-        log.info("Started executor");
         try {
-            log.info("Sleeping while Cassandra starts --------------------------------------");
-            TimeUnit.SECONDS.sleep(30);
-            log.info("Done sleeping --------------------------------------------------------");
+            log.info(String.format("Waiting %d seconds while embedded Cassandra server starts", START_SLEEP_TIME));
+            TimeUnit.SECONDS.sleep(CassandraConfig.WAIT_FOR_SERVER);
+            log.info("Waiting for embedded Cassandra server is finished");
         } catch (InterruptedException e) {
             throw new AssertionError(e);
         }
     }
 
 
-    public static void teardown() {
+    public void teardown() {
         //if ( cassandraDaemon != null )
         //cassandraDaemon.stop();
         executor.shutdown();
         executor.shutdownNow();
+        FileUtils.deleteRecursive(dir);
         log.info("Teardown complete");
-    }
-
-    private static void rmdir(String dir) throws IOException {
-        File dirFile = new File(dir);
-        if (dirFile.exists()) {
-            FileUtils.deleteRecursive(new File(dir));
-        }
     }
 
     /**
@@ -129,39 +118,6 @@ public class CassandraServer {
      */
     private static void mkdir(String dir) throws IOException {
         FileUtils.createDirectory(dir);
-    }
-
-
-    private static void cleanupAndLeaveDirs() throws IOException {
-        mkdirs();
-        cleanup();
-        mkdirs();
-        CommitLog.instance.resetUnsafe(); // cleanup screws w/ CommitLog, this brings it back to safe state
-    }
-
-    public static void cleanup() throws IOException {
-        // clean up commitlog
-        String[] directoryNames = {DatabaseDescriptor.getCommitLogLocation(),};
-        for (String dirName : directoryNames) {
-            File dir = new File(dirName);
-            if (!dir.exists()) {
-                throw new RuntimeException("No such directory: " + dir.getAbsolutePath());
-            }
-            FileUtils.deleteRecursive(dir);
-        }
-
-        // clean up data directory which are stored as data directory/table/data files
-        for (String dirName : DatabaseDescriptor.getAllDataFileLocations()) {
-            File dir = new File(dirName);
-            if (!dir.exists()) {
-                throw new RuntimeException("No such directory: " + dir.getAbsolutePath());
-            }
-            FileUtils.deleteRecursive(dir);
-        }
-    }
-
-    private static void mkdirs() {
-        DatabaseDescriptor.createAllDirectories();
     }
 
 

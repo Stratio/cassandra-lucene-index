@@ -18,16 +18,12 @@
 
 package com.stratio.cassandra.lucene.suite;
 
-import com.stratio.cassandra.lucene.util.CassandraServer;
-import org.apache.cassandra.exceptions.ConfigurationException;
-import org.apache.thrift.transport.TTransportException;
+import com.stratio.cassandra.lucene.util.CassandraConnection;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
-
-import java.io.IOException;
 
 @RunWith(Suite.class)
 @SuiteClasses({SearchSuite.class,
@@ -39,30 +35,14 @@ import java.io.IOException;
                IssuesSuite.class})
 public class AllSuite {
 
-    private static CassandraServer cassandraServer;
-
     @BeforeClass
     public static void before() {
-        if (cassandraServer == null) {
-            try {
-                cassandraServer = new CassandraServer();
-                cassandraServer.setup();
-            } catch (IOException | ConfigurationException | TTransportException | InterruptedException e) {
-                throw new RuntimeException("Error while starting Cassandra server", e);
-            }
-        }
+        CassandraConnection.start();
     }
 
     @AfterClass
     public static void after() {
-        if (cassandraServer != null) {
-            try {
-                CassandraServer.cleanup();
-                CassandraServer.teardown();
-            } catch (IOException e) {
-                throw new RuntimeException("Error while stopping Cassandra server", e);
-            }
-        }
+        CassandraConnection.stop();
     }
 
 }

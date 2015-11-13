@@ -19,7 +19,8 @@
 package com.stratio.cassandra.lucene.util;
 
 import com.datastax.driver.core.Row;
-import com.datastax.driver.core.querybuilder.BuiltStatement;
+import com.datastax.driver.core.SimpleStatement;
+import com.datastax.driver.core.Statement;
 import com.datastax.driver.core.querybuilder.Clause;
 import com.datastax.driver.core.querybuilder.QueryBuilder;
 import com.datastax.driver.core.querybuilder.Select;
@@ -51,7 +52,6 @@ public class CassandraUtilsSelect {
         this.parent = parent;
         clauses = new LinkedList<>();
         extras = new LinkedList<>();
-        fetchSize = parent.getFetchSize();
     }
 
     public CassandraUtilsSelect andEq(String name, Object value) {
@@ -139,7 +139,7 @@ public class CassandraUtilsSelect {
         if (search != null) {
             where.and(eq(parent.getIndexColumn(), search.refresh(refresh).build()));
         }
-        BuiltStatement statement = limit == null ? where : where.limit(limit);
+        Statement statement = limit == null ? where : where.limit(limit);
 
         String query = statement.toString();
         query = query.substring(0, query.length() - 1);
@@ -149,7 +149,11 @@ public class CassandraUtilsSelect {
             sb.append(extra);
             sb.append(" ");
         }
-        return parent.execute(sb, fetchSize);
+        statement = new SimpleStatement(sb.toString());
+        if (fetchSize != null) {
+            statement.setFetchSize(fetchSize);
+        }
+        return parent.execute(statement).all();
     }
 
     public Row getFirst() {
