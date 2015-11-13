@@ -22,6 +22,7 @@ import com.google.common.base.Objects;
 import org.apache.cassandra.db.marshal.AbstractType;
 
 import java.nio.ByteBuffer;
+import java.util.regex.Pattern;
 
 /**
  * A cell of a CQL3 logic {@link Column}, which in most cases is different from a storage engine column.
@@ -75,6 +76,14 @@ public final class Column<T> implements Comparable<Column<?>> {
         this.isMultiCell = isMultiCell;
     }
 
+    public static String separateMapKeys(String input) {
+        if (input.contains(Column.mapSeparator)) {
+            String[] components = input.split(Pattern.quote(Column.mapSeparator));
+            return components[0];
+        } else {
+            return input;
+        }
+    }
     /**
      * Returns the column name.
      *

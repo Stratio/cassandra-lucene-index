@@ -112,28 +112,13 @@ public class SchemaAnalyzer extends DelegatingAnalyzerWrapper {
         if (StringUtils.isBlank(fieldName)) {
             throw new IllegalArgumentException("Not empty analyzer name required");
         }
-        String name;
-        if (fieldName.contains(Column.mapSeparator)) {
-            String[] components = fieldName.split(Pattern.quote(Column.mapSeparator));
-            name = components[0];
-        } else {
-            name=fieldName;
-        }
-
+        String name=Column.separateMapKeys(fieldName);
         TokenLengthAnalyzer analyzer = fieldAnalyzers.get(name);
         if (analyzer != null) {
             return analyzer;
         } else {
-            String name2;
-
-            if (fieldName.contains(Column.mapSeparator)) {
-                String[] components = fieldName.split(Pattern.quote(Column.mapSeparator));
-                name2 = components[0];
-            } else {
-                name2=fieldName;
-            }
             for (Map.Entry<String, TokenLengthAnalyzer> entry : fieldAnalyzers.entrySet()) {
-                if (name2.startsWith(entry.getKey() + ".")) {
+                if (name.startsWith(entry.getKey() + ".")) {
                     return entry.getValue();
                 }
             }
