@@ -87,7 +87,6 @@ public class BitemporalCondition extends SingleMapperCondition<BitemporalMapper>
 
         BooleanQuery.Builder builder = new BooleanQuery.Builder();
 
-
         if (!((vtFromTime.equals(0L)) && (vtToTime.equals(Long.MAX_VALUE)))) {
 
             BooleanQuery.Builder validBuilder = new BooleanQuery.Builder();

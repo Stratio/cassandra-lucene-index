@@ -54,16 +54,16 @@ public class BitemporalMapper extends Mapper {
     private final DateParser dateParser;
 
     /** The lucene Field suffix for vt_from */
-    public static final String VT_FROM_FIELD_SUFFIX=".vtFrom";
+    public static final String VT_FROM_FIELD_SUFFIX = ".vtFrom";
 
     /** The lucene Field suffix for vt_to */
-    public static final String VT_TO_FIELD_SUFFIX=".vtTo";
+    public static final String VT_TO_FIELD_SUFFIX = ".vtTo";
 
     /** The lucene Field suffix for tt_from */
-    public static final String TT_FROM_FIELD_SUFFIX=".ttFrom";
+    public static final String TT_FROM_FIELD_SUFFIX = ".ttFrom";
 
     /** The lucene Field suffix for tt_to */
-    public static final String TT_TO_FIELD_SUFFIX=".ttTo";
+    public static final String TT_TO_FIELD_SUFFIX = ".ttTo";
 
     /** The name of the column containing the valid time start. **/
     public final String vtFrom;
