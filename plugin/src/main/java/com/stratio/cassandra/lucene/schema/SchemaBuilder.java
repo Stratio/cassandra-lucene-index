@@ -30,7 +30,7 @@ import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -54,8 +54,12 @@ public class SchemaBuilder {
                   @JsonProperty("analyzers") Map<String, AnalyzerBuilder> analyzerBuilders,
                   @JsonProperty("fields") Map<String, MapperBuilder<?>> mapperBuilders) {
         this.defaultAnalyzerName = defaultAnalyzerName;
-        this.analyzerBuilders = analyzerBuilders != null ? analyzerBuilders : new HashMap<String, AnalyzerBuilder>();
-        this.mapperBuilders = mapperBuilders != null ? mapperBuilders : new HashMap<String, MapperBuilder<?>>();
+        this.analyzerBuilders = analyzerBuilders != null
+                                ? analyzerBuilders
+                                : new LinkedHashMap<String, AnalyzerBuilder>();
+        this.mapperBuilders = mapperBuilders != null
+                              ? mapperBuilders
+                              : new LinkedHashMap<String, MapperBuilder<?>>();
     }
 
     /**
@@ -100,7 +104,7 @@ public class SchemaBuilder {
      */
     public Schema build() {
 
-        Map<String, Mapper> mappers = new HashMap<>(mapperBuilders.size());
+        Map<String, Mapper> mappers = new LinkedHashMap<>(mapperBuilders.size());
         for (Map.Entry<String, MapperBuilder<?>> entry : mapperBuilders.entrySet()) {
             String name = entry.getKey();
             MapperBuilder<?> builder = entry.getValue();
@@ -108,7 +112,7 @@ public class SchemaBuilder {
             mappers.put(name, mapper);
         }
 
-        Map<String, Analyzer> analyzers = new HashMap<>();
+        Map<String, Analyzer> analyzers = new LinkedHashMap<>();
         for (Map.Entry<String, AnalyzerBuilder> entry : analyzerBuilders.entrySet()) {
             String name = entry.getKey();
             Analyzer analyzer = entry.getValue().analyzer();

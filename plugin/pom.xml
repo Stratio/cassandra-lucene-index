@@ -27,7 +27,6 @@
         <groupId>com.stratio.cassandra</groupId>
         <artifactId>cassandra-lucene-index-parent</artifactId>
         <version>2.2.3.0-SNAPSHOT</version>
-
     </parent>
 
     <packaging>jar</packaging>
@@ -101,21 +100,21 @@
     </build>
 
     <profiles>
-    	<profile>
+        <profile>
             <id>package</id>
             <build>
                 <plugins>
-                  <plugin>
+                    <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>build-helper-maven-plugin</artifactId>
                         <version>1.9.1</version>
                         <executions>
-                          <execution>
-                            <id>parse-version</id>
-                            <goals>
-                              <goal>parse-version</goal>
-                            </goals>
-                          </execution>
+                            <execution>
+                                <id>parse-version</id>
+                                <goals>
+                                    <goal>parse-version</goal>
+                                </goals>
+                            </execution>
                         </executions>
                     </plugin>
                     <plugin>
@@ -125,24 +124,28 @@
                         <extensions>true</extensions>
                         <inherited>false</inherited>
                         <configuration>
-                        	<outputFileName>stratio-cassandra-lucene-index</outputFileName>
+                            <outputFileName>stratio-cassandra-lucene-index</outputFileName>
                             <contact>
                                 <![CDATA[Stratio Cassandra<cassandra@stratio.com>]]>
                             </contact>
                             <contactEmail>cassandra@stratio.com</contactEmail>
                             <deb>
                                 <section>devel</section>
-                                <preDepends>stratio-cassandra (= ${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion})</preDepends>
+                                <preDepends>stratio-cassandra (=
+                                    ${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion})
+                                </preDepends>
                             </deb>
                             <rpm>
                                 <group>stratio</group>
-                                <requires>stratio-cassandra = ${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}</requires>
+                                <requires>stratio-cassandra =
+                                    ${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}
+                                </requires>
                             </rpm>
                             <name>Stratio Cassandra Lucene index</name>
-                            <excludeDirectoryAttributes>                               
-                                <dir>/opt</dir>                                
+                            <excludeDirectoryAttributes>
+                                <dir>/opt</dir>
                             </excludeDirectoryAttributes>
-                            <assembly>                                
+                            <assembly>
                                 <copyFile>
                                     <path>target/${project.build.finalName}.jar</path>
                                     <toFile>/opt/sds/cassandra/lib/${project.build.finalName}.jar</toFile>
