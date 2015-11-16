@@ -19,7 +19,7 @@ Stratio's Cassandra Lucene Index
         - `Date Mapper <#date-mapper>`__
         - `DateRange Mapper <#daterange-mapper>`__
         - `Double Mapper <#double-mapper>`__
-        - `Float Mapper <#float-mapper >`__
+        - `Float Mapper <#float-mapper>`__
         - `GeoPoint Mapper <#geopoint-mapper>`__
         - `Inet Mapper <#inet-mapper>`__
         - `Integer Mapper <#integer-mapper>`__
