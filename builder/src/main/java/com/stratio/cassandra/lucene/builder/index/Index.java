@@ -44,57 +44,123 @@ public class Index extends Builder {
     private Integer indexingQueuesSize;
     private String excludedDataCenters;
 
+    /**
+     * Builds a new {@link Index} creation statement for the specified table and column.
+     *
+     * @param table  The table name.
+     * @param column THe indexed column name.
+     */
     public Index(String table, String column) {
         this.schema = new Schema();
         this.table = table;
         this.column = column;
     }
 
+    /**
+     * Sets the name keyspace name.
+     *
+     * @param keyspace The keyspace name.
+     * @return This.
+     */
     public Index keyspace(String keyspace) {
         this.keyspace = keyspace;
         return this;
     }
 
+    /**
+     * Sets the name of the indexed column.
+     *
+     * @param name The name of the indexed column.
+     * @return This.
+     */
     public Index name(String name) {
         this.name = name;
         return this;
     }
 
+    /**
+     * Sets the index searcher refresh period.
+     *
+     * @param refreshSeconds The refresh seconds.
+     * @return This.
+     */
     public Index refreshSeconds(Number refreshSeconds) {
         this.refreshSeconds = refreshSeconds;
         return this;
     }
 
+    /**
+     * Sets the path of the Lucene directory files.
+     *
+     * @param directoryPath The path of the Lucene directory files.
+     * @return This.
+     */
     public Index directoryPath(String directoryPath) {
         this.directoryPath = directoryPath;
         return this;
     }
 
+    /**
+     * Sets the Lucene's RAM buffer size in MBs.
+     *
+     * @param ramBufferMb The Lucene's RAM buffer size in MBs.
+     * @return This.
+     */
     public Index ramBufferMb(Integer ramBufferMb) {
         this.ramBufferMb = ramBufferMb;
         return this;
     }
 
+    /**
+     * Sets the Lucene's max merge MBs.
+     *
+     * @param maxMergeMb The Lucene's max merge MBs.
+     * @return This.
+     */
     public Index maxMergeMb(Integer maxMergeMb) {
         this.maxMergeMb = maxMergeMb;
         return this;
     }
 
+    /**
+     * Sets the Lucene's max cached MBs.
+     *
+     * @param maxCachedMb The Lucene's max cached MBs.
+     * @return This.
+     */
     public Index maxCachedMb(Integer maxCachedMb) {
         this.maxCachedMb = maxCachedMb;
         return this;
     }
 
+    /**
+     * Sets the number of asynchronous indexing threads, where {@code 0} means synchronous indexing.
+     *
+     * @param indexingThreads The number of asynchronous indexing threads.
+     * @return This.
+     */
     public Index indexingThreads(Integer indexingThreads) {
         this.indexingThreads = indexingThreads;
         return this;
     }
 
+    /**
+     * Sets the max number of queued documents per asynchronous indexing thread.
+     *
+     * @param indexingQueuesSize The max number of queued documents per asynchronous indexing thread.
+     * @return This.
+     */
     public Index indexingQueuesSize(Integer indexingQueuesSize) {
         this.indexingQueuesSize = indexingQueuesSize;
         return this;
     }
 
+    /**
+     * Sets the list of excluded data centers.
+     *
+     * @param excludedDataCenters The list of excluded data centers.
+     * @return This.
+     */
     public Index excludedDataCenters(String excludedDataCenters) {
         this.excludedDataCenters = excludedDataCenters;
         return this;

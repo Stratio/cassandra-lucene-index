@@ -70,7 +70,7 @@ public abstract class Builder {
         try {
             return jsonMapper.writeValueAsString(this);
         } catch (IOException e) {
-            throw new RuntimeException("Error formatting JSON", e);
+            throw new BuilderException(e, "Error formatting JSON");
         }
     }
 
