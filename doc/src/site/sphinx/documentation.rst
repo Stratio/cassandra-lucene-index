@@ -11,22 +11,22 @@ Stratio's Cassandra Lucene Index
 - `Indexing <#indexing>`__
     - `Analysis <#analysis>`__
     - `Mapping <#mapping>`__
-        -`BigDecimal Mapper <#bigdecimal-mapper>`__
-        -`BigInteger Mapper <#biginteger-mapper>`__
-        -`Bitemporal Mapper <#bitemporal-mapper>`__
-        -`Blob Mapper <#blob-mapper>`__
-        -`Boolean Mapper <#boolean-mapper>`__
-        -`Date Mapper <#date-mapper>`__
-        -`DateRange Mapper <#daterange-mapper>`__
-        -`Double Mapper <#double-mapper>`__
-        -`Float Mapper <#float-mapper >`__
-        -`GeoPoint Mapper <#geopoint-mapper>`__
-        -`Inet Mapper <#inet-mapper>`__
-        -`Integer Mapper <#integer-mapper>`__
-        -`Long Mapper <#long-mapper>`__
-        -`String Mapper <#string-mapper>`__
-        -`Text Mapper <#text-mapper>`__
-        -`UUID Mapper <#uuid-mapper>`__
+        - `BigDecimal Mapper <#bigdecimal-mapper>`__
+        - `BigInteger Mapper <#biginteger-mapper>`__
+        - `Bitemporal Mapper <#bitemporal-mapper>`__
+        - `Blob Mapper <#blob-mapper>`__
+        - `Boolean Mapper <#boolean-mapper>`__
+        - `Date Mapper <#date-mapper>`__
+        - `DateRange Mapper <#daterange-mapper>`__
+        - `Double Mapper <#double-mapper>`__
+        - `Float Mapper <#float-mapper >`__
+        - `GeoPoint Mapper <#geopoint-mapper>`__
+        - `Inet Mapper <#inet-mapper>`__
+        - `Integer Mapper <#integer-mapper>`__
+        - `Long Mapper <#long-mapper>`__
+        - `String Mapper <#string-mapper>`__
+        - `Text Mapper <#text-mapper>`__
+        - `UUID Mapper <#uuid-mapper>`__
     - `Example <#example>`__
 - `Searching <#searching>`__
     - `All search <#all-search>`__
