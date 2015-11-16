@@ -79,9 +79,9 @@ public class ColumnsTest {
     @Test
     public void testGetColumnsByName() {
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("field1", "item1", "value1", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("field1", "item2", "value1", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("field2", "item1", "value2", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("field1$item1", "value1", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("field1$item2", "value1", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("field2$item1", "value2", UTF8Type.instance, false));
         assertEquals("Columns size is wrong", 2, columns.getColumnsByName("field1").size());
         assertEquals("Columns size is wrong", 0, columns.getColumnsByFullName("field1").size());
         assertEquals("Columns size is wrong", 1, columns.getColumnsByFullName("field1$item1").size());
@@ -103,9 +103,9 @@ public class ColumnsTest {
     @Test
     public void testToStringWithColumns() {
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("field1", "item1", "value1", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("field1", "item2", "value1", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("field2", "item1", "value2", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("field1$item1", "value1", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("field1$item2", "value1", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("field2$item1", "value2", UTF8Type.instance, false));
         assertEquals("Method #toString is wrong",
                      "Columns{field1$item1=value1, field1$item2=value1, field2$item1=value2}",
                      columns.toString());

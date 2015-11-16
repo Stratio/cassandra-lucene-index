@@ -81,7 +81,7 @@ public abstract class SingleColumnMapper<T> extends Mapper {
     @Override
     public void addFields(Document document, Columns columns) {
         for (Column<?> c : columns.getColumnsByName(column)) {
-            String name = c.getFieldName(field);
+            String name = c.getFieldName();
             Object value = c.getComposedValue();
             addFields(document, name, value);
         }

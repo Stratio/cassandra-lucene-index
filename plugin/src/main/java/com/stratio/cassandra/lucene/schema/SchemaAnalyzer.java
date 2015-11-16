@@ -108,11 +108,11 @@ public class SchemaAnalyzer extends DelegatingAnalyzerWrapper {
      * @return The {@link Analyzer} identified by the specified field name.
      */
     public TokenLengthAnalyzer getAnalyzer(String fieldName) {
-        //TODO revise this
+
         if (StringUtils.isBlank(fieldName)) {
             throw new IllegalArgumentException("Not empty analyzer name required");
         }
-        String name=Column.separateMapKeys(fieldName);
+        String name=Column.getMapperNameByFullName(fieldName);
         TokenLengthAnalyzer analyzer = fieldAnalyzers.get(name);
         if (analyzer != null) {
             return analyzer;

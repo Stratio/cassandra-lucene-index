@@ -54,7 +54,7 @@ public class ColumnTest {
         AbstractType<Long> type = LongType.instance;
         Long composedValue = 5L;
         ByteBuffer decomposedValue = type.decompose(composedValue);
-        Column<Long> column = Column.fromDecomposed(name, sufix, decomposedValue, type, true);
+        Column<Long> column = Column.fromDecomposed(name+"$"+sufix, decomposedValue, type, true);
         assertEquals("Column name is wrong", name, column.getMapperName());
         assertEquals("Column fullName is wrong", "my$column", column.getFieldName());
         assertEquals("Column type is wrong", type, column.getType());
@@ -101,7 +101,7 @@ public class ColumnTest {
         ByteBuffer decomposedValue = type.decompose(composedValue);
         Column<Long> column = Column.fromDecomposed(name, decomposedValue, type, true);
         assertEquals("Method #toString is wrong",
-                     "Column{fullName=my_column, composedValue=5, type=LongType}",
+                     "Column{fieldName=my_column, composedValue=5, type=LongType}",
                      column.toString());
         assertTrue("Column isNotFrozenCollection is wrong", column.isMultiCell());
     }
@@ -113,9 +113,9 @@ public class ColumnTest {
         LongType type = LongType.instance;
         Long composedValue = 5L;
         ByteBuffer decomposedValue = type.decompose(composedValue);
-        Column<Long> column = Column.fromDecomposed(name, sufix, decomposedValue, type, true);
+        Column<Long> column = Column.fromDecomposed(name+"$"+sufix, decomposedValue, type, true);
         assertEquals("Method #toString is wrong",
-                     "Column{fullName=my$column, composedValue=5, type=LongType}",
+                     "Column{fieldName=my$column, composedValue=5, type=LongType}",
                      column.toString());
         assertTrue("Column isNotFrozenCollection is wrong", column.isMultiCell());
     }
@@ -127,7 +127,7 @@ public class ColumnTest {
         LongType type = LongType.instance;
         Long composedValue = 5L;
         ByteBuffer decomposedValue = type.decompose(composedValue);
-        Column<Long> column = Column.fromDecomposed(name, sufix, decomposedValue, type, true);
+        Column<Long> column = Column.fromDecomposed(name+"$"+sufix, decomposedValue, type, true);
         assertEquals("Column equals is wrong", 1, column.compareTo(null));
 
     }

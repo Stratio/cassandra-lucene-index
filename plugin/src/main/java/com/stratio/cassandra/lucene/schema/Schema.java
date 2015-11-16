@@ -104,8 +104,9 @@ public class Schema implements Closeable {
      */
     public Mapper getMapper(String field) {
         Mapper mapper;
-        //TODO revise this method
-        String fieldName=Column.separateMapKeys(field);
+
+        String fieldName=Column.getMapperNameByFullName(field);
+
         mapper = mappers.get(fieldName);
         if (mapper != null) {
             return mapper;
