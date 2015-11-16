@@ -35,7 +35,8 @@ import java.io.IOException;
                IndexesSuite.class,
                VariaSuite.class,
                StoriesSuite.class,
-               IssuesSuite.class})
+               IssuesSuite.class,
+               UDTSuite.class})
 public class AllSuite {
 
     private static CassandraServer cassandraServer;

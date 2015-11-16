@@ -21,7 +21,6 @@ package com.stratio.cassandra.lucene.service;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
-import com.stratio.cassandra.lucene.util.ByteBufferUtils;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
 import org.apache.cassandra.db.Cell;
@@ -33,7 +32,6 @@ import org.apache.cassandra.db.marshal.UserType;
 import org.apache.cassandra.serializers.CollectionSerializer;
 import org.apache.cassandra.serializers.MapSerializer;
 import org.apache.cassandra.transport.Server;
-import org.apache.cassandra.utils.ByteBufferUtil;
 
 import java.nio.ByteBuffer;
 
@@ -114,7 +112,6 @@ public final class RegularCellsMapper {
                 case MAP: {
                     AbstractType<?> keyType = collectionType.nameComparator();
                     AbstractType<?> valueType = collectionType.valueComparator();
-                    //logger.debug("RCM: processUDT MAP name: "+fieldName+" cell.value: "+ByteBufferUtil.bytesToHex(value));
                     int colSize= MapSerializer.readCollectionSize(value, Server.CURRENT_VERSION);
                     for (int j=0;j<colSize;j++) {
                         ByteBuffer mapKey=MapSerializer.readValue(value, Server.CURRENT_VERSION);

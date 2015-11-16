@@ -55,7 +55,6 @@ import static org.apache.cassandra.db.marshal.CollectionType.Kind.SET;
  */
 public abstract class Mapper {
 
-    private static final Logger logger = LoggerFactory.getLogger(Mapper.class);
     /** A no-action getAnalyzer for not tokenized {@link Mapper} implementations. */
     static final String KEYWORD_ANALYZER = StandardAnalyzers.KEYWORD.toString();
 

@@ -47,7 +47,7 @@ public class RowServiceWide extends RowService {
 
     /** The names of the Lucene fields to be loaded. */
     private static final Set<String> FIELDS_TO_LOAD;
-    private static final Logger logger = LoggerFactory.getLogger(RowServiceWide.class);
+
     static {
         FIELDS_TO_LOAD = new HashSet<>();
         FIELDS_TO_LOAD.add(PartitionKeyMapper.FIELD_NAME);
@@ -125,7 +125,6 @@ public class RowServiceWide extends RowService {
             CellName clusteringKey = entry.getKey();
             ColumnFamily rowColumnFamily = entry.getValue();
             Columns columns = mapper.columns(partitionKey, rowColumnFamily);
-            logger.debug("RwoServiceWide, columns :"+columns.toString());
             if (schema.mapsAll(columns)) {
                 Term term = mapper.term(partitionKey, clusteringKey);
                 Document document = mapper.document(partitionKey, clusteringKey, columns);
@@ -137,7 +136,6 @@ public class RowServiceWide extends RowService {
 
         // Read incomplete rows from Cassandra storage engine
         if (!incompleteRows.isEmpty()) {
-            logger.debug("Preforming Read beacuse imcomplete Rows");
             for (Entry<CellName, ColumnFamily> entry : rows(partitionKey, incompleteRows, timestamp).entrySet()) {
                 CellName clusteringKey = entry.getKey();
                 ColumnFamily rowColumnFamily = entry.getValue();

@@ -44,7 +44,7 @@ public class RowServiceSkinny extends RowService {
 
     /** The names of the Lucene fields to be loaded. */
     private static final Set<String> FIELDS_TO_LOAD;
-    private static final Logger logger = LoggerFactory.getLogger(RowServiceSkinny.class);
+
     static {
         FIELDS_TO_LOAD = new HashSet<>();
         FIELDS_TO_LOAD.add(PartitionKeyMapper.FIELD_NAME);
@@ -99,13 +99,10 @@ public class RowServiceSkinny extends RowService {
     @Override
     public Map<Term, Document> documents(DecoratedKey partitionKey, ColumnFamily columnFamily, long timestamp) {
         Columns columns = mapper.columns(partitionKey, columnFamily);
-        logger.debug("RwoServiceSkinny, columns befire reading:"+columns.toString());
         if (!schema.mapsAll(columns)) {
-            logger.debug("Preforming Read beacuse imcomplete Rows");
             ColumnFamily completeColumnFamily = row(partitionKey, timestamp);
             columns = mapper.columns(partitionKey, completeColumnFamily);
         }
-        logger.debug("RwoServiceSkinny, columns :"+columns.toString());
         Document document = mapper.document(partitionKey, columns);
         Term term = mapper.term(partitionKey);
         return Collections.singletonMap(term, document);

@@ -33,7 +33,6 @@ import java.io.Closeable;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 /**
  * The user-defined mapping from Cassandra columns to Lucene documents.
