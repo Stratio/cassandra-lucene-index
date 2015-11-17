@@ -562,12 +562,12 @@ Syntax:
         'schema' : '{
             fields : {
                 bigdecimal : {
-                    type : "bigdec",
+                    type           : "bigdec",
                     integer_digits : 2,
                     decimal_digits : 2,
-                    indexed : true,
-                    sorted : false,
-                    column : "column_name"
+                    indexed        : true,
+                    sorted         : false,
+                    column         : "column_name"
                 }
             }
         }'
@@ -575,6 +575,7 @@ Syntax:
 
 
 CQL supported types:
+
     ASCII, BIGINT, DECIMAL, DOUBLE, FLOAT, INT, TEXT, VARCHAR, VARINT
 
 BigInteger Mapper
@@ -591,11 +592,11 @@ Syntax:
         'schema' : '{
             fields : {
                 biginteger : {
-                    type : "bigint",
-                    digits : 10,
+                    type    : "bigint",
+                    digits  : 10,
                     indexed : true,
-                    sorted : false,
-                    column : "column_name"
+                    sorted  : false,
+                    column  : "column_name"
                 }
             }
         }'
@@ -603,6 +604,7 @@ Syntax:
 
 
 CQL supported types:
+
     ASCII, BIGINT,INT, TEXT, VARCHAR, VARINT
 
 Bitemporal Mapper
@@ -619,12 +621,12 @@ Syntax:
         'schema' : '{
             fields : {
                 bitemporal : {
-                    type : "bitemporal",
-                    vt_from : "vt_from",
-                    vt_to : "vt_to",
-                    tt_from : "tt_from",
-                    tt_to : "tt_to",
-                    pattern : "yyyy/MM/dd HH:mm:ss.SSS";,
+                    type      : "bitemporal",
+                    vt_from   : "vt_from",
+                    vt_to     : "vt_to",
+                    tt_from   : "tt_from",
+                    tt_to     : "tt_to",
+                    pattern   : "yyyy/MM/dd HH:mm:ss.SSS";,
                     now_value : "3000/01/01 00:00:00.000",
                 }
             }
@@ -633,6 +635,7 @@ Syntax:
 
 
 CQL supported types:
+
     ASCII, BIGINT, DECIMAL, DOUBLE, FLOAT, INT, TEXT, TIMESTAMP, VARCHAR, VARINT
 
 Blob Mapper
@@ -649,10 +652,10 @@ Syntax:
         'schema' : '{
             fields : {
                 blob : {
-                    type : "bytes",
+                    type    : "bytes",
                     indexed : true,
-                    sorted : false,
-                    column : "column_name"
+                    sorted  : false,
+                    column  : "column_name"
                 }
             }
         }'
@@ -660,6 +663,7 @@ Syntax:
 
 
 CQL supported types:
+
     ASCII, BLOB,  TEXT, VARCHAR
 
 Boolean Mapper
@@ -676,10 +680,10 @@ Syntax:
         'schema' : '{
             fields : {
                 bool : {
-                    type : "boolean",
+                    type    : "boolean",
                     indexed : true,
-                    sorted : false,
-                    column : "column_name"
+                    sorted  : false,
+                    column  : "column_name"
                 }
             }
         }'
@@ -687,6 +691,7 @@ Syntax:
 
 
 CQL supported types:
+
     ASCII, BOOLEAN , TEXT, VARCHAR,
 
 Date Mapper
@@ -703,11 +708,11 @@ Syntax:
         'schema' : '{
             fields : {
                 date : {
-                    type : "date",
+                    type    : "date",
                     pattern : "yyyy/MM/dd HH:mm:ss.SSS",
                     indexed : true,
-                    sorted : false,
-                    column : "column_name"
+                    sorted  : false,
+                    column  : "column_name"
                 }
             }
         }'
@@ -715,6 +720,7 @@ Syntax:
 
 
 CQL supported types:
+
     ASCII, BIGINT, DECIMAL, DOUBLE, FLOAT, INT, TEXT, TIMESTAMP, VARCHAR, VARINT
 
 DateRange Mapper
@@ -731,9 +737,9 @@ Syntax:
         'schema' : '{
             fields : {
                 date_range : {
-                    type : "date_range",
-                    from : "range_from",
-                    to : "range_to",
+                    type    : "date_range",
+                    from    : "range_from",
+                    to      : "range_to",
                     pattern : "yyyy/MM/dd HH:mm:ss.SSS"
                 }
             }
@@ -742,6 +748,7 @@ Syntax:
 
 
 CQL supported types:
+
     ASCII, BIGINT, DECIMAL, DOUBLE, FLOAT, INT, TEXT, TIMESTAMP, VARCHAR, VARINT
 
 Double Mapper
@@ -758,11 +765,11 @@ Syntax:
         'schema' : '{
             fields : {
                 double : {
-                    type : "double",
-                    boost : 2.0,
+                    type    : "double",
+                    boost   : 2.0,
                     indexed : true,
-                    sorted : false,
-                    column : "column_name"
+                    sorted  : false,
+                    column  : "column_name"
                 }
             }
         }'
@@ -770,6 +777,7 @@ Syntax:
 
 
 CQL supported types:
+
     ASCII, BIGINT, DECIMAL, DOUBLE, FLOAT, INT, TEXT, TIMESTAMP, VARCHAR, VARINT
 
 Float Mapper
@@ -786,11 +794,11 @@ Syntax:
         'schema' : '{
             fields : {
                 float : {
-                    type : "float",
-                    boost : 2.0,
+                    type    : "float",
+                    boost   : 2.0,
                     indexed : true,
-                    sorted : false,
-                    column : "column_name"
+                    sorted  : false,
+                    column  : "column_name"
                 }
             }
         }'
@@ -798,6 +806,7 @@ Syntax:
 
 
 CQL supported types:
+
     ASCII, BIGINT, DECIMAL, DOUBLE, FLOAT, INT, TEXT, TIMESTAMP, VARCHAR, VARINT
 
 GeoPoint Mapper
@@ -814,9 +823,9 @@ Syntax:
         'schema' : '{
             fields : {
                 geo_point : {
-                    type : "geo_point",
-                    latitude : "lat",
-                    longitude : "long",
+                    type       : "geo_point",
+                    latitude   : "lat",
+                    longitude  : "long",
                     max_levels : 15
                 }
             }
@@ -825,6 +834,7 @@ Syntax:
 
 
 CQL supported types:
+
     ASCII, BIGINT, DECIMAL, DOUBLE, FLOAT, INT, TEXT, TIMESTAMP, VARCHAR, VARINT
 
 Inet Mapper
@@ -841,10 +851,10 @@ Syntax:
         'schema' : '{
             fields : {
                 inet : {
-                    type : "inet",
+                    type    : "inet",
                     indexed : true,
-                    sorted : false,
-                    column : "column_name"
+                    sorted  : false,
+                    column  : "column_name"
                 }
             }
         }'
@@ -852,6 +862,7 @@ Syntax:
 
 
 CQL supported types:
+
     ASCII, INET, TEXT, VARCHAR
 
 Integer Mapper
@@ -868,11 +879,11 @@ Syntax:
         'schema' : '{
             fields : {
                 integer : {
-                    type : "integer",
-                    boost : 2.0,
+                    type    : "integer",
+                    boost   : 2.0,
                     indexed : true,
-                    sorted : false,
-                    column : "column_name"
+                    sorted  : false,
+                    column  : "column_name"
                 }
             }
         }'
@@ -880,6 +891,7 @@ Syntax:
 
 
 CQL supported types:
+
     ASCII, BIGINT, DECIMAL, DOUBLE, FLOAT, INT, TEXT, TIMESTAMP, VARCHAR, VARINT
 
 Long Mapper
@@ -896,11 +908,11 @@ Syntax:
         'schema' : '{
             fields : {
                 long : {
-                    type : "long",
-                    boost : 2.0,
+                    type    : "long",
+                    boost   : 2.0,
                     indexed : true,
-                    sorted : false,
-                    column : "column_name"
+                    sorted  : false,
+                    column  : "column_name"
                 }
             }
         }'
@@ -908,6 +920,7 @@ Syntax:
 
 
 CQL supported types:
+
     ASCII, BIGINT, DECIMAL, DOUBLE, FLOAT, INT, TEXT, TIMESTAMP, VARCHAR, VARINT
 
 String Mapper
@@ -924,11 +937,11 @@ Syntax:
         'schema' : '{
             fields : {
                 string : {
-                    type : "string",
+                    type           : "string",
                     case_sensitive : false,
-                    indexed : true,
-                    sorted : false,
-                    column : "column_name"
+                    indexed        : true,
+                    sorted         : false,
+                    column         : "column_name"
                 }
             }
         }'
@@ -936,6 +949,7 @@ Syntax:
 
 
 CQL supported types:
+
     ASCII, BIGINT, BLOB, BOOLEAN, DOUBLE, FLOAT, INET, INT, TEXT, TIMESTAMP, TIMEUUID, UUID, VARCHAR, VARINT
 
 Text Mapper
@@ -951,18 +965,19 @@ Syntax:
         'refresh_seconds' : '1',
         'schema' : '{
             analyzers : {
-                  my_custom_analyzer : {
-                      type:"snowball",
-                      language:"Spanish",
-                      stopwords : "el,la,lo,loas,las,a,ante,bajo,cabe,con,contra"}
+                my_custom_analyzer : {
+                      type      : "snowball",
+                      language  : "Spanish",
+                      stopwords : "el,la,lo,loas,las,a,ante,bajo,cabe,con,contra"
+                }
             },
             fields : {
                 text : {
-                    type : "text",
+                    type     : "text",
                     analyzer : "my_custom_analyzer",
-                    indexed : true,
-                    sorted : false,
-                    column : "column_name"
+                    indexed  : true,
+                    sorted   : false,
+                    column   : "column_name"
                 }
             }
         }'
@@ -970,6 +985,7 @@ Syntax:
 
 
 CQL supported types:
+
     ASCII, BIGINT, BLOB, BOOLEAN, DOUBLE, FLOAT, INET, INT, TEXT, TIMESTAMP, TIMEUUID, UUID, VARCHAR, VARINT
 
 UUID Mapper
@@ -986,10 +1002,10 @@ Syntax:
         'schema' : '{
             fields : {
                 bigdecimal : {
-                    type : "uuid",
+                    type    : "uuid",
                     indexed : true,
-                    sorted : false,
-                    column : "column_name"
+                    sorted  : false,
+                    column  : "column_name"
                 }
             }
         }'
@@ -997,6 +1013,7 @@ Syntax:
 
 
 CQL supported types:
+
     ASCII, TEXT, TIMEUUID, UUID, VARCHAR
 
 
@@ -1021,25 +1038,26 @@ Cassandra shell:
         'excluded_data_centers' : 'dc2,dc3',
         'schema' : '{
             analyzers : {
-                  my_custom_analyzer : {
-                      type:"snowball",
-                      language:"Spanish",
-                      stopwords : "el,la,lo,loas,las,a,ante,bajo,cabe,con,contra"}
+                my_custom_analyzer : {
+                    type      : "snowball",
+                    language  : "Spanish",
+                    stopwords : "el,la,lo,loas,las,a,ante,bajo,cabe,con,contra"
+                }
             },
             default_analyzer : "english",
             fields : {
-                name   : {type     : "string"},
-                gender : {type     : "string", sorted: true},
-                animal : {type     : "string"},
-                age    : {type     : "integer"},
-                food   : {type     : "string"},
-                number : {type     : "integer"},
-                bool   : {type     : "boolean"},
-                date   : {type     : "date", pattern  : "yyyy/MM/dd"},
-                mapz   : {type     : "string", sorted: true},
-                setz   : {type     : "string"},
-                listz  : {type     : "string"},
-                phrase : {type     : "text", analyzer : "my_custom_analyzer"}
+                name   : {type : "string"},
+                gender : {type : "string", sorted: true},
+                animal : {type : "string"},
+                age    : {type : "integer"},
+                food   : {type : "string"},
+                number : {type : "integer"},
+                bool   : {type : "boolean"},
+                date   : {type : "date", pattern  : "yyyy/MM/dd"},
+                mapz   : {type : "string", sorted: true},
+                setz   : {type : "string"},
+                listz  : {type : "string"},
+                phrase : {type : "text", analyzer : "my_custom_analyzer"}
             }
         }'
     };
@@ -1242,12 +1260,12 @@ Syntax:
     SELECT ( <fields> | * )
     FROM <table>
     WHERE <magic_column> = '{ (filter | query) : {
-                                type  : "bitemporal",
-                                (vt_from : <vt_from> ,)?
-                                (vt_to   : <vt_to> ,)?
-                                (tt_from : <tt_from> ,)?
-                                (tt_to   : <tt_to> ,)?
-                                (operation: <operation> )?
+                                type       : "bitemporal",
+                                (vt_from   : <vt_from> ,)?
+                                (vt_to     : <vt_to> ,)?
+                                (tt_from   : <tt_from> ,)?
+                                (tt_to     : <tt_to> ,)?
+                                (operation : <operation> )?
                               }}';
 
 where:
@@ -1293,12 +1311,12 @@ Second, we create the index:
         'schema' : '{
             fields : {
                 bitemporal : {
-                    type : "bitemporal",
-                    tt_from : "tt_from",
-                    tt_to : "tt_to",
-                    vt_from : "vt_from",
-                    vt_to : "vt_to",
-                    pattern : "yyyy/MM/dd",
+                    type      : "bitemporal",
+                    tt_from   : "tt_from",
+                    tt_to     : "tt_to",
+                    vt_from   : "vt_from",
+                    vt_to     : "vt_to",
+                    pattern   : "yyyy/MM/dd",
                     now_value : "2200/12/31"}
             }
     }'};
@@ -1358,12 +1376,12 @@ If you want to know what is the last info about where John resides, you perform 
     SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM census
     WHERE lucene = '{
         filter : {
-            type : "bitemporal",
-            field : "bitemporal",
+            type    : "bitemporal",
+            field   : "bitemporal",
             vt_from : 0,
-            vt_to : "2200/12/31",
+            vt_to   : "2200/12/31",
             tt_from : "2200/12/31",
-            tt_to : "2200/12/31"
+            tt_to   : "2200/12/31"
         }
     }'
     AND name='John';
@@ -1376,10 +1394,10 @@ If the test case needs to know what the system was thinking at '2015/03/01' abou
     SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM census
     WHERE lucene = '{
         filter : {
-            type : "bitemporal",
-            field : "bitemporal",
+            type    : "bitemporal",
+            field   : "bitemporal",
             tt_from : "2015/03/01",
-            tt_to : "2015/03/01"
+            tt_to   : "2015/03/01"
         }
     }'
     AND name = 'John';
@@ -1472,8 +1490,8 @@ Syntax:
     SELECT ( <fields> | * )
     FROM <table>
     WHERE <magic_column> = '{ (filter | query) : {
-                                type  : "contains",
-                                field : <fieldname> ,
+                                type   : "contains",
+                                field  : <fieldname> ,
                                 values : <value_list> }}';
 
 Example 1: will return rows where name matches “Alicia” or “mancha”
@@ -1576,10 +1594,10 @@ Syntax:
                                 type  : "fuzzy",
                                 field : <fieldname> ,
                                 value : <value>
-                                (, max_edits     : <max_edits> )?
-                                (, prefix_length : <prefix_length> )?
-                                (, max_expansions: <max_expansion> )?
-                                (, transpositions: <transposition> )?
+                                (, max_edits      : <max_edits> )?
+                                (, prefix_length  : <prefix_length> )?
+                                (, max_expansions : <max_expansion> )?
+                                (, transpositions : <transposition> )?
                               }}';
 
 where:
@@ -1631,12 +1649,12 @@ Syntax:
     SELECT ( <fields> | * )
     FROM <table>
     WHERE <magic_column> = '{ (filter | query) : {
-                                type           : "geo_bbox",
-                                field          : <fieldname>,
-                                min_latitude   : <min_latitude> ,
-                                max_latitude   : <max_latitude> ,
-                                min_longitude  : <min_longitude> ,
-                                max_longitude  : <max_longitude>
+                                type          : "geo_bbox",
+                                field         : <fieldname>,
+                                min_latitude  : <min_latitude> ,
+                                max_latitude  : <max_latitude> ,
+                                min_longitude : <min_longitude> ,
+                                max_longitude : <max_longitude>
                               }}';
 
 where:
@@ -1657,10 +1675,10 @@ between -90.0 and 90.0, and a longitude between -180.0 and
 .. code-block:: sql
 
     SELECT * FROM test.users
-    WHERE stratio_col = '{filter : { type : "geo_bbox",
-                                     field : "place",
-                                     min_latitude : -90.0,
-                                     max_latitude : 90.0,
+    WHERE stratio_col = '{filter : { type          : "geo_bbox",
+                                     field         : "place",
+                                     min_latitude  : -90.0,
+                                     max_latitude  : 90.0,
                                      min_longitude : -180.0,
                                      max_longitude : 180.0 }}';
 
@@ -1671,10 +1689,10 @@ between -90.0 and 90.0, and a longitude between 0.0 and
 .. code-block:: sql
 
     SELECT * FROM test.users
-    WHERE stratio_col = '{filter : { type : "geo_bbox",
-                                     field : "place",
-                                     min_latitude : -90.0,
-                                     max_latitude : 90.0,
+    WHERE stratio_col = '{filter : { type          : "geo_bbox",
+                                     field         : "place",
+                                     min_latitude  : -90.0,
+                                     max_latitude  : 90.0,
                                      min_longitude : 0.0,
                                      max_longitude : 10.0 }}';
 
@@ -1686,10 +1704,10 @@ between 0.0 and 10.0, and a longitude between -180.0 and
 .. code-block:: sql
 
     SELECT * FROM test.users
-    WHERE stratio_col = '{filter : { type : "geo_bbox",
-                                     field : "place",
-                                     min_latitude : 0.0,
-                                     max_latitude : 10.0,
+    WHERE stratio_col = '{filter : { type          : "geo_bbox",
+                                     field         : "place",
+                                     min_latitude  : 0.0,
+                                     max_latitude  : 10.0,
                                      min_longitude : -180.0,
                                      max_longitude : 180.0 }}';
 
@@ -1704,11 +1722,11 @@ Syntax:
     SELECT ( <fields> | * )
     FROM <table>
     WHERE <magic_column> = '{ (filter | query) : {
-                                type  : "geo_distance",
-                                field : <fieldname> ,
-                                latitude : <latitude> ,
-                                longitude : <longitude> ,
-                                max_distance : <max_distance>
+                                type            : "geo_distance",
+                                field           : <fieldname> ,
+                                latitude        : <latitude> ,
+                                longitude       : <longitude> ,
+                                max_distance    : <max_distance>
                                 (, min_distance : <min_distance> )?
                               }}';
 
@@ -1729,10 +1747,10 @@ from the geo point (40.225479, -3.999278).
 .. code-block:: sql
 
     SELECT * FROM test.users
-    WHERE stratio_col = '{filter : { type : "geo_distance",
-                                     field : "place",
-                                     latitude : 40.225479,
-                                     longitude : -3.999278,
+    WHERE stratio_col = '{filter : { type         : "geo_distance",
+                                     field        : "place",
+                                     latitude     : 40.225479,
+                                     longitude    : -3.999278,
                                      max_distance : "1km"}}';
 
 Example 2: will return any rows where “place” is within one yard and ten
@@ -1741,10 +1759,10 @@ yards from the geo point (40.225479, -3.999278).
 .. code-block:: sql
 
     SELECT * FROM test.users
-    WHERE stratio_col = '{filter : { type : "geo_distance",
-                                     field : "place",
-                                     latitude : 40.225479,
-                                     longitude : -3.999278,
+    WHERE stratio_col = '{filter : { type         : "geo_distance",
+                                     field        : "place",
+                                     latitude     : 40.225479,
+                                     longitude    : -3.999278,
                                      max_distance : "10yd" ,
                                      min_distance : "1yd" }}';
 
@@ -2056,8 +2074,8 @@ Indexing part of this UDT is allowed just using the "." operator as follows:
         'refresh_seconds' : '1',
         'schema' : '{
             fields : {
-                "address.city" : {type:"string"},
-                "address.zip" : {type:"integer"}
+                "address.city" : { type : "string"},
+                "address.zip"  : { type : "integer"}
             }
         }'
     };
@@ -2070,8 +2088,8 @@ and searching:
     SELECT * FROM user_profiles
     WHERE lucene='{
         filter : {
-            type : "match",
-            field  : "address.city",
+            type  : "match",
+            field : "address.city",
             value : "San Fransisco"
         }
     }';
@@ -2083,8 +2101,8 @@ or:
     SELECT * FROM user_profiles
     WHERE lucene='{
         filter : {
-            type : "range",
-            field  : "address.zip",
+            type  : "range",
+            field : "address.zip",
             lower : 0,
             upper : 10
         }
@@ -2092,6 +2110,121 @@ or:
 
 Collections
 ***********
+
+It is allowed to index collections as well
+
+List ans Sets are indexed so:
+
+.. code-block:: sql
+
+    CREATE TABLE user_profiles (
+        login text PRIMARY KEY,
+        first_name text,
+        last_name text,
+        cities list<text>,
+        lucene text
+    );
+
+    CREATE CUSTOM INDEX test_index ON test.user_profiles(lucene)
+    USING 'com.stratio.cassandra.lucene.Index'
+    WITH OPTIONS = {
+        'refresh_seconds' : '1',
+        'schema' : '{
+            fields : {
+                cities : { type : "string"}
+            }
+        }'
+    };
+
+
+and searches:
+
+.. code-block:: sql
+
+    SELECT * FROM user_profiles
+    WHERE lucene='{
+        filter : {
+            type  : "match",
+            field : "cities",
+            value : "San Francisco"
+        }
+    }';
+
+
+Map values are indexed by Key value so:
+
+.. code-block:: sql
+
+    CREATE TABLE user_profiles (
+        login text PRIMARY KEY,
+        first_name text,
+        last_name text,
+        addresses map<text,text>,
+        lucene text
+    );
+
+    CREATE CUSTOM INDEX test_index ON test.user_profiles(lucene)
+    USING 'com.stratio.cassandra.lucene.Index'
+    WITH OPTIONS = {
+        'refresh_seconds' : '1',
+        'schema' : '{
+            fields : {
+                addresses : { type : "string"}
+            }
+        }'
+    };
+
+and searches using $key:
+
+.. code-block:: sql
+
+    INSERT INTO user_profiles (login,first_name,last_name,addresses)
+        VALUES('user','Peter','Handsome',{'San Francisco':'Market street 2', 'Madrid': 'Calle Velazquez' })
+
+    SELECT * FROM user_profiles
+    WHERE lucene='{
+        filter : {
+            type  : "match",
+            field : "cities$Madrid",
+            value : "San Francisco"
+        }
+    }';
+
+Do NOT set map keys including characters like '.' or '$'
+
+
+Indexing UDT inside collections are allowed too using the point operator
+
+.. code-block:: sql
+
+    CREATE TYPE address_udt (
+        street text,
+        city text,
+        zip int
+    );
+
+
+    CREATE TABLE user_profiles (
+        login text PRIMARY KEY,
+        first_name text,
+        last_name text,
+        address list<frozen<address_udt>>,
+        lucene text
+    );
+
+    CREATE CUSTOM INDEX test_index ON test.user_profiles(lucene)
+    USING 'com.stratio.cassandra.lucene.Index'
+    WITH OPTIONS = {
+        'refresh_seconds' : '1',
+        'schema' : '{
+            fields : {
+                "address.city" : { type : "string"},
+                "address.zip"  : { type : "integer"}
+            }
+        }'
+    };
+
+
 Query Builder
 *************
 
