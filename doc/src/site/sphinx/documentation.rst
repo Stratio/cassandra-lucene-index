@@ -1954,7 +1954,11 @@ Using Builder
     (...)
     String indexColumn = "stratio_col";
     Search search = search().filter(geoBBox("place",0.0,10.0,-90.0,90.0));
-    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users").where(eq(indexColumn, search.build()));
+    ResultSet rs = session.execute(QueryBuilder
+                                    .select()
+                                    .all()
+                                    .from("test","users")
+                                    .where(eq(indexColumn, search.build()));
 
 
 Example 3: will return any rows where “place” is formed by a latitude
@@ -2063,7 +2067,8 @@ Using Builder
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     String indexColumn = "stratio_col";
-    Search search = search().filter(geoDistance("place",-3.999278d,40.225479d,"10yd").minDistance("1yd"));
+    Search search = search().filter(geoDistance("place",-3.999278d,40.225479d,"10yd")
+                                    .minDistance("1yd"));
     ResultSet rs = session.execute(QueryBuilder
                                     .select()
                                     .all()
@@ -2232,7 +2237,11 @@ Using Builder
     (...)
     String indexColumn = "stratio_col";
     Search search = search().filter(phrase("phrase","camisa manchada"));
-    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users").where(eq(indexColumn, search.build()));
+    ResultSet rs = session.execute(QueryBuilder
+                                    .select()
+                                    .all()
+                                    .from("test","users")
+                                    .where(eq(indexColumn, search.build()));
 
 Example 2: will return rows where “phrase” contains the word “mancha”
 followed by the word “camisa” having 0 to 2 words in between.
@@ -2402,7 +2411,11 @@ Using Builder
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     String indexColumn = "stratio_col";
-    Search search = search().filter(range("age").lower(-1).upper(1).includeLower(true).includeUpper(true));
+    Search search = search().filter(range("age")
+                                    .lower(-1)
+                                    .upper(1)
+                                    .includeLower(true)
+                                    .includeUpper(true));
     ResultSet rs = session.execute(QueryBuilder
                                     .select()
                                     .all()
