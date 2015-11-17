@@ -2685,7 +2685,8 @@ and searches using $key:
 .. code-block:: sql
 
     INSERT INTO user_profiles (login,first_name,last_name,addresses)
-        VALUES('user','Peter','Handsome',{'San Francisco':'Market street 2', 'Madrid': 'Calle Velazquez' })
+        VALUES('user','Peter','Handsome',
+                {'San Francisco':'Market street 2', 'Madrid': 'Calle Velazquez' })
 
     SELECT * FROM user_profiles
     WHERE lucene='{
@@ -2878,7 +2879,8 @@ However, this search could be a good use case for Lucene just because there is n
     WHERE lucene = '{filter : {
                        type : "boolean",
                        must : [{type : "regexp", field : "name", value : "[J][aeiou]{2}.*"},
-                               {type:"range", field:"birthday", lower:"2014/04/25", upper:"2014/05/01"}]}}';
+                               {type:"range", field:"birthday",
+                                lower:"2014/04/25",upper:"2014/05/01"}]}}';
 
 Lucene indexes are intended to be used in those cases that can't be efficiently addressed
 with Apache Cassandra common techniques, such as full-text queries, multidimensional queries,
