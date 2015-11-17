@@ -1250,6 +1250,18 @@ Example: will return all the indexed rows
     SELECT * FROM test.users
     WHERE stratio_col = '{filter : { type  : "all" } }';
 
+Using Builder
+
+.. code-block:: java
+
+    import static com.stratio.cassandra.lucene.builder.Builder.*;
+    (...)
+    String indexColumn = "stratio_col";
+    Search search = search().filter(all());
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users").where(eq(indexColumn, search.build()));
+
+
+
 Bitemporal search
 =================
 
@@ -1386,6 +1398,17 @@ If you want to know what is the last info about where John resides, you perform 
     }'
     AND name='John';
 
+Using Builder
+
+.. code-block:: java
+
+    import static com.stratio.cassandra.lucene.builder.Builder.*;
+    (...)
+    String indexColumn = "lucene";
+    Search search = search().filter(bitemporal("bitemporal").ttFrom("2200/12/31").ttTo("2200/12/31").vtFrom(0).vtTo("2200/12/31"));
+    ResultSet rs = session.execute(QueryBuilder.select("name", "city", "vt_from", "vt_to", "tt_from", "tt_to").from("test","census").where(eq(indexColumn, search.build()));
+
+
 
 If the test case needs to know what the system was thinking at '2015/03/01' about where John resides.
 
@@ -1401,6 +1424,18 @@ If the test case needs to know what the system was thinking at '2015/03/01' abou
         }
     }'
     AND name = 'John';
+
+Using Builder
+
+.. code-block:: java
+
+    import static com.stratio.cassandra.lucene.builder.Builder.*;
+    (...)
+    String indexColumn = "lucene";
+    Search search = search().filter(bitemporal("bitemporal").ttFrom("2015/03/01").ttTo("2015/03/01"));
+    ResultSet rs = session.execute(QueryBuilder.select("name", "city", "vt_from", "vt_to", "tt_from", "tt_to").from("test","census").where(eq(indexColumn, search.build()));
+
+
 
 This code is available in CQL script here: `example_bitemporal.cql </doc/resources/example_bitemporal.cql>`__.
 
@@ -1442,6 +1477,17 @@ with “tu”
                             must : [{type : "wildcard", field : "name", value : "*a"},
                                     {type : "wildcard", field : "food", value : "tu*"}]}}';
 
+Using Builder
+
+.. code-block:: java
+
+    import static com.stratio.cassandra.lucene.builder.Builder.*;
+    (...)
+    String indexColumn = "stratio_col";
+    Search search = search().filter(bool().must(wildcard("name","*a"),wildcard("food","tu*")));
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users").where(eq(indexColumn, search.build()));
+
+
 Example 2: will return rows where food starts with “tu” but name does
 not end with “a”
 
@@ -1452,6 +1498,16 @@ not end with “a”
                             type : "boolean",
                             not  : [{type : "wildcard", field : "name", value : "*a"}],
                             must : [{type : "wildcard", field : "food", value : "tu*"}]}}';
+
+Using Builder
+
+.. code-block:: java
+
+    import static com.stratio.cassandra.lucene.builder.Builder.*;
+    (...)
+    String indexColumn = "stratio_col";
+    Search search = search().filter(bool().not(wildcard("name","*a")).must(wildcard("food","tu*")));
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users").where(eq(indexColumn, search.build()));
 
 Example 3: will return rows where name ends with “a” or food starts with
 “tu”
@@ -1464,12 +1520,34 @@ Example 3: will return rows where name ends with “a” or food starts with
                             should : [{type : "wildcard", field : "name", value : "*a"},
                                       {type : "wildcard", field : "food", value : "tu*"}]}}';
 
+Using Builder
+
+.. code-block:: java
+
+    import static com.stratio.cassandra.lucene.builder.Builder.*;
+    (...)
+    String indexColumn = "stratio_col";
+    Search search = search().filter(bool().should(wildcard("name","*a"),wildcard("food","tu*")));
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users").where(eq(indexColumn, search.build()));
+
+
 Example 4: will return zero rows independently of the index contents
 
 .. code-block:: sql
 
     SELECT * FROM test.users
     WHERE stratio_col = '{filter : { type   : "boolean"} }';
+
+Using Builder
+
+.. code-block:: java
+
+    import static com.stratio.cassandra.lucene.builder.Builder.*;
+    (...)
+    String indexColumn = "stratio_col";
+    Search search = search().filter(bool());
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users").where(eq(indexColumn, search.build()));
+
 
 Example 5: will return rows where name does not end with “a”, which is
 a resource-intensive pure negation search
@@ -1479,6 +1557,17 @@ a resource-intensive pure negation search
     SELECT * FROM test.users
     WHERE stratio_col = '{filter : {
                             not  : [{type : "wildcard", field : "name", value : "*a"}]}}';
+
+Using Builder
+
+.. code-block:: java
+
+    import static com.stratio.cassandra.lucene.builder.Builder.*;
+    (...)
+    String indexColumn = "stratio_col";
+    Search search = search().filter(bool().not(wildcard("name","*a")));
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users").where(eq(indexColumn, search.build()));
+
 
 Contains search
 ===============
@@ -1504,6 +1593,17 @@ Example 1: will return rows where name matches “Alicia” or “mancha”
                             field  : "name",
                             values : ["Alicia","mancha"] }}';
 
+Using Builder
+
+.. code-block:: java
+
+    import static com.stratio.cassandra.lucene.builder.Builder.*;
+    (...)
+    String indexColumn = "stratio_col";
+    Search search = search().filter(contains("name","Alicia","mancha"));
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users").where(eq(indexColumn, search.build()));
+
+
 Example 2: will return rows where date matches “2014/01/01″,
 “2014/01/02″ or “2014/01/03″
 
@@ -1514,6 +1614,17 @@ Example 2: will return rows where date matches “2014/01/01″,
                             type   : "contains",
                             field  : "date",
                             values : ["2014/01/01", "2014/01/02", "2014/01/03"] }}';
+
+Using Builder
+
+.. code-block:: java
+
+    import static com.stratio.cassandra.lucene.builder.Builder.*;
+    (...)
+    String indexColumn = "stratio_col";
+    Search search = search().filter(contains("date","2014/01/01", "2014/01/02", "2014/01/03"));
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users").where(eq(indexColumn, search.build()));
+
 
 Date range search
 =================
@@ -1552,6 +1663,17 @@ Example 1: will return rows where duration intersects "2014/01/01" and
                         to        : "2014/12/31",
                         operation : "intersects"}}';
 
+Using Builder
+
+.. code-block:: java
+
+    import static com.stratio.cassandra.lucene.builder.Builder.*;
+    (...)
+    String indexColumn = "stratio_col";
+    Search search = search().filter(dateRange("duration").from("2014/01/01").to("2014/12/31").operation("intersects"));
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users").where(eq(indexColumn, search.build()));
+
+
 Example 2: will return rows where duration contains "2014/06/01" and
 "2014/06/02"
 
@@ -1564,6 +1686,17 @@ Example 2: will return rows where duration contains "2014/06/01" and
                         from      : "2014/06/01",
                         to        : "2014/06/02",
                         operation : "contains"}}';
+
+Using Builder
+
+.. code-block:: java
+
+    import static com.stratio.cassandra.lucene.builder.Builder.*;
+    (...)
+    String indexColumn = "stratio_col";
+    Search search = search().filter(dateRange("duration").from("2014/06/01").to("2014/06/02").operation("contains"));
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users").where(eq(indexColumn, search.build()));
+
 
 Example 3: will return rows where duration is within "2014/01/01" and
 "2014/12/31"
@@ -1579,7 +1712,16 @@ Example 3: will return rows where duration is within "2014/01/01" and
                         operation : "is_within"}}';
 
 
-Example 3:
+Using Builder
+
+.. code-block:: java
+
+    import static com.stratio.cassandra.lucene.builder.Builder.*;
+    (...)
+    String indexColumn = "stratio_col";
+    Search search = search().filter(dateRange("duration").from("2014/01/01").to("2014/12/31").operation("is_within"));
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users").where(eq(indexColumn, search.build()));
+
 
 Fuzzy search
 ============
@@ -1627,6 +1769,18 @@ differs in one edit operation from “puma”, such as “pumas”.
                                      value     : "puma",
                                      max_edits : 1 }}';
 
+
+Using Builder
+
+.. code-block:: java
+
+    import static com.stratio.cassandra.lucene.builder.Builder.*;
+    (...)
+    String indexColumn = "stratio_col";
+    Search search = search().filter(fuzzy("phrase","puma").maxEdits(1));
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users").where(eq(indexColumn, search.build()));
+
+
 Example 2: same as example 1 but will limit the results to rows where
 phrase contains a word that starts with “pu”.
 
@@ -1638,6 +1792,17 @@ phrase contains a word that starts with “pu”.
                                      value         : "puma",
                                      max_edits     : 1,
                                      prefix_length : 2 }}';
+
+Using Builder
+
+.. code-block:: java
+
+    import static com.stratio.cassandra.lucene.builder.Builder.*;
+    (...)
+    String indexColumn = "stratio_col";
+    Search search = search().filter(fuzzy("phrase","puma").maxEdits(1).prefixLength(2));
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users").where(eq(indexColumn, search.build()));
+
 
 Geo bbox search
 ===============
@@ -1682,6 +1847,17 @@ between -90.0 and 90.0, and a longitude between -180.0 and
                                      min_longitude : -180.0,
                                      max_longitude : 180.0 }}';
 
+Using Builder
+
+.. code-block:: java
+
+    import static com.stratio.cassandra.lucene.builder.Builder.*;
+    (...)
+    String indexColumn = "stratio_col";
+    Search search = search().filter(geoBBox("place",-180.0,180.0,-90.0,90.0));
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users").where(eq(indexColumn, search.build()));
+
+
 Example 2: will return any rows where “place” is formed by a latitude
 between -90.0 and 90.0, and a longitude between 0.0 and
 10.0.
@@ -1697,6 +1873,17 @@ between -90.0 and 90.0, and a longitude between 0.0 and
                                      max_longitude : 10.0 }}';
 
 
+Using Builder
+
+.. code-block:: java
+
+    import static com.stratio.cassandra.lucene.builder.Builder.*;
+    (...)
+    String indexColumn = "stratio_col";
+    Search search = search().filter(geoBBox("place",0.0,10.0,-90.0,90.0));
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users").where(eq(indexColumn, search.build()));
+
+
 Example 3: will return any rows where “place” is formed by a latitude
 between 0.0 and 10.0, and a longitude between -180.0 and
 180.0.
@@ -1710,6 +1897,17 @@ between 0.0 and 10.0, and a longitude between -180.0 and
                                      max_latitude  : 10.0,
                                      min_longitude : -180.0,
                                      max_longitude : 180.0 }}';
+
+
+Using Builder
+
+.. code-block:: java
+
+    import static com.stratio.cassandra.lucene.builder.Builder.*;
+    (...)
+    String indexColumn = "stratio_col";
+    Search search = search().filter(geoBBox("place",-180.0,180.0,0.0,10.0));
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users").where(eq(indexColumn, search.build()));
 
 
 Geo distance search
@@ -1753,6 +1951,17 @@ from the geo point (40.225479, -3.999278).
                                      longitude    : -3.999278,
                                      max_distance : "1km"}}';
 
+Using Builder
+
+.. code-block:: java
+
+    import static com.stratio.cassandra.lucene.builder.Builder.*;
+    (...)
+    String indexColumn = "stratio_col";
+    Search search = search().filter(geoDistance("place",-3.999278d,40.225479d,"1km"));
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users").where(eq(indexColumn, search.build()));
+
+
 Example 2: will return any rows where “place” is within one yard and ten
 yards from the geo point (40.225479, -3.999278).
 
@@ -1765,6 +1974,17 @@ yards from the geo point (40.225479, -3.999278).
                                      longitude    : -3.999278,
                                      max_distance : "10yd" ,
                                      min_distance : "1yd" }}';
+
+Using Builder
+
+.. code-block:: java
+
+    import static com.stratio.cassandra.lucene.builder.Builder.*;
+    (...)
+    String indexColumn = "stratio_col";
+    Search search = search().filter(geoDistance("place",-3.999278d,40.225479d,"10yd").minDistance("1yd"));
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users").where(eq(indexColumn, search.build()));
+
 
 Match search
 ============
@@ -1790,6 +2010,17 @@ Example 1: will return rows where name matches “Alicia”
                            field : "name",
                            value : "Alicia" }}';
 
+Using Builder
+
+.. code-block:: java
+
+    import static com.stratio.cassandra.lucene.builder.Builder.*;
+    (...)
+    String indexColumn = "stratio_col";
+    Search search = search().filter(match("name","Alicia"));
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users").where(eq(indexColumn, search.build()));
+
+
 Example 2: will return rows where phrase contains “mancha”
 
 .. code-block:: sql
@@ -1800,6 +2031,17 @@ Example 2: will return rows where phrase contains “mancha”
                            field : "phrase",
                            value : "mancha" }}';
 
+Using Builder
+
+.. code-block:: java
+
+    import static com.stratio.cassandra.lucene.builder.Builder.*;
+    (...)
+    String indexColumn = "stratio_col";
+    Search search = search().filter(match("phrase","mancha"));
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users").where(eq(indexColumn, search.build()));
+
+
 Example 3: will return rows where date matches “2014/01/01″
 
 .. code-block:: sql
@@ -1809,6 +2051,17 @@ Example 3: will return rows where date matches “2014/01/01″
                            type  : "match",
                            field : "date",
                            value : "2014/01/01" }}';
+
+Using Builder
+
+.. code-block:: java
+
+    import static com.stratio.cassandra.lucene.builder.Builder.*;
+    (...)
+    String indexColumn = "stratio_col";
+    Search search = search().filter(match("date","2014/01/01"));
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users").where(eq(indexColumn, search.build()));
+
 
 None search
 ===========
@@ -1827,6 +2080,16 @@ Example: will return no one of the indexed rows
 
     SELECT * FROM test.users
     WHERE stratio_col = '{filter : { type  : "none" } }';
+
+Using Builder
+
+.. code-block:: java
+
+    import static com.stratio.cassandra.lucene.builder.Builder.*;
+    (...)
+    String indexColumn = "stratio_col";
+    Search search = search().filter(none());
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users").where(eq(indexColumn, search.build()));
 
 Phrase search
 =============
@@ -1860,6 +2123,16 @@ followed by the word “manchada”.
                           field  : "phrase",
                           values : "camisa manchada" }}';
 
+Using Builder
+
+.. code-block:: java
+
+    import static com.stratio.cassandra.lucene.builder.Builder.*;
+    (...)
+    String indexColumn = "stratio_col";
+    Search search = search().filter(phrase("phrase","camisa manchada"));
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users").where(eq(indexColumn, search.build()));
+
 Example 2: will return rows where “phrase” contains the word “mancha”
 followed by the word “camisa” having 0 to 2 words in between.
 
@@ -1871,6 +2144,16 @@ followed by the word “camisa” having 0 to 2 words in between.
                           field  : "phrase",
                           values : "mancha camisa",
                           slop   : 2 }}';
+
+Using Builder
+
+.. code-block:: java
+
+    import static com.stratio.cassandra.lucene.builder.Builder.*;
+    (...)
+    String indexColumn = "stratio_col";
+    Search search = search().filter(phrase("phrase","camisa manchada").slop(2));
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users").where(eq(indexColumn, search.build()));
 
 Prefix search
 =============
@@ -1897,6 +2180,16 @@ ignored by the analyzer will not be retrieved.
                            type  : "prefix",
                            field : "phrase",
                            value : "lu" }}';
+
+Using Builder
+
+.. code-block:: java
+
+    import static com.stratio.cassandra.lucene.builder.Builder.*;
+    (...)
+    String indexColumn = "stratio_col";
+    Search search = search().filter(prefix("phrase","lu"));
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users").where(eq(indexColumn, search.build()));
 
 Range search
 ============
@@ -1941,6 +2234,16 @@ Example 1: will return rows where *age* is in [1, ∞)
                             lower         : 1,
                             include_lower : true }}';
 
+Using Builder
+
+.. code-block:: java
+
+    import static com.stratio.cassandra.lucene.builder.Builder.*;
+    (...)
+    String indexColumn = "stratio_col";
+    Search search = search().filter(range("age").lower(1).includeLower(true));
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users").where(eq(indexColumn, search.build()));
+
 Example 2: will return rows where *age* is in (-∞, 0]
 
 .. code-block:: sql
@@ -1951,6 +2254,16 @@ Example 2: will return rows where *age* is in (-∞, 0]
                             field         : "age",
                             upper         : 0,
                             include_upper : true }}';
+
+Using Builder
+
+.. code-block:: java
+
+    import static com.stratio.cassandra.lucene.builder.Builder.*;
+    (...)
+    String indexColumn = "stratio_col";
+    Search search = search().filter(range("age").upper(0).includeUpper(true));
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users").where(eq(indexColumn, search.build()));
 
 Example 3: will return rows where *age* is in [-1, 1]
 
@@ -1965,6 +2278,16 @@ Example 3: will return rows where *age* is in [-1, 1]
                             include_lower : true,
                             include_upper : true }}';
 
+Using Builder
+
+.. code-block:: java
+
+    import static com.stratio.cassandra.lucene.builder.Builder.*;
+    (...)
+    String indexColumn = "stratio_col";
+    Search search = search().filter(range("age").lower(-1).upper(1).includeLower(true).includeUpper(true));
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users").where(eq(indexColumn, search.build()));
+
 Example 4: will return rows where *date* is in [2014/01/01, 2014/01/02]
 
 .. code-block:: sql
@@ -1977,6 +2300,16 @@ Example 4: will return rows where *date* is in [2014/01/01, 2014/01/02]
                             upper         : "2014/01/02",
                             include_lower : true,
                             include_upper : true }}';
+
+Using Builder
+
+.. code-block:: java
+
+    import static com.stratio.cassandra.lucene.builder.Builder.*;
+    (...)
+    String indexColumn = "stratio_col";
+    Search search = search().filter(range("date").lower("2014/01/01").upper( "2014/01/02").includeLower(true).includeUpper(true));
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users").where(eq(indexColumn, search.build()));
 
 Regexp search
 =============
@@ -2009,6 +2342,16 @@ Example: will return rows where name contains a word that starts with
                            field : "name",
                            value : "[J][aeiou]{2}.*" }}';
 
+Using Builder
+
+.. code-block:: java
+
+    import static com.stratio.cassandra.lucene.builder.Builder.*;
+    (...)
+    String indexColumn = "stratio_col";
+    Search search = search().filter(regexp("name","[J][aeiou]{2}.*"));
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users").where(eq(indexColumn, search.build()));
+
 Wildcard search
 ===============
 
@@ -2038,6 +2381,19 @@ Example: will return rows where food starts with or is “tu”.
                            type  : "wildcard",
                            field : "food",
                            value : "tu*" }}';
+
+
+Using Builder
+
+.. code-block:: java
+
+    import static com.stratio.cassandra.lucene.builder.Builder.*;
+    (...)
+    String indexColumn = "stratio_col";
+    Search search = search().filter(wildcard("food","tu*"));
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users").where(eq(indexColumn, search.build()));
+
+
 User Defined Types
 ******************
 
