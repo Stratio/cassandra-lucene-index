@@ -547,7 +547,7 @@ an index it needs to be deleted first and created again.
 Every mapper supports a collection of CQL types:
 
 +-------------------------------------+-------+--------+------+---------+---------+---------+--------+-------+------+-----+------+-----------+----------+------+---------+--------+
-| Mapper type \ CQL type              | ascii | bigint | blob | boolean | counter | decimal | double | float | inet | int | text | timestamp | timeuuid | uuid | varchar | varint |
+| Mapper type    CQL type             | ascii | bigint | blob | boolean | counter | decimal | double | float | inet | int | text | timestamp | timeuuid | uuid | varchar | varint |
 +=====================================+=======+========+======+=========+=========+=========+========+=======+======+=====+======+===========+==========+======+=========+========+
 | `bigdec <#bigdecimal-mapper>`__     |   X   |   X    |  -   |    -    |    -    |    -    |   -    |   -   |  -   |  X  |  X   |     -     |    -     |  -   |   -     |   -    |
 +=====================================+=======+========+======+=========+=========+=========+========+=======+======+=====+======+===========+==========+======+=========+========+
