@@ -2023,7 +2023,7 @@ Example: will return rows where food starts with or is “tu”.
 User Defined Types
 ******************
 
-    Since Cassandra 2.2.X users can declare User Defined Types as follows:
+Since Cassandra 2.2.X users can declare User Defined Types as follows:
 
 .. code-block:: sql
 
