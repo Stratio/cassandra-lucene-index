@@ -544,146 +544,458 @@ Note that Cassandra allows one custom index per table. On the other
 hand, Cassandra does not allow a modify operation on indexes. To modify
 an index it needs to be deleted first and created again.
 
-Every mapper supports a collection of CQL types:
 
-+-------------------------------------+-------+--------+------+---------+---------+------+---------+--------+-------+------+-----+----------+------+------+-----------+----------+---------+------+---------+--------+
-| Mapper type \  CQL type             | ascii | bigint | blob | boolean | counter | date | decimal | double | float | inet | int | smallint | text | time | timestamp | timeuuid | tinyint | uuid | varchar | varint |
-+=====================================+=======+========+======+=========+=========+======+=========+========+=======+======+=====+==========+======+======+===========+==========+=========+======+=========+========+
-| `bigdec <#bigdecimal-mapper>`__     |   -   |   -    |      |         |         |      |    -    |   -    |   -   |      |  -  |          |  -   |      |           |          |         |      |    -    |   -    |
-+-------------------------------------+-------+--------+------+---------+---------+------+---------+--------+-------+------+-----+----------+------+------+-----------+----------+---------+------+---------+--------+
-| `bigint <#biginteger-mapper>`__     |   -   |   -    |      |         |         |      |         |        |       |      |  -  |          |  -   |      |           |          |         |      |    -    |   -    |
-+-------------------------------------+-------+--------+------+---------+---------+------+---------+--------+-------+------+-----+----------+------+------+-----------+----------+---------+------+---------+--------+
-| `bitemporal <#bitemporal-mapper>`__ |   -   |   -    |      |         |         |      |    -    |   -    |   -   |      |  -  |          |  -   |      |     -     |          |         |      |    -    |   -    |
-+-------------------------------------+-------+--------+------+---------+---------+------+---------+--------+-------+------+-----+----------+------+------+-----------+----------+---------+------+---------+--------+
-| `blob <#blob-mapper>`__             |   -   |        |  -   |         |         |      |         |        |       |      |     |          |  -   |      |           |          |         |      |    -    |        |
-+-------------------------------------+-------+--------+------+---------+---------+------+---------+--------+-------+------+-----+----------+------+------+-----------+----------+---------+------+---------+--------+
-| `boolean  <#boolean-mapper>`__      |   -   |        |      |   -     |         |      |         |        |       |      |     |          |  -   |      |           |          |         |      |    -    |        |
-+-------------------------------------+-------+--------+------+---------+---------+------+---------+--------+-------+------+-----+----------+------+------+-----------+----------+---------+------+---------+--------+
-| `date   <#date-mapper>`__           |   -   |   -    |      |         |         |      |    -    |   -    |   -   |      |  -  |          |  -   |      |     -     |          |         |      |    -    |   -    |
-+-------------------------------------+-------+--------+------+---------+---------+------+---------+--------+-------+------+-----+----------+------+------+-----------+----------+---------+------+---------+--------+
-| `date_range <#daterange-mapper>`__  |   -   |   -    |      |         |         |      |    -    |   -    |   -   |      |  -  |          |  -   |      |     -     |          |         |      |    -    |   -    |
-+-------------------------------------+-------+--------+------+---------+---------+------+---------+--------+-------+------+-----+----------+------+------+-----------+----------+---------+------+---------+--------+
-| `double  <#double-mapper>`__        |   -   |   -    |      |         |         |      |    -    |   -    |   -   |      |  -  |          |  -   |      |           |          |         |      |    -    |   -    |
-+-------------------------------------+-------+--------+------+---------+---------+------+---------+--------+-------+------+-----+----------+------+------+-----------+----------+---------+------+---------+--------+
-| `float  <#float-mapper>`__          |   -   |   -    |      |         |         |      |    -    |   -    |   -   |      |  -  |          |  -   |      |           |          |         |      |    -    |   -    |
-+-------------------------------------+-------+--------+------+---------+---------+------+---------+--------+-------+------+-----+----------+------+------+-----------+----------+---------+------+---------+--------+
-| `geo_point  <#geopoint-mapper>`__   |   -   |   -    |      |         |         |      |    -    |   -    |   -   |      |  -  |          |  -   |      |           |          |         |      |    -    |   -    |
-+-------------------------------------+-------+--------+------+---------+---------+------+---------+--------+-------+------+-----+----------+------+------+-----------+----------+---------+------+---------+--------+
-| `inet <#inet-mapper>`__             |   -   |        |      |         |         |      |         |        |       |  -   |     |          |  -   |      |           |          |         |      |    -    |        |
-+-------------------------------------+-------+--------+------+---------+---------+------+---------+--------+-------+------+-----+----------+------+------+-----------+----------+---------+------+---------+--------+
-| `integer <#integer-mapper>`__       |   -   |   -    |      |         |         |      |    -    |   -    |   -   |      |  -  |          |  -   |      |           |          |         |      |    -    |   -    |
-+-------------------------------------+-------+--------+------+---------+---------+------+---------+--------+-------+------+-----+----------+------+------+-----------+----------+---------+------+---------+--------+
-| `long <#long-mapper>`__             |   -   |   -    |      |         |         |      |    -    |   -    |   -   |      |  -  |          |  -   |      |           |          |         |      |    -    |   -    |
-+-------------------------------------+-------+--------+------+---------+---------+------+---------+--------+-------+------+-----+----------+------+------+-----------+----------+---------+------+---------+--------+
-| `string  <#string-mapper>`__        |   -   |   -    |  -   |   -     |         |      |         |   -    |   -   |  -   |  -  |          |  -   |      |     -     |    -     |         |  -   |    -    |   -    |
-+-------------------------------------+-------+--------+------+---------+---------+------+---------+--------+-------+------+-----+----------+------+------+-----------+----------+---------+------+---------+--------+
-| `text  <#text-mapper>`__            |   -   |   -    |  -   |   -     |         |      |         |   -    |   -   |  -   |  -  |          |  -   |      |     -     |    -     |         |  -   |    -    |   -    |
-+-------------------------------------+-------+--------+------+---------+---------+------+---------+--------+-------+------+-----+----------+------+------+-----------+----------+---------+------+---------+--------+
-| `uuid <#uuid-mapper>`__             |   -   |        |      |         |         |      |         |        |       |      |     |          |  -   |      |           |    -     |         |  -   |    -    |        |
-+-------------------------------------+-------+--------+------+---------+---------+------+---------+--------+-------+------+-----+----------+------+------+-----------+----------+---------+------+---------+--------+
 
 BigDecimal Mapper
 _________________
 
 Syntax:
 
+.. code-block:: sql
+
+    CREATE CUSTOM INDEX census_index on census(lucene)
+    USING 'com.stratio.cassandra.lucene.Index'
+    WITH OPTIONS = {
+        'refresh_seconds' : '1',
+        'schema' : '{
+            fields : {
+                bigdecimal : {
+                    type : "bigdec",
+                    integer_digits : 2,
+                    decimal_digits : 2,
+                    indexed : true,
+                    sorted : false,
+                    column : "column_name"
+                }
+            }
+        }'
+    };
+
 
 CQL supported types:
+    ASCII, BIGINT, DECIMAL, DOUBLE, FLOAT, INT, TEXT, VARCHAR, VARINT
 
 BigInteger Mapper
 _________________
 
 Syntax:
 
+.. code-block:: sql
+
+    CREATE CUSTOM INDEX census_index on census(lucene)
+    USING 'com.stratio.cassandra.lucene.Index'
+    WITH OPTIONS = {
+        'refresh_seconds' : '1',
+        'schema' : '{
+            fields : {
+                biginteger : {
+                    type : "bigint",
+                    digits : 10,
+                    indexed : true,
+                    sorted : false,
+                    column : "column_name"
+                }
+            }
+        }'
+    };
+
+
+CQL supported types:
+    ASCII, BIGINT,INT, TEXT, VARCHAR, VARINT
 
 Bitemporal Mapper
 _________________
 
 Syntax:
 
+.. code-block:: sql
+
+    CREATE CUSTOM INDEX census_index on census(lucene)
+    USING 'com.stratio.cassandra.lucene.Index'
+    WITH OPTIONS = {
+        'refresh_seconds' : '1',
+        'schema' : '{
+            fields : {
+                bitemporal : {
+                    type : "bitemporal",
+                    vt_from : "vt_from",
+                    vt_to : "vt_to",
+                    tt_from : "tt_from",
+                    tt_to : "tt_to",
+                    pattern : "yyyy/MM/dd HH:mm:ss.SSS";,
+                    now_value : "3000/01/01 00:00:00.000",
+                }
+            }
+        }'
+    };
+
+
+CQL supported types:
+    ASCII, BIGINT, DECIMAL, DOUBLE, FLOAT, INT, TEXT, TIMESTAMP, VARCHAR, VARINT
 
 Blob Mapper
 ___________
 
 Syntax:
 
+.. code-block:: sql
 
+    CREATE CUSTOM INDEX census_index on census(lucene)
+    USING 'com.stratio.cassandra.lucene.Index'
+    WITH OPTIONS = {
+        'refresh_seconds' : '1',
+        'schema' : '{
+            fields : {
+                blob : {
+                    type : "bytes",
+                    indexed : true,
+                    sorted : false,
+                    column : "column_name"
+                }
+            }
+        }'
+    };
+
+
+CQL supported types:
+    ASCII, BLOB,  TEXT, VARCHAR
 
 Boolean Mapper
 ______________
 
 Syntax:
 
+.. code-block:: sql
 
+    CREATE CUSTOM INDEX census_index on census(lucene)
+    USING 'com.stratio.cassandra.lucene.Index'
+    WITH OPTIONS = {
+        'refresh_seconds' : '1',
+        'schema' : '{
+            fields : {
+                bool : {
+                    type : "boolean",
+                    indexed : true,
+                    sorted : false,
+                    column : "column_name"
+                }
+            }
+        }'
+    };
+
+
+CQL supported types:
+    ASCII, BOOLEAN , TEXT, VARCHAR,
 
 Date Mapper
 ___________
 
 Syntax:
 
+.. code-block:: sql
 
+    CREATE CUSTOM INDEX census_index on census(lucene)
+    USING 'com.stratio.cassandra.lucene.Index'
+    WITH OPTIONS = {
+        'refresh_seconds' : '1',
+        'schema' : '{
+            fields : {
+                date : {
+                    type : "date",
+                    pattern : "yyyy/MM/dd HH:mm:ss.SSS",
+                    indexed : true,
+                    sorted : false,
+                    column : "column_name"
+                }
+            }
+        }'
+    };
+
+
+CQL supported types:
+    ASCII, BIGINT, DECIMAL, DOUBLE, FLOAT, INT, TEXT, TIMESTAMP, VARCHAR, VARINT
 
 DateRange Mapper
 ________________
 
 Syntax:
 
+.. code-block:: sql
+
+    CREATE CUSTOM INDEX census_index on census(lucene)
+    USING 'com.stratio.cassandra.lucene.Index'
+    WITH OPTIONS = {
+        'refresh_seconds' : '1',
+        'schema' : '{
+            fields : {
+                date_range : {
+                    type : "date_range",
+                    from : "range_from",
+                    to : "range_to",
+                    pattern : "yyyy/MM/dd HH:mm:ss.SSS"
+                }
+            }
+        }'
+    };
+
+
+CQL supported types:
+    ASCII, BIGINT, DECIMAL, DOUBLE, FLOAT, INT, TEXT, TIMESTAMP, VARCHAR, VARINT
 
 Double Mapper
 _____________
 
 Syntax:
 
+.. code-block:: sql
+
+    CREATE CUSTOM INDEX census_index on census(lucene)
+    USING 'com.stratio.cassandra.lucene.Index'
+    WITH OPTIONS = {
+        'refresh_seconds' : '1',
+        'schema' : '{
+            fields : {
+                double : {
+                    type : "double",
+                    boost : 2.0,
+                    indexed : true,
+                    sorted : false,
+                    column : "column_name"
+                }
+            }
+        }'
+    };
+
+
+CQL supported types:
+    ASCII, BIGINT, DECIMAL, DOUBLE, FLOAT, INT, TEXT, TIMESTAMP, VARCHAR, VARINT
 
 Float Mapper
 ____________
 
 Syntax:
 
+.. code-block:: sql
+
+    CREATE CUSTOM INDEX census_index on census(lucene)
+    USING 'com.stratio.cassandra.lucene.Index'
+    WITH OPTIONS = {
+        'refresh_seconds' : '1',
+        'schema' : '{
+            fields : {
+                float : {
+                    type : "float",
+                    boost : 2.0,
+                    indexed : true,
+                    sorted : false,
+                    column : "column_name"
+                }
+            }
+        }'
+    };
+
+
+CQL supported types:
+    ASCII, BIGINT, DECIMAL, DOUBLE, FLOAT, INT, TEXT, TIMESTAMP, VARCHAR, VARINT
 
 GeoPoint Mapper
 _______________
 
 Syntax:
 
+.. code-block:: sql
+
+    CREATE CUSTOM INDEX census_index on census(lucene)
+    USING 'com.stratio.cassandra.lucene.Index'
+    WITH OPTIONS = {
+        'refresh_seconds' : '1',
+        'schema' : '{
+            fields : {
+                geo_point : {
+                    type : "geo_point",
+                    latitude : "lat",
+                    longitude : "long",
+                    max_levels : 15
+                }
+            }
+        }'
+    };
+
+
+CQL supported types:
+    ASCII, BIGINT, DECIMAL, DOUBLE, FLOAT, INT, TEXT, TIMESTAMP, VARCHAR, VARINT
 
 Inet Mapper
 ___________
 
 Syntax:
 
+.. code-block:: sql
+
+    CREATE CUSTOM INDEX census_index on census(lucene)
+    USING 'com.stratio.cassandra.lucene.Index'
+    WITH OPTIONS = {
+        'refresh_seconds' : '1',
+        'schema' : '{
+            fields : {
+                inet : {
+                    type : "inet",
+                    indexed : true,
+                    sorted : false,
+                    column : "column_name"
+                }
+            }
+        }'
+    };
+
+
+CQL supported types:
+    ASCII, INET, TEXT, VARCHAR
 
 Integer Mapper
 ______________
 
 Syntax:
 
+.. code-block:: sql
+
+    CREATE CUSTOM INDEX census_index on census(lucene)
+    USING 'com.stratio.cassandra.lucene.Index'
+    WITH OPTIONS = {
+        'refresh_seconds' : '1',
+        'schema' : '{
+            fields : {
+                integer : {
+                    type : "integer",
+                    boost : 2.0,
+                    indexed : true,
+                    sorted : false,
+                    column : "column_name"
+                }
+            }
+        }'
+    };
+
+
+CQL supported types:
+    ASCII, BIGINT, DECIMAL, DOUBLE, FLOAT, INT, TEXT, TIMESTAMP, VARCHAR, VARINT
 
 Long Mapper
 ___________
 
 Syntax:
 
+.. code-block:: sql
+
+    CREATE CUSTOM INDEX census_index on census(lucene)
+    USING 'com.stratio.cassandra.lucene.Index'
+    WITH OPTIONS = {
+        'refresh_seconds' : '1',
+        'schema' : '{
+            fields : {
+                long : {
+                    type : "long",
+                    boost : 2.0,
+                    indexed : true,
+                    sorted : false,
+                    column : "column_name"
+                }
+            }
+        }'
+    };
+
+
+CQL supported types:
+    ASCII, BIGINT, DECIMAL, DOUBLE, FLOAT, INT, TEXT, TIMESTAMP, VARCHAR, VARINT
 
 String Mapper
 _____________
 
 Syntax:
 
+.. code-block:: sql
+
+    CREATE CUSTOM INDEX census_index on census(lucene)
+    USING 'com.stratio.cassandra.lucene.Index'
+    WITH OPTIONS = {
+        'refresh_seconds' : '1',
+        'schema' : '{
+            fields : {
+                string : {
+                    type : "string",
+                    case_sensitive : false,
+                    indexed : true,
+                    sorted : false,
+                    column : "column_name"
+                }
+            }
+        }'
+    };
+
+
+CQL supported types:
+    ASCII, BIGINT, BLOB, BOOLEAN, DOUBLE, FLOAT, INET, INT, TEXT, TIMESTAMP, TIMEUUID, UUID, VARCHAR, VARINT
 
 Text Mapper
 ___________
 
 Syntax:
 
+.. code-block:: sql
+
+    CREATE CUSTOM INDEX census_index on census(lucene)
+    USING 'com.stratio.cassandra.lucene.Index'
+    WITH OPTIONS = {
+        'refresh_seconds' : '1',
+        'schema' : '{
+            analyzers : {
+                  my_custom_analyzer : {
+                      type:"snowball",
+                      language:"Spanish",
+                      stopwords : "el,la,lo,loas,las,a,ante,bajo,cabe,con,contra"}
+            },
+            fields : {
+                text : {
+                    type : "text",
+                    analyzer : "my_custom_analyzer",
+                    indexed : true,
+                    sorted : false,
+                    column : "column_name"
+                }
+            }
+        }'
+    };
+
+
+CQL supported types:
+    ASCII, BIGINT, BLOB, BOOLEAN, DOUBLE, FLOAT, INET, INT, TEXT, TIMESTAMP, TIMEUUID, UUID, VARCHAR, VARINT
 
 UUID Mapper
 ___________
 
 Syntax:
 
+.. code-block:: sql
+
+    CREATE CUSTOM INDEX census_index on census(lucene)
+    USING 'com.stratio.cassandra.lucene.Index'
+    WITH OPTIONS = {
+        'refresh_seconds' : '1',
+        'schema' : '{
+            fields : {
+                bigdecimal : {
+                    type : "uuid",
+                    indexed : true,
+                    sorted : false,
+                    column : "column_name"
+                }
+            }
+        }'
+    };
 
 
+CQL supported types:
+    ASCII, TEXT, TIMEUUID, UUID, VARCHAR
 
 
 Example
