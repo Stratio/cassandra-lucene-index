@@ -30,6 +30,7 @@ import org.apache.cassandra.db.marshal.DoubleType;
 import org.apache.cassandra.db.marshal.FloatType;
 import org.apache.cassandra.db.marshal.Int32Type;
 import org.apache.cassandra.db.marshal.LongType;
+import org.apache.cassandra.db.marshal.ShortType;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.db.marshal.UUIDType;
 import org.apache.cassandra.exceptions.ConfigurationException;
@@ -159,6 +160,16 @@ public class GeoPointMapperTest extends AbstractMapperTest {
         assertEquals("Latitude is not properly parsed", 5.3d, mapper.readLatitude(columns), 0);
     }
 
+    @Test()
+    public void testGetLatitudeFromShortColumn() {
+        GeoPointMapper mapper = new GeoPointMapper("field", "lat", "lon", null);
+        Columns columns = new Columns();
+        columns.add(Column.fromComposed("lat", new Short("5"), ShortType.instance, false));
+        columns.add(Column.fromComposed("lon", 0, Int32Type.instance, false));
+        assertEquals("Latitude is not properly parsed", 5d, mapper.readLatitude(columns), 0);
+    }
+
+
     @Test(expected = IndexException.class)
     public void testGetLatitudeFromUnparseableStringColumn() {
         GeoPointMapper mapper = new GeoPointMapper("field", "lat", "lon", null);
@@ -188,6 +199,24 @@ public class GeoPointMapperTest extends AbstractMapperTest {
         GeoPointMapper mapper = new GeoPointMapper("field", "lat", "lon", null);
         Columns columns = new Columns();
         columns.add(Column.fromComposed("lat", "91", UTF8Type.instance, false));
+        columns.add(Column.fromComposed("lon", 0, Int32Type.instance, false));
+        mapper.readLatitude(columns);
+    }
+
+    @Test(expected = IndexException.class)
+    public void testGetLatitudeWithTooSmallShortColumnValue() {
+        GeoPointMapper mapper = new GeoPointMapper("field", "lat", "lon", null);
+        Columns columns = new Columns();
+        columns.add(Column.fromComposed("lat",new Short("-91"), ShortType.instance, false));
+        columns.add(Column.fromComposed("lon", 0, Int32Type.instance, false));
+        mapper.readLatitude(columns);
+    }
+
+    @Test(expected = IndexException.class)
+    public void testGetLatitudeWithTooBigShortColumnValue() {
+        GeoPointMapper mapper = new GeoPointMapper("field", "lat", "lon", null);
+        Columns columns = new Columns();
+        columns.add(Column.fromComposed("lat",new Short("91"), ShortType.instance, false));
         columns.add(Column.fromComposed("lon", 0, Int32Type.instance, false));
         mapper.readLatitude(columns);
     }
@@ -237,6 +266,15 @@ public class GeoPointMapperTest extends AbstractMapperTest {
         assertEquals("Longitude is not properly parsed", 5.3d, mapper.readLongitude(columns), 0);
     }
 
+    @Test()
+    public void testGetLongitudeFromShortColumn() {
+        GeoPointMapper mapper = new GeoPointMapper("field", "lat", "lon", null);
+        Columns columns = new Columns();
+        columns.add(Column.fromComposed("lat", 0, Int32Type.instance, false));
+        columns.add(Column.fromComposed("lon", new Short("5"), ShortType.instance, false));
+        assertEquals("Longitude is not properly parsed", 5d, mapper.readLongitude(columns), 0);
+    }
+
     @Test(expected = IndexException.class)
     public void testGetLongitudeFromUnparseableStringColumn() {
         GeoPointMapper mapper = new GeoPointMapper("field", "lat", "lon", null);
@@ -276,6 +314,25 @@ public class GeoPointMapperTest extends AbstractMapperTest {
         Columns columns = new Columns();
         columns.add(Column.fromComposed("lat", 0, Int32Type.instance, false));
         columns.add(Column.fromComposed("lon", "181", UTF8Type.instance, false));
+        mapper.readLongitude(columns);
+    }
+
+
+    @Test(expected = IndexException.class)
+    public void testGetLongitudeWithTooSmallShortColumnValue() {
+        GeoPointMapper mapper = new GeoPointMapper("field", "lat", "lon", null);
+        Columns columns = new Columns();
+        columns.add(Column.fromComposed("lat", 0, Int32Type.instance, false));
+        columns.add(Column.fromComposed("lon", new Short("-181"), ShortType.instance, false));
+        mapper.readLongitude(columns);
+    }
+
+    @Test(expected = IndexException.class)
+    public void testGetLongitudeWithTooBigShortColumnValue() {
+        GeoPointMapper mapper = new GeoPointMapper("field", "lat", "lon", null);
+        Columns columns = new Columns();
+        columns.add(Column.fromComposed("lat", 0, Int32Type.instance, false));
+        columns.add(Column.fromComposed("lon", new Short("181"), ShortType.instance, false));
         mapper.readLongitude(columns);
     }
 

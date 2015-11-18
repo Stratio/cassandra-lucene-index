@@ -112,6 +112,20 @@ public class TextMapperTest extends AbstractMapperTest {
     }
 
     @Test
+    public void testValueShort() {
+        TextMapper mapper = new TextMapper("field", null, true, true, "org.apache.lucene.analysis.en.EnglishAnalyzer");
+        String parsed = mapper.base("test", new Short("3"));
+        assertEquals("Base for longs is wrong", "3", parsed);
+    }
+
+    @Test
+    public void testValueByte() {
+        TextMapper mapper = new TextMapper("field", null, true, true, "org.apache.lucene.analysis.en.EnglishAnalyzer");
+        String parsed = mapper.base("test", new Byte("3"));
+        assertEquals("Base for longs is wrong", "3", parsed);
+    }
+
+    @Test
     public void testValueFloatWithoutDecimal() {
         TextMapper mapper = new TextMapper("field", null, true, true, "org.apache.lucene.analysis.en.EnglishAnalyzer");
         String parsed = mapper.base("test", 3f);

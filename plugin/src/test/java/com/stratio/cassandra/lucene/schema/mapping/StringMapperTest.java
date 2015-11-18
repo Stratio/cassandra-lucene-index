@@ -106,6 +106,21 @@ public class StringMapperTest extends AbstractMapperTest {
     }
 
     @Test
+    public void testValueShort() {
+        StringMapper mapper = new StringMapper("field", null, true, true, true);
+        String parsed = mapper.base("test", new Short("3"));
+        assertEquals("Base for longs is wrong", "3", parsed);
+    }
+
+    @Test
+    public void testValueByte() {
+        StringMapper mapper = new StringMapper("field", null, true, true, true);
+        String parsed = mapper.base("test", new Byte("3"));
+        assertEquals("Base for longs is wrong", "3", parsed);
+    }
+
+
+    @Test
     public void testValueFloatWithoutDecimal() {
         StringMapper mapper = new StringMapper("field", null, true, true, true);
         String parsed = mapper.base("test", 3f);

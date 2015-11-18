@@ -112,6 +112,20 @@ public class LongMapperTest extends AbstractMapperTest {
     }
 
     @Test
+    public void testValueShort() {
+        LongMapper mapper = new LongMapper("field", null, true, true, 1f);
+        Long parsed = mapper.base("test", new Short("3"));
+        assertEquals("Base for long is wrong", Long.valueOf(3), parsed);
+    }
+
+    @Test
+    public void testValueByte() {
+        LongMapper mapper = new LongMapper("field", null, true, true, 1f);
+        Long parsed = mapper.base("test", new Byte("3"));
+        assertEquals("Base for long is wrong", Long.valueOf(3), parsed);
+    }
+
+    @Test
     public void testValueFloatWithoutDecimal() {
         LongMapper mapper = new LongMapper("field", null, true, true, 1f);
         Long parsed = mapper.base("test", 3f);

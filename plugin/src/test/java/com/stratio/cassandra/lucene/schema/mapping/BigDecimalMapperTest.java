@@ -250,6 +250,83 @@ public class BigDecimalMapperTest extends AbstractMapperTest {
     }
 
     @Test
+    public void testZeroValueByte() {
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 4, 4);
+        Byte bite = new Byte("0");
+        String parsed = mapper.base("test", bite);
+        assertEquals("Base value is not properly parsed","09999.9999", parsed);
+    }
+
+    @Test
+    public void testMinValueByte() {
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 4, 4);
+        Byte bite = new Byte("-128");
+        String parsed = mapper.base("test", bite);
+        assertEquals("Base value is not properly parsed","09871.9999", parsed);
+    }
+
+    @Test
+    public void testMaxValueByte() {
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 4, 4);
+        Byte bite = new Byte("127");
+        String parsed = mapper.base("test", bite);
+        assertEquals("Base value is not properly parsed","10126.9999", parsed);
+    }
+
+    @Test
+    public void testZeroValueShort() {
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 4, 4);
+        Short shorty = new Short("0");
+        String parsed = mapper.base("test", shorty);
+        assertEquals("Base value is not properly parsed","09999.9999", parsed);
+    }
+
+    @Test
+    public void testMinValueShort() {
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 8, 4);
+        Short shorty = new Short("-32768");
+        String parsed = mapper.base("test", shorty);
+        assertEquals("Base value is not properly parsed","099967231.9999", parsed);
+
+    }
+
+    @Test
+      public void testMaxValueShort() {
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 8, 4);
+        Short shorty = new Short("32767");
+        String parsed = mapper.base("test", shorty);
+        assertEquals("Base value is not properly parsed","100032766.9999", parsed);
+
+    }
+
+    @Test
+    public void testZeroValueInt() {
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 4, 4);
+        Integer integer= new Integer(0);
+        String parsed = mapper.base("test", integer);
+        assertEquals("Base value is not properly parsed","09999.9999", parsed);
+
+    }
+
+    @Test
+    public void testOneValueInt() {
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 4, 4);
+        Integer integer= new Integer(1);
+        String parsed = mapper.base("test", integer);
+        assertEquals("Base value is not properly parsed","10000.9999", parsed);
+
+    }
+
+    @Test
+    public void testNegativeValueInt() {
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 4, 4);
+        Integer integer= new Integer(-15);
+        String parsed = mapper.base("test", integer);
+        assertEquals("Base value is not properly parsed","09984.9999", parsed);
+
+    }
+
+    @Test
     public void testValueIntegerNegativeMaxSort() {
         BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 8, 100);
         String lower = mapper.base("test", -99999999);
@@ -479,6 +556,184 @@ public class BigDecimalMapperTest extends AbstractMapperTest {
         BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 4, 4);
         String lower = mapper.base("test", -1.9999);
         String upper = mapper.base("test", -1.9);
+        int compare = lower.compareTo(upper);
+        assertTrue("Cassandra ordering is not preserved", compare < 0);
+    }
+
+
+    @Test
+    public void testValueByteNegativeMaxSort() {
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 8, 100);
+        Byte lowerB= new Byte("-128");
+        Byte upperB= new Byte("-127");
+        String lower = mapper.base("test", lowerB);
+        String upper = mapper.base("test", upperB);
+        int compare = lower.compareTo(upper);
+        assertTrue("Cassandra ordering is not preserved", compare < 0);
+    }
+
+    @Test
+    public void testValueByteNegativeMinSort() {
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 8, 100);
+        Byte lowerB= new Byte("-2");
+        Byte upperB= new Byte("-1");
+        String lower = mapper.base("test", lowerB);
+        String upper = mapper.base("test", upperB);
+        int compare = lower.compareTo(upper);
+        assertTrue("Cassandra ordering is not preserved", compare < 0);
+    }
+
+    @Test
+    public void testValueBytePositiveMaxSort() {
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 8, 100);
+        Byte lowerB= new Byte("126");
+        Byte upperB= new Byte("127");
+        String lower = mapper.base("test", lowerB);
+        String upper = mapper.base("test", upperB);
+        int compare = lower.compareTo(upper);
+        assertTrue("Cassandra ordering is not preserved", compare < 0);
+    }
+
+    @Test
+    public void testValueBytePositiveMinSort() {
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 8, 100);
+        Byte lowerB= new Byte("1");
+        Byte upperB= new Byte("2");
+        String lower = mapper.base("test", lowerB);
+        String upper = mapper.base("test", upperB);
+        int compare = lower.compareTo(upper);
+        assertTrue("Cassandra ordering is not preserved", compare < 0);
+    }
+
+    @Test
+    public void testValueByteNegativeZeroSort() {
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 8, 100);
+        Byte lowerB= new Byte("-1");
+        Byte upperB= new Byte("0");
+        String lower = mapper.base("test", lowerB);
+        String upper = mapper.base("test", upperB);
+
+        int compare = lower.compareTo(upper);
+        assertTrue("Cassandra ordering is not preserved", compare < 0);
+    }
+
+    @Test
+    public void testValueBytePositiveZeroSort() {
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 8, 100);
+        Byte lowerB= new Byte("0");
+        Byte upperB= new Byte("1");
+        String lower = mapper.base("test", lowerB);
+        String upper = mapper.base("test", upperB);
+        int compare = lower.compareTo(upper);
+        assertTrue("Cassandra ordering is not preserved", compare < 0);
+    }
+
+    @Test
+    public void testValueByteExtremeSort() {
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 8, 100);
+        Byte lowerB= new Byte("-128");
+        Byte upperB= new Byte("127");
+        String lower = mapper.base("test", lowerB);
+        String upper = mapper.base("test", upperB);
+        int compare = lower.compareTo(upper);
+        assertTrue("Cassandra ordering is not preserved", compare < 0);
+    }
+
+    @Test
+    public void testValueByteNegativePositiveSort() {
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 8, 100);
+        Byte lowerB= new Byte("-1");
+        Byte upperB= new Byte("1");
+        String lower = mapper.base("test", lowerB);
+        String upper = mapper.base("test", upperB);
+        int compare = lower.compareTo(upper);
+        assertTrue("Cassandra ordering is not preserved", compare < 0);
+    }
+
+    @Test
+    public void testValueShortNegativeMaxSort() {
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 8, 100);
+        Short lowerS= new Short("-32768");
+        Short upperS= new Short("-32767");
+        String lower = mapper.base("test", lowerS);
+        String upper = mapper.base("test", upperS);
+        int compare = lower.compareTo(upper);
+        assertTrue("Cassandra ordering is not preserved", compare < 0);
+    }
+
+    @Test
+    public void testValueShortNegativeMinSort() {
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 8, 100);
+        Short lowerS= new Short("-2");
+        Short upperS= new Short("-1");
+        String lower = mapper.base("test", lowerS);
+        String upper = mapper.base("test", upperS);
+        int compare = lower.compareTo(upper);
+        assertTrue("Cassandra ordering is not preserved", compare < 0);
+    }
+
+    @Test
+    public void testValueShortPositiveMaxSort() {
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 8, 100);
+        Short lowerS= new Short("32766");
+        Short upperS= new Short("32767");
+        String lower = mapper.base("test", lowerS);
+        String upper = mapper.base("test", upperS);
+        int compare = lower.compareTo(upper);
+        assertTrue("Cassandra ordering is not preserved", compare < 0);
+    }
+
+    @Test
+    public void testValueShortPositiveMinSort() {
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 8, 100);
+        Short lowerS= new Short("1");
+        Short upperS= new Short("2");
+        String lower = mapper.base("test", lowerS);
+        String upper = mapper.base("test", upperS);
+        int compare = lower.compareTo(upper);
+        assertTrue("Cassandra ordering is not preserved", compare < 0);
+    }
+
+    @Test
+    public void testValueShortNegativeZeroSort() {
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 8, 100);
+        Short lowerS= new Short("-1");
+        Short upperS= new Short("0");
+        String lower = mapper.base("test", lowerS);
+        String upper = mapper.base("test", upperS);
+        int compare = lower.compareTo(upper);
+        assertTrue("Cassandra ordering is not preserved", compare < 0);
+    }
+
+    @Test
+    public void testValueShortPositiveZeroSort() {
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 8, 100);
+        Short lowerS= new Short("0");
+        Short upperS= new Short("1");
+        String lower = mapper.base("test", lowerS);
+        String upper = mapper.base("test", upperS);
+        int compare = lower.compareTo(upper);
+        assertTrue("Cassandra ordering is not preserved", compare < 0);
+    }
+
+    @Test
+    public void testValueShortExtremeSort() {
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 8, 100);
+        Short lowerS= new Short("-32768");
+        Short upperS= new Short("32767");
+        String lower = mapper.base("test", lowerS);
+        String upper = mapper.base("test", upperS);
+        int compare = lower.compareTo(upper);
+        assertTrue("Cassandra ordering is not preserved", compare < 0);
+    }
+
+    @Test
+    public void testValueShortNegativePositiveSort() {
+        BigDecimalMapper mapper = new BigDecimalMapper("field", null, null, null, 8, 100);
+        Short lowerS= new Short("-1");
+        Short upperS= new Short("1");
+        String lower = mapper.base("test", lowerS);
+        String upper = mapper.base("test", upperS);
         int compare = lower.compareTo(upper);
         assertTrue("Cassandra ordering is not preserved", compare < 0);
     }

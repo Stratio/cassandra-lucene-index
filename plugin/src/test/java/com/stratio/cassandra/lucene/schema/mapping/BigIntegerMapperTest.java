@@ -327,6 +327,86 @@ public class BigIntegerMapperTest extends AbstractMapperTest {
         mapper.base("test", 0.0d);
     }
 
+    @Test
+    public void testValueByteMinPositive() {
+        BigIntegerMapper mapper = new BigIntegerMapper("field", null, null, null, 8);
+        Byte bite= new Byte("1");
+        String parsed = mapper.base("test", bite);
+        assertEquals("Base value is not properly parsed", "01njchs", parsed);
+    }
+
+    @Test
+    public void testValueByteMaxPositive() {
+        BigIntegerMapper mapper = new BigIntegerMapper("field", null, null, null, 8);
+        Byte bite= new Byte("127");
+        String parsed = mapper.base("test", bite);
+        assertEquals("Base value is not properly parsed", "01njcla", parsed);
+    }
+
+    @Test
+    public void testValueByteMinNegative() {
+        BigIntegerMapper mapper = new BigIntegerMapper("field", null, null, null, 8);
+        Byte bite= new Byte("-1");
+        String parsed = mapper.base("test", bite);
+        assertEquals("Base value is not properly parsed", "01njchq", parsed);
+    }
+
+    @Test
+    public void testValueByteMaxNegative() {
+        BigIntegerMapper mapper = new BigIntegerMapper("field", null, null, null, 8);
+        Byte bite= new Byte("-128");
+        String parsed = mapper.base("test", bite);
+        assertEquals("Base value is not properly parsed", "01njce7", parsed);
+    }
+
+    @Test
+    public void testValueByteZero() {
+        BigIntegerMapper mapper = new BigIntegerMapper("field", null, null, null, 8);
+        Byte bite= new Byte("0");
+        String parsed = mapper.base("test", bite);
+        assertEquals("Base value is not properly parsed", "01njchr", parsed);
+    }
+
+    @Test
+    public void testValueShortMinPositive() {
+        BigIntegerMapper mapper = new BigIntegerMapper("field", null, null, null, 8);
+        Short shorty= new Short("1");
+        String parsed = mapper.base("test", shorty);
+        assertEquals("Base value is not properly parsed", "01njchs", parsed);
+    }
+
+    @Test
+    public void testValueShortMaxPositive() {
+        BigIntegerMapper mapper = new BigIntegerMapper("field", null, null, null, 8);
+        Short shorty= new Short("32767");
+        String parsed = mapper.base("test", shorty);
+        assertEquals("Base value is not properly parsed", "01nk1ry", parsed);
+    }
+
+    @Test
+    public void testValueShortMinNegative() {
+        BigIntegerMapper mapper = new BigIntegerMapper("field", null, null, null, 8);
+        Short shorty= new Short("-1");
+        String parsed = mapper.base("test", shorty);
+        assertEquals("Base value is not properly parsed", "01njchq", parsed);
+    }
+
+    @Test
+    public void testValueShortMaxNegative() {
+        BigIntegerMapper mapper = new BigIntegerMapper("field", null, null, null, 8);
+        Short shorty= new Short("-32768");
+        String parsed = mapper.base("test", shorty);
+        assertEquals("Base value is not properly parsed", "01nin7j", parsed);
+    }
+
+    @Test
+    public void testValueShortZero() {
+        BigIntegerMapper mapper = new BigIntegerMapper("field", null, null, null, 8);
+        Short shorty= new Short("0");
+        String parsed = mapper.base("test", shorty);
+        assertEquals("Base value is not properly parsed", "01njchr", parsed);
+    }
+
     @Test(expected = IndexException.class)
     public void testValueTooBig() {
         BigIntegerMapper mapper = new BigIntegerMapper("field", null, null, null, 8);
@@ -345,7 +425,7 @@ public class BigIntegerMapperTest extends AbstractMapperTest {
         String lower = mapper.base("test", -99999999);
         String upper = mapper.base("test", -99999998);
         int compare = lower.compareTo(upper);
-        assertEquals("Cassandra ordering is not preserved", -1, compare);
+        assertTrue("Cassandra ordering is not preserved", compare < 0);
     }
 
     @Test
@@ -354,7 +434,7 @@ public class BigIntegerMapperTest extends AbstractMapperTest {
         String lower = mapper.base("test", -2);
         String upper = mapper.base("test", -1);
         int compare = lower.compareTo(upper);
-        assertEquals("Cassandra ordering is not preserved", -1, compare);
+        assertTrue("Cassandra ordering is not preserved", compare < 0);
     }
 
     @Test
@@ -363,7 +443,7 @@ public class BigIntegerMapperTest extends AbstractMapperTest {
         String lower = mapper.base("test", 99999998);
         String upper = mapper.base("test", 99999999);
         int compare = lower.compareTo(upper);
-        assertEquals("Cassandra ordering is not preserved", -1, compare);
+        assertTrue("Cassandra ordering is not preserved", compare < 0);
     }
 
     @Test
@@ -372,7 +452,7 @@ public class BigIntegerMapperTest extends AbstractMapperTest {
         String lower = mapper.base("test", 1);
         String upper = mapper.base("test", 2);
         int compare = lower.compareTo(upper);
-        assertEquals("Cassandra ordering is not preserved", -1, compare);
+        assertTrue("Cassandra ordering is not preserved", compare < 0);
     }
 
     @Test
@@ -381,7 +461,7 @@ public class BigIntegerMapperTest extends AbstractMapperTest {
         String lower = mapper.base("test", -1);
         String upper = mapper.base("test", 0);
         int compare = lower.compareTo(upper);
-        assertEquals("Cassandra ordering is not preserved", -1, compare);
+        assertTrue("Cassandra ordering is not preserved", compare < 0);
     }
 
     @Test
@@ -390,7 +470,7 @@ public class BigIntegerMapperTest extends AbstractMapperTest {
         String lower = mapper.base("test", 0);
         String upper = mapper.base("test", 1);
         int compare = lower.compareTo(upper);
-        assertEquals("Cassandra ordering is not preserved", -1, compare);
+        assertTrue("Cassandra ordering is not preserved", compare < 0);
     }
 
     @Test
@@ -399,7 +479,7 @@ public class BigIntegerMapperTest extends AbstractMapperTest {
         String lower = mapper.base("test", -99999999);
         String upper = mapper.base("test", 99999999);
         int compare = lower.compareTo(upper);
-        assertEquals("Cassandra ordering is not preserved", -3, compare);
+        assertTrue("Cassandra ordering is not preserved", compare < 0);
     }
 
     @Test
@@ -408,7 +488,189 @@ public class BigIntegerMapperTest extends AbstractMapperTest {
         String lower = mapper.base("test", -1);
         String upper = mapper.base("test", 1);
         int compare = lower.compareTo(upper);
-        assertEquals("Cassandra ordering is not preserved", -2, compare);
+        assertTrue("Cassandra ordering is not preserved", compare < 0);
+    }
+
+
+    @Test
+    public void testByteValueNegativeMaxSort() {
+        BigIntegerMapper mapper = new BigIntegerMapper("field", null, null, null, 8);
+        Byte lowerB = new Byte("-128");
+        Byte upperB = new Byte("-127");
+        String lower = mapper.base("test", lowerB);
+        String upper = mapper.base("test", upperB);
+        int compare = lower.compareTo(upper);
+        assertTrue("Cassandra ordering is not preserved", compare < 0);
+    }
+
+    @Test
+    public void testByteValueNegativeMinSort() {
+        BigIntegerMapper mapper = new BigIntegerMapper("field", null, null, null, 8);
+        Byte lowerB = new Byte("-2");
+        Byte upperB = new Byte("-1");
+        String lower = mapper.base("test", lowerB);
+        String upper = mapper.base("test", upperB);
+        int compare = lower.compareTo(upper);
+        assertTrue("Cassandra ordering is not preserved", compare < 0);
+    }
+
+    @Test
+    public void testByteValuePositiveMaxSort() {
+        BigIntegerMapper mapper = new BigIntegerMapper("field", null, null, null, 8);
+
+
+        Byte lowerB = new Byte("126");
+        Byte upperB = new Byte("127");
+
+        System.out.println("lower intValue: "+lowerB.intValue());
+        System.out.println("upper intValue: "+upperB.intValue());
+        String lower = mapper.base("test", lowerB);
+        String upper = mapper.base("test", upperB);
+        int compare = lower.compareTo(upper);
+        assertTrue("Cassandra ordering is not preserved", compare < 0);
+    }
+
+    @Test
+    public void testByteValuePositiveMinSort() {
+        BigIntegerMapper mapper = new BigIntegerMapper("field", null, null, null, 8);
+        Byte lowerB = new Byte("1");
+        Byte upperB = new Byte("2");
+        String lower = mapper.base("test", lowerB);
+        String upper = mapper.base("test", upperB);
+        int compare = lower.compareTo(upper);
+        assertTrue("Cassandra ordering is not preserved", compare < 0);
+    }
+
+    @Test
+    public void testByteValueNegativeZeroSort() {
+        BigIntegerMapper mapper = new BigIntegerMapper("field", null, null, null, 8);
+        Byte lowerB = new Byte("-1");
+        Byte upperB = new Byte("0");
+        String lower = mapper.base("test", lowerB);
+        String upper = mapper.base("test", upperB);
+        int compare = lower.compareTo(upper);
+        assertTrue("Cassandra ordering is not preserved", compare < 0);
+    }
+
+    @Test
+    public void testByteValuePositiveZeroSort() {
+        BigIntegerMapper mapper = new BigIntegerMapper("field", null, null, null, 8);
+        Byte lowerB = new Byte("0");
+        Byte upperB = new Byte("1");
+        String lower = mapper.base("test", lowerB);
+        String upper = mapper.base("test", upperB);
+        int compare = lower.compareTo(upper);
+        assertTrue("Cassandra ordering is not preserved", compare < 0);
+    }
+
+    @Test
+    public void testByteValueExtremeSort() {
+        BigIntegerMapper mapper = new BigIntegerMapper("field", null, null, null, 8);
+        Byte lowerB = new Byte("-128");
+        Byte upperB = new Byte("127");
+        String lower = mapper.base("test", lowerB);
+        String upper = mapper.base("test", upperB);
+        int compare = lower.compareTo(upper);
+        assertTrue("Cassandra ordering is not preserved", compare < 0);
+    }
+
+    @Test
+    public void testByteValueNegativePositiveSort() {
+        BigIntegerMapper mapper = new BigIntegerMapper("field", null, null, null, 8);
+        Byte lowerB = new Byte("-1");
+        Byte upperB = new Byte("1");
+        String lower = mapper.base("test", lowerB);
+        String upper = mapper.base("test", upperB);
+        int compare = lower.compareTo(upper);
+        assertTrue("Cassandra ordering is not preserved", compare < 0);
+    }
+
+    @Test
+    public void testShortValueNegativeMaxSort() {
+        BigIntegerMapper mapper = new BigIntegerMapper("field", null, null, null, 8);
+        Short lowerS = new Short("-32768");
+        Short upperS = new Short("-32767");
+        String lower = mapper.base("test", lowerS);
+        String upper = mapper.base("test", upperS);
+        int compare = lower.compareTo(upper);
+        assertTrue("Cassandra ordering is not preserved", compare < 0);
+    }
+
+    @Test
+    public void testShortValueNegativeMinSort() {
+        BigIntegerMapper mapper = new BigIntegerMapper("field", null, null, null, 8);
+        Short lowerS = new Short("-2");
+        Short upperS = new Short("-1");
+        String lower = mapper.base("test", lowerS);
+        String upper = mapper.base("test", upperS);
+        int compare = lower.compareTo(upper);
+        assertTrue("Cassandra ordering is not preserved", compare < 0);
+    }
+
+    @Test
+    public void testShortValuePositiveMaxSort() {
+        BigIntegerMapper mapper = new BigIntegerMapper("field", null, null, null, 8);
+        Short lowerS = new Short("32766");
+        Short upperS = new Short("32767");
+        String lower = mapper.base("test", lowerS);
+        String upper = mapper.base("test", upperS);
+        int compare = lower.compareTo(upper);
+        assertTrue("Cassandra ordering is not preserved", compare < 0);
+    }
+
+    @Test
+    public void testShortValuePositiveMinSort() {
+        BigIntegerMapper mapper = new BigIntegerMapper("field", null, null, null, 8);
+        Short lowerS = new Short("1");
+        Short upperS = new Short("2");
+        String lower = mapper.base("test", lowerS);
+        String upper = mapper.base("test", upperS);
+        int compare = lower.compareTo(upper);
+        assertTrue("Cassandra ordering is not preserved", compare < 0);
+    }
+
+    @Test
+    public void testShortValueNegativeZeroSort() {
+        BigIntegerMapper mapper = new BigIntegerMapper("field", null, null, null, 8);
+        Short lowerS = new Short("-1");
+        Short upperS = new Short("0");
+        String lower = mapper.base("test", lowerS);
+        String upper = mapper.base("test", upperS);
+        int compare = lower.compareTo(upper);
+        assertTrue("Cassandra ordering is not preserved", compare < 0);
+    }
+
+    @Test
+    public void testShortValuePositiveZeroSort() {
+        BigIntegerMapper mapper = new BigIntegerMapper("field", null, null, null, 8);
+        Short lowerS = new Short("0");
+        Short upperS = new Short("1");
+        String lower = mapper.base("test", lowerS);
+        String upper = mapper.base("test", upperS);
+        int compare = lower.compareTo(upper);
+        assertTrue("Cassandra ordering is not preserved", compare < 0);
+    }
+
+    @Test
+    public void testShortValueExtremeSort() {
+        BigIntegerMapper mapper = new BigIntegerMapper("field", null, null, null, 8);
+        Short lowerS = new Short("-32768");
+        Short upperS = new Short("-32767");
+        String lower = mapper.base("test", lowerS);
+        String upper = mapper.base("test", upperS);
+        int compare = lower.compareTo(upper);
+        assertTrue("Cassandra ordering is not preserved", compare < 0);
+    }
+
+    @Test
+    public void testShortValueNegativePositiveSort() {
+        BigIntegerMapper mapper = new BigIntegerMapper("field", null, null, null, 8);
+        Short lowerS = new Short("-1");
+        Short upperS = new Short("1");
+        String lower = mapper.base("test", lowerS);
+        String upper = mapper.base("test", upperS);
+        int compare = lower.compareTo(upper);
+        assertTrue("Cassandra ordering is not preserved", compare < 0);
     }
 
     @Test

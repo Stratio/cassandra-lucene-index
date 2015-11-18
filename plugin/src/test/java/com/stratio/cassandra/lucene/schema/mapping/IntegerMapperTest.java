@@ -115,6 +115,20 @@ public class IntegerMapperTest extends AbstractMapperTest {
     }
 
     @Test
+    public void testValueShort() {
+        IntegerMapper mapper = new IntegerMapper("field", null, null, null, 1f);
+        Integer parsed = mapper.base("test", new Short("3"));
+        assertEquals("Base for longs is wrong", Integer.valueOf(3), parsed);
+    }
+
+    @Test
+    public void testValueByte() {
+        IntegerMapper mapper = new IntegerMapper("field", null, null, null, 1f);
+        Integer parsed = mapper.base("test", new Byte("3"));
+        assertEquals("Base for longs is wrong", Integer.valueOf(3), parsed);
+    }
+
+    @Test
     public void testValueFloatWithoutDecimal() {
         IntegerMapper mapper = new IntegerMapper("field", null, null, null, 1f);
         Integer parsed = mapper.base("test", 3f);

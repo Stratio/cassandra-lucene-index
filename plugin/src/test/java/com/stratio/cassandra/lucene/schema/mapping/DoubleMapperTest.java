@@ -114,6 +114,23 @@ public class DoubleMapperTest extends AbstractMapperTest {
         assertEquals("Base for longs is wrong", Double.valueOf(3), parsed);
     }
 
+
+    @Test
+    public void testValueByte() {
+        DoubleMapper mapper = new DoubleMapper("field", null, null, null, 1f);
+        Byte bite= new Byte("3");
+        Double parsed = mapper.base("test", bite);
+        assertEquals("Base for longs is wrong", Double.valueOf(3), parsed);
+    }
+
+    @Test
+    public void testValueShort() {
+        DoubleMapper mapper = new DoubleMapper("field", null, null, null, 1f);
+        Short shorty= new Short("3");
+        Double parsed = mapper.base("test", shorty);
+        assertEquals("Base for longs is wrong", Double.valueOf(3), parsed);
+    }
+
     @Test
     public void testValueFloatWithoutDecimal() {
         DoubleMapper mapper = new DoubleMapper("field", null, null, null, 1f);

@@ -112,6 +112,22 @@ public class FloatMapperTest extends AbstractMapperTest {
     }
 
     @Test
+    public void testValueByte() {
+        FloatMapper mapper = new FloatMapper("field", null, null, null, 1f);
+        Byte bite= new Byte("3");
+        Float parsed = mapper.base("test", bite);
+        assertEquals("Base for longs is wrong", Float.valueOf(3), parsed);
+    }
+
+    @Test
+    public void testValueShort() {
+        FloatMapper mapper = new FloatMapper("field", null, null, null, 1f);
+        Short shorty= new Short("3");
+        Float parsed = mapper.base("test", shorty);
+        assertEquals("Base for longs is wrong", Float.valueOf(3), parsed);
+    }
+
+    @Test
     public void testValueFloatWithoutDecimal() {
         FloatMapper mapper = new FloatMapper("field", null, null, null, 1f);
         Float parsed = mapper.base("test", 3f);
