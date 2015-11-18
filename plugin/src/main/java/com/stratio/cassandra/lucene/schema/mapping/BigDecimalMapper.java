@@ -73,13 +73,15 @@ public class BigDecimalMapper extends KeywordMapper {
               indexed,
               sorted,
               AsciiType.instance,
-              UTF8Type.instance,
+              ByteType.instance,
+              DecimalType.instance,
+              DoubleType.instance,
+              FloatType.instance,
+              IntegerType.instance,
               Int32Type.instance,
               LongType.instance,
-              IntegerType.instance,
-              FloatType.instance,
-              DoubleType.instance,
-              DecimalType.instance);
+              ShortType.instance,
+              UTF8Type.instance);
 
         // Setup integer part mapping
         if (integerDigits != null && integerDigits <= 0) {

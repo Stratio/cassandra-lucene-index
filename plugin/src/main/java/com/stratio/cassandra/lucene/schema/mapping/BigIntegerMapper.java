@@ -58,10 +58,12 @@ public class BigIntegerMapper extends KeywordMapper {
               indexed,
               sorted,
               AsciiType.instance,
-              UTF8Type.instance,
+              ByteType.instance,
+              IntegerType.instance,
               Int32Type.instance,
               LongType.instance,
-              IntegerType.instance);
+              ShortType.instance,
+              UTF8Type.instance);
 
         if (digits != null && digits <= 0) {
             throw new IndexException("Positive digits required");
