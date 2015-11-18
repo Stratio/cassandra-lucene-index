@@ -1497,10 +1497,7 @@ Using Builder
     (...)
     String indexColumn = "stratio_col";
     Search search = search().filter(bool().must(wildcard("name","*a"),wildcard("food","tu*")));
-    ResultSet rs = session.execute(QueryBuilder
-                                    .select()
-                                    .all()
-                                    .from("test","users")
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users")
                                     .where(eq(indexColumn, search.build()));
 
 
@@ -1523,10 +1520,7 @@ Using Builder
     (...)
     String indexColumn = "stratio_col";
     Search search = search().filter(bool().not(wildcard("name","*a")).must(wildcard("food","tu*")));
-    ResultSet rs = session.execute(QueryBuilder
-                                    .select()
-                                    .all()
-                                    .from("test","users")
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users")
                                     .where(eq(indexColumn, search.build()));
 
 Example 3: will return rows where name ends with “a” or food starts with
@@ -1548,10 +1542,7 @@ Using Builder
     (...)
     String indexColumn = "stratio_col";
     Search search = search().filter(bool().should(wildcard("name","*a"),wildcard("food","tu*")));
-    ResultSet rs = session.execute(QueryBuilder
-                                    .select()
-                                    .all()
-                                    .from("test","users")
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users")
                                     .where(eq(indexColumn, search.build()));
 
 
@@ -1570,10 +1561,7 @@ Using Builder
     (...)
     String indexColumn = "stratio_col";
     Search search = search().filter(bool());
-    ResultSet rs = session.execute(QueryBuilder
-                                    .select()
-                                    .all()
-                                    .from("test","users")
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users")
                                     .where(eq(indexColumn, search.build()));
 
 
@@ -1594,10 +1582,7 @@ Using Builder
     (...)
     String indexColumn = "stratio_col";
     Search search = search().filter(bool().not(wildcard("name","*a")));
-    ResultSet rs = session.execute(QueryBuilder
-                                    .select()
-                                    .all()
-                                    .from("test","users")
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users")
                                     .where(eq(indexColumn, search.build()));
 
 
@@ -1633,10 +1618,7 @@ Using Builder
     (...)
     String indexColumn = "stratio_col";
     Search search = search().filter(contains("name","Alicia","mancha"));
-    ResultSet rs = session.execute(QueryBuilder
-                                    .select()
-                                    .all()
-                                    .from("test","users")
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users")
                                     .where(eq(indexColumn, search.build()));
 
 
@@ -1659,10 +1641,7 @@ Using Builder
     (...)
     String indexColumn = "stratio_col";
     Search search = search().filter(contains("date","2014/01/01", "2014/01/02", "2014/01/03"));
-    ResultSet rs = session.execute(QueryBuilder
-                                    .select()
-                                    .all()
-                                    .from("test","users")
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users")
                                     .where(eq(indexColumn, search.build()));
 
 
@@ -1714,10 +1693,7 @@ Using Builder
                                     .from("2014/01/01")
                                     .to("2014/12/31")
                                     .operation("intersects"));
-    ResultSet rs = session.execute(QueryBuilder
-                                    .select()
-                                    .all()
-                                    .from("test","users")
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users")
                                     .where(eq(indexColumn, search.build()));
 
 
@@ -1745,10 +1721,7 @@ Using Builder
                                     .from("2014/06/01")
                                     .to("2014/06/02")
                                     .operation("contains"));
-    ResultSet rs = session.execute(QueryBuilder
-                                    .select()
-                                    .all()
-                                    .from("test","users")
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users")
                                     .where(eq(indexColumn, search.build()));
 
 
@@ -1777,10 +1750,7 @@ Using Builder
                                     .from("2014/01/01")
                                     .to("2014/12/31")
                                     .operation("is_within"));
-    ResultSet rs = session.execute(QueryBuilder
-                                    .select()
-                                    .all()
-                                    .from("test","users")
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users")
                                     .where(eq(indexColumn, search.build()));
 
 
@@ -1839,10 +1809,7 @@ Using Builder
     (...)
     String indexColumn = "stratio_col";
     Search search = search().filter(fuzzy("phrase","puma").maxEdits(1));
-    ResultSet rs = session.execute(QueryBuilder
-                                    .select()
-                                    .all()
-                                    .from("test","users")
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users")
                                     .where(eq(indexColumn, search.build()));
 
 
@@ -1866,10 +1833,7 @@ Using Builder
     (...)
     String indexColumn = "stratio_col";
     Search search = search().filter(fuzzy("phrase","puma").maxEdits(1).prefixLength(2));
-    ResultSet rs = session.execute(QueryBuilder
-                                    .select()
-                                    .all()
-                                    .from("test","users")
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users")
                                     .where(eq(indexColumn, search.build()));
 
 
@@ -1924,10 +1888,7 @@ Using Builder
     (...)
     String indexColumn = "stratio_col";
     Search search = search().filter(geoBBox("place",-180.0,180.0,-90.0,90.0));
-    ResultSet rs = session.execute(QueryBuilder
-                                    .select()
-                                    .all()
-                                    .from("test","users")
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users")
                                     .where(eq(indexColumn, search.build()));
 
 
@@ -1954,10 +1915,7 @@ Using Builder
     (...)
     String indexColumn = "stratio_col";
     Search search = search().filter(geoBBox("place",0.0,10.0,-90.0,90.0));
-    ResultSet rs = session.execute(QueryBuilder
-                                    .select()
-                                    .all()
-                                    .from("test","users")
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users")
                                     .where(eq(indexColumn, search.build()));
 
 
@@ -1984,10 +1942,7 @@ Using Builder
     (...)
     String indexColumn = "stratio_col";
     Search search = search().filter(geoBBox("place",-180.0,180.0,0.0,10.0));
-    ResultSet rs = session.execute(QueryBuilder
-                                    .select()
-                                    .all()
-                                    .from("test","users")
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users")
                                     .where(eq(indexColumn, search.build()));
 
 
@@ -2040,10 +1995,7 @@ Using Builder
     (...)
     String indexColumn = "stratio_col";
     Search search = search().filter(geoDistance("place",-3.999278d,40.225479d,"1km"));
-    ResultSet rs = session.execute(QueryBuilder
-                                    .select()
-                                    .all()
-                                    .from("test","users")
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users")
                                     .where(eq(indexColumn, search.build()));
 
 
@@ -2069,10 +2021,7 @@ Using Builder
     String indexColumn = "stratio_col";
     Search search = search().filter(geoDistance("place",-3.999278d,40.225479d,"10yd")
                                     .minDistance("1yd"));
-    ResultSet rs = session.execute(QueryBuilder
-                                    .select()
-                                    .all()
-                                    .from("test","users")
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users")
                                     .where(eq(indexColumn, search.build()));
 
 
@@ -2108,10 +2057,7 @@ Using Builder
     (...)
     String indexColumn = "stratio_col";
     Search search = search().filter(match("name","Alicia"));
-    ResultSet rs = session.execute(QueryBuilder
-                                    .select()
-                                    .all()
-                                    .from("test","users")
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users")
                                     .where(eq(indexColumn, search.build()));
 
 
@@ -2133,10 +2079,7 @@ Using Builder
     (...)
     String indexColumn = "stratio_col";
     Search search = search().filter(match("phrase","mancha"));
-    ResultSet rs = session.execute(QueryBuilder
-                                    .select()
-                                    .all()
-                                    .from("test","users")
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users")
                                     .where(eq(indexColumn, search.build()));
 
 
@@ -2158,10 +2101,7 @@ Using Builder
     (...)
     String indexColumn = "stratio_col";
     Search search = search().filter(match("date","2014/01/01"));
-    ResultSet rs = session.execute(QueryBuilder
-                                    .select()
-                                    .all()
-                                    .from("test","users")
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users")
                                     .where(eq(indexColumn, search.build()));
 
 
@@ -2191,10 +2131,7 @@ Using Builder
     (...)
     String indexColumn = "stratio_col";
     Search search = search().filter(none());
-    ResultSet rs = session.execute(QueryBuilder
-                                    .select()
-                                    .all()
-                                    .from("test","users")
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users")
                                     .where(eq(indexColumn, search.build()));
 
 Phrase search
@@ -2237,10 +2174,7 @@ Using Builder
     (...)
     String indexColumn = "stratio_col";
     Search search = search().filter(phrase("phrase","camisa manchada"));
-    ResultSet rs = session.execute(QueryBuilder
-                                    .select()
-                                    .all()
-                                    .from("test","users")
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users")
                                     .where(eq(indexColumn, search.build()));
 
 Example 2: will return rows where “phrase” contains the word “mancha”
@@ -2263,10 +2197,7 @@ Using Builder
     (...)
     String indexColumn = "stratio_col";
     Search search = search().filter(phrase("phrase","camisa manchada").slop(2));
-    ResultSet rs = session.execute(QueryBuilder
-                                    .select()
-                                    .all()
-                                    .from("test","users")
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users")
                                     .where(eq(indexColumn, search.build()));
 
 Prefix search
@@ -2303,10 +2234,7 @@ Using Builder
     (...)
     String indexColumn = "stratio_col";
     Search search = search().filter(prefix("phrase","lu"));
-    ResultSet rs = session.execute(QueryBuilder
-                                    .select()
-                                    .all()
-                                    .from("test","users")
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users")
                                     .where(eq(indexColumn, search.build()));
 
 Range search
@@ -2360,10 +2288,7 @@ Using Builder
     (...)
     String indexColumn = "stratio_col";
     Search search = search().filter(range("age").lower(1).includeLower(true));
-    ResultSet rs = session.execute(QueryBuilder
-                                    .select()
-                                    .all()
-                                    .from("test","users")
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users")
                                     .where(eq(indexColumn, search.build()));
 
 Example 2: will return rows where *age* is in (-∞, 0]
@@ -2385,10 +2310,7 @@ Using Builder
     (...)
     String indexColumn = "stratio_col";
     Search search = search().filter(range("age").upper(0).includeUpper(true));
-    ResultSet rs = session.execute(QueryBuilder
-                                    .select()
-                                    .all()
-                                    .from("test","users")
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users")
                                     .where(eq(indexColumn, search.build()));
 
 Example 3: will return rows where *age* is in [-1, 1]
@@ -2411,15 +2333,9 @@ Using Builder
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     String indexColumn = "stratio_col";
-    Search search = search().filter(range("age")
-                                    .lower(-1)
-                                    .upper(1)
-                                    .includeLower(true)
-                                    .includeUpper(true));
-    ResultSet rs = session.execute(QueryBuilder
-                                    .select()
-                                    .all()
-                                    .from("test","users")
+    Search search = search().filter(range("age").lower(-1).upper(1)
+                                    .includeLower(true).includeUpper(true));
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users")
                                     .where(eq(indexColumn, search.build()));
 
 Example 4: will return rows where *date* is in [2014/01/01, 2014/01/02]
@@ -2442,15 +2358,9 @@ Using Builder
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     String indexColumn = "stratio_col";
-    Search search = search().filter(range("date")
-                                    .lower("2014/01/01")
-                                    .upper( "2014/01/02")
-                                    .includeLower(true)
-                                    .includeUpper(true));
-    ResultSet rs = session.execute(QueryBuilder
-                                    .select()
-                                    .all()
-                                    .from("test","users")
+    Search search = search().filter(range("date").lower("2014/01/01").upper( "2014/01/02")
+                                    .includeLower(true).includeUpper(true));
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users")
                                     .where(eq(indexColumn, search.build()));
 
 Regexp search
@@ -2492,10 +2402,7 @@ Using Builder
     (...)
     String indexColumn = "stratio_col";
     Search search = search().filter(regexp("name","[J][aeiou]{2}.*"));
-    ResultSet rs = session.execute(QueryBuilder
-                                    .select()
-                                    .all()
-                                    .from("test","users")
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users")
                                     .where(eq(indexColumn, search.build()));
 
 Wildcard search
@@ -2537,10 +2444,7 @@ Using Builder
     (...)
     String indexColumn = "stratio_col";
     Search search = search().filter(wildcard("food","tu*"));
-    ResultSet rs = session.execute(QueryBuilder
-                                    .select()
-                                    .all()
-                                    .from("test","users")
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users")
                                     .where(eq(indexColumn, search.build()));
 
 
