@@ -29,17 +29,17 @@
         <version>0.4.0</version>
     </parent>
 
+    <packaging>pom</packaging>
     <groupId>com.stratio.cassandra</groupId>
     <artifactId>cassandra-lucene-index-parent</artifactId>
-    <packaging>pom</packaging>
     <version>2.2.3.0-SNAPSHOT</version>
     <name>Cassandra Lucene index</name>
     <description>Cassandra Lucene index</description>
 
     <modules>
+        <module>builder</module>
         <module>doc</module>
         <module>plugin</module>
-        <module>builder</module>
     </modules>
 
     <licenses>
@@ -82,6 +82,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <lucene.version>5.3.0</lucene.version>
         <coverage.data.dir>${project.build.outputDirectory}</coverage.data.dir>
+        <skipITs>false</skipITs>
     </properties>
 
     <build>

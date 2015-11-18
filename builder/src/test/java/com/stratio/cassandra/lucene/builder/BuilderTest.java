@@ -71,10 +71,11 @@ public class BuilderTest {
                           "'schema':'{" +
                           "analyzers:{" +
                           "my_analyzer:{type:\"classpath\",class:\"my_class\"}," +
-                          "snow:{type:\"snowball\",language:\"tartar\",stopwords:\"a,b,c\"}" +
-                          "}," +
+                          "snow:{type:\"snowball\",language:\"tartar\",stopwords:\"a,b,c\"}}," +
                           "default_analyzer:\"my_analyzer\"," +
-                          "fields:{string:{type:\"string\"},uuid:{type:\"uuid\"}}}'}";
+                          "fields:{" +
+                          "uuid:{type:\"uuid\"}," +
+                          "string:{type:\"string\"}}}'}";
         assertEquals("index serialization is wrong", expected, actual);
     }
 
@@ -547,7 +548,7 @@ public class BuilderTest {
     public void testGeoDistanceConditionDefaults() {
         String actual = geoDistance("field", 1, 2, "1km").build();
         String expected = "{type:\"geo_distance\",field:\"field\",latitude:2.0,longitude:1.0,max_distance:\"1km\"}";
-        assertEquals("wildcard condition serialization is wrong", expected, actual);
+        assertEquals("geo distance condition serialization is wrong", expected, actual);
     }
 
     @Test
@@ -555,7 +556,7 @@ public class BuilderTest {
         String actual = geoDistance("field", 1, 2, "1km").minDistance("500m").boost(0.5).build();
         String expected = "{type:\"geo_distance\",field:\"field\",latitude:2.0,longitude:1.0,max_distance:\"1km\"" +
                           ",boost:0.5,min_distance:\"500m\"}";
-        assertEquals("wildcard condition serialization is wrong", expected, actual);
+        assertEquals("geo distance condition serialization is wrong", expected, actual);
     }
 
     @Test
@@ -604,7 +605,7 @@ public class BuilderTest {
     public void testSearchDefaults() {
         String actual = search().build();
         String expected = "{}";
-        assertEquals("all condition serialization is wrong", expected, actual);
+        assertEquals("search serialization is wrong", expected, actual);
     }
 
     @Test
@@ -612,7 +613,7 @@ public class BuilderTest {
         String actual = search().query(all()).filter(all()).sort(field("field1")).refresh(true).build();
         String expected = "{query:{type:\"all\"},filter:{type:\"all\"}," +
                           "sort:{fields:[{field:\"field1\"}]},refresh:true}";
-        assertEquals("all condition serialization is wrong", expected, actual);
+        assertEquals("search serialization is wrong", expected, actual);
     }
 
     @Test
@@ -639,12 +640,17 @@ public class BuilderTest {
                                                    .mapper("date", dateMapper().pattern("yyyyMMdd"))
                                                    .build();
         String expected = "CREATE CUSTOM INDEX my_index ON messages (lucene) " +
-                          "USING 'com.stratio.cassandra.lucene.Index' WITH OPTIONS = " +
-                          "{'refresh_seconds':'10','schema':'{" +
-                          "analyzers:{danish:{type:\"snowball\",language:\"danish\"}}," +
-                          "default_analyzer:\"english\",fields:{message:{type:\"text\",analyzer:\"danish\"}," +
-                          "id:{type:\"uuid\"},date:{type:\"date\",pattern:\"yyyyMMdd\"}," +
-                          "user:{type:\"string\",case_sensitive:false}}}'}";
+                          "USING 'com.stratio.cassandra.lucene.Index' " +
+                          "WITH OPTIONS = {" +
+                          "'refresh_seconds':'10'," +
+                          "'schema':'" +
+                          "{analyzers:{danish:{type:\"snowball\",language:\"danish\"}}," +
+                          "default_analyzer:\"english\"," +
+                          "fields:{" +
+                          "id:{type:\"uuid\"}," +
+                          "user:{type:\"string\",case_sensitive:false}," +
+                          "message:{type:\"text\",analyzer:\"danish\"}," +
+                          "date:{type:\"date\",pattern:\"yyyyMMdd\"}}}'}";
         assertEquals("index serialization is wrong", expected, actual);
     }
 
@@ -658,7 +664,7 @@ public class BuilderTest {
         String expected = "{query:{type:\"phrase\",field:\"message\",value:\"cassandra rules\"}," +
                           "filter:{type:\"match\",field:\"user\",value:\"adelapena\"}," +
                           "sort:{fields:[{field:\"date\",reverse:true}]},refresh:true}";
-        assertEquals("all condition serialization is wrong", expected, actual);
+        assertEquals("search serialization is wrong", expected, actual);
     }
 
 }
