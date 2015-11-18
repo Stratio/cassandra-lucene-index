@@ -18,6 +18,7 @@
 
 package com.stratio.cassandra.lucene.testsAT.varia;
 
+import com.stratio.cassandra.lucene.testsAT.BaseAT;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -31,15 +32,15 @@ import static com.stratio.cassandra.lucene.testsAT.varia.DataHelper.*;
  * @author Andres de la Pena <adelapena@stratio.com>
  */
 @RunWith(JUnit4.class)
-public class TokenRangeWithWideRowsMultiPartitionTest {
+public class TokenRangeWithWideRowsMultiClusteringAT extends BaseAT {
 
     private static CassandraUtils cassandraUtils;
 
     @BeforeClass
     public static void before() {
-        cassandraUtils = CassandraUtils.builder("token_wide_multi_partition")
-                                       .withPartitionKey("integer_1", "ascii_1")
-                                       .withClusteringKey("double_1")
+        cassandraUtils = CassandraUtils.builder("token_wide_multi_clustering")
+                                       .withPartitionKey("integer_1")
+                                       .withClusteringKey("ascii_1", "double_1")
                                        .withColumn("ascii_1", "ascii")
                                        .withColumn("bigint_1", "bigint")
                                        .withColumn("blob_1", "blob")
@@ -92,59 +93,59 @@ public class TokenRangeWithWideRowsMultiPartitionTest {
 
     @Test
     public void tokenSearchTest1() {
-        cassandraUtils.searchAll().and("AND TOKEN(integer_1, ascii_1) > TOKEN(1, 'ascii')").check(8);
+        cassandraUtils.searchAll().and("AND TOKEN(integer_1) > TOKEN(1)").check(12);
     }
 
     @Test
     public void tokenSearchTest2() {
-        cassandraUtils.searchAll().and("AND TOKEN(integer_1, ascii_1) >= TOKEN(1, 'ascii')").check(10);
+        cassandraUtils.searchAll().and("AND TOKEN(integer_1) >= TOKEN(1)").check(16);
     }
 
     @Test
     public void tokenSearchTest3() {
-        cassandraUtils.searchAll().and("AND TOKEN(integer_1, ascii_1) < TOKEN(1, 'ascii')").check(10);
+        cassandraUtils.searchAll().and("AND TOKEN(integer_1) < TOKEN(1)").check(4);
     }
 
     @Test
     public void tokenSearchTest4() {
-        cassandraUtils.searchAll().and("AND TOKEN(integer_1, ascii_1) <= TOKEN(1, 'ascii')").check(12);
+        cassandraUtils.searchAll().and("AND TOKEN(integer_1) <= TOKEN(1)").check(8);
     }
 
     @Test
     public void tokenSearchTest5() {
         cassandraUtils.searchAll()
-                      .and("AND TOKEN(integer_1, ascii_1) > TOKEN(1, 'ascii')")
-                      .and("AND TOKEN(integer_1, ascii_1) < TOKEN(3, 'ascii')")
-                      .check(6);
+                      .and("AND TOKEN(integer_1) > TOKEN(1)")
+                      .and("AND TOKEN(integer_1) < TOKEN(4)")
+                      .check(4);
     }
 
     @Test
     public void tokenSearchTest6() {
         cassandraUtils.searchAll()
-                      .and("AND TOKEN(integer_1, ascii_1) >= TOKEN(1, 'ascii')")
-                      .and("AND TOKEN(integer_1, ascii_1) < TOKEN(3, 'ascii')")
+                      .and("AND TOKEN(integer_1) >= TOKEN(1)")
+                      .and("AND TOKEN(integer_1) < TOKEN(4)")
                       .check(8);
     }
 
     @Test
     public void tokenSearchTest7() {
         cassandraUtils.searchAll()
-                      .and("AND TOKEN(integer_1, ascii_1) > TOKEN(1, 'ascii')")
-                      .and("AND TOKEN(integer_1, ascii_1) <= TOKEN(3, 'ascii')")
+                      .and("AND TOKEN(integer_1) > TOKEN(1)")
+                      .and("AND TOKEN(integer_1) <= TOKEN(4)")
                       .check(8);
     }
 
     @Test
     public void tokenSearchTest8() {
         cassandraUtils.searchAll()
-                      .and("AND TOKEN(integer_1, ascii_1) >= TOKEN(1, 'ascii')")
-                      .and("AND TOKEN(integer_1, ascii_1) <= TOKEN(3, 'ascii')")
-                      .check(10);
+                      .and("AND TOKEN(integer_1) >= TOKEN(1)")
+                      .and("AND TOKEN(integer_1) <= TOKEN(4)")
+                      .check(12);
     }
 
     @Test
     public void tokenSearchTest9() {
-        cassandraUtils.searchAll().and("AND TOKEN(integer_1, ascii_1) = TOKEN(1, 'ascii')").check(2);
+        cassandraUtils.searchAll().and("AND TOKEN(integer_1) = TOKEN(1)").check(4);
     }
 
     @Test
@@ -180,5 +181,25 @@ public class TokenRangeWithWideRowsMultiPartitionTest {
     @Test
     public void tokenClusteringSearchTest6() {
         cassandraUtils.searchAll().and("AND integer_1 = 1 AND ascii_1 = 'ascii_bis' AND double_1 = 2").check(1);
+    }
+
+    @Test
+    public void tokenWideClusteringSearchTest1() {
+        cassandraUtils.searchAll().and("AND integer_1 = 2 AND ascii_1 > 'ascii'").check(2);
+    }
+
+    @Test
+    public void tokenWideClusteringSearchTest2() {
+        cassandraUtils.searchAll().and("AND integer_1 = 2 AND ascii_1 >= 'ascii'").check(4);
+    }
+
+    @Test
+    public void tokenWideClusteringSearchTest3() {
+        cassandraUtils.searchAll().and("AND integer_1 = 2 AND ascii_1 < 'ascii'").check(0);
+    }
+
+    @Test
+    public void tokenWideClusteringSearchTest4() {
+        cassandraUtils.searchAll().and("AND integer_1 = 2 AND ascii_1 <= 'ascii'").check(2);
     }
 }

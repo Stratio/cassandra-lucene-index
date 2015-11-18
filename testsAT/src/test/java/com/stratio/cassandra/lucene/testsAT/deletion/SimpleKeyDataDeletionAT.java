@@ -41,7 +41,6 @@ public class SimpleKeyDataDeletionAT extends BaseAT {
 
     @Before
     public void before() {
-
         cassandraUtils = CassandraUtils.builder("simple_key_data_deletion")
                                        .withPartitionKey("integer_1")
                                        .withClusteringKey()
@@ -137,7 +136,7 @@ public class SimpleKeyDataDeletionAT extends BaseAT {
         }
 
         assertNotNull("Must not be null!", listValue);
-        assertEquals("Lenght unexpected", 1, listValue.size());
+        assertEquals("Length unexpected", 1, listValue.size());
     }
 
     @Test

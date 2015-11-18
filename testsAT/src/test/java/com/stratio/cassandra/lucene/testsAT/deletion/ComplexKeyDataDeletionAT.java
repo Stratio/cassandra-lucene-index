@@ -41,7 +41,6 @@ public class ComplexKeyDataDeletionAT extends BaseAT {
 
     @Before
     public void before() {
-
         cassandraUtils = CassandraUtils.builder("complex_key_data_deletion")
                                        .withPartitionKey("integer_1", "ascii_1")
                                        .withClusteringKey("double_1")

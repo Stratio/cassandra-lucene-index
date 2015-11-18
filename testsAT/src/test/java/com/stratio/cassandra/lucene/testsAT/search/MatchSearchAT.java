@@ -32,7 +32,7 @@ import java.util.Date;
 import static com.stratio.cassandra.lucene.builder.Builder.match;
 
 @RunWith(JUnit4.class)
-public class MatchAT extends AbstractSearchAT {
+public class MatchSearchAT extends AbstractSearchAT {
 
     @Test
     public void matchQueryAsciiFieldTest1() {

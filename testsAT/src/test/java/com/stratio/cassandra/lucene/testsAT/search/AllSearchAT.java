@@ -16,11 +16,29 @@
  * under the License.
  */
 
-package com.stratio.cassandra.lucene.testsAT.varia;
+package com.stratio.cassandra.lucene.testsAT.search;
 
-import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
-public abstract class Abstract1000RegistersWatchedTest {
+import static com.stratio.cassandra.lucene.builder.Builder.all;
 
-    protected static CassandraUtils cassandraUtils;
+@RunWith(JUnit4.class)
+public class AllSearchAT extends AbstractSearchAT {
+
+    @Test
+    public void allFilterTest() {
+        filter(all()).check(5);
+    }
+
+    @Test
+    public void allQueryTest() {
+        query(all()).check(5);
+    }
+
+    @Test
+    public void allFilteredQueryTest() {
+        filter(all()).query(all()).check(5);
+    }
 }

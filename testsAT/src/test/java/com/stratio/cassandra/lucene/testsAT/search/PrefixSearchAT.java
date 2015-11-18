@@ -25,7 +25,7 @@ import org.junit.runners.JUnit4;
 import static com.stratio.cassandra.lucene.builder.Builder.prefix;
 
 @RunWith(JUnit4.class)
-public class PrefixAT extends AbstractSearchAT {
+public class PrefixSearchAT extends AbstractSearchAT {
 
     @Test
     public void prefixQueryAsciiFieldTest1() {

@@ -36,7 +36,6 @@ public class SimpleKeyIndexHandlingAT extends BaseAT {
 
     @Before
     public void before() {
-
         cassandraUtils = CassandraUtils.builder("simple_key_index_handling")
                                        .withPartitionKey("integer_1")
                                        .withColumn("ascii_1", "ascii")

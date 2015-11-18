@@ -18,6 +18,7 @@
 
 package com.stratio.cassandra.lucene.testsAT.varia;
 
+import com.stratio.cassandra.lucene.testsAT.BaseAT;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -28,13 +29,12 @@ import org.junit.runners.JUnit4;
 import static com.stratio.cassandra.lucene.testsAT.varia.DataHelper.*;
 
 @RunWith(JUnit4.class)
-public class TokenRangeWithSkinnyRowsTest {
+public class TokenRangeWithSkinnyRowsAT extends BaseAT {
 
     private static CassandraUtils cassandraUtils;
 
     @BeforeClass
     public static void before() {
-
         cassandraUtils = CassandraUtils.builder("token_range_skinny_rows")
                                        .withPartitionKey("integer_1", "ascii_1")
                                        .withColumn("ascii_1", "ascii")

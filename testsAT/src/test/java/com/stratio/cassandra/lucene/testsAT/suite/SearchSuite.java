@@ -24,16 +24,16 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses({AllAT.class,
-               FuzzyAT.class,
-               WildcardAT.class,
-               MatchAT.class,
-               NoneAT.class,
-               PrefixAT.class,
-               PhraseAT.class,
-               RegexpAT.class,
-               RangeAT.class,
-               BooleanAT.class,
-               SortAT.class})
+@SuiteClasses({AllSearchAT.class,
+               FuzzySearchAT.class,
+               WildcardSearchAT.class,
+               MatchSearchAT.class,
+               NoneSearchAT.class,
+               PrefixSearchAT.class,
+               PhraseSearchAT.class,
+               RegexpSearchAT.class,
+               RangeSearchAT.class,
+               BooleanSearchAT.class,
+               SortedSearchAT.class})
 public class SearchSuite {
 }

@@ -18,6 +18,7 @@
 
 package com.stratio.cassandra.lucene.testsAT.varia;
 
+import com.stratio.cassandra.lucene.testsAT.BaseAT;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -32,7 +33,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Andres de la Pena <adelapena@stratio.com>
  */
-public class SearchWithLongSkinnyRowsTest {
+public class SearchWithLongSkinnyRowsAT extends BaseAT {
 
     private static CassandraUtils cassandraUtils;
 

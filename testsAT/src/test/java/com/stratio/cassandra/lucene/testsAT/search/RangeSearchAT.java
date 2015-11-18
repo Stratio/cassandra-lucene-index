@@ -26,7 +26,7 @@ import org.junit.runners.JUnit4;
 import static com.stratio.cassandra.lucene.builder.Builder.range;
 
 @RunWith(JUnit4.class)
-public class RangeAT extends AbstractSearchAT {
+public class RangeSearchAT extends AbstractSearchAT {
 
     @Test
     public void rangeQueryAsciiFieldTest1() {

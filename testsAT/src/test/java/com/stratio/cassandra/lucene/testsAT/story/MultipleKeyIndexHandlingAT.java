@@ -37,7 +37,6 @@ public class MultipleKeyIndexHandlingAT extends BaseAT {
 
     @Before
     public void before() {
-
         cassandraUtils = CassandraUtils.builder("multiple_key_index_handling")
                                        .withPartitionKey("integer_1")
                                        .withClusteringKey("ascii_1")
@@ -71,87 +70,49 @@ public class MultipleKeyIndexHandlingAT extends BaseAT {
 
     @Test
     public void createIndexAfterInsertionsTest() {
-
-        // Preparing data
         cassandraUtils.insert(data1, data2, data3, data4, data5, data6, data7, data8, data9, data10)
                       .createIndex()
                       .waitForIndexing()
-                      .refresh();
-
-        // Checking data
-        int n = cassandraUtils.query(wildcard("ascii_1", "*")).count();
-
-        assertEquals("Expected 10 results!", 10, n);
+                      .refresh()
+                      .query(wildcard("ascii_1", "*")).check(10);
     }
 
     @Test
     public void createIndexDuringInsertionsTest1() {
-
-        // Preparing initial data
         cassandraUtils.insert(data1, data2, data3, data4, data5, data6, data7, data8)
                       .createIndex()
                       .waitForIndexing()
                       .insert(data9, data10)
-                      .refresh();
-
-        // Checking data
-        int n = cassandraUtils.query(wildcard("ascii_1", "*")).count();
-
-        assertEquals("Expected 10 results!", 10, n);
+                      .refresh()
+                      .query(wildcard("ascii_1", "*")).check(10);
     }
 
     @Test
     public void createIndexDuringInsertionsTest2() {
-
         cassandraUtils.insert(data1, data2, data3, data4, data6, data7, data8, data9)
                       .createIndex()
                       .waitForIndexing()
                       .insert(data5, data10)
-                      .refresh();
-
-        // Checking data
-        int n = cassandraUtils.query(wildcard("ascii_1", "*")).count();
-
-        assertEquals("Expected 10 results!", 10, n);
+                      .refresh()
+                      .query(wildcard("ascii_1", "*")).check(10);
     }
 
     @Test
     public void createIndexDuringInsertionsTest3() {
-
-        // Preparing initial data
         cassandraUtils.insert(data2, data3, data4, data5, data6, data7, data8, data9)
                       .createIndex()
                       .waitForIndexing()
                       .insert(data1, data10)
-                      .refresh();
-
-        // Checking data
-        int n = cassandraUtils.query(wildcard("ascii_1", "*")).count();
-
-        assertEquals("Expected 10 results!", 10, n);
+                      .refresh()
+                      .query(wildcard("ascii_1", "*")).check(10);
     }
 
     @Test
     public void recreateIndexAfterInsertionsTest() {
-
         cassandraUtils.insert(data1, data2, data3, data4, data5, data6, data7, data8, data9, data10)
-                      .createIndex()
-                      .waitForIndexing()
-                      .refresh();
-
-        int n = cassandraUtils.query(wildcard("ascii_1", "*")).count();
-
-        assertEquals("Expected 10 results!", 10, n);
-
-        // Dropping index
-        cassandraUtils.dropIndex();
-
-        // Recreating index
-        cassandraUtils.createIndex().waitForIndexing().refresh();
-
-        // Checking data
-        n = cassandraUtils.query(wildcard("ascii_1", "*")).count();
-
-        assertEquals("Expected 10 results!", 10, n);
+                      .createIndex().waitForIndexing().refresh()
+                      .query(wildcard("ascii_1", "*")).check(10)
+                      .dropIndex().createIndex().waitForIndexing().refresh()
+                      .query(wildcard("ascii_1", "*")).check(10);
     }
 }

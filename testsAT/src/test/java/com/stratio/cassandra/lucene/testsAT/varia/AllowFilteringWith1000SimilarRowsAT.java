@@ -19,6 +19,7 @@
 package com.stratio.cassandra.lucene.testsAT.varia;
 
 import com.datastax.driver.core.Row;
+import com.stratio.cassandra.lucene.testsAT.BaseAT;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -31,13 +32,12 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(JUnit4.class)
-public class AllowFilteringWith1000SimilarRowsTest extends Abstract1000RegistersWatchedTest {
+public class AllowFilteringWith1000SimilarRowsAT extends BaseAT {
 
     private static CassandraUtils cassandraUtils;
 
     @BeforeClass
     public static void before() {
-
         cassandraUtils = CassandraUtils.builder("filtering_1000_similar")
                                        .withPartitionKey("integer_1")
                                        .withClusteringKey()

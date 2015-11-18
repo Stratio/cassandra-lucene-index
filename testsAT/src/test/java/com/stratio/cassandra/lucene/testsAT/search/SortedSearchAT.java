@@ -28,7 +28,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(JUnit4.class)
-public class SortAT extends AbstractSearchAT {
+public class SortedSearchAT extends AbstractSearchAT {
 
     @Test
     public void sortIntegerAsc() {

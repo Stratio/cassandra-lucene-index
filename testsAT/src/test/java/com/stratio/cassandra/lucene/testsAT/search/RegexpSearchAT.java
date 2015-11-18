@@ -25,7 +25,7 @@ import org.junit.runners.JUnit4;
 import static com.stratio.cassandra.lucene.builder.Builder.regexp;
 
 @RunWith(JUnit4.class)
-public class RegexpAT extends AbstractSearchAT {
+public class RegexpSearchAT extends AbstractSearchAT {
 
     @Test
     public void regexpQueryAsciiFieldTest1() {

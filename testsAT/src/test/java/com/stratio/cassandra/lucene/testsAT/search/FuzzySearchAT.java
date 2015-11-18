@@ -25,7 +25,7 @@ import org.junit.runners.JUnit4;
 import static com.stratio.cassandra.lucene.builder.Builder.fuzzy;
 
 @RunWith(JUnit4.class)
-public class FuzzyAT extends AbstractSearchAT {
+public class FuzzySearchAT extends AbstractSearchAT {
 
     @Test
     public void fuzzyFilterAsciiFieldTest() {

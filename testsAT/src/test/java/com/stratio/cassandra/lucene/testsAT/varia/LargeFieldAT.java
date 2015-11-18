@@ -19,7 +19,6 @@
 package com.stratio.cassandra.lucene.testsAT.varia;
 
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -32,7 +31,7 @@ import static com.stratio.cassandra.lucene.builder.Builder.match;
 /**
  * @author Andres de la Pena <adelapena@stratio.com>
  */
-public class LargeFieldTest {
+public class LargeFieldAT {
 
     @Test
     public void testLargeField() throws IOException {
@@ -57,15 +56,11 @@ public class LargeFieldTest {
         }
         String largeString = Arrays.toString(numbers);
 
-        cassandraUtils.insert(new String[]{"id", "name", "age", "data"}, new Object[]{"2", "b", "2", "good_dat"});
-        cassandraUtils.insert(new String[]{"id", "name", "age", "data"}, new Object[]{"1", "a", "1", largeString});
-
-        int n1 = cassandraUtils.query(bool().must(match("id", "2")).must(match("name", "b"))).count();
-        Assert.assertEquals(1, n1);
-
-        int n2 = cassandraUtils.query(bool().must(match("id", "1")).must(match("name", "a"))).count();
-        Assert.assertEquals(1, n2);
-
-        cassandraUtils.dropIndex().dropTable().dropKeyspace();
+        cassandraUtils.insert(new String[]{"id", "name", "age", "data"}, new Object[]{"2", "b", "2", "good_dat"})
+                      .insert(new String[]{"id", "name", "age", "data"}, new Object[]{"1", "a", "1", largeString})
+                      .refresh()
+                      .query(bool().must(match("id", "2")).must(match("name", "b"))).check(1)
+                      .query(bool().must(match("id", "1")).must(match("name", "a"))).check(1)
+                      .dropKeyspace();
     }
 }

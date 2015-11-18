@@ -41,7 +41,6 @@ public class SimpleKeyDataHandlingAT extends BaseAT {
 
     @Before
     public void before() {
-
         cassandraUtils = CassandraUtils.builder("simple_key_data_handling")
                                        .withPartitionKey("integer_1")
                                        .withColumn("ascii_1", "ascii")
@@ -168,7 +167,6 @@ public class SimpleKeyDataHandlingAT extends BaseAT {
 
     @Test
     public void multipleDeletion() {
-
         List<Row> rows = cassandraUtils.delete()
                                        .where("integer_1", 2)
                                        .delete()
@@ -186,31 +184,20 @@ public class SimpleKeyDataHandlingAT extends BaseAT {
 
     @Test
     public void updateTest() {
-
-        int n = cassandraUtils.query(wildcard("text_1", "text")).count();
-        assertEquals("Expected 3 results!", 3, n);
-
-        cassandraUtils.update().set("text_1", "other").where("integer_1", 2).refresh();
-        n = cassandraUtils.query(wildcard("text_1", "text")).count();
-        assertEquals("Expected 2 results!", 2, n);
-
-        n = cassandraUtils.query(wildcard("text_1", "other")).count();
-        assertEquals("Expected 1 results!", 1, n);
+        cassandraUtils.query(wildcard("text_1", "text")).check(3)
+                      .update().set("text_1", "other").where("integer_1", 2)
+                      .refresh()
+                      .query(wildcard("text_1", "text")).check(2)
+                      .query(wildcard("text_1", "other")).check(1);
     }
 
     @Test
     public void insertWithUpdateTest() {
-
-        int n = cassandraUtils.query(wildcard("text_1", "text")).count();
-        assertEquals("Expected 3 results!", 3, n);
-
-        n = cassandraUtils.update()
-                          .set("text_1", "new")
-                          .where("integer_1", 1000)
-                          .refresh()
-                          .query(wildcard("text_1", "new"))
-                          .count();
-        assertEquals("Expected 1 results!", 1, n);
+        cassandraUtils.query(wildcard("text_1", "text")).check(3)
+                      .update().set("text_1", "new")
+                      .where("integer_1", 1000)
+                      .refresh()
+                      .query(wildcard("text_1", "new")).check(1);
     }
 
     private static boolean containsElementByIntegerKey(List<Row> resultList, int key) {

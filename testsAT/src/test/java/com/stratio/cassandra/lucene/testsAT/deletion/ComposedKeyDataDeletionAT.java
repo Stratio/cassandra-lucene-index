@@ -41,7 +41,6 @@ public class ComposedKeyDataDeletionAT extends BaseAT {
 
     @Before
     public void before() {
-
         cassandraUtils = CassandraUtils.builder("composed_key_data_deletion")
                                        .withPartitionKey("integer_1", "ascii_1")
                                        .withClusteringKey()
@@ -142,7 +141,7 @@ public class ComposedKeyDataDeletionAT extends BaseAT {
         }
 
         assertNotNull("Must not be null!", listValue);
-        assertEquals("Lenght unexpected", 1, listValue.size());
+        assertEquals("Length unexpected", 1, listValue.size());
     }
 
     @Test

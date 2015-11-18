@@ -22,23 +22,23 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import static com.stratio.cassandra.lucene.builder.Builder.all;
+import static com.stratio.cassandra.lucene.builder.Builder.none;
 
 @RunWith(JUnit4.class)
-public class AllAT extends AbstractSearchAT {
+public class NoneSearchAT extends AbstractSearchAT {
 
     @Test
-    public void allFilterTest() {
-        filter(all()).check(5);
+    public void noneQueryTest() {
+        query(none()).check(0);
     }
 
     @Test
-    public void allQueryTest() {
-        query(all()).check(5);
+    public void noneFilterTest() {
+        filter(none()).check(0);
     }
 
     @Test
-    public void allFilteredQueryTest() {
-        filter(all()).query(all()).check(5);
+    public void noneFilteredQueryTest() {
+        filter(none()).query(none()).check(0);
     }
 }

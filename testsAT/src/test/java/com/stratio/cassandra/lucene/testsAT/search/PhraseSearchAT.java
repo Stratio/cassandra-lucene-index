@@ -25,7 +25,7 @@ import org.junit.runners.JUnit4;
 import static com.stratio.cassandra.lucene.builder.Builder.phrase;
 
 @RunWith(JUnit4.class)
-public class PhraseAT extends AbstractSearchAT {
+public class PhraseSearchAT extends AbstractSearchAT {
 
     @Test
     public void phraseQueryTextFieldTest1() {

@@ -142,7 +142,7 @@ public class MultipleKeyDataDeletionAT extends BaseAT {
         }
 
         assertNotNull("Must not be null!", listValue);
-        assertEquals("Lenght unexpected", 1, listValue.size());
+        assertEquals("Length unexpected", 1, listValue.size());
     }
 
     @Test

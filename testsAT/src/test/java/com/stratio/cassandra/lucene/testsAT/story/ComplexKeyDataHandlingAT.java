@@ -28,7 +28,6 @@ import org.junit.runners.JUnit4;
 
 import static com.stratio.cassandra.lucene.builder.Builder.wildcard;
 import static com.stratio.cassandra.lucene.testsAT.story.DataHelper.*;
-import static org.junit.Assert.assertEquals;
 
 @RunWith(JUnit4.class)
 public class ComplexKeyDataHandlingAT extends BaseAT {
@@ -37,7 +36,6 @@ public class ComplexKeyDataHandlingAT extends BaseAT {
 
     @Before
     public void before() {
-
         cassandraUtils = CassandraUtils.builder("complex_key_data_handling")
                                        .withPartitionKey("integer_1", "ascii_1")
                                        .withClusteringKey("double_1")
@@ -96,101 +94,60 @@ public class ComplexKeyDataHandlingAT extends BaseAT {
                       .filter(wildcard("ascii_1", "*")).check(19)
                       .insert(data5).refresh()
                       .filter(wildcard("ascii_1", "*")).check(20)
-                      .delete().where("integer_1", 4).and("ascii_1", "ascii").and("double_1", 1).refresh()
-                      .filter(wildcard("ascii_1", "*")).check(19)
-                      .delete()
-                      .where("integer_1", 5).and("ascii_1", "ascii").and("double_1", 1).refresh()
-                      .filter(wildcard("ascii_1", "*")).check(18)
-                      .delete().where("integer_1", 2).and("ascii_1", "ascii").and("double_1", 1).refresh()
-                      .filter(wildcard("ascii_1", "*")).check(17)
-                      .delete().where("integer_1", 3).and("ascii_1", "ascii").and("double_1", 1).refresh()
-                      .filter(wildcard("ascii_1", "*")).check(16)
-                      .delete().where("integer_1", 1).and("ascii_1", "ascii").and("double_1", 1).refresh()
-                      .filter(wildcard("ascii_1", "*")).check(15);
+                      .delete().where("integer_1", 4).and("ascii_1", "ascii").and("double_1", 1)
+                      .refresh().filter(wildcard("ascii_1", "*")).check(19)
+                      .delete().where("integer_1", 5).and("ascii_1", "ascii").and("double_1", 1)
+                      .refresh().filter(wildcard("ascii_1", "*")).check(18)
+                      .delete().where("integer_1", 2).and("ascii_1", "ascii").and("double_1", 1)
+                      .refresh().filter(wildcard("ascii_1", "*")).check(17)
+                      .delete().where("integer_1", 3).and("ascii_1", "ascii").and("double_1", 1)
+                      .refresh().filter(wildcard("ascii_1", "*")).check(16)
+                      .delete().where("integer_1", 1).and("ascii_1", "ascii").and("double_1", 1)
+                      .refresh().filter(wildcard("ascii_1", "*")).check(15);
     }
 
     @Test
     public void multipleInsertion() {
-
-        int n = cassandraUtils.insert(data4, data5).refresh().filter(wildcard("ascii_1", "*")).count();
-        assertEquals("Expected 20 results!", 20, n);
-
-        // Data4 removal
-        n = cassandraUtils.delete().where("integer_1", 4).and("ascii_1", "ascii").and("double_1", 1).refresh()
-                          .filter(wildcard("ascii_1", "*")).count();
-        assertEquals("Expected 19 results!", 19, n);
-
-        // Data5 removal
-        n = cassandraUtils.delete().where("integer_1", 5).and("ascii_1", "ascii").and("double_1", 1).refresh()
-                          .filter(wildcard("ascii_1", "*")).count();
-        assertEquals("Expected 18 results!", 18, n);
-
-        // Data2 removal
-        n = cassandraUtils.delete().where("integer_1", 2).and("ascii_1", "ascii").and("double_1", 1).refresh()
-                          .filter(wildcard("ascii_1", "*")).count();
-        assertEquals("Expected 17 results!", 17, n);
-
-        // Data3 removal
-        n = cassandraUtils.delete().where("integer_1", 3).and("ascii_1", "ascii").and("double_1", 1).refresh()
-                          .filter(wildcard("ascii_1", "*")).count();
-        assertEquals("Expected 16 results!", 16, n);
-
-        // Data1 removal
-        n = cassandraUtils.delete().where("integer_1", 1).and("ascii_1", "ascii").and("double_1", 1).refresh()
-                          .filter(wildcard("ascii_1", "*")).count();
-        assertEquals("Expected 15 results!", 15, n);
+        cassandraUtils.insert(data4, data5).refresh().filter(wildcard("ascii_1", "*")).check(20)
+                      .delete().where("integer_1", 4).and("ascii_1", "ascii").and("double_1", 1)
+                      .refresh().filter(wildcard("ascii_1", "*")).check(19)
+                      .delete().where("integer_1", 5).and("ascii_1", "ascii").and("double_1", 1)
+                      .refresh().filter(wildcard("ascii_1", "*")).check(18)
+                      .delete().where("integer_1", 2).and("ascii_1", "ascii").and("double_1", 1)
+                      .refresh().filter(wildcard("ascii_1", "*")).check(17)
+                      .delete().where("integer_1", 3).and("ascii_1", "ascii").and("double_1", 1)
+                      .refresh().filter(wildcard("ascii_1", "*")).check(16)
+                      .delete().where("integer_1", 1).and("ascii_1", "ascii").and("double_1", 1)
+                      .refresh().filter(wildcard("ascii_1", "*")).check(15);
     }
 
     @Test
     public void multipleDeletion() {
-
-        // Data2 & data3 removal
-        int n = cassandraUtils.delete().where("integer_1", 2).and("ascii_1", "ascii").and("double_1", 1)
-                              .delete().where("integer_1", 3).and("ascii_1", "ascii").and("double_1", 1)
-                              .refresh()
-                              .filter(wildcard("ascii_1", "*")).count();
-        assertEquals("Expected 16 results!", 16, n);
-
-        // Data1 removal
-        n = cassandraUtils.delete().where("integer_1", 1).and("ascii_1", "ascii").and("double_1", 1).refresh()
-                          .filter(wildcard("ascii_1", "*")).count();
-        assertEquals("Expected 15 results!", 15, n);
+        cassandraUtils.delete().where("integer_1", 2).and("ascii_1", "ascii").and("double_1", 1)
+                      .delete().where("integer_1", 3).and("ascii_1", "ascii").and("double_1", 1)
+                      .refresh().filter(wildcard("ascii_1", "*")).check(16)
+                      .delete().where("integer_1", 1).and("ascii_1", "ascii").and("double_1", 1)
+                      .refresh().filter(wildcard("ascii_1", "*")).check(15);
     }
 
     @Test
     public void updateTest() {
-
-        int n = cassandraUtils.query(wildcard("text_1", "text")).count();
-        assertEquals("Expected 18 results!", 18, n);
-
-        n = cassandraUtils.update()
-                          .set("text_1", "other")
-                          .where("integer_1", 4)
-                          .and("ascii_1", "ascii")
-                          .and("double_1", 1)
-                          .refresh()
-                          .filter(wildcard("text_1", "text"))
-                          .count();
-        assertEquals("Expected 17 results!", 17, n);
-
-        n = cassandraUtils.filter(wildcard("text_1", "other")).count();
-        assertEquals("Expected 1 results!", 1, n);
+        cassandraUtils.query(wildcard("text_1", "text")).check(18)
+                      .update().set("text_1", "other")
+                      .where("integer_1", 4).and("ascii_1", "ascii").and("double_1", 1)
+                      .refresh()
+                      .filter(wildcard("text_1", "text")).check(17)
+                      .filter(wildcard("text_1", "other")).check(1);
     }
 
     @Test
     public void insertWithUpdateTest() {
-
-        int n = cassandraUtils.query(wildcard("text_1", "text")).count();
-        assertEquals("Expected 18 results!", 18, n);
-
-        n = cassandraUtils.update()
-                          .set("text_1", "new")
-                          .where("integer_1", 1000)
-                          .and("ascii_1", "ascii")
-                          .and("double_1", 1)
-                          .refresh()
-                          .query(wildcard("text_1", "new"))
-                          .count();
-        assertEquals("Expected 1 results!", 1, n);
+        cassandraUtils.query(wildcard("text_1", "text")).check(18)
+                      .update()
+                      .set("text_1", "new")
+                      .where("integer_1", 1000)
+                      .and("ascii_1", "ascii")
+                      .and("double_1", 1)
+                      .refresh().query(wildcard("text_1", "new")).check(1);
     }
 }

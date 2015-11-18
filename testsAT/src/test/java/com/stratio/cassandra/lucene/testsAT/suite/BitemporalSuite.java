@@ -19,14 +19,14 @@
 package com.stratio.cassandra.lucene.testsAT.suite;
 
 import com.stratio.cassandra.lucene.testsAT.bitemporal.BitemporalAT;
-import com.stratio.cassandra.lucene.testsAT.bitemporal.FutureBitemporalTests;
+import com.stratio.cassandra.lucene.testsAT.bitemporal.FutureBitemporalAT;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({BitemporalAT.class,
-               FutureBitemporalTests.class})
+               FutureBitemporalAT.class})
 public class BitemporalSuite {
 
 }

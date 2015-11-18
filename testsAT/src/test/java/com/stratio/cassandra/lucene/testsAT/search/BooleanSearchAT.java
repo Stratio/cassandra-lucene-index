@@ -29,7 +29,7 @@ import static com.stratio.cassandra.lucene.builder.Builder.*;
 import static org.junit.Assert.*;
 
 @RunWith(JUnit4.class)
-public class BooleanAT extends AbstractSearchAT {
+public class BooleanSearchAT extends AbstractSearchAT {
 
     @Test
     public void booleanFilterEmptyTest() {

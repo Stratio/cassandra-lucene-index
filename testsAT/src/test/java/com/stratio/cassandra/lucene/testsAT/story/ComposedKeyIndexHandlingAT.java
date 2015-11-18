@@ -36,7 +36,6 @@ public class ComposedKeyIndexHandlingAT extends BaseAT {
 
     @Before
     public void before() {
-
         cassandraUtils = CassandraUtils.builder("composed_key_index_handling")
                                        .withPartitionKey("integer_1", "ascii_1")
                                        .withClusteringKey()

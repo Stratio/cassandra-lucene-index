@@ -39,7 +39,7 @@ import static org.junit.Assert.assertTrue;
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
 @RunWith(JUnit4.class)
-public class FutureBitemporalTests  extends BaseAT {
+public class FutureBitemporalAT extends BaseAT {
 
     protected static CassandraUtils cassandraUtils;
 
