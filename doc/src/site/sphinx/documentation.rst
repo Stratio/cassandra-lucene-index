@@ -1258,10 +1258,7 @@ Using Builder
     (...)
     String indexColumn = "stratio_col";
     Search search = search().filter(all());
-    ResultSet rs = session.execute(QueryBuilder
-                                    .select()
-                                    .all()
-                                    .from("test","users")
+    ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users")
                                     .where(eq(indexColumn, search.build()));
 
 
@@ -1409,11 +1406,8 @@ Using Builder
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     String indexColumn = "lucene";
-    Search search = search().filter(bitemporal("bitemporal")
-                                    .ttFrom("2200/12/31")
-                                    .ttTo("2200/12/31")
-                                    .vtFrom(0)
-                                    .vtTo("2200/12/31"));
+    Search search = search().filter(bitemporal("bitemporal").ttFrom("2200/12/31").ttTo("2200/12/31")
+                                    .vtFrom(0).vtTo("2200/12/31"));
     ResultSet rs = session.execute(QueryBuilder
                                         .select("name", "city", "vt_from", "vt_to", "tt_from", "tt_to")
                                         .from("test","census").where(eq(indexColumn, search.build()));
@@ -1689,9 +1683,7 @@ Using Builder
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     String indexColumn = "stratio_col";
-    Search search = search().filter(dateRange("duration")
-                                    .from("2014/01/01")
-                                    .to("2014/12/31")
+    Search search = search().filter(dateRange("duration").from("2014/01/01").to("2014/12/31")
                                     .operation("intersects"));
     ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users")
                                     .where(eq(indexColumn, search.build()));
@@ -1717,9 +1709,7 @@ Using Builder
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     String indexColumn = "stratio_col";
-    Search search = search().filter(dateRange("duration")
-                                    .from("2014/06/01")
-                                    .to("2014/06/02")
+    Search search = search().filter(dateRange("duration").from("2014/06/01").to("2014/06/02")
                                     .operation("contains"));
     ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users")
                                     .where(eq(indexColumn, search.build()));
@@ -1746,9 +1736,7 @@ Using Builder
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     String indexColumn = "stratio_col";
-    Search search = search().filter(dateRange("duration")
-                                    .from("2014/01/01")
-                                    .to("2014/12/31")
+    Search search = search().filter(dateRange("duration").from("2014/01/01").to("2014/12/31")
                                     .operation("is_within"));
     ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users")
                                     .where(eq(indexColumn, search.build()));
