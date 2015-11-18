@@ -25,15 +25,25 @@ import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
-import org.apache.cassandra.db.marshal.*;
+import org.apache.cassandra.db.marshal.AbstractType;
+import org.apache.cassandra.db.marshal.CollectionType;
 import org.apache.cassandra.db.marshal.CollectionType.Kind;
+import org.apache.cassandra.db.marshal.ListType;
+import org.apache.cassandra.db.marshal.MapType;
+import org.apache.cassandra.db.marshal.ReversedType;
+import org.apache.cassandra.db.marshal.SetType;
+import org.apache.cassandra.db.marshal.UTF8Type;
+import org.apache.cassandra.db.marshal.UserType;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.search.SortField;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import static org.apache.cassandra.db.marshal.CollectionType.Kind.LIST;
 import static org.apache.cassandra.db.marshal.CollectionType.Kind.SET;
@@ -49,7 +59,7 @@ public abstract class Mapper {
     static final String KEYWORD_ANALYZER = StandardAnalyzers.KEYWORD.toString();
 
     /** The store field in Lucene default option. */
-    static final Store STORE = Store.NO;
+    public static final Store STORE = Store.NO;
 
     /** If the field must be indexed when no specified. */
     public static final boolean DEFAULT_INDEXED = true;
@@ -136,6 +146,7 @@ public abstract class Mapper {
             } else if (type instanceof SetType) {
                 checkedType = ((SetType<?>) type).getElementsType();
             }
+            return supports(checkedType);
         }
 
         if (type instanceof ReversedType) {
@@ -163,18 +174,87 @@ public abstract class Mapper {
     }
 
     /**
+     * Find the child Node {@link AbstractType} by name
+     *
+     * @param parent   the parent {@link AbstractType}
+     * @param leafName the leaf Node name
+     * @return the Child {@link AbstractType} if exists
+     */
+    private AbstractType<?> findChildNode(AbstractType<?> parent, String leafName) {
+        if (parent instanceof UserType) {
+            UserType userType = (UserType) parent;
+            for (int i = 0; i < userType.fieldNames().size(); i++) {
+                if (userType.fieldNameAsString(i).equals(leafName)) {
+                    return userType.fieldType(i);
+                }
+            }
+        }
+        if (parent.isCollection()) {
+            CollectionType<?>  collType= (CollectionType<?>) parent;
+            switch (collType.kind) {
+                case SET:
+                    return findChildNode(collType.nameComparator(),leafName);
+                case LIST:
+                    return findChildNode(collType.valueComparator(),leafName);
+                case MAP:
+                    return findChildNode(collType.valueComparator(),leafName);
+                default:
+                    break;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Validates this {@link Mapper} against the specified UDT type column.
+     *
+     * @param metadata A column family {@link CFMetaData}.
+     * @param column   The name of the UDT column to be validated.
+     */
+    private void validateUDT(CFMetaData metadata, String column) {
+        String[] names = column.split(Pattern.quote("."));
+        int numMatches = names.length;
+
+        ByteBuffer parentColName = UTF8Type.instance.decompose(names[0]);
+        ColumnDefinition parentCD = metadata.getColumnDefinition(parentColName);
+        if (parentCD == null) {
+            throw new IndexException("No column definition '%s' for mapper '%s'", names[0], field);
+        }
+
+        if (parentCD.isStatic()) {
+            throw new IndexException("Lucene indexes are not allowed on static columns as '%s'", column);
+        }
+        AbstractType<?> actualType = parentCD.type;
+        String columnIterator = names[0];
+        for (int i = 1; i < names.length; i++) {
+            columnIterator += "." + names[i];
+            actualType = findChildNode(actualType, names[i]);
+            if (actualType == null) {
+                throw new IndexException("No column definition '%s' for mapper '%s'", columnIterator, field);
+            }
+            if (i == (numMatches - 1)) {
+                validate(actualType, columnIterator);
+            }
+        }
+    }
+
+    /**
      * Validates this {@link Mapper} against the specified column.
      *
      * @param metadata A column family {@link CFMetaData}.
      * @param column   The name of the column to be validated.
      */
     private void validate(CFMetaData metadata, String column) {
-        ByteBuffer columnName = UTF8Type.instance.decompose(column);
-        ColumnDefinition columnDefinition = metadata.getColumnDefinition(columnName);
-        if (columnDefinition == null) {
-            throw new IndexException("No column definition '%s' for mapper '%s'", column, field);
+        if (column.contains(".")) {
+            validateUDT(metadata, column);
+        } else {
+            ByteBuffer columnName = UTF8Type.instance.decompose(column);
+            ColumnDefinition columnDefinition = metadata.getColumnDefinition(columnName);
+            if (columnDefinition == null) {
+                throw new IndexException("No column definition '%s' for mapper '%s'", column, field);
+            }
+            validate(columnDefinition, column);
         }
-        validate(columnDefinition, column);
     }
 
     private void validate(ColumnDefinition columnDefinition, String column) {
@@ -215,7 +295,7 @@ public abstract class Mapper {
                 return false;
             }
             for (Column<?> column : mapperColumns) {
-                if (column.isCollection()) {
+                if (column.isMultiCell()) {
                     return false;
                 }
             }

@@ -22,6 +22,7 @@ import com.google.common.base.Objects;
 import org.apache.cassandra.db.marshal.AbstractType;
 
 import java.nio.ByteBuffer;
+import java.util.regex.Pattern;
 
 /**
  * A cell of a CQL3 logic {@link Column}, which in most cases is different from a storage engine column.
@@ -31,11 +32,17 @@ import java.nio.ByteBuffer;
  */
 public final class Column<T> implements Comparable<Column<?>> {
 
-    /** The column's name. */
-    private final String name;
+    /** The column's lucene field name. Used in Conditions */
+    private final String fieldName;
 
-    /** The column's name suffix used for maps. */
-    private final String nameSuffix;
+    /** The column's mapperName. */
+    private final String mapperName;
+
+    /** The default mapKeys separator. */
+    public static final String mapSeparator="$";
+
+    /** The default mapKeys separator. */
+    public static final String udtSeparator=".";
 
     /** The column's value as {@link ByteBuffer}. */
     private final T composedValue;
@@ -46,39 +53,68 @@ public final class Column<T> implements Comparable<Column<?>> {
     /** The column's Cassandra type. */
     private final AbstractType<T> type;
 
-    private final boolean isCollection;
+    private final boolean isMultiCell;
 
     /**
      * Builds a new {@link Column} with the specified name, name suffix, value, and type.
      *
-     * @param name            The name of the column to be created.
-     * @param nameSuffix       The name suffix of the column to be created.
+     * @param fieldName       The field name of the column to be created.
      * @param decomposedValue The decomposed value of the column to be created.
      * @param composedValue   The composed value of the column to be created.
      * @param type            The type/marshaller of the column to be created.
-     * @param isCollection    If the column is a CQL collection.
+     * @param isMultiCell     If the column is a multiCell column (not frozen Collections).
      */
-    private Column(String name,
-                   String nameSuffix,
+    private Column(String fieldName,
                    ByteBuffer decomposedValue,
                    T composedValue,
                    AbstractType<T> type,
-                   boolean isCollection) {
-        this.name = name;
-        this.nameSuffix = nameSuffix;
+                   boolean isMultiCell) {
+        this.fieldName = fieldName;
+        this.mapperName = getMapperNameByFullName(fieldName);
         this.composedValue = composedValue;
         this.decomposedValue = decomposedValue;
         this.type = type;
-        this.isCollection = isCollection;
+        this.isMultiCell = isMultiCell;
     }
+    public static String getMapperNameByFullName(String input) {
+        if (input.contains(".")) {
+            String[] components = input.split(Pattern.quote("."));
+            String out = "";
+            for (int i=0;i<components.length;i++) {
 
+                if (components[i].contains(Column.mapSeparator)) {
+                    String[] auxComponents = components[i].split(Pattern.quote(Column.mapSeparator));
+                    out += auxComponents[0];
+                } else {
+                    out += components[i];
+                }
+                if (i<components.length-1) {
+                    out += ".";
+                }
+            }
+            return out;
+        } else {
+            if (input.contains(Column.mapSeparator)) {
+                String[] auxComponents = input.split(Pattern.quote(Column.mapSeparator));
+                return auxComponents[0];
+            }
+            return input;
+        }
+    }
+    public static String joinMapItemName(String input, String mapItemName) {
+        return input==null? mapItemName : input+mapSeparator+mapItemName;
+
+    }
+    public static String joinUDTItemName(String input, String udtChildItemName) {
+        return input==null? udtChildItemName : input+udtSeparator+udtChildItemName;
+    }
     /**
      * Returns the column name.
      *
      * @return the column name.
      */
-    public String getName() {
-        return name;
+    public String getMapperName() {
+        return mapperName;
     }
 
     /**
@@ -86,8 +122,8 @@ public final class Column<T> implements Comparable<Column<?>> {
      *
      * @return The full name, which is formed by the column name and suffix.
      */
-    public String getFullName() {
-        return nameSuffix == null ? name : name + "." + nameSuffix;
+    public String getFieldName() {
+        return this.fieldName;
     }
 
     /**
@@ -96,8 +132,8 @@ public final class Column<T> implements Comparable<Column<?>> {
      * @param name A column name.
      * @return The full column name appending the suffix.
      */
-    public String getFullName(String name) {
-        return nameSuffix == null ? name : name + "." + nameSuffix;
+    public String getFieldName(String name) {
+        return name + this.fieldName;
     }
 
     /**
@@ -127,8 +163,12 @@ public final class Column<T> implements Comparable<Column<?>> {
         return type;
     }
 
-    public boolean isCollection() {
-        return isCollection;
+    /**
+     * Returns if this Column is a multiCell column (not frozen Collections).
+     * @return if this Column is a multiCell column (not frozen Collections).
+     */
+    public boolean isMultiCell() {
+        return isMultiCell;
     }
 
     /**
@@ -137,36 +177,16 @@ public final class Column<T> implements Comparable<Column<?>> {
      * @param name            The column name.
      * @param decomposedValue The column raw value.
      * @param type            The column type/marshaller.
-     * @param isCollection    If the {@link Column} belongs to a collection.
+     * @param isMultiCell    If the {@link Column} is a multiCell column (not frozen Collections).
      * @param <T>             The base type.
      * @return A {@link Column}.
      */
     public static <T> Column<T> fromDecomposed(String name,
                                                ByteBuffer decomposedValue,
                                                AbstractType<T> type,
-                                               boolean isCollection) {
+                                               boolean isMultiCell) {
         T composedValue = type.compose(decomposedValue);
-        return new Column<>(name, null, decomposedValue, composedValue, type, isCollection);
-    }
-
-    /**
-     * Returns the {@link Column} defined by the specified name, raw value and type.
-     *
-     * @param name            The column name.
-     * @param nameSuffix       The column name suffix.
-     * @param decomposedValue The column raw value.
-     * @param type            The column type/marshaller.
-     * @param isCollection    If the {@link Column} belongs to a collection.
-     * @param <T>             The base type.
-     * @return A {@link Column}.
-     */
-    public static <T> Column<T> fromDecomposed(String name,
-                                               String nameSuffix,
-                                               ByteBuffer decomposedValue,
-                                               AbstractType<T> type,
-                                               boolean isCollection) {
-        T composedValue = type.compose(decomposedValue);
-        return new Column<>(name, nameSuffix, decomposedValue, composedValue, type, isCollection);
+        return new Column<>(name, decomposedValue, composedValue, type, isMultiCell);
     }
 
     /**
@@ -175,33 +195,13 @@ public final class Column<T> implements Comparable<Column<?>> {
      * @param name          The column name.
      * @param composedValue The column composed value.
      * @param type          The column type/marshaller.
-     * @param isCollection  If the {@link Column} belongs to a collection.
+     * @param isMultiCell   If the {@link Column} is a multiCell column (not frozen Collections).
      * @param <T>           The base type.
      * @return A {@link Column}.
      */
-    public static <T> Column<T> fromComposed(String name, T composedValue, AbstractType<T> type, boolean isCollection) {
+    public static <T> Column<T> fromComposed(String name, T composedValue, AbstractType<T> type, boolean isMultiCell) {
         ByteBuffer decomposedValue = type.decompose(composedValue);
-        return new Column<>(name, null, decomposedValue, composedValue, type, isCollection);
-    }
-
-    /**
-     * Returns the {@link Column} defined by the specified name, value and type.
-     *
-     * @param name          The column name.
-     * @param suffix         The column name suffix.
-     * @param composedValue The column composed value.
-     * @param type          The column type/marshaller.
-     * @param isCollection  If the {@link Column} belongs to a collection.
-     * @param <T>           The base type.
-     * @return A {@link Column}.
-     */
-    public static <T> Column<T> fromComposed(String name,
-                                             String suffix,
-                                             T composedValue,
-                                             AbstractType<T> type,
-                                             boolean isCollection) {
-        ByteBuffer decomposedValue = type.decompose(composedValue);
-        return new Column<>(name, suffix, decomposedValue, composedValue, type, isCollection);
+        return new Column<>(name, decomposedValue, composedValue, type, isMultiCell);
     }
 
     /** {@inheritDoc} */
@@ -219,7 +219,7 @@ public final class Column<T> implements Comparable<Column<?>> {
     @Override
     public String toString() {
         return Objects.toStringHelper(this)
-                      .add("fullName", getFullName())
+                      .add("fieldName", getFieldName())
                       .add("composedValue", getComposedValue())
                       .add("type", type.getClass().getSimpleName())
                       .toString();

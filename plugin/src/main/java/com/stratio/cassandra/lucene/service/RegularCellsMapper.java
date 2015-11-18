@@ -28,6 +28,10 @@ import org.apache.cassandra.db.ColumnFamily;
 import org.apache.cassandra.db.composites.CellName;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.CollectionType;
+import org.apache.cassandra.db.marshal.UserType;
+import org.apache.cassandra.serializers.CollectionSerializer;
+import org.apache.cassandra.serializers.MapSerializer;
+import org.apache.cassandra.transport.Server;
 
 import java.nio.ByteBuffer;
 
@@ -66,6 +70,75 @@ public final class RegularCellsMapper {
         return new RegularCellsMapper(metadata, schema);
     }
 
+    private Columns process(String fullName,
+                            AbstractType type,
+                            ByteBuffer value,
+                            boolean hasAnyNotFrozenCollectionAsParent) {
+
+        Columns columns= new Columns();
+        if (type.isCollection()) {
+            CollectionType<?> collectionType = (CollectionType<?>) type;
+            switch (collectionType.kind) {
+                case SET: {
+                    AbstractType<?> nameType = collectionType.nameComparator();
+                    int colSize= CollectionSerializer.readCollectionSize(value, Server.CURRENT_VERSION);
+                    for (int j=0;j<colSize;j++) {
+                        ByteBuffer itemValue=CollectionSerializer.readValue(value, Server.CURRENT_VERSION);
+                        columns.add(process(fullName,
+                                            nameType,
+                                            itemValue,
+                                            hasAnyNotFrozenCollectionAsParent));
+                    }
+                    break;
+                }
+                case LIST: {
+                    AbstractType<?> valueType = collectionType.valueComparator();
+                    int colSize= CollectionSerializer.readCollectionSize(value, Server.CURRENT_VERSION);
+                    for (int j=0;j<colSize;j++) {
+                        ByteBuffer itemValue=CollectionSerializer.readValue(value, Server.CURRENT_VERSION);
+                        columns.add(process(fullName,
+                                            valueType,
+                                            itemValue,
+                                            hasAnyNotFrozenCollectionAsParent));
+                    }
+                    break;
+                }
+                case MAP: {
+                    AbstractType<?> keyType = collectionType.nameComparator();
+                    AbstractType<?> valueType = collectionType.valueComparator();
+                    int colSize= MapSerializer.readCollectionSize(value, Server.CURRENT_VERSION);
+                    for (int j=0;j<colSize;j++) {
+                        ByteBuffer mapKey=MapSerializer.readValue(value, Server.CURRENT_VERSION);
+                        ByteBuffer mapValue=MapSerializer.readValue(value, Server.CURRENT_VERSION);
+                        String itemName=keyType.compose(mapKey).toString();
+                        collectionType.nameComparator();
+                        Columns columnsAux= process(Column.joinMapItemName(fullName,itemName),
+                                                    valueType,
+                                                    mapValue,
+                                                    hasAnyNotFrozenCollectionAsParent);
+                        columns.add(columnsAux);
+                    }
+                    break;
+                }
+            }
+
+        } else if (type instanceof UserType) {
+            UserType userType=(UserType)type;
+            ByteBuffer[] values = userType.split(value);
+            for (int i = 0; i < userType.fieldNames().size(); i++) {
+                String itemName=userType.fieldNameAsString(i);
+                AbstractType<?> itemType = userType.fieldType(i);
+                columns.add(process(Column.joinUDTItemName(fullName, itemName),
+                                    itemType,
+                                    values[i],
+                                    hasAnyNotFrozenCollectionAsParent));
+            }
+        } else {//basic type
+            columns.add(Column.fromDecomposed(fullName,value,type, hasAnyNotFrozenCollectionAsParent));
+        }
+        return columns;
+    }
+
     /**
      * Returns the columns contained in the regular cells specified row. Note that not all the contained columns are
      * returned, but only the regular cell ones.
@@ -76,15 +149,14 @@ public final class RegularCellsMapper {
     public Columns columns(ColumnFamily columnFamily) {
 
         Columns columns = new Columns();
-
         // Stuff for grouping collection columns (sets, lists and maps)
         String name;
-        CollectionType<?> collectionType;
-
         for (Cell cell : columnFamily) {
 
             CellName cellName = cell.name();
             name = cellName.cql3ColumnName(metadata).toString();
+            if (name.length()==0) continue;
+
             if (!schema.maps(name)) {
                 continue;
             }
@@ -96,36 +168,34 @@ public final class RegularCellsMapper {
 
             AbstractType<?> valueType = columnDefinition.type;
 
-            ByteBuffer cellValue = cell.value();
-
-            if (valueType.isCollection()) {
-                collectionType = (CollectionType<?>) valueType;
+            if ((valueType.isCollection()) && (!valueType.isFrozenCollection())) {
+                CollectionType<?> collectionType = (CollectionType<?>) valueType;
                 switch (collectionType.kind) {
                     case SET: {
                         AbstractType<?> type = collectionType.nameComparator();
-                        ByteBuffer value = cellName.collectionElement();
-                        columns.add(Column.fromDecomposed(name, value, type, true));
+                        ByteBuffer value = cell.name().collectionElement();
+                        columns.add(process(name, type, value, true));
                         break;
                     }
                     case LIST: {
                         AbstractType<?> type = collectionType.valueComparator();
-                        columns.add(Column.fromDecomposed(name, cellValue, type, true));
+                        columns.add(process(name, type, cell.value(), true));
                         break;
                     }
                     case MAP: {
                         AbstractType<?> type = collectionType.valueComparator();
-                        ByteBuffer keyValue = cellName.collectionElement();
+                        ByteBuffer keyValue = cell.name().collectionElement();
                         AbstractType<?> keyType = collectionType.nameComparator();
                         String nameSuffix = keyType.compose(keyValue).toString();
-                        columns.add(Column.fromDecomposed(name, nameSuffix, cellValue, type, true));
+                        columns.add(process(Column.joinMapItemName(name, nameSuffix), type, cell.value(), true));
                         break;
                     }
                 }
             } else {
-                columns.add(Column.fromDecomposed(name, cellValue, valueType, false));
+                columns.add(process(name, valueType, cell.value(), false));
             }
         }
-
         return columns;
     }
 }
+

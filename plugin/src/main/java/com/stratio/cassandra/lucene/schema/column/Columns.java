@@ -105,7 +105,7 @@ public class Columns implements Iterable<Column<?>> {
     public Columns getColumnsByFullName(String name) {
         Columns result = new Columns();
         for (Column<?> column : columns) {
-            if (column.getFullName().equals(name)) {
+            if (column.getFieldName().equals(name)) {
                 result.add(column);
             }
         }
@@ -121,7 +121,7 @@ public class Columns implements Iterable<Column<?>> {
     public Columns getColumnsByName(String name) {
         Columns result = new Columns();
         for (Column<?> column : columns) {
-            if (column.getName().equals(name)) {
+            if (column.getMapperName().equals(name)) {
                 result.add(column);
             }
         }
@@ -137,7 +137,7 @@ public class Columns implements Iterable<Column<?>> {
     public String toString() {
         Objects.ToStringHelper helper = Objects.toStringHelper(this);
         for (Column<?> column : columns) {
-            helper.add(column.getFullName(), column.getComposedValue());
+            helper.add(column.getFieldName(), column.getComposedValue());
         }
         return helper.toString();
     }

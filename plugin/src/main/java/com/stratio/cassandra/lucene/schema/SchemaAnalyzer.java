@@ -22,14 +22,18 @@ import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.analysis.ClasspathAnalyzerBuilder;
 import com.stratio.cassandra.lucene.schema.analysis.StandardAnalyzers;
+import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 import com.stratio.cassandra.lucene.util.TokenLengthAnalyzer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.DelegatingAnalyzerWrapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * Variation of {@link DelegatingAnalyzerWrapper} to be used with CQL.
@@ -37,7 +41,6 @@ import java.util.Map;
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class SchemaAnalyzer extends DelegatingAnalyzerWrapper {
-
     private final TokenLengthAnalyzer defaultAnalyzer;
     private final Map<String, TokenLengthAnalyzer> fieldAnalyzers;
 
@@ -101,13 +104,15 @@ public class SchemaAnalyzer extends DelegatingAnalyzerWrapper {
     /**
      * Returns the {@link Analyzer} identified by the specified field name.
      *
-     * @param name The name of the {@link Analyzer} to be returned.
+     * @param fieldName The name of the {@link Analyzer} to be returned.
      * @return The {@link Analyzer} identified by the specified field name.
      */
-    public TokenLengthAnalyzer getAnalyzer(String name) {
-        if (StringUtils.isBlank(name)) {
+    public TokenLengthAnalyzer getAnalyzer(String fieldName) {
+
+        if (StringUtils.isBlank(fieldName)) {
             throw new IllegalArgumentException("Not empty analyzer name required");
         }
+        String name=Column.getMapperNameByFullName(fieldName);
         TokenLengthAnalyzer analyzer = fieldAnalyzers.get(name);
         if (analyzer != null) {
             return analyzer;
