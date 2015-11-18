@@ -4,7 +4,7 @@
 
  * Upgrade to Apache Cassandra 2.2.3
  
-## 2.1.11.1 (upcoming)
+## 2.1.11.1 (18 November 2015)
 
  * Fixed bitemporal bug (#46)
  * Fixed default directory path
