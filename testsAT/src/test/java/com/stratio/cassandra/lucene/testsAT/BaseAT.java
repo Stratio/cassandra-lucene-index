@@ -18,9 +18,8 @@
 
 package com.stratio.cassandra.lucene.testsAT;
 
-import org.junit.Rule;
-import org.junit.rules.TestWatchman;
-import org.junit.runners.model.FrameworkMethod;
+import com.stratio.cassandra.lucene.testsAT.util.CassandraConnection;
+import org.junit.BeforeClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,5 +29,10 @@ import org.slf4j.LoggerFactory;
 public class BaseAT {
 
     public static final Logger logger = LoggerFactory.getLogger("TEST");
+
+    @BeforeClass
+    public static void connect() {
+        CassandraConnection.connect();
+    }
 
 }

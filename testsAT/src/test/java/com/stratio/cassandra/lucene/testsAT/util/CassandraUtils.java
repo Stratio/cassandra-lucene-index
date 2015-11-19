@@ -95,15 +95,23 @@ public class CassandraUtils {
         return indexColumn;
     }
 
+    public Statement statement(String query, Object... args) {
+        return new SimpleStatement(String.format(query, args));
+    }
+
     public ResultSet execute(Statement statement) {
         return CassandraConnection.execute(statement);
     }
 
-    ResultSet execute(String query) {
+    public ResultSet execute(String query) {
         if (!query.endsWith(";")) {
             query += ";";
         }
         return execute(new SimpleStatement(query));
+    }
+
+    public ResultSet execute(String query, String... args) {
+        return execute(String.format(query, args));
     }
 
     ResultSet execute(StringBuilder query) {
