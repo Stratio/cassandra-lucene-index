@@ -39,10 +39,10 @@ public final class Column<T> implements Comparable<Column<?>> {
     private final String mapperName;
 
     /** The default mapKeys separator. */
-    public static final String mapSeparator="$";
+    public static final String mapSeparator = "$";
 
     /** The default mapKeys separator. */
-    public static final String udtSeparator=".";
+    public static final String udtSeparator = ".";
 
     /** The column's value as {@link ByteBuffer}. */
     private final T composedValue;
@@ -76,11 +76,12 @@ public final class Column<T> implements Comparable<Column<?>> {
         this.type = type;
         this.isMultiCell = isMultiCell;
     }
+
     public static String getMapperNameByFullName(String input) {
         if (input.contains(".")) {
             String[] components = input.split(Pattern.quote("."));
             String out = "";
-            for (int i=0;i<components.length;i++) {
+            for (int i = 0; i < components.length; i++) {
 
                 if (components[i].contains(Column.mapSeparator)) {
                     String[] auxComponents = components[i].split(Pattern.quote(Column.mapSeparator));
@@ -88,7 +89,7 @@ public final class Column<T> implements Comparable<Column<?>> {
                 } else {
                     out += components[i];
                 }
-                if (i<components.length-1) {
+                if (i < components.length - 1) {
                     out += ".";
                 }
             }
@@ -101,13 +102,16 @@ public final class Column<T> implements Comparable<Column<?>> {
             return input;
         }
     }
+
     public static String joinMapItemName(String input, String mapItemName) {
-        return input==null? mapItemName : input+mapSeparator+mapItemName;
+        return input == null ? mapItemName : input + mapSeparator + mapItemName;
 
     }
+
     public static String joinUDTItemName(String input, String udtChildItemName) {
-        return input==null? udtChildItemName : input+udtSeparator+udtChildItemName;
+        return input == null ? udtChildItemName : input + udtSeparator + udtChildItemName;
     }
+
     /**
      * Returns the column name.
      *
@@ -165,6 +169,7 @@ public final class Column<T> implements Comparable<Column<?>> {
 
     /**
      * Returns if this Column is a multiCell column (not frozen Collections).
+     *
      * @return if this Column is a multiCell column (not frozen Collections).
      */
     public boolean isMultiCell() {
@@ -177,7 +182,7 @@ public final class Column<T> implements Comparable<Column<?>> {
      * @param name            The column name.
      * @param decomposedValue The column raw value.
      * @param type            The column type/marshaller.
-     * @param isMultiCell    If the {@link Column} is a multiCell column (not frozen Collections).
+     * @param isMultiCell     If the {@link Column} is a multiCell column (not frozen Collections).
      * @param <T>             The base type.
      * @return A {@link Column}.
      */

@@ -37,12 +37,14 @@ public class AllSuite {
 
     @BeforeClass
     public static void before() {
-        CassandraConnection.start();
+        CassandraConnection.startEmbeddedServer();
+        CassandraConnection.connect();
     }
 
     @AfterClass
     public static void after() {
-        CassandraConnection.stop();
+        CassandraConnection.stopEmbeddedServer();
+        CassandraConnection.disconnect();
     }
 
 }

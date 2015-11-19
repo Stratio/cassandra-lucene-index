@@ -20,17 +20,14 @@ package com.stratio.cassandra.lucene.testsAT.indexes;
 
 import com.stratio.cassandra.lucene.testsAT.BaseAT;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
-import com.stratio.cassandra.lucene.testsAT.util.CassandraUtilsBuilder;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 import static com.stratio.cassandra.lucene.builder.Builder.wildcard;
 import static com.stratio.cassandra.lucene.testsAT.indexes.DataHelper.*;
-import static org.junit.Assert.assertEquals;
 
 @RunWith(JUnit4.class)
 public class ComposedKeyIndexHandlingAT extends BaseAT {

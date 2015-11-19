@@ -21,7 +21,6 @@ package com.stratio.cassandra.lucene.testsAT.udt;
 import com.datastax.driver.core.SimpleStatement;
 import com.datastax.driver.core.exceptions.InvalidQueryException;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
-
 import com.stratio.cassandra.lucene.testsAT.util.UDT;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,7 +40,7 @@ public class CheckNonFrozenUDTTest {
      * be able in next versions to detect this change because it is problematic
      */
     private static CassandraUtils cassandraUtils;
-    static final String KEYSPACE_NAME="non_frozen_udt";
+    static final String KEYSPACE_NAME = "non_frozen_udt";
 
     @Test
     public void testNotFrozenUDT() {
@@ -51,8 +50,8 @@ public class CheckNonFrozenUDTTest {
         String useKeyspaceQuery = " USE " + cassandraUtils.getKeyspace() + " ;";
 
         UDT addressUDT = new UDT("address_udt");
-        addressUDT.add("city","text");
-        addressUDT.add("postcode","int");
+        addressUDT.add("city", "text");
+        addressUDT.add("postcode", "int");
 
         String tableCreationQuery = "CREATE TABLE " +
                                     cassandraUtils.getTable() +
@@ -63,10 +62,10 @@ public class CheckNonFrozenUDTTest {
         cassandraUtils.execute(new SimpleStatement(addressUDT.build()));
         try {
             cassandraUtils.execute(new SimpleStatement(tableCreationQuery));
-            assertTrue("This must return InvalidQueryException but does not",false);
+            assertTrue("This must return InvalidQueryException but does not", false);
         } catch (InvalidQueryException e) {
-            String expectedMesssage="Non-frozen User-Defined types are not supported, please use frozen<>";
-            assertEquals("Getted exception with non expected message",expectedMesssage,e.getMessage());
+            String expectedMesssage = "Non-frozen User-Defined types are not supported, please use frozen<>";
+            assertEquals("Getted exception with non expected message", expectedMesssage, e.getMessage());
 
         }
         cassandraUtils.dropKeyspace();
@@ -80,8 +79,8 @@ public class CheckNonFrozenUDTTest {
         String useKeyspaceQuery = " USE " + cassandraUtils.getKeyspace() + " ;";
 
         UDT addressUDT = new UDT("address_udt");
-        addressUDT.add("city","text");
-        addressUDT.add("postcode","int");
+        addressUDT.add("city", "text");
+        addressUDT.add("postcode", "int");
 
         String tableCreationQuery = "CREATE TABLE " +
                                     cassandraUtils.getTable() +
@@ -92,10 +91,10 @@ public class CheckNonFrozenUDTTest {
         cassandraUtils.execute(new SimpleStatement(addressUDT.build()));
         try {
             cassandraUtils.execute(new SimpleStatement(tableCreationQuery));
-            assertTrue("This must return InvalidQueryException but does not",false);
+            assertTrue("This must return InvalidQueryException but does not", false);
         } catch (InvalidQueryException e) {
-            String expectedMesssage="Non-frozen collections are not allowed inside collections: list<address_udt>";
-            assertEquals("Getted exception with non expected message",expectedMesssage,e.getMessage());
+            String expectedMesssage = "Non-frozen collections are not allowed inside collections: list<address_udt>";
+            assertEquals("Getted exception with non expected message", expectedMesssage, e.getMessage());
 
         }
         cassandraUtils.dropKeyspace();
@@ -109,8 +108,8 @@ public class CheckNonFrozenUDTTest {
         String useKeyspaceQuery = " USE " + cassandraUtils.getKeyspace() + " ;";
 
         UDT addressUDT = new UDT("address_udt");
-        addressUDT.add("city","text");
-        addressUDT.add("postcode","int");
+        addressUDT.add("city", "text");
+        addressUDT.add("postcode", "int");
 
         String tableCreationQuery = "CREATE TABLE " +
                                     cassandraUtils.getTable() +
@@ -121,10 +120,10 @@ public class CheckNonFrozenUDTTest {
         cassandraUtils.execute(new SimpleStatement(addressUDT.build()));
         try {
             cassandraUtils.execute(new SimpleStatement(tableCreationQuery));
-            assertTrue("This must return InvalidQueryException but does not",false);
+            assertTrue("This must return InvalidQueryException but does not", false);
         } catch (InvalidQueryException e) {
-            String expectedMesssage="Non-frozen collections are not allowed inside collections: set<address_udt>";
-            assertEquals("Getted exception with non expected message",expectedMesssage,e.getMessage());
+            String expectedMesssage = "Non-frozen collections are not allowed inside collections: set<address_udt>";
+            assertEquals("Getted exception with non expected message", expectedMesssage, e.getMessage());
 
         }
         cassandraUtils.dropKeyspace();
@@ -138,8 +137,8 @@ public class CheckNonFrozenUDTTest {
         String useKeyspaceQuery = " USE " + cassandraUtils.getKeyspace() + " ;";
 
         UDT addressUDT = new UDT("address_udt");
-        addressUDT.add("city","text");
-        addressUDT.add("postcode","int");
+        addressUDT.add("city", "text");
+        addressUDT.add("postcode", "int");
 
         String tableCreationQuery = "CREATE TABLE " +
                                     cassandraUtils.getTable() +
@@ -150,10 +149,12 @@ public class CheckNonFrozenUDTTest {
         cassandraUtils.execute(new SimpleStatement(addressUDT.build()));
         try {
             cassandraUtils.execute(new SimpleStatement(tableCreationQuery));
-            assertTrue("This must return InvalidQueryException but does not",false);
+            assertTrue("This must return InvalidQueryException but does not", false);
         } catch (InvalidQueryException e) {
-            String expectedMesssage="Non-frozen collections are not allowed inside collections: map<address_udt, int>";
-            assertEquals("Getted exception with non expected message",expectedMesssage,e.getMessage());
+            String
+                    expectedMesssage
+                    = "Non-frozen collections are not allowed inside collections: map<address_udt, int>";
+            assertEquals("Getted exception with non expected message", expectedMesssage, e.getMessage());
 
         }
         cassandraUtils.dropKeyspace();
@@ -167,8 +168,8 @@ public class CheckNonFrozenUDTTest {
         String useKeyspaceQuery = " USE " + cassandraUtils.getKeyspace() + " ;";
 
         UDT addressUDT = new UDT("address_udt");
-        addressUDT.add("city","text");
-        addressUDT.add("postcode","int");
+        addressUDT.add("city", "text");
+        addressUDT.add("postcode", "int");
 
         String tableCreationQuery = "CREATE TABLE " +
                                     cassandraUtils.getTable() +
@@ -179,10 +180,12 @@ public class CheckNonFrozenUDTTest {
         cassandraUtils.execute(new SimpleStatement(addressUDT.build()));
         try {
             cassandraUtils.execute(new SimpleStatement(tableCreationQuery));
-            assertTrue("This must return InvalidQueryException but does not",false);
+            assertTrue("This must return InvalidQueryException but does not", false);
         } catch (InvalidQueryException e) {
-            String expectedMesssage="Non-frozen collections are not allowed inside collections: map<int, address_udt>";
-            assertEquals("Getted exception with non expected message",expectedMesssage,e.getMessage());
+            String
+                    expectedMesssage
+                    = "Non-frozen collections are not allowed inside collections: map<int, address_udt>";
+            assertEquals("Getted exception with non expected message", expectedMesssage, e.getMessage());
 
         }
         cassandraUtils.dropKeyspace();

@@ -28,7 +28,6 @@ import org.junit.runners.JUnit4;
 
 import static com.stratio.cassandra.lucene.builder.Builder.wildcard;
 import static com.stratio.cassandra.lucene.testsAT.story.DataHelper.*;
-import static org.junit.Assert.assertEquals;
 
 @RunWith(JUnit4.class)
 public class MultipleKeyIndexHandlingAT extends BaseAT {

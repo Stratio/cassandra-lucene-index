@@ -222,6 +222,7 @@ public class IndexConfig {
 
     /**
      * Returns the Lucene's max merge MBs.
+     *
      * @return The Lucene's max merge MBs.
      */
     public int getMaxMergeMB() {
@@ -230,6 +231,7 @@ public class IndexConfig {
 
     /**
      * Returns the Lucene's max cached MBs.
+     *
      * @return The Lucene's max cached MBs.
      */
     public int getMaxCachedMB() {

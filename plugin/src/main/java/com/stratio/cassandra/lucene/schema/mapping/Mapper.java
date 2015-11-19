@@ -25,21 +25,12 @@ import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
-import org.apache.cassandra.db.marshal.AbstractType;
-import org.apache.cassandra.db.marshal.CollectionType;
+import org.apache.cassandra.db.marshal.*;
 import org.apache.cassandra.db.marshal.CollectionType.Kind;
-import org.apache.cassandra.db.marshal.ListType;
-import org.apache.cassandra.db.marshal.MapType;
-import org.apache.cassandra.db.marshal.ReversedType;
-import org.apache.cassandra.db.marshal.SetType;
-import org.apache.cassandra.db.marshal.UTF8Type;
-import org.apache.cassandra.db.marshal.UserType;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.search.SortField;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
 import java.util.List;
@@ -190,14 +181,14 @@ public abstract class Mapper {
             }
         }
         if (parent.isCollection()) {
-            CollectionType<?>  collType= (CollectionType<?>) parent;
+            CollectionType<?> collType = (CollectionType<?>) parent;
             switch (collType.kind) {
                 case SET:
-                    return findChildNode(collType.nameComparator(),leafName);
+                    return findChildNode(collType.nameComparator(), leafName);
                 case LIST:
-                    return findChildNode(collType.valueComparator(),leafName);
+                    return findChildNode(collType.valueComparator(), leafName);
                 case MAP:
-                    return findChildNode(collType.valueComparator(),leafName);
+                    return findChildNode(collType.valueComparator(), leafName);
                 default:
                     break;
             }

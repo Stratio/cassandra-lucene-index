@@ -18,7 +18,6 @@
 
 package com.stratio.cassandra.lucene.builder.search.condition;
 
-
 import org.codehaus.jackson.annotate.JsonCreator;
 
 /**

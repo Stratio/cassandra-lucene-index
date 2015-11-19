@@ -77,7 +77,6 @@ public class CassandraServer {
         }
     }
 
-
     public void teardown() {
         //if ( cassandraDaemon != null )
         //cassandraDaemon.stop();
@@ -119,7 +118,6 @@ public class CassandraServer {
     private static void mkdir(String dir) throws IOException {
         FileUtils.createDirectory(dir);
     }
-
 
     private class CassandraRunner implements Runnable {
 

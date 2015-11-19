@@ -75,15 +75,15 @@ public final class RegularCellsMapper {
                             ByteBuffer value,
                             boolean hasAnyNotFrozenCollectionAsParent) {
 
-        Columns columns= new Columns();
+        Columns columns = new Columns();
         if (type.isCollection()) {
             CollectionType<?> collectionType = (CollectionType<?>) type;
             switch (collectionType.kind) {
                 case SET: {
                     AbstractType<?> nameType = collectionType.nameComparator();
-                    int colSize= CollectionSerializer.readCollectionSize(value, Server.CURRENT_VERSION);
-                    for (int j=0;j<colSize;j++) {
-                        ByteBuffer itemValue=CollectionSerializer.readValue(value, Server.CURRENT_VERSION);
+                    int colSize = CollectionSerializer.readCollectionSize(value, Server.CURRENT_VERSION);
+                    for (int j = 0; j < colSize; j++) {
+                        ByteBuffer itemValue = CollectionSerializer.readValue(value, Server.CURRENT_VERSION);
                         columns.add(process(fullName,
                                             nameType,
                                             itemValue,
@@ -93,9 +93,9 @@ public final class RegularCellsMapper {
                 }
                 case LIST: {
                     AbstractType<?> valueType = collectionType.valueComparator();
-                    int colSize= CollectionSerializer.readCollectionSize(value, Server.CURRENT_VERSION);
-                    for (int j=0;j<colSize;j++) {
-                        ByteBuffer itemValue=CollectionSerializer.readValue(value, Server.CURRENT_VERSION);
+                    int colSize = CollectionSerializer.readCollectionSize(value, Server.CURRENT_VERSION);
+                    for (int j = 0; j < colSize; j++) {
+                        ByteBuffer itemValue = CollectionSerializer.readValue(value, Server.CURRENT_VERSION);
                         columns.add(process(fullName,
                                             valueType,
                                             itemValue,
@@ -106,16 +106,16 @@ public final class RegularCellsMapper {
                 case MAP: {
                     AbstractType<?> keyType = collectionType.nameComparator();
                     AbstractType<?> valueType = collectionType.valueComparator();
-                    int colSize= MapSerializer.readCollectionSize(value, Server.CURRENT_VERSION);
-                    for (int j=0;j<colSize;j++) {
-                        ByteBuffer mapKey=MapSerializer.readValue(value, Server.CURRENT_VERSION);
-                        ByteBuffer mapValue=MapSerializer.readValue(value, Server.CURRENT_VERSION);
-                        String itemName=keyType.compose(mapKey).toString();
+                    int colSize = MapSerializer.readCollectionSize(value, Server.CURRENT_VERSION);
+                    for (int j = 0; j < colSize; j++) {
+                        ByteBuffer mapKey = MapSerializer.readValue(value, Server.CURRENT_VERSION);
+                        ByteBuffer mapValue = MapSerializer.readValue(value, Server.CURRENT_VERSION);
+                        String itemName = keyType.compose(mapKey).toString();
                         collectionType.nameComparator();
-                        Columns columnsAux= process(Column.joinMapItemName(fullName,itemName),
-                                                    valueType,
-                                                    mapValue,
-                                                    hasAnyNotFrozenCollectionAsParent);
+                        Columns columnsAux = process(Column.joinMapItemName(fullName, itemName),
+                                                     valueType,
+                                                     mapValue,
+                                                     hasAnyNotFrozenCollectionAsParent);
                         columns.add(columnsAux);
                     }
                     break;
@@ -123,10 +123,10 @@ public final class RegularCellsMapper {
             }
 
         } else if (type instanceof UserType) {
-            UserType userType=(UserType)type;
+            UserType userType = (UserType) type;
             ByteBuffer[] values = userType.split(value);
             for (int i = 0; i < userType.fieldNames().size(); i++) {
-                String itemName=userType.fieldNameAsString(i);
+                String itemName = userType.fieldNameAsString(i);
                 AbstractType<?> itemType = userType.fieldType(i);
                 columns.add(process(Column.joinUDTItemName(fullName, itemName),
                                     itemType,
@@ -134,7 +134,7 @@ public final class RegularCellsMapper {
                                     hasAnyNotFrozenCollectionAsParent));
             }
         } else {//basic type
-            columns.add(Column.fromDecomposed(fullName,value,type, hasAnyNotFrozenCollectionAsParent));
+            columns.add(Column.fromDecomposed(fullName, value, type, hasAnyNotFrozenCollectionAsParent));
         }
         return columns;
     }
@@ -155,7 +155,9 @@ public final class RegularCellsMapper {
 
             CellName cellName = cell.name();
             name = cellName.cql3ColumnName(metadata).toString();
-            if (name.length()==0) continue;
+            if (name.length() == 0) {
+                continue;
+            }
 
             if (!schema.maps(name)) {
                 continue;

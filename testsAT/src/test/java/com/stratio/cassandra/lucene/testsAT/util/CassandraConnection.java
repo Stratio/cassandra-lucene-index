@@ -18,9 +18,13 @@
 
 package com.stratio.cassandra.lucene.testsAT.util;
 
-import com.datastax.driver.core.*;
+import com.datastax.driver.core.Cluster;
+import com.datastax.driver.core.ResultSet;
+import com.datastax.driver.core.Session;
+import com.datastax.driver.core.Statement;
 import com.stratio.cassandra.lucene.testsAT.BaseAT;
 import org.slf4j.Logger;
+
 import static com.stratio.cassandra.lucene.testsAT.util.CassandraConfig.*;
 
 /**
@@ -44,7 +48,7 @@ public class CassandraConnection {
         stopEmbeddedServer();
     }
 
-    private static void startEmbeddedServer() {
+    public static void startEmbeddedServer() {
         if (EMBEDDED) {
             try {
                 cassandraServer = new CassandraServer();
@@ -55,7 +59,7 @@ public class CassandraConnection {
         }
     }
 
-    private static void stopEmbeddedServer() {
+    public static void stopEmbeddedServer() {
         if (cassandraServer != null) {
             try {
                 cassandraServer.teardown();
@@ -65,19 +69,21 @@ public class CassandraConnection {
         }
     }
 
-    private static void connect() {
-        try {
-            cluster = Cluster.builder().addContactPoint(HOST).build();
-            cluster.getConfiguration().getQueryOptions().setConsistencyLevel(CONSISTENCY);
-            cluster.getConfiguration().getQueryOptions().setFetchSize(FETCH);
-            cluster.getConfiguration().getSocketOptions().setReadTimeoutMillis(600000);
-            session = cluster.connect();
-        } catch (Exception e) {
-            throw new RuntimeException("Error while connecting to Cassandra server", e);
+    public static void connect() {
+        if (cluster == null) {
+            try {
+                cluster = Cluster.builder().addContactPoint(HOST).build();
+                cluster.getConfiguration().getQueryOptions().setConsistencyLevel(CONSISTENCY);
+                cluster.getConfiguration().getQueryOptions().setFetchSize(FETCH);
+                cluster.getConfiguration().getSocketOptions().setReadTimeoutMillis(600000);
+                session = cluster.connect();
+            } catch (Exception e) {
+                throw new RuntimeException("Error while connecting to Cassandra server", e);
+            }
         }
     }
 
-    private static void disconnect() {
+    public static void disconnect() {
         session.close();
         cluster.close();
     }

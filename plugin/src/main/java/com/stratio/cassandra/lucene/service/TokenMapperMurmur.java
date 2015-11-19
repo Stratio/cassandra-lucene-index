@@ -48,7 +48,6 @@ public class TokenMapperMurmur extends TokenMapper {
     /** The Lucene field type. */
     static final FieldType FIELD_TYPE = new FieldType();
 
-
     static {
         FIELD_TYPE.setTokenized(true);
         FIELD_TYPE.setOmitNorms(true);
