@@ -9,24 +9,26 @@ Stratio's Cassandra Lucene Index
     - `Installation <#installation>`__
     - `Example <#example>`__
 - `Indexing <#indexing>`__
-    - `Analysis <#analysis>`__
-    - `Mapping <#mapping>`__
-        - `BigDecimal Mapper <#bigdecimal-mapper>`__
-        - `BigInteger Mapper <#biginteger-mapper>`__
-        - `Bitemporal Mapper <#bitemporal-mapper>`__
-        - `Blob Mapper <#blob-mapper>`__
-        - `Boolean Mapper <#boolean-mapper>`__
-        - `Date Mapper <#date-mapper>`__
-        - `DateRange Mapper <#daterange-mapper>`__
-        - `Double Mapper <#double-mapper>`__
-        - `Float Mapper <#float-mapper>`__
-        - `GeoPoint Mapper <#geopoint-mapper>`__
-        - `Inet Mapper <#inet-mapper>`__
-        - `Integer Mapper <#integer-mapper>`__
-        - `Long Mapper <#long-mapper>`__
-        - `String Mapper <#string-mapper>`__
-        - `Text Mapper <#text-mapper>`__
-        - `UUID Mapper <#uuid-mapper>`__
+    - `Analyzers <#analysis>`__
+        - `Classpath analyzer <#classpath-analyzer>`__
+        - `Snowball analyzer <#snowball-analyzer>`__
+    - `Mappers <#mapping>`__
+        - `Big decimal mapper <#bigdecimal-mapper>`__
+        - `Big integer mapper <#biginteger-mapper>`__
+        - `Bitemporal mapper <#bitemporal-mapper>`__
+        - `Blob mapper <#blob-mapper>`__
+        - `Boolean mapper <#boolean-mapper>`__
+        - `Date mapper <#date-mapper>`__
+        - `Date range mapper <#daterange-mapper>`__
+        - `Double mapper <#double-mapper>`__
+        - `Float mapper <#float-mapper>`__
+        - `GeoPoint mapper <#geopoint-mapper>`__
+        - `Inet mapper <#inet-mapper>`__
+        - `Integer mapper <#integer-mapper>`__
+        - `Long mapper <#long-mapper>`__
+        - `String mapper <#string-mapper>`__
+        - `Text mapper <#text-mapper>`__
+        - `UUID mapper <#uuid-mapper>`__
     - `Example <#example>`__
 - `Searching <#searching>`__
     - `All search <#all-search>`__
@@ -345,8 +347,7 @@ where:
                    ('excluded_data_centers' : '<string_value>',)?
                    'schema'                 : '<schema_definition>'};
 
-Options, except “schema” and “directory\_path”, take a positive integer
-value enclosed in single quotes:
+All options take a value enclosed in single quotes:
 
 -  **refresh\_seconds**: number of seconds before auto-refreshing the
    index reader. It is the max time taken for writes to be searchable
@@ -389,8 +390,8 @@ Where default\_analyzer defaults to
         type : "<field_type>" (, <option> : "<value>")*
     }
 
-Analysis
-========
+Analyzers
+=========
 
 Analyzer definition options depend on the analyzer type. Details and
 default values are listed in the table below.
@@ -405,7 +406,58 @@ default values are listed in the table below.
 |                 | stopwords   | string       | null            |
 +-----------------+-------------+--------------+-----------------+
 
-Mapping
+Classpath analyzer
+__________________
+
+Analyzer which instances a Lucene's `analyzer <https://lucene.apache.org/core/5_3_0/core/org/apache/lucene/analysis/Analyzer.html>`__
+present in classpath.
+
+Example:
+
+.. code-block:: sql
+
+    CREATE CUSTOM INDEX census_index on census(lucene)
+    USING 'com.stratio.cassandra.lucene.Index'
+    WITH OPTIONS = {
+        'refresh_seconds' : '1',
+        'schema' : '{
+            analyzers : {
+                an_analyzer : {
+                    type  : "classpath",
+                    class : "org.apache.lucene.analysis.en.EnglishAnalyzer"
+                }
+            }
+        }'
+    };
+
+Snowball analyzer
+_________________
+
+Analyzer using a `http://snowball.tartarus.org/ <http://snowball.tartarus.org/>`__ snowball filter `SnowballFilter <https://lucene.apache.org/core/5_3_0/analyzers-common/org/apache/lucene/analysis/snowball/SnowballFilter.html>`__
+
+Example:
+
+.. code-block:: sql
+
+    CREATE CUSTOM INDEX census_index on census(lucene)
+    USING 'com.stratio.cassandra.lucene.Index'
+    WITH OPTIONS = {
+        'refresh_seconds' : '1',
+        'schema' : '{
+            analyzers : {
+                an_analyzer : {
+                    type  : "snowball",
+                    language : "English",
+                    stopwords : "a,an,the,this,that"
+                }
+            }
+        }'
+    };
+
+Supported languages: English, French, Spanish, Portuguese, Italian, Romanian, German, Dutch, Swedish, Norwegian,
+Danish, Russian, Finnish, Irish, Hungarian, Turkish, Armenian, Basque and Catalan
+
+Mappers
 =======
 
 Field mapping definition options specify how the CQL rows will be mapped to Lucene documents.
@@ -546,12 +598,12 @@ Note that Cassandra allows one custom index per table. On the other
 hand, Cassandra does not allow a modify operation on indexes. To modify
 an index it needs to be deleted first and created again.
 
+Big decimal mapper
+__________________
 
+Maps arbitrary precision decimal values.
 
-BigDecimal Mapper
-_________________
-
-Syntax:
+Example:
 
 .. code-block:: sql
 
@@ -574,14 +626,14 @@ Syntax:
     };
 
 
-CQL supported types:
+Supported CQL types: ascii, bigint, decimal, double, float, int, smallint, text, tinyint, varchar, varint
 
-ASCII, BIGINT, DECIMAL, DOUBLE, FLOAT, INT, SMALLINT, TEXT, TINYINT, VARCHAR, VARINT,
+Big integer mapper
+__________________
 
-BigInteger Mapper
-_________________
+Maps arbitrary precision integer values.
 
-Syntax:
+Example:
 
 .. code-block:: sql
 
@@ -603,14 +655,14 @@ Syntax:
     };
 
 
-CQL supported types:
+Supported CQL types: ascii, bigint, int, smallint, text, tinyint, varchar, varint
 
-ASCII, BIGINT, INT, SMALLINT, TEXT, TINYINT, VARCHAR, VARINT
-
-Bitemporal Mapper
+Bitemporal mapper
 _________________
 
-Syntax:
+Maps four columns containing the four columns of a bitemporal fact.
+
+Example:
 
 .. code-block:: sql
 
@@ -634,14 +686,14 @@ Syntax:
     };
 
 
-CQL supported types:
+Supported CQL types: ascii, bigint, date, int, text, timestamp, varchar, varint
 
-ASCII, BIGINT, DATE, INT, TEXT, TIMESTAMP, VARCHAR, VARINT
-
-Blob Mapper
+Blob mapper
 ___________
 
-Syntax:
+Maps a blob value.
+
+Example:
 
 .. code-block:: sql
 
@@ -662,14 +714,14 @@ Syntax:
     };
 
 
-CQL supported types:
+Supported CQL types: ascii, blob,  text, varchar
 
-ASCII, BLOB,  TEXT, VARCHAR
-
-Boolean Mapper
+Boolean mapper
 ______________
 
-Syntax:
+Maps a boolean value.
+
+Example:
 
 .. code-block:: sql
 
@@ -690,14 +742,14 @@ Syntax:
     };
 
 
-CQL supported types:
+Supported CQL types: ascii, boolean , text, varchar
 
-ASCII, BOOLEAN , TEXT, VARCHAR
-
-Date Mapper
+Date mapper
 ___________
 
-Syntax:
+Maps dates using a either a pattern or a UNIX timestamp.
+
+Example:
 
 .. code-block:: sql
 
@@ -719,14 +771,14 @@ Syntax:
     };
 
 
-CQL supported types:
+Supported CQL types: ascii, bigint, date, int, text, timestamp, varchar, varint
 
-ASCII, BIGINT, DATE, INT, TEXT, TIMESTAMP, VARCHAR, VARINT
+Date range mapper
+_________________
 
-DateRange Mapper
-________________
+Maps a time duration/period defined by a start date and a stop date.
 
-Syntax:
+Example:
 
 .. code-block:: sql
 
@@ -747,14 +799,14 @@ Syntax:
     };
 
 
-CQL supported types:
+Supported CQL types: ascii, bigint, date, int, text, timestamp, varchar, varint
 
-ASCII, BIGINT, DATE, INT, TEXT, TIMESTAMP, VARCHAR, VARINT
-
-Double Mapper
+Double mapper
 _____________
 
-Syntax:
+Maps a 64-bit decimal number.
+
+Example:
 
 .. code-block:: sql
 
@@ -776,14 +828,14 @@ Syntax:
     };
 
 
-CQL supported types:
+Supported CQL types: ascii, bigint, decimal, double, float, int, smallint, text, timestamp,  tinyint, varchar, varint
 
-ASCII, BIGINT, DECIMAL, DOUBLE, FLOAT, INT, SMALLINT, TEXT, TIMESTAMP,  TINYINT, VARCHAR, VARINT
-
-Float Mapper
+Float mapper
 ____________
 
-Syntax:
+Maps a 32-bit decimal number.
+
+Example:
 
 .. code-block:: sql
 
@@ -805,14 +857,14 @@ Syntax:
     };
 
 
-CQL supported types:
+Supported CQL types: ascii, bigint, decimal, double, float, int, smallint, timestamp, tinyint, varchar, varint
 
-ASCII, BIGINT, DECIMAL, DOUBLE, FLOAT, INT, SMALLINT, TIMESTAMP, TINYINT, VARCHAR, VARINT
-
-GeoPoint Mapper
+GeoPoint mapper
 _______________
 
-Syntax:
+Maps a geospatial location (point) defined by two columns containing a latitude and a longitude.
+
+Example:
 
 .. code-block:: sql
 
@@ -833,14 +885,14 @@ Syntax:
     };
 
 
-CQL supported types:
+Supported CQL types: ascii, bigint, decimal, double, float, int, smallint, text, timestamp, varchar, varint
 
-ASCII, BIGINT, DECIMAL, DOUBLE, FLOAT, INT, SMALLINT, TEXT, TIMESTAMP, VARCHAR, VARINT
-
-Inet Mapper
+Inet mapper
 ___________
 
-Syntax:
+Maps an IP address. Either IPv4 and IPv6 are supported.
+
+Example:
 
 .. code-block:: sql
 
@@ -861,14 +913,14 @@ Syntax:
     };
 
 
-CQL supported types:
+Supported CQL types: ascii, inet, text, varchar
 
-ASCII, INET, TEXT, VARCHAR
-
-Integer Mapper
+Integer mapper
 ______________
 
-Syntax:
+Maps a 32-bit integer number.
+
+Example:
 
 .. code-block:: sql
 
@@ -890,14 +942,14 @@ Syntax:
     };
 
 
-CQL supported types:
+Supported CQL types: ascii, bigint, decimal, double, float, int, smallint, text, timestamp, tinyint, varchar, varint
 
-ASCII, BIGINT, DECIMAL, DOUBLE, FLOAT, INT, SMALLINT, TEXT, TIMESTAMP, TINYINT, VARCHAR, VARINT
-
-Long Mapper
+Long mapper
 ___________
 
-Syntax:
+Maps a 64-bit integer number.
+
+Example:
 
 .. code-block:: sql
 
@@ -919,14 +971,14 @@ Syntax:
     };
 
 
-CQL supported types:
+Supported CQL types: ascii, bigint, decimal, double, float, int, smallint, text, timestamp, tinyint, varchar, varint
 
-ASCII, BIGINT, DECIMAL, DOUBLE, FLOAT, INT, SMALLINT, TEXT, TIMESTAMP, TINYINT, VARCHAR, VARINT
-
-String Mapper
+String mapper
 _____________
 
-Syntax:
+Maps a not-analyzed text value.
+
+Example:
 
 .. code-block:: sql
 
@@ -948,14 +1000,14 @@ Syntax:
     };
 
 
-CQL supported types:
+Supported CQL types: ascii, bigint, blob, boolean, double, float, inet, int, smallint, text, timestamp, timeuuid, tinyint, uuid, varchar, varint
 
-ASCII, BIGINT, BLOB, BOOLEAN, DOUBLE, FLOAT, INET, INT, SMALLINT, TEXT, TIMESTAMP, TIMEUUID, TINYINT, UUID, VARCHAR, VARINT
-
-Text Mapper
+Text mapper
 ___________
 
-Syntax:
+Maps a language-aware text value analyzed according to the specified analyzer.
+
+Example:
 
 .. code-block:: sql
 
@@ -984,14 +1036,14 @@ Syntax:
     };
 
 
-CQL supported types:
+Supported CQL types: ascii, bigint, blob, boolean, double, float, inet, int, smallint, text, timestamp, timeuuid, tinyint, uuid, varchar, varint
 
-ASCII, BIGINT, BLOB, BOOLEAN, DOUBLE, FLOAT, INET, INT, SMALLINT, TEXT, TIMESTAMP, TIMEUUID, TINYINT, UUID, VARCHAR, VARINT
-
-UUID Mapper
+UUID mapper
 ___________
 
-Syntax:
+Maps an UUID value.
+
+Example:
 
 .. code-block:: sql
 
@@ -1012,9 +1064,7 @@ Syntax:
     };
 
 
-CQL supported types:
-
-ASCII, TEXT, TIMEUUID, UUID, VARCHAR
+Supported CQL types: ascii, text, timeuuid, uuid, varchar
 
 
 Example
