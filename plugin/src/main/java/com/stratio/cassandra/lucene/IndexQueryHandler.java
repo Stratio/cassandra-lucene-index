@@ -81,13 +81,10 @@ public class IndexQueryHandler implements QueryHandler {
         return (IDiskAtomFilter) method.invoke(statement, options, limit);
     }
 
-    private static boolean isCount(SelectStatement selectStatement) throws Exception {
-        if (selectStatement.getFunctions() != null) {
-            Iterator<Function> functions = selectStatement.getFunctions().iterator();
-            while (functions.hasNext()) {
-                Function function = functions.next();
-                if (function.isAggregate() &&
-                    (function.name().equals("countRows") || function.name().equals("count"))) {
+    private static boolean hasAnyAggregateFunctions(SelectStatement selectStatement) throws Exception {
+        if(selectStatement.getFunctions() != null) {
+            for (Function function : selectStatement.getFunctions()) {
+                if (function.isAggregate()) {
                     return true;
                 }
             }
@@ -176,7 +173,7 @@ public class IndexQueryHandler implements QueryHandler {
 
         int limit = statement.getLimit(options);
         int page = options.getPageSize();
-        boolean isCount = isCount(statement);
+        boolean isAggregateFunction = hasAnyAggregateFunctions(statement);
 
         String ks = statement.keyspace();
         String cf = statement.columnFamily();
@@ -217,16 +214,16 @@ public class IndexQueryHandler implements QueryHandler {
                                                                                 rowsPerCommand,
                                                                                 cl,
                                                                                 rowKeys,
-                                                                                isCount);
+                                                                                isAggregateFunction);
             collectedRows = results.left.size();
             rows.addAll(results.left);
             rowKeys = results.right;
             remaining = limit - rows.size();
 
-        } while (isCount && remaining > 0 && collectedRows == rowsPerCommand);
+        } while (isAggregateFunction && remaining > 0 && collectedRows == rowsPerCommand);
 
         ResultMessage.Rows msg = statement.processResults(rows, options, limit, now);
-        if (!isCount && remaining > 0 && rows.size() == rowsPerCommand) {
+        if (!isAggregateFunction && remaining > 0 && rows.size() == rowsPerCommand) {
             ByteBuffer bb = mapper.byteBuffer(rowKeys);
             pagingState = new PagingState(bb, null, remaining);
             msg.result.metadata.setHasMorePages(pagingState);
