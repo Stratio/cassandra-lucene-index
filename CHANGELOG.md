@@ -3,6 +3,10 @@
 ## 2.2.3.0 (upcoming)
 
  * Upgrade to Apache Cassandra 2.2.3
+ * Add support for CQL UDFs (#43)
+ * Add support for CQL UDTs
+ * Improve collections support
+ * Add support for new CQL types smallint, tinyint and date
  
 ## 2.1.11.1 (18 November 2015)
 
