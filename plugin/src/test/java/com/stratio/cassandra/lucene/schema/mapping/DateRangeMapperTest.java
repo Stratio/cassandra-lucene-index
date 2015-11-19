@@ -128,7 +128,7 @@ public class DateRangeMapperTest extends AbstractMapperTest {
         Columns columns = new Columns();
         columns.add(Column.fromComposed("from", 5, Int32Type.instance, false));
         columns.add(Column.fromComposed("to", 0, Int32Type.instance, false));
-        assertEquals("From is not properly parsed", new Date(5), mapper.readFrom(columns));
+        assertEquals("From is not properly parsed", new Date(5L*24L*60L*60L*1000L), mapper.readFrom(columns));
     }
 
     @Test()
@@ -201,7 +201,7 @@ public class DateRangeMapperTest extends AbstractMapperTest {
         Columns columns = new Columns();
         columns.add(Column.fromComposed("from", 0, Int32Type.instance, false));
         columns.add(Column.fromComposed("to", 5, Int32Type.instance, false));
-        assertEquals("To is not properly parsed", new Date(5), mapper.readTo(columns));
+        assertEquals("To is not properly parsed", new Date(5L*24L*60L*60L*1000L), mapper.readTo(columns));
     }
 
     @Test()
@@ -329,7 +329,7 @@ public class DateRangeMapperTest extends AbstractMapperTest {
         assertNull("Analyzer must be null", mapper.analyzer);
     }
 
-    @Test
+    @Test(expected = IndexException.class)
     public void testValidate() throws ConfigurationException {
         CellNameType nameType = new SimpleSparseCellNameType(UTF8Type.instance);
         CFMetaData metadata = new CFMetaData("ks", "cf", ColumnFamilyType.Standard, nameType);

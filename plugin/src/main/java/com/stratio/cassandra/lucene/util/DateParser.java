@@ -19,7 +19,6 @@
 package com.stratio.cassandra.lucene.util;
 
 import com.stratio.cassandra.lucene.IndexException;
-
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -32,6 +31,7 @@ import java.util.Date;
  */
 public class DateParser {
 
+    static final Long DAYS_TO_MILLIS=24L*60L*60L*1000L;
     /** The default date pattern for {@code String}s. */
     public static final String DEFAULT_PATTERN = "yyyy/MM/dd HH:mm:ss.SSS Z";
 
@@ -80,10 +80,24 @@ public class DateParser {
             return null;
         } else if (value instanceof Date) {
             return (Date) value;
-        } else if (pattern.equals(TIMESTAMP_PATTERN_FIELD)) {
-            return parseAsTimestamp(value);
+        } else if (value instanceof Integer) {
+            if ((Integer)value < 0) {
+                throw new IndexException("Required positive Integer for dates but found '%s'", value);
+            } else {
+                return new Date(DAYS_TO_MILLIS * (Integer) value);
+            }
+        } else if (value instanceof Long) {
+            if ((Long)value < 0L) {
+                throw new IndexException("Required positive Long for dates but found '%s'", value);
+            } else {
+                return new Date((Long) value);
+            }
         } else {
-            return parseAsFormattedDate(value);
+            if (pattern.equals(TIMESTAMP_PATTERN_FIELD)) {
+                return parseAsTimestamp(value);
+            } else {
+                return parseAsFormattedDate(value);
+            }
         }
     }
 

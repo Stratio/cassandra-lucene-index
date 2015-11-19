@@ -62,9 +62,7 @@ public class DateMapper extends SingleColumnMapper<Long> {
               Int32Type.instance,
               LongType.instance,
               IntegerType.instance,
-              FloatType.instance,
-              DoubleType.instance,
-              DecimalType.instance,
+              SimpleDateType.instance,
               TimestampType.instance);
         this.pattern = pattern == null ? DateParser.DEFAULT_PATTERN : pattern;
         this.dateParser = new DateParser(this.pattern);

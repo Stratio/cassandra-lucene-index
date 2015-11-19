@@ -92,15 +92,14 @@ public class DateParserTest {
 
     @Test
     public void testParseValidLong() {
-        String pattern = "yyyyMMdd";
-        DateParser dateParser = new DateParser(pattern);
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
+
+        DateParser dateParser = new DateParser(null);
         Long dateLong = 20151103l;
         Date dateOut = dateParser.parse(dateLong);
 
         assertEquals("Long parsed by DateParser(\"yyyy/MM/dd\") wrong parsed",
                      dateLong.toString(),
-                     simpleDateFormat.format(dateOut));
+                     Long.toString(dateOut.getTime()));
     }
 
     @Test(expected = IndexException.class)
@@ -121,21 +120,6 @@ public class DateParserTest {
         DateParser dateParser = new DateParser(pattern);
 
         Long dateLong = -20152345l;//invalid long not parseable
-        dateParser.parse(dateLong);
-        fail("DateParser(" +
-             pattern +
-             ").parse(" +
-             dateLong.toString() +
-             ") Must generate IndexException and does not do it");
-
-    }
-
-    @Test(expected = IndexException.class)
-    public void testParseInvalidBiggerLong() {
-        String pattern = "yyyyMMdd";
-        DateParser dateParser = new DateParser(pattern);
-
-        Long dateLong = 201523455859l;//invalid long not parseable
         dateParser.parse(dateLong);
         fail("DateParser(" +
              pattern +
