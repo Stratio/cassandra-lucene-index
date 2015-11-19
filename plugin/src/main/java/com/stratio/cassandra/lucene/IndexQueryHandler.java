@@ -18,29 +18,16 @@
 
 package com.stratio.cassandra.lucene;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.cassandra.cql3.BatchQueryOptions;
-import org.apache.cassandra.cql3.CQLStatement;
-import org.apache.cassandra.cql3.QueryHandler;
-import org.apache.cassandra.cql3.QueryOptions;
-import org.apache.cassandra.cql3.QueryProcessor;
+import com.stratio.cassandra.lucene.service.RowKeys;
+import com.stratio.cassandra.lucene.service.RowMapper;
+import com.stratio.cassandra.lucene.util.ByteBufferUtils;
+import com.stratio.cassandra.lucene.util.TimeCounter;
+import org.apache.cassandra.cql3.*;
 import org.apache.cassandra.cql3.functions.Function;
 import org.apache.cassandra.cql3.statements.BatchStatement;
 import org.apache.cassandra.cql3.statements.ParsedStatement;
 import org.apache.cassandra.cql3.statements.SelectStatement;
-import org.apache.cassandra.db.ColumnFamilyStore;
-import org.apache.cassandra.db.ConsistencyLevel;
-import org.apache.cassandra.db.IndexExpression;
-import org.apache.cassandra.db.Keyspace;
-import org.apache.cassandra.db.Row;
-import org.apache.cassandra.db.RowPosition;
+import org.apache.cassandra.db.*;
 import org.apache.cassandra.db.filter.IDiskAtomFilter;
 import org.apache.cassandra.db.index.SecondaryIndexManager;
 import org.apache.cassandra.db.index.SecondaryIndexSearcher;
@@ -58,10 +45,13 @@ import org.apache.cassandra.utils.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.stratio.cassandra.lucene.service.RowKeys;
-import com.stratio.cassandra.lucene.service.RowMapper;
-import com.stratio.cassandra.lucene.util.ByteBufferUtils;
-import com.stratio.cassandra.lucene.util.TimeCounter;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Abstract {@link QueryHandler} to be used with Lucene searches.
@@ -82,11 +72,11 @@ public class IndexQueryHandler implements QueryHandler {
     }
 
     private static boolean hasAnyAggregateFunctions(SelectStatement selectStatement) throws Exception {
-        if(selectStatement.getFunctions() != null) {
+        if (selectStatement.getFunctions() != null) {
             Iterator<Function> functions = selectStatement.getFunctions().iterator();
-            while(functions.hasNext()) {
+            while (functions.hasNext()) {
                 Function function = functions.next();
-                if(function.isAggregate()) {
+                if (function.isAggregate()) {
                     return true;
                 }
             }

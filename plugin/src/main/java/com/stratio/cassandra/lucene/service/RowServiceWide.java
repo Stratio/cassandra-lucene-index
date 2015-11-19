@@ -30,8 +30,6 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -62,7 +60,7 @@ public class RowServiceWide extends RowService {
     /**
      * Returns a new {@code RowServiceWide} to manage wide rows.
      *
-     * @param cfs The indexed {@link ColumnFamilyStore}.
+     * @param cfs    The indexed {@link ColumnFamilyStore}.
      * @param config The {@link IndexConfig}.
      * @throws IOException If there are I/O errors.
      */

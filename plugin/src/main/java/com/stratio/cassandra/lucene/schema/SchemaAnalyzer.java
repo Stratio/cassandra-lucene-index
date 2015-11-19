@@ -28,12 +28,9 @@ import com.stratio.cassandra.lucene.util.TokenLengthAnalyzer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.DelegatingAnalyzerWrapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 /**
  * Variation of {@link DelegatingAnalyzerWrapper} to be used with CQL.
@@ -112,7 +109,7 @@ public class SchemaAnalyzer extends DelegatingAnalyzerWrapper {
         if (StringUtils.isBlank(fieldName)) {
             throw new IllegalArgumentException("Not empty analyzer name required");
         }
-        String name=Column.getMapperNameByFullName(fieldName);
+        String name = Column.getMapperNameByFullName(fieldName);
         TokenLengthAnalyzer analyzer = fieldAnalyzers.get(name);
         if (analyzer != null) {
             return analyzer;

@@ -44,39 +44,39 @@ public class BooleanSearchAT extends AbstractSearchAT {
     @Test
     public void booleanFilterMustTest() {
         filter(bool().must(wildcard("ascii_1", "frase*"))
-                           .must(wildcard("inet_1", "127.0.*"))).check(2);
+                     .must(wildcard("inet_1", "127.0.*"))).check(2);
     }
 
     @Test
     public void booleanFilterShouldTest() {
         filter(bool().should(wildcard("ascii_1", "frase*"))
-                           .should(wildcard("inet_1", "127.0.*"))).check(4);
+                     .should(wildcard("inet_1", "127.0.*"))).check(4);
     }
 
     @Test
     public void booleanFilterMustAndNotTest() {
         filter(bool().must(wildcard("ascii_1", "frase*"))
-                           .must(wildcard("inet_1", "127.0.*"))
-                           .not(match("inet_1", "127.0.0.1"))).check(1);
+                     .must(wildcard("inet_1", "127.0.*"))
+                     .not(match("inet_1", "127.0.0.1"))).check(1);
     }
 
     @Test
     public void booleanFilterShouldAndNotTest() {
         filter(bool().should(wildcard("ascii_1", "frase*"), wildcard("inet_1", "127.0.*"))
-                           .not(match("inet_1", "127.0.0.1"))).check(3);
+                     .not(match("inet_1", "127.0.0.1"))).check(3);
     }
 
     @Test
     public void booleanFilterWithBoostTest() {
 
         List<Row> firstRows = filter(bool().must(fuzzy("inet_1", "127.1.1.1").boost(0.9))
-                                                 .must(fuzzy("inet_1", "127.1.0.1").boost(0.1))
-                                                 .not(match("integer_1", 1), match("integer_1", -4))).get();
+                                           .must(fuzzy("inet_1", "127.1.0.1").boost(0.1))
+                                           .not(match("integer_1", 1), match("integer_1", -4))).get();
         assertEquals("Expected 3 results!", 3, firstRows.size());
 
         List<Row> secondRows = filter(bool().must(fuzzy("inet_1", "127.1.1.1").boost(0.0))
-                                                  .must(fuzzy("inet_1", "127.1.0.1").boost(0.9))
-                                                  .not(match("integer_1", 1), match("integer_1", -4))).get();
+                                            .must(fuzzy("inet_1", "127.1.0.1").boost(0.9))
+                                            .not(match("integer_1", 1), match("integer_1", -4))).get();
         assertEquals("Expected 3 results!", 3, secondRows.size());
 
         assertEquals("Expected same number of results ", firstRows.size(), secondRows.size());
@@ -102,39 +102,39 @@ public class BooleanSearchAT extends AbstractSearchAT {
     @Test
     public void booleanQueryMustTest() {
         query(bool().must(wildcard("ascii_1", "frase*"))
-                          .must(wildcard("inet_1", "127.0.*"))).check(2);
+                    .must(wildcard("inet_1", "127.0.*"))).check(2);
     }
 
     @Test
     public void booleanQueryShouldTest() {
         query(bool().should(wildcard("ascii_1", "frase*"))
-                          .should(wildcard("inet_1", "127.0.*"))).check(4);
+                    .should(wildcard("inet_1", "127.0.*"))).check(4);
     }
 
     @Test
     public void booleanQueryMustAndNotTest() {
         query(bool().must(wildcard("ascii_1", "frase*"))
-                          .must(wildcard("inet_1", "127.0.*"))
-                          .not(match("inet_1", "127.0.0.1"))).check(1);
+                    .must(wildcard("inet_1", "127.0.*"))
+                    .not(match("inet_1", "127.0.0.1"))).check(1);
     }
 
     @Test
     public void booleanQueryShouldAndNotTest() {
         query(bool().should(wildcard("ascii_1", "frase*"), wildcard("inet_1", "127.0.*"))
-                          .not(match("inet_1", "127.0.0.1"))).check(3);
+                    .not(match("inet_1", "127.0.0.1"))).check(3);
     }
 
     @Test
     public void booleanQueryWithBoostTest() {
 
         List<Row> rows1 = query(bool().must(fuzzy("inet_1", "127.1.1.1").boost(9.9))
-                                            .must(fuzzy("inet_1", "127.1.0.1").boost(0.001))
-                                            .not(match("integer_1", 1)).not(match("integer_1", -4))).get();
+                                      .must(fuzzy("inet_1", "127.1.0.1").boost(0.001))
+                                      .not(match("integer_1", 1)).not(match("integer_1", -4))).get();
         assertEquals("Expected 3 results!", 3, rows1.size());
 
         List<Row> rows2 = query(bool().must(fuzzy("inet_1", "127.1.1.1").boost(0.001))
-                                            .must(fuzzy("inet_1", "127.1.0.1").boost(9.9))
-                                            .not(match("integer_1", 1)).not(match("integer_1", -4))).get();
+                                      .must(fuzzy("inet_1", "127.1.0.1").boost(9.9))
+                                      .not(match("integer_1", 1)).not(match("integer_1", -4))).get();
         assertEquals("Expected 3 results!", 3, rows2.size());
 
         assertEquals("Expected same number of results ", rows1.size(), rows2.size());

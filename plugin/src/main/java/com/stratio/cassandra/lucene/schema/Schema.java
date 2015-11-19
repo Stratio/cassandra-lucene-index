@@ -105,7 +105,7 @@ public class Schema implements Closeable {
     public Mapper getMapper(String field) {
         Mapper mapper;
 
-        String fieldName=Column.getMapperNameByFullName(field);
+        String fieldName = Column.getMapperNameByFullName(field);
 
         mapper = mappers.get(fieldName);
         if (mapper != null) {
@@ -181,7 +181,9 @@ public class Schema implements Closeable {
      */
     public boolean maps(String column) {
         for (String mappedColumn : mappedColumns) {
-            String name = mappedColumn.contains(".")?mappedColumn.substring(0, mappedColumn.indexOf(".")):mappedColumn;
+            String name = mappedColumn.contains(".")
+                          ? mappedColumn.substring(0, mappedColumn.indexOf("."))
+                          : mappedColumn;
             if (column.equals(name)) {
                 return true;
             }

@@ -18,7 +18,7 @@
 
 package com.stratio.cassandra.lucene.testsAT.util;
 
-import com.datastax.driver.core.*;
+import com.datastax.driver.core.ConsistencyLevel;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
@@ -39,6 +39,6 @@ public class CassandraConfig {
     static final String COLUMN = get("column", "lucene");
 
     private static String get(String key, String def) {
-        return System.getProperty("it."+key, def);
+        return System.getProperty("it." + key, def);
     }
 }

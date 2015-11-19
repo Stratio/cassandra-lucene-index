@@ -86,7 +86,7 @@ public abstract class RowMapper {
      * @return A new {@link RowMapper} for the specified {@link IndexConfig}.
      */
     public static RowMapper build(IndexConfig config) {
-        return config.isWide() ? new RowMapperWide(config): new RowMapperSkinny(config);
+        return config.isWide() ? new RowMapperWide(config) : new RowMapperSkinny(config);
     }
 
     /**

@@ -123,7 +123,9 @@ public class UDTValidationTest {
             cassandraUtils.execute(new SimpleStatement(createIndexQuery));
             assertFalse("Creating invalid index must throw an Exception but does not ", true);
         } catch (InvalidConfigurationInQueryException e) {
-            String expectedMessage = "'schema' is invalid : No column definition 'addres.inexistent' for mapper 'addres.inexistent.latitude'";
+            String
+                    expectedMessage
+                    = "'schema' is invalid : No column definition 'addres.inexistent' for mapper 'addres.inexistent.latitude'";
             assertEquals("Cretaing invalid index must return InvalidConfigurationInQueryException(" +
                          expectedMessage +
                          ") but returns InvalidConfigurationInQueryException(" +
@@ -153,7 +155,9 @@ public class UDTValidationTest {
             cassandraUtils.execute(new SimpleStatement(createIndexQuery));
             assertFalse("Creating invalid index must throw an Exception but does not ", true);
         } catch (InvalidConfigurationInQueryException e) {
-            String expectedMessage = "'schema' is invalid : No column definition 'addres.inexistent' for mapper 'addres.inexistent'";
+            String
+                    expectedMessage
+                    = "'schema' is invalid : No column definition 'addres.inexistent' for mapper 'addres.inexistent'";
             assertEquals("Cretaing invalid index must return InvalidConfigurationInQueryException(" +
                          expectedMessage +
                          ") but returns InvalidConfigurationInQueryException(" +
@@ -189,7 +193,9 @@ public class UDTValidationTest {
             cassandraUtils.execute(new SimpleStatement(createIndexQuery));
             assertFalse("Creating invalid index must throw an Exception but does not ", true);
         } catch (InvalidConfigurationInQueryException e) {
-            String expectedMessage = "'schema' is invalid : 'org.apache.cassandra.db.marshal.FloatType' is not supported by mapper 'addres.point.longitude'";
+            String
+                    expectedMessage
+                    = "'schema' is invalid : 'org.apache.cassandra.db.marshal.FloatType' is not supported by mapper 'addres.point.longitude'";
             assertEquals("Cretaing invalid index must return InvalidConfigurationInQueryException(" +
                          expectedMessage +
                          ") but returns InvalidConfigurationInQueryException(" +
@@ -225,7 +231,9 @@ public class UDTValidationTest {
             cassandraUtils.execute(new SimpleStatement(createIndexQuery));
             assertFalse("Creating invalid index must throw an Exception but does not ", true);
         } catch (InvalidConfigurationInQueryException e) {
-            String expectedMessage = "'schema' is invalid : No column definition 'addres.point.longitude.inexistent' for mapper 'addres.point.longitude.inexistent'";
+            String
+                    expectedMessage
+                    = "'schema' is invalid : No column definition 'addres.point.longitude.inexistent' for mapper 'addres.point.longitude.inexistent'";
             assertEquals("Cretaing invalid index must return InvalidConfigurationInQueryException(" +
                          expectedMessage +
                          ") but returns InvalidConfigurationInQueryException(" +

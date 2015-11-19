@@ -28,8 +28,6 @@ import org.apache.cassandra.db.filter.QueryFilter;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.ScoreDoc;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -56,7 +54,7 @@ public class RowServiceSkinny extends RowService {
     /**
      * Returns a new {@code RowServiceSimple} to manage simple rows.
      *
-     * @param cfs The indexed {@link ColumnFamilyStore}.
+     * @param cfs    The indexed {@link ColumnFamilyStore}.
      * @param config The {@link IndexConfig}.
      * @throws IOException If there are I/O errors.
      */

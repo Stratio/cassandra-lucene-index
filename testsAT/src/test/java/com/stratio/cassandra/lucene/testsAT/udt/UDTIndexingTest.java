@@ -33,7 +33,6 @@ import java.util.Arrays;
 
 import static com.stratio.cassandra.lucene.builder.Builder.match;
 import static com.stratio.cassandra.lucene.builder.Builder.range;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -296,7 +295,9 @@ public class UDTIndexingTest {
                         found = true;
                     }
                 }
-                if (!found) return false;
+                if (!found) {
+                    return false;
+                }
             }
             return true;
         }

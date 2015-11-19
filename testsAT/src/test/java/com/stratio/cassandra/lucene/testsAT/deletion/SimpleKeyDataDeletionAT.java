@@ -119,7 +119,7 @@ public class SimpleKeyDataDeletionAT extends BaseAT {
     @Test
     public void listElementDeletion() {
 
-        List<Row> rows = cassandraUtils.delete("list_1[0]").where("integer_1",1)
+        List<Row> rows = cassandraUtils.delete("list_1[0]").where("integer_1", 1)
                                        .refresh()
                                        .query(wildcard("ascii_1", "*"))
                                        .get();
@@ -142,7 +142,7 @@ public class SimpleKeyDataDeletionAT extends BaseAT {
     @Test
     public void totalPartitionDeletion() {
 
-        List<Row> rows = cassandraUtils.delete().where("integer_1",1)
+        List<Row> rows = cassandraUtils.delete().where("integer_1", 1)
                                        .refresh()
                                        .query(wildcard("ascii_1", "*"))
                                        .get();

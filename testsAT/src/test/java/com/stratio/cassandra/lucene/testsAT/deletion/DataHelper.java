@@ -23,7 +23,7 @@ import com.stratio.cassandra.lucene.testsAT.BaseAT;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public final class DataHelper  extends BaseAT {
+public final class DataHelper extends BaseAT {
 
     protected static final Map<String, String> data1;
     protected static final Map<String, String> data2;

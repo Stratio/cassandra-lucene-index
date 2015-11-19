@@ -21,13 +21,13 @@ package com.stratio.cassandra.lucene.testsAT.util;
 import com.datastax.driver.core.*;
 import com.datastax.driver.core.querybuilder.Batch;
 import com.datastax.driver.core.querybuilder.QueryBuilder;
-import com.stratio.cassandra.lucene.testsAT.BaseAT;
 import com.stratio.cassandra.lucene.builder.Builder;
 import com.stratio.cassandra.lucene.builder.index.Index;
 import com.stratio.cassandra.lucene.builder.index.schema.mapping.Mapper;
 import com.stratio.cassandra.lucene.builder.search.Search;
 import com.stratio.cassandra.lucene.builder.search.condition.Condition;
 import com.stratio.cassandra.lucene.builder.search.sort.SortField;
+import com.stratio.cassandra.lucene.testsAT.BaseAT;
 import org.slf4j.Logger;
 
 import java.util.List;
@@ -35,8 +35,9 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static com.datastax.driver.core.querybuilder.QueryBuilder.eq;
+import static com.stratio.cassandra.lucene.builder.Builder.all;
+import static com.stratio.cassandra.lucene.builder.Builder.index;
 import static com.stratio.cassandra.lucene.testsAT.util.CassandraConfig.*;
-import static com.stratio.cassandra.lucene.builder.Builder.*;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
@@ -94,6 +95,7 @@ public class CassandraUtils {
     public String getIndexColumn() {
         return indexColumn;
     }
+
     public String getIndexName() {
         return index;
     }
@@ -118,7 +120,7 @@ public class CassandraUtils {
     }
 
     ResultSet execute(StringBuilder query) {
-        return  execute(query.toString());
+        return execute(query.toString());
     }
 
     public CassandraUtils waitForIndexing() {

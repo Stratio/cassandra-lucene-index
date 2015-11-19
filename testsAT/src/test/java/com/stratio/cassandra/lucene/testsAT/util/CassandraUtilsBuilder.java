@@ -23,9 +23,8 @@ import com.stratio.cassandra.lucene.builder.index.schema.mapping.SingleColumnMap
 
 import java.util.*;
 
-
-import static com.stratio.cassandra.lucene.testsAT.util.CassandraConfig.*;
 import static com.stratio.cassandra.lucene.builder.Builder.*;
+import static com.stratio.cassandra.lucene.testsAT.util.CassandraConfig.*;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
