@@ -366,22 +366,22 @@ public class RangeSearchAT extends AbstractSearchAT {
 
     @Test
     public void rangeQueryMapFieldTest1() {
-        query(range("map_1.k1").lower("a").upper("z")).check(2);
+        query(range("map_1$k1").lower("a").upper("z")).check(2);
     }
 
     @Test
     public void rangeQueryMapFieldTest2() {
-        query(range("map_1.k1").lower("a1").upper("z9")).check(2);
+        query(range("map_1$k1").lower("a1").upper("z9")).check(2);
     }
 
     @Test
     public void rangeQueryMapFieldTest3() {
-        query(range("map_1.k1").lower("a1").upper("k9")).check(0);
+        query(range("map_1$k1").lower("a1").upper("k9")).check(0);
     }
 
     @Test
     public void rangeQueryMapFieldTest4() {
-        query(range("map_1.k1").lower("a1").upper("k1")).check(0);
+        query(range("map_1$k1").lower("a1").upper("k1")).check(0);
     }
 
     @Test
@@ -722,21 +722,21 @@ public class RangeSearchAT extends AbstractSearchAT {
 
     @Test
     public void rangeFilterMapFieldTest1() {
-        filter(range("map_1.k1").lower("a").upper("z")).check(2);
+        filter(range("map_1$k1").lower("a").upper("z")).check(2);
     }
 
     @Test
     public void rangeFilterMapFieldTest2() {
-        filter(range("map_1.k1").lower("a1").upper("z9")).check(2);
+        filter(range("map_1$k1").lower("a1").upper("z9")).check(2);
     }
 
     @Test
     public void rangeFilterMapFieldTest3() {
-        filter(range("map_1.k1").lower("a1").upper("k9")).check(0);
+        filter(range("map_1$k1").lower("a1").upper("k9")).check(0);
     }
 
     @Test
     public void rangeFilterMapFieldTest4() {
-        filter(range("map_1.k1").lower("a1").upper("k1")).check(0);
+        filter(range("map_1$k1").lower("a1").upper("k1")).check(0);
     }
 }

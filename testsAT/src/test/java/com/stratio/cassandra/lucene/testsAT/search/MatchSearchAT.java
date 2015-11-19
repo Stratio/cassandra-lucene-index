@@ -359,22 +359,22 @@ public class MatchSearchAT extends AbstractSearchAT {
 
     @Test
     public void matchQueryMapFieldTest1() {
-        query(match("map_1.k1", "")).check(0);
+        query(match("map_1$k1", "")).check(0);
     }
 
     @Test
     public void matchQueryMapFieldTest2() {
-        query(match("map_1.k1", "l1")).check(0);
+        query(match("map_1$k1", "l1")).check(0);
     }
 
     @Test
     public void matchQueryMapFieldTest3() {
-        query(match("map_1.k1", "k1")).check(0);
+        query(match("map_1$k1", "k1")).check(0);
     }
 
     @Test
     public void matchQueryMapFieldTest4() {
-        query(match("map_1.k1", "v1")).check(2);
+        query(match("map_1$k1", "v1")).check(2);
     }
 
     @Test
@@ -706,21 +706,21 @@ public class MatchSearchAT extends AbstractSearchAT {
 
     @Test
     public void matchFilterMapFieldTest1() {
-        filter(match("map_1.k1", "")).check(0);
+        filter(match("map_1$k1", "")).check(0);
     }
 
     @Test
     public void matchFilterMapFieldTest2() {
-        filter(match("map_1.k1", "l1")).check(0);
+        filter(match("map_1$k1", "l1")).check(0);
     }
 
     @Test
     public void matchFilterMapFieldTest3() {
-        filter(match("map_1.k1", "k1")).check(0);
+        filter(match("map_1$k1", "k1")).check(0);
     }
 
     @Test
     public void matchFilterMapFieldTest4() {
-        filter(match("map_1.k1", "v1")).check(2);
+        filter(match("map_1$k1", "v1")).check(2);
     }
 }

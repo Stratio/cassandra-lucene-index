@@ -276,22 +276,22 @@ public class FuzzySearchAT extends AbstractSearchAT {
 
     @Test
     public void fuzzyFilterMapFieldTest1() {
-        filter(fuzzy("map_1.k1", "")).check(Exception.class);
+        filter(fuzzy("map_1$k1", "")).check(Exception.class);
     }
 
     @Test
     public void fuzzyFilterMapFieldTest2() {
-        filter(fuzzy("map_1.k1", "l1")).check(2);
+        filter(fuzzy("map_1$k1", "l1")).check(2);
     }
 
     @Test
     public void fuzzyFilterMapFieldTest3() {
-        filter(fuzzy("map_1.k1", "k1")).check(2);
+        filter(fuzzy("map_1$k1", "k1")).check(2);
     }
 
     @Test
     public void fuzzyFilterMapFieldTest4() {
-        filter(fuzzy("map_1.k1", "v1")).check(2);
+        filter(fuzzy("map_1$k1", "v1")).check(2);
     }
 
     @Test
@@ -542,21 +542,21 @@ public class FuzzySearchAT extends AbstractSearchAT {
 
     @Test
     public void fuzzyQueryMapFieldTest1() {
-        query(fuzzy("map_1.k1", "")).check(Exception.class);
+        query(fuzzy("map_1$k1", "")).check(Exception.class);
     }
 
     @Test
     public void fuzzyQueryMapFieldTest2() {
-        query(fuzzy("map_1.k1", "l1")).check(2);
+        query(fuzzy("map_1$k1", "l1")).check(2);
     }
 
     @Test
     public void fuzzyQueryMapFieldTest3() {
-        query(fuzzy("map_1.k1", "k1")).check(2);
+        query(fuzzy("map_1$k1", "k1")).check(2);
     }
 
     @Test
     public void fuzzyQueryMapFieldTest4() {
-        query(fuzzy("map_1.k1", "v1")).check(2);
+        query(fuzzy("map_1$k1", "v1")).check(2);
     }
 }

@@ -72,7 +72,7 @@ public class Issue18AT extends BaseAT {
                                                       .createIndex()
                                                       .insert(data1, data2, data3, data4)
                                                       .refresh();
-        int idcol = cassandraUtils.filter(match("testmapcol.attb1", "row1attb1Val")).getFirst().getInt("idcol");
+        int idcol = cassandraUtils.filter(match("testmapcol$attb1", "row1attb1Val")).getFirst().getInt("idcol");
         assertEquals("Expected row 1", 1, idcol);
         cassandraUtils.dropTable().dropKeyspace();
     }

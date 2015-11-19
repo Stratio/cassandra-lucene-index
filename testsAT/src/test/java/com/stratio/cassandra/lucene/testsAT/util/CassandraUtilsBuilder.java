@@ -121,13 +121,17 @@ public class CassandraUtilsBuilder {
                 return inetMapper();
             case "int":
                 return integerMapper();
+            case "smallint":
+                return integerMapper();
             case "text":
                 return textMapper();
             case "timestamp":
                 return dateMapper().pattern("yyyy/MM/dd");
-            case "uuid":
-                return uuidMapper();
             case "timeuuid":
+                return uuidMapper();
+            case "tinyint":
+                return integerMapper();
+            case "uuid":
                 return uuidMapper();
             case "varchar":
                 return stringMapper();

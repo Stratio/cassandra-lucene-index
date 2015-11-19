@@ -129,22 +129,22 @@ public class PrefixSearchAT extends AbstractSearchAT {
 
     @Test
     public void prefixQueryMapFieldTest1() {
-        query(prefix("map_1.k1", "")).check(2);
+        query(prefix("map_1$k1", "")).check(2);
     }
 
     @Test
     public void prefixQueryMapFieldTest2() {
-        query(prefix("map_1.k1", "l1")).check(0);
+        query(prefix("map_1$k1", "l1")).check(0);
     }
 
     @Test
     public void prefixQueryMapFieldTest3() {
-        query(prefix("map_1.k1", "k1")).check(0);
+        query(prefix("map_1$k1", "k1")).check(0);
     }
 
     @Test
     public void prefixQueryMapFieldTest4() {
-        query(prefix("map_1.k1", "v1")).check(2);
+        query(prefix("map_1$k1", "v1")).check(2);
     }
 
     @Test
@@ -249,21 +249,21 @@ public class PrefixSearchAT extends AbstractSearchAT {
 
     @Test
     public void prefixFilterMapFieldTest1() {
-        filter(prefix("map_1.k1", "")).check(2);
+        filter(prefix("map_1$k1", "")).check(2);
     }
 
     @Test
     public void prefixFilterMapFieldTest2() {
-        filter(prefix("map_1.k1", "l1")).check(0);
+        filter(prefix("map_1$k1", "l1")).check(0);
     }
 
     @Test
     public void prefixFilterMapFieldTest3() {
-        filter(prefix("map_1.k1", "k1")).check(0);
+        filter(prefix("map_1$k1", "k1")).check(0);
     }
 
     @Test
     public void prefixFilterMapFieldTest4() {
-        filter(prefix("map_1.k1", "v1")).check(2);
+        filter(prefix("map_1$k1", "v1")).check(2);
     }
 }

@@ -34,6 +34,7 @@ import org.junit.runners.Suite.SuiteClasses;
                RegexpSearchAT.class,
                RangeSearchAT.class,
                BooleanSearchAT.class,
-               SortedSearchAT.class})
+               SortedSearchAT.class,
+               BitemporalSearchAT.class})
 public class SearchSuite {
 }

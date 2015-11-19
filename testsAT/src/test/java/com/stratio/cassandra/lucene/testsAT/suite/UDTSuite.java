@@ -18,15 +18,18 @@
 
 package com.stratio.cassandra.lucene.testsAT.suite;
 
-import com.stratio.cassandra.lucene.testsAT.bitemporal.BitemporalAT;
-import com.stratio.cassandra.lucene.testsAT.bitemporal.FutureBitemporalAT;
+import com.stratio.cassandra.lucene.testsAT.udt.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
 
+/**
+ * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
+ */
 @RunWith(Suite.class)
-@SuiteClasses({BitemporalAT.class,
-               FutureBitemporalAT.class})
-public class BitemporalSuite {
+@Suite.SuiteClasses({UDTValidationTest.class,
+                     UDTIndexingTest.class,
+                     UDTCollectionsTest.class,
+                     CheckNonFrozenUDTTest.class})
+public class UDTSuite {
 
 }

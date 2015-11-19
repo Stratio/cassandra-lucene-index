@@ -20,6 +20,7 @@ package com.stratio.cassandra.lucene.schema;
 
 import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.IndexException;
+import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 import org.apache.cassandra.config.CFMetaData;
@@ -102,6 +103,15 @@ public class Schema implements Closeable {
      * @return The {@link Mapper} identified by the specified field name, or {@code null} if not found.
      */
     public Mapper getMapper(String field) {
+        Mapper mapper;
+
+        String fieldName=Column.getMapperNameByFullName(field);
+
+        mapper = mappers.get(fieldName);
+        if (mapper != null) {
+            return mapper;
+        }
+
         String[] components = field.split("\\.");
         for (int i = components.length - 1; i >= 0; i--) {
             StringBuilder sb = new StringBuilder();
@@ -111,7 +121,7 @@ public class Schema implements Closeable {
                     sb.append('.');
                 }
             }
-            Mapper mapper = mappers.get(sb.toString());
+            mapper = mappers.get(sb.toString());
             if (mapper != null) {
                 return mapper;
             }
@@ -170,7 +180,13 @@ public class Schema implements Closeable {
      * @return {@code true} if there is any mapper mapping the specified column, {@code false} otherwise.
      */
     public boolean maps(String column) {
-        return mappedColumns.contains(column);
+        for (String mappedColumn : mappedColumns) {
+            String name = mappedColumn.contains(".")?mappedColumn.substring(0, mappedColumn.indexOf(".")):mappedColumn;
+            if (column.equals(name)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

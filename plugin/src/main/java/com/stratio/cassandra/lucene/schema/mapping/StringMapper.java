@@ -48,18 +48,20 @@ public class StringMapper extends KeywordMapper {
               indexed,
               sorted,
               AsciiType.instance,
-              UTF8Type.instance,
+              BooleanType.instance,
+              BytesType.instance,
+              ByteType.instance,
+              DoubleType.instance,
+              FloatType.instance,
+              InetAddressType.instance,
+              IntegerType.instance,
               Int32Type.instance,
               LongType.instance,
-              IntegerType.instance,
-              FloatType.instance,
-              DoubleType.instance,
-              BooleanType.instance,
-              UUIDType.instance,
-              TimeUUIDType.instance,
+              ShortType.instance,
               TimestampType.instance,
-              BytesType.instance,
-              InetAddressType.instance);
+              TimeUUIDType.instance,
+              UTF8Type.instance,
+              UUIDType.instance);
         this.caseSensitive = caseSensitive == null ? DEFAULT_CASE_SENSITIVE : caseSensitive;
     }
 

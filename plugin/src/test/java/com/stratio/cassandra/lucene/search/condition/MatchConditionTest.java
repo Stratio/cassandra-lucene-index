@@ -24,6 +24,7 @@ import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
 import com.stratio.cassandra.lucene.schema.mapping.builder.MapperBuilder;
 import com.stratio.cassandra.lucene.search.condition.builder.MatchConditionBuilder;
+import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.UUIDType;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.search.BooleanQuery;

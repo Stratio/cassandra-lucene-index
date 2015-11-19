@@ -59,13 +59,15 @@ public class FloatMapper extends SingleColumnMapper<Float> {
               null,
               Float.class,
               AsciiType.instance,
-              UTF8Type.instance,
+              ByteType.instance,
+              DecimalType.instance,
+              DoubleType.instance,
+              FloatType.instance,
+              IntegerType.instance,
               Int32Type.instance,
               LongType.instance,
-              IntegerType.instance,
-              FloatType.instance,
-              DoubleType.instance,
-              DecimalType.instance);
+              ShortType.instance,
+              UTF8Type.instance);
         this.boost = boost == null ? DEFAULT_BOOST : boost;
     }
 

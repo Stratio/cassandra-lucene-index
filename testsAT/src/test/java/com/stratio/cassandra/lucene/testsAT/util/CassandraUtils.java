@@ -94,6 +94,9 @@ public class CassandraUtils {
     public String getIndexColumn() {
         return indexColumn;
     }
+    public String getIndexName() {
+        return index;
+    }
 
     public Statement statement(String query, Object... args) {
         return new SimpleStatement(String.format(query, args));

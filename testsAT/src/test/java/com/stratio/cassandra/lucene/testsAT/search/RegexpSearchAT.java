@@ -159,22 +159,22 @@ public class RegexpSearchAT extends AbstractSearchAT {
 
     @Test
     public void regexpQueryMapFieldTest1() {
-        query(regexp("map_1.k1", "")).check(0);
+        query(regexp("map_1$k1", "")).check(0);
     }
 
     @Test
     public void regexpQueryMapFieldTest2() {
-        query(regexp("map_1.k1", "l.*")).check(0);
+        query(regexp("map_1$k1", "l.*")).check(0);
     }
 
     @Test
     public void regexpQueryMapFieldTest3() {
-        query(regexp("map_1.k1", "k.*")).check(0);
+        query(regexp("map_1$k1", "k.*")).check(0);
     }
 
     @Test
     public void regexpQueryMapFieldTest4() {
-        query(regexp("map_1.k1", "v.*")).check(2);
+        query(regexp("map_1$k1", "v.*")).check(2);
     }
 
     @Test
@@ -309,21 +309,21 @@ public class RegexpSearchAT extends AbstractSearchAT {
 
     @Test
     public void regexpFilterMapFieldTest1() {
-        filter(regexp("map_1.k1", "")).check(0);
+        filter(regexp("map_1$k1", "")).check(0);
     }
 
     @Test
     public void regexpFilterMapFieldTest2() {
-        filter(regexp("map_1.k1", "l.*")).check(0);
+        filter(regexp("map_1$k1", "l.*")).check(0);
     }
 
     @Test
     public void regexpFilterMapFieldTest3() {
-        filter(regexp("map_1.k1", "k.*")).check(0);
+        filter(regexp("map_1$k1", "k.*")).check(0);
     }
 
     @Test
     public void regexpFilterMapFieldTest4() {
-        filter(regexp("map_1.k1", "v.*")).check(2);
+        filter(regexp("map_1$k1", "v.*")).check(2);
     }
 }

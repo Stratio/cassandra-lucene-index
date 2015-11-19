@@ -79,9 +79,7 @@ public class DateRangeMapper extends Mapper {
               Int32Type.instance,
               LongType.instance,
               IntegerType.instance,
-              FloatType.instance,
-              DoubleType.instance,
-              DecimalType.instance,
+              SimpleDateType.instance,
               TimestampType.instance);
 
         if (StringUtils.isBlank(from)) {

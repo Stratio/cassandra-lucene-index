@@ -31,8 +31,8 @@ import org.junit.runners.Suite.SuiteClasses;
                IndexesSuite.class,
                VariaSuite.class,
                StoriesSuite.class,
-               BitemporalSuite.class,
-               IssuesSuite.class})
+               IssuesSuite.class,
+               UDTSuite.class})
 public class AllSuite {
 
     @BeforeClass

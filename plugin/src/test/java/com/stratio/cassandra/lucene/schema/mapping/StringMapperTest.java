@@ -106,6 +106,21 @@ public class StringMapperTest extends AbstractMapperTest {
     }
 
     @Test
+    public void testValueShort() {
+        StringMapper mapper = new StringMapper("field", null, true, true, true);
+        String parsed = mapper.base("test", new Short("3"));
+        assertEquals("Base for longs is wrong", "3", parsed);
+    }
+
+    @Test
+    public void testValueByte() {
+        StringMapper mapper = new StringMapper("field", null, true, true, true);
+        String parsed = mapper.base("test", new Byte("3"));
+        assertEquals("Base for longs is wrong", "3", parsed);
+    }
+
+
+    @Test
     public void testValueFloatWithoutDecimal() {
         StringMapper mapper = new StringMapper("field", null, true, true, true);
         String parsed = mapper.base("test", 3f);
@@ -222,7 +237,7 @@ public class StringMapperTest extends AbstractMapperTest {
     public void testAddFields() {
         StringMapper mapper = new StringMapper("field", null, true, true, null);
         Document document = new Document();
-        Column<?> column = Column.fromComposed("field", null, "value", UTF8Type.instance, false);
+        Column<?> column = Column.fromComposed("field", "value", UTF8Type.instance, false);
         Columns columns = new Columns(column);
         mapper.addFields(document, columns);
         IndexableField[] indexableFields = document.getFields("field");

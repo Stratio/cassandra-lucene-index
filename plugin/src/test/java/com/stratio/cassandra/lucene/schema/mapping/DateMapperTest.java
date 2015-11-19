@@ -119,7 +119,7 @@ public class DateMapperTest extends AbstractMapperTest {
     public void testValueInteger() {
         DateMapper mapper = new DateMapper("name", null, null, null, TIMESTAMP_PATTERN);
         Long parsed = mapper.base("test", 3);
-        assertEquals("Base value is not properly parsed", Long.valueOf(3), parsed);
+        assertEquals("Base value is not properly parsed", Long.valueOf(3*24L*60L*60L*1000L), parsed);
     }
 
     @Test

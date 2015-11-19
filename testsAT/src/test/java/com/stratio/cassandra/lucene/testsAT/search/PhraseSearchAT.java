@@ -104,22 +104,22 @@ public class PhraseSearchAT extends AbstractSearchAT {
 
     @Test
     public void phraseQueryMapFieldTest1() {
-        query(phrase("map_1.k1", "")).check(0);
+        query(phrase("map_1$k1", "")).check(0);
     }
 
     @Test
     public void phraseQueryMapFieldTest2() {
-        query(phrase("map_1.k1", "l1")).check(0);
+        query(phrase("map_1$k1", "l1")).check(0);
     }
 
     @Test
     public void phraseQueryMapFieldTest3() {
-        query(phrase("map_1.k1", ("k1"))).check(0);
+        query(phrase("map_1$k1", ("k1"))).check(0);
     }
 
     @Test
     public void phraseQueryMapFieldTest4() {
-        query(phrase("map_1.k1", ("v1"))).check(2);
+        query(phrase("map_1$k1", ("v1"))).check(2);
     }
 
     @Test()
@@ -199,21 +199,21 @@ public class PhraseSearchAT extends AbstractSearchAT {
 
     @Test
     public void phraseFilterMapFieldTest1() {
-        filter(phrase("map_1.k1", "")).check(0);
+        filter(phrase("map_1$k1", "")).check(0);
     }
 
     @Test
     public void phraseFilterMapFieldTest2() {
-        filter(phrase("map_1.k1", "l1")).check(0);
+        filter(phrase("map_1$k1", "l1")).check(0);
     }
 
     @Test
     public void phraseFilterMapFieldTest3() {
-        filter(phrase("map_1.k1", ("k1"))).check(0);
+        filter(phrase("map_1$k1", ("k1"))).check(0);
     }
 
     @Test
     public void phraseFilterMapFieldTest4() {
-        filter(phrase("map_1.k1", ("v1"))).check(2);
+        filter(phrase("map_1$k1", ("v1"))).check(2);
     }
 }

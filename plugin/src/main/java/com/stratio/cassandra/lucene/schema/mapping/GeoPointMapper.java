@@ -82,13 +82,14 @@ public class GeoPointMapper extends Mapper {
               null,
               Arrays.asList(latitude, longitude),
               AsciiType.instance,
-              UTF8Type.instance,
+              DecimalType.instance,
+              DoubleType.instance,
+              FloatType.instance,
+              IntegerType.instance,
               Int32Type.instance,
               LongType.instance,
-              IntegerType.instance,
-              FloatType.instance,
-              DoubleType.instance,
-              DecimalType.instance);
+              ShortType.instance,
+              UTF8Type.instance);
 
         if (StringUtils.isBlank(latitude)) {
             throw new IndexException("latitude column name is required");
