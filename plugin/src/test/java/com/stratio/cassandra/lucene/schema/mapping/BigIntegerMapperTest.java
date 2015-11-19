@@ -517,13 +517,8 @@ public class BigIntegerMapperTest extends AbstractMapperTest {
     @Test
     public void testByteValuePositiveMaxSort() {
         BigIntegerMapper mapper = new BigIntegerMapper("field", null, null, null, 8);
-
-
         Byte lowerB = new Byte("126");
         Byte upperB = new Byte("127");
-
-        System.out.println("lower intValue: "+lowerB.intValue());
-        System.out.println("upper intValue: "+upperB.intValue());
         String lower = mapper.base("test", lowerB);
         String upper = mapper.base("test", upperB);
         int compare = lower.compareTo(upper);

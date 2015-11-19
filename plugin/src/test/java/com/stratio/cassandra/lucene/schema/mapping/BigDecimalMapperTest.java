@@ -612,7 +612,6 @@ public class BigDecimalMapperTest extends AbstractMapperTest {
         Byte upperB= new Byte("0");
         String lower = mapper.base("test", lowerB);
         String upper = mapper.base("test", upperB);
-
         int compare = lower.compareTo(upper);
         assertTrue("Cassandra ordering is not preserved", compare < 0);
     }

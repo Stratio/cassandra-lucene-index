@@ -76,7 +76,6 @@ public class BuilderTest {
                           "fields:{" +
                           "uuid:{type:\"uuid\"}," +
                           "string:{type:\"string\"}}}'}";
-
         assertEquals("index serialization is wrong", expected, actual);
     }
 
@@ -615,7 +614,6 @@ public class BuilderTest {
         String expected = "{query:{type:\"all\"},filter:{type:\"all\"}," +
                           "sort:{fields:[{field:\"field1\"}]},refresh:true}";
         assertEquals("search serialization is wrong", expected, actual);
-
     }
 
     @Test

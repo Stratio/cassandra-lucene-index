@@ -23,7 +23,6 @@ import com.stratio.cassandra.lucene.builder.index.schema.analysis.Analyzer;
 import com.stratio.cassandra.lucene.builder.index.schema.mapping.Mapper;
 import org.codehaus.jackson.annotate.JsonProperty;
 
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 

@@ -174,11 +174,8 @@ public class SchemaTest {
     public void testAddFields() {
         Schema schema = SchemaBuilders.schema().mapper("field1", stringMapper()).build();
         Columns columns = new Columns().add(Column.fromComposed("field1", "value", UTF8Type.instance, false));
-        System.out.println("Columns: "+columns.toString());
         Document document = new Document();
         schema.addFields(document, columns);
-        System.out.println("Document: "+document.toString());
-
         assertNotNull("Expected true", document.getField("field1"));
         schema.close();
     }

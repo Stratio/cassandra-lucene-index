@@ -1,12 +1,20 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.stratio.cassandra.lucene.util;
 
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Callable;
-import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.RejectedExecutionHandler;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -31,7 +39,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class NotifyingBlockingThreadPoolExecutor extends ThreadPoolExecutor {
 
     /**
-     * Counts the number of current tasks in process
+     * Counts the number of current tasks in process.
      */
     private AtomicInteger tasksInProcess = new AtomicInteger();
 
@@ -257,26 +265,27 @@ public class NotifyingBlockingThreadPoolExecutor extends ThreadPoolExecutor {
         }
 
         /**
-         * This is the inner implementation for supporting the NotifyingBlockingThreadPoolExecutor.await(timeout,
-         * timeUnit).
+         * Inner implementation for supporting the NotifyingBlockingThreadPoolExecutor.await(timeout, timeUnit).
          *
+         * @param timeout  The await time.
+         * @param timeUnit The await {@link TimeUnit}.
          * @throws InterruptedException when the internal condition throws it.
          * @see NotifyingBlockingThreadPoolExecutor#await(long, TimeUnit) for details.
          */
         public boolean await(long timeout, TimeUnit timeUnit) throws InterruptedException {
 
-            boolean await_result = false;
+            boolean awaitResult = false;
             lock.lock(); // MUST lock!
             boolean localIsDone;
             try {
-                await_result = done.await(timeout, timeUnit);
+                awaitResult = done.await(timeout, timeUnit);
             } finally {
                 localIsDone = isDone;
                 isDone = false; // for next time
                 lock.unlock(); // Make sure to unlock even in case of an exception
             }
             // make sure we return true only if done!
-            return await_result && localIsDone;
+            return awaitResult && localIsDone;
         }
     }
 
@@ -291,9 +300,9 @@ public class NotifyingBlockingThreadPoolExecutor extends ThreadPoolExecutor {
         private TimeUnit maxBlockingTimeUnit;
         private Callable<Boolean> blockingTimeCallback;
 
-        public BlockThenRunPolicy(long maxBlockingTime,
-                                  TimeUnit maxBlockingTimeUnit,
-                                  Callable<Boolean> blockingTimeCallback) {
+        BlockThenRunPolicy(long maxBlockingTime,
+                           TimeUnit maxBlockingTimeUnit,
+                           Callable<Boolean> blockingTimeCallback) {
             this.maxBlockingTime = maxBlockingTime;
             this.maxBlockingTimeUnit = maxBlockingTimeUnit;
             this.blockingTimeCallback = blockingTimeCallback;

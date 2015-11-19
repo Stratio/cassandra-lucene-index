@@ -1315,7 +1315,6 @@ public class BitemporalMapperTest extends AbstractMapperTest {
 
         SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd");
         Date date;
-
         try {
             date = format.parse("2025/12/23");
             String exp = "BitemporalMapper{field=field, vtFrom=vtFrom, vtTo=vtTo, ttFrom=ttFrom, ttTo=ttTo, " +

@@ -1,15 +1,15 @@
 # Changelog
 
-## 2.2.3.0-SNAPSHOT (upcoming)
+## 2.2.3.0 (upcoming)
 
  * Upgrade to Apache Cassandra 2.2.3
+ 
+## 2.1.11.1 (18 November 2015)
 
-
-## 2.1.11.1-SNAPSHOT (upcoming)
-
- * Fixed bitemporal bug (issue#46)
+ * Fixed bitemporal bug (#46)
  * Fixed default directory path
- * Added query builder module (issue#50)
+ * Added query builder module (#50)
+ * Add acceptance tests
  
 ## 2.1.11.0 (27 October 2015)
 
@@ -18,8 +18,8 @@
 ## 2.1.10.0 (27 October 2015)
 
  * Upgrade to Apache Cassandra 2.1.10
- * Add ability to exclude data centers from indexing (issue#44)
- * Add support for predictions in bitemporal index (issue#46)
+ * Add ability to exclude data centers from indexing (#44)
+ * Add support for predictions in bitemporal index (#46)
  * Add asynchronous indexing queue
 
 ## 2.1.9.0 (9 September 2015)
@@ -39,11 +39,11 @@
  * Upgrade to Lucene 5.3.0
  * Don't propagate internal index exceptions
  * Allow the deletion of old unsupported indexes
- * Detect wrong sorting in date ranges (issue#36) 
+ * Detect wrong sorting in date ranges (#36) 
 
 ## 2.1.8.3 (20 August 2015)
 
- * Fix analyzer selection in maps (issue#18)
+ * Fix analyzer selection in maps (#18)
  * Change logger fixed name from `stratio` to class-based `com.stratio`
  * Add performance tips section to documentation
 
@@ -55,7 +55,7 @@
  * Allow resource-intensive pure negation searches
  * Remove unneeded asynchronous indexing queue
  * Change default date pattern to `yyyy/MM/dd HH:mm:ss.SSS Z`
- * Fix multi-mappers when all columns are null (issue#28)
+ * Fix multi-mappers when all columns are null (#28)
  * Rename `date_range` limits to `from` and `to`
  * Add bitemporal search features
  * Silently discard tokens over 32766 bytes in length (just log)
@@ -65,9 +65,9 @@
 ## 2.1.8.1 (31 July 2015)
 
  * Add complete support for CQL paging, even for top-k queries.
- * Fix numeric collections (issue#12)
- * Fix match condition with not tokenized fields (issue#16)
- * Fix map columns sorting (issue#17)
+ * Fix numeric collections (#12)
+ * Fix match condition with not tokenized fields (#16)
+ * Fix map columns sorting (#17)
  * Fix bounding box queries
  * Avoid sorting in lists and sets
  * Set default sorted value to false
@@ -94,7 +94,7 @@
 
 ## 2.1.6.1 (17 June 2015)
 
- * Fix row updated skipping first column (issue#6)
+ * Fix row updated skipping first column (#6)
  * Avoid analysis at prefix, regexp, range and wildcard queries
 
 ## 2.1.6.0 (8 June 2015)
@@ -107,7 +107,7 @@
 
 ## 2.1.5.0 (30 April 2015)
 
- * Upgrade to Apache Cassandra 2.1.5 (issue#28)
+ * Upgrade to Apache Cassandra 2.1.5 (#28)
  * Removed clustering key mapper columns
 
 ## 2.1.4.1 (21 April 2015)
@@ -117,10 +117,10 @@
 
 ## 2.1.4.0 (7 April 2015)
 
- * Upgrade to Apache Cassandra 2.1.4 (issue#16)
- * Fix reverse clustering order (issue#14)
- * Support for snowball and possibly other analyzers (issue#11)
- * Fix mapping in column-based clustering key mapper (issue#7)
+ * Upgrade to Apache Cassandra 2.1.4 (#16)
+ * Fix reverse clustering order (#14)
+ * Support for snowball and possibly other analyzers (#11)
+ * Fix mapping in column-based clustering key mapper (#7)
 
 ## 2.1.3.1 (12 March 2015)
 
@@ -134,7 +134,7 @@
 
 ## 2.1.2.2 (2 February 2015)
 
- * Fix issue#7 (data inserted during update is not indexed)
+ * Fix #7 (data inserted during update is not indexed)
  * Remove boolean query max clauses limit
  * Add contains condition
  * Add basic support for geospatial search
