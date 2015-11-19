@@ -143,16 +143,6 @@ public class CollectionUpsertTest {
     }
 
     @Test
-    public void testInsertWithFrozenColections() {
-        /*this nust request a read */
-    }
-
-    @Test
-    public void testInsertWithNotFrozenColections() {
-        /*this nust request a read */
-    }
-
-    @Test
     public void testUpdateWithAllRequiredData() {
         String INSERT = "INSERT INTO " +
                         cassandraUtils.getKeyspace() +

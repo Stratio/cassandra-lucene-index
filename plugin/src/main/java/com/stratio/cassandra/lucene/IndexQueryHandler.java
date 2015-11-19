@@ -76,6 +76,7 @@ public class IndexQueryHandler implements QueryHandler {
             Iterator<Function> functions = selectStatement.getFunctions().iterator();
             while (functions.hasNext()) {
                 Function function = functions.next();
+
                 if (function.isAggregate()) {
                     return true;
                 }
