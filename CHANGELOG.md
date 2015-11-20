@@ -1,6 +1,8 @@
 # Changelog
 
-## 2.2.3.0 (upcoming)
+## 2.2.4.0 (upcoming)
+
+## 2.2.3.0 (20 November 2015)
 
 - Upgrade to Apache Cassandra 2.2.3
 - Add support for CQL UDFs (#43)
