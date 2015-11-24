@@ -211,12 +211,12 @@ public final class Column<T> implements Comparable<Column<?>> {
 
     /** {@inheritDoc} */
     @Override
-    public int compareTo(Column<?> column2) {
-        if (column2 == null) {
+    public int compareTo(Column<?> column) {
+        if (column == null) {
             return 1;
         }
         ByteBuffer value1 = decomposedValue;
-        ByteBuffer value2 = column2.getDecomposedValue();
+        ByteBuffer value2 = column.getDecomposedValue();
         return type.compare(value1, value2);
     }
 

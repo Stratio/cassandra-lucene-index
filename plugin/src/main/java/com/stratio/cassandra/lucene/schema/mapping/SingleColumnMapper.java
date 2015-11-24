@@ -77,6 +77,10 @@ public abstract class SingleColumnMapper<T> extends Mapper {
         this.base = base;
     }
 
+    public String getColumn() {
+        return column;
+    }
+
     /** {@inheritDoc} */
     @Override
     public void addFields(Document document, Columns columns) {

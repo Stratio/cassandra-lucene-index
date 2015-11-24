@@ -29,6 +29,7 @@ import com.stratio.cassandra.lucene.builder.search.Search;
 import com.stratio.cassandra.lucene.builder.search.condition.Condition;
 import com.stratio.cassandra.lucene.builder.search.sort.SortField;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -177,6 +178,32 @@ public class CassandraUtilsSelect {
         } catch (Exception e) {
             assertTrue("Exception should be " + expected.getSimpleName(), expected.isAssignableFrom(e.getClass()));
         }
+        return parent;
+    }
+
+    public CassandraUtils checkIntColumn(String name, int... expected) {
+        List<Row> rows = get();
+        assertEquals(String.format("Expected %d results!", expected.length), expected.length, rows.size());
+        int[] actual = new int[expected.length];
+        for (int i = 0; i < expected.length; i++) {
+            actual[i] = rows.get(i).getInt(name);
+        }
+        assertArrayEquals(String.format("Expected %s but found %s", Arrays.toString(expected), Arrays.toString(actual)),
+                          expected,
+                          actual);
+        return parent;
+    }
+
+    public CassandraUtils checkStringColumn(String name, String... expected) {
+        List<Row> rows = get();
+        assertEquals(String.format("Expected %d results!", expected.length), expected.length, rows.size());
+        String[] actual = new String[expected.length];
+        for (int i = 0; i < expected.length; i++) {
+            actual[i] = rows.get(i).getString(name);
+        }
+        assertArrayEquals(String.format("Expected %s but found %s", Arrays.toString(expected), Arrays.toString(actual)),
+                          expected,
+                          actual);
         return parent;
     }
 

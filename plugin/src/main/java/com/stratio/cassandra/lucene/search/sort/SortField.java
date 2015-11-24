@@ -24,6 +24,7 @@ import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
+import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Comparator;
@@ -103,17 +104,20 @@ public class SortField {
     /**
      * Returns a Java {@link Comparator} for {@link Columns} with the same logic as this {@link SortField}.
      *
+     * @param schema The used {@link Schema}.
      * @return A Java {@link Comparator} for {@link Columns} with the same logic as this {@link SortField}.
      */
-    public Comparator<Columns> comparator() {
+    public Comparator<Columns> comparator(Schema schema) {
+        SingleColumnMapper mapper = schema.getSingleColumnMapper(field);
+        final String column = mapper.getColumn();
         return new Comparator<Columns>() {
             public int compare(Columns o1, Columns o2) {
-                return SortField.this.compare(o1, o2);
+                return SortField.this.compare(column, o1, o2);
             }
         };
     }
 
-    protected int compare(Columns o1, Columns o2) {
+    protected int compare(String column, Columns o1, Columns o2) {
 
         if (o1 == null) {
             return o2 == null ? 0 : 1;
@@ -121,8 +125,8 @@ public class SortField {
             return -1;
         }
 
-        Column<?> column1 = o1.getColumnsByFullName(field).getFirst();
-        Column<?> column2 = o2.getColumnsByFullName(field).getFirst();
+        Column<?> column1 = o1.getColumnsByFullName(column).getFirst();
+        Column<?> column2 = o2.getColumnsByFullName(column).getFirst();
 
         return compare(column1, column2);
     }
