@@ -467,7 +467,7 @@ public abstract class RowService {
         Operator operator = expression.operator;
         AbstractType<?> validator = def.type;
 
-        for (Column<?> column : columns.getColumnsByName(name)) {
+        for (Column<?> column : columns.getColumnsByCellName(name)) {
             if (accepted(column, validator, operator, expectedValue)) {
                 return true;
             }

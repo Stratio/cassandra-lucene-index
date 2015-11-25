@@ -22,6 +22,7 @@ import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
+import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.junit.Test;
 
@@ -224,22 +225,37 @@ public class SortFieldTest {
     }
 
     @Test
-    public void testCompareColumn() {
+    public void testCompareColumns() {
 
         SortField sortField = new SortField("field", true);
 
         Column column1 = Column.fromComposed("field", "a", UTF8Type.instance, false);
         Column column2 = Column.fromComposed("field", "z", UTF8Type.instance, false);
+        SingleColumnMapper mapper = stringMapper().build("field");
+        Columns columns1 = new Columns(column1);
+        Columns columns2 = new Columns(column2);
+        Columns emptyColumns = new Columns();
+
+        assertEquals("SortField compare is wrong", 25, sortField.compare(mapper, columns1, columns2));
+        assertEquals("SortField compare is wrong", -25, sortField.compare(mapper, columns2, columns1));
+        assertEquals("SortField compare is wrong", 1, sortField.compare(mapper, emptyColumns, columns1));
+        assertEquals("SortField compare is wrong", -1, sortField.compare(mapper, columns2, emptyColumns));
+        assertEquals("SortField compare is wrong", 0, sortField.compare(mapper, emptyColumns, emptyColumns));
+    }
+
+    @Test
+    public void testCompareColumn() {
+
+        SortField sortField = new SortField("field", true);
+
+        Comparable column1 = "a";
+        Comparable column2 = "z";
 
         assertEquals("SortField compare is wrong", 25, sortField.compare(column1, column2));
         assertEquals("SortField compare is wrong", -25, sortField.compare(column2, column1));
-        assertEquals("SortField compare is wrong", 1, sortField.compare(nullColumn(), column1));
-        assertEquals("SortField compare is wrong", -1, sortField.compare(column2, nullColumn()));
-        assertEquals("SortField compare is wrong", 0, sortField.compare(nullColumn(), nullColumn()));
-    }
-
-    private static Column nullColumn() {
-        return null;
+        assertEquals("SortField compare is wrong", 1, sortField.compare(null, column1));
+        assertEquals("SortField compare is wrong", -1, sortField.compare(column2, null));
+        assertEquals("SortField compare is wrong", 0, sortField.compare(null, null));
     }
 
     private static SortField nullSortField() {

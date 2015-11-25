@@ -97,15 +97,15 @@ public class Columns implements Iterable<Column<?>> {
     }
 
     /**
-     * Returns the {@link Column} identified by the specified name, or {@code null} if not found.
+     * Returns the {@link Column} identified by the specified full name, or {@code null} if not found.
      *
-     * @param name The name of the {@link Column} to be returned.
-     * @return The {@link Column} identified by the specified name, or {@code null} if not found.
+     * @param name The full name of the {@link Column} to be returned.
+     * @return The {@link Column} identified by the specified full name, or {@code null} if not found.
      */
     public Columns getColumnsByFullName(String name) {
         Columns result = new Columns();
         for (Column<?> column : columns) {
-            if (column.getFieldName().equals(name)) {
+            if (column.getFullName().equals(name)) {
                 result.add(column);
             }
         }
@@ -113,15 +113,33 @@ public class Columns implements Iterable<Column<?>> {
     }
 
     /**
-     * Returns the {@link Column} identified by the specified name, or {@code null} if not found.
+     * Returns the {@link Column} identified by the specified CQL cell name, or {@code null} if not found.
      *
-     * @param name The name of the {@link Column} to be returned.
-     * @return The {@link Column} identified by the specified name, or {@code null} if not found.
+     * @param name The CQL cell name of the{@link Column} to be returned.
+     * @return The {@link Column} identified by the specified CQL cell name, or {@code null} if not found.
      */
-    public Columns getColumnsByName(String name) {
+    public Columns getColumnsByCellName(String name) {
+        String cellName = Column.getCellName(name);
         Columns result = new Columns();
         for (Column<?> column : columns) {
-            if (column.getMapperName().equals(name)) {
+            if (column.getCellName().equals(cellName)) {
+                result.add(column);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Returns the {@link Column} identified by the specified mapper name, or {@code null} if not found.
+     *
+     * @param name The mapper name of the {@link Column} to be returned.
+     * @return The {@link Column} identified by the specified mapper name, or {@code null} if not found.
+     */
+    public Columns getColumnsByMapperName(String name) {
+        String mapperName = Column.getMapperName(name);
+        Columns result = new Columns();
+        for (Column<?> column : columns) {
+            if (column.getMapperName().equals(mapperName)) {
                 result.add(column);
             }
         }
@@ -137,7 +155,7 @@ public class Columns implements Iterable<Column<?>> {
     public String toString() {
         Objects.ToStringHelper helper = Objects.toStringHelper(this);
         for (Column<?> column : columns) {
-            helper.add(column.getFieldName(), column.getComposedValue());
+            helper.add(column.getFullName(), column.getComposedValue());
         }
         return helper.toString();
     }

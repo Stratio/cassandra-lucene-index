@@ -108,30 +108,32 @@ public class SortField {
      * @return A Java {@link Comparator} for {@link Columns} with the same logic as this {@link SortField}.
      */
     public Comparator<Columns> comparator(Schema schema) {
-        SingleColumnMapper mapper = schema.getSingleColumnMapper(field);
-        final String column = mapper.getColumn();
+        final SingleColumnMapper mapper = schema.getSingleColumnMapper(field);
         return new Comparator<Columns>() {
             public int compare(Columns o1, Columns o2) {
-                return SortField.this.compare(column, o1, o2);
+                return SortField.this.compare(mapper, o1, o2);
             }
         };
     }
 
-    protected int compare(String column, Columns o1, Columns o2) {
+    protected int compare(SingleColumnMapper mapper, Columns o1, Columns o2) {
 
         if (o1 == null) {
             return o2 == null ? 0 : 1;
         } else if (o2 == null) {
             return -1;
         }
+        String column = mapper.getColumn();
+        Column<?> column1 = o1.getColumnsByCellName(column).getFirst();
+        Column<?> column2 = o2.getColumnsByCellName(column).getFirst();
+        Comparable base1 = column1 == null ? null : mapper.base(column, column1.getComposedValue());
+        Comparable base2 = column2 == null ? null : mapper.base(column, column2.getComposedValue());
 
-        Column<?> column1 = o1.getColumnsByFullName(column).getFirst();
-        Column<?> column2 = o2.getColumnsByFullName(column).getFirst();
-
-        return compare(column1, column2);
+        return compare(base1, base2);
     }
 
-    protected int compare(Column<?> column1, Column<?> column2) {
+    @SuppressWarnings("unchecked")
+    protected int compare(Comparable column1, Comparable column2) {
         if (column1 == null) {
             return column2 == null ? 0 : 1;
         } else if (column2 == null) {

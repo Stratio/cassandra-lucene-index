@@ -21,6 +21,7 @@ package com.stratio.cassandra.lucene.testsAT.udt;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.SimpleStatement;
 import com.datastax.driver.core.exceptions.InvalidConfigurationInQueryException;
+import com.stratio.cassandra.lucene.testsAT.BaseAT;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
 import com.stratio.cassandra.lucene.testsAT.util.UDT;
 import org.junit.AfterClass;
@@ -36,7 +37,7 @@ import static org.junit.Assert.assertFalse;
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
 @RunWith(JUnit4.class)
-public class UDTValidationTest {
+public class UDTValidationTest extends BaseAT {
 
     private static CassandraUtils cassandraUtils;
 
@@ -56,12 +57,12 @@ public class UDTValidationTest {
         addressUDT.add("city", "text");
         addressUDT.add("zip", "int");
         addressUDT.add("bool", "boolean");
-        addressUDT.add("hight", "float");
+        addressUDT.add("height", "float");
         addressUDT.add("point", "frozen<geo_point>");
 
         String tableCreationQuery = "CREATE TABLE " +
                                     cassandraUtils.getTable() +
-                                    " ( login text PRIMARY KEY, first_name text, last_name text, addres frozen<address>, lucene text);";
+                                    " ( login text PRIMARY KEY, first_name text, last_name text, address frozen<address>, lucene text);";
 
         cassandraUtils.execute(new SimpleStatement(useKeyspaceQuery));
         cassandraUtils.execute(new SimpleStatement(geoPointUDT.build()));
@@ -89,10 +90,10 @@ public class UDTValidationTest {
                                   "'refresh_seconds' : '1', " +
                                   "'schema' : '{ " +
                                   " fields : { " +
-                                  "\"addres.city\" : {type:\"string\"}," +
-                                  "\"addres.zip\" : {type:\"integer\"}," +
-                                  "\"addres.bool\" : {type:\"boolean\"}, " +
-                                  "\"addres.hight\" : {type:\"float\"}," +
+                                  "\"address.city\" : {type:\"string\"}," +
+                                  "\"address.zip\" : {type:\"integer\"}," +
+                                  "\"address.bool\" : {type:\"boolean\"}, " +
+                                  "\"address.height\" : {type:\"float\"}," +
                                   " first_name : {type:\"string\"}}}'};";
 
         ResultSet result = cassandraUtils.execute(new SimpleStatement(createIndexQuery));
@@ -117,20 +118,18 @@ public class UDTValidationTest {
                                   "'refresh_seconds' : '1', " +
                                   "'schema' : '{ " +
                                   " fields : { " +
-                                  " \"addres.inexistent.latitude\" : {type:\"string\"}}}'};";
+                                  " \"address.non-existent.latitude\" : {type:\"string\"}}}'};";
 
         try {
             cassandraUtils.execute(new SimpleStatement(createIndexQuery));
             assertFalse("Creating invalid index must throw an Exception but does not ", true);
         } catch (InvalidConfigurationInQueryException e) {
-            String
-                    expectedMessage
-                    = "'schema' is invalid : No column definition 'addres.inexistent' for mapper 'addres.inexistent.latitude'";
-            assertEquals("Cretaing invalid index must return InvalidConfigurationInQueryException(" +
-                         expectedMessage +
-                         ") but returns InvalidConfigurationInQueryException(" +
-                         e.getMessage() +
-                         ")", expectedMessage, e.getMessage());
+            String expectedMessage = "'schema' is invalid : No column definition 'address.non-existent' " +
+                                     "for mapper 'address.non-existent.latitude'";
+            assertEquals(String.format("Creating invalid index must return InvalidConfigurationInQueryException(%s) " +
+                                       "but returns InvalidConfigurationInQueryException(%s)",
+                                       expectedMessage, e.getMessage()),
+                         expectedMessage, e.getMessage());
 
         }
     }
@@ -149,16 +148,15 @@ public class UDTValidationTest {
                                   "'refresh_seconds' : '1', " +
                                   "'schema' : '{ " +
                                   " fields : { " +
-                                  "\"addres.inexistent\" : {type:\"string\"}}}'};";
+                                  "\"address.non-existent\" : {type:\"string\"}}}'};";
 
         try {
             cassandraUtils.execute(new SimpleStatement(createIndexQuery));
             assertFalse("Creating invalid index must throw an Exception but does not ", true);
         } catch (InvalidConfigurationInQueryException e) {
-            String
-                    expectedMessage
-                    = "'schema' is invalid : No column definition 'addres.inexistent' for mapper 'addres.inexistent'";
-            assertEquals("Cretaing invalid index must return InvalidConfigurationInQueryException(" +
+            String expectedMessage = "'schema' is invalid : No column definition 'address.non-existent' " +
+                                     "for mapper 'address.non-existent'";
+            assertEquals("Creating invalid index must return InvalidConfigurationInQueryException(" +
                          expectedMessage +
                          ") but returns InvalidConfigurationInQueryException(" +
                          e.getMessage() +
@@ -181,12 +179,12 @@ public class UDTValidationTest {
                                   "'refresh_seconds' : '1', " +
                                   "'schema' : '{ " +
                                   " fields : { " +
-                                  "\"addres.city\" : {type:\"string\"}," +
-                                  "\"addres.zip\" : {type:\"integer\"}," +
-                                  "\"addres.bool\" : {type:\"boolean\"}," +
-                                  "\"addres.hight\" : {type:\"float\"}," +
-                                  "\"addres.point.latitude\" : {type:\"float\"}," +
-                                  "\"addres.point.longitude\" : {type:\"bytes\"}," +
+                                  "\"address.city\" : {type:\"string\"}," +
+                                  "\"address.zip\" : {type:\"integer\"}," +
+                                  "\"address.bool\" : {type:\"boolean\"}," +
+                                  "\"address.height\" : {type:\"float\"}," +
+                                  "\"address.point.latitude\" : {type:\"float\"}," +
+                                  "\"address.point.longitude\" : {type:\"bytes\"}," +
                                   "first_name : {type:\"string\"}}}'};";
 
         try {
@@ -195,7 +193,7 @@ public class UDTValidationTest {
         } catch (InvalidConfigurationInQueryException e) {
             String
                     expectedMessage
-                    = "'schema' is invalid : 'org.apache.cassandra.db.marshal.FloatType' is not supported by mapper 'addres.point.longitude'";
+                    = "'schema' is invalid : 'org.apache.cassandra.db.marshal.FloatType' is not supported by mapper 'address.point.longitude'";
             assertEquals("Cretaing invalid index must return InvalidConfigurationInQueryException(" +
                          expectedMessage +
                          ") but returns InvalidConfigurationInQueryException(" +
@@ -219,12 +217,12 @@ public class UDTValidationTest {
                                   "'refresh_seconds' : '1', " +
                                   "'schema' : '{ " +
                                   " fields : { " +
-                                  "\"addres.city\" : {type:\"string\"}," +
-                                  "\"addres.zip\" : {type:\"integer\"}," +
-                                  "\"addres.bool\" : {type:\"boolean\"}," +
-                                  "\"addres.hight\" : {type:\"float\"}," +
-                                  "\"addres.point.latitude\" : {type:\"float\"}," +
-                                  "\"addres.point.longitude.inexistent\" : {type:\"float\"}," +
+                                  "\"address.city\" : {type:\"string\"}," +
+                                  "\"address.zip\" : {type:\"integer\"}," +
+                                  "\"address.bool\" : {type:\"boolean\"}," +
+                                  "\"address.height\" : {type:\"float\"}," +
+                                  "\"address.point.latitude\" : {type:\"float\"}," +
+                                  "\"address.point.longitude.non-existent\" : {type:\"float\"}," +
                                   "first_name : {type:\"string\"}}}'};";
 
         try {
@@ -233,7 +231,7 @@ public class UDTValidationTest {
         } catch (InvalidConfigurationInQueryException e) {
             String
                     expectedMessage
-                    = "'schema' is invalid : No column definition 'addres.point.longitude.inexistent' for mapper 'addres.point.longitude.inexistent'";
+                    = "'schema' is invalid : No column definition 'address.point.longitude.non-existent' for mapper 'address.point.longitude.non-existent'";
             assertEquals("Cretaing invalid index must return InvalidConfigurationInQueryException(" +
                          expectedMessage +
                          ") but returns InvalidConfigurationInQueryException(" +

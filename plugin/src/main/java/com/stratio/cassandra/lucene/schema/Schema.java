@@ -104,30 +104,8 @@ public class Schema implements Closeable {
      * @return The {@link Mapper} identified by the specified field name, or {@code null} if not found.
      */
     public Mapper getMapper(String field) {
-        Mapper mapper;
-
-        String fieldName = Column.getMapperNameByFullName(field);
-
-        mapper = mappers.get(fieldName);
-        if (mapper != null) {
-            return mapper;
-        }
-
-        String[] components = field.split("\\.");
-        for (int i = components.length - 1; i >= 0; i--) {
-            StringBuilder sb = new StringBuilder();
-            for (int j = 0; j <= i; j++) {
-                sb.append(components[j]);
-                if (j < i) {
-                    sb.append('.');
-                }
-            }
-            mapper = mappers.get(sb.toString());
-            if (mapper != null) {
-                return mapper;
-            }
-        }
-        return null;
+        String mapperName = Column.getMapperName(field);
+        return mappers.get(mapperName);
     }
 
     public SingleColumnMapper getSingleColumnMapper(String field) {

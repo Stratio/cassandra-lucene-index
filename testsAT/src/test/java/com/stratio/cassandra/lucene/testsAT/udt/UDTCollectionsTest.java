@@ -19,6 +19,7 @@
 package com.stratio.cassandra.lucene.testsAT.udt;
 
 import com.datastax.driver.core.SimpleStatement;
+import com.stratio.cassandra.lucene.testsAT.BaseAT;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtilsSelect;
 import com.stratio.cassandra.lucene.testsAT.util.UDT;
@@ -39,7 +40,7 @@ import static org.junit.Assert.assertTrue;
  */
 
 @RunWith(JUnit4.class)
-public class UDTCollectionsTest {
+public class UDTCollectionsTest extends BaseAT {
 
     private static CassandraUtils cassandraUtils;
 
@@ -527,6 +528,7 @@ public class UDTCollectionsTest {
 
     @Test
     public void testSimpleUDTList() {
+
         CassandraUtilsSelect select = cassandraUtils.filter(match("address.city", "Barcelona"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1", "USER2", "USER6"});
 

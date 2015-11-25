@@ -22,6 +22,7 @@ import com.google.common.base.Objects;
 import org.apache.cassandra.db.marshal.AbstractType;
 
 import java.nio.ByteBuffer;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -30,19 +31,19 @@ import java.util.regex.Pattern;
  * @param <T> The type of the column value.
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public final class Column<T> implements Comparable<Column<?>> {
+public final class Column<T> {
 
-    /** The column's lucene field name. Used in Conditions */
-    private final String fieldName;
+    /** The map name components separator. */
+    public static final String MAP_SEPARATOR = "$";
 
-    /** The column's mapperName. */
-    private final String mapperName;
+    /** The UDT name components separator. */
+    public static final String UDT_SEPARATOR = ".";
 
-    /** The default mapKeys separator. */
-    public static final String mapSeparator = "$";
+    private static final Pattern MAP_PATTERN = Pattern.compile("\\$[^(\\$|\\.)]*");
+    private static final Pattern UDT_PATTERN = Pattern.compile("\\.[^(\\$|\\.)]*");
 
-    /** The default mapKeys separator. */
-    public static final String udtSeparator = ".";
+    /** The full qualified name, with UDT and map qualifiers. */
+    private final String fullName;
 
     /** The column's value as {@link ByteBuffer}. */
     private final T composedValue;
@@ -58,58 +59,35 @@ public final class Column<T> implements Comparable<Column<?>> {
     /**
      * Builds a new {@link Column} with the specified name, name suffix, value, and type.
      *
-     * @param fieldName       The field name of the column to be created.
+     * @param name            The field name of the column to be created.
      * @param decomposedValue The decomposed value of the column to be created.
      * @param composedValue   The composed value of the column to be created.
      * @param type            The type/marshaller of the column to be created.
      * @param isMultiCell     If the column is a multiCell column (not frozen Collections).
      */
-    private Column(String fieldName,
+    private Column(String name,
                    ByteBuffer decomposedValue,
                    T composedValue,
                    AbstractType<T> type,
                    boolean isMultiCell) {
-        this.fieldName = fieldName;
-        this.mapperName = getMapperNameByFullName(fieldName);
+        this.fullName = name;
         this.composedValue = composedValue;
         this.decomposedValue = decomposedValue;
         this.type = type;
         this.isMultiCell = isMultiCell;
     }
 
-    public static String getMapperNameByFullName(String input) {
-        if (input.contains(".")) {
-            String[] components = input.split(Pattern.quote("."));
-            String out = "";
-            for (int i = 0; i < components.length; i++) {
-
-                if (components[i].contains(Column.mapSeparator)) {
-                    String[] auxComponents = components[i].split(Pattern.quote(Column.mapSeparator));
-                    out += auxComponents[0];
-                } else {
-                    out += components[i];
-                }
-                if (i < components.length - 1) {
-                    out += ".";
-                }
-            }
-            return out;
-        } else {
-            if (input.contains(Column.mapSeparator)) {
-                String[] auxComponents = input.split(Pattern.quote(Column.mapSeparator));
-                return auxComponents[0];
-            }
-            return input;
-        }
+    public static String getMapperName(String field) {
+        return MAP_PATTERN.matcher(field).replaceAll("");
     }
 
-    public static String joinMapItemName(String input, String mapItemName) {
-        return input == null ? mapItemName : input + mapSeparator + mapItemName;
-
+    public String getMapperName() {
+        return getMapperName(getFullName());
     }
 
-    public static String joinUDTItemName(String input, String udtChildItemName) {
-        return input == null ? udtChildItemName : input + udtSeparator + udtChildItemName;
+    public static String getCellName(String field) {
+        String mapperName = getMapperName(field);
+        return UDT_PATTERN.matcher(mapperName).replaceAll("");
     }
 
     /**
@@ -117,27 +95,32 @@ public final class Column<T> implements Comparable<Column<?>> {
      *
      * @return the column name.
      */
-    public String getMapperName() {
-        return mapperName;
+    public String getCellName() {
+        return getCellName(fullName);
     }
 
     /**
-     * Returns the full name, which is formed by the column name and suffix.
+     * Returns the full name, which is formed by the column name and the suffix.
      *
-     * @return The full name, which is formed by the column name and suffix.
+     * @return The full name, which is formed by the column name and the suffix.
      */
-    public String getFieldName() {
-        return this.fieldName;
+    public String getFullName() {
+        return fullName;
     }
 
     /**
-     * Returns the full column name appending the suffix.
+     * Returns the field column name appending the suffix.
      *
-     * @param name A column name.
+     * @param field A base field name.
      * @return The full column name appending the suffix.
      */
-    public String getFieldName(String name) {
-        return name + this.fieldName;
+    public String getFieldName(String field) {
+        Matcher matcher = MAP_PATTERN.matcher(fullName);
+        String result = field;
+        while (matcher.find()) {
+            result += matcher.group();
+        }
+        return result;
     }
 
     /**
@@ -204,27 +187,19 @@ public final class Column<T> implements Comparable<Column<?>> {
      * @param <T>           The base type.
      * @return A {@link Column}.
      */
-    public static <T> Column<T> fromComposed(String name, T composedValue, AbstractType<T> type, boolean isMultiCell) {
+    public static <T> Column<T> fromComposed(String name,
+                                             T composedValue,
+                                             AbstractType<T> type,
+                                             boolean isMultiCell) {
         ByteBuffer decomposedValue = type.decompose(composedValue);
         return new Column<>(name, decomposedValue, composedValue, type, isMultiCell);
     }
 
     /** {@inheritDoc} */
     @Override
-    public int compareTo(Column<?> column) {
-        if (column == null) {
-            return 1;
-        }
-        ByteBuffer value1 = decomposedValue;
-        ByteBuffer value2 = column.getDecomposedValue();
-        return type.compare(value1, value2);
-    }
-
-    /** {@inheritDoc} */
-    @Override
     public String toString() {
         return Objects.toStringHelper(this)
-                      .add("fieldName", getFieldName())
+                      .add("fullName", getFullName())
                       .add("composedValue", getComposedValue())
                       .add("type", type.getClass().getSimpleName())
                       .toString();

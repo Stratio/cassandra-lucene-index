@@ -36,7 +36,7 @@ import java.util.Collections;
  * @param <T> THe base type.
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public abstract class SingleColumnMapper<T> extends Mapper {
+public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper {
 
     /** The name of the mapped column. */
     public final String column;
@@ -84,8 +84,8 @@ public abstract class SingleColumnMapper<T> extends Mapper {
     /** {@inheritDoc} */
     @Override
     public void addFields(Document document, Columns columns) {
-        for (Column<?> c : columns.getColumnsByName(column)) {
-            String name = c.getFieldName();
+        for (Column<?> c : columns.getColumnsByMapperName(column)) {
+            String name = column.equals(field) ? c.getFullName() : c.getFieldName(field);
             Object value = c.getComposedValue();
             addFields(document, name, value);
         }

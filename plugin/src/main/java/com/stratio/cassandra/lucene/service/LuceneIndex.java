@@ -124,7 +124,6 @@ public class LuceneIndex implements LuceneIndexMBean {
      * @throws IOException If Lucene throws IO errors.
      */
     public void upsert(Term term, Document document) throws IOException {
-        System.out.println(">>> UPSERTING " + document);
         logger.debug("{} update document {} with term {}", name, document, term);
         indexWriter.updateDocument(term, document);
     }

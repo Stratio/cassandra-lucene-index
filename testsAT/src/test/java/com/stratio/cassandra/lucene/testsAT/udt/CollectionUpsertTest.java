@@ -19,6 +19,7 @@
 package com.stratio.cassandra.lucene.testsAT.udt;
 
 import com.datastax.driver.core.SimpleStatement;
+import com.stratio.cassandra.lucene.testsAT.BaseAT;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
 import com.stratio.cassandra.lucene.testsAT.util.UDT;
 import org.junit.AfterClass;
@@ -33,7 +34,7 @@ import org.junit.runners.JUnit4;
  */
 @Ignore
 @RunWith(JUnit4.class)
-public class CollectionUpsertTest {
+public class CollectionUpsertTest extends BaseAT {
 
     /* This test checks if a not full insert is done what happens*/
     private static CassandraUtils cassandraUtils;

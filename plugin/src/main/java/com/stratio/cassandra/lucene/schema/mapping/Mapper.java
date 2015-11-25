@@ -281,7 +281,7 @@ public abstract class Mapper {
      */
     public final boolean maps(Columns columns) {
         for (String columnName : mappedColumns) {
-            Columns mapperColumns = columns.getColumnsByName(columnName);
+            Columns mapperColumns = columns.getColumnsByCellName(columnName);
             if (mapperColumns.isEmpty()) {
                 return false;
             }

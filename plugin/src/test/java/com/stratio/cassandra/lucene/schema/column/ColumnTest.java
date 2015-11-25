@@ -33,14 +33,16 @@ import static org.junit.Assert.assertTrue;
 public class ColumnTest {
 
     @Test
-    public void testCreateFromDecomposedWithoutSufix() {
+    public void testCreateFromDecomposedWithoutSuffix() {
         String name = "my_column";
         AbstractType<Long> type = LongType.instance;
         Long composedValue = 5L;
         ByteBuffer decomposedValue = type.decompose(composedValue);
         Column<Long> column = Column.fromDecomposed(name, decomposedValue, type, true);
-        assertEquals("Column name is wrong", name, column.getMapperName());
-        assertEquals("Column fullName is wrong", name, column.getFieldName());
+        assertEquals("Column full name is wrong", name, column.getFullName());
+        assertEquals("Column cell name is wrong", name, column.getCellName());
+        assertEquals("Column mapper name is wrong", name, column.getMapperName());
+        assertEquals("Column field name is wrong", "field", column.getFieldName("field"));
         assertEquals("Column type is wrong", type, column.getType());
         assertEquals("Column composedValue is wrong", composedValue, column.getComposedValue());
         assertEquals("Column decomposedValue is wrong", decomposedValue, column.getDecomposedValue());
@@ -48,15 +50,16 @@ public class ColumnTest {
     }
 
     @Test
-    public void testCreateFromDecomposedWithSufix() {
-        String name = "my";
-        String sufix = "column";
+    public void testCreateFromDecomposedWithMapSuffix() {
+        String name = "my$column";
         AbstractType<Long> type = LongType.instance;
         Long composedValue = 5L;
         ByteBuffer decomposedValue = type.decompose(composedValue);
-        Column<Long> column = Column.fromDecomposed(name+"$"+sufix, decomposedValue, type, true);
-        assertEquals("Column name is wrong", name, column.getMapperName());
-        assertEquals("Column fullName is wrong", "my$column", column.getFieldName());
+        Column<Long> column = Column.fromDecomposed(name, decomposedValue, type, true);
+        assertEquals("Column full name is wrong", name, column.getFullName());
+        assertEquals("Column cell name is wrong", "my", column.getCellName());
+        assertEquals("Column mapper name is wrong", "my", column.getMapperName());
+        assertEquals("Column field name is wrong", "field$column", column.getFieldName("field"));
         assertEquals("Column type is wrong", type, column.getType());
         assertEquals("Column composedValue is wrong", composedValue, column.getComposedValue());
         assertEquals("Column decomposedValue is wrong", decomposedValue, column.getDecomposedValue());
@@ -64,71 +67,100 @@ public class ColumnTest {
     }
 
     @Test
-    public void testCreateFromComposedWithoutSufix() {
+    public void testCreateFromDecomposedWithUDTSuffix() {
+        String name = "my.column";
+        AbstractType<Long> type = LongType.instance;
+        Long composedValue = 5L;
+        ByteBuffer decomposedValue = type.decompose(composedValue);
+        Column<Long> column = Column.fromDecomposed(name, decomposedValue, type, true);
+        assertEquals("Column full name is wrong", name, column.getFullName());
+        assertEquals("Column cell name is wrong", "my", column.getCellName());
+        assertEquals("Column mapper name is wrong", "my.column", column.getMapperName());
+        assertEquals("Column field name is wrong", "field", column.getFieldName("field"));
+        assertEquals("Column type is wrong", type, column.getType());
+        assertEquals("Column composedValue is wrong", composedValue, column.getComposedValue());
+        assertEquals("Column decomposedValue is wrong", decomposedValue, column.getDecomposedValue());
+        assertTrue("Column isNotFrozenCollection is wrong", column.isMultiCell());
+    }
+
+    @Test
+    public void testCreateFromDecomposedWithComplexSuffix() {
+        String name = "my.1$2$3.4.5$6.7";
+        AbstractType<Long> type = LongType.instance;
+        Long composedValue = 5L;
+        ByteBuffer decomposedValue = type.decompose(composedValue);
+        Column<Long> column = Column.fromDecomposed(name, decomposedValue, type, true);
+        assertEquals("Column full name is wrong", name, column.getFullName());
+        assertEquals("Column cell name is wrong", "my", column.getCellName());
+        assertEquals("Column mapper name is wrong", "my.1.4.5.7", column.getMapperName());
+        assertEquals("Column field name is wrong", "field$2$3$6", column.getFieldName("field"));
+        assertEquals("Column type is wrong", type, column.getType());
+        assertEquals("Column composedValue is wrong", composedValue, column.getComposedValue());
+        assertEquals("Column decomposedValue is wrong", decomposedValue, column.getDecomposedValue());
+        assertTrue("Column isNotFrozenCollection is wrong", column.isMultiCell());
+    }
+
+    @Test
+    public void testCreateFromComposedWithoutSuffix() {
         String name = "my_column";
         AbstractType<Long> type = LongType.instance;
         Long composedValue = 5L;
         ByteBuffer decomposedValue = type.decompose(composedValue);
         Column<Long> column = Column.fromComposed(name, composedValue, type, true);
-        assertEquals("Column name is wrong", name, column.getMapperName());
-        assertEquals("Column fullName is wrong", name, column.getFieldName());
-        assertEquals("Column type is wrong", type, column.getType());
+        assertEquals("Column full name is wrong", name, column.getFullName());
+        assertEquals("Column cell name is wrong", name, column.getCellName());
+        assertEquals("Column mapper name is wrong", name, column.getMapperName());
+        assertEquals("Column field name is wrong", "field", column.getFieldName("field"));
         assertEquals("Column composedValue is wrong", composedValue, column.getComposedValue());
         assertEquals("Column decomposedValue is wrong", decomposedValue, column.getDecomposedValue());
         assertTrue("Column isNotFrozenCollection is wrong", column.isMultiCell());
     }
 
     @Test
-    public void testCreateFromComposedWithSufix() {
+    public void testCreateFromComposedWithUDTSuffix() {
         String name = "my.column";
         AbstractType<Long> type = LongType.instance;
         Long composedValue = 5L;
         ByteBuffer decomposedValue = type.decompose(composedValue);
         Column<Long> column = Column.fromComposed(name, composedValue, type, true);
-        assertEquals("Column name is wrong", name, column.getMapperName());
-        assertEquals("Column fullName is wrong", "my.column", column.getFieldName());
-        assertEquals("Column type is wrong", type, column.getType());
+        assertEquals("Column full name is wrong", name, column.getFullName());
+        assertEquals("Column cell name is wrong", "my", column.getCellName());
+        assertEquals("Column mapper name is wrong", name, column.getMapperName());
+        assertEquals("Column field name is wrong", "field", column.getFieldName("field"));
         assertEquals("Column composedValue is wrong", composedValue, column.getComposedValue());
         assertEquals("Column decomposedValue is wrong", decomposedValue, column.getDecomposedValue());
         assertTrue("Column isNotFrozenCollection is wrong", column.isMultiCell());
     }
 
     @Test
-    public void testToStringFromDecomposedWithoutSufix() {
+    public void testToStringFromDecomposedWithoutSuffix() {
         String name = "my_column";
         LongType type = LongType.instance;
         Long composedValue = 5L;
         ByteBuffer decomposedValue = type.decompose(composedValue);
         Column<Long> column = Column.fromDecomposed(name, decomposedValue, type, true);
         assertEquals("Method #toString is wrong",
-                     "Column{fieldName=my_column, composedValue=5, type=LongType}",
+                     "Column{fullName=my_column, composedValue=5, type=LongType}",
                      column.toString());
         assertTrue("Column isNotFrozenCollection is wrong", column.isMultiCell());
     }
 
     @Test
-    public void testToStringFromDecomposedWithSufix() {
-        String name = "my";
-        String sufix = "column";
+    public void testToStringFromDecomposedWithSuffixes() {
+        String name = "my$column.name";
         LongType type = LongType.instance;
         Long composedValue = 5L;
         ByteBuffer decomposedValue = type.decompose(composedValue);
-        Column<Long> column = Column.fromDecomposed(name+"$"+sufix, decomposedValue, type, true);
+        Column<Long> column = Column.fromDecomposed(name, decomposedValue, type, true);
         assertEquals("Method #toString is wrong",
-                     "Column{fieldName=my$column, composedValue=5, type=LongType}",
+                     "Column{fullName=my$column.name, composedValue=5, type=LongType}",
                      column.toString());
         assertTrue("Column isNotFrozenCollection is wrong", column.isMultiCell());
     }
 
     @Test
-    public void testCompareToWithNull() {
-        String name = "my";
-        String sufix = "column";
-        LongType type = LongType.instance;
-        Long composedValue = 5L;
-        ByteBuffer decomposedValue = type.decompose(composedValue);
-        Column<Long> column = Column.fromDecomposed(name+"$"+sufix, decomposedValue, type, true);
-        assertEquals("Column equals is wrong", 1, column.compareTo(null));
-
+    public void testGetMapperName() {
+        Column<Long> column = Column.fromComposed("address.persons$john$doe.name$one", 2L, LongType.instance, true);
+        assertEquals("GetMapperName is wrong", "address.persons.name", column.getMapperName());
     }
 }
