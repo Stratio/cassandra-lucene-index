@@ -117,7 +117,6 @@ Not yet supported:
 -  Legacy compact storage option
 -  Indexing ``counter`` columns
 -  Columns with TTL
--  CQL user defined types
 -  Static columns
 
 Architecture
@@ -2561,9 +2560,9 @@ or:
 Collections
 ***********
 
-It is allowed to index collections as well
+CQL collections (lists, sets and maps) can be indexed.
 
-List ans Sets are indexed so:
+List ans sets are indexed in the same way as regular columns, using their base type:
 
 .. code-block:: sql
 
@@ -2586,8 +2585,7 @@ List ans Sets are indexed so:
         }'
     };
 
-
-and searches:
+Searches are also done in the same way as with regular columns:
 
 .. code-block:: sql
 
@@ -2601,7 +2599,7 @@ and searches:
     }';
 
 
-Map values are indexed by Key value so:
+Maps are indexed associating values to their keys:
 
 .. code-block:: sql
 
@@ -2624,7 +2622,7 @@ Map values are indexed by Key value so:
         }'
     };
 
-and searches using $key:
+For searching map values under a certain key you should use '$' as field-key separator:
 
 .. code-block:: sql
 
@@ -2641,25 +2639,23 @@ and searches using $key:
         }
     }';
 
-Do NOT set map keys including characters like '.' or '$'
+Please don't use map keys containing the separator chars, which are '.' and '$'.
 
-
-Indexing UDT inside collections are allowed too using the point operator
+UDTs can be indexed even while being inside collections. It is done so using '.' as name separator:
 
 .. code-block:: sql
 
-    CREATE TYPE address_udt (
+    CREATE TYPE address (
         street text,
         city text,
         zip int
     );
 
-
     CREATE TABLE user_profiles (
         login text PRIMARY KEY,
         first_name text,
         last_name text,
-        address list<frozen<address_udt>>,
+        addresses list<frozen<address>>,
         lucene text
     );
 
@@ -2669,8 +2665,8 @@ Indexing UDT inside collections are allowed too using the point operator
         'refresh_seconds' : '1',
         'schema' : '{
             fields : {
-                "address.city" : { type : "string"},
-                "address.zip"  : { type : "integer"}
+                "addresses.city" : { type : "string"},
+                "addresses.zip"  : { type : "integer"}
             }
         }'
     };

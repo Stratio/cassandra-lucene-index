@@ -7,6 +7,8 @@ Stratio's Cassandra Lucene Index
     overview
     indexing
     searching
+    user_defined_types
+    collections
     query_builder
     spark_and_hadoop
     jmx_interface

@@ -51,7 +51,6 @@ Not yet supported:
 -  Legacy compact storage option
 -  Indexing ``counter`` columns
 -  Columns with TTL
--  CQL user defined types
 -  Static columns
 
 Architecture
