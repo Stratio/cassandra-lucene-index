@@ -108,17 +108,17 @@ public class SortTest {
                                 .build();
         Comparator<Columns> comparator = sort.comparator(schema);
 
-        Column<String> column1 = Column.fromComposed("field_1", "a", UTF8Type.instance, false);
-        Column<String> column2 = Column.fromComposed("field_1", "b", UTF8Type.instance, false);
-        Column<String> column3 = Column.fromComposed("field_1", "c", UTF8Type.instance, false);
+        Column<String> column1 = Column.builder("field_1").composedValue("a", UTF8Type.instance);
+        Column<String> column2 = Column.builder("field_1").composedValue("b", UTF8Type.instance);
+        Column<String> column3 = Column.builder("field_1").composedValue("c", UTF8Type.instance);
 
-        Column<String> columnField2_1 = Column.fromComposed("field_2", "a", UTF8Type.instance, false);
-        Column<String> columnField2_2 = Column.fromComposed("field_2", "b", UTF8Type.instance, false);
-        Column<String> columnField2_3 = Column.fromComposed("field_2", "c", UTF8Type.instance, false);
+        Column<String> columnField2_1 = Column.builder("field_2").composedValue("a", UTF8Type.instance);
+        Column<String> columnField2_2 = Column.builder("field_2").composedValue("b", UTF8Type.instance);
+        Column<String> columnField2_3 = Column.builder("field_2").composedValue("c", UTF8Type.instance);
 
-        Column<String> columnField3_1 = Column.fromComposed("field_3", "e", UTF8Type.instance, false);
-        Column<String> columnField3_2 = Column.fromComposed("field_3", "d", UTF8Type.instance, false);
-        Column<String> columnField3_3 = Column.fromComposed("field_3", "c", UTF8Type.instance, false);
+        Column<String> columnField3_1 = Column.builder("field_3").composedValue("e", UTF8Type.instance);
+        Column<String> columnField3_2 = Column.builder("field_3").composedValue("d", UTF8Type.instance);
+        Column<String> columnField3_3 = Column.builder("field_3").composedValue("c", UTF8Type.instance);
 
         Columns columns1 = new Columns().add(column1).add(columnField2_1).add(columnField3_1);
         Columns columns2 = new Columns().add(column2).add(columnField2_2).add(columnField3_2);

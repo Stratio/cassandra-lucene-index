@@ -3,7 +3,7 @@
 ## 2.2.3.1 (upcoming)
 
 - Fix mapping on columns with multiple mappers
-- Fix coordinator sorting to be done with mapper's base type
+- Fix coordinator sorting to be based on mapper's base type
 
 ## 2.2.3.0 (20 November 2015)
 

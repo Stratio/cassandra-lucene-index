@@ -103,6 +103,7 @@ public class Columns implements Iterable<Column<?>> {
      * @return The {@link Column} identified by the specified full name, or {@code null} if not found.
      */
     public Columns getColumnsByFullName(String name) {
+        Column.check(name);
         Columns result = new Columns();
         for (Column<?> column : columns) {
             if (column.getFullName().equals(name)) {
@@ -119,6 +120,7 @@ public class Columns implements Iterable<Column<?>> {
      * @return The {@link Column} identified by the specified CQL cell name, or {@code null} if not found.
      */
     public Columns getColumnsByCellName(String name) {
+        Column.check(name);
         String cellName = Column.getCellName(name);
         Columns result = new Columns();
         for (Column<?> column : columns) {
@@ -136,6 +138,7 @@ public class Columns implements Iterable<Column<?>> {
      * @return The {@link Column} identified by the specified mapper name, or {@code null} if not found.
      */
     public Columns getColumnsByMapperName(String name) {
+        Column.check(name);
         String mapperName = Column.getMapperName(name);
         Columns result = new Columns();
         for (Column<?> column : columns) {

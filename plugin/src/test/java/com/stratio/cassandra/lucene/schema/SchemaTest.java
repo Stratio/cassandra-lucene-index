@@ -124,7 +124,7 @@ public class SchemaTest {
     @Test
     public void testValidateColumns() {
         Schema schema = SchemaBuilders.schema().mapper("field1", stringMapper()).build();
-        Columns columns = new Columns().add(Column.fromComposed("field1", "value", UTF8Type.instance, false));
+        Columns columns = new Columns().add(Column.builder("field1").composedValue("value", UTF8Type.instance));
         schema.validate(columns);
         schema.close();
     }
@@ -132,7 +132,7 @@ public class SchemaTest {
     @Test(expected = IndexException.class)
     public void testValidateColumnsFailing() {
         Schema schema = SchemaBuilders.schema().mapper("field1", integerMapper()).build();
-        Columns columns = new Columns().add(Column.fromComposed("field1", "value", UTF8Type.instance, false));
+        Columns columns = new Columns().add(Column.builder("field1").composedValue("value", UTF8Type.instance));
         schema.validate(columns);
         schema.close();
     }
@@ -154,7 +154,7 @@ public class SchemaTest {
     @Test
     public void testMapsAllTrue() {
         Schema schema = SchemaBuilders.schema().mapper("field1", stringMapper()).build();
-        Columns columns = new Columns().add(Column.fromComposed("field1", "value", UTF8Type.instance, false));
+        Columns columns = new Columns().add(Column.builder("field1").composedValue("value", UTF8Type.instance));
         assertTrue("Expected true", schema.mapsAll(columns));
         schema.close();
     }
@@ -165,7 +165,7 @@ public class SchemaTest {
                                       .mapper("field1", stringMapper())
                                       .mapper("field2", stringMapper())
                                       .build();
-        Columns columns = new Columns().add(Column.fromComposed("field1", "value", UTF8Type.instance, false));
+        Columns columns = new Columns().add(Column.builder("field1").composedValue("value", UTF8Type.instance));
         assertFalse("Expected false", schema.mapsAll(columns));
         schema.close();
     }
@@ -173,7 +173,7 @@ public class SchemaTest {
     @Test
     public void testAddFields() {
         Schema schema = SchemaBuilders.schema().mapper("field1", stringMapper()).build();
-        Columns columns = new Columns().add(Column.fromComposed("field1", "value", UTF8Type.instance, false));
+        Columns columns = new Columns().add(Column.builder("field1").composedValue("value", UTF8Type.instance));
         Document document = new Document();
         schema.addFields(document, columns);
         assertNotNull("Expected true", document.getField("field1"));
@@ -183,7 +183,7 @@ public class SchemaTest {
     @Test
     public void testAddFieldsFailing() {
         Schema schema = SchemaBuilders.schema().mapper("field1", integerMapper()).build();
-        Columns columns = new Columns().add(Column.fromComposed("field1", "value", UTF8Type.instance, false));
+        Columns columns = new Columns().add(Column.builder("field1").composedValue("value", UTF8Type.instance));
         Document document = new Document();
         schema.addFields(document, columns);
         assertNull("Expected true", document.getField("field1"));
@@ -196,9 +196,8 @@ public class SchemaTest {
                                       .mapper("field2.x.y.z", stringMapper())
                                       .build();
         assertNotNull("Expected true", schema.getMapper("field1"));
-        assertNotNull("Expected true", schema.getMapper("field1$a"));
-        assertNotNull("Expected true", schema.getMapper("field1$a$b"));
-        assertNotNull("Expected true", schema.getMapper("field2.x$a.y$b.z"));
+        assertNotNull("Expected true", schema.getMapper("field2.x.y.z"));
+        assertNull("Expected false", schema.getMapper("field2.x.y"));
         assertNull("Expected false", schema.getMapper("field2.x$a.y$b"));
         schema.close();
     }

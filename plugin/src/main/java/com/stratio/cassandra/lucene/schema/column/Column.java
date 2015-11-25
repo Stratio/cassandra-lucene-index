@@ -19,10 +19,11 @@
 package com.stratio.cassandra.lucene.schema.column;
 
 import com.google.common.base.Objects;
+import com.stratio.cassandra.lucene.IndexException;
 import org.apache.cassandra.db.marshal.AbstractType;
 
 import java.nio.ByteBuffer;
-import java.util.regex.Matcher;
+import java.util.List;
 import java.util.regex.Pattern;
 
 /**
@@ -39,11 +40,15 @@ public final class Column<T> {
     /** The UDT name components separator. */
     public static final String UDT_SEPARATOR = ".";
 
-    private static final Pattern MAP_PATTERN = Pattern.compile("\\$[^(\\$|\\.)]*");
-    private static final Pattern UDT_PATTERN = Pattern.compile("\\.[^(\\$|\\.)]*");
+    private static final String UDT_PATTERN = "\\.";
+    private static final String MAP_PATTERN = "\\$";
+    private static final Pattern NAME_PATTERN = Pattern.compile("[^(\\$|\\.)]*[\\.[^(\\$|\\.)]]*[\\$[^(\\$|\\.)]]*");
 
     /** The full qualified name, with UDT and map qualifiers. */
-    private final String fullName;
+    private final String cellName;
+
+    private final List<String> udtNames;
+    private final List<String> mapNames;
 
     /** The column's value as {@link ByteBuffer}. */
     private final T composedValue;
@@ -59,35 +64,51 @@ public final class Column<T> {
     /**
      * Builds a new {@link Column} with the specified name, name suffix, value, and type.
      *
-     * @param name            The field name of the column to be created.
+     * @param cellName        The name of the base cell.
+     * @param udtNames        The child UDT fields.
+     * @param mapNames        The child map keys.
      * @param decomposedValue The decomposed value of the column to be created.
      * @param composedValue   The composed value of the column to be created.
      * @param type            The type/marshaller of the column to be created.
      * @param isMultiCell     If the column is a multiCell column (not frozen Collections).
      */
-    private Column(String name,
-                   ByteBuffer decomposedValue,
-                   T composedValue,
-                   AbstractType<T> type,
-                   boolean isMultiCell) {
-        this.fullName = name;
+    Column(String cellName,
+           List<String> udtNames,
+           List<String> mapNames,
+           ByteBuffer decomposedValue,
+           T composedValue,
+           AbstractType<T> type,
+           boolean isMultiCell) {
+        this.cellName = cellName;
+        this.udtNames = udtNames;
+        this.mapNames = mapNames;
         this.composedValue = composedValue;
         this.decomposedValue = decomposedValue;
         this.type = type;
         this.isMultiCell = isMultiCell;
     }
 
+    public static ColumnBuilder builder(String cellName) {
+        return new ColumnBuilder(cellName);
+    }
+
+    public static String check(String name) {
+        if (!NAME_PATTERN.matcher(name).matches()){
+            throw new IndexException("Name %s doesn't satisfy the mandatory pattern %s", name, NAME_PATTERN.pattern());
+        }
+        return name;
+    }
+
     public static String getMapperName(String field) {
-        return MAP_PATTERN.matcher(field).replaceAll("");
+        return field.split(MAP_PATTERN)[0];
     }
 
     public String getMapperName() {
-        return getMapperName(getFullName());
+        return cellName + getUDTSuffix();
     }
 
     public static String getCellName(String field) {
-        String mapperName = getMapperName(field);
-        return UDT_PATTERN.matcher(mapperName).replaceAll("");
+        return field.split(UDT_PATTERN)[0].split(MAP_PATTERN)[0];
     }
 
     /**
@@ -96,7 +117,7 @@ public final class Column<T> {
      * @return the column name.
      */
     public String getCellName() {
-        return getCellName(fullName);
+        return cellName;
     }
 
     /**
@@ -105,7 +126,23 @@ public final class Column<T> {
      * @return The full name, which is formed by the column name and the suffix.
      */
     public String getFullName() {
-        return fullName;
+        return cellName + getUDTSuffix() + getMapSuffix();
+    }
+
+    private String getUDTSuffix() {
+        String result = "";
+        for (String udtName : udtNames) {
+            result += UDT_SEPARATOR + udtName;
+        }
+        return result;
+    }
+
+    private String getMapSuffix() {
+        String result = "";
+        for (String mapName : mapNames) {
+            result += MAP_SEPARATOR + mapName;
+        }
+        return result;
     }
 
     /**
@@ -115,12 +152,7 @@ public final class Column<T> {
      * @return The full column name appending the suffix.
      */
     public String getFieldName(String field) {
-        Matcher matcher = MAP_PATTERN.matcher(fullName);
-        String result = field;
-        while (matcher.find()) {
-            result += matcher.group();
-        }
-        return result;
+        return field + getMapSuffix();
     }
 
     /**
@@ -157,42 +189,6 @@ public final class Column<T> {
      */
     public boolean isMultiCell() {
         return isMultiCell;
-    }
-
-    /**
-     * Returns the {@link Column} defined by the specified name, raw value and type.
-     *
-     * @param name            The column name.
-     * @param decomposedValue The column raw value.
-     * @param type            The column type/marshaller.
-     * @param isMultiCell     If the {@link Column} is a multiCell column (not frozen Collections).
-     * @param <T>             The base type.
-     * @return A {@link Column}.
-     */
-    public static <T> Column<T> fromDecomposed(String name,
-                                               ByteBuffer decomposedValue,
-                                               AbstractType<T> type,
-                                               boolean isMultiCell) {
-        T composedValue = type.compose(decomposedValue);
-        return new Column<>(name, decomposedValue, composedValue, type, isMultiCell);
-    }
-
-    /**
-     * Returns the {@link Column} defined by the specified name, value and type.
-     *
-     * @param name          The column name.
-     * @param composedValue The column composed value.
-     * @param type          The column type/marshaller.
-     * @param isMultiCell   If the {@link Column} is a multiCell column (not frozen Collections).
-     * @param <T>           The base type.
-     * @return A {@link Column}.
-     */
-    public static <T> Column<T> fromComposed(String name,
-                                             T composedValue,
-                                             AbstractType<T> type,
-                                             boolean isMultiCell) {
-        ByteBuffer decomposedValue = type.decompose(composedValue);
-        return new Column<>(name, decomposedValue, composedValue, type, isMultiCell);
     }
 
     /** {@inheritDoc} */
