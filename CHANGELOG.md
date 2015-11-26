@@ -2,6 +2,8 @@
 
 ## 2.2.3.1 (upcoming)
 
+- Add support for CQL tuples
+- Add quoted field names to query builder
 - Fix mapping on columns with multiple mappers
 - Fix coordinator sorting to be based on mapper's base type
 

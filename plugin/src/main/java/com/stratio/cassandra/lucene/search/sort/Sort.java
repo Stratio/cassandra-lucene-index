@@ -22,7 +22,6 @@ import com.google.common.base.Objects;
 import com.google.common.collect.Ordering;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.column.Columns;
-import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -86,9 +85,7 @@ public class Sort implements Iterable<SortField> {
     public Comparator<Columns> comparator(Schema schema) {
         List<Comparator<Columns>> comparators = new ArrayList<>();
         for (com.stratio.cassandra.lucene.search.sort.SortField sortField : getSortFields()) {
-
-            Comparator<Columns> comparator = sortField.comparator(schema);
-            comparators.add(comparator);
+            comparators.add(sortField.comparator(schema));
         }
         return Ordering.compound(comparators);
     }

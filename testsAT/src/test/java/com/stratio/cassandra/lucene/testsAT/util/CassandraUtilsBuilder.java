@@ -76,10 +76,12 @@ public class CassandraUtilsBuilder {
         columns.put(name, type);
         String baseType = type.replaceAll("(.*)(<|,)", "").replace(">", "");
         SingleColumnMapper<?> mapper = defaultMapper(baseType);
-        if (baseType.equals(type)) {
-            mapper.sorted(true);
+        if (mapper != null) {
+            if (baseType.equals(type)) {
+                mapper.sorted(true);
+            }
+            mappers.put(name, mapper);
         }
-        mappers.put(name, mapper);
         return this;
     }
 
@@ -137,7 +139,7 @@ public class CassandraUtilsBuilder {
             case "varint":
                 return bigIntegerMapper().digits(10);
             default:
-                throw new UnsupportedOperationException();
+                return null;
         }
     }
 

@@ -123,9 +123,10 @@ public class SortField {
         } else if (o2 == null) {
             return -1;
         }
+
         String column = mapper.getColumn();
-        Column<?> column1 = o1.getColumnsByCellName(column).getFirst();
-        Column<?> column2 = o2.getColumnsByCellName(column).getFirst();
+        Column<?> column1 = o1.getColumnsByFullName(column).getFirst();
+        Column<?> column2 = o2.getColumnsByFullName(column).getFirst();
         Comparable base1 = column1 == null ? null : mapper.base(column, column1.getComposedValue());
         Comparable base2 = column2 == null ? null : mapper.base(column, column2.getComposedValue());
 

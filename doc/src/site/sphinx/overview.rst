@@ -38,9 +38,8 @@ Stratio’s Cassandra Lucene Index and its integration with Lucene search techno
 -  Relevance scoring and sorting
 -  General top-k queries
 -  Custom analyzers
--  CQL collections (list, set and map)
--  CQL User Defined Functions (UDF)
--  CQL User Defined Types (UDT)
+-  CQL complex types (list, set, map, tuple and UDT)
+-  CQL user defined functions (UDF)
 -  Third-party CQL-based drivers compatibility
 -  Spark compatibility
 -  Hadoop compatibility

@@ -40,8 +40,9 @@ public final class Column<T> {
     /** The UDT name components separator. */
     public static final String UDT_SEPARATOR = ".";
 
-    private static final String UDT_PATTERN = "\\.";
-    private static final String MAP_PATTERN = "\\$";
+    public static final String UDT_PATTERN = Pattern.quote(UDT_SEPARATOR);
+    public static final String MAP_PATTERN = Pattern.quote(MAP_SEPARATOR);
+
     private static final Pattern NAME_PATTERN = Pattern.compile("[^(\\$|\\.)]*[\\.[^(\\$|\\.)]]*[\\$[^(\\$|\\.)]]*");
 
     /** The full qualified name, with UDT and map qualifiers. */
@@ -90,6 +91,10 @@ public final class Column<T> {
 
     public static ColumnBuilder builder(String cellName) {
         return new ColumnBuilder(cellName);
+    }
+
+    public static boolean isTuple(String name) {
+        return name.contains(UDT_SEPARATOR);
     }
 
     public static String check(String name) {

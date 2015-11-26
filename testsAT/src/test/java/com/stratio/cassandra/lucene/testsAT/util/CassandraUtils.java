@@ -92,6 +92,10 @@ public class CassandraUtils {
         return table;
     }
 
+    public String getQualifiedTable() {
+        return qualifiedTable;
+    }
+
     public String getIndexColumn() {
         return indexColumn;
     }
@@ -189,6 +193,9 @@ public class CassandraUtils {
     }
 
     public CassandraUtils createIndex() {
+        if (!columns.containsKey(COLUMN)) {
+            execute("ALTER TABLE %s ADD %s text;", qualifiedTable, COLUMN);
+        }
         Index index = index(keyspace, table, indexColumn).name(this.index)
                                                          .refreshSeconds(REFRESH)
                                                          .indexingThreads(THREADS);
@@ -196,6 +203,11 @@ public class CassandraUtils {
             index.mapper(entry.getKey(), entry.getValue());
         }
         execute(index.build());
+        return this;
+    }
+
+    public CassandraUtils createUDT(UDT udt) {
+        execute(udt.toString(keyspace));
         return this;
     }
 

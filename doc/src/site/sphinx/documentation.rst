@@ -46,8 +46,10 @@ Stratio's Cassandra Lucene Index
     - `Range search <#range-search>`__
     - `Regexp search <#regexp-search>`__
     - `Wildcard search <#wildcard-search>`__
-- `User Defined Types <#user-defined-types>`__
-- `Collections <#collections>`__
+- `Complex data types <#complex-data-types>`__
+    - `Tuples <#tuples>`__
+    - `User Defined Types <#user-defined-types>`__
+    - `Collections <#collections>`__
 - `Query builder <#query-builder>`__
 - `Spark and Hadoop <#spark-and-hadoop>`__
     - `Token range searches <#token-range-searches>`__
@@ -104,9 +106,8 @@ Stratio’s Cassandra Lucene Index and its integration with Lucene search techno
 -  Relevance scoring and sorting
 -  General top-k queries
 -  Custom analyzers
--  CQL collections (list, set and map)
--  CQL User Defined Functions (UDF)
--  CQL User Defined Types (UDT)
+-  CQL complex types (list, set, map, tuple and UDT)
+-  CQL user defined functions (UDF)
 -  Third-party CQL-based drivers compatibility
 -  Spark compatibility
 -  Hadoop compatibility
@@ -2486,11 +2487,64 @@ Using Builder
     ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users")
                                     .where(eq(indexColumn, search.build()));
 
-
-User Defined Types
+Complex data types
 ******************
 
-Since Cassandra 2.2.X users can declare User Defined Types as follows:
+Tuples
+======
+
+Cassandra 2.1.x introduces the `tuple type <http://docs.datastax.com/en/cql/3.1/cql/cql_reference/tupleType.html>`__.
+You can index, search and sort tuples this way:
+
+.. code-block:: sql
+
+    CREATE TABLE collect_things (
+      k int PRIMARY KEY,
+      v tuple<int, text, float>
+    );
+
+    INSERT INTO collect_things (k, v) VALUES(0, (1, 'bar', 2.1));
+    INSERT INTO collect_things (k, v) VALUES(1, (2, 'bar', 2.1));
+    INSERT INTO collect_things (k, v) VALUES(2, (3, 'foo', 2.1));
+
+    ALTER TABLE collect_things ADD lucene text;
+    CREATE CUSTOM INDEX idx ON  collect_things (lucene) USING 'com.stratio.cassandra.lucene.Index' WITH OPTIONS = {
+    'refresh_seconds':'1',
+    'schema':'{
+        fields:{
+            "v.0":{type:"integer"},
+            "v.1":{type:"string"},
+            "v.2":{type:"float"}
+        }
+     }'};
+
+    SELECT * FROM collect_things WHERE lucene = '{
+        filter : {
+            type  : "match",
+            field : "v.0",
+            value : 1
+        }
+    }';
+
+    SELECT * FROM collect_things WHERE lucene = '{
+        filter : {
+            type  : "match",
+            field : "v.1",
+            value : "bar"
+        }
+    }';
+
+    SELECT * FROM collect_things WHERE lucene = '{
+        sort : {
+            fields : [ {field : "v.2"} ]
+        }
+    }';
+
+
+User Defined Types
+==================
+
+Since Cassandra 2.1.X users can declare `User Defined Types <http://docs.datastax.com/en/developer/java-driver/2.1/java-driver/reference/userDefinedTypes.html>`__ as follows:
 
 .. code-block:: sql
 
@@ -2500,7 +2554,6 @@ Since Cassandra 2.2.X users can declare User Defined Types as follows:
         zip int
     );
 
-
     CREATE TABLE user_profiles (
         login text PRIMARY KEY,
         first_name text,
@@ -2509,11 +2562,7 @@ Since Cassandra 2.2.X users can declare User Defined Types as follows:
         lucene text
     );
 
-
-
-and use it like a native CQL type.
-
-Indexing part of this UDT is allowed just using the "." operator as follows:
+The components of UDTs can be indexed, searched and sorted this way :
 
 .. code-block:: sql
 
@@ -2529,11 +2578,6 @@ Indexing part of this UDT is allowed just using the "." operator as follows:
         }'
     };
 
-
-and searching:
-
-.. code-block:: sql
-
     SELECT * FROM user_profiles
     WHERE lucene='{
         filter : {
@@ -2542,10 +2586,6 @@ and searching:
             value : "San Fransisco"
         }
     }';
-
-or:
-
-.. code-block:: sql
 
     SELECT * FROM user_profiles
     WHERE lucene='{
@@ -2558,9 +2598,9 @@ or:
     }';
 
 Collections
-***********
+===========
 
-CQL collections (lists, sets and maps) can be indexed.
+CQL `collections <http://docs.datastax.com/en/cql/3.0/cql/cql_using/use_collections_c.html>`__ (lists, sets and maps) can be indexed.
 
 List ans sets are indexed in the same way as regular columns, using their base type:
 
@@ -2597,7 +2637,6 @@ Searches are also done in the same way as with regular columns:
             value : "San Francisco"
         }
     }';
-
 
 Maps are indexed associating values to their keys:
 

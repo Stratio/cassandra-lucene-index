@@ -34,7 +34,7 @@ import static org.junit.Assert.assertTrue;
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
 @RunWith(JUnit4.class)
-public class CheckNonFrozenUDTTest extends BaseAT {
+public class CheckNonFrozenUDTAT extends BaseAT {
     /**
      * Now, cassandra (2.1.11, 2.2.3 ) demand that User Defined Types and collections Of
      * UDF must be frozen but this may change in next future so i include these tests to
@@ -60,7 +60,7 @@ public class CheckNonFrozenUDTTest extends BaseAT {
                                     " address address_udt);";
 
         cassandraUtils.execute(new SimpleStatement(useKeyspaceQuery));
-        cassandraUtils.execute(new SimpleStatement(addressUDT.build()));
+        cassandraUtils.execute(new SimpleStatement(addressUDT.toString()));
         try {
             cassandraUtils.execute(new SimpleStatement(tableCreationQuery));
             assertTrue("This must return InvalidQueryException but does not", false);
@@ -89,7 +89,7 @@ public class CheckNonFrozenUDTTest extends BaseAT {
                                     " address list<address_udt>);";
 
         cassandraUtils.execute(new SimpleStatement(useKeyspaceQuery));
-        cassandraUtils.execute(new SimpleStatement(addressUDT.build()));
+        cassandraUtils.execute(new SimpleStatement(addressUDT.toString()));
         try {
             cassandraUtils.execute(new SimpleStatement(tableCreationQuery));
             assertTrue("This must return InvalidQueryException but does not", false);
@@ -118,7 +118,7 @@ public class CheckNonFrozenUDTTest extends BaseAT {
                                     " address set<address_udt>);";
 
         cassandraUtils.execute(new SimpleStatement(useKeyspaceQuery));
-        cassandraUtils.execute(new SimpleStatement(addressUDT.build()));
+        cassandraUtils.execute(new SimpleStatement(addressUDT.toString()));
         try {
             cassandraUtils.execute(new SimpleStatement(tableCreationQuery));
             assertTrue("This must return InvalidQueryException but does not", false);
@@ -147,7 +147,7 @@ public class CheckNonFrozenUDTTest extends BaseAT {
                                     " address map<address_udt,int>);";
 
         cassandraUtils.execute(new SimpleStatement(useKeyspaceQuery));
-        cassandraUtils.execute(new SimpleStatement(addressUDT.build()));
+        cassandraUtils.execute(new SimpleStatement(addressUDT.toString()));
         try {
             cassandraUtils.execute(new SimpleStatement(tableCreationQuery));
             assertTrue("This must return InvalidQueryException but does not", false);
@@ -178,7 +178,7 @@ public class CheckNonFrozenUDTTest extends BaseAT {
                                     " address map<int,address_udt>);";
 
         cassandraUtils.execute(new SimpleStatement(useKeyspaceQuery));
-        cassandraUtils.execute(new SimpleStatement(addressUDT.build()));
+        cassandraUtils.execute(new SimpleStatement(addressUDT.toString()));
         try {
             cassandraUtils.execute(new SimpleStatement(tableCreationQuery));
             assertTrue("This must return InvalidQueryException but does not", false);

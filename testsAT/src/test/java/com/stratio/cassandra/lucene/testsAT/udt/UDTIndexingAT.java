@@ -42,7 +42,7 @@ import static org.junit.Assert.assertTrue;
  */
 
 @RunWith(JUnit4.class)
-public class UDTIndexingTest extends BaseAT {
+public class UDTIndexingAT extends BaseAT {
 
     private static CassandraUtils cassandraUtils;
 
@@ -73,8 +73,8 @@ public class UDTIndexingTest extends BaseAT {
                                     " ( login text PRIMARY KEY, first_name text, last_name text, address frozen<address>, lucene text);";
 
         cassandraUtils.execute(new SimpleStatement(useKeyspaceQuery));
-        cassandraUtils.execute(new SimpleStatement(geoPointUDT.build()));
-        cassandraUtils.execute(new SimpleStatement(addressUDT.build()));
+        cassandraUtils.execute(new SimpleStatement(geoPointUDT.toString()));
+        cassandraUtils.execute(new SimpleStatement(addressUDT.toString()));
         cassandraUtils.execute(new SimpleStatement(tableCreationQuery));
 
         String createIndexQuery = "CREATE CUSTOM INDEX test_index ON " +

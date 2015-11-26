@@ -37,7 +37,7 @@ import static org.junit.Assert.assertFalse;
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
 @RunWith(JUnit4.class)
-public class UDTValidationTest extends BaseAT {
+public class UDTValidationAT extends BaseAT {
 
     private static CassandraUtils cassandraUtils;
 
@@ -65,8 +65,8 @@ public class UDTValidationTest extends BaseAT {
                                     " ( login text PRIMARY KEY, first_name text, last_name text, address frozen<address>, lucene text);";
 
         cassandraUtils.execute(new SimpleStatement(useKeyspaceQuery));
-        cassandraUtils.execute(new SimpleStatement(geoPointUDT.build()));
-        cassandraUtils.execute(new SimpleStatement(addressUDT.build()));
+        cassandraUtils.execute(new SimpleStatement(geoPointUDT.toString()));
+        cassandraUtils.execute(new SimpleStatement(addressUDT.toString()));
         cassandraUtils.execute(new SimpleStatement(tableCreationQuery));
     }
 

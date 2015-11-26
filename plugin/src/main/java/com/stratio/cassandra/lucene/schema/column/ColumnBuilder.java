@@ -70,4 +70,17 @@ public class ColumnBuilder {
         mapNames.add(name);
         return this;
     }
+
+    @Override
+    public ColumnBuilder clone() {
+        ColumnBuilder clone = new ColumnBuilder(cellName);
+        clone.isMultiCell = isMultiCell;
+        for (String udtName : udtNames) {
+            clone.udtNames.add(udtName);
+        }
+        for (String mapName : mapNames) {
+            clone.mapNames.add(mapName);
+        }
+        return clone;
+    }
 }

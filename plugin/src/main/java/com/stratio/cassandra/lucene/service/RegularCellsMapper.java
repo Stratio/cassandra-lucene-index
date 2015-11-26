@@ -29,6 +29,7 @@ import org.apache.cassandra.db.ColumnFamily;
 import org.apache.cassandra.db.composites.CellName;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.CollectionType;
+import org.apache.cassandra.db.marshal.TupleType;
 import org.apache.cassandra.db.marshal.UserType;
 import org.apache.cassandra.serializers.CollectionSerializer;
 import org.apache.cassandra.serializers.MapSerializer;
@@ -113,7 +114,7 @@ public final class RegularCellsMapper {
                         ByteBuffer mapValue = MapSerializer.readValue(value, Server.CURRENT_VERSION);
                         String itemName = keyType.compose(mapKey).toString();
                         collectionType.nameComparator();
-                        Columns columnsAux = process(columnBuilder.mapName(itemName),
+                        Columns columnsAux = process(columnBuilder.clone().mapName(itemName),
                                                      valueType,
                                                      mapValue,
                                                      hasAnyNotFrozenCollectionAsParent);
@@ -129,12 +130,23 @@ public final class RegularCellsMapper {
             for (int i = 0; i < userType.fieldNames().size(); i++) {
                 String itemName = userType.fieldNameAsString(i);
                 AbstractType<?> itemType = userType.fieldType(i);
-                columns.add(process(columnBuilder.udtName(itemName),
+                columns.add(process(columnBuilder.clone().udtName(itemName),
                                     itemType,
                                     values[i],
                                     hasAnyNotFrozenCollectionAsParent));
             }
-        } else { // Basic type
+        } else if (type instanceof TupleType) {
+            TupleType tupleType = (TupleType) type;
+            ByteBuffer[] values = tupleType.split(value);
+            for (Integer i = 0; i < tupleType.size(); i++) {
+                String itemName = i.toString();
+                AbstractType<?> itemType = tupleType.type(i);
+                columns.add(process(columnBuilder.clone().udtName(itemName),
+                                    itemType,
+                                    values[i],
+                                    hasAnyNotFrozenCollectionAsParent));
+            }
+        } else { // Leaf type
             columns.add(columnBuilder.multiCell(hasAnyNotFrozenCollectionAsParent).decomposedValue(value, type));
         }
         return columns;
