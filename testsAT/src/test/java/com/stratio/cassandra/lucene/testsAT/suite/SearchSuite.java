@@ -26,6 +26,7 @@ import org.junit.runners.Suite.SuiteClasses;
 @RunWith(Suite.class)
 @SuiteClasses({AllSearchAT.class,
                FuzzySearchAT.class,
+               GeospatialSearchAT.class,
                WildcardSearchAT.class,
                MatchSearchAT.class,
                NoneSearchAT.class,

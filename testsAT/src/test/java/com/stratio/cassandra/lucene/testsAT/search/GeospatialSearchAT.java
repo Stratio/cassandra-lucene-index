@@ -1,0 +1,94 @@
+/*
+ * Licensed to STRATIO (C) under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.  The STRATIO (C) licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+package com.stratio.cassandra.lucene.testsAT.search;
+
+import com.stratio.cassandra.lucene.testsAT.BaseAT;
+import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
+
+import static com.stratio.cassandra.lucene.builder.Builder.geoPointMapper;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import static com.stratio.cassandra.lucene.builder.Builder.*;
+
+@RunWith(JUnit4.class)
+public class GeospatialSearchAT extends BaseAT {
+
+    protected static CassandraUtils cassandraUtils;
+
+    public static final Map<String, String> data1;
+    static {
+        data1 = new LinkedHashMap<>();
+        data1.put("place", "'Madrid'");
+        data1.put("latitude", "0.0");
+        data1.put("longitude", "0.0");
+    }
+
+    public static final Map<String, String> data2;
+    static {
+        data2 = new LinkedHashMap<>();
+        data2.put("place", "'Barcelona'");
+        data2.put("latitude", "50.000002");
+        data2.put("longitude", "50.000002");
+    }
+
+    @BeforeClass
+    public static void setUpSuite() {
+        cassandraUtils = CassandraUtils.builder("search")
+                                       .withPartitionKey("place")
+                                       .withClusteringKey()
+                                       .withColumn("lucene", "text", null)
+                                       .withColumn("place", "text", null)
+                                       .withColumn("latitude", "decimal", null)
+                                       .withColumn("longitude", "decimal",null)
+                                       .withMapper("location", geoPointMapper("latitude", "longitude"))
+                                       .build()
+                                       .createKeyspace()
+                                       .createTable()
+                                       .createIndex()
+                                       .insert(data1)
+                                       .insert(data2)
+                                       .refresh();
+    }
+
+
+    @AfterClass
+    public static void tearDownSuite() {
+        cassandraUtils.dropIndex().dropTable().dropKeyspace();
+    }
+
+    @Test
+    public void geoBboxSearchBasicSuccess() {
+        cassandraUtils.query(geoBBox("location", 0.0, 0.0, 0.0, 0.0)).check(1);
+        cassandraUtils.query(geoBBox("location", 0.0, 1.0, 0.0, 1.0)).check(1);
+        cassandraUtils.query(geoBBox("location", -1.0, 1.0, 0.0, 0.0)).check(1);
+        cassandraUtils.query(geoBBox("location", 1.0, 2.0, 0.0, 0.0)).check(0);
+        cassandraUtils.query(geoBBox("location", 0.0, 0.0, 1.0, 2.0)).check(0);
+        cassandraUtils.query(geoBBox("location", 1.0, 2.0, 0.0, 0.0)).check(0);
+        cassandraUtils.query(geoBBox("location", -0000.1, 0.0001, -0.0001, 0.0001)).check(1);
+        cassandraUtils.query(geoBBox("location", 50.000001, 50.000003, 50.000001, 50.000003)).check(1);
+    }
+
+}
