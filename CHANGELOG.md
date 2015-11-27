@@ -1,6 +1,8 @@
 # Changelog
 
-## 2.2.3.1 (upcoming)
+## 2.2.3.2 (upcoming)
+
+## 2.2.3.1 (27 November 2015)
 
 - Add support for CQL tuples
 - Add quoted field names to query builder
