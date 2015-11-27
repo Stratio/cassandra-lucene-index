@@ -38,16 +38,6 @@ public class CassandraConnection {
     public static Cluster cluster;
     public static Session session;
 
-    public static void start() {
-        startEmbeddedServer();
-        connect();
-    }
-
-    public static void stop() {
-        disconnect();
-        stopEmbeddedServer();
-    }
-
     public static void startEmbeddedServer() {
         if (EMBEDDED) {
             try {

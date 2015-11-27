@@ -20,6 +20,7 @@ package com.stratio.cassandra.lucene.service;
 
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.column.Column;
+import com.stratio.cassandra.lucene.schema.column.ColumnBuilder;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
@@ -28,6 +29,7 @@ import org.apache.cassandra.db.ColumnFamily;
 import org.apache.cassandra.db.composites.CellName;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.CollectionType;
+import org.apache.cassandra.db.marshal.TupleType;
 import org.apache.cassandra.db.marshal.UserType;
 import org.apache.cassandra.serializers.CollectionSerializer;
 import org.apache.cassandra.serializers.MapSerializer;
@@ -70,7 +72,7 @@ public final class RegularCellsMapper {
         return new RegularCellsMapper(metadata, schema);
     }
 
-    private Columns process(String fullName,
+    private Columns process(ColumnBuilder columnBuilder,
                             AbstractType type,
                             ByteBuffer value,
                             boolean hasAnyNotFrozenCollectionAsParent) {
@@ -84,7 +86,7 @@ public final class RegularCellsMapper {
                     int colSize = CollectionSerializer.readCollectionSize(value, Server.CURRENT_VERSION);
                     for (int j = 0; j < colSize; j++) {
                         ByteBuffer itemValue = CollectionSerializer.readValue(value, Server.CURRENT_VERSION);
-                        columns.add(process(fullName,
+                        columns.add(process(columnBuilder,
                                             nameType,
                                             itemValue,
                                             hasAnyNotFrozenCollectionAsParent));
@@ -96,7 +98,7 @@ public final class RegularCellsMapper {
                     int colSize = CollectionSerializer.readCollectionSize(value, Server.CURRENT_VERSION);
                     for (int j = 0; j < colSize; j++) {
                         ByteBuffer itemValue = CollectionSerializer.readValue(value, Server.CURRENT_VERSION);
-                        columns.add(process(fullName,
+                        columns.add(process(columnBuilder,
                                             valueType,
                                             itemValue,
                                             hasAnyNotFrozenCollectionAsParent));
@@ -112,7 +114,7 @@ public final class RegularCellsMapper {
                         ByteBuffer mapValue = MapSerializer.readValue(value, Server.CURRENT_VERSION);
                         String itemName = keyType.compose(mapKey).toString();
                         collectionType.nameComparator();
-                        Columns columnsAux = process(Column.joinMapItemName(fullName, itemName),
+                        Columns columnsAux = process(columnBuilder.clone().mapName(itemName),
                                                      valueType,
                                                      mapValue,
                                                      hasAnyNotFrozenCollectionAsParent);
@@ -128,13 +130,24 @@ public final class RegularCellsMapper {
             for (int i = 0; i < userType.fieldNames().size(); i++) {
                 String itemName = userType.fieldNameAsString(i);
                 AbstractType<?> itemType = userType.fieldType(i);
-                columns.add(process(Column.joinUDTItemName(fullName, itemName),
+                columns.add(process(columnBuilder.clone().udtName(itemName),
                                     itemType,
                                     values[i],
                                     hasAnyNotFrozenCollectionAsParent));
             }
-        } else {//basic type
-            columns.add(Column.fromDecomposed(fullName, value, type, hasAnyNotFrozenCollectionAsParent));
+        } else if (type instanceof TupleType) {
+            TupleType tupleType = (TupleType) type;
+            ByteBuffer[] values = tupleType.split(value);
+            for (Integer i = 0; i < tupleType.size(); i++) {
+                String itemName = i.toString();
+                AbstractType<?> itemType = tupleType.type(i);
+                columns.add(process(columnBuilder.clone().udtName(itemName),
+                                    itemType,
+                                    values[i],
+                                    hasAnyNotFrozenCollectionAsParent));
+            }
+        } else { // Leaf type
+            columns.add(columnBuilder.multiCell(hasAnyNotFrozenCollectionAsParent).decomposedValue(value, type));
         }
         return columns;
     }
@@ -176,12 +189,12 @@ public final class RegularCellsMapper {
                     case SET: {
                         AbstractType<?> type = collectionType.nameComparator();
                         ByteBuffer value = cell.name().collectionElement();
-                        columns.add(process(name, type, value, true));
+                        columns.add(process(Column.builder(name), type, value, true));
                         break;
                     }
                     case LIST: {
                         AbstractType<?> type = collectionType.valueComparator();
-                        columns.add(process(name, type, cell.value(), true));
+                        columns.add(process(Column.builder(name), type, cell.value(), true));
                         break;
                     }
                     case MAP: {
@@ -189,12 +202,13 @@ public final class RegularCellsMapper {
                         ByteBuffer keyValue = cell.name().collectionElement();
                         AbstractType<?> keyType = collectionType.nameComparator();
                         String nameSuffix = keyType.compose(keyValue).toString();
-                        columns.add(process(Column.joinMapItemName(name, nameSuffix), type, cell.value(), true));
+                        ColumnBuilder columnBuilder = Column.builder(name).mapName(nameSuffix);
+                        columns.add(process(columnBuilder, type, cell.value(), true));
                         break;
                     }
                 }
             } else {
-                columns.add(process(name, valueType, cell.value(), false));
+                columns.add(process(Column.builder(name), valueType, cell.value(), false));
             }
         }
         return columns;

@@ -40,9 +40,12 @@ public class UDT {
         return this;
     }
 
-    public String build() {
+    public String toString(String keyspace) {
         StringBuilder sb = new StringBuilder();
         sb.append("CREATE TYPE ");
+        if (keyspace != null) {
+            sb.append(keyspace).append(".");
+        }
         sb.append(name);
         sb.append(" ( ");
         Set<String> set = this.map.keySet();
@@ -58,5 +61,10 @@ public class UDT {
         }
         sb.append(");");
         return sb.toString();
+    }
+
+    @Override
+    public String toString() {
+        return toString(null);
     }
 }

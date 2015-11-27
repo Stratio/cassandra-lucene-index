@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
@@ -41,24 +40,22 @@ public class ColumnsTest {
     @Test
     public void testAdd() {
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("field1", "value1", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("field2", "value2", UTF8Type.instance, false));
+        columns.add(Column.builder("field1").composedValue("value1", UTF8Type.instance));
+        columns.add(Column.builder("field2").composedValue("value2", UTF8Type.instance));
         assertEquals("Columns size is wrong", 2, columns.size());
     }
 
     @Test
     public void testAddAll() {
-        Columns columns = new Columns();
-        columns.add(new Columns().add(Column.fromComposed("field1", "value1", UTF8Type.instance, false))
-                                 .add(Column.fromComposed("field2", "value2", UTF8Type.instance, false)));
+        Columns columns = new Columns().add(Column.builder("field1").composedValue("value1", UTF8Type.instance))
+                                       .add(Column.builder("field2").composedValue("value2", UTF8Type.instance));
         assertEquals("Columns size is wrong", 2, columns.size());
     }
 
     @Test
     public void testIterator() {
-        Columns columns = new Columns();
-        columns.add(new Columns().add(Column.fromComposed("field1", "value1", UTF8Type.instance, false))
-                                 .add(Column.fromComposed("field2", "value2", UTF8Type.instance, false)));
+        Columns columns = new Columns().add(Column.builder("field1").composedValue("value1", UTF8Type.instance))
+                                       .add(Column.builder("field2").composedValue("value2", UTF8Type.instance));
         List<Column<?>> columnList = new ArrayList<>();
         for (Column<?> column : columns) {
             columnList.add(column);
@@ -67,32 +64,53 @@ public class ColumnsTest {
     }
 
     @Test
-    public void testGetColumnsByFullName() {
+    public void testGetColumnsByCellName() {
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("field1", "value1", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("field2", "value2", UTF8Type.instance, false));
-        assertEquals("Columns size is wrong", 1, columns.getColumnsByFullName("field1").size());
-        assertEquals("Columns size is wrong", 1, columns.getColumnsByFullName("field2").size());
-        assertTrue("Columns getColumnsByFullName is wrong", columns.getColumnsByFullName("field3").isEmpty());
+        columns.add(Column.builder("field1").composedValue("value", UTF8Type.instance));
+        columns.add(Column.builder("field1").udtName("1").composedValue("value", UTF8Type.instance));
+        columns.add(Column.builder("field1").mapName("1").composedValue("value", UTF8Type.instance));
+        columns.add(Column.builder("field1").udtName("1").mapName("1").composedValue("value", UTF8Type.instance));
+        assertEquals("Columns size is wrong", 4, columns.getColumnsByCellName("field1").size());
+        assertEquals("Columns size is wrong", 4, columns.getColumnsByCellName("field1.1").size());
+        assertEquals("Columns size is wrong", 4, columns.getColumnsByCellName("field1$1").size());
+        assertEquals("Columns size is wrong", 4, columns.getColumnsByCellName("field1.1$1$2").size());
+        assertEquals("Columns size is wrong", 4, columns.getColumnsByCellName("field1.2").size());
+        assertEquals("Columns size is wrong", 0, columns.getColumnsByCellName("field2").size());
     }
 
     @Test
-    public void testGetColumnsByName() {
+    public void testGetColumnsByFullName() {
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("field1$item1", "value1", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("field1$item2", "value1", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("field2$item1", "value2", UTF8Type.instance, false));
-        assertEquals("Columns size is wrong", 2, columns.getColumnsByName("field1").size());
-        assertEquals("Columns size is wrong", 0, columns.getColumnsByFullName("field1").size());
-        assertEquals("Columns size is wrong", 1, columns.getColumnsByFullName("field1$item1").size());
-        assertEquals("Columns size is wrong", 1, columns.getColumnsByFullName("field1$item2").size());
-        assertEquals("Columns size is wrong", 1, columns.getColumnsByName("field2").size());
+        columns.add(Column.builder("field1").composedValue("value", UTF8Type.instance));
+        columns.add(Column.builder("field1").udtName("1").composedValue("value", UTF8Type.instance));
+        columns.add(Column.builder("field1").mapName("1").composedValue("value", UTF8Type.instance));
+        columns.add(Column.builder("field1").udtName("1").mapName("1").composedValue("value", UTF8Type.instance));
+        columns.add(Column.builder("field1").udtName("1").udtName("1").composedValue("value", UTF8Type.instance));
+        columns.add(Column.builder("field1").mapName("1").mapName("1").composedValue("value", UTF8Type.instance));
+        assertEquals("Columns size is wrong", 1, columns.getColumnsByFullName("field1").size());
+        assertEquals("Columns size is wrong", 1, columns.getColumnsByFullName("field1.1").size());
+        assertEquals("Columns size is wrong", 1, columns.getColumnsByFullName("field1.1.1").size());
+        assertEquals("Columns size is wrong", 1, columns.getColumnsByFullName("field1$1").size());
+        assertEquals("Columns size is wrong", 1, columns.getColumnsByFullName("field1.1$1").size());
+        assertEquals("Columns size is wrong", 1, columns.getColumnsByFullName("field1$1$1").size());
         assertEquals("Columns size is wrong", 0, columns.getColumnsByFullName("field2").size());
-        assertEquals("Columns size is wrong",
-                     1,
-                     columns.getColumnsByFullName("field2$item1").size());
-                                                  assertTrue("Columns getColumnsByFullName is wrong",
-                                                             columns.getColumnsByFullName("field3").isEmpty());
+    }
+
+    @Test
+    public void testGetColumnsByMapperName() {
+        Columns columns = new Columns();
+        columns.add(Column.builder("field1").composedValue("value", UTF8Type.instance));
+        columns.add(Column.builder("field1").udtName("1").composedValue("value", UTF8Type.instance));
+        columns.add(Column.builder("field1").mapName("1").composedValue("value", UTF8Type.instance));
+        columns.add(Column.builder("field1").udtName("1").mapName("1").composedValue("value", UTF8Type.instance));
+        columns.add(Column.builder("field1").udtName("1").udtName("1").composedValue("value", UTF8Type.instance));
+        columns.add(Column.builder("field1").mapName("1").mapName("1").composedValue("value", UTF8Type.instance));
+        assertEquals("Columns size is wrong", 3, columns.getColumnsByMapperName("field1").size());
+        assertEquals("Columns size is wrong", 2, columns.getColumnsByMapperName("field1.1").size());
+        assertEquals("Columns size is wrong", 3, columns.getColumnsByMapperName("field1$1").size());
+        assertEquals("Columns size is wrong", 2, columns.getColumnsByMapperName("field1.1$2").size());
+        assertEquals("Columns size is wrong", 1, columns.getColumnsByMapperName("field1.1.1").size());
+        assertEquals("Columns size is wrong", 0, columns.getColumnsByMapperName("field2").size());
     }
 
     @Test
@@ -103,11 +121,15 @@ public class ColumnsTest {
     @Test
     public void testToStringWithColumns() {
         Columns columns = new Columns();
-        columns.add(Column.fromComposed("field1$item1", "value1", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("field1$item2", "value1", UTF8Type.instance, false));
-        columns.add(Column.fromComposed("field2$item1", "value2", UTF8Type.instance, false));
+        columns.add(Column.builder("field1").composedValue("value", UTF8Type.instance));
+        columns.add(Column.builder("field1").udtName("1").composedValue("value", UTF8Type.instance));
+        columns.add(Column.builder("field1").mapName("1").composedValue("value", UTF8Type.instance));
+        columns.add(Column.builder("field1").udtName("1").mapName("1").composedValue("value", UTF8Type.instance));
+        columns.add(Column.builder("field1").udtName("1").udtName("1").composedValue("value", UTF8Type.instance));
+        columns.add(Column.builder("field1").mapName("1").mapName("1").composedValue("value", UTF8Type.instance));
         assertEquals("Method #toString is wrong",
-                     "Columns{field1$item1=value1, field1$item2=value1, field2$item1=value2}",
+                     "Columns{field1=value, field1.1=value, field1$1=value, " +
+                     "field1.1$1=value, field1.1.1=value, field1$1$1=value}",
                      columns.toString());
     }
 }

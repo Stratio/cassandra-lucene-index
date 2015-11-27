@@ -84,11 +84,10 @@ public class StringMapperTest extends AbstractMapperTest {
         testJson(builder, "{type:\"string\"}");
     }
 
-    @Test()
+    @Test
     public void testValueNull() {
         StringMapper mapper = new StringMapper("field", null, true, true, true);
-        String parsed = mapper.base("test", null);
-        assertNull("Base for nulls is wrong", parsed);
+        assertNull("Base for nulls is wrong", mapper.base("test", null));
     }
 
     @Test
@@ -118,7 +117,6 @@ public class StringMapperTest extends AbstractMapperTest {
         String parsed = mapper.base("test", new Byte("3"));
         assertEquals("Base for longs is wrong", "3", parsed);
     }
-
 
     @Test
     public void testValueFloatWithoutDecimal() {
@@ -237,7 +235,7 @@ public class StringMapperTest extends AbstractMapperTest {
     public void testAddFields() {
         StringMapper mapper = new StringMapper("field", null, true, true, null);
         Document document = new Document();
-        Column<?> column = Column.fromComposed("field", "value", UTF8Type.instance, false);
+        Column<?> column = Column.builder("field").composedValue("value", UTF8Type.instance);
         Columns columns = new Columns(column);
         mapper.addFields(document, columns);
         IndexableField[] indexableFields = document.getFields("field");

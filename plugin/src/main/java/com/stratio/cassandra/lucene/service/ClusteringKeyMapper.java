@@ -254,7 +254,7 @@ public final class ClusteringKeyMapper {
                     String name = columnDefinition.name.toString();
                     if (schema.maps(name)) {
                         AbstractType<?> valueType = columnDefinition.type;
-                        columns.add(Column.fromDecomposed(name, value, valueType, false));
+                        columns.add(Column.builder(name).decomposedValue(value, valueType));
                     }
                 }
             }

@@ -18,6 +18,7 @@
 
 package com.stratio.cassandra.lucene.search.sort;
 
+import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import org.apache.cassandra.db.marshal.UTF8Type;
@@ -27,9 +28,10 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.schema;
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.stringMapper;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
@@ -91,28 +93,32 @@ public class SortTest {
     @Test
     public void testComparator() {
 
-        SortField sortField = new SortField("field", false);
+        SortField sortField1 = new SortField("field_1", false);
         SortField sortField2 = new SortField("field_2", false);
         SortField sortField3 = new SortField("field_3", false);
         List<SortField> sortFields = new ArrayList<>();
-        sortFields.add(sortField);
+        sortFields.add(sortField1);
         sortFields.add(sortField2);
         sortFields.add(sortField3);
         Sort sort = new Sort(sortFields);
 
-        Comparator<Columns> comparator = sort.comparator();
+        Schema schema = schema().mapper("field_1", stringMapper().sorted(true))
+                                .mapper("field_2", stringMapper().sorted(true))
+                                .mapper("field_3", stringMapper().sorted(true))
+                                .build();
+        Comparator<Columns> comparator = sort.comparator(schema);
 
-        Column<String> column1 = Column.fromComposed("field", "a", UTF8Type.instance, false);
-        Column<String> column2 = Column.fromComposed("field", "b", UTF8Type.instance, false);
-        Column<String> column3 = Column.fromComposed("field", "c", UTF8Type.instance, false);
+        Column<String> column1 = Column.builder("field_1").composedValue("a", UTF8Type.instance);
+        Column<String> column2 = Column.builder("field_1").composedValue("b", UTF8Type.instance);
+        Column<String> column3 = Column.builder("field_1").composedValue("c", UTF8Type.instance);
 
-        Column<String> columnField2_1 = Column.fromComposed("field_2", "a", UTF8Type.instance, false);
-        Column<String> columnField2_2 = Column.fromComposed("field_2", "b", UTF8Type.instance, false);
-        Column<String> columnField2_3 = Column.fromComposed("field_2", "c", UTF8Type.instance, false);
+        Column<String> columnField2_1 = Column.builder("field_2").composedValue("a", UTF8Type.instance);
+        Column<String> columnField2_2 = Column.builder("field_2").composedValue("b", UTF8Type.instance);
+        Column<String> columnField2_3 = Column.builder("field_2").composedValue("c", UTF8Type.instance);
 
-        Column<String> columnField3_1 = Column.fromComposed("field_3", "e", UTF8Type.instance, false);
-        Column<String> columnField3_2 = Column.fromComposed("field_3", "d", UTF8Type.instance, false);
-        Column<String> columnField3_3 = Column.fromComposed("field_3", "c", UTF8Type.instance, false);
+        Column<String> columnField3_1 = Column.builder("field_3").composedValue("e", UTF8Type.instance);
+        Column<String> columnField3_2 = Column.builder("field_3").composedValue("d", UTF8Type.instance);
+        Column<String> columnField3_3 = Column.builder("field_3").composedValue("c", UTF8Type.instance);
 
         Columns columns1 = new Columns().add(column1).add(columnField2_1).add(columnField3_1);
         Columns columns2 = new Columns().add(column2).add(columnField2_2).add(columnField3_2);

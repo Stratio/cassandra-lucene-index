@@ -38,8 +38,9 @@ Stratio’s Cassandra Lucene Index and its integration with Lucene search techno
 -  Relevance scoring and sorting
 -  General top-k queries
 -  Custom analyzers
--  CQL3 support
--  Third-party drivers compatibility
+-  CQL complex types (list, set, map, tuple and UDT)
+-  CQL user defined functions (UDF)
+-  Third-party CQL-based drivers compatibility
 -  Spark compatibility
 -  Hadoop compatibility
 
@@ -49,7 +50,6 @@ Not yet supported:
 -  Legacy compact storage option
 -  Indexing ``counter`` columns
 -  Columns with TTL
--  CQL user defined types
 -  Static columns
 
 Architecture

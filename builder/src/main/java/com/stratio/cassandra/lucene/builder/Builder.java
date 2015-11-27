@@ -45,7 +45,7 @@ public abstract class Builder {
     private static final ObjectMapper jsonMapper = new ObjectMapper();
 
     static {
-        jsonMapper.configure(JsonGenerator.Feature.QUOTE_FIELD_NAMES, false);
+        jsonMapper.configure(JsonGenerator.Feature.QUOTE_FIELD_NAMES, true);
         jsonMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
         jsonMapper.configure(SerializationConfig.Feature.AUTO_DETECT_IS_GETTERS, false);
         jsonMapper.setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);

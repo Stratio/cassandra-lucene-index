@@ -34,7 +34,6 @@ import org.apache.lucene.search.SortField;
 
 import java.nio.ByteBuffer;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import static org.apache.cassandra.db.marshal.CollectionType.Kind.LIST;
 import static org.apache.cassandra.db.marshal.CollectionType.Kind.SET;
@@ -165,30 +164,36 @@ public abstract class Mapper {
     }
 
     /**
-     * Find the child Node {@link AbstractType} by name
+     * Finds the child {@link AbstractType} by its name.
      *
-     * @param parent   the parent {@link AbstractType}
-     * @param leafName the leaf Node name
-     * @return the Child {@link AbstractType} if exists
+     * @param parent   The parent {@link AbstractType}.
+     * @param childName The name of the child {@link AbstractType}.
+     * @return The child {@link AbstractType}, or {@code null} if it doesn't exist.
      */
-    private AbstractType<?> findChildNode(AbstractType<?> parent, String leafName) {
+    private AbstractType<?> findChildType(AbstractType<?> parent, String childName) {
         if (parent instanceof UserType) {
             UserType userType = (UserType) parent;
             for (int i = 0; i < userType.fieldNames().size(); i++) {
-                if (userType.fieldNameAsString(i).equals(leafName)) {
+                if (userType.fieldNameAsString(i).equals(childName)) {
                     return userType.fieldType(i);
                 }
             }
-        }
-        if (parent.isCollection()) {
+        } else if (parent instanceof TupleType) {
+            TupleType tupleType = (TupleType) parent;
+            for (Integer i = 0; i < tupleType.size(); i++) {
+                if (i.toString().equals(childName)) {
+                    return tupleType.type(i);
+                }
+            }
+        } else if (parent.isCollection()) {
             CollectionType<?> collType = (CollectionType<?>) parent;
             switch (collType.kind) {
                 case SET:
-                    return findChildNode(collType.nameComparator(), leafName);
+                    return findChildType(collType.nameComparator(), childName);
                 case LIST:
-                    return findChildNode(collType.valueComparator(), leafName);
+                    return findChildType(collType.valueComparator(), childName);
                 case MAP:
-                    return findChildNode(collType.valueComparator(), leafName);
+                    return findChildType(collType.valueComparator(), childName);
                 default:
                     break;
             }
@@ -197,13 +202,14 @@ public abstract class Mapper {
     }
 
     /**
-     * Validates this {@link Mapper} against the specified UDT type column.
+     * Validates this {@link Mapper} against the specified tuple type column.
      *
      * @param metadata A column family {@link CFMetaData}.
-     * @param column   The name of the UDT column to be validated.
+     * @param column   The name of the tuple column to be validated.
      */
-    private void validateUDT(CFMetaData metadata, String column) {
-        String[] names = column.split(Pattern.quote("."));
+    private void validateTuple(CFMetaData metadata, String column) {
+
+        String[] names = column.split(Column.UDT_PATTERN);
         int numMatches = names.length;
 
         ByteBuffer parentColName = UTF8Type.instance.decompose(names[0]);
@@ -218,8 +224,8 @@ public abstract class Mapper {
         AbstractType<?> actualType = parentCD.type;
         String columnIterator = names[0];
         for (int i = 1; i < names.length; i++) {
-            columnIterator += "." + names[i];
-            actualType = findChildNode(actualType, names[i]);
+            columnIterator += Column.UDT_SEPARATOR + names[i];
+            actualType = findChildType(actualType, names[i]);
             if (actualType == null) {
                 throw new IndexException("No column definition '%s' for mapper '%s'", columnIterator, field);
             }
@@ -236,8 +242,8 @@ public abstract class Mapper {
      * @param column   The name of the column to be validated.
      */
     private void validate(CFMetaData metadata, String column) {
-        if (column.contains(".")) {
-            validateUDT(metadata, column);
+        if (Column.isTuple(column)) {
+            validateTuple(metadata, column);
         } else {
             ByteBuffer columnName = UTF8Type.instance.decompose(column);
             ColumnDefinition columnDefinition = metadata.getColumnDefinition(columnName);
@@ -281,7 +287,7 @@ public abstract class Mapper {
      */
     public final boolean maps(Columns columns) {
         for (String columnName : mappedColumns) {
-            Columns mapperColumns = columns.getColumnsByName(columnName);
+            Columns mapperColumns = columns.getColumnsByCellName(columnName);
             if (mapperColumns.isEmpty()) {
                 return false;
             }

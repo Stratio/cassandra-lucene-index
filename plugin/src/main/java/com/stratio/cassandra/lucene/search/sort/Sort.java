@@ -79,13 +79,13 @@ public class Sort implements Iterable<SortField> {
     /**
      * Returns the {@link Columns} {@link Comparator} specified by this {@link Sort}.
      *
+     * @param schema The used {@link Schema}.
      * @return The {@link Columns} {@link Comparator} specified by this {@link Sort}.
      */
-    public Comparator<Columns> comparator() {
+    public Comparator<Columns> comparator(Schema schema) {
         List<Comparator<Columns>> comparators = new ArrayList<>();
         for (com.stratio.cassandra.lucene.search.sort.SortField sortField : getSortFields()) {
-            Comparator<Columns> comparator = sortField.comparator();
-            comparators.add(comparator);
+            comparators.add(sortField.comparator(schema));
         }
         return Ordering.compound(comparators);
     }

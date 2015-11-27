@@ -178,7 +178,7 @@ public abstract class RowMapper {
     public Comparator<Row> comparator(Search search) {
         List<Comparator<Row>> comparators = new ArrayList<>();
         if (search.usesSorting()) {
-            final Comparator<Columns> comparator = search.getSort().comparator();
+            final Comparator<Columns> comparator = search.getSort().comparator(schema);
             comparators.add(new Comparator<Row>() {
                 @Override
                 public int compare(Row row1, Row row2) {

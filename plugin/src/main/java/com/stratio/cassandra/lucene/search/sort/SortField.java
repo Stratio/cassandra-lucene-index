@@ -24,6 +24,7 @@ import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
+import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Comparator;
@@ -103,17 +104,19 @@ public class SortField {
     /**
      * Returns a Java {@link Comparator} for {@link Columns} with the same logic as this {@link SortField}.
      *
+     * @param schema The used {@link Schema}.
      * @return A Java {@link Comparator} for {@link Columns} with the same logic as this {@link SortField}.
      */
-    public Comparator<Columns> comparator() {
+    public Comparator<Columns> comparator(Schema schema) {
+        final SingleColumnMapper mapper = schema.getSingleColumnMapper(field);
         return new Comparator<Columns>() {
             public int compare(Columns o1, Columns o2) {
-                return SortField.this.compare(o1, o2);
+                return SortField.this.compare(mapper, o1, o2);
             }
         };
     }
 
-    protected int compare(Columns o1, Columns o2) {
+    protected int compare(SingleColumnMapper mapper, Columns o1, Columns o2) {
 
         if (o1 == null) {
             return o2 == null ? 0 : 1;
@@ -121,13 +124,17 @@ public class SortField {
             return -1;
         }
 
-        Column<?> column1 = o1.getColumnsByFullName(field).getFirst();
-        Column<?> column2 = o2.getColumnsByFullName(field).getFirst();
+        String column = mapper.getColumn();
+        Column<?> column1 = o1.getColumnsByFullName(column).getFirst();
+        Column<?> column2 = o2.getColumnsByFullName(column).getFirst();
+        Comparable base1 = column1 == null ? null : mapper.base(column, column1.getComposedValue());
+        Comparable base2 = column2 == null ? null : mapper.base(column, column2.getComposedValue());
 
-        return compare(column1, column2);
+        return compare(base1, base2);
     }
 
-    protected int compare(Column<?> column1, Column<?> column2) {
+    @SuppressWarnings("unchecked")
+    protected int compare(Comparable column1, Comparable column2) {
         if (column1 == null) {
             return column2 == null ? 0 : 1;
         } else if (column2 == null) {

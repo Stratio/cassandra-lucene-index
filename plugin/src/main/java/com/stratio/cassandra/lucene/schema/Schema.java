@@ -23,6 +23,7 @@ import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
+import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
@@ -103,30 +104,13 @@ public class Schema implements Closeable {
      * @return The {@link Mapper} identified by the specified field name, or {@code null} if not found.
      */
     public Mapper getMapper(String field) {
-        Mapper mapper;
+        String mapperName = Column.getMapperName(field);
+        return mappers.get(mapperName);
+    }
 
-        String fieldName = Column.getMapperNameByFullName(field);
-
-        mapper = mappers.get(fieldName);
-        if (mapper != null) {
-            return mapper;
-        }
-
-        String[] components = field.split("\\.");
-        for (int i = components.length - 1; i >= 0; i--) {
-            StringBuilder sb = new StringBuilder();
-            for (int j = 0; j <= i; j++) {
-                sb.append(components[j]);
-                if (j < i) {
-                    sb.append('.');
-                }
-            }
-            mapper = mappers.get(sb.toString());
-            if (mapper != null) {
-                return mapper;
-            }
-        }
-        return null;
+    public SingleColumnMapper getSingleColumnMapper(String field) {
+        Mapper mapper = getMapper(field);
+        return mapper == null ? null : (SingleColumnMapper) mapper;
     }
 
     /**

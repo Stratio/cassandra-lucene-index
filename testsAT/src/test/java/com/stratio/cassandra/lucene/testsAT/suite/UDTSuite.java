@@ -18,10 +18,10 @@
 
 package com.stratio.cassandra.lucene.testsAT.suite;
 
-import com.stratio.cassandra.lucene.testsAT.udt.CheckNonFrozenUDTTest;
-import com.stratio.cassandra.lucene.testsAT.udt.UDTCollectionsTest;
-import com.stratio.cassandra.lucene.testsAT.udt.UDTIndexingTest;
-import com.stratio.cassandra.lucene.testsAT.udt.UDTValidationTest;
+import com.stratio.cassandra.lucene.testsAT.udt.CheckNonFrozenUDTAT;
+import com.stratio.cassandra.lucene.testsAT.udt.UDTCollectionsAT;
+import com.stratio.cassandra.lucene.testsAT.udt.UDTIndexingAT;
+import com.stratio.cassandra.lucene.testsAT.udt.UDTValidationAT;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
@@ -29,10 +29,10 @@ import org.junit.runners.Suite;
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
 @RunWith(Suite.class)
-@Suite.SuiteClasses({UDTValidationTest.class,
-                     UDTIndexingTest.class,
-                     UDTCollectionsTest.class,
-                     CheckNonFrozenUDTTest.class})
+@Suite.SuiteClasses({UDTValidationAT.class,
+                     UDTIndexingAT.class,
+                     UDTCollectionsAT.class,
+                     CheckNonFrozenUDTAT.class})
 public class UDTSuite {
 
 }
