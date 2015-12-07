@@ -2,6 +2,8 @@
 
 ## 2.2.3.2 (upcoming)
 
+- Add support for CQL DISTINCT operator (#69)
+
 ## 2.2.3.1 (27 November 2015)
 
 - Add support for CQL tuples

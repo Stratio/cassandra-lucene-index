@@ -244,6 +244,7 @@ public abstract class RowService {
      * @param limit       The max number of {@link Row}s to be returned.
      * @param timestamp   The operation time stamp.
      * @param after       A {@link RowKey} to start the search after.
+     * @param distinct    If CQL DISTINCT operator is used.
      * @return The {@link Row}s satisfying the specified restrictions.
      * @throws IOException If there are I/O errors.
      */
@@ -252,7 +253,8 @@ public abstract class RowService {
                                   DataRange dataRange,
                                   final int limit,
                                   long timestamp,
-                                  RowKey after) throws IOException {
+                                  RowKey after,
+                                  boolean distinct) throws IOException {
 
         // Setup stats
         TimeCounter afterTime = TimeCounter.create();
@@ -287,6 +289,7 @@ public abstract class RowService {
 
         SearcherManager searcherManager = lucene.getSearcherManager();
         IndexSearcher searcher = searcherManager.acquire();
+        Set<DecoratedKey> partitionKeys = new HashSet<>();
         try {
 
             // Get last position
@@ -300,13 +303,21 @@ public abstract class RowService {
                 Set<String> fields = fieldsToLoad();
                 Map<Document, ScoreDoc> docs = lucene.search(searcher, query, sort, last, page, fields);
                 List<SearchResult> searchResults = new ArrayList<>(docs.size());
+                int numIterationDocs = 0;
                 for (Map.Entry<Document, ScoreDoc> entry : docs.entrySet()) {
                     Document document = entry.getKey();
                     ScoreDoc scoreDoc = entry.getValue();
                     last = scoreDoc;
-                    searchResults.add(mapper.searchResult(document, scoreDoc));
+                    SearchResult searchResult = mapper.searchResult(document, scoreDoc);
+                    DecoratedKey partitionKey = searchResult.getPartitionKey();
+                    if (!(distinct && (partitionKeys.contains(partitionKey)
+                                       || after != null && after.getPartitionKey().equals(partitionKey)))) {
+                        searchResults.add(searchResult);
+                        partitionKeys.add(partitionKey);
+                    }
+                    numIterationDocs++;
                 }
-                numDocs += searchResults.size();
+                numDocs += numIterationDocs;
                 queryTime.stop();
 
                 // Collect rows from Cassandra
@@ -320,7 +331,7 @@ public abstract class RowService {
                 storeTime.stop();
 
                 // Setup next iteration
-                mayBeMoreDocs = searchResults.size() == page;
+                mayBeMoreDocs = numIterationDocs == page;
                 remainingRows = limit - numRows;
                 page = min(max(MIN_PAGE_SIZE, remainingRows), MAX_PAGE_SIZE);
                 numPages++;
