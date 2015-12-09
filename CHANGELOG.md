@@ -2,6 +2,8 @@
 
 ## 2.2.4.0 (upcoming)
 
+- Upgrade to Apache Cassandra 2.2.4
+
 ## 2.2.3.2 (9 December 2015)
 
 - Add support for CQL DISTINCT operator (#69)
