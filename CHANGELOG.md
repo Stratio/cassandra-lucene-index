@@ -1,7 +1,10 @@
 # Changelog
 
-
 ## 2.2.4.0 (upcoming)
+
+## 2.2.3.2 (9 December 2015)
+
+- Add support for CQL DISTINCT operator (#69)
 
 ## 2.2.3.1 (27 November 2015)
 

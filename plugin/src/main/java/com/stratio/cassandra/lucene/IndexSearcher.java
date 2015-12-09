@@ -29,10 +29,13 @@ import org.apache.cassandra.db.DataRange;
 import org.apache.cassandra.db.IndexExpression;
 import org.apache.cassandra.db.Row;
 import org.apache.cassandra.db.filter.ExtendedFilter;
+import org.apache.cassandra.db.filter.IDiskAtomFilter;
+import org.apache.cassandra.db.filter.SliceQueryFilter;
 import org.apache.cassandra.db.index.SecondaryIndexManager;
 import org.apache.cassandra.db.index.SecondaryIndexSearcher;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.exceptions.InvalidRequestException;
+import org.apache.cassandra.utils.ByteBufferUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,17 +82,27 @@ public class IndexSearcher extends SecondaryIndexSearcher {
     @Override
     public List<Row> search(ExtendedFilter extendedFilter) {
         try {
+            boolean distinct = isDistinct(extendedFilter);
             RowKey after = after(extendedFilter.getClause());
             long timestamp = extendedFilter.timestamp;
             int limit = extendedFilter.currentLimit();
             DataRange dataRange = extendedFilter.dataRange;
             List<IndexExpression> clause = extendedFilter.getClause();
-            List<IndexExpression> filteredExpressions = filteredExpressions(clause);
+            List<IndexExpression> expressions = filteredExpressions(clause);
             Search search = search(clause);
-            return rowService.search(search, filteredExpressions, dataRange, limit, timestamp, after);
+            return rowService.search(search, expressions, dataRange, limit, timestamp, after, distinct);
         } catch (Exception e) {
             throw new IndexException(e, "Error while searching: %s", extendedFilter);
         }
+    }
+
+    private boolean isDistinct(ExtendedFilter extendedFilter) {
+        IDiskAtomFilter filter = extendedFilter.columnFilter(ByteBufferUtil.EMPTY_BYTE_BUFFER);
+        if (filter instanceof SliceQueryFilter) {
+            int compositesToGroup = ((SliceQueryFilter) filter).compositesToGroup;
+            return compositesToGroup == SliceQueryFilter.IGNORE_TOMBSTONED_PARTITIONS;
+        }
+        return false;
     }
 
     /** {@inheritDoc} */
