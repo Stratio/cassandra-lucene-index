@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="INFO">
+    <Properties>
+        <Property name="logLevel">INFO</Property>
+    </Properties>
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout
+                    pattern="%highlight{%level{length=1} %12.12c{1}} %d{HH:mm:ss} (%16.16F:%3L) - %highlight{%m}%n"/>
+        </Console>
+    </Appenders>
+    <Loggers>
+        <logger name="org.apache.flume.test.util.Agent" level="ERROR"/>
+        <Root level="${sys:logLevel}">
+            <AppenderRef ref="Console"/>
+        </Root>
+    </Loggers>
+</Configuration>

@@ -1,0 +1,7 @@
+<suite name="Cassandra" verbose="10" parallel="instances" thread-count="1">
+    <test name="cassandra acceptance tests">
+        <packages>
+            <package name="com.stratio.cassandra.lucene.testsAT.*"/>
+        </packages>
+    </test>
+</suite>
