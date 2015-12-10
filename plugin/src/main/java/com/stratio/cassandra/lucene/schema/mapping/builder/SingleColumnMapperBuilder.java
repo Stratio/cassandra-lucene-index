@@ -29,7 +29,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public abstract class SingleColumnMapperBuilder<T extends SingleColumnMapper<?>, K extends SingleColumnMapperBuilder<T, K>>
-        extends MapperBuilder<T> {
+        extends MapperBuilder<T, K> {
 
     /** If the field must be indexed. */
     @JsonProperty("indexed")

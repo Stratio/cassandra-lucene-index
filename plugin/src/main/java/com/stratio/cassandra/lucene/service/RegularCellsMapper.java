@@ -34,6 +34,7 @@ import org.apache.cassandra.db.marshal.UserType;
 import org.apache.cassandra.serializers.CollectionSerializer;
 import org.apache.cassandra.serializers.MapSerializer;
 import org.apache.cassandra.transport.Server;
+import org.apache.cassandra.utils.ByteBufferUtil;
 
 import java.nio.ByteBuffer;
 
@@ -182,19 +183,20 @@ public final class RegularCellsMapper {
             }
 
             AbstractType<?> valueType = columnDefinition.type;
+            ByteBuffer value = ByteBufferUtil.clone(cell.value());
 
             if ((valueType.isCollection()) && (!valueType.isFrozenCollection())) {
                 CollectionType<?> collectionType = (CollectionType<?>) valueType;
                 switch (collectionType.kind) {
                     case SET: {
                         AbstractType<?> type = collectionType.nameComparator();
-                        ByteBuffer value = cell.name().collectionElement();
+                        value = ByteBufferUtil.clone(cell.name().collectionElement());
                         columns.add(process(Column.builder(name), type, value, true));
                         break;
                     }
                     case LIST: {
                         AbstractType<?> type = collectionType.valueComparator();
-                        columns.add(process(Column.builder(name), type, cell.value(), true));
+                        columns.add(process(Column.builder(name), type, value, true));
                         break;
                     }
                     case MAP: {
@@ -203,12 +205,12 @@ public final class RegularCellsMapper {
                         AbstractType<?> keyType = collectionType.nameComparator();
                         String nameSuffix = keyType.compose(keyValue).toString();
                         ColumnBuilder columnBuilder = Column.builder(name).mapName(nameSuffix);
-                        columns.add(process(columnBuilder, type, cell.value(), true));
+                        columns.add(process(columnBuilder, type, value, true));
                         break;
                     }
                 }
             } else {
-                columns.add(process(Column.builder(name), valueType, cell.value(), false));
+                columns.add(process(Column.builder(name), valueType, value, false));
             }
         }
         return columns;

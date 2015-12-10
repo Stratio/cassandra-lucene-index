@@ -44,7 +44,7 @@ public final class SchemaBuilders {
     public static SchemaBuilder schema() {
         return new SchemaBuilder(null,
                                  new LinkedHashMap<String, AnalyzerBuilder>(),
-                                 new LinkedHashMap<String, MapperBuilder<?>>());
+                                 new LinkedHashMap<String, MapperBuilder<?, ?>>());
     }
 
     /**

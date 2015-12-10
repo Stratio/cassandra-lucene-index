@@ -48,13 +48,15 @@ public class DateMapper extends SingleColumnMapper<Long> {
      * @param column  The name of the column to be mapped.
      * @param indexed If the field supports searching.
      * @param sorted  If the field supports sorting.
+     * @param validated If the field must be validated.
      * @param pattern The date format pattern to be used.
      */
-    public DateMapper(String field, String column, Boolean indexed, Boolean sorted, String pattern) {
+    public DateMapper(String field, String column, Boolean indexed, Boolean sorted, Boolean validated, String pattern) {
         super(field,
               column,
               indexed,
               sorted,
+              validated,
               null,
               Long.class,
               AsciiType.instance,

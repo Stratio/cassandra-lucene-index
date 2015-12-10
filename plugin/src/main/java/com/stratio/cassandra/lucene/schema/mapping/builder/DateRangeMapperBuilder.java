@@ -26,7 +26,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class DateRangeMapperBuilder extends MapperBuilder<DateRangeMapper> {
+public class DateRangeMapperBuilder extends MapperBuilder<DateRangeMapper, DateRangeMapperBuilder> {
 
     @JsonProperty("from")
     private final String from;
@@ -67,6 +67,6 @@ public class DateRangeMapperBuilder extends MapperBuilder<DateRangeMapper> {
      */
     @Override
     public DateRangeMapper build(String field) {
-        return new DateRangeMapper(field, from, to, pattern);
+        return new DateRangeMapper(field, validated, from, to, pattern);
     }
 }

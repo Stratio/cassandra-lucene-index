@@ -18,15 +18,11 @@
 
 package com.stratio.cassandra.lucene.schema.column;
 
-import com.google.common.base.Objects;
-import com.stratio.cassandra.lucene.util.Builder;
 import org.apache.cassandra.db.marshal.AbstractType;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * A cell of a CQL3 logic {@link ColumnBuilder}, which in most cases is different from a storage engine column.

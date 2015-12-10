@@ -30,6 +30,7 @@ import org.apache.cassandra.db.composites.CellName;
 import org.apache.cassandra.db.index.PerRowSecondaryIndex;
 import org.apache.cassandra.db.index.SecondaryIndexSearcher;
 import org.apache.cassandra.exceptions.ConfigurationException;
+import org.apache.cassandra.exceptions.InvalidRequestException;
 import org.apache.cassandra.io.util.FileUtils;
 import org.apache.cassandra.service.ClientState;
 import org.apache.cassandra.utils.concurrent.OpOrder;
@@ -252,5 +253,17 @@ public class Index extends PerRowSecondaryIndex {
     @Override
     public String toString() {
         return name;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void validate(ByteBuffer key, ColumnFamily columnFamily) throws InvalidRequestException {
+        logger.debug("Validating row in Lucene index {}", name);
+        try {
+            service.validate(key, columnFamily);
+        } catch (IndexException e) {
+            logger.debug("Row validation failed in Lucene index {}", name);
+            throw new InvalidRequestException(e.getMessage());
+        }
     }
 }

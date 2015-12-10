@@ -120,6 +120,14 @@ public abstract class RowService {
     protected abstract Set<String> fieldsToLoad();
 
     /**
+     * Validates the row insertion specified by the specified partition key and column family.
+     *
+     * @param key          A partition key.
+     * @param columnFamily A {@link ColumnFamily} with a single common cluster key.
+     */
+    public abstract void validate(final ByteBuffer key, final ColumnFamily columnFamily);
+
+    /**
      * Indexes the logical {@link Row} identified by the specified key and column family using the specified time stamp.
      * The may require reading from the base {@link ColumnFamilyStore} because it could exist previously having more
      * columns than the specified ones. The specified {@link ColumnFamily} is used for determine the cluster key. This

@@ -25,13 +25,14 @@ import org.apache.lucene.index.DocValuesType;
 import org.apache.lucene.search.SortField;
 import org.junit.Test;
 
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.integerMapper;
 import static org.junit.Assert.*;
 
 public class IntegerMapperTest extends AbstractMapperTest {
 
     @Test
     public void testConstructorWithoutArgs() {
-        IntegerMapper mapper = new IntegerMapperBuilder().build("field");
+        IntegerMapper mapper = integerMapper().build("field");
         assertEquals("Field is not properly set", "field", mapper.field);
         assertEquals("Indexed is not set to default value", Mapper.DEFAULT_INDEXED, mapper.indexed);
         assertEquals("Sorted is not set to default value", Mapper.DEFAULT_SORTED, mapper.sorted);
@@ -43,11 +44,11 @@ public class IntegerMapperTest extends AbstractMapperTest {
 
     @Test
     public void testConstructorWithAllArgs() {
-        IntegerMapper mapper = new IntegerMapperBuilder().indexed(false)
-                                                         .sorted(true)
-                                                         .column("column")
-                                                         .boost(2.3f)
-                                                         .build("field");
+        IntegerMapper mapper = integerMapper().indexed(false)
+                                              .sorted(true)
+                                              .column("column")
+                                              .boost(2.3f)
+                                              .build("field");
         assertEquals("Field is not properly set", "field", mapper.field);
         assertFalse("Indexed is not properly set", mapper.indexed);
         assertTrue("Sorted is not properly set", mapper.sorted);
@@ -59,22 +60,22 @@ public class IntegerMapperTest extends AbstractMapperTest {
 
     @Test
     public void testJsonSerialization() {
-        IntegerMapperBuilder builder = new IntegerMapperBuilder().indexed(false)
-                                                                 .sorted(true)
-                                                                 .column("column")
-                                                                 .boost(0.3f);
+        IntegerMapperBuilder builder = integerMapper().indexed(false)
+                                                      .sorted(true)
+                                                      .column("column")
+                                                      .boost(0.3f);
         testJson(builder, "{type:\"integer\",indexed:false,sorted:true,column:\"column\",boost:0.3}");
     }
 
     @Test
     public void testJsonSerializationDefaults() {
-        IntegerMapperBuilder builder = new IntegerMapperBuilder();
+        IntegerMapperBuilder builder = integerMapper();
         testJson(builder, "{type:\"integer\"}");
     }
 
     @Test()
     public void testSortField() {
-        IntegerMapper mapper = new IntegerMapper("field", null, null, null, 2.3f);
+        IntegerMapper mapper = integerMapper().boost(2.3f).build("field");
         SortField sortField = mapper.sortField("field", true);
         assertNotNull("Sort field is not created", sortField);
         assertTrue("Sort field reverse is wrong", sortField.getReverse());
@@ -82,62 +83,61 @@ public class IntegerMapperTest extends AbstractMapperTest {
 
     @Test()
     public void testValueNull() {
-        IntegerMapper mapper = new IntegerMapper("field", null, null, null, 1f);
-        Integer parsed = mapper.base("test", null);
-        assertNull("Base for nulls is wrong", parsed);
+        IntegerMapper mapper = integerMapper().boost(1f).build("field");
+        assertNull("Base for nulls is wrong", mapper.base("test", null));
     }
 
     @Test()
     public void testValueString() {
-        IntegerMapper mapper = new IntegerMapper("field", null, null, null, 1f);
+        IntegerMapper mapper = integerMapper().boost(1f).build("field");
         Integer parsed = mapper.base("test", "2.7");
         assertEquals("Base for strings is wrong", Integer.valueOf(2), parsed);
     }
 
     @Test(expected = IndexException.class)
     public void testValueStringInvalid() {
-        IntegerMapper mapper = new IntegerMapper("field", null, null, null, 1f);
+        IntegerMapper mapper = integerMapper().boost(1f).build("field");
         mapper.base("test", "error");
     }
 
     @Test
     public void testValueInteger() {
-        IntegerMapper mapper = new IntegerMapper("field", null, null, null, 1f);
+        IntegerMapper mapper = integerMapper().boost(1f).build("field");
         Integer parsed = mapper.base("test", 3);
         assertEquals("Base for integers is wrong", Integer.valueOf(3), parsed);
     }
 
     @Test
     public void testValueLong() {
-        IntegerMapper mapper = new IntegerMapper("field", null, null, null, 1f);
+        IntegerMapper mapper = integerMapper().boost(1f).build("field");
         Integer parsed = mapper.base("test", 3l);
         assertEquals("Base for longs is wrong", Integer.valueOf(3), parsed);
     }
 
     @Test
     public void testValueShort() {
-        IntegerMapper mapper = new IntegerMapper("field", null, null, null, 1f);
+        IntegerMapper mapper = integerMapper().boost(1f).build("field");
         Integer parsed = mapper.base("test", new Short("3"));
         assertEquals("Base for longs is wrong", Integer.valueOf(3), parsed);
     }
 
     @Test
     public void testValueByte() {
-        IntegerMapper mapper = new IntegerMapper("field", null, null, null, 1f);
+        IntegerMapper mapper = integerMapper().boost(1f).build("field");
         Integer parsed = mapper.base("test", new Byte("3"));
         assertEquals("Base for longs is wrong", Integer.valueOf(3), parsed);
     }
 
     @Test
     public void testValueFloatWithoutDecimal() {
-        IntegerMapper mapper = new IntegerMapper("field", null, null, null, 1f);
+        IntegerMapper mapper = integerMapper().boost(1f).build("field");
         Integer parsed = mapper.base("test", 3f);
         assertEquals("Base for floats is wrong", Integer.valueOf(3), parsed);
     }
 
     @Test
     public void testValueFloatWithDecimalFloor() {
-        IntegerMapper mapper = new IntegerMapper("field", null, null, null, 1f);
+        IntegerMapper mapper = integerMapper().boost(1f).build("field");
         Integer parsed = mapper.base("test", 3.5f);
         assertEquals("Base for floats is wrong", Integer.valueOf(3), parsed);
 
@@ -145,7 +145,7 @@ public class IntegerMapperTest extends AbstractMapperTest {
 
     @Test
     public void testValueFloatWithDecimalCeil() {
-        IntegerMapper mapper = new IntegerMapper("field", null, null, null, 1f);
+        IntegerMapper mapper = integerMapper().boost(1f).build("field");
         Integer parsed = mapper.base("test", 3.6f);
         assertEquals("Base for floats is wrong", Integer.valueOf(3), parsed);
 
@@ -153,14 +153,14 @@ public class IntegerMapperTest extends AbstractMapperTest {
 
     @Test
     public void testValueDoubleWithoutDecimal() {
-        IntegerMapper mapper = new IntegerMapper("field", null, null, null, 1f);
+        IntegerMapper mapper = integerMapper().boost(1f).build("field");
         Integer parsed = mapper.base("test", 3d);
         assertEquals("Base for doubles is wrong", Integer.valueOf(3), parsed);
     }
 
     @Test
     public void testValueDoubleWithDecimalFloor() {
-        IntegerMapper mapper = new IntegerMapper("field", null, null, null, 1f);
+        IntegerMapper mapper = integerMapper().boost(1f).build("field");
         Integer parsed = mapper.base("test", 3.5d);
         assertEquals("Base for doubles is wrong", Integer.valueOf(3), parsed);
 
@@ -168,7 +168,7 @@ public class IntegerMapperTest extends AbstractMapperTest {
 
     @Test
     public void testValueDoubleWithDecimalCeil() {
-        IntegerMapper mapper = new IntegerMapper("field", null, null, null, 1f);
+        IntegerMapper mapper = integerMapper().boost(1f).build("field");
         Integer parsed = mapper.base("test", 3.6d);
         assertEquals("Base for doubles is wrong", Integer.valueOf(3), parsed);
 
@@ -176,14 +176,14 @@ public class IntegerMapperTest extends AbstractMapperTest {
 
     @Test
     public void testValueStringWithoutDecimal() {
-        IntegerMapper mapper = new IntegerMapper("field", null, null, null, 1f);
+        IntegerMapper mapper = integerMapper().boost(1f).build("field");
         Integer parsed = mapper.base("test", "3");
         assertEquals("Base for strings is wrong", Integer.valueOf(3), parsed);
     }
 
     @Test
     public void testValueStringWithDecimalFloor() {
-        IntegerMapper mapper = new IntegerMapper("field", null, null, null, 1f);
+        IntegerMapper mapper = integerMapper().boost(1f).build("field");
         Integer parsed = mapper.base("test", "3.2");
         assertEquals("Base for strings is wrong", Integer.valueOf(3), parsed);
 
@@ -191,7 +191,7 @@ public class IntegerMapperTest extends AbstractMapperTest {
 
     @Test
     public void testValueStringWithDecimalCeil() {
-        IntegerMapper mapper = new IntegerMapper("field", null, null, null, 1f);
+        IntegerMapper mapper = integerMapper().boost(1f).build("field");
         Integer parsed = mapper.base("test", "3.2");
         assertEquals("Base for strings is wrong", Integer.valueOf(3), parsed);
 
@@ -199,7 +199,7 @@ public class IntegerMapperTest extends AbstractMapperTest {
 
     @Test
     public void testIndexedField() {
-        IntegerMapper mapper = new IntegerMapper("field", null, true, true, 1f);
+        IntegerMapper mapper = integerMapper().indexed(true).boost(1f).build("field");
         Field field = mapper.indexedField("name", 3);
         assertNotNull("Indexed field is not created", field);
         assertEquals("Indexed field value is wrong", 3, field.numericValue());
@@ -209,7 +209,7 @@ public class IntegerMapperTest extends AbstractMapperTest {
 
     @Test
     public void testSortedField() {
-        IntegerMapper mapper = new IntegerMapper("field", null, true, true, 1f);
+        IntegerMapper mapper = integerMapper().sorted(true).boost(1f).build("field");
         Field field = mapper.sortedField("name", 3);
         assertNotNull("Sorted field is not created", field);
         assertEquals("Sorted field type is wrong", DocValuesType.NUMERIC, field.fieldType().docValuesType());
@@ -217,15 +217,15 @@ public class IntegerMapperTest extends AbstractMapperTest {
 
     @Test
     public void testExtractAnalyzers() {
-        IntegerMapper mapper = new IntegerMapper("field", null, null, null, 1f);
+        IntegerMapper mapper = integerMapper().boost(1f).build("field");
         assertNull("Analyzer must be null", mapper.analyzer);
     }
 
     @Test
     public void testToString() {
-        IntegerMapper mapper = new IntegerMapper("field", null, false, false, 1f);
+        IntegerMapper mapper = integerMapper().indexed(false).sorted(true).validated(true).boost(1f).build("field");
         assertEquals("Method #toString is wrong",
-                     "IntegerMapper{field=field, indexed=false, sorted=false, column=field, boost=1.0}",
+                     "IntegerMapper{field=field, indexed=false, sorted=true, validated=true, column=field, boost=1.0}",
                      mapper.toString());
     }
 }

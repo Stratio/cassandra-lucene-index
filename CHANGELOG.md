@@ -3,6 +3,7 @@
 ## 2.2.4.0 (upcoming)
 
 - Upgrade to Apache Cassandra 2.2.4
+- Add optional CQL-level write validation (CASSANDRA-10092)
 
 ## 2.2.3.2 (9 December 2015)
 

@@ -47,19 +47,19 @@ public class SchemaBuilder {
     private final Map<String, AnalyzerBuilder> analyzerBuilders;
 
     @JsonProperty("fields")
-    private final Map<String, MapperBuilder<?>> mapperBuilders;
+    private final Map<String, MapperBuilder<?, ?>> mapperBuilders;
 
     @JsonCreator
     SchemaBuilder(@JsonProperty("default_analyzer") String defaultAnalyzerName,
                   @JsonProperty("analyzers") Map<String, AnalyzerBuilder> analyzerBuilders,
-                  @JsonProperty("fields") Map<String, MapperBuilder<?>> mapperBuilders) {
+                  @JsonProperty("fields") Map<String, MapperBuilder<?, ?>> mapperBuilders) {
         this.defaultAnalyzerName = defaultAnalyzerName;
         this.analyzerBuilders = analyzerBuilders != null
                                 ? analyzerBuilders
                                 : new LinkedHashMap<String, AnalyzerBuilder>();
         this.mapperBuilders = mapperBuilders != null
                               ? mapperBuilders
-                              : new LinkedHashMap<String, MapperBuilder<?>>();
+                              : new LinkedHashMap<String, MapperBuilder<?, ?>>();
     }
 
     /**
@@ -92,7 +92,7 @@ public class SchemaBuilder {
      * @param mapper The builder of the {@link Mapper} to be added.
      * @return This.
      */
-    public SchemaBuilder mapper(String field, MapperBuilder<?> mapper) {
+    public SchemaBuilder mapper(String field, MapperBuilder<?, ?> mapper) {
         mapperBuilders.put(field, mapper);
         return this;
     }
@@ -105,9 +105,9 @@ public class SchemaBuilder {
     public Schema build() {
 
         Map<String, Mapper> mappers = new LinkedHashMap<>(mapperBuilders.size());
-        for (Map.Entry<String, MapperBuilder<?>> entry : mapperBuilders.entrySet()) {
+        for (Map.Entry<String, MapperBuilder<?, ?>> entry : mapperBuilders.entrySet()) {
             String name = entry.getKey();
-            MapperBuilder<?> builder = entry.getValue();
+            MapperBuilder<?, ?> builder = entry.getValue();
             Mapper mapper = builder.build(name);
             mappers.put(name, mapper);
         }

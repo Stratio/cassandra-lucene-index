@@ -54,7 +54,7 @@ public class BuilderTest {
                                                       .defaultAnalyzer("my_analyzer")
                                                       .analyzer("my_analyzer", classpathAnalyzer("my_class"))
                                                       .analyzer("snow", snowballAnalyzer("tartar").stopwords("a,b,c"))
-                                                      .mapper("uuid", uuidMapper())
+                                                      .mapper("uuid", uuidMapper().validated(true))
                                                       .mapper("string", stringMapper())
                                                       .build();
         String expected = "CREATE CUSTOM INDEX name ON keyspace.table (column) " +
@@ -73,7 +73,9 @@ public class BuilderTest {
                           "\"my_analyzer\":{\"type\":\"classpath\",\"class\":\"my_class\"}," +
                           "\"snow\":{\"type\":\"snowball\",\"language\":\"tartar\",\"stopwords\":\"a,b,c\"}}," +
                           "\"default_analyzer\":\"my_analyzer\"," +
-                          "\"fields\":{\"uuid\":{\"type\":\"uuid\"},\"string\":{\"type\":\"string\"}}}'}";
+                          "\"fields\":{" +
+                          "\"uuid\":{\"type\":\"uuid\",\"validated\":true}," +
+                          "\"string\":{\"type\":\"string\"}}}'}";
         assertEquals("index serialization is wrong", expected, actual);
     }
 
@@ -86,8 +88,15 @@ public class BuilderTest {
 
     @Test
     public void testBigDecimalMapperFull() {
-        String actual = bigDecimalMapper().integerDigits(2).decimalDigits(1).column("column").build();
-        String expected = "{\"type\":\"bigdec\",\"column\":\"column\",\"integer_digits\":2,\"decimal_digits\":1}";
+        String actual = bigDecimalMapper().indexed(false)
+                                          .sorted(true)
+                                          .validated(true)
+                                          .column("column")
+                                          .integerDigits(2)
+                                          .decimalDigits(1)
+                                          .build();
+        String expected = "{\"type\":\"bigdec\",\"validated\":true,\"indexed\":false,\"sorted\":true," +
+                          "\"column\":\"column\",\"integer_digits\":2,\"decimal_digits\":1}";
         assertEquals("big decimal mapper serialization is wrong", expected, actual);
     }
 
@@ -100,8 +109,14 @@ public class BuilderTest {
 
     @Test
     public void testBigIntegerMapperFull() {
-        String actual = bigIntegerMapper().digits(1).column("column").build();
-        String expected = "{\"type\":\"bigint\",\"column\":\"column\",\"digits\":1}";
+        String actual = bigIntegerMapper().indexed(false)
+                                          .sorted(true)
+                                          .validated(true)
+                                          .digits(1)
+                                          .column("column")
+                                          .build();
+        String expected = "{\"type\":\"bigint\",\"validated\":true,\"indexed\":false,\"sorted\":true," +
+                          "\"column\":\"column\",\"digits\":1}";
         assertEquals("big integer mapper serialization is wrong", expected, actual);
     }
 
@@ -115,11 +130,13 @@ public class BuilderTest {
 
     @Test
     public void testBitemporalMapperFull() {
-        String actual = bitemporalMapper("vt_from", "vt_to", "tt_from", "tt_to").pattern("yyyyMMdd")
+        String actual = bitemporalMapper("vt_from", "vt_to", "tt_from", "tt_to").validated(true)
+                                                                                .pattern("yyyyMMdd")
                                                                                 .nowValue("99999999")
                                                                                 .build();
         String expected = "{\"type\":\"bitemporal\",\"vt_from\":\"vt_from\",\"vt_to\":\"vt_to\"," +
-                          "\"tt_from\":\"tt_from\",\"tt_to\":\"tt_to\",\"pattern\":\"yyyyMMdd\",\"now_value\":\"99999999\"}";
+                          "\"tt_from\":\"tt_from\",\"tt_to\":\"tt_to\",\"validated\":true," +
+                          "\"pattern\":\"yyyyMMdd\",\"now_value\":\"99999999\"}";
         assertEquals("bitemporal mapper serialization is wrong", expected, actual);
     }
 
@@ -132,8 +149,9 @@ public class BuilderTest {
 
     @Test
     public void testBlobMapperFull() {
-        String actual = blobMapper().indexed(true).sorted(true).column("column").build();
-        String expected = "{\"type\":\"bytes\",\"indexed\":true,\"sorted\":true,\"column\":\"column\"}";
+        String actual = blobMapper().indexed(true).sorted(true).validated(true).column("column").build();
+        String expected = "{\"type\":\"bytes\",\"validated\":true,\"indexed\":true,\"sorted\":true," +
+                          "\"column\":\"column\"}";
         assertEquals("blob mapper serialization is wrong", expected, actual);
     }
 
@@ -146,8 +164,9 @@ public class BuilderTest {
 
     @Test
     public void testBooleanMapperFull() {
-        String actual = booleanMapper().indexed(true).sorted(true).column("column").build();
-        String expected = "{\"type\":\"boolean\",\"indexed\":true,\"sorted\":true,\"column\":\"column\"}";
+        String actual = booleanMapper().indexed(true).sorted(true).validated(true).column("column").build();
+        String expected = "{\"type\":\"boolean\",\"validated\":true,\"indexed\":true,\"sorted\":true," +
+                          "\"column\":\"column\"}";
         assertEquals("boolean mapper serialization is wrong", expected, actual);
     }
 
@@ -160,8 +179,14 @@ public class BuilderTest {
 
     @Test
     public void testDateMapperFull() {
-        String actual = dateMapper().pattern("yyyyMMdd").indexed(true).sorted(true).column("column").build();
-        String expected = "{\"type\":\"date\",\"indexed\":true,\"sorted\":true,\"column\":\"column\",\"pattern\":\"yyyyMMdd\"}";
+        String actual = dateMapper().pattern("yyyyMMdd")
+                                    .indexed(true)
+                                    .sorted(true)
+                                    .validated(true)
+                                    .column("column")
+                                    .build();
+        String expected = "{\"type\":\"date\",\"validated\":true,\"indexed\":true,\"sorted\":true," +
+                          "\"column\":\"column\",\"pattern\":\"yyyyMMdd\"}";
         assertEquals("date mapper serialization is wrong", expected, actual);
     }
 
@@ -350,7 +375,8 @@ public class BuilderTest {
     @Test
     public void testBitemporalConditionFull() {
         String actual = bitemporal("field").ttFrom(1).ttTo(2).vtFrom(3).vtTo(4).boost(2).build();
-        String expected = "{\"type\":\"bitemporal\",\"field\":\"field\",\"boost\":2.0,\"vt_from\":3,\"vt_to\":4,\"tt_from\":1,\"tt_to\":2}";
+        String expected = "{\"type\":\"bitemporal\",\"field\":\"field\",\"boost\":2.0,\"vt_from\":3," +
+                          "\"vt_to\":4,\"tt_from\":1,\"tt_to\":2}";
         assertEquals("bitemporal condition serialization is wrong", expected, actual);
     }
 

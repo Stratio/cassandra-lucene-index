@@ -48,14 +48,16 @@ public class FloatMapper extends SingleColumnMapper<Float> {
      * @param column  The name of the column to be mapped.
      * @param indexed If the field supports searching.
      * @param sorted  If the field supports sorting.
+     * @param validated If the field must be validated.
      * @param boost   The boost to be used.
      */
     @JsonCreator
-    public FloatMapper(String field, String column, Boolean indexed, Boolean sorted, Float boost) {
+    public FloatMapper(String field, String column, Boolean indexed, Boolean sorted, Boolean validated, Float boost) {
         super(field,
               column,
               indexed,
               sorted,
+              validated,
               null,
               Float.class,
               AsciiType.instance,

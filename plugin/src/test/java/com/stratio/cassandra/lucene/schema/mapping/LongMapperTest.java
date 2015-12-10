@@ -25,13 +25,14 @@ import org.apache.lucene.index.DocValuesType;
 import org.apache.lucene.search.SortField;
 import org.junit.Test;
 
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.longMapper;
 import static org.junit.Assert.*;
 
 public class LongMapperTest extends AbstractMapperTest {
 
     @Test
     public void testConstructorWithoutArgs() {
-        LongMapper mapper = new LongMapperBuilder().build("field");
+        LongMapper mapper = longMapper().build("field");
         assertEquals("Field is not set", "field", mapper.field);
         assertEquals("Indexed is not set to default value", Mapper.DEFAULT_INDEXED, mapper.indexed);
         assertEquals("Sorted is not set to default value", Mapper.DEFAULT_SORTED, mapper.sorted);
@@ -43,11 +44,11 @@ public class LongMapperTest extends AbstractMapperTest {
 
     @Test
     public void testConstructorWithAllArgs() {
-        LongMapper mapper = new LongMapperBuilder().indexed(false)
-                                                   .sorted(true)
-                                                   .column("column")
-                                                   .boost(2.3f)
-                                                   .build("field");
+        LongMapper mapper = longMapper().indexed(false)
+                                        .sorted(true)
+                                        .column("column")
+                                        .boost(2.3f)
+                                        .build("field");
         assertEquals("Field is not set", "field", mapper.field);
         assertFalse("Indexed is not set", mapper.indexed);
         assertTrue("Sorted is not set", mapper.sorted);
@@ -59,19 +60,19 @@ public class LongMapperTest extends AbstractMapperTest {
 
     @Test
     public void testJsonSerialization() {
-        LongMapperBuilder builder = new LongMapperBuilder().indexed(false).sorted(true).column("column").boost(0.3f);
-        testJson(builder, "{type:\"long\",indexed:false,sorted:true,column:\"column\",boost:0.3}");
+        LongMapperBuilder builder = longMapper().indexed(false).sorted(true).validated(true).column("column").boost(2f);
+        testJson(builder, "{type:\"long\",validated:true,indexed:false,sorted:true,column:\"column\",boost:2.0}");
     }
 
     @Test
     public void testJsonSerializationDefaults() {
-        LongMapperBuilder builder = new LongMapperBuilder();
+        LongMapperBuilder builder = longMapper();
         testJson(builder, "{type:\"long\"}");
     }
 
     @Test()
     public void testSortField() {
-        LongMapper mapper = new LongMapper("field", null, null, null, 2.3f);
+        LongMapper mapper = longMapper().boost(1f).build("field");
         SortField sortField = mapper.sortField("field", true);
         assertNotNull("Sort field is not created", sortField);
         assertTrue("Sort field reverse is wrong", sortField.getReverse());
@@ -79,62 +80,61 @@ public class LongMapperTest extends AbstractMapperTest {
 
     @Test
     public void testValueNull() {
-        LongMapper mapper = new LongMapper("field", null, true, true, 1f);
-        Long parsed = mapper.base("test", null);
-        assertNull("Base for nulls is wrong", parsed);
+        LongMapper mapper = longMapper().boost(1f).build("field");
+        assertNull("Base for nulls is wrong", mapper.base("test", null));
     }
 
     @Test()
     public void testValueString() {
-        LongMapper mapper = new LongMapper("field", null, null, null, 1f);
+        LongMapper mapper = longMapper().boost(1f).build("field");
         Long parsed = mapper.base("test", "3");
         assertEquals("Base for string is wrong", Long.valueOf(3), parsed);
     }
 
     @Test(expected = IndexException.class)
     public void testValueStringInvalid() {
-        LongMapper mapper = new LongMapper("field", null, null, null, 1f);
+        LongMapper mapper = longMapper().boost(1f).build("field");
         mapper.base("test", "error");
     }
 
     @Test
     public void testValueInteger() {
-        LongMapper mapper = new LongMapper("field", null, true, true, 1f);
+        LongMapper mapper = longMapper().boost(1f).build("field");
         Long parsed = mapper.base("test", 3);
         assertEquals("Base for integer is wrong", Long.valueOf(3), parsed);
     }
 
     @Test
     public void testValueLong() {
-        LongMapper mapper = new LongMapper("field", null, true, true, 1f);
+        LongMapper mapper = longMapper().boost(1f).build("field");
         Long parsed = mapper.base("test", 3l);
         assertEquals("Base for long is wrong", Long.valueOf(3), parsed);
     }
 
     @Test
     public void testValueShort() {
-        LongMapper mapper = new LongMapper("field", null, true, true, 1f);
+        LongMapper mapper = longMapper().boost(1f).build("field");
         Long parsed = mapper.base("test", new Short("3"));
         assertEquals("Base for long is wrong", Long.valueOf(3), parsed);
     }
 
     @Test
     public void testValueByte() {
-        LongMapper mapper = new LongMapper("field", null, true, true, 1f);
+        LongMapper mapper = longMapper().boost(1f).build("field");
         Long parsed = mapper.base("test", new Byte("3"));
         assertEquals("Base for long is wrong", Long.valueOf(3), parsed);
     }
 
     @Test
     public void testValueFloatWithoutDecimal() {
-        LongMapper mapper = new LongMapper("field", null, true, true, 1f);
+        LongMapper mapper = longMapper().boost(1f).build("field");
         Long parsed = mapper.base("test", 3f);
         assertEquals("Base for float is wrong", Long.valueOf(3), parsed);
     }
 
     @Test
     public void testValueFloatWithDecimalFloor() {
-        LongMapper mapper = new LongMapper("field", null, true, true, 1f);
+        LongMapper mapper = longMapper().boost(1f).build("field");
         Long parsed = mapper.base("test", 3.5f);
         assertEquals("Base for float is wrong", Long.valueOf(3), parsed);
 
@@ -142,7 +142,7 @@ public class LongMapperTest extends AbstractMapperTest {
 
     @Test
     public void testValueFloatWithDecimalCeil() {
-        LongMapper mapper = new LongMapper("field", null, true, true, 1f);
+        LongMapper mapper = longMapper().boost(1f).build("field");
         Long parsed = mapper.base("test", 3.6f);
         assertEquals("Base for float is wrong", Long.valueOf(3), parsed);
 
@@ -150,14 +150,14 @@ public class LongMapperTest extends AbstractMapperTest {
 
     @Test
     public void testValueDoubleWithoutDecimal() {
-        LongMapper mapper = new LongMapper("field", null, true, true, 1f);
+        LongMapper mapper = longMapper().boost(1f).build("field");
         Long parsed = mapper.base("test", 3d);
         assertEquals("Base for double is wrong", Long.valueOf(3), parsed);
     }
 
     @Test
     public void testValueDoubleWithDecimalFloor() {
-        LongMapper mapper = new LongMapper("field", null, true, true, 1f);
+        LongMapper mapper = longMapper().boost(1f).build("field");
         Long parsed = mapper.base("test", 3.5d);
         assertEquals("Base for double is wrong", Long.valueOf(3), parsed);
 
@@ -165,7 +165,7 @@ public class LongMapperTest extends AbstractMapperTest {
 
     @Test
     public void testValueDoubleWithDecimalCeil() {
-        LongMapper mapper = new LongMapper("field", null, true, true, 1f);
+        LongMapper mapper = longMapper().boost(1f).build("field");
         Long parsed = mapper.base("test", 3.6d);
         assertEquals("Base for double is wrong", Long.valueOf(3), parsed);
 
@@ -173,14 +173,14 @@ public class LongMapperTest extends AbstractMapperTest {
 
     @Test
     public void testValueStringWithoutDecimal() {
-        LongMapper mapper = new LongMapper("field", null, true, true, 1f);
+        LongMapper mapper = longMapper().boost(1f).build("field");
         Long parsed = mapper.base("test", "3");
         assertEquals("Base for string is wrong", Long.valueOf(3), parsed);
     }
 
     @Test
     public void testValueStringWithDecimalFloor() {
-        LongMapper mapper = new LongMapper("field", null, true, true, 1f);
+        LongMapper mapper = longMapper().boost(1f).build("field");
         Long parsed = mapper.base("test", "3.2");
         assertEquals("Base for string is wrong", Long.valueOf(3), parsed);
 
@@ -188,14 +188,14 @@ public class LongMapperTest extends AbstractMapperTest {
 
     @Test
     public void testValueStringWithDecimalCeil() {
-        LongMapper mapper = new LongMapper("field", null, true, true, 1f);
+        LongMapper mapper = longMapper().boost(1f).build("field");
         Long parsed = mapper.base("test", "3.2");
         assertEquals("Base for string is wrong", Long.valueOf(3), parsed);
     }
 
     @Test
     public void testIndexedField() {
-        LongMapper mapper = new LongMapper("field", null, true, true, 1f);
+        LongMapper mapper = longMapper().indexed(true).boost(1f).build("field");
         Field field = mapper.indexedField("name", 3L);
         assertNotNull("Indexed field is not created", field);
         assertEquals("Indexed field value is wrong", 3L, field.numericValue());
@@ -205,7 +205,7 @@ public class LongMapperTest extends AbstractMapperTest {
 
     @Test
     public void testSortedField() {
-        LongMapper mapper = new LongMapper("field", null, true, true, 1f);
+        LongMapper mapper = longMapper().sorted(true).boost(1f).build("field");
         Field field = mapper.sortedField("name", 3L);
         assertNotNull("Sorted field is not created", field);
         assertEquals("Sorted field type is wrong", DocValuesType.NUMERIC, field.fieldType().docValuesType());
@@ -213,15 +213,15 @@ public class LongMapperTest extends AbstractMapperTest {
 
     @Test
     public void testExtractAnalyzers() {
-        LongMapper mapper = new LongMapper("field", null, true, true, 1f);
+        LongMapper mapper = longMapper().boost(1f).build("field");
         assertNull("Analyzer must be null", mapper.analyzer);
     }
 
     @Test
     public void testToString() {
-        LongMapper mapper = new LongMapper("field", null, false, false, 0.3f);
+        LongMapper mapper = longMapper().boost(1f).indexed(false).sorted(true).validated(true).build("field");
         assertEquals("Method #toString is wrong",
-                     "LongMapper{field=field, indexed=false, sorted=false, column=field, boost=0.3}",
+                     "LongMapper{field=field, indexed=false, sorted=true, validated=true, column=field, boost=1.0}",
                      mapper.toString());
     }
 }

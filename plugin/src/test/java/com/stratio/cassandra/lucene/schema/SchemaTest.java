@@ -131,7 +131,7 @@ public class SchemaTest {
 
     @Test(expected = IndexException.class)
     public void testValidateColumnsFailing() {
-        Schema schema = SchemaBuilders.schema().mapper("field1", integerMapper()).build();
+        Schema schema = SchemaBuilders.schema().mapper("field1", integerMapper().validated(true)).build();
         Columns columns = new Columns().add(Column.builder("field1").composedValue("value", UTF8Type.instance));
         schema.validate(columns);
         schema.close();
@@ -204,7 +204,6 @@ public class SchemaTest {
 
     @Test
     public void testToString() {
-
         Schema schema = schema().mapper("field1", stringMapper()).mapper("field2", textMapper()).build();
         assertNotNull("Expected not null schema", schema.toString());
         schema.close();

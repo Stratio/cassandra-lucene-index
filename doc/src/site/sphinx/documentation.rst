@@ -12,9 +12,9 @@ Stratio's Cassandra Lucene Index
     - `Analyzers <#analysis>`__
         - `Classpath analyzer <#classpath-analyzer>`__
         - `Snowball analyzer <#snowball-analyzer>`__
-    - `Mappers <#mapping>`__
-        - `Big decimal mapper <#bigdecimal-mapper>`__
-        - `Big integer mapper <#biginteger-mapper>`__
+    - `Mappers <#mappers>`__
+        - `Big decimal mapper <#big-decimal-mapper>`__
+        - `Big integer mapper <#big-integer-mapper>`__
         - `Bitemporal mapper <#bitemporal-mapper>`__
         - `Blob mapper <#blob-mapper>`__
         - `Boolean mapper <#boolean-mapper>`__
@@ -469,21 +469,25 @@ Details and default values are listed in the table below.
 +-------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 | Mapper type                         | Option          | Value type      | Default value                  | Mandatory |
 +=====================================+=================+=================+================================+===========+
-| `bigdec <#bigdecimal-mapper>`__     | column          | string          | mapper_name of the schema      | No        |
+| `bigdec <#big-decimal-mapper>`__    | column          | string          | mapper_name of the schema      | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | indexed         | boolean         | true                           | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | sorted          | boolean         | false                          | No        |
+|                                     +-----------------+-----------------+--------------------------------+-----------+
+|                                     | validated       | boolean         | false                          | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | integer_digits  | integer         | 32                             | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | decimal_digits  | integer         | 32                             | No        |
 +-------------------------------------+-----------------+-----------------+--------------------------------+-----------+
-| `bigint <#biginteger-mapper>`__     | column          | string          | mapper_name of the schema      | No        |
+| `bigint <#big-integer-mapper>`__    | column          | string          | mapper_name of the schema      | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | indexed         | boolean         | true                           | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | sorted          | boolean         | false                          | No        |
+|                                     +-----------------+-----------------+--------------------------------+-----------+
+|                                     | validated       | boolean         | false                          | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | digits          | integer         | 32                             | No        |
 +-------------------------------------+-----------------+-----------------+--------------------------------+-----------+
@@ -495,6 +499,8 @@ Details and default values are listed in the table below.
 |                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | tt_to           | string          |                                | Yes       |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
+|                                     | validated       | boolean         | false                          | No        |
+|                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | pattern         | string          | yyyy/MM/dd HH:mm:ss.SSS Z      | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | now_value       | object          | Long.MAX_VALUE                 | No        |
@@ -504,18 +510,24 @@ Details and default values are listed in the table below.
 |                                     | indexed         | boolean         | true                           | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | sorted          | boolean         | false                          | No        |
+|                                     +-----------------+-----------------+--------------------------------+-----------+
+|                                     | validated       | boolean         | false                          | No        |
 +-------------------------------------+-----------------+-----------------+--------------------------------+-----------+
-| `boolean  <#boolean-mapper>`__      | column          | string          | mapper_name of the schema      | No        |
+| `boolean <#boolean-mapper>`__       | column          | string          | mapper_name of the schema      | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | indexed         | boolean         | true                           | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | sorted          | boolean         | false                          | No        |
+|                                     +-----------------+-----------------+--------------------------------+-----------+
+|                                     | validated       | boolean         | false                          | No        |
 +-------------------------------------+-----------------+-----------------+--------------------------------+-----------+
-| `date   <#date-mapper>`__           | column          | string          | mapper_name of the schema      | No        |
+| `date <#date-mapper>`__             | column          | string          | mapper_name of the schema      | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | indexed         | boolean         | true                           | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | sorted          | boolean         | false                          | No        |
+|                                     +-----------------+-----------------+--------------------------------+-----------+
+|                                     | validated       | boolean         | false                          | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | pattern         | string          | yyyy/MM/dd HH:mm:ss.SSS Z      | No        |
 +-------------------------------------+-----------------+-----------------+--------------------------------+-----------+
@@ -523,27 +535,35 @@ Details and default values are listed in the table below.
 |                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | to              | string          |                                | Yes       |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
+|                                     | validated       | boolean         | false                          | No        |
+|                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | pattern         | string          | yyyy/MM/dd HH:mm:ss.SSS Z      | No        |
 +-------------------------------------+-----------------+-----------------+--------------------------------+-----------+
-| `double  <#double-mapper>`__        | column          | string          | mapper_name of the schema      | No        |
+| `double <#double-mapper>`__         | column          | string          | mapper_name of the schema      | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | indexed         | boolean         | true                           | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | sorted          | boolean         | false                          | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
+|                                     | validated       | boolean         | false                          | No        |
+|                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | boost           | integer         | 0.1f                           | No        |
 +-------------------------------------+-----------------+-----------------+--------------------------------+-----------+
-| `float  <#float-mapper>`__          | column          | string          | mapper_name of the schema      | No        |
+| `float <#float-mapper>`__           | column          | string          | mapper_name of the schema      | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | indexed         | boolean         | true                           | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | sorted          | boolean         | false                          | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
+|                                     | validated       | boolean         | false                          | No        |
+|                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | boost           | integer         | 0.1f                           | No        |
 +-------------------------------------+-----------------+-----------------+--------------------------------+-----------+
-| `geo_point  <#geopoint-mapper>`__   | latitude        | string          |                                | Yes       |
+| `geo_point <#geopoint-mapper>`__    | latitude        | string          |                                | Yes       |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | longitude       | string          |                                | Yes       |
+|                                     +-----------------+-----------------+--------------------------------+-----------+
+|                                     | validated       | boolean         | false                          | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | max_levels      | integer         | 11                             | No        |
 +-------------------------------------+-----------------+-----------------+--------------------------------+-----------+
@@ -552,12 +572,16 @@ Details and default values are listed in the table below.
 |                                     | indexed         | boolean         | true                           | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | sorted          | boolean         | false                          | No        |
+|                                     +-----------------+-----------------+--------------------------------+-----------+
+|                                     | validated       | boolean         | false                          | No        |
 +-------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 | `integer <#integer-mapper>`__       | column          | string          | mapper_name of the schema      | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | indexed         | boolean         | true                           | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | sorted          | boolean         | false                          | No        |
+|                                     +-----------------+-----------------+--------------------------------+-----------+
+|                                     | validated       | boolean         | false                          | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | boost           | integer         | 0.1f                           | No        |
 +-------------------------------------+-----------------+-----------------+--------------------------------+-----------+
@@ -567,19 +591,25 @@ Details and default values are listed in the table below.
 |                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | sorted          | boolean         | false                          | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
+|                                     | validated       | boolean         | false                          | No        |
+|                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | boost           | integer         | 0.1f                           | No        |
 +-------------------------------------+-----------------+-----------------+--------------------------------+-----------+
-| `string  <#string-mapper>`__        | column          | string          | mapper_name of the schema      | No        |
+| `string <#string-mapper>`__         | column          | string          | mapper_name of the schema      | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | indexed         | boolean         | true                           | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | sorted          | boolean         | false                          | No        |
+|                                     +-----------------+-----------------+--------------------------------+-----------+
+|                                     | validated       | boolean         | false                          | No        |
 +-------------------------------------+-----------------+-----------------+--------------------------------+-----------+
-| `text  <#text-mapper>`__            | column          | string          | mapper_name of the schema      | No        |
+| `text <#text-mapper>`__             | column          | string          | mapper_name of the schema      | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | indexed         | boolean         | true                           | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | sorted          | boolean         | false                          | No        |
+|                                     +-----------------+-----------------+--------------------------------+-----------+
+|                                     | validated       | boolean         | false                          | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | analyzer        | string          | default_analyzer of the schema | No        |
 +-------------------------------------+-----------------+-----------------+--------------------------------+-----------+
@@ -588,17 +618,30 @@ Details and default values are listed in the table below.
 |                                     | indexed         | boolean         | true                           | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | sorted          | boolean         | false                          | No        |
+|                                     +-----------------+-----------------+--------------------------------+-----------+
+|                                     | validated       | boolean         | false                          | No        |
 +-------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 
-Most mapping definitions have an ``indexed`` option indicating if
-the field is searchable, it is true by default. There is also a ``sorted`` option
-specifying if it is possible to sort rows by the corresponding field, false by default. List and set
-columns can't be sorted because they produce multivalued fields.
+Most mappers have an ``indexed`` option indicating if the field is searchable, it is true by default.
+There is also a ``sorted`` option specifying if it's possible to sort rows by the corresponding field, false by default.
+List and set columns can't be sorted because they produce multivalued fields.
 These options should be set to false when no needed in order to have a smaller and faster index.
 
-Note that Cassandra allows one custom index per table. On the other
-hand, Cassandra does not allow a modify operation on indexes. To modify
-an index it needs to be deleted first and created again.
+All mappers have a ``validated`` option indicating if the mapped column values must be validated at CQL level
+before performing the distributed write operation.
+If this option is set then the coordinator node will throw an error on writes containing values that can't be mapped,
+causing the failure of all the write operation and notifying the client about the failure cause.
+If validation is not set, which is the default setting, writes to C* will never fail due to the index.
+Instead, each failing column value will be silently discarded,
+and the error message will be just logged in the implied nodes.
+This option is useful to avoid writes containing values that can't be searched afterwards,
+and can also be used as a generic data validation layer.
+Note that mappers affecting several columns at a time, such as ``date_range``,``geo_point`` and ``bitemporal``,
+need to have all the involved columns to perform validation,
+so no partial columns update will be allowed when validation is active.
+
+Cassandra allows only one custom per-row index per table, and it does not allow a modify operation on indexes.
+So, to modify an index it needs to be deleted first and created again.
 
 Big decimal mapper
 __________________
@@ -621,6 +664,7 @@ Example:
                     decimal_digits : 2,
                     indexed        : true,
                     sorted         : false,
+                    validated      : true,
                     column         : "column_name"
                 }
             }
@@ -646,11 +690,12 @@ Example:
         'schema' : '{
             fields : {
                 biginteger : {
-                    type    : "bigint",
-                    digits  : 10,
-                    indexed : true,
-                    sorted  : false,
-                    column  : "column_name"
+                    type      : "bigint",
+                    digits    : 10,
+                    indexed   : true,
+                    sorted    : false,
+                    validated : true,
+                    column    : "column_name"
                 }
             }
         }'
@@ -680,6 +725,7 @@ Example:
                     vt_to     : "vt_to",
                     tt_from   : "tt_from",
                     tt_to     : "tt_to",
+                    validated : true,
                     pattern   : "yyyy/MM/dd HH:mm:ss.SSS";,
                     now_value : "3000/01/01 00:00:00.000",
                 }
@@ -734,10 +780,11 @@ Example:
         'schema' : '{
             fields : {
                 bool : {
-                    type    : "boolean",
-                    indexed : true,
-                    sorted  : false,
-                    column  : "column_name"
+                    type      : "boolean",
+                    indexed   : true,
+                    sorted    : false,
+                    validated : true,
+                    column    : "column_name"
                 }
             }
         }'
@@ -762,11 +809,12 @@ Example:
         'schema' : '{
             fields : {
                 date : {
-                    type    : "date",
-                    pattern : "yyyy/MM/dd HH:mm:ss.SSS",
-                    indexed : true,
-                    sorted  : false,
-                    column  : "column_name"
+                    type      : "date",
+                    validated : true,
+                    pattern   : "yyyy/MM/dd HH:mm:ss.SSS",
+                    indexed   : true,
+                    sorted    : false,
+                    column    : "column_name"
                 }
             }
         }'
@@ -791,10 +839,11 @@ Example:
         'schema' : '{
             fields : {
                 date_range : {
-                    type    : "date_range",
-                    from    : "range_from",
-                    to      : "range_to",
-                    pattern : "yyyy/MM/dd HH:mm:ss.SSS"
+                    type      : "date_range",
+                    validated : true,
+                    from      : "range_from",
+                    to        : "range_to",
+                    pattern   : "yyyy/MM/dd HH:mm:ss.SSS"
                 }
             }
         }'
@@ -819,11 +868,12 @@ Example:
         'schema' : '{
             fields : {
                 double : {
-                    type    : "double",
-                    boost   : 2.0,
-                    indexed : true,
-                    sorted  : false,
-                    column  : "column_name"
+                    type      : "double",
+                    boost     : 2.0,
+                    indexed   : true,
+                    sorted    : false,
+                    validated : true,
+                    column    : "column_name"
                 }
             }
         }'
@@ -848,11 +898,12 @@ Example:
         'schema' : '{
             fields : {
                 float : {
-                    type    : "float",
-                    boost   : 2.0,
-                    indexed : true,
-                    sorted  : false,
-                    column  : "column_name"
+                    type      : "float",
+                    boost     : 2.0,
+                    indexed   : true,
+                    sorted    : false,
+                    validated : true,
+                    column    : "column_name"
                 }
             }
         }'
@@ -878,6 +929,7 @@ Example:
             fields : {
                 geo_point : {
                     type       : "geo_point",
+                    validated  : true,
                     latitude   : "lat",
                     longitude  : "long",
                     max_levels : 15
@@ -905,10 +957,11 @@ Example:
         'schema' : '{
             fields : {
                 inet : {
-                    type    : "inet",
-                    indexed : true,
-                    sorted  : false,
-                    column  : "column_name"
+                    type      : "inet",
+                    indexed   : true,
+                    sorted    : false,
+                    validated : true,
+                    column    : "column_name"
                 }
             }
         }'
@@ -933,11 +986,12 @@ Example:
         'schema' : '{
             fields : {
                 integer : {
-                    type    : "integer",
-                    boost   : 2.0,
-                    indexed : true,
-                    sorted  : false,
-                    column  : "column_name"
+                    type      : "integer",
+                    indexed   : true,
+                    sorted    : false,
+                    validated : true,
+                    column    : "column_name"
+                    boost     : 2.0,
                 }
             }
         }'
@@ -962,11 +1016,12 @@ Example:
         'schema' : '{
             fields : {
                 long : {
-                    type    : "long",
-                    boost   : 2.0,
-                    indexed : true,
-                    sorted  : false,
-                    column  : "column_name"
+                    type      : "long",
+                    indexed   : true,
+                    sorted    : false,
+                    validated : true,
+                    column    : "column_name"
+                    boost     : 2.0,
                 }
             }
         }'
@@ -992,10 +1047,11 @@ Example:
             fields : {
                 string : {
                     type           : "string",
-                    case_sensitive : false,
                     indexed        : true,
                     sorted         : false,
+                    validated      : true,
                     column         : "column_name"
+                    case_sensitive : false,
                 }
             }
         }'
@@ -1027,11 +1083,12 @@ Example:
             },
             fields : {
                 text : {
-                    type     : "text",
-                    analyzer : "my_custom_analyzer",
-                    indexed  : true,
-                    sorted   : false,
-                    column   : "column_name"
+                    type      : "text",
+                    indexed   : true,
+                    sorted    : false,
+                    validated : true,
+                    column    : "column_name"
+                    analyzer  : "my_custom_analyzer",
                 }
             }
         }'
@@ -1055,11 +1112,12 @@ Example:
         'refresh_seconds' : '1',
         'schema' : '{
             fields : {
-                bigdecimal : {
-                    type    : "uuid",
-                    indexed : true,
-                    sorted  : false,
-                    column  : "column_name"
+                id : {
+                    type      : "uuid",
+                    indexed   : true,
+                    sorted    : false,
+                    validated : true,
+                    column    : "column_name"
                 }
             }
         }'
@@ -1098,18 +1156,20 @@ Cassandra shell:
             },
             default_analyzer : "english",
             fields : {
-                name   : {type : "string"},
-                gender : {type : "string", sorted: true},
-                animal : {type : "string"},
-                age    : {type : "integer"},
-                food   : {type : "string"},
-                number : {type : "integer"},
-                bool   : {type : "boolean"},
-                date   : {type : "date", pattern  : "yyyy/MM/dd"},
-                mapz   : {type : "string", sorted: true},
-                setz   : {type : "string"},
-                listz  : {type : "string"},
-                phrase : {type : "text", analyzer : "my_custom_analyzer"}
+                name     : {type : "string"},
+                gender   : {type : "string", validated : true},
+                animal   : {type : "string"},
+                age      : {type : "integer"},
+                food     : {type : "string"},
+                number   : {type : "integer", indexed : false, sorted : true},
+                bool     : {type : "boolean"},
+                date     : {type : "date", sorted : true, validated : true, pattern : "yyyy/MM/dd"},
+                duration : {type : "date_range", from : "start_date", to : "stop_date", pattern : "yyyy/MM/dd"},
+                place    : {type : "geo_point", latitude : "latitude", longitude : "longitude"},
+                mapz     : {type : "string", sorted : true},
+                setz     : {type : "string"},
+                listz    : {type : "string"},
+                phrase   : {type : "text", analyzer : "my_custom_analyzer"}
             }
         }'
     };

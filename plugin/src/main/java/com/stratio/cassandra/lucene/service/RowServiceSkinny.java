@@ -20,10 +20,7 @@ package com.stratio.cassandra.lucene.service;
 
 import com.stratio.cassandra.lucene.IndexConfig;
 import com.stratio.cassandra.lucene.schema.column.Columns;
-import org.apache.cassandra.db.ColumnFamily;
-import org.apache.cassandra.db.ColumnFamilyStore;
-import org.apache.cassandra.db.DecoratedKey;
-import org.apache.cassandra.db.Row;
+import org.apache.cassandra.db.*;
 import org.apache.cassandra.db.filter.QueryFilter;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.Term;
@@ -71,6 +68,14 @@ public class RowServiceSkinny extends RowService {
     @Override
     public Set<String> fieldsToLoad() {
         return FIELDS_TO_LOAD;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void validate(final ByteBuffer key, final ColumnFamily columnFamily) {
+        DecoratedKey partitionKey = mapper.partitionKey(key);
+        Columns columns = mapper.columns(partitionKey, columnFamily);
+        schema.validate(columns);
     }
 
     /** {@inheritDoc} */

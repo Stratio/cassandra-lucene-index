@@ -25,7 +25,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public abstract class SingleColumnMapper<K extends SingleColumnMapper<K>> extends Mapper {
+public abstract class SingleColumnMapper<K extends SingleColumnMapper<K>> extends Mapper<K> {
 
     /** If the field must be indexed. */
     @JsonProperty("indexed")

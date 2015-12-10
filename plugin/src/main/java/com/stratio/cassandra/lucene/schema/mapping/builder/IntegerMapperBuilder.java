@@ -50,6 +50,6 @@ public class IntegerMapperBuilder extends SingleColumnMapperBuilder<IntegerMappe
      */
     @Override
     public IntegerMapper build(String field) {
-        return new IntegerMapper(field, column, indexed, sorted, boost);
+        return new IntegerMapper(field, column, indexed, sorted, validated, boost);
     }
 }

@@ -27,7 +27,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class GeoPointMapperBuilder extends MapperBuilder<GeoPointMapper> {
+public class GeoPointMapperBuilder extends MapperBuilder<GeoPointMapper, GeoPointMapperBuilder> {
 
     /** The name of the column containing the latitude. */
     @JsonProperty("latitude")
@@ -73,6 +73,6 @@ public class GeoPointMapperBuilder extends MapperBuilder<GeoPointMapper> {
      */
     @Override
     public GeoPointMapper build(String field) {
-        return new GeoPointMapper(field, latitude, longitude, maxLevels);
+        return new GeoPointMapper(field, validated, latitude, longitude, maxLevels);
     }
 }

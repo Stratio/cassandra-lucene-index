@@ -63,15 +63,17 @@ public class DateRangeMapper extends Mapper {
     /**
      * Builds a new {@link DateRangeMapper}.
      *
-     * @param field   The name of the field.
-     * @param from    The name of the column containing the from date.
-     * @param to      The name of the column containing the to date.
-     * @param pattern The date format pattern to be used.
+     * @param field     The name of the field.
+     * @param validated If the field must be validated.
+     * @param from      The name of the column containing the from date.
+     * @param to        The name of the column containing the to date.
+     * @param pattern   The date format pattern to be used.
      */
-    public DateRangeMapper(String field, String from, String to, String pattern) {
+    public DateRangeMapper(String field, Boolean validated, String from, String to, String pattern) {
         super(field,
               true,
               false,
+              validated,
               null,
               Arrays.asList(from, to),
               AsciiType.instance,
@@ -125,9 +127,7 @@ public class DateRangeMapper extends Mapper {
             throw new IndexException("To column required");
         }
         if (from.after(to)) {
-            throw new IndexException("From:'%s' is after To:'%s'",
-                                     dateParser.toString(to),
-                                     dateParser.toString(from));
+            throw new IndexException("From:'%s' is after To:'%s'", dateParser.toString(to), dateParser.toString(from));
         }
     }
 
@@ -202,6 +202,7 @@ public class DateRangeMapper extends Mapper {
     public String toString() {
         return Objects.toStringHelper(this)
                       .add("field", field)
+                      .add("validated", validated)
                       .add("from", from)
                       .add("to", to)
                       .add("pattern", pattern)

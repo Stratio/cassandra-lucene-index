@@ -50,6 +50,6 @@ public class LongMapperBuilder extends SingleColumnMapperBuilder<LongMapper, Lon
      */
     @Override
     public LongMapper build(String field) {
-        return new LongMapper(field, column, indexed, sorted, boost);
+        return new LongMapper(field, column, indexed, sorted, validated, boost);
     }
 }

@@ -81,6 +81,16 @@ public class RowServiceWide extends RowService {
 
     /** {@inheritDoc} */
     @Override
+    public void validate(final ByteBuffer key, final ColumnFamily columnFamily) {
+        DecoratedKey partitionKey = mapper.partitionKey(key);
+        for (ColumnFamily cf : mapper.splitRows(columnFamily).values()) {
+            Columns columns = mapper.columns(partitionKey, cf);
+            schema.validate(columns);
+        }
+    }
+
+    /** {@inheritDoc} */
+    @Override
     public void doIndex(ByteBuffer key, ColumnFamily columnFamily, long timestamp) throws IOException {
         DeletionInfo deletionInfo = columnFamily.deletionInfo();
         DecoratedKey partitionKey = mapper.partitionKey(key);
