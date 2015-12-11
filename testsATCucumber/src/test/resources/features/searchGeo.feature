@@ -1,37 +1,44 @@
 @test @search 
 Feature: Test geoSpatial searching 
 
-Scenario: Do a geoSpatial search with a clean keyspace 
+Scenario: I connect to Cassandra cluster
 	Given I connect to Cassandra cluster with '2' nodes and this url '172.17.0.4'
-		And I drop a C keyspace 'opera' 
-	When I create a C keyspace named 'opera' 
+	When I create a Cassandra keyspace named 'opera' 
 	And I create a table named: 'location' using the keyspace: 'opera' and this datatable:
-		| place | latitude | longitude | lucene      |
-		 | TEXT  | DECIMAL  |  DECIMAL  |TEXT       |
-		|   PK       | PK   |        |           |
-	And I create a mapping of type 'opera' in table 'location' using magic_column 'lucene', max levels '1', latitude '2.5' and longitude '2.6'
-	
-	And I send a query with geoBbox search from table: 'location' with keyspace: 'opera' and this datatable: 
-		|magic_colum|min_latitude|min_longitude|max_latitude|max_longitude|filter_query|field|
-		|lucene     |0.0         |0.0          |10.0        |10.0         |filter      |place|
+		| place  | latitude | longitude |lucene |
+		| TEXT   | DECIMAL  |  DECIMAL  |TEXT   |
+		|  PK        | PK       |         |       |
+
+Scenario: Do a geoSpatial search with a clean keyspace 
+
+    And I create a mapping with index name 'location_index' with scheme 'schemes/mapping/geoPointMap.conf' of type 'string' in table 'location' using magic_column 'lucene' using keyspace 'opera' and this options:
+		    | _Lat       | UPDATE  | latitude |
+		    | _Lon       | UPDATE  | longitude |
+		  	| maxLevels | UPDATE  | 15  |
+	And I create a mapping with index name 'location_place' in table 'location' using magic_column 'lucene' using keyspace 'opera'		  	
+	And I send a query with scheme 'schemes/queries/geoBboxSearch.conf' of type 'string' with magic_column 'lucene' from table: 'location' using keyspace: 'opera' and this modifications: 
+		    | col       | UPDATE  | location_place |
+		    | minlat    | UPDATE  | -10 |
+		    | minlon    | UPDATE  | -10 |
+		  	| maxlat    | UPDATE  | 90 |
+		  	| maxlon    | UPDATE  | 90 |	
 	And There are '0' results after execute the last query
-	And I drop a C keyspace 'opera'
 	
 Scenario: Do a geoSpatial search with some data in keyspace
-	Given I connect to Cassandra cluster with '2' nodes and this url '172.17.0.4' 
-	When I create a C keyspace named 'opera' 
-	And I create a table named: 'location' using the keyspace: 'opera' and this datatable:
-		| place | latitude | longitude | lucene      |
-		 | TEXT  | DECIMAL  |  DECIMAL  |TEXT       |
-		|    PK      | PK    |          |           |
-	And I insert in keyspace 'opera' and table 'location' this data:
+	Given I insert in keyspace 'opera' and table 'location' this data:
 	 	|latitude|longitude|place|
 		|2.5     |2.6      |'Madrid'|
 		|12.5    |12.6     |'Barcelona'|
-	And I create a mapping of type 'opera' in table 'location' using magic_column 'lucene', max levels '1', latitude '2.5' and longitude '2.6'
-	And I send a query with geoBbox search from table: 'location' with keyspace: 'opera' and this datatable: 
-		|magic_colum|min_latitude|min_longitude|max_latitude|max_longitude|filter_query|field|
-		|lucene     |0.0         |0.0          |10.0        |10.0         |filter      |place|
+
+	And I send a query with scheme 'schemes/queries/geoBboxSearch.conf' of type 'string' with magic_column 'lucene' from table: 'location' using keyspace: 'opera' and this modifications: 
+		    | col       | UPDATE  | location_place |
+		    | minlat    | UPDATE  | -10 |
+		    | minlon    | UPDATE  | -10 |
+		  	| maxlat    | UPDATE  | 90 |
+		  	| maxlon    | UPDATE  | 90 |		 
 
 	And There are '1' results after execute the last query
-	And I drop a C keyspace 'opera'
+	Then I drop a C keyspace 'opera'
+	
+Scenario: I remove all data
+	Given I drop a C keyspace 'opera' 
