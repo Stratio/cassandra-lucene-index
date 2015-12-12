@@ -100,28 +100,6 @@ public class SchemaTest {
     }
 
     @Test
-    public void testValidateMetadata() throws InvalidRequestException, ConfigurationException {
-
-        List<ColumnDef> columnDefinitions = new ArrayList<>();
-        columnDefinitions.add(new ColumnDef(ByteBufferUtil.bytes("field1"),
-                                            UTF8Type.class.getCanonicalName()).setIndex_name("field1")
-                                                                              .setIndex_type(IndexType.KEYS));
-
-        columnDefinitions.add(new ColumnDef(ByteBufferUtil.bytes("field2"),
-                                            IntegerType.class.getCanonicalName()).setIndex_name("field2")
-                                                                                 .setIndex_type(IndexType.KEYS));
-        CfDef cfDef = new CfDef().setDefault_validation_class(AsciiType.class.getCanonicalName())
-                                 .setColumn_metadata(columnDefinitions)
-                                 .setKeyspace("Keyspace1")
-                                 .setName("Standard1");
-        CFMetaData metadata = ThriftConversion.fromThrift(cfDef);
-
-        Schema schema = SchemaBuilders.schema().mapper("field1", stringMapper()).mapper("field2", textMapper()).build();
-        schema.validate(metadata);
-        schema.close();
-    }
-
-    @Test
     public void testValidateColumns() {
         Schema schema = SchemaBuilders.schema().mapper("field1", stringMapper()).build();
         Columns columns = new Columns().add(Column.builder("field1").composedValue("value", UTF8Type.instance));

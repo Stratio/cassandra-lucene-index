@@ -22,19 +22,13 @@ import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import com.stratio.cassandra.lucene.schema.mapping.builder.GeoPointMapperBuilder;
-import org.apache.cassandra.config.CFMetaData;
-import org.apache.cassandra.db.ColumnFamilyType;
-import org.apache.cassandra.db.composites.CellNameType;
-import org.apache.cassandra.db.composites.SimpleSparseCellNameType;
 import org.apache.cassandra.db.marshal.*;
-import org.apache.cassandra.exceptions.ConfigurationException;
 import org.apache.lucene.document.Document;
 import org.junit.Test;
 
 import java.util.UUID;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.geoPointMapper;
-import static org.apache.cassandra.config.ColumnDefinition.regularDef;
 import static org.junit.Assert.*;
 
 public class GeoPointMapperTest extends AbstractMapperTest {
@@ -386,45 +380,6 @@ public class GeoPointMapperTest extends AbstractMapperTest {
     public void testExtractAnalyzers() {
         GeoPointMapper mapper = geoPointMapper("lat", "lon").build("field");
         assertNull("Analyzer must be null", mapper.analyzer);
-    }
-
-    @Test
-    public void testValidate() throws ConfigurationException {
-        CellNameType nameType = new SimpleSparseCellNameType(UTF8Type.instance);
-        CFMetaData metadata = new CFMetaData("ks", "cf", ColumnFamilyType.Standard, nameType);
-        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("lat"), FloatType.instance, 0));
-        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("lon"), FloatType.instance, 0));
-        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("any"), UUIDType.instance, 0));
-        geoPointMapper("lat", "lon").build("field").validate(metadata);
-    }
-
-    @Test(expected = IndexException.class)
-    public void testValidateUnsupportedType() throws ConfigurationException {
-
-        CellNameType nameType = new SimpleSparseCellNameType(UTF8Type.instance);
-        CFMetaData metadata = new CFMetaData("ks", "cf", ColumnFamilyType.Standard, nameType);
-        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("lat"), UUIDType.instance, 0));
-        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("lon"), FloatType.instance, 0));
-        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("any"), UUIDType.instance, 0));
-        geoPointMapper("lat", "lon").build("field").validate(metadata);
-    }
-
-    @Test(expected = IndexException.class)
-    public void testValidateWithoutLatitudeColumn() throws ConfigurationException {
-        CellNameType nameType = new SimpleSparseCellNameType(UTF8Type.instance);
-        CFMetaData metadata = new CFMetaData("ks", "cf", ColumnFamilyType.Standard, nameType);
-        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("lon"), FloatType.instance, 0));
-        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("any"), UUIDType.instance, 0));
-        geoPointMapper("lat", "lon").build("field").validate(metadata);
-    }
-
-    @Test(expected = IndexException.class)
-    public void testValidateWithouyLongitudeColumn() throws ConfigurationException {
-        CellNameType nameType = new SimpleSparseCellNameType(UTF8Type.instance);
-        CFMetaData metadata = new CFMetaData("ks", "cf", ColumnFamilyType.Standard, nameType);
-        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("lat"), FloatType.instance, 0));
-        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("any"), UUIDType.instance, 0));
-        geoPointMapper("lat", "lon").build("field").validate(metadata);
     }
 
     @Test

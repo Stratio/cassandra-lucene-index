@@ -25,9 +25,6 @@ import com.stratio.cassandra.lucene.schema.mapping.BitemporalMapper.BitemporalDa
 import com.stratio.cassandra.lucene.schema.mapping.builder.BitemporalMapperBuilder;
 import com.stratio.cassandra.lucene.util.DateParser;
 import org.apache.cassandra.config.CFMetaData;
-import org.apache.cassandra.db.ColumnFamilyType;
-import org.apache.cassandra.db.composites.CellNameType;
-import org.apache.cassandra.db.composites.SimpleSparseCellNameType;
 import org.apache.cassandra.db.marshal.*;
 import org.apache.cassandra.exceptions.ConfigurationException;
 import org.apache.lucene.document.Document;
@@ -1224,70 +1221,6 @@ public class BitemporalMapperTest extends AbstractMapperTest {
     public void testExtractAnalyzers() {
         BitemporalMapper mapper = bitemporalMapper("vtFrom", "vtTo", "ttFrom", "ttTo").build("field");
         assertNull("Analyzer should be null", mapper.analyzer);
-    }
-
-    @Test
-    public void testValidate() throws ConfigurationException {
-
-        CellNameType nameType = new SimpleSparseCellNameType(UTF8Type.instance);
-        CFMetaData metadata = new CFMetaData("ks", "cf", ColumnFamilyType.Standard, nameType);
-        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("vtFrom"), UTF8Type.instance, 0));
-        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("vtTo"), UTF8Type.instance, 0));
-        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("ttFrom"), UTF8Type.instance, 0));
-        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("ttTo"), UTF8Type.instance, 0));
-        bitemporalMapper("vtFrom", "vtTo", "ttFrom", "ttTo").build("field").validate(metadata);
-    }
-
-    @Test(expected = IndexException.class)
-    public void testValidateUnsupportedType() throws ConfigurationException {
-
-        CellNameType nameType = new SimpleSparseCellNameType(UTF8Type.instance);
-        CFMetaData metadata = new CFMetaData("ks", "cf", ColumnFamilyType.Standard, nameType);
-        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("vtFrom"), UUIDType.instance, 0));
-        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("vtTo"), UUIDType.instance, 0));
-        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("ttFrom"), UUIDType.instance, 0));
-        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("ttTo"), UUIDType.instance, 0));
-        bitemporalMapper("vtFrom", "vtTo", "ttFrom", "ttTo").build("field").validate(metadata);
-    }
-
-    @Test(expected = IndexException.class)
-    public void testValidateWithoutVtFromColumn() throws ConfigurationException {
-        CellNameType nameType = new SimpleSparseCellNameType(UTF8Type.instance);
-        CFMetaData metadata = new CFMetaData("ks", "cf", ColumnFamilyType.Standard, nameType);
-        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("vtTo"), UTF8Type.instance, 0));
-        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("ttFrom"), UTF8Type.instance, 0));
-        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("ttTo"), UTF8Type.instance, 0));
-        bitemporalMapper("vtFrom", "vtTo", "ttFrom", "ttTo").build("field").validate(metadata);
-    }
-
-    @Test(expected = IndexException.class)
-    public void testValidateWithoutVtToColumn() throws ConfigurationException {
-        CellNameType nameType = new SimpleSparseCellNameType(UTF8Type.instance);
-        CFMetaData metadata = new CFMetaData("ks", "cf", ColumnFamilyType.Standard, nameType);
-        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("vtFrom"), UTF8Type.instance, 0));
-        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("ttFrom"), UTF8Type.instance, 0));
-        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("ttTo"), UTF8Type.instance, 0));
-        bitemporalMapper("vtFrom", "vtTo", "ttFrom", "ttTo").build("field").validate(metadata);
-    }
-
-    @Test(expected = IndexException.class)
-    public void testValidateWithoutTtFromColumn() throws ConfigurationException {
-        CellNameType nameType = new SimpleSparseCellNameType(UTF8Type.instance);
-        CFMetaData metadata = new CFMetaData("ks", "cf", ColumnFamilyType.Standard, nameType);
-        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("vtFrom"), UTF8Type.instance, 0));
-        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("vtTo"), UTF8Type.instance, 0));
-        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("ttTo"), UTF8Type.instance, 0));
-        bitemporalMapper("vtFrom", "vtTo", "ttFrom", "ttTo").build("field").validate(metadata);
-    }
-
-    @Test(expected = IndexException.class)
-    public void testValidateWithoutTtToColumn() throws ConfigurationException {
-        CellNameType nameType = new SimpleSparseCellNameType(UTF8Type.instance);
-        CFMetaData metadata = new CFMetaData("ks", "cf", ColumnFamilyType.Standard, nameType);
-        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("vtFrom"), UTF8Type.instance, 0));
-        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("vtTo"), UTF8Type.instance, 0));
-        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("ttFrom"), UTF8Type.instance, 0));
-        bitemporalMapper("vtFrom", "vtTo", "ttFrom", "ttTo").build("field").validate(metadata);
     }
 
     @Test

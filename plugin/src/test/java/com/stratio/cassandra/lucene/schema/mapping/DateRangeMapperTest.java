@@ -23,12 +23,7 @@ import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import com.stratio.cassandra.lucene.schema.mapping.builder.DateRangeMapperBuilder;
 import com.stratio.cassandra.lucene.util.DateParser;
-import org.apache.cassandra.config.CFMetaData;
-import org.apache.cassandra.db.ColumnFamilyType;
-import org.apache.cassandra.db.composites.CellNameType;
-import org.apache.cassandra.db.composites.SimpleSparseCellNameType;
 import org.apache.cassandra.db.marshal.*;
-import org.apache.cassandra.exceptions.ConfigurationException;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.IndexableField;
@@ -39,7 +34,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.dateRangeMapper;
-import static org.apache.cassandra.config.ColumnDefinition.regularDef;
 import static org.junit.Assert.*;
 
 public class DateRangeMapperTest extends AbstractMapperTest {
@@ -323,44 +317,6 @@ public class DateRangeMapperTest extends AbstractMapperTest {
     public void testExtractAnalyzers() {
         DateRangeMapper mapper = dateRangeMapper("from", "to").build("name");
         assertNull("Analyzer must be null", mapper.analyzer);
-    }
-
-    @Test(expected = IndexException.class)
-    public void testValidate() throws ConfigurationException {
-        CellNameType nameType = new SimpleSparseCellNameType(UTF8Type.instance);
-        CFMetaData metadata = new CFMetaData("ks", "cf", ColumnFamilyType.Standard, nameType);
-        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("from"), FloatType.instance, 0));
-        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("to"), FloatType.instance, 0));
-        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("any"), UUIDType.instance, 0));
-        dateRangeMapper("from", "to").build("name").validate(metadata);
-    }
-
-    @Test(expected = IndexException.class)
-    public void testValidateUnsupportedType() throws ConfigurationException {
-        CellNameType nameType = new SimpleSparseCellNameType(UTF8Type.instance);
-        CFMetaData metadata = new CFMetaData("ks", "cf", ColumnFamilyType.Standard, nameType);
-        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("from"), UUIDType.instance, 0));
-        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("to"), FloatType.instance, 0));
-        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("any"), UUIDType.instance, 0));
-        dateRangeMapper("from", "to").build("name").validate(metadata);
-    }
-
-    @Test(expected = IndexException.class)
-    public void testValidateWithoutFromColumn() throws ConfigurationException {
-        CellNameType nameType = new SimpleSparseCellNameType(UTF8Type.instance);
-        CFMetaData metadata = new CFMetaData("ks", "cf", ColumnFamilyType.Standard, nameType);
-        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("to"), FloatType.instance, 0));
-        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("any"), UUIDType.instance, 0));
-        dateRangeMapper("from", "to").build("name").validate(metadata);
-    }
-
-    @Test(expected = IndexException.class)
-    public void testValidateWithoutToColumn() throws ConfigurationException {
-        CellNameType nameType = new SimpleSparseCellNameType(UTF8Type.instance);
-        CFMetaData metadata = new CFMetaData("ks", "cf", ColumnFamilyType.Standard, nameType);
-        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("from"), FloatType.instance, 0));
-        metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("any"), UUIDType.instance, 0));
-        dateRangeMapper("from", "to").build("name").validate(metadata);
     }
 
     @Test

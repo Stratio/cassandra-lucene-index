@@ -18,12 +18,12 @@
 
 package com.stratio.cassandra.lucene;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.SchemaBuilder;
 import org.apache.cassandra.config.CFMetaData;
-import org.apache.cassandra.config.ColumnDefinition;
 import org.apache.cassandra.db.Directories;
+import org.apache.cassandra.schema.IndexMetadata;
 import org.apache.lucene.analysis.Analyzer;
 
 import java.io.File;
@@ -32,7 +32,6 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 /**
  * The Stratio Lucene index user-specified configuration.
@@ -67,9 +66,8 @@ public class IndexConfig {
     public static final String EXCLUDED_DATA_CENTERS_OPTION = "excluded_data_centers";
     public static final List<String> DEFAULT_EXCLUDED_DATA_CENTERS = Collections.emptyList();
 
-    private final ColumnDefinition columnDefinition;
     private final CFMetaData metadata;
-    private final Map<String, String> options;
+    private final IndexMetadata indexMetadata;
     private Schema schema;
     private double refreshSeconds = DEFAULT_REFRESH_SECONDS;
     private Path path;
@@ -84,13 +82,12 @@ public class IndexConfig {
      * Builds a new {@link IndexConfig} for the column family defined by the specified metadata using the specified
      * index options.
      *
-     * @param metadata         The indexed column family metadata.
-     * @param columnDefinition The index column definition.
+     * @param metadata      The indexed column family metadata.
+     * @param indexMetadata The index metadata.
      */
-    public IndexConfig(CFMetaData metadata, ColumnDefinition columnDefinition) {
+    public IndexConfig(CFMetaData metadata, IndexMetadata indexMetadata) {
         this.metadata = metadata;
-        this.columnDefinition = columnDefinition;
-        options = columnDefinition.getIndexOptions();
+        this.indexMetadata = indexMetadata;
         parseRefresh();
         parseRamBufferMB();
         parseMaxMergeMB();
@@ -112,21 +109,12 @@ public class IndexConfig {
     }
 
     /**
-     * Returns the {@link ColumnDefinition} to be used.
-     *
-     * @return The {@link ColumnDefinition} to be used.
-     */
-    public ColumnDefinition getColumnDefinition() {
-        return columnDefinition;
-    }
-
-    /**
      * Returns the name of the keyspace to be used.
      *
      * @return The name of the keyspace to be used.
      */
     public String getKeyspaceName() {
-        return columnDefinition.ksName;
+        return metadata.ksName;
     }
 
     /**
@@ -135,7 +123,7 @@ public class IndexConfig {
      * @return The name of the table to be used.
      */
     public String getTableName() {
-        return columnDefinition.cfName;
+        return metadata.cfName;
     }
 
     /**
@@ -144,7 +132,7 @@ public class IndexConfig {
      * @return The name of the index to be used.
      */
     public String getIndexName() {
-        return columnDefinition.getIndexName();
+        return indexMetadata.name;
     }
 
     /**
@@ -257,7 +245,7 @@ public class IndexConfig {
     }
 
     private void parseRefresh() {
-        String refreshOption = options.get(REFRESH_SECONDS_OPTION);
+        String refreshOption = indexMetadata.options.get(REFRESH_SECONDS_OPTION);
         if (refreshOption != null) {
             try {
                 refreshSeconds = Double.parseDouble(refreshOption);
@@ -273,7 +261,7 @@ public class IndexConfig {
     }
 
     private void parseRamBufferMB() {
-        String ramBufferSizeOption = options.get(RAM_BUFFER_MB_OPTION);
+        String ramBufferSizeOption = indexMetadata.options.get(RAM_BUFFER_MB_OPTION);
         if (ramBufferSizeOption != null) {
             try {
                 ramBufferMB = Integer.parseInt(ramBufferSizeOption);
@@ -287,7 +275,7 @@ public class IndexConfig {
     }
 
     private void parseMaxMergeMB() {
-        String maxMergeSizeMBOption = options.get(MAX_MERGE_MB_OPTION);
+        String maxMergeSizeMBOption = indexMetadata.options.get(MAX_MERGE_MB_OPTION);
         if (maxMergeSizeMBOption != null) {
             try {
                 maxMergeMB = Integer.parseInt(maxMergeSizeMBOption);
@@ -301,7 +289,7 @@ public class IndexConfig {
     }
 
     private void parseMaxCachedMB() {
-        String maxCachedMBOption = options.get(MAX_CACHED_MB_OPTION);
+        String maxCachedMBOption = indexMetadata.options.get(MAX_CACHED_MB_OPTION);
         if (maxCachedMBOption != null) {
             try {
                 maxCachedMB = Integer.parseInt(maxCachedMBOption);
@@ -315,7 +303,7 @@ public class IndexConfig {
     }
 
     private void parseSchema() {
-        String schemaOption = options.get(SCHEMA_OPTION);
+        String schemaOption = indexMetadata.options.get(SCHEMA_OPTION);
         if (schemaOption != null && !schemaOption.trim().isEmpty()) {
             try {
                 schema = SchemaBuilder.fromJson(schemaOption).build();
@@ -329,7 +317,7 @@ public class IndexConfig {
     }
 
     private void parsePath() {
-        String pathOption = options.get(DIRECTORY_PATH_OPTION);
+        String pathOption = indexMetadata.options.get(DIRECTORY_PATH_OPTION);
         if (pathOption == null) {
             Directories directories = new Directories(metadata);
             String basePath = directories.getDirectoryForNewSSTables().getAbsolutePath();
@@ -340,7 +328,7 @@ public class IndexConfig {
     }
 
     private void parseIndexingThreads() {
-        String indexPoolNumQueuesOption = options.get(INDEXING_THREADS_OPTION);
+        String indexPoolNumQueuesOption = indexMetadata.options.get(INDEXING_THREADS_OPTION);
         if (indexPoolNumQueuesOption != null) {
             try {
                 indexingThreads = Integer.parseInt(indexPoolNumQueuesOption);
@@ -351,7 +339,7 @@ public class IndexConfig {
     }
 
     private void parseIndexingQueuesSize() {
-        String indexPoolQueuesSizeOption = options.get(INDEXING_QUEUES_SIZE_OPTION);
+        String indexPoolQueuesSizeOption = indexMetadata.options.get(INDEXING_QUEUES_SIZE_OPTION);
         if (indexPoolQueuesSizeOption != null) {
             try {
                 indexingQueuesSize = Integer.parseInt(indexPoolQueuesSizeOption);
@@ -365,7 +353,7 @@ public class IndexConfig {
     }
 
     private void parseExcludedDataCenters() {
-        String excludedDataCentersOption = options.get(EXCLUDED_DATA_CENTERS_OPTION);
+        String excludedDataCentersOption = indexMetadata.options.get(EXCLUDED_DATA_CENTERS_OPTION);
         if (excludedDataCentersOption != null) {
             String[] array = excludedDataCentersOption.trim().split(",");
             excludedDataCenters = Arrays.asList(array);
@@ -375,14 +363,14 @@ public class IndexConfig {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                      .add("schema", schema)
-                      .add("refreshSeconds", refreshSeconds)
-                      .add("path", path)
-                      .add("ramBufferMB", ramBufferMB)
-                      .add("maxMergeMB", maxMergeMB)
-                      .add("maxCachedMB", maxCachedMB)
-                      .add("excludedDataCenters", excludedDataCenters)
-                      .toString();
+        return MoreObjects.toStringHelper(this)
+                          .add("schema", schema)
+                          .add("refreshSeconds", refreshSeconds)
+                          .add("path", path)
+                          .add("ramBufferMB", ramBufferMB)
+                          .add("maxMergeMB", maxMergeMB)
+                          .add("maxCachedMB", maxCachedMB)
+                          .add("excludedDataCenters", excludedDataCenters)
+                          .toString();
     }
 }
