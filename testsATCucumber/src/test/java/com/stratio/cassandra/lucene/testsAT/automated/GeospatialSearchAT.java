@@ -5,7 +5,7 @@ import com.stratio.cucumber.testng.CucumberRunner;
 import cucumber.api.CucumberOptions;
 import org.testng.annotations.Test;
 
-@CucumberOptions(features = {"src/test/resources/features/searchGeo.feature"})
+@CucumberOptions(features = {"src/test/resources/features/searchGeoBbox.feature", "src/test/resources/features/searchGeoDistance.feature"})
 public class GeospatialSearchAT extends BaseAT {
     public GeospatialSearchAT() {
     }
