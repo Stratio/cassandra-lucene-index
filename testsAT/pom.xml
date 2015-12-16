@@ -31,6 +31,10 @@
     <name>Cassandra Lucene Index acceptance tests</name>
     <description>Cassandra Lucene Index acceptance tests</description>
 
+    <properties>
+        <cassandra.version>2.2.4</cassandra.version>
+    </properties>
+    
     <dependencies>
         <dependency>
             <groupId>com.stratio.cassandra</groupId>
