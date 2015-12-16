@@ -299,27 +299,6 @@ public abstract class Mapper {
         }
     }
 
-    /**
-     * Returns if the specified {@link Columns} contains the mapped columns.
-     *
-     * @param columns A {@link Columns}.
-     * @return {@code true} if the specified {@link Columns} contains the mapped columns, {@code false} otherwise.
-     */
-    public final boolean maps(Columns columns) {
-        for (String columnName : mappedColumns) {
-            Columns mapperColumns = columns.getColumnsByCellName(columnName);
-            if (mapperColumns.isEmpty()) {
-                return false;
-            }
-            for (Column<?> column : mapperColumns) {
-                if (column.isMultiCell()) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
     protected Objects.ToStringHelper toStringHelper(Object self) {
         return Objects.toStringHelper(self)
                       .add("field", field)

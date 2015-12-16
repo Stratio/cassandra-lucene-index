@@ -36,15 +36,14 @@ public class ColumnTest {
         AbstractType<Long> type = LongType.instance;
         Long composedValue = 5L;
         ByteBuffer decomposedValue = type.decompose(composedValue);
-        Column<Long> column = Column.builder("my_column").multiCell(true).decomposedValue(decomposedValue, type);
+        Column<Long> column = Column.builder("my_column").buildWithDecomposed(decomposedValue, type);
         assertEquals("Column full name is wrong", "my_column", column.getFullName());
         assertEquals("Column cell name is wrong", "my_column", column.getCellName());
         assertEquals("Column mapper name is wrong", "my_column", column.getMapperName());
         assertEquals("Column field name is wrong", "field", column.getFieldName("field"));
         assertEquals("Column type is wrong", type, column.getType());
-        assertEquals("Column composedValue is wrong", composedValue, column.getComposedValue());
-        assertEquals("Column decomposedValue is wrong", decomposedValue, column.getDecomposedValue());
-        assertTrue("Column multiCell is wrong", column.isMultiCell());
+        assertEquals("Column buildWithComposed is wrong", composedValue, column.getComposedValue());
+        assertEquals("Column buildWithDecomposed is wrong", decomposedValue, column.getDecomposedValue());
     }
 
     @Test
@@ -52,15 +51,14 @@ public class ColumnTest {
         AbstractType<Long> type = LongType.instance;
         Long composedValue = 5L;
         ByteBuffer decomposedValue = type.decompose(composedValue);
-        Column<Long> column = Column.builder("my").mapName("column").decomposedValue(decomposedValue, type);
+        Column<Long> column = Column.builder("my").withMapName("column").buildWithDecomposed(decomposedValue, type);
         assertEquals("Column full name is wrong", "my$column", column.getFullName());
         assertEquals("Column cell name is wrong", "my", column.getCellName());
         assertEquals("Column mapper name is wrong", "my", column.getMapperName());
         assertEquals("Column field name is wrong", "field$column", column.getFieldName("field"));
         assertEquals("Column type is wrong", type, column.getType());
-        assertEquals("Column composedValue is wrong", composedValue, column.getComposedValue());
-        assertEquals("Column decomposedValue is wrong", decomposedValue, column.getDecomposedValue());
-        assertFalse("Column multiCell is wrong", column.isMultiCell());
+        assertEquals("Column buildWithComposed is wrong", composedValue, column.getComposedValue());
+        assertEquals("Column buildWithDecomposed is wrong", decomposedValue, column.getDecomposedValue());
     }
 
     @Test
@@ -68,39 +66,36 @@ public class ColumnTest {
         AbstractType<Long> type = LongType.instance;
         Long composedValue = 5L;
         ByteBuffer decomposedValue = type.decompose(composedValue);
-        Column<Long> column = Column.builder("my").udtName("column").decomposedValue(decomposedValue, type);
+        Column<Long> column = Column.builder("my").withUDTName("column").buildWithDecomposed(decomposedValue, type);
         assertEquals("Column full name is wrong", "my.column", column.getFullName());
         assertEquals("Column cell name is wrong", "my", column.getCellName());
         assertEquals("Column mapper name is wrong", "my.column", column.getMapperName());
         assertEquals("Column field name is wrong", "field", column.getFieldName("field"));
         assertEquals("Column type is wrong", type, column.getType());
-        assertEquals("Column composedValue is wrong", composedValue, column.getComposedValue());
-        assertEquals("Column decomposedValue is wrong", decomposedValue, column.getDecomposedValue());
-        assertFalse("Column multiCell is wrong", column.isMultiCell());
+        assertEquals("Column buildWithComposed is wrong", composedValue, column.getComposedValue());
+        assertEquals("Column buildWithDecomposed is wrong", decomposedValue, column.getDecomposedValue());
     }
 
     @Test
     public void testCreateFromDecomposedWithComplexSuffix() {
-        String name = "my.1.2.3$4$5$6";
         AbstractType<Long> type = LongType.instance;
         Long composedValue = 5L;
         ByteBuffer decomposedValue = type.decompose(composedValue);
         Column<Long> column = Column.builder("my")
-                                    .udtName("1")
-                                    .udtName("2")
-                                    .udtName("3")
-                                    .mapName("4")
-                                    .mapName("5")
-                                    .mapName("6")
-                                    .decomposedValue(decomposedValue, type);
+                                    .withUDTName("1")
+                                    .withUDTName("2")
+                                    .withUDTName("3")
+                                    .withMapName("4")
+                                    .withMapName("5")
+                                    .withMapName("6")
+                                    .buildWithDecomposed(decomposedValue, type);
         assertEquals("Column full name is wrong", "my.1.2.3$4$5$6", column.getFullName());
         assertEquals("Column cell name is wrong", "my", column.getCellName());
         assertEquals("Column mapper name is wrong", "my.1.2.3", column.getMapperName());
         assertEquals("Column field name is wrong", "field$4$5$6", column.getFieldName("field"));
         assertEquals("Column type is wrong", type, column.getType());
-        assertEquals("Column composedValue is wrong", composedValue, column.getComposedValue());
-        assertEquals("Column decomposedValue is wrong", decomposedValue, column.getDecomposedValue());
-        assertFalse("Column multiCell is wrong", column.isMultiCell());
+        assertEquals("Column buildWithComposed is wrong", composedValue, column.getComposedValue());
+        assertEquals("Column buildWithDecomposed is wrong", decomposedValue, column.getDecomposedValue());
     }
 
     @Test
@@ -108,14 +103,13 @@ public class ColumnTest {
         AbstractType<Long> type = LongType.instance;
         Long composedValue = 5L;
         ByteBuffer decomposedValue = type.decompose(composedValue);
-        Column<Long> column = Column.builder("my_column").decomposedValue(decomposedValue, type);
+        Column<Long> column = Column.builder("my_column").buildWithDecomposed(decomposedValue, type);
         assertEquals("Column full name is wrong", "my_column", column.getFullName());
         assertEquals("Column cell name is wrong", "my_column", column.getCellName());
         assertEquals("Column mapper name is wrong", "my_column", column.getMapperName());
         assertEquals("Column field name is wrong", "field", column.getFieldName("field"));
-        assertEquals("Column composedValue is wrong", composedValue, column.getComposedValue());
-        assertEquals("Column decomposedValue is wrong", decomposedValue, column.getDecomposedValue());
-        assertFalse("Column multiCell is wrong", column.isMultiCell());
+        assertEquals("Column buildWithComposed is wrong", composedValue, column.getComposedValue());
+        assertEquals("Column buildWithDecomposed is wrong", decomposedValue, column.getDecomposedValue());
     }
 
     @Test
@@ -123,14 +117,13 @@ public class ColumnTest {
         AbstractType<Long> type = LongType.instance;
         Long composedValue = 5L;
         ByteBuffer decomposedValue = type.decompose(composedValue);
-        Column<Long> column = Column.builder("my").udtName("column").decomposedValue(decomposedValue, type);
+        Column<Long> column = Column.builder("my").withUDTName("column").buildWithDecomposed(decomposedValue, type);
         assertEquals("Column full name is wrong", "my.column", column.getFullName());
         assertEquals("Column cell name is wrong", "my", column.getCellName());
         assertEquals("Column mapper name is wrong", "my.column", column.getMapperName());
         assertEquals("Column field name is wrong", "field", column.getFieldName("field"));
-        assertEquals("Column composedValue is wrong", composedValue, column.getComposedValue());
-        assertEquals("Column decomposedValue is wrong", decomposedValue, column.getDecomposedValue());
-        assertFalse("Column multiCell is wrong", column.isMultiCell());
+        assertEquals("Column buildWithComposed is wrong", composedValue, column.getComposedValue());
+        assertEquals("Column buildWithDecomposed is wrong", decomposedValue, column.getDecomposedValue());
     }
 
     @Test
@@ -138,11 +131,10 @@ public class ColumnTest {
         LongType type = LongType.instance;
         Long composedValue = 5L;
         ByteBuffer decomposedValue = type.decompose(composedValue);
-        Column<Long> column = Column.builder("my_column").decomposedValue(decomposedValue, type);
+        Column<Long> column = Column.builder("my_column").buildWithDecomposed(decomposedValue, type);
         assertEquals("Method #toString is wrong",
-                     "Column{fullName=my_column, composedValue=5, type=LongType}",
+                     "Column{fullName=my_column, buildWithComposed=5, type=LongType}",
                      column.toString());
-        assertFalse("Column multiCell is wrong", column.isMultiCell());
     }
 
     @Test
@@ -150,10 +142,11 @@ public class ColumnTest {
         LongType type = LongType.instance;
         Long composedValue = 5L;
         ByteBuffer decomposedValue = type.decompose(composedValue);
-        Column<Long> column = Column.builder("my").udtName("1").mapName("2").decomposedValue(decomposedValue, type);
+        Column<Long> column = Column.builder("my").withUDTName("1").withMapName("2").buildWithDecomposed(
+                decomposedValue,
+                type);
         assertEquals("Method #toString is wrong",
-                     "Column{fullName=my.1$2, composedValue=5, type=LongType}",
+                     "Column{fullName=my.1$2, buildWithComposed=5, type=LongType}",
                      column.toString());
-        assertFalse("Column multiCell is wrong", column.isMultiCell());
     }
 }

@@ -60,8 +60,6 @@ public final class Column<T> {
     /** The column's Cassandra type. */
     private final AbstractType<T> type;
 
-    private final boolean isMultiCell;
-
     /**
      * Builds a new {@link Column} with the specified name, name suffix, value, and type.
      *
@@ -71,22 +69,19 @@ public final class Column<T> {
      * @param decomposedValue The decomposed value of the column to be created.
      * @param composedValue   The composed value of the column to be created.
      * @param type            The type/marshaller of the column to be created.
-     * @param isMultiCell     If the column is a multiCell column (not frozen Collections).
      */
     Column(String cellName,
            List<String> udtNames,
            List<String> mapNames,
            ByteBuffer decomposedValue,
            T composedValue,
-           AbstractType<T> type,
-           boolean isMultiCell) {
+           AbstractType<T> type) {
         this.cellName = cellName;
         this.udtNames = udtNames;
         this.mapNames = mapNames;
         this.composedValue = composedValue;
         this.decomposedValue = decomposedValue;
         this.type = type;
-        this.isMultiCell = isMultiCell;
     }
 
     public static ColumnBuilder builder(String cellName) {
@@ -187,21 +182,12 @@ public final class Column<T> {
         return type;
     }
 
-    /**
-     * Returns if this Column is a multiCell column (not frozen Collections).
-     *
-     * @return if this Column is a multiCell column (not frozen Collections).
-     */
-    public boolean isMultiCell() {
-        return isMultiCell;
-    }
-
     /** {@inheritDoc} */
     @Override
     public String toString() {
         return Objects.toStringHelper(this)
                       .add("fullName", getFullName())
-                      .add("composedValue", getComposedValue())
+                      .add("buildWithComposed", getComposedValue())
                       .add("type", type.getClass().getSimpleName())
                       .toString();
     }

@@ -31,10 +31,9 @@ import java.util.List;
  */
 public class ColumnBuilder {
 
-    private final String cellName;
-    private final List<String> udtNames;
-    private final List<String> mapNames;
-    private boolean isMultiCell = false;
+    private  String cellName;
+    private  List<String> udtNames;
+    private  List<String> mapNames;
 
     public ColumnBuilder(String cellName) {
         this.cellName = cellName;
@@ -42,41 +41,33 @@ public class ColumnBuilder {
         mapNames = new ArrayList<>();
     }
 
-    public <T> Column<T> composedValue(T composedValue, AbstractType<T> type) {
+    public <T> Column<T> buildWithComposed(T composedValue, AbstractType<T> type) {
         ByteBuffer decomposedValue = type.decompose(composedValue);
-        return new Column<>(cellName, udtNames, mapNames, decomposedValue, composedValue, type, isMultiCell);
+        return new Column<>(cellName, udtNames, mapNames, decomposedValue, composedValue, type);
     }
 
-    public <T> Column<T> decomposedValue(ByteBuffer decomposedValue, AbstractType<T> type) {
+    public <T> Column<T> buildWithDecomposed(ByteBuffer decomposedValue, AbstractType<T> type) {
         T composedValue = type.compose(decomposedValue);
-        return new Column<>(cellName, udtNames, mapNames, decomposedValue, composedValue, type, isMultiCell);
+        return new Column<>(cellName, udtNames, mapNames, decomposedValue, composedValue, type);
     }
 
-    public ColumnBuilder multiCell(boolean isMultiCell) {
-        this.isMultiCell = isMultiCell;
-        return this;
+    public ColumnBuilder withUDTName(String name) {
+        ColumnBuilder clone = clone();
+        clone.udtNames.add(name);
+        return clone;
     }
 
-    public ColumnBuilder udtName(String name) {
-        udtNames.add(name);
-        return this;
-    }
-
-    public ColumnBuilder mapName(String name) {
-        mapNames.add(name);
-        return this;
+    public ColumnBuilder withMapName(String name) {
+        ColumnBuilder clone = clone();
+        clone.mapNames.add(name);
+        return clone;
     }
 
     @Override
     public ColumnBuilder clone() {
         ColumnBuilder clone = new ColumnBuilder(cellName);
-        clone.isMultiCell = isMultiCell;
-        for (String udtName : udtNames) {
-            clone.udtNames.add(udtName);
-        }
-        for (String mapName : mapNames) {
-            clone.mapNames.add(mapName);
-        }
+        clone.udtNames.addAll(udtNames);
+        clone.mapNames.addAll(mapNames);
         return clone;
     }
 }

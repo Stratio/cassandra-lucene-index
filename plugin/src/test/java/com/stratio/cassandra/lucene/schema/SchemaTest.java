@@ -22,25 +22,13 @@ import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
-import org.apache.cassandra.config.CFMetaData;
-import org.apache.cassandra.db.marshal.AsciiType;
-import org.apache.cassandra.db.marshal.IntegerType;
 import org.apache.cassandra.db.marshal.UTF8Type;
-import org.apache.cassandra.exceptions.ConfigurationException;
-import org.apache.cassandra.exceptions.InvalidRequestException;
-import org.apache.cassandra.thrift.CfDef;
-import org.apache.cassandra.thrift.ColumnDef;
-import org.apache.cassandra.thrift.IndexType;
-import org.apache.cassandra.thrift.ThriftConversion;
-import org.apache.cassandra.utils.ByteBufferUtil;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.document.Document;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
@@ -102,7 +90,7 @@ public class SchemaTest {
     @Test
     public void testValidateColumns() {
         Schema schema = SchemaBuilders.schema().mapper("field1", stringMapper()).build();
-        Columns columns = new Columns().add(Column.builder("field1").composedValue("value", UTF8Type.instance));
+        Columns columns = new Columns().add(Column.builder("field1").buildWithComposed("value", UTF8Type.instance));
         schema.validate(columns);
         schema.close();
     }
@@ -110,7 +98,7 @@ public class SchemaTest {
     @Test(expected = IndexException.class)
     public void testValidateColumnsFailing() {
         Schema schema = SchemaBuilders.schema().mapper("field1", integerMapper().validated(true)).build();
-        Columns columns = new Columns().add(Column.builder("field1").composedValue("value", UTF8Type.instance));
+        Columns columns = new Columns().add(Column.builder("field1").buildWithComposed("value", UTF8Type.instance));
         schema.validate(columns);
         schema.close();
     }
@@ -130,28 +118,9 @@ public class SchemaTest {
     }
 
     @Test
-    public void testMapsAllTrue() {
-        Schema schema = SchemaBuilders.schema().mapper("field1", stringMapper()).build();
-        Columns columns = new Columns().add(Column.builder("field1").composedValue("value", UTF8Type.instance));
-        assertTrue("Expected true", schema.mapsAll(columns));
-        schema.close();
-    }
-
-    @Test
-    public void testMapsAllFalse() {
-        Schema schema = SchemaBuilders.schema()
-                                      .mapper("field1", stringMapper())
-                                      .mapper("field2", stringMapper())
-                                      .build();
-        Columns columns = new Columns().add(Column.builder("field1").composedValue("value", UTF8Type.instance));
-        assertFalse("Expected false", schema.mapsAll(columns));
-        schema.close();
-    }
-
-    @Test
     public void testAddFields() {
         Schema schema = SchemaBuilders.schema().mapper("field1", stringMapper()).build();
-        Columns columns = new Columns().add(Column.builder("field1").composedValue("value", UTF8Type.instance));
+        Columns columns = new Columns().add(Column.builder("field1").buildWithComposed("value", UTF8Type.instance));
         Document document = new Document();
         schema.addFields(document, columns);
         assertNotNull("Expected true", document.getField("field1"));
@@ -161,7 +130,7 @@ public class SchemaTest {
     @Test
     public void testAddFieldsFailing() {
         Schema schema = SchemaBuilders.schema().mapper("field1", integerMapper()).build();
-        Columns columns = new Columns().add(Column.builder("field1").composedValue("value", UTF8Type.instance));
+        Columns columns = new Columns().add(Column.builder("field1").buildWithComposed("value", UTF8Type.instance));
         Document document = new Document();
         schema.addFields(document, columns);
         assertNull("Expected true", document.getField("field1"));

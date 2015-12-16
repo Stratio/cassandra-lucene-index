@@ -18,12 +18,10 @@
 
 package com.stratio.cassandra.lucene.schema.column;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * A sorted list of CQL3 logic {@link Column}s.
@@ -38,6 +36,15 @@ public class Columns implements Iterable<Column<?>> {
     /** Returns an empty {@link Column} list. */
     public Columns() {
         this.columns = new LinkedList<>();
+    }
+
+    /**
+     * Returns an empty {@link Column} list.
+     *
+     * @param initialCapacity the initial capacity of the list
+     */
+    public Columns(int initialCapacity) {
+        this.columns = new ArrayList<>(initialCapacity);
     }
 
     /**
@@ -68,8 +75,32 @@ public class Columns implements Iterable<Column<?>> {
      */
     public Columns add(Columns columns) {
         for (Column<?> column : columns) {
-            this.columns.add(column);
+            add(column);
         }
+        return this;
+    }
+
+    /**
+     * Replaces the specified {@link Column}.
+     *
+     * @param column the {@link Column} to be replaced.
+     * @return this
+     */
+    public Columns replace(Column<?> column) {
+        String name = column.getFullName();
+        columns.removeIf(c -> c.getFullName().equals(name));
+        columns.add(column);
+        return this;
+    }
+
+    /**
+     * Replaces the specified {@link Column}s.
+     *
+     * @param columns the {@link Column}s to be replaced.
+     * @return this
+     */
+    public Columns replaceAll(Columns columns) {
+        columns.forEach(this::replace);
         return this;
     }
 
@@ -156,7 +187,7 @@ public class Columns implements Iterable<Column<?>> {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        Objects.ToStringHelper helper = Objects.toStringHelper(this);
+        MoreObjects.ToStringHelper helper = MoreObjects.toStringHelper(this);
         for (Column<?> column : columns) {
             helper.add(column.getFullName(), column.getComposedValue());
         }

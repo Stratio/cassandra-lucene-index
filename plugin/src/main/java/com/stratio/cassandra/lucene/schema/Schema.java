@@ -174,21 +174,6 @@ public class Schema implements Closeable {
         return false;
     }
 
-    /**
-     * Returns if the specified {@link Columns} contains the all the mapped columns.
-     *
-     * @param columns A {@link Columns}.
-     * @return {@code true} if the specified {@link Columns} contains the mapped columns, {@code false} otherwise.
-     */
-    public boolean mapsAll(Columns columns) {
-        for (Mapper mapper : mappers.values()) {
-            if (!mapper.maps(columns)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     /** {@inheritDoc} */
     @Override
     public void close() {

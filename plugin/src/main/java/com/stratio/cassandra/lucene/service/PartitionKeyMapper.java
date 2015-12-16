@@ -18,7 +18,6 @@
 
 package com.stratio.cassandra.lucene.service;
 
-import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import com.stratio.cassandra.lucene.util.ByteBufferUtils;
@@ -27,6 +26,7 @@ import org.apache.cassandra.config.ColumnDefinition;
 import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.db.DecoratedKey;
 import org.apache.cassandra.db.marshal.AbstractType;
+import org.apache.cassandra.db.marshal.CompositeType;
 import org.apache.cassandra.dht.IPartitioner;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -50,44 +50,31 @@ public final class PartitionKeyMapper {
     /** The Lucene field name. */
     public static final String FIELD_NAME = "_partition_key";
 
-    // The active active partition key
-    private final IPartitioner partitioner;
-
-    // The table metadata
     private final CFMetaData metadata;
+    private final IPartitioner partitioner;
+    private final CompositeType keyValidator;
 
-    // The mapping schema
-    private final Schema schema;
-
-    // The partition key type.
-    private final AbstractType<?> type;
-
-    /**
-     * Returns a new {@code PartitionKeyMapper} according to the specified column family meta data.
-     *
-     * @param metadata The column family metadata.
-     * @param schema   A {@link Schema}.
-     */
-    private PartitionKeyMapper(CFMetaData metadata, Schema schema) {
-        partitioner = DatabaseDescriptor.getPartitioner();
+    public PartitionKeyMapper(CFMetaData metadata) {
         this.metadata = metadata;
-        this.schema = schema;
-        this.type = metadata.getKeyValidator();
+        partitioner = DatabaseDescriptor.getPartitioner();
+        keyValidator = (CompositeType) metadata.getKeyValidator();
     }
 
     /**
-     * Returns a new {@code PartitionKeyMapper} according to the specified column family meta data.
+     * Adds to the specified {@link Column} to the {@link Column}s contained in the partition key of the specified row.
      *
-     * @param metadata The column family metadata.
-     * @param schema   A {@link Schema}.
-     * @return a new {@code PartitionKeyMapper} according to the specified column family meta data.
+     * @param columns The {@link Columns} in which the {@link Column}s are going to be added.
+     * @param key     A partition key.
      */
-    public static PartitionKeyMapper instance(CFMetaData metadata, Schema schema) {
-        return new PartitionKeyMapper(metadata, schema);
-    }
-
-    public AbstractType<?> getType() {
-        return type;
+    public void addColumns(Columns columns, DecoratedKey key) {
+        List<ColumnDefinition> columnDefinitions = metadata.partitionKeyColumns();
+        ByteBuffer[] components = keyValidator.split(key.getKey());
+        for (ColumnDefinition columnDefinition : columnDefinitions) {
+            String name = columnDefinition.name.toString();
+            ByteBuffer value = components[columnDefinition.position()];
+            AbstractType<?> type = columnDefinition.cellValueType();
+            columns.add(Column.builder(name).buildWithDecomposed(value, type));
+        }
     }
 
     /**
@@ -145,30 +132,6 @@ public final class PartitionKeyMapper {
      */
     public DecoratedKey partitionKey(ByteBuffer partitionKey) {
         return partitioner.decorateKey(partitionKey);
-    }
-
-    /**
-     * Returns the columns contained in the partition key of the specified row. Note that not all the contained columns
-     * are returned, but only those of the partition key.
-     *
-     * @param partitionKey A partition key.
-     * @return The columns contained in the partition key of the specified row.
-     */
-    public Columns columns(DecoratedKey partitionKey) {
-        Columns columns = new Columns();
-        AbstractType<?> rawKeyType = metadata.getKeyValidator();
-        List<ColumnDefinition> columnDefinitions = metadata.partitionKeyColumns();
-        for (ColumnDefinition columnDefinition : columnDefinitions) {
-            String name = columnDefinition.name.toString();
-            if (schema.maps(name)) {
-                ByteBuffer[] components = ByteBufferUtils.split(partitionKey.getKey(), rawKeyType);
-                int position = columnDefinition.position();
-                ByteBuffer value = components[position];
-                AbstractType<?> valueType = rawKeyType.getComponents().get(position);
-                columns.add(Column.builder(name).decomposedValue(value, valueType));
-            }
-        }
-        return columns;
     }
 
 }

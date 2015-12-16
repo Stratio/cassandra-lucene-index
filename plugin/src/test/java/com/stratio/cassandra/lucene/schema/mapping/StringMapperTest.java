@@ -236,7 +236,7 @@ public class StringMapperTest extends AbstractMapperTest {
     public void testAddFields() {
         StringMapper mapper = stringMapper().sorted(true).caseSensitive(true).build("field");
         Document document = new Document();
-        Column<?> column = Column.builder("field").composedValue("value", UTF8Type.instance);
+        Column<?> column = Column.builder("field").buildWithComposed("value", UTF8Type.instance);
         Columns columns = new Columns(column);
         mapper.addFields(document, columns);
         IndexableField[] indexableFields = document.getFields("field");
