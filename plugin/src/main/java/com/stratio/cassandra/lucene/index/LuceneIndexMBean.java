@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package com.stratio.cassandra.lucene.service;
+package com.stratio.cassandra.lucene.index;
 
 import java.io.IOException;
 
@@ -28,25 +28,23 @@ public interface LuceneIndexMBean {
     /**
      * Commits the pending changes.
      *
-     * @throws IOException If Lucene throws IO errors.
+     * @throws Exception If Lucene throws IO errors.
      */
-    void commit() throws IOException;
+    void commit();
 
     /**
      * Returns the total number of {@link org.apache.lucene.document.Document}s in this index.
      *
      * @return The total number of {@link org.apache.lucene.document.Document}s in this index.
-     * @throws IOException If Lucene throws IO errors.
      */
-    long getNumDocs() throws IOException;
+    long getNumDocs();
 
     /**
      * Returns the total number of deleted {@link org.apache.lucene.document.Document}s in this index.
      *
      * @return The total number of deleted {@link org.apache.lucene.document.Document}s in this index.
-     * @throws IOException If Lucene throws IO errors.
      */
-    long getNumDeletedDocs() throws IOException;
+    long getNumDeletedDocs();
 
     /**
      * Optimizes the index forcing merge segments leaving the specified number of segments. This operation may block
@@ -54,23 +52,19 @@ public interface LuceneIndexMBean {
      *
      * @param maxNumSegments The maximum number of segments left in the index after merging finishes.
      * @param doWait         {@code true} if the call should block until the operation completes.
-     * @throws IOException If Lucene throws IO errors.
      */
-    void forceMerge(int maxNumSegments, boolean doWait) throws IOException;
+    void forceMerge(int maxNumSegments, boolean doWait);
 
     /**
      * Optimizes the index forcing merge of all segments that have deleted documents.. This operation may block until
      * all merging completes.
      *
      * @param doWait {@code true} if the call should block until the operation completes.
-     * @throws IOException If Lucene throws IO errors.
      */
-    void forceMergeDeletes(boolean doWait) throws IOException;
+    void forceMergeDeletes(boolean doWait);
 
     /**
      * Refreshes the index readers.
-     *
-     * @throws IOException If Lucene throws IO errors.
      */
-    void refresh() throws IOException;
+    void refresh();
 }

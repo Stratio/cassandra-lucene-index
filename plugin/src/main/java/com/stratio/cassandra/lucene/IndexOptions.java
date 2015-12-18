@@ -22,12 +22,8 @@ import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.SchemaBuilder;
 import org.apache.cassandra.config.CFMetaData;
-import org.apache.cassandra.db.ColumnFamilyStore;
 import org.apache.cassandra.db.Directories;
 import org.apache.cassandra.schema.IndexMetadata;
-import org.apache.lucene.analysis.Analyzer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -42,9 +38,7 @@ import java.util.Map;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class IndexConfig {
-
-    private static final Logger logger = LoggerFactory.getLogger(IndexConfig.class);
+public class IndexOptions {
 
     public static final String REFRESH_SECONDS_OPTION = "refresh_seconds";
     public static final double DEFAULT_REFRESH_SECONDS = 60;
@@ -72,29 +66,23 @@ public class IndexConfig {
 
     public static final String SCHEMA_OPTION = "schema";
 
-    private final ColumnFamilyStore columnFamilyStore;
-    private final CFMetaData tableMetadata;
-    private final IndexMetadata indexMetadata;
-    private Schema schema;
-    private double refreshSeconds = DEFAULT_REFRESH_SECONDS;
-    private Path path;
-    private int ramBufferMB = DEFAULT_RAM_BUFFER_MB;
-    private int maxMergeMB = DEFAULT_MAX_MERGE_MB;
-    private int maxCachedMB = DEFAULT_MAX_CACHED_MB;
-    private int indexingThreads = DEFAULT_INDEXING_THREADS;
-    private int indexingQueuesSize = DEFAULT_INDEXING_QUEUES_SIZE;
-    private List<String> excludedDataCenters = DEFAULT_EXCLUDED_DATA_CENTERS;
+    public final Schema schema;
+    public final Path path;
+    public final double refreshSeconds;
+    public final int ramBufferMB;
+    public final int maxMergeMB;
+    public final int maxCachedMB;
+    public final int indexingThreads;
+    public final int indexingQueuesSize;
+    public final List<String> excludedDataCenters;
 
     /**
-     * Builds a new {@link IndexConfig} for the column family and index metadata.
+     * Builds a new {@link IndexOptions} for the column family and index metadata.
      *
-     * @param columnFamilyStore The indexed column family.
-     * @param indexMetadata The index metadata.
+     * @param tableMetadata The indexed table metadata.
+     * @param indexMetadata     The index metadata.
      */
-    public IndexConfig(ColumnFamilyStore columnFamilyStore, IndexMetadata indexMetadata) {
-        this.columnFamilyStore = columnFamilyStore;
-        this.indexMetadata = indexMetadata;
-        tableMetadata = columnFamilyStore.metadata;
+    public IndexOptions(CFMetaData tableMetadata, IndexMetadata indexMetadata) {
         Map<String, String> options = indexMetadata.options;
         refreshSeconds = parseRefresh(options);
         ramBufferMB = parseRamBufferMB(options);
@@ -122,169 +110,6 @@ public class IndexConfig {
         parseExcludedDataCenters(options);
         parseSchema(options, null); // TODO: This should be mandatory, check Index#validateOptions
         parsePath(options, null); // TODO: This should be mandatory, check Index#validateOptions
-    }
-
-    /**
-     * Returns the {@link ColumnFamilyStore} to be used.
-     *
-     * @return The {@link ColumnFamilyStore} to be used.
-     */
-    public ColumnFamilyStore getColumnFamilyStore() {
-        return columnFamilyStore;
-    }
-
-    /**
-     * Returns the {@link CFMetaData} to be used.
-     *
-     * @return The {@link CFMetaData} to be used.
-     */
-    public CFMetaData getTableMetadata() {
-        return tableMetadata;
-    }
-
-    /**
-     * Returns the {@link IndexMetadata} to be used.
-     *
-     * @return The {@link IndexMetadata} to be used.
-     */
-    public IndexMetadata getIndexMetadata() {
-        return indexMetadata;
-    }
-
-    /**
-     * Returns the name of the keyspace to be used.
-     *
-     * @return The name of the keyspace to be used.
-     */
-    public String getKeyspaceName() {
-        return tableMetadata.ksName;
-    }
-
-    /**
-     * Returns the name of the table to be used.
-     *
-     * @return The name of the table to be used.
-     */
-    public String getTableName() {
-        return tableMetadata.cfName;
-    }
-
-    /**
-     * Returns the name of the index to be used.
-     *
-     * @return The name of the index to be used.
-     */
-    public String getIndexName() {
-        return indexMetadata.name;
-    }
-
-    /**
-     * Returns the full qualified name of the index.
-     *
-     * @return The full qualified name of the index.
-     */
-    public String getName() {
-        return String.format("%s.%s.%s", getKeyspaceName(), getTableName(), getIndexName());
-    }
-
-    /**
-     * Returns {@code true} if the index uses wide rows, {@code false} otherwise.
-     *
-     * @return {@code true} if the index uses wide rows, {@code false} otherwise.
-     */
-    public boolean isWide() {
-        return tableMetadata.clusteringColumns().size() > 0;
-    }
-
-    /**
-     * Returns the {@link Schema} to be used.
-     *
-     * @return The {@link Schema} to be used.
-     */
-    public Schema getSchema() {
-        return schema;
-    }
-
-    /**
-     * Returns the {@link Analyzer} to be used.
-     *
-     * @return The {@link Analyzer} to be used.
-     */
-    public Analyzer getAnalyzer() {
-        return schema.getAnalyzer();
-    }
-
-    /**
-     * Returns the path of the directory where the Lucene files will be stored. This directory is collocated to the
-     * indexed column family one.
-     *
-     * @return The path where the Lucene files will be stored.
-     */
-    public Path getPath() {
-        return path;
-    }
-
-    /**
-     * Returns the list of excluded data centers.
-     *
-     * @return The list of excluded data centers.
-     */
-    public List<String> getExcludedDataCenters() {
-        return excludedDataCenters;
-    }
-
-    /**
-     * Returns the number of seconds before refreshing the index readers.
-     *
-     * @return The number of seconds before refreshing the index readers.
-     */
-    public double getRefreshSeconds() {
-        return refreshSeconds;
-    }
-
-    /**
-     * Returns the size of the Lucene index writer write buffer. Its content will be committed to disk when full.
-     *
-     * @return The size of the write buffer.
-     */
-    public int getRamBufferMB() {
-        return ramBufferMB;
-    }
-
-    /**
-     * Returns the Lucene's max merge MBs.
-     *
-     * @return The Lucene's max merge MBs.
-     */
-    public int getMaxMergeMB() {
-        return maxMergeMB;
-    }
-
-    /**
-     * Returns the Lucene's max cached MBs.
-     *
-     * @return The Lucene's max cached MBs.
-     */
-    public int getMaxCachedMB() {
-        return maxCachedMB;
-    }
-
-    /**
-     * Returns the number of asynchronous indexing threads, where {@code 0} means synchronous indexing.
-     *
-     * @return The number of asynchronous indexing threads.
-     */
-    public int getIndexingThreads() {
-        return indexingThreads;
-    }
-
-    /**
-     * Returns the max number of queued documents per asynchronous indexing thread.
-     *
-     * @return The max number of queued documents per asynchronous indexing thread.
-     */
-    public int getIndexingQueuesSize() {
-        return indexingQueuesSize;
     }
 
     private static double parseRefresh(Map<String, String> options) {

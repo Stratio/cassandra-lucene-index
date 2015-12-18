@@ -18,7 +18,6 @@
 
 package com.stratio.cassandra.lucene;
 
-import com.stratio.cassandra.lucene.service.Service;
 import org.apache.cassandra.config.ColumnDefinition;
 import org.apache.cassandra.cql3.Operator;
 import org.apache.cassandra.db.ColumnFamilyStore;
@@ -55,8 +54,8 @@ public class Index implements org.apache.cassandra.index.Index {
 
     private static final Logger logger = LoggerFactory.getLogger(Index.class);
 
-    private IndexConfig config;
-    private Service service;
+    private IndexMetadata indexMetadata;
+    private IndexService service;
     private String name;
 
     /**
@@ -66,13 +65,13 @@ public class Index implements org.apache.cassandra.index.Index {
      * @param indexMetadata     The index's metadata.
      */
     public Index(ColumnFamilyStore columnFamilyStore, IndexMetadata indexMetadata) {
-        config = new IndexConfig(columnFamilyStore, indexMetadata);
+        this.indexMetadata = indexMetadata;
         try {
-            service = new Service(config);
+            service = new IndexService(columnFamilyStore, indexMetadata);
         } catch (Exception e) {
             throw new IndexException(e);
         }
-        name = config.getName();
+        name = service.getIndexName();
     }
 
     /**
@@ -85,7 +84,7 @@ public class Index implements org.apache.cassandra.index.Index {
     public static Map<String, String> validateOptions(Map<String, String> options) throws ConfigurationException {
         logger.debug("Validating Lucene index options");
         try {
-            IndexConfig.validateOptions(options);
+            IndexOptions.validateOptions(options);
             logger.debug("Lucene index options are valid");
         } catch (IndexException e) {
             logger.error("Lucene index options are invalid", e);
@@ -122,7 +121,7 @@ public class Index implements org.apache.cassandra.index.Index {
     @Override
     public IndexMetadata getIndexMetadata() {
         logger.debug("Getting index metadata");
-        return config.getIndexMetadata();
+        return indexMetadata;
     }
 
     /**
@@ -144,7 +143,7 @@ public class Index implements org.apache.cassandra.index.Index {
 
     /**
      * An index must be registered in order to be able to either subscribe to update events on the base
-     * table and/or to provide Searcher functionality for reads. The double dispatch involved here, where
+     * table and/or to provide IndexSearcher functionality for reads. The double dispatch involved here, where
      * the Index actually performs its own registration by calling back to the supplied IndexRegistry's
      * own registerIndex method, is to make the decision as to whether or not to register an index belong
      * to the implementation, not the manager.
@@ -164,7 +163,6 @@ public class Index implements org.apache.cassandra.index.Index {
      * @return an Optional referencing the Index's backing storage table if it has one, or Optional.empty() if not.
      */
     public Optional<ColumnFamilyStore> getBackingTable() {
-        logger.debug("Getting backing table");
         return Optional.empty();
     }
 
@@ -176,9 +174,7 @@ public class Index implements org.apache.cassandra.index.Index {
     @Override
     public Callable<?> getBlockingFlushTask() {
         return () -> {
-            logger.info("Flushing Lucene index {}", name);
             service.commit();
-            logger.info("Flushed Lucene index {}", name);
             return null;
         };
     }
@@ -192,9 +188,7 @@ public class Index implements org.apache.cassandra.index.Index {
     @Override
     public Callable<?> getInvalidateTask() {
         return () -> {
-            logger.info("Invalidating Lucene index {}", name);
-            service.remove();
-            logger.info("Invalidated Lucene index {}", name);
+            service.delete();
             return null;
         };
     }
@@ -311,7 +305,7 @@ public class Index implements org.apache.cassandra.index.Index {
      * to determine the most selective index for a given ReadCommand. Additionally, this is also used
      * by StorageProxy.estimateResultsPerRange to calculate the initial concurrency factor for range requests
      *
-     * @return the estimated average number of results a Searcher may return for any given query
+     * @return the estimated average number of results a IndexSearcher may return for any given query
      */
     @Override
     public long getEstimatedResultRows() {
@@ -343,7 +337,7 @@ public class Index implements org.apache.cassandra.index.Index {
      */
 
     /**
-     * Creates an new {@code Indexer} object for updates to a given partition.
+     * Creates an new {@code IndexWriter} object for updates to a given partition.
      *
      * @param key             key of the partition being modified
      * @param columns         the regular and static columns the created indexer will have to deal with.
@@ -363,9 +357,7 @@ public class Index implements org.apache.cassandra.index.Index {
                               int nowInSec,
                               OpOrder.Group opGroup,
                               IndexTransaction.Type transactionType) {
-        logger.debug("Getting indexer for {} {}", key, columns);
-        System.out.println("Building indexer with service " + service);
-        return new com.stratio.cassandra.lucene.Indexer(config, service, key, columns, nowInSec, opGroup, transactionType);
+        return new IndexWriter(service, key, nowInSec, opGroup);
     }
 
     /*
@@ -398,13 +390,13 @@ public class Index implements org.apache.cassandra.index.Index {
      * InvalidRequestException when any expression is invalid.
      *
      * @param command the read command being executed
-     * @return an Searcher with which to perform the supplied command
+     * @return an IndexSearcher with which to perform the supplied command
      * @throws InvalidRequestException if the command's expressions are invalid according to the
      *                                 specific syntax supported by the index implementation.
      */
     @Override
     public Searcher searcherFor(ReadCommand command) throws InvalidRequestException {
         logger.debug("Getting searcher for {}", command);
-        return new com.stratio.cassandra.lucene.Searcher(command);
+        return new IndexSearcher(command);
     }
 }

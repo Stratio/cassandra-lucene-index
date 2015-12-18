@@ -32,11 +32,11 @@ import java.util.concurrent.locks.ReentrantLock;
  * This subclass of ThreadPoolExecutor also takes away the max threads capabilities of the ThreadPoolExecutor superclass
  * and internally sets the amount of maximum threads to be the size of the core threads. This is done since threads over
  * the core size and under the max are instantiated only once the queue is full, but the
- * NotifyingBlockingThreadPoolExecutor will block once the queue is full.
+ * BlockingExecutor will block once the queue is full.
  *
  * @author Yaneeve Shekel {@literal &} Amir Kirsh
  */
-public class NotifyingBlockingThreadPoolExecutor extends ThreadPoolExecutor {
+public class BlockingExecutor extends ThreadPoolExecutor {
 
     /**
      * Counts the number of current tasks in process.
@@ -70,13 +70,13 @@ public class NotifyingBlockingThreadPoolExecutor extends ThreadPoolExecutor {
      *                             blocking (true) or stop (false). In case false is returned from the
      *                             blockingTimeCallback, this executer will throw a RejectedExecutionException
      */
-    public NotifyingBlockingThreadPoolExecutor(int poolSize,
-                                               int queueSize,
-                                               long keepAliveTime,
-                                               TimeUnit keepAliveTimeUnit,
-                                               long maxBlockingTime,
-                                               TimeUnit maxBlockingTimeUnit,
-                                               Callable<Boolean> blockingTimeCallback) {
+    public BlockingExecutor(int poolSize,
+                            int queueSize,
+                            long keepAliveTime,
+                            TimeUnit keepAliveTimeUnit,
+                            long maxBlockingTime,
+                            TimeUnit maxBlockingTimeUnit,
+                            Callable<Boolean> blockingTimeCallback) {
 
         super(poolSize, // Core size
               poolSize, // Max size
@@ -101,7 +101,7 @@ public class NotifyingBlockingThreadPoolExecutor extends ThreadPoolExecutor {
      * @param keepAliveTime is the amount of time after which an inactive thread is terminated.
      * @param unit          is the unit of time to use with the previous parameter.
      */
-    public NotifyingBlockingThreadPoolExecutor(int poolSize, int queueSize, long keepAliveTime, TimeUnit unit) {
+    public BlockingExecutor(int poolSize, int queueSize, long keepAliveTime, TimeUnit unit) {
 
         super(poolSize, // Core size
               poolSize, // Max size
@@ -246,10 +246,10 @@ public class NotifyingBlockingThreadPoolExecutor extends ThreadPoolExecutor {
         }
 
         /**
-         * This is the inner implementation for supporting the NotifyingBlockingThreadPoolExecutor.await().
+         * This is the inner implementation for supporting the BlockingExecutor.await().
          *
          * @throws InterruptedException when the internal condition throws it.
-         * @see NotifyingBlockingThreadPoolExecutor#await() for details.
+         * @see BlockingExecutor#await() for details.
          */
         public void await() throws InterruptedException {
 
@@ -265,12 +265,12 @@ public class NotifyingBlockingThreadPoolExecutor extends ThreadPoolExecutor {
         }
 
         /**
-         * Inner implementation for supporting the NotifyingBlockingThreadPoolExecutor.await(timeout, timeUnit).
+         * Inner implementation for supporting the BlockingExecutor.await(timeout, timeUnit).
          *
          * @param timeout  The await time.
          * @param timeUnit The await {@link TimeUnit}.
          * @throws InterruptedException when the internal condition throws it.
-         * @see NotifyingBlockingThreadPoolExecutor#await(long, TimeUnit) for details.
+         * @see BlockingExecutor#await(long, TimeUnit) for details.
          */
         public boolean await(long timeout, TimeUnit timeUnit) throws InterruptedException {
 
@@ -290,7 +290,7 @@ public class NotifyingBlockingThreadPoolExecutor extends ThreadPoolExecutor {
     }
 
     /**
-     * This Policy class enforces the blocking feature of the NotifyingBlockingThreadPoolExecutor. It does so by
+     * This Policy class enforces the blocking feature of the BlockingExecutor. It does so by
      * invoking the BlockingQueue's put method (instead of the offer method that is used by the standard implementation
      * of the ThreadPoolExecutor - see the opened Java 6 source code).
      */

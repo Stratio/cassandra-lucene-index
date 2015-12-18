@@ -21,7 +21,7 @@ package com.stratio.cassandra.lucene.search.sort;
 import com.google.common.base.Objects;
 import com.google.common.collect.Ordering;
 import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.column.Columns;
+import com.stratio.cassandra.lucene.column.Columns;
 
 import java.util.ArrayList;
 import java.util.Comparator;

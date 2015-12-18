@@ -16,10 +16,10 @@
  * under the License.
  */
 
-package com.stratio.cassandra.lucene.service;
+package com.stratio.cassandra.lucene.mapping;
 
-import com.stratio.cassandra.lucene.schema.column.Column;
-import com.stratio.cassandra.lucene.schema.column.Columns;
+import com.stratio.cassandra.lucene.column.Column;
+import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.util.ByteBufferUtils;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
@@ -45,7 +45,7 @@ import java.util.List;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public final class PartitionKeyMapper {
+public final class PartitionMapper {
 
     /** The Lucene field name. */
     public static final String FIELD_NAME = "_partition_key";
@@ -54,10 +54,14 @@ public final class PartitionKeyMapper {
     private final IPartitioner partitioner;
     private final CompositeType keyValidator;
 
-    public PartitionKeyMapper(CFMetaData metadata) {
+    public PartitionMapper(CFMetaData metadata) {
         this.metadata = metadata;
         partitioner = DatabaseDescriptor.getPartitioner();
         keyValidator = (CompositeType) metadata.getKeyValidator();
+    }
+
+    public CompositeType getType() {
+        return keyValidator;
     }
 
     /**

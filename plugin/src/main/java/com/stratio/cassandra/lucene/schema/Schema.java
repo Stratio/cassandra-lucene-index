@@ -20,8 +20,8 @@ package com.stratio.cassandra.lucene.schema;
 
 import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.IndexException;
-import com.stratio.cassandra.lucene.schema.column.Column;
-import com.stratio.cassandra.lucene.schema.column.Columns;
+import com.stratio.cassandra.lucene.column.Column;
+import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
 import org.apache.cassandra.config.CFMetaData;

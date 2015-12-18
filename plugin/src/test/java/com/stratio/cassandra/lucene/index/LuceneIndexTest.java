@@ -16,24 +16,18 @@
  * under the License.
  */
 
-package com.stratio.cassandra.lucene.service;
+package com.stratio.cassandra.lucene.index;
 
 import com.google.common.collect.Sets;
-import com.stratio.cassandra.lucene.IndexConfig;
+import com.stratio.cassandra.lucene.IndexOptions;
+import com.stratio.cassandra.lucene.index.LuceneIndex;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.SortedDocValuesField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.SearcherManager;
-import org.apache.lucene.search.Sort;
-import org.apache.lucene.search.SortField;
-import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.search.WildcardQuery;
+import org.apache.lucene.search.*;
 import org.apache.lucene.util.BytesRef;
 import org.junit.Rule;
 import org.junit.Test;
@@ -46,8 +40,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import static junit.framework.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
@@ -64,16 +56,15 @@ public class LuceneIndexTest {
     @Test
     public void testCRUD() throws IOException, InterruptedException {
 
-        IndexConfig config = mock(IndexConfig.class);
-        when(config.getName()).thenReturn("test_index");
-        when(config.getPath()).thenReturn(Paths.get(folder.newFolder("directory" + UUID.randomUUID()).getPath()));
-        when(config.getRamBufferMB()).thenReturn(IndexConfig.DEFAULT_RAM_BUFFER_MB);
-        when(config.getMaxMergeMB()).thenReturn(IndexConfig.DEFAULT_MAX_MERGE_MB);
-        when(config.getMaxCachedMB()).thenReturn(IndexConfig.DEFAULT_MAX_CACHED_MB);
-        when(config.getRefreshSeconds()).thenReturn(REFRESH_SECONDS);
-        when(config.getAnalyzer()).thenReturn(new StandardAnalyzer());
+        LuceneIndex index = new LuceneIndex("com.stratio.cassandra.lucene:type=LuceneIndexes",
+                                            "test_index",
+                                            Paths.get(folder.newFolder("directory" + UUID.randomUUID()).getPath()),
+                                            new StandardAnalyzer(),
+                                            REFRESH_SECONDS,
+                                            IndexOptions.DEFAULT_RAM_BUFFER_MB,
+                                            IndexOptions.DEFAULT_MAX_MERGE_MB,
+                                            IndexOptions.DEFAULT_MAX_CACHED_MB);
 
-        LuceneIndex index = new LuceneIndex(config);
         Sort sort = new Sort(new SortField("field", SortField.Type.STRING));
         assertEquals("Index must be empty", 0, index.getNumDocs());
 

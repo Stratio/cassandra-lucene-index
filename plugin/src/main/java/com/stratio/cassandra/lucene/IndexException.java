@@ -18,6 +18,8 @@
 
 package com.stratio.cassandra.lucene;
 
+import org.slf4j.Logger;
+
 /**
  * {@code RuntimeException} to be thrown when there are schema-related errors.
  *
@@ -46,6 +48,18 @@ public class IndexException extends RuntimeException {
      */
     public IndexException(Throwable cause, String message, Object... args) {
         super(String.format(message, args), cause);
+    }
+
+    /**
+     * Constructs a new index exception with the specified formatted detail message.
+     *
+     * @param cause   The cause.
+     * @param message The detail message.
+     * @param args    Arguments referenced by the format specifiers in the format message.
+     */
+    public IndexException(Logger logger, Throwable cause, String message, Object... args) {
+        super(message);
+        logger.error(getMessage());
     }
 
     /**

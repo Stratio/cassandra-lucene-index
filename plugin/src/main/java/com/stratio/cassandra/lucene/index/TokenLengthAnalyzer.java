@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package com.stratio.cassandra.lucene.util;
+package com.stratio.cassandra.lucene.index;
 
 import com.google.common.base.Objects;
 import org.apache.lucene.analysis.Analyzer;

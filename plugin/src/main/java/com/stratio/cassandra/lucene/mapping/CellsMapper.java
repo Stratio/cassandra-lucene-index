@@ -16,11 +16,11 @@
  * under the License.
  */
 
-package com.stratio.cassandra.lucene.service;
+package com.stratio.cassandra.lucene.mapping;
 
-import com.stratio.cassandra.lucene.schema.column.Column;
-import com.stratio.cassandra.lucene.schema.column.ColumnBuilder;
-import com.stratio.cassandra.lucene.schema.column.Columns;
+import com.stratio.cassandra.lucene.column.Column;
+import com.stratio.cassandra.lucene.column.ColumnBuilder;
+import com.stratio.cassandra.lucene.column.Columns;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
 import org.apache.cassandra.db.marshal.AbstractType;
@@ -42,11 +42,11 @@ import java.nio.ByteBuffer;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public final class RegularColumnsMapper {
+public final class CellsMapper {
 
     private final CFMetaData metadata;
 
-    public RegularColumnsMapper(CFMetaData metadata) {
+    public CellsMapper(CFMetaData metadata) {
         this.metadata = metadata;
     }
 
@@ -167,7 +167,9 @@ public final class RegularColumnsMapper {
                 addColumns(columns, columnBuilder.withUDTName(itemName), itemType, values[i]);
             }
         } else { // Leaf type
-            columns.add(columnBuilder.buildWithDecomposed(value, type));
+            if (value != null) {
+                columns.add(columnBuilder.buildWithDecomposed(value, type));
+            }
         }
     }
 

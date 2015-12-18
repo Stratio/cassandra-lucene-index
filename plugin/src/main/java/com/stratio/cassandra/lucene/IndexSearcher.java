@@ -27,9 +27,9 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class Searcher implements org.apache.cassandra.index.Index.Searcher {
+public class IndexSearcher implements org.apache.cassandra.index.Index.Searcher {
 
-    private static final Logger logger = LoggerFactory.getLogger(Searcher.class);
+    private static final Logger logger = LoggerFactory.getLogger(IndexSearcher.class);
 
     private final ReadCommand command;
 
@@ -37,7 +37,7 @@ public class Searcher implements org.apache.cassandra.index.Index.Searcher {
      * Builds a new searcher for the specified {@link ReadCommand}.
      * @param command The read command being executed.
      */
-    public Searcher(ReadCommand command) {
+    public IndexSearcher(ReadCommand command) {
         this.command = command;
     }
 

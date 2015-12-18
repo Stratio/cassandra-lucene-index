@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package com.stratio.cassandra.lucene.schema.column;
+package com.stratio.cassandra.lucene.column;
 
 import org.apache.cassandra.db.marshal.AbstractType;
 

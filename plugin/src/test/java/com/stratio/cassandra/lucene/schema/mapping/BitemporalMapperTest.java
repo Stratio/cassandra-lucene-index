@@ -19,8 +19,8 @@
 package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.stratio.cassandra.lucene.IndexException;
-import com.stratio.cassandra.lucene.schema.column.Column;
-import com.stratio.cassandra.lucene.schema.column.Columns;
+import com.stratio.cassandra.lucene.column.Column;
+import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.schema.mapping.BitemporalMapper.BitemporalDateTime;
 import com.stratio.cassandra.lucene.schema.mapping.builder.BitemporalMapperBuilder;
 import com.stratio.cassandra.lucene.util.DateParser;

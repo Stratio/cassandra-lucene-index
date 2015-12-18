@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package com.stratio.cassandra.lucene.service;
+package com.stratio.cassandra.lucene.index;
 
 import org.apache.lucene.search.similarities.DefaultSimilarity;
 

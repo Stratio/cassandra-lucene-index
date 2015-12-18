@@ -16,10 +16,9 @@
  * under the License.
  */
 
-package com.stratio.cassandra.lucene.schema.column;
+package com.stratio.cassandra.lucene.column;
 
 import com.google.common.base.MoreObjects;
-import com.google.common.base.Objects;
 
 import java.util.*;
 

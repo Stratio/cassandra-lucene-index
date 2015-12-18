@@ -19,8 +19,8 @@
 package com.stratio.cassandra.lucene.search.sort;
 
 import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.column.Column;
-import com.stratio.cassandra.lucene.schema.column.Columns;
+import com.stratio.cassandra.lucene.column.Column;
+import com.stratio.cassandra.lucene.column.Columns;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.junit.Test;
 

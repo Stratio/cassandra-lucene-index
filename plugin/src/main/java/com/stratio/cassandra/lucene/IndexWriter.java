@@ -18,80 +18,50 @@
 
 package com.stratio.cassandra.lucene;
 
-import com.stratio.cassandra.lucene.schema.column.Column;
-import com.stratio.cassandra.lucene.schema.column.Columns;
-import com.stratio.cassandra.lucene.service.RowMapper;
-import com.stratio.cassandra.lucene.service.Service;
-import org.apache.cassandra.config.CFMetaData;
-import org.apache.cassandra.db.*;
-import org.apache.cassandra.db.filter.ClusteringIndexNamesFilter;
-import org.apache.cassandra.db.filter.ColumnFilter;
-import org.apache.cassandra.db.filter.DataLimits;
+import org.apache.cassandra.db.Clustering;
+import org.apache.cassandra.db.DecoratedKey;
+import org.apache.cassandra.db.DeletionTime;
+import org.apache.cassandra.db.RangeTombstone;
 import org.apache.cassandra.db.rows.Row;
-import org.apache.cassandra.db.rows.Unfiltered;
-import org.apache.cassandra.db.rows.UnfilteredRowIterator;
-import org.apache.cassandra.index.transactions.IndexTransaction;
-import org.apache.cassandra.utils.btree.BTreeSet;
 import org.apache.cassandra.utils.concurrent.OpOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.NavigableSet;
-import java.util.TreeSet;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class Indexer implements org.apache.cassandra.index.Index.Indexer {
+public class IndexWriter implements org.apache.cassandra.index.Index.Indexer {
 
-    private static final Logger logger = LoggerFactory.getLogger(Indexer.class);
+    private static final Logger logger = LoggerFactory.getLogger(IndexWriter.class);
 
-    private final IndexConfig config;
-    private final Service service;
-    private final RowMapper rowMapper;
+    private final IndexService service;
     private final DecoratedKey key;
-    private final PartitionColumns columns;
     private final int nowInSec;
     private final OpOrder.Group opGroup;
-    private final IndexTransaction.Type transactionType;
 
-    private final ColumnFamilyStore columnFamilyStore;
-    private final CFMetaData tableMetadata;
-    private final BTreeSet.Builder<Clustering> clusterings;
+    private boolean hasPartitionDeletion;
+    private NavigableSet<Clustering> clusterings;
 
     /**
-     * Builds a new Indexer.
+     * Builds a new IndexWriter.
      *
-     * @param key Key of the partition being modified.
-     * @param columns The regular and static columns the created indexer will have to deal with.
-     * This can be empty as an update might only contain partition, range and row deletions, but
-     * the indexer is guaranteed to not get any cells for a column that is not part of {@code columns}.
+     * @param service  The service to perform the indexing operation.
+     * @param key      Key of the partition being modified.
+     *                 This can be empty as an update might only contain partition, range and row deletions, but
+     *                 the indexer is guaranteed to not get any cells for a column that is not part of {@code columns}.
      * @param nowInSec Current time of the update operation.
-     * @param opGroup Operation group spanning the update operation.
-     * @param transactionType Indicates what kind of update is being performed on the base data
-     * i.e. a write time insert/update/delete or the result of compaction.
+     * @param opGroup  Operation group spanning the update operation.
      */
-    public Indexer(IndexConfig config, Service service, DecoratedKey key,
-                   PartitionColumns columns,
-                   int nowInSec,
-                   OpOrder.Group opGroup,
-                   IndexTransaction.Type transactionType) {
+    public IndexWriter(IndexService service,
+                       DecoratedKey key,
+                       int nowInSec,
+                       OpOrder.Group opGroup) {
         this.service = service;
-        this.config = config;
-        columnFamilyStore = config.getColumnFamilyStore();
-        tableMetadata = config.getTableMetadata();
-
-        rowMapper = service.getRowMapper();
-        clusterings = BTreeSet.builder(config.getColumnFamilyStore().getComparator());
-
-
         this.key = key;
-        this.columns = columns;
         this.nowInSec = nowInSec;
         this.opGroup = opGroup;
-        this.transactionType = transactionType;
     }
 
     /**
@@ -99,7 +69,8 @@ public class Indexer implements org.apache.cassandra.index.Index.Indexer {
      * This event always occurs before any other during the update.
      */
     public void begin() {
-        logger.debug("Indexer beginning");
+        hasPartitionDeletion = false;
+        clusterings = service.clusterings();
     }
 
     /**
@@ -108,7 +79,8 @@ public class Indexer implements org.apache.cassandra.index.Index.Indexer {
      * @param deletionTime The deletion time.
      */
     public void partitionDelete(DeletionTime deletionTime) {
-        logger.debug("Partition delete {}", deletionTime);
+        hasPartitionDeletion = true;
+        clusterings.clear();
     }
 
     /**
@@ -119,7 +91,7 @@ public class Indexer implements org.apache.cassandra.index.Index.Indexer {
      * @param tombstone The range tombstone.
      */
     public void rangeTombstone(RangeTombstone tombstone) {
-        logger.debug("Range tombstone {}", tombstone);
+        logger.debug("********************************** Range tombstone {}", tombstone);
     }
 
     /**
@@ -131,10 +103,7 @@ public class Indexer implements org.apache.cassandra.index.Index.Indexer {
      * @param row the Row being inserted into the base table's Memtable.
      */
     public void insertRow(Row row) {
-        logger.debug("Insert row: {}", row);
-        if (!row.isStatic()) {
-            clusterings.add(row.clustering());
-        }
+        upsert(row);
     }
 
     /**
@@ -152,15 +121,12 @@ public class Indexer implements org.apache.cassandra.index.Index.Indexer {
      * the update is not included.
      *
      * @param oldRowData Data that was present in existing row and which has been removed from
-     * the base table's Memtable.
+     *                   the base table's Memtable.
      * @param newRowData Data that was not present in the existing row and is being inserted
-     * into the base table's Memtable.
+     *                   into the base table's Memtable.
      */
     public void updateRow(Row oldRowData, Row newRowData) {
-        logger.debug("Update row {} {}", oldRowData, newRowData);
-        if (!newRowData.isStatic()) {
-            clusterings.add(newRowData.clustering());
-        }
+        upsert(newRowData);
     }
 
     /**
@@ -171,7 +137,7 @@ public class Indexer implements org.apache.cassandra.index.Index.Indexer {
      * As with updateRow, it cannot be guaranteed that all data belonging to the Clustering
      * of the supplied Row has been removed (although in the case of a cleanup, that is the
      * ultimate intention).
-     * There may be data for the same row in other SSTables, so in this case Indexer implementations
+     * There may be data for the same row in other SSTables, so in this case IndexWriter implementations
      * should *not* assume that all traces of the row have been removed. In particular,
      * it is not safe to assert that all values associated with the Row's Clustering
      * have been deleted, so implementations which index primary key columns should not
@@ -180,7 +146,13 @@ public class Indexer implements org.apache.cassandra.index.Index.Indexer {
      * @param row Data being removed from the base table.
      */
     public void removeRow(Row row) {
-        logger.debug("Remove row {}", row);
+        upsert(row);
+    }
+
+    private void upsert(Row row) {
+        if (!row.isStatic()) {
+            clusterings.add(row.clustering());
+        }
     }
 
     /**
@@ -188,18 +160,10 @@ public class Indexer implements org.apache.cassandra.index.Index.Indexer {
      * This event always occurs after all others for the particular update.
      */
     public void finish() {
-        logger.debug("Indexer finishing");
-
-        ClusteringIndexNamesFilter filter = new ClusteringIndexNamesFilter(clusterings.build(), false);
-        SinglePartitionReadCommand cmd = SinglePartitionReadCommand.create(tableMetadata,
-                                                                               nowInSec,
-                                                                               key,
-                                                                               ColumnFilter.all(tableMetadata),
-                                                                               filter);
-        UnfilteredRowIterator it = cmd.queryMemtableAndDisk(columnFamilyStore, opGroup);
-        while (it.hasNext()) {
-            Row row = (Row) it.next();
-            System.out.println("-> ITEM CLASS " + rowMapper.columns(key, row));
+        try {
+            service.index(key, clusterings, hasPartitionDeletion, nowInSec, opGroup);
+        } catch (Exception e) {
+            logger.error("Error while indexing " + key, e);
         }
     }
 }
