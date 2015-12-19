@@ -31,9 +31,9 @@ import java.util.List;
  */
 public class ColumnBuilder {
 
-    private  String cellName;
-    private  List<String> udtNames;
-    private  List<String> mapNames;
+    private String cellName;
+    private List<String> udtNames;
+    private List<String> mapNames;
 
     public ColumnBuilder(String cellName) {
         this.cellName = cellName;

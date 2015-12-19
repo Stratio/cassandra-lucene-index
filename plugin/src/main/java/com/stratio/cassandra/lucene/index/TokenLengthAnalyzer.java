@@ -18,7 +18,7 @@
 
 package com.stratio.cassandra.lucene.index;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.AnalyzerWrapper;
 import org.apache.lucene.analysis.TokenFilter;
@@ -103,6 +103,6 @@ public class TokenLengthAnalyzer extends AnalyzerWrapper {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("analyzer", analyzer).toString();
+        return MoreObjects.toStringHelper(this).add("analyzer", analyzer).toString();
     }
 }

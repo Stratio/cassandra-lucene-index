@@ -19,8 +19,8 @@
 package com.stratio.cassandra.lucene.mapping;
 
 import com.stratio.cassandra.lucene.IndexOptions;
-import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.column.Columns;
+import com.stratio.cassandra.lucene.schema.Schema;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.db.Clustering;
 import org.apache.cassandra.db.DecoratedKey;

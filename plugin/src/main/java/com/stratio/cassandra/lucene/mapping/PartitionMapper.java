@@ -68,7 +68,7 @@ public final class PartitionMapper {
      * Adds to the specified {@link Column} to the {@link Column}s contained in the partition key of the specified row.
      *
      * @param columns The {@link Columns} in which the {@link Column}s are going to be added.
-     * @param key     A partition key.
+     * @param key A partition key.
      */
     public void addColumns(Columns columns, DecoratedKey key) {
         List<ColumnDefinition> columnDefinitions = metadata.partitionKeyColumns();
@@ -84,7 +84,7 @@ public final class PartitionMapper {
     /**
      * Adds to the specified {@link Document} the {@link Field}s associated to the specified raw partition key.
      *
-     * @param document     The document in which the fields are going to be added.
+     * @param document The document in which the fields are going to be added.
      * @param partitionKey The raw partition key to be converted.
      */
     public void addFields(Document document, DecoratedKey partitionKey) {

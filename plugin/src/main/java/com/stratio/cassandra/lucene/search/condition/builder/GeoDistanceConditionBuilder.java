@@ -52,9 +52,9 @@ public class GeoDistanceConditionBuilder extends ConditionBuilder<GeoDistanceCon
     /**
      * Returns a new {@link GeoDistanceConditionBuilder} with the specified field reference point.
      *
-     * @param field       The name of the field to be matched.
-     * @param latitude    The latitude of the reference point.
-     * @param longitude   The longitude of the reference point.
+     * @param field The name of the field to be matched.
+     * @param latitude The latitude of the reference point.
+     * @param longitude The longitude of the reference point.
      * @param maxDistance The max allowed distance.
      */
     @JsonCreator

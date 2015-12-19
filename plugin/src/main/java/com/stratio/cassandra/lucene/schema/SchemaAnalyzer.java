@@ -18,13 +18,13 @@
 
 package com.stratio.cassandra.lucene.schema;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.IndexException;
+import com.stratio.cassandra.lucene.column.Column;
+import com.stratio.cassandra.lucene.index.TokenLengthAnalyzer;
 import com.stratio.cassandra.lucene.schema.analysis.ClasspathAnalyzerBuilder;
 import com.stratio.cassandra.lucene.schema.analysis.StandardAnalyzers;
-import com.stratio.cassandra.lucene.column.Column;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
-import com.stratio.cassandra.lucene.index.TokenLengthAnalyzer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.DelegatingAnalyzerWrapper;
@@ -45,8 +45,8 @@ public class SchemaAnalyzer extends DelegatingAnalyzerWrapper {
      * Constructs with default analyzer and a map of analyzers to use for specific fields.
      *
      * @param defaultAnalyzer The default {@link Analyzer}s.
-     * @param analyzers       The user defined {@link Analyzer}s.
-     * @param mappers         The user defined {@link Mapper}s.
+     * @param analyzers The user defined {@link Analyzer}s.
+     * @param mappers The user defined {@link Mapper}s.
      */
     public SchemaAnalyzer(Analyzer defaultAnalyzer, Map<String, Analyzer> analyzers, Map<String, Mapper> mappers) {
         super(PER_FIELD_REUSE_STRATEGY);
@@ -69,7 +69,7 @@ public class SchemaAnalyzer extends DelegatingAnalyzerWrapper {
      * then it will be interpreted as a class name and it will be instantiated by reflection.
      *
      * @param analyzers The per field {@link Analyzer}s to be used.
-     * @param name      The name of the {@link Analyzer} to be returned.
+     * @param name The name of the {@link Analyzer} to be returned.
      * @return The {@link Analyzer} identified by the specified name.
      */
     protected static Analyzer getAnalyzer(Map<String, Analyzer> analyzers, String name) {
@@ -133,9 +133,9 @@ public class SchemaAnalyzer extends DelegatingAnalyzerWrapper {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                      .add("defaultAnalyzer", defaultAnalyzer)
-                      .add("fieldAnalyzers", fieldAnalyzers)
-                      .toString();
+        return MoreObjects.toStringHelper(this)
+                          .add("defaultAnalyzer", defaultAnalyzer)
+                          .add("fieldAnalyzers", fieldAnalyzers)
+                          .toString();
     }
 }

@@ -18,11 +18,11 @@
 
 package com.stratio.cassandra.lucene.schema.mapping;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.IndexException;
-import com.stratio.cassandra.lucene.schema.analysis.StandardAnalyzers;
 import com.stratio.cassandra.lucene.column.Column;
 import com.stratio.cassandra.lucene.column.Columns;
+import com.stratio.cassandra.lucene.schema.analysis.StandardAnalyzers;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
 import org.apache.cassandra.db.marshal.*;
@@ -84,12 +84,12 @@ public abstract class Mapper {
     /**
      * Builds a new {@link Mapper} supporting the specified types for indexing.
      *
-     * @param field          The name of the Lucene field.
-     * @param indexed        If the field supports searching.
-     * @param sorted         If the field supports sorting.
-     * @param validated      If the field must be validated.
-     * @param analyzer       The name of the analyzer to be used.
-     * @param mappedColumns  The names of the columns to be mapped.
+     * @param field The name of the Lucene field.
+     * @param indexed If the field supports searching.
+     * @param sorted If the field supports sorting.
+     * @param validated If the field must be validated.
+     * @param analyzer The name of the analyzer to be used.
+     * @param mappedColumns The names of the columns to be mapped.
      * @param supportedTypes The supported Cassandra types for indexing.
      */
     protected Mapper(String field,
@@ -116,7 +116,7 @@ public abstract class Mapper {
      * mapping of the specified {@link Columns}.
      *
      * @param document The {@link Document} where the {@link org.apache.lucene.document.Field} are going to be added.
-     * @param columns  The {@link Columns}.
+     * @param columns The {@link Columns}.
      */
     public abstract void addFields(Document document, Columns columns);
 
@@ -134,7 +134,7 @@ public abstract class Mapper {
     /**
      * Returns the {@link SortField} resulting from the mapping of the specified object.
      *
-     * @param name    The name of the sorting field.
+     * @param name The name of the sorting field.
      * @param reverse If the sort must be reversed.
      * @return The {@link SortField} resulting from the mapping of the specified object.
      */
@@ -186,7 +186,7 @@ public abstract class Mapper {
     /**
      * Finds the child {@link AbstractType} by its name.
      *
-     * @param parent    The parent {@link AbstractType}.
+     * @param parent The parent {@link AbstractType}.
      * @param childName The name of the child {@link AbstractType}.
      * @return The child {@link AbstractType}, or {@code null} if it doesn't exist.
      */
@@ -225,7 +225,7 @@ public abstract class Mapper {
      * Validates this {@link Mapper} against the specified tuple type column.
      *
      * @param metadata A column family {@link CFMetaData}.
-     * @param column   The name of the tuple column to be validated.
+     * @param column The name of the tuple column to be validated.
      */
     private void validateTuple(CFMetaData metadata, String column) {
 
@@ -259,7 +259,7 @@ public abstract class Mapper {
      * Validates this {@link Mapper} against the specified column.
      *
      * @param metadata A column family {@link CFMetaData}.
-     * @param column   The name of the column to be validated.
+     * @param column The name of the column to be validated.
      */
     private void validate(CFMetaData metadata, String column) {
         if (Column.isTuple(column)) {
@@ -299,12 +299,12 @@ public abstract class Mapper {
         }
     }
 
-    protected Objects.ToStringHelper toStringHelper(Object self) {
-        return Objects.toStringHelper(self)
-                      .add("field", field)
-                      .add("indexed", indexed)
-                      .add("sorted", sorted)
-                      .add("validated", validated);
+    protected MoreObjects.ToStringHelper toStringHelper(Object self) {
+        return MoreObjects.toStringHelper(self)
+                          .add("field", field)
+                          .add("indexed", indexed)
+                          .add("sorted", sorted)
+                          .add("validated", validated);
     }
 
     /** {@inheritDoc} */

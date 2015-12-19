@@ -21,7 +21,7 @@ package com.stratio.cassandra.lucene;
 import org.slf4j.Logger;
 
 /**
- * {@code RuntimeException} to be thrown when there are schema-related errors.
+ * {@code RuntimeException} to be thrown when there are index-related errors.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
@@ -33,7 +33,7 @@ public class IndexException extends RuntimeException {
      * Constructs a new index exception with the specified formatted detail message.
      *
      * @param message the detail message.
-     * @param args    Arguments referenced by the format specifiers in the format message.
+     * @param args Arguments referenced by the format specifiers in the format message.
      */
     public IndexException(String message, Object... args) {
         super(String.format(message, args));
@@ -42,9 +42,9 @@ public class IndexException extends RuntimeException {
     /**
      * Constructs a new index exception with the specified formatted detail message.
      *
-     * @param cause   The cause.
+     * @param cause The cause.
      * @param message The detail message.
-     * @param args    Arguments referenced by the format specifiers in the format message.
+     * @param args Arguments referenced by the format specifiers in the format message.
      */
     public IndexException(Throwable cause, String message, Object... args) {
         super(String.format(message, args), cause);
@@ -53,12 +53,13 @@ public class IndexException extends RuntimeException {
     /**
      * Constructs a new index exception with the specified formatted detail message.
      *
-     * @param cause   The cause.
+     * @param logger A logger to log the message with ERROR level.
+     * @param cause The cause.
      * @param message The detail message.
-     * @param args    Arguments referenced by the format specifiers in the format message.
+     * @param args Arguments referenced by the format specifiers in the format message.
      */
     public IndexException(Logger logger, Throwable cause, String message, Object... args) {
-        super(message);
+        this(cause, message, args);
         logger.error(getMessage());
     }
 

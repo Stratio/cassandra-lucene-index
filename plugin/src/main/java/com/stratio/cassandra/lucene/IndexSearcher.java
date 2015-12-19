@@ -35,6 +35,7 @@ public class IndexSearcher implements org.apache.cassandra.index.Index.Searcher 
 
     /**
      * Builds a new searcher for the specified {@link ReadCommand}.
+     *
      * @param command The read command being executed.
      */
     public IndexSearcher(ReadCommand command) {

@@ -18,7 +18,7 @@
 
 package com.stratio.cassandra.lucene.search.condition;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.schema.Schema;
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.Query;
@@ -29,8 +29,8 @@ import org.apache.lucene.search.QueryWrapperFilter;
  *
  * Known subclasses are: <ul> <li> {@link AllCondition} <li> {@link BitemporalCondition} <li> {@link ContainsCondition}
  * <li> {@link FuzzyCondition} <li> {@link MatchCondition} <li> {@link PhraseCondition} <li> {@link PrefixCondition}
- * <li> {@link RangeCondition} <li> {@link WildcardCondition} <li> {@link GeoDistanceCondition}
- * <li> {@link GeoBBoxCondition} </ul>
+ * <li> {@link RangeCondition} <li> {@link WildcardCondition} <li> {@link GeoDistanceCondition} <li> {@link
+ * GeoBBoxCondition} </ul>
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
@@ -46,7 +46,7 @@ public abstract class Condition {
      * Abstract {@link Condition} builder receiving the boost to be used.
      *
      * @param boost The boost for this query clause. Documents matching this clause will (in addition to the normal
-     *              weightings) have their score multiplied by {@code boost}.
+     * weightings) have their score multiplied by {@code boost}.
      */
     public Condition(Float boost) {
         this.boost = boost == null ? DEFAULT_BOOST : boost;
@@ -70,7 +70,7 @@ public abstract class Condition {
         return new QueryWrapperFilter(query(schema));
     }
 
-    protected Objects.ToStringHelper toStringHelper(Object o) {
-        return Objects.toStringHelper(o).add("boost", boost);
+    protected MoreObjects.ToStringHelper toStringHelper(Object o) {
+        return MoreObjects.toStringHelper(o).add("boost", boost);
     }
 }

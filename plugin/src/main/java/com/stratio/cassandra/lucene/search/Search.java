@@ -18,7 +18,7 @@
 
 package com.stratio.cassandra.lucene.search;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.search.condition.Condition;
 import com.stratio.cassandra.lucene.search.sort.Sort;
@@ -55,11 +55,11 @@ public class Search {
     /**
      * Returns a new {@link Search} composed by the specified querying and filtering conditions.
      *
-     * @param queryCondition  The {@link Condition} for querying, maybe {@code null} meaning no querying.
+     * @param queryCondition The {@link Condition} for querying, maybe {@code null} meaning no querying.
      * @param filterCondition The {@link Condition} for filtering, maybe {@code null} meaning no filtering.
-     * @param sort            The {@link Sort} for the query. Note that is the order in which the data will be read
-     *                        before querying, not the order of the results after querying.
-     * @param refresh         If this search must refresh the index before reading it.
+     * @param sort The {@link Sort} for the query. Note that is the order in which the data will be read before
+     * querying, not the order of the results after querying.
+     * @param refresh If this search must refresh the index before reading it.
      */
     public Search(Condition queryCondition, Condition filterCondition, Sort sort, Boolean refresh) {
         this.queryCondition = queryCondition;
@@ -175,10 +175,10 @@ public class Search {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                      .add("queryCondition", queryCondition)
-                      .add("filterCondition", filterCondition)
-                      .add("sort", sort)
-                      .toString();
+        return MoreObjects.toStringHelper(this)
+                          .add("queryCondition", queryCondition)
+                          .add("filterCondition", filterCondition)
+                          .add("sort", sort)
+                          .toString();
     }
 }

@@ -80,7 +80,7 @@ public class IndexOptions {
      * Builds a new {@link IndexOptions} for the column family and index metadata.
      *
      * @param tableMetadata The indexed table metadata.
-     * @param indexMetadata     The index metadata.
+     * @param indexMetadata The index metadata.
      */
     public IndexOptions(CFMetaData tableMetadata, IndexMetadata indexMetadata) {
         Map<String, String> options = indexMetadata.options;

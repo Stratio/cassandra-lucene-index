@@ -18,8 +18,6 @@
 
 package com.stratio.cassandra.lucene.index;
 
-import java.io.IOException;
-
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
@@ -27,8 +25,6 @@ public interface LuceneIndexMBean {
 
     /**
      * Commits the pending changes.
-     *
-     * @throws Exception If Lucene throws IO errors.
      */
     void commit();
 
@@ -51,7 +47,7 @@ public interface LuceneIndexMBean {
      * until all merging completes.
      *
      * @param maxNumSegments The maximum number of segments left in the index after merging finishes.
-     * @param doWait         {@code true} if the call should block until the operation completes.
+     * @param doWait {@code true} if the call should block until the operation completes.
      */
     void forceMerge(int maxNumSegments, boolean doWait);
 

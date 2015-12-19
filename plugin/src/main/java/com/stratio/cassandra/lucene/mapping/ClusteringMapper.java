@@ -24,6 +24,7 @@ import com.stratio.cassandra.lucene.util.ByteBufferUtils;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
 import org.apache.cassandra.db.Clustering;
+import org.apache.cassandra.db.ClusteringComparator;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.CompositeType;
 import org.apache.lucene.document.Document;
@@ -58,11 +59,13 @@ public final class ClusteringMapper {
     }
 
     private final CFMetaData metadata;
+    private final ClusteringComparator comparator;
     private final CompositeType type;
 
     public ClusteringMapper(CFMetaData metadata) {
         this.metadata = metadata;
-        type = CompositeType.getInstance(metadata.comparator.subtypes());
+        comparator = metadata.comparator;
+        type = CompositeType.getInstance(comparator.subtypes());
     }
 
     public CompositeType getType() {
@@ -72,7 +75,7 @@ public final class ClusteringMapper {
     /**
      * Adds the {@link Column}s contained in the specified {@link Clustering} to the specified {@link Column}s .
      *
-     * @param columns    The {@link Columns} in which the {@link Clustering} {@link Column}s are going to be added.
+     * @param columns The {@link Columns} in which the {@link Clustering} {@link Column}s are going to be added.
      * @param clustering A clustering key.
      */
     public void addColumns(Columns columns, Clustering clustering) {
@@ -101,7 +104,7 @@ public final class ClusteringMapper {
     /**
      * Adds to the specified document the clustering key contained in the specified cell name.
      *
-     * @param document   The document where the clustering key is going to be added.
+     * @param document The document where the clustering key is going to be added.
      * @param clustering A clustering key.
      */
     public void addFields(Document document, Clustering clustering) {

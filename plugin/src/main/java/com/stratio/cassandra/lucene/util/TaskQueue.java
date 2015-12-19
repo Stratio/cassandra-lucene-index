@@ -54,12 +54,12 @@ public class TaskQueue {
             pools = new BlockingExecutor[numThreads];
             for (int i = 0; i < numThreads; i++) {
                 pools[i] = new BlockingExecutor(1,
-                                                                   queuesSize,
-                                                                   Long.MAX_VALUE,
-                                                                   TimeUnit.DAYS,
-                                                                   0,
-                                                                   TimeUnit.NANOSECONDS,
-                                                                   null);
+                                                queuesSize,
+                                                Long.MAX_VALUE,
+                                                TimeUnit.DAYS,
+                                                0,
+                                                TimeUnit.NANOSECONDS,
+                                                null);
                 pools[i].submit(new Runnable() {
                     @Override
                     public void run() {
@@ -76,10 +76,10 @@ public class TaskQueue {
      * The specified identifier is used to choose the thread executor where the task will be queued. The selection and
      * load balancing is based in the {@link #hashCode()} of this identifier.
      *
-     * @param id   The identifier of the task used to choose the thread executor where the task will be queued for
-     *             asynchronous execution.
-     * @param task A task to be queued for asynchronous execution.
-     * @return A future for the submitted task.
+     * @param id the identifier of the task used to choose the thread executor where the task will be queued for
+     * asynchronous execution
+     * @param task the task to be queued for asynchronous execution
+     * @return a future for the submitted task
      */
     public Future<?> submitAsynchronous(Object id, Runnable task) {
         if (pools == null) {
@@ -103,7 +103,7 @@ public class TaskQueue {
      * Submits a non value-returning task for synchronous execution. It waits for all synchronous tasks to be
      * completed.
      *
-     * @param task A task to be executed synchronously.
+     * @param task a task to be executed synchronously
      */
     public void submitSynchronous(Runnable task) {
         if (pools == null) {

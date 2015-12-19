@@ -18,7 +18,7 @@
 
 package com.stratio.cassandra.lucene.column;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.IndexException;
 import org.apache.cassandra.db.marshal.AbstractType;
 
@@ -63,12 +63,12 @@ public final class Column<T> {
     /**
      * Builds a new {@link Column} with the specified name, name suffix, value, and type.
      *
-     * @param cellName        The name of the base cell.
-     * @param udtNames        The child UDT fields.
-     * @param mapNames        The child map keys.
+     * @param cellName The name of the base cell.
+     * @param udtNames The child UDT fields.
+     * @param mapNames The child map keys.
      * @param decomposedValue The decomposed value of the column to be created.
-     * @param composedValue   The composed value of the column to be created.
-     * @param type            The type/marshaller of the column to be created.
+     * @param composedValue The composed value of the column to be created.
+     * @param type The type/marshaller of the column to be created.
      */
     Column(String cellName,
            List<String> udtNames,
@@ -93,7 +93,7 @@ public final class Column<T> {
     }
 
     public static String check(String name) {
-        if (!NAME_PATTERN.matcher(name).matches()){
+        if (!NAME_PATTERN.matcher(name).matches()) {
             throw new IndexException("Name %s doesn't satisfy the mandatory pattern %s", name, NAME_PATTERN.pattern());
         }
         return name;
@@ -185,10 +185,10 @@ public final class Column<T> {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                      .add("fullName", getFullName())
-                      .add("buildWithComposed", getComposedValue())
-                      .add("type", type.getClass().getSimpleName())
-                      .toString();
+        return MoreObjects.toStringHelper(this)
+                          .add("fullName", getFullName())
+                          .add("buildWithComposed", getComposedValue())
+                          .add("type", type.getClass().getSimpleName())
+                          .toString();
     }
 }

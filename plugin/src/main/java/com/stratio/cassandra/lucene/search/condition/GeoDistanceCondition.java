@@ -18,7 +18,7 @@
 
 package com.stratio.cassandra.lucene.search.condition;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.shape.Circle;
 import com.stratio.cassandra.lucene.IndexException;
@@ -60,12 +60,12 @@ public class GeoDistanceCondition extends SingleMapperCondition<GeoPointMapper> 
     /**
      * Constructor using the field name and the value to be matched.
      *
-     * @param boost       The boost for this query clause. Documents matching this clause will (in addition to the
-     *                    normal weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link
-     *                    #DEFAULT_BOOST} is used as default.
-     * @param field       The name of the field to be matched.
-     * @param latitude    The latitude of the reference point.
-     * @param longitude   The longitude of the reference point.
+     * @param boost The boost for this query clause. Documents matching this clause will (in addition to the normal
+     * weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link #DEFAULT_BOOST} is used as
+     * default.
+     * @param field The name of the field to be matched.
+     * @param latitude The latitude of the reference point.
+     * @param longitude The longitude of the reference point.
      * @param minDistance The min allowed distance.
      * @param maxDistance The max allowed distance.
      */
@@ -144,7 +144,7 @@ public class GeoDistanceCondition extends SingleMapperCondition<GeoPointMapper> 
          * Builds a new {@link GeoDistance} defined by the specified quantitative value and distance unit.
          *
          * @param value The quantitative distance value.
-         * @param unit  The distance unit.
+         * @param unit The distance unit.
          */
         private GeoDistance(double value, GeoDistanceUnit unit) {
             this.value = value;
@@ -194,7 +194,7 @@ public class GeoDistanceCondition extends SingleMapperCondition<GeoPointMapper> 
         /** {@inheritDoc} */
         @Override
         public String toString() {
-            return Objects.toStringHelper(this).add("value", value).add("unit", unit).toString();
+            return MoreObjects.toStringHelper(this).add("value", value).add("unit", unit).toString();
         }
     }
 
@@ -224,7 +224,7 @@ public class GeoDistanceCondition extends SingleMapperCondition<GeoPointMapper> 
          * names.
          *
          * @param metres The value in metres.
-         * @param names  The identifying names.
+         * @param names The identifying names.
          */
         GeoDistanceUnit(double metres, String... names) {
             this.names = names;

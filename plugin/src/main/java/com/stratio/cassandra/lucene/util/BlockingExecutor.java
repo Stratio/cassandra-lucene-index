@@ -31,8 +31,8 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  * This subclass of ThreadPoolExecutor also takes away the max threads capabilities of the ThreadPoolExecutor superclass
  * and internally sets the amount of maximum threads to be the size of the core threads. This is done since threads over
- * the core size and under the max are instantiated only once the queue is full, but the
- * BlockingExecutor will block once the queue is full.
+ * the core size and under the max are instantiated only once the queue is full, but the BlockingExecutor will block
+ * once the queue is full.
  *
  * @author Yaneeve Shekel {@literal &} Amir Kirsh
  */
@@ -56,19 +56,18 @@ public class BlockingExecutor extends ThreadPoolExecutor {
      * ArrayBlockingQueue and the BlockThenRunPolicy that is defined in this class. This constructor allows to give a
      * timeout for the wait on new task insertion and to react upon such a timeout if occurs.
      *
-     * @param poolSize             is the amount of threads that this pool may have alive at any given time
-     * @param queueSize            is the size of the queue. This number should be at least as the pool size to make
-     *                             sense (otherwise there are unused threads), thus if the number sent is smaller, the
-     *                             poolSize is used for the size of the queue. Recommended value is twice the poolSize.
-     * @param keepAliveTime        is the amount of time after which an inactive thread is terminated
-     * @param keepAliveTimeUnit    is the unit of time to use with the previous parameter
-     * @param maxBlockingTime      is the maximum time to wait on the queue of tasks before calling the BlockingTimeout
-     *                             callback
-     * @param maxBlockingTimeUnit  is the unit of time to use with the previous parameter
+     * @param poolSize is the amount of threads that this pool may have alive at any given time
+     * @param queueSize is the size of the queue. This number should be at least as the pool size to make sense
+     * (otherwise there are unused threads), thus if the number sent is smaller, the poolSize is used for the size of
+     * the queue. Recommended value is twice the poolSize.
+     * @param keepAliveTime is the amount of time after which an inactive thread is terminated
+     * @param keepAliveTimeUnit is the unit of time to use with the previous parameter
+     * @param maxBlockingTime is the maximum time to wait on the queue of tasks before calling the BlockingTimeout
+     * callback
+     * @param maxBlockingTimeUnit is the unit of time to use with the previous parameter
      * @param blockingTimeCallback is the callback method to call when a timeout occurs while blocking on getting a new
-     *                             task, the return value of this Callable is Boolean, indicating whether to keep
-     *                             blocking (true) or stop (false). In case false is returned from the
-     *                             blockingTimeCallback, this executer will throw a RejectedExecutionException
+     * task, the return value of this Callable is Boolean, indicating whether to keep blocking (true) or stop (false).
+     * In case false is returned from the blockingTimeCallback, this executer will throw a RejectedExecutionException
      */
     public BlockingExecutor(int poolSize,
                             int queueSize,
@@ -94,12 +93,12 @@ public class BlockingExecutor extends ThreadPoolExecutor {
      * ArrayBlockingQueue and the BlockThenRunPolicy that is defined in this class. Using this constructor, waiting time
      * on new task insertion is unlimited.
      *
-     * @param poolSize      is the amount of threads that this pool may have alive at any given time.
-     * @param queueSize     is the size of the queue. This number should be at least as the pool size to make sense
-     *                      (otherwise there are unused threads), thus if the number sent is smaller, the poolSize is
-     *                      used for the size of the queue. Recommended value is twice the poolSize.
+     * @param poolSize is the amount of threads that this pool may have alive at any given time.
+     * @param queueSize is the size of the queue. This number should be at least as the pool size to make sense
+     * (otherwise there are unused threads), thus if the number sent is smaller, the poolSize is used for the size of
+     * the queue. Recommended value is twice the poolSize.
      * @param keepAliveTime is the amount of time after which an inactive thread is terminated.
-     * @param unit          is the unit of time to use with the previous parameter.
+     * @param unit is the unit of time to use with the previous parameter.
      */
     public BlockingExecutor(int poolSize, int queueSize, long keepAliveTime, TimeUnit unit) {
 
@@ -206,7 +205,7 @@ public class BlockingExecutor extends ThreadPoolExecutor {
      * A blocking wait for this ThreadPool to be in idle state or a certain timeout to elapse. Works the same as the
      * await() method, except for adding the timeout condition.
      *
-     * @param timeout  The timeout.
+     * @param timeout The timeout.
      * @param timeUnit The time unit.
      * @return false if the timeout elapsed, true if the synch event we are waiting for had happened.
      * @throws InterruptedException when the internal condition throws it.
@@ -267,7 +266,7 @@ public class BlockingExecutor extends ThreadPoolExecutor {
         /**
          * Inner implementation for supporting the BlockingExecutor.await(timeout, timeUnit).
          *
-         * @param timeout  The await time.
+         * @param timeout The await time.
          * @param timeUnit The await {@link TimeUnit}.
          * @throws InterruptedException when the internal condition throws it.
          * @see BlockingExecutor#await(long, TimeUnit) for details.
@@ -290,9 +289,9 @@ public class BlockingExecutor extends ThreadPoolExecutor {
     }
 
     /**
-     * This Policy class enforces the blocking feature of the BlockingExecutor. It does so by
-     * invoking the BlockingQueue's put method (instead of the offer method that is used by the standard implementation
-     * of the ThreadPoolExecutor - see the opened Java 6 source code).
+     * This Policy class enforces the blocking feature of the BlockingExecutor. It does so by invoking the
+     * BlockingQueue's put method (instead of the offer method that is used by the standard implementation of the
+     * ThreadPoolExecutor - see the opened Java 6 source code).
      */
     private static class BlockThenRunPolicy implements RejectedExecutionHandler {
 

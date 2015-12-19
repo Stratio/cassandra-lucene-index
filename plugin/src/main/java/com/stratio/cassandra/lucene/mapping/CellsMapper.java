@@ -54,7 +54,7 @@ public final class CellsMapper {
      * Adds to the specified {@link Column} to the {@link Column}s contained in the specified {@link Row}.
      *
      * @param columns The {@link Columns} in which the {@link Column}s are going to be added.
-     * @param row     A {@link Row}.
+     * @param row A {@link Row}.
      */
     public void addColumns(Columns columns, Row row) {
         for (ColumnDefinition columnDefinition : row.columns()) {

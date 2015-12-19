@@ -37,8 +37,11 @@ import org.apache.lucene.index.Term;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.NavigableSet;
 import java.util.TreeSet;
+
+import static java.util.stream.Collectors.toCollection;
 
 /**
  * Class for providing operations between Cassandra and Lucene.
@@ -49,8 +52,9 @@ public class IndexService {
 
     protected static final Logger logger = LoggerFactory.getLogger(IndexService.class);
 
-    private final ColumnFamilyStore columnFamilyStore;
+    private final ColumnFamilyStore table;
     private final CFMetaData tableMetadata;
+    private final IndexMetadata indexMetadata;
     private final LuceneIndex lucene;
     private final Mapper mapper;
     private final String indexName;
@@ -60,12 +64,13 @@ public class IndexService {
     /**
      * Constructor using the specified {@link IndexOptions}.
      *
-     * @param columnFamilyStore The indexed table.
+     * @param table The indexed table.
      * @param indexMetadata The index metadata.
      */
-    public IndexService(ColumnFamilyStore columnFamilyStore, IndexMetadata indexMetadata) {
-        this.columnFamilyStore = columnFamilyStore;
-        tableMetadata = columnFamilyStore.metadata;
+    public IndexService(ColumnFamilyStore table, IndexMetadata indexMetadata) {
+        this.table = table;
+        this.indexMetadata = indexMetadata;
+        tableMetadata = table.metadata;
         indexName = String.format("%s.%s.%s", tableMetadata.ksName, tableMetadata.cfName, indexMetadata.name);
         String mbean = String.format("com.stratio.cassandra.lucene:type=LuceneIndexes,keyspace=%s,table=%s,index=%s",
                                      tableMetadata.ksName,
@@ -94,15 +99,6 @@ public class IndexService {
     }
 
     /**
-     * Returns an empty navigable sorted set of clustering keys, sorted by the indexed table comparator.
-     *
-     * @return an empty set of clustering keys
-     */
-    public NavigableSet<Clustering> clusterings() {
-        return new TreeSet<>(columnFamilyStore.getComparator());
-    }
-
-    /**
      * Commits the pending changes.
      */
     public final void commit() {
@@ -125,37 +121,17 @@ public class IndexService {
     }
 
     /**
-     * Returns an {@link UnfilteredRowIterator} for reading rows from the indexed table.
+     * Indexes the specified rows. The rows are read from the indexed table and sent to the Lucene index. The indexing
+     * can be synchronous or asynchronous depending on the configuration options.
      *
      * @param key a partition key
-     * @param clusterings a sorted set of clustering keys
-     * @param nowInSec the max allowed time for the read rows
-     * @param opGroup a group of identically ordered operations
-     * @return a partition iterator.
-     */
-    public UnfilteredRowIterator read(DecoratedKey key,
-                                      NavigableSet<Clustering> clusterings,
-                                      int nowInSec,
-                                      OpOrder.Group opGroup) {
-        ClusteringIndexNamesFilter filter = new ClusteringIndexNamesFilter(clusterings, false);
-        ColumnFilter columnFilter = ColumnFilter.all(tableMetadata);
-        return SinglePartitionReadCommand.create(tableMetadata, nowInSec, key, columnFilter, filter)
-                                         .queryMemtableAndDisk(columnFamilyStore, opGroup);
-    }
-
-    /**
-     * Indexes the rows identified by the specified partition and clustering keys. The rows are read from the indexed
-     * table and sent to the Lucene index. The indexing can be synchronous or asynchronous depending on the
-     * configuration options.
-     *
-     * @param key a partition key
-     * @param clusterings a sorted set of clustering keys
+     * @param rows a list of rows to be indexed
      * @param deletePartition if the partition should be deleted from the index before indexing
      * @param nowInSec the current time in seconds
      * @param opGroup a group of identically ordered operations
      */
     public void index(DecoratedKey key,
-                      NavigableSet<Clustering> clusterings,
+                      List<Row> rows,
                       boolean deletePartition,
                       int nowInSec,
                       OpOrder.Group opGroup) {
@@ -163,10 +139,14 @@ public class IndexService {
             Term term = mapper.term(key);
             indexQueue.submitAsynchronous(key, () -> lucene.delete(term));
         }
-        if (!clusterings.isEmpty()) {
-            UnfilteredRowIterator it = read(key, clusterings, nowInSec, opGroup);
-            while (it.hasNext()) {
-                Row row = (Row) it.next();
+        if (!rows.isEmpty()) {
+            NavigableSet<Clustering> clusterings = rows.parallelStream()
+                                                       .filter(row -> !row.isStatic())
+                                                       .map(Row::clustering)
+                                                       .collect(toCollection(this::clusterings));
+            UnfilteredRowIterator iterator = rows(key, clusterings, nowInSec, opGroup);
+            while (iterator.hasNext()) {
+                Row row = (Row) iterator.next();
                 if (row.hasLiveData(nowInSec)) {
                     Term term = mapper.term(key);
                     Document document = mapper.document(key, row);
@@ -177,5 +157,19 @@ public class IndexService {
                 }
             }
         }
+    }
+
+    private UnfilteredRowIterator rows(DecoratedKey key,
+                                       NavigableSet<Clustering> clusterings,
+                                       int nowInSec,
+                                       OpOrder.Group opGroup) {
+        ClusteringIndexNamesFilter filter = new ClusteringIndexNamesFilter(clusterings, false);
+        ColumnFilter columnFilter = ColumnFilter.all(tableMetadata);
+        return SinglePartitionReadCommand.create(tableMetadata, nowInSec, key, columnFilter, filter)
+                                         .queryMemtableAndDisk(table, opGroup);
+    }
+
+    private NavigableSet<Clustering> clusterings() {
+        return new TreeSet<>(tableMetadata.comparator);
     }
 }

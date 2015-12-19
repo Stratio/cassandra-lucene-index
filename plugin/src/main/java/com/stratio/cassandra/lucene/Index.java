@@ -20,11 +20,11 @@ package com.stratio.cassandra.lucene;
 
 import org.apache.cassandra.config.ColumnDefinition;
 import org.apache.cassandra.cql3.Operator;
-import org.apache.cassandra.db.ColumnFamilyStore;
-import org.apache.cassandra.db.DecoratedKey;
-import org.apache.cassandra.db.PartitionColumns;
-import org.apache.cassandra.db.ReadCommand;
+import org.apache.cassandra.db.*;
+import org.apache.cassandra.db.compaction.CompactionManager;
 import org.apache.cassandra.db.filter.RowFilter;
+import org.apache.cassandra.db.lifecycle.SSTableSet;
+import org.apache.cassandra.db.lifecycle.View;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.db.partitions.PartitionIterator;
@@ -32,9 +32,14 @@ import org.apache.cassandra.db.partitions.PartitionUpdate;
 import org.apache.cassandra.exceptions.ConfigurationException;
 import org.apache.cassandra.exceptions.InvalidRequestException;
 import org.apache.cassandra.index.IndexRegistry;
+import org.apache.cassandra.index.SecondaryIndexBuilder;
 import org.apache.cassandra.index.transactions.IndexTransaction;
+import org.apache.cassandra.io.sstable.ReducingKeyIterator;
+import org.apache.cassandra.io.sstable.format.SSTableReader;
 import org.apache.cassandra.schema.IndexMetadata;
+import org.apache.cassandra.utils.FBUtilities;
 import org.apache.cassandra.utils.concurrent.OpOrder;
+import org.apache.cassandra.utils.concurrent.Refs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +47,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
 import java.util.function.BiFunction;
 
 /**
@@ -54,6 +60,7 @@ public class Index implements org.apache.cassandra.index.Index {
 
     private static final Logger logger = LoggerFactory.getLogger(Index.class);
 
+    private ColumnFamilyStore table;
     private IndexMetadata indexMetadata;
     private IndexService service;
     private String name;
@@ -61,13 +68,14 @@ public class Index implements org.apache.cassandra.index.Index {
     /**
      * Builds a new Lucene index for the specified {@link ColumnFamilyStore} using the specified {@link IndexMetadata}.
      *
-     * @param columnFamilyStore The indexed {@link ColumnFamilyStore}.
-     * @param indexMetadata     The index's metadata.
+     * @param table The indexed {@link ColumnFamilyStore}.
+     * @param indexMetadata The index's metadata.
      */
-    public Index(ColumnFamilyStore columnFamilyStore, IndexMetadata indexMetadata) {
+    public Index(ColumnFamilyStore table, IndexMetadata indexMetadata) {
+        this.table = table;
         this.indexMetadata = indexMetadata;
         try {
-            service = new IndexService(columnFamilyStore, indexMetadata);
+            service = new IndexService(table, indexMetadata);
         } catch (Exception e) {
             throw new IndexException(e);
         }
@@ -98,38 +106,54 @@ public class Index implements org.apache.cassandra.index.Index {
      */
 
     /**
-     * Return a task to perform any initialization work when a new index instance is created.
-     * This may involve costly operations such as (re)building the index, and is performed asynchronously
-     * by SecondaryIndexManager
+     * Return a task to perform any initialization work when a new index instance is created. This may involve costly
+     * operations such as (re)building the index, and is performed asynchronously by SecondaryIndexManager
      *
      * @return a task to perform any necessary initialization work
      */
     @Override
     public Callable<?> getInitializationTask() {
-        return () -> {
-            logger.debug("Initializing Lucene index {}", name);
+        if (table.isEmpty() || SystemKeyspace.isIndexBuilt(table.keyspace.getName(), indexMetadata.name)) {
             return null;
-        };
+        } else {
+            return () -> {
+                logger.info("Submitting index build of {}", name);
+                table.forceBlockingFlush();
+                service.truncate();
+                try (ColumnFamilyStore.RefViewFragment vs = table.selectAndReference(View.select(SSTableSet.CANONICAL));
+                     Refs<SSTableReader> sstables = vs.refs) {
+                    if (!sstables.isEmpty()) {
+                        SecondaryIndexBuilder builder = new SecondaryIndexBuilder(table,
+                                                                                  Collections.singleton(this),
+                                                                                  new ReducingKeyIterator(sstables));
+                        Future<?> future = CompactionManager.instance.submitIndexBuild(builder);
+                        FBUtilities.waitOnFuture(future);
+                        service.commit();
+                    }
+                    table.indexManager.markIndexBuilt(indexMetadata.name);
+                }
+                logger.info("Index build of {} complete", name);
+                return null;
+            };
+        }
     }
 
     /**
-     * Returns the IndexMetadata which configures and defines the index instance. This should be the same
-     * object passed as the argument to setIndexMetadata.
+     * Returns the IndexMetadata which configures and defines the index instance. This should be the same object passed
+     * as the argument to setIndexMetadata.
      *
      * @return the index's metadata
      */
     @Override
     public IndexMetadata getIndexMetadata() {
-        logger.debug("Getting index metadata");
         return indexMetadata;
     }
 
     /**
-     * Return a task to reload the internal metadata of an index.
-     * Called when the base table metadata is modified or when the configuration of the Index is updated
-     * Implementations should return a task which performs any necessary work to be done due to
-     * updating the configuration(s) such as (re)building etc. This task is performed asynchronously
-     * by SecondaryIndexManager
+     * Return a task to reload the internal metadata of an index. Called when the base table metadata is modified or
+     * when the configuration of the Index is updated Implementations should return a task which performs any necessary
+     * work to be done due to updating the configuration(s) such as (re)building etc. This task is performed
+     * asynchronously by SecondaryIndexManager
      *
      * @return Task to be executed by the index manager during a reload.
      */
@@ -142,11 +166,10 @@ public class Index implements org.apache.cassandra.index.Index {
     }
 
     /**
-     * An index must be registered in order to be able to either subscribe to update events on the base
-     * table and/or to provide IndexSearcher functionality for reads. The double dispatch involved here, where
-     * the Index actually performs its own registration by calling back to the supplied IndexRegistry's
-     * own registerIndex method, is to make the decision as to whether or not to register an index belong
-     * to the implementation, not the manager.
+     * An index must be registered in order to be able to either subscribe to update events on the base table and/or to
+     * provide IndexSearcher functionality for reads. The double dispatch involved here, where the Index actually
+     * performs its own registration by calling back to the supplied IndexRegistry's own registerIndex method, is to
+     * make the decision as to whether or not to register an index belong to the implementation, not the manager.
      *
      * @param registry the index registry to register the instance with
      */
@@ -156,9 +179,8 @@ public class Index implements org.apache.cassandra.index.Index {
     }
 
     /**
-     * If the index implementation uses a local table to store its index data this method should return a
-     * handle to it. If not, an empty Optional should be returned. Typically, this is useful for the built-in
-     * Index implementations.
+     * If the index implementation uses a local table to store its index data this method should return a handle to it.
+     * If not, an empty Optional should be returned. Typically, this is useful for the built-in Index implementations.
      *
      * @return an Optional referencing the Index's backing storage table if it has one, or Optional.empty() if not.
      */
@@ -180,8 +202,8 @@ public class Index implements org.apache.cassandra.index.Index {
     }
 
     /**
-     * Return a task which invalidates the index, indicating it should no longer be considered usable.
-     * This should include an clean up and releasing of resources required when dropping an index.
+     * Return a task which invalidates the index, indicating it should no longer be considered usable. This should
+     * include an clean up and releasing of resources required when dropping an index.
      *
      * @return task to be executed by the index manager to invalidate the index.
      */
@@ -194,11 +216,11 @@ public class Index implements org.apache.cassandra.index.Index {
     }
 
     /**
-     * Return a task to truncate the index with the specified truncation timestamp.
-     * Called when the base table is truncated.
+     * Return a task to truncate the index with the specified truncation timestamp. Called when the base table is
+     * truncated.
      *
-     * @param truncatedAt timestamp of the truncation operation. This will be the same timestamp used
-     *                    in the truncation of the base table.
+     * @param truncatedAt timestamp of the truncation operation. This will be the same timestamp used in the truncation
+     * of the base table.
      * @return task to be executed by the index manager when the base table is truncated.
      */
     @Override
@@ -226,7 +248,7 @@ public class Index implements org.apache.cassandra.index.Index {
     @Override
     public boolean shouldBuildBlocking() {
         logger.debug("Asking if it should build blocking");
-        return false;
+        return true;
     }
 
     /*
@@ -234,15 +256,14 @@ public class Index implements org.apache.cassandra.index.Index {
      */
 
     /**
-     * Called to determine whether this index targets a specific column.
-     * Used during schema operations such as when dropping or renaming a column, to check if
-     * the index will be affected by the change. Typically, if an index answers that it does
-     * depend upon a column, then schema operations on that column are not permitted until the index
-     * is dropped or altered.
+     * Called to determine whether this index targets a specific column. Used during schema operations such as when
+     * dropping or renaming a column, to check if the index will be affected by the change. Typically, if an index
+     * answers that it does depend upon a column, then schema operations on that column are not permitted until the
+     * index is dropped or altered.
      *
      * @param column the column definition to check
-     * @return true if the index depends on the supplied column being present; false if the column may be
-     * safely dropped or modified without adversely affecting the index
+     * @return true if the index depends on the supplied column being present; false if the column may be safely dropped
+     * or modified without adversely affecting the index
      */
     @Override
     public boolean dependsOn(ColumnDefinition column) {
@@ -251,11 +272,10 @@ public class Index implements org.apache.cassandra.index.Index {
     }
 
     /**
-     * Called to determine whether this index can provide a searcher to execute a query on the
-     * supplied column using the specified operator. This forms part of the query validation done
-     * before a CQL select statement is executed.
+     * Called to determine whether this index can provide a searcher to execute a query on the supplied column using the
+     * specified operator. This forms part of the query validation done before a CQL select statement is executed.
      *
-     * @param column   the target column of a search query predicate
+     * @param column the target column of a search query predicate
      * @param operator the operator of a search query predicate
      * @return true if this index is capable of supporting such expressions, false otherwise
      */
@@ -266,16 +286,14 @@ public class Index implements org.apache.cassandra.index.Index {
     }
 
     /**
-     * If the index supports custom search expressions using the
-     * {@code}SELECT * FROM table WHERE expr(index_name, expression){@code} syntax, this
-     * method should return the expected type of the expression argument.
-     * For example, if the index supports custom expressions as Strings, calls to this
-     * method should return {@code}UTF8Type.instance{@code}.
-     * If the index implementation does not support custom expressions, then it should
+     * If the index supports custom search expressions using the {@code}SELECT * FROM table WHERE expr(index_name,
+     * expression){@code} syntax, this method should return the expected type of the expression argument. For example,
+     * if the index supports custom expressions as Strings, calls to this method should return
+     * {@code}UTF8Type.instance{@code}. If the index implementation does not support custom expressions, then it should
      * return null.
      *
-     * @return an the type of custom index expressions supported by this index, or an
-     * null if custom expressions are not supported.
+     * @return an the type of custom index expressions supported by this index, or an null if custom expressions are not
+     * supported.
      */
     @Override
     public AbstractType<?> customExpressionValueType() {
@@ -284,14 +302,13 @@ public class Index implements org.apache.cassandra.index.Index {
     }
 
     /**
-     * Transform an initial RowFilter into the filter that will still need to applied
-     * to a set of Rows after the index has performed it's initial scan.
-     * Used in ReadCommand#executeLocal to reduce the amount of filtering performed on the
-     * results of the index query.
+     * Transform an initial RowFilter into the filter that will still need to applied to a set of Rows after the index
+     * has performed it's initial scan. Used in ReadCommand#executeLocal to reduce the amount of filtering performed on
+     * the results of the index query.
      *
      * @param filter the intial filter belonging to a ReadCommand
-     * @return the (hopefully) reduced filter that would still need to be applied after
-     * the index was used to narrow the initial result set
+     * @return the (hopefully) reduced filter that would still need to be applied after the index was used to narrow the
+     * initial result set
      */
     @Override
     public RowFilter getPostIndexQueryFilter(RowFilter filter) {
@@ -300,10 +317,10 @@ public class Index implements org.apache.cassandra.index.Index {
     }
 
     /**
-     * Return an estimate of the number of results this index is expected to return for any given
-     * query that it can be used to answer. Used in conjunction with indexes() and supportsExpression()
-     * to determine the most selective index for a given ReadCommand. Additionally, this is also used
-     * by StorageProxy.estimateResultsPerRange to calculate the initial concurrency factor for range requests
+     * Return an estimate of the number of results this index is expected to return for any given query that it can be
+     * used to answer. Used in conjunction with indexes() and supportsExpression() to determine the most selective index
+     * for a given ReadCommand. Additionally, this is also used by StorageProxy.estimateResultsPerRange to calculate the
+     * initial concurrency factor for range requests
      *
      * @return the estimated average number of results a IndexSearcher may return for any given query
      */
@@ -318,11 +335,9 @@ public class Index implements org.apache.cassandra.index.Index {
      */
 
     /**
-     * Called at write time to ensure that values present in the update
-     * are valid according to the rules of all registered indexes which
-     * will process it. The partition key as well as the clustering and
-     * cell values for each row in the update may be checked by index
-     * implementations
+     * Called at write time to ensure that values present in the update are valid according to the rules of all
+     * registered indexes which will process it. The partition key as well as the clustering and cell values for each
+     * row in the update may be checked by index implementations
      *
      * @param update PartitionUpdate containing the values to be validated by registered Index implementations.
      * @throws InvalidRequestException If the update doesn't pass through the validation.
@@ -339,17 +354,17 @@ public class Index implements org.apache.cassandra.index.Index {
     /**
      * Creates an new {@code IndexWriter} object for updates to a given partition.
      *
-     * @param key             key of the partition being modified
-     * @param columns         the regular and static columns the created indexer will have to deal with.
-     *                        This can be empty as an update might only contain partition, range and row deletions, but
-     *                        the indexer is guaranteed to not get any cells for a column that is not part of {@code columns}.
-     * @param nowInSec        current time of the update operation
-     * @param opGroup         operation group spanning the update operation
-     * @param transactionType indicates what kind of update is being performed on the base data
-     *                        i.e. a write time insert/update/delete or the result of compaction
-     * @return the newly created indexer or {@code null} if the index is not interested by the update
-     * (this could be because the index doesn't care about that particular partition, doesn't care about
-     * that type of transaction, ...).
+     * @param key key of the partition being modified
+     * @param columns the regular and static columns the created indexer will have to deal with. This can be empty as an
+     * update might only contain partition, range and row deletions, but the indexer is guaranteed to not get any cells
+     * for a column that is not part of {@code columns}.
+     * @param nowInSec current time of the update operation
+     * @param opGroup operation group spanning the update operation
+     * @param transactionType indicates what kind of update is being performed on the base data i.e. a write time
+     * insert/update/delete or the result of compaction
+     * @return the newly created indexer or {@code null} if the index is not interested by the update (this could be
+     * because the index doesn't care about that particular partition, doesn't care about that type of transaction,
+     * ...).
      */
     @Override
     public Indexer indexerFor(DecoratedKey key,
@@ -357,7 +372,7 @@ public class Index implements org.apache.cassandra.index.Index {
                               int nowInSec,
                               OpOrder.Group opGroup,
                               IndexTransaction.Type transactionType) {
-        return new IndexWriter(service, key, nowInSec, opGroup);
+        return new IndexWriter(service, key, nowInSec, opGroup, transactionType);
     }
 
     /*
@@ -365,18 +380,17 @@ public class Index implements org.apache.cassandra.index.Index {
      */
 
     /**
-     * Return a function which performs post processing on the results of a partition range read command.
-     * In future, this may be used as a generalized mechanism for transforming results on the coordinator prior
-     * to returning them to the caller.
+     * Return a function which performs post processing on the results of a partition range read command. In future,
+     * this may be used as a generalized mechanism for transforming results on the coordinator prior to returning them
+     * to the caller.
      *
-     * This is used on the coordinator during execution of a range command to perform post
-     * processing of merged results obtained from the necessary replicas. This is the only way in which results are
-     * transformed in this way but this may change over time as usage is generalized.
-     * See CASSANDRA-8717 for further discussion.
+     * This is used on the coordinator during execution of a range command to perform post processing of merged results
+     * obtained from the necessary replicas. This is the only way in which results are transformed in this way but this
+     * may change over time as usage is generalized. See CASSANDRA-8717 for further discussion.
      *
      * The function takes a PartitionIterator of the results from the replicas which has already been collated and
-     * reconciled, along with the command being executed. It returns another PartitionIterator containing the results
-     * of the transformation (which may be the same as the input if the transformation is a no-op).
+     * reconciled, along with the command being executed. It returns another PartitionIterator containing the results of
+     * the transformation (which may be the same as the input if the transformation is a no-op).
      */
     @Override
     public BiFunction<PartitionIterator, ReadCommand, PartitionIterator> postProcessorFor(ReadCommand command) {
@@ -385,14 +399,13 @@ public class Index implements org.apache.cassandra.index.Index {
     }
 
     /**
-     * Factory method for query time search helper.
-     * Custom index implementations should perform any validation of query expressions here and throw a meaningful
-     * InvalidRequestException when any expression is invalid.
+     * Factory method for query time search helper. Custom index implementations should perform any validation of query
+     * expressions here and throw a meaningful InvalidRequestException when any expression is invalid.
      *
      * @param command the read command being executed
      * @return an IndexSearcher with which to perform the supplied command
-     * @throws InvalidRequestException if the command's expressions are invalid according to the
-     *                                 specific syntax supported by the index implementation.
+     * @throws InvalidRequestException if the command's expressions are invalid according to the specific syntax
+     * supported by the index implementation.
      */
     @Override
     public Searcher searcherFor(ReadCommand command) throws InvalidRequestException {

@@ -104,20 +104,6 @@ public class SchemaTest {
     }
 
     @Test
-    public void testMapsTrue() {
-        Schema schema = SchemaBuilders.schema().mapper("field1", stringMapper()).build();
-        assertTrue("Expected true", schema.maps("field1"));
-        schema.close();
-    }
-
-    @Test
-    public void testMapsFalse() {
-        Schema schema = SchemaBuilders.schema().mapper("field1", stringMapper()).build();
-        assertFalse("Expected false", schema.maps("field2"));
-        schema.close();
-    }
-
-    @Test
     public void testAddFields() {
         Schema schema = SchemaBuilders.schema().mapper("field1", stringMapper()).build();
         Columns columns = new Columns().add(Column.builder("field1").buildWithComposed("value", UTF8Type.instance));

@@ -18,7 +18,7 @@
 
 package com.stratio.cassandra.lucene.search.condition;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.schema.Schema;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
@@ -34,8 +34,8 @@ public class AllCondition extends Condition {
      * Constructor without field arguments.
      *
      * @param boost The boost for this query clause. Documents matching this clause will (in addition to the normal
-     *              weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link
-     *              #DEFAULT_BOOST} is used as default.
+     * weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link #DEFAULT_BOOST} is used as
+     * default.
      */
     public AllCondition(Float boost) {
         super(boost);
@@ -52,6 +52,6 @@ public class AllCondition extends Condition {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("boost", boost).toString();
+        return MoreObjects.toStringHelper(this).add("boost", boost).toString();
     }
 }

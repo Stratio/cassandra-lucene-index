@@ -179,12 +179,12 @@ public enum StandardStopwords {
     abstract CharArraySet build();
 
     /**
-     * Returns the prebuilt analyzer stopwords identified by the specified name, or {@code null} if there is no
-     * such stopwords.
+     * Returns the prebuilt analyzer stopwords identified by the specified name, or {@code null} if there is no such
+     * stopwords.
      *
      * @param name A analyzer stopwords name.
-     * @return The prebuilt analyzer stopwords identified by the specified name, or {@code null} if there is no
-     * such stopwords.
+     * @return The prebuilt analyzer stopwords identified by the specified name, or {@code null} if there is no such
+     * stopwords.
      */
     public static CharArraySet get(String name) {
         try {

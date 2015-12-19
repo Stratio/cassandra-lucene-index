@@ -57,7 +57,7 @@ public final class KeyMapper {
      * Returns the {@link ByteBuffer} representation of the full row key formed by the specified partition key and the
      * clustering key.
      *
-     * @param key        A partition key.
+     * @param key A partition key.
      * @param clustering A clustering key.
      * @return The {@link ByteBuffer} representation of the full row key formed by the specified key pair.
      */
@@ -69,8 +69,8 @@ public final class KeyMapper {
      * Adds to the specified Lucene {@link Document} the full row key formed by the specified partition key and the
      * clustering key.
      *
-     * @param document   A Lucene {@link Document}.
-     * @param key        A partition key.
+     * @param document A Lucene {@link Document}.
+     * @param key A partition key.
      * @param clustering A clustering key.
      */
     public void addFields(Document document, DecoratedKey key, Clustering clustering) {
@@ -84,7 +84,7 @@ public final class KeyMapper {
      * Returns the Lucene {@link Term} representing the full row key formed by the specified partition key and the
      * clustering key.
      *
-     * @param key        A partition key.
+     * @param key A partition key.
      * @param clustering A clustering key.
      * @return The Lucene {@link Term} representing the full row key formed by the specified key pair.
      */

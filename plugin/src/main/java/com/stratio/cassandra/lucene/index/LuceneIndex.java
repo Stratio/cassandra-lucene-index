@@ -63,13 +63,13 @@ public class LuceneIndex implements LuceneIndexMBean {
     /**
      * Builds a new {@link LuceneIndex}.
      *
-     * @param mbeanName   The JMX MBean object name.
-     * @param name        The index name.
-     * @param path        The directory path.
-     * @param analyzer    The index writer analyzer.
-     * @param refresh     The index reader refresh frequency in seconds.
+     * @param mbeanName The JMX MBean object name.
+     * @param name The index name.
+     * @param path The directory path.
+     * @param analyzer The index writer analyzer.
+     * @param refresh The index reader refresh frequency in seconds.
      * @param ramBufferMB The index writer RAM buffer size in MB.
-     * @param maxMergeMB  The directory max merge size in MB.
+     * @param maxMergeMB The directory max merge size in MB.
      * @param maxCachedMB The directory max cache size in MB.
      */
     public LuceneIndex(String mbeanName,
@@ -125,7 +125,7 @@ public class LuceneIndex implements LuceneIndexMBean {
      * the new document. The delete and then add are atomic as seen by a reader on the same index (flush may happen only
      * after the add).
      *
-     * @param term     The {@link Term} to identify the document(s) to be deleted.
+     * @param term The {@link Term} to identify the document(s) to be deleted.
      * @param document The {@link Document} to be added.
      */
     public void upsert(Term term, Document document) {
@@ -169,7 +169,6 @@ public class LuceneIndex implements LuceneIndexMBean {
      * Deletes all the {@link Document}s.
      */
     public void truncate() {
-        logger.info("Truncating {}", name);
         try {
             indexWriter.deleteAll();
         } catch (Exception e) {
@@ -183,7 +182,6 @@ public class LuceneIndex implements LuceneIndexMBean {
      */
     @Override
     public void commit() {
-        logger.info("Committing {}", name);
         try {
             indexWriter.commit();
         } catch (Exception e) {
@@ -196,7 +194,6 @@ public class LuceneIndex implements LuceneIndexMBean {
      * Commits all changes to the index, waits for pending merges to complete, and closes all associated resources.
      */
     public void close() {
-        logger.info("Closing {}", name);
         try {
             searcherReopener.interrupt();
             searcherManager.close();
@@ -213,7 +210,6 @@ public class LuceneIndex implements LuceneIndexMBean {
      * Closes the index and removes all its files.
      */
     public void delete() {
-        logger.info("Deleting {}", name);
         try {
             close();
         } catch (Exception e) {
@@ -233,11 +229,11 @@ public class LuceneIndex implements LuceneIndexMBean {
      * the hits by {@code sort}.
      *
      * @param searcher The {@link IndexSearcher} to be used.
-     * @param query    The {@link Query} to search for.
-     * @param sort     The {@link Sort} to be applied.
-     * @param after    The starting {@link ScoreDoc}.
-     * @param count    The max number of results to be collected.
-     * @param fields   The names of the fields to be loaded.
+     * @param query The {@link Query} to search for.
+     * @param sort The {@link Sort} to be applied.
+     * @param after The starting {@link ScoreDoc}.
+     * @param count The max number of results to be collected.
+     * @param fields The names of the fields to be loaded.
      * @return The found documents, sorted according to the supplied {@link Sort} instance.
      */
     public Map<Document, ScoreDoc> search(IndexSearcher searcher,
@@ -312,7 +308,7 @@ public class LuceneIndex implements LuceneIndexMBean {
      * until all merging completes.
      *
      * @param maxNumSegments The maximum number of segments left in the index after merging finishes.
-     * @param doWait         {@code true} if the call should block until the operation completes.
+     * @param doWait {@code true} if the call should block until the operation completes.
      */
     @Override
     public void forceMerge(int maxNumSegments, boolean doWait) {

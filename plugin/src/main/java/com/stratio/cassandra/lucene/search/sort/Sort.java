@@ -18,10 +18,10 @@
 
 package com.stratio.cassandra.lucene.search.sort;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.google.common.collect.Ordering;
-import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.column.Columns;
+import com.stratio.cassandra.lucene.schema.Schema;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -93,6 +93,6 @@ public class Sort implements Iterable<SortField> {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("sortFields", sortFields).toString();
+        return MoreObjects.toStringHelper(this).add("sortFields", sortFields).toString();
     }
 }

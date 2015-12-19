@@ -65,7 +65,7 @@ public final class ByteBufferUtils {
      * Returns the {@link ByteBuffer}s contained in {@code byteBuffer} according to {@code type}.
      *
      * @param byteBuffer the {@link ByteBuffer} to be split.
-     * @param type       the {@link AbstractType} of {@code byteBuffer}.
+     * @param type the {@link AbstractType} of {@code byteBuffer}.
      * @return the {@link ByteBuffer}s contained in {@code byteBuffer} according to {@code type}.
      */
     public static ByteBuffer[] split(ByteBuffer byteBuffer, AbstractType<?> type) {
@@ -80,7 +80,7 @@ public final class ByteBufferUtils {
      * Returns a {@code String} representation of {@code byteBuffer} validated by {@code type}.
      *
      * @param byteBuffer the {@link ByteBuffer} to be converted to {@code String}.
-     * @param type       {@link AbstractType} of {@code byteBuffer}.
+     * @param type {@link AbstractType} of {@code byteBuffer}.
      * @return a {@code String} representation of {@code byteBuffer} validated by {@code type}.
      */
     public static String toString(ByteBuffer byteBuffer, AbstractType<?> type) {
