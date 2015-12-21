@@ -196,12 +196,12 @@ Syntax:
     SELECT ( <fields> | * )
     FROM <table>
     WHERE <magic_column> = '{ (filter | query) : {
-                                type  : "bitemporal",
-                                (vt_from : <vt_from> ,)?
-                                (vt_to   : <vt_to> ,)?
-                                (tt_from : <tt_from> ,)?
-                                (tt_to   : <tt_to> ,)?
-                                (operation: <operation> )?
+                                type       : "bitemporal",
+                                (vt_from   : <vt_from> ,)?
+                                (vt_to     : <vt_to> ,)?
+                                (tt_from   : <tt_from> ,)?
+                                (tt_to     : <tt_to> ,)?
+                                (operation : <operation> )?
                               }}';
 
 where:
@@ -247,12 +247,12 @@ Second, we create the index:
         'schema' : '{
             fields : {
                 bitemporal : {
-                    type : "bitemporal",
-                    tt_from : "tt_from",
-                    tt_to : "tt_to",
-                    vt_from : "vt_from",
-                    vt_to : "vt_to",
-                    pattern : "yyyy/MM/dd",
+                    type      : "bitemporal",
+                    tt_from   : "tt_from",
+                    tt_to     : "tt_to",
+                    vt_from   : "vt_from",
+                    vt_to     : "vt_to",
+                    pattern   : "yyyy/MM/dd",
                     now_value : "2200/12/31"}
             }
     }'};
@@ -286,12 +286,14 @@ So, the system need to update last information from John,and insert the new. Thi
 .. code-block:: sql
 
     BEGIN BATCH
-        UPDATE census SET tt_to = '2015/06/29'
-        WHERE name = 'John' AND vt_from = '2015/01/01' AND tt_from = '2015/01/01'
-        IF tt_to = '2200/12/31';
+        -- This update until when the system believed in this false information
+        UPDATE census SET tt_to = '2015/06/29' WHERE name = 'John' AND vt_from = '2015/01/01' AND tt_from = '2015/01/01' IF tt_to = '2200/12/31';
 
-        INSERT INTO census(name, city, vt_from, vt_to, tt_from, tt_to)
-        VALUES ('John', 'Amsterdam', '2015/03/05', '2200/12/31', '2015/06/30', '2200/12/31');
+        -- Here inserts the new knowledge about the period where john resided in Madrid
+        INSERT INTO census(name, city, vt_from, vt_to, tt_from, tt_to) VALUES ('John', 'Madrid', '2015/01/01', '2015/03/04', '2015/06/30', '2200/12/31');
+
+        -- This inserts the new knowledge about the period where john resides in Amsterdam
+        INSERT INTO census(name, city, vt_from, vt_to, tt_from, tt_to) VALUES ('John', 'Amsterdam', '2015/03/05', '2200/12/31', '2015/06/30', '2200/12/31');
     APPLY BATCH;
 
 Now , we can see the main difference between valid time and transaction time. The system knows from '2015/01/01' to '2015/06/29' that John resides in Madrid from '2015/01/01' until now, and resides in Amsterdam from '2015/03/05' until now.
@@ -312,31 +314,118 @@ If you want to know what is the last info about where John resides, you perform 
     SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM census
     WHERE lucene = '{
         filter : {
-            type : "bitemporal",
-            field : "bitemporal",
+            type    : "bitemporal",
+            field   : "bitemporal",
             vt_from : 0,
-            vt_to : "2200/12/31",
+            vt_to   : "2200/12/31",
             tt_from : "2200/12/31",
-            tt_to : "2200/12/31"
+            tt_to   : "2200/12/31"
         }
     }'
     AND name='John';
 
+Using Builder
 
-If the test case needs to know what the system was thinking at '2015/03/01' about where John resides.
+.. code-block:: java
+
+    import static com.stratio.cassandra.lucene.builder.Builder.*;
+    (...)
+    String indexColumn = "lucene";
+    Search search = search().filter(bitemporal("bitemporal").ttFrom("2200/12/31").ttTo("2200/12/31")
+                                    .vtFrom(0).vtTo("2200/12/31"));
+    ResultSet rs = session.execute(QueryBuilder
+                                        .select("name", "city", "vt_from", "vt_to", "tt_from", "tt_to")
+                                        .from("test","census").where(eq(indexColumn, search.build()));
+
+
+If you want to know what is the last info about where John resides now, you perform a query with tt_from, tt_to, vt_from, vt_to setted to now_value:
+
+.. code-block:: sql
+
+    SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM census WHERE
+    lucene='{
+        filter : {
+            type    : "bitemporal",
+            field   : "bitemporal",
+            vt_from : "2200/12/31",
+            vt_to   : "2200/12/31",
+            tt_from : "2200/12/31",
+            tt_to   : "2200/12/31"
+        }
+    }'
+    AND name='John';
+
+Using Builder
+
+.. code-block:: java
+
+    import static com.stratio.cassandra.lucene.builder.Builder.*;
+    (...)
+    String indexColumn = "lucene";
+    Search search = search().filter(bitemporal("bitemporal").ttFrom("2200/12/31").ttTo("2200/12/31")
+                                                            .vtFrom("2200/12/31").vtTo("2200/12/31"));
+    ResultSet rs = session.execute(QueryBuilder
+                                        .select("name", "city", "vt_from", "vt_to", "tt_from", "tt_to")
+                                        .from("test","census").where(eq(indexColumn, search.build()));
+
+
+If the test case needs to know what the system was thinking at '2015/03/01' about where John resides in "2015/03/01".
 
 .. code-block:: sql
 
     SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM census
     WHERE lucene = '{
         filter : {
-            type : "bitemporal",
-            field : "bitemporal",
+            type    : "bitemporal",
+            field   : "bitemporal",
+            vt_from : "2015/03/01",
+            vt_to   : "2015/03/01",
             tt_from : "2015/03/01",
-            tt_to : "2015/03/01"
+            tt_to   : "2015/03/01"
         }
     }'
     AND name = 'John';
+
+Using Builder
+
+.. code-block:: java
+
+    import static com.stratio.cassandra.lucene.builder.Builder.*;
+    (...)
+    String indexColumn = "lucene";
+    Search search = search().filter(bitemporal("bitemporal").ttFrom("2015/03/01").ttTo("2015/03/01")
+                                                            .vtFrom("2015/03/01").vtTo("2015/03/01"));
+    ResultSet rs = session.execute(QueryBuilder
+                                    .select("name", "city", "vt_from", "vt_to", "tt_from", "tt_to")
+                                    .from("test","census").where(eq(indexColumn, search.build()));
+
+
+-- If the test case needs to know what the system was thinking at '2015/07/05' about where John resides:
+
+.. code-block:: sql
+    SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM census WHERE
+    lucene='{
+        filter : {
+            type    : "bitemporal",
+            field   : "bitemporal",
+            tt_from : "2015/07/05",
+            tt_to   : "2015/07/05"
+        }
+    }'
+    AND name='John';
+
+Using Builder
+
+.. code-block:: java
+
+    import static com.stratio.cassandra.lucene.builder.Builder.*;
+    (...)
+    String indexColumn = "lucene";
+    Search search = search().filter(bitemporal("bitemporal").ttFrom("2015/07/05").ttTo("2015/07/05"));
+    ResultSet rs = session.execute(QueryBuilder
+                                    .select("name", "city", "vt_from", "vt_to", "tt_from", "tt_to")
+                                    .from("test","census").where(eq(indexColumn, search.build()));
+
 
 This code is available in CQL script here: `example_bitemporal.cql </doc/resources/example_bitemporal.cql>`__.
 
