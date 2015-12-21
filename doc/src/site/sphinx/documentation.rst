@@ -1592,6 +1592,7 @@ Using Builder
 -- If the test case needs to know what the system was thinking at '2015/07/05' about where John resides:
 
 .. code-block:: sql
+
     SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM census WHERE
     lucene='{
         filter : {
