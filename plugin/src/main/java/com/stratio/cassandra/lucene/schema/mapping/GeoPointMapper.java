@@ -27,6 +27,7 @@ import com.stratio.cassandra.lucene.schema.column.Columns;
 import org.apache.cassandra.db.marshal.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.document.StoredField;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.spatial.SpatialStrategy;
@@ -76,10 +77,10 @@ public class GeoPointMapper extends Mapper {
      * @param longitude The name of the column containing the longitude.
      * @param maxLevels The maximum number of levels in the tree.
      */
-    public GeoPointMapper(String field, Boolean validated, String latitude, String longitude, Integer maxLevels) {
+    public GeoPointMapper(String field, Boolean indexed, Boolean sorted, Boolean validated, String latitude, String longitude, Integer maxLevels) {
         super(field,
-              true,
-              false,
+              indexed,
+              sorted,
               validated,
               null,
               Arrays.asList(latitude, longitude),
@@ -167,18 +168,23 @@ public class GeoPointMapper extends Mapper {
 
         Point point = SPATIAL_CONTEXT.makePoint(lon, lat);
 
-        for (IndexableField field : distanceStrategy.createIndexableFields(point)) {
-            document.add(field);
+        if (indexed) {
+            for (IndexableField field : distanceStrategy.createIndexableFields(point)) {
+                document.add(field);
+            }
+            for (IndexableField field : bboxStrategy.createIndexableFields(point)) {
+                document.add(field);
+            }
         }
-        for (IndexableField field : bboxStrategy.createIndexableFields(point)) {
-            document.add(field);
+        if (sorted) {
+            document.add(new StoredField(distanceStrategy.getFieldName(), point.getX()+" "+point.getY()));
         }
     }
 
     /** {@inheritDoc} */
     @Override
     public SortField sortField(String name, boolean reverse) {
-        throw new IndexException("GeoPoint mapper '%s' does not support sorting", name);
+        throw new IndexException("GeoPoint mapper '%s' does not support simple sorting", name);
     }
 
     /**
