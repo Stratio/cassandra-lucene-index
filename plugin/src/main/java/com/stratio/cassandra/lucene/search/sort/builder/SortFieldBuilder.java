@@ -20,34 +20,22 @@ package com.stratio.cassandra.lucene.search.sort.builder;
 
 import com.stratio.cassandra.lucene.search.sort.SortField;
 import com.stratio.cassandra.lucene.util.Builder;
-import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.annotate.JsonSubTypes;
+import org.codehaus.jackson.annotate.JsonTypeInfo;
 
 /**
  * {@link Builder} for building a new {@link SortField}.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class SortFieldBuilder implements Builder<SortField> {
-
-    /** The name of the field to be used for sort. */
-    @JsonProperty("field")
-    final String field;
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+@JsonSubTypes({@JsonSubTypes.Type(value = SimpleSortFieldBuilder.class, name = "simple")})
+public abstract class SortFieldBuilder<T extends SortField,K extends SortFieldBuilder> implements Builder<T> {
 
     /** If natural order should be reversed. */
     @JsonProperty("reverse")
     boolean reverse;
-
-    /**
-     * Creates a new {@link SortFieldBuilder} for the specified field and reverse option.
-     *
-     * @param field The name of the field to be used for sort.
-     */
-    @JsonCreator
-    public SortFieldBuilder(@JsonProperty("field") String field) {
-        this.field = field;
-        this.reverse = SortField.DEFAULT_REVERSE;
-    }
 
     /**
      * Returns this {@link SortFieldBuilder} with the specified reverse option.
@@ -55,14 +43,12 @@ public class SortFieldBuilder implements Builder<SortField> {
      * @param reverse {@code true} if natural order should be reversed.
      * @return This.
      */
-    public SortFieldBuilder reverse(boolean reverse) {
+    public K reverse(boolean reverse) {
         this.reverse = reverse;
-        return this;
+        return (K) this;
     }
 
     /** {@inheritDoc} */
     @Override
-    public SortField build() {
-        return new SortField(field, reverse);
-    }
+    public abstract T build();
 }

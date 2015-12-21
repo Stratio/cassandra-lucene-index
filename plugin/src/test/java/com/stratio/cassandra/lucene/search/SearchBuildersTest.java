@@ -29,7 +29,9 @@ import com.stratio.cassandra.lucene.search.condition.RangeCondition;
 import com.stratio.cassandra.lucene.search.condition.RegexpCondition;
 import com.stratio.cassandra.lucene.search.condition.WildcardCondition;
 import com.stratio.cassandra.lucene.search.condition.builder.*;
+import com.stratio.cassandra.lucene.search.sort.SimpleSortField;
 import com.stratio.cassandra.lucene.search.sort.SortField;
+import com.stratio.cassandra.lucene.search.sort.builder.SimpleSortFieldBuilder;
 import com.stratio.cassandra.lucene.search.sort.builder.SortFieldBuilder;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.junit.Test;
@@ -141,18 +143,18 @@ public class SearchBuildersTest {
 
     @Test
     public void testSortField() throws IOException {
-        SortFieldBuilder builder = sortField("field");
+        SimpleSortFieldBuilder builder = simpleSortField("field");
         assertNotNull("Condition builder is not built", builder);
-        SortField sortField = builder.build();
+        SimpleSortField sortField = builder.build();
         assertEquals("Field is not set", "field", sortField.field);
     }
 
     @Test
     public void testSort() throws IOException {
-        SearchBuilder builder = sort(sortField("field"));
+        SearchBuilder builder = sort(simpleSortField("field"));
         assertNotNull("Condition builder is not built", builder);
         Search search = builder.build();
-        assertEquals("Field is not set", "field", search.getSort().getSortFields().iterator().next().field);
+        assertEquals("Field is not set", "field", ((SimpleSortField)search.getSort().getSortFields().iterator().next()).field);
     }
 
     @Test

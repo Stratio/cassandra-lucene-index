@@ -18,6 +18,7 @@
 
 package com.stratio.cassandra.lucene.search.sort.builder;
 
+import com.stratio.cassandra.lucene.search.sort.SimpleSortField;
 import com.stratio.cassandra.lucene.search.sort.SortField;
 import com.stratio.cassandra.lucene.util.JsonSerializer;
 import org.junit.Test;
@@ -32,58 +33,58 @@ import static org.junit.Assert.assertNotNull;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class SortFieldBuilderTest {
+public class SimpleSortFieldBuilderTest {
 
     @Test
     public void testBuild() {
         String field = "field";
-        SortFieldBuilder builder = new SortFieldBuilder(field).reverse(true);
-        SortField sortField = builder.build();
-        assertNotNull("SortField is not built", sortField);
-        assertEquals("SortField field name is not set", field, sortField.getField());
-        assertEquals("SortField reverse is not set", true, sortField.isReverse());
+        SimpleSortFieldBuilder builder = new SimpleSortFieldBuilder(field).reverse(true);
+        SimpleSortField sortField = builder.build();
+        assertNotNull("SimpleSortField is not built", sortField);
+        assertEquals("SimpleSortField field name is not set", field, sortField.getField());
+        assertEquals("SimpleSortField reverse is not set", true, sortField.isReverse());
     }
 
     @Test
     public void testBuildDefault() {
         String field = "field";
-        SortFieldBuilder builder = new SortFieldBuilder(field);
-        SortField sortField = builder.build();
-        assertNotNull("SortField is not built", sortField);
-        assertEquals("SortField field name is not set", field, sortField.getField());
-        assertEquals("SortField reverse is not set to default", SortField.DEFAULT_REVERSE, sortField.isReverse());
+        SimpleSortFieldBuilder builder = new SimpleSortFieldBuilder(field);
+        SimpleSortField sortField = builder.build();
+        assertNotNull("SimpleSortField is not built", sortField);
+        assertEquals("SimpleSortField field name is not set", field, sortField.getField());
+        assertEquals("SimpleSortField reverse is not set to default", SortField.DEFAULT_REVERSE, sortField.isReverse());
     }
 
     @Test
     public void testBuildReverse() {
         String field = "field";
-        SortFieldBuilder builder = new SortFieldBuilder(field).reverse(false);
-        SortField sortField = builder.build();
-        assertNotNull("SortField is not built", sortField);
-        assertEquals("SortField field name is not set", field, sortField.getField());
-        assertEquals("SortField reverse is not set", false, sortField.isReverse());
+        SimpleSortFieldBuilder builder = new SimpleSortFieldBuilder(field).reverse(false);
+        SimpleSortField sortField = builder.build();
+        assertNotNull("SimpleSortField is not built", sortField);
+        assertEquals("SimpleSortField field name is not set", field, sortField.getField());
+        assertEquals("SimpleSortField reverse is not set", false, sortField.isReverse());
     }
 
     @Test
     public void testJson() throws IOException {
-        String json1 = "{field:\"field\",reverse:false}";
-        SortFieldBuilder sortFieldBuilder = JsonSerializer.fromString(json1, SortFieldBuilder.class);
+        String json1 = "{type:\"simple\",field:\"field\",reverse:false}";
+        SimpleSortFieldBuilder sortFieldBuilder = JsonSerializer.fromString(json1, SimpleSortFieldBuilder.class);
         String json2 = JsonSerializer.toString(sortFieldBuilder);
         assertEquals("JSON serialization is wrong", json1, json2);
     }
 
     @Test
     public void testJsonDefault() throws IOException {
-        String json1 = "{field:\"field\"}";
-        SortFieldBuilder sortFieldBuilder = JsonSerializer.fromString(json1, SortFieldBuilder.class);
+        String json1 = "{type:\"simple\",field:\"field\"}";
+        SimpleSortFieldBuilder sortFieldBuilder = JsonSerializer.fromString(json1, SimpleSortFieldBuilder.class);
         String json2 = JsonSerializer.toString(sortFieldBuilder);
-        assertEquals("JSON serialization is wrong", "{field:\"field\",reverse:false}", json2);
+        assertEquals("JSON serialization is wrong", "{type:\"simple\",field:\"field\",reverse:false}", json2);
     }
 
     @Test
     public void testJsonReverse() throws IOException {
-        String json1 = "{field:\"field\",reverse:true}";
-        SortFieldBuilder sortFieldBuilder = JsonSerializer.fromString(json1, SortFieldBuilder.class);
+        String json1 = "{type:\"simple\",field:\"field\",reverse:true}";
+        SimpleSortFieldBuilder sortFieldBuilder = JsonSerializer.fromString(json1, SimpleSortFieldBuilder.class);
         String json2 = JsonSerializer.toString(sortFieldBuilder);
         assertEquals("JSON serialization is wrong", json1, json2);
     }

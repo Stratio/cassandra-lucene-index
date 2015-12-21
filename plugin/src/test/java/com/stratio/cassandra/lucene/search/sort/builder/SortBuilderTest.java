@@ -38,13 +38,13 @@ public class SortBuilderTest {
 
     @Test
     public void testBuildWithArray() {
-        SortFieldBuilder sortFieldBuilder1 = new SortFieldBuilder("field1").reverse(true);
-        SortFieldBuilder sortFieldBuilder2 = new SortFieldBuilder("field2").reverse(false);
-        SortBuilder sortBuilder = new SortBuilder(sortFieldBuilder1, sortFieldBuilder2);
+        SimpleSortFieldBuilder sortFieldBuilder1 = new SimpleSortFieldBuilder("field1").reverse(true);
+        SimpleSortFieldBuilder simpleSortFieldBuilder2 = new SimpleSortFieldBuilder("field2").reverse(false);
+        SortBuilder sortBuilder = new SortBuilder(sortFieldBuilder1, simpleSortFieldBuilder2);
         Sort sort = sortBuilder.build();
         assertNotNull("Sort is not built", sort);
         assertArrayEquals("Array based builder is wrong",
-                          new SortField[]{sortFieldBuilder1.build(), sortFieldBuilder2.build()},
+                          new SortField[]{sortFieldBuilder1.build(), simpleSortFieldBuilder2.build()},
                           sort.getSortFields().toArray());
 
         assertNotNull("SortBuilder is mnot instance of Builder<Sort>", sortBuilder instanceof Builder);
@@ -53,9 +53,9 @@ public class SortBuilderTest {
 
     @Test
     public void testBuildWithList() {
-        SortFieldBuilder sortFieldBuilder1 = new SortFieldBuilder("field1").reverse(true);
-        SortFieldBuilder sortFieldBuilder2 = new SortFieldBuilder("field2").reverse(false);
-        SortBuilder sortBuilder = new SortBuilder(Arrays.asList(sortFieldBuilder1, sortFieldBuilder2));
+        SimpleSortFieldBuilder sortFieldBuilder1 = new SimpleSortFieldBuilder("field1").reverse(true);
+        SimpleSortFieldBuilder sortFieldBuilder2 = new SimpleSortFieldBuilder("field2").reverse(false);
+        SortBuilder sortBuilder = new SortBuilder(Arrays.asList((SortFieldBuilder)sortFieldBuilder1,(SortFieldBuilder)sortFieldBuilder2));
         Sort sort = sortBuilder.build();
         assertNotNull("Sort is not built", sort);
         assertArrayEquals("List based builder is wrong",
@@ -65,15 +65,14 @@ public class SortBuilderTest {
 
     @Test
     public void testJson() throws IOException {
-        SortFieldBuilder sortFieldBuilder1 = new SortFieldBuilder("field1").reverse(true);
-        SortFieldBuilder sortFieldBuilder2 = new SortFieldBuilder("field2").reverse(false);
-        SortFieldBuilder sortFieldBuilder3 = new SortFieldBuilder("field3");
+        SimpleSortFieldBuilder sortFieldBuilder1 = new SimpleSortFieldBuilder("field1").reverse(true);
+        SimpleSortFieldBuilder sortFieldBuilder2 = new SimpleSortFieldBuilder("field2").reverse(false);
+        SimpleSortFieldBuilder sortFieldBuilder3 = new SimpleSortFieldBuilder("field3");
         SortBuilder sortBuilder = new SortBuilder(sortFieldBuilder1, sortFieldBuilder2, sortFieldBuilder3);
         String json = JsonSerializer.toString(sortBuilder);
-        assertEquals("Method #toString is wrong", "{fields:[{field:\"field1\",reverse:true}," +
-                                                  "{field:\"field2\"," +
-                                                  "reverse:false}," +
-                                                  "{field:\"field3\",reverse:false}]}", json);
+        assertEquals("Method #toString is wrong", "{fields:[{type:\"simple\",field:\"field1\",reverse:true}," +
+                                                  "{type:\"simple\",field:\"field2\",reverse:false}," +
+                                                  "{type:\"simple\",field:\"field3\",reverse:false}]}", json);
 
     }
 }

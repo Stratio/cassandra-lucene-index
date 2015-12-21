@@ -20,7 +20,7 @@ package com.stratio.cassandra.lucene.search;
 
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.search.condition.builder.ConditionBuilder;
-import com.stratio.cassandra.lucene.search.sort.builder.SortFieldBuilder;
+import com.stratio.cassandra.lucene.search.sort.builder.SimpleSortFieldBuilder;
 import com.stratio.cassandra.lucene.util.JsonSerializer;
 import org.junit.Test;
 
@@ -40,8 +40,8 @@ public class SearchBuilderTest {
     public void testBuild() throws IOException {
         ConditionBuilder<?, ?> query = match("field1", "value2");
         ConditionBuilder<?, ?> filter = match("field2", "value2");
-        SortFieldBuilder sort1 = sortField("field3");
-        SortFieldBuilder sort2 = sortField("field4");
+        SimpleSortFieldBuilder sort1 = simpleSortField("field3");
+        SimpleSortFieldBuilder sort2 = simpleSortField("field4");
         SearchBuilder searchBuilder = new SearchBuilder().query(query).filter(filter).sort(sort1, sort2);
         String json = searchBuilder.toJson();
         assertEquals("JSON serialization is wrong", json, JsonSerializer.toString(searchBuilder));
@@ -51,7 +51,7 @@ public class SearchBuilderTest {
     public void testJson() {
         SearchBuilder searchBuilder = search().query(match("field", "value"))
                                               .filter(match("field", "value"))
-                                              .sort(sortField("field"));
+                                              .sort(simpleSortField("field"));
         String json = searchBuilder.toJson();
         assertEquals("JSON serialization is wrong", json, SearchBuilder.fromJson(json).toJson());
     }

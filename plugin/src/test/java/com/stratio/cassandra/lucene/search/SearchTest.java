@@ -19,6 +19,7 @@
 package com.stratio.cassandra.lucene.search;
 
 import com.stratio.cassandra.lucene.schema.Schema;
+import com.stratio.cassandra.lucene.search.sort.builder.SimpleSortFieldBuilder;
 import org.junit.Test;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.schema;
@@ -41,7 +42,7 @@ public class SearchTest {
     public void testBuilder() {
         Search search = search().query(match("field", "value"))
                                 .filter(match("field", "value"))
-                                .sort(sortField("field"))
+                                .sort(simpleSortField("field"))
                                 .refresh(true)
                                 .build();
         assertTrue("Refresh is not set", search.refresh());
@@ -51,11 +52,11 @@ public class SearchTest {
     public void testUsesRelevance() {
         assertTrue("Use relevance is wrong", search().query(match("field", "value")).build().usesRelevance());
         assertFalse("Use relevance is wrong", search().filter(match("field", "value")).build().usesRelevance());
-        assertFalse("Use relevance is wrong", search().sort(sortField("field")).build().usesRelevance());
+        assertFalse("Use relevance is wrong", search().sort(simpleSortField("field")).build().usesRelevance());
         assertTrue("Use relevance is wrong",
                    search().query(match("field", "value"))
                            .filter(match("field", "value"))
-                           .sort(sortField("field"))
+                           .sort(simpleSortField("field"))
                            .build()
                            .usesRelevance());
     }
@@ -64,11 +65,11 @@ public class SearchTest {
     public void testUsesSorting() {
         assertFalse("Use sorting is wrong", search().query(match("field", "value")).build().usesSorting());
         assertFalse("Use sorting is wrong", search().filter(match("field", "value")).build().usesSorting());
-        assertTrue("Use sorting is wrong", search().sort(sortField("field")).build().usesSorting());
+        assertTrue("Use sorting is wrong", search().sort(simpleSortField("field")).build().usesSorting());
         assertTrue("Use sorting is wrong",
                    search().query(match("field", "value"))
                            .filter(match("field", "value"))
-                           .sort(sortField("field"))
+                           .sort(simpleSortField("field"))
                            .build()
                            .usesRelevance());
     }
@@ -79,28 +80,28 @@ public class SearchTest {
         assertFalse("Requires full scan is wrong", search().filter(match("field", "value")).build().requiresFullScan());
         assertFalse("Requires full scan is wrong",
                     search().filter(match("field", "value")).refresh(true).build().requiresFullScan());
-        assertTrue("Requires full scan is wrong", search().sort(sortField("field")).build().requiresFullScan());
+        assertTrue("Requires full scan is wrong", search().sort(simpleSortField("field")).build().requiresFullScan());
         assertTrue("Requires full scan is wrong", search().refresh(true).build().requiresFullScan());
         assertFalse("Requires full scan is wrong", search().refresh(false).build().requiresFullScan());
         assertFalse("Requires full scan is wrong", search().build().requiresFullScan());
         assertTrue("Requires full scan is wrong",
                    search().query(match("field", "value"))
                            .filter(match("field", "value"))
-                           .sort(sortField("field"))
+                           .sort(simpleSortField("field"))
                            .build()
                            .requiresFullScan());
     }
 
     @Test
     public void testGetSort() {
-        assertNotNull("Sort is wrong", search().sort(sortField("field")).build().getSort());
+        assertNotNull("Sort is wrong", search().sort(simpleSortField("field")).build().getSort());
         assertNull("Sort is wrong", search().query(match("field", "value")).build().getSort());
     }
 
     @Test
     public void testSort() {
         Schema schema = schema().mapper("field", stringMapper().sorted(true)).build();
-        assertNotNull("Sort fields is wrong", search().sort(sortField("field")).build().sortFields(schema));
+        assertNotNull("Sort fields is wrong", search().sort(simpleSortField("field")).build().sortFields(schema));
         assertNull("Sort fields is wrong", search().query(match("field", "value")).build().sortFields(schema));
     }
 
@@ -109,7 +110,7 @@ public class SearchTest {
         Schema schema = schema().mapper("field", stringMapper().sorted(true)).build();
         search().query(match("field", "value"))
                 .filter(match("field", "value"))
-                .sort(sortField("field"))
+                .sort(simpleSortField("field"))
                 .build()
                 .validate(schema);
     }
@@ -118,12 +119,12 @@ public class SearchTest {
     public void testToString() {
         Search search = search().query(match("field", "value"))
                                 .filter(match("field", "value"))
-                                .sort(sortField("field"))
+                                .sort(simpleSortField("field"))
                                 .build();
         assertEquals("Method #toString is wrong",
                      "Search{queryCondition=MatchCondition{boost=1.0, field=field, value=value}, " +
                      "filterCondition=MatchCondition{boost=1.0, field=field, value=value}, " +
-                     "sort=Sort{sortFields=[SortField{field=field, reverse=false}]}}",
+                     "sort=Sort{sortFields=[SimpleSortField{field=field, reverse=false}]}}",
                      search.toString());
     }
 
