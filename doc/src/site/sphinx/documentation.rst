@@ -1589,7 +1589,7 @@ Using Builder
                                     .from("test","census").where(eq(indexColumn, search.build()));
 
 
--- If the test case needs to know what the system was thinking at '2015/07/05' about where John resides:
+If the test case needs to know what the system was thinking at '2015/07/05' about where John resides:
 
 .. code-block:: sql
 
