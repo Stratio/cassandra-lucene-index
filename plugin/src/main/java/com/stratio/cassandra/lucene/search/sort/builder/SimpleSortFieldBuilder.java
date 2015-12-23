@@ -9,14 +9,9 @@ import org.codehaus.jackson.annotate.JsonProperty;
  */
 public class SimpleSortFieldBuilder extends SortFieldBuilder<SimpleSortField,SimpleSortFieldBuilder> {
 
-    /** The name of the field to be used for sort. */
-    @JsonProperty("field")
-    private final String field;
-
-
     @JsonCreator
     public SimpleSortFieldBuilder(@JsonProperty("field") String field) {
-        this.field=field;
+        this.field(field);
     }
 
     @Override

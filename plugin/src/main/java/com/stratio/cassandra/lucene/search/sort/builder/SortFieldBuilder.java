@@ -34,6 +34,10 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
                @JsonSubTypes.Type(value = GeoDistanceSortFieldBuilder.class, name = "geo_distance")})
 public abstract class SortFieldBuilder<T extends SortField,K extends SortFieldBuilder> implements Builder<T> {
 
+    /** The name of the field to be used for sort. */
+    @JsonProperty("field")
+    String field;
+
     /** If natural order should be reversed. */
     @JsonProperty("reverse")
     boolean reverse;
@@ -47,6 +51,12 @@ public abstract class SortFieldBuilder<T extends SortField,K extends SortFieldBu
     public K reverse(boolean reverse) {
         this.reverse = reverse;
         return (K) this;
+    }
+
+
+    public K field(String field) {
+        this.field=field;
+        return (K)this;
     }
 
     /** {@inheritDoc} */

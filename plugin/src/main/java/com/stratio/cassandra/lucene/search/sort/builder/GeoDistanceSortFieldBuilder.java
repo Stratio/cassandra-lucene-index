@@ -9,10 +9,6 @@ import org.codehaus.jackson.annotate.JsonProperty;
  */
 public class GeoDistanceSortFieldBuilder extends SortFieldBuilder<GeoDistanceSortField,GeoDistanceSortFieldBuilder> {
 
-    /** The name of the field to be used for sort. */
-    @JsonProperty("field")
-    private final String field;
-
     @JsonProperty("longitude")
     private final double longitude;
 
@@ -25,10 +21,11 @@ public class GeoDistanceSortFieldBuilder extends SortFieldBuilder<GeoDistanceSor
                                        @JsonProperty("latitude") double latitude) {
 
 
-        this.field=field;
+        this.field(field);
         this.longitude=longitude;
         this.latitude=latitude;
     }
+
     @Override
     public GeoDistanceSortField build() {
         return new GeoDistanceSortField(field, reverse,longitude,latitude);

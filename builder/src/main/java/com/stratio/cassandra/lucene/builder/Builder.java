@@ -25,7 +25,8 @@ import com.stratio.cassandra.lucene.builder.index.schema.analysis.SnowballAnalyz
 import com.stratio.cassandra.lucene.builder.index.schema.mapping.*;
 import com.stratio.cassandra.lucene.builder.search.Search;
 import com.stratio.cassandra.lucene.builder.search.condition.*;
-import com.stratio.cassandra.lucene.builder.search.sort.SortField;
+import com.stratio.cassandra.lucene.builder.search.sort.GeoDistanceSortField;
+import com.stratio.cassandra.lucene.builder.search.sort.SimpleSortField;
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -468,12 +469,31 @@ public abstract class Builder {
     }
 
     /**
-     * Returns a new {@link SortField} for the specified field.
+     * Returns a new {@link SimpleSortField} for the specified field.
      *
      * @param field The name of the field to be sorted.
-     * @return A new {@link SortField} for the specified field.
+     * @return A new {@link SimpleSortField} for the specified field.
      */
-    public static SortField field(String field) {
-        return new SortField(field);
+    public static SimpleSortField simpleSortField(String field) {
+        return new SimpleSortField(field);
     }
+
+    /**
+     * Returns a new {@link GeoDistanceSortField} for the specified field.
+     *
+     * @param field The name of the field to be sorted.
+     * @param field The name of the field to be sorted.
+     * @param field The name of the field to be sorted.
+     * @return A new {@link GeoDistanceSortField} for the specified field.
+     */
+    public static GeoDistanceSortField geoDistanceSortField(String field, double longitude, double latitude) {
+        return new GeoDistanceSortField(field,longitude,latitude);
+    }
+
+
+
+
+
+
+
 }
