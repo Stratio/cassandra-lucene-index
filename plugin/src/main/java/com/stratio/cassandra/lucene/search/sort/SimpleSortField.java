@@ -39,7 +39,6 @@ public class SimpleSortField extends SortField {
     /** The name of field to sortFields by. */
     public final String field;
 
-
     /**
      * Returns a new {@link SortField}.
      *
@@ -47,7 +46,6 @@ public class SimpleSortField extends SortField {
      * @param reverse {@code true} if natural order should be reversed.
      */
     public SimpleSortField(String field, Boolean reverse) {
-
         super(reverse);
 
         if (field == null || StringUtils.isBlank(field)) {

@@ -29,8 +29,9 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
-@JsonSubTypes({@JsonSubTypes.Type(value = SimpleSortFieldBuilder.class, name = "simple")})
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type", defaultImpl = SimpleSortFieldBuilder.class)
+@JsonSubTypes({@JsonSubTypes.Type(value = SimpleSortFieldBuilder.class, name = "simple"),
+               @JsonSubTypes.Type(value = GeoDistanceSortFieldBuilder.class, name = "geo_distance")})
 public abstract class SortFieldBuilder<T extends SortField,K extends SortFieldBuilder> implements Builder<T> {
 
     /** If natural order should be reversed. */

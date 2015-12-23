@@ -29,7 +29,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
- * Class for testing {@link SortFieldBuilder}.
+ * Class for testing {@link SimpleSortFieldBuilder}.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */

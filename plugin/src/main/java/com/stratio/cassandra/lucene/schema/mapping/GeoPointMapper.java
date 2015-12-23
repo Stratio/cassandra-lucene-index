@@ -53,10 +53,10 @@ public class GeoPointMapper extends Mapper {
     public static final SpatialContext SPATIAL_CONTEXT = SpatialContext.GEO;
     public static final int DEFAULT_MAX_LEVELS = 11;
 
-    /** Tha name of the latitude column. */
+    /** The name of the latitude column. */
     public final String latitude;
 
-    /** Tha name of the longitude column. */
+    /** The name of the longitude column. */
     public final String longitude;
 
     /** The max number of levels in the tree. */
@@ -122,7 +122,7 @@ public class GeoPointMapper extends Mapper {
         if (latitude == null) {
             throw new IndexException("%s required", name);
         } else if (latitude < MIN_LATITUDE || latitude > MAX_LATITUDE) {
-            throw new IndexException("%s must be in range [%s, %s], but found '%s'",
+            throw new IndexException("%s must be in range [%s, %s], but found %s",
                                      name,
                                      MIN_LATITUDE,
                                      MAX_LATITUDE,
@@ -192,7 +192,7 @@ public class GeoPointMapper extends Mapper {
      *
      * @param columns The {@link Columns} containing the latitude.
      */
-    Double readLatitude(Columns columns) {
+    public Double readLatitude(Columns columns) {
         Column<?> column = columns.getColumnsByCellName(latitude).getFirst();
         return column == null ? null : readLatitude(column.getComposedValue());
     }
@@ -203,7 +203,7 @@ public class GeoPointMapper extends Mapper {
      *
      * @param columns The {@link Columns} containing the latitude.
      */
-    Double readLongitude(Columns columns) {
+    public Double readLongitude(Columns columns) {
         Column<?> column = columns.getColumnsByCellName(longitude).getFirst();
         return column == null ? null : readLongitude(column.getComposedValue());
     }
@@ -229,6 +229,16 @@ public class GeoPointMapper extends Mapper {
         }
         return checkLatitude("latitude", value);
     }
+
+    /**
+     * Returns the distance {@link SpatialStrategy}.
+     *
+     * @return The {@link SpatialStrategy}.
+     */
+    public SpatialStrategy getDistanceStrategy() {
+        return distanceStrategy;
+    }
+
 
     /**
      * Returns the longitude contained in the specified {@link Object}.
@@ -263,4 +273,7 @@ public class GeoPointMapper extends Mapper {
                       .add("maxLevels", maxLevels)
                       .toString();
     }
+
+
+
 }

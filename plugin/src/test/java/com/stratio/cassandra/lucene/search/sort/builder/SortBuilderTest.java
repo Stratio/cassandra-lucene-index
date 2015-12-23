@@ -25,7 +25,9 @@ import com.stratio.cassandra.lucene.util.JsonSerializer;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -39,12 +41,12 @@ public class SortBuilderTest {
     @Test
     public void testBuildWithArray() {
         SimpleSortFieldBuilder sortFieldBuilder1 = new SimpleSortFieldBuilder("field1").reverse(true);
-        SimpleSortFieldBuilder simpleSortFieldBuilder2 = new SimpleSortFieldBuilder("field2").reverse(false);
-        SortBuilder sortBuilder = new SortBuilder(sortFieldBuilder1, simpleSortFieldBuilder2);
+        GeoDistanceSortFieldBuilder sortFieldBuilder2 =  new GeoDistanceSortFieldBuilder("field2",0.0,0.0).reverse(true);
+        SortBuilder sortBuilder = new SortBuilder(sortFieldBuilder1, sortFieldBuilder2);
         Sort sort = sortBuilder.build();
         assertNotNull("Sort is not built", sort);
         assertArrayEquals("Array based builder is wrong",
-                          new SortField[]{sortFieldBuilder1.build(), simpleSortFieldBuilder2.build()},
+                          new SortField[]{sortFieldBuilder1.build(), sortFieldBuilder2.build()},
                           sort.getSortFields().toArray());
 
         assertNotNull("SortBuilder is mnot instance of Builder<Sort>", sortBuilder instanceof Builder);
@@ -54,8 +56,12 @@ public class SortBuilderTest {
     @Test
     public void testBuildWithList() {
         SimpleSortFieldBuilder sortFieldBuilder1 = new SimpleSortFieldBuilder("field1").reverse(true);
-        SimpleSortFieldBuilder sortFieldBuilder2 = new SimpleSortFieldBuilder("field2").reverse(false);
-        SortBuilder sortBuilder = new SortBuilder(Arrays.asList((SortFieldBuilder)sortFieldBuilder1,(SortFieldBuilder)sortFieldBuilder2));
+        GeoDistanceSortFieldBuilder sortFieldBuilder2 = new GeoDistanceSortFieldBuilder("field2",0.0,0.0).reverse(true);
+        List<SortFieldBuilder> sortFieldBuilderList= new ArrayList<>();
+        sortFieldBuilderList.add(sortFieldBuilder1);
+        sortFieldBuilderList.add(sortFieldBuilder2);
+        SortBuilder sortBuilder = new SortBuilder(sortFieldBuilderList);
+
         Sort sort = sortBuilder.build();
         assertNotNull("Sort is not built", sort);
         assertArrayEquals("List based builder is wrong",
@@ -66,13 +72,28 @@ public class SortBuilderTest {
     @Test
     public void testJson() throws IOException {
         SimpleSortFieldBuilder sortFieldBuilder1 = new SimpleSortFieldBuilder("field1").reverse(true);
-        SimpleSortFieldBuilder sortFieldBuilder2 = new SimpleSortFieldBuilder("field2").reverse(false);
+        GeoDistanceSortFieldBuilder sortFieldBuilder2 = new GeoDistanceSortFieldBuilder("field2",0.0,0.0).reverse(true);
         SimpleSortFieldBuilder sortFieldBuilder3 = new SimpleSortFieldBuilder("field3");
         SortBuilder sortBuilder = new SortBuilder(sortFieldBuilder1, sortFieldBuilder2, sortFieldBuilder3);
         String json = JsonSerializer.toString(sortBuilder);
         assertEquals("Method #toString is wrong", "{fields:[{type:\"simple\",field:\"field1\",reverse:true}," +
-                                                  "{type:\"simple\",field:\"field2\",reverse:false}," +
+                                                  "{type:\"geo_distance\",field:\"field2\",longitude:0.0,latitude:0.0,reverse:true}," +
                                                   "{type:\"simple\",field:\"field3\",reverse:false}]}", json);
 
+    }
+
+    @Test
+    public void testDeserializeDefaultSort() {
+        String json1="{field:\"field1\",reverse:true}";
+
+        SortFieldBuilder sortFieldBuilder = null;
+        try {
+            sortFieldBuilder = JsonSerializer.fromString(json1, SortFieldBuilder.class);
+            assertEquals("JSON serialization is wrong",sortFieldBuilder.getClass(),SimpleSortFieldBuilder.class);
+            String json2 = JsonSerializer.toString(sortFieldBuilder);
+            assertEquals("JSON serialization is wrong", "{type:\"simple\",field:\"field1\",reverse:true}", json2);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
