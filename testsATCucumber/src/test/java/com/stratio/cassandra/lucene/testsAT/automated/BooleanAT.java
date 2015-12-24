@@ -5,9 +5,9 @@ import com.stratio.cucumber.testng.CucumberRunner;
 import cucumber.api.CucumberOptions;
 import org.testng.annotations.Test;
 
-@CucumberOptions(features = {"src/test/resources/features/searchGeoBbox.feature"})
-public class GeospatialSearchAT extends BaseTest {
-    public GeospatialSearchAT() {
+@CucumberOptions(features = {"src/test/resources/features/boolean.feature"})
+public class BooleanAT extends BaseTest {
+    public BooleanAT() {
     }
 
     @Test(enabled = true, priority = 1)

@@ -19,43 +19,13 @@
 		<artifactId>cassandra-lucene-index-parent</artifactId>
 		<version>2.2.3.2-RC1-SNAPSHOT</version>
 	</parent>
-
-	<packaging>jar</packaging>
+		
 	<artifactId>cassandra-lucene-index-tests</artifactId>
 	<name>Cassandra Lucene Index acceptance tests</name>
 	<description>Cassandra Lucene Index acceptance tests</description>
-
+	<version>0.0.1-SNAPSHOT</version>
+	
 	<dependencies>
-		<dependency>
-			<groupId>com.stratio.cassandra</groupId>
-			<artifactId>cassandra-lucene-index-builder</artifactId>
-			<version>${project.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.stratio.cassandra</groupId>
-			<artifactId>cassandra-lucene-index-plugin</artifactId>
-			<version>${project.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.cassandra</groupId>
-			<artifactId>cassandra-all</artifactId>
-			<version>${cassandra.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.datastax.cassandra</groupId>
-			<artifactId>cassandra-driver-core</artifactId>
-			<version>2.1.8</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.google.guava</groupId>
-			<artifactId>guava</artifactId>
-			<version>16.0</version>
-			<scope>test</scope>
-		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
@@ -63,21 +33,9 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.8.1</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
 			<groupId>com.stratio.qa</groupId>
 			<artifactId>bdt-lib</artifactId>
 			<version>0.2.0-SNAPSHOT</version>
-			<exclusions>
-				<exclusion>
-					<groupId>com.datastax.cassandra</groupId>
-					<artifactId>cassandra-driver-core</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
@@ -121,6 +79,8 @@
 							<phase>integration-test</phase>
 							<goals>
 								<goal>integration-test</goal>
+								<goal>verify</goal>
+								
 							</goals>
 						</execution>
 					</executions>

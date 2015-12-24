@@ -5,9 +5,9 @@ import com.stratio.cucumber.testng.CucumberRunner;
 import cucumber.api.CucumberOptions;
 import org.testng.annotations.Test;
 
-@CucumberOptions(features = {"src/test/resources/features/searchGeoBbox.feature"})
-public class GeospatialSearchAT extends BaseTest {
-    public GeospatialSearchAT() {
+@CucumberOptions(features = {"src/test/resources/features/bitemporal.feature"})
+public class BitemporalAT extends BaseTest {
+    public BitemporalAT() {
     }
 
     @Test(enabled = true, priority = 1)

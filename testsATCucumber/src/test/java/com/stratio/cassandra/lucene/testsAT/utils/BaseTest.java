@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package com.stratio.cassandra.lucene.testsAT;
+package com.stratio.cassandra.lucene.testsAT.utils;
 
 import java.lang.reflect.Method;
 
@@ -30,9 +30,8 @@ import org.testng.annotations.BeforeSuite;
 
 import com.stratio.tests.utils.BaseGTest;
 
-abstract public class BaseAT extends BaseGTest {
+abstract public class BaseTest extends BaseGTest {
 
-    String operacion;
 
     @BeforeSuite(alwaysRun = true)
     public void beforeSuite(ITestContext context) {
