@@ -1,5 +1,5 @@
 @test @search 
-Feature: Test geoSpatial searching geoBbox
+Feature: Test bitemporal searching
 
 Scenario: I connect to Cassandra cluster
 	Given I connect to Cassandra cluster at '${CASSANDRA_HOST}'
