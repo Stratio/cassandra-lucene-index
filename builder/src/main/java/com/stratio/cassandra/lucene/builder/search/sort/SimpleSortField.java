@@ -17,6 +17,6 @@ public class SimpleSortField extends SortField {
      */
     @JsonCreator
     public SimpleSortField(@JsonProperty("field") String field) {
-        this.field(field);
+        super(field);
     }
 }

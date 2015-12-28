@@ -27,7 +27,7 @@ public class GeoDistanceSortField extends SortField {
     public GeoDistanceSortField(@JsonProperty("field") String field,
                                 @JsonProperty("longitude") double longitude,
                                 @JsonProperty("latitude") double latitude) {
-        this.field(field);
+        super(field);
         this.longitude=longitude;
         this.latitude=latitude;
     }

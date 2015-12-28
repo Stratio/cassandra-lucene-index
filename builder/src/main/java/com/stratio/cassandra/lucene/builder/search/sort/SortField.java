@@ -46,9 +46,8 @@ public abstract class SortField extends Builder {
      *
      * @param field The name of the field to be used for sort.
      */
-    public SortField field(String field) {
+    public SortField(@JsonProperty("field") String field) {
         this.field=field;
-        return this;
     }
 
     /**

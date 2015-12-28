@@ -40,8 +40,8 @@ public class SearchBuilderTest {
     public void testBuild() throws IOException {
         ConditionBuilder<?, ?> query = match("field1", "value2");
         ConditionBuilder<?, ?> filter = match("field2", "value2");
-        SimpleSortFieldBuilder sort1 = simpleSortField("field3");
-        SimpleSortFieldBuilder sort2 = simpleSortField("field4");
+        SimpleSortFieldBuilder sort1 = field("field3");
+        SimpleSortFieldBuilder sort2 = field("field4");
         SearchBuilder searchBuilder = new SearchBuilder().query(query).filter(filter).sort(sort1, sort2);
         String json = searchBuilder.toJson();
         assertEquals("JSON serialization is wrong", json, JsonSerializer.toString(searchBuilder));
@@ -51,7 +51,7 @@ public class SearchBuilderTest {
     public void testJson() {
         SearchBuilder searchBuilder = search().query(match("field", "value"))
                                               .filter(match("field", "value"))
-                                              .sort(simpleSortField("field"));
+                                              .sort(field("field"));
         String json = searchBuilder.toJson();
         assertEquals("JSON serialization is wrong", json, SearchBuilder.fromJson(json).toJson());
     }

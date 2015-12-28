@@ -235,7 +235,7 @@ public final class SearchBuilders {
      * @param field The name of the field to be sorted.
      * @return A new {@link SortFieldBuilder} for the specified field.
      */
-    public static SimpleSortFieldBuilder simpleSortField(String field) {
+    public static SimpleSortFieldBuilder field(String field) {
         return new SimpleSortFieldBuilder(field);
     }
 

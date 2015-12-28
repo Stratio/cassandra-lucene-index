@@ -133,8 +133,8 @@ public class SimpleSortField extends SortField {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        SimpleSortField simpleSortField = (SimpleSortField) o;
-        return reverse == simpleSortField.reverse && field.equals(simpleSortField.field);
+        SimpleSortField field = (SimpleSortField) o;
+        return reverse == field.reverse && field.equals(field.field);
     }
 
     /** {@inheritDoc} */

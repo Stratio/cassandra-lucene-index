@@ -474,7 +474,7 @@ public abstract class Builder {
      * @param field The name of the field to be sorted.
      * @return A new {@link SimpleSortField} for the specified field.
      */
-    public static SimpleSortField simpleSortField(String field) {
+    public static SimpleSortField field(String field) {
         return new SimpleSortField(field);
     }
 
