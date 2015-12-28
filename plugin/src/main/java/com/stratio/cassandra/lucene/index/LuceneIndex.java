@@ -33,8 +33,9 @@ import org.slf4j.LoggerFactory;
 import javax.management.ObjectName;
 import java.lang.management.ManagementFactory;
 import java.nio.file.Path;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -116,7 +117,7 @@ public class LuceneIndex implements LuceneIndexMBean {
 
         } catch (Exception e) {
             e.printStackTrace();
-            throw new IndexException(logger, e, "Error while creating index {}", name);
+            throw new IndexException(logger, e, "Error while creating index %s", name);
         }
     }
 
@@ -133,7 +134,7 @@ public class LuceneIndex implements LuceneIndexMBean {
         try {
             indexWriter.updateDocument(term, document);
         } catch (Exception e) {
-            throw new IndexException(logger, e, "Error indexing {} with term {} in {}", document, term, name);
+            throw new IndexException(logger, e, "Error indexing %s with term %s in %s", document, term, name);
         }
     }
 
@@ -147,7 +148,7 @@ public class LuceneIndex implements LuceneIndexMBean {
         try {
             indexWriter.deleteDocuments(term);
         } catch (Exception e) {
-            throw new IndexException(logger, e, "Error deleting {} from {}", term, name);
+            throw new IndexException(logger, e, "Error deleting %s from %s", term, name);
         }
     }
 
@@ -161,7 +162,7 @@ public class LuceneIndex implements LuceneIndexMBean {
         try {
             indexWriter.deleteDocuments(query);
         } catch (Exception e) {
-            throw new IndexException(logger, e, "Error deleting {} from {}", query, name);
+            throw new IndexException(logger, e, "Error deleting %s from %s", query, name);
         }
     }
 
@@ -172,7 +173,7 @@ public class LuceneIndex implements LuceneIndexMBean {
         try {
             indexWriter.deleteAll();
         } catch (Exception e) {
-            throw new IndexException(logger, e, "Error truncating {}", name);
+            throw new IndexException(logger, e, "Error truncating %s", name);
         }
         logger.info("Truncated {}", name);
     }
@@ -185,7 +186,7 @@ public class LuceneIndex implements LuceneIndexMBean {
         try {
             indexWriter.commit();
         } catch (Exception e) {
-            throw new IndexException(logger, e, "Error committing {}", name);
+            throw new IndexException(logger, e, "Error committing %s", name);
         }
         logger.info("Committed {}", name);
     }
@@ -201,7 +202,7 @@ public class LuceneIndex implements LuceneIndexMBean {
             directory.close();
             ManagementFactory.getPlatformMBeanServer().unregisterMBean(mbean);
         } catch (Exception e) {
-            throw new IndexException(logger, e, "Error closing {}", name);
+            throw new IndexException(logger, e, "Error closing %s", name);
         }
         logger.info("Closed {}", name);
     }
@@ -213,7 +214,7 @@ public class LuceneIndex implements LuceneIndexMBean {
         try {
             close();
         } catch (Exception e) {
-            throw new IndexException(logger, e, "Error deleting {}", name);
+            throw new IndexException(logger, e, "Error deleting %s", name);
         } finally {
             FileUtils.deleteRecursive(path.toFile());
         }
@@ -224,9 +225,24 @@ public class LuceneIndex implements LuceneIndexMBean {
         return searcherManager;
     }
 
+    public IndexSearcher acquireSearcher() {
+        try {
+            return searcherManager.acquire();
+        } catch (Exception e) {
+            throw new IndexException(logger, e, "Error acquiring index searcher in %s", name);
+        }
+    }
+
+    public void releaseSearcher(IndexSearcher indexSearcher) {
+        try {
+            searcherManager.release(indexSearcher);
+        } catch (Exception e) {
+            throw new IndexException(logger, e, "Error releasing index searcher in %s", name);
+        }
+    }
+
     /**
-     * Finds the top {@code count} hits for {@code query}, applying {@code clusteringKeyFilter} if non-null and sorting
-     * the hits by {@code sort}.
+     * Finds the top {@code count} hits for {@code query} and sorting the hits by {@code sort}.
      *
      * @param searcher The {@link IndexSearcher} to be used.
      * @param query The {@link Query} to search for.
@@ -236,31 +252,14 @@ public class LuceneIndex implements LuceneIndexMBean {
      * @param fields The names of the fields to be loaded.
      * @return The found documents, sorted according to the supplied {@link Sort} instance.
      */
-    public Map<Document, ScoreDoc> search(IndexSearcher searcher,
-                                          Query query,
-                                          Sort sort,
-                                          ScoreDoc after,
-                                          Integer count,
-                                          Set<String> fields) {
+    public Iterator<Document> search(IndexSearcher searcher,
+                                 Query query,
+                                 Sort sort,
+                                 ScoreDoc after,
+                                 Integer count,
+                                 Set<String> fields) {
         logger.debug("Searching in {} with {} and {}", name, query, sort);
-        try {
-
-            // Search for top documents
-            TopDocs topDocs = searcher.searchAfter(after, query, count, sort);
-            ScoreDoc[] scoreDocs = topDocs.scoreDocs;
-
-            // Collect the documents from query result
-            LinkedHashMap<Document, ScoreDoc> searchResults = new LinkedHashMap<>();
-            for (ScoreDoc scoreDoc : scoreDocs) {
-                Document document = searcher.doc(scoreDoc.doc, fields);
-                searchResults.put(document, scoreDoc);
-            }
-
-            return searchResults;
-
-        } catch (Exception e) {
-            throw new IndexException(logger, e, "Error searching in {} with {} and {}", name, query, sort);
-        }
+        return new DocumentIterator(searcher, query, sort, after, count, fields);
     }
 
     /**
@@ -279,7 +278,7 @@ public class LuceneIndex implements LuceneIndexMBean {
                 searcherManager.release(searcher);
             }
         } catch (Exception e) {
-            throw new IndexException(logger, e, "Error getting {} num docs", name);
+            throw new IndexException(logger, e, "Error getting %s num docs", name);
         }
     }
 
@@ -290,7 +289,7 @@ public class LuceneIndex implements LuceneIndexMBean {
      */
     @Override
     public long getNumDeletedDocs() {
-        logger.debug("Getting {} num deleted docs", name);
+        logger.debug("Getting %s num deleted docs", name);
         try {
             IndexSearcher searcher = searcherManager.acquire();
             try {
@@ -299,7 +298,7 @@ public class LuceneIndex implements LuceneIndexMBean {
                 searcherManager.release(searcher);
             }
         } catch (Exception e) {
-            throw new IndexException(logger, e, "Error getting {} num docs", name);
+            throw new IndexException(logger, e, "Error getting %s num docs", name);
         }
     }
 
@@ -317,7 +316,7 @@ public class LuceneIndex implements LuceneIndexMBean {
             indexWriter.forceMerge(maxNumSegments, doWait);
             indexWriter.commit();
         } catch (Exception e) {
-            throw new IndexException(logger, e, "Error merging {} segments to {}", name, maxNumSegments);
+            throw new IndexException(logger, e, "Error merging %s segments to %s", name, maxNumSegments);
         }
         logger.info("Merged {} segments to {}", name, maxNumSegments);
     }
@@ -335,7 +334,7 @@ public class LuceneIndex implements LuceneIndexMBean {
             indexWriter.forceMergeDeletes(doWait);
             indexWriter.commit();
         } catch (Exception e) {
-            throw new IndexException(logger, e, "Error merging {} segments with deletion", name);
+            throw new IndexException(logger, e, "Error merging %s segments with deletion", name);
         }
         logger.info("Merged {} segments with deletions", name);
     }
@@ -350,8 +349,8 @@ public class LuceneIndex implements LuceneIndexMBean {
             commit();
             searcherManager.maybeRefreshBlocking();
         } catch (Exception e) {
-            throw new IndexException(logger, e, "Error refreshing {} readers", name);
+            throw new IndexException(logger, e, "Error refreshing %s readers", name);
         }
-        logger.info("Refreshed {} readers", name);
+        logger.info("Refreshed %s readers", name);
     }
 }

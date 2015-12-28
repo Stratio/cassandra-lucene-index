@@ -16,11 +16,8 @@
  * under the License.
  */
 
-package com.stratio.cassandra.lucene.mapping;
+package com.stratio.cassandra.lucene.column;
 
-import com.stratio.cassandra.lucene.column.Column;
-import com.stratio.cassandra.lucene.column.ColumnBuilder;
-import com.stratio.cassandra.lucene.column.Columns;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
 import org.apache.cassandra.db.marshal.AbstractType;
@@ -42,11 +39,11 @@ import java.nio.ByteBuffer;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public final class CellsMapper {
+public final class ColumnsMapper {
 
     private final CFMetaData metadata;
 
-    public CellsMapper(CFMetaData metadata) {
+    public ColumnsMapper(CFMetaData metadata) {
         this.metadata = metadata;
     }
 
@@ -57,6 +54,7 @@ public final class CellsMapper {
      * @param row A {@link Row}.
      */
     public void addColumns(Columns columns, Row row) {
+
         for (ColumnDefinition columnDefinition : row.columns()) {
             if (columnDefinition.isComplex()) {
                 addColumns(columns, row.getComplexColumnData(columnDefinition));
@@ -80,18 +78,19 @@ public final class CellsMapper {
             String name = columnDefinition.name.toString();
             AbstractType<?> type = cell.column().type;
             ByteBuffer value = cell.value();
+            ColumnBuilder builder = Column.builder(name);
             if (type.isCollection() && !type.isFrozenCollection()) {
                 CollectionType<?> collectionType = (CollectionType<?>) type;
                 switch (collectionType.kind) {
                     case SET: {
                         type = collectionType.nameComparator();
                         value = cell.path().get(0);
-                        addColumns(columns, Column.builder(name), type, value);
+                        addColumns(columns, builder, type, value);
                         break;
                     }
                     case LIST: {
                         type = collectionType.valueComparator();
-                        addColumns(columns, Column.builder(name), type, value);
+                        addColumns(columns, builder, type, value);
                         break;
                     }
                     case MAP: {
@@ -99,8 +98,7 @@ public final class CellsMapper {
                         ByteBuffer keyValue = cell.path().get(0);
                         AbstractType<?> keyType = collectionType.nameComparator();
                         String nameSuffix = keyType.compose(keyValue).toString();
-                        ColumnBuilder columnBuilder = Column.builder(name).withMapName(nameSuffix);
-                        addColumns(columns, columnBuilder, type, value);
+                        addColumns(columns, builder.withMapName(nameSuffix), type, value);
                         break;
                     }
                 }
@@ -111,7 +109,7 @@ public final class CellsMapper {
     }
 
     private void addColumns(Columns columns,
-                            ColumnBuilder columnBuilder,
+                            ColumnBuilder builder,
                             AbstractType type,
                             ByteBuffer value) {
         if (type.isCollection()) {
@@ -123,7 +121,7 @@ public final class CellsMapper {
                     int colSize = CollectionSerializer.readCollectionSize(value, Server.CURRENT_VERSION);
                     for (int j = 0; j < colSize; j++) {
                         ByteBuffer itemValue = CollectionSerializer.readValue(value, Server.CURRENT_VERSION);
-                        addColumns(columns, columnBuilder, nameType, itemValue);
+                        addColumns(columns, builder, nameType, itemValue);
                     }
                     break;
                 }
@@ -132,7 +130,7 @@ public final class CellsMapper {
                     int colSize = CollectionSerializer.readCollectionSize(value, Server.CURRENT_VERSION);
                     for (int j = 0; j < colSize; j++) {
                         ByteBuffer itemValue = CollectionSerializer.readValue(value, Server.CURRENT_VERSION);
-                        addColumns(columns, columnBuilder, valueType, itemValue);
+                        addColumns(columns, builder, valueType, itemValue);
                     }
                     break;
                 }
@@ -145,7 +143,7 @@ public final class CellsMapper {
                         ByteBuffer mapValue = MapSerializer.readValue(value, Server.CURRENT_VERSION);
                         String itemName = keyType.compose(mapKey).toString();
                         collectionType.nameComparator();
-                        addColumns(columns, columnBuilder.withMapName(itemName), valueType, mapValue);
+                        addColumns(columns, builder.withMapName(itemName), valueType, mapValue);
                     }
                     break;
                 }
@@ -156,7 +154,7 @@ public final class CellsMapper {
             for (int i = 0; i < userType.fieldNames().size(); i++) {
                 String itemName = userType.fieldNameAsString(i);
                 AbstractType<?> itemType = userType.fieldType(i);
-                addColumns(columns, columnBuilder.withUDTName(itemName), itemType, values[i]);
+                addColumns(columns, builder.withUDTName(itemName), itemType, values[i]);
             }
         } else if (type instanceof TupleType) {
             TupleType tupleType = (TupleType) type;
@@ -164,11 +162,11 @@ public final class CellsMapper {
             for (Integer i = 0; i < tupleType.size(); i++) {
                 String itemName = i.toString();
                 AbstractType<?> itemType = tupleType.type(i);
-                addColumns(columns, columnBuilder.withUDTName(itemName), itemType, values[i]);
+                addColumns(columns, builder.withUDTName(itemName), itemType, values[i]);
             }
         } else { // Leaf type
             if (value != null) {
-                columns.add(columnBuilder.buildWithDecomposed(value, type));
+                columns.add(builder.buildWithDecomposed(value, type));
             }
         }
     }

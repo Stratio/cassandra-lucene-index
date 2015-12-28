@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package com.stratio.cassandra.lucene.mapping;
+package com.stratio.cassandra.lucene.key;
 
 import com.stratio.cassandra.lucene.column.Column;
 import com.stratio.cassandra.lucene.column.Columns;
@@ -24,6 +24,7 @@ import com.stratio.cassandra.lucene.util.ByteBufferUtils;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
 import org.apache.cassandra.config.DatabaseDescriptor;
+import org.apache.cassandra.db.Clustering;
 import org.apache.cassandra.db.DecoratedKey;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.CompositeType;
@@ -31,12 +32,15 @@ import org.apache.cassandra.dht.IPartitioner;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Field.Store;
+import org.apache.lucene.document.FieldType;
 import org.apache.lucene.document.StringField;
+import org.apache.lucene.index.DocValuesType;
+import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.*;
 import org.apache.lucene.util.BytesRef;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
 
@@ -50,18 +54,30 @@ public final class PartitionMapper {
     /** The Lucene field name. */
     public static final String FIELD_NAME = "_partition_key";
 
+    /** The Lucene field type. */
+    public static final FieldType FIELD_TYPE = new FieldType();
+
+    static {
+        FIELD_TYPE.setOmitNorms(true);
+        FIELD_TYPE.setIndexOptions(IndexOptions.DOCS);
+        FIELD_TYPE.setTokenized(false);
+        FIELD_TYPE.setStored(true);
+        FIELD_TYPE.setDocValuesType(DocValuesType.SORTED);
+        FIELD_TYPE.freeze();
+    }
+
     private final CFMetaData metadata;
     private final IPartitioner partitioner;
-    private final CompositeType keyValidator;
+    private final AbstractType<?> type;
 
     public PartitionMapper(CFMetaData metadata) {
         this.metadata = metadata;
         partitioner = DatabaseDescriptor.getPartitioner();
-        keyValidator = (CompositeType) metadata.getKeyValidator();
+        type = metadata.getKeyValidator();
     }
 
-    public CompositeType getType() {
-        return keyValidator;
+    public AbstractType<?> getType() {
+        return type;
     }
 
     /**
@@ -72,7 +88,9 @@ public final class PartitionMapper {
      */
     public void addColumns(Columns columns, DecoratedKey key) {
         List<ColumnDefinition> columnDefinitions = metadata.partitionKeyColumns();
-        ByteBuffer[] components = keyValidator.split(key.getKey());
+        ByteBuffer[] components = type instanceof CompositeType
+                                  ? ((CompositeType) type).split(key.getKey())
+                                  : new ByteBuffer[]{key.getKey()};
         for (ColumnDefinition columnDefinition : columnDefinitions) {
             String name = columnDefinition.name.toString();
             ByteBuffer value = components[columnDefinition.position()];
@@ -90,8 +108,7 @@ public final class PartitionMapper {
     public void addFields(Document document, DecoratedKey partitionKey) {
         ByteBuffer bb = partitionKey.getKey();
         BytesRef bytesRef = ByteBufferUtils.bytesRef(bb);
-        Field field = new StringField(FIELD_NAME, bytesRef, Store.YES);
-        document.add(field);
+        document.add(new Field(FIELD_NAME, bytesRef, FIELD_TYPE));
     }
 
     /**
@@ -122,10 +139,10 @@ public final class PartitionMapper {
      * @param document the {@link Document} containing the partition key to be get.
      * @return The {@link DecoratedKey} contained in the specified Lucene {@link Document}.
      */
-    public DecoratedKey partitionKey(Document document) {
+    public DecoratedKey decoratedKey(Document document) {
         BytesRef bytesRef = document.getBinaryValue(FIELD_NAME);
         ByteBuffer bb = ByteBufferUtils.byteBuffer(bytesRef);
-        return partitionKey(bb);
+        return decoratedKey(bb);
     }
 
     /**
@@ -134,8 +151,30 @@ public final class PartitionMapper {
      * @param partitionKey The raw partition key to be converted.
      * @return The specified raw partition key as a a {@link DecoratedKey}.
      */
-    public DecoratedKey partitionKey(ByteBuffer partitionKey) {
+    public DecoratedKey decoratedKey(ByteBuffer partitionKey) {
         return partitioner.decorateKey(partitionKey);
+    }
+
+    /**
+     * Returns a Lucene {@link SortField} for sorting documents/rows according to the partition key.
+     *
+     * @return a Lucene {@link SortField} for sorting documents/rows according to the partition key
+     */
+    public SortField sortField() {
+        return new SortField(FIELD_NAME, new FieldComparatorSource() {
+            @Override
+            public FieldComparator<?> newComparator(String field, int hits, int sort, boolean reversed)
+            throws IOException {
+                return new FieldComparator.TermValComparator(hits, field, false) {
+                    @Override
+                    public int compareValues(BytesRef val1, BytesRef val2) {
+                        ByteBuffer bb1 = ByteBufferUtils.byteBuffer(val1);
+                        ByteBuffer bb2 = ByteBufferUtils.byteBuffer(val2);
+                        return metadata.getKeyValidator().compare(bb1, bb2);
+                    }
+                };
+            }
+        });
     }
 
 }

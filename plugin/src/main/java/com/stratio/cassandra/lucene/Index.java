@@ -18,28 +18,23 @@
 
 package com.stratio.cassandra.lucene;
 
+import com.stratio.cassandra.lucene.util.ListBasedPartitionIteratorBuilder;
 import org.apache.cassandra.config.ColumnDefinition;
 import org.apache.cassandra.cql3.Operator;
 import org.apache.cassandra.db.*;
-import org.apache.cassandra.db.compaction.CompactionManager;
 import org.apache.cassandra.db.filter.RowFilter;
-import org.apache.cassandra.db.lifecycle.SSTableSet;
-import org.apache.cassandra.db.lifecycle.View;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.db.partitions.PartitionIterator;
 import org.apache.cassandra.db.partitions.PartitionUpdate;
+import org.apache.cassandra.db.rows.Row;
+import org.apache.cassandra.db.rows.RowIterator;
 import org.apache.cassandra.exceptions.ConfigurationException;
 import org.apache.cassandra.exceptions.InvalidRequestException;
 import org.apache.cassandra.index.IndexRegistry;
-import org.apache.cassandra.index.SecondaryIndexBuilder;
 import org.apache.cassandra.index.transactions.IndexTransaction;
-import org.apache.cassandra.io.sstable.ReducingKeyIterator;
-import org.apache.cassandra.io.sstable.format.SSTableReader;
 import org.apache.cassandra.schema.IndexMetadata;
-import org.apache.cassandra.utils.FBUtilities;
 import org.apache.cassandra.utils.concurrent.OpOrder;
-import org.apache.cassandra.utils.concurrent.Refs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +42,6 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Callable;
-import java.util.concurrent.Future;
 import java.util.function.BiFunction;
 
 /**
@@ -75,11 +69,11 @@ public class Index implements org.apache.cassandra.index.Index {
         this.table = table;
         this.indexMetadata = indexMetadata;
         try {
-            service = new IndexService(table, indexMetadata);
+            service = IndexService.build(table, indexMetadata);
         } catch (Exception e) {
             throw new IndexException(e);
         }
-        name = service.getIndexName();
+        name = service.qualifiedName;
     }
 
     /**
@@ -93,11 +87,11 @@ public class Index implements org.apache.cassandra.index.Index {
         logger.debug("Validating Lucene index options");
         try {
             IndexOptions.validateOptions(options);
-            logger.debug("Lucene index options are valid");
         } catch (IndexException e) {
             logger.error("Lucene index options are invalid", e);
             throw new ConfigurationException(e.getMessage());
         }
+        logger.debug("Lucene index options are valid");
         return Collections.emptyMap();
     }
 
@@ -113,26 +107,16 @@ public class Index implements org.apache.cassandra.index.Index {
      */
     @Override
     public Callable<?> getInitializationTask() {
+        logger.info("Getting initialization task of {}", name);
         if (table.isEmpty() || SystemKeyspace.isIndexBuilt(table.keyspace.getName(), indexMetadata.name)) {
+            logger.info("Index {} doesn't need (re)building", name);
             return null;
         } else {
+            logger.info("Index {} needs (re)building", name);
             return () -> {
-                logger.info("Submitting index build of {}", name);
                 table.forceBlockingFlush();
                 service.truncate();
-                try (ColumnFamilyStore.RefViewFragment vs = table.selectAndReference(View.select(SSTableSet.CANONICAL));
-                     Refs<SSTableReader> sstables = vs.refs) {
-                    if (!sstables.isEmpty()) {
-                        SecondaryIndexBuilder builder = new SecondaryIndexBuilder(table,
-                                                                                  Collections.singleton(this),
-                                                                                  new ReducingKeyIterator(sstables));
-                        Future<?> future = CompactionManager.instance.submitIndexBuild(builder);
-                        FBUtilities.waitOnFuture(future);
-                        service.commit();
-                    }
-                    table.indexManager.markIndexBuilt(indexMetadata.name);
-                }
-                logger.info("Index build of {} complete", name);
+                table.indexManager.buildIndexBlocking(this);
                 return null;
             };
         }
@@ -322,7 +306,7 @@ public class Index implements org.apache.cassandra.index.Index {
      * for a given ReadCommand. Additionally, this is also used by StorageProxy.estimateResultsPerRange to calculate the
      * initial concurrency factor for range requests
      *
-     * @return the estimated average number of results a IndexSearcher may return for any given query
+     * @return the estimated average number of results aIndexSearcher may return for any given query
      */
     @Override
     public long getEstimatedResultRows() {
@@ -372,7 +356,7 @@ public class Index implements org.apache.cassandra.index.Index {
                               int nowInSec,
                               OpOrder.Group opGroup,
                               IndexTransaction.Type transactionType) {
-        return new IndexWriter(service, key, nowInSec, opGroup, transactionType);
+        return service.indexWriter(key, nowInSec, opGroup, transactionType);
     }
 
     /*
@@ -395,7 +379,20 @@ public class Index implements org.apache.cassandra.index.Index {
     @Override
     public BiFunction<PartitionIterator, ReadCommand, PartitionIterator> postProcessorFor(ReadCommand command) {
         logger.debug("Getting post processor for {}", command);
-        return (x, y) -> command.executeInternal(command.startOrderGroup());
+        return (partitionIterator, readCommand) -> {
+//            ListBasedPartitionIteratorBuilder builder = new ListBasedPartitionIteratorBuilder(command.metadata(), command.columnFilter().fetchedColumns());
+//            partitionIterator.forEachRemaining(rowIterator -> rowIterator.forEachRemaining(row -> {
+//                DecoratedKey key = rowIterator.partitionKey();
+//                Row staticRow = rowIterator.staticRow();
+//                logger.debug("---> POST PROCESSED ROW {}", row);
+//                builder.add(key, staticRow, row);
+//            } ));
+//            logger.debug("POST PROCESSOR: \n\tFOR {} \n\tAND {} \n\tAND {}", partitionIterator, readCommand, command);
+//            partitionIterator.close();
+//            return builder.build();
+//            return EmptyIterators.partition();
+            return partitionIterator;
+        };
     }
 
     /**
@@ -410,6 +407,11 @@ public class Index implements org.apache.cassandra.index.Index {
     @Override
     public Searcher searcherFor(ReadCommand command) throws InvalidRequestException {
         logger.debug("Getting searcher for {}", command);
-        return new IndexSearcher(command);
+        try {
+            return service.searcherFor(command);
+        } catch (Exception e) {
+            logger.error("Error while searching", e);
+            throw new InvalidRequestException(e.getMessage());
+        }
     }
 }

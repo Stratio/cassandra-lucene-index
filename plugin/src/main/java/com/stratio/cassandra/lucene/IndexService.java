@@ -18,48 +18,60 @@
 
 package com.stratio.cassandra.lucene;
 
+import com.stratio.cassandra.lucene.column.Columns;
+import com.stratio.cassandra.lucene.column.ColumnsMapper;
 import com.stratio.cassandra.lucene.index.LuceneIndex;
-import com.stratio.cassandra.lucene.mapping.Mapper;
+import com.stratio.cassandra.lucene.key.PartitionMapper;
+import com.stratio.cassandra.lucene.key.TokenMapper;
+import com.stratio.cassandra.lucene.schema.Schema;
+import com.stratio.cassandra.lucene.search.Search;
+import com.stratio.cassandra.lucene.search.SearchBuilder;
 import com.stratio.cassandra.lucene.util.TaskQueue;
-import org.apache.cassandra.config.CFMetaData;
-import org.apache.cassandra.db.Clustering;
-import org.apache.cassandra.db.ColumnFamilyStore;
-import org.apache.cassandra.db.DecoratedKey;
-import org.apache.cassandra.db.SinglePartitionReadCommand;
-import org.apache.cassandra.db.filter.ClusteringIndexNamesFilter;
-import org.apache.cassandra.db.filter.ColumnFilter;
+import org.apache.cassandra.db.*;
+import org.apache.cassandra.db.filter.RowFilter;
+import org.apache.cassandra.db.filter.RowFilter.Expression;
+import org.apache.cassandra.db.marshal.UTF8Type;
+import org.apache.cassandra.db.partitions.UnfilteredPartitionIterator;
 import org.apache.cassandra.db.rows.Row;
-import org.apache.cassandra.db.rows.UnfilteredRowIterator;
+import org.apache.cassandra.index.Index;
+import org.apache.cassandra.index.transactions.IndexTransaction;
 import org.apache.cassandra.schema.IndexMetadata;
 import org.apache.cassandra.utils.concurrent.OpOrder;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.search.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-import java.util.NavigableSet;
-import java.util.TreeSet;
+import java.nio.ByteBuffer;
+import java.util.*;
+import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.toCollection;
+import static org.apache.lucene.search.SortField.FIELD_SCORE;
 
 /**
  * Class for providing operations between Cassandra and Lucene.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class IndexService {
+public abstract class IndexService {
 
     protected static final Logger logger = LoggerFactory.getLogger(IndexService.class);
 
-    private final ColumnFamilyStore table;
-    private final CFMetaData tableMetadata;
-    private final IndexMetadata indexMetadata;
-    private final LuceneIndex lucene;
-    private final Mapper mapper;
-    private final String indexName;
+    protected final ColumnFamilyStore table;
+    protected final LuceneIndex lucene;
+    protected final String name;
+    protected final String qualifiedName;
 
-    private final TaskQueue indexQueue;
+    protected final TaskQueue queue;
+
+    protected final Schema schema;
+    protected final TokenMapper tokenMapper;
+    protected final PartitionMapper partitionMapper;
+    protected final ColumnsMapper columnsMapper;
+    protected final boolean mapsMultiCells;
+    protected final Set<String> fieldsToLoad;
+    protected final List<SortField> keySortFields;
 
     /**
      * Constructor using the specified {@link IndexOptions}.
@@ -67,109 +79,271 @@ public class IndexService {
      * @param table The indexed table.
      * @param indexMetadata The index metadata.
      */
-    public IndexService(ColumnFamilyStore table, IndexMetadata indexMetadata) {
+    protected IndexService(ColumnFamilyStore table, IndexMetadata indexMetadata) {
         this.table = table;
-        this.indexMetadata = indexMetadata;
-        tableMetadata = table.metadata;
-        indexName = String.format("%s.%s.%s", tableMetadata.ksName, tableMetadata.cfName, indexMetadata.name);
+        name = indexMetadata.name;
+        qualifiedName = String.format("%s.%s.%s", table.metadata.ksName, table.metadata.cfName, indexMetadata.name);
         String mbean = String.format("com.stratio.cassandra.lucene:type=LuceneIndexes,keyspace=%s,table=%s,index=%s",
-                                     tableMetadata.ksName,
-                                     tableMetadata.cfName,
-                                     indexName);
-        IndexOptions options = new IndexOptions(tableMetadata, indexMetadata);
+                                     table.metadata.ksName,
+                                     table.metadata.cfName,
+                                     name);
+
+        // Setup index
+        IndexOptions options = new IndexOptions(table.metadata, indexMetadata);
         lucene = new LuceneIndex(mbean,
-                                 indexName,
+                                 name,
                                  options.path,
                                  options.schema.getAnalyzer(),
                                  options.refreshSeconds,
                                  options.ramBufferMB,
                                  options.maxMergeMB,
                                  options.maxCachedMB);
-        mapper = new Mapper(tableMetadata, options.schema);
-        indexQueue = new TaskQueue(options.indexingThreads, options.indexingThreads);
+        queue = new TaskQueue(options.indexingThreads, options.indexingQueuesSize);
+
+        // Setup mapping
+        schema = options.schema;
+        tokenMapper = new TokenMapper();
+        partitionMapper = new PartitionMapper(table.metadata);
+        columnsMapper = new ColumnsMapper(table.metadata);
+        mapsMultiCells = table.metadata.allColumns()
+                                       .stream()
+                                       .filter(x -> schema.getMappedCells().contains(x.name.toString()))
+                                       .anyMatch(x -> x.type.isMultiCell());
+
+        // Setup fields to load
+        fieldsToLoad = new HashSet<>();
+        fieldsToLoad.add(PartitionMapper.FIELD_NAME);
+
+        keySortFields = new ArrayList<>();
+        keySortFields.add(tokenMapper.sortField());
+        keySortFields.add(partitionMapper.sortField());
     }
 
     /**
-     * Returns the full qualified name of the index.
+     * Constructor using the specified {@link IndexOptions}.
      *
-     * @return the index name
+     * @param table The indexed table.
+     * @param indexMetadata The index metadata.
      */
-    public String getIndexName() {
-        return indexName;
+    public static IndexService build(ColumnFamilyStore table, IndexMetadata indexMetadata) {
+        return table.getComparator().subtypes().isEmpty()
+               ? new IndexServiceSkinny(table, indexMetadata)
+               : new IndexServiceWide(table, indexMetadata);
     }
+
+    /**
+     * Returns a {@link Columns} representing the specified {@link Row}.
+     *
+     * @param key the partition key
+     * @param row the {@link Row}
+     * @return the columns representing the specified {@link Row}.
+     */
+    public abstract Columns columns(DecoratedKey key, Row row);
+
+    /**
+     * Returns a {@code Optional} with the Lucene {@link Document} representing the specified {@link Row}, or  an empty
+     * {@code Optional} instance if the {@link Row} doesn't contain any of the columns mapped by the  {@link Schema}.
+     *
+     * @param key the partition key
+     * @param row the {@link Row}
+     * @return a document
+     */
+    public abstract Optional<Document> document(DecoratedKey key, Row row);
+
+    /**
+     * Returns a Lucene {@link Term} uniquely identifying the specified {@link Row}.
+     *
+     * @param key the partition key
+     * @param row the {@link Row}
+     * @return a Lucene identifying {@link Term}
+     */
+    public abstract Term term(DecoratedKey key, Row row);
+
+    /**
+     * Returns a Lucene {@link Term} identifying documents representing all the {@link Row}'s which are in the partition
+     * the specified {@link DecoratedKey}.
+     *
+     * @param key the partition key
+     * @return a Lucene {@link Term} representing {@code key}
+     */
+    public Term term(DecoratedKey key) {
+        return partitionMapper.term(key);
+    }
+
+    /**
+     * Returns if SSTables can contain additional columns of the specified {@link Row} so read-before-write is required
+     * prior to indexing.
+     *
+     * @param key the partition key
+     * @param row the {@link Row}
+     * @return {@code true} if read-before-write is required, {@code false} otherwise.
+     */
+    public boolean needsReadBeforeWrite(DecoratedKey key, Row row) {
+        if (mapsMultiCells) {
+            return true;
+        } else {
+            Columns columns = columns(key, row);
+            return schema.getMappedCells().stream().anyMatch(x -> columns.getColumnsByCellName(x).isEmpty());
+        }
+    }
+
+    public NavigableSet<Clustering> clusterings(Clustering... clusterings) {
+        NavigableSet<Clustering> sortedClusterings = new TreeSet<>(table.metadata.comparator);
+        if (clusterings.length > 0) {
+            sortedClusterings.addAll(Arrays.asList(clusterings));
+        }
+        return sortedClusterings;
+    }
+
+    /**
+     * Creates an new {@code IndexWriter} object for updates to a given partition.
+     *
+     * @param key key of the partition being modified
+     * @param nowInSec current time of the update operation
+     * @param opGroup operation group spanning the update operation
+     * @param transactionType indicates what kind of update is being performed on the base data i.e. a write time
+     * insert/update/delete or the result of compaction
+     * @return the newly created {@code IndexWriter}
+     */
+    public abstract IndexWriter indexWriter(DecoratedKey key,
+                                            int nowInSec,
+                                            OpOrder.Group opGroup,
+                                            IndexTransaction.Type transactionType);
 
     /**
      * Commits the pending changes.
      */
     public final void commit() {
-        indexQueue.submitSynchronous(lucene::commit);
+        queue.submitSynchronous(lucene::commit);
     }
 
     /**
      * Deletes all the index contents.
      */
     public final void truncate() {
-        indexQueue.submitSynchronous(lucene::truncate);
+        queue.submitSynchronous(lucene::truncate);
     }
 
     /**
      * Closes and removes all the index files.
      */
     public final void delete() {
-        indexQueue.shutdown();
+        queue.shutdown();
         lucene.delete();
     }
 
     /**
-     * Indexes the specified rows. The rows are read from the indexed table and sent to the Lucene index. The indexing
-     * can be synchronous or asynchronous depending on the configuration options.
+     * Upserts the specified {@link Row}.
      *
-     * @param key a partition key
-     * @param rows a list of rows to be indexed
-     * @param deletePartition if the partition should be deleted from the index before indexing
-     * @param nowInSec the current time in seconds
-     * @param opGroup a group of identically ordered operations
+     * @param key the partition key
+     * @param row the row to be upserted
      */
-    public void index(DecoratedKey key,
-                      List<Row> rows,
-                      boolean deletePartition,
-                      int nowInSec,
-                      OpOrder.Group opGroup) {
-        if (deletePartition) {
-            Term term = mapper.term(key);
-            indexQueue.submitAsynchronous(key, () -> lucene.delete(term));
-        }
-        if (!rows.isEmpty()) {
-            NavigableSet<Clustering> clusterings = rows.parallelStream()
-                                                       .filter(row -> !row.isStatic())
-                                                       .map(Row::clustering)
-                                                       .collect(toCollection(this::clusterings));
-            UnfilteredRowIterator iterator = rows(key, clusterings, nowInSec, opGroup);
-            while (iterator.hasNext()) {
-                Row row = (Row) iterator.next();
-                if (row.hasLiveData(nowInSec)) {
-                    Term term = mapper.term(key);
-                    Document document = mapper.document(key, row);
-                    indexQueue.submitAsynchronous(key, () -> lucene.upsert(term, document));
-                } else {
-                    Term term = mapper.term(key, row);
-                    indexQueue.submitAsynchronous(key, () -> lucene.delete(term));
+    public void upsert(DecoratedKey key, Row row) {
+        queue.submitAsynchronous(key, () ->
+                document(key, row).ifPresent(document -> {
+                    Term term = term(key, row);
+                    lucene.upsert(term, document);
+                })
+        );
+    }
+
+    /**
+     * Deletes the partition identified by the specified key.
+     *
+     * @param key the partition key
+     * @param row the row to be deleted
+     */
+    public void delete(DecoratedKey key, Row row) {
+        queue.submitAsynchronous(key, () -> {
+            Term term = term(key, row);
+            lucene.delete(term);
+        });
+    }
+
+    /**
+     * Deletes the partition identified by the specified key.
+     *
+     * @param key the partition key
+     */
+    public void delete(DecoratedKey key) {
+        queue.submitAsynchronous(key, () -> {
+            Term term = term(key);
+            lucene.delete(term);
+        });
+    }
+
+    /**
+     * Factory method for query time search helper. Custom index implementations should perform any validation of query
+     * expressions here and throw a meaningful InvalidRequestException when any expression is invalid.
+     *
+     * @param command the read command being executed
+     * @return an Searcher with which to perform the supplied command supported by the index implementation.
+     */
+    public Index.Searcher searcherFor(ReadCommand command) {
+        Search search = search(command);
+        Filter filter = filter(command);
+        Query query = search.query(schema, filter);
+        Sort sort = sort(search);
+        return (ReadExecutionController executionController) -> read(query, sort, null, command, executionController);
+    }
+
+    /**
+     * Returns the the {@link Search} contained in the specified {@link ReadCommand}.
+     *
+     * @param command the read command containing the {@link Search}
+     * @return the {@link Search} contained in {@code command}
+     */
+    private Search search(ReadCommand command) {
+        for (Expression expression : command.rowFilter().getExpressions()) {
+            if (expression.isCustom()) {
+                RowFilter.CustomExpression customExpression = (RowFilter.CustomExpression) expression;
+                if (name.equals(customExpression.getTargetIndex().name)) {
+                    ByteBuffer bb = customExpression.getValue();
+                    String json = UTF8Type.instance.compose(bb);
+                    return SearchBuilder.fromJson(json).build();
                 }
             }
         }
+        throw new IndexException("Lucene search expression not found in command expressions");
     }
 
-    private UnfilteredRowIterator rows(DecoratedKey key,
-                                       NavigableSet<Clustering> clusterings,
-                                       int nowInSec,
-                                       OpOrder.Group opGroup) {
-        ClusteringIndexNamesFilter filter = new ClusteringIndexNamesFilter(clusterings, false);
-        ColumnFilter columnFilter = ColumnFilter.all(tableMetadata);
-        return SinglePartitionReadCommand.create(tableMetadata, nowInSec, key, columnFilter, filter)
-                                         .queryMemtableAndDisk(table, opGroup);
+    private Filter filter(ReadCommand command) {
+        if (command instanceof SinglePartitionReadCommand) {
+            return filter((SinglePartitionReadCommand) command);
+        } else if (command instanceof PartitionRangeReadCommand) {
+            return filter((PartitionRangeReadCommand) command);
+        } else {
+            throw new IndexException("Unsupported read command %s", command.getClass());
+        }
     }
 
-    private NavigableSet<Clustering> clusterings() {
-        return new TreeSet<>(tableMetadata.comparator);
+    private Filter filter(SinglePartitionReadCommand command) {
+        DecoratedKey key = command.partitionKey();
+        return new QueryWrapperFilter(new TermQuery(term(key)));
     }
+
+    private Filter filter(PartitionRangeReadCommand command) {
+        return null;
+    }
+
+    /**
+     * Returns the Lucene {@link Sort} with the specified {@link Search} sorting requirements followed by the
+     * Cassandra's natural ordering based on partitioning token and cell name.
+     *
+     * @param search the {@link Search} containing sorting requirements
+     * @return a Lucene {@link Sort}
+     */
+    private Sort sort(Search search) {
+        List<SortField> sortFields = new ArrayList<>();
+        if (search.usesSorting()) {
+            sortFields.addAll(search.sortFields(schema));
+        }
+        if (search.usesRelevance()) {
+            sortFields.add(FIELD_SCORE);
+        }
+        sortFields.addAll(keySortFields);
+        return new Sort(sortFields.toArray(new SortField[sortFields.size()]));
+    }
+
+    public abstract UnfilteredPartitionIterator read(Query query, Sort sort, ScoreDoc after, ReadCommand command, ReadExecutionController executionController);
 }

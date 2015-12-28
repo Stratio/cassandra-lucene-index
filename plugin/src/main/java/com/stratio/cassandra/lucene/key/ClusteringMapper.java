@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package com.stratio.cassandra.lucene.mapping;
+package com.stratio.cassandra.lucene.key;
 
 import com.stratio.cassandra.lucene.column.Column;
 import com.stratio.cassandra.lucene.column.Columns;
@@ -32,9 +32,14 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldType;
 import org.apache.lucene.index.DocValuesType;
 import org.apache.lucene.index.IndexOptions;
+import org.apache.lucene.search.FieldComparator;
+import org.apache.lucene.search.FieldComparatorSource;
+import org.apache.lucene.search.SortField;
 import org.apache.lucene.util.BytesRef;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.List;
 
 /**
  * Class for several clustering key mappings between Cassandra and Lucene.
@@ -59,13 +64,13 @@ public final class ClusteringMapper {
     }
 
     private final CFMetaData metadata;
-    private final ClusteringComparator comparator;
     private final CompositeType type;
 
     public ClusteringMapper(CFMetaData metadata) {
         this.metadata = metadata;
-        comparator = metadata.comparator;
-        type = CompositeType.getInstance(comparator.subtypes());
+        ClusteringComparator clusteringComparator = metadata.comparator;
+        List<AbstractType<?>> subtypes = clusteringComparator.subtypes();
+        type = CompositeType.getInstance(subtypes);
     }
 
     public CompositeType getType() {
@@ -110,6 +115,60 @@ public final class ClusteringMapper {
     public void addFields(Document document, Clustering clustering) {
         BytesRef bytesRef = bytesRef(clustering);
         document.add(new Field(FIELD_NAME, bytesRef, FIELD_TYPE));
+    }
+
+    /**
+     * Returns the clustering key contained in the specified {@link ByteBuffer}.
+     *
+     * @param bb a {@link ByteBuffer}
+     * @return the clustering key contained in the specified {@link ByteBuffer}
+     */
+    public Clustering clustering(ByteBuffer bb) {
+        return new Clustering(type.split(bb));
+    }
+
+    /**
+     * Returns the clustering key contained in the specified {@link Document}.
+     *
+     * @param document a {@link Document}
+     * @return the clustering key contained in the specified {@link Document}
+     */
+    public Clustering clustering(Document document) {
+        BytesRef bytesRef = document.getBinaryValue(FIELD_NAME);
+        return clustering(bytesRef);
+    }
+
+    /**
+     * Returns the {@link Clustering} contained in the specified Lucene field value.
+     *
+     * @param bytesRef the {@link BytesRef} containing the raw clustering key to be get
+     * @return the {@link Clustering} contained in the specified Lucene field value
+     */
+    public Clustering clustering(BytesRef bytesRef) {
+        ByteBuffer bb = ByteBufferUtils.byteBuffer(bytesRef);
+        return clustering(bb);
+    }
+
+    /**
+     * Returns a Lucene {@link SortField} for sorting documents/rows according to the clustering key.
+     *
+     * @return a Lucene {@link SortField} for sorting documents/rows according to the clustering key
+     */
+    public SortField sortField() {
+        return new SortField(FIELD_NAME, new FieldComparatorSource() {
+            @Override
+            public FieldComparator<?> newComparator(String field, int hits, int sort, boolean reversed)
+            throws IOException {
+                return new FieldComparator.TermValComparator(hits, field, false) {
+                    @Override
+                    public int compareValues(BytesRef val1, BytesRef val2) {
+                        Clustering bb1 = clustering(val1);
+                        Clustering bb2 = clustering(val2);
+                        return metadata.comparator.compare(bb1, bb2);
+                    }
+                };
+            }
+        });
     }
 
 }

@@ -31,9 +31,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * The user-defined mapping from Cassandra columns to Lucene documents.
@@ -50,8 +50,8 @@ public class Schema implements Closeable {
     /** The wrapping all-in-one {@link Analyzer}. */
     private final SchemaAnalyzer analyzer;
 
-    /** The names of the mapped columns. */
-    private final Set<String> mappedColumns;
+    /** The names of the mapped cells. */
+    private final Set<String> mappedCells;
 
     /**
      * Returns a new {@code Schema} for the specified {@link Mapper}s and {@link Analyzer}s.
@@ -63,10 +63,11 @@ public class Schema implements Closeable {
     public Schema(Analyzer defaultAnalyzer, Map<String, Mapper> mappers, Map<String, Analyzer> analyzers) {
         this.mappers = mappers;
         this.analyzer = new SchemaAnalyzer(defaultAnalyzer, analyzers, mappers);
-        mappedColumns = new HashSet<>();
-        for (Mapper mapper : this.mappers.values()) {
-            mappedColumns.addAll(mapper.mappedColumns);
-        }
+        mappedCells = mappers.values()
+                             .stream()
+                             .flatMap(x -> x.mappedColumns.stream())
+                             .map(x -> x.contains(Column.UDT_SEPARATOR) ? x.split(Column.UDT_SEPARATOR)[0] : x)
+                             .collect(Collectors.toSet());
     }
 
     /**
@@ -111,6 +112,10 @@ public class Schema implements Closeable {
     public SingleColumnMapper getSingleColumnMapper(String field) {
         Mapper mapper = getMapper(field);
         return mapper == null ? null : (SingleColumnMapper) mapper;
+    }
+
+    public Set<String> getMappedCells() {
+        return mappedCells;
     }
 
     /**

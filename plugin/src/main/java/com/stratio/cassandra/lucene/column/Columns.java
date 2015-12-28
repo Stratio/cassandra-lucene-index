@@ -21,6 +21,7 @@ package com.stratio.cassandra.lucene.column;
 import com.google.common.base.MoreObjects;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * A sorted list of CQL3 logic {@link Column}s.
@@ -181,6 +182,10 @@ public class Columns implements Iterable<Column<?>> {
 
     public Column<?> getFirst() {
         return columns.isEmpty() ? null : columns.get(0);
+    }
+
+    public Stream<Column<?>> stream() {
+        return columns.stream();
     }
 
     /** {@inheritDoc} */

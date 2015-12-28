@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package com.stratio.cassandra.lucene.mapping;
+package com.stratio.cassandra.lucene.key;
 
 import org.apache.cassandra.db.DecoratedKey;
 import org.apache.cassandra.dht.Token;
@@ -26,6 +26,7 @@ import org.apache.lucene.document.FieldType;
 import org.apache.lucene.document.LongField;
 import org.apache.lucene.index.DocValuesType;
 import org.apache.lucene.index.IndexOptions;
+import org.apache.lucene.search.SortField;
 
 /**
  * Class for several token mappings between Cassandra and Lucene.
@@ -68,5 +69,9 @@ public final class TokenMapper {
 
     private static Long value(Token token) {
         return (Long) token.getTokenValue();
+    }
+
+    public SortField sortField() {
+        return new SortField(FIELD_NAME, SortField.Type.LONG);
     }
 }

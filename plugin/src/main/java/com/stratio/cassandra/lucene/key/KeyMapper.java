@@ -16,11 +16,12 @@
  * under the License.
  */
 
-package com.stratio.cassandra.lucene.mapping;
+package com.stratio.cassandra.lucene.key;
 
 import com.stratio.cassandra.lucene.util.ByteBufferUtils;
 import org.apache.cassandra.db.Clustering;
 import org.apache.cassandra.db.DecoratedKey;
+import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.CompositeType;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -48,7 +49,7 @@ public final class KeyMapper {
 
     public KeyMapper(PartitionMapper partitionMapper, ClusteringMapper clusteringMapper) {
         this.clusteringMapper = clusteringMapper;
-        CompositeType partitionKeyType = partitionMapper.getType();
+        AbstractType<?> partitionKeyType = partitionMapper.getType();
         CompositeType clusteringKeyType = clusteringMapper.getType();
         type = CompositeType.getInstance(partitionKeyType, clusteringKeyType);
     }

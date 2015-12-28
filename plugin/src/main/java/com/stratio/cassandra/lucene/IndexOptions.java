@@ -24,6 +24,8 @@ import com.stratio.cassandra.lucene.schema.SchemaBuilder;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.db.Directories;
 import org.apache.cassandra.schema.IndexMetadata;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -39,6 +41,8 @@ import java.util.Map;
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class IndexOptions {
+
+    private static final Logger logger = LoggerFactory.getLogger(IndexOptions.class);
 
     public static final String REFRESH_SECONDS_OPTION = "refresh_seconds";
     public static final double DEFAULT_REFRESH_SECONDS = 60;
@@ -91,8 +95,11 @@ public class IndexOptions {
         indexingThreads = parseIndexingThreads(options);
         indexingQueuesSize = parseIndexingQueuesSize(options);
         excludedDataCenters = parseExcludedDataCenters(options);
-        path = parsePath(options, tableMetadata);
+        path = parsePath(options, tableMetadata, indexMetadata);
         schema = parseSchema(options, tableMetadata);
+        for (Map.Entry entry : options.entrySet()) {
+            logger.debug("BUILDING WITH OPTION {} -> {}", entry.getKey(), entry.getValue());
+        }
     }
 
     /**
@@ -101,6 +108,9 @@ public class IndexOptions {
      * @param options The options to be validated.
      */
     public static void validateOptions(Map<String, String> options) {
+        for (Map.Entry entry : options.entrySet()) {
+            logger.debug("VALIDATING OPTION {} -> {}", entry.getKey(), entry.getValue());
+        }
         parseRefresh(options);
         parseRamBufferMB(options);
         parseMaxMergeMB(options);
@@ -109,7 +119,7 @@ public class IndexOptions {
         parseIndexingQueuesSize(options);
         parseExcludedDataCenters(options);
         parseSchema(options, null); // TODO: This should be mandatory, check Index#validateOptions
-        parsePath(options, null); // TODO: This should be mandatory, check Index#validateOptions
+        parsePath(options, null, null); // TODO: This should be mandatory, check Index#validateOptions
     }
 
     private static double parseRefresh(Map<String, String> options) {
@@ -225,17 +235,16 @@ public class IndexOptions {
         }
     }
 
-    private static Path parsePath(Map<String, String> options, CFMetaData tableMetadata) {
+    private static Path parsePath(Map<String, String> options, CFMetaData tableMetadata, IndexMetadata indexMetadata) {
         String pathOption = options.get(DIRECTORY_PATH_OPTION);
         if (pathOption != null) {
             return Paths.get(pathOption);
-        } else if (tableMetadata == null) { // TODO: This should be mandatory, check Index#validateOptions
-            return null;
-        } else {
+        } else if (tableMetadata != null && indexMetadata != null) { // TODO: tableMetadata should be mandatory, check Index#validateOptions
             Directories directories = new Directories(tableMetadata);
             String basePath = directories.getDirectoryForNewSSTables().getAbsolutePath();
-            return Paths.get(basePath + File.separator + INDEXES_DIR_NAME);
+            return Paths.get(basePath + File.separator + INDEXES_DIR_NAME + File.separator + indexMetadata.name);
         }
+        return null;
     }
 
     private static Schema parseSchema(Map<String, String> options, CFMetaData tableMetadata) {
@@ -244,7 +253,7 @@ public class IndexOptions {
             Schema schema;
             try {
                 schema = SchemaBuilder.fromJson(schemaOption).build();
-                if (tableMetadata != null) { // TODO: This should be mandatory, check Index#validateOptions
+                if (tableMetadata != null) { // TODO: tableMetadata should be mandatory, check Index#validateOptions
                     schema.validate(tableMetadata);
                 }
                 return schema;
