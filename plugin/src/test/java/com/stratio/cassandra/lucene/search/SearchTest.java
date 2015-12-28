@@ -19,7 +19,6 @@
 package com.stratio.cassandra.lucene.search;
 
 import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.search.sort.builder.SimpleSortFieldBuilder;
 import org.junit.Test;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.schema;

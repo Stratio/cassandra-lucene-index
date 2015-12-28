@@ -53,7 +53,12 @@ public abstract class SortFieldBuilder<T extends SortField,K extends SortFieldBu
         return (K) this;
     }
 
-
+    /**
+     * Returns this {@link SortFieldBuilder} with the specified field option.
+     *
+     * @param field, the name of the filed to be used for sort.
+     * @return This.
+     */
     public K field(String field) {
         this.field=field;
         return (K)this;

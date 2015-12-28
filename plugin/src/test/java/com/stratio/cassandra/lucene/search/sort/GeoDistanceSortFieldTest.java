@@ -23,17 +23,13 @@ import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import com.stratio.cassandra.lucene.schema.mapping.GeoPointMapper;
-import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
 import org.apache.cassandra.db.marshal.DoubleType;
-import org.apache.cassandra.db.marshal.UTF8Type;
 import org.junit.Test;
 
 import java.util.Comparator;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.geoPointMapper;
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.schema;
-import static com.stratio.cassandra.lucene.schema.SchemaBuilders.stringMapper;
-import static org.apache.lucene.search.SortField.FIELD_SCORE;
 import static org.junit.Assert.*;
 
 /**

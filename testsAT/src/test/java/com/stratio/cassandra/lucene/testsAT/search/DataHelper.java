@@ -43,6 +43,8 @@ public final class DataHelper {
         data1.put("float_1", "1.0");
         data1.put("integer_1", "-1");
         data1.put("inet_1", "'127.0.0.1'");
+        data1.put("lat", "40.442163");
+        data1.put("long", "-3.784519");
         data1.put("text_1", "'Frase con espacios articulos y las palabras suficientes'");
         data1.put("varchar_1", "'frase sencilla con espacios'");
         data1.put("uuid_1", "60297440-b4fa-11e3-8b5a-0002a5d5c51b");
@@ -62,6 +64,8 @@ public final class DataHelper {
         data2.put("float_1", "2.0");
         data2.put("integer_1", "-2");
         data2.put("inet_1", "'127.0.01.01'");
+        data2.put("lat", "40.575909");
+        data2.put("long", "-3.616095");
         data2.put("text_1", "'Frasesinespaciosconarticulosylaspalabrassuficientes'");
         data2.put("varchar_1", "'frasesencillasinespacios'");
         data2.put("uuid_1", "60297440-b4fa-11e3-8b5a-0002a5d5c51c");
@@ -81,6 +85,8 @@ public final class DataHelper {
         data3.put("float_1", "3.0");
         data3.put("integer_1", "-3");
         data3.put("inet_1", "'127.1.1.1'");
+        data3.put("lat", "38.947994");
+        data3.put("long", "-3.800156");
         data3.put("text_1", "'Frasesinespaciosconarticulosylaspalabrassuficientesperomaslarga'");
         data3.put("varchar_1", "'frasesencillasinespaciosperomaslarga'");
         data3.put("uuid_1", "60297440-b4fa-11e3-8b5a-0002a5d5c51d");
@@ -100,6 +106,8 @@ public final class DataHelper {
         data4.put("float_1", "3.0");
         data4.put("integer_1", "-4");
         data4.put("inet_1", "'127.1.1.1'");
+        data4.put("lat", "42.546975");
+        data4.put("long", "2.141841");
         data4.put("text_1", "'Frasesinespaciosconarticulosylaspalabrassuficientesperomaslargaaaaa  '");
         data4.put("varchar_1", "'frasesencillasinespaciosperomaslarga'");
         data4.put("uuid_1", "60297440-b4fa-11e3-8b5a-0002a5d5c51d");
@@ -119,6 +127,8 @@ public final class DataHelper {
         data5.put("float_1", "3.0");
         data5.put("integer_1", "-5");
         data5.put("inet_1", "'192.168.0.1'");
+        data5.put("lat", "49.791995");
+        data5.put("long", "11.208648");
         data5.put("text_1", "'Prasesinespaciosconarticulosylaspalabrassuficientes'");
         data5.put("varchar_1", "'prasesencillasinespaciosperomaslarga'");
         data5.put("uuid_1", "60297440-b4fa-11e3-8b5a-0002a5d5c51d");
@@ -138,6 +148,8 @@ public final class DataHelper {
         data6.put("float_1", "3.0");
         data6.put("integer_1", "-6");
         data6.put("inet_1", "'127.1.1.1'");
+        data6.put("lat", "55.337231");
+        data6.put("long", "61.578869");
         data6.put("text_1", "'frase y frase  '");
         data6.put("varchar_1", "'frasesencillasinespaciosperomaslarga'");
         data6.put("uuid_1", "60297440-b4fa-11e3-8b5a-0002a5d5c51d");
@@ -157,6 +169,8 @@ public final class DataHelper {
         data7.put("float_1", "3.0");
         data7.put("integer_1", "-7");
         data7.put("inet_1", "'127.1.1.1'");
+        data7.put("lat", "41.453383");
+        data7.put("long", "126.442151");
         data7.put("text_1", "'frase, frase con frase y frase'");
         data7.put("varchar_1", "'prasesencillasinespaciosperomaslarga'");
         data7.put("uuid_1", "60297440-b4fa-11e3-8b5a-0002a5d5c51d");

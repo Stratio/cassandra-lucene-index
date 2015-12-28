@@ -486,7 +486,9 @@ public abstract class Builder {
      * @param field The name of the field to be sorted.
      * @return A new {@link GeoDistanceSortField} for the specified field.
      */
-    public static GeoDistanceSortField geoDistanceSortField(String field, double longitude, double latitude) {
+    public static GeoDistanceSortField geoDistanceSortField(String field,
+                                                            double longitude,
+                                                            double latitude) {
         return new GeoDistanceSortField(field,longitude,latitude);
     }
 

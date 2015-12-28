@@ -75,8 +75,6 @@ public class GeoPointMapperBuilder extends MapperBuilder<GeoPointMapper, GeoPoin
         return this;
     }
 
-
-
     /**
      * Sets if the field supports searching.
      *
@@ -100,6 +98,7 @@ public class GeoPointMapperBuilder extends MapperBuilder<GeoPointMapper, GeoPoin
         this.sorted = sorted;
         return this;
     }
+
     /**
      * Returns the {@link GeoPointMapper} represented by this {@link MapperBuilder}.
      *
