@@ -24,7 +24,15 @@ import com.spatial4j.core.shape.Point;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
-import org.apache.cassandra.db.marshal.*;
+import org.apache.cassandra.db.marshal.AsciiType;
+import org.apache.cassandra.db.marshal.DecimalType;
+import org.apache.cassandra.db.marshal.DoubleType;
+import org.apache.cassandra.db.marshal.FloatType;
+import org.apache.cassandra.db.marshal.Int32Type;
+import org.apache.cassandra.db.marshal.IntegerType;
+import org.apache.cassandra.db.marshal.LongType;
+import org.apache.cassandra.db.marshal.ShortType;
+import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.StoredField;
@@ -37,6 +45,7 @@ import org.apache.lucene.spatial.prefix.tree.GeohashPrefixTree;
 import org.apache.lucene.spatial.prefix.tree.SpatialPrefixTree;
 
 import java.util.Arrays;
+
 
 /**
  * A {@link Mapper} to map geographical points.
@@ -193,7 +202,7 @@ public class GeoPointMapper extends Mapper {
      * @param columns The {@link Columns} containing the latitude.
      */
     public Double readLatitude(Columns columns) {
-        Column<?> column = columns.getColumnsByCellName(latitude).getFirst();
+        Column<?> column = columns.getColumnsByFullName(latitude).getFirst();
         return column == null ? null : readLatitude(column.getComposedValue());
     }
 
@@ -204,7 +213,7 @@ public class GeoPointMapper extends Mapper {
      * @param columns The {@link Columns} containing the latitude.
      */
     public Double readLongitude(Columns columns) {
-        Column<?> column = columns.getColumnsByCellName(longitude).getFirst();
+        Column<?> column = columns.getColumnsByFullName(longitude).getFirst();
         return column == null ? null : readLongitude(column.getComposedValue());
     }
 

@@ -1,3 +1,21 @@
+/*
+ * Licensed to STRATIO (C) under one or more contributor license agreements.
+ * See the NOTICE file distributed with this work for additional information
+ * regarding copyright ownership.  The STRATIO (C) licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package com.stratio.cassandra.lucene.search.sort;
 
 import com.google.common.base.Objects;
@@ -11,8 +29,6 @@ import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.queries.function.ValueSource;
 import org.apache.lucene.spatial.SpatialStrategy;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Comparator;
 
@@ -20,9 +36,14 @@ import java.util.Comparator;
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
 public class GeoDistanceSortField extends SortField {
-    public static final Logger logger = LoggerFactory.getLogger(GeoDistanceSortField.class);
+
+    /** The name of field to sortFields by. */
     private final String field;
+
+    /** The longitude of the center to sort by distance. */
     private final double longitude;
+
+    /** The latitude of the center to sort by distance. */
     private final double latitude;
     /**
      * Returns a new {@link SortField}.
@@ -51,6 +72,7 @@ public class GeoDistanceSortField extends SortField {
         return latitude;
     }
 
+    /** {@inheritDoc} */
     @Override
     public org.apache.lucene.search.SortField sortField(Schema schema) {
         final Mapper mapper = schema.getMapper(field);
@@ -70,6 +92,7 @@ public class GeoDistanceSortField extends SortField {
         return valueSource.getSortField(this.reverse);
     }
 
+    /** {@inheritDoc} */
     @Override
     public Comparator<Columns> comparator(Schema schema) {
         final Mapper mapper = schema.getMapper(field);
@@ -87,26 +110,26 @@ public class GeoDistanceSortField extends SortField {
             return -1;
         }
 
-        Double longO1=mapper.readLongitude(o1);
-        Double latO1=mapper.readLatitude(o1);
+        Double longO1 = mapper.readLongitude(o1);
+        Double latO1 = mapper.readLatitude(o1);
 
-        Double longO2=mapper.readLongitude(o2);
-        Double latO2=mapper.readLatitude(o2);
+        Double longO2 = mapper.readLongitude(o2);
+        Double latO2 = mapper.readLatitude(o2);
 
 
-        Double base1 =distance(longO1,latO1);
+        Double base1 = distance(longO1,latO1);
         Double base2 = distance(longO2,latO2);
 
-        logger.debug("GeoDistanceSortField comparing center=["+longitude+", "+latitude+"] distance(["+longO1+" , "+latO1+" ])="+base1+ "distance(["+longO2+" , "+latO2+" ])="+base2);
-        int result=compare(base1, base2);
-        logger.debug("GeoDistanceSortField result: "+result);
-        return result;
+        return compare(base1, base2);
     }
+
+    /** {@inheritDoc} */
     @Override
     public String toString() {
         return Objects.toStringHelper(this).add("field", field).add("reverse", reverse).add("longitude", longitude).add("latitude", latitude).toString();
     }
 
+    /** {@inheritDoc} */
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -119,6 +142,7 @@ public class GeoDistanceSortField extends SortField {
         return reverse == other.reverse && field.equals(other.field) && longitude== other.longitude && latitude==other.latitude;
     }
 
+    /** {@inheritDoc} */
     @Override
     public int hashCode() {
         int result = field.hashCode();
