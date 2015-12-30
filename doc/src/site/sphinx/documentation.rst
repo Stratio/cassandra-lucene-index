@@ -1201,7 +1201,9 @@ and <sort> is another JSON object:
 .. code-block:: sql
 
         <sort> := { fields : <sort_field> (, <sort_field> )* }
-        <sort_field> := { field : <field> (, reverse : <reverse> )? }
+        <sort_field> := <simple_sort_field> | <geo_distance_sort_field>
+        <simple_sort_field> := {(type: "simple",)? field : <field> (, reverse : <reverse> )? }
+        <geo_distance_sort_field> := {type: "geo_distance", mapper : <field>, latitude : <Double>, longitude: <Double> (, reverse : <reverse> )? }
 
 When searching by ``filter``, without any ``query`` or ``sort`` defined,
 then the results are returned in the Cassandra’s natural order, which is
@@ -1209,7 +1211,10 @@ defined by the partitioner and the column name comparator. When searching
 by ``query``, results are returned sorted by descending relevance. The
 scores will be located in the column ``magic_column``. Sort option is used
 to specify the order in which the indexed rows will be traversed. When
-sorting is used, the query scoring is delayed.
+simple_sort_field sorting is used, the query scoring is delayed.
+
+Geo_distance_sort_field is use to sort Rows by min distance to point
+indicating the GeoPointMapper to use by mapper field
 
 Relevance queries must touch all the nodes in the ring in order to find
 the globally best results, so you should prefer filters over queries
@@ -2083,17 +2088,27 @@ Using Builder
 
 Example 3: will return any rows where “place” is formed by a latitude
 between 0.0 and 10.0, and a longitude between -180.0 and
-180.0.
+180.0 sorted by min distance to point [0.0, 0.0].
 
 .. code-block:: sql
 
     SELECT * FROM test.users
-    WHERE stratio_col = '{filter : { type          : "geo_bbox",
-                                     field         : "place",
-                                     min_latitude  : 0.0,
-                                     max_latitude  : 10.0,
-                                     min_longitude : -180.0,
-                                     max_longitude : 180.0 }}';
+    WHERE stratio_col = '{  filter : { type          : "geo_bbox",
+                                       field         : "place",
+                                       min_latitude  : 0.0,
+                                       max_latitude  : 10.0,
+                                       min_longitude : -180.0,
+                                       max_longitude : 180.0
+                                     },
+                            sort   : { fields: [
+                                        { type      : "geo_distance",
+    					 	              field     : "geo_point",
+    					 	              reverse   : false,
+                                          latitude  : 0.0,
+    					 	              longitude : 0.0}
+    					 	              ]
+                                     }
+                         }';
 
 
 Using Builder
@@ -2103,10 +2118,11 @@ Using Builder
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     String indexColumn = "stratio_col";
-    Search search = search().filter(geoBBox("place",-180.0,180.0,0.0,10.0));
+    Search search = search().filter(geoBBox("place",-180.0,180.0,0.0,10.0))
+                            .sort(geoDistanceSortField("geo_point",
+                                0.0, 0.0).reverse(false));
     ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users")
                                     .where(eq(indexColumn, search.build()));
-
 
 Geo distance search
 ===================
@@ -2162,7 +2178,7 @@ Using Builder
 
 
 Example 2: will return any rows where “place” is within one yard and ten
-yards from the geo point (40.225479, -3.999278).
+yards from the geo point (40.225479, -3.999278) sorted by min distance to point (40.225479, -3.999278).
 
 .. code-block:: sql
 
@@ -2172,7 +2188,16 @@ yards from the geo point (40.225479, -3.999278).
                                      latitude     : 40.225479,
                                      longitude    : -3.999278,
                                      max_distance : "10yd" ,
-                                     min_distance : "1yd" }}';
+                                     min_distance : "1yd" },
+                            sort   : { fields: [
+                                        { type      : "geo_distance",
+    					 	              field     : "geo_point",
+    					 	              reverse   : false,
+                                          latitude  : 40.225479,
+    					 	              longitude : -3.999278}
+    					 	              ]
+                                     }
+                        }';
 
 Using Builder
 
@@ -2182,7 +2207,11 @@ Using Builder
     (...)
     String indexColumn = "stratio_col";
     Search search = search().filter(geoDistance("place",-3.999278d,40.225479d,"10yd")
-                                    .minDistance("1yd"));
+                                    .minDistance("1yd"))
+                            .sort(geoDistanceSortField("geo_point",
+                                -3.999278,40.225479).reverse(false));
+
+                                    ;
     ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users")
                                     .where(eq(indexColumn, search.build()));
 
