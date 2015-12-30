@@ -27,6 +27,9 @@ import org.codehaus.jackson.annotate.JsonProperty;
  */
 public class SimpleSortFieldBuilder extends SortFieldBuilder<SimpleSortField,SimpleSortFieldBuilder> {
 
+    /** The name of the field to be used for sort. */
+    @JsonProperty("field")
+    final String field;
     /**
      * Creates a new {@link SimpleSortFieldBuilder} for the specified field.
      *
@@ -34,7 +37,7 @@ public class SimpleSortFieldBuilder extends SortFieldBuilder<SimpleSortField,Sim
      */
     @JsonCreator
     public SimpleSortFieldBuilder(@JsonProperty("field") String field) {
-        super(field);
+        this.field=field;
     }
 
     /** {@inheritDoc} */

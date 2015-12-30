@@ -64,7 +64,6 @@ public class SimpleSortField extends SortField {
         return field;
     }
 
-
     /**
      * Returns the Lucene {@link org.apache.lucene.search.SortField} representing this {@link SortField}.
      *

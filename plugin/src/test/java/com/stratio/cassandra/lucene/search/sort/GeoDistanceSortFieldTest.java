@@ -39,8 +39,8 @@ public class GeoDistanceSortFieldTest {
 
     @Test
     public void testBuild() {
-        GeoDistanceSortField sortField = new GeoDistanceSortField("field", true, 0.0, 0.0);
-        assertEquals("SortField is not created", "field", sortField.getField());
+        GeoDistanceSortField sortField = new GeoDistanceSortField("geo_place", true, 0.0, 0.0);
+        assertEquals("SortField is not created", "geo_place", sortField.getMapper());
         assertTrue("SortField reverse is not set", sortField.isReverse());
         assertTrue("SortField longitude is not set", sortField.getLongitude() == 0.0);
         assertTrue("SortField latitude is not set", sortField.getLatitude()==0.0);
@@ -49,8 +49,8 @@ public class GeoDistanceSortFieldTest {
 
     @Test
     public void testBuildDefaults() {
-        GeoDistanceSortField sortField = new GeoDistanceSortField("field", null, 0.0, 0.0);
-        assertEquals("SortField is not created", "field", sortField.getField());
+        GeoDistanceSortField sortField = new GeoDistanceSortField("geo_place", null, 0.0, 0.0);
+        assertEquals("SortField is not created", "geo_place", sortField.getMapper());
         assertEquals("SortField reverse is not set to default", SortField.DEFAULT_REVERSE, sortField.isReverse());
     }
 

@@ -72,12 +72,12 @@ public class SortBuilderTest {
     @Test
     public void testJson() throws IOException {
         SimpleSortFieldBuilder sortFieldBuilder1 = new SimpleSortFieldBuilder("field1").reverse(true);
-        GeoDistanceSortFieldBuilder sortFieldBuilder2 = new GeoDistanceSortFieldBuilder("field2",0.0,0.0).reverse(true);
+        GeoDistanceSortFieldBuilder sortFieldBuilder2 = new GeoDistanceSortFieldBuilder("mapper2",0.0,0.0).reverse(true);
         SimpleSortFieldBuilder sortFieldBuilder3 = new SimpleSortFieldBuilder("field3");
         SortBuilder sortBuilder = new SortBuilder(sortFieldBuilder1, sortFieldBuilder2, sortFieldBuilder3);
         String json = JsonSerializer.toString(sortBuilder);
         assertEquals("Method #toString is wrong", "{fields:[{type:\"simple\",field:\"field1\",reverse:true}," +
-                                                  "{type:\"geo_distance\",field:\"field2\",longitude:0.0,latitude:0.0,reverse:true}," +
+                                                  "{type:\"geo_distance\",mapper:\"mapper2\",longitude:0.0,latitude:0.0,reverse:true}," +
                                                   "{type:\"simple\",field:\"field3\",reverse:false}]}", json);
 
     }

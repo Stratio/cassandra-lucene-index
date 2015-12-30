@@ -25,7 +25,11 @@ import org.codehaus.jackson.annotate.JsonProperty;
 /**
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
-public class GeoDistanceSortFieldBuilder extends SortFieldBuilder<GeoDistanceSortField,GeoDistanceSortFieldBuilder> {
+public class GeoDistanceSortFieldBuilder extends SortFieldBuilder<GeoDistanceSortField, GeoDistanceSortFieldBuilder> {
+
+    /** The name of mapper to use to calculate distance. */
+    @JsonProperty("mapper")
+    private final String mapper;
 
     /** The longitude of the center point to sort by min distance to it. */
     @JsonProperty("longitude")
@@ -38,23 +42,23 @@ public class GeoDistanceSortFieldBuilder extends SortFieldBuilder<GeoDistanceSor
     /**
      * Creates a new {@link GeoDistanceSortFieldBuilder} for the specified field.
      *
-     * @param field     The field to sort by.
+     * @param mapper    The name of mapper to use to calculate distance.
      * @param longitude The longitude of the center point to sort by min distance to it.
      * @param latitude  The latitude of the center point to sort by min distance to it.
      */
     @JsonCreator
-    public GeoDistanceSortFieldBuilder(@JsonProperty("field") String field,
-                                       @JsonProperty("longitude") double longitude, @JsonProperty("latitude") double latitude) {
+    public GeoDistanceSortFieldBuilder(@JsonProperty("mapper") String mapper,
+                                       @JsonProperty("longitude") double longitude,
+                                       @JsonProperty("latitude") double latitude) {
 
-
-        super(field);
-        this.longitude=longitude;
-        this.latitude=latitude;
+        this.mapper = mapper;
+        this.longitude = longitude;
+        this.latitude = latitude;
     }
 
     /** {@inheritDoc} */
     @Override
     public GeoDistanceSortField build() {
-        return new GeoDistanceSortField(field, reverse,longitude,latitude);
+        return new GeoDistanceSortField(mapper, reverse, longitude, latitude);
     }
 }

@@ -481,15 +481,15 @@ public abstract class Builder {
     /**
      * Returns a new {@link GeoDistanceSortField} for the specified field.
      *
-     * @param field The name of the field to be sorted.
-     * @param field The name of the field to be sorted.
-     * @param field The name of the field to be sorted.
+     * @param mapper    The name of the field to be used for sort.
+     * @param longitude The longitude in degrees of the point to min distance sort by.
+     * @param latitude  The latitude in degrees of the point to min distance sort by.
      * @return A new {@link GeoDistanceSortField} for the specified field.
      */
-    public static GeoDistanceSortField geoDistanceSortField(String field,
+    public static GeoDistanceSortField geoDistanceSortField(String mapper,
                                                             double longitude,
                                                             double latitude) {
-        return new GeoDistanceSortField(field,longitude,latitude);
+        return new GeoDistanceSortField(mapper,longitude,latitude);
     }
 
 
