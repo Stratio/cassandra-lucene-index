@@ -34,6 +34,8 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.SortField;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -47,6 +49,7 @@ import java.util.List;
  */
 public abstract class RowMapper {
 
+    private static final Logger logger = LoggerFactory.getLogger(RowMapper.class);
     /** The indexed table metadata. */
     final CFMetaData metadata;
 
@@ -182,9 +185,7 @@ public abstract class RowMapper {
             comparators.add(new Comparator<Row>() {
                 @Override
                 public int compare(Row row1, Row row2) {
-                    Columns columns1 = columns(row1);
-                    Columns columns2 = columns(row2);
-                    return comparator.compare(columns1, columns2);
+                    return comparator.compare(columns(row1), columns(row2));
                 }
             });
         }

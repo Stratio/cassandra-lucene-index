@@ -297,6 +297,7 @@ public abstract class RowService {
 
         SearcherManager searcherManager = lucene.getSearcherManager();
         IndexSearcher searcher = searcherManager.acquire();
+        sort=sort.rewrite(searcher);
         Set<DecoratedKey> partitionKeys = new HashSet<>();
         try {
 

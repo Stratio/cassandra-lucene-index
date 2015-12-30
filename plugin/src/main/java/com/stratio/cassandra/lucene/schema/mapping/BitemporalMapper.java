@@ -39,12 +39,6 @@ import java.util.Date;
  */
 public class BitemporalMapper extends Mapper {
 
-    /** The {@link DateParser} pattern. */
-    public final String pattern;
-
-    /** The {@link DateParser}. */
-    private final DateParser dateParser;
-
     /** The lucene Field suffix for vt_from */
     public static final String VT_FROM_FIELD_SUFFIX = ".vtFrom";
 
@@ -56,6 +50,9 @@ public class BitemporalMapper extends Mapper {
 
     /** The lucene Field suffix for tt_to */
     public static final String TT_TO_FIELD_SUFFIX = ".ttTo";
+
+    /** The {@link DateParser} pattern. */
+    public final String pattern;
 
     /** The name of the column containing the valid time start. **/
     public final String vtFrom;
@@ -72,17 +69,20 @@ public class BitemporalMapper extends Mapper {
     /** The NOW Value. **/
     public final Long nowValue;
 
+    /** The {@link DateParser}. */
+    private final DateParser dateParser;
+
     /**
      * Builds a new {@link BitemporalMapper}.
      *
-     * @param field    the name of the field.
+     * @param field     The name of the field.
      * @param validated If the field must be validated.
-     * @param vtFrom   The column name containing the valid time start.
-     * @param vtTo     The column name containing the valid time stop.
-     * @param ttFrom   The column name containing the transaction time start.
-     * @param ttTo     The column name containing the transaction time stop.
-     * @param pattern  The date format pattern to be used.
-     * @param nowValue The value representing now.
+     * @param vtFrom    The column name containing the valid time start.
+     * @param vtTo      The column name containing the valid time stop.
+     * @param ttFrom    The column name containing the transaction time start.
+     * @param ttTo      The column name containing the transaction time stop.
+     * @param pattern   The date format pattern to be used.
+     * @param nowValue  The value representing now.
      */
     public BitemporalMapper(String field,
                             Boolean validated,
@@ -192,7 +192,7 @@ public class BitemporalMapper extends Mapper {
      * @return a {@link BitemporalDateTime} read from columns
      */
     BitemporalDateTime readBitemporalDate(Columns columns, String fieldName) {
-        Column<?> column = columns.getColumnsByCellName(fieldName).getFirst();
+        Column<?> column = columns.getColumnsByFullName(fieldName).getFirst();
         if (column == null) {
             return null;
         }

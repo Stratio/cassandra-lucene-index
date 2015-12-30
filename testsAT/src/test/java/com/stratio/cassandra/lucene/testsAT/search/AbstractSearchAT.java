@@ -18,6 +18,7 @@
 
 package com.stratio.cassandra.lucene.testsAT.search;
 
+import com.stratio.cassandra.lucene.builder.index.schema.mapping.GeoPointMapper;
 import com.stratio.cassandra.lucene.builder.search.condition.Condition;
 import com.stratio.cassandra.lucene.builder.search.sort.SortField;
 import com.stratio.cassandra.lucene.testsAT.BaseAT;
@@ -54,7 +55,10 @@ public abstract class AbstractSearchAT extends BaseAT {
                               .withColumn("list_1", "list<text>")
                               .withColumn("set_1", "set<text>")
                               .withColumn("map_1", "map<text,text>")
+                              .withColumn("lat", "float")
+                              .withColumn("long", "float")
                               .withColumn("lucene", "text")
+                              .withMapper("geo_point", new GeoPointMapper("lat", "long").indexed(true).sorted(true))
                               .build()
                               .createKeyspace()
                               .createTable()

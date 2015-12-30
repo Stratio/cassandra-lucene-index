@@ -36,35 +36,35 @@ import static org.junit.Assert.*;
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class SortFieldTest {
+public class SimpleSortFieldTest {
 
     @Test
     public void testBuild() {
-        SortField sortField = new SortField("field", true);
+        SimpleSortField sortField = new SimpleSortField("field", true);
         assertEquals("SortField is not created", "field", sortField.getField());
         assertTrue("SortField reverse is not set", sortField.isReverse());
     }
 
     @Test
     public void testBuildDefaults() {
-        SortField sortField = new SortField("field", null);
+        SimpleSortField sortField = new SimpleSortField("field", null);
         assertEquals("SortField is not created", "field", sortField.getField());
         assertEquals("SortField reverse is not set to default", SortField.DEFAULT_REVERSE, sortField.isReverse());
     }
 
     @Test(expected = IndexException.class)
     public void testBuildNullField() {
-        new SortField(null, null);
+        new SimpleSortField(null, null);
     }
 
     @Test(expected = IndexException.class)
     public void testBuildNBlankField() {
-        new SortField(" ", null);
+        new SimpleSortField(" ", null);
     }
 
     @Test(expected = IndexException.class)
     public void testBuildWithoutField() {
-        new SortField(null, null);
+        new SimpleSortField(null, null);
     }
 
     @Test
@@ -72,7 +72,7 @@ public class SortFieldTest {
 
         Schema schema = schema().mapper("field", stringMapper().sorted(true)).build();
 
-        SortField sortField = new SortField("field", null);
+        SimpleSortField sortField = new SimpleSortField("field", null);
         org.apache.lucene.search.SortField luceneSortField = sortField.sortField(schema);
 
         assertNotNull("SortField is not created", luceneSortField);
@@ -81,11 +81,11 @@ public class SortFieldTest {
     }
 
     @Test
-    public void testSortField() {
+    public void testSimpleSortField() {
 
         Schema schema = schema().mapper("field", stringMapper().sorted(true)).build();
 
-        SortField sortField = new SortField("field", false);
+        SimpleSortField sortField = new SimpleSortField("field", false);
         org.apache.lucene.search.SortField luceneSortField = sortField.sortField(schema);
 
         assertNotNull("SortField is not created", luceneSortField);
@@ -98,7 +98,7 @@ public class SortFieldTest {
 
         Schema schema = schema().mapper("field", stringMapper().sorted(true)).build();
 
-        SortField sortField = new SortField("field", true);
+        SimpleSortField sortField = new SimpleSortField("field", true);
         org.apache.lucene.search.SortField luceneSortField = sortField.sortField(schema);
 
         assertNotNull("SortField is not created", luceneSortField);
@@ -109,7 +109,7 @@ public class SortFieldTest {
     @Test(expected = IndexException.class)
     public void testSortFieldUnsorted() {
         Schema schema = schema().mapper("field", stringMapper().sorted(false)).build();
-        SortField sortField = new SortField("field", false);
+        SimpleSortField sortField = new SimpleSortField("field", false);
         sortField.sortField(schema);
     }
 
@@ -118,7 +118,7 @@ public class SortFieldTest {
 
         Schema schema = schema().mapper("field", stringMapper().sorted(true)).build();
 
-        SortField sortField = new SortField("score", null);
+        SimpleSortField sortField = new SimpleSortField("score", null);
         org.apache.lucene.search.SortField luceneSortField = sortField.sortField(schema);
 
         assertNotNull("SortField is not created", luceneSortField);
@@ -131,7 +131,7 @@ public class SortFieldTest {
 
         Schema schema = schema().mapper("field", stringMapper().sorted(true)).build();
 
-        SortField sortField = new SortField("score", false);
+        SimpleSortField sortField = new SimpleSortField("score", false);
         org.apache.lucene.search.SortField luceneSortField = sortField.sortField(schema);
 
         assertNotNull("SortField is not created", luceneSortField);
@@ -144,7 +144,7 @@ public class SortFieldTest {
 
         Schema schema = schema().mapper("field", stringMapper().sorted(true)).build();
 
-        SortField sortField = new SortField("score", true);
+        SimpleSortField sortField = new SimpleSortField("score", true);
         org.apache.lucene.search.SortField luceneSortField = sortField.sortField(schema);
 
         assertNotNull("SortField is not created", luceneSortField);
@@ -155,7 +155,7 @@ public class SortFieldTest {
     @Test(expected = IndexException.class)
     public void testSortFieldWithoutMapper() {
         Schema schema = schema().build();
-        SortField sortField = new SortField("field", true);
+        SimpleSortField sortField = new SimpleSortField("field", true);
         sortField.sortField(schema);
     }
 
@@ -164,7 +164,7 @@ public class SortFieldTest {
 
         Schema schema = schema().mapper("field", stringMapper().sorted(true)).build();
 
-        SortField sortField = new SortField("field", false);
+        SimpleSortField sortField = new SimpleSortField("field", false);
         Comparator<Columns> comparator = sortField.comparator(schema);
 
         Column<String> lowerColumn = Column.builder("field").composedValue("a", UTF8Type.instance);
@@ -181,7 +181,7 @@ public class SortFieldTest {
 
         Schema schema = schema().mapper("field", stringMapper().sorted(true)).build();
 
-        SortField sortField = new SortField("field", true);
+        SimpleSortField sortField = new SimpleSortField("field", true);
         Comparator<Columns> comparator = sortField.comparator(schema);
 
         Column<String> lowerColumn = Column.builder("field").composedValue("a", UTF8Type.instance);
@@ -198,7 +198,7 @@ public class SortFieldTest {
 
         Schema schema = schema().mapper("field", stringMapper().sorted(true)).build();
 
-        SortField sortField = new SortField("field", true);
+        SimpleSortField sortField = new SimpleSortField("field", true);
         Comparator<Columns> comparator = sortField.comparator(schema);
 
         Column<String> column = Column.builder("field").composedValue("a", UTF8Type.instance);
@@ -214,7 +214,7 @@ public class SortFieldTest {
 
         Schema schema = schema().mapper("field", stringMapper().sorted(true)).build();
 
-        SortField sortField = new SortField("field", true);
+        SimpleSortField sortField = new SimpleSortField("field", true);
         Comparator<Columns> comparator = sortField.comparator(schema);
 
         Columns columns1 = new Columns().add(Column.builder("field").composedValue("a", UTF8Type.instance));
@@ -227,7 +227,7 @@ public class SortFieldTest {
     @Test
     public void testCompareColumns() {
 
-        SortField sortField = new SortField("field", true);
+        SimpleSortField sortField = new SimpleSortField("field", true);
 
         Column column1 = Column.builder("field").composedValue("a", UTF8Type.instance);
         Column column2 = Column.builder("field").composedValue("z", UTF8Type.instance);
@@ -246,7 +246,7 @@ public class SortFieldTest {
     @Test
     public void testCompareColumn() {
 
-        SortField sortField = new SortField("field", true);
+        SimpleSortField sortField = new SimpleSortField("field", true);
 
         Comparable column1 = "a";
         Comparable column2 = "z";
@@ -268,31 +268,31 @@ public class SortFieldTest {
 
     @Test
     public void testEquals() {
-        SortField sortField = new SortField("field", true);
+        SimpleSortField sortField = new SimpleSortField("field", true);
         assertEquals("SortField equals is wrong", sortField, sortField);
-        assertEquals("SortField equals is wrong", sortField, new SortField("field", true));
-        assertFalse("SortField equals is wrong", sortField.equals(new SortField("field2", true)));
-        assertFalse("SortField equals is wrong", sortField.equals(new SortField("field", false)));
+        assertEquals("SortField equals is wrong", sortField, new SimpleSortField("field", true));
+        assertFalse("SortField equals is wrong", sortField.equals(new SimpleSortField("field2", true)));
+        assertFalse("SortField equals is wrong", sortField.equals(new SimpleSortField("field", false)));
         assertFalse("SortField equals is wrong", sortField.equals(nullInt()));
         assertFalse("SortField equals is wrong", sortField.equals(nullSortField()));
     }
 
     @Test
     public void testEqualsWithNull() {
-        SortField sortField = new SortField("field", true);
+        SimpleSortField sortField = new SimpleSortField("field", true);
         assertFalse("SortField equals is wrong", sortField.equals(null));
         assertFalse("SortField equals is wrong", sortField.equals(new Integer(0)));
     }
 
     @Test
     public void testHashCode() {
-        assertEquals("SortField equals is wrong", -1274708409, new SortField("field", true).hashCode());
-        assertEquals("SortField equals is wrong", -1274708410, new SortField("field", false).hashCode());
+        assertEquals("SortField equals is wrong", -1274708409, new SimpleSortField("field", true).hashCode());
+        assertEquals("SortField equals is wrong", -1274708410, new SimpleSortField("field", false).hashCode());
     }
 
     @Test
     public void testToString() {
-        SortField sortField = new SortField("field", null);
-        assertEquals("Method #toString is wrong", "SortField{field=field, reverse=false}", sortField.toString());
+        SimpleSortField sortField = new SimpleSortField("field", null);
+        assertEquals("Method #toString is wrong", "SimpleSortField{field=field, reverse=false}", sortField.toString());
     }
 }

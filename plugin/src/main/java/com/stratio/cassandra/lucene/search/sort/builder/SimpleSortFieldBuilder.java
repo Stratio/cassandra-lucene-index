@@ -16,25 +16,33 @@
  * under the License.
  */
 
-package com.stratio.cassandra.lucene.testsAT.suite;
+package com.stratio.cassandra.lucene.search.sort.builder;
 
-import com.stratio.cassandra.lucene.testsAT.udt.CheckNonFrozenUDTAT;
-import com.stratio.cassandra.lucene.testsAT.udt.TupleIndexingAT;
-import com.stratio.cassandra.lucene.testsAT.udt.UDTCollectionsAT;
-import com.stratio.cassandra.lucene.testsAT.udt.UDTIndexingAT;
-import com.stratio.cassandra.lucene.testsAT.udt.UDTValidationAT;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import com.stratio.cassandra.lucene.search.sort.SimpleSortField;
+import org.codehaus.jackson.annotate.JsonCreator;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
-@RunWith(Suite.class)
-@Suite.SuiteClasses({UDTValidationAT.class,
-                     UDTIndexingAT.class,
-                     UDTCollectionsAT.class,
-                     CheckNonFrozenUDTAT.class,
-                     TupleIndexingAT.class})
-public class UDTSuite {
+public class SimpleSortFieldBuilder extends SortFieldBuilder<SimpleSortField,SimpleSortFieldBuilder> {
 
+    /** The name of the field to be used for sort. */
+    @JsonProperty("field")
+    final String field;
+    /**
+     * Creates a new {@link SimpleSortFieldBuilder} for the specified field.
+     *
+     * @param field The field to sort by.
+     */
+    @JsonCreator
+    public SimpleSortFieldBuilder(@JsonProperty("field") String field) {
+        this.field=field;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public SimpleSortField build() {
+        return new SimpleSortField(field, reverse);
+    }
 }
