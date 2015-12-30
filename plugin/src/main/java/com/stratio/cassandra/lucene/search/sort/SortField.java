@@ -87,13 +87,15 @@ public abstract class SortField {
         }
     }
 
+    /** {@inheritDoc} */
+    @Override
     public abstract String toString();
 
-
+    /** {@inheritDoc} */
     @Override
     public abstract boolean equals(Object o);
 
-
+    /** {@inheritDoc} */
     @Override
     public abstract int hashCode();
 

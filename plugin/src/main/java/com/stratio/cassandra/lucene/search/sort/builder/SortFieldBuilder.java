@@ -32,15 +32,24 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type", defaultImpl = SimpleSortFieldBuilder.class)
 @JsonSubTypes({@JsonSubTypes.Type(value = SimpleSortFieldBuilder.class, name = "simple"),
                @JsonSubTypes.Type(value = GeoDistanceSortFieldBuilder.class, name = "geo_distance")})
-public abstract class SortFieldBuilder<T extends SortField,K extends SortFieldBuilder> implements Builder<T> {
+public abstract class SortFieldBuilder<T extends SortField, K extends SortFieldBuilder> implements Builder<T> {
 
     /** The name of the field to be used for sort. */
     @JsonProperty("field")
-    String field;
+    final String field;
 
     /** If natural order should be reversed. */
     @JsonProperty("reverse")
     boolean reverse;
+
+    /**
+     * Creates a new {@link SortFieldBuilder} for the specified {@link SortFieldBuilder}.
+     *
+     * @param field The field to sort by.
+     */
+    public SortFieldBuilder(@JsonProperty("field") String field) {
+        this.field = field;
+    }
 
     /**
      * Returns this {@link SortFieldBuilder} with the specified reverse option.
@@ -51,17 +60,6 @@ public abstract class SortFieldBuilder<T extends SortField,K extends SortFieldBu
     public K reverse(boolean reverse) {
         this.reverse = reverse;
         return (K) this;
-    }
-
-    /**
-     * Returns this {@link SortFieldBuilder} with the specified field option.
-     *
-     * @param field, the name of the filed to be used for sort.
-     * @return This.
-     */
-    public K field(String field) {
-        this.field=field;
-        return (K)this;
     }
 
     /** {@inheritDoc} */

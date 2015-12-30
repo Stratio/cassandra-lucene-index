@@ -30,16 +30,16 @@ public class SimpleSortFieldBuilder extends SortFieldBuilder<SimpleSortField,Sim
     /**
      * Creates a new {@link SimpleSortFieldBuilder} for the specified field.
      *
-     * @param sortFieldBuilders The {@link SortFieldBuilder}s.
+     * @param field The field to sort by.
      */
     @JsonCreator
     public SimpleSortFieldBuilder(@JsonProperty("field") String field) {
-        this.field(field);
+        super(field);
     }
 
     /** {@inheritDoc} */
     @Override
     public SimpleSortField build() {
-        return new SimpleSortField(field,reverse);
+        return new SimpleSortField(field, reverse);
     }
 }

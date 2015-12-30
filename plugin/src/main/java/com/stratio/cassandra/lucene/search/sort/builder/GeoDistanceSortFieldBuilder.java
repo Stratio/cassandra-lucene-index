@@ -27,19 +27,27 @@ import org.codehaus.jackson.annotate.JsonProperty;
  */
 public class GeoDistanceSortFieldBuilder extends SortFieldBuilder<GeoDistanceSortField,GeoDistanceSortFieldBuilder> {
 
+    /** The longitude of the center point to sort by min distance to it. */
     @JsonProperty("longitude")
     private final double longitude;
 
+    /** The latitude of the center point to sort by min distance to it. */
     @JsonProperty("latitude")
     private final double latitude;
 
+    /**
+     * Creates a new {@link GeoDistanceSortFieldBuilder} for the specified field.
+     *
+     * @param field     The field to sort by.
+     * @param longitude The longitude of the center point to sort by min distance to it.
+     * @param latitude  The latitude of the center point to sort by min distance to it.
+     */
     @JsonCreator
     public GeoDistanceSortFieldBuilder(@JsonProperty("field") String field,
-                                       @JsonProperty("longitude") double longitude,
-                                       @JsonProperty("latitude") double latitude) {
+                                       @JsonProperty("longitude") double longitude, @JsonProperty("latitude") double latitude) {
 
 
-        this.field(field);
+        super(field);
         this.longitude=longitude;
         this.latitude=latitude;
     }

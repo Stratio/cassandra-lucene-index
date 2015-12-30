@@ -40,34 +40,50 @@ public class GeoDistanceSortField extends SortField {
     /** The name of field to sortFields by. */
     private final String field;
 
-    /** The longitude of the center to sort by distance. */
+    /** The longitude of the center point to sort by min distance to it. */
     private final double longitude;
 
-    /** The latitude of the center to sort by distance. */
+    /** The latitude of the center point to sort by min distance to it. */
     private final double latitude;
+
     /**
      * Returns a new {@link SortField}.
      *
      * @param reverse {@code true} if natural order should be reversed.
      */
-    public GeoDistanceSortField(String field, Boolean reverse,double longitude, double latitude) {
+    public GeoDistanceSortField(String field, Boolean reverse, double longitude, double latitude) {
         super(reverse);
         if (field == null || StringUtils.isBlank(field)) {
             throw new IndexException("Field name required");
         }
-        this.field=field;
-        this.longitude=GeoPointMapper.checkLongitude("longitude", longitude);
-        this.latitude=GeoPointMapper.checkLatitude("latitude", latitude);
+        this.field = field;
+        this.longitude = GeoPointMapper.checkLongitude("longitude", longitude);
+        this.latitude = GeoPointMapper.checkLatitude("latitude", latitude);
     }
 
+    /**
+     * Returns the name of field to sort by.
+     *
+     * @return The name of field to sort by.
+     */
     public String getField() {
         return field;
     }
 
+    /**
+     * Returns the longitude of the center point to sort by min distance to it
+     *
+     * @return The longitude of the center point to sort by min distance to it
+     */
     public double getLongitude() {
         return longitude;
     }
 
+    /**
+     * Returns the latitude of the center point to sort by min distance to it
+     *
+     * @return The latitude of the center point to sort by min distance to it
+     */
     public double getLatitude() {
         return latitude;
     }
@@ -80,13 +96,13 @@ public class GeoDistanceSortField extends SortField {
             throw new IndexException("No mapper found for sortFields field '%s'", field);
         } else if (!mapper.sorted) {
             throw new IndexException("Mapper '%s' is not sorted", mapper.field);
-        } else  if (!(mapper instanceof GeoPointMapper)) {
+        } else if (!(mapper instanceof GeoPointMapper)) {
             throw new IndexException("Only Geo Point Mapper is allowed but Mapper '%s' is not", mapper.field);
         }
-        GeoPointMapper geoPointMapper=(GeoPointMapper)mapper;
+        GeoPointMapper geoPointMapper = (GeoPointMapper) mapper;
 
-        SpatialStrategy strategy=geoPointMapper.getDistanceStrategy();
-        Point pt = GeoPointMapper.SPATIAL_CONTEXT.makePoint(longitude,latitude);
+        SpatialStrategy strategy = geoPointMapper.getDistanceStrategy();
+        Point pt = GeoPointMapper.SPATIAL_CONTEXT.makePoint(longitude, latitude);
 
         ValueSource valueSource = strategy.makeDistanceValueSource(pt, DistanceUtils.DEG_TO_KM);//the distance (in km)
         return valueSource.getSortField(this.reverse);
@@ -98,10 +114,11 @@ public class GeoDistanceSortField extends SortField {
         final Mapper mapper = schema.getMapper(field);
         return new Comparator<Columns>() {
             public int compare(Columns o1, Columns o2) {
-                return GeoDistanceSortField.this.compare((GeoPointMapper)mapper, o1, o2);
+                return GeoDistanceSortField.this.compare((GeoPointMapper) mapper, o1, o2);
             }
         };
     }
+
     protected int compare(GeoPointMapper mapper, Columns o1, Columns o2) {
 
         if (o1 == null) {
@@ -116,9 +133,8 @@ public class GeoDistanceSortField extends SortField {
         Double longO2 = mapper.readLongitude(o2);
         Double latO2 = mapper.readLatitude(o2);
 
-
-        Double base1 = distance(longO1,latO1);
-        Double base2 = distance(longO2,latO2);
+        Double base1 = distance(longO1, latO1);
+        Double base2 = distance(longO2, latO2);
 
         return compare(base1, base2);
     }
@@ -126,7 +142,12 @@ public class GeoDistanceSortField extends SortField {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("field", field).add("reverse", reverse).add("longitude", longitude).add("latitude", latitude).toString();
+        return Objects.toStringHelper(this)
+                      .add("field", field)
+                      .add("reverse", reverse)
+                      .add("longitude", longitude)
+                      .add("latitude", latitude)
+                      .toString();
     }
 
     /** {@inheritDoc} */
@@ -139,7 +160,10 @@ public class GeoDistanceSortField extends SortField {
             return false;
         }
         GeoDistanceSortField other = (GeoDistanceSortField) o;
-        return reverse == other.reverse && field.equals(other.field) && longitude== other.longitude && latitude==other.latitude;
+        return reverse == other.reverse &&
+               field.equals(other.field) &&
+               longitude == other.longitude &&
+               latitude == other.latitude;
     }
 
     /** {@inheritDoc} */
@@ -152,8 +176,8 @@ public class GeoDistanceSortField extends SortField {
         return result;
     }
 
-    public Double distance (Double oLon, Double oLat) {
-        if ((oLon==null) || (oLat==null)) return null;
+    public Double distance(Double oLon, Double oLat) {
+        if ((oLon == null) || (oLat == null)) return null;
         return DistanceUtils.distHaversineRAD(DistanceUtils.toRadians(latitude),
                                               DistanceUtils.toRadians(longitude),
                                               DistanceUtils.toRadians(oLat),
