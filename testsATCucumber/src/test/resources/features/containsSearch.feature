@@ -50,7 +50,7 @@ Scenario: Do a basic contains search without results
 		| Valencia |0           |
 		| Roma |0           |
 
-Scenario: Do a basic contains search without results
+Scenario: Do a basic contains search with partial results
 	Given I execute a query over fields '*' with schema 'schemas/queries/containsSearch.conf' of type 'string' with magic_column 'lucene' from table: 'containsTable' using keyspace: 'opera' with:
 		    | __field  | UPDATE  |place   |
 		  	| __value1  | UPDATE  | Santa Cruz  |
