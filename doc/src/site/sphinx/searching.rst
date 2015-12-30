@@ -27,7 +27,11 @@ and <sort> is another JSON object:
         <sort> := { fields : <sort_field> (, <sort_field> )* }
         <sort_field> := <simple_sort_field> | <geo_distance_sort_field>
         <simple_sort_field> := {(type: "simple",)? field : <field> (, reverse : <reverse> )? }
-        <geo_distance_sort_field> := {type: "geo_distance", mapper : <field>, latitude : <Double>, longitude: <Double> (, reverse : <reverse> )? }
+        <geo_distance_sort_field> := {  type: "geo_distance",
+                                        mapper : <field>,
+                                        latitude : <Double>,
+                                        longitude: <Double>
+                                        (, reverse : <reverse> )? }
 
 When searching by ``filter``, without any ``query`` or ``sort`` defined,
 then the results are returned in the Cassandra’s natural order, which is
