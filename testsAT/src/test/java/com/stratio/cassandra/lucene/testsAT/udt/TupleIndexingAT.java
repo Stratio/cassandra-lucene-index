@@ -121,6 +121,6 @@ public class TupleIndexingAT extends BaseAT {
         Integer[] expectedValues = new Integer[]{0,1,2,3,4,5,6};
         assertArrayEquals("Wrong geoDistance sort!", expectedValues, returnedValues);
 
-
+        cassandraUtils.dropKeyspace();
     }
 }
