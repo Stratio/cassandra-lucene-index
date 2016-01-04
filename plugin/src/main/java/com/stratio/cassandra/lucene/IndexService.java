@@ -20,19 +20,24 @@ package com.stratio.cassandra.lucene;
 
 import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.column.ColumnsMapper;
-import com.stratio.cassandra.lucene.index.LuceneIndex;
+import com.stratio.cassandra.lucene.index.FSIndex;
+import com.stratio.cassandra.lucene.index.RAMIndex;
 import com.stratio.cassandra.lucene.key.PartitionMapper;
 import com.stratio.cassandra.lucene.key.TokenMapper;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.search.Search;
 import com.stratio.cassandra.lucene.search.SearchBuilder;
+import com.stratio.cassandra.lucene.util.DecoratedPartition;
+import com.stratio.cassandra.lucene.util.DecoratedRow;
 import com.stratio.cassandra.lucene.util.TaskQueue;
 import org.apache.cassandra.db.*;
 import org.apache.cassandra.db.filter.RowFilter;
 import org.apache.cassandra.db.filter.RowFilter.Expression;
 import org.apache.cassandra.db.marshal.UTF8Type;
+import org.apache.cassandra.db.partitions.PartitionIterator;
 import org.apache.cassandra.db.partitions.UnfilteredPartitionIterator;
 import org.apache.cassandra.db.rows.Row;
+import org.apache.cassandra.db.rows.RowIterator;
 import org.apache.cassandra.index.Index;
 import org.apache.cassandra.index.transactions.IndexTransaction;
 import org.apache.cassandra.schema.IndexMetadata;
@@ -45,7 +50,6 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static org.apache.lucene.search.SortField.FIELD_SCORE;
 
@@ -59,7 +63,7 @@ public abstract class IndexService {
     protected static final Logger logger = LoggerFactory.getLogger(IndexService.class);
 
     protected final ColumnFamilyStore table;
-    protected final LuceneIndex lucene;
+    protected final FSIndex lucene;
     protected final String name;
     protected final String qualifiedName;
 
@@ -90,14 +94,14 @@ public abstract class IndexService {
 
         // Setup index
         IndexOptions options = new IndexOptions(table.metadata, indexMetadata);
-        lucene = new LuceneIndex(mbean,
-                                 name,
-                                 options.path,
-                                 options.schema.getAnalyzer(),
-                                 options.refreshSeconds,
-                                 options.ramBufferMB,
-                                 options.maxMergeMB,
-                                 options.maxCachedMB);
+        lucene = new FSIndex(mbean,
+                             name,
+                             options.path,
+                             options.schema.getAnalyzer(),
+                             options.refreshSeconds,
+                             options.ramBufferMB,
+                             options.maxMergeMB,
+                             options.maxCachedMB);
         queue = new TaskQueue(options.indexingThreads, options.indexingQueuesSize);
 
         // Setup mapping
@@ -158,6 +162,14 @@ public abstract class IndexService {
      * @return a Lucene identifying {@link Term}
      */
     public abstract Term term(DecoratedKey key, Row row);
+
+    /**
+     * Returns a Lucene {@link Term} uniquely identifying the specified {@link Document}.
+     *
+     * @param document the document
+     * @return a Lucene identifying {@link Term}
+     */
+    public abstract Term term(Document document);
 
     /**
      * Returns a Lucene {@link Term} identifying documents representing all the {@link Row}'s which are in the partition
@@ -345,5 +357,62 @@ public abstract class IndexService {
         return new Sort(sortFields.toArray(new SortField[sortFields.size()]));
     }
 
-    public abstract UnfilteredPartitionIterator read(Query query, Sort sort, ScoreDoc after, ReadCommand command, ReadExecutionController executionController);
+    /**
+     * Reads from the local SSTables the rows identified by the specified search.
+     *
+     * @param query the Lucene query
+     * @param sort the Lucene sort
+     * @param after the last Lucene doc
+     * @param command the Cassandra command
+     * @param executionController the Cassandra read execution controller
+     * @return the local {@link Row}s satisfying the search
+     */
+    public abstract UnfilteredPartitionIterator read(Query query,
+                                                     Sort sort,
+                                                     ScoreDoc after,
+                                                     ReadCommand command,
+                                                     ReadExecutionController executionController);
+
+    /**
+     * Post processes in the coordinator node the results of a distributed search. Gets the k globally best results from
+     * all the k best node-local results.
+     *
+     * @param partitions the node results iterator
+     * @param command the read command
+     * @return the globally best results
+     */
+    public PartitionIterator postProcess(PartitionIterator partitions, ReadCommand command) {
+
+        // TODO: Skip if search is not top-k
+        // TODO: Skip if only one node is involved
+
+        Search search = search(command);
+        Query query = search.query(schema);
+        Sort sort = sort(search);
+        int limit = command.limits().count();
+
+        RAMIndex index = new RAMIndex(schema.getAnalyzer());
+        Map<Term, DecoratedRow> rowsByTerm = new HashMap<>();
+        while (partitions.hasNext()) {
+            try (RowIterator partition = partitions.next()) {
+                while (partition.hasNext()) {
+                    DecoratedRow row = new DecoratedRow(partition);
+                    Term term = term(row.partitionKey(), row.getRow());
+                    Document document = document(partition.partitionKey(), row.getRow()).get();
+                    rowsByTerm.put(term, row);
+                    index.add(document);
+                }
+            }
+        }
+        List<Document> documents = index.search(query, sort, limit, fieldsToLoad);
+        index.close();
+
+        List<DecoratedRow> rows = new ArrayList<>(limit);
+        for (Document document : documents) {
+            Term term = term(document);
+            DecoratedRow row = rowsByTerm.get(term);
+            rows.add(row);
+        }
+        return new DecoratedPartition(rows);
+    }
 }

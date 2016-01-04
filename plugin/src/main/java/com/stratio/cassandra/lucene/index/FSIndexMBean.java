@@ -21,7 +21,7 @@ package com.stratio.cassandra.lucene.index;
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public interface LuceneIndexMBean {
+public interface FSIndexMBean {
 
     /**
      * Commits the pending changes.

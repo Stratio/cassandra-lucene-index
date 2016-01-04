@@ -20,7 +20,6 @@ package com.stratio.cassandra.lucene.index;
 
 import com.google.common.collect.Sets;
 import com.stratio.cassandra.lucene.IndexOptions;
-import com.stratio.cassandra.lucene.index.LuceneIndex;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -35,8 +34,6 @@ import org.junit.rules.TemporaryFolder;
 
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -45,7 +42,7 @@ import static junit.framework.Assert.assertEquals;
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class LuceneIndexTest {
+public class FSIndexTest {
 
     private static final Double REFRESH_SECONDS = 0.1D;
     private static final int REFRESH_MILLISECONDS = (int) (REFRESH_SECONDS * 1000);
@@ -57,14 +54,14 @@ public class LuceneIndexTest {
     @Test
     public void testCRUD() throws IOException, InterruptedException {
 
-        LuceneIndex index = new LuceneIndex("com.stratio.cassandra.lucene:type=LuceneIndexes",
-                                            "test_index",
-                                            Paths.get(folder.newFolder("directory" + UUID.randomUUID()).getPath()),
-                                            new StandardAnalyzer(),
-                                            REFRESH_SECONDS,
-                                            IndexOptions.DEFAULT_RAM_BUFFER_MB,
-                                            IndexOptions.DEFAULT_MAX_MERGE_MB,
-                                            IndexOptions.DEFAULT_MAX_CACHED_MB);
+        FSIndex index = new FSIndex("com.stratio.cassandra.lucene:type=LuceneIndexes",
+                                    "test_index",
+                                    Paths.get(folder.newFolder("directory" + UUID.randomUUID()).getPath()),
+                                    new StandardAnalyzer(),
+                                    REFRESH_SECONDS,
+                                    IndexOptions.DEFAULT_RAM_BUFFER_MB,
+                                    IndexOptions.DEFAULT_MAX_MERGE_MB,
+                                    IndexOptions.DEFAULT_MAX_CACHED_MB);
 
         Sort sort = new Sort(new SortField("field", SortField.Type.STRING));
         assertEquals("Index must be empty", 0, index.getNumDocs());

@@ -155,6 +155,10 @@ public class Search {
         return booleanQuery.clauses().isEmpty() ? new MatchAllDocsQuery() : booleanQuery;
     }
 
+    public Query query(Schema schema) {
+        return query(schema, null);
+    }
+
     /**
      * Validates this {@link Search} against the specified {@link Schema}.
      *

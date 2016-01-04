@@ -97,6 +97,12 @@ public class IndexServiceSkinny extends IndexService {
         return partitionMapper.term(key);
     }
 
+    /** {@inheritDoc} */
+    @Override
+    public Term term(Document document) {
+        return partitionMapper.term(document);
+    }
+
     public Optional<Row> read(DecoratedKey key, int nowInSec, OpOrder.Group opGroup) {
         NavigableSet<Clustering> clusterings = clusterings(Clustering.EMPTY);
         ClusteringIndexNamesFilter filter = new ClusteringIndexNamesFilter(clusterings, false);

@@ -33,19 +33,17 @@ import org.slf4j.LoggerFactory;
 import javax.management.ObjectName;
 import java.lang.management.ManagementFactory;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 /**
- * Class wrapping a Lucene directory and its readers, writers and searchers for NRT.
+ * Class wrapping a Lucene file system-based directory and its readers, writers and searchers for NRT.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class LuceneIndex implements LuceneIndexMBean {
+public class FSIndex implements FSIndexMBean {
 
-    private static final Logger logger = LoggerFactory.getLogger(LuceneIndex.class);
+    private static final Logger logger = LoggerFactory.getLogger(FSIndex.class);
 
     private final Path path;
     private final String name;
@@ -62,7 +60,7 @@ public class LuceneIndex implements LuceneIndexMBean {
     }
 
     /**
-     * Builds a new {@link LuceneIndex}.
+     * Builds a new {@link FSIndex}.
      *
      * @param mbeanName The JMX MBean object name.
      * @param name The index name.
@@ -73,14 +71,14 @@ public class LuceneIndex implements LuceneIndexMBean {
      * @param maxMergeMB The directory max merge size in MB.
      * @param maxCachedMB The directory max cache size in MB.
      */
-    public LuceneIndex(String mbeanName,
-                       String name,
-                       Path path,
-                       Analyzer analyzer,
-                       double refresh,
-                       int ramBufferMB,
-                       int maxMergeMB,
-                       int maxCachedMB) {
+    public FSIndex(String mbeanName,
+                   String name,
+                   Path path,
+                   Analyzer analyzer,
+                   double refresh,
+                   int ramBufferMB,
+                   int maxMergeMB,
+                   int maxCachedMB) {
         try {
             this.path = path;
             this.name = name;

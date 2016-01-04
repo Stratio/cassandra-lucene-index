@@ -123,6 +123,11 @@ public final class PartitionMapper {
         return new Term(FIELD_NAME, bytesRef);
     }
 
+    public Term term(Document document) {
+        BytesRef bytesRef =document.getBinaryValue(FIELD_NAME);
+        return new Term(FIELD_NAME, bytesRef);
+    }
+
     /**
      * Returns the specified raw partition key as a Lucene {@link Query}.
      *

@@ -66,6 +66,7 @@ public class IndexServiceWide extends IndexService {
         clusteringMapper = new ClusteringMapper(table.metadata);
         keyMapper = new KeyMapper(partitionMapper, clusteringMapper);
         fieldsToLoad.add(ClusteringMapper.FIELD_NAME);
+        fieldsToLoad.add(KeyMapper.FIELD_NAME);
         keySortFields.add(clusteringMapper.sortField());
     }
 
@@ -115,6 +116,12 @@ public class IndexServiceWide extends IndexService {
 
     private Term term(DecoratedKey key, Clustering clustering) {
         return keyMapper.term(key, clustering);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Term term(Document document) {
+        return keyMapper.term(document);
     }
 
     /**

@@ -39,7 +39,7 @@ import java.nio.ByteBuffer;
 public final class KeyMapper {
 
     /** The Lucene field name. */
-    private static final String FIELD_NAME = "_full_key";
+    public static final String FIELD_NAME = "_full_key";
 
     /** The type of the full row key, which is composed by the partition and clustering key types. */
     private final CompositeType type;
@@ -77,7 +77,7 @@ public final class KeyMapper {
     public void addFields(Document document, DecoratedKey key, Clustering clustering) {
         ByteBuffer bb = byteBuffer(key, clustering);
         BytesRef bytesRef = ByteBufferUtils.bytesRef(bb);
-        Field field = new StringField(FIELD_NAME, bytesRef, Field.Store.NO);
+        Field field = new StringField(FIELD_NAME, bytesRef, Field.Store.YES);
         document.add(field);
     }
 
@@ -92,6 +92,11 @@ public final class KeyMapper {
     public Term term(DecoratedKey key, Clustering clustering) {
         ByteBuffer bb = byteBuffer(key, clustering);
         BytesRef bytesRef = ByteBufferUtils.bytesRef(bb);
+        return new Term(FIELD_NAME, bytesRef);
+    }
+
+    public Term term(Document document) {
+        BytesRef bytesRef = document.getBinaryValue(FIELD_NAME);
         return new Term(FIELD_NAME, bytesRef);
     }
 

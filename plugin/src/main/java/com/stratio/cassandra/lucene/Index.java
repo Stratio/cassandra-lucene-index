@@ -18,7 +18,6 @@
 
 package com.stratio.cassandra.lucene;
 
-import com.stratio.cassandra.lucene.util.ListBasedPartitionIteratorBuilder;
 import org.apache.cassandra.config.ColumnDefinition;
 import org.apache.cassandra.cql3.Operator;
 import org.apache.cassandra.db.*;
@@ -27,8 +26,6 @@ import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.db.partitions.PartitionIterator;
 import org.apache.cassandra.db.partitions.PartitionUpdate;
-import org.apache.cassandra.db.rows.Row;
-import org.apache.cassandra.db.rows.RowIterator;
 import org.apache.cassandra.exceptions.ConfigurationException;
 import org.apache.cassandra.exceptions.InvalidRequestException;
 import org.apache.cassandra.index.IndexRegistry;
@@ -378,21 +375,7 @@ public class Index implements org.apache.cassandra.index.Index {
      */
     @Override
     public BiFunction<PartitionIterator, ReadCommand, PartitionIterator> postProcessorFor(ReadCommand command) {
-        logger.debug("Getting post processor for {}", command);
-        return (partitionIterator, readCommand) -> {
-//            ListBasedPartitionIteratorBuilder builder = new ListBasedPartitionIteratorBuilder(command.metadata(), command.columnFilter().fetchedColumns());
-//            partitionIterator.forEachRemaining(rowIterator -> rowIterator.forEachRemaining(row -> {
-//                DecoratedKey key = rowIterator.partitionKey();
-//                Row staticRow = rowIterator.staticRow();
-//                logger.debug("---> POST PROCESSED ROW {}", row);
-//                builder.add(key, staticRow, row);
-//            } ));
-//            logger.debug("POST PROCESSOR: \n\tFOR {} \n\tAND {} \n\tAND {}", partitionIterator, readCommand, command);
-//            partitionIterator.close();
-//            return builder.build();
-//            return EmptyIterators.partition();
-            return partitionIterator;
-        };
+        return (partitions, readCommand) -> service.postProcess(partitions, readCommand);
     }
 
     /**
