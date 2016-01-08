@@ -19,6 +19,7 @@
 package com.stratio.cassandra.lucene.builder.index.schema.mapping;
 
 import com.stratio.cassandra.lucene.builder.Builder;
+import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.annotate.JsonSubTypes;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
 
@@ -44,5 +45,21 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
                @JsonSubTypes.Type(value = GeoPointMapper.class, name = "geo_point"),
                @JsonSubTypes.Type(value = DateRangeMapper.class, name = "date_range"),
                @JsonSubTypes.Type(value = BitemporalMapper.class, name = "bitemporal")})
-public abstract class Mapper extends Builder {
+public abstract class Mapper<T extends Mapper> extends Builder {
+
+    /** If the field must be validated. */
+    @JsonProperty("validated")
+    protected Boolean validated;
+
+    /**
+     * Sets if the field must be validated.
+     *
+     * @param validated if the field must be validated.
+     * @return This.
+     */
+    @SuppressWarnings("unchecked")
+    public final T validated(Boolean validated) {
+        this.validated = validated;
+        return (T) this;
+    }
 }

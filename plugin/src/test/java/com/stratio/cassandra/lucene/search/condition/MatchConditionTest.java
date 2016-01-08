@@ -20,11 +20,9 @@ package com.stratio.cassandra.lucene.search.condition;
 
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
 import com.stratio.cassandra.lucene.schema.mapping.builder.MapperBuilder;
 import com.stratio.cassandra.lucene.search.condition.builder.MatchConditionBuilder;
-import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.UUIDType;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.search.BooleanQuery;
@@ -257,43 +255,53 @@ public class MatchConditionTest extends AbstractConditionTest {
     @Test(expected = IndexException.class)
     public void testUnsupportedMapper() {
 
-        final SingleColumnMapper<UUID> mapper = new SingleColumnMapper<UUID>("field",
-                                                                             null,
-                                                                             null,
-                                                                             null,
-                                                                             null,
-                                                                             UUID.class,
-                                                                             UUIDType.instance) {
-            @Override
-            public Field indexedField(String name, UUID value) {
-                return null;
-            }
+        final MockedMapper mapper = new MockedMapper();
 
-            @Override
-            public Field sortedField(String name, UUID value) {
-                return null;
-            }
-
-            @Override
-            protected UUID doBase(String name, Object value) {
-                return null;
-            }
-
-            @Override
-            public org.apache.lucene.search.SortField sortField(String name, boolean reverse) {
-                return null;
-            }
-        };
-
-        Schema schema = schema().mapper("field", new MapperBuilder<Mapper>() {
-            @Override
-            public Mapper build(String field) {
-                return mapper;
-            }
-        }).build();
+        Schema schema = schema().mapper("field", new MockedMapperBuilder(mapper)).build();
 
         MatchCondition matchCondition = new MatchCondition(0.5f, "field", "2001:DB8:2de::0e13");
         matchCondition.query(schema);
+    }
+
+    private class MockedMapper extends SingleColumnMapper<UUID> {
+
+        MockedMapper() {
+            super("field", null, null, null, true, null, UUID.class, UUIDType.instance);
+        }
+
+        @Override
+        public Field indexedField(String name, UUID value) {
+            return null;
+        }
+
+        @Override
+        public Field sortedField(String name, UUID value) {
+            return null;
+        }
+
+        @Override
+        protected UUID doBase(String name, Object value) {
+            return null;
+        }
+
+        @Override
+        public org.apache.lucene.search.SortField sortField(String name, boolean reverse) {
+            return null;
+        }
+    }
+
+    private class MockedMapperBuilder extends MapperBuilder<MockedMapper, MockedMapperBuilder> {
+
+        private MockedMapper mapper;
+
+        public MockedMapperBuilder(MockedMapper mapper) {
+            this.mapper = mapper;
+        }
+
+        @Override
+        public MockedMapper build(String field) {
+            return mapper;
+        }
     }
 
     @Test

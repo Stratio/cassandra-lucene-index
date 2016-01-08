@@ -119,9 +119,8 @@ public class Schema implements Closeable {
      * @param columns The {@link Columns} to be validated.
      */
     public void validate(Columns columns) {
-        Document document = new Document();
         for (Mapper mapper : mappers.values()) {
-            mapper.addFields(document, columns);
+            mapper.validate(columns);
         }
     }
 

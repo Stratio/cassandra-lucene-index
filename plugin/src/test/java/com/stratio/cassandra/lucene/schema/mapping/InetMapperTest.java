@@ -28,13 +28,14 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.UUID;
 
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.inetMapper;
 import static org.junit.Assert.*;
 
 public class InetMapperTest extends AbstractMapperTest {
 
     @Test
     public void testConstructorWithoutArgs() {
-        InetMapper mapper = new InetMapperBuilder().build("field");
+        InetMapper mapper = inetMapper().build("field");
         assertEquals("Field is not properly set", "field", mapper.field);
         assertEquals("Indexed is not set to default value", Mapper.DEFAULT_INDEXED, mapper.indexed);
         assertEquals("Sorted is not set to default value", Mapper.DEFAULT_SORTED, mapper.sorted);
@@ -45,7 +46,7 @@ public class InetMapperTest extends AbstractMapperTest {
 
     @Test
     public void testConstructorWithAllArgs() {
-        InetMapper mapper = new InetMapperBuilder().indexed(false).sorted(true).column("column").build("field");
+        InetMapper mapper = inetMapper().indexed(false).sorted(true).column("column").build("field");
         assertEquals("Field is not properly set", "field", mapper.field);
         assertFalse("Indexed is not properly set", mapper.indexed);
         assertTrue("Sorted is not properly set", mapper.sorted);
@@ -56,97 +57,96 @@ public class InetMapperTest extends AbstractMapperTest {
 
     @Test
     public void testJsonSerialization() {
-        InetMapperBuilder builder = new InetMapperBuilder().indexed(false).sorted(true).column("column");
+        InetMapperBuilder builder = inetMapper().indexed(false).sorted(true).column("column");
         testJson(builder, "{type:\"inet\",indexed:false,sorted:true,column:\"column\"}");
     }
 
     @Test
     public void testJsonSerializationDefaults() {
-        InetMapperBuilder builder = new InetMapperBuilder();
+        InetMapperBuilder builder = inetMapper();
         testJson(builder, "{type:\"inet\"}");
     }
 
     @Test()
     public void testValueNull() {
-        InetMapper mapper = new InetMapper("field", null, null, null);
-        String parsed = mapper.base("test", null);
-        assertNull("Base for nulls is wrong", parsed);
+        InetMapper mapper = inetMapper().build("field");
+        assertNull("Base for nulls is wrong", mapper.base("test", null));
     }
 
     @Test(expected = IndexException.class)
     public void testValueInteger() {
-        InetMapper mapper = new InetMapper("field", null, null, null);
+        InetMapper mapper = inetMapper().build("field");
         mapper.base("test", 3);
     }
 
     @Test(expected = IndexException.class)
     public void testValueLong() {
-        InetMapper mapper = new InetMapper("field", null, null, null);
+        InetMapper mapper = inetMapper().build("field");
         mapper.base("test", 3l);
     }
 
     @Test(expected = IndexException.class)
     public void testValueFloat() {
-        InetMapper mapper = new InetMapper("field", null, null, null);
+        InetMapper mapper = inetMapper().build("field");
         mapper.base("test", 3.5f);
     }
 
     @Test(expected = IndexException.class)
     public void testValueDouble() {
-        InetMapper mapper = new InetMapper("field", null, null, null);
+        InetMapper mapper = inetMapper().build("field");
         mapper.base("test", 3.6d);
     }
 
     @Test(expected = IndexException.class)
     public void testValueUUID() {
-        InetMapper mapper = new InetMapper("field", null, null, null);
+        InetMapper mapper = inetMapper().build("field");
         mapper.base("test", UUID.randomUUID());
     }
 
     @Test(expected = IndexException.class)
     public void testValueStringInvalid() {
-        InetMapper mapper = new InetMapper("field", null, null, null);
+        InetMapper mapper = inetMapper().build("field");
         mapper.base("test", "Hello");
     }
 
     @Test
     public void testValueStringV4WithoutZeros() {
-        InetMapper mapper = new InetMapper("field", null, null, null);
+        InetMapper mapper = inetMapper().build("field");
         String parsed = mapper.base("test", "192.168.0.1");
         assertEquals("Base for strings is wrong", "192.168.0.1", parsed);
     }
 
     @Test
     public void testValueStringV4WithZeros() {
-        InetMapper mapper = new InetMapper("field", null, null, null);
+        InetMapper mapper = inetMapper().build("field");
         String parsed = mapper.base("test", "192.168.000.001");
         assertEquals("Base for strings is wrong", "192.168.0.1", parsed);
     }
 
     @Test
     public void testValueStringV6WithoutZeros() {
-        InetMapper mapper = new InetMapper("field", null, null, null);
+        InetMapper mapper = inetMapper().build("field");
         String parsed = mapper.base("test", "2001:db8:2de:0:0:0:0:e13");
         assertEquals("Base for strings is wrong", "2001:db8:2de:0:0:0:0:e13", parsed);
     }
 
     @Test
     public void testValueStringV6WithZeros() {
-        InetMapper mapper = new InetMapper("field", null, null, null);
+        InetMapper mapper = inetMapper().build("field");
         String parsed = mapper.base("test", "2001:0db8:02de:0000:0000:0000:0000:0e13");
         assertEquals("Base for strings is wrong", "2001:db8:2de:0:0:0:0:e13", parsed);
     }
 
     @Test
     public void testValueStringV6Compact() {
-        InetMapper mapper = new InetMapper("field", null, null, null);
+        InetMapper mapper = inetMapper().build("field");
         String parsed = mapper.base("test", "2001:DB8:2de::0e13");
         assertEquals("Base for strings is wrong", "2001:db8:2de:0:0:0:0:e13", parsed);
     }
 
     @Test
     public void testValueInetV4() throws UnknownHostException {
-        InetMapper mapper = new InetMapper("field", null, null, null);
+        InetMapper mapper = inetMapper().build("field");
         InetAddress inet = InetAddress.getByName("192.168.0.13");
         String parsed = mapper.base("test", inet);
         assertEquals("Base for strings is wrong", "192.168.0.13", parsed);
@@ -154,7 +154,7 @@ public class InetMapperTest extends AbstractMapperTest {
 
     @Test
     public void testValueInetV6() throws UnknownHostException {
-        InetMapper mapper = new InetMapper("field", null, null, null);
+        InetMapper mapper = inetMapper().build("field");
         InetAddress inet = InetAddress.getByName("2001:db8:2de:0:0:0:0:e13");
         String parsed = mapper.base("test", inet);
         assertEquals("Base for strings is wrong", "2001:db8:2de:0:0:0:0:e13", parsed);
@@ -162,7 +162,7 @@ public class InetMapperTest extends AbstractMapperTest {
 
     @Test
     public void testIndexedField() {
-        InetMapper mapper = new InetMapper("field", null, true, true);
+        InetMapper mapper = inetMapper().indexed(true).build("field");
         Field field = mapper.indexedField("name", "192.168.0.13");
         assertNotNull("Indexed field is not created", field);
         assertEquals("Indexed field value is wrong", "192.168.0.13", field.stringValue());
@@ -172,7 +172,7 @@ public class InetMapperTest extends AbstractMapperTest {
 
     @Test
     public void testSortedField() {
-        InetMapper mapper = new InetMapper("field", null, true, true);
+        InetMapper mapper = inetMapper().sorted(true).build("field");
         Field field = mapper.sortedField("name", "192.168.0.13");
         assertNotNull("Sorted field is not created", field);
         assertEquals("Sorted field type is wrong", DocValuesType.SORTED, field.fieldType().docValuesType());
@@ -180,16 +180,16 @@ public class InetMapperTest extends AbstractMapperTest {
 
     @Test
     public void testExtractAnalyzers() {
-        InetMapper mapper = new InetMapper("field", null, null, null);
+        InetMapper mapper = inetMapper().build("field");
         String analyzer = mapper.analyzer;
         assertEquals("Analyzer must be null", Mapper.KEYWORD_ANALYZER, analyzer);
     }
 
     @Test
     public void testToString() {
-        InetMapper mapper = new InetMapper("field", null, false, false);
+        InetMapper mapper = inetMapper().indexed(false).sorted(true).validated(true).build("field");
         assertEquals("Method #toString is wrong",
-                     "InetMapper{field=field, indexed=false, sorted=false, column=field}",
+                     "InetMapper{field=field, indexed=false, sorted=true, validated=true, column=field}",
                      mapper.toString());
     }
 }

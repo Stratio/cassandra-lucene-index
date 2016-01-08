@@ -71,14 +71,16 @@ public class GeoPointMapper extends Mapper {
      * Builds a new {@link GeoPointMapper}.
      *
      * @param field     The name of the field.
+     * @param validated If the field must be validated.
      * @param latitude  The name of the column containing the latitude.
      * @param longitude The name of the column containing the longitude.
      * @param maxLevels The maximum number of levels in the tree.
      */
-    public GeoPointMapper(String field, String latitude, String longitude, Integer maxLevels) {
+    public GeoPointMapper(String field, Boolean validated, String latitude, String longitude, Integer maxLevels) {
         super(field,
               true,
               false,
+              validated,
               null,
               Arrays.asList(latitude, longitude),
               AsciiType.instance,
@@ -249,6 +251,7 @@ public class GeoPointMapper extends Mapper {
     public String toString() {
         return Objects.toStringHelper(this)
                       .add("field", field)
+                      .add("validated", validated)
                       .add("latitude", latitude)
                       .add("longitude", longitude)
                       .add("maxLevels", maxLevels)

@@ -76,6 +76,7 @@ public class BitemporalMapper extends Mapper {
      * Builds a new {@link BitemporalMapper}.
      *
      * @param field    the name of the field.
+     * @param validated If the field must be validated.
      * @param vtFrom   The column name containing the valid time start.
      * @param vtTo     The column name containing the valid time stop.
      * @param ttFrom   The column name containing the transaction time start.
@@ -84,6 +85,7 @@ public class BitemporalMapper extends Mapper {
      * @param nowValue The value representing now.
      */
     public BitemporalMapper(String field,
+                            Boolean validated,
                             String vtFrom,
                             String vtTo,
                             String ttFrom,
@@ -94,6 +96,7 @@ public class BitemporalMapper extends Mapper {
         super(field,
               true,
               false,
+              validated,
               null,
               Arrays.asList(vtFrom, vtTo, ttFrom, ttTo),
               AsciiType.instance,
@@ -234,6 +237,7 @@ public class BitemporalMapper extends Mapper {
     public String toString() {
         return Objects.toStringHelper(this)
                       .add("field", field)
+                      .add("validated", validated)
                       .add("vtFrom", vtFrom)
                       .add("vtTo", vtTo)
                       .add("ttFrom", ttFrom)

@@ -42,17 +42,19 @@ public class LongMapper extends SingleColumnMapper<Long> {
     /**
      * Builds a new {@link LongMapper} using the specified boost.
      *
-     * @param field   The name of the field.
-     * @param column  The name of the column to be mapped.
-     * @param indexed If the field supports searching.
-     * @param sorted  If the field supports sorting.
-     * @param boost   The boost to be used.
+     * @param field     The name of the field.
+     * @param column    The name of the column to be mapped.
+     * @param indexed   If the field supports searching.
+     * @param sorted    If the field supports sorting.
+     * @param validated If the field must be validated.
+     * @param boost     The boost to be used.
      */
-    public LongMapper(String field, String column, Boolean indexed, Boolean sorted, Float boost) {
+    public LongMapper(String field, String column, Boolean indexed, Boolean sorted, Boolean validated, Float boost) {
         super(field,
               column,
               indexed,
               sorted,
+              validated,
               null,
               Long.class,
               AsciiType.instance,

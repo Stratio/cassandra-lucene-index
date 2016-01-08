@@ -50,6 +50,6 @@ public class StringMapperBuilder extends SingleColumnMapperBuilder<StringMapper,
      */
     @Override
     public StringMapper build(String field) {
-        return new StringMapper(field, column, indexed, sorted, caseSensitive);
+        return new StringMapper(field, column, indexed, sorted, validated, caseSensitive);
     }
 }

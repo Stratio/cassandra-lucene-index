@@ -46,11 +46,11 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
 
     /**
      * Builds a new {@link SingleColumnMapper} supporting the specified types for indexing and clustering.
-     *
-     * @param field          The name of the field.
+     *  @param field          The name of the field.
      * @param column         The name of the column to be mapped.
      * @param indexed        If the field supports searching.
      * @param sorted         If the field supports sorting.
+     * @param validated      If the field must be validated.
      * @param analyzer       The name of the analyzer to be used.
      * @param base           The Lucene type for this mapper.
      * @param supportedTypes The supported Cassandra types for indexing.
@@ -59,12 +59,14 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
                               String column,
                               Boolean indexed,
                               Boolean sorted,
+                              Boolean validated,
                               String analyzer,
                               Class<T> base,
                               AbstractType<?>... supportedTypes) {
         super(field,
               indexed,
               sorted,
+              validated,
               analyzer,
               Collections.singletonList(column == null ? field : column),
               supportedTypes);

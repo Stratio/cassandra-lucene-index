@@ -27,12 +27,7 @@ import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.db.ColumnFamilyType;
 import org.apache.cassandra.db.composites.CellNameType;
 import org.apache.cassandra.db.composites.SimpleSparseCellNameType;
-import org.apache.cassandra.db.marshal.DoubleType;
-import org.apache.cassandra.db.marshal.FloatType;
-import org.apache.cassandra.db.marshal.Int32Type;
-import org.apache.cassandra.db.marshal.LongType;
-import org.apache.cassandra.db.marshal.UTF8Type;
-import org.apache.cassandra.db.marshal.UUIDType;
+import org.apache.cassandra.db.marshal.*;
 import org.apache.cassandra.exceptions.ConfigurationException;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -43,6 +38,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.dateRangeMapper;
 import static org.apache.cassandra.config.ColumnDefinition.regularDef;
 import static org.junit.Assert.*;
 
@@ -55,7 +51,7 @@ public class DateRangeMapperTest extends AbstractMapperTest {
 
     @Test
     public void testConstructorWithDefaultArgs() {
-        DateRangeMapper mapper = new DateRangeMapperBuilder("from", "to").build("field");
+        DateRangeMapper mapper = dateRangeMapper("from", "to").build("field");
         assertEquals("Name is not properly set", "field", mapper.field);
         assertTrue("Indexed is not set to default value", mapper.indexed);
         assertFalse("Sorted is not set to default value", mapper.sorted);
@@ -70,7 +66,7 @@ public class DateRangeMapperTest extends AbstractMapperTest {
 
     @Test
     public void testConstructorWithAllArgs() {
-        DateRangeMapper mapper = new DateRangeMapperBuilder("from", "to").pattern("yyyy-MM-dd").build("field");
+        DateRangeMapper mapper = dateRangeMapper("from", "to").pattern("yyyy-MM-dd").build("field");
         assertEquals("Name is not properly set", "field", mapper.field);
         assertTrue("Indexed is not properly set", mapper.indexed);
         assertFalse("Sorted is not properly set", mapper.sorted);
@@ -82,58 +78,58 @@ public class DateRangeMapperTest extends AbstractMapperTest {
 
     @Test
     public void testJsonSerialization() {
-        DateRangeMapperBuilder builder = new DateRangeMapperBuilder("from", "to").pattern("yyyy-MM-dd");
+        DateRangeMapperBuilder builder = dateRangeMapper("from", "to").pattern("yyyy-MM-dd");
         testJson(builder, "{type:\"date_range\",from:\"from\",to:\"to\",pattern:\"yyyy-MM-dd\"}");
     }
 
     @Test
     public void testJsonSerializationDefaults() {
-        DateRangeMapperBuilder builder = new DateRangeMapperBuilder("from", "to");
+        DateRangeMapperBuilder builder = dateRangeMapper("from", "to");
         testJson(builder, "{type:\"date_range\",from:\"from\",to:\"to\"}");
     }
 
     @Test(expected = IndexException.class)
     public void testConstructorWithNullFrom() {
-        new DateRangeMapper("name", "to", null, null);
+        dateRangeMapper(null, "to").build("name");
     }
 
     @Test(expected = IndexException.class)
     public void testConstructorWithEmptyFrom() {
-        new DateRangeMapper("name", "to", "", null);
+        dateRangeMapper("", "to").build("name");
     }
 
     @Test(expected = IndexException.class)
     public void testConstructorWithBlankFrom() {
-        new DateRangeMapper("name", "to", " ", null);
+        dateRangeMapper(" ", "to").build("name");
     }
 
     @Test(expected = IndexException.class)
     public void testConstructorWithNullTo() {
-        new DateRangeMapper("name", "to", null, null);
+        dateRangeMapper("from", null).build("name");
     }
 
     @Test(expected = IndexException.class)
     public void testConstructorWithEmptyTo() {
-        new DateRangeMapper("name", "to", "", null);
+        dateRangeMapper("from", "").build("name");
     }
 
     @Test(expected = IndexException.class)
     public void testConstructorWithBlankTo() {
-        new DateRangeMapper("name", "to", " ", null);
+        dateRangeMapper("from", " ").build("name");
     }
 
     @Test()
     public void testReadFromFromIntColumn() {
-        DateRangeMapper mapper = new DateRangeMapper("name", "from", "to", TIMESTAMP_PATTERN);
+        DateRangeMapper mapper = dateRangeMapper("from", "to").pattern(TIMESTAMP_PATTERN).build("name");
         Columns columns = new Columns();
         columns.add(Column.builder("from").composedValue(5, Int32Type.instance));
         columns.add(Column.builder("to").composedValue(0, Int32Type.instance));
-        assertEquals("From is not properly parsed", new Date(5L*24L*60L*60L*1000L), mapper.readFrom(columns));
+        assertEquals("From is not properly parsed", new Date(5L * 24L * 60L * 60L * 1000L), mapper.readFrom(columns));
     }
 
     @Test()
     public void testGetFromFromLongColumn() {
-        DateRangeMapper mapper = new DateRangeMapper("name", "from", "to", TIMESTAMP_PATTERN);
+        DateRangeMapper mapper = dateRangeMapper("from", "to").pattern(TIMESTAMP_PATTERN).build("name");
         Columns columns = new Columns();
         columns.add(Column.builder("from").composedValue(5L, LongType.instance));
         columns.add(Column.builder("to").composedValue(0, Int32Type.instance));
@@ -142,7 +138,7 @@ public class DateRangeMapperTest extends AbstractMapperTest {
 
     @Test()
     public void testGetFromFromFloatColumn() {
-        DateRangeMapper mapper = new DateRangeMapper("name", "from", "to", TIMESTAMP_PATTERN);
+        DateRangeMapper mapper = dateRangeMapper("from", "to").pattern(TIMESTAMP_PATTERN).build("name");
         Columns columns = new Columns();
         columns.add(Column.builder("from").composedValue(5.3f, FloatType.instance));
         columns.add(Column.builder("to").composedValue(0, Int32Type.instance));
@@ -151,7 +147,7 @@ public class DateRangeMapperTest extends AbstractMapperTest {
 
     @Test()
     public void testGetFromFromDoubleColumn() {
-        DateRangeMapper mapper = new DateRangeMapper("name", "from", "to", TIMESTAMP_PATTERN);
+        DateRangeMapper mapper = dateRangeMapper("from", "to").pattern(TIMESTAMP_PATTERN).build("name");
         Columns columns = new Columns();
         columns.add(Column.builder("from").composedValue(5.3D, DoubleType.instance));
         columns.add(Column.builder("to").composedValue(0, Int32Type.instance));
@@ -160,7 +156,7 @@ public class DateRangeMapperTest extends AbstractMapperTest {
 
     @Test
     public void testGetFromFromStringColumnWithDefaultPattern() throws ParseException {
-        DateRangeMapper mapper = new DateRangeMapper("name", "from", "to", null);
+        DateRangeMapper mapper = dateRangeMapper("from", "to").build("name");
         Columns columns = new Columns();
         columns.add(Column.builder("from").composedValue("2015/02/28 01:02:03.004 GMT", UTF8Type.instance));
         columns.add(Column.builder("to").composedValue(0, Int32Type.instance));
@@ -171,7 +167,7 @@ public class DateRangeMapperTest extends AbstractMapperTest {
 
     @Test
     public void testGetFromFromStringColumnWithCustomPattern() throws ParseException {
-        DateRangeMapper mapper = new DateRangeMapper("name", "from", "to", SHORT_PATTERN);
+        DateRangeMapper mapper = dateRangeMapper("from", "to").pattern(SHORT_PATTERN).build("name");
         Columns columns = new Columns();
         columns.add(Column.builder("from").composedValue("2015-02-28", UTF8Type.instance));
         columns.add(Column.builder("to").composedValue(0, Int32Type.instance));
@@ -180,7 +176,7 @@ public class DateRangeMapperTest extends AbstractMapperTest {
 
     @Test(expected = IndexException.class)
     public void testGetFromFromUnparseableStringColumn() {
-        DateRangeMapper mapper = new DateRangeMapper("name", "from", "to", null);
+        DateRangeMapper mapper = dateRangeMapper("from", "to").build("name");
         Columns columns = new Columns();
         columns.add(Column.builder("from").composedValue("abc", UTF8Type.instance));
         columns.add(Column.builder("to").composedValue(0, Int32Type.instance));
@@ -189,7 +185,7 @@ public class DateRangeMapperTest extends AbstractMapperTest {
 
     @Test
     public void testGetFromWithNullColumn() {
-        DateRangeMapper mapper = new DateRangeMapper("name", "from", "to", null);
+        DateRangeMapper mapper = dateRangeMapper("from", "to").build("name");
         Columns columns = new Columns();
         columns.add(Column.builder("to").composedValue(0, Int32Type.instance));
         assertNull("From is not properly parsed", mapper.readFrom(columns));
@@ -197,16 +193,16 @@ public class DateRangeMapperTest extends AbstractMapperTest {
 
     @Test()
     public void testReadToFromIntColumn() {
-        DateRangeMapper mapper = new DateRangeMapper("name", "from", "to", TIMESTAMP_PATTERN);
+        DateRangeMapper mapper = dateRangeMapper("from", "to").pattern(TIMESTAMP_PATTERN).build("name");
         Columns columns = new Columns();
         columns.add(Column.builder("from").composedValue(0, Int32Type.instance));
         columns.add(Column.builder("to").composedValue(5, Int32Type.instance));
-        assertEquals("To is not properly parsed", new Date(5L*24L*60L*60L*1000L), mapper.readTo(columns));
+        assertEquals("To is not properly parsed", new Date(5L * 24L * 60L * 60L * 1000L), mapper.readTo(columns));
     }
 
     @Test()
     public void testGetToFromLongColumn() {
-        DateRangeMapper mapper = new DateRangeMapper("name", "from", "to", TIMESTAMP_PATTERN);
+        DateRangeMapper mapper = dateRangeMapper("from", "to").pattern(TIMESTAMP_PATTERN).build("name");
         Columns columns = new Columns();
         columns.add(Column.builder("from").composedValue(0, Int32Type.instance));
         columns.add(Column.builder("to").composedValue(5L, LongType.instance));
@@ -215,7 +211,7 @@ public class DateRangeMapperTest extends AbstractMapperTest {
 
     @Test()
     public void testGetToFromFloatColumn() {
-        DateRangeMapper mapper = new DateRangeMapper("name", "from", "to", TIMESTAMP_PATTERN);
+        DateRangeMapper mapper = dateRangeMapper("from", "to").pattern(TIMESTAMP_PATTERN).build("name");
         Columns columns = new Columns();
         columns.add(Column.builder("from").composedValue(0, Int32Type.instance));
         columns.add(Column.builder("to").composedValue(5.3f, FloatType.instance));
@@ -224,7 +220,7 @@ public class DateRangeMapperTest extends AbstractMapperTest {
 
     @Test()
     public void testGetToFromDoubleColumn() {
-        DateRangeMapper mapper = new DateRangeMapper("name", "from", "to", TIMESTAMP_PATTERN);
+        DateRangeMapper mapper = dateRangeMapper("from", "to").pattern(TIMESTAMP_PATTERN).build("name");
         Columns columns = new Columns();
         columns.add(Column.builder("from").composedValue(0, Int32Type.instance));
         columns.add(Column.builder("to").composedValue(5.3D, DoubleType.instance));
@@ -233,7 +229,7 @@ public class DateRangeMapperTest extends AbstractMapperTest {
 
     @Test
     public void testGetToFromStringColumnWithDefaultPattern() throws ParseException {
-        DateRangeMapper mapper = new DateRangeMapper("name", "from", "to", null);
+        DateRangeMapper mapper = dateRangeMapper("from", "to").build("name");
         Columns columns = new Columns();
         columns.add(Column.builder("from").composedValue(0, Int32Type.instance));
         columns.add(Column.builder("to").composedValue("2015/02/28 01:02:03.004 GMT", UTF8Type.instance));
@@ -242,7 +238,7 @@ public class DateRangeMapperTest extends AbstractMapperTest {
 
     @Test
     public void testGetToFromStringColumnWithCustomPattern() throws ParseException {
-        DateRangeMapper mapper = new DateRangeMapper("name", "from", "to", "yyyy-MM-dd");
+        DateRangeMapper mapper = dateRangeMapper("from", "to").pattern(SHORT_PATTERN).build("name");
         Columns columns = new Columns();
         columns.add(Column.builder("from").composedValue(0, Int32Type.instance));
         columns.add(Column.builder("to").composedValue("2015-02-28", UTF8Type.instance));
@@ -251,7 +247,7 @@ public class DateRangeMapperTest extends AbstractMapperTest {
 
     @Test(expected = IndexException.class)
     public void testGetToFromUnparseableStringColumn() {
-        DateRangeMapper mapper = new DateRangeMapper("name", "from", "to", null);
+        DateRangeMapper mapper = dateRangeMapper("from", "to").build("name");
         Columns columns = new Columns();
         columns.add(Column.builder("from").composedValue(0, Int32Type.instance));
         columns.add(Column.builder("to").composedValue("abc", UTF8Type.instance));
@@ -260,7 +256,7 @@ public class DateRangeMapperTest extends AbstractMapperTest {
 
     @Test
     public void testGetToWithNullColumn() {
-        DateRangeMapper mapper = new DateRangeMapper("name", "from", "to", null);
+        DateRangeMapper mapper = dateRangeMapper("from", "to").build("name");
         Columns columns = new Columns();
         columns.add(Column.builder("from").composedValue(0, Int32Type.instance));
         assertNull("To is not properly parsed", mapper.readTo(columns));
@@ -268,13 +264,13 @@ public class DateRangeMapperTest extends AbstractMapperTest {
 
     @Test(expected = IndexException.class)
     public void testSortField() {
-        DateRangeMapper mapper = new DateRangeMapper("name", "to", "from", null);
-        mapper.sortField("name", false);
+        DateRangeMapper mapper = dateRangeMapper("to", "from").build("field");
+        mapper.sortField("field", false);
     }
 
     @Test
     public void testAddFields() {
-        DateRangeMapper mapper = new DateRangeMapper("name", "from", "to", TIMESTAMP_PATTERN);
+        DateRangeMapper mapper = dateRangeMapper("from", "to").pattern(TIMESTAMP_PATTERN).build("name");
 
         Columns columns = new Columns();
         columns.add(Column.builder("from").composedValue(20, Int32Type.instance));
@@ -290,7 +286,7 @@ public class DateRangeMapperTest extends AbstractMapperTest {
 
     @Test
     public void testAddFieldsWithNullColumns() {
-        DateRangeMapper mapper = new DateRangeMapper("name", "from", "to", null);
+        DateRangeMapper mapper = dateRangeMapper("from", "to").build("name");
         Columns columns = new Columns();
         Document document = new Document();
         mapper.addFields(document, columns);
@@ -299,7 +295,7 @@ public class DateRangeMapperTest extends AbstractMapperTest {
 
     @Test(expected = IndexException.class)
     public void testAddFieldsWithBadSortColumns() {
-        DateRangeMapper mapper = new DateRangeMapper("name", "from", "to", TIMESTAMP_PATTERN);
+        DateRangeMapper mapper = dateRangeMapper("from", "to").pattern(TIMESTAMP_PATTERN).build("name");
 
         Columns columns = new Columns();
         columns.add(Column.builder("from").composedValue(2, Int32Type.instance));
@@ -311,7 +307,7 @@ public class DateRangeMapperTest extends AbstractMapperTest {
 
     @Test
     public void testAddFieldsWithSameColumns() {
-        DateRangeMapper mapper = new DateRangeMapper("name", "from", "to", TIMESTAMP_PATTERN);
+        DateRangeMapper mapper = dateRangeMapper("from", "to").pattern(TIMESTAMP_PATTERN).build("name");
 
         Columns columns = new Columns();
         columns.add(Column.builder("from").composedValue(1, Int32Type.instance));
@@ -325,7 +321,7 @@ public class DateRangeMapperTest extends AbstractMapperTest {
 
     @Test
     public void testExtractAnalyzers() {
-        DateRangeMapper mapper = new DateRangeMapper("name", "from", "to", null);
+        DateRangeMapper mapper = dateRangeMapper("from", "to").build("name");
         assertNull("Analyzer must be null", mapper.analyzer);
     }
 
@@ -336,7 +332,7 @@ public class DateRangeMapperTest extends AbstractMapperTest {
         metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("from"), FloatType.instance, 0));
         metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("to"), FloatType.instance, 0));
         metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("any"), UUIDType.instance, 0));
-        new DateRangeMapper("name", "from", "to", null).validate(metadata);
+        dateRangeMapper("from", "to").build("name").validate(metadata);
     }
 
     @Test(expected = IndexException.class)
@@ -346,7 +342,7 @@ public class DateRangeMapperTest extends AbstractMapperTest {
         metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("from"), UUIDType.instance, 0));
         metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("to"), FloatType.instance, 0));
         metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("any"), UUIDType.instance, 0));
-        new DateRangeMapper("name", "from", "to", null).validate(metadata);
+        dateRangeMapper("from", "to").build("name").validate(metadata);
     }
 
     @Test(expected = IndexException.class)
@@ -355,7 +351,7 @@ public class DateRangeMapperTest extends AbstractMapperTest {
         CFMetaData metadata = new CFMetaData("ks", "cf", ColumnFamilyType.Standard, nameType);
         metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("to"), FloatType.instance, 0));
         metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("any"), UUIDType.instance, 0));
-        new DateRangeMapper("name", "from", "to", null).validate(metadata);
+        dateRangeMapper("from", "to").build("name").validate(metadata);
     }
 
     @Test(expected = IndexException.class)
@@ -364,13 +360,13 @@ public class DateRangeMapperTest extends AbstractMapperTest {
         CFMetaData metadata = new CFMetaData("ks", "cf", ColumnFamilyType.Standard, nameType);
         metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("from"), FloatType.instance, 0));
         metadata.addColumnDefinition(regularDef(metadata, UTF8Type.instance.decompose("any"), UUIDType.instance, 0));
-        new GeoPointMapper("name", "from", "to", null).validate(metadata);
+        dateRangeMapper("from", "to").build("name").validate(metadata);
     }
 
     @Test
     public void testToString() {
-        DateRangeMapper mapper = new DateRangeMapper("field", "to", "from", "yyyy/MM/dd");
-        String exp = "DateRangeMapper{field=field, from=to, to=from, pattern=yyyy/MM/dd}";
+        DateRangeMapper mapper = dateRangeMapper("from", "to").validated(true).pattern("yyyy/MM/dd").build("field");
+        String exp = "DateRangeMapper{field=field, validated=true, from=from, to=to, pattern=yyyy/MM/dd}";
         assertEquals("Method #toString is wrong", exp, mapper.toString());
     }
 }

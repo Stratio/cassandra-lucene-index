@@ -262,19 +262,19 @@ We insert the population of 5 citizens lives in each city from 2015/01/01 until 
 
 .. code-block:: sql
 
-    INSERT INTO census(citizen_name, city, vt_from, vt_to, tt_from, tt_to)
+    INSERT INTO census(name, city, vt_from, vt_to, tt_from, tt_to)
     VALUES ('John', 'Madrid', '2015/01/01', '2200/12/31', '2015/01/01', '2200/12/31');
 
-    INSERT INTO census(citizen_name, city, vt_from, vt_to, tt_from, tt_to)
+    INSERT INTO census(name, city, vt_from, vt_to, tt_from, tt_to)
     VALUES ('Margaret', 'Barcelona', '2015/01/01', '2200/12/31', '2015/01/01', '2200/12/31');
 
-    INSERT INTO census(citizen_name, city, vt_from, vt_to, tt_from, tt_to)
+    INSERT INTO census(name, city, vt_from, vt_to, tt_from, tt_to)
     VALUES ('Cristian', 'Ceuta', '2015/01/01', '2200/12/31', '2015/01/01', '2200/12/31');
 
-    INSERT INTO census(citizen_name, city, vt_from, vt_to, tt_from, tt_to)
+    INSERT INTO census(name, city, vt_from, vt_to, tt_from, tt_to)
     VALUES ('Edward', 'New York','2015/01/01', '2200/12/31', '2015/01/01', '2200/12/31');
 
-    INSERT INTO census(citizen_name, city, vt_from, vt_to, tt_from, tt_to)
+    INSERT INTO census(name, city, vt_from, vt_to, tt_from, tt_to)
     VALUES ('Johnatan', 'San Francisco', '2015/01/01', '2200/12/31', '2015/01/01', '2200/12/31');
 
 
@@ -287,10 +287,10 @@ So, the system need to update last information from John,and insert the new. Thi
 
     BEGIN BATCH
         UPDATE census SET tt_to = '2015/06/29'
-        WHERE citizen_name = 'John' AND vt_from = '2015/01/01' AND tt_from = '2015/01/01'
+        WHERE name = 'John' AND vt_from = '2015/01/01' AND tt_from = '2015/01/01'
         IF tt_to = '2200/12/31';
 
-        INSERT INTO census(citizen_name, city, vt_from, vt_to, tt_from, tt_to)
+        INSERT INTO census(name, city, vt_from, vt_to, tt_from, tt_to)
         VALUES ('John', 'Amsterdam', '2015/03/05', '2200/12/31', '2015/06/30', '2200/12/31');
     APPLY BATCH;
 

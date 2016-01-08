@@ -26,6 +26,7 @@ import org.junit.Test;
 
 import java.util.UUID;
 
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.textMapper;
 import static org.junit.Assert.*;
 
 /**
@@ -35,7 +36,7 @@ public class TextMapperTest extends AbstractMapperTest {
 
     @Test
     public void testConstructorWithoutArgs() {
-        TextMapper mapper = new TextMapperBuilder().build("field");
+        TextMapper mapper = textMapper().build("field");
         assertEquals("Field is not set", "field", mapper.field);
         assertEquals("Indexed is not set to default value", Mapper.DEFAULT_INDEXED, mapper.indexed);
         assertEquals("Sorted is not set to default value", Mapper.DEFAULT_SORTED, mapper.sorted);
@@ -47,11 +48,11 @@ public class TextMapperTest extends AbstractMapperTest {
 
     @Test
     public void testConstructorWithAllArgs() {
-        TextMapper mapper = new TextMapperBuilder().indexed(false)
-                                                   .sorted(true)
-                                                   .column("column")
-                                                   .analyzer("spanish")
-                                                   .build("field");
+        TextMapper mapper = textMapper().indexed(false)
+                                        .sorted(true)
+                                        .column("column")
+                                        .analyzer("spanish")
+                                        .build("field");
         assertEquals("Field is not set", "field", mapper.field);
         assertFalse("Indexed is not set", mapper.indexed);
         assertTrue("Sorted is not set", mapper.sorted);
@@ -63,28 +64,28 @@ public class TextMapperTest extends AbstractMapperTest {
 
     @Test
     public void testJsonSerialization() {
-        TextMapperBuilder builder = new TextMapperBuilder().indexed(false)
-                                                           .sorted(true)
-                                                           .column("column")
-                                                           .analyzer("spanish");
+        TextMapperBuilder builder = textMapper().indexed(false)
+                                                .sorted(true)
+                                                .column("column")
+                                                .analyzer("spanish");
         testJson(builder, "{type:\"text\",indexed:false,sorted:true,column:\"column\",analyzer:\"spanish\"}");
     }
 
     @Test
     public void testJsonSerializationDefaults() {
-        TextMapperBuilder builder = new TextMapperBuilder();
+        TextMapperBuilder builder = textMapper();
         testJson(builder, "{type:\"text\"}");
     }
 
     @Test()
     public void testBaseClass() {
-        TextMapper mapper = new TextMapper("field", null, false, true, "SpanishAnalyzer");
+        TextMapper mapper = textMapper().analyzer("SpanishAnalyzer").build("field");
         assertEquals("Base class is wrong", String.class, mapper.base);
     }
 
     @Test()
     public void testSortField() {
-        TextMapper mapper = new TextMapper("field", null, false, true, "SpanishAnalyzer");
+        TextMapper mapper = textMapper().sorted(true).analyzer("SpanishAnalyzer").build("field");
         SortField sortField = mapper.sortField("field", true);
         assertNotNull("Sort field is omitted", sortField);
         assertTrue("Sort field reverse is not set", sortField.getReverse());
@@ -92,49 +93,48 @@ public class TextMapperTest extends AbstractMapperTest {
 
     @Test()
     public void testValueNull() {
-        TextMapper mapper = new TextMapper("field", null, true, true, null);
-        String parsed = mapper.base("test", null);
-        assertNull("Base for nulls is wrong", parsed);
+        TextMapper mapper = textMapper().build("field");
+        assertNull("Base for nulls is wrong", mapper.base("test", null));
     }
 
     @Test
     public void testValueInteger() {
-        TextMapper mapper = new TextMapper("field", null, true, true, "org.apache.lucene.analysis.en.EnglishAnalyzer");
+        TextMapper mapper = textMapper().analyzer("org.apache.lucene.analysis.en.EnglishAnalyzer").build("field");
         String parsed = mapper.base("test", 3);
         assertEquals("Base for integers is wrong", "3", parsed);
     }
 
     @Test
     public void testValueLong() {
-        TextMapper mapper = new TextMapper("field", null, true, true, "org.apache.lucene.analysis.en.EnglishAnalyzer");
+        TextMapper mapper = textMapper().analyzer("org.apache.lucene.analysis.en.EnglishAnalyzer").build("field");
         String parsed = mapper.base("test", 3l);
         assertEquals("Base for longs is wrong", "3", parsed);
     }
 
     @Test
     public void testValueShort() {
-        TextMapper mapper = new TextMapper("field", null, true, true, "org.apache.lucene.analysis.en.EnglishAnalyzer");
+        TextMapper mapper = textMapper().analyzer("org.apache.lucene.analysis.en.EnglishAnalyzer").build("field");
         String parsed = mapper.base("test", new Short("3"));
         assertEquals("Base for longs is wrong", "3", parsed);
     }
 
     @Test
     public void testValueByte() {
-        TextMapper mapper = new TextMapper("field", null, true, true, "org.apache.lucene.analysis.en.EnglishAnalyzer");
+        TextMapper mapper = textMapper().analyzer("org.apache.lucene.analysis.en.EnglishAnalyzer").build("field");
         String parsed = mapper.base("test", new Byte("3"));
         assertEquals("Base for longs is wrong", "3", parsed);
     }
 
     @Test
     public void testValueFloatWithoutDecimal() {
-        TextMapper mapper = new TextMapper("field", null, true, true, "org.apache.lucene.analysis.en.EnglishAnalyzer");
+        TextMapper mapper = textMapper().analyzer("org.apache.lucene.analysis.en.EnglishAnalyzer").build("field");
         String parsed = mapper.base("test", 3f);
         assertEquals("Base for floats is wrong", "3.0", parsed);
     }
 
     @Test
     public void testValueFloatWithDecimalFloor() {
-        TextMapper mapper = new TextMapper("field", null, true, true, "org.apache.lucene.analysis.en.EnglishAnalyzer");
+        TextMapper mapper = textMapper().analyzer("org.apache.lucene.analysis.en.EnglishAnalyzer").build("field");
         String parsed = mapper.base("test", 3.5f);
         assertEquals("Base for floats is wrong", "3.5", parsed);
 
@@ -142,21 +142,21 @@ public class TextMapperTest extends AbstractMapperTest {
 
     @Test
     public void testValueFloatWithDecimalCeil() {
-        TextMapper mapper = new TextMapper("field", null, true, true, "org.apache.lucene.analysis.en.EnglishAnalyzer");
+        TextMapper mapper = textMapper().analyzer("org.apache.lucene.analysis.en.EnglishAnalyzer").build("field");
         String parsed = mapper.base("test", 3.6f);
         assertEquals("Base for floats is wrong", "3.6", parsed);
     }
 
     @Test
     public void testValueDoubleWithoutDecimal() {
-        TextMapper mapper = new TextMapper("field", null, true, true, "org.apache.lucene.analysis.en.EnglishAnalyzer");
+        TextMapper mapper = textMapper().analyzer("org.apache.lucene.analysis.en.EnglishAnalyzer").build("field");
         String parsed = mapper.base("test", 3d);
         assertEquals("Base for doubles is wrong", "3.0", parsed);
     }
 
     @Test
     public void testValueDoubleWithDecimalFloor() {
-        TextMapper mapper = new TextMapper("field", null, true, true, "org.apache.lucene.analysis.en.EnglishAnalyzer");
+        TextMapper mapper = textMapper().analyzer("org.apache.lucene.analysis.en.EnglishAnalyzer").build("field");
         String parsed = mapper.base("test", 3.5d);
         assertEquals("Base for doubles is wrong", "3.5", parsed);
 
@@ -164,28 +164,28 @@ public class TextMapperTest extends AbstractMapperTest {
 
     @Test
     public void testValueDoubleWithDecimalCeil() {
-        TextMapper mapper = new TextMapper("field", null, true, true, "org.apache.lucene.analysis.en.EnglishAnalyzer");
+        TextMapper mapper = textMapper().analyzer("org.apache.lucene.analysis.en.EnglishAnalyzer").build("field");
         String parsed = mapper.base("test", 3.6d);
         assertEquals("Base for doubles is wrong", "3.6", parsed);
     }
 
     @Test
     public void testValueStringWithoutDecimal() {
-        TextMapper mapper = new TextMapper("field", null, true, true, "org.apache.lucene.analysis.en.EnglishAnalyzer");
+        TextMapper mapper = textMapper().analyzer("org.apache.lucene.analysis.en.EnglishAnalyzer").build("field");
         String parsed = mapper.base("test", "3");
         assertEquals("Base for strings is wrong", "3", parsed);
     }
 
     @Test
     public void testValueStringWithDecimalFloor() {
-        TextMapper mapper = new TextMapper("field", null, true, true, "org.apache.lucene.analysis.en.EnglishAnalyzer");
+        TextMapper mapper = textMapper().analyzer("org.apache.lucene.analysis.en.EnglishAnalyzer").build("field");
         String parsed = mapper.base("test", "3.2");
         assertEquals("Base for strings is wrong", "3.2", parsed);
     }
 
     @Test
     public void testValueStringWithDecimalCeil() {
-        TextMapper mapper = new TextMapper("field", null, true, true, "org.apache.lucene.analysis.en.EnglishAnalyzer");
+        TextMapper mapper = textMapper().analyzer("org.apache.lucene.analysis.en.EnglishAnalyzer").build("field");
         String parsed = mapper.base("test", "3.6");
         assertEquals("Base for strings is wrong", "3.6", parsed);
 
@@ -193,14 +193,16 @@ public class TextMapperTest extends AbstractMapperTest {
 
     @Test
     public void testValueUUID() {
-        TextMapper mapper = new TextMapper("field", null, true, true, "org.apache.lucene.analysis.en.EnglishAnalyzer");
+        TextMapper mapper = textMapper().analyzer("org.apache.lucene.analysis.en.EnglishAnalyzer").build("field");
         String parsed = mapper.base("test", UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));
         assertEquals("Base for UUIDs is wrong", "550e8400-e29b-41d4-a716-446655440000", parsed);
     }
 
     @Test
     public void testIndexedField() {
-        TextMapper mapper = new TextMapper("field", null, true, true, "org.apache.lucene.analysis.en.EnglishAnalyzer");
+        TextMapper mapper = textMapper().indexed(true)
+                                        .analyzer("org.apache.lucene.analysis.en.EnglishAnalyzer")
+                                        .build("field");
         Field field = mapper.indexedField("name", "hello");
         assertNotNull("Indexed field name is not created", field);
         assertEquals("Indexed field name is wrong", "name", field.name());
@@ -210,7 +212,9 @@ public class TextMapperTest extends AbstractMapperTest {
 
     @Test
     public void testSortedField() {
-        TextMapper mapper = new TextMapper("field", null, null, true, "org.apache.lucene.analysis.en.EnglishAnalyzer");
+        TextMapper mapper = textMapper().sorted(true)
+                                        .analyzer("org.apache.lucene.analysis.en.EnglishAnalyzer")
+                                        .build("field");
         Field field = mapper.sortedField("name", "hello");
         assertNotNull("Sorted field name is not created", field);
         assertEquals("Sorted field type is wrong", DocValuesType.SORTED, field.fieldType().docValuesType());
@@ -218,15 +222,23 @@ public class TextMapperTest extends AbstractMapperTest {
 
     @Test
     public void testExtractAnalyzers() {
-        TextMapper mapper = new TextMapper("field", null, true, true, "org.apache.lucene.analysis.en.EnglishAnalyzer");
+        TextMapper mapper = textMapper().sorted(true)
+                                        .analyzer("org.apache.lucene.analysis.en.EnglishAnalyzer")
+                                        .build("field");
         assertEquals("Method #getAnalyzer is wrong", "org.apache.lucene.analysis.en.EnglishAnalyzer", mapper.analyzer);
     }
 
     @Test
     public void testToString() {
-        TextMapper mapper = new TextMapper("field", null, false, false, "English");
+        TextMapper mapper = textMapper().sorted(true)
+                                        .indexed(false)
+                                        .sorted(true)
+                                        .validated(true)
+                                        .analyzer("English")
+                                        .build("field");
         assertEquals("Method #toString is wrong",
-                     "TextMapper{field=field, indexed=false, sorted=false, column=field, analyzer=English}",
+                     "TextMapper{field=field, indexed=false, sorted=true, validated=true, column=field, " +
+                     "analyzer=English}",
                      mapper.toString());
     }
 }

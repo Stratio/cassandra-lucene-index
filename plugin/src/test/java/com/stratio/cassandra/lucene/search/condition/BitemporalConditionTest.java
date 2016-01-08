@@ -100,7 +100,7 @@ public class BitemporalConditionTest extends AbstractConditionTest {
     @Test
     public void testQuery() {
 
-        MapperBuilder<?> mapperBuilder = bitemporalMapper("vtFrom",
+        MapperBuilder<?, ?> mapperBuilder = bitemporalMapper("vtFrom",
                                                           "vtTo",
                                                           "ttFrom",
                                                           "ttTo").pattern(TIMESTAMP_PATTERN);

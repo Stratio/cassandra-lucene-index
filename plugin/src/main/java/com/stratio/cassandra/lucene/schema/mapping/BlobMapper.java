@@ -20,7 +20,6 @@ package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.util.ByteBufferUtils;
-import org.apache.cassandra.db.marshal.AsciiType;
 import org.apache.cassandra.db.marshal.BytesType;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.utils.Hex;
@@ -41,9 +40,10 @@ public class BlobMapper extends KeywordMapper {
      * @param column  The name of the column to be mapped.
      * @param indexed If the field supports searching.
      * @param sorted  If the field supports sorting.
+     * @param validated      If the field must be validated.
      */
-    public BlobMapper(String field, String column, Boolean indexed, Boolean sorted) {
-        super(field, column, indexed, sorted, AsciiType.instance, UTF8Type.instance, BytesType.instance);
+    public BlobMapper(String field, String column, Boolean indexed, Boolean sorted, Boolean validated) {
+        super(field, column, indexed, sorted, validated, UTF8Type.instance, BytesType.instance);
     }
 
     /** {@inheritDoc} */

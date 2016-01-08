@@ -57,6 +57,9 @@ public abstract class Mapper {
     /** If the field must be sorted when no specified. */
     public static final boolean DEFAULT_SORTED = false;
 
+    /** If the field must be validated when no specified. */
+    public static final boolean DEFAULT_VALIDATED = false;
+
     /** The name of the Lucene field. */
     public final String field;
 
@@ -65,6 +68,9 @@ public abstract class Mapper {
 
     /** If the field must be sorted. */
     public final Boolean sorted;
+
+    /** If the field must be validated. */
+    public final Boolean validated;
 
     /** The name of the analyzer to be used. */
     public final String analyzer;
@@ -81,6 +87,7 @@ public abstract class Mapper {
      * @param field          The name of the Lucene field.
      * @param indexed        If the field supports searching.
      * @param sorted         If the field supports sorting.
+     * @param validated      If the field must be validated.
      * @param analyzer       The name of the analyzer to be used.
      * @param mappedColumns  The names of the columns to be mapped.
      * @param supportedTypes The supported Cassandra types for indexing.
@@ -88,6 +95,7 @@ public abstract class Mapper {
     protected Mapper(String field,
                      Boolean indexed,
                      Boolean sorted,
+                     Boolean validated,
                      String analyzer,
                      List<String> mappedColumns,
                      AbstractType<?>... supportedTypes) {
@@ -97,6 +105,7 @@ public abstract class Mapper {
         this.field = field;
         this.indexed = indexed == null ? DEFAULT_INDEXED : indexed;
         this.sorted = sorted == null ? DEFAULT_SORTED : sorted;
+        this.validated = validated == null ? DEFAULT_VALIDATED : validated;
         this.analyzer = analyzer;
         this.mappedColumns = mappedColumns;
         this.supportedTypes = supportedTypes;
@@ -110,6 +119,17 @@ public abstract class Mapper {
      * @param columns  The {@link Columns}.
      */
     public abstract void addFields(Document document, Columns columns);
+
+    /**
+     * Validates the specified {@link Columns} if {#validated}.
+     *
+     * @param columns The {@link Columns} to be validated.
+     */
+    public final void validate(Columns columns) {
+        if (validated) {
+            addFields(new Document(), columns);
+        }
+    }
 
     /**
      * Returns the {@link SortField} resulting from the mapping of the specified object.
@@ -166,7 +186,7 @@ public abstract class Mapper {
     /**
      * Finds the child {@link AbstractType} by its name.
      *
-     * @param parent   The parent {@link AbstractType}.
+     * @param parent    The parent {@link AbstractType}.
      * @param childName The name of the child {@link AbstractType}.
      * @return The child {@link AbstractType}, or {@code null} if it doesn't exist.
      */
@@ -301,7 +321,11 @@ public abstract class Mapper {
     }
 
     protected Objects.ToStringHelper toStringHelper(Object self) {
-        return Objects.toStringHelper(self).add("field", field).add("indexed", indexed).add("sorted", sorted);
+        return Objects.toStringHelper(self)
+                      .add("field", field)
+                      .add("indexed", indexed)
+                      .add("sorted", sorted)
+                      .add("validated", validated);
     }
 
     /** {@inheritDoc} */

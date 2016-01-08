@@ -36,17 +36,24 @@ public class TextMapper extends SingleColumnMapper<String> {
     /**
      * Builds a new {@link TextMapper} using the specified Lucene {@link org.apache.lucene.analysis.Analyzer}.
      *
-     * @param field    The name of the field.
-     * @param column   The name of the column to be mapped.
-     * @param indexed  If the field supports searching.
-     * @param sorted   If the field supports sorting.
-     * @param analyzer The name of the Lucene {@link org.apache.lucene.analysis.Analyzer} to be used.
+     * @param field     The name of the field.
+     * @param column    The name of the column to be mapped.
+     * @param indexed   If the field supports searching.
+     * @param sorted    If the field supports sorting.
+     * @param validated If the field must be validated.
+     * @param analyzer  The name of the Lucene {@link org.apache.lucene.analysis.Analyzer} to be used.
      */
-    public TextMapper(String field, String column, Boolean indexed, Boolean sorted, String analyzer) {
+    public TextMapper(String field,
+                      String column,
+                      Boolean indexed,
+                      Boolean sorted,
+                      Boolean validated,
+                      String analyzer) {
         super(field,
               column,
               indexed,
               sorted,
+              validated,
               analyzer,
               String.class,
               AsciiType.instance,

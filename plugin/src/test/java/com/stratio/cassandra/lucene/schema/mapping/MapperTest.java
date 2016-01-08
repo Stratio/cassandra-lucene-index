@@ -19,14 +19,7 @@
 package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.stratio.cassandra.lucene.schema.column.Columns;
-import org.apache.cassandra.db.marshal.AbstractType;
-import org.apache.cassandra.db.marshal.IntegerType;
-import org.apache.cassandra.db.marshal.ListType;
-import org.apache.cassandra.db.marshal.MapType;
-import org.apache.cassandra.db.marshal.ReversedType;
-import org.apache.cassandra.db.marshal.SetType;
-import org.apache.cassandra.db.marshal.UTF8Type;
-import org.apache.cassandra.db.marshal.UUIDType;
+import org.apache.cassandra.db.marshal.*;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.search.SortField;
 import org.junit.Test;
@@ -110,9 +103,10 @@ public class MapperTest {
         testSupports(true, ReversedType.getInstance(UTF8Type.instance), UTF8Type.instance);
     }
 
-    private void testSupports(boolean expected, AbstractType<?> candidateType, AbstractType<?>... supportedTypes) {
+    private void testSupports(boolean expected, AbstractType<?> candidateType, AbstractType<?>... types) {
 
-        Mapper mapper = new Mapper("field", null, null, null, Collections.singletonList("field"), supportedTypes) {
+        Mapper mapper = new Mapper("field", null, null, null, null, Collections.singletonList("field"), types) {
+
             @Override
             public void addFields(Document document, Columns columns) {
 

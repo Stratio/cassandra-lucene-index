@@ -25,7 +25,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class DateRangeMapper extends Mapper {
+public class DateRangeMapper extends Mapper<DateRangeMapper> {
 
     @JsonProperty("from")
     final String from;

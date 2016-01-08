@@ -30,7 +30,7 @@ import static org.junit.Assert.assertEquals;
  */
 public class AbstractMapperTest {
 
-    protected void testJson(MapperBuilder<?> mapperBuilder, String json) {
+    protected void testJson(MapperBuilder<?, ?> mapperBuilder, String json) {
         try {
             String json1 = JsonSerializer.toString(mapperBuilder);
             assertEquals("JSON serialization is wrong", json, json1);

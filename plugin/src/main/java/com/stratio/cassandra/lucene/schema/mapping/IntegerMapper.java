@@ -42,17 +42,19 @@ public class IntegerMapper extends SingleColumnMapper<Integer> {
     /**
      * Builds a new {@link IntegerMapper} using the specified boost.
      *
-     * @param field   The name of the field.
-     * @param column  The name of the column to be mapped.
-     * @param indexed If the field supports searching.
-     * @param sorted  If the field supports sorting.
-     * @param boost   The boost to be used.
+     * @param field     The name of the field.
+     * @param column    The name of the column to be mapped.
+     * @param indexed   If the field supports searching.
+     * @param sorted    If the field supports sorting.
+     * @param validated If the field must be validated.
+     * @param boost     The boost to be used.
      */
-    public IntegerMapper(String field, String column, Boolean indexed, Boolean sorted, Float boost) {
+    public IntegerMapper(String field, String column, Boolean indexed, Boolean sorted, Boolean validated, Float boost) {
         super(field,
               column,
               indexed,
               sorted,
+              validated,
               null,
               Integer.class,
               AsciiType.instance,

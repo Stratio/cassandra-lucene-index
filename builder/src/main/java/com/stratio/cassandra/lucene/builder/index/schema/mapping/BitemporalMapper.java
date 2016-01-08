@@ -26,7 +26,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
  *
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
-public class BitemporalMapper extends Mapper {
+public class BitemporalMapper extends Mapper<BitemporalMapper> {
 
     /** The name of the column containing the valid time start. **/
     @JsonProperty("vt_from")

@@ -50,10 +50,16 @@ public abstract class KeywordMapper extends SingleColumnMapper<String> {
      * @param column         The name of the column to be mapped.
      * @param indexed        If the field supports searching.
      * @param sorted         If the field supports sorting.
+     * @param validated      If the field must be validated.
      * @param supportedTypes The supported Cassandra types for indexing.
      */
-    KeywordMapper(String field, String column, Boolean indexed, Boolean sorted, AbstractType<?>... supportedTypes) {
-        super(field, column, indexed, sorted, KEYWORD_ANALYZER, String.class, supportedTypes);
+    KeywordMapper(String field,
+                  String column,
+                  Boolean indexed,
+                  Boolean sorted,
+                  Boolean validated,
+                  AbstractType<?>... supportedTypes) {
+        super(field, column, indexed, sorted, validated, KEYWORD_ANALYZER, String.class, supportedTypes);
     }
 
     /** {@inheritDoc} */

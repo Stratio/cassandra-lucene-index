@@ -26,7 +26,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class GeoPointMapper extends Mapper {
+public class GeoPointMapper extends Mapper<GeoPointMapper> {
 
     /** The name of the column containing the latitude. */
     @JsonProperty("latitude")

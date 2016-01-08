@@ -50,14 +50,15 @@ public class BigIntegerMapper extends KeywordMapper {
      * @param column  The name of the column to be mapped.
      * @param indexed If the field supports searching.
      * @param sorted  If the field supports sorting.
+     * @param validated      If the field must be validated.
      * @param digits  The max number of digits. If {@code null}, the {@link #DEFAULT_DIGITS} will be used.
      */
-    public BigIntegerMapper(String field, String column, Boolean indexed, Boolean sorted, Integer digits) {
+    public BigIntegerMapper(String field, String column, Boolean indexed, Boolean sorted, Boolean validated, Integer digits) {
         super(field,
               column,
               indexed,
               sorted,
-              AsciiType.instance,
+              validated,
               ByteType.instance,
               IntegerType.instance,
               Int32Type.instance,

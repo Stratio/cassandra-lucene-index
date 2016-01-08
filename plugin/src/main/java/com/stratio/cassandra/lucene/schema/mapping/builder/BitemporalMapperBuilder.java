@@ -27,7 +27,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
  *
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
-public class BitemporalMapperBuilder extends MapperBuilder<BitemporalMapper> {
+public class BitemporalMapperBuilder extends MapperBuilder<BitemporalMapper, BitemporalMapperBuilder> {
 
     /** The name of the column containing the valid time start. **/
     @JsonProperty("vt_from")
@@ -102,6 +102,6 @@ public class BitemporalMapperBuilder extends MapperBuilder<BitemporalMapper> {
      */
     @Override
     public BitemporalMapper build(String field) {
-        return new BitemporalMapper(field, vtFrom, vtTo, ttFrom, ttTo, pattern, nowValue);
+        return new BitemporalMapper(field, validated, vtFrom, vtTo, ttFrom, ttTo, pattern, nowValue);
     }
 }
