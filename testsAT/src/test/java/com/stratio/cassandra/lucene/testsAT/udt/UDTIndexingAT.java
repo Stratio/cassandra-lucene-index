@@ -536,4 +536,26 @@ public class UDTIndexingAT extends BaseAT {
         assertTrue("Selecting a non-existent type inside udt inside udt must return an Exception", true);
     }
 
+
+    @Test
+    public void testNonCompleteUDT() {
+
+        String insert = "INSERT INTO " +
+                        cassandraUtils.getKeyspace() +
+                        "." +
+                        cassandraUtils.getTable() +
+                        "(login, first_name, last_name, address) VALUES (" +
+                        "'USER10'," +
+                        "'Tom'," +
+                        "'Smith',{"+
+                        "city: 'Madrid'});";
+
+        cassandraUtils.execute(new SimpleStatement(insert));
+        cassandraUtils.refresh();
+
+        CassandraUtilsSelect select = cassandraUtils.filter(match("address.city","Madrid"));
+        assertEqualsAndOnlyThisString(select.stringColumn("login"),
+                                      new String[]{"USER10"});
+    }
+
 }
