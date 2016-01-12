@@ -8,8 +8,8 @@ Scenario: I connect to Cassandra cluster
 		| place  | latitude | longitude |lucene |
 		| TEXT   | DECIMAL  |  DECIMAL  |TEXT   |
 		|  PK    |          |           |       |
-	And I insert in keyspace 'opera' and table 'containsTable' with:
-	 	|latitude|longitude|place      |
+	And I insert in keyspace 'opera' and table 'containsTable' with: 
+		|latitude|longitude|place      |
 		|2.5     |2.6      |'Madrid'   |
 		|12.5    |12.6     |'Barcelona'|
 		|12.5    |12.7     |'Valencia' |

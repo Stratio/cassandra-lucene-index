@@ -5,9 +5,9 @@ import com.stratio.cucumber.testng.CucumberRunner;
 import cucumber.api.CucumberOptions;
 import org.testng.annotations.Test;
 
-@CucumberOptions(features = {"src/test/resources/features/containsSearch.feature"})
-public class ContainsAT extends BaseTest {
-    public ContainsAT() {
+@CucumberOptions(features = {"src/test/resources/features/crudCassandraTests.feature"})
+public class CrudCassandraTestsAT extends BaseTest {
+    public CrudCassandraTestsAT() {
     }
 
     @Test(enabled = true, priority = 1)
