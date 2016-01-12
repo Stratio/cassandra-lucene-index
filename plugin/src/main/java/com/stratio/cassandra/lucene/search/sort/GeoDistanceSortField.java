@@ -51,7 +51,8 @@ public class GeoDistanceSortField extends SortField {
      *
      * @param mapper  {@code true} if natural order should be reversed.
      * @param reverse {@code true} if natural order should be reversed.
-     * @param reverse {@code true} if natural order should be reversed.
+     * @param longitude the longitude of the center point to sort by min distance to it.
+     * @param latitude the latitude of the center point to sort by min distance to it.
      */
     public GeoDistanceSortField(String mapper, Boolean reverse, double longitude, double latitude) {
         super(reverse);
