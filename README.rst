@@ -96,8 +96,7 @@ Now you can run Cassandra and do some tests using the Cassandra Query Language:
     <CASSANDRA_HOME>/bin/cassandra -f
     <CASSANDRA_HOME>/bin/cqlsh
 
-The Lucene’s index files will be stored in the same directories where the Cassandra’s will be. The default data
-directory is ``/var/lib/cassandra/data``, and each index is placed next to the SSTables of its indexed column family.
+The Lucene’s index files will be stored in the same directories where the Cassandra’s will be. The default data directory is ``/var/lib/cassandra/data``, and each index is placed next to the SSTables of its indexed column family.
 
 For more details about Apache Cassandra please see its `documentation <http://cassandra.apache.org/>`__.
 
@@ -107,13 +106,13 @@ Upgrading Cassandra
 If you want to upgrade your cassandra cluster to a newer version the rule for the Lucene secondary indexes is to delete
 them with older version, upgrade cassandra and lucene index jar and create them again with running newer version.
 
-If you have huge amount of data in your cluster this could be an expensive task. We have tested it and here you have a
+If you have huge amount of data in your cluster this could be an expensive task. We have tested it and here you have a 
  compatibility matrix that states between which versions it is not needed to delete the index
 
 
 
 +-----------+---------+---------+---------+---------+----------+----------+---------+
-| From \ To | 2.1.6.2 | 2.1.7.1 | 2.1.8.5 | 2.1.9.0 | 2.1.10.0 | 2.1.11.1 | 2.2.4.1 |
+| From'\'To | 2.1.6.2 | 2.1.7.1 | 2.1.8.5 | 2.1.9.0 | 2.1.10.0 | 2.1.11.1 | 2.2.4.1 |
 +===========+=========+=========+=========+=========+==========+==========+=========+
 | 2.1.6.0   |   YES   |   YES   |    NO   |    NO   |    NO    |    NO    |    NO   |
 +-----------+---------+---------+---------+---------+----------+----------+---------+
