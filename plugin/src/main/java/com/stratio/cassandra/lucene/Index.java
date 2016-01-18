@@ -18,6 +18,7 @@
 
 package com.stratio.cassandra.lucene;
 
+import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
 import org.apache.cassandra.cql3.Operator;
 import org.apache.cassandra.db.*;
@@ -81,9 +82,21 @@ public class Index implements org.apache.cassandra.index.Index {
      * @throws ConfigurationException If the options are not valid.
      */
     public static Map<String, String> validateOptions(Map<String, String> options) throws ConfigurationException {
+        return validateOptions(options, null);
+    }
+
+    /**
+     * Validates the specified index options.
+     *
+     * @param options The options to be validated.
+     * @return The validated options.
+     * @throws ConfigurationException If the options are not valid.
+     */
+    public static Map<String, String> validateOptions(Map<String, String> options, CFMetaData metadata)
+    throws ConfigurationException {
         logger.debug("Validating Lucene index options");
         try {
-            IndexOptions.validateOptions(options);
+            IndexOptions.validateOptions(options, metadata);
         } catch (IndexException e) {
             logger.error("Lucene index options are invalid", e);
             throw new ConfigurationException(e.getMessage());

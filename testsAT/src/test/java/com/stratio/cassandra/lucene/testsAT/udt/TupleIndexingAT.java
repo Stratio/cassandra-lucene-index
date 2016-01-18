@@ -18,6 +18,8 @@
 
 package com.stratio.cassandra.lucene.testsAT.udt;
 
+import com.datastax.driver.core.CodecRegistry;
+import com.datastax.driver.core.ProtocolVersion;
 import com.datastax.driver.core.TupleType;
 import com.stratio.cassandra.lucene.testsAT.BaseAT;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
@@ -41,7 +43,11 @@ public class TupleIndexingAT extends BaseAT {
 
     @BeforeClass
     public static void before() {
-        TupleType tuple = TupleType.of(cint(), text(), cfloat());
+        TupleType tuple = TupleType.of(ProtocolVersion.NEWEST_SUPPORTED,
+                                       CodecRegistry.DEFAULT_INSTANCE,
+                                       cint(),
+                                       text(),
+                                       cfloat());
         cassandraUtils = CassandraUtils.builder("tuple_indexing")
                                        .withColumn("k", "int")
                                        .withColumn("v", "tuple<int, text, float>")

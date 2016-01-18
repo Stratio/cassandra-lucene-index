@@ -20,7 +20,6 @@ package com.stratio.cassandra.lucene.testsAT.udt;
 
 import com.stratio.cassandra.lucene.testsAT.BaseAT;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
-import com.stratio.cassandra.lucene.testsAT.util.UDT;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -37,12 +36,13 @@ import static com.stratio.cassandra.lucene.builder.Builder.stringMapper;
 @RunWith(JUnit4.class)
 public class CollectionUpsertAT extends BaseAT {
 
-    /* This test checks if a not full insert is done what happens*/
     private static CassandraUtils cassandraUtils;
 
     @BeforeClass
     public static void before() {
         cassandraUtils = CassandraUtils.builder("collections_upsert")
+                                       .withUDT("address_udt", "city", "text")
+                                       .withUDT("address_udt", "postcode", "int")
                                        .withColumn("login", "text")
                                        .withColumn("first_name", "text")
                                        .withColumn("second_name", "text")
@@ -56,7 +56,7 @@ public class CollectionUpsertAT extends BaseAT {
                                        .withMapper("p_address.postcode", stringMapper())
                                        .build()
                                        .createKeyspace()
-                                       .createUDT(new UDT("address_udt").add("city", "text").add("postcode", "int"))
+                                       .createUDTs()
                                        .createTable()
                                        .createIndex();
     }

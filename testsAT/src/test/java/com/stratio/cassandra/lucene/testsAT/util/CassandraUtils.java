@@ -21,20 +21,19 @@ package com.stratio.cassandra.lucene.testsAT.util;
 import com.datastax.driver.core.*;
 import com.datastax.driver.core.querybuilder.Batch;
 import com.datastax.driver.core.querybuilder.QueryBuilder;
-import com.stratio.cassandra.lucene.builder.Builder;
 import com.stratio.cassandra.lucene.builder.index.Index;
 import com.stratio.cassandra.lucene.builder.index.schema.mapping.Mapper;
-import com.stratio.cassandra.lucene.builder.search.Search;
 import com.stratio.cassandra.lucene.builder.search.condition.Condition;
 import com.stratio.cassandra.lucene.builder.search.sort.SortField;
 import com.stratio.cassandra.lucene.testsAT.BaseAT;
 import org.slf4j.Logger;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import static com.datastax.driver.core.querybuilder.QueryBuilder.eq;
 import static com.stratio.cassandra.lucene.builder.Builder.all;
 import static com.stratio.cassandra.lucene.builder.Builder.index;
 import static com.stratio.cassandra.lucene.testsAT.util.CassandraConfig.*;
@@ -46,8 +45,6 @@ public class CassandraUtils {
 
     protected static final Logger logger = BaseAT.logger;
 
-    private Session session;
-
     private final String keyspace;
     private final String table;
     private final String index;
@@ -56,7 +53,7 @@ public class CassandraUtils {
     private final Map<String, Mapper> mappers;
     private final List<String> partitionKey;
     private final List<String> clusteringKey;
-    private final String indexColumn;
+    private final Map<String, Map<String,String>> udts;
 
     public static CassandraUtilsBuilder builder(String name) {
         return new CassandraUtilsBuilder(name);
@@ -69,9 +66,7 @@ public class CassandraUtils {
                           Map<String, Mapper> mappers,
                           List<String> partitionKey,
                           List<String> clusteringKey,
-                          String indexColumn) {
-
-        session = CassandraConnection.session;
+                          Map<String, Map<String,String>> udts) {
 
         this.keyspace = keyspace;
         this.table = table;
@@ -80,7 +75,7 @@ public class CassandraUtils {
         this.mappers = mappers;
         this.partitionKey = partitionKey;
         this.clusteringKey = clusteringKey;
-        this.indexColumn = indexColumn;
+        this.udts = udts;
         qualifiedTable = keyspace + "." + table;
     }
 
@@ -96,11 +91,7 @@ public class CassandraUtils {
         return qualifiedTable;
     }
 
-    public String getIndexColumn() {
-        return indexColumn;
-    }
-
-    public String getIndexName() {
+    public String getIndex() {
         return index;
     }
 
@@ -142,10 +133,7 @@ public class CassandraUtils {
     }
 
     public CassandraUtils refresh() {
-        session.execute(QueryBuilder.select()
-                                    .from(keyspace, table)
-                                    .where(eq(indexColumn, Builder.search().refresh(true).build()))
-                                    .setConsistencyLevel(ConsistencyLevel.ALL));
+        select().refresh(true).consistency(ConsistencyLevel.ALL).getFirst();
         return this;
     }
 
@@ -187,27 +175,38 @@ public class CassandraUtils {
         return this;
     }
 
+    public CassandraUtils createUDTs() {
+        for (Map.Entry<String,Map<String,String>> entry : udts.entrySet()) {
+            String name = entry.getKey();
+            Map<String,String> map = entry.getValue();
+            StringBuilder sb = new StringBuilder();
+            sb.append("CREATE TYPE ").append(keyspace).append(".").append(name).append(" ( ");
+            Set<String> set = map.keySet();
+            Iterator<String> iterator = set.iterator();
+            for (int i = 0; i < set.size(); i++) {
+                String key = iterator.next();
+                sb.append(key).append(" ").append(map.get(key));
+                if (i < (set.size() - 1)) {
+                    sb.append(", ");
+                }
+            }
+            sb.append(");");
+            execute(sb);
+        }
+        return this;
+    }
+
     public CassandraUtils truncateTable() {
         execute(new StringBuilder().append("TRUNCATE ").append(qualifiedTable));
         return this;
     }
 
     public CassandraUtils createIndex() {
-        if (!columns.containsKey(COLUMN)) {
-            execute("ALTER TABLE %s ADD %s text;", qualifiedTable, COLUMN);
-        }
-        Index index = index(keyspace, table, indexColumn).name(this.index)
-                                                         .refreshSeconds(REFRESH)
-                                                         .indexingThreads(THREADS);
+        Index index = index(keyspace, table, this.index).refreshSeconds(REFRESH).indexingThreads(THREADS);
         for (Map.Entry<String, Mapper> entry : mappers.entrySet()) {
             index.mapper(entry.getKey(), entry.getValue());
         }
         execute(index.build());
-        return this;
-    }
-
-    public CassandraUtils createUDT(UDT udt) {
-        execute(udt.toString(keyspace));
         return this;
     }
 
@@ -221,13 +220,7 @@ public class CassandraUtils {
     }
 
     public List<Row> selectAllFromIndexQueryWithFiltering(int limit, String name, Object value) {
-        Search search = Builder.search().query(all()).refresh(true);
-        return execute(QueryBuilder.select()
-                                   .from(keyspace, table)
-                                   .where(eq(indexColumn, search.build()))
-                                   .and(eq(name, value))
-                                   .limit(limit)
-                                   .allowFiltering()).all();
+        return searchAll().andEq(name, value).limit(limit).allowFiltering(true).get();
     }
 
     @SafeVarargs
@@ -238,10 +231,8 @@ public class CassandraUtils {
             String columns = "";
             String values = "";
             for (String s : params.keySet()) {
-                if (!s.equals(indexColumn)) {
-                    columns += s + ",";
-                    values = values + params.get(s) + ",";
-                }
+                columns += s + ",";
+                values = values + params.get(s) + ",";
             }
             columns = columns.substring(0, columns.length() - 1);
             values = values.substring(0, values.length() - 1);

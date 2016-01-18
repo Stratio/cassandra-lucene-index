@@ -19,7 +19,6 @@
 package com.stratio.cassandra.lucene.testsAT.search;
 
 import com.datastax.driver.core.exceptions.DriverException;
-import com.datastax.driver.core.exceptions.InvalidQueryException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -89,12 +88,12 @@ public class MatchSearchAT extends AbstractSearchAT {
         query(match("blob_1", "3E0A16")).check(4);
     }
 
-    @Test(expected = InvalidQueryException.class)
+    @Test(expected = DriverException.class)
     public void matchQueryBlobTest3() {
         query(match("blob_1", "3E0A161")).check(0);
     }
 
-    @Test(expected = InvalidQueryException.class)
+    @Test(expected = DriverException.class)
     public void matchQueryBlobTest4() {
         query(match("blob_1", "3E0A1")).check(0);
     }
@@ -119,7 +118,7 @@ public class MatchSearchAT extends AbstractSearchAT {
         query(match("boolean_1", "false")).check(1);
     }
 
-    @Test(expected = InvalidQueryException.class)
+    @Test(expected = DriverException.class)
     public void matchQueryBooleanTest5() {
         query(match("boolean_1", "else")).check(0);
     }
@@ -249,12 +248,12 @@ public class MatchSearchAT extends AbstractSearchAT {
 
     @Test
     public void matchQueryUuidTest3() {
-        query(match("uuid_1", "60297440-b4fa-11e3-0002a5d5c51b")).check(InvalidQueryException.class);
+        query(match("uuid_1", "60297440-b4fa-11e3-0002a5d5c51b")).check(DriverException.class);
     }
 
     @Test
     public void matchQueryTimeuuidTest1() {
-        query(match("timeuuid_1", "0")).check(InvalidQueryException.class);
+        query(match("timeuuid_1", "0")).check(DriverException.class);
     }
 
     @Test
@@ -264,7 +263,7 @@ public class MatchSearchAT extends AbstractSearchAT {
 
     @Test
     public void matchQueryTimeuuidTest3() {
-        query(match("timeuuid_1", "a4a70900-24e1-11df-001ff3591711")).check(InvalidQueryException.class);
+        query(match("timeuuid_1", "a4a70900-24e1-11df-001ff3591711")).check(DriverException.class);
     }
 
     @Test
@@ -279,12 +278,12 @@ public class MatchSearchAT extends AbstractSearchAT {
 
     @Test
     public void matchQueryInetFieldTest3() {
-        query(match("inet_1", "127.1.1.")).check(InvalidQueryException.class);
+        query(match("inet_1", "127.1.1.")).check(DriverException.class);
     }
 
     @Test
     public void matchQueryInetFieldTest4() {
-        query(match("inet_1", "")).check(InvalidQueryException.class);
+        query(match("inet_1", "")).check(DriverException.class);
     }
 
     @Test
@@ -432,12 +431,12 @@ public class MatchSearchAT extends AbstractSearchAT {
         filter(match("blob_1", "3E0A16")).check(4);
     }
 
-    @Test(expected = InvalidQueryException.class)
+    @Test(expected = DriverException.class)
     public void matchFilterBlobTest3() {
         filter(match("blob_1", "3E0A161")).check(0);
     }
 
-    @Test(expected = InvalidQueryException.class)
+    @Test(expected = DriverException.class)
     public void matchFilterBlobTest4() {
         filter(match("blob_1", "3E0A1")).check(0);
     }
@@ -462,7 +461,7 @@ public class MatchSearchAT extends AbstractSearchAT {
         filter(match("boolean_1", "false")).check(1);
     }
 
-    @Test(expected = InvalidQueryException.class)
+    @Test(expected = DriverException.class)
     public void matchFilterBooleanTest5() {
         filter(match("boolean_1", "else")).check(0);
     }
@@ -583,7 +582,7 @@ public class MatchSearchAT extends AbstractSearchAT {
         filter(match("integer_1", "-1")).check(1);
     }
 
-    @Test(expected = InvalidQueryException.class)
+    @Test(expected = DriverException.class)
     public void matchFilterUuidTest1() {
         filter(match("uuid_1", "0")).check(0);
     }
@@ -596,12 +595,12 @@ public class MatchSearchAT extends AbstractSearchAT {
 
     @Test
     public void matchFilterUuidTest3() {
-        filter(match("uuid_1", "60297440-b4fa-11e3-0002a5d5c51b")).check(InvalidQueryException.class);
+        filter(match("uuid_1", "60297440-b4fa-11e3-0002a5d5c51b")).check(DriverException.class);
     }
 
     @Test
     public void matchFilterTimeuuidTest1() {
-        filter(match("timeuuid_1", "0")).check(InvalidQueryException.class);
+        filter(match("timeuuid_1", "0")).check(DriverException.class);
     }
 
     @Test
@@ -611,7 +610,7 @@ public class MatchSearchAT extends AbstractSearchAT {
 
     @Test
     public void matchFilterTimeuuidTest3() {
-        filter(match("timeuuid_1", "a4a70900-24e1-11df-001ff3591711")).check(InvalidQueryException.class);
+        filter(match("timeuuid_1", "a4a70900-24e1-11df-001ff3591711")).check(DriverException.class);
     }
 
     @Test
@@ -624,7 +623,7 @@ public class MatchSearchAT extends AbstractSearchAT {
         filter(match("inet_1", "127.0.1.1")).check(1);
     }
 
-    @Test(expected = InvalidQueryException.class)
+    @Test(expected = DriverException.class)
     public void matchFilterInetFieldTest3() {
         filter(match("inet_1", "127.1.1.")).check(0);
     }

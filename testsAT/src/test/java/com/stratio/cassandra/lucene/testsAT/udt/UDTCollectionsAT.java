@@ -22,7 +22,6 @@ import com.datastax.driver.core.SimpleStatement;
 import com.stratio.cassandra.lucene.testsAT.BaseAT;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtilsSelect;
-import com.stratio.cassandra.lucene.testsAT.util.UDT;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -49,17 +48,15 @@ public class UDTCollectionsAT extends BaseAT {
     @BeforeClass
     public static void before() {
 
-        cassandraUtils = CassandraUtils.builder(KEYSPACE_NAME).build();
-        cassandraUtils.createKeyspace();
-
-        String useKeyspaceQuery = " USE " + cassandraUtils.getKeyspace() + " ;";
-
-        UDT addressUDT = new UDT("address_udt");
-        addressUDT.add("city", "text");
-        addressUDT.add("postcode", "int");
+        cassandraUtils = CassandraUtils.builder(KEYSPACE_NAME)
+                                       .withUDT("address_udt", "city", "text")
+                                       .withUDT("address_udt", "postcode", "int")
+                                       .build()
+                                       .createKeyspace()
+                                       .createUDTs();
 
         String tableCreationQuery = "CREATE TABLE " +
-                                    cassandraUtils.getTable() +
+                                    cassandraUtils.getQualifiedTable() +
                                     " ( login text PRIMARY KEY," +
                                     " numbers list<int>, number_set set<int>,number_map map<text,int>," +
                                     " address list<frozen<address_udt>>, address_set set<frozen<address_udt>>, address_map map<text,frozen<address_udt>>," +
@@ -67,15 +64,11 @@ public class UDTCollectionsAT extends BaseAT {
                                     " address_set_list set<frozen<list<address_udt>>>, address_set_set set<frozen<set<address_udt>>>, address_set_map set<frozen<map<text,address_udt>>>, " +
                                     "  lucene text);";
 
-        cassandraUtils.execute(new SimpleStatement(useKeyspaceQuery));
-        cassandraUtils.execute(new SimpleStatement(addressUDT.toString()));
         cassandraUtils.execute(new SimpleStatement(tableCreationQuery));
 
-        String createIndexQuery = "CREATE CUSTOM INDEX test_index ON " +
-                                  cassandraUtils.getKeyspace() +
-                                  "." +
-                                  cassandraUtils.getTable() +
-                                  "(lucene) " +
+        String createIndexQuery = "CREATE CUSTOM INDEX " + cassandraUtils.getIndex() + " ON " +
+                                  cassandraUtils.getQualifiedTable() +
+                                  "() " +
                                   "USING 'com.stratio.cassandra.lucene.Index' " +
                                   "WITH OPTIONS = { " +
                                   "'refresh_seconds' : '1'," +
@@ -98,9 +91,7 @@ public class UDTCollectionsAT extends BaseAT {
         cassandraUtils.execute(new SimpleStatement(createIndexQuery));
 
         String insert = "INSERT INTO " +
-                        cassandraUtils.getKeyspace() +
-                        "." +
-                        cassandraUtils.getTable() +
+                        cassandraUtils.getQualifiedTable() +
                         "(login, numbers, number_set, number_map, address, address_set, address_map, address_list_list, address_list_set, address_list_map,address_set_list, address_set_set, address_set_map) " +
                         "VALUES ('USER1',[1,2,3],{1,2,3},{'a': 1, 'b': 2 }, " +
                         "[{city:'Barcelona',postcode:28059 },{city:'Roma',postcode:29506 },{city:'Valencia',postcode: 85964 }]," +
@@ -140,9 +131,7 @@ public class UDTCollectionsAT extends BaseAT {
                         "});";
 
         String insert2 = "INSERT INTO " +
-                         cassandraUtils.getKeyspace() +
-                         "." +
-                         cassandraUtils.getTable() +
+                         cassandraUtils.getQualifiedTable() +
                          "(login, numbers, number_set, number_map, address, address_set, address_map, address_list_list, address_list_set, address_list_map ,address_set_list, address_set_set, address_set_map)" +
                          "VALUES ('USER2',[6,10,12],{6,10,12},{'c':1,'d':2}," +
                          "[{city:'Bilbao',postcode:270548 },{city:'Barcelona',postcode:28059 },{city:'Venecia',postcode: 28756 }]," +
@@ -182,9 +171,7 @@ public class UDTCollectionsAT extends BaseAT {
                          "});";
 
         String insert3 = "INSERT INTO " +
-                         cassandraUtils.getKeyspace() +
-                         "." +
-                         cassandraUtils.getTable() +
+                         cassandraUtils.getQualifiedTable() +
                          "(login, numbers, number_set, number_map, address, address_set, address_map, address_list_list, address_list_set, address_list_map,address_set_list, address_set_set, address_set_map )" +
                          "VALUES ('USER3',[14,18,20],{14,18,20},{'e':1,'f':2}," +
                          "[{city:'Lisboa',postcode:29685 },{city:'Sevilla',postcode:58964 },{city:'Granada',postcode:85964 }]," +
@@ -224,9 +211,7 @@ public class UDTCollectionsAT extends BaseAT {
                          "});";
 
         String insert4 = "INSERT INTO " +
-                         cassandraUtils.getKeyspace() +
-                         "." +
-                         cassandraUtils.getTable() +
+                         cassandraUtils.getQualifiedTable() +
                          "(login, numbers, number_set, number_map, address, address_set, address_map, address_list_list, address_list_set, address_list_map ,address_set_list, address_set_set, address_set_map) " +
                          "VALUES ('USER4',[3,10,20],{3,10,20},{'c':1,'h':2}," +
                          "[{city:'Granada',postcode:85964 },{city:'Venecia',postcode:28756 },{city:'Lisboa',postcode:29685 }]," +
@@ -267,9 +252,7 @@ public class UDTCollectionsAT extends BaseAT {
                          ");";
 
         String insert5 = "INSERT INTO " +
-                         cassandraUtils.getKeyspace() +
-                         "." +
-                         cassandraUtils.getTable() +
+                         cassandraUtils.getQualifiedTable() +
                          "(login, numbers, number_set, number_map, address, address_set, address_map, address_list_list, address_list_set, address_list_map ,address_set_list, address_set_set, address_set_map) " +
                          "VALUES ('USER5',[7,11,15],{7,11,15},{'i':1,'j':2}," +
                          "[{city:'Granada',postcode:85964 },{city:'Bilbao',postcode:270548 },{city:'Sevilla',postcode:58964 }]," +
@@ -309,9 +292,7 @@ public class UDTCollectionsAT extends BaseAT {
                          "});";
 
         String insert6 = "INSERT INTO " +
-                         cassandraUtils.getKeyspace() +
-                         "." +
-                         cassandraUtils.getTable() +
+                         cassandraUtils.getQualifiedTable() +
                          "(login, numbers, number_set, number_map, address, address_set, address_map, address_list_list, address_list_set, address_list_map ,address_set_list, address_set_set, address_set_map) " +
                          "VALUES ('USER6',[4,10,15],{4,10,15},{'k':1,'d':2}," +
                          "[{city:'Bilbao',postcode:270548 },{city:'Venecia',postcode:28756 },{city:'Barcelona',postcode:28059 }]," +
@@ -387,7 +368,7 @@ public class UDTCollectionsAT extends BaseAT {
         assertEquals("Expected " + expected.length + " results but received: " + received.length,
                      expected.length,
                      received.length);
-        assertTrue("Unexpected results!! Expected: " + Arrays.toString(expected) + ",but got: " + received.toString(),
+        assertTrue("Unexpected results!! Expected: " + Arrays.toString(expected) + ", but got: " + received.toString(),
                    isThisAndOnlyThis(received, expected));
 
     }

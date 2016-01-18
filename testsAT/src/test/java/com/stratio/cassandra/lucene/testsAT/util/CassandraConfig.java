@@ -29,14 +29,13 @@ public class CassandraConfig {
     static final String HOST = get("host", "127.0.0.1");
     static final int REPLICATION = Integer.valueOf(get("replication", "1"));
     static final ConsistencyLevel CONSISTENCY = ConsistencyLevel.valueOf(get("consistency", "QUORUM"));
-    static final int FETCH = Integer.parseInt(get("fetch", "100"));
+    static final int FETCH = Integer.parseInt(get("fetch", "1000"));
     static final int THREADS = Integer.parseInt(get("threads", "0"));
     static final int REFRESH = Integer.parseInt(get("refresh", "1"));
     static final int WAIT_FOR_INDEXING = Integer.parseInt(get("wait_for_indexing", "1"));
     static final int WAIT_FOR_SERVER = Integer.parseInt(get("wait_for_server", "30"));
     static final String TABLE = get("table", "test_table");
     static final String INDEX = get("index", "test_table_idx");
-    static final String COLUMN = get("column", "lucene");
 
     private static String get(String key, String def) {
         return System.getProperty("it." + key, def);

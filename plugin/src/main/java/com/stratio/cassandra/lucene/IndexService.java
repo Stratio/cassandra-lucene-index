@@ -292,10 +292,22 @@ public abstract class IndexService {
      * @return an Searcher with which to perform the supplied command supported by the index implementation.
      */
     public Index.Searcher searcherFor(ReadCommand command) {
+
+        logger.debug("BUILDING SEARCHER");
+
+        // Parse search data
         Search search = search(command);
         Filter filter = filter(command);
         Query query = search.query(schema, filter);
         Sort sort = sort(search);
+
+        // Refresh if required
+        if (search.refresh()) {
+            lucene.refresh();
+        }
+
+        logger.debug("BUILT SEARCHER");
+
         return (ReadExecutionController executionController) -> read(query, sort, null, command, executionController);
     }
 
@@ -383,8 +395,13 @@ public abstract class IndexService {
      */
     public PartitionIterator postProcess(PartitionIterator partitions, ReadCommand command) {
 
+        // TODO: Throw InvalidRequestException here (JIRA?), validation really happens here
         // TODO: Skip if search is not top-k
         // TODO: Skip if only one node is involved
+
+        logger.debug("POST PROCESSING COUNT {}", command.limits().count());
+        logger.debug("POST PROCESSING COLUMN FILTER {}", command.columnFilter());
+        logger.debug("POST PROCESSING ROW FILTER {}", command.rowFilter());
 
         Search search = search(command);
         Query query = search.query(schema);
@@ -413,6 +430,9 @@ public abstract class IndexService {
             DecoratedRow row = rowsByTerm.get(term);
             rows.add(row);
         }
+
+        logger.debug("POST PROCESSING FINISHED");
+
         return new DecoratedPartition(rows);
     }
 }

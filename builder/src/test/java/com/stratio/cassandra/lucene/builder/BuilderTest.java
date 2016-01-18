@@ -33,31 +33,30 @@ public class BuilderTest {
 
     @Test
     public void testIndexDefaults() {
-        String actual = index("table", "column").schema(schema()).build();
-        String expected = "CREATE CUSTOM INDEX ON table (column) USING 'com.stratio.cassandra.lucene.Index' " +
+        String actual = index("table", "idx").schema(schema()).build();
+        String expected = "CREATE CUSTOM INDEX idx ON table() USING 'com.stratio.cassandra.lucene.Index' " +
                           "WITH OPTIONS = {'schema':'{}'}";
         assertEquals("index serialization is wrong", expected, actual);
     }
 
     @Test
     public void testIndexFull() {
-        String actual = index("ks", "table", "column").keyspace("keyspace")
-                                                      .name("name")
-                                                      .directoryPath("path")
-                                                      .refreshSeconds(10D)
-                                                      .maxCachedMb(32)
-                                                      .maxMergeMb(16)
-                                                      .ramBufferMb(64)
-                                                      .indexingThreads(4)
-                                                      .indexingQueuesSize(100)
-                                                      .excludedDataCenters("DC1,DC2")
-                                                      .defaultAnalyzer("my_analyzer")
-                                                      .analyzer("my_analyzer", classpathAnalyzer("my_class"))
-                                                      .analyzer("snow", snowballAnalyzer("tartar").stopwords("a,b,c"))
-                                                      .mapper("uuid", uuidMapper().validated(true))
-                                                      .mapper("string", stringMapper())
-                                                      .build();
-        String expected = "CREATE CUSTOM INDEX name ON keyspace.table (column) " +
+        String actual = index("ks", "table", "idx").keyspace("keyspace")
+                                                   .directoryPath("path")
+                                                   .refreshSeconds(10D)
+                                                   .maxCachedMb(32)
+                                                   .maxMergeMb(16)
+                                                   .ramBufferMb(64)
+                                                   .indexingThreads(4)
+                                                   .indexingQueuesSize(100)
+                                                   .excludedDataCenters("DC1,DC2")
+                                                   .defaultAnalyzer("my_analyzer")
+                                                   .analyzer("my_analyzer", classpathAnalyzer("my_class"))
+                                                   .analyzer("snow", snowballAnalyzer("tartar").stopwords("a,b,c"))
+                                                   .mapper("uuid", uuidMapper().validated(true))
+                                                   .mapper("string", stringMapper())
+                                                   .build();
+        String expected = "CREATE CUSTOM INDEX idx ON keyspace.table() " +
                           "USING 'com.stratio.cassandra.lucene.Index' " +
                           "WITH OPTIONS = {" +
                           "'refresh_seconds':'10.0'," +
@@ -657,16 +656,15 @@ public class BuilderTest {
 
     @Test
     public void testIndexExample() {
-        String actual = index("messages", "lucene").name("my_index")
-                                                   .refreshSeconds(10)
-                                                   .defaultAnalyzer("english")
-                                                   .analyzer("danish", snowballAnalyzer("danish"))
-                                                   .mapper("id", uuidMapper())
-                                                   .mapper("user", stringMapper().caseSensitive(false))
-                                                   .mapper("message", textMapper().analyzer("danish"))
-                                                   .mapper("date", dateMapper().pattern("yyyyMMdd"))
-                                                   .build();
-        String expected = "CREATE CUSTOM INDEX my_index ON messages (lucene) " +
+        String actual = index("messages", "my_index").refreshSeconds(10)
+                                                     .defaultAnalyzer("english")
+                                                     .analyzer("danish", snowballAnalyzer("danish"))
+                                                     .mapper("id", uuidMapper())
+                                                     .mapper("user", stringMapper().caseSensitive(false))
+                                                     .mapper("message", textMapper().analyzer("danish"))
+                                                     .mapper("date", dateMapper().pattern("yyyyMMdd"))
+                                                     .build();
+        String expected = "CREATE CUSTOM INDEX my_index ON messages() " +
                           "USING 'com.stratio.cassandra.lucene.Index' WITH OPTIONS = {" +
                           "'refresh_seconds':'10'," +
                           "'schema':'{\"analyzers\":{\"danish\":{\"type\":\"snowball\",\"language\":\"danish\"}}," +

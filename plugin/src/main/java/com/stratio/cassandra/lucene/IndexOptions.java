@@ -83,8 +83,8 @@ public class IndexOptions {
     /**
      * Builds a new {@link IndexOptions} for the column family and index metadata.
      *
-     * @param tableMetadata The indexed table metadata.
-     * @param indexMetadata The index metadata.
+     * @param tableMetadata the indexed table metadata
+     * @param indexMetadata the index metadata
      */
     public IndexOptions(CFMetaData tableMetadata, IndexMetadata indexMetadata) {
         Map<String, String> options = indexMetadata.options;
@@ -105,9 +105,10 @@ public class IndexOptions {
     /**
      * Validates the specified index options.
      *
-     * @param options The options to be validated.
+     * @param options the options to be validated
+     * @param tableMetadata the indexed table metadata
      */
-    public static void validateOptions(Map<String, String> options) {
+    public static void validateOptions(Map<String, String> options, CFMetaData tableMetadata) {
         for (Map.Entry entry : options.entrySet()) {
             logger.debug("VALIDATING OPTION {} -> {}", entry.getKey(), entry.getValue());
         }
@@ -118,8 +119,8 @@ public class IndexOptions {
         parseIndexingThreads(options);
         parseIndexingQueuesSize(options);
         parseExcludedDataCenters(options);
-        parseSchema(options, null); // TODO: This should be mandatory, check Index#validateOptions
-        parsePath(options, null, null); // TODO: This should be mandatory, check Index#validateOptions
+        parseSchema(options, tableMetadata);
+        parsePath(options, tableMetadata, null); // TODO: This should be mandatory, check Index#validateOptions
     }
 
     private static double parseRefresh(Map<String, String> options) {

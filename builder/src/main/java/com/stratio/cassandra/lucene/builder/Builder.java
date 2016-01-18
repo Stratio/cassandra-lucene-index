@@ -78,11 +78,11 @@ public abstract class Builder {
      * Returns a new index creation statement using the session's keyspace.
      *
      * @param table  The table name.
-     * @param column The indexed column name.
+     * @param name The index name.
      * @return A new index creation statement.
      */
-    public static Index index(String table, String column) {
-        return new Index(table, column);
+    public static Index index(String table, String name) {
+        return new Index(table, name);
     }
 
     /**
@@ -90,11 +90,11 @@ public abstract class Builder {
      *
      * @param keyspace The keyspace name.
      * @param table    The table name.
-     * @param column   The indexed column name.
+     * @param name   The index name.
      * @return A new index creation statement.
      */
-    public static Index index(String keyspace, String table, String column) {
-        return new Index(table, column).keyspace(keyspace);
+    public static Index index(String keyspace, String table, String name) {
+        return new Index(table, name).keyspace(keyspace);
     }
 
     /**

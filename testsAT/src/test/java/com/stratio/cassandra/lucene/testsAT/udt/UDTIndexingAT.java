@@ -19,11 +19,11 @@
 package com.stratio.cassandra.lucene.testsAT.udt;
 
 import com.datastax.driver.core.SimpleStatement;
+import com.datastax.driver.core.exceptions.DriverException;
 import com.datastax.driver.core.exceptions.InvalidQueryException;
 import com.stratio.cassandra.lucene.testsAT.BaseAT;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtilsSelect;
-import com.stratio.cassandra.lucene.testsAT.util.UDT;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -49,39 +49,31 @@ public class UDTIndexingAT extends BaseAT {
     @BeforeClass
     public static void before() {
 
-        cassandraUtils = CassandraUtils.builder("udt_indexing").build();
-        cassandraUtils.createKeyspace();
-
-        String useKeyspaceQuery = "USE " + cassandraUtils.getKeyspace() + " ;";
-        UDT geoPointUDT = new UDT("geo_point");
-        geoPointUDT.add("latitude", "float");
-        geoPointUDT.add("longitude", "float");
-
-        UDT addressUDT = new UDT("address");
-        addressUDT.add("street", "text");
-        addressUDT.add("city", "text");
-        addressUDT.add("zip", "int");
-        addressUDT.add("bool", "boolean");
-        addressUDT.add("height", "float");
-        addressUDT.add("point", "frozen<geo_point>");
-        addressUDT.add("zips", "list<int>");
-        addressUDT.add("zips_map", "map<int,text>");
-        addressUDT.add("zips_set", "set<int>");
+        cassandraUtils = CassandraUtils.builder("udt_indexing")
+                                       .withUDT("geo_point", "latitude", "float")
+                                       .withUDT("geo_point", "longitude", "float")
+                                       .withUDT("address", "street", "text")
+                                       .withUDT("address", "city", "text")
+                                       .withUDT("address", "zip", "int")
+                                       .withUDT("address", "bool", "boolean")
+                                       .withUDT("address", "height", "float")
+                                       .withUDT("address", "point", "frozen<geo_point>")
+                                       .withUDT("address", "zips", "list<int>")
+                                       .withUDT("address", "zips_map", "map<int,text>")
+                                       .withUDT("address", "zips_set", "set<int>")
+                                       .build()
+                                       .createKeyspace()
+                                       .createUDTs();
 
         String tableCreationQuery = "CREATE TABLE " +
-                                    cassandraUtils.getTable() +
-                                    " ( login text PRIMARY KEY, first_name text, last_name text, address frozen<address>, lucene text);";
+                                    cassandraUtils.getQualifiedTable() +
+                                    "(login text PRIMARY KEY, first_name text, last_name text, address frozen<address>);";
 
-        cassandraUtils.execute(new SimpleStatement(useKeyspaceQuery));
-        cassandraUtils.execute(new SimpleStatement(geoPointUDT.toString()));
-        cassandraUtils.execute(new SimpleStatement(addressUDT.toString()));
         cassandraUtils.execute(new SimpleStatement(tableCreationQuery));
 
-        String createIndexQuery = "CREATE CUSTOM INDEX test_index ON " +
-                                  cassandraUtils.getKeyspace() +
-                                  "." +
-                                  cassandraUtils.getTable() +
-                                  "(lucene) " +
+        String createIndexQuery = "CREATE CUSTOM INDEX " + cassandraUtils.getIndex() + " ON " +
+                                  cassandraUtils.getQualifiedTable() +
+                                  "() " +
                                   "USING 'com.stratio.cassandra.lucene.Index' " +
                                   "WITH OPTIONS = { " +
                                   "'refresh_seconds' : '1'," +
@@ -98,9 +90,7 @@ public class UDTIndexingAT extends BaseAT {
         cassandraUtils.execute(new SimpleStatement(createIndexQuery));
 
         String insert = "INSERT INTO " +
-                        cassandraUtils.getKeyspace() +
-                        "." +
-                        cassandraUtils.getTable() +
+                        cassandraUtils.getQualifiedTable() +
                         "(login, first_name, last_name, address) " +
                         "VALUES (" +
                         "'USER1'," +
@@ -125,9 +115,7 @@ public class UDTIndexingAT extends BaseAT {
                         "});";
 
         String insert2 = "INSERT INTO " +
-                         cassandraUtils.getKeyspace() +
-                         "." +
-                         cassandraUtils.getTable() +
+                         cassandraUtils.getQualifiedTable() +
                          "(login, first_name, last_name, address) " +
                          "VALUES ('USER2','Tom','Smith'," +
                          "{ " +
@@ -149,9 +137,7 @@ public class UDTIndexingAT extends BaseAT {
                          "});";
 
         String insert3 = "INSERT INTO " +
-                         cassandraUtils.getKeyspace() +
-                         "." +
-                         cassandraUtils.getTable() +
+                         cassandraUtils.getQualifiedTable() +
                          "(login, first_name, last_name, address) " +
                          "VALUES ('USER3','Tom','Smith'," +
                          "{ " +
@@ -173,9 +159,7 @@ public class UDTIndexingAT extends BaseAT {
                          "});";
 
         String insert4 = "INSERT INTO " +
-                         cassandraUtils.getKeyspace() +
-                         "." +
-                         cassandraUtils.getTable() +
+                         cassandraUtils.getQualifiedTable() +
                          "(login, first_name, last_name, address) " +
                          "VALUES ('USER4','Tom','Smith'," +
                          "{ " +
@@ -197,9 +181,7 @@ public class UDTIndexingAT extends BaseAT {
                          "});";
 
         String insert5 = "INSERT INTO " +
-                         cassandraUtils.getKeyspace() +
-                         "." +
-                         cassandraUtils.getTable() +
+                         cassandraUtils.getQualifiedTable() +
                          "(login, first_name, last_name, address) " +
                          "VALUES ('USER5','Tom','Smith'," +
                          "{ " +
@@ -221,9 +203,7 @@ public class UDTIndexingAT extends BaseAT {
                          "});";
 
         String insert6 = "INSERT INTO " +
-                         cassandraUtils.getKeyspace() +
-                         "." +
-                         cassandraUtils.getTable() +
+                         cassandraUtils.getQualifiedTable() +
                          "(login, first_name, last_name, address) " +
                          "VALUES ('USER6','Tom','Smith'," +
                          "{ " +
@@ -245,9 +225,7 @@ public class UDTIndexingAT extends BaseAT {
                          "});";
 
         String insert7 = "INSERT INTO " +
-                         cassandraUtils.getKeyspace() +
-                         "." +
-                         cassandraUtils.getTable() +
+                         cassandraUtils.getQualifiedTable() +
                          "(login, first_name, last_name, address) " +
                          "VALUES ('USER7','Tom','Smith'," +
                          "{ " +
@@ -330,7 +308,7 @@ public class UDTIndexingAT extends BaseAT {
 
     }
 
-    @Test(expected = InvalidQueryException.class)
+    @Test(expected = DriverException.class)
     public void testUDTInternalThatFails() {
 
         CassandraUtilsSelect select = cassandraUtils.filter(match("address.point", "Paris"));
@@ -472,21 +450,21 @@ public class UDTIndexingAT extends BaseAT {
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER7"});
 
         select = cassandraUtils.filter(range("address.point.latitude").lower(1.0)
-                                                                     .upper(3.0)
-                                                                     .includeLower(true)
-                                                                     .includeUpper(true));
+                                                                      .upper(3.0)
+                                                                      .includeLower(true)
+                                                                      .includeUpper(true));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1", "USER2", "USER3"});
 
         select = cassandraUtils.filter(range("address.point.latitude").lower(2.0)
-                                                                     .upper(5.0)
-                                                                     .includeLower(true)
-                                                                     .includeUpper(true));
+                                                                      .upper(5.0)
+                                                                      .includeLower(true)
+                                                                      .includeUpper(true));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER2", "USER3", "USER4", "USER5"});
 
         select = cassandraUtils.filter(range("address.point.latitude").lower(1.0)
-                                                                     .upper(7.0)
-                                                                     .includeLower(true)
-                                                                     .includeUpper(true));
+                                                                      .upper(7.0)
+                                                                      .includeLower(true)
+                                                                      .includeUpper(true));
         assertEqualsAndOnlyThisString(select.stringColumn("login"),
                                       new String[]{"USER1", "USER2", "USER3", "USER4", "USER5", "USER6", "USER7"});
 
@@ -501,21 +479,21 @@ public class UDTIndexingAT extends BaseAT {
                                       new String[]{"USER2", "USER3", "USER4", "USER5", "USER6"});
 
         select = cassandraUtils.filter(range("address.point.latitude").lower(1.0)
-                                                                     .upper(3.0)
-                                                                     .includeLower(true)
-                                                                     .includeUpper(true));
+                                                                      .upper(3.0)
+                                                                      .includeLower(true)
+                                                                      .includeUpper(true));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1", "USER2", "USER3"});
 
         select = cassandraUtils.filter(range("address.point.latitude").lower(2.0)
-                                                                     .upper(5.0)
-                                                                     .includeLower(true)
-                                                                     .includeUpper(true));
+                                                                      .upper(5.0)
+                                                                      .includeLower(true)
+                                                                      .includeUpper(true));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER2", "USER3", "USER4", "USER5"});
 
         select = cassandraUtils.filter(range("address.point.latitude").lower(1.0)
-                                                                     .upper(7.0)
-                                                                     .includeLower(true)
-                                                                     .includeUpper(true));
+                                                                      .upper(7.0)
+                                                                      .includeLower(true)
+                                                                      .includeUpper(true));
         assertEqualsAndOnlyThisString(select.stringColumn("login"),
                                       new String[]{"USER1", "USER2", "USER3", "USER4", "USER5", "USER6", "USER7"});
 
@@ -530,7 +508,7 @@ public class UDTIndexingAT extends BaseAT {
                                       new String[]{"USER2", "USER3", "USER4", "USER5", "USER6"});
     }
 
-    @Test(expected = InvalidQueryException.class)
+    @Test(expected = DriverException.class)
     public void testUDTOverUDTThatFails() {
         cassandraUtils.filter(range("address.point.non-existent").lower(-1.0).upper(-3.0)).get();
         assertTrue("Selecting a non-existent type inside udt inside udt must return an Exception", true);

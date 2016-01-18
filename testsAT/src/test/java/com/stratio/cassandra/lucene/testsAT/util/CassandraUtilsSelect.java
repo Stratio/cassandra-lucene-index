@@ -18,6 +18,7 @@
 
 package com.stratio.cassandra.lucene.testsAT.util;
 
+import com.datastax.driver.core.ConsistencyLevel;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.SimpleStatement;
 import com.datastax.driver.core.Statement;
@@ -33,7 +34,6 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import static com.datastax.driver.core.querybuilder.QueryBuilder.eq;
 import static org.junit.Assert.*;
 
 /**
@@ -47,7 +47,9 @@ public class CassandraUtilsSelect {
     private LinkedList<String> extras;
     private Integer limit;
     private Integer fetchSize;
-    private Boolean refresh = true;
+    private boolean refresh = true;
+    private boolean allowFiltering = false;
+    private ConsistencyLevel consistency;
 
     public CassandraUtilsSelect(CassandraUtils parent) {
         this.parent = parent;
@@ -132,27 +134,43 @@ public class CassandraUtilsSelect {
         return this;
     }
 
+    public CassandraUtilsSelect allowFiltering(boolean allowFiltering) {
+        this.allowFiltering = allowFiltering;
+        return this;
+    }
+
+    public CassandraUtilsSelect consistency(ConsistencyLevel consistency) {
+        this.consistency = consistency;
+        return this;
+    }
+
     public List<Row> get() {
         Select.Where where = QueryBuilder.select().from(parent.getKeyspace(), parent.getTable()).where();
         for (Clause clause : clauses) {
             where.and(clause);
         }
-        if (search != null) {
-            where.and(eq(parent.getIndexColumn(), search.refresh(refresh).build()));
-        }
         Statement statement = limit == null ? where : where.limit(limit);
 
         String query = statement.toString();
-        query = query.substring(0, query.length() - 1);
+        query = query.substring(0, query.length() - 1); // Remove semicolon
         StringBuilder sb = new StringBuilder(query);
+        if (search != null) {
+            sb.append(String.format(" WHERE expr(%s,'%s')", parent.getIndex(), search.refresh(refresh).build()));
+        }
         for (String extra : extras) {
             sb.append(" ");
             sb.append(extra);
             sb.append(" ");
         }
+        if (allowFiltering) {
+            sb.append(" ALLOW FILTERING");
+        }
         statement = new SimpleStatement(sb.toString());
         if (fetchSize != null) {
             statement.setFetchSize(fetchSize);
+        }
+        if (consistency != null) {
+            statement.setConsistencyLevel(consistency);
         }
         return parent.execute(statement).all();
     }
@@ -176,7 +194,9 @@ public class CassandraUtilsSelect {
             get();
             fail("Search should have been invalid!");
         } catch (Exception e) {
-            assertTrue("Exception should be " + expected.getSimpleName(), expected.isAssignableFrom(e.getClass()));
+            assertTrue(String.format("Exception should be %s but found %s",
+                                     expected.getSimpleName(),
+                                     e.getClass().getSimpleName()), expected.isAssignableFrom(e.getClass()));
         }
         return parent;
     }

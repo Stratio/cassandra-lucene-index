@@ -20,7 +20,7 @@ package com.stratio.cassandra.lucene.testsAT.search;
 
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
-import com.datastax.driver.core.exceptions.InvalidQueryException;
+import com.datastax.driver.core.exceptions.DriverException;
 import com.datastax.driver.core.querybuilder.Batch;
 import com.datastax.driver.core.querybuilder.Insert;
 import com.datastax.driver.core.querybuilder.QueryBuilder;
@@ -379,23 +379,11 @@ public class BitemporalSearchAT extends BaseAT {
     }
 
     //inserting bigger to nowValue it
-    @Test(expected = InvalidQueryException.class)
-    public void biTemporalQueryIsWithInNowValueToLongTest2() {
-        //testing with long value 1456876800 ==2016/03/02 00:00:00
+    @Test(expected = DriverException.class)
+    public void biTemporalQueryWithNowValueTooLongTest() {
+        // testing with long value 1456876800 == 2016/03/02 00:00:00
         String nowValue = "2016/03/02 00:00:00.000";
-        CassandraUtils cu = this.setUpSuite2(nowValue, SIMPLE_DATE_PATTERN);
-        try {
-            cu.insert(data6);
-        } finally {
-            tearDown(cu);
-        }
-    }
-
-    //inserting bigger to nowValue it must throw an IllegalArgumentException
-    @Test(expected = InvalidQueryException.class)
-    public void biTemporalQueryIsWithInNowValueToStringTest2() {
-        String nowValue = "2016/03/02 00:00:00.000";
-        CassandraUtils cu = this.setUpSuite2(nowValue, SIMPLE_DATE_PATTERN);
+        CassandraUtils cu = setUpSuite2(nowValue, SIMPLE_DATE_PATTERN);
         try {
             cu.insert(data6);
         } finally {
@@ -409,8 +397,7 @@ public class BitemporalSearchAT extends BaseAT {
         //testing with string value
         String nowValue = "2015/04/15 12:00:00.000";
 
-        CassandraUtils cu = this.setUpSuite2(nowValue, SIMPLE_DATE_PATTERN)
-                                .insert(data1, data2, data3);
+        CassandraUtils cu = setUpSuite2(nowValue, SIMPLE_DATE_PATTERN).insert(data1, data2, data3);
 
         //testing if inserting data translate it to Long.max
         CassandraUtilsSelect select = cu.query(bitemporal("bitemporal").vtFrom("2014/12/31 12:00:00.000")
@@ -429,8 +416,7 @@ public class BitemporalSearchAT extends BaseAT {
         //testing with string value
         String nowValue = "2015/04/15 12:00:00.000";
 
-        CassandraUtils cu = this.setUpSuite2(nowValue, SIMPLE_DATE_PATTERN)
-                                .insert(data1, data2, data3);
+        CassandraUtils cu = setUpSuite2(nowValue, SIMPLE_DATE_PATTERN).insert(data1, data2, data3);
 
         //testing if inserting data translate it to Long.max
         CassandraUtilsSelect select = cu.query(bitemporal("bitemporal").ttFrom("2015/01/14 00:00:00.000")
@@ -447,8 +433,7 @@ public class BitemporalSearchAT extends BaseAT {
         //testing with string value
         String nowValue = "2015/04/15 12:00:00.000";
 
-        CassandraUtils cu = this.setUpSuite2(nowValue, SIMPLE_DATE_PATTERN)
-                                .insert(data1, data2, data3);
+        CassandraUtils cu = setUpSuite2(nowValue, SIMPLE_DATE_PATTERN).insert(data1, data2, data3);
 
         //testing if inserting data translate it to Long.max
         CassandraUtilsSelect select = cu.query(bitemporal("bitemporal").vtFrom("2014/12/31 12:00:00.000")
@@ -492,7 +477,7 @@ public class BitemporalSearchAT extends BaseAT {
         update.where(QueryBuilder.eq("id", 1))
               .and(QueryBuilder.eq("vt_from", 0))
               .and(QueryBuilder.eq("tt_from", 0))
-              .onlyIf(QueryBuilder.eq("tt_to", 9223372036854775807l))
+              .onlyIf(QueryBuilder.eq("tt_to", 9223372036854775807L))
               .with(QueryBuilder.set("tt_to", 20150101));
 
         batch.add(update);
@@ -501,28 +486,28 @@ public class BitemporalSearchAT extends BaseAT {
                                     .value("id", 1)
                                     .value("data", "v2")
                                     .value("vt_from", 0)
-                                    .value("vt_to", 9223372036854775807l)
+                                    .value("vt_to", 9223372036854775807L)
                                     .value("tt_from", 20150102)
-                                    .value("tt_to", 9223372036854775807l);
+                                    .value("tt_to", 9223372036854775807L);
 
         batch.add(insert);
         ResultSet result = cu.execute(batch);
 
-        assertTrue("batch execution didnt worked", result.wasApplied());
+        assertTrue("batch execution didn't work", result.wasApplied());
 
         CassandraUtilsSelect select2 = cu.filter(bitemporal("bitemporal").vtFrom(0)
-                                                                         .vtTo(9223372036854775807l)
-                                                                         .ttFrom(9223372036854775807l)
-                                                                         .ttTo(9223372036854775807l)).refresh(true);
+                                                                         .vtTo(9223372036854775807L)
+                                                                         .ttFrom(9223372036854775807L)
+                                                                         .ttTo(9223372036854775807L)).refresh(true);
 
         assertEquals("Expected 5 results!", 5, select2.count());
         assertTrue("Unexpected results!! Expected: {1,2,3,4,5}, got: " + fromInteger(select2.intColumn("id")),
                    isThisAndOnlyThis(select2.intColumn("id"), new int[]{1, 2, 3, 4, 5}));
 
         CassandraUtilsSelect select3 = cu.filter(bitemporal("bitemporal").vtFrom(0)
-                                                                         .vtTo(9223372036854775807l)
-                                                                         .ttFrom(9223372036854775807l)
-                                                                         .ttTo(9223372036854775807l)).and("AND id = 1");
+                                                                         .vtTo(9223372036854775807L)
+                                                                         .ttFrom(9223372036854775807L)
+                                                                         .ttTo(9223372036854775807L)).and("AND id = 1");
 
         assertEquals("Expected 1 results!", 1, select3.count());
         Row row = select3.get().get(0);
@@ -532,20 +517,20 @@ public class BitemporalSearchAT extends BaseAT {
         assertTrue("Unexpected results!! Expected result : {data=\"v2\"}, got: " + row.getString("data"),
                    row.getString("data").equals("v2"));
         assertTrue("Unexpected results!! Expected result : {vt_from=0}, got: " + row.getLong("vt_from"),
-                   row.getLong("vt_from") == 0l);
+                   row.getLong("vt_from") == 0L);
         assertTrue("Unexpected results!! Expected result : {vt_to=0}, got: " + row.getLong("vt_to"),
-                   row.getLong("vt_to") == 9223372036854775807l);
+                   row.getLong("vt_to") == 9223372036854775807L);
         assertTrue("Unexpected results!! Expected result : {tt_from=0}, got: " + row.getLong("tt_from"),
-                   row.getLong("tt_from") == 20150102l);
+                   row.getLong("tt_from") == 20150102L);
         assertTrue("Unexpected results!! Expected result : {tt_to=0}, got: " + row.getLong("tt_to"),
-                   row.getLong("tt_to") == 9223372036854775807l);
+                   row.getLong("tt_to") == 9223372036854775807L);
         tearDown(cu);
 
     }
 
     @Test
     public void testFuture() {
-        CassandraUtils cu = this.setUpSuite4();
+        CassandraUtils cu = setUpSuite4();
         CassandraUtilsSelect select = cu.filter(bitemporal("bitemporal").ttFrom(
                 "2015/01/02 12:00:00.001").ttTo("2015/01/02 12:00:00.001")).refresh(true);
 
@@ -557,7 +542,7 @@ public class BitemporalSearchAT extends BaseAT {
 
     @Test
     public void testFuture2() {
-        CassandraUtils cu = this.setUpSuite4();
+        CassandraUtils cu = setUpSuite4();
         CassandraUtilsSelect select = cu.filter(bitemporal("bitemporal").ttFrom(
                 "2015/01/06 12:00:00.001").ttTo("2015/01/06 12:00:00.001")).refresh(true);
 
@@ -569,7 +554,7 @@ public class BitemporalSearchAT extends BaseAT {
 
     @Test
     public void testFuture3() {
-        CassandraUtils cu = this.setUpSuite4();
+        CassandraUtils cu = setUpSuite4();
         CassandraUtilsSelect select = cu.filter(bitemporal("bitemporal").ttFrom(
                 "2015/01/15 12:00:00.001").ttTo("2015/01/15 12:00:00.001")).refresh(true);
 
@@ -581,7 +566,7 @@ public class BitemporalSearchAT extends BaseAT {
 
     @Test
     public void testFuture4() {
-        CassandraUtils cu = this.setUpSuite4();
+        CassandraUtils cu = setUpSuite4();
         CassandraUtilsSelect select = cu.filter(bitemporal("bitemporal").vtFrom(
                 "2016/01/15 12:00:00.001").vtTo("2016/01/15 12:00:00.001")).refresh(true);
 
@@ -593,7 +578,7 @@ public class BitemporalSearchAT extends BaseAT {
 
     @Test
     public void testFuture5() {
-        CassandraUtils cu = this.setUpSuite4();
+        CassandraUtils cu = setUpSuite4();
         CassandraUtilsSelect select = cu.filter(bitemporal("bitemporal").vtFrom("2015/06/15 12:00:00.001")
                                                                         .vtTo("2015/07/15 12:00:00.001")
                                                                         .ttFrom("2015/01/02 12:00:00.001")
@@ -607,7 +592,7 @@ public class BitemporalSearchAT extends BaseAT {
 
     @Test
     public void testFuture6() {
-        CassandraUtils cu = this.setUpSuite4();
+        CassandraUtils cu = setUpSuite4();
         CassandraUtilsSelect select = cu.filter(bitemporal("bitemporal").ttFrom(
                 "2200/01/01 00:00:00.000").ttTo("2200/01/01 00:00:00.000")).refresh(true);
 

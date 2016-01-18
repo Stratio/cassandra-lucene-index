@@ -349,6 +349,6 @@ public class FSIndex implements FSIndexMBean {
         } catch (Exception e) {
             throw new IndexException(logger, e, "Error refreshing %s readers", name);
         }
-        logger.info("Refreshed %s readers", name);
+        logger.info("Refreshed {} readers", name);
     }
 }

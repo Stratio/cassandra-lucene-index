@@ -18,7 +18,7 @@
 
 package com.stratio.cassandra.lucene.testsAT.search;
 
-import com.datastax.driver.core.exceptions.InvalidQueryException;
+import com.datastax.driver.core.exceptions.DriverException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -216,7 +216,7 @@ public class RangeSearchAT extends AbstractSearchAT {
 
     @Test
     public void rangeQueryUuidTest2() {
-        query(range("uuid_1").lower("1").upper("9")).check(InvalidQueryException.class);
+        query(range("uuid_1").lower("1").upper("9")).check(DriverException.class);
     }
 
     @Test
@@ -240,7 +240,7 @@ public class RangeSearchAT extends AbstractSearchAT {
 
     @Test
     public void rangeQueryTimeuuidTest2() {
-        query(range("timeuuid_1").lower("a").upper("z")).check(InvalidQueryException.class);
+        query(range("timeuuid_1").lower("a").upper("z")).check(DriverException.class);
     }
 
     @Test
@@ -572,7 +572,7 @@ public class RangeSearchAT extends AbstractSearchAT {
 
     @Test
     public void rangeFilterUuidTest2() {
-        filter(range("uuid_1").lower("1").upper("9")).check(InvalidQueryException.class);
+        filter(range("uuid_1").lower("1").upper("9")).check(DriverException.class);
     }
 
     @Test
@@ -594,9 +594,9 @@ public class RangeSearchAT extends AbstractSearchAT {
         filter(range("timeuuid_1")).check(5);
     }
 
-    @Test(expected = InvalidQueryException.class)
+    @Test
     public void rangeFilterTimeuuidTest2() {
-        filter(range("timeuuid_1").lower("a").upper("z")).check(5);
+        filter(range("timeuuid_1").lower("a").upper("z")).check(DriverException.class);
     }
 
     @Test

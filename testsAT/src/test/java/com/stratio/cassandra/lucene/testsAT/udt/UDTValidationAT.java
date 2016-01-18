@@ -20,13 +20,11 @@ package com.stratio.cassandra.lucene.testsAT.udt;
 
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.SimpleStatement;
+import com.datastax.driver.core.exceptions.DriverException;
 import com.datastax.driver.core.exceptions.InvalidConfigurationInQueryException;
 import com.stratio.cassandra.lucene.testsAT.BaseAT;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
-import com.stratio.cassandra.lucene.testsAT.util.UDT;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
@@ -39,52 +37,45 @@ import static org.junit.Assert.assertFalse;
 @RunWith(JUnit4.class)
 public class UDTValidationAT extends BaseAT {
 
-    private static CassandraUtils cassandraUtils;
+    private CassandraUtils cassandraUtils;
 
-    @BeforeClass
-    public static void before() {
-
-        cassandraUtils = CassandraUtils.builder("udt_validation").build();
-        cassandraUtils.createKeyspace();
-
-        String useKeyspaceQuery = " USE " + cassandraUtils.getKeyspace() + " ;";
-        UDT geoPointUDT = new UDT("geo_point");
-        geoPointUDT.add("latitude", "float");
-        geoPointUDT.add("longitude", "float");
-
-        UDT addressUDT = new UDT("address");
-        addressUDT.add("street", "text");
-        addressUDT.add("city", "text");
-        addressUDT.add("zip", "int");
-        addressUDT.add("bool", "boolean");
-        addressUDT.add("height", "float");
-        addressUDT.add("point", "frozen<geo_point>");
-
-        String tableCreationQuery = "CREATE TABLE " +
-                                    cassandraUtils.getTable() +
-                                    " ( login text PRIMARY KEY, first_name text, last_name text, address frozen<address>, lucene text);";
-
-        cassandraUtils.execute(new SimpleStatement(useKeyspaceQuery));
-        cassandraUtils.execute(new SimpleStatement(geoPointUDT.toString()));
-        cassandraUtils.execute(new SimpleStatement(addressUDT.toString()));
-        cassandraUtils.execute(new SimpleStatement(tableCreationQuery));
+    @Before
+    public void before() {
+        cassandraUtils = CassandraUtils.builder("udt_validation")
+                                       .withUDT("geo_point", "latitude", "float")
+                                       .withUDT("geo_point", "longitude", "float")
+                                       .withUDT("address", "street", "text")
+                                       .withUDT("address", "city", "text")
+                                       .withUDT("address", "zip", "int")
+                                       .withUDT("address", "bool", "boolean")
+                                       .withUDT("address", "height", "float")
+                                       .withUDT("address", "point", "frozen<geo_point>")
+                                       .withColumn("login","text")
+                                       .withColumn("first_name","text")
+                                       .withColumn("last_name","text")
+                                       .withColumn("address","frozen<address>")
+                                       .withPartitionKey("login")
+                                       .build()
+                                       .createKeyspace()
+                                       .createUDTs()
+                                       .createTable();
     }
 
-    @AfterClass
-    public static void after() {
-        cassandraUtils.dropTable().dropKeyspace();
+    @After
+    public void after() {
+        cassandraUtils.dropKeyspace();
     }
 
     @Test
     public void testValidCreateIndex() {
 
         String createIndexQuery = "CREATE CUSTOM INDEX " +
-                                  cassandraUtils.getIndexName() +
+                                  cassandraUtils.getIndex() +
                                   " ON " +
                                   cassandraUtils.getKeyspace() +
                                   "." +
                                   cassandraUtils.getTable() +
-                                  "(lucene) " +
+                                  "() " +
                                   "USING 'com.stratio.cassandra.lucene.Index' " +
                                   "WITH OPTIONS = { " +
                                   "'refresh_seconds' : '1', " +
@@ -98,21 +89,17 @@ public class UDTValidationAT extends BaseAT {
 
         ResultSet result = cassandraUtils.execute(new SimpleStatement(createIndexQuery));
         assertEquals("Creating valid udt index must return that was applied", true, result.wasApplied());
-
-        String dropIndex = "DROP INDEX " + cassandraUtils.getIndexName() + ";";
-        result = cassandraUtils.execute(new SimpleStatement(dropIndex));
-        assertEquals("Dropping valid udt index must return that was applied", true, result.wasApplied());
     }
 
     @Test
     public void testInValidCreateIndex() {
         String createIndexQuery = "CREATE CUSTOM INDEX " +
-                                  cassandraUtils.getIndexName() +
+                                  cassandraUtils.getIndex() +
                                   " ON " +
                                   cassandraUtils.getKeyspace() +
                                   "." +
                                   cassandraUtils.getTable() +
-                                  "(lucene) " +
+                                  "() " +
                                   "USING 'com.stratio.cassandra.lucene.Index' " +
                                   "WITH OPTIONS = { " +
                                   "'refresh_seconds' : '1', " +
@@ -123,7 +110,7 @@ public class UDTValidationAT extends BaseAT {
         try {
             cassandraUtils.execute(new SimpleStatement(createIndexQuery));
             assertFalse("Creating invalid index must throw an Exception but does not ", true);
-        } catch (InvalidConfigurationInQueryException e) {
+        } catch (DriverException e) {
             String expectedMessage = "'schema' is invalid : No column definition 'address.non-existent' " +
                                      "for mapper 'address.non-existent.latitude'";
             assertEquals(String.format("Creating invalid index must return InvalidConfigurationInQueryException(%s) " +
@@ -137,12 +124,12 @@ public class UDTValidationAT extends BaseAT {
     @Test
     public void testInValidCreateIndex2() {
         String createIndexQuery = "CREATE CUSTOM INDEX " +
-                                  cassandraUtils.getIndexName() +
+                                  cassandraUtils.getIndex() +
                                   " ON " +
                                   cassandraUtils.getKeyspace() +
                                   "." +
                                   cassandraUtils.getTable() +
-                                  "(lucene) " +
+                                  "() " +
                                   "USING 'com.stratio.cassandra.lucene.Index' " +
                                   "WITH OPTIONS = { " +
                                   "'refresh_seconds' : '1', " +
@@ -153,7 +140,7 @@ public class UDTValidationAT extends BaseAT {
         try {
             cassandraUtils.execute(new SimpleStatement(createIndexQuery));
             assertFalse("Creating invalid index must throw an Exception but does not ", true);
-        } catch (InvalidConfigurationInQueryException e) {
+        } catch (DriverException e) {
             String expectedMessage = "'schema' is invalid : No column definition 'address.non-existent' " +
                                      "for mapper 'address.non-existent'";
             assertEquals("Creating invalid index must return InvalidConfigurationInQueryException(" +
@@ -168,12 +155,12 @@ public class UDTValidationAT extends BaseAT {
     @Test
     public void testInValidCreateIndex3() {
         String createIndexQuery = "CREATE CUSTOM INDEX " +
-                                  cassandraUtils.getIndexName() +
+                                  cassandraUtils.getIndex() +
                                   " ON " +
                                   cassandraUtils.getKeyspace() +
                                   "." +
                                   cassandraUtils.getTable() +
-                                  "(lucene) " +
+                                  "() " +
                                   "USING 'com.stratio.cassandra.lucene.Index' " +
                                   "WITH OPTIONS = { " +
                                   "'refresh_seconds' : '1', " +
@@ -190,11 +177,10 @@ public class UDTValidationAT extends BaseAT {
         try {
             cassandraUtils.execute(new SimpleStatement(createIndexQuery));
             assertFalse("Creating invalid index must throw an Exception but does not ", true);
-        } catch (InvalidConfigurationInQueryException e) {
-            String
-                    expectedMessage
-                    = "'schema' is invalid : 'org.apache.cassandra.db.marshal.FloatType' is not supported by mapper 'address.point.longitude'";
-            assertEquals("Cretaing invalid index must return InvalidConfigurationInQueryException(" +
+        } catch (DriverException e) {
+            String expectedMessage = "'schema' is invalid : 'org.apache.cassandra.db.marshal.FloatType'" +
+                                     " is not supported by mapper 'address.point.longitude'";
+            assertEquals("Creating invalid index must return InvalidConfigurationInQueryException(" +
                          expectedMessage +
                          ") but returns InvalidConfigurationInQueryException(" +
                          e.getMessage() +
@@ -206,12 +192,12 @@ public class UDTValidationAT extends BaseAT {
     @Test
     public void testInValidCreateIndex4() {
         String createIndexQuery = "CREATE CUSTOM INDEX " +
-                                  cassandraUtils.getIndexName() +
+                                  cassandraUtils.getIndex() +
                                   " ON " +
                                   cassandraUtils.getKeyspace() +
                                   "." +
                                   cassandraUtils.getTable() +
-                                  "(lucene) " +
+                                  "() " +
                                   "USING 'com.stratio.cassandra.lucene.Index' " +
                                   "WITH OPTIONS = { " +
                                   "'refresh_seconds' : '1', " +
@@ -228,11 +214,11 @@ public class UDTValidationAT extends BaseAT {
         try {
             cassandraUtils.execute(new SimpleStatement(createIndexQuery));
             assertFalse("Creating invalid index must throw an Exception but does not ", true);
-        } catch (InvalidConfigurationInQueryException e) {
-            String
-                    expectedMessage
-                    = "'schema' is invalid : No column definition 'address.point.longitude.non-existent' for mapper 'address.point.longitude.non-existent'";
-            assertEquals("Cretaing invalid index must return InvalidConfigurationInQueryException(" +
+        } catch (DriverException e) {
+            String expectedMessage = "'schema' is invalid : No column definition " +
+                                     "'address.point.longitude.non-existent' for mapper " +
+                                     "'address.point.longitude.non-existent'";
+            assertEquals("Creating invalid index must return InvalidConfigurationInQueryException(" +
                          expectedMessage +
                          ") but returns InvalidConfigurationInQueryException(" +
                          e.getMessage() +

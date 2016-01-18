@@ -26,7 +26,7 @@
     <parent>
         <groupId>com.stratio.cassandra</groupId>
         <artifactId>cassandra-lucene-index-parent</artifactId>
-        <version>3.0.2.0-SNAPSHOT</version>
+        <version>3.x</version>
     </parent>
 
     <packaging>jar</packaging>
@@ -42,27 +42,19 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.stratio.cassandra</groupId>
-            <artifactId>cassandra-lucene-index-plugin</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <version>1.1.3</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.cassandra</groupId>
-            <artifactId>cassandra-all</artifactId>
-            <version>${cassandra.version}</version>
-            <scope>test</scope>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.1.3</version>
         </dependency>
         <dependency>
             <groupId>com.datastax.cassandra</groupId>
             <artifactId>cassandra-driver-core</artifactId>
-            <version>2.1.8</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>16.0</version>
+            <version>3.0.0-rc1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
