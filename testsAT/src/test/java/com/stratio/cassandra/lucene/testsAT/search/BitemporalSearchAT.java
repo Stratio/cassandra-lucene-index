@@ -21,6 +21,7 @@ package com.stratio.cassandra.lucene.testsAT.search;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.exceptions.DriverException;
+import com.datastax.driver.core.exceptions.InvalidQueryException;
 import com.datastax.driver.core.querybuilder.Batch;
 import com.datastax.driver.core.querybuilder.Insert;
 import com.datastax.driver.core.querybuilder.QueryBuilder;
@@ -379,7 +380,7 @@ public class BitemporalSearchAT extends BaseAT {
     }
 
     //inserting bigger to nowValue it
-    @Test(expected = DriverException.class)
+    @Test(expected = InvalidQueryException.class)
     public void biTemporalQueryWithNowValueTooLongTest() {
         // testing with long value 1456876800 == 2016/03/02 00:00:00
         String nowValue = "2016/03/02 00:00:00.000";

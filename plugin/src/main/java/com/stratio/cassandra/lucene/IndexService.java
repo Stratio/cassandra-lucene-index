@@ -35,9 +35,11 @@ import org.apache.cassandra.db.filter.RowFilter;
 import org.apache.cassandra.db.filter.RowFilter.Expression;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.db.partitions.PartitionIterator;
+import org.apache.cassandra.db.partitions.PartitionUpdate;
 import org.apache.cassandra.db.partitions.UnfilteredPartitionIterator;
 import org.apache.cassandra.db.rows.Row;
 import org.apache.cassandra.db.rows.RowIterator;
+import org.apache.cassandra.exceptions.InvalidRequestException;
 import org.apache.cassandra.index.Index;
 import org.apache.cassandra.index.transactions.IndexTransaction;
 import org.apache.cassandra.schema.IndexMetadata;
@@ -399,10 +401,6 @@ public abstract class IndexService {
         // TODO: Skip if search is not top-k
         // TODO: Skip if only one node is involved
 
-        logger.debug("POST PROCESSING COUNT {}", command.limits().count());
-        logger.debug("POST PROCESSING COLUMN FILTER {}", command.columnFilter());
-        logger.debug("POST PROCESSING ROW FILTER {}", command.rowFilter());
-
         Search search = search(command);
         Query query = search.query(schema);
         Sort sort = sort(search);
@@ -431,8 +429,18 @@ public abstract class IndexService {
             rows.add(row);
         }
 
-        logger.debug("POST PROCESSING FINISHED");
-
         return new DecoratedPartition(rows);
+    }
+
+    /**
+     * Ensures that values present in the specified update are valid according to the {@link Schema}.
+     *
+     * @param update PartitionUpdate containing the values to be validated by the {@link Schema}
+     */
+    public void validate(PartitionUpdate update) {
+        DecoratedKey key = update.partitionKey();
+        for (Row row : update) {
+            schema.validate(columns(key, row));
+        }
     }
 }

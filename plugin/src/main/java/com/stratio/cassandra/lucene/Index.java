@@ -27,6 +27,7 @@ import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.db.partitions.PartitionIterator;
 import org.apache.cassandra.db.partitions.PartitionUpdate;
+import org.apache.cassandra.db.rows.Row;
 import org.apache.cassandra.exceptions.ConfigurationException;
 import org.apache.cassandra.exceptions.InvalidRequestException;
 import org.apache.cassandra.index.IndexRegistry;
@@ -339,6 +340,11 @@ public class Index implements org.apache.cassandra.index.Index {
     @Override
     public void validate(PartitionUpdate update) throws InvalidRequestException {
         logger.debug("Validating {}", update);
+        try {
+            service.validate(update);
+        } catch (Exception e) {
+            throw new InvalidRequestException(e.getMessage());
+        }
     }
 
     /*
