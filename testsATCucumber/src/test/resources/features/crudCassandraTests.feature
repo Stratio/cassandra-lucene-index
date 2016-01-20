@@ -31,7 +31,7 @@ Scenario: Create a table with keyspace and insert data
 		|'firstRowTest4'|
 		
 Scenario: Check data from table 
-	Given I execute a query over fields '*' with schema 'empty' of type 'string' with magic_column 'lucene' from table: 'basic' using keyspace: 'opera' with: 
+	Given I execute a query over fields '*' with schema 'empty' of type 'string' with magic_column 'empty' from table: 'basic' using keyspace: 'opera' with: 
 		||
 	Then There are results found with: 
 		|firstrow			 |occurrences|
@@ -42,7 +42,7 @@ Scenario: Check data from table
 		
 Scenario: Truncate data from table 
 	Given I truncate a Cassandra table named 'basic' using keyspace 'opera' 
-	When I execute a query over fields '*' with schema 'empty' of type 'string' with magic_column 'lucene' from table: 'basic' using keyspace: 'opera' with: 
+	When I execute a query over fields '*' with schema 'empty' of type 'string' with magic_column 'empty' from table: 'basic' using keyspace: 'opera' with: 
 		||
 	Then There are results found with: 
 		|firstrow			 |occurrences|

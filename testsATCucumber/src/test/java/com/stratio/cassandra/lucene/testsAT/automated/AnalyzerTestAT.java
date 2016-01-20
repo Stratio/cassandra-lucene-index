@@ -5,7 +5,7 @@ import com.stratio.cucumber.testng.CucumberRunner;
 import cucumber.api.CucumberOptions;
 import org.testng.annotations.Test;
 
-@CucumberOptions(features = {"src/test/resources/features/analyzersTests.feature"})
+@CucumberOptions(features = {"src/test/resources/features/analyzersTestSnowball.feature", "src/test/resources/features/analyzersTestClassPath.feature"})
 public class AnalyzerTestAT extends BaseTest {
     public AnalyzerTestAT() {
     }
