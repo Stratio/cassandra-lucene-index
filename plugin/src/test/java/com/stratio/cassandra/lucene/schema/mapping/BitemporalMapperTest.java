@@ -1041,6 +1041,33 @@ public class BitemporalMapperTest extends AbstractMapperTest {
     }
 
     @Test(expected = IndexException.class)
+    public void testContructBitemporalVtToSmallerThanVtFromFromLongColumn() {
+        BitemporalMapper mapper = bitemporalMapper("vtFrom", "vtTo", "ttFrom", "ttTo").pattern("timestamp")
+                                                                                      .build("field");
+        Columns columns = new Columns();
+        columns.add(Column.builder("vtFrom").buildWithComposed(5L, LongType.instance));
+        columns.add(Column.builder("vtTo").buildWithComposed(0L, LongType.instance));
+        columns.add(Column.builder("ttFrom").buildWithComposed(0L, LongType.instance));
+        columns.add(Column.builder("ttTo").buildWithComposed(0L, LongType.instance));
+        Document document = new Document();
+        mapper.addFields(document, columns);
+
+    }
+
+    @Test(expected = IndexException.class)
+    public void testContructBitemporalTtToSmallerThanTtFromFromLongColumn() {
+        BitemporalMapper mapper = bitemporalMapper("vtFrom", "vtTo", "ttFrom", "ttTo").pattern("timestamp")
+                                                                                      .build("field");
+        Columns columns = new Columns();
+        columns.add(Column.builder("vtFrom").buildWithComposed(0L, LongType.instance));
+        columns.add(Column.builder("vtTo").buildWithComposed(0L, LongType.instance));
+        columns.add(Column.builder("ttFrom").buildWithComposed(5L, LongType.instance));
+        columns.add(Column.builder("ttTo").buildWithComposed(0L, LongType.instance));
+        Document document = new Document();
+        mapper.addFields(document, columns);
+    }
+
+    @Test(expected = IndexException.class)
     public void testSortField() {
         BitemporalMapper mapper = bitemporalMapper("vtFrom", "vtTo", "ttFrom", "ttTo").build("field");
         mapper.sortField("field", false);
