@@ -149,23 +149,26 @@ public class CassandraUtilsSelect {
         for (Clause clause : clauses) {
             where.and(clause);
         }
-        Statement statement = limit == null ? where : where.limit(limit);
 
-        String query = statement.toString();
+        String query = where.toString();
         query = query.substring(0, query.length() - 1); // Remove semicolon
         StringBuilder sb = new StringBuilder(query);
         if (search != null) {
-            sb.append(String.format(" WHERE expr(%s,'%s')", parent.getIndex(), search.refresh(refresh).build()));
+            sb.append(clauses.isEmpty() ? " WHERE " : " AND ");
+            sb.append(String.format("expr(%s,'%s')", parent.getIndex(), search.refresh(refresh).build()));
         }
         for (String extra : extras) {
             sb.append(" ");
             sb.append(extra);
             sb.append(" ");
         }
+        if (limit != null) {
+            sb.append(" LIMIT ").append(limit);
+        }
         if (allowFiltering) {
             sb.append(" ALLOW FILTERING");
         }
-        statement = new SimpleStatement(sb.toString());
+        SimpleStatement statement = new SimpleStatement(sb.toString());
         if (fetchSize != null) {
             statement.setFetchSize(fetchSize);
         }

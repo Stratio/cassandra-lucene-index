@@ -140,7 +140,7 @@ public class Search {
      * @param preFilter the extra {@link Filter} to be applied
      * @return a Lucene {@link Query}
      */
-    public Query query(Schema schema, Filter preFilter) {
+    public Query query(Schema schema, Query preFilter) {
         BooleanQuery.Builder builder = new BooleanQuery.Builder();
         if (preFilter != null) {
             builder.add(new CachingWrapperQuery(preFilter), BooleanClause.Occur.FILTER);

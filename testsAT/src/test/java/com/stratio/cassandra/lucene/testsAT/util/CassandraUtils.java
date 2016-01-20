@@ -23,6 +23,7 @@ import com.datastax.driver.core.querybuilder.Batch;
 import com.datastax.driver.core.querybuilder.QueryBuilder;
 import com.stratio.cassandra.lucene.builder.index.Index;
 import com.stratio.cassandra.lucene.builder.index.schema.mapping.Mapper;
+import com.stratio.cassandra.lucene.builder.search.Search;
 import com.stratio.cassandra.lucene.builder.search.condition.Condition;
 import com.stratio.cassandra.lucene.builder.search.sort.SortField;
 import com.stratio.cassandra.lucene.testsAT.BaseAT;
@@ -133,7 +134,7 @@ public class CassandraUtils {
     }
 
     public CassandraUtils refresh() {
-        select().refresh(true).consistency(ConsistencyLevel.ALL).getFirst();
+        select().query(Search.none()).refresh(true).consistency(ConsistencyLevel.ALL).limit(1).getFirst();
         return this;
     }
 
@@ -219,8 +220,8 @@ public class CassandraUtils {
         return this;
     }
 
-    public List<Row> selectAllFromIndexQueryWithFiltering(int limit, String name, Object value) {
-        return searchAll().andEq(name, value).limit(limit).allowFiltering(true).get();
+    public CassandraUtilsSelect selectAllFromIndexQueryWithFiltering(int limit, String name, Object value) {
+        return searchAll().andEq(name, value).limit(limit).allowFiltering(true);
     }
 
     @SafeVarargs

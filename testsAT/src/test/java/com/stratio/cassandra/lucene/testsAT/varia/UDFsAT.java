@@ -75,9 +75,8 @@ public class UDFsAT extends BaseAT {
                                "LANGUAGE java AS\n" +
                                "'return input * 2L;';", cassandraUtils.getKeyspace());
 
-        Statement statement = cassandraUtils.statement("SELECT key, double(value) FROM %s.%s WHERE expr(%ss,'{}');",
-                                                       cassandraUtils.getKeyspace(),
-                                                       cassandraUtils.getTable(),
+        Statement statement = cassandraUtils.statement("SELECT key, double(value) FROM %s WHERE expr(%s,'{}');",
+                                                       cassandraUtils.getQualifiedTable(),
                                                        cassandraUtils.getIndex()).setFetchSize(2);
         List<Row> rows = cassandraUtils.execute(statement).all();
         long[] expected = new long[]{2, 4, 6, 8, 10, 12};
@@ -124,9 +123,8 @@ public class UDFsAT extends BaseAT {
                                "  FINALFUNC averageFinal\n" +
                                "  INITCOND (0, 0);", cassandraUtils.getKeyspace());
 
-        Statement statement = cassandraUtils.statement("SELECT average(value) FROM %s.%s WHERE expr(%ss,'{}');",
-                                                       cassandraUtils.getKeyspace(),
-                                                       cassandraUtils.getTable(),
+        Statement statement = cassandraUtils.statement("SELECT average(value) FROM %s WHERE expr(%s,'{}');",
+                                                       cassandraUtils.getQualifiedTable(),
                                                        cassandraUtils.getIndex()).setFetchSize(2);
         List<Row> rows = cassandraUtils.execute(statement).all();
         assertEquals("Expected one row!", 1, rows.size());

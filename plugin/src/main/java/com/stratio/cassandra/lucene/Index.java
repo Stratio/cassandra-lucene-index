@@ -18,16 +18,17 @@
 
 package com.stratio.cassandra.lucene;
 
+import com.stratio.cassandra.lucene.search.SearchBuilder;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
 import org.apache.cassandra.cql3.Operator;
+import org.apache.cassandra.cql3.Term;
 import org.apache.cassandra.db.*;
 import org.apache.cassandra.db.filter.RowFilter;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.db.partitions.PartitionIterator;
 import org.apache.cassandra.db.partitions.PartitionUpdate;
-import org.apache.cassandra.db.rows.Row;
 import org.apache.cassandra.exceptions.ConfigurationException;
 import org.apache.cassandra.exceptions.InvalidRequestException;
 import org.apache.cassandra.index.IndexRegistry;
@@ -413,6 +414,17 @@ public class Index implements org.apache.cassandra.index.Index {
             return service.searcherFor(command);
         } catch (Exception e) {
             logger.error("Error while searching", e);
+            throw new InvalidRequestException(e.getMessage());
+        }
+    }
+
+    @Override
+    public void validate(Term.Raw raw) throws InvalidRequestException {
+        try {
+            String json = raw.getText();
+            json = json.substring(1, json.length() - 1);
+            SearchBuilder.fromJson(json).build().query(service.schema);
+        } catch (Exception e) {
             throw new InvalidRequestException(e.getMessage());
         }
     }

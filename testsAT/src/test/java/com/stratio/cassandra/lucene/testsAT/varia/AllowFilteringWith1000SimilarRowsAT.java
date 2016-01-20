@@ -18,7 +18,6 @@
 
 package com.stratio.cassandra.lucene.testsAT.varia;
 
-import com.datastax.driver.core.Row;
 import com.stratio.cassandra.lucene.testsAT.BaseAT;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
 import org.junit.AfterClass;
@@ -26,10 +25,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
 
 @RunWith(JUnit4.class)
 public class AllowFilteringWith1000SimilarRowsAT extends BaseAT {
@@ -74,37 +69,31 @@ public class AllowFilteringWith1000SimilarRowsAT extends BaseAT {
 
     @Test
     public void allowFiltering1000rowsTest() {
-        List<Row> rows = cassandraUtils.selectAllFromIndexQueryWithFiltering(1000, "double_1", 1D);
-        assertEquals("Expected 1000 results!", 1000, rows.size());
+        cassandraUtils.selectAllFromIndexQueryWithFiltering(1000, "double_1", 1D).check(1000);
     }
 
     @Test
     public void allowFilteringAndLimit999Test() {
-        List<Row> rows = cassandraUtils.selectAllFromIndexQueryWithFiltering(999, "double_1", 1D);
-        assertEquals("Expected 999 results!", 999, rows.size());
+        cassandraUtils.selectAllFromIndexQueryWithFiltering(999, "double_1", 1D).check(999);
     }
 
     @Test
     public void allowFilteringAndLimit1001Test() {
-        List<Row> rows = cassandraUtils.selectAllFromIndexQueryWithFiltering(1001, "double_1", 1D);
-        assertEquals("Expected 1000 results!", 1000, rows.size());
+        cassandraUtils.selectAllFromIndexQueryWithFiltering(1001, "double_1", 1D).check(1000);
     }
 
     @Test
     public void allowFilteringAndLimit99Test() {
-        List<Row> rows = cassandraUtils.selectAllFromIndexQueryWithFiltering(99, "double_1", 1D);
-        assertEquals("Expected 99 results!", 99, rows.size());
+        cassandraUtils.selectAllFromIndexQueryWithFiltering(99, "double_1", 1D).check(99);
     }
 
     @Test
     public void allowFilteringAndLimit101Test() {
-        List<Row> rows = cassandraUtils.selectAllFromIndexQueryWithFiltering(101, "double_1", 1D);
-        assertEquals("Expected 101 results!", 101, rows.size());
+        cassandraUtils.selectAllFromIndexQueryWithFiltering(101, "double_1", 1D).check(101);
     }
 
     @Test
     public void allowFilteringAndLimit100Test() {
-        List<Row> rows = cassandraUtils.selectAllFromIndexQueryWithFiltering(100, "double_1", 1D);
-        assertEquals("Expected 100 results!", 100, rows.size());
+        cassandraUtils.selectAllFromIndexQueryWithFiltering(100, "double_1", 1D).check(100);
     }
 }

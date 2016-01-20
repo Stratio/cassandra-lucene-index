@@ -299,7 +299,7 @@ public abstract class IndexService {
 
         // Parse search data
         Search search = search(command);
-        Filter filter = filter(command);
+        Query filter = query(command);
         Query query = search.query(schema, filter);
         Sort sort = sort(search);
 
@@ -333,24 +333,32 @@ public abstract class IndexService {
         throw new IndexException("Lucene search expression not found in command expressions");
     }
 
-    private Filter filter(ReadCommand command) {
+    private Query query(ReadCommand command) {
         if (command instanceof SinglePartitionReadCommand) {
-            return filter((SinglePartitionReadCommand) command);
+            return query((SinglePartitionReadCommand) command);
         } else if (command instanceof PartitionRangeReadCommand) {
-            return filter((PartitionRangeReadCommand) command);
+            return query((PartitionRangeReadCommand) command);
         } else {
             throw new IndexException("Unsupported read command %s", command.getClass());
         }
     }
 
-    private Filter filter(SinglePartitionReadCommand command) {
+    private Query query(SinglePartitionReadCommand command) {
         DecoratedKey key = command.partitionKey();
-        return new QueryWrapperFilter(new TermQuery(term(key)));
+        return new TermQuery(term(key));
     }
 
-    private Filter filter(PartitionRangeReadCommand command) {
-        return null;
+    private Query query(PartitionRangeReadCommand command) {
+        return query(command.dataRange());
     }
+
+    /**
+     * Returns a Lucene {@link Query} to get the {@link Document}s satisfying the specified {@link DataRange}.
+     *
+     * @param dataRange A {@link DataRange}.
+     * @return A Lucene {@link Query} to get the {@link Document}s satisfying the specified {@link DataRange}.
+     */
+    abstract Query query(DataRange dataRange);
 
     /**
      * Returns the Lucene {@link Sort} with the specified {@link Search} sorting requirements followed by the

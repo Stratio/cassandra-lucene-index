@@ -25,6 +25,7 @@ import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
 import org.apache.cassandra.db.Clustering;
 import org.apache.cassandra.db.ClusteringComparator;
+import org.apache.cassandra.db.ClusteringPrefix;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.CompositeType;
 import org.apache.lucene.document.Document;
@@ -32,9 +33,7 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldType;
 import org.apache.lucene.index.DocValuesType;
 import org.apache.lucene.index.IndexOptions;
-import org.apache.lucene.search.FieldComparator;
-import org.apache.lucene.search.FieldComparatorSource;
-import org.apache.lucene.search.SortField;
+import org.apache.lucene.search.*;
 import org.apache.lucene.util.BytesRef;
 
 import java.io.IOException;
@@ -64,17 +63,22 @@ public final class ClusteringMapper {
     }
 
     private final CFMetaData metadata;
+    private final ClusteringComparator comparator;
     private final CompositeType type;
 
     public ClusteringMapper(CFMetaData metadata) {
         this.metadata = metadata;
-        ClusteringComparator clusteringComparator = metadata.comparator;
-        List<AbstractType<?>> subtypes = clusteringComparator.subtypes();
+        comparator = metadata.comparator;
+        List<AbstractType<?>> subtypes = comparator.subtypes();
         type = CompositeType.getInstance(subtypes);
     }
 
     public CompositeType getType() {
         return type;
+    }
+
+    public ClusteringComparator getComparator() {
+        return comparator;
     }
 
     /**
@@ -169,6 +173,21 @@ public final class ClusteringMapper {
                 };
             }
         });
+    }
+
+    public Filter filter(ClusteringPrefix start, ClusteringPrefix stop) {
+        Query query  = new ClusteringQuery(start, stop, this);
+        return new QueryWrapperFilter(query);
+    }
+
+    /**
+     * Returns the {@code String} human-readable representation of the specified clustering prefix.
+     *
+     * @param prefix the clustering prefix
+     * @return the {@code String} human-readable representation of the specified clustering prefix
+     */
+    public String toString(ClusteringPrefix prefix) {
+        return prefix.toString(metadata);
     }
 
 }

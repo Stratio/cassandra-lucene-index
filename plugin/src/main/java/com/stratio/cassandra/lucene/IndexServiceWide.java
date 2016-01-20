@@ -21,29 +21,27 @@ package com.stratio.cassandra.lucene;
 import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.key.ClusteringMapper;
 import com.stratio.cassandra.lucene.key.KeyMapper;
-import com.stratio.cassandra.lucene.key.PartitionMapper;
-import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.db.*;
 import org.apache.cassandra.db.filter.ClusteringIndexNamesFilter;
+import org.apache.cassandra.db.filter.ClusteringIndexSliceFilter;
 import org.apache.cassandra.db.filter.ColumnFilter;
 import org.apache.cassandra.db.filter.DataLimits;
-import org.apache.cassandra.db.filter.RowFilter;
 import org.apache.cassandra.db.partitions.UnfilteredPartitionIterator;
 import org.apache.cassandra.db.rows.Row;
 import org.apache.cassandra.db.rows.UnfilteredRowIterator;
-import org.apache.cassandra.index.internal.IndexEntry;
+import org.apache.cassandra.dht.Token;
 import org.apache.cassandra.index.transactions.IndexTransaction;
 import org.apache.cassandra.schema.IndexMetadata;
-import org.apache.cassandra.utils.btree.BTreeSet;
 import org.apache.cassandra.utils.concurrent.OpOrder;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.Sort;
+import org.apache.lucene.search.*;
 
-import java.util.*;
+import java.util.NavigableSet;
+import java.util.Optional;
+
+import static org.apache.lucene.search.BooleanClause.Occur.FILTER;
+import static org.apache.lucene.search.BooleanClause.Occur.SHOULD;
 
 /**
  * Class for providing operations between Cassandra and Lucene.
@@ -124,6 +122,74 @@ public class IndexServiceWide extends IndexService {
         return keyMapper.term(document);
     }
 
+    /** {@inheritDoc} */
+    @Override
+    public Query query(DataRange dataRange) {
+        PartitionPosition startPosition = dataRange.startKey();
+        PartitionPosition stopPosition = dataRange.stopKey();
+        Token startToken = startPosition.getToken();
+        Token stopToken = stopPosition.getToken();
+        boolean isSameToken = startToken.compareTo(stopToken) == 0 && !tokenMapper.isMinimum(startToken);
+        BooleanClause.Occur occur = isSameToken ? FILTER : SHOULD;
+        boolean includeStart = tokenMapper.includeStart(startPosition);
+        boolean includeStop = tokenMapper.includeStop(stopPosition);
+        logger.debug("INCLUDE START {}", includeStart);
+        logger.debug("INCLUDE STOP {}", includeStop);
+
+        ClusteringPrefix startBound = null;
+        if (startPosition instanceof DecoratedKey) {
+            DecoratedKey key = (DecoratedKey) startPosition;
+            ClusteringIndexSliceFilter cisf = (ClusteringIndexSliceFilter) dataRange.clusteringIndexFilter(key);
+            logger.debug("CLUSTERING INDEX FILTER {}", cisf);
+            Slices slices = cisf.requestedSlices();
+            logger.debug("SLICES {}", slices);
+            startBound = slices.get(0).start();
+            logger.debug("START BOUND {}", startBound);
+        }
+
+        ClusteringPrefix stopBound = null;
+        if (stopPosition instanceof DecoratedKey) {
+            DecoratedKey key = (DecoratedKey) stopPosition;
+            ClusteringIndexSliceFilter cisf = (ClusteringIndexSliceFilter) dataRange.clusteringIndexFilter(key);
+            logger.debug("CLUSTERING INDEX FILTER {}", cisf);
+            Slices slices = cisf.requestedSlices();
+            logger.debug("SLICES {}", slices);
+            stopBound = slices.get(slices.size() - 1).end();
+            logger.debug("STOP BOUND {}", stopBound);
+        }
+
+        BooleanQuery.Builder builder = new BooleanQuery.Builder();
+
+        if (startBound != null) {
+            BooleanQuery.Builder b = new BooleanQuery.Builder();
+            b.add(tokenMapper.query(startToken), FILTER);
+            b.add(clusteringMapper.filter(startBound, null), FILTER);
+            builder.add(b.build(), occur);
+            includeStart = false;
+        }
+
+        if (stopBound != null) {
+            BooleanQuery.Builder b = new BooleanQuery.Builder();
+            b.add(tokenMapper.query(stopToken), FILTER);
+            b.add(clusteringMapper.filter(null, stopBound), FILTER);
+            builder.add(b.build(), occur);
+            includeStop = false;
+        }
+
+        BooleanQuery query = builder.build();
+        if (!isSameToken) {
+            Query rangeFilter = tokenMapper.query(startToken, stopToken, includeStart, includeStop);
+            if (rangeFilter != null) {
+                builder.add(rangeFilter, SHOULD);
+                query = builder.build();
+            }
+        } else if (query.clauses().isEmpty()) {
+            return tokenMapper.query(startToken);
+        }
+
+        return query.clauses().isEmpty() ? null : new QueryWrapperFilter(query);
+    }
+
     /**
      * Retrieves from the local storage the {@link Row}s of the specified partition slice.
      *
@@ -143,99 +209,65 @@ public class IndexServiceWide extends IndexService {
                                          .queryMemtableAndDisk(table, group);
     }
 
-    public UnfilteredPartitionIterator read(Query query, Sort sort, ScoreDoc after, ReadCommand command,ReadExecutionController executionController) {
-        int count = command.limits().count();
-        logger.debug("COUNT {}", count);
-        IndexSearcher searcher = lucene.acquireSearcher();
-        Iterator<Document> documents = lucene.search(searcher, query, sort, after, count, fieldsToLoad);
-        return new UnfilteredPartitionIterator() {
-            private Document nextEntry;
+    /** {@inheritDoc} */
+    @Override
+    public UnfilteredPartitionIterator read(Query query,
+                                            Sort sort,
+                                            ScoreDoc after,
+                                            ReadCommand command,
+                                            ReadExecutionController executionController) {
+        return new IndexPartitionIterator(command, table, lucene, query, sort, after, fieldsToLoad) {
 
-            private UnfilteredRowIterator next;
+            private Document nextDoc;
 
-            public boolean isForThrift() {
-                return command.isForThrift();
-            }
+            @Override
+            protected boolean prepareNext() {
 
-            public CFMetaData metadata() {
-                return command.metadata();
-            }
-
-            public boolean hasNext() {
-                return prepareNext();
-            }
-
-            public UnfilteredRowIterator next() {
-                if (next == null)
-                    prepareNext();
-
-                UnfilteredRowIterator toReturn = next;
-                next = null;
-                return toReturn;
-            }
-
-            private boolean prepareNext() {
-                if (next != null)
+                if (next != null) {
                     return true;
+                }
 
-                if (nextEntry == null) {
-                    if (!documents.hasNext())
+                if (nextDoc == null) {
+                    if (!documents.hasNext()) {
                         return false;
-
-                    nextEntry = documents.next();
+                    }
+                    nextDoc = documents.next();
                 }
 
                 NavigableSet<Clustering> clusterings = clusterings();
-                DecoratedKey partitionKey = partitionMapper.decoratedKey(nextEntry);
+                DecoratedKey key = partitionMapper.decoratedKey(nextDoc);
 
-                while (nextEntry != null && partitionKey.getKey().equals(partitionMapper.decoratedKey(nextEntry).getKey())) {
-                    // We're queried a slice of the index, but some hits may not match some of the clustering column constraints
-                    if (isMatchingEntry(partitionKey, nextEntry, command)) {
-                        clusterings.add(clusteringMapper.clustering(nextEntry));
+                while (nextDoc != null && key.getKey().equals(partitionMapper.decoratedKey(nextDoc).getKey())) {
+                    Clustering clustering = clusteringMapper.clustering(nextDoc);
+                    if (command.selectsKey(key) && command.selectsClustering(key, clustering)) {
+                        clusterings.add(clustering);
                     }
-
-                    nextEntry = documents.hasNext() ? documents.next() : null;
+                    nextDoc = documents.hasNext() ? documents.next() : null;
                 }
 
-                // Because we've eliminated entries that don't match the clustering columns, it's possible we added nothing
-                if (clusterings.isEmpty())
+                if (clusterings.isEmpty()) {
                     return prepareNext();
+                }
 
-                // Query the gathered index hits. We still need to filter stale hits from the resulting query.
                 ClusteringIndexNamesFilter filter = new ClusteringIndexNamesFilter(clusterings, false);
-                SinglePartitionReadCommand dataCmd = SinglePartitionReadCommand.create(table.metadata,
-                                                                                       command.nowInSec(),
-                                                                                       command.columnFilter(),
-                                                                                       command.rowFilter(),
-                                                                                       DataLimits.NONE,
-                                                                                       partitionKey,
-                                                                                       filter);
-                UnfilteredRowIterator dataIter = dataCmd.queryMemtableAndDisk(table, executionController);
+                SinglePartitionReadCommand dataCommand = SinglePartitionReadCommand.create(table.metadata,
+                                                                                           command.nowInSec(),
+                                                                                           command.columnFilter(),
+                                                                                           command.rowFilter(),
+                                                                                           DataLimits.NONE,
+                                                                                           key,
+                                                                                           filter);
+                UnfilteredRowIterator data = dataCommand.queryMemtableAndDisk(table, executionController);
 
-
-                if (dataIter.isEmpty()) {
-                    dataIter.close();
+                if (data.isEmpty()) {
+                    data.close();
                     return prepareNext();
                 }
 
-                next = dataIter;
+                next = data;
                 return true;
-            }
-
-            public void remove() {
-                throw new UnsupportedOperationException();
-            }
-
-            public void close() {
-                lucene.releaseSearcher(searcher);
-                if (next != null)
-                    next.close();
             }
         };
     }
 
-    private boolean isMatchingEntry(DecoratedKey partitionKey, Document entry, ReadCommand command)
-    {
-        return command.selectsKey(partitionKey) && command.selectsClustering(partitionKey, clusteringMapper.clustering(entry));
-    }
 }

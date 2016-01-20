@@ -18,7 +18,9 @@
 
 package com.stratio.cassandra.lucene.key;
 
+import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.db.DecoratedKey;
+import org.apache.cassandra.db.PartitionPosition;
 import org.apache.cassandra.dht.Token;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -26,7 +28,11 @@ import org.apache.lucene.document.FieldType;
 import org.apache.lucene.document.LongField;
 import org.apache.lucene.index.DocValuesType;
 import org.apache.lucene.index.IndexOptions;
-import org.apache.lucene.search.SortField;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.search.*;
+import org.apache.lucene.util.BytesRef;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Class for several token mappings between Cassandra and Lucene.
@@ -35,8 +41,9 @@ import org.apache.lucene.search.SortField;
  */
 public final class TokenMapper {
 
-    /** The Lucene field name. */
+    private static final Logger logger = LoggerFactory.getLogger(TokenMapper.class);
 
+    /** The Lucene field name. */
     static final String FIELD_NAME = "_token_murmur";
 
     /** The Lucene field type. */
@@ -73,5 +80,57 @@ public final class TokenMapper {
 
     public SortField sortField() {
         return new SortField(FIELD_NAME, SortField.Type.LONG);
+    }
+
+    /**
+     * Returns {@code true} if the specified lower row position kind must be included in the filtered range, {@code
+     * false} otherwise.
+     *
+     * @param position a {@link PartitionPosition}
+     * @return {@code true} if the specified lower row position kind must be included in the filtered range, {@code
+     * false} otherwise
+     */
+    public boolean includeStart(PartitionPosition position) {
+        logger.debug("START KIND {}", position.kind());
+        logger.debug("START INCLUDED {}", position.kind() == PartitionPosition.Kind.MIN_BOUND);
+        return position.kind() == PartitionPosition.Kind.MIN_BOUND;
+    }
+
+    /**
+     * Returns {@code true} if the specified upper row position kind must be included in the filtered range, {@code
+     * false} otherwise.
+     *
+     * @param position a {@link PartitionPosition}
+     * @return {@code true} if the specified upper row position kind must be included in the filtered range, {@code
+     * false} otherwise
+     */
+    public boolean includeStop(PartitionPosition position) {
+        logger.debug("STOP KIND {}", position.kind());
+        logger.debug("STOP INCLUDED {}", position.kind() == PartitionPosition.Kind.MAX_BOUND);
+        return position.kind() == PartitionPosition.Kind.MAX_BOUND;
+    }
+
+    /**
+     * Returns {@code true} if the specified {@link Token} is the minimum accepted, {@code false} otherwise.
+     *
+     * @param token the {@link Token}
+     * @return {@code true} if the specified {@link Token} is the minimum accepted, {@code false} otherwise
+     */
+    public boolean isMinimum(Token token) {
+        Token minimum = DatabaseDescriptor.getPartitioner().getMinimumToken();
+        return token.compareTo(minimum) == 0;
+    }
+
+    public Query query(Token lower, Token upper, boolean includeLower, boolean includeUpper) {
+        Long start = lower == null || lower.isMinimum() ? null : value(lower);
+        Long stop = upper == null || upper.isMinimum() ? null : value(upper);
+        Query query = DocValuesRangeQuery.newLongRange(FIELD_NAME, start, stop, includeLower, includeUpper);
+        return new QueryWrapperFilter(query);
+    }
+
+    public Query query(Token token) {
+        Long value = value(token);
+        Query query = NumericRangeQuery.newLongRange(FIELD_NAME, value, value, true, true);
+        return new QueryWrapperFilter(query);
     }
 }
