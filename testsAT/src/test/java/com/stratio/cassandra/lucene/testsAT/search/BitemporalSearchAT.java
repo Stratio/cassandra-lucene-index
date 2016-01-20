@@ -20,7 +20,6 @@ package com.stratio.cassandra.lucene.testsAT.search;
 
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
-import com.datastax.driver.core.exceptions.DriverException;
 import com.datastax.driver.core.exceptions.InvalidQueryException;
 import com.datastax.driver.core.querybuilder.Batch;
 import com.datastax.driver.core.querybuilder.Insert;
@@ -390,6 +389,32 @@ public class BitemporalSearchAT extends BaseAT {
         } finally {
             tearDown(cu);
         }
+    }
+    //vt_to>vt_from
+    @Test(expected = InvalidQueryException.class)
+    public void biTemporalQueryWithttToSmallerThanTTFrom() {
+        // testing with long value 1456876800 == 2016/03/02 00:00:00
+        Map<String,String> data = new LinkedHashMap<>();
+        data.put("id", "5");
+        data.put("data", "'v1'");
+        data.put("vt_from", "0");
+        data.put("vt_to", "9223372036854775807");
+        data.put("tt_from", "9223372036854775807");
+        data.put("tt_to", "0");
+        cassandraUtils.insert(data);
+    }
+    //tt_to<tt_from
+    @Test(expected = InvalidQueryException.class)
+    public void biTemporalQueryWithVtToSmallerhanVTFrom() {
+        // testing with long value 1456876800 == 2016/03/02 00:00:00
+        Map<String,String> data = new LinkedHashMap<>();
+        data.put("id", "5");
+        data.put("data", "'v1'");
+        data.put("vt_from", "9223372036854775807");
+        data.put("vt_to", "0");
+        data.put("tt_from", "0");
+        data.put("tt_to", "9223372036854775807");
+        cassandraUtils.insert(data);
     }
 
     //valid String max value queries setting nowValue to max date in data3
