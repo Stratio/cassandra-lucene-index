@@ -18,11 +18,14 @@
 
 package com.stratio.cassandra.lucene;
 
+import org.apache.cassandra.db.Clustering;
 import org.apache.cassandra.db.DecoratedKey;
 import org.apache.cassandra.db.rows.Row;
+import org.apache.cassandra.db.rows.UnfilteredRowIterator;
 import org.apache.cassandra.index.transactions.IndexTransaction;
 import org.apache.cassandra.utils.concurrent.OpOrder;
 
+import java.util.NavigableSet;
 import java.util.Optional;
 
 /**
@@ -73,9 +76,9 @@ public class IndexWriterSkinny extends IndexWriter {
     public void finish() {
         row.ifPresent(row -> {
             if (service.needsReadBeforeWrite(key, row)) {
-                Optional<Row> optional = service.read(key, nowInSec, opGroup);
-                if (optional.isPresent()) {
-                    row = optional.get();
+                UnfilteredRowIterator iterator = service.read(key, nowInSec, opGroup);
+                if (iterator.hasNext()) {
+                    row = (Row) iterator.next();
                 }
             }
             if (row.hasLiveData(nowInSec)) {

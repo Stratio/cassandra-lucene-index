@@ -51,7 +51,7 @@ public class RAMIndex {
     /**
      * Builds a new {@link RAMIndex}.
      *
-     * @param analyzer The index writer analyzer.
+     * @param analyzer the index writer analyzer
      */
     public RAMIndex(Analyzer analyzer) {
         try {
@@ -64,9 +64,9 @@ public class RAMIndex {
     }
 
     /**
-     * Updates the specified {@link Document}
+     * Adds the specified {@link Document}
      *
-     * @param document The {@link Document} to be added.
+     * @param document the {@link Document} to be added
      */
     public void add(Document document) {
         try {
@@ -91,11 +91,11 @@ public class RAMIndex {
     /**
      * Finds the top {@code count} hits for {@code query} and sorting the hits by {@code sort}.
      *
-     * @param query The {@link Query} to search for.
-     * @param sort The {@link Sort} to be applied.
-     * @param count The max number of results to be collected.
-     * @param fields The names of the fields to be loaded.
-     * @return The found documents, sorted according to the supplied {@link Sort} instance.
+     * @param query the {@link Query} to search for
+     * @param sort the {@link Sort} to be applied
+     * @param count the max number of results to be collected
+     * @param fields the names of the fields to be loaded
+     * @return the found documents
      */
     public List<Document> search(Query query, Sort sort, Integer count, Set<String> fields) {
         try {

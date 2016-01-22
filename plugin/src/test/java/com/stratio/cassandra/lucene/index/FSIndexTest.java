@@ -34,6 +34,7 @@ import org.junit.rules.TemporaryFolder;
 
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.UUID;
 
@@ -87,19 +88,12 @@ public class FSIndexTest {
 
 
         // Search
-        SearcherManager searcherManager = index.getSearcherManager();
-        IndexSearcher searcher = searcherManager.acquire();
-
-//        Iterator<Document> iterator;
-//        try {
-//            iterator = index.search(searcher, query, sort, null, 1, fields);
+        Iterator<Document> iterator;
+//            iterator = index.search( query, sort, null, 1, fields);
 //            assertEquals("Expected 1 document", 1, results.size());
 //            ScoreDoc last3 = results.values().iterator().next();
 //            results = index.search(searcher, query, sort, last3, 1, fields);
 //            assertEquals("Expected 1 document", 1, results.size());
-//        } finally {
-//            searcherManager.release(searcher);
-//        }
 
         // Delete by term
         index.delete(term1);

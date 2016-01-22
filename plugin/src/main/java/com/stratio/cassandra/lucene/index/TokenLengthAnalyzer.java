@@ -45,7 +45,7 @@ public class TokenLengthAnalyzer extends AnalyzerWrapper {
     /**
      * Builds a new {@link TokenLengthAnalyzer} which wraps the specified {@link Analyzer}.
      *
-     * @param analyzer An {@link Analyzer}.
+     * @param analyzer the {@link Analyzer} to be wrapped
      */
     public TokenLengthAnalyzer(Analyzer analyzer) {
         super(analyzer.getReuseStrategy());
@@ -61,7 +61,7 @@ public class TokenLengthAnalyzer extends AnalyzerWrapper {
     /**
      * Returns the wrapped {@link Analyzer}.
      *
-     * @return The wrapped {@link Analyzer}.
+     * @return the wrapped {@link Analyzer}
      */
     public Analyzer getAnalyzer() {
         return analyzer;
@@ -74,7 +74,7 @@ public class TokenLengthAnalyzer extends AnalyzerWrapper {
         return new TokenStreamComponents(components.getTokenizer(), tokenFilter);
     }
 
-    /** {@link FilteringTokenFilter} which discards too large tokens. */
+    /** {@link FilteringTokenFilter} that discards too large tokens. */
     static final class TokenLengthFilter extends FilteringTokenFilter {
 
         private final CharTermAttribute tm = addAttribute(CharTermAttribute.class);

@@ -33,11 +33,10 @@ import org.slf4j.LoggerFactory;
 import javax.management.ObjectName;
 import java.lang.management.ManagementFactory;
 import java.nio.file.Path;
-import java.util.Iterator;
 import java.util.Set;
 
 /**
- * Class wrapping a Lucene file system-based directory and its readers, writers and searchers for NRT.
+ * Class wrapping a Lucene file system-based directory and its readers, writers and searchers.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
@@ -55,6 +54,7 @@ public class FSIndex implements FSIndexMBean {
 
     private final ObjectName mbean;
 
+    // Disable max boolean query clauses limit
     static {
         BooleanQuery.setMaxClauseCount(Integer.MAX_VALUE);
     }
@@ -62,14 +62,14 @@ public class FSIndex implements FSIndexMBean {
     /**
      * Builds a new {@link FSIndex}.
      *
-     * @param mbeanName The JMX MBean object name.
-     * @param name The index name.
-     * @param path The directory path.
-     * @param analyzer The index writer analyzer.
-     * @param refresh The index reader refresh frequency in seconds.
-     * @param ramBufferMB The index writer RAM buffer size in MB.
-     * @param maxMergeMB The directory max merge size in MB.
-     * @param maxCachedMB The directory max cache size in MB.
+     * @param mbeanName the JMX MBean object name
+     * @param name the index name
+     * @param path the directory path
+     * @param analyzer the index writer analyzer
+     * @param refresh the index reader refresh frequency in seconds
+     * @param ramBufferMB the index writer RAM buffer size in MB
+     * @param maxMergeMB the directory max merge size in MB
+     * @param maxCachedMB the directory max cache size in MB
      */
     public FSIndex(String mbeanName,
                    String name,
@@ -110,7 +110,7 @@ public class FSIndex implements FSIndexMBean {
             searcherReopener.start();
 
             // Register JMX MBean
-            this.mbean = new ObjectName(mbeanName);
+            mbean = new ObjectName(mbeanName);
             ManagementFactory.getPlatformMBeanServer().registerMBean(this, this.mbean);
 
         } catch (Exception e) {
@@ -120,12 +120,12 @@ public class FSIndex implements FSIndexMBean {
     }
 
     /**
-     * Updates the specified {@link Document} by first deleting the documents containing {@code Term} and then adding
+     * Upserts the specified {@link Document} by first deleting the documents containing {@code Term} and then adding
      * the new document. The delete and then add are atomic as seen by a reader on the same index (flush may happen only
      * after the add).
      *
-     * @param term The {@link Term} to identify the document(s) to be deleted.
-     * @param document The {@link Document} to be added.
+     * @param term the {@link Term} to identify the document(s) to be deleted
+     * @param document the {@link Document} to be added
      */
     public void upsert(Term term, Document document) {
         logger.debug("Indexing {} with term {} in {}", document, term, name);
@@ -139,7 +139,7 @@ public class FSIndex implements FSIndexMBean {
     /**
      * Deletes all the {@link Document}s containing the specified {@link Term}.
      *
-     * @param term The {@link Term} to identify the documents to be deleted.
+     * @param term the {@link Term} identifying the documents to be deleted
      */
     public void delete(Term term) {
         logger.debug("Deleting {} from {}", term, name);
@@ -153,7 +153,7 @@ public class FSIndex implements FSIndexMBean {
     /**
      * Deletes all the {@link Document}s satisfying the specified {@link Query}.
      *
-     * @param query The {@link Query} to identify the documents to be deleted.
+     * @param query the {@link Query} identifying the documents to be deleted
      */
     public void delete(Query query) {
         logger.debug("Deleting {} from {}", query, name);
@@ -219,51 +219,25 @@ public class FSIndex implements FSIndexMBean {
         logger.info("Deleted {}", name);
     }
 
-    public SearcherManager getSearcherManager() {
-        return searcherManager;
-    }
-
-    public IndexSearcher acquireSearcher() {
-        try {
-            return searcherManager.acquire();
-        } catch (Exception e) {
-            throw new IndexException(logger, e, "Error acquiring index searcher in %s", name);
-        }
-    }
-
-    public void releaseSearcher(IndexSearcher indexSearcher) {
-        try {
-            searcherManager.release(indexSearcher);
-        } catch (Exception e) {
-            throw new IndexException(logger, e, "Error releasing index searcher in %s", name);
-        }
-    }
-
     /**
      * Finds the top {@code count} hits for {@code query} and sorting the hits by {@code sort}.
      *
-     * @param searcher The {@link IndexSearcher} to be used.
-     * @param query The {@link Query} to search for.
-     * @param sort The {@link Sort} to be applied.
-     * @param after The starting {@link ScoreDoc}.
-     * @param count The max number of results to be collected.
-     * @param fields The names of the fields to be loaded.
-     * @return The found documents, sorted according to the supplied {@link Sort} instance.
+     * @param query the {@link Query} to search for
+     * @param sort the {@link Sort} to be applied
+     * @param after the starting {@link ScoreDoc}
+     * @param count the max number of results to be collected
+     * @param fields the names of the fields to be loaded
+     * @return the found documents, sorted according to the supplied {@link Sort} instance
      */
-    public Iterator<Document> search(IndexSearcher searcher,
-                                     Query query,
-                                     Sort sort,
-                                     ScoreDoc after,
-                                     Integer count,
-                                     Set<String> fields) {
+    public DocumentIterator search(Query query, Sort sort, ScoreDoc after, Integer count, Set<String> fields) {
         logger.debug("Searching for {} in {} with {} and {}", count, name, query, sort);
-        return new DocumentIterator(searcher, query, sort, after, count, fields);
+        return new DocumentIterator(searcherManager, query, sort, after, count, fields);
     }
 
     /**
      * Returns the total number of {@link Document}s in this index.
      *
-     * @return The total number of {@link Document}s in this index.
+     * @return the number of {@link Document}s
      */
     @Override
     public long getNumDocs() {
@@ -283,7 +257,7 @@ public class FSIndex implements FSIndexMBean {
     /**
      * Returns the total number of deleted {@link Document}s in this index.
      *
-     * @return The total number of deleted {@link Document}s in this index.
+     * @return the number of deleted {@link Document}s
      */
     @Override
     public long getNumDeletedDocs() {
@@ -304,8 +278,8 @@ public class FSIndex implements FSIndexMBean {
      * Optimizes the index forcing merge segments leaving the specified number of segments. This operation may block
      * until all merging completes.
      *
-     * @param maxNumSegments The maximum number of segments left in the index after merging finishes.
-     * @param doWait {@code true} if the call should block until the operation completes.
+     * @param maxNumSegments the maximum number of segments left in the index after merging finishes
+     * @param doWait {@code true} if the call should block until the operation completes
      */
     @Override
     public void forceMerge(int maxNumSegments, boolean doWait) {
@@ -320,10 +294,10 @@ public class FSIndex implements FSIndexMBean {
     }
 
     /**
-     * Optimizes the index forcing merge of all segments that have deleted documents.. This operation may block until
-     * all merging completes.
+     * Optimizes the index forcing merge of all segments that have deleted documents. This operation may block until all
+     * merging completes.
      *
-     * @param doWait {@code true} if the call should block until the operation completes.
+     * @param doWait {@code true} if the call should block until the operation completes
      */
     @Override
     public void forceMergeDeletes(boolean doWait) {

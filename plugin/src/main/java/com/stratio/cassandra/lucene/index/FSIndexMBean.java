@@ -31,14 +31,14 @@ public interface FSIndexMBean {
     /**
      * Returns the total number of {@link org.apache.lucene.document.Document}s in this index.
      *
-     * @return The total number of {@link org.apache.lucene.document.Document}s in this index.
+     * @return the number of {@link org.apache.lucene.document.Document}s
      */
     long getNumDocs();
 
     /**
      * Returns the total number of deleted {@link org.apache.lucene.document.Document}s in this index.
      *
-     * @return The total number of deleted {@link org.apache.lucene.document.Document}s in this index.
+     * @return the number of deleted {@link org.apache.lucene.document.Document}s
      */
     long getNumDeletedDocs();
 
@@ -46,8 +46,8 @@ public interface FSIndexMBean {
      * Optimizes the index forcing merge segments leaving the specified number of segments. This operation may block
      * until all merging completes.
      *
-     * @param maxNumSegments The maximum number of segments left in the index after merging finishes.
-     * @param doWait {@code true} if the call should block until the operation completes.
+     * @param maxNumSegments the maximum number of segments left in the index after merging finishes
+     * @param doWait {@code true} if the call should block until the operation completes
      */
     void forceMerge(int maxNumSegments, boolean doWait);
 
@@ -55,7 +55,7 @@ public interface FSIndexMBean {
      * Optimizes the index forcing merge of all segments that have deleted documents.. This operation may block until
      * all merging completes.
      *
-     * @param doWait {@code true} if the call should block until the operation completes.
+     * @param doWait {@code true} if the call should block until the operation completes
      */
     void forceMergeDeletes(boolean doWait);
 

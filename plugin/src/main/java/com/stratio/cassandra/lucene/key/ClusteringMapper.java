@@ -33,7 +33,10 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldType;
 import org.apache.lucene.index.DocValuesType;
 import org.apache.lucene.index.IndexOptions;
-import org.apache.lucene.search.*;
+import org.apache.lucene.search.FieldComparator;
+import org.apache.lucene.search.FieldComparatorSource;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.SortField;
 import org.apache.lucene.util.BytesRef;
 
 import java.io.IOException;
@@ -66,6 +69,11 @@ public final class ClusteringMapper {
     private final ClusteringComparator comparator;
     private final CompositeType type;
 
+    /**
+     * Constructor specifying the indexed table {@link CFMetaData}.
+     *
+     * @param metadata the indexed table metadata
+     */
     public ClusteringMapper(CFMetaData metadata) {
         this.metadata = metadata;
         comparator = metadata.comparator;
@@ -73,19 +81,29 @@ public final class ClusteringMapper {
         type = CompositeType.getInstance(subtypes);
     }
 
+    /**
+     * Returns a {@link CompositeType} containing all the types that compose the clustering key.
+     *
+     * @return a composite type containing all the clustering key types
+     */
     public CompositeType getType() {
         return type;
     }
 
+    /**
+     * Returns the clustering comparator.
+     *
+     * @return the clustering comparator
+     */
     public ClusteringComparator getComparator() {
         return comparator;
     }
 
     /**
-     * Adds the {@link Column}s contained in the specified {@link Clustering} to the specified {@link Column}s .
+     * Adds the {@link Column}s contained in the specified {@link Clustering} to the specified {@link Column}s.
      *
-     * @param columns The {@link Columns} in which the {@link Clustering} {@link Column}s are going to be added.
-     * @param clustering A clustering key.
+     * @param columns the {@link Columns} in which the {@link Clustering} {@link Column}s are going to be added
+     * @param clustering the clustering key
      */
     public void addColumns(Columns columns, Clustering clustering) {
         for (ColumnDefinition columnDefinition : metadata.clusteringColumns()) {
@@ -97,6 +115,12 @@ public final class ClusteringMapper {
         }
     }
 
+    /**
+     * Returns a {@link ByteBuffer} representing the specified clustering key
+     *
+     * @param clustering the clustering key
+     * @return the byte buffer representing {@code clustering}
+     */
     public ByteBuffer byteBuffer(Clustering clustering) {
         CompositeType.Builder builder = type.builder();
         for (ByteBuffer component : clustering.getRawValues()) {
@@ -105,6 +129,12 @@ public final class ClusteringMapper {
         return builder.build();
     }
 
+    /**
+     * Returns a Lucene's {@link BytesRef} representing the specified clustering key
+     *
+     * @param clustering the clustering key
+     * @return the {@link BytesRef} representing {@code clustering}
+     */
     public BytesRef bytesRef(Clustering clustering) {
         ByteBuffer bb = byteBuffer(clustering);
         return ByteBufferUtils.bytesRef(bb);
@@ -113,8 +143,8 @@ public final class ClusteringMapper {
     /**
      * Adds to the specified document the clustering key contained in the specified cell name.
      *
-     * @param document The document where the clustering key is going to be added.
-     * @param clustering A clustering key.
+     * @param document the document where the clustering key is going to be added
+     * @param clustering the clustering key which is going to be added
      */
     public void addFields(Document document, Clustering clustering) {
         BytesRef bytesRef = bytesRef(clustering);
@@ -125,7 +155,7 @@ public final class ClusteringMapper {
      * Returns the clustering key contained in the specified {@link ByteBuffer}.
      *
      * @param bb a {@link ByteBuffer}
-     * @return the clustering key contained in the specified {@link ByteBuffer}
+     * @return the clustering key represented by {@code bb}
      */
     public Clustering clustering(ByteBuffer bb) {
         return new Clustering(type.split(bb));
@@ -134,8 +164,8 @@ public final class ClusteringMapper {
     /**
      * Returns the clustering key contained in the specified {@link Document}.
      *
-     * @param document a {@link Document}
-     * @return the clustering key contained in the specified {@link Document}
+     * @param document a {@link Document} containing the clustering key to be get
+     * @return the clustering key contained in {@code document}
      */
     public Clustering clustering(Document document) {
         BytesRef bytesRef = document.getBinaryValue(FIELD_NAME);
@@ -145,7 +175,7 @@ public final class ClusteringMapper {
     /**
      * Returns the {@link Clustering} contained in the specified Lucene field value.
      *
-     * @param bytesRef the {@link BytesRef} containing the raw clustering key to be get
+     * @param bytesRef the {@link BytesRef} containing the clustering key to be get
      * @return the {@link Clustering} contained in the specified Lucene field value
      */
     public Clustering clustering(BytesRef bytesRef) {
@@ -154,9 +184,9 @@ public final class ClusteringMapper {
     }
 
     /**
-     * Returns a Lucene {@link SortField} for sorting documents/rows according to the clustering key.
+     * Returns a Lucene {@link SortField} for sorting documents/rows according to their contained clustering key.
      *
-     * @return a Lucene {@link SortField} for sorting documents/rows according to the clustering key
+     * @return a Lucene {@link SortField} for sorting by clustering key
      */
     public SortField sortField() {
         return new SortField(FIELD_NAME, new FieldComparatorSource() {
@@ -175,16 +205,23 @@ public final class ClusteringMapper {
         });
     }
 
-    public Filter filter(ClusteringPrefix start, ClusteringPrefix stop) {
-        Query query  = new ClusteringQuery(start, stop, this);
-        return new QueryWrapperFilter(query);
+    /**
+     * Returns a Lucene {@link Query} for retrieving documents whose clustering key is inside the specified range of
+     * clustering prefixes.
+     *
+     * @param start the lower accepted clustering prefix, {@code null} means no lower limit
+     * @param stop the upper accepted clustering prefix, {@code null} means no upper limit
+     * @return the Lucene {@link Query} for retrieving documents between {@code start} and {@code stop}
+     */
+    public Query query(ClusteringPrefix start, ClusteringPrefix stop) {
+        return new ClusteringQuery(start, stop, this);
     }
 
     /**
-     * Returns the {@code String} human-readable representation of the specified clustering prefix.
+     * Returns the {@code String} human-readable representation of the specified {@link ClusteringPrefix}.
      *
      * @param prefix the clustering prefix
-     * @return the {@code String} human-readable representation of the specified clustering prefix
+     * @return a {@code String} representing {@code prefix}
      */
     public String toString(ClusteringPrefix prefix) {
         return prefix.toString(metadata);

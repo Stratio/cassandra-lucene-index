@@ -18,9 +18,11 @@
 
 package com.stratio.cassandra.lucene.key;
 
+import com.stratio.cassandra.lucene.IndexException;
 import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.db.DecoratedKey;
 import org.apache.cassandra.db.PartitionPosition;
+import org.apache.cassandra.dht.Murmur3Partitioner;
 import org.apache.cassandra.dht.Token;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -28,11 +30,7 @@ import org.apache.lucene.document.FieldType;
 import org.apache.lucene.document.LongField;
 import org.apache.lucene.index.DocValuesType;
 import org.apache.lucene.index.IndexOptions;
-import org.apache.lucene.index.Term;
 import org.apache.lucene.search.*;
-import org.apache.lucene.util.BytesRef;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Class for several token mappings between Cassandra and Lucene.
@@ -40,8 +38,6 @@ import org.slf4j.LoggerFactory;
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public final class TokenMapper {
-
-    private static final Logger logger = LoggerFactory.getLogger(TokenMapper.class);
 
     /** The Lucene field name. */
     static final String FIELD_NAME = "_token_murmur";
@@ -58,7 +54,13 @@ public final class TokenMapper {
         FIELD_TYPE.freeze();
     }
 
+    /**
+     * Default constructor.
+     */
     public TokenMapper() {
+        if (!(DatabaseDescriptor.getPartitioner() instanceof Murmur3Partitioner)) {
+            throw new IndexException("Only Murmur3 partitioner is supported");
+        }
     }
 
     /**
@@ -74,44 +76,47 @@ public final class TokenMapper {
         document.add(field);
     }
 
+    /**
+     * Returns the {code Long} value of the specified Murmur3 partitioning {@link Token}.
+     *
+     * @param token a Murmur3 token
+     * @return the {@code token}'s {code Long} value
+     */
     private static Long value(Token token) {
         return (Long) token.getTokenValue();
     }
 
+    /**
+     * Returns a Lucene {@link SortField} for sorting documents/rows according to the partitioner's order.
+     *
+     * @return a sort field for sorting by token
+     */
     public SortField sortField() {
         return new SortField(FIELD_NAME, SortField.Type.LONG);
     }
 
     /**
-     * Returns {@code true} if the specified lower row position kind must be included in the filtered range, {@code
-     * false} otherwise.
+     * Returns if the specified lower partition position must be included in a filtered range.
      *
      * @param position a {@link PartitionPosition}
-     * @return {@code true} if the specified lower row position kind must be included in the filtered range, {@code
-     * false} otherwise
+     * @return {@code true} if {@code position} must be included, {@code false} otherwise
      */
     public boolean includeStart(PartitionPosition position) {
-        logger.debug("START KIND {}", position.kind());
-        logger.debug("START INCLUDED {}", position.kind() == PartitionPosition.Kind.MIN_BOUND);
         return position.kind() == PartitionPosition.Kind.MIN_BOUND;
     }
 
     /**
-     * Returns {@code true} if the specified upper row position kind must be included in the filtered range, {@code
-     * false} otherwise.
+     * Returns if the specified upper partition position must be included in a filtered range.
      *
      * @param position a {@link PartitionPosition}
-     * @return {@code true} if the specified upper row position kind must be included in the filtered range, {@code
-     * false} otherwise
+     * @return {@code true} if {@code position} must be included, {@code false} otherwise
      */
     public boolean includeStop(PartitionPosition position) {
-        logger.debug("STOP KIND {}", position.kind());
-        logger.debug("STOP INCLUDED {}", position.kind() == PartitionPosition.Kind.MAX_BOUND);
         return position.kind() == PartitionPosition.Kind.MAX_BOUND;
     }
 
     /**
-     * Returns {@code true} if the specified {@link Token} is the minimum accepted, {@code false} otherwise.
+     * Returns if the specified {@link Token} is the minimum accepted by the partitioner.
      *
      * @param token the {@link Token}
      * @return {@code true} if the specified {@link Token} is the minimum accepted, {@code false} otherwise
@@ -121,6 +126,16 @@ public final class TokenMapper {
         return token.compareTo(minimum) == 0;
     }
 
+    /**
+     * Returns a Lucene {@link Query} to find the {@link Document}s containing a {@link Token} inside the specified
+     * token range.
+     *
+     * @param lower the lower token
+     * @param upper the upper token
+     * @param includeLower if the lower token should be included
+     * @param includeUpper if the upper token should be included
+     * @return the query to find the documents containing a token inside the range
+     */
     public Query query(Token lower, Token upper, boolean includeLower, boolean includeUpper) {
         Long start = lower == null || lower.isMinimum() ? null : value(lower);
         Long stop = upper == null || upper.isMinimum() ? null : value(upper);
@@ -128,9 +143,14 @@ public final class TokenMapper {
         return new QueryWrapperFilter(query);
     }
 
+    /**
+     * Returns a Lucene {@link Query} to find the {@link Document}s containing the specified {@link Token}.
+     *
+     * @param token the token
+     * @return the query to find the documents containing {@code token}
+     */
     public Query query(Token token) {
         Long value = value(token);
-        Query query = NumericRangeQuery.newLongRange(FIELD_NAME, value, value, true, true);
-        return new QueryWrapperFilter(query);
+        return NumericRangeQuery.newLongRange(FIELD_NAME, value, value, true, true);
     }
 }

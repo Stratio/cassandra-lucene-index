@@ -41,12 +41,18 @@ public final class KeyMapper {
     /** The Lucene field name. */
     public static final String FIELD_NAME = "_full_key";
 
-    /** The type of the full row key, which is composed by the partition and clustering key types. */
+    /** The type of the primary key, which is composed by the partition and clustering key types. */
     private final CompositeType type;
 
     /** The clustering key mapper to be used. */
     private final ClusteringMapper clusteringMapper;
 
+    /**
+     * Constructor specifying the partition and clustering key mappers.
+     *
+     * @param partitionMapper the partition key mapper
+     * @param clusteringMapper the clustering key mapper
+     */
     public KeyMapper(PartitionMapper partitionMapper, ClusteringMapper clusteringMapper) {
         this.clusteringMapper = clusteringMapper;
         AbstractType<?> partitionKeyType = partitionMapper.getType();
@@ -55,24 +61,24 @@ public final class KeyMapper {
     }
 
     /**
-     * Returns the {@link ByteBuffer} representation of the full row key formed by the specified partition key and the
+     * Returns the {@link ByteBuffer} representation of the primary key formed by the specified partition key and the
      * clustering key.
      *
-     * @param key A partition key.
-     * @param clustering A clustering key.
-     * @return The {@link ByteBuffer} representation of the full row key formed by the specified key pair.
+     * @param key the partition key
+     * @param clustering the clustering key
+     * @return the {@link ByteBuffer} representation of the primary key
      */
     public ByteBuffer byteBuffer(DecoratedKey key, Clustering clustering) {
         return type.builder().add(key.getKey()).add(clusteringMapper.byteBuffer(clustering)).build();
     }
 
     /**
-     * Adds to the specified Lucene {@link Document} the full row key formed by the specified partition key and the
+     * Adds to the specified Lucene {@link Document} the primary key formed by the specified partition key and the
      * clustering key.
      *
-     * @param document A Lucene {@link Document}.
-     * @param key A partition key.
-     * @param clustering A clustering key.
+     * @param document the Lucene {@link Document} in which the key is going to be added
+     * @param key the partition key
+     * @param clustering the clustering key
      */
     public void addFields(Document document, DecoratedKey key, Clustering clustering) {
         ByteBuffer bb = byteBuffer(key, clustering);
@@ -82,12 +88,12 @@ public final class KeyMapper {
     }
 
     /**
-     * Returns the Lucene {@link Term} representing the full row key formed by the specified partition key and the
+     * Returns the Lucene {@link Term} representing the primary key formed by the specified partition key and the
      * clustering key.
      *
-     * @param key A partition key.
-     * @param clustering A clustering key.
-     * @return The Lucene {@link Term} representing the full row key formed by the specified key pair.
+     * @param key the partition key
+     * @param clustering the clustering key
+     * @return the Lucene {@link Term} representing the primary key
      */
     public Term term(DecoratedKey key, Clustering clustering) {
         ByteBuffer bb = byteBuffer(key, clustering);
@@ -95,6 +101,12 @@ public final class KeyMapper {
         return new Term(FIELD_NAME, bytesRef);
     }
 
+    /**
+     * Returns the {@link Term} representing the primary key of the specified {@link Document}.
+     *
+     * @param document the document
+     * @return the clustering key term
+     */
     public Term term(Document document) {
         BytesRef bytesRef = document.getBinaryValue(FIELD_NAME);
         return new Term(FIELD_NAME, bytesRef);

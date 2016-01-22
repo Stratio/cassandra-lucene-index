@@ -24,16 +24,13 @@ import com.stratio.cassandra.lucene.util.ByteBufferUtils;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
 import org.apache.cassandra.config.DatabaseDescriptor;
-import org.apache.cassandra.db.Clustering;
 import org.apache.cassandra.db.DecoratedKey;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.CompositeType;
 import org.apache.cassandra.dht.IPartitioner;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
-import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.document.FieldType;
-import org.apache.lucene.document.StringField;
 import org.apache.lucene.index.DocValuesType;
 import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.Term;
@@ -70,12 +67,22 @@ public final class PartitionMapper {
     private final IPartitioner partitioner;
     private final AbstractType<?> type;
 
+    /**
+     * Constructor specifying the indexed table {@link CFMetaData}.
+     *
+     * @param metadata the indexed table metadata
+     */
     public PartitionMapper(CFMetaData metadata) {
         this.metadata = metadata;
         partitioner = DatabaseDescriptor.getPartitioner();
         type = metadata.getKeyValidator();
     }
 
+    /**
+     * Returns the type of the partition key.
+     *
+     * @return the key's type
+     */
     public AbstractType<?> getType() {
         return type;
     }
@@ -83,8 +90,8 @@ public final class PartitionMapper {
     /**
      * Adds to the specified {@link Column} to the {@link Column}s contained in the partition key of the specified row.
      *
-     * @param columns The {@link Columns} in which the {@link Column}s are going to be added.
-     * @param key A partition key.
+     * @param columns the {@link Columns} in which the {@link Column}s are going to be added
+     * @param key the partition key
      */
     public void addColumns(Columns columns, DecoratedKey key) {
         List<ColumnDefinition> columnDefinitions = metadata.partitionKeyColumns();
@@ -100,10 +107,10 @@ public final class PartitionMapper {
     }
 
     /**
-     * Adds to the specified {@link Document} the {@link Field}s associated to the specified raw partition key.
+     * Adds to the specified {@link Document} the {@link Field}s associated to the specified partition key.
      *
-     * @param document The document in which the fields are going to be added.
-     * @param partitionKey The raw partition key to be converted.
+     * @param document the document in which the fields are going to be added
+     * @param partitionKey the partition key to be converted
      */
     public void addFields(Document document, DecoratedKey partitionKey) {
         ByteBuffer bb = partitionKey.getKey();
@@ -114,8 +121,8 @@ public final class PartitionMapper {
     /**
      * Returns the specified raw partition key as a Lucene {@link Term}.
      *
-     * @param partitionKey The raw partition key to be converted.
-     * @return The specified raw partition key as a Lucene {@link Term}.
+     * @param partitionKey the raw partition key to be converted
+     * @return a Lucene {@link Term}
      */
     public Term term(DecoratedKey partitionKey) {
         ByteBuffer bb = partitionKey.getKey();
@@ -123,16 +130,22 @@ public final class PartitionMapper {
         return new Term(FIELD_NAME, bytesRef);
     }
 
+    /**
+     * Returns the {@link Term} representing the partition key of the specified {@link Document}.
+     *
+     * @param document the document
+     * @return the partition key term
+     */
     public Term term(Document document) {
-        BytesRef bytesRef =document.getBinaryValue(FIELD_NAME);
+        BytesRef bytesRef = document.getBinaryValue(FIELD_NAME);
         return new Term(FIELD_NAME, bytesRef);
     }
 
     /**
      * Returns the specified raw partition key as a Lucene {@link Query}.
      *
-     * @param partitionKey The raw partition key to be converted.
-     * @return The specified raw partition key as a Lucene {@link Query}.
+     * @param partitionKey the raw partition key to be converted
+     * @return the specified raw partition key as a Lucene {@link Query}
      */
     public Query query(DecoratedKey partitionKey) {
         return new TermQuery(term(partitionKey));
@@ -141,8 +154,8 @@ public final class PartitionMapper {
     /**
      * Returns the {@link DecoratedKey} contained in the specified Lucene {@link Document}.
      *
-     * @param document the {@link Document} containing the partition key to be get.
-     * @return The {@link DecoratedKey} contained in the specified Lucene {@link Document}.
+     * @param document the {@link Document} containing the partition key to be get
+     * @return the {@link DecoratedKey} contained in the specified Lucene {@link Document}
      */
     public DecoratedKey decoratedKey(Document document) {
         BytesRef bytesRef = document.getBinaryValue(FIELD_NAME);
@@ -151,10 +164,10 @@ public final class PartitionMapper {
     }
 
     /**
-     * Returns the specified raw partition key as a a {@link DecoratedKey}.
+     * Returns the specified binary partition key as a {@link DecoratedKey}.
      *
-     * @param partitionKey The raw partition key to be converted.
-     * @return The specified raw partition key as a a {@link DecoratedKey}.
+     * @param partitionKey the binary representation of a partition key
+     * @return the specified partition key as a a {@link DecoratedKey}
      */
     public DecoratedKey decoratedKey(ByteBuffer partitionKey) {
         return partitioner.decorateKey(partitionKey);
@@ -163,7 +176,7 @@ public final class PartitionMapper {
     /**
      * Returns a Lucene {@link SortField} for sorting documents/rows according to the partition key.
      *
-     * @return a Lucene {@link SortField} for sorting documents/rows according to the partition key
+     * @return a sort field for sorting by partition key
      */
     public SortField sortField() {
         return new SortField(FIELD_NAME, new FieldComparatorSource() {

@@ -47,9 +47,9 @@ public class ClusteringQuery extends MultiTermQuery {
     /**
      * Returns a new clustering key query for the specified clustering key range using the specified mapper.
      *
-     * @param start  The clustering key prefix at the start of the range.
-     * @param stop   The clustering key prefix at the end of the range.
-     * @param mapper The clustering key mapper to be used.
+     * @param start  the clustering key prefix at the start of the range
+     * @param stop   the clustering key prefix at the end of the range
+     * @param mapper the clustering key mapper to be used
      */
     public ClusteringQuery(ClusteringPrefix start, ClusteringPrefix stop, ClusteringMapper mapper) {
         super(ClusteringMapper.FIELD_NAME);

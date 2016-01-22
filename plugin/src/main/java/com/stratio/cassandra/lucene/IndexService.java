@@ -20,6 +20,7 @@ package com.stratio.cassandra.lucene;
 
 import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.column.ColumnsMapper;
+import com.stratio.cassandra.lucene.index.DocumentIterator;
 import com.stratio.cassandra.lucene.index.FSIndex;
 import com.stratio.cassandra.lucene.index.RAMIndex;
 import com.stratio.cassandra.lucene.key.PartitionMapper;
@@ -30,7 +31,10 @@ import com.stratio.cassandra.lucene.search.SearchBuilder;
 import com.stratio.cassandra.lucene.util.DecoratedPartition;
 import com.stratio.cassandra.lucene.util.DecoratedRow;
 import com.stratio.cassandra.lucene.util.TaskQueue;
+import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.db.*;
+import org.apache.cassandra.db.filter.ClusteringIndexNamesFilter;
+import org.apache.cassandra.db.filter.ColumnFilter;
 import org.apache.cassandra.db.filter.RowFilter;
 import org.apache.cassandra.db.filter.RowFilter.Expression;
 import org.apache.cassandra.db.marshal.UTF8Type;
@@ -39,7 +43,7 @@ import org.apache.cassandra.db.partitions.PartitionUpdate;
 import org.apache.cassandra.db.partitions.UnfilteredPartitionIterator;
 import org.apache.cassandra.db.rows.Row;
 import org.apache.cassandra.db.rows.RowIterator;
-import org.apache.cassandra.exceptions.InvalidRequestException;
+import org.apache.cassandra.db.rows.UnfilteredRowIterator;
 import org.apache.cassandra.index.Index;
 import org.apache.cassandra.index.transactions.IndexTransaction;
 import org.apache.cassandra.schema.IndexMetadata;
@@ -120,6 +124,7 @@ public abstract class IndexService {
         fieldsToLoad = new HashSet<>();
         fieldsToLoad.add(PartitionMapper.FIELD_NAME);
 
+        // Setup natural sort
         keySortFields = new ArrayList<>();
         keySortFields.add(tokenMapper.sortField());
         keySortFields.add(partitionMapper.sortField());
@@ -135,6 +140,10 @@ public abstract class IndexService {
         return table.getComparator().subtypes().isEmpty()
                ? new IndexServiceSkinny(table, indexMetadata)
                : new IndexServiceWide(table, indexMetadata);
+    }
+
+    public CFMetaData getMetadata() {
+        return table.metadata;
     }
 
     /**
@@ -207,6 +216,16 @@ public abstract class IndexService {
             sortedClusterings.addAll(Arrays.asList(clusterings));
         }
         return sortedClusterings;
+    }
+
+    /**
+     * Returns the {@link DecoratedKey} contained in the specified Lucene {@link Document}.
+     *
+     * @param document the {@link Document} containing the partition key to be get
+     * @return the {@link DecoratedKey} contained in the specified Lucene {@link Document}
+     */
+    public DecoratedKey decoratedKey(Document document) {
+        return partitionMapper.decoratedKey(document);
     }
 
     /**
@@ -291,11 +310,9 @@ public abstract class IndexService {
      * expressions here and throw a meaningful InvalidRequestException when any expression is invalid.
      *
      * @param command the read command being executed
-     * @return an Searcher with which to perform the supplied command supported by the index implementation.
+     * @return an Searcher with which to perform the supplied command supported by the index implementation
      */
     public Index.Searcher searcherFor(ReadCommand command) {
-
-        logger.debug("BUILDING SEARCHER");
 
         // Parse search data
         Search search = search(command);
@@ -307,8 +324,6 @@ public abstract class IndexService {
         if (search.refresh()) {
             lucene.refresh();
         }
-
-        logger.debug("BUILT SEARCHER");
 
         return (ReadExecutionController executionController) -> read(query, sort, null, command, executionController);
     }
@@ -355,8 +370,8 @@ public abstract class IndexService {
     /**
      * Returns a Lucene {@link Query} to get the {@link Document}s satisfying the specified {@link DataRange}.
      *
-     * @param dataRange A {@link DataRange}.
-     * @return A Lucene {@link Query} to get the {@link Document}s satisfying the specified {@link DataRange}.
+     * @param dataRange the {@link DataRange}.
+     * @return a query to get the {@link Document}s satisfying the {@code dataRange}.
      */
     abstract Query query(DataRange dataRange);
 
@@ -365,7 +380,7 @@ public abstract class IndexService {
      * Cassandra's natural ordering based on partitioning token and cell name.
      *
      * @param search the {@link Search} containing sorting requirements
-     * @return a Lucene {@link Sort}
+     * @return a Lucene sort according to {@code search}
      */
     private Sort sort(Search search) {
         List<SortField> sortFields = new ArrayList<>();
@@ -380,20 +395,67 @@ public abstract class IndexService {
     }
 
     /**
+     * Retrieves from the local storage the {@link Row}s in the specified partition slice.
+     *
+     * @param key the partition key
+     * @param clusterings the clustering keys
+     * @param nowInSec max allowed time in seconds
+     * @param opGroup operation group spanning the calling operation
+     * @return a {@link Row} iterator
+     */
+    public UnfilteredRowIterator read(DecoratedKey key,
+                                      NavigableSet<Clustering> clusterings,
+                                      int nowInSec,
+                                      OpOrder.Group opGroup) {
+        ClusteringIndexNamesFilter filter = new ClusteringIndexNamesFilter(clusterings, false);
+        ColumnFilter columnFilter = ColumnFilter.all(table.metadata);
+        return SinglePartitionReadCommand.create(table.metadata, nowInSec, key, columnFilter, filter)
+                                         .queryMemtableAndDisk(table, opGroup);
+    }
+
+    /**
+     * Retrieves from the local storage all the {@link Row}s in the specified partition.
+     *
+     * @param key the partition key
+     * @param nowInSec max allowed time in seconds
+     * @param opGroup operation group spanning the calling operation
+     * @return a {@link Row} iterator
+     */
+    public UnfilteredRowIterator read(DecoratedKey key, int nowInSec, OpOrder.Group opGroup) {
+        return read(key, clusterings(Clustering.EMPTY), nowInSec, opGroup);
+    }
+
+    /**
      * Reads from the local SSTables the rows identified by the specified search.
      *
      * @param query the Lucene query
      * @param sort the Lucene sort
      * @param after the last Lucene doc
      * @param command the Cassandra command
-     * @param executionController the Cassandra read execution controller
+     * @param controller the Cassandra read execution controller
      * @return the local {@link Row}s satisfying the search
      */
-    public abstract UnfilteredPartitionIterator read(Query query,
-                                                     Sort sort,
-                                                     ScoreDoc after,
-                                                     ReadCommand command,
-                                                     ReadExecutionController executionController);
+    public UnfilteredPartitionIterator read(Query query,
+                                            Sort sort,
+                                            ScoreDoc after,
+                                            ReadCommand command,
+                                            ReadExecutionController controller) {
+        int limit = command.limits().count();
+        DocumentIterator documents = lucene.search(query, sort, after, limit, fieldsToLoad);
+        return indexReader(documents, command, controller);
+    }
+
+    /**
+     * Reads from the local SSTables the rows identified by the specified search.
+     *
+     * @param documents the Lucene documents
+     * @param command the Cassandra command
+     * @param controller the Cassandra read execution controller
+     * @return the local {@link Row}s satisfying the search
+     */
+    public abstract IndexReader indexReader(DocumentIterator documents,
+                                            ReadCommand command,
+                                            ReadExecutionController controller);
 
     /**
      * Post processes in the coordinator node the results of a distributed search. Gets the k globally best results from
@@ -401,11 +463,10 @@ public abstract class IndexService {
      *
      * @param partitions the node results iterator
      * @param command the read command
-     * @return the globally best results
+     * @return the k globally best results
      */
     public PartitionIterator postProcess(PartitionIterator partitions, ReadCommand command) {
 
-        // TODO: Throw InvalidRequestException here (JIRA?), validation really happens here
         // TODO: Skip if search is not top-k
         // TODO: Skip if only one node is involved
 
@@ -441,9 +502,9 @@ public abstract class IndexService {
     }
 
     /**
-     * Ensures that values present in the specified update are valid according to the {@link Schema}.
+     * Ensures that values present in the specified {@link PartitionUpdate} are valid according to the {@link Schema}.
      *
-     * @param update PartitionUpdate containing the values to be validated by the {@link Schema}
+     * @param update the partition update containing the values to be validated by the {@link Schema}
      */
     public void validate(PartitionUpdate update) {
         DecoratedKey key = update.partitionKey();

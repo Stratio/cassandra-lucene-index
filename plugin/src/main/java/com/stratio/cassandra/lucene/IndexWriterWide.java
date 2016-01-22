@@ -87,7 +87,7 @@ public class IndexWriterWide extends IndexWriter {
     public void finish() {
 
         // Read required rows from storage engine
-        service.rows(key, rowsToRead, nowInSec, opGroup).forEachRemaining(unfiltered -> {
+        service.read(key, rowsToRead, nowInSec, opGroup).forEachRemaining(unfiltered -> {
             Row row = (Row) unfiltered;
             rows.put(row.clustering(), Optional.of(row));
         });

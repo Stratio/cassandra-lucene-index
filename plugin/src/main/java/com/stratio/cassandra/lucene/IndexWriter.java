@@ -40,7 +40,7 @@ public abstract class IndexWriter implements org.apache.cassandra.index.Index.In
     protected final IndexTransaction.Type transactionType;
 
     /**
-     * Builds a new IndexWriterSkinny.
+     * Abstract constructor.
      *
      * @param key key of the partition being modified
      * @param nowInSec current time of the update operation

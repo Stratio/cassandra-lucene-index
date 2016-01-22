@@ -18,47 +18,33 @@
 
 package com.stratio.cassandra.lucene;
 
-import com.stratio.cassandra.lucene.index.FSIndex;
+import com.stratio.cassandra.lucene.index.DocumentIterator;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.db.ColumnFamilyStore;
 import org.apache.cassandra.db.ReadCommand;
+import org.apache.cassandra.db.ReadExecutionController;
 import org.apache.cassandra.db.partitions.UnfilteredPartitionIterator;
 import org.apache.cassandra.db.rows.UnfilteredRowIterator;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.Sort;
-
-import java.util.Iterator;
-import java.util.Set;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public abstract class IndexPartitionIterator implements UnfilteredPartitionIterator {
+public abstract class IndexReader implements UnfilteredPartitionIterator {
 
-    private final ReadCommand command;
-    private final ColumnFamilyStore table;
-    private final FSIndex lucene;
-    private final IndexSearcher searcher;
-    protected final Iterator<Document> documents;
+    protected final ReadCommand command;
+    protected final ColumnFamilyStore table;
+    protected final ReadExecutionController controller;
+    protected final DocumentIterator documents;
     protected UnfilteredRowIterator next;
 
-    public IndexPartitionIterator(ReadCommand command,
-                                  ColumnFamilyStore table,
-                                  FSIndex lucene,
-                                  Query query,
-                                  Sort sort,
-                                  ScoreDoc after,
-                                  Set<String> fieldsToLoad) {
+    public IndexReader(ReadCommand command,
+                       ColumnFamilyStore table,
+                       ReadExecutionController controller,
+                       DocumentIterator documents) {
         this.command = command;
         this.table = table;
-        this.lucene = lucene;
-
-        int limit = command.limits().count();
-        searcher = lucene.acquireSearcher();
-        documents = lucene.search(searcher, query, sort, after, limit, fieldsToLoad);
+        this.controller = controller;
+        this.documents = documents;
     }
 
     /** {@inheritDoc} */
@@ -101,9 +87,12 @@ public abstract class IndexPartitionIterator implements UnfilteredPartitionItera
     /** {@inheritDoc} */
     @Override
     public void close() {
-        lucene.releaseSearcher(searcher); // TODO: Ensure always closed
-        if (next != null) {
-            next.close();
+        try {
+            documents.close();
+        } finally {
+            if (next != null) {
+                next.close();
+            }
         }
     }
 }

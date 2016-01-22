@@ -1,6 +1,7 @@
 package com.stratio.cassandra.lucene.index;
 
 import com.stratio.cassandra.lucene.IndexException;
+import org.apache.cassandra.utils.CloseableIterator;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.search.*;
 import org.slf4j.Logger;
@@ -16,10 +17,11 @@ import java.util.Set;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class DocumentIterator implements Iterator<Document> {
+public class DocumentIterator implements CloseableIterator<Document> {
 
     private static final Logger logger = LoggerFactory.getLogger(DocumentIterator.class);
 
+    private SearcherManager manager;
     private IndexSearcher searcher;
     private Query query;
     private Sort sort;
@@ -29,18 +31,33 @@ public class DocumentIterator implements Iterator<Document> {
     private LinkedList<Document> documents = new LinkedList<>();
     private boolean mayHaveMore = true;
 
-    public DocumentIterator(IndexSearcher searcher,
-                            Query query,
-                            Sort sort,
-                            ScoreDoc after,
-                            Integer count,
-                            Set<String> fields) {
-        this.searcher = searcher;
+    /**
+     * Builds a new iterator over the {@link Document}s satisfying the specified {@link Query}.
+     *
+     * @param manager the index searcher manager
+     * @param query the query to be satisfied by the documents
+     * @param sort the sort in which the documents are going to be retrieved
+     * @param after a pointer to the start document (not included)
+     * @param count the max number of documents to be retrieved
+     * @param fields the names of the fields to be loaded
+     */
+    DocumentIterator(SearcherManager manager,
+                     Query query,
+                     Sort sort,
+                     ScoreDoc after,
+                     Integer count,
+                     Set<String> fields) {
+        this.manager = manager;
         this.query = query;
         this.sort = sort;
         this.after = after;
         this.count = count;
         this.fields = fields;
+        try {
+            searcher = manager.acquire();
+        } catch (Exception e) {
+            throw new IndexException(logger, e, "Error acquiring index searcher");
+        }
     }
 
     private void fetch() {
@@ -72,6 +89,7 @@ public class DocumentIterator implements Iterator<Document> {
      *
      * @return {@code true} if the iteration has more{@link Document}s
      */
+    @Override
     public boolean hasNext() {
         if (mayHaveMore && documents.isEmpty()) {
             fetch();
@@ -85,6 +103,7 @@ public class DocumentIterator implements Iterator<Document> {
      * @return the next {@link Document} in the iteration
      * @throws NoSuchElementException if the iteration has no more {@link Document}s
      */
+    @Override
     public Document next() {
         if (hasNext()) {
             return documents.poll();
@@ -93,4 +112,13 @@ public class DocumentIterator implements Iterator<Document> {
         }
     }
 
+    /** {@inheritDoc} */
+    @Override
+    public void close() {
+        try {
+            manager.release(searcher);
+        } catch (Exception e) {
+            throw new IndexException(logger, e, "Error releasing index searcher");
+        }
+    }
 }

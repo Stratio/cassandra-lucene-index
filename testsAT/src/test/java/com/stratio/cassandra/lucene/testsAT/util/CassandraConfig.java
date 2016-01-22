@@ -21,6 +21,8 @@ package com.stratio.cassandra.lucene.testsAT.util;
 import com.datastax.driver.core.ConsistencyLevel;
 
 /**
+ * Testing global variables.
+ *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class CassandraConfig {

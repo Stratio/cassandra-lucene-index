@@ -19,13 +19,9 @@
 package com.stratio.cassandra.lucene;
 
 import com.stratio.cassandra.lucene.column.Columns;
+import com.stratio.cassandra.lucene.index.DocumentIterator;
 import org.apache.cassandra.db.*;
-import org.apache.cassandra.db.filter.ClusteringIndexNamesFilter;
-import org.apache.cassandra.db.filter.ColumnFilter;
-import org.apache.cassandra.db.filter.DataLimits;
-import org.apache.cassandra.db.partitions.UnfilteredPartitionIterator;
 import org.apache.cassandra.db.rows.Row;
-import org.apache.cassandra.db.rows.UnfilteredRowIterator;
 import org.apache.cassandra.dht.Token;
 import org.apache.cassandra.index.transactions.IndexTransaction;
 import org.apache.cassandra.schema.IndexMetadata;
@@ -33,10 +29,7 @@ import org.apache.cassandra.utils.concurrent.OpOrder;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.Sort;
 
-import java.util.NavigableSet;
 import java.util.Optional;
 
 /**
@@ -113,54 +106,12 @@ public class IndexServiceSkinny extends IndexService {
         return tokenMapper.query(startToken, stopToken, includeStart, includeStop);
     }
 
-    public Optional<Row> read(DecoratedKey key, int nowInSec, OpOrder.Group opGroup) {
-        NavigableSet<Clustering> clusterings = clusterings(Clustering.EMPTY);
-        ClusteringIndexNamesFilter filter = new ClusteringIndexNamesFilter(clusterings, false);
-        ColumnFilter columnFilter = ColumnFilter.all(table.metadata);
-        UnfilteredRowIterator iterator;
-        iterator = SinglePartitionReadCommand.create(table.metadata,
-                                                     nowInSec,
-                                                     key,
-                                                     columnFilter,
-                                                     filter)
-                                             .queryMemtableAndDisk(table, opGroup);
-        return iterator.hasNext() ? Optional.of((Row) iterator.next()) : Optional.empty();
-    }
-
     /** {@inheritDoc} */
     @Override
-    public UnfilteredPartitionIterator read(Query query,
-                                            Sort sort,
-                                            ScoreDoc after,
-                                            ReadCommand command,
-                                            ReadExecutionController executionController) {
-        return new IndexPartitionIterator(command, table, lucene, query, sort, after, fieldsToLoad) {
-            @Override
-            protected boolean prepareNext() {
-                while (next == null && documents.hasNext()) {
-                    DecoratedKey key = partitionMapper.decoratedKey(documents.next());
-                    SinglePartitionReadCommand dataCommand;
-                    dataCommand = SinglePartitionReadCommand.create(isForThrift(),
-                                                                    table.metadata,
-                                                                    command.nowInSec(),
-                                                                    command.columnFilter(),
-                                                                    command.rowFilter(),
-                                                                    DataLimits.NONE,
-                                                                    key,
-                                                                    command.clusteringIndexFilter(key));
-                    UnfilteredRowIterator data = dataCommand.queryMemtableAndDisk(table, executionController);
-
-                    if (data != null) {
-                        if (data.isEmpty()) {
-                            data.close();
-                        } else {
-                            next = data;
-                        }
-                    }
-                }
-                return next != null;
-            }
-        };
+    public IndexReaderSkinny indexReader(DocumentIterator documents,
+                                         ReadCommand command,
+                                         ReadExecutionController controller) {
+        return new IndexReaderSkinny(command, table, controller, documents, this);
 
     }
 }
