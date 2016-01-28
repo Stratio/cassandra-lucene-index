@@ -18,14 +18,12 @@
 
 package com.stratio.cassandra.lucene;
 
-import org.apache.cassandra.db.Clustering;
 import org.apache.cassandra.db.DecoratedKey;
 import org.apache.cassandra.db.rows.Row;
 import org.apache.cassandra.db.rows.UnfilteredRowIterator;
 import org.apache.cassandra.index.transactions.IndexTransaction;
 import org.apache.cassandra.utils.concurrent.OpOrder;
 
-import java.util.NavigableSet;
 import java.util.Optional;
 
 /**
@@ -35,26 +33,23 @@ import java.util.Optional;
  */
 public class IndexWriterSkinny extends IndexWriter {
 
-    private final IndexServiceSkinny service;
     private Optional<Row> row;
 
     /**
-     * Builds a new IndexWriterSkinny.
+     * Builds a new {@link IndexWriter} for tables with skinny rows.
      *
      * @param service the service to perform the indexing operation
      * @param key key of the partition being modified
      * @param nowInSec current time of the update operation
      * @param opGroup operation group spanning the update operation
-     * @param transactionType indicates what kind of update is being performed on the base data i.e. a write time
-     * insert/update/delete or the result of compaction
+     * @param transactionType what kind of update is being performed on the base data
      */
     public IndexWriterSkinny(IndexServiceSkinny service,
                              DecoratedKey key,
                              int nowInSec,
                              OpOrder.Group opGroup,
                              IndexTransaction.Type transactionType) {
-        super(key, nowInSec, opGroup, transactionType);
-        this.service = service;
+        super(service, key, nowInSec, opGroup, transactionType);
         row = Optional.empty();
     }
 

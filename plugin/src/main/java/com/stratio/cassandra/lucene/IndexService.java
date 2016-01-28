@@ -60,7 +60,7 @@ import java.util.*;
 import static org.apache.lucene.search.SortField.FIELD_SCORE;
 
 /**
- * Class for providing operations between Cassandra and Lucene.
+ * Lucene {@link Index} service provider.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
@@ -69,12 +69,11 @@ public abstract class IndexService {
     protected static final Logger logger = LoggerFactory.getLogger(IndexService.class);
 
     protected final ColumnFamilyStore table;
+    protected final CFMetaData metadata;
     protected final FSIndex lucene;
     protected final String name;
     protected final String qualifiedName;
-
     protected final TaskQueue queue;
-
     protected final Schema schema;
     protected final TokenMapper tokenMapper;
     protected final PartitionMapper partitionMapper;
@@ -84,24 +83,27 @@ public abstract class IndexService {
     protected final List<SortField> keySortFields;
 
     /**
-     * Constructor using the specified {@link IndexOptions}.
+     * Constructor using the specified indexed table and index metadata.
      *
-     * @param table The indexed table.
-     * @param indexMetadata The index metadata.
+     * @param indexedTable the indexed table
+     * @param indexMetadata the index metadata
      */
-    protected IndexService(ColumnFamilyStore table, IndexMetadata indexMetadata) {
-        this.table = table;
-        name = indexMetadata.name;
-        qualifiedName = String.format("%s.%s.%s", table.metadata.ksName, table.metadata.cfName, indexMetadata.name);
-        String mbean = String.format("com.stratio.cassandra.lucene:type=LuceneIndexes,keyspace=%s,table=%s,index=%s",
-                                     table.metadata.ksName,
-                                     table.metadata.cfName,
-                                     name);
+    protected IndexService(ColumnFamilyStore indexedTable, IndexMetadata indexMetadata) {
+        table = indexedTable;
+        metadata = table.metadata;
 
-        // Setup index
-        IndexOptions options = new IndexOptions(table.metadata, indexMetadata);
-        lucene = new FSIndex(mbean,
-                             name,
+        // Setup monitoring names
+        name = indexMetadata.name;
+        qualifiedName = String.format("%s.%s.%s", metadata.ksName, metadata.cfName, indexMetadata.name);
+        String mbeanName = String.format("com.stratio.cassandra.lucene:type=Lucene,keyspace=%s,table=%s,index=%s",
+                                         metadata.ksName,
+                                         metadata.cfName,
+                                         name);
+
+        // Setup Lucene index and its write queue
+        IndexOptions options = new IndexOptions(metadata, indexMetadata);
+        lucene = new FSIndex(name,
+                             mbeanName,
                              options.path,
                              options.schema.getAnalyzer(),
                              options.refreshSeconds,
@@ -113,12 +115,12 @@ public abstract class IndexService {
         // Setup mapping
         schema = options.schema;
         tokenMapper = new TokenMapper();
-        partitionMapper = new PartitionMapper(table.metadata);
-        columnsMapper = new ColumnsMapper(table.metadata);
-        mapsMultiCells = table.metadata.allColumns()
-                                       .stream()
-                                       .filter(x -> schema.getMappedCells().contains(x.name.toString()))
-                                       .anyMatch(x -> x.type.isMultiCell());
+        partitionMapper = new PartitionMapper(metadata);
+        columnsMapper = new ColumnsMapper(metadata);
+        mapsMultiCells = metadata.allColumns()
+                                 .stream()
+                                 .filter(x -> schema.getMappedCells().contains(x.name.toString()))
+                                 .anyMatch(x -> x.type.isMultiCell());
 
         // Setup fields to load
         fieldsToLoad = new HashSet<>();
@@ -131,10 +133,10 @@ public abstract class IndexService {
     }
 
     /**
-     * Constructor using the specified {@link IndexOptions}.
+     * Returns a new index service for the specified indexed table and index metadata.
      *
-     * @param table The indexed table.
-     * @param indexMetadata The index metadata.
+     * @param table the indexed table
+     * @param indexMetadata the index metadata
      */
     public static IndexService build(ColumnFamilyStore table, IndexMetadata indexMetadata) {
         return table.getComparator().subtypes().isEmpty()
@@ -142,16 +144,12 @@ public abstract class IndexService {
                : new IndexServiceWide(table, indexMetadata);
     }
 
-    public CFMetaData getMetadata() {
-        return table.metadata;
-    }
-
     /**
      * Returns a {@link Columns} representing the specified {@link Row}.
      *
      * @param key the partition key
      * @param row the {@link Row}
-     * @return the columns representing the specified {@link Row}.
+     * @return the columns representing the specified {@link Row}
      */
     public abstract Columns columns(DecoratedKey key, Row row);
 
@@ -161,7 +159,7 @@ public abstract class IndexService {
      *
      * @param key the partition key
      * @param row the {@link Row}
-     * @return a document
+     * @return maybe a document
      */
     public abstract Optional<Document> document(DecoratedKey key, Row row);
 
@@ -199,7 +197,7 @@ public abstract class IndexService {
      *
      * @param key the partition key
      * @param row the {@link Row}
-     * @return {@code true} if read-before-write is required, {@code false} otherwise.
+     * @return {@code true} if read-before-write is required, {@code false} otherwise
      */
     public boolean needsReadBeforeWrite(DecoratedKey key, Row row) {
         if (mapsMultiCells) {
@@ -210,8 +208,14 @@ public abstract class IndexService {
         }
     }
 
+    /**
+     * Returns a {@link NavigableSet} of the specified clusterings, sorted by the table metadata.
+     *
+     * @param clusterings the clusterings to be included in the set
+     * @return the navigable sorted set
+     */
     public NavigableSet<Clustering> clusterings(Clustering... clusterings) {
-        NavigableSet<Clustering> sortedClusterings = new TreeSet<>(table.metadata.comparator);
+        NavigableSet<Clustering> sortedClusterings = new TreeSet<>(metadata.comparator);
         if (clusterings.length > 0) {
             sortedClusterings.addAll(Arrays.asList(clusterings));
         }
@@ -234,8 +238,7 @@ public abstract class IndexService {
      * @param key key of the partition being modified
      * @param nowInSec current time of the update operation
      * @param opGroup operation group spanning the update operation
-     * @param transactionType indicates what kind of update is being performed on the base data i.e. a write time
-     * insert/update/delete or the result of compaction
+     * @param transactionType what kind of update is being performed on the base data
      * @return the newly created {@code IndexWriter}
      */
     public abstract IndexWriter indexWriter(DecoratedKey key,
@@ -243,23 +246,17 @@ public abstract class IndexService {
                                             OpOrder.Group opGroup,
                                             IndexTransaction.Type transactionType);
 
-    /**
-     * Commits the pending changes.
-     */
+    /** Commits the pending changes. */
     public final void commit() {
         queue.submitSynchronous(lucene::commit);
     }
 
-    /**
-     * Deletes all the index contents.
-     */
+    /** Deletes all the index contents. */
     public final void truncate() {
         queue.submitSynchronous(lucene::truncate);
     }
 
-    /**
-     * Closes and removes all the index files.
-     */
+    /** Closes and removes all the index files. */
     public final void delete() {
         queue.shutdown();
         lucene.delete();
@@ -306,11 +303,10 @@ public abstract class IndexService {
     }
 
     /**
-     * Factory method for query time search helper. Custom index implementations should perform any validation of query
-     * expressions here and throw a meaningful InvalidRequestException when any expression is invalid.
+     * Returns a new {@link Index.Searcher} for the specified {@link ReadCommand}.
      *
      * @param command the read command being executed
-     * @return an Searcher with which to perform the supplied command supported by the index implementation
+     * @return a searcher with which to perform the supplied command
      */
     public Index.Searcher searcherFor(ReadCommand command) {
 
@@ -348,30 +344,27 @@ public abstract class IndexService {
         throw new IndexException("Lucene search expression not found in command expressions");
     }
 
+    /**
+     * Returns the key range query represented by the specified {@link ReadCommand}.
+     *
+     * @param command the read command
+     * @return the key range query
+     */
     private Query query(ReadCommand command) {
         if (command instanceof SinglePartitionReadCommand) {
-            return query((SinglePartitionReadCommand) command);
+            return new TermQuery(term(((SinglePartitionReadCommand) command).partitionKey()));
         } else if (command instanceof PartitionRangeReadCommand) {
-            return query((PartitionRangeReadCommand) command);
+            return query(((PartitionRangeReadCommand) command).dataRange());
         } else {
             throw new IndexException("Unsupported read command %s", command.getClass());
         }
     }
 
-    private Query query(SinglePartitionReadCommand command) {
-        DecoratedKey key = command.partitionKey();
-        return new TermQuery(term(key));
-    }
-
-    private Query query(PartitionRangeReadCommand command) {
-        return query(command.dataRange());
-    }
-
     /**
      * Returns a Lucene {@link Query} to get the {@link Document}s satisfying the specified {@link DataRange}.
      *
-     * @param dataRange the {@link DataRange}.
-     * @return a query to get the {@link Document}s satisfying the {@code dataRange}.
+     * @param dataRange the {@link DataRange}
+     * @return a query to get the {@link Document}s satisfying the {@code dataRange}
      */
     abstract Query query(DataRange dataRange);
 
@@ -408,8 +401,8 @@ public abstract class IndexService {
                                       int nowInSec,
                                       OpOrder.Group opGroup) {
         ClusteringIndexNamesFilter filter = new ClusteringIndexNamesFilter(clusterings, false);
-        ColumnFilter columnFilter = ColumnFilter.all(table.metadata);
-        return SinglePartitionReadCommand.create(table.metadata, nowInSec, key, columnFilter, filter)
+        ColumnFilter columnFilter = ColumnFilter.all(metadata);
+        return SinglePartitionReadCommand.create(metadata, nowInSec, key, columnFilter, filter)
                                          .queryMemtableAndDisk(table, opGroup);
     }
 

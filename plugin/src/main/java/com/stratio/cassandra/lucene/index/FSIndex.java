@@ -62,8 +62,8 @@ public class FSIndex implements FSIndexMBean {
     /**
      * Builds a new {@link FSIndex}.
      *
-     * @param mbeanName the JMX MBean object name
      * @param name the index name
+     * @param mbeanName the JMX MBean object name
      * @param path the directory path
      * @param analyzer the index writer analyzer
      * @param refresh the index reader refresh frequency in seconds
@@ -71,8 +71,8 @@ public class FSIndex implements FSIndexMBean {
      * @param maxMergeMB the directory max merge size in MB
      * @param maxCachedMB the directory max cache size in MB
      */
-    public FSIndex(String mbeanName,
-                   String name,
+    public FSIndex(String name,
+                   String mbeanName,
                    Path path,
                    Analyzer analyzer,
                    double refresh,

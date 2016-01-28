@@ -21,7 +21,7 @@ package com.stratio.cassandra.lucene;
 import org.slf4j.Logger;
 
 /**
- * {@code RuntimeException} to be thrown when there are index-related errors.
+ * {@code RuntimeException} to be thrown when there are Lucene {@link Index}-related errors.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */

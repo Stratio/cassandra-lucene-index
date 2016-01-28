@@ -33,7 +33,7 @@ import org.apache.lucene.search.Query;
 import java.util.Optional;
 
 /**
- * Class for providing operations between Cassandra and Lucene.
+ * {@link IndexService} for skinny rows.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
@@ -42,8 +42,8 @@ public class IndexServiceSkinny extends IndexService {
     /**
      * Constructor using the specified {@link IndexOptions}.
      *
-     * @param table The indexed table.
-     * @param indexMetadata The index metadata.
+     * @param table the indexed table
+     * @param indexMetadata the index metadata
      */
     protected IndexServiceSkinny(ColumnFamilyStore table, IndexMetadata indexMetadata) {
         super(table, indexMetadata);

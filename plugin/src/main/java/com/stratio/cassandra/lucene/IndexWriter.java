@@ -28,12 +28,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * {@link Index.Indexer} for Lucene-based index.
+ *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public abstract class IndexWriter implements org.apache.cassandra.index.Index.Indexer {
+public abstract class IndexWriter implements Index.Indexer {
 
     protected static final Logger logger = LoggerFactory.getLogger(IndexWriter.class);
 
+    protected final IndexService service;
     protected final DecoratedKey key;
     protected final int nowInSec;
     protected final OpOrder.Group opGroup;
@@ -42,16 +45,18 @@ public abstract class IndexWriter implements org.apache.cassandra.index.Index.In
     /**
      * Abstract constructor.
      *
+     * @param service the service to perform the indexing operation
      * @param key key of the partition being modified
      * @param nowInSec current time of the update operation
      * @param opGroup operation group spanning the update operation
-     * @param transactionType indicates what kind of update is being performed on the base data i.e. a write time
-     * insert/update/delete or the result of compaction
+     * @param transactionType what kind of update is being performed on the base data
      */
-    protected IndexWriter(DecoratedKey key,
+    protected IndexWriter(IndexService service,
+                          DecoratedKey key,
                           int nowInSec,
                           OpOrder.Group opGroup,
                           IndexTransaction.Type transactionType) {
+        this.service = service;
         this.key = key;
         this.nowInSec = nowInSec;
         this.opGroup = opGroup;
@@ -97,7 +102,15 @@ public abstract class IndexWriter implements org.apache.cassandra.index.Index.In
         index(row);
     }
 
+    /**
+     * Deletes all the partition.
+     */
     protected abstract void delete();
 
+    /**
+     * Indexes the specified partition's {@link Row}. It behaviours as an upsert and could involve read-before-write.
+     *
+     * @param row the row to be indexed.
+     */
     protected abstract void index(Row row);
 }

@@ -28,6 +28,8 @@ import org.apache.lucene.document.Document;
 import java.util.NavigableSet;
 
 /**
+ * {@link IndexReader} for wide rows.
+ *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class IndexReaderWide extends IndexReader {

@@ -24,6 +24,8 @@ import org.apache.cassandra.db.filter.DataLimits;
 import org.apache.cassandra.db.rows.UnfilteredRowIterator;
 
 /**
+ * {@link IndexReader} for skinny rows.
+ *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class IndexReaderSkinny extends IndexReader {

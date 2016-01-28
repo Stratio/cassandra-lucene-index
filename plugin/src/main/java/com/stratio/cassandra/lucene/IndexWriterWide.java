@@ -35,27 +35,24 @@ import java.util.Optional;
  */
 public class IndexWriterWide extends IndexWriter {
 
-    private final IndexServiceWide service;
     private final NavigableSet<Clustering> rowsToRead;
     private final LinkedHashMap<Clustering, Optional<Row>> rows;
 
     /**
-     * Builds a new IndexWriterSkinny.
+     * Builds a new {@link IndexWriter} for tables with wide rows.
      *
      * @param service the service to perform the indexing operation
      * @param key key of the partition being modified
      * @param nowInSec current time of the update operation
      * @param opGroup operation group spanning the update operation
-     * @param transactionType indicates what kind of update is being performed on the base data i.e. a write time
-     * insert/update/delete or the result of compaction
+     * @param transactionType what kind of update is being performed on the base data
      */
     public IndexWriterWide(IndexServiceWide service,
                            DecoratedKey key,
                            int nowInSec,
                            OpOrder.Group opGroup,
                            IndexTransaction.Type transactionType) {
-        super(key, nowInSec, opGroup, transactionType);
-        this.service = service;
+        super(service, key, nowInSec, opGroup, transactionType);
         rowsToRead = service.clusterings();
         rows = new LinkedHashMap<>();
     }

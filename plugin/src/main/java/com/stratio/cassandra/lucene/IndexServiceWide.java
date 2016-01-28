@@ -42,7 +42,7 @@ import static org.apache.lucene.search.BooleanClause.Occur.FILTER;
 import static org.apache.lucene.search.BooleanClause.Occur.SHOULD;
 
 /**
- * Class for providing operations between Cassandra and Lucene.
+ * {@link IndexService} for wide rows.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
@@ -54,8 +54,8 @@ public class IndexServiceWide extends IndexService {
     /**
      * Constructor using the specified {@link IndexOptions}.
      *
-     * @param table The indexed table.
-     * @param indexMetadata The index metadata.
+     * @param table the indexed table
+     * @param indexMetadata the index metadata
      */
     protected IndexServiceWide(ColumnFamilyStore table, IndexMetadata indexMetadata) {
         super(table, indexMetadata);

@@ -27,6 +27,7 @@ import org.apache.cassandra.db.partitions.UnfilteredPartitionIterator;
 import org.apache.cassandra.db.rows.UnfilteredRowIterator;
 
 /**
+ * {@link UnfilteredPartitionIterator} for retrieving rows from a {@link DocumentIterator}.
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public abstract class IndexReader implements UnfilteredPartitionIterator {
@@ -88,11 +89,11 @@ public abstract class IndexReader implements UnfilteredPartitionIterator {
     @Override
     public void close() {
         try {
-            documents.close();
-        } finally {
             if (next != null) {
                 next.close();
             }
+        } finally {
+            documents.close();
         }
     }
 }

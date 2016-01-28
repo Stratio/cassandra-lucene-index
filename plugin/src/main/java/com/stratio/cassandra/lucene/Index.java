@@ -62,8 +62,8 @@ public class Index implements org.apache.cassandra.index.Index {
     /**
      * Builds a new Lucene index for the specified {@link ColumnFamilyStore} using the specified {@link IndexMetadata}.
      *
-     * @param table The indexed {@link ColumnFamilyStore}.
-     * @param indexMetadata The index's metadata.
+     * @param table the indexed {@link ColumnFamilyStore}
+     * @param indexMetadata the index's metadata
      */
     public Index(ColumnFamilyStore table, IndexMetadata indexMetadata) {
         this.table = table;
@@ -79,9 +79,9 @@ public class Index implements org.apache.cassandra.index.Index {
     /**
      * Validates the specified index options.
      *
-     * @param options The options to be validated.
-     * @return The validated options.
-     * @throws ConfigurationException If the options are not valid.
+     * @param options the options to be validated
+     * @return the validated options
+     * @throws ConfigurationException if the options are not valid
      */
     public static Map<String, String> validateOptions(Map<String, String> options) throws ConfigurationException {
         return validateOptions(options, null);
@@ -90,9 +90,10 @@ public class Index implements org.apache.cassandra.index.Index {
     /**
      * Validates the specified index options.
      *
-     * @param options The options to be validated.
-     * @return The validated options.
-     * @throws ConfigurationException If the options are not valid.
+     * @param options the options to be validated
+     * @param metadata the metadata of the table to be indexed
+     * @return the validated options
+     * @throws ConfigurationException if the options are not valid
      */
     public static Map<String, String> validateOptions(Map<String, String> options, CFMetaData metadata)
     throws ConfigurationException {
@@ -151,7 +152,7 @@ public class Index implements org.apache.cassandra.index.Index {
      * work to be done due to updating the configuration(s) such as (re)building etc. This task is performed
      * asynchronously by SecondaryIndexManager
      *
-     * @return Task to be executed by the index manager during a reload.
+     * @return task to be executed by the index manager during a reload
      */
     @Override
     public Callable<?> getMetadataReloadTask(IndexMetadata indexMetadata) {
@@ -178,7 +179,7 @@ public class Index implements org.apache.cassandra.index.Index {
      * If the index implementation uses a local table to store its index data this method should return a handle to it.
      * If not, an empty Optional should be returned. Typically, this is useful for the built-in Index implementations.
      *
-     * @return an Optional referencing the Index's backing storage table if it has one, or Optional.empty() if not.
+     * @return an Optional referencing the Index's backing storage table if it has one, or Optional.empty() if not
      */
     public Optional<ColumnFamilyStore> getBackingTable() {
         return Optional.empty();
@@ -187,7 +188,7 @@ public class Index implements org.apache.cassandra.index.Index {
     /**
      * Return a task which performs a blocking flush of the index's data to persistent storage.
      *
-     * @return task to be executed by the index manager to perform the flush.
+     * @return task to be executed by the index manager to perform the flush
      */
     @Override
     public Callable<?> getBlockingFlushTask() {
@@ -201,7 +202,7 @@ public class Index implements org.apache.cassandra.index.Index {
      * Return a task which invalidates the index, indicating it should no longer be considered usable. This should
      * include an clean up and releasing of resources required when dropping an index.
      *
-     * @return task to be executed by the index manager to invalidate the index.
+     * @return task to be executed by the index manager to invalidate the index
      */
     @Override
     public Callable<?> getInvalidateTask() {

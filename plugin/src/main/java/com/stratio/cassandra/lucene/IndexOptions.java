@@ -36,7 +36,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The Stratio Lucene index user-specified configuration.
+ * Lucene {@link Index} user-specified configuration options parser.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
