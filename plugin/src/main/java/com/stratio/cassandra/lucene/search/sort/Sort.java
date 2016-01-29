@@ -23,10 +23,10 @@ import com.google.common.collect.Ordering;
 import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.schema.Schema;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * A sorting of fields for a search.
@@ -69,11 +69,7 @@ public class Sort implements Iterable<SortField> {
      * @return the Lucene {@link Sort} representing this {@link Sort}.
      */
     public List<org.apache.lucene.search.SortField> sortFields(Schema schema) {
-        List<org.apache.lucene.search.SortField> fields = new ArrayList<>(sortFields.size());
-        for (SortField sortField : sortFields) {
-            fields.add(sortField.sortField(schema));
-        }
-        return fields;
+        return sortFields.stream().map(s -> s.sortField(schema)).collect(Collectors.toList());
     }
 
     /**
@@ -83,11 +79,7 @@ public class Sort implements Iterable<SortField> {
      * @return The {@link Columns} {@link Comparator} specified by this {@link Sort}.
      */
     public Comparator<Columns> comparator(Schema schema) {
-        List<Comparator<Columns>> comparators = new ArrayList<>();
-        for (com.stratio.cassandra.lucene.search.sort.SortField sortField : getSortFields()) {
-            comparators.add(sortField.comparator(schema));
-        }
-        return Ordering.compound(comparators);
+        return Ordering.compound(getSortFields().stream().map(s -> s.comparator(schema)).collect(Collectors.toList()));
     }
 
     /** {@inheritDoc} */

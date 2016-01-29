@@ -109,11 +109,7 @@ public class SortField {
      */
     public Comparator<Columns> comparator(Schema schema) {
         final SingleColumnMapper mapper = schema.getSingleColumnMapper(field);
-        return new Comparator<Columns>() {
-            public int compare(Columns o1, Columns o2) {
-                return SortField.this.compare(mapper, o1, o2);
-            }
-        };
+        return (Columns o1, Columns o2) -> compare(mapper, o1, o2);
     }
 
     protected int compare(SingleColumnMapper mapper, Columns o1, Columns o2) {

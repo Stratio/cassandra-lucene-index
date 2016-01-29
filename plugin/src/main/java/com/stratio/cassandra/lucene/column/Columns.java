@@ -136,11 +136,11 @@ public class Columns implements Iterable<Column<?>> {
     public Columns getColumnsByFullName(String name) {
         Column.check(name);
         Columns result = new Columns();
-        for (Column<?> column : columns) {
+        columns.forEach(column -> {
             if (column.getFullName().equals(name)) {
                 result.add(column);
             }
-        }
+        });
         return result;
     }
 
@@ -154,11 +154,11 @@ public class Columns implements Iterable<Column<?>> {
         Column.check(name);
         String cellName = Column.getCellName(name);
         Columns result = new Columns();
-        for (Column<?> column : columns) {
+        columns.forEach(column -> {
             if (column.getCellName().equals(cellName)) {
                 result.add(column);
             }
-        }
+        });
         return result;
     }
 
@@ -172,11 +172,11 @@ public class Columns implements Iterable<Column<?>> {
         Column.check(name);
         String mapperName = Column.getMapperName(name);
         Columns result = new Columns();
-        for (Column<?> column : columns) {
+        columns.forEach(column -> {
             if (column.getMapperName().equals(mapperName)) {
                 result.add(column);
             }
-        }
+        });
         return result;
     }
 

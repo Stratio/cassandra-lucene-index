@@ -303,7 +303,7 @@ public class Index implements org.apache.cassandra.index.Index {
      * has performed it's initial scan. Used in ReadCommand#executeLocal to reduce the amount of filtering performed on
      * the results of the index query.
      *
-     * @param filter the intial filter belonging to a ReadCommand
+     * @param filter the initial filter belonging to a ReadCommand
      * @return the (hopefully) reduced filter that would still need to be applied after the index was used to narrow the
      * initial result set
      */

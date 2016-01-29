@@ -18,7 +18,6 @@
 
 package com.stratio.cassandra.lucene.column;
 
-import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.CollectionType;
@@ -40,12 +39,6 @@ import java.nio.ByteBuffer;
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public final class ColumnsMapper {
-
-    private final CFMetaData metadata;
-
-    public ColumnsMapper(CFMetaData metadata) {
-        this.metadata = metadata;
-    }
 
     /**
      * Adds to the specified {@link Column} to the {@link Column}s contained in the specified {@link Row}.

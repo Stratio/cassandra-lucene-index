@@ -77,11 +77,11 @@ public class BlockingExecutor extends ThreadPoolExecutor {
                             TimeUnit maxBlockingTimeUnit,
                             Callable<Boolean> blockingTimeCallback) {
 
-        super(               poolSize, // Core size
+        super(poolSize, // Core size
               poolSize,      // Max size
               keepAliveTime, keepAliveTimeUnit,
               // not smaller than the poolSize (to avoid redundant threads)
-              new ArrayBlockingQueue<Runnable>(Math.max(poolSize, queueSize), true),
+              new ArrayBlockingQueue<>(Math.max(poolSize, queueSize), true),
               // When super invokes the reject method this class will ensure a blocking try
               new BlockThenRunPolicy(maxBlockingTime, maxBlockingTimeUnit, blockingTimeCallback));
 
@@ -102,11 +102,11 @@ public class BlockingExecutor extends ThreadPoolExecutor {
      */
     public BlockingExecutor(int poolSize, int queueSize, long keepAliveTime, TimeUnit unit) {
 
-        super(               poolSize,      // Core size
+        super(poolSize,      // Core size
               poolSize,      // Max size
               keepAliveTime, unit,
               // not smaller than the poolSize (to avoid redundant threads)
-              new ArrayBlockingQueue<Runnable>(Math.max(poolSize, queueSize), true),
+              new ArrayBlockingQueue<>(Math.max(poolSize, queueSize), true),
               // When super invokes the reject method this class will ensure a blocking try.
               new BlockThenRunPolicy());
 

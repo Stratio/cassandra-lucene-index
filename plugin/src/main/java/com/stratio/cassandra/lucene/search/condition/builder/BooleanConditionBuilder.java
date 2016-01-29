@@ -25,6 +25,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import static java.util.stream.Collectors.toList;
 
 /**
  * {@link ConditionBuilder} for building a new {@link BooleanCondition}.
@@ -85,24 +86,9 @@ public class BooleanConditionBuilder extends ConditionBuilder<BooleanCondition, 
      */
     @Override
     public BooleanCondition build() {
-        List<Condition> mustConditions = new ArrayList<>();
-        if (must != null) {
-            for (ConditionBuilder<?, ?> conditionBuilder : must) {
-                mustConditions.add(conditionBuilder.build());
-            }
-        }
-        List<Condition> shouldConditions = new ArrayList<>();
-        if (should != null) {
-            for (ConditionBuilder<?, ?> conditionBuilder : should) {
-                shouldConditions.add(conditionBuilder.build());
-            }
-        }
-        List<Condition> notConditions = new ArrayList<>();
-        if (not != null) {
-            for (ConditionBuilder<?, ?> conditionBuilder : not) {
-                notConditions.add(conditionBuilder.build());
-            }
-        }
+        List<Condition> mustConditions = must.stream().map(ConditionBuilder::build).collect(toList());
+        List<Condition> shouldConditions = should.stream().map(ConditionBuilder::build).collect(toList());
+        List<Condition> notConditions = not.stream().map(ConditionBuilder::build).collect(toList());
         return new BooleanCondition(boost, mustConditions, shouldConditions, notConditions);
     }
 }

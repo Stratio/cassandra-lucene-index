@@ -56,10 +56,10 @@ public class SchemaBuilder {
         this.defaultAnalyzerName = defaultAnalyzerName;
         this.analyzerBuilders = analyzerBuilders != null
                                 ? analyzerBuilders
-                                : new LinkedHashMap<String, AnalyzerBuilder>();
+                                : new LinkedHashMap<>();
         this.mapperBuilders = mapperBuilders != null
                               ? mapperBuilders
-                              : new LinkedHashMap<String, MapperBuilder<?, ?>>();
+                              : new LinkedHashMap<>();
     }
 
     /**

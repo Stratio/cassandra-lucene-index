@@ -92,11 +92,10 @@ public final class Column<T> {
         return name.contains(UDT_SEPARATOR);
     }
 
-    public static String check(String name) {
+    public static void check(String name) {
         if (!NAME_PATTERN.matcher(name).matches()) {
             throw new IndexException("Name %s doesn't satisfy the mandatory pattern %s", name, NAME_PATTERN.pattern());
         }
-        return name;
     }
 
     public static String getMapperName(String field) {

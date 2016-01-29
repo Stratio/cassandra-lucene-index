@@ -108,7 +108,7 @@ public abstract class IndexWriter implements Index.Indexer {
     protected abstract void delete();
 
     /**
-     * Indexes the specified partition's {@link Row}. It behaviours as an upsert and could involve read-before-write.
+     * Indexes the specified partition's {@link Row}. It behaviours as an upsert and may involve read-before-write.
      *
      * @param row the row to be indexed.
      */

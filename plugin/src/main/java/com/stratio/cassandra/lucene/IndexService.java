@@ -116,7 +116,7 @@ public abstract class IndexService {
         schema = options.schema;
         tokenMapper = new TokenMapper();
         partitionMapper = new PartitionMapper(metadata);
-        columnsMapper = new ColumnsMapper(metadata);
+        columnsMapper = new ColumnsMapper();
         mapsMultiCells = metadata.allColumns()
                                  .stream()
                                  .filter(x -> schema.getMappedCells().contains(x.name.toString()))
@@ -497,7 +497,7 @@ public abstract class IndexService {
     /**
      * Ensures that values present in the specified {@link PartitionUpdate} are valid according to the {@link Schema}.
      *
-     * @param update the partition update containing the values to be validated by the {@link Schema}
+     * @param update the partition update containing the values to be validated
      */
     public void validate(PartitionUpdate update) {
         DecoratedKey key = update.partitionKey();

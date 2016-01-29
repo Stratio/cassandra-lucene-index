@@ -21,7 +21,6 @@ package com.stratio.cassandra.lucene.key;
 import org.apache.cassandra.db.Clustering;
 import org.apache.cassandra.db.ClusteringComparator;
 import org.apache.cassandra.db.ClusteringPrefix;
-import org.apache.cassandra.db.Slice;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.lucene.index.FilteredTermsEnum;
 import org.apache.lucene.index.Terms;
@@ -37,7 +36,7 @@ import java.io.IOException;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class ClusteringQuery extends MultiTermQuery {
+class ClusteringQuery extends MultiTermQuery {
 
     private final ClusteringMapper mapper;
     private final ClusteringPrefix start;
