@@ -34,10 +34,13 @@ import org.apache.cassandra.exceptions.InvalidRequestException;
 import org.apache.cassandra.index.IndexRegistry;
 import org.apache.cassandra.index.transactions.IndexTransaction;
 import org.apache.cassandra.schema.IndexMetadata;
+import org.apache.cassandra.service.ClientState;
 import org.apache.cassandra.utils.concurrent.OpOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
@@ -45,7 +48,7 @@ import java.util.concurrent.Callable;
 import java.util.function.BiFunction;
 
 /**
- * A {@link org.apache.cassandra.index.Index} that uses Apache Lucene as backend. It allows, among others, multi-column
+ * {@link org.apache.cassandra.index.Index} that uses Apache Lucene as backend. It allows, among others, multi-column
  * and full-text search.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
@@ -58,6 +61,22 @@ public class Index implements org.apache.cassandra.index.Index {
     private IndexMetadata indexMetadata;
     private IndexService service;
     private String name;
+
+    // Setup CQL query handler
+    static {
+        try {
+            Field field = ClientState.class.getDeclaredField("cqlQueryHandler");
+            field.setAccessible(true);
+
+            Field modifiersField = Field.class.getDeclaredField("modifiers");
+            modifiersField.setAccessible(true);
+            modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
+
+            field.set(null, new IndexQueryHandler());
+        } catch (Exception e) {
+            logger.error("Unable to set Lucene CQL query handler", e);
+        }
+    }
 
     /**
      * Builds a new Lucene index for the specified {@link ColumnFamilyStore} using the specified {@link IndexMetadata}.
