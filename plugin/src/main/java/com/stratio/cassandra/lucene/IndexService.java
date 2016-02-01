@@ -31,8 +31,10 @@ import com.stratio.cassandra.lucene.search.SearchBuilder;
 import com.stratio.cassandra.lucene.util.DecoratedPartition;
 import com.stratio.cassandra.lucene.util.DecoratedRow;
 import com.stratio.cassandra.lucene.util.TaskQueue;
+import com.stratio.cassandra.lucene.util.TimeCounter;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.db.*;
+import org.apache.cassandra.db.filter.ClusteringIndexFilter;
 import org.apache.cassandra.db.filter.ClusteringIndexNamesFilter;
 import org.apache.cassandra.db.filter.ColumnFilter;
 import org.apache.cassandra.db.filter.RowFilter;
@@ -50,7 +52,10 @@ import org.apache.cassandra.schema.IndexMetadata;
 import org.apache.cassandra.utils.concurrent.OpOrder;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.search.*;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.Sort;
+import org.apache.lucene.search.SortField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -352,13 +357,26 @@ public abstract class IndexService {
      */
     private Query query(ReadCommand command) {
         if (command instanceof SinglePartitionReadCommand) {
-            return new TermQuery(term(((SinglePartitionReadCommand) command).partitionKey()));
+            DecoratedKey key = ((SinglePartitionReadCommand) command).partitionKey();
+            ClusteringIndexFilter clusteringFilter = command.clusteringIndexFilter(key);
+            return query(key, clusteringFilter);
         } else if (command instanceof PartitionRangeReadCommand) {
-            return query(((PartitionRangeReadCommand) command).dataRange());
+            DataRange dataRange = ((PartitionRangeReadCommand) command).dataRange();
+            return query(dataRange);
         } else {
             throw new IndexException("Unsupported read command %s", command.getClass());
         }
     }
+
+    /**
+     * Returns a Lucene {@link Query} to get the {@link Document}s satisfying the specified {@link DecoratedKey} and
+     * {@link ClusteringIndexFilter}.
+     *
+     * @param key the partition key
+     * @param clusteringFilter the clustering key range
+     * @return a query to get the {@link Document}s satisfying the key range
+     */
+    abstract Query query(DecoratedKey key, ClusteringIndexFilter clusteringFilter);
 
     /**
      * Returns a Lucene {@link Query} to get the {@link Document}s satisfying the specified {@link DataRange}.
@@ -460,14 +478,21 @@ public abstract class IndexService {
      */
     public PartitionIterator postProcess(PartitionIterator partitions, ReadCommand command) {
 
-        // TODO: Skip if search is not top-k
-        // TODO: Skip if only one node is involved
-
         Search search = search(command);
+
+        // TODO: Skip if only one node is involved
+        // Skip if search is not top-k
+        if (!search.isTopK()) {
+            return partitions;
+        }
+
+        TimeCounter time = TimeCounter.create().start();
+
         Query query = search.query(schema);
         Sort sort = sort(search);
         int limit = command.limits().count();
 
+        int count = 0;
         RAMIndex index = new RAMIndex(schema.getAnalyzer());
         Map<Term, DecoratedRow> rowsByTerm = new HashMap<>();
         while (partitions.hasNext()) {
@@ -478,6 +503,7 @@ public abstract class IndexService {
                     Document document = document(partition.partitionKey(), row.getRow()).get();
                     rowsByTerm.put(term, row);
                     index.add(document);
+                    count++;
                 }
             }
         }
@@ -490,6 +516,8 @@ public abstract class IndexService {
             DecoratedRow row = rowsByTerm.get(term);
             rows.add(row);
         }
+
+        logger.debug("Post-processed {} rows in {}", count, time.stop());
 
         return new DecoratedPartition(rows);
     }

@@ -36,7 +36,7 @@ import java.io.IOException;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-class ClusteringQuery extends MultiTermQuery {
+public class ClusteringQuery extends MultiTermQuery {
 
     private final ClusteringMapper mapper;
     private final ClusteringPrefix start;

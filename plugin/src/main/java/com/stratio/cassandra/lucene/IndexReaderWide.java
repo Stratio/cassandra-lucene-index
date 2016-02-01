@@ -68,6 +68,9 @@ public class IndexReaderWide extends IndexReader {
             if (command.selectsKey(key) && command.selectsClustering(key, clustering)) {
                 clusterings.add(clustering);
             }
+            if (!documents.hasNextWithoutFetch()) {
+                break;
+            }
             nextDoc = documents.hasNext() ? documents.next() : null;
         }
 

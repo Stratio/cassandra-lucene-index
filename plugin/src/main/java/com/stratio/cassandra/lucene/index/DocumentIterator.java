@@ -1,6 +1,7 @@
 package com.stratio.cassandra.lucene.index;
 
 import com.stratio.cassandra.lucene.IndexException;
+import com.stratio.cassandra.lucene.util.TimeCounter;
 import org.apache.cassandra.utils.CloseableIterator;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.search.*;
@@ -62,11 +63,11 @@ public class DocumentIterator implements CloseableIterator<Document> {
 
     private void fetch() {
         try {
+            TimeCounter time = TimeCounter.create().start();
 
             // Search for top documents
             TopDocs topDocs = searcher.searchAfter(after, query, count, sort);
             ScoreDoc[] scoreDocs = topDocs.scoreDocs;
-            logger.debug("Get page with {} documents", scoreDocs.length);
 
             // Check inf mayHaveMore
             mayHaveMore = scoreDocs.length == count;
@@ -78,6 +79,8 @@ public class DocumentIterator implements CloseableIterator<Document> {
                 after = scoreDoc;
             }
 
+            logger.debug("Get page with {} documents in {}", scoreDocs.length, time.stop());
+
         } catch (Exception e) {
             throw new IndexException(logger, e, "Error searching in with %s and %s", query, sort);
         }
@@ -87,7 +90,7 @@ public class DocumentIterator implements CloseableIterator<Document> {
      * Returns {@code true} if the iteration has more {@link Document}s. (In other words, returns {@code true} if {@link
      * #next} would return an {@link Document} rather than throwing an exception.)
      *
-     * @return {@code true} if the iteration has more{@link Document}s
+     * @return {@code true} if the iteration has more {@link Document}s
      */
     @Override
     public boolean hasNext() {
@@ -97,10 +100,14 @@ public class DocumentIterator implements CloseableIterator<Document> {
         return !documents.isEmpty();
     }
 
+    public boolean hasNextWithoutFetch() {
+        return !documents.isEmpty();
+    }
+
     /**
      * Returns the next {@link Document} in the iteration.
      *
-     * @return the next {@link Document} in the iteration
+     * @return the next document
      * @throws NoSuchElementException if the iteration has no more {@link Document}s
      */
     @Override
