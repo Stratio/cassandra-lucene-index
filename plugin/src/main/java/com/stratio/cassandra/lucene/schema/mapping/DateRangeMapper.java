@@ -157,7 +157,7 @@ public class DateRangeMapper extends Mapper {
      * @return The star {@link Date} contained in the specified {@link Columns}.
      */
     Date readFrom(Columns columns) {
-        Column<?> column = columns.getColumnsByCellName(from).getFirst();
+        Column<?> column = columns.getColumnsByFullName(from).getFirst();
         if (column == null) {
             return null;
         }
@@ -175,7 +175,7 @@ public class DateRangeMapper extends Mapper {
      * @return The to {@link Date} contained in the specified {@link Columns}.
      */
     Date readTo(Columns columns) {
-        Column<?> column = columns.getColumnsByCellName(to).getFirst();
+        Column<?> column = columns.getColumnsByFullName(to).getFirst();
         if (column == null) {
             return null;
         }

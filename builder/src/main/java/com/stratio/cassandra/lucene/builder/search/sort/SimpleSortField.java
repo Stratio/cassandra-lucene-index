@@ -16,25 +16,29 @@
  * under the License.
  */
 
-package com.stratio.cassandra.lucene.testsAT.suite;
+package com.stratio.cassandra.lucene.builder.search.sort;
 
-import com.stratio.cassandra.lucene.testsAT.udt.CheckNonFrozenUDTAT;
-import com.stratio.cassandra.lucene.testsAT.udt.TupleIndexingAT;
-import com.stratio.cassandra.lucene.testsAT.udt.UDTCollectionsAT;
-import com.stratio.cassandra.lucene.testsAT.udt.UDTIndexingAT;
-import com.stratio.cassandra.lucene.testsAT.udt.UDTValidationAT;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import org.codehaus.jackson.annotate.JsonCreator;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
+ * A simple relevance sorting for a field of a search.
+ *
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
-@RunWith(Suite.class)
-@Suite.SuiteClasses({UDTValidationAT.class,
-                     UDTIndexingAT.class,
-                     UDTCollectionsAT.class,
-                     CheckNonFrozenUDTAT.class,
-                     TupleIndexingAT.class})
-public class UDTSuite {
+public class SimpleSortField extends SortField {
 
+    /** The name of the field to be used for sort. */
+    @JsonProperty("field")
+    final String field;
+
+    /**
+     * Creates a new {@link SimpleSortField} for the specified field and reverse option.
+     *
+     * @param field The name of the field to be used for sort.
+     */
+    @JsonCreator
+    public SimpleSortField(@JsonProperty("field") String field) {
+        this.field = field;
+    }
 }

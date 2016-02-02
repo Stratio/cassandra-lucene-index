@@ -432,8 +432,12 @@ public class BuilderTest {
 
     @Test
     public void testFuzzyConditionFull() {
-        String actual = fuzzy("field", "value").maxEdits(1).maxExpansions(2).prefixLength(3).transpositions(true).boost(
-                2).build();
+        String actual = fuzzy("field", "value").maxEdits(1)
+                                               .maxExpansions(2)
+                                               .prefixLength(3)
+                                               .transpositions(true)
+                                               .boost(2)
+                                               .build();
         String expected = "{\"type\":\"fuzzy\",\"field\":\"field\",\"value\":\"value\",\"boost\":2.0," +
                           "\"transpositions\":true,\"max_edits\":1,\"prefix_length\":3,\"max_expansions\":2}";
         assertEquals("fuzzy condition serialization is wrong", expected, actual);
@@ -586,16 +590,30 @@ public class BuilderTest {
     }
 
     @Test
-    public void testSortFieldDefaults() {
+    public void testSimpleSortFieldDefaults() {
         String actual = field("field1").build();
-        String expected = "{\"field\":\"field1\"}";
+        String expected = "{\"type\":\"simple\",\"field\":\"field1\"}";
         assertEquals("sort field condition serialization is wrong", expected, actual);
     }
 
     @Test
-    public void testSortFieldFull() {
+    public void testSimpleSortFieldFull() {
         String actual = field("field1").reverse(true).build();
-        String expected = "{\"field\":\"field1\",\"reverse\":true}";
+        String expected = "{\"type\":\"simple\",\"field\":\"field1\",\"reverse\":true}";
+        assertEquals("sort field condition serialization is wrong", expected, actual);
+    }
+
+    @Test
+    public void testGeoDistanceSortFieldDefaults() {
+        String actual = geoDistanceSortField("field1", 0.0, 0.0).build();
+        String expected = "{\"type\":\"geo_distance\",\"mapper\":\"field1\",\"longitude\":0.0,\"latitude\":0.0}";
+        assertEquals("sort field condition serialization is wrong", expected, actual);
+    }
+
+    @Test
+    public void testGeoDistanceSortFieldFull() {
+        String actual = geoDistanceSortField("field1", 0.0, 0.0).reverse(true).build();
+        String expected = "{\"type\":\"geo_distance\",\"mapper\":\"field1\",\"longitude\":0.0,\"latitude\":0.0,\"reverse\":true}";
         assertEquals("sort field condition serialization is wrong", expected, actual);
     }
 
@@ -608,8 +626,10 @@ public class BuilderTest {
 
     @Test
     public void testSortFull() {
-        String actual = search().sort(field("field1"), field("field2")).build();
-        String expected = "{\"sort\":{\"fields\":[{\"field\":\"field1\"},{\"field\":\"field2\"}]}}";
+        String actual = search().sort(field("field1"),
+                                      field("field2"),
+                                      geoDistanceSortField("field1", 0.0, 0.0).reverse(true)).build();
+        String expected = "{\"sort\":{\"fields\":[{\"type\":\"simple\",\"field\":\"field1\"},{\"type\":\"simple\",\"field\":\"field2\"},{\"type\":\"geo_distance\",\"mapper\":\"field1\",\"longitude\":0.0,\"latitude\":0.0,\"reverse\":true}]}}";
         assertEquals("sort condition serialization is wrong", expected, actual);
     }
 
@@ -638,7 +658,7 @@ public class BuilderTest {
     public void testSearchFull() {
         String actual = search().query(all()).filter(all()).sort(field("field1")).refresh(true).build();
         String expected = "{\"query\":{\"type\":\"all\"},\"filter\":{\"type\":\"all\"}," +
-                          "\"sort\":{\"fields\":[{\"field\":\"field1\"}]},\"refresh\":true}";
+                          "\"sort\":{\"fields\":[{\"type\":\"simple\",\"field\":\"field1\"}]},\"refresh\":true}";
         assertEquals("search serialization is wrong", expected, actual);
     }
 
@@ -686,7 +706,7 @@ public class BuilderTest {
                                 .build();
         String expected = "{\"query\":{\"type\":\"phrase\",\"field\":\"message\",\"value\":\"cassandra rules\"}," +
                           "\"filter\":{\"type\":\"match\",\"field\":\"user\",\"value\":\"adelapena\"}," +
-                          "\"sort\":{\"fields\":[{\"field\":\"date\",\"reverse\":true}]},\"refresh\":true}";
+                          "\"sort\":{\"fields\":[{\"type\":\"simple\",\"field\":\"date\",\"reverse\":true}]},\"refresh\":true}";
         assertEquals("search serialization is wrong", expected, actual);
     }
 

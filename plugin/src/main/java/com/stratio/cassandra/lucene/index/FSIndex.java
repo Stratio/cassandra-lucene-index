@@ -49,7 +49,7 @@ public class FSIndex implements FSIndexMBean {
 
     private final Directory directory;
     private final IndexWriter indexWriter;
-    private final SearcherManager searcherManager;
+    private final SearcherManager   searcherManager;
     private final ControlledRealTimeReopenThread<IndexSearcher> searcherReopener;
 
     private final ObjectName mbean;

@@ -55,6 +55,7 @@ public class DocumentIterator implements CloseableIterator<Document> {
         this.fields = fields;
         try {
             searcher = manager.acquire();
+            sort.rewrite(searcher);
         } catch (Exception e) {
             throw new IndexException(logger, e, "Error acquiring index searcher");
         }

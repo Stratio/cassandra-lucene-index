@@ -25,7 +25,8 @@ import com.stratio.cassandra.lucene.builder.index.schema.analysis.SnowballAnalyz
 import com.stratio.cassandra.lucene.builder.index.schema.mapping.*;
 import com.stratio.cassandra.lucene.builder.search.Search;
 import com.stratio.cassandra.lucene.builder.search.condition.*;
-import com.stratio.cassandra.lucene.builder.search.sort.SortField;
+import com.stratio.cassandra.lucene.builder.search.sort.GeoDistanceSortField;
+import com.stratio.cassandra.lucene.builder.search.sort.SimpleSortField;
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -77,8 +78,8 @@ public abstract class Builder {
     /**
      * Returns a new index creation statement using the session's keyspace.
      *
-     * @param table  The table name.
-     * @param name The index name.
+     * @param table The table name.
+     * @param name  The index name.
      * @return A new index creation statement.
      */
     public static Index index(String table, String name) {
@@ -90,7 +91,7 @@ public abstract class Builder {
      *
      * @param keyspace The keyspace name.
      * @param table    The table name.
-     * @param name   The index name.
+     * @param name     The index name.
      * @return A new index creation statement.
      */
     public static Index index(String keyspace, String table, String name) {
@@ -272,8 +273,8 @@ public abstract class Builder {
      * Returns a new {@link SnowballAnalyzer} for the specified language and stopwords.
      *
      * @param language The language. The supported languages are English, French, Spanish, Portuguese, Italian,
-     *                 Romanian, German, Dutch, Swedish, Norwegian, Danish, Russian, Finnish, Irish, Hungarian,
-     *                 Turkish, Armenian, Basque and Catalan.
+     *                 Romanian, German, Dutch, Swedish, Norwegian, Danish, Russian, Finnish, Irish, Hungarian, Turkish,
+     *                 Armenian, Basque and Catalan.
      * @return A new {@link SnowballAnalyzer}.
      */
     public static SnowballAnalyzer snowballAnalyzer(String language) {
@@ -468,12 +469,24 @@ public abstract class Builder {
     }
 
     /**
-     * Returns a new {@link SortField} for the specified field.
+     * Returns a new {@link SimpleSortField} for the specified field.
      *
      * @param field The name of the field to be sorted.
-     * @return A new {@link SortField} for the specified field.
+     * @return A new {@link SimpleSortField} for the specified field.
      */
-    public static SortField field(String field) {
-        return new SortField(field);
+    public static SimpleSortField field(String field) {
+        return new SimpleSortField(field);
+    }
+
+    /**
+     * Returns a new {@link GeoDistanceSortField} for the specified field.
+     *
+     * @param mapper    The name of the field to be used for sort.
+     * @param longitude The longitude in degrees of the point to min distance sort by.
+     * @param latitude  The latitude in degrees of the point to min distance sort by.
+     * @return A new {@link GeoDistanceSortField} for the specified field.
+     */
+    public static GeoDistanceSortField geoDistanceSortField(String mapper, double longitude, double latitude) {
+        return new GeoDistanceSortField(mapper, longitude, latitude);
     }
 }

@@ -438,7 +438,7 @@ public class Index implements org.apache.cassandra.index.Index {
         }
     }
 
-    @Override
+    //@Override
     public void validate(Term.Raw raw) throws InvalidRequestException {
         try {
             String json = raw.getText();

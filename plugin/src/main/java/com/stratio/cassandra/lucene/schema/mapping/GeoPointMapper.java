@@ -27,6 +27,7 @@ import com.stratio.cassandra.lucene.column.Columns;
 import org.apache.cassandra.db.marshal.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.document.StoredField;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.spatial.SpatialStrategy;
@@ -52,10 +53,10 @@ public class GeoPointMapper extends Mapper {
     public static final SpatialContext SPATIAL_CONTEXT = SpatialContext.GEO;
     public static final int DEFAULT_MAX_LEVELS = 11;
 
-    /** Tha name of the latitude column. */
+    /** The name of the latitude column. */
     public final String latitude;
 
-    /** Tha name of the longitude column. */
+    /** The name of the longitude column. */
     public final String longitude;
 
     /** The max number of levels in the tree. */
@@ -70,16 +71,16 @@ public class GeoPointMapper extends Mapper {
     /**
      * Builds a new {@link GeoPointMapper}.
      *
-     * @param field The name of the field.
+     * @param field     The name of the field.
      * @param validated If the field must be validated.
-     * @param latitude The name of the column containing the latitude.
+     * @param latitude  The name of the column containing the latitude.
      * @param longitude The name of the column containing the longitude.
      * @param maxLevels The maximum number of levels in the tree.
      */
-    public GeoPointMapper(String field, Boolean validated, String latitude, String longitude, Integer maxLevels) {
+    public GeoPointMapper(String field, Boolean indexed, Boolean sorted,Boolean validated, String latitude, String longitude, Integer maxLevels) {
         super(field,
-              true,
-              false,
+              indexed,
+              sorted,
               validated,
               null,
               Arrays.asList(latitude, longitude),
@@ -121,7 +122,7 @@ public class GeoPointMapper extends Mapper {
         if (latitude == null) {
             throw new IndexException("%s required", name);
         } else if (latitude < MIN_LATITUDE || latitude > MAX_LATITUDE) {
-            throw new IndexException("%s must be in range [%s, %s], but found '%s'",
+            throw new IndexException("%s must be in range [%s, %s], but found %s",
                                      name,
                                      MIN_LATITUDE,
                                      MAX_LATITUDE,
@@ -166,19 +167,24 @@ public class GeoPointMapper extends Mapper {
         }
 
         Point point = SPATIAL_CONTEXT.makePoint(lon, lat);
-
-        for (IndexableField field : distanceStrategy.createIndexableFields(point)) {
-            document.add(field);
+        if (indexed) {
+            for (IndexableField field : distanceStrategy.createIndexableFields(point)) {
+                document.add(field);
+            }
+            for (IndexableField field : bboxStrategy.createIndexableFields(point)) {
+                document.add(field);
+            }
         }
-        for (IndexableField field : bboxStrategy.createIndexableFields(point)) {
-            document.add(field);
+
+        if (sorted) {
+            document.add(new StoredField(distanceStrategy.getFieldName(), point.getX()+" "+point.getY()));
         }
     }
 
     /** {@inheritDoc} */
     @Override
     public SortField sortField(String name, boolean reverse) {
-        throw new IndexException("GeoPoint mapper '%s' does not support sorting", name);
+        throw new IndexException("GeoPoint mapper '%s' does not support simple sorting", name);
     }
 
     /**
@@ -186,8 +192,8 @@ public class GeoPointMapper extends Mapper {
      *
      * @param columns The {@link Columns} containing the latitude.
      */
-    Double readLatitude(Columns columns) {
-        Column<?> column = columns.getColumnsByCellName(latitude).getFirst();
+    public Double readLatitude(Columns columns) {
+        Column<?> column = columns.getColumnsByFullName(latitude).getFirst();
         return column == null ? null : readLatitude(column.getComposedValue());
     }
 
@@ -197,8 +203,8 @@ public class GeoPointMapper extends Mapper {
      *
      * @param columns The {@link Columns} containing the latitude.
      */
-    Double readLongitude(Columns columns) {
-        Column<?> column = columns.getColumnsByCellName(longitude).getFirst();
+    public Double readLongitude(Columns columns) {
+        Column<?> column = columns.getColumnsByFullName(longitude).getFirst();
         return column == null ? null : readLongitude(column.getComposedValue());
     }
 
@@ -222,6 +228,15 @@ public class GeoPointMapper extends Mapper {
             }
         }
         return checkLatitude("latitude", value);
+    }
+
+    /**
+     * Returns the distance {@link SpatialStrategy}.
+     *
+     * @return The {@link SpatialStrategy}.
+     */
+    public SpatialStrategy getDistanceStrategy() {
+        return distanceStrategy;
     }
 
     /**

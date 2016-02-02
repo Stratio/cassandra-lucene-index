@@ -18,7 +18,6 @@
 
 package com.stratio.cassandra.lucene.search;
 
-import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.search.condition.BooleanCondition;
 import com.stratio.cassandra.lucene.search.condition.FuzzyCondition;
 import com.stratio.cassandra.lucene.search.condition.LuceneCondition;
@@ -29,16 +28,15 @@ import com.stratio.cassandra.lucene.search.condition.RangeCondition;
 import com.stratio.cassandra.lucene.search.condition.RegexpCondition;
 import com.stratio.cassandra.lucene.search.condition.WildcardCondition;
 import com.stratio.cassandra.lucene.search.condition.builder.*;
-import com.stratio.cassandra.lucene.search.sort.SortField;
-import com.stratio.cassandra.lucene.search.sort.builder.SortFieldBuilder;
-import org.apache.lucene.search.MatchAllDocsQuery;
+import com.stratio.cassandra.lucene.search.sort.SimpleSortField;
+import com.stratio.cassandra.lucene.search.sort.builder.SimpleSortFieldBuilder;
 import org.junit.Test;
 
 import java.io.IOException;
 
-import static com.stratio.cassandra.lucene.schema.SchemaBuilders.schema;
 import static com.stratio.cassandra.lucene.search.SearchBuilders.*;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Class for testing {@link Search} builders.
@@ -141,21 +139,20 @@ public class SearchBuildersTest {
 
     @Test
     public void testSortField() throws IOException {
-        SortFieldBuilder builder = sortField("field");
+        SimpleSortFieldBuilder builder = field("field");
         assertNotNull("Condition builder is not built", builder);
-        SortField sortField = builder.build();
+        SimpleSortField sortField = builder.build();
         assertEquals("Field is not set", "field", sortField.field);
     }
 
     @Test
     public void testSort() throws IOException {
-        SearchBuilder builder = sort(sortField("field"));
+        SearchBuilder builder = sort(field("field"));
         assertNotNull("Condition builder is not built", builder);
         Search search = builder.build();
-        assertEquals("Field is not set", "field", search.getSort().getSortFields().iterator().next().field);
+        assertEquals("Field is not set", "field", ((SimpleSortField)search.getSort().getSortFields().iterator().next()).field);
     }
-
-    // TODO: Fix tests
+// TODO: Fix tests
 //    @Test
 //    public void testQuery() throws IOException {
 //        SearchBuilder builder = query(all());

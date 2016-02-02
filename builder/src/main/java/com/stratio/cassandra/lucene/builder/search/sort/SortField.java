@@ -19,33 +19,23 @@
 package com.stratio.cassandra.lucene.builder.search.sort;
 
 import com.stratio.cassandra.lucene.builder.Builder;
-import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.annotate.JsonSubTypes;
+import org.codehaus.jackson.annotate.JsonTypeInfo;
 
 /**
  * A sorting for a field of a search.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class SortField extends Builder {
-
-    /** The name of the field to be used for sort. */
-    @JsonProperty("field")
-    final String field;
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type", defaultImpl = SimpleSortField.class)
+@JsonSubTypes({@JsonSubTypes.Type(value = SimpleSortField.class, name = "simple"),
+               @JsonSubTypes.Type(value = GeoDistanceSortField.class, name = "geo_distance")})
+public abstract class SortField extends Builder {
 
     /** If natural order should be reversed. */
     @JsonProperty("reverse")
     Boolean reverse;
-
-    /**
-     * Creates a new {@link SortField} for the specified field and reverse option.
-     *
-     * @param field The name of the field to be used for sort.
-     */
-    @JsonCreator
-    public SortField(@JsonProperty("field") String field) {
-        this.field = field;
-    }
 
     /**
      * Returns this {@link SortField} with the specified reverse option.
