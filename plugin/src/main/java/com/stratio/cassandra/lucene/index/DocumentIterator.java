@@ -27,7 +27,7 @@ public class DocumentIterator implements CloseableIterator<Document> {
     private Query query;
     private Sort sort;
     private ScoreDoc after;
-    private Integer count;
+    private Integer page;
     private Set<String> fields;
     private LinkedList<Document> documents = new LinkedList<>();
     private boolean mayHaveMore = true;
@@ -39,20 +39,20 @@ public class DocumentIterator implements CloseableIterator<Document> {
      * @param query the query to be satisfied by the documents
      * @param sort the sort in which the documents are going to be retrieved
      * @param after a pointer to the start document (not included)
-     * @param count the max number of documents to be retrieved
+     * @param limit the max number of documents to be retrieved
      * @param fields the names of the fields to be loaded
      */
     DocumentIterator(SearcherManager manager,
                      Query query,
                      Sort sort,
                      ScoreDoc after,
-                     Integer count,
+                     Integer limit,
                      Set<String> fields) {
         this.manager = manager;
         this.query = query;
         this.sort = sort;
         this.after = after;
-        this.count = count;
+        this.page = limit + 1;
         this.fields = fields;
         try {
             searcher = manager.acquire();
@@ -66,11 +66,11 @@ public class DocumentIterator implements CloseableIterator<Document> {
             TimeCounter time = TimeCounter.create().start();
 
             // Search for top documents
-            TopDocs topDocs = searcher.searchAfter(after, query, count, sort);
+            TopDocs topDocs = searcher.searchAfter(after, query, page, sort);
             ScoreDoc[] scoreDocs = topDocs.scoreDocs;
 
             // Check inf mayHaveMore
-            mayHaveMore = scoreDocs.length == count;
+            mayHaveMore = scoreDocs.length == page;
 
             // Collect the documents from query result
             for (ScoreDoc scoreDoc : scoreDocs) {
@@ -94,14 +94,14 @@ public class DocumentIterator implements CloseableIterator<Document> {
      */
     @Override
     public boolean hasNext() {
-        if (mayHaveMore && documents.isEmpty()) {
+        if (needsFetch()) {
             fetch();
         }
         return !documents.isEmpty();
     }
 
-    public boolean hasNextWithoutFetch() {
-        return !documents.isEmpty();
+    public boolean needsFetch() {
+        return mayHaveMore && documents.isEmpty();
     }
 
     /**

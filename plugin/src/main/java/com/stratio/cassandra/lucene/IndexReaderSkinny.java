@@ -19,8 +19,11 @@
 package com.stratio.cassandra.lucene;
 
 import com.stratio.cassandra.lucene.index.DocumentIterator;
-import org.apache.cassandra.db.*;
-import org.apache.cassandra.db.filter.DataLimits;
+import org.apache.cassandra.db.ColumnFamilyStore;
+import org.apache.cassandra.db.DecoratedKey;
+import org.apache.cassandra.db.ReadCommand;
+import org.apache.cassandra.db.ReadExecutionController;
+import org.apache.cassandra.db.filter.ClusteringIndexFilter;
 import org.apache.cassandra.db.rows.UnfilteredRowIterator;
 
 /**
@@ -45,17 +48,8 @@ public class IndexReaderSkinny extends IndexReader {
     protected boolean prepareNext() {
         while (next == null && documents.hasNext()) {
             DecoratedKey key = service.decoratedKey(documents.next());
-            SinglePartitionReadCommand dataCommand;
-            dataCommand = SinglePartitionReadCommand.create(isForThrift(),
-                                                            table.metadata,
-                                                            command.nowInSec(),
-                                                            command.columnFilter(),
-                                                            command.rowFilter(),
-                                                            DataLimits.NONE,
-                                                            key,
-                                                            command.clusteringIndexFilter(key));
-            UnfilteredRowIterator data = dataCommand.queryMemtableAndDisk(table, controller);
-
+            ClusteringIndexFilter filter = command.clusteringIndexFilter(key);
+            UnfilteredRowIterator data = read(key, filter);
             if (data != null) {
                 if (data.isEmpty()) {
                     data.close();

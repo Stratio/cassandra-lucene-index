@@ -20,14 +20,14 @@ package com.stratio.cassandra.lucene;
 
 import com.stratio.cassandra.lucene.index.DocumentIterator;
 import org.apache.cassandra.config.CFMetaData;
-import org.apache.cassandra.db.ColumnFamilyStore;
-import org.apache.cassandra.db.ReadCommand;
-import org.apache.cassandra.db.ReadExecutionController;
+import org.apache.cassandra.db.*;
+import org.apache.cassandra.db.filter.ClusteringIndexFilter;
 import org.apache.cassandra.db.partitions.UnfilteredPartitionIterator;
 import org.apache.cassandra.db.rows.UnfilteredRowIterator;
 
 /**
  * {@link UnfilteredPartitionIterator} for retrieving rows from a {@link DocumentIterator}.
+ *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public abstract class IndexReader implements UnfilteredPartitionIterator {
@@ -95,5 +95,16 @@ public abstract class IndexReader implements UnfilteredPartitionIterator {
         } finally {
             documents.close();
         }
+    }
+
+    protected UnfilteredRowIterator read(DecoratedKey key, ClusteringIndexFilter filter) {
+        return SinglePartitionReadCommand.create(isForThrift(),
+                                                 table.metadata,
+                                                 command.nowInSec(),
+                                                 command.columnFilter(),
+                                                 command.rowFilter(),
+                                                 command.limits(),
+                                                 key,
+                                                 filter).queryMemtableAndDisk(table, controller);
     }
 }
