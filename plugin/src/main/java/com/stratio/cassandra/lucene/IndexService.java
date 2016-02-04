@@ -28,10 +28,7 @@ import com.stratio.cassandra.lucene.key.TokenMapper;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.search.Search;
 import com.stratio.cassandra.lucene.search.SearchBuilder;
-import com.stratio.cassandra.lucene.util.DecoratedPartition;
-import com.stratio.cassandra.lucene.util.DecoratedRow;
-import com.stratio.cassandra.lucene.util.TaskQueue;
-import com.stratio.cassandra.lucene.util.TimeCounter;
+import com.stratio.cassandra.lucene.util.*;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.db.*;
 import org.apache.cassandra.db.filter.ClusteringIndexFilter;
@@ -510,7 +507,7 @@ public abstract class IndexService {
         List<Document> documents = index.search(query, sort, limit, fieldsToLoad);
         index.close();
 
-        List<DecoratedRow> rows = new ArrayList<>(limit);
+        List<DecoratedRow> rows = new LinkedList<>();
         for (Document document : documents) {
             Term term = term(document);
             DecoratedRow row = rowsByTerm.get(term);
@@ -519,7 +516,7 @@ public abstract class IndexService {
 
         logger.debug("Post-processed {} rows in {}", count, time.stop());
 
-        return new DecoratedPartition(rows);
+        return new DecoratedRows(rows);
     }
 
     /**

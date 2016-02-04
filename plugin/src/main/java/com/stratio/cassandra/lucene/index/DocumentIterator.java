@@ -52,7 +52,7 @@ public class DocumentIterator implements CloseableIterator<Document> {
         this.query = query;
         this.sort = sort;
         this.after = after;
-        this.page = limit + 1;
+        this.page = limit < Integer.MAX_VALUE ? limit + 1 : limit;
         this.fields = fields;
         try {
             searcher = manager.acquire();

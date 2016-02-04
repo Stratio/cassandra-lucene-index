@@ -18,12 +18,16 @@
 
 package com.stratio.cassandra.lucene;
 
+import com.stratio.cassandra.lucene.search.Search;
+import com.stratio.cassandra.lucene.search.SearchBuilder;
 import com.stratio.cassandra.lucene.util.TimeCounter;
 import org.apache.cassandra.cql3.*;
 import org.apache.cassandra.cql3.statements.BatchStatement;
+import org.apache.cassandra.cql3.statements.IndexTarget;
 import org.apache.cassandra.cql3.statements.ParsedStatement;
 import org.apache.cassandra.cql3.statements.SelectStatement;
 import org.apache.cassandra.db.filter.RowFilter;
+import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.exceptions.InvalidRequestException;
 import org.apache.cassandra.exceptions.RequestExecutionException;
 import org.apache.cassandra.exceptions.RequestValidationException;
@@ -117,13 +121,17 @@ public class IndexQueryHandler implements QueryHandler {
         statement.checkAccess(clientState);
         statement.validate(clientState);
 
+        // Intercept Lucene index searches
         if (statement instanceof SelectStatement) {
             SelectStatement select = (SelectStatement) statement;
             List<RowFilter.Expression> expressions = select.getRowFilter(options).getExpressions();
             for (RowFilter.Expression expression : expressions) {
                 if (expression.isCustom()) {
                     RowFilter.CustomExpression customExpression = (RowFilter.CustomExpression) expression;
-                    return process(select, state, options, customExpression);
+                    String clazz = customExpression.getTargetIndex().options.get(IndexTarget.CUSTOM_INDEX_OPTION_NAME);
+                    if (clazz.equals(Index.class.getCanonicalName())) {
+                        return process(select, state, options, customExpression);
+                    }
                 }
             }
         }
@@ -137,9 +145,23 @@ public class IndexQueryHandler implements QueryHandler {
                                   QueryOptions options,
                                   RowFilter.CustomExpression expression) {
         TimeCounter time = TimeCounter.create().start();
-        ResultMessage result = select.execute(state, options);
-        logger.debug("Total Lucene query time: {}\n", time.stop());
-        return result;
+        try {
+            int limit = select.getLimit(options);
+            int page = options.getPageSize();
+            if (page > 0 && limit > page) {
+                String json = UTF8Type.instance.compose(expression.getValue());
+                Search search = SearchBuilder.fromJson(json).build();
+                if (search.isTopK()) {
+                    String msg = String.format("Paging is not allowed for top-k searches as %s. " +
+                                               "You should specify a limit (%d) lower than page size (%d) " +
+                                               "or consider using an unsorted filter instead.", json, limit, page);
+                    throw new InvalidRequestException(msg);
+                }
+            }
+            return select.execute(state, options);
+        } finally {
+            logger.debug("Total Lucene query time: {}\n", time.stop());
+        }
     }
 
 }

@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -104,7 +105,7 @@ public class RAMIndex {
             IndexSearcher searcher = new IndexSearcher(reader);
             TopDocs topDocs = searcher.search(query, count, sort);
             ScoreDoc[] scoreDocs = topDocs.scoreDocs;
-            List<Document> documents = new ArrayList<>(count);
+            List<Document> documents = new LinkedList<>();
             for (ScoreDoc scoreDoc : scoreDocs) {
                 Document document = searcher.doc(scoreDoc.doc, fields);
                 documents.add(document);
