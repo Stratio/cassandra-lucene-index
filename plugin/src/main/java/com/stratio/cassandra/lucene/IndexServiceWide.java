@@ -143,7 +143,6 @@ public class IndexServiceWide extends IndexService {
                 builder.add(query, FILTER);
             }
         }
-        logger.debug("PRE-FILTER FOR {} AND {} IS {}", key, clusteringFilter, builder.build());
         return builder.build();
     }
 
@@ -155,7 +154,7 @@ public class IndexServiceWide extends IndexService {
         PartitionPosition stopPosition = dataRange.stopKey();
         Token startToken = startPosition.getToken();
         Token stopToken = stopPosition.getToken();
-        boolean isSameToken = startToken.compareTo(stopToken) == 0 && !tokenMapper.isMinimum(startToken);
+        boolean isSameToken = startToken.compareTo(stopToken) == 0 && !startToken.isMinimum();
         BooleanClause.Occur occur = isSameToken ? FILTER : SHOULD;
         boolean includeStart = tokenMapper.includeStart(startPosition);
         boolean includeStop = tokenMapper.includeStop(stopPosition);

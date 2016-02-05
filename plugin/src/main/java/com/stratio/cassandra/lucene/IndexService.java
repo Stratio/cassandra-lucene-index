@@ -28,8 +28,8 @@ import com.stratio.cassandra.lucene.key.TokenMapper;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.search.Search;
 import com.stratio.cassandra.lucene.search.SearchBuilder;
-import com.stratio.cassandra.lucene.util.DecoratedRow;
-import com.stratio.cassandra.lucene.util.DecoratedRows;
+import com.stratio.cassandra.lucene.util.SimpleRowIterator;
+import com.stratio.cassandra.lucene.util.SimplePartitionIterator;
 import com.stratio.cassandra.lucene.util.TaskQueue;
 import com.stratio.cassandra.lucene.util.TimeCounter;
 import org.apache.cassandra.config.CFMetaData;
@@ -362,7 +362,7 @@ public abstract class IndexService {
             return query(key, clusteringFilter);
         } else if (command instanceof PartitionRangeReadCommand) {
             DataRange dataRange = ((PartitionRangeReadCommand) command).dataRange();
-            return query(dataRange);
+            return dataRange.isWrapAround() ? null : query(dataRange);
         } else {
             throw new IndexException("Unsupported read command %s", command.getClass());
         }
@@ -494,14 +494,16 @@ public abstract class IndexService {
 
         int count = 0;
         RAMIndex index = new RAMIndex(schema.getAnalyzer());
-        Map<Term, DecoratedRow> rowsByTerm = new HashMap<>();
+        Map<Term, SimpleRowIterator> rowsByTerm = new HashMap<>();
         while (partitions.hasNext()) {
             try (RowIterator partition = partitions.next()) {
+                DecoratedKey key = partition.partitionKey();
                 while (partition.hasNext()) {
-                    DecoratedRow row = new DecoratedRow(partition);
-                    Term term = term(row.partitionKey(), row.getRow());
-                    Document document = document(partition.partitionKey(), row.getRow()).get();
-                    rowsByTerm.put(term, row);
+                    SimpleRowIterator rowIterator = new SimpleRowIterator(partition);
+                    Row row = rowIterator.getRow();
+                    Term term = term(key, row);
+                    Document document = document(key, row).get();
+                    rowsByTerm.put(term, rowIterator);
                     index.add(document);
                     count++;
                 }
@@ -510,16 +512,16 @@ public abstract class IndexService {
         List<Document> documents = index.search(query, sort, limit, fieldsToLoad);
         index.close();
 
-        List<DecoratedRow> rows = new LinkedList<>();
+        List<SimpleRowIterator> rows = new LinkedList<>();
         for (Document document : documents) {
             Term term = term(document);
-            DecoratedRow row = rowsByTerm.get(term);
-            rows.add(row);
+            SimpleRowIterator rowIterator = rowsByTerm.get(term);
+            rows.add(rowIterator);
         }
 
         logger.debug("Post-processed {} rows in {}", count, time.stop());
 
-        return new DecoratedRows(rows);
+        return new SimplePartitionIterator(rows);
     }
 
     /**

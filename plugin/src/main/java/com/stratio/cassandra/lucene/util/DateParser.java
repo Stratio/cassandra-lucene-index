@@ -32,12 +32,13 @@ import java.util.Date;
  */
 public class DateParser {
 
-    static final Long DAYS_TO_MILLIS = 24L * 60L * 60L * 1000L;
     /** The default date pattern for {@code String}s. */
     public static final String DEFAULT_PATTERN = "yyyy/MM/dd HH:mm:ss.SSS Z";
 
     /** The pattern value for timestamps. */
     public static final String TIMESTAMP_PATTERN_FIELD = "timestamp";
+
+    private static final Long DAYS_TO_MILLIS = 24L * 60L * 60L * 1000L;
 
     /** The {@link SimpleDateFormat} pattern. */
     private final String pattern;
@@ -48,7 +49,7 @@ public class DateParser {
     /**
      * Constructor with pattern.
      *
-     * @param pattern the {@link SimpleDateFormat} pattern to use.
+     * @param pattern the {@link SimpleDateFormat} pattern to use
      */
     public DateParser(String pattern) {
 
@@ -73,8 +74,8 @@ public class DateParser {
      * Returns the {@link Date} represented by the specified {@link Object}, or {@code null} if the specified  {@link
      * Object} is {@code null}.
      *
-     * @param value The {@link Object} to pe parsed.
-     * @return The {@link Date} represented by the specified {@link Object}.
+     * @param value the {@link Object} to be parsed
+     * @return the parsed {@link Date}
      */
     public Date parse(Object value) {
         if (value == null) {
@@ -128,6 +129,7 @@ public class DateParser {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public String toString() {
         return pattern;
@@ -136,8 +138,8 @@ public class DateParser {
     /**
      * Returns the {@link String} representation of the specified {@link Date}.
      *
-     * @param date A {@link Date}.
-     * @return The {@link String} representation of the specified {@link Date}.
+     * @param date the date
+     * @return the {@link String} representation of {@code Date}
      */
     public String toString(Date date) {
         if (pattern.equals(TIMESTAMP_PATTERN_FIELD)) {

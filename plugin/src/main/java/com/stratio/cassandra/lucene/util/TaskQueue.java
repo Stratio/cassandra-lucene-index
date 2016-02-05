@@ -46,8 +46,8 @@ public class TaskQueue {
     /**
      * Returns a new {@link TaskQueue}.
      *
-     * @param numThreads The number of executor threads.
-     * @param queuesSize The max number of tasks in each thread queue before blocking.
+     * @param numThreads the number of executor threads
+     * @param queuesSize the max number of tasks in each thread queue before blocking
      */
     public TaskQueue(int numThreads, int queuesSize) {
         if (numThreads > 0) {

@@ -25,15 +25,20 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * {@link PartitionIterator} composed by a list of {@link DecoratedRow}s.
+ * {@link PartitionIterator} composed by a list of {@link SimpleRowIterator}s.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class DecoratedRows implements PartitionIterator {
+public class SimplePartitionIterator implements PartitionIterator {
 
-    private final Iterator<DecoratedRow> iterator;
+    private final Iterator<SimpleRowIterator> iterator;
 
-    public DecoratedRows(List<DecoratedRow> rows) {
+    /**
+     * Constructor taking the {@link SimplePartitionIterator} to be iterated.
+     *
+     * @param rows the rows to be iterated
+     */
+    public SimplePartitionIterator(List<SimpleRowIterator> rows) {
         iterator = rows.iterator();
     }
 

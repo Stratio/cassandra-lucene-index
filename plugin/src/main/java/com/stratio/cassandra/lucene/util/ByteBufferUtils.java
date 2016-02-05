@@ -41,8 +41,8 @@ public final class ByteBufferUtils {
     /**
      * Returns the specified {@link ByteBuffer} as a byte array.
      *
-     * @param byteBuffer a {@link ByteBuffer} to be converted to a byte array.
-     * @return the byte array representation of the {@code byteBuffer}.
+     * @param byteBuffer a {@link ByteBuffer} to be converted to a byte array
+     * @return the byte array representation of the {@code byteBuffer}
      */
     public static byte[] asArray(ByteBuffer byteBuffer) {
         ByteBuffer bb = ByteBufferUtil.clone(byteBuffer);
@@ -54,7 +54,7 @@ public final class ByteBufferUtils {
     /**
      * Returns {@code true} if the specified {@link ByteBuffer} is empty, {@code false} otherwise.
      *
-     * @param byteBuffer A {@link ByteBuffer}.
+     * @param byteBuffer the byte buffer
      * @return {@code true} if the specified {@link ByteBuffer} is empty, {@code false} otherwise.
      */
     public static boolean isEmpty(ByteBuffer byteBuffer) {
@@ -64,9 +64,9 @@ public final class ByteBufferUtils {
     /**
      * Returns the {@link ByteBuffer}s contained in {@code byteBuffer} according to {@code type}.
      *
-     * @param byteBuffer the {@link ByteBuffer} to be split.
-     * @param type the {@link AbstractType} of {@code byteBuffer}.
-     * @return the {@link ByteBuffer}s contained in {@code byteBuffer} according to {@code type}.
+     * @param byteBuffer the byte buffer to be split
+     * @param type the {@link AbstractType} of {@code byteBuffer}
+     * @return the {@link ByteBuffer}s contained in {@code byteBuffer} according to {@code type}
      */
     public static ByteBuffer[] split(ByteBuffer byteBuffer, AbstractType<?> type) {
         if (type instanceof CompositeType) {
@@ -79,9 +79,9 @@ public final class ByteBufferUtils {
     /**
      * Returns a {@code String} representation of {@code byteBuffer} validated by {@code type}.
      *
-     * @param byteBuffer the {@link ByteBuffer} to be converted to {@code String}.
-     * @param type {@link AbstractType} of {@code byteBuffer}.
-     * @return a {@code String} representation of {@code byteBuffer} validated by {@code type}.
+     * @param byteBuffer the {@link ByteBuffer} to be converted to {@code String}
+     * @param type {@link AbstractType} of {@code byteBuffer}
+     * @return a {@code String} representation of {@code byteBuffer} validated by {@code type}
      */
     public static String toString(ByteBuffer byteBuffer, AbstractType<?> type) {
         if (type instanceof CompositeType) {
@@ -106,8 +106,8 @@ public final class ByteBufferUtils {
     /**
      * Returns the hexadecimal {@code String} representation of the specified {@link ByteBuffer}.
      *
-     * @param byteBuffer A {@link ByteBuffer}.
-     * @return The hexadecimal {@code String} representation of the specified {@link ByteBuffer}.
+     * @param byteBuffer a {@link ByteBuffer}
+     * @return the hexadecimal {@code String} representation of {@code byteBuffer}
      */
     public static String toHex(ByteBuffer byteBuffer) {
         return ByteBufferUtil.bytesToHex(byteBuffer);
@@ -116,8 +116,8 @@ public final class ByteBufferUtils {
     /**
      * Returns the hexadecimal {@code String} representation of the specified {@code byte} array.
      *
-     * @param bytes A {@code byte} array.
-     * @return The hexadecimal {@code String} representation of the specified {@code byte} array.
+     * @param bytes the {@code byte} array
+     * @return The hexadecimal {@code String} representation of {@code bytes}
      */
     public static String toHex(byte[] bytes) {
         return Hex.bytesToHex(bytes);
@@ -126,8 +126,8 @@ public final class ByteBufferUtils {
     /**
      * Returns the hexadecimal {@code String} representation of the specified {@code byte}.
      *
-     * @param b A {@code byte}.
-     * @return The hexadecimal {@code String} representation of the specified {@code byte}.
+     * @param b the {@code byte}
+     * @return the hexadecimal {@code String} representation of {@code b}
      */
     public static String toHex(byte b) {
         return Hex.bytesToHex(b);
@@ -136,8 +136,8 @@ public final class ByteBufferUtils {
     /**
      * Returns the {@link BytesRef} representation of the specified {@link ByteBuffer}.
      *
-     * @param bb A {@link ByteBuffer}.
-     * @return The {@link BytesRef} representation of the specified {@link ByteBuffer}.
+     * @param bb the byte buffer
+     * @return the {@link BytesRef} representation of the byte buffer
      */
     public static BytesRef bytesRef(ByteBuffer bb) {
         byte[] bytes = asArray(bb);
@@ -147,8 +147,8 @@ public final class ByteBufferUtils {
     /**
      * Returns the {@link ByteBuffer} representation of the specified {@link BytesRef}.
      *
-     * @param bytesRef A {@link BytesRef}.
-     * @return The {@link ByteBuffer} representation of the specified {@link BytesRef}.
+     * @param bytesRef the {@link BytesRef}
+     * @return the {@link ByteBuffer} representation of  {@code bytesRef}
      */
     public static ByteBuffer byteBuffer(BytesRef bytesRef) {
         byte[] bytes = bytesRef.bytes;

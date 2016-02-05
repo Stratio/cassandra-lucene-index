@@ -147,7 +147,7 @@ public class Search {
     public Query query(Schema schema, Query preFilter) {
         BooleanQuery.Builder builder = new BooleanQuery.Builder();
         if (preFilter != null) {
-            builder.add(new CachingWrapperQuery(preFilter), BooleanClause.Occur.FILTER);
+            builder.add(preFilter, BooleanClause.Occur.FILTER);
         }
         if (filter != null) {
             builder.add(filter.filter(schema), BooleanClause.Occur.FILTER);

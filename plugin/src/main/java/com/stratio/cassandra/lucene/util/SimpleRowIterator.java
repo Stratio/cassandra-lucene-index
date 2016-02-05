@@ -32,7 +32,7 @@ import java.util.Iterator;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class DecoratedRow implements RowIterator {
+public class SimpleRowIterator implements RowIterator {
 
     private final CFMetaData metadata;
     private final DecoratedKey key;
@@ -42,12 +42,12 @@ public class DecoratedRow implements RowIterator {
     private final Iterator<Row> rows;
 
     /**
-     * Builds a new {@link DecoratedRow} from the current position of the specified {@link RowIterator}. Any other rows
+     * Builds a new {@link SimpleRowIterator} from the current position of the specified {@link RowIterator}. Any other rows
      * in the specified iterator won't be read.
      *
-     * @param iterator a {@link Row} iterator
+     * @param iterator the {@link Row} iterator
      */
-    public DecoratedRow(RowIterator iterator) {
+    public SimpleRowIterator(RowIterator iterator) {
         this.metadata = iterator.metadata();
         this.key = iterator.partitionKey();
         this.columns = iterator.columns();

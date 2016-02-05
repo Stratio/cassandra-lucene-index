@@ -30,10 +30,7 @@ import org.apache.lucene.document.FieldType;
 import org.apache.lucene.document.LongField;
 import org.apache.lucene.index.DocValuesType;
 import org.apache.lucene.index.IndexOptions;
-import org.apache.lucene.search.DocValuesRangeQuery;
-import org.apache.lucene.search.NumericRangeQuery;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.SortField;
+import org.apache.lucene.search.*;
 
 /**
  * Class for several token mappings between Cassandra and Lucene.
@@ -119,17 +116,6 @@ public final class TokenMapper {
     }
 
     /**
-     * Returns if the specified {@link Token} is the minimum accepted by the partitioner.
-     *
-     * @param token the {@link Token}
-     * @return {@code true} if the specified {@link Token} is the minimum accepted, {@code false} otherwise
-     */
-    public boolean isMinimum(Token token) {
-        Token minimum = DatabaseDescriptor.getPartitioner().getMinimumToken();
-        return token.compareTo(minimum) == 0;
-    }
-
-    /**
      * Returns a Lucene {@link Query} to find the {@link Document}s containing a {@link Token} inside the specified
      * token range.
      *
@@ -140,11 +126,10 @@ public final class TokenMapper {
      * @return the query to find the documents containing a token inside the range
      */
     public Query query(Token lower, Token upper, boolean includeLower, boolean includeUpper) {
-        // TODO: Check full ring range
-        // TODO: Check full node range
         Long start = lower == null || lower.isMinimum() ? null : value(lower);
         Long stop = upper == null || upper.isMinimum() ? null : value(upper);
-        return DocValuesRangeQuery.newLongRange(FIELD_NAME, start, stop, includeLower, includeUpper);
+        Query query = DocValuesRangeQuery.newLongRange(FIELD_NAME, start, stop, includeLower, includeUpper);
+        return new CachingWrapperQuery(query);
     }
 
     /**
