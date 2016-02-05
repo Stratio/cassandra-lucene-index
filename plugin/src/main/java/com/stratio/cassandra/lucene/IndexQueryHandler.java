@@ -152,12 +152,17 @@ public class IndexQueryHandler implements QueryHandler {
                 String json = UTF8Type.instance.compose(expression.getValue());
                 Search search = SearchBuilder.fromJson(json).build();
                 if (search.isTopK()) {
+                    ResultMessage.Rows rows = select.execute(state, options);
+                    if (rows.result.size() < page) {
+                        return rows;
+                    }
                     String msg = String.format("Paging is not allowed for top-k searches as %s. " +
                                                "You should specify a limit (%d) lower than page size (%d) " +
                                                "or consider using an unsorted filter instead.", json, limit, page);
                     throw new InvalidRequestException(msg);
                 }
             }
+
             return select.execute(state, options);
         } finally {
             logger.debug("Total Lucene query time: {}\n", time.stop());
