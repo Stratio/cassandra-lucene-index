@@ -18,11 +18,11 @@
 
 package com.stratio.cassandra.lucene;
 
+import com.stratio.cassandra.lucene.search.Search;
 import com.stratio.cassandra.lucene.search.SearchBuilder;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
 import org.apache.cassandra.cql3.Operator;
-import org.apache.cassandra.cql3.Term;
 import org.apache.cassandra.db.*;
 import org.apache.cassandra.db.filter.RowFilter;
 import org.apache.cassandra.db.marshal.AbstractType;
@@ -428,12 +428,18 @@ public class Index implements org.apache.cassandra.index.Index {
         }
     }
 
-    //@Override
-    public void validate(Term.Raw raw) throws InvalidRequestException {
+    /**
+     * Validates the specified {@link RowFilter.CustomExpression}.
+     * @param expression the expression to be validated
+     * @return the valid search represented by {@code expression}
+     * @throws InvalidRequestException if the expression is not valid
+     */
+    public Search validate(RowFilter.CustomExpression expression) throws InvalidRequestException {
         try {
-            String json = raw.getText();
-            json = json.substring(1, json.length() - 1);
-            SearchBuilder.fromJson(json).build().query(service.schema);
+            String json = UTF8Type.instance.compose(expression.getValue());
+            Search search = SearchBuilder.fromJson(json).build();
+            search.query(service.schema);
+            return search;
         } catch (Exception e) {
             throw new InvalidRequestException(e.getMessage());
         }

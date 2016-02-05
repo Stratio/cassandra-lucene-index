@@ -19,15 +19,15 @@
 package com.stratio.cassandra.lucene;
 
 import com.stratio.cassandra.lucene.search.Search;
-import com.stratio.cassandra.lucene.search.SearchBuilder;
 import com.stratio.cassandra.lucene.util.TimeCounter;
 import org.apache.cassandra.cql3.*;
 import org.apache.cassandra.cql3.statements.BatchStatement;
 import org.apache.cassandra.cql3.statements.IndexTarget;
 import org.apache.cassandra.cql3.statements.ParsedStatement;
 import org.apache.cassandra.cql3.statements.SelectStatement;
+import org.apache.cassandra.db.ColumnFamilyStore;
+import org.apache.cassandra.db.Keyspace;
 import org.apache.cassandra.db.filter.RowFilter;
-import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.exceptions.InvalidRequestException;
 import org.apache.cassandra.exceptions.RequestExecutionException;
 import org.apache.cassandra.exceptions.RequestValidationException;
@@ -146,26 +146,36 @@ public class IndexQueryHandler implements QueryHandler {
                                   RowFilter.CustomExpression expression) {
         TimeCounter time = TimeCounter.create().start();
         try {
+
+            // Validate expression
+            ColumnFamilyStore cfs = Keyspace.open(select.keyspace()).getColumnFamilyStore(select.columnFamily());
+            Index index = (Index) cfs.indexManager.getIndex(expression.getTargetIndex());
+            Search search = index.validate(expression);
+
+            // Check paging
             int limit = select.getLimit(options);
             int page = options.getPageSize();
             if (page > 0 && limit > page) {
-                String json = UTF8Type.instance.compose(expression.getValue());
-                Search search = SearchBuilder.fromJson(json).build();
                 if (search.isTopK()) {
+
+                    // Give a chance to query selectivity
                     ResultMessage.Rows rows = select.execute(state, options);
                     if (rows.result.size() < page) {
                         return rows;
                     }
-                    String msg = String.format("Paging is not allowed for top-k searches as %s. " +
+
+                    String msg = String.format("Paging is not allowed for top-k searches. " +
                                                "You should specify a limit (%d) lower than page size (%d) " +
-                                               "or consider using an unsorted filter instead.", json, limit, page);
+                                               "or consider using an unsorted filter instead.", limit, page);
                     throw new InvalidRequestException(msg);
                 }
             }
 
+            // Process
             return select.execute(state, options);
+
         } finally {
-            logger.debug("Total Lucene query time: {}\n", time.stop());
+            logger.debug("Lucene search total time: {}\n", time.stop());
         }
     }
 
