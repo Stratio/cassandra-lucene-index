@@ -18,7 +18,10 @@
 
 package com.stratio.cassandra.lucene.testsAT.util;
 
-import com.datastax.driver.core.*;
+import com.datastax.driver.core.ConsistencyLevel;
+import com.datastax.driver.core.ResultSet;
+import com.datastax.driver.core.SimpleStatement;
+import com.datastax.driver.core.Statement;
 import com.datastax.driver.core.querybuilder.Batch;
 import com.datastax.driver.core.querybuilder.QueryBuilder;
 import com.stratio.cassandra.lucene.builder.index.Index;
@@ -54,7 +57,7 @@ public class CassandraUtils {
     private final Map<String, Mapper> mappers;
     private final List<String> partitionKey;
     private final List<String> clusteringKey;
-    private final Map<String, Map<String,String>> udts;
+    private final Map<String, Map<String, String>> udts;
 
     public static CassandraUtilsBuilder builder(String name) {
         return new CassandraUtilsBuilder(name);
@@ -67,7 +70,7 @@ public class CassandraUtils {
                           Map<String, Mapper> mappers,
                           List<String> partitionKey,
                           List<String> clusteringKey,
-                          Map<String, Map<String,String>> udts) {
+                          Map<String, Map<String, String>> udts) {
 
         this.keyspace = keyspace;
         this.table = table;
@@ -177,9 +180,9 @@ public class CassandraUtils {
     }
 
     public CassandraUtils createUDTs() {
-        for (Map.Entry<String,Map<String,String>> entry : udts.entrySet()) {
+        for (Map.Entry<String, Map<String, String>> entry : udts.entrySet()) {
             String name = entry.getKey();
-            Map<String,String> map = entry.getValue();
+            Map<String, String> map = entry.getValue();
             StringBuilder sb = new StringBuilder();
             sb.append("CREATE TYPE ").append(keyspace).append(".").append(name).append(" ( ");
             Set<String> set = map.keySet();

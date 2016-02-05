@@ -21,10 +21,11 @@ package com.stratio.cassandra.lucene.testsAT.udt;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.SimpleStatement;
 import com.datastax.driver.core.exceptions.DriverException;
-import com.datastax.driver.core.exceptions.InvalidConfigurationInQueryException;
 import com.stratio.cassandra.lucene.testsAT.BaseAT;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
@@ -50,10 +51,10 @@ public class UDTValidationAT extends BaseAT {
                                        .withUDT("address", "bool", "boolean")
                                        .withUDT("address", "height", "float")
                                        .withUDT("address", "point", "frozen<geo_point>")
-                                       .withColumn("login","text")
-                                       .withColumn("first_name","text")
-                                       .withColumn("last_name","text")
-                                       .withColumn("address","frozen<address>")
+                                       .withColumn("login", "text")
+                                       .withColumn("first_name", "text")
+                                       .withColumn("last_name", "text")
+                                       .withColumn("address", "frozen<address>")
                                        .withPartitionKey("login")
                                        .build()
                                        .createKeyspace()

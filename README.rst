@@ -53,7 +53,7 @@ Not yet supported:
 -  Legacy compact storage option
 -  Indexing ``counter`` columns
 -  Columns with TTL
--  Static columns
+-  Indexing static columns
 
 Requirements
 ------------

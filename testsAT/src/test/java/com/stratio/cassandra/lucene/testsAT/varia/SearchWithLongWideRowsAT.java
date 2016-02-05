@@ -98,7 +98,7 @@ public class SearchWithLongWideRowsAT extends BaseAT {
 
     @AfterClass
     public static void after() {
-//        cassandraUtils.dropIndex().dropTable().dropKeyspace();
+        cassandraUtils.dropIndex().dropTable().dropKeyspace();
     }
 
     @Test

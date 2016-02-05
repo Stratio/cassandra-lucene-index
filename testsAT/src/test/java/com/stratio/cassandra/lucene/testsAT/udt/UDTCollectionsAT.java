@@ -49,26 +49,26 @@ public class UDTCollectionsAT extends BaseAT {
 
     @BeforeClass
     public static void before() {
-        Mapper stringMapper=stringMapper();
-        Mapper integerMapper=integerMapper();
+        Mapper stringMapper = stringMapper();
+        Mapper integerMapper = integerMapper();
 
         cassandraUtils = CassandraUtils.builder(KEYSPACE_NAME)
                                        .withUDT("address_udt", "city", "text")
                                        .withUDT("address_udt", "postcode", "int")
                                        .withColumn("login", "text")
-                                       .withColumn("numbers", "list<int>",integerMapper)
-                                       .withColumn("number_set","set<int>",integerMapper)
-                                       .withColumn("number_map","map<text,int>",integerMapper)
+                                       .withColumn("numbers", "list<int>", integerMapper)
+                                       .withColumn("number_set", "set<int>", integerMapper)
+                                       .withColumn("number_map", "map<text,int>", integerMapper)
                                        .withColumn("address", "list<frozen<address_udt>>")
-                                       .withColumn("address_set","set<frozen<address_udt>>")
-                                       .withColumn("address_map","map<text,frozen<address_udt>>")
-                                       .withColumn("address_list_list","list<frozen<list<address_udt>>>")
-                                       .withColumn("address_list_set","list<frozen<set<address_udt>>>")
-                                       .withColumn("address_list_map","list<frozen<map<text,address_udt>>>")
-                                       .withColumn("address_set_list","set<frozen<list<address_udt>>>")
-                                       .withColumn("address_set_set","set<frozen<set<address_udt>>>")
-                                       .withColumn("address_set_map","set<frozen<map<text,address_udt>>>")
-                                       .withColumn("lucene","text")
+                                       .withColumn("address_set", "set<frozen<address_udt>>")
+                                       .withColumn("address_map", "map<text,frozen<address_udt>>")
+                                       .withColumn("address_list_list", "list<frozen<list<address_udt>>>")
+                                       .withColumn("address_list_set", "list<frozen<set<address_udt>>>")
+                                       .withColumn("address_list_map", "list<frozen<map<text,address_udt>>>")
+                                       .withColumn("address_set_list", "set<frozen<list<address_udt>>>")
+                                       .withColumn("address_set_set", "set<frozen<set<address_udt>>>")
+                                       .withColumn("address_set_map", "set<frozen<map<text,address_udt>>>")
+                                       .withColumn("lucene", "text")
                                        .withPartitionKey("login")
                                        .withMapper("address.city", stringMapper)
                                        .withMapper("address_set.city", stringMapper)
@@ -85,112 +85,133 @@ public class UDTCollectionsAT extends BaseAT {
                                        .createTable()
                                        .createIndex();
 
-        Map<String,String> data= new HashMap<>();
-        data.put("login","'USER1'");
-        data.put("numbers","[1,2,3]");
-        data.put("number_set","{1,2,3}");
-        data.put("number_map","{'a': 1, 'b': 2 }");
-        data.put("address","[{city:'Barcelona',postcode:28059 },{city:'Roma',postcode:29506 },{city:'Valencia',postcode: 85964 }]");
-        data.put("address_set","{{city:'Barcelona',postcode:28059 },{city:'Roma',postcode:29506 },{city:'Valencia',postcode: 85964}}");
-        data.put("address_map","{'a': {city:'Barcelona',postcode:28059 }, 'b': {city:'Roma',postcode: 29506},  'c': {city:'Valencia',postcode:85964 }}");
-        data.put("address_list_list","[[{city:'Barcelona',postcode:28059 },{city:'Roma',postcode:29506 },{city:'Valencia',postcode: 85964 }]," +
-                                     " [{city:'Oviedo',postcode:28059 },{city:'Madrid',postcode:29506 },{city:'Valladolid',postcode: 85964 }]," +
-                                     " [{city:'Aviles',postcode:28059 },{city:'Tarragona',postcode:29506 },{city:'Toledo',postcode: 85964 }]]");
-        data.put("address_list_set","[{{city:'Barcelona',postcode:28059 },{city:'Roma',postcode:29506 },{city:'Valencia',postcode: 85964 }}," +
-                                    " {{city:'Oviedo',postcode:28059 },{city:'Venecia',postcode:29506 },{city:'Jaen',postcode: 85964 }}," +
-                                    " {{city:'Aviles',postcode:28059 },{city:'Madrid',postcode:29506 },{city:'Toledo',postcode: 85964 }}]");
-        data.put("address_list_map","[{'a': {city:'Barcelona',postcode:28059 },'b': {city:'Roma',postcode:29506 },'c': {city:'Salamanca',postcode: 85964 }}," +
-                                    " {'d': {city:'Valladolid',postcode:28059 },'e': {city:'Salamanca',postcode:29506 },'f': {city:'Salamanca',postcode: 85964 }}," +
-                                    " {'g': {city:'Salamanca',postcode:28059 },'h': {city:'Madrid',postcode:29506 },'i': {city:'Toledo',postcode: 85964 }}]");
-        data.put("address_set_list","{[{city:'Barcelona',postcode:28059 },{city:'Roma',postcode:29506 },{city:'Valencia',postcode: 85964 }]," +
-                                    " [{city:'Oviedo',postcode:28059 },{city:'Madrid',postcode:29506 },{city:'Valladolid',postcode: 85964 }]," +
-                                    " [{city:'Aviles',postcode:28059 },{city:'Tarragona',postcode:29506 },{city:'Toledo',postcode: 85964 }]}");
-        data.put("address_set_set","{{{city:'Barcelona',postcode:28059 },{city:'Roma',postcode:29506 },{city:'Valencia',postcode: 85964 }}," +
-                                    " {{city:'Oviedo',postcode:28059 },{city:'Venecia',postcode:29506 },{city:'Jaen',postcode: 85964 }}," +
-                                    " {{city:'Aviles',postcode:28059 },{city:'Madrid',postcode:29506 },{city:'Toledo',postcode: 85964 }}}");
-        data.put("address_set_map","{{'a': {city:'Barcelona',postcode:28059 },'b': {city:'Roma',postcode:29506 },'c': {city:'Salamanca',postcode: 85964 }}," +
-                                    " {'d': {city:'Valladolid',postcode:28059 },'e': {city:'Salamanca',postcode:29506 },'f': {city:'Salamanca',postcode: 85964 }}," +
-                                    " {'g': {city:'Salamanca',postcode:28059 },'h': {city:'Madrid',postcode:29506 },'i': {city:'Toledo',postcode: 85964 }}}");
+        Map<String, String> data = new HashMap<>();
+        data.put("login", "'USER1'");
+        data.put("numbers", "[1,2,3]");
+        data.put("number_set", "{1,2,3}");
+        data.put("number_map", "{'a': 1, 'b': 2 }");
+        data.put("address",
+                 "[{city:'Barcelona',postcode:28059 },{city:'Roma',postcode:29506 },{city:'Valencia',postcode: 85964 }]");
+        data.put("address_set",
+                 "{{city:'Barcelona',postcode:28059 },{city:'Roma',postcode:29506 },{city:'Valencia',postcode: 85964}}");
+        data.put("address_map",
+                 "{'a': {city:'Barcelona',postcode:28059 }, 'b': {city:'Roma',postcode: 29506},  'c': {city:'Valencia',postcode:85964 }}");
+        data.put("address_list_list",
+                 "[[{city:'Barcelona',postcode:28059 },{city:'Roma',postcode:29506 },{city:'Valencia',postcode: 85964 }]," +
+                 " [{city:'Oviedo',postcode:28059 },{city:'Madrid',postcode:29506 },{city:'Valladolid',postcode: 85964 }]," +
+                 " [{city:'Aviles',postcode:28059 },{city:'Tarragona',postcode:29506 },{city:'Toledo',postcode: 85964 }]]");
+        data.put("address_list_set",
+                 "[{{city:'Barcelona',postcode:28059 },{city:'Roma',postcode:29506 },{city:'Valencia',postcode: 85964 }}," +
+                 " {{city:'Oviedo',postcode:28059 },{city:'Venecia',postcode:29506 },{city:'Jaen',postcode: 85964 }}," +
+                 " {{city:'Aviles',postcode:28059 },{city:'Madrid',postcode:29506 },{city:'Toledo',postcode: 85964 }}]");
+        data.put("address_list_map",
+                 "[{'a': {city:'Barcelona',postcode:28059 },'b': {city:'Roma',postcode:29506 },'c': {city:'Salamanca',postcode: 85964 }}," +
+                 " {'d': {city:'Valladolid',postcode:28059 },'e': {city:'Salamanca',postcode:29506 },'f': {city:'Salamanca',postcode: 85964 }}," +
+                 " {'g': {city:'Salamanca',postcode:28059 },'h': {city:'Madrid',postcode:29506 },'i': {city:'Toledo',postcode: 85964 }}]");
+        data.put("address_set_list",
+                 "{[{city:'Barcelona',postcode:28059 },{city:'Roma',postcode:29506 },{city:'Valencia',postcode: 85964 }]," +
+                 " [{city:'Oviedo',postcode:28059 },{city:'Madrid',postcode:29506 },{city:'Valladolid',postcode: 85964 }]," +
+                 " [{city:'Aviles',postcode:28059 },{city:'Tarragona',postcode:29506 },{city:'Toledo',postcode: 85964 }]}");
+        data.put("address_set_set",
+                 "{{{city:'Barcelona',postcode:28059 },{city:'Roma',postcode:29506 },{city:'Valencia',postcode: 85964 }}," +
+                 " {{city:'Oviedo',postcode:28059 },{city:'Venecia',postcode:29506 },{city:'Jaen',postcode: 85964 }}," +
+                 " {{city:'Aviles',postcode:28059 },{city:'Madrid',postcode:29506 },{city:'Toledo',postcode: 85964 }}}");
+        data.put("address_set_map",
+                 "{{'a': {city:'Barcelona',postcode:28059 },'b': {city:'Roma',postcode:29506 },'c': {city:'Salamanca',postcode: 85964 }}," +
+                 " {'d': {city:'Valladolid',postcode:28059 },'e': {city:'Salamanca',postcode:29506 },'f': {city:'Salamanca',postcode: 85964 }}," +
+                 " {'g': {city:'Salamanca',postcode:28059 },'h': {city:'Madrid',postcode:29506 },'i': {city:'Toledo',postcode: 85964 }}}");
 
+        Map<String, String> data2 = new HashMap<>();
+        data2.put("login", "'USER2'");
+        data2.put("numbers", "[6,10,12]");
+        data2.put("number_set", "{6,10,12}");
+        data2.put("number_map", "{'c':1,'d':2}");
+        data2.put("address",
+                  "[{city:'Bilbao',postcode:270548 },{city:'Barcelona',postcode:28059 },{city:'Venecia',postcode: 28756 }]");
+        data2.put("address_set",
+                  "{{city:'Bilbao',postcode:270548 },{city:'Barcelona',postcode:28059 },{city:'Venecia',postcode: 28756 }}");
+        data2.put("address_map", "{'a': {city:'Bilbao',postcode:270548 }," +
+                                 " 'b': {city:'Barcelona',postcode:28059 }," +
+                                 " 'c': {city:'Venecia',postcode:28756 }}");
+        data2.put("address_list_list",
+                  "[[{city:'Barcelona',postcode:28059 },{city:'Roma',postcode:29506 },{city:'Valencia',postcode: 85964 }]," +
+                  " [{city:'Oviedo',postcode:28059 },{city:'Madrid',postcode:29506 },{city:'Jaen',postcode: 85964 }]," +
+                  " [{city:'Aviles',postcode:28059 },{city:'Madrid',postcode:29506 },{city:'Tarragona',postcode: 85964 }]]");
+        data2.put("address_list_set",
+                  "[{{city:'Barcelona',postcode:28059 },{city:'Roma',postcode:29506 },{city:'Valencia',postcode: 85964 }}," +
+                  " {{city:'Valladolid',postcode:28059 },{city:'San Sebastian',postcode:29506 },{city:'Jaen',postcode: 85964 }}," +
+                  " {{city:'Salamanca',postcode:28059 },{city:'Madrid',postcode:29506 },{city:'Toledo',postcode: 85964 }}]");
+        data2.put("address_list_map",
+                  "[{'a': {city:'Barcelona',postcode:28059 },'b': {city:'Roma',postcode:29506 },'c': {city:'San Sebastian',postcode: 85964 }}," +
+                  " {'d': {city:'Oviedo',postcode:28059 },'e': {city:'Madrid',postcode:29506 },'f': {city:'Jaen',postcode: 85964 }}," +
+                  " {'g': {city:'Aviles',postcode:28059 },'h': {city:'Madrid',postcode:29506 },'i': {city:'Toledo',postcode: 85964 }}]");
+        data2.put("address_set_list",
+                  "{[{city:'Barcelona',postcode:28059 },{city:'Roma',postcode:29506 },{city:'Valencia',postcode: 85964 }]," +
+                  " [{city:'Oviedo',postcode:28059 },{city:'Madrid',postcode:29506 },{city:'Jaen',postcode: 85964 }]," +
+                  " [{city:'Aviles',postcode:28059 },{city:'Madrid',postcode:29506 },{city:'Tarragona',postcode: 85964 }]}");
+        data2.put("address_set_set",
+                  "{{{city:'Barcelona',postcode:28059 },{city:'Roma',postcode:29506 },{city:'Valencia',postcode: 85964 }}," +
+                  " {{city:'Valladolid',postcode:28059 },{city:'San Sebastian',postcode:29506 },{city:'Jaen',postcode: 85964 }}," +
+                  " {{city:'Salamanca',postcode:28059 },{city:'Madrid',postcode:29506 },{city:'Toledo',postcode: 85964 }}}");
+        data2.put("address_set_map",
+                  "{{'a': {city:'Barcelona',postcode:28059 },'b': {city:'Roma',postcode:29506 },'c': {city:'San Sebastian',postcode: 85964 }}," +
+                  " {'d': {city:'Oviedo',postcode:28059 },'e': {city:'Madrid',postcode:29506 },'f': {city:'Jaen',postcode: 85964 }}," +
+                  " {'g': {city:'Aviles',postcode:28059 },'h': {city:'Madrid',postcode:29506 },'i': {city:'Toledo',postcode: 85964 }}}");
 
-        Map<String,String> data2= new HashMap<>();
-        data2.put("login","'USER2'");
-        data2.put("numbers","[6,10,12]");
-        data2.put("number_set","{6,10,12}");
-        data2.put("number_map","{'c':1,'d':2}");
-        data2.put("address","[{city:'Bilbao',postcode:270548 },{city:'Barcelona',postcode:28059 },{city:'Venecia',postcode: 28756 }]");
-        data2.put("address_set","{{city:'Bilbao',postcode:270548 },{city:'Barcelona',postcode:28059 },{city:'Venecia',postcode: 28756 }}");
-        data2.put("address_map","{'a': {city:'Bilbao',postcode:270548 }," +
-                                " 'b': {city:'Barcelona',postcode:28059 }," +
-                                " 'c': {city:'Venecia',postcode:28756 }}");
-        data2.put("address_list_list","[[{city:'Barcelona',postcode:28059 },{city:'Roma',postcode:29506 },{city:'Valencia',postcode: 85964 }]," +
-                                      " [{city:'Oviedo',postcode:28059 },{city:'Madrid',postcode:29506 },{city:'Jaen',postcode: 85964 }]," +
-                                      " [{city:'Aviles',postcode:28059 },{city:'Madrid',postcode:29506 },{city:'Tarragona',postcode: 85964 }]]");
-        data2.put("address_list_set","[{{city:'Barcelona',postcode:28059 },{city:'Roma',postcode:29506 },{city:'Valencia',postcode: 85964 }}," +
-                                     " {{city:'Valladolid',postcode:28059 },{city:'San Sebastian',postcode:29506 },{city:'Jaen',postcode: 85964 }}," +
-                                     " {{city:'Salamanca',postcode:28059 },{city:'Madrid',postcode:29506 },{city:'Toledo',postcode: 85964 }}]");
-        data2.put("address_list_map","[{'a': {city:'Barcelona',postcode:28059 },'b': {city:'Roma',postcode:29506 },'c': {city:'San Sebastian',postcode: 85964 }}," +
-                                     " {'d': {city:'Oviedo',postcode:28059 },'e': {city:'Madrid',postcode:29506 },'f': {city:'Jaen',postcode: 85964 }}," +
-                                     " {'g': {city:'Aviles',postcode:28059 },'h': {city:'Madrid',postcode:29506 },'i': {city:'Toledo',postcode: 85964 }}]");
-        data2.put("address_set_list","{[{city:'Barcelona',postcode:28059 },{city:'Roma',postcode:29506 },{city:'Valencia',postcode: 85964 }]," +
-                                     " [{city:'Oviedo',postcode:28059 },{city:'Madrid',postcode:29506 },{city:'Jaen',postcode: 85964 }]," +
-                                     " [{city:'Aviles',postcode:28059 },{city:'Madrid',postcode:29506 },{city:'Tarragona',postcode: 85964 }]}");
-        data2.put("address_set_set","{{{city:'Barcelona',postcode:28059 },{city:'Roma',postcode:29506 },{city:'Valencia',postcode: 85964 }}," +
-                                    " {{city:'Valladolid',postcode:28059 },{city:'San Sebastian',postcode:29506 },{city:'Jaen',postcode: 85964 }}," +
-                                    " {{city:'Salamanca',postcode:28059 },{city:'Madrid',postcode:29506 },{city:'Toledo',postcode: 85964 }}}");
-        data2.put("address_set_map","{{'a': {city:'Barcelona',postcode:28059 },'b': {city:'Roma',postcode:29506 },'c': {city:'San Sebastian',postcode: 85964 }}," +
-                                    " {'d': {city:'Oviedo',postcode:28059 },'e': {city:'Madrid',postcode:29506 },'f': {city:'Jaen',postcode: 85964 }}," +
-                                    " {'g': {city:'Aviles',postcode:28059 },'h': {city:'Madrid',postcode:29506 },'i': {city:'Toledo',postcode: 85964 }}}");
+        Map<String, String> data3 = new HashMap<>();
+        data3.put("login", "'USER3'");
+        data3.put("numbers", "[14,18,20]");
+        data3.put("number_set", "{14,18,20}");
+        data3.put("number_map", "{'e':1,'f':2}");
+        data3.put("address",
+                  "[{city:'Lisboa',postcode:29685 },{city:'Sevilla',postcode:58964 },{city:'Granada',postcode:85964 }]");
+        data3.put("address_set",
+                  "{{city:'Lisboa',postcode:29685 },{city:'Sevilla',postcode:58964 },{city:'Granada',postcode:85964 }}");
+        data3.put("address_map", "{'a': {city:'Lisboa',postcode:29685 }," +
+                                 " 'b': {city:'Sevilla',postcode:58964 }," +
+                                 " 'c': {city:'Granada',postcode:85964 }}");
+        data3.put("address_list_list",
+                  "[[{city:'Barcelona',postcode:28059 },{city:'Roma',postcode:29506 },{city:'Valencia',postcode: 85964 }]," +
+                  " [{city:'Oviedo',postcode:28059 },{city:'Salamanca',postcode:29506 },{city:'Jaen',postcode: 85964 }]," +
+                  " [{city:'Tarragona',postcode:28059 },{city:'Madrid',postcode:29506 },{city:'Toledo',postcode: 85964 }]]");
+        data3.put("address_list_set",
+                  "[{{city:'Barcelona',postcode:28059 },{city:'Roma',postcode:29506 },{city:'Valencia',postcode: 85964 }}," +
+                  " {{city:'Salamanca',postcode:28059 },{city:'Valladolid',postcode:29506 },{city:'Jaen',postcode: 85964 }}," +
+                  " {{city:'Aviles',postcode:28059 },{city:'Madrid',postcode:29506 },{city:'Toledo',postcode: 85964 }}]");
+        data3.put("address_list_map",
+                  "[{'a': {city:'Barcelona',postcode:28059 },'b': {city:'Roma',postcode:29506 },'c': {city:'Valencia',postcode: 85964 }}," +
+                  " {'d': {city:'San Sebastian',postcode:28059 },'e': {city:'Salamanca',postcode:29506 },'f': {city:'Jaen',postcode: 85964 }}," +
+                  " {'g': {city:'Aviles',postcode:28059 },'h': {city:'Madrid',postcode:29506 },'i': {city:'Salamanca',postcode: 85964 }}]");
+        data3.put("address_set_list",
+                  "{[{city:'Barcelona',postcode:28059 },{city:'Roma',postcode:29506 },{city:'Valencia',postcode: 85964 }]," +
+                  " [{city:'Oviedo',postcode:28059 },{city:'Salamanca',postcode:29506 },{city:'Jaen',postcode: 85964 }]," +
+                  " [{city:'Tarragona',postcode:28059 },{city:'Madrid',postcode:29506 },{city:'Toledo',postcode: 85964 }]}");
+        data3.put("address_set_set",
+                  "{{{city:'Barcelona',postcode:28059 },{city:'Roma',postcode:29506 },{city:'Valencia',postcode: 85964 }}," +
+                  " {{city:'Salamanca',postcode:28059 },{city:'Valladolid',postcode:29506 },{city:'Jaen',postcode: 85964 }}," +
+                  " {{city:'Aviles',postcode:28059 },{city:'Madrid',postcode:29506 },{city:'Toledo',postcode: 85964 }}}");
+        data3.put("address_set_map",
+                  "{{'a': {city:'Barcelona',postcode:28059 },'b': {city:'Roma',postcode:29506 },'c': {city:'Valencia',postcode: 85964 }}," +
+                  " {'d': {city:'San Sebastian',postcode:28059 },'e': {city:'Salamanca',postcode:29506 },'f': {city:'Jaen',postcode: 85964 }}," +
+                  " {'g': {city:'Aviles',postcode:28059 },'h': {city:'Madrid',postcode:29506 },'i': {city:'Salamanca',postcode: 85964 }}}");
 
-
-        Map<String,String> data3= new HashMap<>();
-        data3.put("login","'USER3'");
-        data3.put("numbers","[14,18,20]");
-        data3.put("number_set","{14,18,20}");
-        data3.put("number_map","{'e':1,'f':2}");
-        data3.put("address","[{city:'Lisboa',postcode:29685 },{city:'Sevilla',postcode:58964 },{city:'Granada',postcode:85964 }]");
-        data3.put("address_set","{{city:'Lisboa',postcode:29685 },{city:'Sevilla',postcode:58964 },{city:'Granada',postcode:85964 }}");
-        data3.put("address_map","{'a': {city:'Lisboa',postcode:29685 }," +
-                                " 'b': {city:'Sevilla',postcode:58964 }," +
-                                " 'c': {city:'Granada',postcode:85964 }}");
-        data3.put("address_list_list","[[{city:'Barcelona',postcode:28059 },{city:'Roma',postcode:29506 },{city:'Valencia',postcode: 85964 }]," +
-                                      " [{city:'Oviedo',postcode:28059 },{city:'Salamanca',postcode:29506 },{city:'Jaen',postcode: 85964 }]," +
-                                      " [{city:'Tarragona',postcode:28059 },{city:'Madrid',postcode:29506 },{city:'Toledo',postcode: 85964 }]]");
-        data3.put("address_list_set","[{{city:'Barcelona',postcode:28059 },{city:'Roma',postcode:29506 },{city:'Valencia',postcode: 85964 }}," +
-                                     " {{city:'Salamanca',postcode:28059 },{city:'Valladolid',postcode:29506 },{city:'Jaen',postcode: 85964 }}," +
-                                     " {{city:'Aviles',postcode:28059 },{city:'Madrid',postcode:29506 },{city:'Toledo',postcode: 85964 }}]");
-        data3.put("address_list_map","[{'a': {city:'Barcelona',postcode:28059 },'b': {city:'Roma',postcode:29506 },'c': {city:'Valencia',postcode: 85964 }}," +
-                                     " {'d': {city:'San Sebastian',postcode:28059 },'e': {city:'Salamanca',postcode:29506 },'f': {city:'Jaen',postcode: 85964 }}," +
-                                     " {'g': {city:'Aviles',postcode:28059 },'h': {city:'Madrid',postcode:29506 },'i': {city:'Salamanca',postcode: 85964 }}]");
-        data3.put("address_set_list","{[{city:'Barcelona',postcode:28059 },{city:'Roma',postcode:29506 },{city:'Valencia',postcode: 85964 }]," +
-                                     " [{city:'Oviedo',postcode:28059 },{city:'Salamanca',postcode:29506 },{city:'Jaen',postcode: 85964 }]," +
-                                     " [{city:'Tarragona',postcode:28059 },{city:'Madrid',postcode:29506 },{city:'Toledo',postcode: 85964 }]}");
-        data3.put("address_set_set","{{{city:'Barcelona',postcode:28059 },{city:'Roma',postcode:29506 },{city:'Valencia',postcode: 85964 }}," +
-                                    " {{city:'Salamanca',postcode:28059 },{city:'Valladolid',postcode:29506 },{city:'Jaen',postcode: 85964 }}," +
-                                    " {{city:'Aviles',postcode:28059 },{city:'Madrid',postcode:29506 },{city:'Toledo',postcode: 85964 }}}");
-        data3.put("address_set_map","{{'a': {city:'Barcelona',postcode:28059 },'b': {city:'Roma',postcode:29506 },'c': {city:'Valencia',postcode: 85964 }}," +
-                                    " {'d': {city:'San Sebastian',postcode:28059 },'e': {city:'Salamanca',postcode:29506 },'f': {city:'Jaen',postcode: 85964 }}," +
-                                    " {'g': {city:'Aviles',postcode:28059 },'h': {city:'Madrid',postcode:29506 },'i': {city:'Salamanca',postcode: 85964 }}}");
-
-
-
-
-
-        Map<String,String>  data4= new HashMap<>();
-        data4.put("login","'USER4'");
-        data4.put("numbers","[3,10,20]");
-        data4.put("number_set","{3,10,20}");
-        data4.put("number_map","{'c':1,'h':2}");
-        data4.put("address","[{city:'Granada',postcode:85964 },{city:'Venecia',postcode:28756 },{city:'Lisboa',postcode:29685 }]");
-        data4.put("address_set","{{city:'Granada',postcode:85964 },{city:'Venecia',postcode:28756 },{city:'Lisboa',postcode:29685 }}");
-        data4.put("address_map","{'a': {city:'Granada',postcode:85964 }," +
-                                " 'b': {city:'Venecia',postcode:28756 }," +
-                                " 'c': {city:'Lisboa',postcode:29685 }}");
-        data4.put("address_list_list","[" +
-                                      " [{city:'Salamanca',postcode:28059 },{city:'Roma',postcode:29506 },{city:'Valladolid',postcode: 85964 }]," +
-                                      " [{city:'San Sebastian',postcode:28059 },{city:'Tarragona',postcode:29506 },{city:'Jaen',postcode: 85964 }]," +
-                                      " [{city:'Salamanca',postcode:28059 },{city:'Madrid',postcode:29506 },{city:'Toledo',postcode: 85964 }]" +
-                                      "]");
+        Map<String, String> data4 = new HashMap<>();
+        data4.put("login", "'USER4'");
+        data4.put("numbers", "[3,10,20]");
+        data4.put("number_set", "{3,10,20}");
+        data4.put("number_map", "{'c':1,'h':2}");
+        data4.put("address",
+                  "[{city:'Granada',postcode:85964 },{city:'Venecia',postcode:28756 },{city:'Lisboa',postcode:29685 }]");
+        data4.put("address_set",
+                  "{{city:'Granada',postcode:85964 },{city:'Venecia',postcode:28756 },{city:'Lisboa',postcode:29685 }}");
+        data4.put("address_map", "{'a': {city:'Granada',postcode:85964 }," +
+                                 " 'b': {city:'Venecia',postcode:28756 }," +
+                                 " 'c': {city:'Lisboa',postcode:29685 }}");
+        data4.put("address_list_list", "[" +
+                                       " [{city:'Salamanca',postcode:28059 },{city:'Roma',postcode:29506 },{city:'Valladolid',postcode: 85964 }]," +
+                                       " [{city:'San Sebastian',postcode:28059 },{city:'Tarragona',postcode:29506 },{city:'Jaen',postcode: 85964 }]," +
+                                       " [{city:'Salamanca',postcode:28059 },{city:'Madrid',postcode:29506 },{city:'Toledo',postcode: 85964 }]" +
+                                       "]");
         data4.put("address_list_set", "[" +
                                       " {{city:'Barcelona',postcode:28059 },{city:'Roma',postcode:29506 },{city:'Valencia',postcode: 85964 }}," +
                                       " {{city:'Oviedo',postcode:28059 },{city:'Madrid',postcode:29506 },{city:'Jaen',postcode: 85964 }}," +
@@ -211,98 +232,100 @@ public class UDTCollectionsAT extends BaseAT {
                                      " {{city:'Oviedo',postcode:28059 },{city:'Madrid',postcode:29506 },{city:'Jaen',postcode: 85964 }}," +
                                      " {{city:'San Sebastian',postcode:28059 },{city:'Madrid',postcode:29506 },{city:'Toledo',postcode: 85964 }}" +
                                      "}");
-        data4.put("address_set_map","{" +
-                                    " {'a': {city:'Barcelona',postcode:28059 },'b': {city:'Roma',postcode:29506 },'c': {city:'Valladolid',postcode: 85964 }}," +
-                                    " {'d': {city:'Oviedo',postcode:28059 },'e': {city:'Madrid',postcode:29506 },'f': {city:'Jaen',postcode: 85964 }}," +
-                                    " {'g': {city:'Aviles',postcode:28059 },'h': {city:'San Sebastian',postcode:29506 },'i': {city:'Valladolid',postcode: 85964 }}" +
-                                    "}");
+        data4.put("address_set_map", "{" +
+                                     " {'a': {city:'Barcelona',postcode:28059 },'b': {city:'Roma',postcode:29506 },'c': {city:'Valladolid',postcode: 85964 }}," +
+                                     " {'d': {city:'Oviedo',postcode:28059 },'e': {city:'Madrid',postcode:29506 },'f': {city:'Jaen',postcode: 85964 }}," +
+                                     " {'g': {city:'Aviles',postcode:28059 },'h': {city:'San Sebastian',postcode:29506 },'i': {city:'Valladolid',postcode: 85964 }}" +
+                                     "}");
 
-
-        Map<String,String> data5= new HashMap<>();
-        data5.put("login","'USER5'");
-        data5.put("numbers","[7,11,15]");
-        data5.put("number_set","{7,11,15}");
-        data5.put("number_map","{'i':1,'j':2}");
-        data5.put("address","[{city:'Granada',postcode:85964 },{city:'Bilbao',postcode:270548 },{city:'Sevilla',postcode:58964 }]");
-        data5.put("address_set","{{city:'Granada',postcode:85964 },{city:'Bilbao',postcode:270548 },{city:'Sevilla',postcode:58964 }}");
-        data5.put("address_map","{'a': {city:'Granada',postcode:85964 }," +
-                                " 'b': {city:'Bilbao',postcode:270548 }," +
-                                " 'c': {city:'Sevilla',postcode:58964 }}");
-        data5.put("address_list_list","[" +
+        Map<String, String> data5 = new HashMap<>();
+        data5.put("login", "'USER5'");
+        data5.put("numbers", "[7,11,15]");
+        data5.put("number_set", "{7,11,15}");
+        data5.put("number_map", "{'i':1,'j':2}");
+        data5.put("address",
+                  "[{city:'Granada',postcode:85964 },{city:'Bilbao',postcode:270548 },{city:'Sevilla',postcode:58964 }]");
+        data5.put("address_set",
+                  "{{city:'Granada',postcode:85964 },{city:'Bilbao',postcode:270548 },{city:'Sevilla',postcode:58964 }}");
+        data5.put("address_map", "{'a': {city:'Granada',postcode:85964 }," +
+                                 " 'b': {city:'Bilbao',postcode:270548 }," +
+                                 " 'c': {city:'Sevilla',postcode:58964 }}");
+        data5.put("address_list_list", "[" +
+                                       " [{city:'Barcelona',postcode:28059 },{city:'Roma',postcode:29506 },{city:'Valencia',postcode: 85964 }]," +
+                                       " [{city:'Oviedo',postcode:28059 },{city:'Salamanca',postcode:29506 },{city:'Jaen',postcode: 85964 }]," +
+                                       " [{city:'Aviles',postcode:28059 },{city:'Tarragona',postcode:29506 },{city:'Toledo',postcode: 85964 }]" +
+                                       "]");
+        data5.put("address_list_set", "[" +
+                                      " {{city:'Valladolid',postcode:28059 },{city:'Roma',postcode:29506 },{city:'Valencia',postcode: 85964 }}," +
+                                      " {{city:'Salamanca',postcode:28059 },{city:'Madrid',postcode:29506 },{city:'Jaen',postcode: 85964 }}," +
+                                      " {{city:'Aviles',postcode:28059 },{city:'Madrid',postcode:29506 },{city:'Toledo',postcode: 85964 }}" +
+                                      "]");
+        data5.put("address_list_map", "[" +
+                                      " {'a': {city:'Barcelona',postcode:28059 },'b': {city:'San Sebastian',postcode:29506 },'c': {city:'Valencia',postcode: 85964 }}," +
+                                      " {'d': {city:'Oviedo',postcode:28059 },'e': {city:'Madrid',postcode:29506 },'f': {city:'Salamanca',postcode: 85964 }}," +
+                                      " {'g': {city:'Aviles',postcode:28059 },'h': {city:'Madrid',postcode:29506 },'i': {city:'Toledo',postcode: 85964 }}" +
+                                      "]");
+        data5.put("address_set_list", "{" +
                                       " [{city:'Barcelona',postcode:28059 },{city:'Roma',postcode:29506 },{city:'Valencia',postcode: 85964 }]," +
                                       " [{city:'Oviedo',postcode:28059 },{city:'Salamanca',postcode:29506 },{city:'Jaen',postcode: 85964 }]," +
                                       " [{city:'Aviles',postcode:28059 },{city:'Tarragona',postcode:29506 },{city:'Toledo',postcode: 85964 }]" +
-                                      "]");
-        data5.put("address_list_set","[" +
+                                      "}");
+        data5.put("address_set_set", "{" +
                                      " {{city:'Valladolid',postcode:28059 },{city:'Roma',postcode:29506 },{city:'Valencia',postcode: 85964 }}," +
                                      " {{city:'Salamanca',postcode:28059 },{city:'Madrid',postcode:29506 },{city:'Jaen',postcode: 85964 }}," +
                                      " {{city:'Aviles',postcode:28059 },{city:'Madrid',postcode:29506 },{city:'Toledo',postcode: 85964 }}" +
-                                     "]");
-        data5.put("address_list_map","[" +
+                                     "}");
+        data5.put("address_set_map", "{" +
                                      " {'a': {city:'Barcelona',postcode:28059 },'b': {city:'San Sebastian',postcode:29506 },'c': {city:'Valencia',postcode: 85964 }}," +
                                      " {'d': {city:'Oviedo',postcode:28059 },'e': {city:'Madrid',postcode:29506 },'f': {city:'Salamanca',postcode: 85964 }}," +
                                      " {'g': {city:'Aviles',postcode:28059 },'h': {city:'Madrid',postcode:29506 },'i': {city:'Toledo',postcode: 85964 }}" +
-                                     "]");
-        data5.put("address_set_list","{" +
-                                     " [{city:'Barcelona',postcode:28059 },{city:'Roma',postcode:29506 },{city:'Valencia',postcode: 85964 }]," +
-                                     " [{city:'Oviedo',postcode:28059 },{city:'Salamanca',postcode:29506 },{city:'Jaen',postcode: 85964 }]," +
-                                     " [{city:'Aviles',postcode:28059 },{city:'Tarragona',postcode:29506 },{city:'Toledo',postcode: 85964 }]" +
                                      "}");
-        data5.put("address_set_set","{" +
-                                    " {{city:'Valladolid',postcode:28059 },{city:'Roma',postcode:29506 },{city:'Valencia',postcode: 85964 }}," +
-                                    " {{city:'Salamanca',postcode:28059 },{city:'Madrid',postcode:29506 },{city:'Jaen',postcode: 85964 }}," +
-                                    " {{city:'Aviles',postcode:28059 },{city:'Madrid',postcode:29506 },{city:'Toledo',postcode: 85964 }}" +
-                                    "}");
-        data5.put("address_set_map","{" +
-                                    " {'a': {city:'Barcelona',postcode:28059 },'b': {city:'San Sebastian',postcode:29506 },'c': {city:'Valencia',postcode: 85964 }}," +
-                                    " {'d': {city:'Oviedo',postcode:28059 },'e': {city:'Madrid',postcode:29506 },'f': {city:'Salamanca',postcode: 85964 }}," +
-                                    " {'g': {city:'Aviles',postcode:28059 },'h': {city:'Madrid',postcode:29506 },'i': {city:'Toledo',postcode: 85964 }}" +
-                                    "}");
 
-        Map<String,String> data6= new HashMap<>();
-        data6.put("login","'USER6'");
-        data6.put("numbers","[4,10,15]");
-        data6.put("number_set","{4,10,15}");
-        data6.put("number_map","{'k':1,'d':2}");
-        data6.put("address","[{city:'Bilbao',postcode:270548 },{city:'Venecia',postcode:28756 },{city:'Barcelona',postcode:28059 }]");
-        data6.put("address_set","{{city:'Bilbao',postcode:270548 },{city:'Venecia',postcode:28756 },{city:'Barcelona',postcode:28059 }}");
-        data6.put("address_map","{'a': {city:'Bilbao',postcode:270548 }," +
-                                " 'b': {city:'Venecia',postcode:28756 }," +
-                                " 'c': {city:'Barcelona',postcode:28059 }}");
-        data6.put("address_list_list","[" +
+        Map<String, String> data6 = new HashMap<>();
+        data6.put("login", "'USER6'");
+        data6.put("numbers", "[4,10,15]");
+        data6.put("number_set", "{4,10,15}");
+        data6.put("number_map", "{'k':1,'d':2}");
+        data6.put("address",
+                  "[{city:'Bilbao',postcode:270548 },{city:'Venecia',postcode:28756 },{city:'Barcelona',postcode:28059 }]");
+        data6.put("address_set",
+                  "{{city:'Bilbao',postcode:270548 },{city:'Venecia',postcode:28756 },{city:'Barcelona',postcode:28059 }}");
+        data6.put("address_map", "{'a': {city:'Bilbao',postcode:270548 }," +
+                                 " 'b': {city:'Venecia',postcode:28756 }," +
+                                 " 'c': {city:'Barcelona',postcode:28059 }}");
+        data6.put("address_list_list", "[" +
+                                       " [{city:'Barcelona',postcode:28059 },{city:'Tarragona',postcode:29506 },{city:'Valencia',postcode: 85964 }]," +
+                                       " [{city:'Oviedo',postcode:28059 },{city:'Madrid',postcode:29506 },{city:'San Sebastian',postcode: 85964 }]," +
+                                       " [{city:'Aviles',postcode:28059 },{city:'Salamanca',postcode:29506 },{city:'Toledo',postcode: 85964 }]" +
+                                       "]");
+        data6.put("address_list_set", "[" +
+                                      " {{city:'Valladolid',postcode:28059 },{city:'Salamanca',postcode:29506 },{city:'Valencia',postcode: 85964 }}," +
+                                      " {{city:'Oviedo',postcode:28059 },{city:'Madrid',postcode:29506 },{city:'Jaen',postcode: 85964 }}," +
+                                      " {{city:'San Sebastian',postcode:28059 },{city:'Madrid',postcode:29506 },{city:'Toledo',postcode: 85964 }}" +
+                                      "]");
+        data6.put("address_list_map", "[" +
+                                      " {'a': {city:'Barcelona',postcode:28059 },'b': {city:'Roma',postcode:29506 },'c': {city:'Valencia',postcode: 85964 }}," +
+                                      " {'d': {city:'Valladolid',postcode:28059 },'e': {city:'Madrid',postcode:29506 },'f': {city:'San Sebastian',postcode: 85964 }}," +
+                                      " {'g': {city:'Salamanca',postcode:28059 },'h': {city:'Madrid',postcode:29506 },'i': {city:'Toledo',postcode: 85964 }}" +
+                                      "]");
+        data6.put("address_set_list", "{" +
                                       " [{city:'Barcelona',postcode:28059 },{city:'Tarragona',postcode:29506 },{city:'Valencia',postcode: 85964 }]," +
                                       " [{city:'Oviedo',postcode:28059 },{city:'Madrid',postcode:29506 },{city:'San Sebastian',postcode: 85964 }]," +
                                       " [{city:'Aviles',postcode:28059 },{city:'Salamanca',postcode:29506 },{city:'Toledo',postcode: 85964 }]" +
-                                      "]");
-        data6.put("address_list_set","[" +
+                                      "}");
+        data6.put("address_set_set", "{" +
                                      " {{city:'Valladolid',postcode:28059 },{city:'Salamanca',postcode:29506 },{city:'Valencia',postcode: 85964 }}," +
                                      " {{city:'Oviedo',postcode:28059 },{city:'Madrid',postcode:29506 },{city:'Jaen',postcode: 85964 }}," +
                                      " {{city:'San Sebastian',postcode:28059 },{city:'Madrid',postcode:29506 },{city:'Toledo',postcode: 85964 }}" +
-                                     "]");
-        data6.put("address_list_map","[" +
+                                     "}");
+        data6.put("address_set_map", "{" +
                                      " {'a': {city:'Barcelona',postcode:28059 },'b': {city:'Roma',postcode:29506 },'c': {city:'Valencia',postcode: 85964 }}," +
                                      " {'d': {city:'Valladolid',postcode:28059 },'e': {city:'Madrid',postcode:29506 },'f': {city:'San Sebastian',postcode: 85964 }}," +
                                      " {'g': {city:'Salamanca',postcode:28059 },'h': {city:'Madrid',postcode:29506 },'i': {city:'Toledo',postcode: 85964 }}" +
-                                     "]");
-        data6.put("address_set_list","{" +
-                                     " [{city:'Barcelona',postcode:28059 },{city:'Tarragona',postcode:29506 },{city:'Valencia',postcode: 85964 }]," +
-                                     " [{city:'Oviedo',postcode:28059 },{city:'Madrid',postcode:29506 },{city:'San Sebastian',postcode: 85964 }]," +
-                                     " [{city:'Aviles',postcode:28059 },{city:'Salamanca',postcode:29506 },{city:'Toledo',postcode: 85964 }]" +
                                      "}");
-        data6.put("address_set_set","{" +
-                                    " {{city:'Valladolid',postcode:28059 },{city:'Salamanca',postcode:29506 },{city:'Valencia',postcode: 85964 }}," +
-                                    " {{city:'Oviedo',postcode:28059 },{city:'Madrid',postcode:29506 },{city:'Jaen',postcode: 85964 }}," +
-                                    " {{city:'San Sebastian',postcode:28059 },{city:'Madrid',postcode:29506 },{city:'Toledo',postcode: 85964 }}" +
-                                    "}");
-        data6.put("address_set_map","{" +
-                                    " {'a': {city:'Barcelona',postcode:28059 },'b': {city:'Roma',postcode:29506 },'c': {city:'Valencia',postcode: 85964 }}," +
-                                    " {'d': {city:'Valladolid',postcode:28059 },'e': {city:'Madrid',postcode:29506 },'f': {city:'San Sebastian',postcode: 85964 }}," +
-                                    " {'g': {city:'Salamanca',postcode:28059 },'h': {city:'Madrid',postcode:29506 },'i': {city:'Toledo',postcode: 85964 }}" +
-                                    "}");
 
         cassandraUtils.insert(data, data2, data3, data4, data5, data6);
         cassandraUtils.refresh();
-
 
     }
 

@@ -143,7 +143,7 @@ public class IndexServiceWide extends IndexService {
                 builder.add(query, FILTER);
             }
         }
-        logger.debug("PRE-FILTER FOR {} AND {} IS {}" , key, clusteringFilter, builder.build());
+        logger.debug("PRE-FILTER FOR {} AND {} IS {}", key, clusteringFilter, builder.build());
         return builder.build();
     }
 

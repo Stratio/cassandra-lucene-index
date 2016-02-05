@@ -56,9 +56,9 @@ public class BitemporalMapper extends Mapper<BitemporalMapper> {
      * Returns a new {@link BitemporalMapper}.
      *
      * @param vtFrom The column name containing the valid time start.
-     * @param vtTo   The column name containing the valid time stop.
+     * @param vtTo The column name containing the valid time stop.
      * @param ttFrom The column name containing the transaction time start.
-     * @param ttTo   The column name containing the transaction time stop.
+     * @param ttTo The column name containing the transaction time stop.
      */
     @JsonCreator
     public BitemporalMapper(@JsonProperty("vt_from") String vtFrom,

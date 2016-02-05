@@ -18,7 +18,6 @@
 
 package com.stratio.cassandra.lucene.index;
 
-import com.stratio.cassandra.lucene.index.NoIDFSimilarity;
 import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;

@@ -390,11 +390,12 @@ public class BitemporalSearchAT extends BaseAT {
             tearDown(cu);
         }
     }
+
     //vt_to>vt_from
     @Test(expected = InvalidQueryException.class)
     public void biTemporalQueryWithttToSmallerThanTTFrom() {
         // testing with long value 1456876800 == 2016/03/02 00:00:00
-        Map<String,String> data = new LinkedHashMap<>();
+        Map<String, String> data = new LinkedHashMap<>();
         data.put("id", "5");
         data.put("data", "'v1'");
         data.put("vt_from", "0");
@@ -403,11 +404,12 @@ public class BitemporalSearchAT extends BaseAT {
         data.put("tt_to", "0");
         cassandraUtils.insert(data);
     }
+
     //tt_to<tt_from
     @Test(expected = InvalidQueryException.class)
     public void biTemporalQueryWithVtToSmallerhanVTFrom() {
         // testing with long value 1456876800 == 2016/03/02 00:00:00
-        Map<String,String> data = new LinkedHashMap<>();
+        Map<String, String> data = new LinkedHashMap<>();
         data.put("id", "5");
         data.put("data", "'v1'");
         data.put("vt_from", "9223372036854775807");

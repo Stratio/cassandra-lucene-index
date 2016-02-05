@@ -48,7 +48,6 @@ public class UDTIndexingAT extends BaseAT {
     @BeforeClass
     public static void before() {
 
-
         cassandraUtils = CassandraUtils.builder("udt_indexing")
                                        .withUDT("geo_point", "latitude", "float")
                                        .withUDT("geo_point", "longitude", "float")
@@ -66,180 +65,180 @@ public class UDTIndexingAT extends BaseAT {
                                        .withColumn("last_name", "text")
                                        .withColumn("address", "frozen<address>")
                                        .withPartitionKey("login")
-                                       .withMapper("address.zips",integerMapper())
-                                       .withMapper("address.zips_map",stringMapper())
-                                       .withMapper("address.zips_set",integerMapper())
-                                       .withMapper("address.bool",booleanMapper())
-                                       .withMapper("address.city",stringMapper())
-                                       .withMapper("address.point.latitude",floatMapper())
-                                       .withMapper("address.point.longitude",floatMapper())
+                                       .withMapper("address.zips", integerMapper())
+                                       .withMapper("address.zips_map", stringMapper())
+                                       .withMapper("address.zips_set", integerMapper())
+                                       .withMapper("address.bool", booleanMapper())
+                                       .withMapper("address.city", stringMapper())
+                                       .withMapper("address.point.latitude", floatMapper())
+                                       .withMapper("address.point.longitude", floatMapper())
                                        .build().createKeyspace()
                                        .createUDTs()
                                        .createTable()
                                        .createIndex();
 
-        Map<String,String> data=new HashMap<>();
-        data.put("login","'USER1'");
-        data.put("first_name","'Tom'");
-        data.put("last_name","'Smith'");
-        data.put("address","{" +
-                           "  street: '1021 West 4th St. #202'," +
-                           "  city: 'San Francisco'," +
-                           "  zip: 94110 ," +
-                           "  bool: true," +
-                           "  height:5.4 ," +
-                           "  zips:[ 2,4,6 ]," +
-                           "  zips_map : {" +
-                           "    1 : '1A'," +
-                           "    2 : '2A'," +
-                           "    3 : '3A'" +
-                           "  }," +
-                           "  zips_set : {5,7,9}," +
-                           "  point : {" +
-                           "    latitude : 1.0," +
-                           "    longitude : -1.0" +
-                           "  }" +
-                           "}");
-
-        Map<String,String> data2=new HashMap<>();
-        data2.put("login","'USER2'");
-        data2.put("first_name","'Tom'");
-        data2.put("last_name","'Smith'");
-        data2.put("address","{ " +
-                            "  street: '1021 West 4th St. #202'," +
-                            "  city: 'San Francisco'," +
-                            "  zip: 94110 ," +
-                            "  bool: false," +
-                            "  height:5.4 ," +
-                            "  zips:[ 4,6,8 ]," +
-                            "  zips_map : { " +
-                            "    1 : '1B'," +
-                            "    2 : '2B'," +
-                            "    3 : '3B'" +
-                            "  }," +
-                            "  zips_set : {7,9,11}," +
-                            "  point : {" +
-                            "    latitude : 2.0," +
-                            "    longitude : -2.0" +
-                            "  }  " +
-                            "}");
-
-        Map<String,String> data3=new HashMap<>();
-        data3.put("login","'USER3'");
-        data3.put("first_name","'Tom'");
-        data3.put("last_name","'Smith'");
-        data3.put("address","{ " +
+        Map<String, String> data = new HashMap<>();
+        data.put("login", "'USER1'");
+        data.put("first_name", "'Tom'");
+        data.put("last_name", "'Smith'");
+        data.put("address", "{" +
                             "  street: '1021 West 4th St. #202'," +
                             "  city: 'San Francisco'," +
                             "  zip: 94110 ," +
                             "  bool: true," +
                             "  height:5.4 ," +
-                            "  zips:[ 6,8,10 ]," +
+                            "  zips:[ 2,4,6 ]," +
                             "  zips_map : {" +
                             "    1 : '1A'," +
                             "    2 : '2A'," +
                             "    3 : '3A'" +
                             "  }," +
-                            "  zips_set : {9,11,13}," +
+                            "  zips_set : {5,7,9}," +
                             "  point : {" +
-                            "    latitude : 3.0," +
-                            "    longitude : -3.0" +
-                            "  }  " +
+                            "    latitude : 1.0," +
+                            "    longitude : -1.0" +
+                            "  }" +
                             "}");
 
-        Map<String,String> data4=new HashMap<>();
-        data4.put("login","'USER4'");
-        data4.put("first_name","'Tom'");
-        data4.put("last_name","'Smith'");
-        data4.put("address","{ " +
-                            "  street: '1021 West 4th St. #202'," +
-                            "  city: 'Paris'," +
-                            "  zip: 94110 ," +
-                            "  bool: false," +
-                            "  height:5.4 ," +
-                            "  zips:[ 8,10,12 ]," +
-                            "  zips_map : {" +
-                            "    1 : '1B'," +
-                            "    2 : '2B'," +
-                            "    3 : '3B'" +
-                            "  }," +
-                            "  zips_set : {11,13,15}," +
-                            "  point : {" +
-                            "    latitude : 4.0," +
-                            "    longitude : -4.0" +
-                            "  }  " +
-                            "}");
+        Map<String, String> data2 = new HashMap<>();
+        data2.put("login", "'USER2'");
+        data2.put("first_name", "'Tom'");
+        data2.put("last_name", "'Smith'");
+        data2.put("address", "{ " +
+                             "  street: '1021 West 4th St. #202'," +
+                             "  city: 'San Francisco'," +
+                             "  zip: 94110 ," +
+                             "  bool: false," +
+                             "  height:5.4 ," +
+                             "  zips:[ 4,6,8 ]," +
+                             "  zips_map : { " +
+                             "    1 : '1B'," +
+                             "    2 : '2B'," +
+                             "    3 : '3B'" +
+                             "  }," +
+                             "  zips_set : {7,9,11}," +
+                             "  point : {" +
+                             "    latitude : 2.0," +
+                             "    longitude : -2.0" +
+                             "  }  " +
+                             "}");
 
-        Map<String,String> data5=new HashMap<>();
-        data5.put("login","'USER5'");
-        data5.put("first_name","'Tom'");
-        data5.put("last_name","'Smith'");
-        data5.put("address","{ " +
-                            "  street: '1021 West 4th St. #202'," +
-                            "  city: 'Paris'," +
-                            "  zip: 94110 ," +
-                            "  bool: true," +
-                            "  height:5.4 ," +
-                            "  zips:[ 10,12,14]," +
-                            "  zips_map : {" +
-                            "    1 : '1A'," +
-                            "    2 : '2A'," +
-                            "    3 : '3A'" +
-                            "  }," +
-                            "  zips_set : {13,15,17}," +
-                            "  point : {" +
-                            "    latitude : 5.0," +
-                            "    longitude : -5.0" +
-                            "  }  " +
-                            "}");
+        Map<String, String> data3 = new HashMap<>();
+        data3.put("login", "'USER3'");
+        data3.put("first_name", "'Tom'");
+        data3.put("last_name", "'Smith'");
+        data3.put("address", "{ " +
+                             "  street: '1021 West 4th St. #202'," +
+                             "  city: 'San Francisco'," +
+                             "  zip: 94110 ," +
+                             "  bool: true," +
+                             "  height:5.4 ," +
+                             "  zips:[ 6,8,10 ]," +
+                             "  zips_map : {" +
+                             "    1 : '1A'," +
+                             "    2 : '2A'," +
+                             "    3 : '3A'" +
+                             "  }," +
+                             "  zips_set : {9,11,13}," +
+                             "  point : {" +
+                             "    latitude : 3.0," +
+                             "    longitude : -3.0" +
+                             "  }  " +
+                             "}");
 
-        Map<String,String> data6=new HashMap<>();
-        data6.put("login","'USER6'");
-        data6.put("first_name","'Tom'");
-        data6.put("last_name","'Smith'");
-        data6.put("address","{ " +
-                            "  street: '1021 West 4th St. #202'," +
-                            "  city: 'Paris'," +
-                            "  zip: 94110 ," +
-                            "  bool: false," +
-                            "  height:5.4 ," +
-                            "  zips:[ 12,14,16 ]," +
-                            "  zips_map : {" +
-                            "    1 : '1B'," +
-                            "    2 : '2B'," +
-                            "    3 : '3B'" +
-                            "  }," +
-                            "  zips_set : {15,17,19}," +
-                            "  point : {" +
-                            "    latitude : 6.0," +
-                            "    longitude : -6.0" +
-                            "  }  " +
-                            "}");
+        Map<String, String> data4 = new HashMap<>();
+        data4.put("login", "'USER4'");
+        data4.put("first_name", "'Tom'");
+        data4.put("last_name", "'Smith'");
+        data4.put("address", "{ " +
+                             "  street: '1021 West 4th St. #202'," +
+                             "  city: 'Paris'," +
+                             "  zip: 94110 ," +
+                             "  bool: false," +
+                             "  height:5.4 ," +
+                             "  zips:[ 8,10,12 ]," +
+                             "  zips_map : {" +
+                             "    1 : '1B'," +
+                             "    2 : '2B'," +
+                             "    3 : '3B'" +
+                             "  }," +
+                             "  zips_set : {11,13,15}," +
+                             "  point : {" +
+                             "    latitude : 4.0," +
+                             "    longitude : -4.0" +
+                             "  }  " +
+                             "}");
 
-        Map<String,String> data7=new HashMap<>();
-        data7.put("login","'USER7'");
-        data7.put("first_name","'Tom'");
-        data7.put("last_name","'Smith'");
-        data7.put("address","{ " +
-                            "  street: '1021 West 4th St. #202'," +
-                            "  city: 'Paris'," +
-                            "  zip: 94110 ," +
-                            "  bool: true," +
-                            "  height:5.4 ," +
-                            "  zips:[ 14,16,18 ]," +
-                            "  zips_map : {" +
-                            "    1 : '1A'," +
-                            "    2 : '2A'," +
-                            "    3 : '3A'" +
-                            "  }," +
-                            "  zips_set : {17,19,21}," +
-                            "  point : {" +
-                            "    latitude : 7.0," +
-                            "    longitude : -7.0" +
-                            "  }  " +
-                            "}");
+        Map<String, String> data5 = new HashMap<>();
+        data5.put("login", "'USER5'");
+        data5.put("first_name", "'Tom'");
+        data5.put("last_name", "'Smith'");
+        data5.put("address", "{ " +
+                             "  street: '1021 West 4th St. #202'," +
+                             "  city: 'Paris'," +
+                             "  zip: 94110 ," +
+                             "  bool: true," +
+                             "  height:5.4 ," +
+                             "  zips:[ 10,12,14]," +
+                             "  zips_map : {" +
+                             "    1 : '1A'," +
+                             "    2 : '2A'," +
+                             "    3 : '3A'" +
+                             "  }," +
+                             "  zips_set : {13,15,17}," +
+                             "  point : {" +
+                             "    latitude : 5.0," +
+                             "    longitude : -5.0" +
+                             "  }  " +
+                             "}");
 
-        cassandraUtils.insert(data, data2, data3, data4, data5, data6,data7);
+        Map<String, String> data6 = new HashMap<>();
+        data6.put("login", "'USER6'");
+        data6.put("first_name", "'Tom'");
+        data6.put("last_name", "'Smith'");
+        data6.put("address", "{ " +
+                             "  street: '1021 West 4th St. #202'," +
+                             "  city: 'Paris'," +
+                             "  zip: 94110 ," +
+                             "  bool: false," +
+                             "  height:5.4 ," +
+                             "  zips:[ 12,14,16 ]," +
+                             "  zips_map : {" +
+                             "    1 : '1B'," +
+                             "    2 : '2B'," +
+                             "    3 : '3B'" +
+                             "  }," +
+                             "  zips_set : {15,17,19}," +
+                             "  point : {" +
+                             "    latitude : 6.0," +
+                             "    longitude : -6.0" +
+                             "  }  " +
+                             "}");
+
+        Map<String, String> data7 = new HashMap<>();
+        data7.put("login", "'USER7'");
+        data7.put("first_name", "'Tom'");
+        data7.put("last_name", "'Smith'");
+        data7.put("address", "{ " +
+                             "  street: '1021 West 4th St. #202'," +
+                             "  city: 'Paris'," +
+                             "  zip: 94110 ," +
+                             "  bool: true," +
+                             "  height:5.4 ," +
+                             "  zips:[ 14,16,18 ]," +
+                             "  zips_map : {" +
+                             "    1 : '1A'," +
+                             "    2 : '2A'," +
+                             "    3 : '3A'" +
+                             "  }," +
+                             "  zips_set : {17,19,21}," +
+                             "  point : {" +
+                             "    latitude : 7.0," +
+                             "    longitude : -7.0" +
+                             "  }  " +
+                             "}");
+
+        cassandraUtils.insert(data, data2, data3, data4, data5, data6, data7);
         cassandraUtils.refresh();
 
     }

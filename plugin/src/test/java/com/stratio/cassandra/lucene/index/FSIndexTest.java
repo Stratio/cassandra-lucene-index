@@ -85,14 +85,13 @@ public class FSIndexTest {
         Query query = new WildcardQuery(new Term("field", "value*"));
         Set<String> fields = Sets.newHashSet("field");
 
-
         // Search
         Iterator<Document> iterator;
-//            iterator = index.search( query, sort, null, 1, fields);
-//            assertEquals("Expected 1 document", 1, results.size());
-//            ScoreDoc last3 = results.values().iterator().next();
-//            results = index.search(searcher, query, sort, last3, 1, fields);
-//            assertEquals("Expected 1 document", 1, results.size());
+        //            iterator = index.search( query, sort, null, 1, fields);
+        //            assertEquals("Expected 1 document", 1, results.size());
+        //            ScoreDoc last3 = results.values().iterator().next();
+        //            results = index.search(searcher, query, sort, last3, 1, fields);
+        //            assertEquals("Expected 1 document", 1, results.size());
 
         // Delete by term
         index.delete(term1);

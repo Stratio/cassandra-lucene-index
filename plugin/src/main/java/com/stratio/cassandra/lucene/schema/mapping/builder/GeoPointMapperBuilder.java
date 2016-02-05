@@ -41,6 +41,14 @@ public class GeoPointMapperBuilder extends MapperBuilder<GeoPointMapper, GeoPoin
     @JsonProperty("max_levels")
     private Integer maxLevels;
 
+    /** The name of the column containing the longitude. */
+    @JsonProperty("indexed")
+    private Boolean indexed;
+
+    /** The maximum number of levels in the tree. */
+    @JsonProperty("sorted")
+    private Boolean sorted;
+
     /**
      * Builds a new {@link GeoPointMapper}.
      *
@@ -66,6 +74,30 @@ public class GeoPointMapperBuilder extends MapperBuilder<GeoPointMapper, GeoPoin
     }
 
     /**
+     * Sets if the field supports searching.
+     *
+     * @param indexed if the field supports searching.
+     * @return This.
+     */
+    @SuppressWarnings("unchecked")
+    public final GeoPointMapperBuilder indexed(Boolean indexed) {
+        this.indexed = indexed;
+        return this;
+    }
+
+    /**
+     * Sets if the field supports sorting.
+     *
+     * @param sorted if the field supports sorting.
+     * @return This.
+     */
+    @SuppressWarnings("unchecked")
+    public final GeoPointMapperBuilder sorted(Boolean sorted) {
+        this.sorted = sorted;
+        return this;
+    }
+
+    /**
      * Returns the {@link GeoPointMapper} represented by this {@link MapperBuilder}.
      *
      * @param field The name of the field to be built.
@@ -73,6 +105,6 @@ public class GeoPointMapperBuilder extends MapperBuilder<GeoPointMapper, GeoPoin
      */
     @Override
     public GeoPointMapper build(String field) {
-        return new GeoPointMapper(field, validated, latitude, longitude, maxLevels);
+        return new GeoPointMapper(field, indexed, sorted, validated, latitude, longitude, maxLevels);
     }
 }

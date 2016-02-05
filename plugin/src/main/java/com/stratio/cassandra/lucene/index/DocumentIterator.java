@@ -66,6 +66,7 @@ public class DocumentIterator implements CloseableIterator<Document> {
             TimeCounter time = TimeCounter.create().start();
 
             // Search for top documents
+            sort = sort.rewrite(searcher);
             TopDocs topDocs = searcher.searchAfter(after, query, page, sort);
             ScoreDoc[] scoreDocs = topDocs.scoreDocs;
 

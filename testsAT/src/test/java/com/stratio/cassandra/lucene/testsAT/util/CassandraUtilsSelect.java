@@ -28,7 +28,6 @@ import com.stratio.cassandra.lucene.builder.Builder;
 import com.stratio.cassandra.lucene.builder.search.Search;
 import com.stratio.cassandra.lucene.builder.search.condition.Condition;
 import com.stratio.cassandra.lucene.builder.search.sort.SortField;
-import com.sun.tools.internal.ws.util.WSDLFetcher;
 
 import java.util.Arrays;
 import java.util.LinkedList;

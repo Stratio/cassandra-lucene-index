@@ -25,7 +25,8 @@ import com.stratio.cassandra.lucene.builder.index.schema.analysis.SnowballAnalyz
 import com.stratio.cassandra.lucene.builder.index.schema.mapping.*;
 import com.stratio.cassandra.lucene.builder.search.Search;
 import com.stratio.cassandra.lucene.builder.search.condition.*;
-import com.stratio.cassandra.lucene.builder.search.sort.SortField;
+import com.stratio.cassandra.lucene.builder.search.sort.GeoDistanceSortField;
+import com.stratio.cassandra.lucene.builder.search.sort.SimpleSortField;
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -77,7 +78,7 @@ public abstract class Builder {
     /**
      * Returns a new index creation statement using the session's keyspace.
      *
-     * @param table  The table name.
+     * @param table The table name.
      * @param name The index name.
      * @return A new index creation statement.
      */
@@ -89,8 +90,8 @@ public abstract class Builder {
      * Returns a new index creation statement using the session's keyspace.
      *
      * @param keyspace The keyspace name.
-     * @param table    The table name.
-     * @param name   The index name.
+     * @param table The table name.
+     * @param name The index name.
      * @return A new index creation statement.
      */
     public static Index index(String keyspace, String table, String name) {
@@ -128,9 +129,9 @@ public abstract class Builder {
      * Returns a new {@link BitemporalMapper}.
      *
      * @param vtFrom The column name containing the valid time start.
-     * @param vtTo   The column name containing the valid time stop.
+     * @param vtTo The column name containing the valid time stop.
      * @param ttFrom The column name containing the transaction time start.
-     * @param ttTo   The column name containing the transaction time stop.
+     * @param ttTo The column name containing the transaction time stop.
      * @return A new {@link BitemporalMapper}.
      */
     public static BitemporalMapper bitemporalMapper(String vtFrom, String vtTo, String ttFrom, String ttTo) {
@@ -168,7 +169,7 @@ public abstract class Builder {
      * Returns a new {@link DateRangeMapper}.
      *
      * @param from The column containing the start date.
-     * @param to   The column containing the end date.
+     * @param to The column containing the end date.
      * @return A new {@link DateRangeMapper}.
      */
     public static DateRangeMapper dateRangeMapper(String from, String to) {
@@ -196,7 +197,7 @@ public abstract class Builder {
     /**
      * Returns a new {@link GeoPointMapper}.
      *
-     * @param latitude  The name of the column containing the latitude.
+     * @param latitude The name of the column containing the latitude.
      * @param longitude The name of the column containing the longitude.
      * @return A new {@link GeoPointMapper}.
      */
@@ -272,8 +273,8 @@ public abstract class Builder {
      * Returns a new {@link SnowballAnalyzer} for the specified language and stopwords.
      *
      * @param language The language. The supported languages are English, French, Spanish, Portuguese, Italian,
-     *                 Romanian, German, Dutch, Swedish, Norwegian, Danish, Russian, Finnish, Irish, Hungarian,
-     *                 Turkish, Armenian, Basque and Catalan.
+     * Romanian, German, Dutch, Swedish, Norwegian, Danish, Russian, Finnish, Irish, Hungarian, Turkish, Armenian,
+     * Basque and Catalan.
      * @return A new {@link SnowballAnalyzer}.
      */
     public static SnowballAnalyzer snowballAnalyzer(String language) {
@@ -320,7 +321,7 @@ public abstract class Builder {
     /**
      * Returns a new {@link ContainsCondition}.
      *
-     * @param field  The name of the field to be matched.
+     * @param field The name of the field to be matched.
      * @param values The values of the field to be matched.
      * @return A new {@link ContainsCondition}.
      */
@@ -426,11 +427,11 @@ public abstract class Builder {
     /**
      * Returns a new {@link GeoBBoxCondition} with the specified field name and bounding box coordinates.
      *
-     * @param field        The name of the field to be matched.
+     * @param field The name of the field to be matched.
      * @param minLongitude The minimum accepted longitude.
      * @param maxLongitude The maximum accepted longitude.
-     * @param minLatitude  The minimum accepted latitude.
-     * @param maxLatitude  The maximum accepted latitude.
+     * @param minLatitude The minimum accepted latitude.
+     * @param maxLatitude The maximum accepted latitude.
      * @return A new {@link GeoBBoxCondition}.
      */
     public static GeoBBoxCondition geoBBox(String field,
@@ -444,9 +445,9 @@ public abstract class Builder {
     /**
      * Returns a new {@link GeoDistanceCondition} with the specified field reference point.
      *
-     * @param field       The name of the field to be matched.
-     * @param longitude   The longitude of the reference point.
-     * @param latitude    The latitude of the reference point.
+     * @param field The name of the field to be matched.
+     * @param longitude The longitude of the reference point.
+     * @param latitude The latitude of the reference point.
      * @param maxDistance The max allowed distance.
      * @return A new {@link GeoDistanceCondition}.
      */
@@ -468,12 +469,24 @@ public abstract class Builder {
     }
 
     /**
-     * Returns a new {@link SortField} for the specified field.
+     * Returns a new {@link SimpleSortField} for the specified field.
      *
      * @param field The name of the field to be sorted.
-     * @return A new {@link SortField} for the specified field.
+     * @return A new {@link SimpleSortField} for the specified field.
      */
-    public static SortField field(String field) {
-        return new SortField(field);
+    public static SimpleSortField field(String field) {
+        return new SimpleSortField(field);
+    }
+
+    /**
+     * Returns a new {@link GeoDistanceSortField} for the specified field.
+     *
+     * @param mapper The name of the field to be used for sort.
+     * @param longitude The longitude in degrees of the point to min distance sort by.
+     * @param latitude The latitude in degrees of the point to min distance sort by.
+     * @return A new {@link GeoDistanceSortField} for the specified field.
+     */
+    public static GeoDistanceSortField geoDistanceSortField(String mapper, double longitude, double latitude) {
+        return new GeoDistanceSortField(mapper, longitude, latitude);
     }
 }

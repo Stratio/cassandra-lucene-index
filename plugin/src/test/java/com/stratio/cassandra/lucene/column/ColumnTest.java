@@ -24,7 +24,7 @@ import org.junit.Test;
 
 import java.nio.ByteBuffer;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}

@@ -38,7 +38,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.bitemporalMapper;
-import static org.apache.cassandra.config.ColumnDefinition.regularDef;
 import static org.junit.Assert.*;
 
 /**
