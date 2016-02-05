@@ -180,8 +180,8 @@ public class Search {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-                          .add("queryCondition", query)
-                          .add("filterCondition", filter)
+                          .add("query", query)
+                          .add("filter", filter)
                           .add("sort", sort)
                           .toString();
     }

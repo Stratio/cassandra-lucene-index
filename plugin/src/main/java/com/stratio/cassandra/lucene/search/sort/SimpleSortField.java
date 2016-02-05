@@ -18,7 +18,7 @@
 
 package com.stratio.cassandra.lucene.search.sort;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.column.Column;
 import com.stratio.cassandra.lucene.column.Columns;
@@ -118,7 +118,7 @@ public class SimpleSortField extends SortField {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("field", field).add("reverse", reverse).toString();
+        return MoreObjects.toStringHelper(this).add("field", field).add("reverse", reverse).toString();
     }
 
     /** {@inheritDoc} */

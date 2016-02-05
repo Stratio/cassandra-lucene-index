@@ -18,7 +18,7 @@
 
 package com.stratio.cassandra.lucene.search.sort;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.shape.Point;
 import com.stratio.cassandra.lucene.IndexException;
@@ -143,7 +143,7 @@ public class GeoDistanceSortField extends SortField {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
+        return MoreObjects.toStringHelper(this)
                       .add("mapper", this.mapper)
                       .add("reverse", reverse)
                       .add("longitude", longitude)
