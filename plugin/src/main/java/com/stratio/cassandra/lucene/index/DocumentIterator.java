@@ -55,7 +55,6 @@ public class DocumentIterator implements CloseableIterator<Document> {
         this.fields = fields;
         try {
             searcher = manager.acquire();
-            sort.rewrite(searcher);
         } catch (Exception e) {
             throw new IndexException(logger, e, "Error acquiring index searcher");
         }
@@ -65,6 +64,7 @@ public class DocumentIterator implements CloseableIterator<Document> {
         try {
 
             // Search for top documents
+            sort=sort.rewrite(searcher);
             TopDocs topDocs = searcher.searchAfter(after, query, count, sort);
             ScoreDoc[] scoreDocs = topDocs.scoreDocs;
             logger.debug("Get page with {} documents", scoreDocs.length);

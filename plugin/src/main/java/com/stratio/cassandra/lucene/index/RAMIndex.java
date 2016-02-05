@@ -102,6 +102,7 @@ public class RAMIndex {
             indexWriter.commit();
             IndexReader reader = DirectoryReader.open(directory);
             IndexSearcher searcher = new IndexSearcher(reader);
+            sort=sort.rewrite(searcher);
             TopDocs topDocs = searcher.search(query, count, sort);
             ScoreDoc[] scoreDocs = topDocs.scoreDocs;
             List<Document> documents = new ArrayList<>(count);
