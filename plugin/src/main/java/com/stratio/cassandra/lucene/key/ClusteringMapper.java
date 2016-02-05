@@ -214,6 +214,10 @@ public final class ClusteringMapper {
      * @return the Lucene {@link Query} for retrieving documents between {@code start} and {@code stop}
      */
     public Query query(ClusteringPrefix start, ClusteringPrefix stop) {
+        if ((start == null || start.kind() == ClusteringPrefix.Kind.INCL_START_BOUND && start.size() == 0) &&
+            (stop == null || stop.kind() == ClusteringPrefix.Kind.INCL_END_BOUND && stop.size() == 0)) {
+            return null;
+        }
         return new ClusteringQuery(start, stop, this);
     }
 

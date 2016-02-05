@@ -85,6 +85,7 @@ public class Index implements org.apache.cassandra.index.Index {
      * @param indexMetadata the index's metadata
      */
     public Index(ColumnFamilyStore table, IndexMetadata indexMetadata) {
+        logger.debug("Building Lucene index {} {}", table.metadata, indexMetadata);
         this.table = table;
         this.indexMetadata = indexMetadata;
         try {
@@ -93,17 +94,6 @@ public class Index implements org.apache.cassandra.index.Index {
             throw new IndexException(e);
         }
         name = service.qualifiedName;
-    }
-
-    /**
-     * Validates the specified index options.
-     *
-     * @param options the options to be validated
-     * @return the validated options
-     * @throws ConfigurationException if the options are not valid
-     */
-    public static Map<String, String> validateOptions(Map<String, String> options) throws ConfigurationException {
-        return validateOptions(options, null);
     }
 
     /**
@@ -174,9 +164,9 @@ public class Index implements org.apache.cassandra.index.Index {
      * @return task to be executed by the index manager during a reload
      */
     @Override
-    public Callable<?> getMetadataReloadTask(IndexMetadata indexMetadata) {
+    public Callable<?> getMetadataReloadTask(IndexMetadata indexMetadata) { // TODO: Check rebuild
         return () -> {
-            logger.debug("Reloading Lucene index {} metadata", name);
+            logger.debug("Reloading Lucene index {} metadata: {}", name, indexMetadata);
             return null;
         };
     }
@@ -284,7 +274,7 @@ public class Index implements org.apache.cassandra.index.Index {
     @Override
     public boolean dependsOn(ColumnDefinition column) {
         logger.debug("Asking if it depends on column {}", column);
-        return true;
+        return true; // TODO: Check if it should return true only for key and/or mapped columns
     }
 
     /**

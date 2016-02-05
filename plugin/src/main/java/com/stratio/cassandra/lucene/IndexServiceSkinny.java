@@ -21,6 +21,7 @@ package com.stratio.cassandra.lucene;
 import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.index.DocumentIterator;
 import org.apache.cassandra.db.*;
+import org.apache.cassandra.db.filter.ClusteringIndexFilter;
 import org.apache.cassandra.db.rows.Row;
 import org.apache.cassandra.dht.Token;
 import org.apache.cassandra.index.transactions.IndexTransaction;
@@ -29,6 +30,7 @@ import org.apache.cassandra.utils.concurrent.OpOrder;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.TermQuery;
 
 import java.util.Optional;
 
@@ -92,6 +94,12 @@ public class IndexServiceSkinny extends IndexService {
     @Override
     public Term term(Document document) {
         return partitionMapper.term(document);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Query query(DecoratedKey key, ClusteringIndexFilter clusteringFilter) {
+        return new TermQuery(term(key));
     }
 
     /** {@inheritDoc} */

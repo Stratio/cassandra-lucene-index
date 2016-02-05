@@ -42,7 +42,8 @@ public class DecoratedRow implements RowIterator {
     private final Iterator<Row> rows;
 
     /**
-     * Builds a new {@link DecoratedRow} from the current position of the specified {@link RowIterator}.
+     * Builds a new {@link DecoratedRow} from the current position of the specified {@link RowIterator}. Any other rows
+     * in the specified iterator won't be read.
      *
      * @param iterator a {@link Row} iterator
      */

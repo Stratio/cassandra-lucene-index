@@ -23,6 +23,7 @@ import com.stratio.cassandra.lucene.index.DocumentIterator;
 import com.stratio.cassandra.lucene.key.ClusteringMapper;
 import com.stratio.cassandra.lucene.key.KeyMapper;
 import org.apache.cassandra.db.*;
+import org.apache.cassandra.db.filter.ClusteringIndexFilter;
 import org.apache.cassandra.db.filter.ClusteringIndexSliceFilter;
 import org.apache.cassandra.db.rows.Row;
 import org.apache.cassandra.dht.Token;
@@ -31,10 +32,7 @@ import org.apache.cassandra.schema.IndexMetadata;
 import org.apache.cassandra.utils.concurrent.OpOrder;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.search.BooleanClause;
-import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.QueryWrapperFilter;
+import org.apache.lucene.search.*;
 
 import java.util.Optional;
 
@@ -132,6 +130,25 @@ public class IndexServiceWide extends IndexService {
 
     /** {@inheritDoc} */
     @Override
+    public Query query(DecoratedKey key, ClusteringIndexFilter clusteringFilter) {
+        BooleanQuery.Builder builder = new BooleanQuery.Builder();
+        builder.add(new TermQuery(term(key)), FILTER);
+        if (clusteringFilter instanceof ClusteringIndexSliceFilter) {
+            ClusteringIndexSliceFilter sliceFilter = (ClusteringIndexSliceFilter) clusteringFilter;
+            Slices slices = sliceFilter.requestedSlices();
+            ClusteringPrefix startBound = slices.get(0).start();
+            ClusteringPrefix stopBound = slices.get(slices.size() - 1).end();
+            Query query = clusteringMapper.query(startBound, stopBound);
+            if (query != null) {
+                builder.add(query, FILTER);
+            }
+        }
+        logger.debug("PRE-FILTER FOR {} AND {} IS {}" , key, clusteringFilter, builder.build());
+        return builder.build();
+    }
+
+    /** {@inheritDoc} */
+    @Override
     public Query query(DataRange dataRange) {
 
         PartitionPosition startPosition = dataRange.startKey();
@@ -146,16 +163,16 @@ public class IndexServiceWide extends IndexService {
         ClusteringPrefix startBound = null;
         if (startPosition instanceof DecoratedKey) {
             DecoratedKey key = (DecoratedKey) startPosition;
-            ClusteringIndexSliceFilter cisf = (ClusteringIndexSliceFilter) dataRange.clusteringIndexFilter(key);
-            Slices slices = cisf.requestedSlices();
+            ClusteringIndexSliceFilter sliceFilter = (ClusteringIndexSliceFilter) dataRange.clusteringIndexFilter(key);
+            Slices slices = sliceFilter.requestedSlices();
             startBound = slices.get(0).start();
         }
 
         ClusteringPrefix stopBound = null;
         if (stopPosition instanceof DecoratedKey) {
             DecoratedKey key = (DecoratedKey) stopPosition;
-            ClusteringIndexSliceFilter cisf = (ClusteringIndexSliceFilter) dataRange.clusteringIndexFilter(key);
-            Slices slices = cisf.requestedSlices();
+            ClusteringIndexSliceFilter sliceFilter = (ClusteringIndexSliceFilter) dataRange.clusteringIndexFilter(key);
+            Slices slices = sliceFilter.requestedSlices();
             stopBound = slices.get(slices.size() - 1).end();
         }
 

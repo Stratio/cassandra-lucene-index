@@ -21,7 +21,6 @@ package com.stratio.cassandra.lucene.testsAT.util;
 import com.datastax.driver.core.ConsistencyLevel;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.SimpleStatement;
-import com.datastax.driver.core.Statement;
 import com.datastax.driver.core.querybuilder.Clause;
 import com.datastax.driver.core.querybuilder.QueryBuilder;
 import com.datastax.driver.core.querybuilder.Select;
@@ -29,11 +28,13 @@ import com.stratio.cassandra.lucene.builder.Builder;
 import com.stratio.cassandra.lucene.builder.search.Search;
 import com.stratio.cassandra.lucene.builder.search.condition.Condition;
 import com.stratio.cassandra.lucene.builder.search.sort.SortField;
+import com.sun.tools.internal.ws.util.WSDLFetcher;
 
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import static com.stratio.cassandra.lucene.testsAT.util.CassandraConfig.FETCH;
 import static org.junit.Assert.*;
 
 /**
@@ -169,11 +170,16 @@ public class CassandraUtilsSelect {
             sb.append(" ALLOW FILTERING");
         }
         SimpleStatement statement = new SimpleStatement(sb.toString());
-        if (fetchSize != null) {
-            statement.setFetchSize(fetchSize);
-        }
         if (consistency != null) {
             statement.setConsistencyLevel(consistency);
+        }
+        if (fetchSize != null) {
+            statement.setFetchSize(fetchSize);
+        } else {
+            statement.setFetchSize(FETCH);
+        }
+        if (search != null && search.isTopK()) {
+            statement.setFetchSize(Integer.MAX_VALUE);
         }
         return parent.execute(statement).all();
     }

@@ -29,11 +29,11 @@ import java.util.List;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class DecoratedPartition implements PartitionIterator {
+public class DecoratedRows implements PartitionIterator {
 
     private final Iterator<DecoratedRow> iterator;
 
-    public DecoratedPartition(List<DecoratedRow> rows) {
+    public DecoratedRows(List<DecoratedRow> rows) {
         iterator = rows.iterator();
     }
 

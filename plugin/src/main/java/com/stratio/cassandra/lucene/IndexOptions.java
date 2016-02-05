@@ -24,8 +24,6 @@ import com.stratio.cassandra.lucene.schema.SchemaBuilder;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.db.Directories;
 import org.apache.cassandra.schema.IndexMetadata;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -41,8 +39,6 @@ import java.util.Map;
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class IndexOptions {
-
-    private static final Logger logger = LoggerFactory.getLogger(IndexOptions.class);
 
     public static final String REFRESH_SECONDS_OPTION = "refresh_seconds";
     public static final double DEFAULT_REFRESH_SECONDS = 60;
@@ -97,9 +93,6 @@ public class IndexOptions {
         excludedDataCenters = parseExcludedDataCenters(options);
         path = parsePath(options, tableMetadata, indexMetadata);
         schema = parseSchema(options, tableMetadata);
-        for (Map.Entry entry : options.entrySet()) {
-            logger.debug("BUILDING WITH OPTION {} -> {}", entry.getKey(), entry.getValue());
-        }
     }
 
     /**
@@ -109,9 +102,6 @@ public class IndexOptions {
      * @param tableMetadata the indexed table metadata
      */
     public static void validateOptions(Map<String, String> options, CFMetaData tableMetadata) {
-        for (Map.Entry entry : options.entrySet()) {
-            logger.debug("VALIDATING OPTION {} -> {}", entry.getKey(), entry.getValue());
-        }
         parseRefresh(options);
         parseRamBufferMB(options);
         parseMaxMergeMB(options);
@@ -120,7 +110,7 @@ public class IndexOptions {
         parseIndexingQueuesSize(options);
         parseExcludedDataCenters(options);
         parseSchema(options, tableMetadata);
-        parsePath(options, tableMetadata, null); // TODO: This should be mandatory, check Index#validateOptions
+        parsePath(options, tableMetadata, null);
     }
 
     private static double parseRefresh(Map<String, String> options) {
@@ -240,7 +230,7 @@ public class IndexOptions {
         String pathOption = options.get(DIRECTORY_PATH_OPTION);
         if (pathOption != null) {
             return Paths.get(pathOption);
-        } else if (tableMetadata != null && indexMetadata != null) { // TODO: tableMetadata should be mandatory, check Index#validateOptions
+        } else if (indexMetadata != null) {
             Directories directories = new Directories(tableMetadata);
             String basePath = directories.getDirectoryForNewSSTables().getAbsolutePath();
             return Paths.get(basePath + File.separator + INDEXES_DIR_NAME + File.separator + indexMetadata.name);
@@ -254,9 +244,7 @@ public class IndexOptions {
             Schema schema;
             try {
                 schema = SchemaBuilder.fromJson(schemaOption).build();
-                if (tableMetadata != null) { // TODO: tableMetadata should be mandatory, check Index#validateOptions
-                    schema.validate(tableMetadata);
-                }
+                schema.validate(tableMetadata);
                 return schema;
             } catch (Exception e) {
                 throw new IndexException(e, "'%s' is invalid : %s", SCHEMA_OPTION, e.getMessage());

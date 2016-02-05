@@ -20,8 +20,8 @@ package com.stratio.cassandra.lucene;
 
 import com.stratio.cassandra.lucene.index.DocumentIterator;
 import org.apache.cassandra.db.*;
+import org.apache.cassandra.db.filter.ClusteringIndexFilter;
 import org.apache.cassandra.db.filter.ClusteringIndexNamesFilter;
-import org.apache.cassandra.db.filter.DataLimits;
 import org.apache.cassandra.db.rows.UnfilteredRowIterator;
 import org.apache.lucene.document.Document;
 
@@ -69,21 +69,17 @@ public class IndexReaderWide extends IndexReader {
                 clusterings.add(clustering);
             }
             nextDoc = documents.hasNext() ? documents.next() : null;
+            if (documents.needsFetch()) {
+                break;
+            }
         }
 
         if (clusterings.isEmpty()) {
             return prepareNext();
         }
 
-        ClusteringIndexNamesFilter filter = new ClusteringIndexNamesFilter(clusterings, false);
-        SinglePartitionReadCommand dataCommand = SinglePartitionReadCommand.create(table.metadata,
-                                                                                   command.nowInSec(),
-                                                                                   command.columnFilter(),
-                                                                                   command.rowFilter(),
-                                                                                   DataLimits.NONE,
-                                                                                   key,
-                                                                                   filter);
-        UnfilteredRowIterator data = dataCommand.queryMemtableAndDisk(table, controller);
+        ClusteringIndexFilter filter = new ClusteringIndexNamesFilter(clusterings, false);
+        UnfilteredRowIterator data = read(key, filter);
 
         if (data.isEmpty()) {
             data.close();

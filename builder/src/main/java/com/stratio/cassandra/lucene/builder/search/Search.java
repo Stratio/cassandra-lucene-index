@@ -34,19 +34,19 @@ public class Search extends Builder {
 
     /** The {@link Condition} for querying, maybe {@code null} meaning no querying. */
     @JsonProperty("query")
-    Condition query;
+    public Condition query;
 
     /** The {@link Condition} for filtering, maybe {@code null} meaning no filtering. */
     @JsonProperty("filter")
-    Condition filter;
+    public Condition filter;
 
     /** The {@link Sort} for the query, maybe {@code null} meaning no filtering. */
     @JsonProperty("sort")
-    Sort sort;
+    public Sort sort;
 
     /** If this search must force the refresh the index before reading it. */
     @JsonProperty("refresh")
-    Boolean refresh;
+    public Boolean refresh;
 
     /** Default constructor. */
     public Search() {
@@ -94,6 +94,10 @@ public class Search extends Builder {
     public Search refresh(Boolean refresh) {
         this.refresh = refresh;
         return this;
+    }
+
+    public boolean isTopK() {
+        return query != null || sort != null;
     }
 
 }

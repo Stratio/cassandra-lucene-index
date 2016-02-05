@@ -67,6 +67,10 @@ public class Search {
         this.refresh = refresh == null ? DEFAULT_FORCE_REFRESH : refresh;
     }
 
+    public boolean isTopK() {
+        return usesRelevance() || usesSorting();
+    }
+
     /**
      * Returns {@code true} if this search requires full ranges scan, {code null} otherwise.
      *

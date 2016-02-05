@@ -137,10 +137,11 @@ public final class TokenMapper {
      * @return the query to find the documents containing a token inside the range
      */
     public Query query(Token lower, Token upper, boolean includeLower, boolean includeUpper) {
+        // TODO: Check full ring range
+        // TODO: Check full node range
         Long start = lower == null || lower.isMinimum() ? null : value(lower);
         Long stop = upper == null || upper.isMinimum() ? null : value(upper);
-        Query query = DocValuesRangeQuery.newLongRange(FIELD_NAME, start, stop, includeLower, includeUpper);
-        return new QueryWrapperFilter(query);
+        return DocValuesRangeQuery.newLongRange(FIELD_NAME, start, stop, includeLower, includeUpper);
     }
 
     /**
