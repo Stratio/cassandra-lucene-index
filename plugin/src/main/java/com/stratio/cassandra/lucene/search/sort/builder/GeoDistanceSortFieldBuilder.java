@@ -42,9 +42,9 @@ public class GeoDistanceSortFieldBuilder extends SortFieldBuilder<GeoDistanceSor
     /**
      * Creates a new {@link GeoDistanceSortFieldBuilder} for the specified field.
      *
-     * @param mapper    The name of mapper to use to calculate distance.
+     * @param mapper The name of mapper to use to calculate distance.
      * @param longitude The longitude of the center point to sort by min distance to it.
-     * @param latitude  The latitude of the center point to sort by min distance to it.
+     * @param latitude The latitude of the center point to sort by min distance to it.
      */
     @JsonCreator
     public GeoDistanceSortFieldBuilder(@JsonProperty("mapper") String mapper,

@@ -30,7 +30,10 @@ import org.apache.lucene.document.FieldType;
 import org.apache.lucene.document.LongField;
 import org.apache.lucene.index.DocValuesType;
 import org.apache.lucene.index.IndexOptions;
-import org.apache.lucene.search.*;
+import org.apache.lucene.search.DocValuesRangeQuery;
+import org.apache.lucene.search.NumericRangeQuery;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.SortField;
 
 /**
  * Class for several token mappings between Cassandra and Lucene.

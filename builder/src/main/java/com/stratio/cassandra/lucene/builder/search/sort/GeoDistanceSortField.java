@@ -43,9 +43,9 @@ public class GeoDistanceSortField extends SortField {
     /**
      * Creates a new {@link GeoDistanceSortField} for the specified field and reverse option.
      *
-     * @param mapper    The name of the field to be used for sort.
+     * @param mapper The name of the field to be used for sort.
      * @param longitude The longitude in degrees of the point to min distance sort by.
-     * @param latitude  The latitude in degrees of the point to min distance sort by.
+     * @param latitude The latitude in degrees of the point to min distance sort by.
      */
     @JsonCreator
     public GeoDistanceSortField(@JsonProperty("mapper") String mapper,

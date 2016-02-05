@@ -38,7 +38,7 @@ public class SimpleSortFieldBuilder extends SortFieldBuilder<SimpleSortField, Si
      */
     @JsonCreator
     public SimpleSortFieldBuilder(@JsonProperty("field") String field) {
-        this.field=field;
+        this.field = field;
     }
 
     /** {@inheritDoc} */

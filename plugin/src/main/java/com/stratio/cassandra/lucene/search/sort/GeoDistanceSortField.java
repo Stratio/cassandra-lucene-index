@@ -49,7 +49,7 @@ public class GeoDistanceSortField extends SortField {
     /**
      * Returns a new {@link SortField}.
      *
-     * @param mapper  The name of mapper to use to calculate distance.
+     * @param mapper The name of mapper to use to calculate distance.
      * @param reverse {@code true} if natural order should be reversed.
      */
     public GeoDistanceSortField(String mapper, Boolean reverse, double longitude, double latitude) {
@@ -144,11 +144,11 @@ public class GeoDistanceSortField extends SortField {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-                      .add("mapper", this.mapper)
-                      .add("reverse", reverse)
-                      .add("longitude", longitude)
-                      .add("latitude", latitude)
-                      .toString();
+                          .add("mapper", this.mapper)
+                          .add("reverse", reverse)
+                          .add("longitude", longitude)
+                          .add("latitude", latitude)
+                          .toString();
     }
 
     /** {@inheritDoc} */
@@ -178,7 +178,9 @@ public class GeoDistanceSortField extends SortField {
     }
 
     private Double distance(Double oLon, Double oLat) {
-        if ((oLon == null) || (oLat == null)) return null;
+        if ((oLon == null) || (oLat == null)) {
+            return null;
+        }
         return DistanceUtils.distHaversineRAD(DistanceUtils.toRadians(latitude),
                                               DistanceUtils.toRadians(longitude),
                                               DistanceUtils.toRadians(oLat),

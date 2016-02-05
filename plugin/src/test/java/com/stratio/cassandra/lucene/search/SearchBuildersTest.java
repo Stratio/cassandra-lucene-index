@@ -18,15 +18,7 @@
 
 package com.stratio.cassandra.lucene.search;
 
-import com.stratio.cassandra.lucene.search.condition.BooleanCondition;
-import com.stratio.cassandra.lucene.search.condition.FuzzyCondition;
-import com.stratio.cassandra.lucene.search.condition.LuceneCondition;
-import com.stratio.cassandra.lucene.search.condition.MatchCondition;
-import com.stratio.cassandra.lucene.search.condition.PhraseCondition;
-import com.stratio.cassandra.lucene.search.condition.PrefixCondition;
-import com.stratio.cassandra.lucene.search.condition.RangeCondition;
-import com.stratio.cassandra.lucene.search.condition.RegexpCondition;
-import com.stratio.cassandra.lucene.search.condition.WildcardCondition;
+import com.stratio.cassandra.lucene.search.condition.*;
 import com.stratio.cassandra.lucene.search.condition.builder.*;
 import com.stratio.cassandra.lucene.search.sort.SimpleSortField;
 import com.stratio.cassandra.lucene.search.sort.builder.SimpleSortFieldBuilder;
@@ -150,35 +142,37 @@ public class SearchBuildersTest {
         SearchBuilder builder = sort(field("field"));
         assertNotNull("Condition builder is not built", builder);
         Search search = builder.build();
-        assertEquals("Field is not set", "field", ((SimpleSortField)search.getSort().getSortFields().iterator().next()).field);
+        assertEquals("Field is not set",
+                     "field",
+                     ((SimpleSortField) search.getSort().getSortFields().iterator().next()).field);
     }
-// TODO: Fix tests
-//    @Test
-//    public void testQuery() throws IOException {
-//        SearchBuilder builder = query(all());
-//        assertNotNull("Condition builder is not built", builder);
-//        Search search = builder.build();
-//        Schema schema = schema().build();
-//        assertEquals("Query type is wrong", MatchAllDocsQuery.class, search.query(schema).getClass());
-//        assertNull("Filter must be null", search.filter(schema));
-//    }
-//
-//    @Test
-//    public void testFilter() throws IOException {
-//        SearchBuilder builder = filter(all());
-//        assertNotNull("Condition builder is not built", builder);
-//        Search search = builder.build();
-//        Schema schema = schema().build();
-//        assertNull("Query type is not built", search.query(schema));
-//        assertEquals("Query type is wrong", MatchAllDocsQuery.class, search.filter(schema).getClass());
-//    }
-//
-//    @Test
-//    public void testSearch() throws IOException {
-//        SearchBuilder builder = search();
-//        Search search = builder.build();
-//        Schema schema = schema().build();
-//        assertNull("Query must be null", search.query(schema));
-//        assertNull("Filter must be null", search.filter(schema));
-//    }
+    // TODO: Fix tests
+    //    @Test
+    //    public void testQuery() throws IOException {
+    //        SearchBuilder builder = query(all());
+    //        assertNotNull("Condition builder is not built", builder);
+    //        Search search = builder.build();
+    //        Schema schema = schema().build();
+    //        assertEquals("Query type is wrong", MatchAllDocsQuery.class, search.query(schema).getClass());
+    //        assertNull("Filter must be null", search.filter(schema));
+    //    }
+    //
+    //    @Test
+    //    public void testFilter() throws IOException {
+    //        SearchBuilder builder = filter(all());
+    //        assertNotNull("Condition builder is not built", builder);
+    //        Search search = builder.build();
+    //        Schema schema = schema().build();
+    //        assertNull("Query type is not built", search.query(schema));
+    //        assertEquals("Query type is wrong", MatchAllDocsQuery.class, search.filter(schema).getClass());
+    //    }
+    //
+    //    @Test
+    //    public void testSearch() throws IOException {
+    //        SearchBuilder builder = search();
+    //        Search search = builder.build();
+    //        Schema schema = schema().build();
+    //        assertNull("Query must be null", search.query(schema));
+    //        assertNull("Filter must be null", search.filter(schema));
+    //    }
 }

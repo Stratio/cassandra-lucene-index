@@ -71,13 +71,19 @@ public class GeoPointMapper extends Mapper {
     /**
      * Builds a new {@link GeoPointMapper}.
      *
-     * @param field     The name of the field.
+     * @param field The name of the field.
      * @param validated If the field must be validated.
-     * @param latitude  The name of the column containing the latitude.
+     * @param latitude The name of the column containing the latitude.
      * @param longitude The name of the column containing the longitude.
      * @param maxLevels The maximum number of levels in the tree.
      */
-    public GeoPointMapper(String field, Boolean indexed, Boolean sorted,Boolean validated, String latitude, String longitude, Integer maxLevels) {
+    public GeoPointMapper(String field,
+                          Boolean indexed,
+                          Boolean sorted,
+                          Boolean validated,
+                          String latitude,
+                          String longitude,
+                          Integer maxLevels) {
         super(field,
               indexed,
               sorted,
@@ -177,7 +183,7 @@ public class GeoPointMapper extends Mapper {
         }
 
         if (sorted) {
-            document.add(new StoredField(distanceStrategy.getFieldName(), point.getX()+" "+point.getY()));
+            document.add(new StoredField(distanceStrategy.getFieldName(), point.getX() + " " + point.getY()));
         }
     }
 

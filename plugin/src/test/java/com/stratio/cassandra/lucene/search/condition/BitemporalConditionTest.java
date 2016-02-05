@@ -24,7 +24,6 @@ import com.stratio.cassandra.lucene.schema.mapping.builder.MapperBuilder;
 import com.stratio.cassandra.lucene.search.condition.builder.BitemporalConditionBuilder;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.spatial.query.SpatialOperation;
 import org.junit.Test;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
@@ -101,9 +100,9 @@ public class BitemporalConditionTest extends AbstractConditionTest {
     public void testQuery() {
 
         MapperBuilder<?, ?> mapperBuilder = bitemporalMapper("vtFrom",
-                                                          "vtTo",
-                                                          "ttFrom",
-                                                          "ttTo").pattern(TIMESTAMP_PATTERN);
+                                                             "vtTo",
+                                                             "ttFrom",
+                                                             "ttTo").pattern(TIMESTAMP_PATTERN);
         Schema schema = schema().mapper("name", mapperBuilder).build();
         BitemporalCondition condition = new BitemporalCondition(0.5f, "name", 1, 2, 3, 4);
 

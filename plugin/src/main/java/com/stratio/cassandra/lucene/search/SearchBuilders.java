@@ -18,9 +18,10 @@
 
 package com.stratio.cassandra.lucene.search;
 
-import com.stratio.cassandra.lucene.search.condition.GeoDistanceCondition;
 import com.stratio.cassandra.lucene.search.condition.builder.*;
-import com.stratio.cassandra.lucene.search.sort.builder.*;
+import com.stratio.cassandra.lucene.search.sort.builder.GeoDistanceSortFieldBuilder;
+import com.stratio.cassandra.lucene.search.sort.builder.SimpleSortFieldBuilder;
+import com.stratio.cassandra.lucene.search.sort.builder.SortFieldBuilder;
 
 /**
  * Factory for {@link SearchBuilder} and {@link ConditionBuilder}s.
@@ -239,17 +240,16 @@ public final class SearchBuilders {
         return new SimpleSortFieldBuilder(field);
     }
 
-
     /**
      * Returns a new {@link SimpleSortFieldBuilder} for the specified field.
      *
-     * @param mapper    The name of mapper to use to calculate distance.
+     * @param mapper The name of mapper to use to calculate distance.
      * @param longitude The longitude of the center point to sort by min distance to it.
-     * @param latitude  The latitude of the center point to sort by min distance to it.
+     * @param latitude The latitude of the center point to sort by min distance to it.
      * @return A new {@link SimpleSortFieldBuilder} for the specified field.
      */
-    public static GeoDistanceSortFieldBuilder  geoDistanceSortField(String mapper, double longitude, double latitude) {
-        return new GeoDistanceSortFieldBuilder(mapper,longitude, latitude);
+    public static GeoDistanceSortFieldBuilder geoDistanceSortField(String mapper, double longitude, double latitude) {
+        return new GeoDistanceSortFieldBuilder(mapper, longitude, latitude);
     }
 
     /**

@@ -99,6 +99,7 @@ public class TupleIndexingAT extends BaseAT {
         cassandraUtils.filter(match("v.2", 1.2)).checkIntColumn("k", 2);
         cassandraUtils.sort(field("v.2")).checkIntColumn("k", 2, 0, 1);
     }
+
     @Test
     public void testSearchGeoPointTuple() {
         TupleType tuple = TupleType.of(ProtocolVersion.NEWEST_SUPPORTED,
@@ -109,24 +110,38 @@ public class TupleIndexingAT extends BaseAT {
                                                       .withColumn("k", "int")
                                                       .withColumn("v", "tuple<float, float>")
                                                       .withPartitionKey("k")
-                                                      .withMapper("geo_point", geoPointMapper("v.0", "v.1").sorted(true).indexed(true))
+                                                      .withMapper("geo_point",
+                                                                  geoPointMapper("v.0", "v.1").sorted(true)
+                                                                                              .indexed(true))
                                                       .build()
                                                       .createKeyspace()
                                                       .createTable()
                                                       .createIndex()
-                                                      .insert(new String[]{"k", "v"}, new Object[]{0, tuple.newValue( 40.442163f, -3.784519f)})
-                                                      .insert(new String[]{"k", "v"}, new Object[]{1, tuple.newValue( 40.575909f, -3.616095f)})
-                                                      .insert(new String[]{"k", "v"}, new Object[]{2, tuple.newValue( 38.947994f, -3.800156f)})
-                                                      .insert(new String[]{"k", "v"}, new Object[]{3, tuple.newValue( 42.546975f, 2.141841f)})
-                                                      .insert(new String[]{"k", "v"}, new Object[]{4, tuple.newValue( 49.791995f, 11.208648f)})
-                                                      .insert(new String[]{"k", "v"}, new Object[]{5, tuple.newValue( 55.337231f, 61.578869f)})
-                                                      .insert(new String[]{"k", "v"}, new Object[]{6, tuple.newValue( 41.453383f, 126.442151f)});
+                                                      .insert(new String[]{"k", "v"},
+                                                              new Object[]{0, tuple.newValue(40.442163f, -3.784519f)})
+                                                      .insert(new String[]{"k", "v"},
+                                                              new Object[]{1, tuple.newValue(40.575909f, -3.616095f)})
+                                                      .insert(new String[]{"k", "v"},
+                                                              new Object[]{2, tuple.newValue(38.947994f, -3.800156f)})
+                                                      .insert(new String[]{"k", "v"},
+                                                              new Object[]{3, tuple.newValue(42.546975f, 2.141841f)})
+                                                      .insert(new String[]{"k", "v"},
+                                                              new Object[]{4, tuple.newValue(49.791995f, 11.208648f)})
+                                                      .insert(new String[]{"k", "v"},
+                                                              new Object[]{5, tuple.newValue(55.337231f, 61.578869f)})
+                                                      .insert(new String[]{"k", "v"},
+                                                              new Object[]{6, tuple.newValue(41.453383f, 126.442151f)});
 
-        Integer[] returnedValues = cassandraUtils.filter(geoDistance("geo_point", -3.784519, 40.442163, "10000km")).refresh(true).sort(
-                geoDistanceSortField("geo_point", -3.784519, 40.442163).reverse(false)).intColumn("k");
+        Integer[] returnedValues = cassandraUtils.filter(geoDistance("geo_point", -3.784519, 40.442163, "10000km"))
+                                                 .refresh(true)
+                                                 .sort(
+                                                         geoDistanceSortField("geo_point",
+                                                                              -3.784519,
+                                                                              40.442163).reverse(false))
+                                                 .intColumn("k");
 
         assertEquals("Expected 7 results!", 7, returnedValues.length);
-        Integer[] expectedValues = new Integer[]{0,1,2,3,4,5,6};
+        Integer[] expectedValues = new Integer[]{0, 1, 2, 3, 4, 5, 6};
         assertArrayEquals("Wrong geoDistance sort!", expectedValues, returnedValues);
 
         cassandraUtils.dropKeyspace();
