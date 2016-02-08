@@ -147,7 +147,10 @@ public final class ColumnsMapper {
             for (int i = 0; i < userType.fieldNames().size(); i++) {
                 String itemName = userType.fieldNameAsString(i);
                 AbstractType<?> itemType = userType.fieldType(i);
-                addColumns(columns, builder.withUDTName(itemName), itemType, values[i]);
+                // this only occurs in UDT not fully composed
+                if (values[i]!=null) {
+                    addColumns(columns, builder.withUDTName(itemName), itemType, values[i]);
+                }
             }
         } else if (type instanceof TupleType) {
             TupleType tupleType = (TupleType) type;

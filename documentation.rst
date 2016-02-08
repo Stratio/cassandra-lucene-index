@@ -1218,7 +1218,7 @@ to specify the order in which the indexed rows will be traversed. When
 simple_sort_field sorting is used, the query scoring is delayed.
 
 Geo_distance_sort_field is use to sort Rows by min distance to point
-indicating the GeoPointMapper to use by mapper field.
+indicating the GeoPointMapper to use by mapper field
 
 Relevance queries must touch all the nodes in the ring in order to find
 the globally best results, so you should prefer filters over queries
@@ -1484,12 +1484,14 @@ So, the system need to update last information from John,and insert the new. Thi
 .. code-block:: sql
 
     BEGIN BATCH
-        UPDATE census SET tt_to = '2015/06/29'
-        WHERE name = 'John' AND vt_from = '2015/01/01' AND tt_from = '2015/01/01'
-        IF tt_to = '2200/12/31';
+        -- This update until when the system believed in this false information
+        UPDATE census SET tt_to = '2015/06/29' WHERE name = 'John' AND vt_from = '2015/01/01' AND tt_from = '2015/01/01' IF tt_to = '2200/12/31';
 
-        INSERT INTO census(name, city, vt_from, vt_to, tt_from, tt_to)
-        VALUES ('John', 'Amsterdam', '2015/03/05', '2200/12/31', '2015/06/30', '2200/12/31');
+        -- Here inserts the new knowledge about the period where john resided in Madrid
+        INSERT INTO census(name, city, vt_from, vt_to, tt_from, tt_to) VALUES ('John', 'Madrid', '2015/01/01', '2015/03/04', '2015/06/30', '2200/12/31');
+
+        -- This inserts the new knowledge about the period where john resides in Amsterdam
+        INSERT INTO census(name, city, vt_from, vt_to, tt_from, tt_to) VALUES ('John', 'Amsterdam', '2015/03/05', '2200/12/31', '2015/06/30', '2200/12/31');
     APPLY BATCH;
 
 Now , we can see the main difference between valid time and transaction time. The system knows from '2015/01/01' to '2015/06/29' that John resides in Madrid from '2015/01/01' until now, and resides in Amsterdam from '2015/03/05' until now.
@@ -1534,8 +1536,38 @@ Using Builder
                                         .from("test","census").where(eq(indexColumn, search.build()));
 
 
+If you want to know what is the last info about where John resides now, you perform a query with tt_from, tt_to, vt_from, vt_to setted to now_value:
 
-If the test case needs to know what the system was thinking at '2015/03/01' about where John resides.
+.. code-block:: sql
+
+    SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM census WHERE
+    lucene='{
+        filter : {
+            type    : "bitemporal",
+            field   : "bitemporal",
+            vt_from : "2200/12/31",
+            vt_to   : "2200/12/31",
+            tt_from : "2200/12/31",
+            tt_to   : "2200/12/31"
+        }
+    }'
+    AND name='John';
+
+Using Builder
+
+.. code-block:: java
+
+    import static com.stratio.cassandra.lucene.builder.Builder.*;
+    (...)
+    String indexColumn = "lucene";
+    Search search = search().filter(bitemporal("bitemporal").ttFrom("2200/12/31").ttTo("2200/12/31")
+                                                            .vtFrom("2200/12/31").vtTo("2200/12/31"));
+    ResultSet rs = session.execute(QueryBuilder
+                                        .select("name", "city", "vt_from", "vt_to", "tt_from", "tt_to")
+                                        .from("test","census").where(eq(indexColumn, search.build()));
+
+
+If the test case needs to know what the system was thinking at '2015/03/01' about where John resides in "2015/03/01".
 
 .. code-block:: sql
 
@@ -1544,6 +1576,8 @@ If the test case needs to know what the system was thinking at '2015/03/01' abou
         filter : {
             type    : "bitemporal",
             field   : "bitemporal",
+            vt_from : "2015/03/01",
+            vt_to   : "2015/03/01",
             tt_from : "2015/03/01",
             tt_to   : "2015/03/01"
         }
@@ -1557,11 +1591,39 @@ Using Builder
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     String indexColumn = "lucene";
-    Search search = search().filter(bitemporal("bitemporal").ttFrom("2015/03/01").ttTo("2015/03/01"));
+    Search search = search().filter(bitemporal("bitemporal").ttFrom("2015/03/01").ttTo("2015/03/01")
+                                                            .vtFrom("2015/03/01").vtTo("2015/03/01"));
     ResultSet rs = session.execute(QueryBuilder
                                     .select("name", "city", "vt_from", "vt_to", "tt_from", "tt_to")
                                     .from("test","census").where(eq(indexColumn, search.build()));
 
+
+If the test case needs to know what the system was thinking at '2015/07/05' about where John resides:
+
+.. code-block:: sql
+
+    SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM census WHERE
+    lucene='{
+        filter : {
+            type    : "bitemporal",
+            field   : "bitemporal",
+            tt_from : "2015/07/05",
+            tt_to   : "2015/07/05"
+        }
+    }'
+    AND name='John';
+
+Using Builder
+
+.. code-block:: java
+
+    import static com.stratio.cassandra.lucene.builder.Builder.*;
+    (...)
+    String indexColumn = "lucene";
+    Search search = search().filter(bitemporal("bitemporal").ttFrom("2015/07/05").ttTo("2015/07/05"));
+    ResultSet rs = session.execute(QueryBuilder
+                                    .select("name", "city", "vt_from", "vt_to", "tt_from", "tt_to")
+                                    .from("test","census").where(eq(indexColumn, search.build()));
 
 
 This code is available in CQL script here: `example_bitemporal.cql </doc/resources/example_bitemporal.cql>`__.
@@ -2044,7 +2106,7 @@ between 0.0 and 10.0, and a longitude between -180.0 and
                                      },
                             sort   : { fields: [
                                         { type      : "geo_distance",
-    					 	              field     : "geo_point",
+    					 	              mapper    : "geo_point",
     					 	              reverse   : false,
                                           latitude  : 0.0,
     					 	              longitude : 0.0}
@@ -2065,7 +2127,6 @@ Using Builder
                                 0.0, 0.0).reverse(false));
     ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users")
                                     .where(eq(indexColumn, search.build()));
-
 
 Geo distance search
 ===================
@@ -2134,11 +2195,11 @@ yards from the geo point (40.225479, -3.999278) sorted by min distance to point 
                                      min_distance : "1yd" },
                             sort   : { fields: [
                                         { type      : "geo_distance",
-    					 	              field     : "geo_point",
+    					 	              mapper    : "geo_point",
     					 	              reverse   : false,
                                           latitude  : 40.225479,
     					 	              longitude : -3.999278}
-                                       ]
+    					 	              ]
                                      }
                         }';
 
@@ -2150,9 +2211,11 @@ Using Builder
     (...)
     String indexColumn = "stratio_col";
     Search search = search().filter(geoDistance("place",-3.999278d,40.225479d,"10yd")
-                                   .minDistance("1yd"))
-                                   .sort(geoDistanceSortField("geo_point",
-                                         -3.999278,40.225479).reverse(false));
+                                    .minDistance("1yd"))
+                            .sort(geoDistanceSortField("geo_point",
+                                -3.999278,40.225479).reverse(false));
+
+                                    ;
     ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users")
                                     .where(eq(indexColumn, search.build()));
 
