@@ -2,6 +2,16 @@
 
 ## 2.2.5.0 (upcoming)
 
+## 2.2.4.2 (9 February 2016)
+
+* Fixed missed bound statements paging handling (fixes top-k issues and improves MapReduce performance)
+
+## 2.2.4.1 (12 January 2016)
+
+* Returns static columns (#70)
+* Fixed UDT bug (#85)
+* Sort by geographical distance
+    
 ## 2.2.4.0 (11 December 2015)
 
 * Upgrade to Apache Cassandra 2.2.4
@@ -32,7 +42,11 @@
 * Fixed default directory path
 * Added query builder module (#50)
 * Add acceptance tests
+<<<<<<< HEAD
  
+=======
+
+>>>>>>> dcbefe0a3a3c684b5931a86e57efe20c522c3001
 ## 2.1.11.0 (27 October 2015)
 
 * Upgrade to Apache Cassandra 2.1.11
@@ -47,7 +61,11 @@
 ## 2.1.9.0 (9 September 2015)
 
 * Upgrade to Apache Cassandra 2.1.9
+<<<<<<< HEAD
  
+=======
+
+>>>>>>> dcbefe0a3a3c684b5931a86e57efe20c522c3001
 ## 2.1.8.5 (9 September 2015)
 
 * Remove problematic logback.xml

@@ -131,10 +131,13 @@ public final class RegularCellsMapper {
             for (int i = 0; i < userType.fieldNames().size(); i++) {
                 String itemName = userType.fieldNameAsString(i);
                 AbstractType<?> itemType = userType.fieldType(i);
-                columns.add(process(columnBuilder.clone().udtName(itemName),
-                                    itemType,
-                                    values[i],
-                                    hasAnyNotFrozenCollectionAsParent));
+                // this only occurs in UDT not fully composed
+                if (values[i]!=null) {
+                    columns.add(process(columnBuilder.clone().udtName(itemName),
+                                        itemType,
+                                        values[i],
+                                        hasAnyNotFrozenCollectionAsParent));
+                }
             }
         } else if (type instanceof TupleType) {
             TupleType tupleType = (TupleType) type;

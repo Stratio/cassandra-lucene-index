@@ -19,6 +19,7 @@
 package com.stratio.cassandra.lucene.search;
 
 import com.stratio.cassandra.lucene.search.condition.builder.*;
+import com.stratio.cassandra.lucene.search.sort.builder.SimpleSortFieldBuilder;
 import com.stratio.cassandra.lucene.search.sort.builder.SortFieldBuilder;
 
 /**
@@ -234,9 +235,12 @@ public final class SearchBuilders {
      * @param field The name of the field to be sorted.
      * @return A new {@link SortFieldBuilder} for the specified field.
      */
-    public static SortFieldBuilder sortField(String field) {
-        return new SortFieldBuilder(field);
+    public static SimpleSortFieldBuilder field(String field) {
+        return new SimpleSortFieldBuilder(field);
     }
+
+
+
 
     /**
      * Returns a new {@link BitemporalConditionBuilder} for the specified field.

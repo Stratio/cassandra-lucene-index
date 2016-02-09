@@ -105,13 +105,17 @@ public class IndexQueryHandler implements QueryHandler {
     public ResultMessage processPrepared(CQLStatement statement, QueryState state, QueryOptions options,
                                          Map<String, ByteBuffer> customPayload)
     throws RequestExecutionException, RequestValidationException {
-        return cqlProcessor.processPrepared(statement, state, options);
+        logger.debug("QH: Hi Im Query Handler receiving query:: processPrepared");
+        QueryProcessor.metrics.preparedStatementsExecuted.inc();
+        return process(statement, state, options, customPayload);
+
     }
 
     @Override
     public ResultMessage processBatch(BatchStatement statement, QueryState state, BatchQueryOptions options,
                                       Map<String, ByteBuffer> customPayload)
     throws RequestExecutionException, RequestValidationException {
+        logger.debug("QH: Hi Im Query Handler receiving query:: processBatch");
         return cqlProcessor.processBatch(statement, state, options);
     }
 
@@ -120,19 +124,26 @@ public class IndexQueryHandler implements QueryHandler {
                                  Map<String, ByteBuffer> customPayload)
     throws RequestExecutionException, RequestValidationException {
 
+        logger.debug("QH: Hi Im Query Handler receiving query:: '"+query+"'");
         ParsedStatement.Prepared p = QueryProcessor.getStatement(query, state.getClientState());
         options.prepare(p.boundNames);
-        CQLStatement prepared = p.statement;
-        if (prepared.getBoundTerms() != options.getValues().size()) {
-            throw new InvalidRequestException("Invalid amount of bind variables");
-        }
-
         if (!state.getClientState().isInternal) {
             QueryProcessor.metrics.regularStatementsExecuted.inc();
         }
 
-        if (prepared instanceof SelectStatement) {
-            SelectStatement select = (SelectStatement) prepared;
+        return process(p.statement, state, options, customPayload);
+
+    }
+    public ResultMessage process(CQLStatement statement, QueryState state, QueryOptions options,
+                                 Map<String, ByteBuffer> customPayload)
+    throws RequestExecutionException, RequestValidationException {
+
+        if (statement.getBoundTerms() != options.getValues().size()) {
+            throw new InvalidRequestException("Invalid amount of bind variables");
+        }
+
+        if (statement instanceof SelectStatement) {
+            SelectStatement select = (SelectStatement) statement;
             List<IndexExpression> expressions = select.getValidatedIndexExpressions(options);
             ColumnFamilyStore cfs = Keyspace.open(select.keyspace()).getColumnFamilyStore(select.columnFamily());
             SecondaryIndexManager secondaryIndexManager = cfs.indexManager;
@@ -151,7 +162,8 @@ public class IndexQueryHandler implements QueryHandler {
             }
         }
 
-        return cqlProcessor.processStatement(prepared, state, options);
+        return cqlProcessor.processStatement(statement, state, options);
+
     }
 
     private ResultMessage process(IndexSearcher searcher,

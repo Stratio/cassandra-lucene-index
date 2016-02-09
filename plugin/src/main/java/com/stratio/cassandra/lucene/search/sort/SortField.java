@@ -18,31 +18,20 @@
 
 package com.stratio.cassandra.lucene.search.sort;
 
-import com.google.common.base.Objects;
-import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
-import com.stratio.cassandra.lucene.schema.mapping.Mapper;
-import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.Comparator;
-
-import static org.apache.lucene.search.SortField.FIELD_SCORE;
 
 /**
  * A sorting for a field of a search.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class SortField {
+public abstract class SortField {
 
     /** The default reverse option. */
     public static final boolean DEFAULT_REVERSE = false;
-
-    /** The name of field to sortFields by. */
-    public final String field;
 
     /** {@code true} if natural order should be reversed. */
     public final boolean reverse;
@@ -50,26 +39,12 @@ public class SortField {
     /**
      * Returns a new {@link SortField}.
      *
-     * @param field   The name of field to sort by.
+
      * @param reverse {@code true} if natural order should be reversed.
      */
-    public SortField(String field, Boolean reverse) {
+    public SortField(Boolean reverse) {
 
-        if (field == null || StringUtils.isBlank(field)) {
-            throw new IndexException("Field name required");
-        }
-
-        this.field = field;
         this.reverse = reverse == null ? DEFAULT_REVERSE : reverse;
-    }
-
-    /**
-     * Returns the name of field to sort by.
-     *
-     * @return The name of field to sort by.
-     */
-    public String getField() {
-        return field;
     }
 
     /**
@@ -87,19 +62,7 @@ public class SortField {
      * @param schema The {@link Schema} to be used.
      * @return the Lucene {@link org.apache.lucene.search.SortField} representing this {@link SortField}.
      */
-    public org.apache.lucene.search.SortField sortField(Schema schema) {
-        if (field.equalsIgnoreCase("score")) {
-            return FIELD_SCORE;
-        }
-        Mapper mapper = schema.getMapper(field);
-        if (mapper == null) {
-            throw new IndexException("No mapper found for sortFields field '%s'", field);
-        } else if (!mapper.sorted) {
-            throw new IndexException("Mapper '%s' is not sorted", mapper.field);
-        } else {
-            return mapper.sortField(field, reverse);
-        }
-    }
+    public abstract org.apache.lucene.search.SortField sortField(Schema schema);
 
     /**
      * Returns a Java {@link Comparator} for {@link Columns} with the same logic as this {@link SortField}.
@@ -107,31 +70,9 @@ public class SortField {
      * @param schema The used {@link Schema}.
      * @return A Java {@link Comparator} for {@link Columns} with the same logic as this {@link SortField}.
      */
-    public Comparator<Columns> comparator(Schema schema) {
-        final SingleColumnMapper mapper = schema.getSingleColumnMapper(field);
-        return new Comparator<Columns>() {
-            public int compare(Columns o1, Columns o2) {
-                return SortField.this.compare(mapper, o1, o2);
-            }
-        };
-    }
+    public abstract Comparator<Columns> comparator(Schema schema);
 
-    protected int compare(SingleColumnMapper mapper, Columns o1, Columns o2) {
 
-        if (o1 == null) {
-            return o2 == null ? 0 : 1;
-        } else if (o2 == null) {
-            return -1;
-        }
-
-        String column = mapper.getColumn();
-        Column<?> column1 = o1.getColumnsByFullName(column).getFirst();
-        Column<?> column2 = o2.getColumnsByFullName(column).getFirst();
-        Comparable base1 = column1 == null ? null : mapper.base(column, column1.getComposedValue());
-        Comparable base2 = column2 == null ? null : mapper.base(column, column2.getComposedValue());
-
-        return compare(base1, base2);
-    }
 
     @SuppressWarnings("unchecked")
     protected int compare(Comparable column1, Comparable column2) {
@@ -148,28 +89,15 @@ public class SortField {
 
     /** {@inheritDoc} */
     @Override
-    public String toString() {
-        return Objects.toStringHelper(this).add("field", field).add("reverse", reverse).toString();
-    }
+    public abstract String toString();
 
     /** {@inheritDoc} */
     @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        SortField sortField = (SortField) o;
-        return reverse == sortField.reverse && field.equals(sortField.field);
-    }
+    public abstract boolean equals(Object o);
 
     /** {@inheritDoc} */
     @Override
-    public int hashCode() {
-        int result = field.hashCode();
-        result = 31 * result + (reverse ? 1 : 0);
-        return result;
-    }
+    public abstract int hashCode();
+
+
 }

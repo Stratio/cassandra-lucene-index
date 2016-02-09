@@ -47,7 +47,7 @@ public class SortTest {
 
     @Test
     public void testBuildDefaults() {
-        SortField sortField = new SortField("field", null);
+        SortField sortField = new SimpleSortField("field", null);
         List<SortField> oneElementList = new ArrayList<>();
         oneElementList.add(sortField);
         Sort sort = new Sort(oneElementList);
@@ -59,8 +59,8 @@ public class SortTest {
 
     @Test
     public void testBuild2() {
-        SortField sortField = new SortField("field", false);
-        SortField sortField2 = new SortField("field_2", true);
+        SimpleSortField sortField = new SimpleSortField("field", false);
+        SimpleSortField sortField2 = new SimpleSortField("field_2", true);
         List<SortField> twoElementList = new ArrayList<>();
         twoElementList.add(sortField);
         twoElementList.add(sortField2);
@@ -73,9 +73,9 @@ public class SortTest {
 
     @Test
     public void testIterator() {
-        SortField sortField = new SortField("field", false);
-        SortField sortField2 = new SortField("field_2", true);
-        SortField sortField3 = new SortField("field_3", true);
+        SimpleSortField sortField = new SimpleSortField("field", false);
+        SimpleSortField sortField2 = new SimpleSortField("field_2", true);
+        SimpleSortField sortField3 = new SimpleSortField("field_3", true);
         List<SortField> sortFields = new ArrayList<>();
         sortFields.add(sortField);
         sortFields.add(sortField2);
@@ -93,9 +93,9 @@ public class SortTest {
     @Test
     public void testComparator() {
 
-        SortField sortField1 = new SortField("field_1", false);
-        SortField sortField2 = new SortField("field_2", false);
-        SortField sortField3 = new SortField("field_3", false);
+        SimpleSortField sortField1 = new SimpleSortField("field_1", false);
+        SimpleSortField sortField2 = new SimpleSortField("field_2", false);
+        SimpleSortField sortField3 = new SimpleSortField("field_3", false);
         List<SortField> sortFields = new ArrayList<>();
         sortFields.add(sortField1);
         sortFields.add(sortField2);

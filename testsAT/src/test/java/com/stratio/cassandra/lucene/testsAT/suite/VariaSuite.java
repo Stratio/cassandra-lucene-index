@@ -27,7 +27,8 @@ import org.junit.runners.Suite.SuiteClasses;
                TokenRangeWithWideRowsMultiPartitionAT.class,
                TokenRangeWithWideRowsMultiClusteringAT.class,
                SearchWithLongWideRowsAT.class,
-               UDFsAT.class})
+               ReadStaticColumnsAT.class,
+               UDFsAT.class,
+               BoundStatementWitTopKQuery.class})
 public class VariaSuite {
-
 }

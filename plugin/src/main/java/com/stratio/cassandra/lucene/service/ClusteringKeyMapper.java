@@ -132,8 +132,13 @@ public final class ClusteringKeyMapper {
      * @return The first clustering key contained in the specified {@link ColumnFamily}.
      */
     public CellName clusteringKey(ColumnFamily columnFamily) {
-        Iterator<Cell> iterator = columnFamily.iterator();
-        return iterator.hasNext() ? clusteringKey(iterator.next().name()) : null;
+        for (Cell aColumnFamily : columnFamily) {
+            CellName cellName = aColumnFamily.name();
+            if (!cellName.isStatic()) {
+                return clusteringKey(cellName);
+            }
+        }
+        return null;
     }
 
     /**
@@ -270,16 +275,30 @@ public final class ClusteringKeyMapper {
      */
     public Map<CellName, ColumnFamily> splitRows(ColumnFamily columnFamily) {
         Map<CellName, ColumnFamily> columnFamilies = new LinkedHashMap<>();
-        for (Cell cell : columnFamily) {
-            CellName cellName = cell.name();
-            CellName clusteringKey = clusteringKey(cellName);
-            ColumnFamily rowColumnFamily = columnFamilies.get(clusteringKey);
-            if (rowColumnFamily == null) {
-                rowColumnFamily = ArrayBackedSortedColumns.factory.create(metadata);
-                columnFamilies.put(clusteringKey, rowColumnFamily);
-            }
-            rowColumnFamily.addColumn(cell);
+        ColumnFamily staticColumns=null;
 
+        if (metadata.hasStaticColumns()) {
+            staticColumns= ArrayBackedSortedColumns.factory.create(metadata);
+            for (Cell cell : columnFamily) {
+                if (cell.name().isStatic()) {
+                    staticColumns.addColumn(cell);
+                }
+            }
+        }
+        for (Cell cell : columnFamily) {
+            if (!cell.name().isStatic()) {
+                CellName cellName = cell.name();
+                CellName clusteringKey = clusteringKey(cellName);
+                ColumnFamily rowColumnFamily = columnFamilies.get(clusteringKey);
+                if (rowColumnFamily == null) {
+                    rowColumnFamily = ArrayBackedSortedColumns.factory.create(metadata);
+                    if (staticColumns != null) {
+                        rowColumnFamily.addAll(staticColumns);
+                    }
+                    columnFamilies.put(clusteringKey, rowColumnFamily);
+                }
+                rowColumnFamily.addColumn(cell);
+            }
         }
         return columnFamilies;
     }
