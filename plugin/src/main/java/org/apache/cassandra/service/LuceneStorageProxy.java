@@ -311,7 +311,7 @@ public class LuceneStorageProxy {
                     if (filteredEndpoints.size() == 1 &&
                         filteredEndpoints.get(0).equals(FBUtilities.getBroadcastAddress())) {
                         StageManager.getStage(Stage.READ)
-                                    .execute(new LocalRangeSliceRunnable(nodeCmd, handler), Tracing.instance.get());
+                                    .execute(new LocalRangeSliceRunnable(nodeCmd, handler));
                     } else {
                         MessageOut<? extends AbstractRangeCommand> message = nodeCmd.createMessage();
                         for (InetAddress endpoint : filteredEndpoints) {
