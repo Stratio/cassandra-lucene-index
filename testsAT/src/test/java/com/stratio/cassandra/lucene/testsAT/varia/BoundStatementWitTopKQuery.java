@@ -47,13 +47,15 @@ public class BoundStatementWitTopKQuery extends AbstractSearchAT {
         sb.append(".");
         sb.append(utils.getTable());
         sb.append(" ");
-        sb.append(" WHERE lucene = ?");
+        sb.append(" WHERE expr(");
+        sb.append(utils.getIndex());
+        sb.append(",?);");
+
         final PreparedStatement stmt = CassandraConnection.session.prepare(sb.toString());
 
         BoundStatement b = stmt.bind();
         //String query=search().query(range("double_1").lower(11).upper(50).includeLower(true).includeUpper(true)).build();
-        b.setString("lucene", query);
-        b.setFetchSize(2);
+        b.setString(0, query);
 
         return utils.execute(b).all();
     }
