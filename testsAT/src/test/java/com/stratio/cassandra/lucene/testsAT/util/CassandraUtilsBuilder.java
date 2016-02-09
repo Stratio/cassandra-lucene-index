@@ -82,6 +82,20 @@ public class CassandraUtilsBuilder {
         return this;
     }
 
+    public CassandraUtilsBuilder withStaticColumn(String name, String type,boolean createMapper) {
+        columns.put(name, type+" static");
+        if (createMapper) {
+            String baseType = type.replaceAll("(.*)(<|,)", "").replace(">", "");
+            SingleColumnMapper<?> mapper = defaultMapper(baseType);
+            if (baseType.equals(type)) {
+                mapper.sorted(true);
+            }
+            mappers.put(name, mapper);
+        }
+        return this;
+    }
+
+
     public CassandraUtilsBuilder withUDT(String column, String field, String type) {
         Map<String, String> udt = udts.get(column);
         if (udt == null) {

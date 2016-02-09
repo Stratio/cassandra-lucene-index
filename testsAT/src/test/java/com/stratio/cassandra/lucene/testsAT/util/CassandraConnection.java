@@ -35,7 +35,7 @@ public class CassandraConnection {
     protected static final Logger logger = BaseAT.logger;
 
     private static Cluster cluster;
-    private static Session session;
+    public static Session session;
     static RateLimiter rateLimiter = RateLimiter.create(100);
 
     public static void connect() {
