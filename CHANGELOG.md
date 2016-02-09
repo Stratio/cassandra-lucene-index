@@ -4,7 +4,7 @@
 
 * Returns static columns (#70)
 * Fixed UDT bug (#85)
-* Sort by geological distance
+* Sort by geographical distance
 
 ## 2.2.4.0 (11 December 2015)
 
