@@ -35,7 +35,7 @@
     <properties>
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
-        <cassandra.version>2.2.4</cassandra.version>
+        <cassandra.version>2.2.5</cassandra.version>
     </properties>
     
     <dependencies>
@@ -46,21 +46,15 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.stratio.cassandra</groupId>
-            <artifactId>cassandra-lucene-index-plugin</artifactId>
-            <version>${project.version}</version>
+            <groupId>com.datastax.cassandra</groupId>
+            <artifactId>cassandra-driver-core</artifactId>
+            <version>2.1.8</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.cassandra</groupId>
             <artifactId>cassandra-all</artifactId>
             <version>${cassandra.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.datastax.cassandra</groupId>
-            <artifactId>cassandra-driver-core</artifactId>
-            <version>2.1.8</version>
             <scope>test</scope>
         </dependency>
         <dependency>
