@@ -1,5 +1,18 @@
 # Changelog
 
+## 3.x (upcoming)
+
+* Upgrade to Apache Cassandra 3.x
+* Remove Sphinx documentation module
+
+## 2.2.5.0 (9 February 2016)
+
+* Upgrade to Apache Cassandra 2.2.5
+
+## 2.2.4.2 (9 February 2016)
+
+* Fixed missed bound statements paging handling (fixes top-k issues and improves MapReduce performance)
+
 ## 2.2.4.1 (12 January 2016)
 
 * Returns static columns (#70)
@@ -29,6 +42,14 @@
 * Add support for CQL UDTs
 * Improve collections support
 * Add support for new CQL types smallint, tinyint and date
+
+## 2.1.13.0 (10 February 2016)
+
+* Upgrade to Apache Cassandra 2.1.13
+ 
+## 2.1.12.0 (11 January 2016)
+
+* Upgrade to Apache Cassandra 2.1.12
  
 ## 2.1.11.1 (18 November 2015)
 
