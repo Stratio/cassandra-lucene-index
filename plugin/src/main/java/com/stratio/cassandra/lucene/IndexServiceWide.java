@@ -164,56 +164,56 @@ public class IndexServiceWide extends IndexService {
             }
         }
 
-        BooleanClause.Occur occur = isSinglePartition ? FILTER : SHOULD;
-        boolean includeStart = tokenMapper.includeStart(startPosition);
-        boolean includeStop = tokenMapper.includeStop(stopPosition);
-
-        ClusteringPrefix startBound = null;
+        ClusteringPrefix startClustering = null;
         if (startPosition instanceof DecoratedKey) {
             DecoratedKey key = (DecoratedKey) startPosition;
             ClusteringIndexSliceFilter filter = (ClusteringIndexSliceFilter) dataRange.clusteringIndexFilter(key);
             Slices slices = filter.requestedSlices();
-            startBound = slices.get(0).start();
+            startClustering = slices.get(0).start();
         }
 
-        ClusteringPrefix stopBound = null;
+        ClusteringPrefix stopClustering = null;
         if (stopPosition instanceof DecoratedKey) {
             DecoratedKey key = (DecoratedKey) stopPosition;
             ClusteringIndexSliceFilter filter = (ClusteringIndexSliceFilter) dataRange.clusteringIndexFilter(key);
             Slices slices = filter.requestedSlices();
-            stopBound = slices.get(slices.size() - 1).end();
+            stopClustering = slices.get(slices.size() - 1).end();
         }
 
-        BooleanQuery.Builder builder = new BooleanQuery.Builder();
-
-        if (startBound != null) {
-            BooleanQuery.Builder b = new BooleanQuery.Builder();
-            b.add(tokenMapper.query(startToken), FILTER);
-            b.add(clusteringMapper.query(startBound, null), FILTER);
-            builder.add(b.build(), occur);
-            includeStart = false;
-        }
-
-        if (stopBound != null) {
-            BooleanQuery.Builder b = new BooleanQuery.Builder();
-            b.add(tokenMapper.query(stopToken), FILTER);
-            b.add(clusteringMapper.query(null, stopBound), FILTER);
-            builder.add(b.build(), occur);
-            includeStop = false;
-        }
-
-        BooleanQuery query = builder.build();
-        if (!isSinglePartition) {
-            Query rangeFilter = tokenMapper.query(startToken, stopToken, includeStart, includeStop);
-            if (rangeFilter != null) {
-                builder.add(rangeFilter, SHOULD);
-                query = builder.build();
+        if (isSinglePartition) {
+            if (startClustering == null && stopClustering == null) {
+                return tokenMapper.query(startToken);
+            } else {
+                BooleanQuery.Builder builder = new BooleanQuery.Builder();
+                builder.add(tokenMapper.query(startToken), FILTER);
+                builder.add(clusteringMapper.query(startClustering, stopClustering), FILTER);
+                return builder.build();
             }
-        } else if (query.clauses().isEmpty()) {
-            return tokenMapper.query(startToken);
+        } else {
+            boolean includeStart = tokenMapper.includeStart(startPosition);
+            boolean includeStop = tokenMapper.includeStop(stopPosition);
+            if (startClustering == null && stopClustering == null) {
+                return tokenMapper.query(startToken, stopToken, includeStart, includeStop);
+            } else {
+                includeStart &= startClustering != null;
+                includeStop &= stopClustering != null;
+                BooleanQuery.Builder builder = new BooleanQuery.Builder();
+                builder.add(tokenMapper.query(startToken, stopToken, includeStart, includeStop), SHOULD);
+                if (startClustering != null) {
+                    BooleanQuery.Builder b = new BooleanQuery.Builder();
+                    b.add(tokenMapper.query(startToken), FILTER);
+                    b.add(clusteringMapper.query(startClustering, null), FILTER);
+                    builder.add(b.build(), SHOULD);
+                }
+                if (stopClustering != null) {
+                    BooleanQuery.Builder b = new BooleanQuery.Builder();
+                    b.add(tokenMapper.query(stopToken), FILTER);
+                    b.add(clusteringMapper.query(null, stopClustering), FILTER);
+                    builder.add(b.build(), SHOULD);
+                }
+                return builder.build();
+            }
         }
-
-        return query.clauses().isEmpty() ? null : new QueryWrapperFilter(query);
     }
 
     /** {@inheritDoc} */
