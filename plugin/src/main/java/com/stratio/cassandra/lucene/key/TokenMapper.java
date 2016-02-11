@@ -30,7 +30,11 @@ import org.apache.lucene.document.FieldType;
 import org.apache.lucene.document.LongField;
 import org.apache.lucene.index.DocValuesType;
 import org.apache.lucene.index.IndexOptions;
+import org.apache.lucene.index.Term;
 import org.apache.lucene.search.*;
+import org.apache.lucene.util.BytesRef;
+import org.apache.lucene.util.BytesRefBuilder;
+import org.apache.lucene.util.NumericUtils;
 
 /**
  * Class for several token mappings between Cassandra and Lucene.
@@ -87,6 +91,19 @@ public final class TokenMapper {
     }
 
     /**
+     * Returns the {@link BytesRef} indexing value of the specified Murmur3 partitioning {@link Token}.
+     *
+     * @param token a Murmur3 token
+     * @return the {@code token}'s indexing value
+     */
+    private static BytesRef bytesRef(Token token) {
+        Long value = value(token);
+        BytesRefBuilder bytesRef = new BytesRefBuilder();
+        NumericUtils.longToPrefixCoded(value, 0, bytesRef);
+        return bytesRef.get();
+    }
+
+    /**
      * Returns a Lucene {@link SortField} for sorting documents/rows according to the partitioner's order.
      *
      * @return a sort field for sorting by token
@@ -139,7 +156,6 @@ public final class TokenMapper {
      * @return the query to find the documents containing {@code token}
      */
     public Query query(Token token) {
-        Long value = value(token);
-        return NumericRangeQuery.newLongRange(FIELD_NAME, value, value, true, true);
+        return new TermQuery(new Term(FIELD_NAME, bytesRef(token)));
     }
 }

@@ -155,13 +155,9 @@ public class IndexServiceWide extends IndexService {
         Token startToken = startPosition.getToken();
         Token stopToken = stopPosition.getToken();
 
-        boolean isSinglePartition = false;
-        if (startToken.compareTo(stopToken) == 0) {
-            if (startToken.isMinimum()) {
-                return null;
-            } else {
-                isSinglePartition = true;
-            }
+        boolean isSinglePartition = startToken.compareTo(stopToken) == 0;
+        if (isSinglePartition && startToken.isMinimum()) {
+            return null;
         }
 
         ClusteringPrefix startClustering = null;
