@@ -53,11 +53,7 @@ public class CassandraConnection {
 
                 cluster = Cluster
                         .builder()
-                        .withPoolingOptions(poolingOptions)
-                        .withSocketOptions(socketOptions)
                         .addContactPoint(HOST)
-                        .withRetryPolicy(DowngradingConsistencyRetryPolicy.INSTANCE)
-                        .withReconnectionPolicy(new ConstantReconnectionPolicy(100L))
                         .build();
 
                 cluster.getConfiguration().getQueryOptions().setConsistencyLevel(CONSISTENCY).setFetchSize(FETCH);

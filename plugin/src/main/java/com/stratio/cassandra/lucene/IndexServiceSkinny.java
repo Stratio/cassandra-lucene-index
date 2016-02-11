@@ -118,8 +118,8 @@ public class IndexServiceSkinny extends IndexService {
     @Override
     public IndexReaderSkinny indexReader(DocumentIterator documents,
                                          ReadCommand command,
-                                         ReadExecutionController controller) {
-        return new IndexReaderSkinny(command, table, controller, documents, this);
+                                         ReadOrderGroup orderGroup) {
+        return new IndexReaderSkinny(command, table, orderGroup, documents, this);
 
     }
 }

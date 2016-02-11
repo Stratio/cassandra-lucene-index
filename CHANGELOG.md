@@ -1,8 +1,8 @@
 # Changelog
 
-## 3.x (upcoming)
+## 3.0.3.0 (upcoming)
 
-* Upgrade to Apache Cassandra 3.x
+* Upgrade to Apache Cassandra 3.0.3
 * Remove Sphinx documentation module
 
 ## 2.2.5.0 (9 February 2016)

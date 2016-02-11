@@ -39,10 +39,10 @@ public class IndexReaderWide extends IndexReader {
 
     public IndexReaderWide(ReadCommand command,
                            ColumnFamilyStore table,
-                           ReadExecutionController controller,
+                           ReadOrderGroup orderGroup,
                            DocumentIterator documents,
                            IndexServiceWide service) {
-        super(command, table, controller, documents);
+        super(command, table, orderGroup, documents);
         this.service = service;
     }
 

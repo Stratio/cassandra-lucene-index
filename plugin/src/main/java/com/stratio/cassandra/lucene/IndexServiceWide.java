@@ -154,24 +154,33 @@ public class IndexServiceWide extends IndexService {
         PartitionPosition stopPosition = dataRange.stopKey();
         Token startToken = startPosition.getToken();
         Token stopToken = stopPosition.getToken();
-        boolean isSameToken = startToken.compareTo(stopToken) == 0 && !startToken.isMinimum();
-        BooleanClause.Occur occur = isSameToken ? FILTER : SHOULD;
+
+        boolean isSinglePartition = false;
+        if (startToken.compareTo(stopToken) == 0) {
+            if (startToken.isMinimum()) {
+                return null;
+            } else {
+                isSinglePartition = true;
+            }
+        }
+
+        BooleanClause.Occur occur = isSinglePartition ? FILTER : SHOULD;
         boolean includeStart = tokenMapper.includeStart(startPosition);
         boolean includeStop = tokenMapper.includeStop(stopPosition);
 
         ClusteringPrefix startBound = null;
         if (startPosition instanceof DecoratedKey) {
             DecoratedKey key = (DecoratedKey) startPosition;
-            ClusteringIndexSliceFilter sliceFilter = (ClusteringIndexSliceFilter) dataRange.clusteringIndexFilter(key);
-            Slices slices = sliceFilter.requestedSlices();
+            ClusteringIndexSliceFilter filter = (ClusteringIndexSliceFilter) dataRange.clusteringIndexFilter(key);
+            Slices slices = filter.requestedSlices();
             startBound = slices.get(0).start();
         }
 
         ClusteringPrefix stopBound = null;
         if (stopPosition instanceof DecoratedKey) {
             DecoratedKey key = (DecoratedKey) stopPosition;
-            ClusteringIndexSliceFilter sliceFilter = (ClusteringIndexSliceFilter) dataRange.clusteringIndexFilter(key);
-            Slices slices = sliceFilter.requestedSlices();
+            ClusteringIndexSliceFilter filter = (ClusteringIndexSliceFilter) dataRange.clusteringIndexFilter(key);
+            Slices slices = filter.requestedSlices();
             stopBound = slices.get(slices.size() - 1).end();
         }
 
@@ -194,7 +203,7 @@ public class IndexServiceWide extends IndexService {
         }
 
         BooleanQuery query = builder.build();
-        if (!isSameToken) {
+        if (!isSinglePartition) {
             Query rangeFilter = tokenMapper.query(startToken, stopToken, includeStart, includeStop);
             if (rangeFilter != null) {
                 builder.add(rangeFilter, SHOULD);
@@ -211,8 +220,8 @@ public class IndexServiceWide extends IndexService {
     @Override
     public IndexReaderWide indexReader(DocumentIterator documents,
                                        ReadCommand command,
-                                       ReadExecutionController controller) {
-        return new IndexReaderWide(command, table, controller, documents, this);
+                                       ReadOrderGroup orderGroup) {
+        return new IndexReaderWide(command, table, orderGroup, documents, this);
     }
 
 }

@@ -84,15 +84,15 @@ public class TokenRangeWithSkinnyRowsAT extends BaseAT {
 
     @AfterClass
     public static void after() {
-        cassandraUtils.dropIndex().dropTable().dropKeyspace();
+//        cassandraUtils.dropIndex().dropTable().dropKeyspace();
     }
 
-    @Test
+    @Test //
     public void tokenSearchTest1() {
         cassandraUtils.searchAll().and("AND TOKEN(integer_1, ascii_1) > TOKEN(1, 'ascii')").check(4);
     }
 
-    @Test
+    @Test //
     public void tokenSearchTest2() {
         cassandraUtils.searchAll().and("AND TOKEN(integer_1, ascii_1) >= TOKEN(1, 'ascii')").check(5);
     }

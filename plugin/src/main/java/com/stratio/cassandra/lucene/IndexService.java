@@ -326,7 +326,7 @@ public abstract class IndexService {
             lucene.refresh();
         }
 
-        return (ReadExecutionController executionController) -> read(query, sort, null, command, executionController);
+        return (ReadOrderGroup orderGroup) -> read(query, sort, null, command, orderGroup);
     }
 
     /**
@@ -362,7 +362,7 @@ public abstract class IndexService {
             return query(key, clusteringFilter);
         } else if (command instanceof PartitionRangeReadCommand) {
             DataRange dataRange = ((PartitionRangeReadCommand) command).dataRange();
-            return dataRange.isWrapAround() ? null : query(dataRange);
+            return query(dataRange);
         } else {
             throw new IndexException("Unsupported read command %s", command.getClass());
         }
@@ -443,17 +443,17 @@ public abstract class IndexService {
      * @param sort the Lucene sort
      * @param after the last Lucene doc
      * @param command the Cassandra command
-     * @param controller the Cassandra read execution controller
+     * @param orderGroup the Cassandra read order group
      * @return the local {@link Row}s satisfying the search
      */
     public UnfilteredPartitionIterator read(Query query,
                                             Sort sort,
                                             ScoreDoc after,
                                             ReadCommand command,
-                                            ReadExecutionController controller) {
+                                            ReadOrderGroup orderGroup) {
         int limit = command.limits().count();
         DocumentIterator documents = lucene.search(query, sort, after, limit, fieldsToLoad);
-        return indexReader(documents, command, controller);
+        return indexReader(documents, command, orderGroup);
     }
 
     /**
@@ -461,12 +461,12 @@ public abstract class IndexService {
      *
      * @param documents the Lucene documents
      * @param command the Cassandra command
-     * @param controller the Cassandra read execution controller
+     * @param orderGroup the Cassandra read order group
      * @return the local {@link Row}s satisfying the search
      */
     public abstract IndexReader indexReader(DocumentIterator documents,
                                             ReadCommand command,
-                                            ReadExecutionController controller);
+                                            ReadOrderGroup orderGroup);
 
     /**
      * Post processes in the coordinator node the results of a distributed search. Gets the k globally best results from

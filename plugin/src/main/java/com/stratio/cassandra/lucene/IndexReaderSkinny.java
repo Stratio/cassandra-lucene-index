@@ -22,7 +22,7 @@ import com.stratio.cassandra.lucene.index.DocumentIterator;
 import org.apache.cassandra.db.ColumnFamilyStore;
 import org.apache.cassandra.db.DecoratedKey;
 import org.apache.cassandra.db.ReadCommand;
-import org.apache.cassandra.db.ReadExecutionController;
+import org.apache.cassandra.db.ReadOrderGroup;
 import org.apache.cassandra.db.filter.ClusteringIndexFilter;
 import org.apache.cassandra.db.rows.UnfilteredRowIterator;
 
@@ -37,10 +37,10 @@ public class IndexReaderSkinny extends IndexReader {
 
     public IndexReaderSkinny(ReadCommand command,
                              ColumnFamilyStore table,
-                             ReadExecutionController controller,
+                             ReadOrderGroup orderGroup,
                              DocumentIterator documents,
                              IndexServiceSkinny service) {
-        super(command, table, controller, documents);
+        super(command, table, orderGroup, documents);
         this.service = service;
     }
 

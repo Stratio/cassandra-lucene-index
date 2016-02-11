@@ -136,8 +136,7 @@ public class IndexQueryHandler implements QueryHandler {
             }
         }
 
-        ResultMessage result = statement.execute(state, options);
-        return result == null ? new ResultMessage.Void() : result;
+        return execute(statement, state, options);
     }
 
     private ResultMessage process(SelectStatement select,
@@ -172,11 +171,16 @@ public class IndexQueryHandler implements QueryHandler {
             }
 
             // Process
-            return select.execute(state, options);
+            return execute(select, state, options);
 
         } finally {
             logger.debug("Lucene search total time: {}\n", time.stop());
         }
+    }
+
+    public ResultMessage execute(CQLStatement statement, QueryState state, QueryOptions options) {
+        ResultMessage result = statement.execute(state, options);
+        return result == null ? new ResultMessage.Void() : result;
     }
 
 }
