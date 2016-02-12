@@ -24,7 +24,6 @@ import com.stratio.cassandra.lucene.key.ClusteringMapper;
 import com.stratio.cassandra.lucene.key.KeyMapper;
 import org.apache.cassandra.db.*;
 import org.apache.cassandra.db.filter.ClusteringIndexFilter;
-import org.apache.cassandra.db.filter.ClusteringIndexSliceFilter;
 import org.apache.cassandra.db.rows.Row;
 import org.apache.cassandra.dht.Token;
 import org.apache.cassandra.index.transactions.IndexTransaction;
@@ -32,7 +31,8 @@ import org.apache.cassandra.schema.IndexMetadata;
 import org.apache.cassandra.utils.concurrent.OpOrder;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.search.*;
+import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.Query;
 
 import java.util.Optional;
 
@@ -131,18 +131,13 @@ public class IndexServiceWide extends IndexService {
     /** {@inheritDoc} */
     @Override
     public Query query(DecoratedKey key, ClusteringIndexFilter clusteringFilter) {
-        BooleanQuery.Builder builder = new BooleanQuery.Builder();
-        builder.add(new TermQuery(term(key)), FILTER);
-        if (clusteringFilter instanceof ClusteringIndexSliceFilter) {
-            ClusteringIndexSliceFilter sliceFilter = (ClusteringIndexSliceFilter) clusteringFilter;
-            Slices slices = sliceFilter.requestedSlices();
-            ClusteringPrefix startBound = slices.get(0).start();
-            ClusteringPrefix stopBound = slices.get(slices.size() - 1).end();
-            Query query = clusteringMapper.query(startBound, stopBound);
-            if (query != null) {
-                builder.add(query, FILTER);
-            }
+        Query clusteringQuery = clusteringMapper.query(clusteringFilter);
+        if (clusteringQuery == null) {
+            return partitionMapper.query(key);
         }
+        BooleanQuery.Builder builder = new BooleanQuery.Builder();
+        builder.add(partitionMapper.query(key), FILTER);
+        builder.add(clusteringQuery, FILTER);
         return builder.build();
     }
 
@@ -154,62 +149,49 @@ public class IndexServiceWide extends IndexService {
         PartitionPosition stopPosition = dataRange.stopKey();
         Token startToken = startPosition.getToken();
         Token stopToken = stopPosition.getToken();
+        ClusteringPrefix startClustering = clusteringMapper.startClusteringPrefix(dataRange);
+        ClusteringPrefix stopClustering = clusteringMapper.stopClusteringPrefix(dataRange);
 
-        boolean isSinglePartition = startToken.compareTo(stopToken) == 0;
-        if (isSinglePartition && startToken.isMinimum()) {
-            return null;
+        // Full ring and single partition
+        if (startPosition.compareTo(stopPosition) == 0) {
+            return startToken.isMinimum() ? null : query(startPosition, startClustering, stopClustering);
         }
 
-        ClusteringPrefix startClustering = null;
-        if (startPosition instanceof DecoratedKey) {
-            DecoratedKey key = (DecoratedKey) startPosition;
-            ClusteringIndexSliceFilter filter = (ClusteringIndexSliceFilter) dataRange.clusteringIndexFilter(key);
-            Slices slices = filter.requestedSlices();
-            startClustering = slices.get(0).start();
+        // No clustering keys involved
+        if (startClustering == null && stopClustering == null) {
+            return query(startPosition, stopPosition);
         }
 
-        ClusteringPrefix stopClustering = null;
-        if (stopPosition instanceof DecoratedKey) {
-            DecoratedKey key = (DecoratedKey) stopPosition;
-            ClusteringIndexSliceFilter filter = (ClusteringIndexSliceFilter) dataRange.clusteringIndexFilter(key);
-            Slices slices = filter.requestedSlices();
-            stopClustering = slices.get(slices.size() - 1).end();
+        boolean includeStart = tokenMapper.includeStart(startPosition) && startClustering != null;
+        boolean includeStop = tokenMapper.includeStop(stopPosition) && stopClustering != null;
+        BooleanQuery.Builder builder = new BooleanQuery.Builder();
+        builder.add(tokenMapper.query(startToken, stopToken, includeStart, includeStop), SHOULD);
+        if (startClustering != null) {
+            builder.add(query(startPosition, startClustering, null), SHOULD);
         }
+        if (stopClustering != null) {
+            builder.add(query(stopPosition, null, stopClustering), SHOULD);
+        }
+        return builder.build();
+    }
 
-        if (isSinglePartition) {
-            if (startClustering == null && stopClustering == null) {
-                return tokenMapper.query(startToken);
-            } else {
-                BooleanQuery.Builder builder = new BooleanQuery.Builder();
-                builder.add(tokenMapper.query(startToken), FILTER);
-                builder.add(clusteringMapper.query(startClustering, stopClustering), FILTER);
-                return builder.build();
-            }
-        } else {
-            boolean includeStart = tokenMapper.includeStart(startPosition);
-            boolean includeStop = tokenMapper.includeStop(stopPosition);
-            if (startClustering == null && stopClustering == null) {
-                return tokenMapper.query(startToken, stopToken, includeStart, includeStop);
-            } else {
-                includeStart &= startClustering != null;
-                includeStop &= stopClustering != null;
-                BooleanQuery.Builder builder = new BooleanQuery.Builder();
-                builder.add(tokenMapper.query(startToken, stopToken, includeStart, includeStop), SHOULD);
-                if (startClustering != null) {
-                    BooleanQuery.Builder b = new BooleanQuery.Builder();
-                    b.add(tokenMapper.query(startToken), FILTER);
-                    b.add(clusteringMapper.query(startClustering, null), FILTER);
-                    builder.add(b.build(), SHOULD);
-                }
-                if (stopClustering != null) {
-                    BooleanQuery.Builder b = new BooleanQuery.Builder();
-                    b.add(tokenMapper.query(stopToken), FILTER);
-                    b.add(clusteringMapper.query(null, stopClustering), FILTER);
-                    builder.add(b.build(), SHOULD);
-                }
-                return builder.build();
-            }
+    /**
+     * Returns a Lucene {@link Query} for retrieving rows in the specified {@link PartitionPosition} whose clustering
+     * key is inside the specified range of clustering prefixes.
+     *
+     * @param position the partition position
+     * @param start the lower accepted clustering prefix, {@code null} means no lower limit
+     * @param stop the upper accepted clustering prefix, {@code null} means no upper limit
+     * @return the Lucene {@link Query} for retrieving rows in {@code partition} between {@code start} and {@code stop}
+     */
+    private Query query(PartitionPosition position, ClusteringPrefix start, ClusteringPrefix stop) {
+        if (start == null && stop == null) {
+            return query(position);
         }
+        BooleanQuery.Builder builder = new BooleanQuery.Builder();
+        builder.add(query(position), FILTER);
+        builder.add(clusteringMapper.query(start, stop), FILTER);
+        return builder.build();
     }
 
     /** {@inheritDoc} */

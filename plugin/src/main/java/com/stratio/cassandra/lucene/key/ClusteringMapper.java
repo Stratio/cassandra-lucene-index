@@ -23,9 +23,9 @@ import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.util.ByteBufferUtils;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
-import org.apache.cassandra.db.Clustering;
-import org.apache.cassandra.db.ClusteringComparator;
-import org.apache.cassandra.db.ClusteringPrefix;
+import org.apache.cassandra.db.*;
+import org.apache.cassandra.db.filter.ClusteringIndexFilter;
+import org.apache.cassandra.db.filter.ClusteringIndexSliceFilter;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.CompositeType;
 import org.apache.lucene.document.Document;
@@ -206,12 +206,65 @@ public final class ClusteringMapper {
     }
 
     /**
-     * Returns a Lucene {@link Query} for retrieving documents whose clustering key is inside the specified range of
+     * Returns a Lucene {@link Query} to retrieve the rows satisfying the specified {@link ClusteringIndexFilter}.
+     *
+     * @param clusteringFilter a clustering filter
+     * @return a query, or {@code null} if the filter returns all the rows
+     */
+    public Query query(ClusteringIndexFilter clusteringFilter) {
+        if (clusteringFilter instanceof ClusteringIndexSliceFilter) {
+            ClusteringIndexSliceFilter sliceFilter = (ClusteringIndexSliceFilter) clusteringFilter;
+            Slices slices = sliceFilter.requestedSlices();
+            ClusteringPrefix startBound = slices.get(0).start();
+            ClusteringPrefix stopBound = slices.get(slices.size() - 1).end();
+            return query(startBound, stopBound);
+        }
+        return null;
+    }
+
+    /**
+     * Returns the start {@link ClusteringPrefix} of the first partition of the specified {@link DataRange}.
+     *
+     * @param dataRange the data range
+     * @return the start clustering prefix of {@code dataRange}, or {@code null} if there is no such start
+     */
+    public ClusteringPrefix startClusteringPrefix(DataRange dataRange) {
+        PartitionPosition startPosition = dataRange.startKey();
+        if (startPosition instanceof DecoratedKey) {
+            DecoratedKey startKey = (DecoratedKey) startPosition;
+            ClusteringIndexFilter filter = dataRange.clusteringIndexFilter(startKey);
+            ClusteringIndexSliceFilter sliceFilter = (ClusteringIndexSliceFilter) filter;
+            Slices slices = sliceFilter.requestedSlices();
+            return slices.get(0).start();
+        }
+        return null;
+    }
+
+    /**
+     * Returns the stop {@link ClusteringPrefix} of the last partition of the specified {@link DataRange}.
+     *
+     * @param dataRange the data range
+     * @return the stop clustering prefix of {@code dataRange}, or {@code null} if there is no such start
+     */
+    public ClusteringPrefix stopClusteringPrefix(DataRange dataRange) {
+        PartitionPosition stopPosition = dataRange.stopKey();
+        if (stopPosition instanceof DecoratedKey) {
+            DecoratedKey stopKey = (DecoratedKey) stopPosition;
+            ClusteringIndexFilter filter = dataRange.clusteringIndexFilter(stopKey);
+            ClusteringIndexSliceFilter sliceFilter = (ClusteringIndexSliceFilter) filter;
+            Slices slices = sliceFilter.requestedSlices();
+            return slices.get(slices.size() - 1).end();
+        }
+        return null;
+    }
+
+    /**
+     * Returns a Lucene {@link Query} for retrieving rows whose clustering key is inside the specified range of
      * clustering prefixes.
      *
      * @param start the lower accepted clustering prefix, {@code null} means no lower limit
      * @param stop the upper accepted clustering prefix, {@code null} means no upper limit
-     * @return the Lucene {@link Query} for retrieving documents between {@code start} and {@code stop}
+     * @return the query, or {@code null} if it doesn't filter anything
      */
     public Query query(ClusteringPrefix start, ClusteringPrefix stop) {
         if ((start == null || start.kind() == ClusteringPrefix.Kind.INCL_START_BOUND && start.size() == 0) &&

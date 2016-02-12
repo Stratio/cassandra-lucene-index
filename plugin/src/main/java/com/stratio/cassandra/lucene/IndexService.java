@@ -28,8 +28,8 @@ import com.stratio.cassandra.lucene.key.TokenMapper;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.search.Search;
 import com.stratio.cassandra.lucene.search.SearchBuilder;
-import com.stratio.cassandra.lucene.util.SimpleRowIterator;
 import com.stratio.cassandra.lucene.util.SimplePartitionIterator;
+import com.stratio.cassandra.lucene.util.SimpleRowIterator;
 import com.stratio.cassandra.lucene.util.TaskQueue;
 import com.stratio.cassandra.lucene.util.TimeCounter;
 import org.apache.cassandra.config.CFMetaData;
@@ -335,7 +335,7 @@ public abstract class IndexService {
      * @param command the read command containing the {@link Search}
      * @return the {@link Search} contained in {@code command}
      */
-    private Search search(ReadCommand command) {
+    public Search search(ReadCommand command) {
         for (Expression expression : command.rowFilter().getExpressions()) {
             if (expression.isCustom()) {
                 RowFilter.CustomExpression customExpression = (RowFilter.CustomExpression) expression;
@@ -385,6 +385,35 @@ public abstract class IndexService {
      * @return a query to get the {@link Document}s satisfying the {@code dataRange}
      */
     abstract Query query(DataRange dataRange);
+
+    /**
+     * Returns a Lucene {@link Query} to retrieve all the rows in the specified partition position.
+     *
+     * @param position the ring position
+     * @return the query
+     */
+    public Query query(PartitionPosition position) {
+        return position instanceof DecoratedKey
+               ? partitionMapper.query((DecoratedKey) position)
+               : tokenMapper.query(position.getToken());
+    }
+
+    /**
+     * Returns a Lucene {@link Query} to retrieve all the rows in the specified partition range.
+     *
+     * @param start the lower accepted partition position, {@code null} means no lower limit
+     * @param stop the upper accepted partition position, {@code null} means no upper limit
+     * @return the query, or {@code null} if it doesn't filter anything
+     */
+    public Query query(PartitionPosition start, PartitionPosition stop) {
+        if (start.compareTo(stop) == 0) {
+            if (start.isMinimum()) {
+                return null;
+            }
+            return query(start);
+        }
+        return tokenMapper.query(start, stop);
+    }
 
     /**
      * Returns the Lucene {@link Sort} with the specified {@link Search} sorting requirements followed by the

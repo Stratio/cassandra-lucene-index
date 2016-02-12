@@ -149,6 +149,10 @@ public final class TokenMapper {
         return new CachingWrapperQuery(query);
     }
 
+    public Query query(PartitionPosition start, PartitionPosition stop) {
+        return query(start.getToken(), stop.getToken(), includeStart(start), includeStop(stop));
+    }
+
     /**
      * Returns a Lucene {@link Query} to find the {@link Document}s containing the specified {@link Token}.
      *

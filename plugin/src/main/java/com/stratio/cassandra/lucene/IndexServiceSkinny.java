@@ -107,11 +107,7 @@ public class IndexServiceSkinny extends IndexService {
     public Query query(DataRange dataRange) {
         PartitionPosition startPosition = dataRange.startKey();
         PartitionPosition stopPosition = dataRange.stopKey();
-        Token startToken = startPosition.getToken();
-        Token stopToken = stopPosition.getToken();
-        boolean includeStart = tokenMapper.includeStart(startPosition);
-        boolean includeStop = tokenMapper.includeStop(stopPosition);
-        return tokenMapper.query(startToken, stopToken, includeStart, includeStop);
+        return query(startPosition, stopPosition);
     }
 
     /** {@inheritDoc} */

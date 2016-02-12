@@ -83,12 +83,12 @@ public class ClusteringQuery extends MultiTermQuery {
         /** {@inheritDoc} */
         @Override
         protected AcceptStatus accept(BytesRef term) {
-            Clustering clustering = mapper.clustering(term);
+            Clustering clustering =  mapper.clustering(term);
             if (start != null && comparator.compare(start, clustering) > 0) {
                 return AcceptStatus.NO;
             }
             if (stop != null && comparator.compare(stop, clustering) < 0) {
-                return AcceptStatus.NO;
+                return AcceptStatus.END;
             }
             return AcceptStatus.YES;
         }
