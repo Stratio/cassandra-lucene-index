@@ -21,6 +21,8 @@ package com.stratio.cassandra.lucene.key;
 import org.apache.cassandra.db.Clustering;
 import org.apache.cassandra.db.ClusteringComparator;
 import org.apache.cassandra.db.ClusteringPrefix;
+import org.apache.cassandra.db.DecoratedKey;
+import org.apache.cassandra.dht.Token;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.lucene.index.FilteredTermsEnum;
 import org.apache.lucene.index.Terms;
@@ -28,6 +30,8 @@ import org.apache.lucene.index.TermsEnum;
 import org.apache.lucene.search.MultiTermQuery;
 import org.apache.lucene.util.AttributeSource;
 import org.apache.lucene.util.BytesRef;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
@@ -36,26 +40,38 @@ import java.io.IOException;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class ClusteringQuery extends MultiTermQuery {
+public class KeyQuery extends MultiTermQuery {
 
-    private final ClusteringMapper mapper;
-    private final ClusteringPrefix start;
-    private final ClusteringPrefix stop;
-    private final ClusteringComparator comparator;
+    public static final Logger logger = LoggerFactory.getLogger(KeyMapper.class);
+
+    private final KeyMapper mapper;
+    private final DecoratedKey key;
+    private final Token token;
+    private final ClusteringPrefix start, stop;
+    private final ClusteringComparator clusteringComparator;
+    private final boolean acceptLowerConflicts, acceptUpperConflicts;
 
     /**
      * Returns a new clustering key query for the specified clustering key range using the specified mapper.
      *
-     * @param start the clustering key prefix at the start of the range
-     * @param stop the clustering key prefix at the end of the range
      * @param mapper the clustering key mapper to be used
      */
-    public ClusteringQuery(ClusteringPrefix start, ClusteringPrefix stop, ClusteringMapper mapper) {
-        super(ClusteringMapper.FIELD_NAME);
+    public KeyQuery(KeyMapper mapper,
+                    DecoratedKey key,
+                    ClusteringPrefix start,
+                    ClusteringPrefix stop,
+                    boolean acceptLowerConflicts,
+                    boolean acceptUpperConflicts
+    ) {
+        super(KeyMapper.FIELD_NAME);
+        this.mapper = mapper;
+        this.key = key;
+        this.token = key.getToken();
         this.start = start;
         this.stop = stop;
-        this.mapper = mapper;
-        this.comparator = mapper.getComparator();
+        this.acceptLowerConflicts = acceptLowerConflicts;
+        this.acceptUpperConflicts = acceptUpperConflicts;
+        clusteringComparator = mapper.clusteringComparator();
     }
 
     /** {@inheritDoc} */
@@ -68,6 +84,7 @@ public class ClusteringQuery extends MultiTermQuery {
     @Override
     public String toString(String field) {
         return new ToStringBuilder(this).append("field", field)
+                                        .append("key", key)
                                         .append("start", start == null ? null : mapper.toString(start))
                                         .append("stop", stop == null ? null : mapper.toString(stop))
                                         .toString();
@@ -77,19 +94,43 @@ public class ClusteringQuery extends MultiTermQuery {
 
         FullKeyDataRangeFilteredTermsEnum(TermsEnum tenum) {
             super(tenum);
-            setInitialSeekTerm(new BytesRef());
+            setInitialSeekTerm(mapper.bytesRef(key, new Clustering(start.getRawValues())));
+
         }
 
         /** {@inheritDoc} */
         @Override
         protected AcceptStatus accept(BytesRef term) {
-            Clustering clustering =  mapper.clustering(term);
-            if (start != null && comparator.compare(start, clustering) > 0) {
+
+            KeyEntry entry = mapper.entry(term);
+
+            // Check token
+            int tokenComparison = entry.getToken().compareTo(token);
+            if (tokenComparison < 0) {
                 return AcceptStatus.NO;
             }
-            if (stop != null && comparator.compare(stop, clustering) < 0) {
+            if (tokenComparison > 0) {
                 return AcceptStatus.END;
             }
+
+            // Check partition key
+            Integer keyComparison = entry.getDecoratedKey().compareTo(key);
+            if (keyComparison < 0 && !acceptLowerConflicts) {
+                return AcceptStatus.NO;
+            }
+            if (keyComparison > 0 && !acceptUpperConflicts) {
+                return AcceptStatus.NO;
+            }
+
+            // Check clustering key range
+            Clustering clustering = entry.getClustering();
+            if (start != null && clusteringComparator.compare(start, clustering) > 0) {
+                return AcceptStatus.NO;
+            }
+            if (stop != null && clusteringComparator.compare(stop, clustering) < 0) {
+                return AcceptStatus.NO;
+            }
+
             return AcceptStatus.YES;
         }
     }

@@ -28,6 +28,7 @@ import org.apache.cassandra.db.DecoratedKey;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.CompositeType;
 import org.apache.cassandra.dht.IPartitioner;
+import org.apache.cassandra.utils.ByteBufferUtil;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldType;
@@ -188,7 +189,7 @@ public final class PartitionMapper {
                     public int compareValues(BytesRef val1, BytesRef val2) {
                         ByteBuffer bb1 = ByteBufferUtils.byteBuffer(val1);
                         ByteBuffer bb2 = ByteBufferUtils.byteBuffer(val2);
-                        return metadata.getKeyValidator().compare(bb1, bb2);
+                        return ByteBufferUtil.compareUnsigned(bb1, bb2);
                     }
                 };
             }

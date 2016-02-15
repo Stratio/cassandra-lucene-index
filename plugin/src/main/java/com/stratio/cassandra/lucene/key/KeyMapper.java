@@ -18,17 +18,32 @@
 
 package com.stratio.cassandra.lucene.key;
 
+import com.stratio.cassandra.lucene.column.Column;
+import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.util.ByteBufferUtils;
-import org.apache.cassandra.db.Clustering;
-import org.apache.cassandra.db.DecoratedKey;
+import org.apache.cassandra.config.CFMetaData;
+import org.apache.cassandra.config.ColumnDefinition;
+import org.apache.cassandra.db.*;
+import org.apache.cassandra.db.filter.ClusteringIndexFilter;
+import org.apache.cassandra.db.filter.ClusteringIndexSliceFilter;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.CompositeType;
+import org.apache.cassandra.db.marshal.LongType;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
-import org.apache.lucene.document.StringField;
+import org.apache.lucene.document.FieldType;
+import org.apache.lucene.index.DocValuesType;
+import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.search.FieldComparator;
+import org.apache.lucene.search.FieldComparatorSource;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.SortField;
 import org.apache.lucene.util.BytesRef;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 
 /**
@@ -38,26 +53,80 @@ import java.nio.ByteBuffer;
  */
 public final class KeyMapper {
 
+    public static final Logger logger = LoggerFactory.getLogger(KeyMapper.class);
+
     /** The Lucene field name. */
     public static final String FIELD_NAME = "_full_key";
+
+    /** The Lucene field type. */
+    public static final FieldType FIELD_TYPE = new FieldType();
+
+    static {
+        FIELD_TYPE.setOmitNorms(true);
+        FIELD_TYPE.setIndexOptions(IndexOptions.DOCS);
+        FIELD_TYPE.setTokenized(false);
+        FIELD_TYPE.setStored(true);
+        FIELD_TYPE.setDocValuesType(DocValuesType.SORTED);
+        FIELD_TYPE.freeze();
+    }
+
+    private final CFMetaData metadata;
+    private final ClusteringComparator clusteringComparator;
+    private final CompositeType clusteringType;
 
     /** The type of the primary key, which is composed by the partition and clustering key types. */
     private final CompositeType type;
 
-    /** The clustering key mapper to be used. */
-    private final ClusteringMapper clusteringMapper;
-
     /**
      * Constructor specifying the partition and clustering key mappers.
      *
-     * @param partitionMapper the partition key mapper
-     * @param clusteringMapper the clustering key mapper
+     * @param metadata the indexed table metadata
      */
-    public KeyMapper(PartitionMapper partitionMapper, ClusteringMapper clusteringMapper) {
-        this.clusteringMapper = clusteringMapper;
-        AbstractType<?> partitionKeyType = partitionMapper.getType();
-        CompositeType clusteringKeyType = clusteringMapper.getType();
-        type = CompositeType.getInstance(partitionKeyType, clusteringKeyType);
+    public KeyMapper(CFMetaData metadata) {
+        this.metadata = metadata;
+        clusteringComparator = metadata.comparator;
+        clusteringType = CompositeType.getInstance(clusteringComparator.subtypes());
+        type = CompositeType.getInstance(LongType.instance, metadata.getKeyValidator(), clusteringType);
+    }
+
+    public ClusteringComparator clusteringComparator() {
+        return clusteringComparator;
+    }
+
+    public CompositeType clusteringType() {
+        return clusteringType;
+    }
+
+    /**
+     * Adds the {@link Column}s contained in the specified {@link Clustering} to the specified {@link Column}s.
+     *
+     * @param columns the {@link Columns} in which the {@link Clustering} {@link Column}s are going to be added
+     * @param clustering the clustering key
+     */
+    public void addColumns(Columns columns, Clustering clustering) {
+        for (ColumnDefinition columnDefinition : metadata.clusteringColumns()) {
+            String name = columnDefinition.name.toString();
+            int position = columnDefinition.position();
+            ByteBuffer value = clustering.get(position);
+            AbstractType<?> type = columnDefinition.cellValueType();
+            columns.add(Column.builder(name).buildWithDecomposed(value, type));
+        }
+    }
+
+    public KeyEntry entry(BytesRef bytesRef) {
+        ByteBuffer bb = ByteBufferUtils.byteBuffer(bytesRef);
+        ByteBuffer[] components = type.split(bb);
+        return new KeyEntry(this, components);
+    }
+
+    /**
+     * Returns the {@code String} human-readable representation of the specified {@link ClusteringPrefix}.
+     *
+     * @param prefix the clustering prefix
+     * @return a {@code String} representing {@code prefix}
+     */
+    public String toString(ClusteringPrefix prefix) {
+        return prefix.toString(metadata);
     }
 
     /**
@@ -69,7 +138,25 @@ public final class KeyMapper {
      * @return the {@link ByteBuffer} representation of the primary key
      */
     public ByteBuffer byteBuffer(DecoratedKey key, Clustering clustering) {
-        return type.builder().add(key.getKey()).add(clusteringMapper.byteBuffer(clustering)).build();
+        return type.builder()
+                   .add(TokenMapper.byteBuffer(key.getToken()))
+                   .add(key.getKey())
+                   .add(byteBuffer(clustering))
+                   .build();
+    }
+
+    /**
+     * Returns a {@link ByteBuffer} representing the specified clustering key
+     *
+     * @param clustering the clustering key
+     * @return the byte buffer representing {@code clustering}
+     */
+    public ByteBuffer byteBuffer(Clustering clustering) {
+        CompositeType.Builder builder = type.builder();
+        for (ByteBuffer component : clustering.getRawValues()) {
+            builder.add(component);
+        }
+        return builder.build();
     }
 
     /**
@@ -83,7 +170,7 @@ public final class KeyMapper {
     public void addFields(Document document, DecoratedKey key, Clustering clustering) {
         ByteBuffer bb = byteBuffer(key, clustering);
         BytesRef bytesRef = ByteBufferUtils.bytesRef(bb);
-        Field field = new StringField(FIELD_NAME, bytesRef, Field.Store.YES);
+        Field field = new Field(FIELD_NAME, bytesRef, FIELD_TYPE);
         document.add(field);
     }
 
@@ -96,9 +183,59 @@ public final class KeyMapper {
      * @return the Lucene {@link Term} representing the primary key
      */
     public Term term(DecoratedKey key, Clustering clustering) {
+        return new Term(FIELD_NAME, bytesRef(key, clustering));
+    }
+
+    public BytesRef bytesRef(DecoratedKey key, Clustering clustering) {
         ByteBuffer bb = byteBuffer(key, clustering);
-        BytesRef bytesRef = ByteBufferUtils.bytesRef(bb);
-        return new Term(FIELD_NAME, bytesRef);
+        return ByteBufferUtils.bytesRef(bb);
+    }
+
+    /**
+     * Returns the clustering key contained in the specified {@link Document}.
+     *
+     * @param document a {@link Document} containing the clustering key to be get
+     * @return the clustering key contained in {@code document}
+     */
+    public Clustering clustering(Document document) {
+        BytesRef bytesRef = document.getBinaryValue(FIELD_NAME);
+        return entry(bytesRef).getClustering();
+    }
+
+    /**
+     * Returns the start {@link ClusteringPrefix} of the first partition of the specified {@link DataRange}.
+     *
+     * @param dataRange the data range
+     * @return the start clustering prefix of {@code dataRange}, or {@code null} if there is no such start
+     */
+    public static ClusteringPrefix startClusteringPrefix(DataRange dataRange) {
+        PartitionPosition startPosition = dataRange.startKey();
+        if (startPosition instanceof DecoratedKey) {
+            DecoratedKey startKey = (DecoratedKey) startPosition;
+            ClusteringIndexFilter filter = dataRange.clusteringIndexFilter(startKey);
+            ClusteringIndexSliceFilter sliceFilter = (ClusteringIndexSliceFilter) filter;
+            Slices slices = sliceFilter.requestedSlices();
+            return slices.get(0).start();
+        }
+        return null;
+    }
+
+    /**
+     * Returns the stop {@link ClusteringPrefix} of the last partition of the specified {@link DataRange}.
+     *
+     * @param dataRange the data range
+     * @return the stop clustering prefix of {@code dataRange}, or {@code null} if there is no such start
+     */
+    public static ClusteringPrefix stopClusteringPrefix(DataRange dataRange) {
+        PartitionPosition stopPosition = dataRange.stopKey();
+        if (stopPosition instanceof DecoratedKey) {
+            DecoratedKey stopKey = (DecoratedKey) stopPosition;
+            ClusteringIndexFilter filter = dataRange.clusteringIndexFilter(stopKey);
+            ClusteringIndexSliceFilter sliceFilter = (ClusteringIndexSliceFilter) filter;
+            Slices slices = sliceFilter.requestedSlices();
+            return slices.get(slices.size() - 1).end();
+        }
+        return null;
     }
 
     /**
@@ -107,9 +244,34 @@ public final class KeyMapper {
      * @param document the document
      * @return the clustering key term
      */
-    public Term term(Document document) {
+    public static Term term(Document document) {
         BytesRef bytesRef = document.getBinaryValue(FIELD_NAME);
         return new Term(FIELD_NAME, bytesRef);
+    }
+
+    public SortField sortField() {
+        return new SortField(FIELD_NAME, new FieldComparatorSource() {
+            @Override
+            public FieldComparator<?> newComparator(String field, int hits, int sort, boolean reversed)
+            throws IOException {
+                return new FieldComparator.TermValComparator(hits, field, false) {
+                    @Override
+                    public int compareValues(BytesRef val1, BytesRef val2) {
+                        Clustering bb1 = entry(val1).getClustering();
+                        Clustering bb2 = entry(val2).getClustering();
+                        return clusteringComparator.compare(bb1, bb2);
+                    }
+                };
+            }
+        });
+    }
+
+    public Query query(DecoratedKey key,
+                       ClusteringPrefix start,
+                       ClusteringPrefix stop,
+                       boolean acceptLowerConflicts,
+                       boolean acceptUpperConflicts) {
+        return new KeyQuery(this, key, start, stop, acceptLowerConflicts, acceptUpperConflicts);
     }
 
 }

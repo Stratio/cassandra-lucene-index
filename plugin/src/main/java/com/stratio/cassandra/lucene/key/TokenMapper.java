@@ -22,6 +22,8 @@ import com.stratio.cassandra.lucene.IndexException;
 import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.db.DecoratedKey;
 import org.apache.cassandra.db.PartitionPosition;
+import org.apache.cassandra.db.marshal.AbstractType;
+import org.apache.cassandra.db.marshal.LongType;
 import org.apache.cassandra.dht.Murmur3Partitioner;
 import org.apache.cassandra.dht.Token;
 import org.apache.lucene.document.Document;
@@ -35,6 +37,8 @@ import org.apache.lucene.search.*;
 import org.apache.lucene.util.BytesRef;
 import org.apache.lucene.util.BytesRefBuilder;
 import org.apache.lucene.util.NumericUtils;
+
+import java.nio.ByteBuffer;
 
 /**
  * Class for several token mappings between Cassandra and Lucene.
@@ -67,6 +71,10 @@ public final class TokenMapper {
         }
     }
 
+    public AbstractType<?> getType() {
+        return DatabaseDescriptor.getPartitioner().getTokenValidator();
+    }
+
     /**
      * Adds to the specified {@link Document} the {@link Field}s associated to the token of the specified row key.
      *
@@ -88,6 +96,10 @@ public final class TokenMapper {
      */
     private static Long value(Token token) {
         return (Long) token.getTokenValue();
+    }
+
+    public static ByteBuffer byteBuffer(Token token) {
+        return LongType.instance.decompose(value(token));
     }
 
     /**
