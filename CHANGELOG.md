@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.2.5.2 (upcoming)
+
+* Fixed explicit null values insertion (#94)
+
 ## 2.2.5.0 (9 February 2016)
 
 * Upgrade to Apache Cassandra 2.2.5

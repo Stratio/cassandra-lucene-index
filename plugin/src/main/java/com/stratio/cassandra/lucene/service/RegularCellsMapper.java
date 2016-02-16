@@ -170,6 +170,11 @@ public final class RegularCellsMapper {
         String name;
         for (Cell cell : columnFamily) {
 
+            // Skip not living cells
+            if (!cell.isLive()) {
+                continue;
+            }
+
             CellName cellName = cell.name();
             name = cellName.cql3ColumnName(metadata).toString();
             if (name.length() == 0) {
