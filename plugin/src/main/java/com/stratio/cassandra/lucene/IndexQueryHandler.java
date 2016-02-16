@@ -105,7 +105,6 @@ public class IndexQueryHandler implements QueryHandler {
     public ResultMessage processPrepared(CQLStatement statement, QueryState state, QueryOptions options,
                                          Map<String, ByteBuffer> customPayload)
     throws RequestExecutionException, RequestValidationException {
-        logger.debug("QH: Hi Im Query Handler receiving query:: processPrepared");
         QueryProcessor.metrics.preparedStatementsExecuted.inc();
         return process(statement, state, options, customPayload);
 
@@ -115,7 +114,6 @@ public class IndexQueryHandler implements QueryHandler {
     public ResultMessage processBatch(BatchStatement statement, QueryState state, BatchQueryOptions options,
                                       Map<String, ByteBuffer> customPayload)
     throws RequestExecutionException, RequestValidationException {
-        logger.debug("QH: Hi Im Query Handler receiving query:: processBatch");
         return cqlProcessor.processBatch(statement, state, options);
     }
 
@@ -123,8 +121,6 @@ public class IndexQueryHandler implements QueryHandler {
     public ResultMessage process(String query, QueryState state, QueryOptions options,
                                  Map<String, ByteBuffer> customPayload)
     throws RequestExecutionException, RequestValidationException {
-
-        logger.debug("QH: Hi Im Query Handler receiving query:: '"+query+"'");
         ParsedStatement.Prepared p = QueryProcessor.getStatement(query, state.getClientState());
         options.prepare(p.boundNames);
         if (!state.getClientState().isInternal) {
