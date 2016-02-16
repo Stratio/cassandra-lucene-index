@@ -70,11 +70,16 @@ public final class KeyMapper {
         FIELD_TYPE.freeze();
     }
 
+    /** The indexed table metadata */
     private final CFMetaData metadata;
+
+    /** The clustering key comparator */
     private final ClusteringComparator clusteringComparator;
+
+    /** A composite type composed by the types of the clustering key */
     private final CompositeType clusteringType;
 
-    /** The type of the primary key, which is composed by the partition and clustering key types. */
+    /** The type of the primary key, which is composed by token, partition key and clustering key types. */
     private final CompositeType type;
 
     /**
@@ -89,10 +94,20 @@ public final class KeyMapper {
         type = CompositeType.getInstance(LongType.instance, metadata.getKeyValidator(), clusteringType);
     }
 
+    /**
+     * Returns the clustering key comparator.
+     *
+     * @return the comparator
+     */
     public ClusteringComparator clusteringComparator() {
         return clusteringComparator;
     }
 
+    /**
+     * The type of the primary key, which is composed by token, partition key and clustering key types.
+     *
+     * @return the composite type
+     */
     public CompositeType clusteringType() {
         return clusteringType;
     }
@@ -113,6 +128,12 @@ public final class KeyMapper {
         }
     }
 
+    /**
+     * Returns the {@link KeyEntry} represented by the specified Lucene {@link BytesRef}.
+     *
+     * @param bytesRef the Lucene field binary value
+     * @return the represented key entry
+     */
     public KeyEntry entry(BytesRef bytesRef) {
         ByteBuffer bb = ByteBufferUtils.byteBuffer(bytesRef);
         ByteBuffer[] components = type.split(bb);
@@ -186,6 +207,13 @@ public final class KeyMapper {
         return new Term(FIELD_NAME, bytesRef(key, clustering));
     }
 
+    /**
+     * Returns the {@link BytesRef} representation of the specified primary key.
+     *
+     * @param key the partition key
+     * @param clustering the clustering key
+     * @return the Lucene field binary value
+     */
     public BytesRef bytesRef(DecoratedKey key, Clustering clustering) {
         ByteBuffer bb = byteBuffer(key, clustering);
         return ByteBufferUtils.bytesRef(bb);
@@ -249,6 +277,11 @@ public final class KeyMapper {
         return new Term(FIELD_NAME, bytesRef);
     }
 
+    /**
+     * Returns a Lucene {@link SortField} to sort documents by primary key according to Cassandra's natural order.
+     *
+     * @return the sort field
+     */
     public SortField sortField() {
         return new SortField(FIELD_NAME, new FieldComparatorSource() {
             @Override
@@ -257,15 +290,23 @@ public final class KeyMapper {
                 return new FieldComparator.TermValComparator(hits, field, false) {
                     @Override
                     public int compareValues(BytesRef val1, BytesRef val2) {
-                        Clustering bb1 = entry(val1).getClustering();
-                        Clustering bb2 = entry(val2).getClustering();
-                        return clusteringComparator.compare(bb1, bb2);
+                        return entry(val1).compareTo(entry(val2));
                     }
                 };
             }
         });
     }
 
+    /**
+     * Returns a Lucene {@link Query} to retrieve all the rows in the specified partition slice.
+     *
+     * @param key the partition's key
+     * @param start the start clustering prefix
+     * @param stop the stop clustering prefix
+     * @param acceptLowerConflicts if rows with the same token before key should be accepted
+     * @param acceptUpperConflicts if rows with the same token after key should be accepted
+     * @return the Lucene query
+     */
     public Query query(DecoratedKey key,
                        ClusteringPrefix start,
                        ClusteringPrefix stop,

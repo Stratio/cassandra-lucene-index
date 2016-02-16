@@ -21,6 +21,7 @@ package com.stratio.cassandra.lucene;
 import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.index.DocumentIterator;
 import com.stratio.cassandra.lucene.key.KeyMapper;
+import com.stratio.cassandra.lucene.key.PartitionMapper;
 import org.apache.cassandra.db.*;
 import org.apache.cassandra.db.filter.ClusteringIndexFilter;
 import org.apache.cassandra.db.filter.ClusteringIndexSliceFilter;
@@ -33,8 +34,9 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.SortField;
 
-import java.util.Optional;
+import java.util.*;
 
 import static org.apache.cassandra.db.PartitionPosition.Kind.MAX_BOUND;
 import static org.apache.cassandra.db.PartitionPosition.Kind.MIN_BOUND;
@@ -58,8 +60,18 @@ public class IndexServiceWide extends IndexService {
     protected IndexServiceWide(ColumnFamilyStore table, IndexMetadata indexMetadata) {
         super(table, indexMetadata);
         keyMapper = new KeyMapper(metadata);
-        fieldsToLoad.add(KeyMapper.FIELD_NAME);
-        keySortFields.add(keyMapper.sortField());
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Set<String> fieldsToLoad() {
+        return new HashSet<>(Arrays.asList(PartitionMapper.FIELD_NAME, KeyMapper.FIELD_NAME));
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public List<SortField> keySortFields() {
+        return Arrays.asList(tokenMapper.sortField(), keyMapper.sortField());
     }
 
     /**
@@ -115,6 +127,14 @@ public class IndexServiceWide extends IndexService {
         return term(key, row.clustering());
     }
 
+    /**
+     * Returns a Lucene {@link Term} identifying the {@link Document} representing the {@link Row} identified by the
+     * specified partition and clustering keys.
+     *
+     * @param key the partition key
+     * @param clustering the clustering key
+     * @return the term identifying the document
+     */
     private Term term(DecoratedKey key, Clustering clustering) {
         return keyMapper.term(key, clustering);
     }
@@ -122,7 +142,7 @@ public class IndexServiceWide extends IndexService {
     /** {@inheritDoc} */
     @Override
     public Term term(Document document) {
-        return keyMapper.term(document);
+        return KeyMapper.term(document);
     }
 
     /** {@inheritDoc} */
@@ -146,8 +166,8 @@ public class IndexServiceWide extends IndexService {
         PartitionPosition stopPosition = dataRange.stopKey();
         Token startToken = startPosition.getToken();
         Token stopToken = stopPosition.getToken();
-        ClusteringPrefix startClustering = keyMapper.startClusteringPrefix(dataRange);
-        ClusteringPrefix stopClustering = keyMapper.stopClusteringPrefix(dataRange);
+        ClusteringPrefix startClustering = KeyMapper.startClusteringPrefix(dataRange);
+        ClusteringPrefix stopClustering = KeyMapper.stopClusteringPrefix(dataRange);
 
         if (startPosition.compareTo(stopPosition) == 0 && startPosition.getToken().isMinimum()) { // Full ring
             return null;

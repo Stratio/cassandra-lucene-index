@@ -20,6 +20,8 @@ package com.stratio.cassandra.lucene;
 
 import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.index.DocumentIterator;
+import com.stratio.cassandra.lucene.key.KeyMapper;
+import com.stratio.cassandra.lucene.key.PartitionMapper;
 import org.apache.cassandra.db.*;
 import org.apache.cassandra.db.filter.ClusteringIndexFilter;
 import org.apache.cassandra.db.rows.Row;
@@ -30,9 +32,10 @@ import org.apache.cassandra.utils.concurrent.OpOrder;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.TermQuery;
 
-import java.util.Optional;
+import java.util.*;
 
 /**
  * {@link IndexService} for skinny rows.
@@ -49,6 +52,18 @@ public class IndexServiceSkinny extends IndexService {
      */
     protected IndexServiceSkinny(ColumnFamilyStore table, IndexMetadata indexMetadata) {
         super(table, indexMetadata);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Set<String> fieldsToLoad() {
+        return new HashSet<>(Collections.singletonList(PartitionMapper.FIELD_NAME));
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public List<SortField> keySortFields() {
+        return Arrays.asList(tokenMapper.sortField(), partitionMapper.sortField());
     }
 
     /** {@inheritDoc} */

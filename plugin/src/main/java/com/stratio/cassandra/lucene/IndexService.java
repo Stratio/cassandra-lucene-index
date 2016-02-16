@@ -84,8 +84,6 @@ public abstract class IndexService {
     protected final PartitionMapper partitionMapper;
     protected final ColumnsMapper columnsMapper;
     protected final boolean mapsMultiCells;
-    protected final Set<String> fieldsToLoad;
-    protected final List<SortField> keySortFields;
 
     /**
      * Constructor using the specified indexed table and index metadata.
@@ -126,15 +124,6 @@ public abstract class IndexService {
                                  .stream()
                                  .filter(x -> schema.getMappedCells().contains(x.name.toString()))
                                  .anyMatch(x -> x.type.isMultiCell());
-
-        // Setup fields to load
-        fieldsToLoad = new HashSet<>();
-        fieldsToLoad.add(PartitionMapper.FIELD_NAME);
-
-        // Setup natural sort
-        keySortFields = new ArrayList<>();
-        keySortFields.add(tokenMapper.sortField());
-        keySortFields.add(partitionMapper.sortField());
     }
 
     /**
@@ -148,6 +137,20 @@ public abstract class IndexService {
                ? new IndexServiceSkinny(table, indexMetadata)
                : new IndexServiceWide(table, indexMetadata);
     }
+
+    /**
+     * Returns the names of the Lucene fields to be loaded from index during searches.
+     *
+     * @return the names of the fields to be loaded
+     */
+    public abstract Set<String> fieldsToLoad();
+
+    /**
+     * Returns the Lucene {@link SortField}s required to retrieve documents sorted by Cassandra's primary key.
+     *
+     * @return the sort fields
+     */
+    public abstract List<SortField> keySortFields();
 
     /**
      * Returns a {@link Columns} representing the specified {@link Row}.
@@ -430,7 +433,7 @@ public abstract class IndexService {
         if (search.usesRelevance()) {
             sortFields.add(FIELD_SCORE);
         }
-        sortFields.addAll(keySortFields);
+        sortFields.addAll(keySortFields());
         return new Sort(sortFields.toArray(new SortField[sortFields.size()]));
     }
 
@@ -481,7 +484,7 @@ public abstract class IndexService {
                                             ReadCommand command,
                                             ReadOrderGroup orderGroup) {
         int limit = command.limits().count();
-        DocumentIterator documents = lucene.search(query, sort, after, limit, fieldsToLoad);
+        DocumentIterator documents = lucene.search(query, sort, after, limit, fieldsToLoad());
         return indexReader(documents, command, orderGroup);
     }
 
@@ -538,7 +541,7 @@ public abstract class IndexService {
                 }
             }
         }
-        List<Document> documents = index.search(query, sort, limit, fieldsToLoad);
+        List<Document> documents = index.search(query, sort, limit, fieldsToLoad());
         index.close();
 
         List<SimpleRowIterator> rows = new LinkedList<>();

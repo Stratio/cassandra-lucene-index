@@ -27,30 +27,59 @@ import org.apache.cassandra.dht.Token;
 import java.nio.ByteBuffer;
 
 /**
+ * Class representing a Cassandra's wide table primary key. This is composed by token, partition key and clustering
+ * key.
+ *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class KeyEntry implements Comparable<KeyEntry>{
+public class KeyEntry implements Comparable<KeyEntry> {
 
     private final KeyMapper mapper;
     private final ByteBuffer[] components;
 
+    /**
+     * Constructor using a {@link KeyMapper} and an array of binary components
+     *
+     * @param mapper the mapper
+     * @param components the binary components
+     */
     public KeyEntry(KeyMapper mapper, ByteBuffer[] components) {
         this.mapper = mapper;
         this.components = components;
     }
 
+    /**
+     * Returns the partitioning token.
+     *
+     * @return the token
+     */
     public Token getToken() {
-        return  Murmur3Partitioner.instance.getTokenFactory().fromByteArray(components[0]);
+        return Murmur3Partitioner.instance.getTokenFactory().fromByteArray(components[0]);
     }
 
+    /**
+     * Returns the raw partition key.
+     *
+     * @return the partition key
+     */
     public ByteBuffer getKey() {
         return components[1];
     }
 
+    /**
+     * Returns the decorated partition key.
+     *
+     * @return the partition key
+     */
     public DecoratedKey getDecoratedKey() {
         return DatabaseDescriptor.getPartitioner().decorateKey(getKey());
     }
 
+    /**
+     * Returns the clustering key.
+     *
+     * @return the clustering key
+     */
     public Clustering getClustering() {
         return new Clustering(mapper.clusteringType().split(components[2]));
     }
