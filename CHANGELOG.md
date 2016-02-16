@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.2.4.3 (upcoming)
+
+* Fixed explicit null values insertion (#94)
+
 ## 2.2.4.2 (9 February 2016)
 
 * Fixed missed bound statements paging handling (fixes top-k issues and improves MapReduce performance)
