@@ -23,7 +23,6 @@ public class DocumentIterator implements CloseableIterator<Document> {
     private static final Logger logger = LoggerFactory.getLogger(DocumentIterator.class);
 
     private SearcherManager manager;
-    private IndexSearcher searcher;
     private Query query;
     private Sort sort;
     private ScoreDoc after;
@@ -54,33 +53,36 @@ public class DocumentIterator implements CloseableIterator<Document> {
         this.after = after;
         this.page = limit < Integer.MAX_VALUE ? limit + 1 : limit;
         this.fields = fields;
-        try {
-            searcher = manager.acquire();
-        } catch (Exception e) {
-            throw new IndexException(logger, e, "Error acquiring index searcher");
-        }
     }
 
     private void fetch() {
         try {
-            TimeCounter time = TimeCounter.create().start();
 
-            // Search for top documents
-            sort = sort.rewrite(searcher);
-            TopDocs topDocs = searcher.searchAfter(after, query, page, sort);
-            ScoreDoc[] scoreDocs = topDocs.scoreDocs;
+            IndexSearcher searcher = manager.acquire();
+            try {
 
-            // Check inf mayHaveMore
-            mayHaveMore = scoreDocs.length == page;
+                TimeCounter time = TimeCounter.create().start();
 
-            // Collect the documents from query result
-            for (ScoreDoc scoreDoc : scoreDocs) {
-                Document document = searcher.doc(scoreDoc.doc, fields);
-                documents.add(document);
-                after = scoreDoc;
+                // Search for top documents
+                sort = sort.rewrite(searcher);
+                TopDocs topDocs = searcher.searchAfter(after, query, page, sort);
+                ScoreDoc[] scoreDocs = topDocs.scoreDocs;
+
+                // Check inf mayHaveMore
+                mayHaveMore = scoreDocs.length == page;
+
+                // Collect the documents from query result
+                for (ScoreDoc scoreDoc : scoreDocs) {
+                    Document document = searcher.doc(scoreDoc.doc, fields);
+                    documents.add(document);
+                    after = scoreDoc;
+                }
+
+                logger.debug("Get page with {} documents in {}", scoreDocs.length, time.stop());
+
+            } finally {
+                manager.release(searcher);
             }
-
-            logger.debug("Get page with {} documents in {}", scoreDocs.length, time.stop());
 
         } catch (Exception e) {
             throw new IndexException(logger, e, "Error searching in with %s and %s", query, sort);
@@ -123,10 +125,10 @@ public class DocumentIterator implements CloseableIterator<Document> {
     /** {@inheritDoc} */
     @Override
     public void close() {
-        try {
-            manager.release(searcher);
-        } catch (Exception e) {
-            throw new IndexException(logger, e, "Error releasing index searcher");
-        }
+//        try {
+//            manager.release(searcher);
+//        } catch (Exception e) {
+//            throw new IndexException(logger, e, "Error releasing index searcher");
+//        }
     }
 }
