@@ -34,6 +34,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static com.stratio.cassandra.lucene.testsAT.util.CassandraConfig.FETCH;
+import static com.stratio.cassandra.lucene.testsAT.util.CassandraConfig.LIMIT;
 import static org.junit.Assert.*;
 
 /**
@@ -162,9 +163,7 @@ public class CassandraUtilsSelect {
             sb.append(extra);
             sb.append(" ");
         }
-        if (limit != null) {
-            sb.append(" LIMIT ").append(limit);
-        }
+        sb.append(" LIMIT ").append(limit == null ? LIMIT : limit);
         if (allowFiltering) {
             sb.append(" ALLOW FILTERING");
         }
@@ -176,9 +175,6 @@ public class CassandraUtilsSelect {
             statement.setFetchSize(fetchSize);
         } else {
             statement.setFetchSize(FETCH);
-        }
-        if (search != null && search.isTopK()) {
-            statement.setFetchSize(Integer.MAX_VALUE);
         }
         return parent.execute(statement).all();
     }

@@ -27,17 +27,22 @@ import com.datastax.driver.core.ConsistencyLevel;
  */
 public class CassandraConfig {
 
-    static final String HOST = get("host", "127.0.0.1");
-    static final int REPLICATION = Integer.valueOf(get("replication", "1"));
-    static final ConsistencyLevel CONSISTENCY = ConsistencyLevel.valueOf(get("consistency", "QUORUM"));
-    static final int FETCH = Integer.parseInt(get("fetch", "5000"));
-    static final int THREADS = Integer.parseInt(get("threads", "0"));
-    static final int REFRESH = Integer.parseInt(get("refresh", "1"));
-    static final int WAIT_FOR_INDEXING = Integer.parseInt(get("wait_for_indexing", "1"));
-    static final String TABLE = get("table", "test_table");
-    static final String INDEX = get("index", "test_table_idx");
+    public static final String HOST = getString("host", "127.0.0.1");
+    public static final int REPLICATION = getInt("replication", 1);
+    public static final ConsistencyLevel CONSISTENCY = ConsistencyLevel.valueOf(getString("consistency", "QUORUM"));
+    public static final int FETCH = getInt("fetch", 2);
+    public static final int THREADS = getInt("threads", 0);
+    public static final int REFRESH = getInt("refresh", 1);
+    public static final int WAIT_FOR_INDEXING = getInt("wait_for_indexing", 2);
+    public static final String TABLE = getString("table", "test_table");
+    public static final String INDEX = getString("index", "test_table_idx");
+    public static final int LIMIT = getInt("limit", 10000);
 
-    private static String get(String key, String def) {
+    private static String getString(String key, String def) {
         return System.getProperty("it." + key, def);
+    }
+
+    private static int getInt(String key, Integer def) {
+        return Integer.parseInt(getString(key, def.toString()));
     }
 }

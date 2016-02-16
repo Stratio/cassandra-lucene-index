@@ -49,6 +49,7 @@ import org.apache.cassandra.db.rows.UnfilteredRowIterator;
 import org.apache.cassandra.index.Index;
 import org.apache.cassandra.index.transactions.IndexTransaction;
 import org.apache.cassandra.schema.IndexMetadata;
+import org.apache.cassandra.utils.Pair;
 import org.apache.cassandra.utils.concurrent.OpOrder;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.Term;
@@ -518,42 +519,56 @@ public abstract class IndexService {
             return partitions;
         }
 
-        TimeCounter time = TimeCounter.create().start();
-
         Query query = search.query(schema);
         Sort sort = sort(search);
         int limit = command.limits().count();
 
         int count = 0;
-        RAMIndex index = new RAMIndex(schema.getAnalyzer());
-        Map<Term, SimpleRowIterator> rowsByTerm = new HashMap<>();
+        List<Pair<DecoratedKey, SimpleRowIterator>> pairs = new ArrayList<>();
         while (partitions.hasNext()) {
             try (RowIterator partition = partitions.next()) {
                 DecoratedKey key = partition.partitionKey();
                 while (partition.hasNext()) {
                     SimpleRowIterator rowIterator = new SimpleRowIterator(partition);
-                    Row row = rowIterator.getRow();
-                    Term term = term(key, row);
-                    Document document = document(key, row).get();
-                    rowsByTerm.put(term, rowIterator);
-                    index.add(document);
+                    pairs.add(Pair.create(key, rowIterator));
                     count++;
                 }
             }
         }
-        List<Document> documents = index.search(query, sort, limit, fieldsToLoad());
-        index.close();
 
-        List<SimpleRowIterator> rows = new LinkedList<>();
-        for (Document document : documents) {
-            Term term = term(document);
-            SimpleRowIterator rowIterator = rowsByTerm.get(term);
-            rows.add(rowIterator);
+        TimeCounter time = TimeCounter.create().start();
+        try {
+
+            // Index collected rows in memory
+            RAMIndex index = new RAMIndex(schema.getAnalyzer());
+            Map<Term, SimpleRowIterator> rowsByTerm = new HashMap<>();
+            for (Pair<DecoratedKey, SimpleRowIterator> pair : pairs) {
+                DecoratedKey key = pair.left;
+                SimpleRowIterator rowIterator = pair.right;
+                Row row = rowIterator.getRow();
+                Term term = term(key, row);
+                Document document = document(key, row).get();
+                rowsByTerm.put(term, rowIterator);
+                index.add(document);
+
+            }
+
+            // Repeat search to sort partial results
+            List<Document> documents = index.search(query, sort, limit, fieldsToLoad());
+            index.close();
+
+            // Collect post processed results
+            List<SimpleRowIterator> rows = new LinkedList<>();
+            for (Document document : documents) {
+                Term term = term(document);
+                SimpleRowIterator rowIterator = rowsByTerm.get(term);
+                rows.add(rowIterator);
+            }
+            return new SimplePartitionIterator(rows);
+
+        } finally {
+            logger.debug("Post-processed {} rows in {}", count, time.stop());
         }
-
-        logger.debug("Post-processed {} rows in {}", count, time.stop());
-
-        return new SimplePartitionIterator(rows);
     }
 
     /**

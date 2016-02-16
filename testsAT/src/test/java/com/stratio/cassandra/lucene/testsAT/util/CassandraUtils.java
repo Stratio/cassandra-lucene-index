@@ -18,10 +18,7 @@
 
 package com.stratio.cassandra.lucene.testsAT.util;
 
-import com.datastax.driver.core.ConsistencyLevel;
-import com.datastax.driver.core.ResultSet;
-import com.datastax.driver.core.SimpleStatement;
-import com.datastax.driver.core.Statement;
+import com.datastax.driver.core.*;
 import com.datastax.driver.core.querybuilder.Batch;
 import com.datastax.driver.core.querybuilder.QueryBuilder;
 import com.stratio.cassandra.lucene.builder.index.Index;
@@ -285,6 +282,14 @@ public class CassandraUtils {
 
     public CassandraUtilsSelect sort(SortField... sort) {
         return select().sort(sort);
+    }
+
+    public List<Row> searchWithPreparedStatement(Search search) {
+        String query = String.format("SELECT * FROM %s WHERE expr(%s,?) LIMIT %d", qualifiedTable, index, LIMIT);
+        final PreparedStatement stmt = CassandraConnection.session.prepare(query);
+        BoundStatement b = stmt.bind();
+        b.setString(0, search.build());
+        return execute(b).all();
     }
 
 }

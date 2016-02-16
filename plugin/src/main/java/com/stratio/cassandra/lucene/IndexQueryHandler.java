@@ -26,21 +26,28 @@ import org.apache.cassandra.cql3.statements.IndexTarget;
 import org.apache.cassandra.cql3.statements.ParsedStatement;
 import org.apache.cassandra.cql3.statements.SelectStatement;
 import org.apache.cassandra.db.ColumnFamilyStore;
+import org.apache.cassandra.db.ConsistencyLevel;
 import org.apache.cassandra.db.Keyspace;
+import org.apache.cassandra.db.ReadQuery;
 import org.apache.cassandra.db.filter.RowFilter;
+import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.exceptions.InvalidRequestException;
 import org.apache.cassandra.exceptions.RequestExecutionException;
 import org.apache.cassandra.exceptions.RequestValidationException;
 import org.apache.cassandra.service.ClientState;
 import org.apache.cassandra.service.QueryState;
 import org.apache.cassandra.transport.messages.ResultMessage;
+import org.apache.cassandra.utils.FBUtilities;
 import org.apache.cassandra.utils.MD5Digest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Map;
+
+import static org.apache.cassandra.cql3.statements.RequestValidations.checkNotNull;
 
 /**
  * {@link QueryHandler} to be used with Lucene searches.
@@ -130,7 +137,14 @@ public class IndexQueryHandler implements QueryHandler {
                     RowFilter.CustomExpression customExpression = (RowFilter.CustomExpression) expression;
                     String clazz = customExpression.getTargetIndex().options.get(IndexTarget.CUSTOM_INDEX_OPTION_NAME);
                     if (clazz.equals(Index.class.getCanonicalName())) {
-                        return process(select, state, options, customExpression);
+                        TimeCounter time = TimeCounter.create().start();
+                        try {
+                            return process(select, state, options, customExpression);
+                        } catch (ReflectiveOperationException e) {
+                            throw new RuntimeException(e);
+                        } finally {
+                            logger.debug("Lucene search total time: {}\n", time.stop());
+                        }
                     }
                 }
             }
@@ -142,45 +156,63 @@ public class IndexQueryHandler implements QueryHandler {
     private ResultMessage process(SelectStatement select,
                                   QueryState state,
                                   QueryOptions options,
-                                  RowFilter.CustomExpression expression) {
-        TimeCounter time = TimeCounter.create().start();
-        try {
+                                  RowFilter.CustomExpression expression) throws ReflectiveOperationException {
 
-            // Validate expression
-            ColumnFamilyStore cfs = Keyspace.open(select.keyspace()).getColumnFamilyStore(select.columnFamily());
-            Index index = (Index) cfs.indexManager.getIndex(expression.getTargetIndex());
-            Search search = index.validate(expression);
+        // Validate expression
+        ColumnFamilyStore cfs = Keyspace.open(select.keyspace()).getColumnFamilyStore(select.columnFamily());
+        Index index = (Index) cfs.indexManager.getIndex(expression.getTargetIndex());
+        Search search = index.validate(expression);
 
-            // Check paging
-            int limit = select.getLimit(options);
-            int page = options.getPageSize();
-            if (page > 0 && limit > page) {
-                if (search.isTopK()) {
-
-                    // Give a chance to query selectivity
-                    ResultMessage.Rows rows = select.execute(state, options);
-                    if (rows.result.size() < page) {
-                        return rows;
-                    }
-
-                    String msg = String.format("Paging is not allowed for top-k searches. " +
-                                               "You should specify a limit (%d) lower than page size (%d) " +
-                                               "or consider using an unsorted filter instead.", limit, page);
-                    throw new InvalidRequestException(msg);
-                }
+        // Check paging
+        int limit = select.getLimit(options);
+        int page = getPageSize(select, options);
+        if (search.isTopK()) {
+            if (limit == Integer.MAX_VALUE) { // Avoid unlimited
+                throw new InvalidRequestException(
+                        "Top-k searches don't support paging, so a cautious LIMIT clause should be provided " +
+                        "to prevent excessive memory consumption.");
+            } else if (page > 0) {
+                String json = UTF8Type.instance.compose(expression.getValue());
+                logger.warn("Disabling paging of {} rows for top-k search {} requesting {} rows", page, json, limit);
+                return executeWithoutPaging(select, state, options);
             }
-
-            // Process
-            return execute(select, state, options);
-
-        } finally {
-            logger.debug("Lucene search total time: {}\n", time.stop());
         }
+
+        // Process
+        return execute(select, state, options);
     }
 
     public ResultMessage execute(CQLStatement statement, QueryState state, QueryOptions options) {
         ResultMessage result = statement.execute(state, options);
         return result == null ? new ResultMessage.Void() : result;
+    }
+
+    private int getPageSize(SelectStatement select, QueryOptions options) throws ReflectiveOperationException {
+        Method method = select.getClass().getDeclaredMethod("getPageSize", QueryOptions.class);
+        method.setAccessible(true);
+        return (int) method.invoke(select, options);
+    }
+
+    public ResultMessage.Rows executeWithoutPaging(SelectStatement select, QueryState state, QueryOptions options)
+    throws RequestExecutionException, RequestValidationException, ReflectiveOperationException {
+
+        ConsistencyLevel cl = options.getConsistency();
+        checkNotNull(cl, "Invalid empty consistency level");
+
+        cl.validateForRead(select.keyspace());
+
+        int nowInSec = FBUtilities.nowInSeconds();
+        int userLimit = select.getLimit(options);
+        ReadQuery query = select.getQuery(options, nowInSec, userLimit);
+
+        Method method = select.getClass().getDeclaredMethod("execute",
+                                                            ReadQuery.class,
+                                                            QueryOptions.class,
+                                                            QueryState.class,
+                                                            int.class,
+                                                            int.class);
+        method.setAccessible(true);
+        return (ResultMessage.Rows) method.invoke(select, query, options, state, nowInSec, userLimit);
     }
 
 }

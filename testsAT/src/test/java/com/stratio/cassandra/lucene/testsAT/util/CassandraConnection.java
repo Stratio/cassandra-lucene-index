@@ -19,9 +19,6 @@
 package com.stratio.cassandra.lucene.testsAT.util;
 
 import com.datastax.driver.core.*;
-import com.datastax.driver.core.policies.ConstantReconnectionPolicy;
-import com.datastax.driver.core.policies.DowngradingConsistencyRetryPolicy;
-import com.google.common.util.concurrent.RateLimiter;
 import com.stratio.cassandra.lucene.testsAT.BaseAT;
 import org.slf4j.Logger;
 
@@ -36,20 +33,10 @@ public class CassandraConnection {
 
     private static Cluster cluster;
     public static Session session;
-    static RateLimiter rateLimiter = RateLimiter.create(100);
 
     public static void connect() {
         if (cluster == null) {
             try {
-
-                PoolingOptions poolingOptions = new PoolingOptions();
-                poolingOptions.setCoreConnectionsPerHost(HostDistance.REMOTE, 2);
-                poolingOptions.setMaxConnectionsPerHost(HostDistance.REMOTE, 200);
-                poolingOptions.setNewConnectionThreshold(HostDistance.REMOTE, 128);
-
-                SocketOptions socketOptions = new SocketOptions();
-                socketOptions.setReadTimeoutMillis(60000);
-                socketOptions.setConnectTimeoutMillis(100000);
 
                 cluster = Cluster
                         .builder()
@@ -57,6 +44,7 @@ public class CassandraConnection {
                         .build();
 
                 cluster.getConfiguration().getQueryOptions().setConsistencyLevel(CONSISTENCY).setFetchSize(FETCH);
+                cluster.getConfiguration().getSocketOptions().setReadTimeoutMillis(60000).setConnectTimeoutMillis(100000);
 
                 session = cluster.connect();
             } catch (Exception e) {
