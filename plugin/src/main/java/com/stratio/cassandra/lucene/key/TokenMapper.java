@@ -18,11 +18,12 @@
 
 package com.stratio.cassandra.lucene.key;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.stratio.cassandra.lucene.IndexException;
 import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.db.DecoratedKey;
 import org.apache.cassandra.db.PartitionPosition;
-import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.LongType;
 import org.apache.cassandra.dht.Murmur3Partitioner;
 import org.apache.cassandra.dht.Token;
@@ -47,10 +48,10 @@ import java.nio.ByteBuffer;
  */
 public final class TokenMapper {
 
-    /** The Lucene field name. */
+    /** The Lucene field name */
     static final String FIELD_NAME = "_token_murmur";
 
-    /** The Lucene field type. */
+    /** The Lucene field type */
     static final FieldType FIELD_TYPE = new FieldType();
 
     static {
@@ -62,6 +63,9 @@ public final class TokenMapper {
         FIELD_TYPE.freeze();
     }
 
+    /** A query cache of token range queries */
+    private final Cache<CacheKey, CachingWrapperQuery> cache;
+
     /**
      * Default constructor.
      */
@@ -69,10 +73,8 @@ public final class TokenMapper {
         if (!(DatabaseDescriptor.getPartitioner() instanceof Murmur3Partitioner)) {
             throw new IndexException("Only Murmur3 partitioner is supported");
         }
-    }
-
-    public AbstractType<?> getType() {
-        return DatabaseDescriptor.getPartitioner().getTokenValidator();
+        int cacheSize = Math.max(DatabaseDescriptor.getNumTokens(), 100);
+        cache = CacheBuilder.newBuilder().maximumSize(cacheSize).build();
     }
 
     /**
@@ -98,6 +100,12 @@ public final class TokenMapper {
         return (Long) token.getTokenValue();
     }
 
+    /**
+     * Returns the {code ByteBuffer} value of the specified Murmur3 partitioning {@link Token}.
+     *
+     * @param token a Murmur3 token
+     * @return the {@code token}'s {code ByteBuffer} value
+     */
     public static ByteBuffer byteBuffer(Token token) {
         return LongType.instance.decompose(value(token));
     }
@@ -155,12 +163,30 @@ public final class TokenMapper {
      * @return the query to find the documents containing a token inside the range
      */
     public Query query(Token lower, Token upper, boolean includeLower, boolean includeUpper) {
+
+        // Get token values
         Long start = lower == null || lower.isMinimum() ? null : value(lower);
         Long stop = upper == null || upper.isMinimum() ? null : value(upper);
-        Query query = DocValuesRangeQuery.newLongRange(FIELD_NAME, start, stop, includeLower, includeUpper);
-        return new CachingWrapperQuery(query);
+
+        // Do with cache
+        CacheKey cacheKey = new CacheKey(start, stop, includeLower, includeUpper);
+        CachingWrapperQuery cachedQuery = cache.getIfPresent(cacheKey);
+        if (cachedQuery == null) {
+            Query query = DocValuesRangeQuery.newLongRange(FIELD_NAME, start, stop, includeLower, includeUpper);
+            cachedQuery = new CachingWrapperQuery(query);
+            cache.put(cacheKey, cachedQuery);
+        }
+        return cachedQuery;
     }
 
+    /**
+     * Returns a Lucene {@link Query} to find the {@link Document}s containing a {@link Token} inside the specified
+     * {@link PartitionPosition}s.
+     *
+     * @param start the start position
+     * @param stop the stop position
+     * @return the query to find the documents containing a token inside the range
+     */
     public Query query(PartitionPosition start, PartitionPosition stop) {
         return query(start.getToken(), stop.getToken(), includeStart(start), includeStop(stop));
     }
@@ -173,5 +199,55 @@ public final class TokenMapper {
      */
     public Query query(Token token) {
         return new TermQuery(new Term(FIELD_NAME, bytesRef(token)));
+    }
+
+    private static final class CacheKey {
+
+        private final Long lower;
+        private final Long upper;
+        private final boolean includeLower;
+        private final boolean includeUpper;
+
+        public CacheKey(Long lower, Long upper, boolean includeLower, boolean includeUpper) {
+            this.lower = lower;
+            this.upper = upper;
+            this.includeLower = includeLower;
+            this.includeUpper = includeUpper;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            CacheKey that = (CacheKey) o;
+
+            if (includeLower != that.includeLower) {
+                return false;
+            }
+            if (includeUpper != that.includeUpper) {
+                return false;
+            }
+
+            if (lower != null ? !lower.equals(that.lower) : that.lower != null) {
+                return false;
+            }
+            return upper != null ? upper.equals(that.upper) : that.upper == null;
+
+        }
+
+        @Override
+        public int hashCode() {
+            int result = lower != null ? lower.hashCode() : 0;
+            result = 31 * result + (upper != null ? upper.hashCode() : 0);
+            result = 31 * result + (includeLower ? 1 : 0);
+            result = 31 * result + (includeUpper ? 1 : 0);
+            return result;
+        }
     }
 }
