@@ -514,8 +514,8 @@ public abstract class IndexService {
         Search search = search(command);
 
         // TODO: Skip if only one node is involved
-        // Skip if search is not top-k
-        if (!search.isTopK()) {
+        // Skip if search does not require full scan
+        if (!search.requiresFullScan()) {
             return partitions;
         }
 
@@ -525,18 +525,28 @@ public abstract class IndexService {
 
         int count = 0;
         List<Pair<DecoratedKey, SimpleRowIterator>> pairs = new ArrayList<>();
-        while (partitions.hasNext()) {
-            try (RowIterator partition = partitions.next()) {
-                DecoratedKey key = partition.partitionKey();
-                while (partition.hasNext()) {
-                    SimpleRowIterator rowIterator = new SimpleRowIterator(partition);
-                    pairs.add(Pair.create(key, rowIterator));
-                    count++;
+        TimeCounter collectTime = TimeCounter.create().start();
+        try {
+            while (partitions.hasNext()) {
+                try (RowIterator partition = partitions.next()) {
+                    DecoratedKey key = partition.partitionKey();
+                    while (partition.hasNext()) {
+                        SimpleRowIterator rowIterator = new SimpleRowIterator(partition);
+                        pairs.add(Pair.create(key, rowIterator));
+                        count++;
+                    }
                 }
             }
+        } finally {
+            logger.debug("Collected {} rows in {}", count, collectTime.stop());
         }
 
-        TimeCounter time = TimeCounter.create().start();
+        // Skip if search is not top-k
+        if (!search.isTopK()) {
+            return partitions;
+        }
+
+        TimeCounter sortTime = TimeCounter.create().start();
         try {
 
             // Index collected rows in memory
@@ -567,7 +577,7 @@ public abstract class IndexService {
             return new SimplePartitionIterator(rows);
 
         } finally {
-            logger.debug("Post-processed {} rows in {}", count, time.stop());
+            logger.debug("Post-processed {} rows in {}", count, sortTime.stop());
         }
     }
 
