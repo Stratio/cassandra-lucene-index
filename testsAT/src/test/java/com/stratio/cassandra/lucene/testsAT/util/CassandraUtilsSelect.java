@@ -29,9 +29,8 @@ import com.stratio.cassandra.lucene.builder.search.Search;
 import com.stratio.cassandra.lucene.builder.search.condition.Condition;
 import com.stratio.cassandra.lucene.builder.search.sort.SortField;
 
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.lang.reflect.Array;
+import java.util.*;
 
 import static com.stratio.cassandra.lucene.testsAT.util.CassandraConfig.FETCH;
 import static com.stratio.cassandra.lucene.testsAT.util.CassandraConfig.LIMIT;
@@ -190,6 +189,20 @@ public class CassandraUtilsSelect {
 
     public CassandraUtils check(int expected) {
         assertEquals(String.format("Expected %d results!", expected), expected, get().size());
+        return parent;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> CassandraUtils check(String column, Class<T> clazz, T... expecteds) {
+        List<Row> rows = get();
+        List<T> values = new ArrayList<>();
+        for (Row row:rows) {
+            T value = row.get(column, clazz);
+            values.add(value);
+        }
+        T [] actuals = (T[]) Array.newInstance(clazz, values.size());
+        values.toArray(actuals);
+        assertArrayEquals("Expected different values", expecteds, actuals);
         return parent;
     }
 

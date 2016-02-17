@@ -36,6 +36,7 @@ public class IndexReaderWide extends IndexReader {
 
     private final IndexServiceWide service;
     private Document nextDoc;
+    private ClusteringComparator comparator;
 
     public IndexReaderWide(ReadCommand command,
                            ColumnFamilyStore table,
@@ -44,6 +45,7 @@ public class IndexReaderWide extends IndexReader {
                            IndexServiceWide service) {
         super(command, table, orderGroup, documents);
         this.service = service;
+        this.comparator = service.metadata.comparator;
     }
 
     @Override
@@ -62,13 +64,21 @@ public class IndexReaderWide extends IndexReader {
 
         NavigableSet<Clustering> clusterings = service.clusterings();
         DecoratedKey key = service.decoratedKey(nextDoc);
+        Clustering clustering = service.clustering(nextDoc);
 
-        while (nextDoc != null && key.getKey().equals(service.decoratedKey(nextDoc).getKey())) {
-            Clustering clustering = service.clustering(nextDoc);
+        Clustering lastClustering = null;
+        while (nextDoc != null && key.getKey().equals(service.decoratedKey(nextDoc).getKey()) &&
+               (lastClustering == null || comparator.compare(lastClustering, clustering) < 0)) {
             if (command.selectsKey(key) && command.selectsClustering(key, clustering)) {
+                lastClustering = clustering;
                 clusterings.add(clustering);
             }
-            nextDoc = documents.hasNext() ? documents.next() : null;
+            if (documents.hasNext()) {
+                nextDoc = documents.next();
+                clustering = service.clustering(nextDoc);
+            } else {
+                nextDoc = null;
+            }
             if (documents.needsFetch()) {
                 break;
             }
