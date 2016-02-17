@@ -134,7 +134,6 @@ public class Index extends PerRowSecondaryIndex {
             logger.debug("Removing row from Lucene index {}", name);
             try {
                 service.delete(key);
-                service = null;
             } catch (Exception e) {
                 logger.error("Error deleting row in Lucene index " + name, e);
             }
