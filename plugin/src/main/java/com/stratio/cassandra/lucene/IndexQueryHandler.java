@@ -171,9 +171,10 @@ public class IndexQueryHandler implements QueryHandler {
                 throw new InvalidRequestException(
                         "Top-k searches don't support paging, so a cautious LIMIT clause should be provided " +
                         "to prevent excessive memory consumption.");
-            } else if (page > 0) {
+            } else if (page < limit) {
                 String json = UTF8Type.instance.compose(expression.getValue());
-                logger.warn("Disabling paging of {} rows for top-k search {} requesting {} rows", page, json, limit);
+                logger.warn("Disabling paging of {} rows/page for top-k search requesting {} rows: {}",
+                            page, json, limit);
                 return executeWithoutPaging(select, state, options);
             }
         }
