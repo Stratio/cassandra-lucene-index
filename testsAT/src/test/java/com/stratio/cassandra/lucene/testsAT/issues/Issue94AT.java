@@ -49,7 +49,7 @@ public class Issue94AT extends BaseAT {
                 .createIndex()
                 .refresh();
         utils.insert(new String[]{"a","b","c"},new Object[]{1, null, null});
-        utils.execute("INSERT INTO test.test(a , b , c ) VALUES ( 1,null,null);");
+        utils.execute("INSERT INTO "+utils.getKeyspace()+".test(a , b , c ) VALUES ( 1,null,null);");
         utils.dropTable().dropKeyspace();
     }
 }
