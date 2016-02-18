@@ -18,7 +18,6 @@ CREATE TABLE IF NOT EXISTS test.users (
   longitude float,
   number int,
   bool boolean,
-  stratio_col text,
   phrase text,
   date text,
   start_date text,
@@ -31,7 +30,7 @@ CREATE TABLE IF NOT EXISTS test.users (
 
 -- Create index
 CREATE CUSTOM INDEX IF NOT EXISTS users_index
-ON test.users (stratio_col)
+ON test.users ()
 USING 'com.stratio.cassandra.lucene.Index'
 WITH OPTIONS = {
     'refresh_seconds'       : '60',
