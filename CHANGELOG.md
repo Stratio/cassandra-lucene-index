@@ -1,7 +1,8 @@
 # Changelog
 
-## 2.2.5.2 (upcoming)
+## 2.2.5.1 (19 February 2016)
 
+Merged from 2.2.4.3:
 * Fixed explicit null values insertion (#94)
 
 ## 2.2.5.0 (9 February 2016)
