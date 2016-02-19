@@ -18,6 +18,7 @@
 
 package com.stratio.cassandra.lucene;
 
+import com.stratio.cassandra.lucene.cache.SearchCacheUpdater;
 import com.stratio.cassandra.lucene.index.DocumentIterator;
 import org.apache.cassandra.db.ColumnFamilyStore;
 import org.apache.cassandra.db.DecoratedKey;
@@ -25,6 +26,9 @@ import org.apache.cassandra.db.ReadCommand;
 import org.apache.cassandra.db.ReadOrderGroup;
 import org.apache.cassandra.db.filter.ClusteringIndexFilter;
 import org.apache.cassandra.db.rows.UnfilteredRowIterator;
+import org.apache.cassandra.utils.Pair;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.search.ScoreDoc;
 
 /**
  * {@link IndexReader} for skinny rows.
@@ -34,20 +38,24 @@ import org.apache.cassandra.db.rows.UnfilteredRowIterator;
 public class IndexReaderSkinny extends IndexReader {
 
     private final IndexServiceSkinny service;
+    private SearchCacheUpdater cacheUpdater;
 
-    public IndexReaderSkinny(ReadCommand command,
+    public IndexReaderSkinny(IndexServiceSkinny service,
+                             ReadCommand command,
                              ColumnFamilyStore table,
                              ReadOrderGroup orderGroup,
                              DocumentIterator documents,
-                             IndexServiceSkinny service) {
+                             SearchCacheUpdater cacheUpdater) {
         super(command, table, orderGroup, documents);
         this.service = service;
+        this.cacheUpdater = cacheUpdater;
     }
 
     @Override
     protected boolean prepareNext() {
         while (next == null && documents.hasNext()) {
-            DecoratedKey key = service.decoratedKey(documents.next());
+            Pair<Document, ScoreDoc> nextDoc = documents.next();
+            DecoratedKey key = service.decoratedKey(nextDoc.left);
             ClusteringIndexFilter filter = command.clusteringIndexFilter(key);
             UnfilteredRowIterator data = read(key, filter);
             if (data != null) {
@@ -55,6 +63,7 @@ public class IndexReaderSkinny extends IndexReader {
                     data.close();
                 } else {
                     next = data;
+                    cacheUpdater.put(key, null, nextDoc.right);
                 }
             }
         }

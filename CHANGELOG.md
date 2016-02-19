@@ -4,6 +4,8 @@
 
 * Upgrade to Apache Cassandra 3.0.3
 * Remove Sphinx documentation module
+* Add search cache
+* Add token ranges cache
 
 ## 2.2.5.0 (9 February 2016)
 

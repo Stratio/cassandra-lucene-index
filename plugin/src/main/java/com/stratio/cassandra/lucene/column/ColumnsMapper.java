@@ -148,7 +148,7 @@ public final class ColumnsMapper {
                 String itemName = userType.fieldNameAsString(i);
                 AbstractType<?> itemType = userType.fieldType(i);
                 // this only occurs in UDT not fully composed
-                if (values[i]!=null) {
+                if (values[i] != null) {
                     addColumns(columns, builder.withUDTName(itemName), itemType, values[i]);
                 }
             }

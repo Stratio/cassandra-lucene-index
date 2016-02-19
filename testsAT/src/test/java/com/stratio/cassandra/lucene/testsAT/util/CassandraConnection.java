@@ -18,7 +18,10 @@
 
 package com.stratio.cassandra.lucene.testsAT.util;
 
-import com.datastax.driver.core.*;
+import com.datastax.driver.core.Cluster;
+import com.datastax.driver.core.ResultSet;
+import com.datastax.driver.core.Session;
+import com.datastax.driver.core.Statement;
 import com.stratio.cassandra.lucene.testsAT.BaseAT;
 import org.slf4j.Logger;
 
@@ -44,7 +47,10 @@ public class CassandraConnection {
                         .build();
 
                 cluster.getConfiguration().getQueryOptions().setConsistencyLevel(CONSISTENCY).setFetchSize(FETCH);
-                cluster.getConfiguration().getSocketOptions().setReadTimeoutMillis(60000).setConnectTimeoutMillis(100000);
+                cluster.getConfiguration()
+                       .getSocketOptions()
+                       .setReadTimeoutMillis(60000)
+                       .setConnectTimeoutMillis(100000);
 
                 session = cluster.connect();
             } catch (Exception e) {

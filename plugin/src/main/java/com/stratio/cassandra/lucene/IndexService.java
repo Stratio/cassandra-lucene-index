@@ -18,6 +18,9 @@
 
 package com.stratio.cassandra.lucene;
 
+import com.stratio.cassandra.lucene.cache.SearchCache;
+import com.stratio.cassandra.lucene.cache.SearchCacheEntry;
+import com.stratio.cassandra.lucene.cache.SearchCacheUpdater;
 import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.column.ColumnsMapper;
 import com.stratio.cassandra.lucene.index.DocumentIterator;
@@ -53,10 +56,7 @@ import org.apache.cassandra.utils.Pair;
 import org.apache.cassandra.utils.concurrent.OpOrder;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.Sort;
-import org.apache.lucene.search.SortField;
+import org.apache.lucene.search.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,6 +85,8 @@ public abstract class IndexService {
     protected final PartitionMapper partitionMapper;
     protected final ColumnsMapper columnsMapper;
     protected final boolean mapsMultiCells;
+
+    private final SearchCache searchCache;
 
     /**
      * Constructor using the specified indexed table and index metadata.
@@ -125,6 +127,9 @@ public abstract class IndexService {
                                  .stream()
                                  .filter(x -> schema.getMappedCells().contains(x.name.toString()))
                                  .anyMatch(x -> x.type.isMultiCell());
+
+        // Setup search cache
+        searchCache = new SearchCache(metadata);
     }
 
     /**
@@ -317,12 +322,11 @@ public abstract class IndexService {
      * @param command the read command being executed
      * @return a searcher with which to perform the supplied command
      */
-    public Index.Searcher searcherFor(ReadCommand command) {
+    public Index.Searcher searcher(ReadCommand command) {
 
-        // Parse search data
-        Search search = search(command);
-        Query filter = query(command);
-        Query query = search.query(schema, filter);
+        // Parse search
+        String expression = expression(command);
+        Search search = SearchBuilder.fromJson(expression).build();
         Sort sort = sort(search);
 
         // Refresh if required
@@ -330,7 +334,22 @@ public abstract class IndexService {
             lucene.refresh();
         }
 
-        return (ReadOrderGroup orderGroup) -> read(query, sort, null, command, orderGroup);
+        // Try luck with cache
+        Optional<SearchCacheEntry> optional = searchCache.get(expression, command);
+        if (optional.isPresent()) {
+            logger.debug("Search cache hits");
+            SearchCacheEntry entry = optional.get();
+            Query query = entry.getQuery(); // Recover old cached query
+            ScoreDoc after = entry.getScoreDoc(); // Recover last index position
+            SearchCacheUpdater cacheUpdater = entry.updater(); // Prepare cache updater
+            return (ReadOrderGroup orderGroup) -> read(query, sort, after, command, orderGroup, cacheUpdater);
+        } else {
+            logger.debug("Search cache fails");
+            Query query = new CachingWrapperQuery(search.query(schema, query(command)));
+            searchCache.put(expression, command, query); // Cache query
+            SearchCacheUpdater cacheUpdater = searchCache.updater(expression, command, query);
+            return (ReadOrderGroup orderGroup) -> read(query, sort, null, command, orderGroup, cacheUpdater);
+        }
     }
 
     /**
@@ -340,13 +359,22 @@ public abstract class IndexService {
      * @return the {@link Search} contained in {@code command}
      */
     public Search search(ReadCommand command) {
+        return SearchBuilder.fromJson(expression(command)).build();
+    }
+
+    /**
+     * Returns the the {@link Search} contained in the specified {@link ReadCommand}.
+     *
+     * @param command the read command containing the {@link Search}
+     * @return the {@link Search} contained in {@code command}
+     */
+    public String expression(ReadCommand command) {
         for (Expression expression : command.rowFilter().getExpressions()) {
             if (expression.isCustom()) {
                 RowFilter.CustomExpression customExpression = (RowFilter.CustomExpression) expression;
                 if (name.equals(customExpression.getTargetIndex().name)) {
                     ByteBuffer bb = customExpression.getValue();
-                    String json = UTF8Type.instance.compose(bb);
-                    return SearchBuilder.fromJson(json).build();
+                    return UTF8Type.instance.compose(bb);
                 }
             }
         }
@@ -477,16 +505,18 @@ public abstract class IndexService {
      * @param after the last Lucene doc
      * @param command the Cassandra command
      * @param orderGroup the Cassandra read order group
+     * @param cacheUpdater the search cache updater
      * @return the local {@link Row}s satisfying the search
      */
     public UnfilteredPartitionIterator read(Query query,
                                             Sort sort,
                                             ScoreDoc after,
                                             ReadCommand command,
-                                            ReadOrderGroup orderGroup) {
+                                            ReadOrderGroup orderGroup,
+                                            SearchCacheUpdater cacheUpdater) {
         int limit = command.limits().count();
         DocumentIterator documents = lucene.search(query, sort, after, limit, fieldsToLoad());
-        return indexReader(documents, command, orderGroup);
+        return indexReader(documents, command, orderGroup, cacheUpdater);
     }
 
     /**
@@ -495,11 +525,13 @@ public abstract class IndexService {
      * @param documents the Lucene documents
      * @param command the Cassandra command
      * @param orderGroup the Cassandra read order group
+     * @param cacheUpdater the search cache updater
      * @return the local {@link Row}s satisfying the search
      */
     public abstract IndexReader indexReader(DocumentIterator documents,
                                             ReadCommand command,
-                                            ReadOrderGroup orderGroup);
+                                            ReadOrderGroup orderGroup,
+                                            SearchCacheUpdater cacheUpdater);
 
     /**
      * Post processes in the coordinator node the results of a distributed search. Gets the k globally best results from

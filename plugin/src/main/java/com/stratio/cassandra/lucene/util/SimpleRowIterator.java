@@ -42,8 +42,8 @@ public class SimpleRowIterator implements RowIterator {
     private final Iterator<Row> rows;
 
     /**
-     * Builds a new {@link SimpleRowIterator} from the current position of the specified {@link RowIterator}. Any other rows
-     * in the specified iterator won't be read.
+     * Builds a new {@link SimpleRowIterator} from the current position of the specified {@link RowIterator}. Any other
+     * rows in the specified iterator won't be read.
      *
      * @param iterator the {@link Row} iterator
      */

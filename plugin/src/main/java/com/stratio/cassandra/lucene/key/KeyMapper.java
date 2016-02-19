@@ -241,9 +241,11 @@ public final class KeyMapper {
         if (startPosition instanceof DecoratedKey) {
             DecoratedKey startKey = (DecoratedKey) startPosition;
             ClusteringIndexFilter filter = dataRange.clusteringIndexFilter(startKey);
-            ClusteringIndexSliceFilter sliceFilter = (ClusteringIndexSliceFilter) filter;
-            Slices slices = sliceFilter.requestedSlices();
-            return slices.get(0).start();
+            if (filter instanceof ClusteringIndexSliceFilter) {
+                ClusteringIndexSliceFilter sliceFilter = (ClusteringIndexSliceFilter) filter;
+                Slices slices = sliceFilter.requestedSlices();
+                return slices.get(0).start();
+            }
         }
         return null;
     }
@@ -259,9 +261,11 @@ public final class KeyMapper {
         if (stopPosition instanceof DecoratedKey) {
             DecoratedKey stopKey = (DecoratedKey) stopPosition;
             ClusteringIndexFilter filter = dataRange.clusteringIndexFilter(stopKey);
-            ClusteringIndexSliceFilter sliceFilter = (ClusteringIndexSliceFilter) filter;
-            Slices slices = sliceFilter.requestedSlices();
-            return slices.get(slices.size() - 1).end();
+            if (filter instanceof ClusteringIndexSliceFilter) {
+                ClusteringIndexSliceFilter sliceFilter = (ClusteringIndexSliceFilter) filter;
+                Slices slices = sliceFilter.requestedSlices();
+                return slices.get(slices.size() - 1).end();
+            }
         }
         return null;
     }

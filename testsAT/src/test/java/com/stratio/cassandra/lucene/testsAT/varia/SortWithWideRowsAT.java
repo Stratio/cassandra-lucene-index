@@ -59,7 +59,7 @@ public class SortWithWideRowsAT extends BaseAT {
 
     @AfterClass
     public static void after() {
-//        utils.dropIndex().dropTable().dropKeyspace();
+        utils.dropIndex().dropTable().dropKeyspace();
     }
 
     @Test

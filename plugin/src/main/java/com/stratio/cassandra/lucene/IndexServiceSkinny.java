@@ -18,14 +18,13 @@
 
 package com.stratio.cassandra.lucene;
 
+import com.stratio.cassandra.lucene.cache.SearchCacheUpdater;
 import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.index.DocumentIterator;
-import com.stratio.cassandra.lucene.key.KeyMapper;
 import com.stratio.cassandra.lucene.key.PartitionMapper;
 import org.apache.cassandra.db.*;
 import org.apache.cassandra.db.filter.ClusteringIndexFilter;
 import org.apache.cassandra.db.rows.Row;
-import org.apache.cassandra.dht.Token;
 import org.apache.cassandra.index.transactions.IndexTransaction;
 import org.apache.cassandra.schema.IndexMetadata;
 import org.apache.cassandra.utils.concurrent.OpOrder;
@@ -129,8 +128,9 @@ public class IndexServiceSkinny extends IndexService {
     @Override
     public IndexReaderSkinny indexReader(DocumentIterator documents,
                                          ReadCommand command,
-                                         ReadOrderGroup orderGroup) {
-        return new IndexReaderSkinny(command, table, orderGroup, documents, this);
+                                         ReadOrderGroup orderGroup,
+                                         SearchCacheUpdater cacheUpdater) {
+        return new IndexReaderSkinny(this, command, table, orderGroup, documents, cacheUpdater);
 
     }
 }

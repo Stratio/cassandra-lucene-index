@@ -96,7 +96,7 @@ public final class TokenMapper {
      * @param token a Murmur3 token
      * @return the {@code token}'s {code Long} value
      */
-    private static Long value(Token token) {
+    public static Long value(Token token) {
         return (Long) token.getTokenValue();
     }
 

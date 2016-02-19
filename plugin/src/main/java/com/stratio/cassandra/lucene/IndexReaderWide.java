@@ -18,12 +18,15 @@
 
 package com.stratio.cassandra.lucene;
 
+import com.stratio.cassandra.lucene.cache.SearchCacheUpdater;
 import com.stratio.cassandra.lucene.index.DocumentIterator;
 import org.apache.cassandra.db.*;
 import org.apache.cassandra.db.filter.ClusteringIndexFilter;
 import org.apache.cassandra.db.filter.ClusteringIndexNamesFilter;
 import org.apache.cassandra.db.rows.UnfilteredRowIterator;
+import org.apache.cassandra.utils.Pair;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.search.ScoreDoc;
 
 import java.util.NavigableSet;
 
@@ -35,17 +38,20 @@ import java.util.NavigableSet;
 public class IndexReaderWide extends IndexReader {
 
     private final IndexServiceWide service;
-    private Document nextDoc;
+    private Pair<Document, ScoreDoc> nextDoc;
     private ClusteringComparator comparator;
+    private SearchCacheUpdater cacheUpdater;
 
-    public IndexReaderWide(ReadCommand command,
+    public IndexReaderWide(IndexServiceWide service,
+                           ReadCommand command,
                            ColumnFamilyStore table,
                            ReadOrderGroup orderGroup,
                            DocumentIterator documents,
-                           IndexServiceWide service) {
+                           SearchCacheUpdater cacheUpdater) {
         super(command, table, orderGroup, documents);
         this.service = service;
         this.comparator = service.metadata.comparator;
+        this.cacheUpdater = cacheUpdater;
     }
 
     @Override
@@ -63,19 +69,20 @@ public class IndexReaderWide extends IndexReader {
         }
 
         NavigableSet<Clustering> clusterings = service.clusterings();
-        DecoratedKey key = service.decoratedKey(nextDoc);
-        Clustering clustering = service.clustering(nextDoc);
+        DecoratedKey key = service.decoratedKey(nextDoc.left);
+        Clustering clustering = service.clustering(nextDoc.left);
 
         Clustering lastClustering = null;
-        while (nextDoc != null && key.getKey().equals(service.decoratedKey(nextDoc).getKey()) &&
+        while (nextDoc != null && key.getKey().equals(service.decoratedKey(nextDoc.left).getKey()) &&
                (lastClustering == null || comparator.compare(lastClustering, clustering) < 0)) {
             if (command.selectsKey(key) && command.selectsClustering(key, clustering)) {
                 lastClustering = clustering;
                 clusterings.add(clustering);
+                cacheUpdater.put(key, clustering, nextDoc.right);
             }
             if (documents.hasNext()) {
                 nextDoc = documents.next();
-                clustering = service.clustering(nextDoc);
+                clustering = service.clustering(nextDoc.left);
             } else {
                 nextDoc = null;
             }

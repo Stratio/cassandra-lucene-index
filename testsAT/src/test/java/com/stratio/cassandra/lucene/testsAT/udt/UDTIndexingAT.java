@@ -511,13 +511,13 @@ public class UDTIndexingAT extends BaseAT {
                         "(login, first_name, last_name, address) VALUES (" +
                         "'USER10'," +
                         "'Tom'," +
-                        "'Smith',{"+
+                        "'Smith',{" +
                         "city: 'Madrid'});";
 
         cassandraUtils.execute(new SimpleStatement(insert));
         cassandraUtils.refresh();
 
-        CassandraUtilsSelect select = cassandraUtils.filter(match("address.city","Madrid"));
+        CassandraUtilsSelect select = cassandraUtils.filter(match("address.city", "Madrid"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"),
                                       new String[]{"USER10"});
     }

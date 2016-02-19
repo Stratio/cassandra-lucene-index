@@ -3,6 +3,7 @@ package com.stratio.cassandra.lucene.index;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.util.TimeCounter;
 import org.apache.cassandra.utils.CloseableIterator;
+import org.apache.cassandra.utils.Pair;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.search.*;
 import org.slf4j.Logger;
@@ -18,7 +19,7 @@ import java.util.Set;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class DocumentIterator implements CloseableIterator<Document> {
+public class DocumentIterator implements CloseableIterator<Pair<Document, ScoreDoc>> {
 
     private static final Logger logger = LoggerFactory.getLogger(DocumentIterator.class);
 
@@ -28,7 +29,7 @@ public class DocumentIterator implements CloseableIterator<Document> {
     private ScoreDoc after;
     private Integer page;
     private Set<String> fields;
-    private LinkedList<Document> documents = new LinkedList<>();
+    private LinkedList<Pair<Document, ScoreDoc>> documents = new LinkedList<>();
     private boolean mayHaveMore = true;
 
     /**
@@ -74,7 +75,7 @@ public class DocumentIterator implements CloseableIterator<Document> {
                 // Collect the documents from query result
                 for (ScoreDoc scoreDoc : scoreDocs) {
                     Document document = searcher.doc(scoreDoc.doc, fields);
-                    documents.add(document);
+                    documents.add(Pair.create(document, scoreDoc));
                     after = scoreDoc;
                 }
 
@@ -114,7 +115,7 @@ public class DocumentIterator implements CloseableIterator<Document> {
      * @throws NoSuchElementException if the iteration has no more {@link Document}s
      */
     @Override
-    public Document next() {
+    public Pair<Document, ScoreDoc> next() {
         if (hasNext()) {
             return documents.poll();
         } else {
@@ -125,10 +126,10 @@ public class DocumentIterator implements CloseableIterator<Document> {
     /** {@inheritDoc} */
     @Override
     public void close() {
-//        try {
-//            manager.release(searcher);
-//        } catch (Exception e) {
-//            throw new IndexException(logger, e, "Error releasing index searcher");
-//        }
+        //        try {
+        //            manager.release(searcher);
+        //        } catch (Exception e) {
+        //            throw new IndexException(logger, e, "Error releasing index searcher");
+        //        }
     }
 }

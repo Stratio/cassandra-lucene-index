@@ -231,7 +231,7 @@ public class Index implements org.apache.cassandra.index.Index {
      */
     @Override
     public Callable<?> getTruncateTask(long truncatedAt) {
-        logger.debug("Getting truncate task");
+        logger.trace("Getting truncate task");
         return () -> {
             logger.info("Truncating Lucene index {}", name);
             service.truncate();
@@ -318,7 +318,7 @@ public class Index implements org.apache.cassandra.index.Index {
      */
     @Override
     public RowFilter getPostIndexQueryFilter(RowFilter filter) {
-        logger.debug("Getting the post index query filter for {}", filter);
+        logger.trace("Getting the post index query filter for {}", filter);
         return filter;
     }
 
@@ -332,7 +332,7 @@ public class Index implements org.apache.cassandra.index.Index {
      */
     @Override
     public long getEstimatedResultRows() {
-        logger.debug("Getting the estimated result rows");
+        logger.trace("Getting the estimated result rows");
         return 1;
     }
 
@@ -350,7 +350,7 @@ public class Index implements org.apache.cassandra.index.Index {
      */
     @Override
     public void validate(PartitionUpdate update) throws InvalidRequestException {
-        logger.debug("Validating {}", update);
+        logger.trace("Validating {}", update);
         try {
             service.validate(update);
         } catch (Exception e) {
@@ -419,10 +419,11 @@ public class Index implements org.apache.cassandra.index.Index {
      */
     @Override
     public Searcher searcherFor(ReadCommand command) throws InvalidRequestException {
-        logger.debug("Getting searcher for {}", command);
+        logger.trace("Getting searcher for {}", command);
         try {
-            return service.searcherFor(command);
+            return service.searcher(command);
         } catch (Exception e) {
+            e.printStackTrace();
             logger.error("Error while searching", e);
             throw new InvalidRequestException(e.getMessage());
         }
@@ -430,6 +431,7 @@ public class Index implements org.apache.cassandra.index.Index {
 
     /**
      * Validates the specified {@link RowFilter.CustomExpression}.
+     *
      * @param expression the expression to be validated
      * @return the valid search represented by {@code expression}
      * @throws InvalidRequestException if the expression is not valid
