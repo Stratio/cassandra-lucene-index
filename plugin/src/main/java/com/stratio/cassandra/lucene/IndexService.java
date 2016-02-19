@@ -127,7 +127,7 @@ public abstract class IndexService {
         columnsMapper = new ColumnsMapper();
         mapsMultiCells = metadata.allColumns()
                                  .stream()
-                                 .filter(x -> schema.getMappedCells().contains(x.name.toString()))
+                                 .filter(x -> schema.getMappedCells().contains(x.name))
                                  .anyMatch(x -> x.type.isMultiCell());
     }
 
@@ -136,6 +136,7 @@ public abstract class IndexService {
      *
      * @param table the indexed table
      * @param indexMetadata the index metadata
+     * @return the index service
      */
     public static IndexService build(ColumnFamilyStore table, IndexMetadata indexMetadata) {
         return table.getComparator().subtypes().isEmpty()

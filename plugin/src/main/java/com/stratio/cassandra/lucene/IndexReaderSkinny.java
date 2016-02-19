@@ -40,6 +40,16 @@ public class IndexReaderSkinny extends IndexReader {
     private final IndexServiceSkinny service;
     private SearchCacheUpdater cacheUpdater;
 
+    /**
+     * Constructor taking the Cassandra read data and the Lucene results iterator.
+     *
+     * @param service the index service
+     * @param command the read command
+     * @param table the base table
+     * @param orderGroup the order group of the read operation
+     * @param documents the documents iterator
+     * @param cacheUpdater the search cache updater
+     */
     public IndexReaderSkinny(IndexServiceSkinny service,
                              ReadCommand command,
                              ColumnFamilyStore table,

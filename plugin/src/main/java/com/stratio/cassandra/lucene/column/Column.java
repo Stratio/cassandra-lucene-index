@@ -84,20 +84,43 @@ public final class Column<T> {
         this.type = type;
     }
 
+    /**
+     * Returns a new {@link ColumnBuilder} using the specified base cell name.
+     *
+     * @param cellName the base cell name
+     * @return the column builder
+     */
     public static ColumnBuilder builder(String cellName) {
         return new ColumnBuilder(cellName);
     }
 
+    /**
+     * Returns if the specified name belongs to a tuple.
+     *
+     * @param name the name
+     * @return {@code true} if the name belongs to a tuple, {@code false} otherwise
+     */
     public static boolean isTuple(String name) {
         return name.contains(UDT_SEPARATOR);
     }
 
+    /**
+     * Checks if the specified name is syntactically correct.
+     *
+     * @param name the name to be checked
+     */
     public static void check(String name) {
         if (!NAME_PATTERN.matcher(name).matches()) {
             throw new IndexException("Name %s doesn't satisfy the mandatory pattern %s", name, NAME_PATTERN.pattern());
         }
     }
 
+    /**
+     * Returns the mapper name component of the specified field name.
+     *
+     * @param field a field name
+     * @return the mapper name component
+     */
     public static String getMapperName(String field) {
         return field.split(MAP_PATTERN)[0];
     }
@@ -128,6 +151,11 @@ public final class Column<T> {
         return cellName + getUDTSuffix() + getMapSuffix();
     }
 
+    /**
+     * Returns the UDT suffix.
+     *
+     * @return the UDT suffix
+     */
     private String getUDTSuffix() {
         String result = "";
         for (String udtName : udtNames) {
@@ -136,6 +164,11 @@ public final class Column<T> {
         return result;
     }
 
+    /**
+     * Returns the map suffix.
+     *
+     * @return the map suffix
+     */
     private String getMapSuffix() {
         String result = "";
         for (String mapName : mapNames) {

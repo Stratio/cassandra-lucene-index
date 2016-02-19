@@ -38,6 +38,14 @@ public abstract class IndexReader implements UnfilteredPartitionIterator {
     protected final DocumentIterator documents;
     protected UnfilteredRowIterator next;
 
+    /**
+     * Constructor taking the Cassandra read data and the Lucene results iterator.
+     *
+     * @param command the read command
+     * @param table the base table
+     * @param orderGroup the order group of the read operation
+     * @param documents the documents iterator
+     */
     public IndexReader(ReadCommand command,
                        ColumnFamilyStore table,
                        ReadOrderGroup orderGroup,

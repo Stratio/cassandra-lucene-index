@@ -35,36 +35,68 @@ public class ColumnBuilder {
     private List<String> udtNames;
     private List<String> mapNames;
 
+    /**
+     * Constructor taking the cell name.
+     * @param cellName the cell name
+     */
     public ColumnBuilder(String cellName) {
         this.cellName = cellName;
         udtNames = new ArrayList<>();
         mapNames = new ArrayList<>();
     }
 
+    /**
+     * Returns a new {@link Column} using the specified composed value and its type.
+     * @param composedValue the decomposed value
+     * @param type the value type
+     * @param <T> the marshaller's base type
+     * @return the built column
+     */
     public <T> Column<T> buildWithComposed(T composedValue, AbstractType<T> type) {
         ByteBuffer decomposedValue = type.decompose(composedValue);
         return new Column<>(cellName, udtNames, mapNames, decomposedValue, composedValue, type);
     }
 
+    /**
+     * Returns a new {@link Column} using the specified decomposed value and its type.
+     * @param decomposedValue the decomposed value
+     * @param type the value type
+     * @param <T> the marshaller's base type
+     * @return the built column
+     */
     public <T> Column<T> buildWithDecomposed(ByteBuffer decomposedValue, AbstractType<T> type) {
         T composedValue = type.compose(decomposedValue);
         return new Column<>(cellName, udtNames, mapNames, decomposedValue, composedValue, type);
     }
 
+    /**
+     * Returns this builder with the specified UDT name component.
+     * @param name the UDT name component
+     * @return this
+     */
     public ColumnBuilder withUDTName(String name) {
-        ColumnBuilder clone = clone();
+        ColumnBuilder clone = copy();
         clone.udtNames.add(name);
         return clone;
     }
 
+    /**
+     * Returns this builder with the specified map name component.
+     * @param name the map key name component
+     * @return this
+     */
     public ColumnBuilder withMapName(String name) {
-        ColumnBuilder clone = clone();
+        ColumnBuilder clone = copy();
         clone.mapNames.add(name);
         return clone;
     }
 
-    @Override
-    public ColumnBuilder clone() {
+    /**
+     * Returns a new copy of this.
+
+     * @return the copy
+     */
+    public ColumnBuilder copy() {
         ColumnBuilder clone = new ColumnBuilder(cellName);
         clone.udtNames.addAll(udtNames);
         clone.mapNames.addAll(mapNames);

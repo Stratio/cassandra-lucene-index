@@ -582,7 +582,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         try {
             date = format.parse("2015/03/24 11:15:14");
         } catch (ParseException e) {
-            e.printStackTrace();
+            logger.error(e.getMessage(), e);
         }
         assertEquals("Date parsing is wrong",
                      new BitemporalDateTime(date),

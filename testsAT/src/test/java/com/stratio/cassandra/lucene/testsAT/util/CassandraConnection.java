@@ -54,7 +54,6 @@ public class CassandraConnection {
 
                 session = cluster.connect();
             } catch (Exception e) {
-                e.printStackTrace();
                 throw new RuntimeException("Error while connecting to Cassandra server", e);
             }
         }

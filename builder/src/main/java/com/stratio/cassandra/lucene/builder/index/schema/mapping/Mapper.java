@@ -26,6 +26,7 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
 /**
  * Class for mapping between Cassandra's columns and Lucene documents.
  *
+ * @param <T> the type of the mapper to be built
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
