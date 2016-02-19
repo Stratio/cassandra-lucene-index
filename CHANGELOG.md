@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.2.4.3 (upcoming)
+## 2.2.4.3 (19 February 2016)
 
 * Fixed explicit null values insertion (#94)
 
