@@ -203,7 +203,10 @@ public class CassandraUtils {
     }
 
     public CassandraUtils createIndex() {
-        Index index = index(keyspace, table, this.index).refreshSeconds(REFRESH).indexingThreads(THREADS);
+        Index index = index(keyspace, table, this.index).refreshSeconds(REFRESH)
+                                                        .indexingThreads(THREADS)
+                                                        .tokenRangeCacheSize(TOKEN_RANGE_CACHE_SIZE)
+                                                        .searchCacheSize(SEARCH_CACHE_SIZE);
         for (Map.Entry<String, Mapper> entry : mappers.entrySet()) {
             index.mapper(entry.getKey(), entry.getValue());
         }

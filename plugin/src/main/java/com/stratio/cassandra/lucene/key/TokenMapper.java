@@ -69,11 +69,10 @@ public final class TokenMapper {
     /**
      * Default constructor.
      */
-    public TokenMapper() {
+    public TokenMapper(int cacheSize) {
         if (!(DatabaseDescriptor.getPartitioner() instanceof Murmur3Partitioner)) {
             throw new IndexException("Only Murmur3 partitioner is supported");
         }
-        int cacheSize = Math.max(DatabaseDescriptor.getNumTokens(), 100);
         cache = CacheBuilder.newBuilder().maximumSize(cacheSize).build();
     }
 

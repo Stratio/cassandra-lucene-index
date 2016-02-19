@@ -70,6 +70,7 @@ public class FSIndex implements FSIndexMBean {
      * @param ramBufferMB the index writer RAM buffer size in MB
      * @param maxMergeMB the directory max merge size in MB
      * @param maxCachedMB the directory max cache size in MB
+     * @param refreshTask action to be done during refresh
      */
     public FSIndex(String name,
                    String mbeanName,
@@ -78,7 +79,8 @@ public class FSIndex implements FSIndexMBean {
                    double refresh,
                    int ramBufferMB,
                    int maxMergeMB,
-                   int maxCachedMB) {
+                   int maxCachedMB,
+                   Runnable refreshTask) {
         try {
             this.path = path;
             this.name = name;
@@ -99,6 +101,9 @@ public class FSIndex implements FSIndexMBean {
             SearcherFactory searcherFactory = new SearcherFactory() {
                 @Override
                 public IndexSearcher newSearcher(IndexReader reader, IndexReader previousReader) {
+                    if (refreshTask != null) {
+                        refreshTask.run();
+                    }
                     IndexSearcher searcher = new IndexSearcher(reader);
                     searcher.setSimilarity(new NoIDFSimilarity());
                     return searcher;

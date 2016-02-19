@@ -4,8 +4,14 @@
 
 * Upgrade to Apache Cassandra 3.0.3
 * Remove Sphinx documentation module
+* Force disable paging for top-k queries 
 * Add search cache
 * Add token ranges cache
+
+## 2.2.5.1 (19 February 2016)
+
+Merged from 2.2.4.3:
+* Fixed explicit null values insertion (#94)
 
 ## 2.2.5.0 (9 February 2016)
 
@@ -20,7 +26,7 @@
 * Returns static columns (#70)
 * Fixed UDT bug (#85)
 * Sort by geographical distance
-
+    
 ## 2.2.4.0 (11 December 2015)
 
 * Upgrade to Apache Cassandra 2.2.4

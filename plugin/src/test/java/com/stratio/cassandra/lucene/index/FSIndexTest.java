@@ -61,7 +61,8 @@ public class FSIndexTest {
                                     REFRESH_SECONDS,
                                     IndexOptions.DEFAULT_RAM_BUFFER_MB,
                                     IndexOptions.DEFAULT_MAX_MERGE_MB,
-                                    IndexOptions.DEFAULT_MAX_CACHED_MB);
+                                    IndexOptions.DEFAULT_MAX_CACHED_MB,
+                                    null);
 
         Sort sort = new Sort(new SortField("field", SortField.Type.STRING));
         assertEquals("Index must be empty", 0, index.getNumDocs());

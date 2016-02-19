@@ -106,8 +106,9 @@ public abstract class IndexService {
                                          metadata.cfName,
                                          name);
 
-        // Setup Lucene index and its write queue
+        // Setup cache, index and write queue
         IndexOptions options = new IndexOptions(metadata, indexMetadata);
+        searchCache = new SearchCache(metadata, options.searchCacheSize);
         lucene = new FSIndex(name,
                              mbeanName,
                              options.path,
@@ -115,21 +116,19 @@ public abstract class IndexService {
                              options.refreshSeconds,
                              options.ramBufferMB,
                              options.maxMergeMB,
-                             options.maxCachedMB);
+                             options.maxCachedMB,
+                             searchCache::invalidate);
         queue = new TaskQueue(options.indexingThreads, options.indexingQueuesSize);
 
         // Setup mapping
         schema = options.schema;
-        tokenMapper = new TokenMapper();
+        tokenMapper = new TokenMapper(options.tokenRangeCacheSize);
         partitionMapper = new PartitionMapper(metadata);
         columnsMapper = new ColumnsMapper();
         mapsMultiCells = metadata.allColumns()
                                  .stream()
                                  .filter(x -> schema.getMappedCells().contains(x.name.toString()))
                                  .anyMatch(x -> x.type.isMultiCell());
-
-        // Setup search cache
-        searchCache = new SearchCache(metadata);
     }
 
     /**

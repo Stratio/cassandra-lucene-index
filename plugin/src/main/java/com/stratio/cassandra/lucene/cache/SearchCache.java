@@ -39,9 +39,9 @@ public class SearchCache {
     private final ClusteringComparator comparator;
     private final Cache<UUID, SearchCacheEntry> cache;
 
-    public SearchCache(CFMetaData metadata) {
+    public SearchCache(CFMetaData metadata, int cacheSize) {
         this.comparator = metadata.comparator;
-        this.cache = CacheBuilder.newBuilder().maximumSize(100).build();
+        this.cache = CacheBuilder.newBuilder().maximumSize(cacheSize).build();
     }
 
     void put(UUID key, SearchCacheEntry entry) {
@@ -51,7 +51,7 @@ public class SearchCache {
     public void put(String search, ReadCommand command, Query query) {
         if (command instanceof PartitionRangeReadCommand) {
             PartitionRangeReadCommand rangeCommand = (PartitionRangeReadCommand) command;
-            cache.put(UUID.randomUUID(), new SearchCacheEntry(this, search, rangeCommand, query));
+            put(UUID.randomUUID(), new SearchCacheEntry(this, search, rangeCommand, query));
         }
     }
 
@@ -59,10 +59,18 @@ public class SearchCache {
         return new SearchCacheUpdater(this, search, UUID.randomUUID(), command, query);
     }
 
+    public void invalidate() {
+        cache.invalidateAll();
+    }
+
     public Optional<SearchCacheEntry> get(String search, ReadCommand command) {
         if (command instanceof PartitionRangeReadCommand) {
             PartitionRangeReadCommand rangeCommand = (PartitionRangeReadCommand) command;
-            return cache.asMap().values().stream().filter(e -> e.isValid(comparator, search, rangeCommand)).findAny();
+            return cache.asMap()
+                        .values()
+                        .stream()
+                        .filter(e -> e.isValid(comparator, search, rangeCommand))
+                        .findAny();
         }
         return Optional.empty();
     }

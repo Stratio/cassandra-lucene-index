@@ -41,6 +41,8 @@ public class Index extends Builder {
     private Integer maxCachedMb;
     private Integer indexingThreads;
     private Integer indexingQueuesSize;
+    private Integer tokenRangeCacheSize;
+    private Integer searchCacheSize;
     private String excludedDataCenters;
 
     /**
@@ -144,6 +146,28 @@ public class Index extends Builder {
     }
 
     /**
+     * Sets the token range cache size.
+     *
+     * @param tokenRangeCacheSize The token range cache size.
+     * @return This.
+     */
+    public Index tokenRangeCacheSize(Integer tokenRangeCacheSize) {
+        this.tokenRangeCacheSize = tokenRangeCacheSize;
+        return this;
+    }
+
+    /**
+     * Sets the search cache size.
+     *
+     * @param searchCacheSize The search cache size.
+     * @return This.
+     */
+    public Index searchCacheSize(Integer searchCacheSize) {
+        this.searchCacheSize = searchCacheSize;
+        return this;
+    }
+
+    /**
      * Sets the list of excluded data centers.
      *
      * @param excludedDataCenters The list of excluded data centers.
@@ -216,6 +240,8 @@ public class Index extends Builder {
         option(sb, "indexing_threads", indexingThreads);
         option(sb, "indexing_queues_size", indexingQueuesSize);
         option(sb, "excluded_data_centers", excludedDataCenters);
+        option(sb, "token_range_cache_size", tokenRangeCacheSize);
+        option(sb, "search_cache_size", searchCacheSize);
         sb.append(String.format("'schema':'%s'}", schema));
         return sb.toString();
     }

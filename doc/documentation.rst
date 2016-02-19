@@ -341,15 +341,17 @@ where:
 
 .. code-block:: sql
 
-    <options> := { ('refresh_seconds'       : '<int_value>',)?
-                   ('ram_buffer_mb'         : '<int_value>',)?
-                   ('max_merge_mb'          : '<int_value>',)?
-                   ('max_cached_mb'         : '<int_value>',)?
-                   ('indexing_threads'      : '<int_value>',)?
-                   ('indexing_queues_size'  : '<int_value>',)?
-                   ('directory_path'        : '<string_value>',)?
-                   ('excluded_data_centers' : '<string_value>',)?
-                   'schema'                 : '<schema_definition>'};
+    <options> := { ('refresh_seconds'        : '<int_value>',)?
+                   ('ram_buffer_mb'          : '<int_value>',)?
+                   ('max_merge_mb'           : '<int_value>',)?
+                   ('max_cached_mb'          : '<int_value>',)?
+                   ('indexing_threads'       : '<int_value>',)?
+                   ('indexing_queues_size'   : '<int_value>',)?
+                   ('directory_path'         : '<string_value>',)?
+                   ('excluded_data_centers'  : '<string_value>',)?
+                   ('token_range_cache_size' : '<int_value>',)?
+                   ('search_cache_size'      : '<int_value>',)?
+                   'schema'                  : '<schema_definition>'};
 
 All options take a value enclosed in single quotes:
 
@@ -369,6 +371,8 @@ All options take a value enclosed in single quotes:
 -  **excluded\_data\_centers**: The comma-separated list of the data centers
    to be excluded. The index will be created on this data centers but all the
    write operations will be silently ignored.
+-  **token\_range\_cache\_size**: max number of token ranges to be cached. Defaults to ’16’.
+-  **search\_cache\_size**: max number of searches to be cached. Defaults to ’16’.
 -  **schema**: see below
 
 .. code-block:: sql
@@ -1143,11 +1147,13 @@ Cassandra shell:
     ON test.users ()
     USING 'com.stratio.cassandra.lucene.Index'
     WITH OPTIONS = {
-        'refresh_seconds'       : '60',
-        'ram_buffer_mb'         : '64',
-        'max_merge_mb'          : '5',
-        'max_cached_mb'         : '30',
-        'excluded_data_centers' : 'dc2,dc3',
+        'refresh_seconds'        : '60',
+        'ram_buffer_mb'          : '64',
+        'max_merge_mb'           : '5',
+        'max_cached_mb'          : '30',
+        'excluded_data_centers'  : 'dc2,dc3',
+        'token_range_cache_size' : '16',
+        'search_cache_size'      : '16',
         'schema' : '{
             analyzers : {
                 my_custom_analyzer : {
