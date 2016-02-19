@@ -1,13 +1,13 @@
 # Changelog
 
-## 3.0.3.0 (upcoming)
+## 3.0.3.0 (19 February 2016)
 
 * Upgrade to Apache Cassandra 3.0.3
-* Remove Sphinx documentation module
-* Force disable paging for top-k searches 
+* Force disable paging for top-k searches
+* Add search cache (improves paging performance)
+* Add token ranges cache (improves search performance)
 * Remove support of other partitioners than Murmur3
-* Add search cache
-* Add token ranges cache
+* Remove Sphinx documentation module
 
 ## 2.2.5.1 (19 February 2016)
 
