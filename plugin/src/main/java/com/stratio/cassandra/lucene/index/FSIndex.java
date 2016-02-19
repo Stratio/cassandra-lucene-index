@@ -191,7 +191,7 @@ public class FSIndex implements FSIndexMBean {
         } catch (Exception e) {
             throw new IndexException(logger, e, "Error committing %s", name);
         }
-        logger.info("Committed {}", name);
+        logger.debug("Committed {}", name);
     }
 
     /**
@@ -325,13 +325,13 @@ public class FSIndex implements FSIndexMBean {
      */
     @Override
     public void refresh() {
-        logger.info("Refreshing {} readers", name);
+        logger.debug("Refreshing {} readers", name);
         try {
             commit();
             searcherManager.maybeRefreshBlocking();
         } catch (Exception e) {
             throw new IndexException(logger, e, "Error refreshing %s readers", name);
         }
-        logger.info("Refreshed {} readers", name);
+        logger.debug("Refreshed {} readers", name);
     }
 }

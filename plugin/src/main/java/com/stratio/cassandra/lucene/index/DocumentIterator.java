@@ -126,10 +126,5 @@ public class DocumentIterator implements CloseableIterator<Pair<Document, ScoreD
     /** {@inheritDoc} */
     @Override
     public void close() {
-        //        try {
-        //            manager.release(searcher);
-        //        } catch (Exception e) {
-        //            throw new IndexException(logger, e, "Error releasing index searcher");
-        //        }
     }
 }

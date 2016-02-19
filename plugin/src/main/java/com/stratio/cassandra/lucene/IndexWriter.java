@@ -71,34 +71,34 @@ public abstract class IndexWriter implements Index.Indexer {
     /** {@inheritDoc} */
     @Override
     public void partitionDelete(DeletionTime deletionTime) {
-        logger.debug("Delete partition during {}: {}", transactionType, deletionTime);
+        logger.trace("Delete partition during {}: {}", transactionType, deletionTime);
         delete();
     }
 
     /** {@inheritDoc} */
     @Override
     public void rangeTombstone(RangeTombstone tombstone) {
-        logger.debug("Range tombstone during {}: {}", transactionType, tombstone);
+        logger.trace("Range tombstone during {}: {}", transactionType, tombstone);
     }
 
     /** {@inheritDoc} */
     @Override
     public void insertRow(Row row) {
-        logger.debug("Insert rows during {}: {}", transactionType, row);
+        logger.trace("Insert rows during {}: {}", transactionType, row);
         index(row);
     }
 
     /** {@inheritDoc} */
     @Override
     public void updateRow(Row oldRowData, Row newRowData) {
-        logger.debug("Update row during {}: {} TO {}", transactionType, oldRowData, newRowData);
+        logger.trace("Update row during {}: {} TO {}", transactionType, oldRowData, newRowData);
         index(newRowData);
     }
 
     /** {@inheritDoc} */
     @Override
     public void removeRow(Row row) {
-        logger.debug("Remove row during {}: {}", transactionType, row);
+        logger.trace("Remove row during {}: {}", transactionType, row);
         index(row);
     }
 

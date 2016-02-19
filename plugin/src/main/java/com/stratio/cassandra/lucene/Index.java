@@ -202,6 +202,7 @@ public class Index implements org.apache.cassandra.index.Index {
     @Override
     public Callable<?> getBlockingFlushTask() {
         return () -> {
+            logger.info("Flushing Lucene index {}", name);
             service.commit();
             return null;
         };
@@ -253,7 +254,7 @@ public class Index implements org.apache.cassandra.index.Index {
      */
     @Override
     public boolean shouldBuildBlocking() {
-        logger.debug("Asking if it should build blocking");
+        logger.trace("Asking if it should build blocking");
         return true;
     }
 
@@ -273,7 +274,7 @@ public class Index implements org.apache.cassandra.index.Index {
      */
     @Override
     public boolean dependsOn(ColumnDefinition column) {
-        logger.debug("Asking if it depends on column {}", column);
+        logger.trace("Asking if it depends on column {}", column);
         return true; // TODO: Check if it should return true only for key and/or mapped columns
     }
 
@@ -287,7 +288,7 @@ public class Index implements org.apache.cassandra.index.Index {
      */
     @Override
     public boolean supportsExpression(ColumnDefinition column, Operator operator) {
-        logger.debug("Asking if it supports the expression {} {}", column, operator);
+        logger.trace("Asking if it supports the expression {} {}", column, operator);
         return false;
     }
 
@@ -303,7 +304,7 @@ public class Index implements org.apache.cassandra.index.Index {
      */
     @Override
     public AbstractType<?> customExpressionValueType() {
-        logger.debug("Requesting the custom expressions value type");
+        logger.trace("Requesting the custom expressions value type");
         return UTF8Type.instance;
     }
 

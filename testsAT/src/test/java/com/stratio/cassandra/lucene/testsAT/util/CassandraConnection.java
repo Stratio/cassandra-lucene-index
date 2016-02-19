@@ -67,8 +67,6 @@ public class CassandraConnection {
 
     public static synchronized ResultSet execute(Statement statement) {
         logger.debug("CQL: {}", statement);
-        //        try (Session session = cluster.connect()) {
         return session.execute(statement);
-        //        }
     }
 }

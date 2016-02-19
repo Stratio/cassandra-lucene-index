@@ -34,7 +34,6 @@ import org.junit.rules.TemporaryFolder;
 
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.UUID;
 
@@ -87,7 +86,7 @@ public class FSIndexTest {
         Set<String> fields = Sets.newHashSet("field");
 
         // Search
-        Iterator<Document> iterator;
+        //        Iterator<Document> iterator;
         //            iterator = index.search( query, sort, null, 1, fields);
         //            assertEquals("Expected 1 document", 1, results.size());
         //            ScoreDoc last3 = results.values().iterator().next();

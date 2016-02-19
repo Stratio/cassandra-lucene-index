@@ -125,36 +125,4 @@ public class BooleanSearchAT extends AbstractSearchAT {
                     .not(match("inet_1", "127.0.0.1"))).check(3);
     }
 
-    //    @Test
-    //    public void booleanQueryWithBoostTest() {
-    //
-    //        List<Row> rows1 = query(bool().must(fuzzy("inet_1", "127.1.1.1").boost(9.9))
-    //                                      .must(fuzzy("inet_1", "127.1.0.1").boost(0.001))
-    //                                      .not(match("integer_1", 1)).not(match("integer_1", -4))).get();
-    //        assertEquals("Expected 3 results!", 3, rows1.size());
-    //
-    //        List<Row> rows2 = query(bool().must(fuzzy("inet_1", "127.1.1.1").boost(0.001))
-    //                                      .must(fuzzy("inet_1", "127.1.0.1").boost(9.9))
-    //                                      .not(match("integer_1", 1)).not(match("integer_1", -4))).get();
-    //        assertEquals("Expected 3 results!", 3, rows2.size());
-    //
-    //        assertEquals("Expected same number of results ", rows1.size(), rows2.size());
-    //
-    //        boolean equals = true;
-    //        for (int i = 0; i < rows1.size(); i++) {
-    //            String firstResult = rows1.get(i).getString(utils.getIndexColumn());
-    //            String secondResult = rows2.get(i).getString(utils.getIndexColumn());
-    //            equals &= firstResult.equals(secondResult);
-    //        }
-    //        assertFalse("Expected different scoring!", equals);
-    //
-    //        equals = true;
-    //        for (int i = 0; i < rows1.size(); i++) {
-    //            Integer firstResult = rows1.get(i).getInt("integer_1");
-    //            Integer secondResult = rows2.get(i).getInt("integer_1");
-    //            equals &= firstResult.equals(secondResult);
-    //        }
-    //        assertFalse("Expected different sorting!", equals);
-    //    }
-
 }
