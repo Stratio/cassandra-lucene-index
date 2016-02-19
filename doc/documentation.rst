@@ -1388,9 +1388,9 @@ Using Builder
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
-    Search search = search().filter(all());
-    Statement statement = new SimpleStatement("SELECT * FROM test.users WHERE expr(users_index, '%s')", search.build());
-    ResultSet rs = session.execute(statement);
+    ResultSet rs = session.execute(
+        "SELECT * FROM test.users WHERE expr(users_index, '%s')",
+        search().filter(all()).build());
 
 
 
@@ -1487,7 +1487,7 @@ We insert the population of 5 citizens lives in each city from 2015/01/01 until 
 
 John moves to Amsterdam in '2015/03/05' but he does not comunicate this to census bureau until '2015/06/29' because he need it to apply for taxes reduction.
 
-So, the system need to update last information from John,and insert the new. This is done with batch execution updating the transaction time end of previous data and inserting new.
+So, the system need to update last information from John, and insert the new. This is done with batch execution updating the transaction time end of previous data and inserting new.
 
 
 .. code-block:: sql
@@ -1537,10 +1537,12 @@ Using Builder
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
-    Search search = search().filter(bitemporal("bitemporal").ttFrom("2200/12/31").ttTo("2200/12/31")
-                                    .vtFrom(0).vtTo("2200/12/31"));
-    Statement statement = new SimpleStatement("SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM test.census WHERE expr(census_index, '%s')", search.build());
-    ResultSet rs = session.execute(statement);
+    ResultSet rs = session.execute(
+        "SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM test.census WHERE expr(census_index, '%s')",
+        search().filter(bitemporal("bitemporal").ttFrom("2200/12/31")
+                                                .ttTo("2200/12/31")
+                                                .vtFrom(0)
+                                                .vtTo("2200/12/31").build());
 
 
 
@@ -1567,11 +1569,12 @@ Using Builder
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
-    Search search = search().filter(bitemporal("bitemporal").ttFrom("2200/12/31").ttTo("2200/12/31")
-                                                            .vtFrom("2200/12/31").vtTo("2200/12/31"));
-
-    Statement statement = new SimpleStatement("SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM test.census WHERE expr(census_index, '%s')", search.build());
-    ResultSet rs = session.execute(statement);
+    ResultSet rs = session.execute(
+        "SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM test.census WHERE expr(census_index, '%s')",
+        search().filter(bitemporal("bitemporal").ttFrom("2200/12/31")
+                                                .ttTo("2200/12/31")
+                                                .vtFrom("2200/12/31")
+                                                .vtTo("2200/12/31")).build());
 
 
 If the test case needs to know what the system was thinking at '2015/03/01' about where John resides in "2015/03/01".
@@ -1597,11 +1600,12 @@ Using Builder
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
-    Search search = search().filter(bitemporal("bitemporal").ttFrom("2015/03/01").ttTo("2015/03/01")
-                                                            .vtFrom("2015/03/01").vtTo("2015/03/01"));
-
-    Statement statement = new SimpleStatement("SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM test.census WHERE expr(census_index, '%s')", search.build());
-    ResultSet rs = session.execute(statement);
+    ResultSet rs = session.execute(
+        "SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM test.census WHERE expr(census_index, '%s')",
+        search().filter(bitemporal("bitemporal").ttFrom("2015/03/01")
+                                                .ttTo("2015/03/01")
+                                                .vtFrom("2015/03/01")
+                                                .vtTo("2015/03/01")).build());
 
 If the test case needs to know what the system was thinking at '2015/07/05' about where John resides:
 
@@ -1624,10 +1628,9 @@ Using Builder
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
-    Search search = search().filter(bitemporal("bitemporal").ttFrom("2015/07/05").ttTo("2015/07/05"));
-
-    Statement statement = new SimpleStatement("SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM test.census WHERE expr(census_index, '%s')", search.build());
-    ResultSet rs = session.execute(statement);
+    ResultSet rs = session.execute(
+        "SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM test.census WHERE expr(census_index, '%s')",
+        search().filter(bitemporal("bitemporal").ttFrom("2015/07/05").ttTo("2015/07/05").build());
 
 
 This code is available in CQL script here: `example_bitemporal.cql </doc/resources/example_bitemporal.cql>`__.
@@ -1676,10 +1679,9 @@ Using Builder
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
-    Search search = search().filter(bool().must(wildcard("name","*a"),wildcard("food","tu*")));
-
-    Statement statement = new SimpleStatement("SELECT * FROM test.users WHERE expr(users_index, '%s')", search.build());
-    ResultSet rs = session.execute(statement);
+    ResultSet rs = session.execute(
+        "SELECT * FROM test.users WHERE expr(users_index, '%s')",
+        search().filter(bool().must(wildcard("name", "*a"), wildcard("food", "tu*"))).build());
 
 
 
@@ -1700,10 +1702,9 @@ Using Builder
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
-    Search search = search().filter(bool().not(wildcard("name","*a")).must(wildcard("food","tu*")));
-
-    Statement statement = new SimpleStatement("SELECT * FROM test.users WHERE expr(users_index, '%s')", search.build());
-    ResultSet rs = session.execute(statement);
+    ResultSet rs = session.execute(
+        "SELECT * FROM test.users WHERE expr(users_index, '%s')",
+        search().filter(bool().not(wildcard("name", "*a")).must(wildcard("food", "tu*"))).build());
 
 
 Example 3: will return rows where name ends with “a” or food starts with
@@ -1723,9 +1724,9 @@ Using Builder
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
-    Search search = search().filter(bool().should(wildcard("name","*a"),wildcard("food","tu*")));
-    Statement statement = new SimpleStatement("SELECT * FROM test.users WHERE expr(users_index, '%s')", search.build());
-    ResultSet rs = session.execute(statement);
+    ResultSet rs = session.execute(
+        "SELECT * FROM test.users WHERE expr(users_index, '%s')",
+        search().filter(bool().should(wildcard("name", "*a"), wildcard("food", "tu*"))).build());
 
 
 Example 4: will return zero rows independently of the index contents
@@ -1741,9 +1742,9 @@ Using Builder
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
-    Search search = search().filter(bool());
-    Statement statement = new SimpleStatement("SELECT * FROM test.users WHERE expr(users_index, '%s')", search.build());
-    ResultSet rs = session.execute(statement);
+    SResultSet rs = session.execute(
+        "SELECT * FROM test.users WHERE expr(users_index, '%s')",
+        search().filter(bool()).build());
 
 
 Example 5: will return rows where name does not end with “a”, which is
@@ -1761,9 +1762,9 @@ Using Builder
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
-    Search search = search().filter(bool().not(wildcard("name","*a")));
-    Statement statement = new SimpleStatement("SELECT * FROM test.users WHERE expr(users_index, '%s')", search.build());
-    ResultSet rs = session.execute(statement);
+    ResultSet rs = session.execute(
+        "SELECT * FROM test.users WHERE expr(users_index, '%s')",
+        search().filter(bool().not(wildcard("name", "*a"))).build());
 
 
 Contains search
@@ -1788,7 +1789,7 @@ Example 1: will return rows where name matches “Alicia” or “mancha”
     WHERE expr(users_index, '{filter : {
                             type   : "contains",
                             field  : "name",
-                            values : ["Alicia","mancha"] }}');
+                            values : ["Alicia", "mancha"] }}');
 
 Using Builder
 
@@ -1796,9 +1797,9 @@ Using Builder
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
-    Search search = search().filter(contains("name","Alicia","mancha"));
-    Statement statement = new SimpleStatement("SELECT * FROM test.users WHERE expr(users_index, '%s')", search.build());
-    ResultSet rs = session.execute(statement);
+    ResultSet rs = session.execute(
+        "SELECT * FROM test.users WHERE expr(users_index, '%s')",
+        search().filter(contains("name", "Alicia", "mancha").build());
 
 
 Example 2: will return rows where date matches “2014/01/01″,
@@ -1808,9 +1809,9 @@ Example 2: will return rows where date matches “2014/01/01″,
 
     SELECT * FROM test.users
     WHERE expr(users_index, '{filter : {
-                            type   : "contains",
-                            field  : "date",
-                            values : ["2014/01/01", "2014/01/02", "2014/01/03"] }}');
+                              type   : "contains",
+                              field  : "date",
+                              values : ["2014/01/01", "2014/01/02", "2014/01/03"] }}');
 
 Using Builder
 
@@ -1818,9 +1819,9 @@ Using Builder
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
-    Search search = search().filter(contains("date","2014/01/01", "2014/01/02", "2014/01/03"));
-    Statement statement = new SimpleStatement("SELECT * FROM test.users WHERE expr(users_index, '%s')", search.build());
-    ResultSet rs = session.execute(statement);
+    ResultSet rs = session.execute(
+        "SELECT * FROM test.users WHERE expr(users_index, '%s')",
+        search().filter(contains("date", "2014/01/01", "2014/01/02", "2014/01/03")).build());
 
 
 Date range search
@@ -1866,10 +1867,9 @@ Using Builder
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
-    Search search = search().filter(dateRange("duration").from("2014/01/01").to("2014/12/31")
-                                    .operation("intersects"));
-    Statement statement = new SimpleStatement("SELECT * FROM test.users WHERE expr(users_index, '%s')", search.build());
-    ResultSet rs = session.execute(statement);
+    ResultSet rs = session.execute(
+        "SELECT * FROM test.users WHERE expr(users_index, '%s')",
+        search().filter(dateRange("duration").from("2014/01/01").to("2014/12/31").operation("intersects")).build());
 
 
 Example 2: will return rows where duration contains "2014/06/01" and
@@ -1891,10 +1891,9 @@ Using Builder
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
-    Search search = search().filter(dateRange("duration").from("2014/06/01").to("2014/06/02")
-                                    .operation("contains"));
-    Statement statement = new SimpleStatement("SELECT * FROM test.users WHERE expr(users_index, '%s')", search.build());
-    ResultSet rs = session.execute(statement);
+    ResultSet rs = session.execute(
+        "SELECT * FROM test.users WHERE expr(users_index, '%s')",
+        search().filter(dateRange("duration").from("2014/06/01").to("2014/06/02").operation("contains")).build());
 
 
 Example 3: will return rows where duration is within "2014/01/01" and
@@ -1917,10 +1916,9 @@ Using Builder
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
-    Search search = search().filter(dateRange("duration").from("2014/01/01").to("2014/12/31")
-                                    .operation("is_within"));
-    Statement statement = new SimpleStatement("SELECT * FROM test.users WHERE expr(users_index, '%s')", search.build());
-    ResultSet rs = session.execute(statement);
+    ResultSet rs = session.execute(
+        "SELECT * FROM test.users WHERE expr(users_index, '%s')",
+        search().filter(dateRange("duration").from("2014/01/01").to("2014/12/31").operation("is_within")).build());
 
 
 Fuzzy search
@@ -1976,9 +1974,9 @@ Using Builder
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
-    Search search = search().filter(fuzzy("phrase","puma").maxEdits(1));
-    Statement statement = new SimpleStatement("SELECT * FROM test.users WHERE expr(users_index, '%s')", search.build());
-    ResultSet rs = session.execute(statement);
+    ResultSet rs = session.execute(
+        "SELECT * FROM test.users WHERE expr(users_index, '%s')",
+        search().filter(fuzzy("phrase", "puma").maxEdits(1)).build());
 
 
 Example 2: same as example 1 but will limit the results to rows where
@@ -1999,9 +1997,9 @@ Using Builder
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
-    Search search = search().filter(fuzzy("phrase","puma").maxEdits(1).prefixLength(2));
-    Statement statement = new SimpleStatement("SELECT * FROM test.users WHERE expr(users_index, '%s')", search.build());
-    ResultSet rs = session.execute(statement);
+    ResultSet rs = session.execute(
+        "SELECT * FROM test.users WHERE expr(users_index, '%s')",
+        search().filter(fuzzy("phrase", "puma").maxEdits(1).prefixLength(2)).build());
 
 
 Geo bbox search
@@ -2053,9 +2051,9 @@ Using Builder
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
-    Search search = search().filter(geoBBox("place",-180.0,180.0,-90.0,90.0));
-    Statement statement = new SimpleStatement("SELECT * FROM test.users WHERE expr(users_index, '%s')", search.build());
-    ResultSet rs = session.execute(statement);
+    ResultSet rs = session.execute(
+        "SELECT * FROM test.users WHERE expr(users_index, '%s')",
+        search().filter(geoBBox("place", -180.0, 180.0, -90.0, 90.0)).build());
 
 
 Example 2: will return any rows where “place” is formed by a latitude
@@ -2079,9 +2077,9 @@ Using Builder
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
-    Search search = search().filter(geoBBox("place",0.0,10.0,-90.0,90.0));
-    Statement statement = new SimpleStatement("SELECT * FROM test.users WHERE expr(users_index, '%s')", search.build());
-    ResultSet rs = session.execute(statement);
+    ResultSet rs = session.execute(
+        "SELECT * FROM test.users WHERE expr(users_index, '%s')",
+        search().filter(geoBBox("place",0.0,10.0,-90.0,90.0)).build());
 
 
 Example 3: will return any rows where “place” is formed by a latitude
@@ -2115,11 +2113,11 @@ Using Builder
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
-    Search search = search().filter(geoBBox("place",-180.0,180.0,0.0,10.0))
-                            .sort(geoDistanceSortField("geo_point",
-                                0.0, 0.0).reverse(false));
-    Statement statement = new SimpleStatement("SELECT * FROM test.users WHERE expr(users_index, '%s')", search.build());
-    ResultSet rs = session.execute(statement);
+    ResultSet rs = session.execute(
+        "SELECT * FROM test.users WHERE expr(users_index, '%s') LIMIT 100",
+        search().filter(geoBBox("place", -180.0, 180.0, 0.0, 10.0))
+                .sort(geoDistanceSortField("geo_point", 0.0, 0.0).reverse(false)
+                .build());
 
 Geo distance search
 ===================
@@ -2168,9 +2166,9 @@ Using Builder
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
-    Search search = search().filter(geoDistance("place",-3.999278d,40.225479d,"1km"));
-    Statement statement = new SimpleStatement("SELECT * FROM test.users WHERE expr(users_index, '%s')", search.build());
-    ResultSet rs = session.execute(statement);
+    ResultSet rs = session.execute(
+        "SELECT * FROM test.users WHERE expr(users_index, '%s')",
+        search().filter(geoDistance("place", -3.999278d, 40.225479d, "1km").build());
 
 
 Example 2: will return any rows where “place” is within one yard and ten
@@ -2201,13 +2199,11 @@ Using Builder
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
-    Search search = search().filter(geoDistance("place",-3.999278d,40.225479d,"10yd")
-                                    .minDistance("1yd"))
-                            .sort(geoDistanceSortField("geo_point",
-                                -3.999278,40.225479).reverse(false));
-
-    Statement statement = new SimpleStatement("SELECT * FROM test.users WHERE expr(users_index, '%s')", search.build());
-    ResultSet rs = session.execute(statement);
+    ResultSet rs = session.execute(
+        "SELECT * FROM test.users WHERE expr(users_index, '%s') LIMIT 100",
+        search().filter(geoDistance("place", -3.999278d, 40.225479d, "10yd").minDistance("1yd"))
+                .sort(geoDistanceSortField("geo_point", -3.999278, 40.225479).reverse(false))
+                .build());
 
 
 Match search
@@ -2240,9 +2236,9 @@ Using Builder
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
-    Search search = search().filter(match("name","Alicia"));
-    Statement statement = new SimpleStatement("SELECT * FROM test.users WHERE expr(users_index, '%s')", search.build());
-    ResultSet rs = session.execute(statement);
+    ResultSet rs = session.execute(
+        "SELECT * FROM test.users WHERE expr(users_index, '%s')",
+        search().filter(match("name", "Alicia")).build());
 
 
 Example 2: will return rows where phrase contains “mancha”
@@ -2261,9 +2257,9 @@ Using Builder
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
-    Search search = search().filter(match("phrase","mancha"));
-    Statement statement = new SimpleStatement("SELECT * FROM test.users WHERE expr(users_index, '%s')", search.build());
-    ResultSet rs = session.execute(statement);
+    ResultSet rs = session.execute(
+        "SELECT * FROM test.users WHERE expr(users_index, '%s')",
+        search().filter(match("phrase", "mancha").build());
 
 
 Example 3: will return rows where date matches “2014/01/01″
@@ -2282,9 +2278,9 @@ Using Builder
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
-    Search search = search().filter(match("date","2014/01/01"));
-    Statement statement = new SimpleStatement("SELECT * FROM test.users WHERE expr(users_index, '%s')", search.build());
-    ResultSet rs = session.execute(statement);
+    ResultSet rs = session.execute(
+        "SELECT * FROM test.users WHERE expr(users_index, '%s')",
+        search().filter(match("date", "2014/01/01")).build());
 
 
 None search
@@ -2311,9 +2307,9 @@ Using Builder
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
-    Search search = search().filter(none());
-    Statement statement = new SimpleStatement("SELECT * FROM test.users WHERE expr(users_index, '%s')", search.build());
-    ResultSet rs = session.execute(statement);
+    ResultSet rs = session.execute(
+        "SELECT * FROM test.users WHERE expr(users_index, '%s')",
+        search().filter(none()).build());
 
 Phrase search
 =============
@@ -2353,9 +2349,9 @@ Using Builder
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
-    Search search = search().filter(phrase("phrase","camisa manchada"));
-    Statement statement = new SimpleStatement("SELECT * FROM test.users WHERE expr(users_index, '%s')", search.build());
-    ResultSet rs = session.execute(statement);
+    ResultSet rs = session.execute(
+        "SELECT * FROM test.users WHERE expr(users_index, '%s')",
+        search().filter(phrase("phrase", "camisa manchada")).build());
 
 Example 2: will return rows where “phrase” contains the word “mancha”
 followed by the word “camisa” having 0 to 2 words in between.
@@ -2375,9 +2371,9 @@ Using Builder
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
-    Search search = search().filter(phrase("phrase","camisa manchada").slop(2));
-    Statement statement = new SimpleStatement("SELECT * FROM test.users WHERE expr(users_index, '%s')", search.build());
-    ResultSet rs = session.execute(statement);
+    ResultSet rs = session.execute(
+        "SELECT * FROM test.users WHERE expr(users_index, '%s')",
+        search().filter(phrase("phrase", "camisa manchada").slop(2)).build());
 
 Prefix search
 =============
@@ -2411,9 +2407,9 @@ Using Builder
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
-    Search search = search().filter(prefix("phrase","lu"));
-    Statement statement = new SimpleStatement("SELECT * FROM test.users WHERE expr(users_index, '%s')", search.build());
-    ResultSet rs = session.execute(statement);
+    ResultSet rs = session.execute(
+        "SELECT * FROM test.users WHERE expr(users_index, '%s')",
+        search().filter(prefix("phrase", "lu")).build());
 
 Range search
 ============
@@ -2464,9 +2460,9 @@ Using Builder
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
-    Search search = search().filter(range("age").lower(1).includeLower(true));
-    Statement statement = new SimpleStatement("SELECT * FROM test.users WHERE expr(users_index, '%s')", search.build());
-    ResultSet rs = session.execute(statement);
+    ResultSet rs = session.execute(
+        "SELECT * FROM test.users WHERE expr(users_index, '%s')",
+        search().filter(range("age").lower(1).includeLower(true)).build());
 
 Example 2: will return rows where *age* is in (-∞, 0]
 
@@ -2485,9 +2481,9 @@ Using Builder
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
-    Search search = search().filter(range("age").upper(0).includeUpper(true));
-    Statement statement = new SimpleStatement("SELECT * FROM test.users WHERE expr(users_index, '%s')", search.build());
-    ResultSet rs = session.execute(statement);
+    ResultSet rs = session.execute(
+        "SELECT * FROM test.users WHERE expr(users_index, '%s')",
+        search().filter(range("age").upper(0).includeUpper(true)).build());
 
 Example 3: will return rows where *age* is in [-1, 1]
 
@@ -2508,10 +2504,11 @@ Using Builder
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
-    Search search = search().filter(range("age").lower(-1).upper(1)
-                                    .includeLower(true).includeUpper(true));
-    Statement statement = new SimpleStatement("SELECT * FROM test.users WHERE expr(users_index, '%s')", search.build());
-    ResultSet rs = session.execute(statement);
+    ResultSet rs = session.execute(
+        "SELECT * FROM test.users WHERE expr(users_index, '%s')",
+        search().filter(range("age").lower(-1).upper(1)
+                                    .includeLower(true)
+                                    .includeUpper(true)).build());
 
 Example 4: will return rows where *date* is in [2014/01/01, 2014/01/02]
 
@@ -2532,10 +2529,12 @@ Using Builder
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
-    Search search = search().filter(range("date").lower("2014/01/01").upper( "2014/01/02")
-                                    .includeLower(true).includeUpper(true));
-    Statement statement = new SimpleStatement("SELECT * FROM test.users WHERE expr(users_index, '%s')", search.build());
-    ResultSet rs = session.execute(statement);
+    ResultSet rs = session.execute(
+        "SELECT * FROM test.users WHERE expr(users_index, '%s')",
+        search().filter(range("date").lower("2014/01/01")
+                                     .upper( "2014/01/02")
+                                     .includeLower(true)
+                                     .includeUpper(true)).build());
 
 Regexp search
 =============
@@ -2574,9 +2573,9 @@ Using Builder
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
-    Search search = search().filter(regexp("name","[J][aeiou]{2}.*"));
-    Statement statement = new SimpleStatement("SELECT * FROM test.users WHERE expr(users_index, '%s')", search.build());
-    ResultSet rs = session.execute(statement);
+    ResultSet rs = session.execute(
+        "SELECT * FROM test.users WHERE expr(users_index, '%s')",
+        search().filter(regexp("name", "[J][aeiou]{2}.*")).build());
 
 Wildcard search
 ===============
@@ -2615,9 +2614,9 @@ Using Builder
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
-    Search search = search().filter(wildcard("food","tu*"));
-    Statement statement = new SimpleStatement("SELECT * FROM test.users WHERE expr(users_index, '%s')", search.build());
-    ResultSet rs = session.execute(statement);
+    ResultSet rs = session.execute(
+        "SELECT * FROM test.users WHERE expr(users_index, '%s')",
+        search().filter(wildcard("food", "tu*")).build());
 
 Complex data types
 ******************
@@ -2794,7 +2793,7 @@ For searching map values under a certain key you should use '$' as field-key sep
 
 .. code-block:: sql
 
-    INSERT INTO user_profiles (login,first_name,last_name,addresses)
+    INSERT INTO user_profiles (login, first_name, last_name, addresses)
         VALUES('user','Peter','Handsome',
                 {'San Francisco':'Market street 2', 'Madrid': 'Calle Velazquez' })
 
@@ -2876,12 +2875,13 @@ And you can also build searches in a similar fashion:
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
-    Search search = search().filter(match("user", "adelapena"))
-                            .query(phrase("message", "cassandra rules"))
-                            .sort(field("date").reverse(true))
-                            .refresh(true);
-    Statement statement = new SimpleStatement("SELECT * FROM table WHERE expr(users_index, '%s')", search.build());
-    ResultSet rs = session.execute(statement);
+    ResultSet rs = session.execute(
+        "SELECT * FROM table WHERE expr(users_index, '%s')",
+        search().filter(match("user", "adelapena"))
+                .query(phrase("message", "cassandra rules"))
+                .sort(field("date").reverse(true))
+                .refresh(true)
+                .build());
 
 
 Spark and Hadoop
@@ -2905,7 +2905,7 @@ Example: will retrieve rows which tokens are greater than (‘Alicia’,
 
 .. code-block:: sql
 
-    SELECT name,gender
+    SELECT name, gender
       FROM test.users
      WHERE expr(users_index, '{filter : {type : "match", field : "food", value : "chips"}}')
        AND token(name, gender) > token('Alicia', 'female');
@@ -2992,9 +2992,11 @@ However, this search could be a good use case for Lucene just because there is n
     SELECT * FROM users
     WHERE expr(tweets_index, '{filter : {
                        type : "boolean",
-                       must : [{type : "regexp", field : "name", value : "[J][aeiou]{2}.*"},
-                               {type:"range", field:"birthday",
-                                lower:"2014/04/25",upper:"2014/05/01"}]}}');
+                       must : [{type  : "regexp", field : "name", value : "[J][aeiou]{2}.*"},
+                               {type  : "range",
+                                field : "birthday",
+                                lower : "2014/04/25",
+                                upper : "2014/05/01"}]}}');
 
 Lucene indexes are intended to be used in those cases that can't be efficiently addressed
 with Apache Cassandra common techniques, such as full-text queries, multidimensional queries,
