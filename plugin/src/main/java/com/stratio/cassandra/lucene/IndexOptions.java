@@ -22,7 +22,6 @@ import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.SchemaBuilder;
 import org.apache.cassandra.config.CFMetaData;
-import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.db.Directories;
 import org.apache.cassandra.schema.IndexMetadata;
 
@@ -73,16 +72,37 @@ public class IndexOptions {
 
     public static final String SCHEMA_OPTION = "schema";
 
+    /** The mapping schema */
     public final Schema schema;
+
+    /** The path of the directory where the index files will be stored */
     public final Path path;
+
+    /** The Lucene index searcher refresh frequency, in seconds */
     public final double refreshSeconds;
+
+    /** The Lucene's max RAM buffer size, in MB */
     public final int ramBufferMB;
+
+    /** The Lucene's max segments merge size size, in MB */
     public final int maxMergeMB;
+
+    /** The Lucene's max cache size, in MB */
     public final int maxCachedMB;
+
+    /** The number of asynchronous indexing threads */
     public final int indexingThreads;
+
+    /** The size of the asynchronous indexing queues */
     public final int indexingQueuesSize;
+
+    /** The max size of the token range cache */
     public final int tokenRangeCacheSize;
+
+    /** The max size of the search cache */
     public final int searchCacheSize;
+
+    /** The names of the data centers excluded from indexing */
     public final List<String> excludedDataCenters;
 
     /**

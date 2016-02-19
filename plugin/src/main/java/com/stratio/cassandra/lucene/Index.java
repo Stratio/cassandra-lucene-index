@@ -104,8 +104,7 @@ public class Index implements org.apache.cassandra.index.Index {
      * @return the validated options
      * @throws ConfigurationException if the options are not valid
      */
-    public static Map<String, String> validateOptions(Map<String, String> options, CFMetaData metadata)
-    throws ConfigurationException {
+    public static Map<String, String> validateOptions(Map<String, String> options, CFMetaData metadata) {
         logger.debug("Validating Lucene index options");
         try {
             IndexOptions.validateOptions(options, metadata);
@@ -272,9 +271,9 @@ public class Index implements org.apache.cassandra.index.Index {
      * or modified without adversely affecting the index
      */
     @Override
-    public boolean dependsOn(ColumnDefinition column) {
+    public boolean dependsOn(ColumnDefinition column) { // TODO: Could return true only for key and/or mapped columns
         logger.debug("Asking if it depends on column {}", column);
-        return true; // TODO: Check if it should return true only for key and/or mapped columns
+        return true;
     }
 
     /**
@@ -349,7 +348,7 @@ public class Index implements org.apache.cassandra.index.Index {
      * @throws InvalidRequestException If the update doesn't pass through the validation.
      */
     @Override
-    public void validate(PartitionUpdate update) throws InvalidRequestException {
+    public void validate(PartitionUpdate update) {
         logger.trace("Validating {}", update);
         try {
             service.validate(update);
@@ -418,12 +417,11 @@ public class Index implements org.apache.cassandra.index.Index {
      * supported by the index implementation.
      */
     @Override
-    public Searcher searcherFor(ReadCommand command) throws InvalidRequestException {
+    public Searcher searcherFor(ReadCommand command) {
         logger.trace("Getting searcher for {}", command);
         try {
             return service.searcher(command);
         } catch (Exception e) {
-            e.printStackTrace();
             logger.error("Error while searching", e);
             throw new InvalidRequestException(e.getMessage());
         }
@@ -436,7 +434,7 @@ public class Index implements org.apache.cassandra.index.Index {
      * @return the valid search represented by {@code expression}
      * @throws InvalidRequestException if the expression is not valid
      */
-    public Search validate(RowFilter.CustomExpression expression) throws InvalidRequestException {
+    public Search validate(RowFilter.CustomExpression expression) {
         try {
             String json = UTF8Type.instance.compose(expression.getValue());
             Search search = SearchBuilder.fromJson(json).build();

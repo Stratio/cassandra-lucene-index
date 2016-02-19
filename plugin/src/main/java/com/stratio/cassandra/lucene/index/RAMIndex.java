@@ -58,7 +58,6 @@ public class RAMIndex {
             directory = new RAMDirectory();
             indexWriter = new IndexWriter(directory, new IndexWriterConfig(analyzer));
         } catch (Exception e) {
-            e.printStackTrace();
             throw new IndexException(logger, e, "Error while creating index");
         }
     }

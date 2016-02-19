@@ -42,6 +42,16 @@ public class IndexReaderWide extends IndexReader {
     private ClusteringComparator comparator;
     private SearchCacheUpdater cacheUpdater;
 
+    /**
+     * Constructor taking the Cassandra read data and the Lucene results iterator.
+     *
+     * @param service the index service
+     * @param command the read command
+     * @param table the base table
+     * @param orderGroup the order group of the read operation
+     * @param documents the documents iterator
+     * @param cacheUpdater the search cache updater
+     */
     public IndexReaderWide(IndexServiceWide service,
                            ReadCommand command,
                            ColumnFamilyStore table,

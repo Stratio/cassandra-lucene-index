@@ -20,6 +20,8 @@ package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.stratio.cassandra.lucene.schema.mapping.builder.MapperBuilder;
 import com.stratio.cassandra.lucene.util.JsonSerializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
@@ -30,6 +32,8 @@ import static org.junit.Assert.assertEquals;
  */
 public class AbstractMapperTest {
 
+    public static final Logger logger = LoggerFactory.getLogger("TEST");
+
     protected void testJson(MapperBuilder<?, ?> mapperBuilder, String json) {
         try {
             String json1 = JsonSerializer.toString(mapperBuilder);
@@ -37,7 +41,7 @@ public class AbstractMapperTest {
             String json2 = JsonSerializer.toString(JsonSerializer.fromString(json1, MapperBuilder.class));
             assertEquals("JSON serialization is wrong", json1, json2);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            logger.error("Error in JSON serialization", e);
         }
     }
 }

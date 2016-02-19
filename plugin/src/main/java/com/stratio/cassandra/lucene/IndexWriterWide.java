@@ -24,9 +24,7 @@ import org.apache.cassandra.db.rows.Row;
 import org.apache.cassandra.index.transactions.IndexTransaction;
 import org.apache.cassandra.utils.concurrent.OpOrder;
 
-import java.util.LinkedHashMap;
-import java.util.NavigableSet;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * {@link IndexWriter} for wide rows.
@@ -36,7 +34,7 @@ import java.util.Optional;
 public class IndexWriterWide extends IndexWriter {
 
     private final NavigableSet<Clustering> rowsToRead;
-    private final LinkedHashMap<Clustering, Optional<Row>> rows;
+    private final Map<Clustering, Optional<Row>> rows;
 
     /**
      * Builds a new {@link IndexWriter} for tables with wide rows.

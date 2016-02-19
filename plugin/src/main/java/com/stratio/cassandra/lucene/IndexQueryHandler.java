@@ -62,7 +62,7 @@ public class IndexQueryHandler implements QueryHandler {
     /** {@inheritDoc} */
     public ResultMessage.Prepared prepare(String query,
                                           QueryState state,
-                                          Map<String, ByteBuffer> customPayload) throws RequestValidationException {
+                                          Map<String, ByteBuffer> customPayload) {
         return QueryProcessor.instance.prepare(query, state);
     }
 
@@ -83,8 +83,7 @@ public class IndexQueryHandler implements QueryHandler {
     public ResultMessage processBatch(BatchStatement statement,
                                       QueryState state,
                                       BatchQueryOptions options,
-                                      Map<String, ByteBuffer> customPayload)
-    throws RequestExecutionException, RequestValidationException {
+                                      Map<String, ByteBuffer> customPayload) {
         return QueryProcessor.instance.processBatch(statement, state, options, customPayload);
     }
 
@@ -93,8 +92,7 @@ public class IndexQueryHandler implements QueryHandler {
     public ResultMessage processPrepared(CQLStatement statement,
                                          QueryState state,
                                          QueryOptions options,
-                                         Map<String, ByteBuffer> customPayload)
-    throws RequestExecutionException, RequestValidationException {
+                                         Map<String, ByteBuffer> customPayload) {
         QueryProcessor.metrics.preparedStatementsExecuted.inc();
         return processStatement(statement, state, options);
     }
@@ -104,8 +102,7 @@ public class IndexQueryHandler implements QueryHandler {
     public ResultMessage process(String query,
                                  QueryState state,
                                  QueryOptions options,
-                                 Map<String, ByteBuffer> customPayload)
-    throws RequestExecutionException, RequestValidationException {
+                                 Map<String, ByteBuffer> customPayload) {
         ParsedStatement.Prepared p = QueryProcessor.getStatement(query, state.getClientState());
         options.prepare(p.boundNames);
         CQLStatement prepared = p.statement;
@@ -120,8 +117,7 @@ public class IndexQueryHandler implements QueryHandler {
         return processStatement(prepared, state, options);
     }
 
-    public ResultMessage processStatement(CQLStatement statement, QueryState state, QueryOptions options)
-    throws RequestExecutionException, RequestValidationException {
+    public ResultMessage processStatement(CQLStatement statement, QueryState state, QueryOptions options) {
 
         logger.trace("Process {} @CL.{}", statement, options.getConsistency());
         ClientState clientState = state.getClientState();
@@ -195,7 +191,7 @@ public class IndexQueryHandler implements QueryHandler {
     }
 
     public ResultMessage.Rows executeWithoutPaging(SelectStatement select, QueryState state, QueryOptions options)
-    throws RequestExecutionException, RequestValidationException, ReflectiveOperationException {
+    throws ReflectiveOperationException {
 
         ConsistencyLevel cl = options.getConsistency();
         checkNotNull(cl, "Invalid empty consistency level");

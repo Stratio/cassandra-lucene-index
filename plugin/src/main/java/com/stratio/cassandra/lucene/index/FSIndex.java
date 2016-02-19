@@ -119,7 +119,6 @@ public class FSIndex implements FSIndexMBean {
             ManagementFactory.getPlatformMBeanServer().registerMBean(this, this.mbean);
 
         } catch (Exception e) {
-            e.printStackTrace();
             throw new IndexException(logger, e, "Error while creating index %s", name);
         }
     }

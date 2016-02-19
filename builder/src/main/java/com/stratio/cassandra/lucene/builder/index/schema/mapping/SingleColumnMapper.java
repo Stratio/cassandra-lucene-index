@@ -23,9 +23,10 @@ import org.codehaus.jackson.annotate.JsonProperty;
 /**
  * Class for mapping between Cassandra's columns and Lucene documents.
  *
+ * @param <T> the type of the mapper to be built
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public abstract class SingleColumnMapper<K extends SingleColumnMapper<K>> extends Mapper<K> {
+public abstract class SingleColumnMapper<T extends SingleColumnMapper<T>> extends Mapper<T> {
 
     /** If the field must be indexed. */
     @JsonProperty("indexed")
@@ -46,9 +47,9 @@ public abstract class SingleColumnMapper<K extends SingleColumnMapper<K>> extend
      * @return This.
      */
     @SuppressWarnings("unchecked")
-    public final K indexed(Boolean indexed) {
+    public final T indexed(Boolean indexed) {
         this.indexed = indexed;
-        return (K) this;
+        return (T) this;
     }
 
     /**
@@ -58,9 +59,9 @@ public abstract class SingleColumnMapper<K extends SingleColumnMapper<K>> extend
      * @return This.
      */
     @SuppressWarnings("unchecked")
-    public final K sorted(Boolean sorted) {
+    public final T sorted(Boolean sorted) {
         this.sorted = sorted;
-        return (K) this;
+        return (T) this;
     }
 
     /**
@@ -70,8 +71,8 @@ public abstract class SingleColumnMapper<K extends SingleColumnMapper<K>> extend
      * @return This.
      */
     @SuppressWarnings("unchecked")
-    public final K column(String column) {
+    public final T column(String column) {
         this.column = column;
-        return (K) this;
+        return (T) this;
     }
 }
