@@ -30,13 +30,13 @@ public class CassandraConfig {
     public static final String HOST = getString("host", "127.0.0.1");
     public static final int REPLICATION = getInt("replication", 1);
     public static final ConsistencyLevel CONSISTENCY = ConsistencyLevel.valueOf(getString("consistency", "QUORUM"));
-    public static final int FETCH = getInt("fetch", 2);
+    public static final int FETCH = getInt("fetch", 100);
     public static final int THREADS = getInt("threads", 0);
     public static final int REFRESH = getInt("refresh", 1);
     public static final int WAIT_FOR_INDEXING = getInt("wait_for_indexing", 2);
     public static final String TABLE = getString("table", "test_table");
     public static final String INDEX = getString("index", "test_table_idx");
-    public static final int LIMIT = getInt("limit", 10000);
+    public static final int LIMIT = getInt("limit", 10000); // Top-k
     public static final int TOKEN_RANGE_CACHE_SIZE = getInt("token_range_cache_size", 16);
     public static final int SEARCH_CACHE_SIZE = getInt("search_cache_size", 16);
 
