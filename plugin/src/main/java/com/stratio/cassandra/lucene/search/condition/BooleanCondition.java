@@ -18,7 +18,7 @@
 
 package com.stratio.cassandra.lucene.search.condition;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.schema.Schema;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.MatchAllDocsQuery;
@@ -53,19 +53,19 @@ public class BooleanCondition extends Condition {
     /**
      * Returns a new {@link BooleanCondition} compound by the specified {@link Condition}s.
      *
-     * @param boost  The boost for this query clause. Documents matching this clause will (in addition to the normal
-     *               weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link
-     *               #DEFAULT_BOOST} is used as default.
-     * @param must   the mandatory {@link Condition}s.
+     * @param boost The boost for this query clause. Documents matching this clause will (in addition to the normal
+     * weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link #DEFAULT_BOOST} is used as
+     * default.
+     * @param must the mandatory {@link Condition}s.
      * @param should the optional {@link Condition}s.
-     * @param not    the mandatory not {@link Condition}s.
+     * @param not the mandatory not {@link Condition}s.
      */
     public BooleanCondition(Float boost, List<Condition> must, List<Condition> should, List<Condition> not) {
 
         super(boost);
-        this.must = must == null ? new LinkedList<Condition>() : must;
-        this.should = should == null ? new LinkedList<Condition>() : should;
-        this.not = not == null ? new LinkedList<Condition>() : not;
+        this.must = must == null ? new LinkedList<>() : must;
+        this.should = should == null ? new LinkedList<>() : should;
+        this.not = not == null ? new LinkedList<>() : not;
     }
 
     /** {@inheritDoc} */
@@ -93,11 +93,11 @@ public class BooleanCondition extends Condition {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                      .add("boost", boost)
-                      .add("must", must)
-                      .add("should", should)
-                      .add("not", not)
-                      .toString();
+        return MoreObjects.toStringHelper(this)
+                          .add("boost", boost)
+                          .add("must", must)
+                          .add("should", should)
+                          .add("not", not)
+                          .toString();
     }
 }

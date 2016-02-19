@@ -18,21 +18,13 @@
 
 package com.stratio.cassandra.lucene.schema.mapping;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.shape.Point;
 import com.stratio.cassandra.lucene.IndexException;
-import com.stratio.cassandra.lucene.schema.column.Column;
-import com.stratio.cassandra.lucene.schema.column.Columns;
-import org.apache.cassandra.db.marshal.AsciiType;
-import org.apache.cassandra.db.marshal.DecimalType;
-import org.apache.cassandra.db.marshal.DoubleType;
-import org.apache.cassandra.db.marshal.FloatType;
-import org.apache.cassandra.db.marshal.Int32Type;
-import org.apache.cassandra.db.marshal.IntegerType;
-import org.apache.cassandra.db.marshal.LongType;
-import org.apache.cassandra.db.marshal.ShortType;
-import org.apache.cassandra.db.marshal.UTF8Type;
+import com.stratio.cassandra.lucene.column.Column;
+import com.stratio.cassandra.lucene.column.Columns;
+import org.apache.cassandra.db.marshal.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.StoredField;
@@ -45,7 +37,6 @@ import org.apache.lucene.spatial.prefix.tree.GeohashPrefixTree;
 import org.apache.lucene.spatial.prefix.tree.SpatialPrefixTree;
 
 import java.util.Arrays;
-
 
 /**
  * A {@link Mapper} to map geographical points.
@@ -80,13 +71,19 @@ public class GeoPointMapper extends Mapper {
     /**
      * Builds a new {@link GeoPointMapper}.
      *
-     * @param field     The name of the field.
+     * @param field The name of the field.
      * @param validated If the field must be validated.
-     * @param latitude  The name of the column containing the latitude.
+     * @param latitude The name of the column containing the latitude.
      * @param longitude The name of the column containing the longitude.
      * @param maxLevels The maximum number of levels in the tree.
      */
-    public GeoPointMapper(String field, Boolean indexed, Boolean sorted, Boolean validated, String latitude, String longitude, Integer maxLevels) {
+    public GeoPointMapper(String field,
+                          Boolean indexed,
+                          Boolean sorted,
+                          Boolean validated,
+                          String latitude,
+                          String longitude,
+                          Integer maxLevels) {
         super(field,
               indexed,
               sorted,
@@ -123,7 +120,7 @@ public class GeoPointMapper extends Mapper {
     /**
      * Checks if the specified latitude is correct.
      *
-     * @param name     The name of the latitude field.
+     * @param name The name of the latitude field.
      * @param latitude The value of the latitude field.
      * @return The latitude.
      */
@@ -143,7 +140,7 @@ public class GeoPointMapper extends Mapper {
     /**
      * Checks if the specified longitude is correct.
      *
-     * @param name      The name of the longitude field.
+     * @param name The name of the longitude field.
      * @param longitude The value of the longitude field.
      * @return The longitude.
      */
@@ -176,7 +173,6 @@ public class GeoPointMapper extends Mapper {
         }
 
         Point point = SPATIAL_CONTEXT.makePoint(lon, lat);
-
         if (indexed) {
             for (IndexableField field : distanceStrategy.createIndexableFields(point)) {
                 document.add(field);
@@ -185,8 +181,9 @@ public class GeoPointMapper extends Mapper {
                 document.add(field);
             }
         }
+
         if (sorted) {
-            document.add(new StoredField(distanceStrategy.getFieldName(), point.getX()+" "+point.getY()));
+            document.add(new StoredField(distanceStrategy.getFieldName(), point.getX() + " " + point.getY()));
         }
     }
 
@@ -248,7 +245,6 @@ public class GeoPointMapper extends Mapper {
         return distanceStrategy;
     }
 
-
     /**
      * Returns the longitude contained in the specified {@link Object}.
      *
@@ -274,15 +270,12 @@ public class GeoPointMapper extends Mapper {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                      .add("field", field)
-                      .add("validated", validated)
-                      .add("latitude", latitude)
-                      .add("longitude", longitude)
-                      .add("maxLevels", maxLevels)
-                      .toString();
+        return MoreObjects.toStringHelper(this)
+                          .add("field", field)
+                          .add("validated", validated)
+                          .add("latitude", latitude)
+                          .add("longitude", longitude)
+                          .add("maxLevels", maxLevels)
+                          .toString();
     }
-
-
-
 }

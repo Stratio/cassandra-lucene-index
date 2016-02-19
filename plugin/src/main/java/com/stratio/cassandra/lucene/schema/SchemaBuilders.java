@@ -18,7 +18,6 @@
 
 package com.stratio.cassandra.lucene.schema;
 
-import com.stratio.cassandra.lucene.schema.analysis.AnalyzerBuilder;
 import com.stratio.cassandra.lucene.schema.analysis.ClasspathAnalyzerBuilder;
 import com.stratio.cassandra.lucene.schema.analysis.SnowballAnalyzerBuilder;
 import com.stratio.cassandra.lucene.schema.mapping.builder.*;
@@ -42,9 +41,7 @@ public final class SchemaBuilders {
      * @return A new {@link SchemaBuilder}.
      */
     public static SchemaBuilder schema() {
-        return new SchemaBuilder(null,
-                                 new LinkedHashMap<String, AnalyzerBuilder>(),
-                                 new LinkedHashMap<String, MapperBuilder<?, ?>>());
+        return new SchemaBuilder(null, new LinkedHashMap<>(), new LinkedHashMap<>());
     }
 
     /**
@@ -69,9 +66,9 @@ public final class SchemaBuilders {
      * Returns a new {@link BitemporalMapperBuilder}.
      *
      * @param vtFrom The column name containing the valid time start.
-     * @param vtTo   The column name containing the valid time stop.
+     * @param vtTo The column name containing the valid time stop.
      * @param ttFrom The column name containing the transaction time start.
-     * @param ttTo   The column name containing the transaction time stop.
+     * @param ttTo The column name containing the transaction time stop.
      * @return A new {@link BitemporalMapperBuilder}.
      */
     public static BitemporalMapperBuilder bitemporalMapper(String vtFrom, String vtTo, String ttFrom, String ttTo) {
@@ -109,7 +106,7 @@ public final class SchemaBuilders {
      * Returns a new {@link DateRangeMapperBuilder}.
      *
      * @param from The column containing the start date.
-     * @param to   The column containing the end date.
+     * @param to The column containing the end date.
      * @return A new {@link DateRangeMapperBuilder}.
      */
     public static DateRangeMapperBuilder dateRangeMapper(String from, String to) {
@@ -137,7 +134,7 @@ public final class SchemaBuilders {
     /**
      * Returns a new {@link GeoPointMapperBuilder}.
      *
-     * @param latitude  The name of the column containing the latitude.
+     * @param latitude The name of the column containing the latitude.
      * @param longitude The name of the column containing the longitude.
      * @return A new {@link GeoPointMapperBuilder}.
      */
@@ -212,9 +209,9 @@ public final class SchemaBuilders {
     /**
      * Returns a new {@link SnowballAnalyzerBuilder} for the specified language and stopwords.
      *
-     * @param language  The language. The supported languages are English, French, Spanish, Portuguese, Italian,
-     *                  Romanian, German, Dutch, Swedish, Norwegian, Danish, Russian, Finnish, Irish, Hungarian,
-     *                  Turkish, Armenian, Basque and Catalan.
+     * @param language The language. The supported languages are English, French, Spanish, Portuguese, Italian,
+     * Romanian, German, Dutch, Swedish, Norwegian, Danish, Russian, Finnish, Irish, Hungarian, Turkish, Armenian,
+     * Basque and Catalan.
      * @param stopwords The comma separated stopwords {@code String}.
      * @return A new {@link SnowballAnalyzerBuilder}.
      */

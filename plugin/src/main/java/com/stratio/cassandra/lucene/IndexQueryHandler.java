@@ -18,43 +18,39 @@
 
 package com.stratio.cassandra.lucene;
 
-import com.stratio.cassandra.lucene.service.RowKeys;
-import com.stratio.cassandra.lucene.service.RowMapper;
-import com.stratio.cassandra.lucene.util.ByteBufferUtils;
+import com.stratio.cassandra.lucene.search.Search;
 import com.stratio.cassandra.lucene.util.TimeCounter;
 import org.apache.cassandra.cql3.*;
-import org.apache.cassandra.cql3.functions.Function;
 import org.apache.cassandra.cql3.statements.BatchStatement;
+import org.apache.cassandra.cql3.statements.IndexTarget;
 import org.apache.cassandra.cql3.statements.ParsedStatement;
 import org.apache.cassandra.cql3.statements.SelectStatement;
-import org.apache.cassandra.db.*;
-import org.apache.cassandra.db.filter.IDiskAtomFilter;
-import org.apache.cassandra.db.index.SecondaryIndexManager;
-import org.apache.cassandra.db.index.SecondaryIndexSearcher;
-import org.apache.cassandra.dht.AbstractBounds;
+import org.apache.cassandra.db.ColumnFamilyStore;
+import org.apache.cassandra.db.ConsistencyLevel;
+import org.apache.cassandra.db.Keyspace;
+import org.apache.cassandra.db.ReadQuery;
+import org.apache.cassandra.db.filter.RowFilter;
+import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.exceptions.InvalidRequestException;
 import org.apache.cassandra.exceptions.RequestExecutionException;
 import org.apache.cassandra.exceptions.RequestValidationException;
 import org.apache.cassandra.service.ClientState;
-import org.apache.cassandra.service.LuceneStorageProxy;
 import org.apache.cassandra.service.QueryState;
-import org.apache.cassandra.service.pager.PagingState;
 import org.apache.cassandra.transport.messages.ResultMessage;
+import org.apache.cassandra.utils.FBUtilities;
 import org.apache.cassandra.utils.MD5Digest;
-import org.apache.cassandra.utils.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import static org.apache.cassandra.cql3.statements.RequestValidations.checkNotNull;
+
 /**
- * Abstract {@link QueryHandler} to be used with Lucene searches.
+ * {@link QueryHandler} to be used with Lucene searches.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
@@ -62,178 +58,162 @@ public class IndexQueryHandler implements QueryHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(IndexQueryHandler.class);
 
-    static QueryProcessor cqlProcessor = QueryProcessor.instance;
-
-    private IDiskAtomFilter makeFilter(SelectStatement statement, QueryOptions options, int limit)
-    throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
-        Method method = SelectStatement.class.getDeclaredMethod("makeFilter", QueryOptions.class, int.class);
-        method.setAccessible(true);
-        return (IDiskAtomFilter) method.invoke(statement, options, limit);
-    }
-
-    private static boolean hasAnyAggregateFunctions(SelectStatement selectStatement) throws Exception {
-        if (selectStatement.getFunctions() != null) {
-            Iterator<Function> functions = selectStatement.getFunctions().iterator();
-            while (functions.hasNext()) {
-                Function function = functions.next();
-
-                if (function.isAggregate()) {
-                    return true;
-                }
-            }
-        }
-        return false;
+    @Override
+    /** {@inheritDoc} */
+    public ResultMessage.Prepared prepare(String query,
+                                          QueryState state,
+                                          Map<String, ByteBuffer> customPayload) throws RequestValidationException {
+        return QueryProcessor.instance.prepare(query, state);
     }
 
     @Override
-    public ResultMessage.Prepared prepare(String query, QueryState state, Map<String, ByteBuffer> customPayload)
-    throws RequestValidationException {
-        return cqlProcessor.prepare(query, state);
-    }
-
-    @Override
+    /** {@inheritDoc} */
     public ParsedStatement.Prepared getPrepared(MD5Digest id) {
-        return cqlProcessor.getPrepared(id);
+        return QueryProcessor.instance.getPrepared(id);
     }
 
     @Override
+    /** {@inheritDoc} */
     public ParsedStatement.Prepared getPreparedForThrift(Integer id) {
-        return cqlProcessor.getPreparedForThrift(id);
+        return QueryProcessor.instance.getPreparedForThrift(id);
     }
 
     @Override
-    public ResultMessage processPrepared(CQLStatement statement, QueryState state, QueryOptions options,
-                                         Map<String, ByteBuffer> customPayload)
-    throws RequestExecutionException, RequestValidationException {
-        logger.debug("QH: Hi Im Query Handler receiving query:: processPrepared");
-        QueryProcessor.metrics.preparedStatementsExecuted.inc();
-        return process(statement, state, options, customPayload);
-
-    }
-
-    @Override
-    public ResultMessage processBatch(BatchStatement statement, QueryState state, BatchQueryOptions options,
+    /** {@inheritDoc} */
+    public ResultMessage processBatch(BatchStatement statement,
+                                      QueryState state,
+                                      BatchQueryOptions options,
                                       Map<String, ByteBuffer> customPayload)
     throws RequestExecutionException, RequestValidationException {
-        logger.debug("QH: Hi Im Query Handler receiving query:: processBatch");
-        return cqlProcessor.processBatch(statement, state, options);
+        return QueryProcessor.instance.processBatch(statement, state, options, customPayload);
     }
 
     @Override
-    public ResultMessage process(String query, QueryState state, QueryOptions options,
+    /** {@inheritDoc} */
+    public ResultMessage processPrepared(CQLStatement statement,
+                                         QueryState state,
+                                         QueryOptions options,
+                                         Map<String, ByteBuffer> customPayload)
+    throws RequestExecutionException, RequestValidationException {
+        QueryProcessor.metrics.preparedStatementsExecuted.inc();
+        return processStatement(statement, state, options);
+    }
+
+    @Override
+    /** {@inheritDoc} */
+    public ResultMessage process(String query,
+                                 QueryState state,
+                                 QueryOptions options,
                                  Map<String, ByteBuffer> customPayload)
     throws RequestExecutionException, RequestValidationException {
-
-        logger.debug("QH: Hi Im Query Handler receiving query:: '"+query+"'");
         ParsedStatement.Prepared p = QueryProcessor.getStatement(query, state.getClientState());
         options.prepare(p.boundNames);
+        CQLStatement prepared = p.statement;
+        if (prepared.getBoundTerms() != options.getValues().size()) {
+            throw new InvalidRequestException("Invalid amount of bind variables");
+        }
+
         if (!state.getClientState().isInternal) {
             QueryProcessor.metrics.regularStatementsExecuted.inc();
         }
 
-        return process(p.statement, state, options, customPayload);
-
+        return processStatement(prepared, state, options);
     }
-    public ResultMessage process(CQLStatement statement, QueryState state, QueryOptions options,
-                                 Map<String, ByteBuffer> customPayload)
+
+    public ResultMessage processStatement(CQLStatement statement, QueryState state, QueryOptions options)
     throws RequestExecutionException, RequestValidationException {
 
-        if (statement.getBoundTerms() != options.getValues().size()) {
-            throw new InvalidRequestException("Invalid amount of bind variables");
-        }
-
-        if (statement instanceof SelectStatement) {
-            SelectStatement select = (SelectStatement) statement;
-            List<IndexExpression> expressions = select.getValidatedIndexExpressions(options);
-            ColumnFamilyStore cfs = Keyspace.open(select.keyspace()).getColumnFamilyStore(select.columnFamily());
-            SecondaryIndexManager secondaryIndexManager = cfs.indexManager;
-            SecondaryIndexSearcher searcher = secondaryIndexManager.getHighestSelectivityIndexSearcher(expressions);
-            if (searcher instanceof IndexSearcher) {
-                try {
-                    TimeCounter time = TimeCounter.create().start();
-                    ResultMessage msg = process((IndexSearcher) searcher, expressions, select, state, options);
-                    logger.debug("Total Lucene query time: {}\n", time.stop());
-                    return msg;
-                } catch (RequestExecutionException | RequestValidationException e) {
-                    throw e;
-                } catch (Exception e) {
-                    throw new IndexException(e);
-                }
-            }
-        }
-
-        return cqlProcessor.processStatement(statement, state, options);
-
-    }
-
-    private ResultMessage process(IndexSearcher searcher,
-                                  List<IndexExpression> expressions,
-                                  SelectStatement statement,
-                                  QueryState state,
-                                  QueryOptions options) throws Exception {
-
+        logger.trace("Process {} @CL.{}", statement, options.getConsistency());
         ClientState clientState = state.getClientState();
         statement.checkAccess(clientState);
         statement.validate(clientState);
 
-        int limit = statement.getLimit(options);
-        int page = options.getPageSize();
-        boolean isAggregateFunction = hasAnyAggregateFunctions(statement);
-
-        String ks = statement.keyspace();
-        String cf = statement.columnFamily();
-        long now = System.currentTimeMillis();
-
-        ConsistencyLevel cl = options.getConsistency();
-        if (cl == null) {
-            throw new InvalidRequestException("Invalid empty consistency level");
-        }
-        cl.validateForRead(ks);
-
-        IDiskAtomFilter filter = makeFilter(statement, options, limit);
-        AbstractBounds<RowPosition> range = statement.getRestrictions().getPartitionKeyBounds(options);
-        RowMapper mapper = searcher.mapper();
-        PagingState pagingState = options.getPagingState();
-        RowKeys rowKeys = null;
-        if (pagingState != null) {
-            limit = pagingState.remaining;
-            ByteBuffer bb = pagingState.partitionKey;
-            if (!ByteBufferUtils.isEmpty(bb)) {
-                rowKeys = mapper.rowKeys(bb);
+        // Intercept Lucene index searches
+        if (statement instanceof SelectStatement) {
+            SelectStatement select = (SelectStatement) statement;
+            List<RowFilter.Expression> expressions = select.getRowFilter(options).getExpressions();
+            for (RowFilter.Expression expression : expressions) {
+                if (expression.isCustom()) {
+                    RowFilter.CustomExpression customExpression = (RowFilter.CustomExpression) expression;
+                    String clazz = customExpression.getTargetIndex().options.get(IndexTarget.CUSTOM_INDEX_OPTION_NAME);
+                    if (clazz.equals(Index.class.getCanonicalName())) {
+                        TimeCounter time = TimeCounter.create().start();
+                        try {
+                            return process(select, state, options, customExpression);
+                        } catch (ReflectiveOperationException e) {
+                            throw new RuntimeException(e);
+                        } finally {
+                            logger.debug("Lucene search total time: {}\n", time.stop());
+                        }
+                    }
+                }
             }
         }
 
-        int rowsPerCommand = page > 0 ? page : limit;
-        List<Row> rows = new ArrayList<>();
-        int remaining;
-        int collectedRows;
+        return execute(statement, state, options);
+    }
 
-        do {
-            Pair<List<Row>, RowKeys> results = LuceneStorageProxy.getRangeSlice(searcher,
-                                                                                ks,
-                                                                                cf,
-                                                                                now,
-                                                                                filter,
-                                                                                range,
-                                                                                expressions,
-                                                                                rowsPerCommand,
-                                                                                cl,
-                                                                                rowKeys,
-                                                                                isAggregateFunction);
-            collectedRows = results.left.size();
-            rows.addAll(results.left);
-            rowKeys = results.right;
-            remaining = limit - rows.size();
+    private ResultMessage process(SelectStatement select,
+                                  QueryState state,
+                                  QueryOptions options,
+                                  RowFilter.CustomExpression expression) throws ReflectiveOperationException {
 
-        } while (isAggregateFunction && remaining > 0 && collectedRows == rowsPerCommand);
+        // Validate expression
+        ColumnFamilyStore cfs = Keyspace.open(select.keyspace()).getColumnFamilyStore(select.columnFamily());
+        Index index = (Index) cfs.indexManager.getIndex(expression.getTargetIndex());
+        Search search = index.validate(expression);
 
-        ResultMessage.Rows msg = statement.processResults(rows, options, limit, now);
-        if (!isAggregateFunction && remaining > 0 && rows.size() == rowsPerCommand) {
-            ByteBuffer bb = mapper.byteBuffer(rowKeys);
-            pagingState = new PagingState(bb, null, remaining);
-            msg.result.metadata.setHasMorePages(pagingState);
+        // Check paging
+        int limit = select.getLimit(options);
+        int page = getPageSize(select, options);
+        if (search.isTopK()) {
+            if (limit == Integer.MAX_VALUE) { // Avoid unlimited
+                throw new InvalidRequestException(
+                        "Top-k searches don't support paging, so a cautious LIMIT clause should be provided " +
+                        "to prevent excessive memory consumption.");
+            } else if (page < limit) {
+                String json = UTF8Type.instance.compose(expression.getValue());
+                logger.warn("Disabling paging of {} rows/page for top-k search requesting {} rows: {}",
+                            page, json, limit);
+                return executeWithoutPaging(select, state, options);
+            }
         }
-        return msg;
+
+        // Process
+        return execute(select, state, options);
+    }
+
+    public ResultMessage execute(CQLStatement statement, QueryState state, QueryOptions options) {
+        ResultMessage result = statement.execute(state, options);
+        return result == null ? new ResultMessage.Void() : result;
+    }
+
+    private int getPageSize(SelectStatement select, QueryOptions options) throws ReflectiveOperationException {
+        Method method = select.getClass().getDeclaredMethod("getPageSize", QueryOptions.class);
+        method.setAccessible(true);
+        return (int) method.invoke(select, options);
+    }
+
+    public ResultMessage.Rows executeWithoutPaging(SelectStatement select, QueryState state, QueryOptions options)
+    throws RequestExecutionException, RequestValidationException, ReflectiveOperationException {
+
+        ConsistencyLevel cl = options.getConsistency();
+        checkNotNull(cl, "Invalid empty consistency level");
+
+        cl.validateForRead(select.keyspace());
+
+        int nowInSec = FBUtilities.nowInSeconds();
+        int userLimit = select.getLimit(options);
+        ReadQuery query = select.getQuery(options, nowInSec, userLimit);
+
+        Method method = select.getClass().getDeclaredMethod("execute",
+                                                            ReadQuery.class,
+                                                            QueryOptions.class,
+                                                            QueryState.class,
+                                                            int.class,
+                                                            int.class);
+        method.setAccessible(true);
+        return (ResultMessage.Rows) method.invoke(select, query, options, state, nowInSec, userLimit);
     }
 
 }

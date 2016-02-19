@@ -18,7 +18,7 @@
 
 package com.stratio.cassandra.lucene.search.condition;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.IndexException;
 import org.apache.commons.lang3.StringUtils;
 
@@ -40,7 +40,7 @@ public abstract class SingleFieldCondition extends Condition {
      * Abstract {@link SingleFieldCondition} builder receiving the boost to be used.
      *
      * @param boost The boost for this query clause. Documents matching this clause will (in addition to the normal
-     *              weightings) have their score multiplied by {@code boost}.
+     * weightings) have their score multiplied by {@code boost}.
      * @param field The name of the field to be matched.
      */
     public SingleFieldCondition(Float boost, String field) {
@@ -53,7 +53,7 @@ public abstract class SingleFieldCondition extends Condition {
         this.field = field;
     }
 
-    protected Objects.ToStringHelper toStringHelper(Object o) {
+    protected MoreObjects.ToStringHelper toStringHelper(Object o) {
         return super.toStringHelper(o).add("field", field);
     }
 }

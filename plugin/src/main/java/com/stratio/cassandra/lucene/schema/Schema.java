@@ -18,10 +18,10 @@
 
 package com.stratio.cassandra.lucene.schema;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.IndexException;
-import com.stratio.cassandra.lucene.schema.column.Column;
-import com.stratio.cassandra.lucene.schema.column.Columns;
+import com.stratio.cassandra.lucene.column.Column;
+import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
 import org.apache.cassandra.config.CFMetaData;
@@ -31,9 +31,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * The user-defined mapping from Cassandra columns to Lucene documents.
@@ -50,23 +50,24 @@ public class Schema implements Closeable {
     /** The wrapping all-in-one {@link Analyzer}. */
     private final SchemaAnalyzer analyzer;
 
-    /** The names of the mapped columns. */
-    private final Set<String> mappedColumns;
+    /** The names of the mapped cells. */
+    private final Set<String> mappedCells;
 
     /**
      * Returns a new {@code Schema} for the specified {@link Mapper}s and {@link Analyzer}s.
      *
      * @param defaultAnalyzer The default {@link Analyzer} to be used.
-     * @param mappers         The per field {@link Mapper}s builders to be used.
-     * @param analyzers       The per field {@link Analyzer}s to be used.
+     * @param mappers The per field {@link Mapper}s builders to be used.
+     * @param analyzers The per field {@link Analyzer}s to be used.
      */
     public Schema(Analyzer defaultAnalyzer, Map<String, Mapper> mappers, Map<String, Analyzer> analyzers) {
         this.mappers = mappers;
         this.analyzer = new SchemaAnalyzer(defaultAnalyzer, analyzers, mappers);
-        mappedColumns = new HashSet<>();
-        for (Mapper mapper : this.mappers.values()) {
-            mappedColumns.addAll(mapper.mappedColumns);
-        }
+        mappedCells = mappers.values()
+                             .stream()
+                             .flatMap(x -> x.mappedColumns.stream())
+                             .map(x -> x.contains(Column.UDT_SEPARATOR) ? x.split(Column.UDT_PATTERN)[0] : x)
+                             .collect(Collectors.toSet());
     }
 
     /**
@@ -113,6 +114,10 @@ public class Schema implements Closeable {
         return mapper == null ? null : (SingleColumnMapper) mapper;
     }
 
+    public Set<String> getMappedCells() {
+        return mappedCells;
+    }
+
     /**
      * Validates the specified {@link Columns} for mapping.
      *
@@ -130,7 +135,7 @@ public class Schema implements Closeable {
      * This is done in a best-effort way, so each mapper errors are logged and ignored.
      *
      * @param document The Lucene {@link Document} where the fields are going to be added.
-     * @param columns  The {@link Columns} to be added.
+     * @param columns The {@link Columns} to be added.
      */
     public void addFields(Document document, Columns columns) {
         for (Mapper mapper : mappers.values()) {
@@ -156,39 +161,6 @@ public class Schema implements Closeable {
         }
     }
 
-    /**
-     * Returns if there is any mapper mapping the specified column.
-     *
-     * @param column A column name.
-     * @return {@code true} if there is any mapper mapping the specified column, {@code false} otherwise.
-     */
-    public boolean maps(String column) {
-        for (String mappedColumn : mappedColumns) {
-            String name = mappedColumn.contains(".")
-                          ? mappedColumn.substring(0, mappedColumn.indexOf("."))
-                          : mappedColumn;
-            if (column.equals(name)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Returns if the specified {@link Columns} contains the all the mapped columns.
-     *
-     * @param columns A {@link Columns}.
-     * @return {@code true} if the specified {@link Columns} contains the mapped columns, {@code false} otherwise.
-     */
-    public boolean mapsAll(Columns columns) {
-        for (Mapper mapper : mappers.values()) {
-            if (!mapper.maps(columns)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     /** {@inheritDoc} */
     @Override
     public void close() {
@@ -198,6 +170,6 @@ public class Schema implements Closeable {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("mappers", mappers).add("analyzer", analyzer).toString();
+        return MoreObjects.toStringHelper(this).add("mappers", mappers).add("analyzer", analyzer).toString();
     }
 }

@@ -32,13 +32,12 @@
     <packaging>pom</packaging>
     <groupId>com.stratio.cassandra</groupId>
     <artifactId>cassandra-lucene-index-parent</artifactId>
-    <version>2.2.5.1-RC1-SNAPSHOT</version>
+    <version>3.0.3.0-SNAPSHOT</version>
     <name>Cassandra Lucene index</name>
     <description>Cassandra Lucene index</description>
 
     <modules>
         <module>builder</module>
-        <module>doc</module>
         <module>plugin</module>
     </modules>
 
@@ -75,14 +74,16 @@
     </developers>
 
     <properties>
-        <maven.compiler.source>1.7</maven.compiler.source>
-        <maven.compiler.target>1.7</maven.compiler.target>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <cassandra.version>2.2.5</cassandra.version>
+        <cassandra.version>3.0.3</cassandra.version>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <lucene.version>5.3.0</lucene.version>
         <coverage.data.dir>${project.build.outputDirectory}</coverage.data.dir>
+        <skipTests>false</skipTests>
         <skipITs>false</skipITs>
+        <jacoco-IT-argline> </jacoco-IT-argline>
     </properties>
 
     <build>
@@ -146,6 +147,9 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <skipTests>${skipTests}</skipTests>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>

@@ -18,9 +18,9 @@
 
 package com.stratio.cassandra.lucene.search.sort;
 
+import com.stratio.cassandra.lucene.column.Column;
+import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.column.Column;
-import com.stratio.cassandra.lucene.schema.column.Columns;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.junit.Test;
 
@@ -108,17 +108,17 @@ public class SortTest {
                                 .build();
         Comparator<Columns> comparator = sort.comparator(schema);
 
-        Column<String> column1 = Column.builder("field_1").composedValue("a", UTF8Type.instance);
-        Column<String> column2 = Column.builder("field_1").composedValue("b", UTF8Type.instance);
-        Column<String> column3 = Column.builder("field_1").composedValue("c", UTF8Type.instance);
+        Column<String> column1 = Column.builder("field_1").buildWithComposed("a", UTF8Type.instance);
+        Column<String> column2 = Column.builder("field_1").buildWithComposed("b", UTF8Type.instance);
+        Column<String> column3 = Column.builder("field_1").buildWithComposed("c", UTF8Type.instance);
 
-        Column<String> columnField2_1 = Column.builder("field_2").composedValue("a", UTF8Type.instance);
-        Column<String> columnField2_2 = Column.builder("field_2").composedValue("b", UTF8Type.instance);
-        Column<String> columnField2_3 = Column.builder("field_2").composedValue("c", UTF8Type.instance);
+        Column<String> columnField2_1 = Column.builder("field_2").buildWithComposed("a", UTF8Type.instance);
+        Column<String> columnField2_2 = Column.builder("field_2").buildWithComposed("b", UTF8Type.instance);
+        Column<String> columnField2_3 = Column.builder("field_2").buildWithComposed("c", UTF8Type.instance);
 
-        Column<String> columnField3_1 = Column.builder("field_3").composedValue("e", UTF8Type.instance);
-        Column<String> columnField3_2 = Column.builder("field_3").composedValue("d", UTF8Type.instance);
-        Column<String> columnField3_3 = Column.builder("field_3").composedValue("c", UTF8Type.instance);
+        Column<String> columnField3_1 = Column.builder("field_3").buildWithComposed("e", UTF8Type.instance);
+        Column<String> columnField3_2 = Column.builder("field_3").buildWithComposed("d", UTF8Type.instance);
+        Column<String> columnField3_3 = Column.builder("field_3").buildWithComposed("c", UTF8Type.instance);
 
         Columns columns1 = new Columns().add(column1).add(columnField2_1).add(columnField3_1);
         Columns columns2 = new Columns().add(column2).add(columnField2_2).add(columnField3_2);

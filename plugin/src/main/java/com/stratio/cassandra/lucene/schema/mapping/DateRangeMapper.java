@@ -18,10 +18,10 @@
 
 package com.stratio.cassandra.lucene.schema.mapping;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.IndexException;
-import com.stratio.cassandra.lucene.schema.column.Column;
-import com.stratio.cassandra.lucene.schema.column.Columns;
+import com.stratio.cassandra.lucene.column.Column;
+import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.util.DateParser;
 import org.apache.cassandra.db.marshal.*;
 import org.apache.commons.lang3.StringUtils;
@@ -63,11 +63,11 @@ public class DateRangeMapper extends Mapper {
     /**
      * Builds a new {@link DateRangeMapper}.
      *
-     * @param field     The name of the field.
+     * @param field The name of the field.
      * @param validated If the field must be validated.
-     * @param from      The name of the column containing the from date.
-     * @param to        The name of the column containing the to date.
-     * @param pattern   The date format pattern to be used.
+     * @param from The name of the column containing the from date.
+     * @param to The name of the column containing the to date.
+     * @param pattern The date format pattern to be used.
      */
     public DateRangeMapper(String field, Boolean validated, String from, String to, String pattern) {
         super(field,
@@ -141,7 +141,7 @@ public class DateRangeMapper extends Mapper {
      * Makes an spatial shape representing the time range defined by the two specified dates.
      *
      * @param from The from {@link Date}.
-     * @param to   The to {@link Date}.
+     * @param to The to {@link Date}.
      * @return The spatial shape representing the time range defined by the two specified dates.
      */
     public NRShape makeShape(Date from, Date to) {
@@ -200,12 +200,12 @@ public class DateRangeMapper extends Mapper {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                      .add("field", field)
-                      .add("validated", validated)
-                      .add("from", from)
-                      .add("to", to)
-                      .add("pattern", pattern)
-                      .toString();
+        return MoreObjects.toStringHelper(this)
+                          .add("field", field)
+                          .add("validated", validated)
+                          .add("from", from)
+                          .add("to", to)
+                          .add("pattern", pattern)
+                          .toString();
     }
 }

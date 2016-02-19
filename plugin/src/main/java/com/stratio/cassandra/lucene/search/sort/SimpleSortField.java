@@ -18,11 +18,11 @@
 
 package com.stratio.cassandra.lucene.search.sort;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.IndexException;
+import com.stratio.cassandra.lucene.column.Column;
+import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.column.Column;
-import com.stratio.cassandra.lucene.schema.column.Columns;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
 import org.apache.commons.lang3.StringUtils;
@@ -42,17 +42,15 @@ public class SimpleSortField extends SortField {
     /**
      * Returns a new {@link SortField}.
      *
-     * @param field   The name of field to sort by.
+     * @param field The name of field to sort by.
      * @param reverse {@code true} if natural order should be reversed.
      */
     public SimpleSortField(String field, Boolean reverse) {
         super(reverse);
-
         if (field == null || StringUtils.isBlank(field)) {
             throw new IndexException("Field name required");
         }
         this.field = field;
-
     }
 
     /**
@@ -120,7 +118,7 @@ public class SimpleSortField extends SortField {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("field", field).add("reverse", reverse).toString();
+        return MoreObjects.toStringHelper(this).add("field", field).add("reverse", reverse).toString();
     }
 
     /** {@inheritDoc} */

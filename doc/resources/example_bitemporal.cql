@@ -11,12 +11,11 @@ CREATE TABLE census (
       vt_to text,
       tt_from text,
       tt_to text,
-      lucene text,
       PRIMARY KEY (name, vt_from, tt_from)
 );
 
 
-CREATE CUSTOM INDEX census_index on census(lucene) 
+CREATE CUSTOM INDEX census_index on census()
 USING 'com.stratio.cassandra.lucene.Index'
 WITH OPTIONS = {
     'refresh_seconds' : '1',
@@ -70,7 +69,7 @@ SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM census ;
 -- If you want to know what is the last info about where John have resided, you perform a query with tt_from and tt_to setted to now_value:
 
 SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM census WHERE 
-lucene='{
+expr(census_index,'{
     filter : {
       type : "bitemporal", 
       field : "bitemporal", 
@@ -79,14 +78,14 @@ lucene='{
       tt_from : "2200/12/31", 
       tt_to : "2200/12/31"
     }
-}'
+}')
 AND name='John';
 
 
 -- If you want to know what is the last info about where John resides now, you perform a query with tt_from, tt_to, vt_from, vt_to setted to now_value:
 
 SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM census WHERE
-lucene='{
+expr(census_index,'{
     filter : {
       type : "bitemporal",
       field : "bitemporal",
@@ -95,13 +94,13 @@ lucene='{
       tt_from : "2200/12/31",
       tt_to : "2200/12/31"
     }
-}'
+}')
 AND name='John';
 
 -- If the test case needs to know what the system was thinking at '2015/03/01' about where John resides in "2015/03/01":
 
 SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM census WHERE 
-lucene='{
+expr(census_index,'{
     filter : {
       type : "bitemporal", 
       field : "bitemporal", 
@@ -110,20 +109,20 @@ lucene='{
       tt_from : "2015/03/01",
       tt_to : "2015/03/01"
     }
-}' 
+}')
 AND name='John';
 
 -- If the test case needs to know what the system was thinking at '2015/07/05' about where John resides:
 
 SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM census WHERE
-lucene='{
+expr(census_index,'{
     filter : {
       type : "bitemporal",
       field : "bitemporal",
       tt_from : "2015/07/05",
       tt_to : "2015/07/05"
     }
-}'
+}')
 AND name='John';
 
 

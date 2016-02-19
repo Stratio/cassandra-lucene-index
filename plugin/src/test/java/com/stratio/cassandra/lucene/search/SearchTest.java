@@ -55,8 +55,7 @@ public class SearchTest {
         assertTrue("Use relevance is wrong",
                    search().query(match("field", "value"))
                            .filter(match("field", "value"))
-                           .sort(field("field"))
-                           .build()
+                           .sort(field("field")).build()
                            .usesRelevance());
     }
 
@@ -68,8 +67,7 @@ public class SearchTest {
         assertTrue("Use sorting is wrong",
                    search().query(match("field", "value"))
                            .filter(match("field", "value"))
-                           .sort(field("field"))
-                           .build()
+                           .sort(field("field")).build()
                            .usesRelevance());
     }
 
@@ -86,8 +84,7 @@ public class SearchTest {
         assertTrue("Requires full scan is wrong",
                    search().query(match("field", "value"))
                            .filter(match("field", "value"))
-                           .sort(field("field"))
-                           .build()
+                           .sort(field("field")).build()
                            .requiresFullScan());
     }
 
@@ -118,11 +115,10 @@ public class SearchTest {
     public void testToString() {
         Search search = search().query(match("field", "value"))
                                 .filter(match("field", "value"))
-                                .sort(field("field"))
-                                .build();
+                                .sort(field("field")).build();
         assertEquals("Method #toString is wrong",
-                     "Search{queryCondition=MatchCondition{boost=1.0, field=field, value=value}, " +
-                     "filterCondition=MatchCondition{boost=1.0, field=field, value=value}, " +
+                     "Search{query=MatchCondition{boost=1.0, field=field, value=value}, " +
+                     "filter=MatchCondition{boost=1.0, field=field, value=value}, " +
                      "sort=Sort{sortFields=[SimpleSortField{field=field, reverse=false}]}}",
                      search.toString());
     }

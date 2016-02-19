@@ -18,8 +18,8 @@
 
 package com.stratio.cassandra.lucene.search.sort;
 
+import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.column.Columns;
 
 import java.util.Comparator;
 
@@ -39,7 +39,6 @@ public abstract class SortField {
     /**
      * Returns a new {@link SortField}.
      *
-
      * @param reverse {@code true} if natural order should be reversed.
      */
     public SortField(Boolean reverse) {
@@ -72,8 +71,6 @@ public abstract class SortField {
      */
     public abstract Comparator<Columns> comparator(Schema schema);
 
-
-
     @SuppressWarnings("unchecked")
     protected int compare(Comparable column1, Comparable column2) {
         if (column1 == null) {
@@ -98,6 +95,4 @@ public abstract class SortField {
     /** {@inheritDoc} */
     @Override
     public abstract int hashCode();
-
-
 }

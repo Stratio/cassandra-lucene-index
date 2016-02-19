@@ -29,7 +29,7 @@ public interface Builder<T> {
     /**
      * Returns the object represented by this builder.
      *
-     * @return The object represented by this builder.
+     * @return the built object
      */
     T build();
 }

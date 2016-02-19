@@ -38,6 +38,7 @@ import static org.junit.Assert.assertTrue;
 public class ReadStaticColumnsAT extends BaseAT {
 
     private static CassandraUtils cassandraUtils;
+
     @BeforeClass
     public static void before() {
         cassandraUtils = CassandraUtils.builder("read_static_columns")
@@ -51,14 +52,17 @@ public class ReadStaticColumnsAT extends BaseAT {
                                        .createKeyspace()
                                        .createTable()
                                        .createIndex()
-                                       .insert(new String[]{"key", "cluster_key", "name"}, new Object[]{12, 13, "Name12"})
-                                       .insert(new String[]{"key", "cluster_key", "name"}, new Object[]{12, 14, "Name12-2"})
-                                       .insert(new String[]{"key", "cluster_key", "name"}, new Object[]{15, 16, "Name15"})
-                                       .insert(new String[]{"key", "cluster_key", "name"}, new Object[]{15, 17, "Name15-2"})
+                                       .insert(new String[]{"key", "cluster_key", "name"},
+                                               new Object[]{12, 13, "Name12"})
+                                       .insert(new String[]{"key", "cluster_key", "name"},
+                                               new Object[]{12, 14, "Name12-2"})
+                                       .insert(new String[]{"key", "cluster_key", "name"},
+                                               new Object[]{15, 16, "Name15"})
+                                       .insert(new String[]{"key", "cluster_key", "name"},
+                                               new Object[]{15, 17, "Name15-2"})
                                        .refresh();
 
     }
-
 
     @AfterClass
     public static void after() {
@@ -68,19 +72,18 @@ public class ReadStaticColumnsAT extends BaseAT {
     @Test
     public void tokenReadStaticColumnTest1() {
 
-        CassandraUtilsSelect select =cassandraUtils.filter(match("key",12));
+        CassandraUtilsSelect select = cassandraUtils.filter(match("key", 12));
 
-        List<Row> rows= select.get();
+        List<Row> rows = select.get();
 
-
-        assertEquals("Expected 2 rows",2,rows.size());
-        for (Row row: rows) {
-            Long key= row.getLong("key");
-            Integer cluster_key= row.getInt("cluster_key");
+        assertEquals("Expected 2 rows", 2, rows.size());
+        for (Row row : rows) {
+            Long key = row.getLong("key");
+            Integer cluster_key = row.getInt("cluster_key");
             String name = row.getString("name");
-            assertEquals("Unexpected result!","12",key.toString());
-            assertEquals("Unexpected result!","Name12-2",name);
-            assertTrue("Expected cluster_key 13 or 14 ",(cluster_key.equals(13)  || (cluster_key.equals(14))));
+            assertEquals("Unexpected result!", "12", key.toString());
+            assertEquals("Unexpected result!", "Name12-2", name);
+            assertTrue("Expected cluster_key 13 or 14 ", (cluster_key.equals(13) || (cluster_key.equals(14))));
         }
 
     }
@@ -88,15 +91,15 @@ public class ReadStaticColumnsAT extends BaseAT {
     @Test
     public void tokenReadStaticColumnTest2() {
 
-        List<Row> rows= cassandraUtils.filter(match("key",15)).get();
-        assertEquals("Expected 2 rows",2,rows.size());
-        for (Row row: rows) {
-            Long key= row.getLong("key");
-            Integer cluster_key= row.getInt("cluster_key");
+        List<Row> rows = cassandraUtils.filter(match("key", 15)).get();
+        assertEquals("Expected 2 rows", 2, rows.size());
+        for (Row row : rows) {
+            Long key = row.getLong("key");
+            Integer cluster_key = row.getInt("cluster_key");
             String name = row.getString("name");
-            assertEquals("Unexpected result!","15",key.toString());
-            assertEquals("Unexpected result!","Name15-2",name);
-            assertTrue("Expected cluster_key 16 or 17 ",(cluster_key.equals(16)  || (cluster_key.equals(17))));
+            assertEquals("Unexpected result!", "15", key.toString());
+            assertEquals("Unexpected result!", "Name15-2", name);
+            assertTrue("Expected cluster_key 16 or 17 ", (cluster_key.equals(16) || (cluster_key.equals(17))));
         }
 
     }

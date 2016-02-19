@@ -54,9 +54,9 @@ public class SnowballAnalyzerBuilder extends AnalyzerBuilder {
     /**
      * Builds a new {@link SnowballAnalyzerBuilder} for the specified language and stopwords.
      *
-     * @param language  The language. The supported languages are English, French, Spanish, Portuguese, Italian,
-     *                  Romanian, German, Dutch, Swedish, Norwegian, Danish, Russian, Finnish, Irish, Hungarian,
-     *                  Turkish, Armenian, Basque and Catalan.
+     * @param language The language. The supported languages are English, French, Spanish, Portuguese, Italian,
+     * Romanian, German, Dutch, Swedish, Norwegian, Danish, Russian, Finnish, Irish, Hungarian, Turkish, Armenian,
+     * Basque and Catalan.
      * @param stopwords The comma separated stopwords {@code String}.
      */
     @JsonCreator
@@ -83,9 +83,9 @@ public class SnowballAnalyzerBuilder extends AnalyzerBuilder {
     /**
      * Returns the snowball {@link Analyzer} for the specified language and stopwords.
      *
-     * @param language  The language code. The supported languages are English, French, Spanish, Portuguese, Italian,
-     *                  Romanian, German, Dutch, Swedish, Norwegian, Danish, Russian, Finnish, Irish, Hungarian,
-     *                  Turkish, Armenian, Basque and Catalan.
+     * @param language The language code. The supported languages are English, French, Spanish, Portuguese, Italian,
+     * Romanian, German, Dutch, Swedish, Norwegian, Danish, Russian, Finnish, Irish, Hungarian, Turkish, Armenian,
+     * Basque and Catalan.
      * @param stopwords The stop words.
      * @return The snowball {@link Analyzer} for the specified language and stopwords.
      */
@@ -111,8 +111,8 @@ public class SnowballAnalyzerBuilder extends AnalyzerBuilder {
      * Returns the default stopwords set used by Lucene language analyzer for the specified language.
      *
      * @param language The language for which the stopwords are. The supported languages are English, French, Spanish,
-     *                 Portuguese, Italian, Romanian, German, Dutch, Swedish, Norwegian, Danish, Russian, Finnish,
-     *                 Irish, Hungarian, Turkish, Armenian, Basque and Catalan.
+     * Portuguese, Italian, Romanian, German, Dutch, Swedish, Norwegian, Danish, Russian, Finnish, Irish, Hungarian,
+     * Turkish, Armenian, Basque and Catalan.
      * @return The default stopwords set used by Lucene language analyzers.
      */
     private static CharArraySet getDefaultStopwords(String language) {
@@ -130,9 +130,9 @@ public class SnowballAnalyzerBuilder extends AnalyzerBuilder {
         /**
          * Builds a new {@link SnowballAnalyzer} for the specified language and stopwords.
          *
-         * @param language  The language. The supported languages are English, French, Spanish, Portuguese, Italian,
-         *                  Romanian, German, Dutch, Swedish, Norwegian, Danish, Russian, Finnish, Irish, Hungarian,
-         *                  Turkish, Armenian, Basque and Catalan.
+         * @param language The language. The supported languages are English, French, Spanish, Portuguese, Italian,
+         * Romanian, German, Dutch, Swedish, Norwegian, Danish, Russian, Finnish, Irish, Hungarian, Turkish, Armenian,
+         * Basque and Catalan.
          * @param stopwords The comma separated stopwords {@code String}.
          */
         public SnowballAnalyzer(String language, CharArraySet stopwords) {

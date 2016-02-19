@@ -51,7 +51,7 @@ public class GeoPointMapper extends Mapper<GeoPointMapper> {
     /**
      * Builds a new {@code GeoPointMapper}.
      *
-     * @param latitude  The name of the column containing the latitude.
+     * @param latitude The name of the column containing the latitude.
      * @param longitude The name of the column containing the longitude.
      */
     @JsonCreator

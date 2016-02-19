@@ -19,6 +19,7 @@
 package com.stratio.cassandra.lucene.search;
 
 import com.stratio.cassandra.lucene.search.condition.builder.*;
+import com.stratio.cassandra.lucene.search.sort.builder.GeoDistanceSortFieldBuilder;
 import com.stratio.cassandra.lucene.search.sort.builder.SimpleSortFieldBuilder;
 import com.stratio.cassandra.lucene.search.sort.builder.SortFieldBuilder;
 
@@ -188,11 +189,11 @@ public final class SearchBuilders {
     /**
      * Returns a new {@link GeoBBoxConditionBuilder} with the specified field name and bounding box coordinates.
      *
-     * @param field        The name of the field to be matched.
+     * @param field The name of the field to be matched.
      * @param minLongitude The minimum accepted longitude.
      * @param maxLongitude The maximum accepted longitude.
-     * @param minLatitude  The minimum accepted latitude.
-     * @param maxLatitude  The maximum accepted latitude.
+     * @param minLatitude The minimum accepted latitude.
+     * @param maxLatitude The maximum accepted latitude.
      * @return A new {@link GeoBBoxConditionBuilder}.
      */
     public static GeoBBoxConditionBuilder geoBBox(String field,
@@ -206,9 +207,9 @@ public final class SearchBuilders {
     /**
      * Returns a new {@link GeoDistanceConditionBuilder} with the specified field reference point.
      *
-     * @param field       The name of the field to be matched.
-     * @param longitude   The longitude of the reference point.
-     * @param latitude    The latitude of the reference point.
+     * @param field The name of the field to be matched.
+     * @param longitude The longitude of the reference point.
+     * @param latitude The latitude of the reference point.
      * @param maxDistance The max allowed distance.
      * @return A new {@link GeoDistanceConditionBuilder}.
      */
@@ -230,17 +231,26 @@ public final class SearchBuilders {
     }
 
     /**
-     * Returns a new {@link SortFieldBuilder} for the specified field.
+     * Returns a new {@link SimpleSortFieldBuilder} for the specified field.
      *
-     * @param field The name of the field to be sorted.
-     * @return A new {@link SortFieldBuilder} for the specified field.
+     * @param field The name of the field to be sorted by.
+     * @return A new {@link SimpleSortFieldBuilder} for the specified field.
      */
     public static SimpleSortFieldBuilder field(String field) {
         return new SimpleSortFieldBuilder(field);
     }
 
-
-
+    /**
+     * Returns a new {@link SimpleSortFieldBuilder} for the specified field.
+     *
+     * @param mapper The name of mapper to use to calculate distance.
+     * @param longitude The longitude of the center point to sort by min distance to it.
+     * @param latitude The latitude of the center point to sort by min distance to it.
+     * @return A new {@link SimpleSortFieldBuilder} for the specified field.
+     */
+    public static GeoDistanceSortFieldBuilder geoDistanceSortField(String mapper, double longitude, double latitude) {
+        return new GeoDistanceSortFieldBuilder(mapper, longitude, latitude);
+    }
 
     /**
      * Returns a new {@link BitemporalConditionBuilder} for the specified field.

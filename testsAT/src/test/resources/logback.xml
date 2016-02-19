@@ -24,11 +24,11 @@
         </encoder>
     </appender>
 
-    <root level="INFO">
+    <root level="ERROR">
         <appender-ref ref="STDOUT" />
     </root>
 
-    <logger level="OFF" name="com.stratio.cassandra.lucene"/>
+    <logger level="DEBUG" name="com.stratio.cassandra"/>
     <logger level="OFF" name="org.apache.cassandra"/>
     <logger level="ERROR" name="com.datastax.driver"/>
     <logger level="DEBUG" name="TEST"/>

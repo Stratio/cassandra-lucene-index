@@ -18,9 +18,9 @@
 
 package com.stratio.cassandra.lucene.testsAT.util;
 
+import com.datastax.driver.core.ConsistencyLevel;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.SimpleStatement;
-import com.datastax.driver.core.Statement;
 import com.datastax.driver.core.querybuilder.Clause;
 import com.datastax.driver.core.querybuilder.QueryBuilder;
 import com.datastax.driver.core.querybuilder.Select;
@@ -29,11 +29,14 @@ import com.stratio.cassandra.lucene.builder.search.Search;
 import com.stratio.cassandra.lucene.builder.search.condition.Condition;
 import com.stratio.cassandra.lucene.builder.search.sort.SortField;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import static com.datastax.driver.core.querybuilder.QueryBuilder.eq;
+import static com.stratio.cassandra.lucene.testsAT.util.CassandraConfig.FETCH;
+import static com.stratio.cassandra.lucene.testsAT.util.CassandraConfig.LIMIT;
 import static org.junit.Assert.*;
 
 /**
@@ -47,7 +50,9 @@ public class CassandraUtilsSelect {
     private LinkedList<String> extras;
     private Integer limit;
     private Integer fetchSize;
-    private Boolean refresh = true;
+    private boolean refresh = true;
+    private boolean allowFiltering = false;
+    private ConsistencyLevel consistency;
 
     public CassandraUtilsSelect(CassandraUtils parent) {
         this.parent = parent;
@@ -132,27 +137,46 @@ public class CassandraUtilsSelect {
         return this;
     }
 
+    public CassandraUtilsSelect allowFiltering(boolean allowFiltering) {
+        this.allowFiltering = allowFiltering;
+        return this;
+    }
+
+    public CassandraUtilsSelect consistency(ConsistencyLevel consistency) {
+        this.consistency = consistency;
+        return this;
+    }
+
     public List<Row> get() {
         Select.Where where = QueryBuilder.select().from(parent.getKeyspace(), parent.getTable()).where();
         for (Clause clause : clauses) {
             where.and(clause);
         }
-        if (search != null) {
-            where.and(eq(parent.getIndexColumn(), search.refresh(refresh).build()));
-        }
-        Statement statement = limit == null ? where : where.limit(limit);
 
-        String query = statement.toString();
-        query = query.substring(0, query.length() - 1);
+        String query = where.toString();
+        query = query.substring(0, query.length() - 1); // Remove semicolon
         StringBuilder sb = new StringBuilder(query);
+        if (search != null) {
+            sb.append(clauses.isEmpty() ? " WHERE " : " AND ");
+            sb.append(String.format("expr(%s,'%s')", parent.getIndex(), search.refresh(refresh).build()));
+        }
         for (String extra : extras) {
             sb.append(" ");
             sb.append(extra);
             sb.append(" ");
         }
-        statement = new SimpleStatement(sb.toString());
+        sb.append(" LIMIT ").append(limit == null ? LIMIT : limit);
+        if (allowFiltering) {
+            sb.append(" ALLOW FILTERING");
+        }
+        SimpleStatement statement = new SimpleStatement(sb.toString());
+        if (consistency != null) {
+            statement.setConsistencyLevel(consistency);
+        }
         if (fetchSize != null) {
             statement.setFetchSize(fetchSize);
+        } else {
+            statement.setFetchSize(FETCH);
         }
         return parent.execute(statement).all();
     }
@@ -171,12 +195,28 @@ public class CassandraUtilsSelect {
         return parent;
     }
 
+    @SuppressWarnings("unchecked")
+    public <T> CassandraUtils check(String column, Class<T> clazz, T... expecteds) {
+        List<Row> rows = get();
+        List<T> values = new ArrayList<>();
+        for (Row row : rows) {
+            T value = row.get(column, clazz);
+            values.add(value);
+        }
+        T[] actuals = (T[]) Array.newInstance(clazz, values.size());
+        values.toArray(actuals);
+        assertArrayEquals("Expected different values", expecteds, actuals);
+        return parent;
+    }
+
     public <T extends Exception> CassandraUtils check(Class<T> expected) {
         try {
             get();
             fail("Search should have been invalid!");
         } catch (Exception e) {
-            assertTrue("Exception should be " + expected.getSimpleName(), expected.isAssignableFrom(e.getClass()));
+            assertTrue(String.format("Exception should be %s but found %s",
+                                     expected.getSimpleName(),
+                                     e.getClass().getSimpleName()), expected.isAssignableFrom(e.getClass()));
         }
         return parent;
     }

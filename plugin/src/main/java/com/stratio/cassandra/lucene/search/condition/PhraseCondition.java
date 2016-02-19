@@ -18,7 +18,7 @@
 
 package com.stratio.cassandra.lucene.search.condition;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
 import org.apache.lucene.analysis.Analyzer;
@@ -46,11 +46,11 @@ public class PhraseCondition extends SingleColumnCondition {
      * Constructor using the field name and the value to be matched.
      *
      * @param boost The boost for this query clause. Documents matching this clause will (in addition to the normal
-     *              weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link
-     *              #DEFAULT_BOOST} is used as default.
+     * weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link #DEFAULT_BOOST} is used as
+     * default.
      * @param field The name of the field to be matched.
      * @param value The phrase terms to be matched.
-     * @param slop  The number of other words permitted between words in phrase.
+     * @param slop The number of other words permitted between words in phrase.
      */
     public PhraseCondition(Float boost, String field, String value, Integer slop) {
         super(boost, field);
@@ -85,11 +85,11 @@ public class PhraseCondition extends SingleColumnCondition {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                      .add("boost", boost)
-                      .add("field", field)
-                      .add("value", value)
-                      .add("slop", slop)
-                      .toString();
+        return MoreObjects.toStringHelper(this)
+                          .add("boost", boost)
+                          .add("field", field)
+                          .add("value", value)
+                          .add("slop", slop)
+                          .toString();
     }
 }

@@ -18,7 +18,7 @@
 
 package com.stratio.cassandra.lucene.search.condition;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
 import org.apache.lucene.analysis.Analyzer;
@@ -44,10 +44,10 @@ public class ContainsCondition extends SingleColumnCondition {
     /**
      * Constructor using the field name and the value to be matched.
      *
-     * @param boost  The boost for this query clause. Documents matching this clause will (in addition to the normal
-     *               weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link
-     *               #DEFAULT_BOOST} is used as default.
-     * @param field  The name of the field to be matched.
+     * @param boost The boost for this query clause. Documents matching this clause will (in addition to the normal
+     * weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link #DEFAULT_BOOST} is used as
+     * default.
+     * @param field The name of the field to be matched.
      * @param values The value of the field to be matched.
      */
     public ContainsCondition(Float boost, String field, Object... values) {
@@ -77,10 +77,10 @@ public class ContainsCondition extends SingleColumnCondition {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                      .add("boost", boost)
-                      .add("field", field)
-                      .add("values", Arrays.toString(values))
-                      .toString();
+        return MoreObjects.toStringHelper(this)
+                          .add("boost", boost)
+                          .add("field", field)
+                          .add("values", Arrays.toString(values))
+                          .toString();
     }
 }

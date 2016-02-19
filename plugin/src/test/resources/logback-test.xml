@@ -1,5 +1,5 @@
 <configuration scan="false">
 
-    <logger level="INFO" name="com.stratio"/>
+    <logger level="DEBUG" name="com.stratio"/>
 
 </configuration>

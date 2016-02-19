@@ -33,7 +33,6 @@ public class Index extends Builder {
     private Schema schema;
     private String keyspace;
     private String table;
-    private String column;
     private String name;
     private Number refreshSeconds;
     private String directoryPath;
@@ -42,18 +41,20 @@ public class Index extends Builder {
     private Integer maxCachedMb;
     private Integer indexingThreads;
     private Integer indexingQueuesSize;
+    private Integer tokenRangeCacheSize;
+    private Integer searchCacheSize;
     private String excludedDataCenters;
 
     /**
      * Builds a new {@link Index} creation statement for the specified table and column.
      *
-     * @param table  The table name.
-     * @param column THe indexed column name.
+     * @param table the table name
+     * @param name the index name
      */
-    public Index(String table, String column) {
+    public Index(String table, String name) {
         this.schema = new Schema();
         this.table = table;
-        this.column = column;
+        this.name = name;
     }
 
     /**
@@ -64,17 +65,6 @@ public class Index extends Builder {
      */
     public Index keyspace(String keyspace) {
         this.keyspace = keyspace;
-        return this;
-    }
-
-    /**
-     * Sets the name of the indexed column.
-     *
-     * @param name The name of the indexed column.
-     * @return This.
-     */
-    public Index name(String name) {
-        this.name = name;
         return this;
     }
 
@@ -156,6 +146,28 @@ public class Index extends Builder {
     }
 
     /**
+     * Sets the token range cache size.
+     *
+     * @param tokenRangeCacheSize The token range cache size.
+     * @return This.
+     */
+    public Index tokenRangeCacheSize(Integer tokenRangeCacheSize) {
+        this.tokenRangeCacheSize = tokenRangeCacheSize;
+        return this;
+    }
+
+    /**
+     * Sets the search cache size.
+     *
+     * @param searchCacheSize The search cache size.
+     * @return This.
+     */
+    public Index searchCacheSize(Integer searchCacheSize) {
+        this.searchCacheSize = searchCacheSize;
+        return this;
+    }
+
+    /**
      * Sets the list of excluded data centers.
      *
      * @param excludedDataCenters The list of excluded data centers.
@@ -180,7 +192,7 @@ public class Index extends Builder {
     /**
      * Adds a new {@link Analyzer}.
      *
-     * @param name     The name of the {@link Analyzer} to be added.
+     * @param name The name of the {@link Analyzer} to be added.
      * @param analyzer The builder of the {@link Analyzer} to be added.
      * @return This.
      */
@@ -192,7 +204,7 @@ public class Index extends Builder {
     /**
      * Adds a new {@link Mapper}.
      *
-     * @param field  The name of the {@link Mapper} to be added.
+     * @param field The name of the {@link Mapper} to be added.
      * @param mapper The builder of the {@link Mapper} to be added.
      * @return This.
      */
@@ -216,11 +228,9 @@ public class Index extends Builder {
     public String build() {
         StringBuilder sb = new StringBuilder();
         sb.append("CREATE CUSTOM INDEX ");
-        if (name != null) {
-            sb.append(name).append(" ");
-        }
+        sb.append(name).append(" ");
         String fullTable = keyspace == null ? table : keyspace + "." + table;
-        sb.append(String.format("ON %s (%s) ", fullTable, column));
+        sb.append(String.format("ON %s() ", fullTable));
         sb.append("USING 'com.stratio.cassandra.lucene.Index' WITH OPTIONS = {");
         option(sb, "refresh_seconds", refreshSeconds);
         option(sb, "directory_path", directoryPath);
@@ -230,6 +240,8 @@ public class Index extends Builder {
         option(sb, "indexing_threads", indexingThreads);
         option(sb, "indexing_queues_size", indexingQueuesSize);
         option(sb, "excluded_data_centers", excludedDataCenters);
+        option(sb, "token_range_cache_size", tokenRangeCacheSize);
+        option(sb, "search_cache_size", searchCacheSize);
         sb.append(String.format("'schema':'%s'}", schema));
         return sb.toString();
     }

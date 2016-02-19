@@ -37,7 +37,7 @@ public final class TimeCounter {
     /**
      * Returns a new stopped {@link TimeCounter}.
      *
-     * @return A new stopped {@link TimeCounter}.
+     * @return a new stopped counter
      */
     public static TimeCounter create() {
         return new TimeCounter();
@@ -54,7 +54,7 @@ public final class TimeCounter {
     /**
      * Starts or resumes the time count.
      *
-     * @return This.
+     * @return this
      */
     public TimeCounter start() {
         switch (state) {
@@ -73,7 +73,7 @@ public final class TimeCounter {
     /**
      * Stops or suspends the time count.
      *
-     * @return This.
+     * @return this
      */
     public TimeCounter stop() {
         switch (state) {
@@ -89,9 +89,9 @@ public final class TimeCounter {
     }
 
     /**
-     * Returns a summary of the time that the stopwatch recorded as a string.
+     * Returns a summary of the time that the stopwatch has recorded as a string.
      *
-     * @return A summary of the time that the stopwatch recorded as a string.
+     * @return a summary of the time that the stopwatch has recorded
      */
     public String toString() {
         return watch.toString();
@@ -100,7 +100,7 @@ public final class TimeCounter {
     /**
      * Returns the counted time in milliseconds.
      *
-     * @return The counted time in milliseconds.
+     * @return the counted time in milliseconds
      */
     public long getTime() {
         return watch.getTime();
@@ -109,7 +109,7 @@ public final class TimeCounter {
     /**
      * Returns the counted time in nanoseconds.
      *
-     * @return The counted time in nanoseconds.
+     * @return the counted time in nanoseconds
      */
     public long getNanoTime() {
         return watch.getNanoTime();

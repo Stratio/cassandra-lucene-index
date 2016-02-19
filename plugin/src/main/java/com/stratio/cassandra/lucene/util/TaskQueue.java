@@ -39,33 +39,34 @@ public class TaskQueue {
 
     private static final Logger logger = LoggerFactory.getLogger(TaskQueue.class);
 
-    private final NotifyingBlockingThreadPoolExecutor[] pools;
+    private BlockingExecutor[] pools;
 
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
     /**
      * Returns a new {@link TaskQueue}.
      *
-     * @param numThreads The number of executor threads.
-     * @param queuesSize The max number of tasks in each thread queue before blocking.
+     * @param numThreads the number of executor threads
+     * @param queuesSize the max number of tasks in each thread queue before blocking
      */
     public TaskQueue(int numThreads, int queuesSize) {
-
-        pools = new NotifyingBlockingThreadPoolExecutor[numThreads];
-        for (int i = 0; i < numThreads; i++) {
-            pools[i] = new NotifyingBlockingThreadPoolExecutor(1,
-                                                               queuesSize,
-                                                               Long.MAX_VALUE,
-                                                               TimeUnit.DAYS,
-                                                               0,
-                                                               TimeUnit.NANOSECONDS,
-                                                               null);
-            pools[i].submit(new Runnable() {
-                @Override
-                public void run() {
-                    logger.debug("Task queue starts");
-                }
-            });
+        if (numThreads > 0) {
+            pools = new BlockingExecutor[numThreads];
+            for (int i = 0; i < numThreads; i++) {
+                pools[i] = new BlockingExecutor(1,
+                                                queuesSize,
+                                                Long.MAX_VALUE,
+                                                TimeUnit.DAYS,
+                                                0,
+                                                TimeUnit.NANOSECONDS,
+                                                null);
+                pools[i].submit(new Runnable() {
+                    @Override
+                    public void run() {
+                        logger.debug("Task queue starts");
+                    }
+                });
+            }
         }
     }
 
@@ -75,21 +76,26 @@ public class TaskQueue {
      * The specified identifier is used to choose the thread executor where the task will be queued. The selection and
      * load balancing is based in the {@link #hashCode()} of this identifier.
      *
-     * @param id   The identifier of the task used to choose the thread executor where the task will be queued for
-     *             asynchronous execution.
-     * @param task A task to be queued for asynchronous execution.
-     * @return A future for the submitted task.
+     * @param id the identifier of the task used to choose the thread executor where the task will be queued for
+     * asynchronous execution
+     * @param task the task to be queued for asynchronous execution
+     * @return a future for the submitted task
      */
     public Future<?> submitAsynchronous(Object id, Runnable task) {
-        lock.readLock().lock();
-        try {
-            int i = Math.abs(id.hashCode() % pools.length);
-            return pools[i].submit(task);
-        } catch (Exception e) {
-            logger.error("Task queue submission failed", e);
-            throw new IndexException(e);
-        } finally {
-            lock.readLock().unlock();
+        if (pools == null) {
+            task.run();
+            return null;
+        } else {
+            lock.readLock().lock();
+            try {
+                int i = Math.abs(id.hashCode() % pools.length);
+                return pools[i].submit(task);
+            } catch (Exception e) {
+                logger.error("Task queue submission failed", e);
+                throw new IndexException(e);
+            } finally {
+                lock.readLock().unlock();
+            }
         }
     }
 
@@ -97,15 +103,19 @@ public class TaskQueue {
      * Submits a non value-returning task for synchronous execution. It waits for all synchronous tasks to be
      * completed.
      *
-     * @param task A task to be executed synchronously.
+     * @param task a task to be executed synchronously
      */
     public void submitSynchronous(Runnable task) {
-        lock.writeLock().lock();
-        try {
-            await();
+        if (pools == null) {
             task.run();
-        } finally {
-            lock.writeLock().unlock();
+        } else {
+            lock.writeLock().lock();
+            try {
+                await();
+                task.run();
+            } finally {
+                lock.writeLock().unlock();
+            }
         }
     }
 
@@ -113,28 +123,27 @@ public class TaskQueue {
      * Await for task completion.
      */
     public void await() {
-        lock.writeLock().lock();
-        try {
-            Future<?>[] futures = new Future<?>[pools.length];
-            for (int i = 0; i < pools.length; i++) {
-                Future<?> future = pools[i].submit(new Runnable() {
-                    @Override
-                    public void run() {
-                    }
-                });
-                futures[i] = future;
+        if (pools != null) {
+            lock.writeLock().lock();
+            try {
+                Future<?>[] futures = new Future<?>[pools.length];
+                for (int i = 0; i < pools.length; i++) {
+                    Future<?> future = pools[i].submit(() -> {
+                    });
+                    futures[i] = future;
+                }
+                for (Future<?> future : futures) {
+                    future.get();
+                }
+            } catch (InterruptedException e) {
+                logger.error("Task queue await interrupted", e);
+                throw new IndexException(e);
+            } catch (ExecutionException e) {
+                logger.error("Task queue await failed", e);
+                throw new IndexException(e);
+            } finally {
+                lock.writeLock().unlock();
             }
-            for (Future<?> future : futures) {
-                future.get();
-            }
-        } catch (InterruptedException e) {
-            logger.error("Task queue await interrupted", e);
-            throw new IndexException(e);
-        } catch (ExecutionException e) {
-            logger.error("Task queue await failed", e);
-            throw new IndexException(e);
-        } finally {
-            lock.writeLock().unlock();
         }
     }
 
@@ -142,13 +151,15 @@ public class TaskQueue {
      * Shutdowns this task.
      */
     public void shutdown() {
-        lock.writeLock().lock();
-        try {
-            for (int i = 0; i < pools.length; i++) {
-                pools[i].shutdown();
+        if (pools != null) {
+            lock.writeLock().lock();
+            try {
+                for (BlockingExecutor pool : pools) {
+                    pool.shutdown();
+                }
+            } finally {
+                lock.writeLock().unlock();
             }
-        } finally {
-            lock.writeLock().unlock();
         }
     }
 

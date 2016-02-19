@@ -49,12 +49,10 @@ public class GeoPointMapperBuilder extends MapperBuilder<GeoPointMapper, GeoPoin
     @JsonProperty("sorted")
     private Boolean sorted;
 
-
-
     /**
      * Builds a new {@link GeoPointMapper}.
      *
-     * @param latitude  The name of the column containing the latitude.
+     * @param latitude The name of the column containing the latitude.
      * @param longitude The name of the column containing the longitude.
      */
     @JsonCreator

@@ -18,7 +18,6 @@
 
 package com.stratio.cassandra.lucene.testsAT.search;
 
-import com.datastax.driver.core.exceptions.DriverException;
 import com.datastax.driver.core.exceptions.InvalidQueryException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -89,14 +88,14 @@ public class MatchSearchAT extends AbstractSearchAT {
         query(match("blob_1", "3E0A16")).check(4);
     }
 
-    @Test(expected = InvalidQueryException.class)
+    @Test
     public void matchQueryBlobTest3() {
-        query(match("blob_1", "3E0A161")).check(0);
+        query(match("blob_1", "3E0A161")).check(InvalidQueryException.class);
     }
 
-    @Test(expected = InvalidQueryException.class)
+    @Test
     public void matchQueryBlobTest4() {
-        query(match("blob_1", "3E0A1")).check(0);
+        query(match("blob_1", "3E0A1")).check(InvalidQueryException.class);
     }
 
     @Test
@@ -104,9 +103,9 @@ public class MatchSearchAT extends AbstractSearchAT {
         query(match("blob_1", "3E0A15")).check(1);
     }
 
-    @Test(expected = DriverException.class)
+    @Test
     public void matchQueryBooleanTest1() {
-        query(match("boolean_1", "")).check(0);
+        query(match("boolean_1", "")).check(InvalidQueryException.class);
     }
 
     @Test
@@ -119,9 +118,9 @@ public class MatchSearchAT extends AbstractSearchAT {
         query(match("boolean_1", "false")).check(1);
     }
 
-    @Test(expected = InvalidQueryException.class)
+    @Test
     public void matchQueryBooleanTest5() {
-        query(match("boolean_1", "else")).check(0);
+        query(match("boolean_1", "else")).check(InvalidQueryException.class);
     }
 
     @Test
@@ -432,14 +431,14 @@ public class MatchSearchAT extends AbstractSearchAT {
         filter(match("blob_1", "3E0A16")).check(4);
     }
 
-    @Test(expected = InvalidQueryException.class)
+    @Test
     public void matchFilterBlobTest3() {
-        filter(match("blob_1", "3E0A161")).check(0);
+        filter(match("blob_1", "3E0A161")).check(InvalidQueryException.class);
     }
 
-    @Test(expected = InvalidQueryException.class)
+    @Test
     public void matchFilterBlobTest4() {
-        filter(match("blob_1", "3E0A1")).check(0);
+        filter(match("blob_1", "3E0A1")).check(InvalidQueryException.class);
     }
 
     @Test
@@ -447,9 +446,9 @@ public class MatchSearchAT extends AbstractSearchAT {
         filter(match("blob_1", "3E0A15")).check(1);
     }
 
-    @Test(expected = DriverException.class)
+    @Test
     public void matchFilterBooleanTest1() {
-        filter(match("boolean_1", "")).check(0);
+        filter(match("boolean_1", "")).check(InvalidQueryException.class);
     }
 
     @Test
@@ -462,9 +461,9 @@ public class MatchSearchAT extends AbstractSearchAT {
         filter(match("boolean_1", "false")).check(1);
     }
 
-    @Test(expected = InvalidQueryException.class)
+    @Test
     public void matchFilterBooleanTest5() {
-        filter(match("boolean_1", "else")).check(0);
+        filter(match("boolean_1", "else")).check(InvalidQueryException.class);
     }
 
     @Test
@@ -583,9 +582,9 @@ public class MatchSearchAT extends AbstractSearchAT {
         filter(match("integer_1", "-1")).check(1);
     }
 
-    @Test(expected = InvalidQueryException.class)
+    @Test
     public void matchFilterUuidTest1() {
-        filter(match("uuid_1", "0")).check(0);
+        filter(match("uuid_1", "0")).check(InvalidQueryException.class);
     }
 
     @Test
@@ -624,14 +623,14 @@ public class MatchSearchAT extends AbstractSearchAT {
         filter(match("inet_1", "127.0.1.1")).check(1);
     }
 
-    @Test(expected = InvalidQueryException.class)
+    @Test
     public void matchFilterInetFieldTest3() {
-        filter(match("inet_1", "127.1.1.")).check(0);
+        filter(match("inet_1", "127.1.1.")).check(InvalidQueryException.class);
     }
 
-    @Test(expected = DriverException.class)
+    @Test
     public void matchFilterInetFieldTest4() {
-        filter(match("inet_1", "")).check(0);
+        filter(match("inet_1", "")).check(InvalidQueryException.class);
     }
 
     @Test

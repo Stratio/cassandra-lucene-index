@@ -19,9 +19,9 @@
 package com.stratio.cassandra.lucene.search.sort;
 
 import com.stratio.cassandra.lucene.IndexException;
+import com.stratio.cassandra.lucene.column.Column;
+import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.column.Column;
-import com.stratio.cassandra.lucene.schema.column.Columns;
 import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.junit.Test;
@@ -167,8 +167,8 @@ public class SimpleSortFieldTest {
         SimpleSortField sortField = new SimpleSortField("field", false);
         Comparator<Columns> comparator = sortField.comparator(schema);
 
-        Column<String> lowerColumn = Column.builder("field").composedValue("a", UTF8Type.instance);
-        Column<String> upperColumn = Column.builder("field").composedValue("z", UTF8Type.instance);
+        Column<String> lowerColumn = Column.builder("field").buildWithComposed("a", UTF8Type.instance);
+        Column<String> upperColumn = Column.builder("field").buildWithComposed("z", UTF8Type.instance);
         Columns columns1 = new Columns().add(lowerColumn);
         Columns columns2 = new Columns().add(upperColumn);
 
@@ -184,8 +184,8 @@ public class SimpleSortFieldTest {
         SimpleSortField sortField = new SimpleSortField("field", true);
         Comparator<Columns> comparator = sortField.comparator(schema);
 
-        Column<String> lowerColumn = Column.builder("field").composedValue("a", UTF8Type.instance);
-        Column<String> upperColumn = Column.builder("field").composedValue("z", UTF8Type.instance);
+        Column<String> lowerColumn = Column.builder("field").buildWithComposed("a", UTF8Type.instance);
+        Column<String> upperColumn = Column.builder("field").buildWithComposed("z", UTF8Type.instance);
         Columns columns1 = new Columns().add(lowerColumn);
         Columns columns2 = new Columns().add(upperColumn);
 
@@ -201,7 +201,7 @@ public class SimpleSortFieldTest {
         SimpleSortField sortField = new SimpleSortField("field", true);
         Comparator<Columns> comparator = sortField.comparator(schema);
 
-        Column<String> column = Column.builder("field").composedValue("a", UTF8Type.instance);
+        Column<String> column = Column.builder("field").buildWithComposed("a", UTF8Type.instance);
         Columns columns = new Columns().add(column);
 
         assertEquals("SortField columns comparator is wrong", -1, comparator.compare(columns, null));
@@ -217,7 +217,7 @@ public class SimpleSortFieldTest {
         SimpleSortField sortField = new SimpleSortField("field", true);
         Comparator<Columns> comparator = sortField.comparator(schema);
 
-        Columns columns1 = new Columns().add(Column.builder("field").composedValue("a", UTF8Type.instance));
+        Columns columns1 = new Columns().add(Column.builder("field").buildWithComposed("a", UTF8Type.instance));
         Columns columns2 = new Columns();
 
         assertEquals("SortField columns comparator is wrong", -1, comparator.compare(columns1, columns2));
@@ -229,8 +229,8 @@ public class SimpleSortFieldTest {
 
         SimpleSortField sortField = new SimpleSortField("field", true);
 
-        Column column1 = Column.builder("field").composedValue("a", UTF8Type.instance);
-        Column column2 = Column.builder("field").composedValue("z", UTF8Type.instance);
+        Column column1 = Column.builder("field").buildWithComposed("a", UTF8Type.instance);
+        Column column2 = Column.builder("field").buildWithComposed("z", UTF8Type.instance);
         SingleColumnMapper mapper = stringMapper().build("field");
         Columns columns1 = new Columns(column1);
         Columns columns2 = new Columns(column2);

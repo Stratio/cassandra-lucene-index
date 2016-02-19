@@ -56,10 +56,10 @@ public class SchemaBuilder {
         this.defaultAnalyzerName = defaultAnalyzerName;
         this.analyzerBuilders = analyzerBuilders != null
                                 ? analyzerBuilders
-                                : new LinkedHashMap<String, AnalyzerBuilder>();
+                                : new LinkedHashMap<>();
         this.mapperBuilders = mapperBuilders != null
                               ? mapperBuilders
-                              : new LinkedHashMap<String, MapperBuilder<?, ?>>();
+                              : new LinkedHashMap<>();
     }
 
     /**
@@ -76,7 +76,7 @@ public class SchemaBuilder {
     /**
      * Adds a new {@link Analyzer}.
      *
-     * @param name     The name of the {@link Analyzer} to be added.
+     * @param name The name of the {@link Analyzer} to be added.
      * @param analyzer The builder of the {@link Analyzer} to be added.
      * @return This.
      */
@@ -88,7 +88,7 @@ public class SchemaBuilder {
     /**
      * Adds a new {@link Mapper}.
      *
-     * @param field  The name of the {@link Mapper} to be added.
+     * @param field The name of the {@link Mapper} to be added.
      * @param mapper The builder of the {@link Mapper} to be added.
      * @return This.
      */

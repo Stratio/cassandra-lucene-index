@@ -34,40 +34,27 @@ public class CassandraConnection {
 
     protected static final Logger logger = BaseAT.logger;
 
-    private static CassandraServer cassandraServer;
-    public static Cluster cluster;
+    private static Cluster cluster;
     public static Session session;
-
-    public static void startEmbeddedServer() {
-        if (EMBEDDED) {
-            try {
-                cassandraServer = new CassandraServer();
-                cassandraServer.setup();
-            } catch (Exception e) {
-                throw new RuntimeException("Error while starting Cassandra server", e);
-            }
-        }
-    }
-
-    public static void stopEmbeddedServer() {
-        if (cassandraServer != null) {
-            try {
-                cassandraServer.teardown();
-            } catch (Exception e) {
-                throw new RuntimeException("Error while stopping Cassandra server", e);
-            }
-        }
-    }
 
     public static void connect() {
         if (cluster == null) {
             try {
-                cluster = Cluster.builder().addContactPoint(HOST).build();
-                cluster.getConfiguration().getQueryOptions().setConsistencyLevel(CONSISTENCY);
-                cluster.getConfiguration().getQueryOptions().setFetchSize(FETCH);
-                cluster.getConfiguration().getSocketOptions().setReadTimeoutMillis(600000);
+
+                cluster = Cluster
+                        .builder()
+                        .addContactPoint(HOST)
+                        .build();
+
+                cluster.getConfiguration().getQueryOptions().setConsistencyLevel(CONSISTENCY).setFetchSize(FETCH);
+                cluster.getConfiguration()
+                       .getSocketOptions()
+                       .setReadTimeoutMillis(60000)
+                       .setConnectTimeoutMillis(100000);
+
                 session = cluster.connect();
             } catch (Exception e) {
+                e.printStackTrace();
                 throw new RuntimeException("Error while connecting to Cassandra server", e);
             }
         }
@@ -78,8 +65,10 @@ public class CassandraConnection {
         cluster.close();
     }
 
-    public static ResultSet execute(Statement statement) {
-        logger.debug("CQL: " + statement);
+    public static synchronized ResultSet execute(Statement statement) {
+        logger.debug("CQL: {}", statement);
+        //        try (Session session = cluster.connect()) {
         return session.execute(statement);
+        //        }
     }
 }

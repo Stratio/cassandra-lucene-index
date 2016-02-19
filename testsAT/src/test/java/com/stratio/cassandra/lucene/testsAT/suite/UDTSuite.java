@@ -18,11 +18,7 @@
 
 package com.stratio.cassandra.lucene.testsAT.suite;
 
-import com.stratio.cassandra.lucene.testsAT.udt.CheckNonFrozenUDTAT;
-import com.stratio.cassandra.lucene.testsAT.udt.TupleIndexingAT;
-import com.stratio.cassandra.lucene.testsAT.udt.UDTCollectionsAT;
-import com.stratio.cassandra.lucene.testsAT.udt.UDTIndexingAT;
-import com.stratio.cassandra.lucene.testsAT.udt.UDTValidationAT;
+import com.stratio.cassandra.lucene.testsAT.udt.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 

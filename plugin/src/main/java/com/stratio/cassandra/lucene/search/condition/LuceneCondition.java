@@ -18,7 +18,7 @@
 
 package com.stratio.cassandra.lucene.search.condition;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
 import org.apache.commons.lang3.StringUtils;
@@ -46,11 +46,11 @@ public class LuceneCondition extends Condition {
     /**
      * Constructor using the field name and the value to be matched.
      *
-     * @param boost        The boost for this query clause. Documents matching this clause will (in addition to the
-     *                     normal weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link
-     *                     #DEFAULT_BOOST} is used as default.
+     * @param boost The boost for this query clause. Documents matching this clause will (in addition to the normal
+     * weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link #DEFAULT_BOOST} is used as
+     * default.
      * @param defaultField the default field name.
-     * @param query        the Lucene Query Syntax query.
+     * @param query the Lucene Query Syntax query.
      */
     public LuceneCondition(Float boost, String defaultField, String query) {
         super(boost);
@@ -80,6 +80,6 @@ public class LuceneCondition extends Condition {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("query", query).add("defaultField", defaultField).toString();
+        return MoreObjects.toStringHelper(this).add("query", query).add("defaultField", defaultField).toString();
     }
 }

@@ -24,9 +24,9 @@ import com.stratio.cassandra.lucene.util.Builder;
 import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * {@link Builder} for building a new {@link Sort}.
@@ -61,10 +61,6 @@ public class SortBuilder implements Builder<Sort> {
     /** {@inheritDoc} */
     @Override
     public Sort build() {
-        List<SortField> sortFields = new ArrayList<>(sortFieldBuilders.size());
-        for (SortFieldBuilder sortFieldBuilder : sortFieldBuilders) {
-            sortFields.add(sortFieldBuilder.build());
-        }
-        return new Sort(sortFields);
+        return new Sort(sortFieldBuilders.stream().map(SortFieldBuilder::build).collect(Collectors.toList()));
     }
 }

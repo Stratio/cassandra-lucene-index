@@ -44,10 +44,10 @@ public class InetMapper extends KeywordMapper {
     /**
      * Builds a new {@link InetMapper}.
      *
-     * @param field     The name of the field.
-     * @param column    The name of the column to be mapped.
-     * @param indexed   If the field supports searching.
-     * @param sorted    If the field supports sorting.
+     * @param field The name of the field.
+     * @param column The name of the column to be mapped.
+     * @param indexed If the field supports searching.
+     * @param sorted If the field supports sorting.
      * @param validated If the field must be validated.
      */
     public InetMapper(String field, String column, Boolean indexed, Boolean sorted, Boolean validated) {

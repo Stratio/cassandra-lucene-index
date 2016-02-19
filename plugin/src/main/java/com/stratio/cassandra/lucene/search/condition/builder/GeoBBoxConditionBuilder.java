@@ -52,9 +52,9 @@ public class GeoBBoxConditionBuilder extends ConditionBuilder<GeoBBoxCondition, 
     /**
      * Returns a new {@link GeoBBoxConditionBuilder} with the specified field name and bounding box coordinates.
      *
-     * @param field        The name of the field to be matched.
-     * @param minLatitude  The minimum accepted latitude.
-     * @param maxLatitude  The maximum accepted latitude.
+     * @param field The name of the field to be matched.
+     * @param minLatitude The minimum accepted latitude.
+     * @param maxLatitude The maximum accepted latitude.
      * @param minLongitude The minimum accepted longitude.
      * @param maxLongitude The maximum accepted longitude.
      */

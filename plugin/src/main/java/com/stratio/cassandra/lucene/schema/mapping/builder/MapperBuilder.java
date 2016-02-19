@@ -46,7 +46,7 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
                @JsonSubTypes.Type(value = GeoPointMapperBuilder.class, name = "geo_point"),
                @JsonSubTypes.Type(value = DateRangeMapperBuilder.class, name = "date_range"),
                @JsonSubTypes.Type(value = BitemporalMapperBuilder.class, name = "bitemporal")})
-public abstract class MapperBuilder<T extends Mapper, K extends MapperBuilder<T,K>> {
+public abstract class MapperBuilder<T extends Mapper, K extends MapperBuilder<T, K>> {
 
     /** If the field must be validated. */
     @JsonProperty("validated")

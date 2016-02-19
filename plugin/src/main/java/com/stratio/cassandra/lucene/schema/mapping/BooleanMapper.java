@@ -38,11 +38,11 @@ public class BooleanMapper extends KeywordMapper {
     /**
      * Builds a new {@link BooleanMapper}.
      *
-     * @param field   The name of the field.
-     * @param column  The name of the column to be mapped.
+     * @param field The name of the field.
+     * @param column The name of the column to be mapped.
      * @param indexed If the field supports searching.
-     * @param sorted  If the field supports sorting.
-     * @param validated      If the field must be validated.
+     * @param sorted If the field supports sorting.
+     * @param validated If the field must be validated.
      */
     public BooleanMapper(String field, String column, Boolean indexed, Boolean sorted, Boolean validated) {
         super(field, column, indexed, sorted, validated, UTF8Type.instance, BooleanType.instance);

@@ -46,11 +46,11 @@ public abstract class KeywordMapper extends SingleColumnMapper<String> {
     /**
      * Builds  a new {@link KeywordMapper}.
      *
-     * @param field          The name of the field.
-     * @param column         The name of the column to be mapped.
-     * @param indexed        If the field supports searching.
-     * @param sorted         If the field supports sorting.
-     * @param validated      If the field must be validated.
+     * @param field The name of the field.
+     * @param column The name of the column to be mapped.
+     * @param indexed If the field supports searching.
+     * @param sorted If the field supports sorting.
+     * @param validated If the field must be validated.
      * @param supportedTypes The supported Cassandra types for indexing.
      */
     KeywordMapper(String field,

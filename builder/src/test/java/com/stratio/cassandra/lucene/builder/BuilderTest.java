@@ -33,31 +33,32 @@ public class BuilderTest {
 
     @Test
     public void testIndexDefaults() {
-        String actual = index("table", "column").schema(schema()).build();
-        String expected = "CREATE CUSTOM INDEX ON table (column) USING 'com.stratio.cassandra.lucene.Index' " +
+        String actual = index("table", "idx").schema(schema()).build();
+        String expected = "CREATE CUSTOM INDEX idx ON table() USING 'com.stratio.cassandra.lucene.Index' " +
                           "WITH OPTIONS = {'schema':'{}'}";
         assertEquals("index serialization is wrong", expected, actual);
     }
 
     @Test
     public void testIndexFull() {
-        String actual = index("ks", "table", "column").keyspace("keyspace")
-                                                      .name("name")
-                                                      .directoryPath("path")
-                                                      .refreshSeconds(10D)
-                                                      .maxCachedMb(32)
-                                                      .maxMergeMb(16)
-                                                      .ramBufferMb(64)
-                                                      .indexingThreads(4)
-                                                      .indexingQueuesSize(100)
-                                                      .excludedDataCenters("DC1,DC2")
-                                                      .defaultAnalyzer("my_analyzer")
-                                                      .analyzer("my_analyzer", classpathAnalyzer("my_class"))
-                                                      .analyzer("snow", snowballAnalyzer("tartar").stopwords("a,b,c"))
-                                                      .mapper("uuid", uuidMapper().validated(true))
-                                                      .mapper("string", stringMapper())
-                                                      .build();
-        String expected = "CREATE CUSTOM INDEX name ON keyspace.table (column) " +
+        String actual = index("ks", "table", "idx").keyspace("keyspace")
+                                                   .directoryPath("path")
+                                                   .refreshSeconds(10D)
+                                                   .maxCachedMb(32)
+                                                   .maxMergeMb(16)
+                                                   .ramBufferMb(64)
+                                                   .indexingThreads(4)
+                                                   .indexingQueuesSize(100)
+                                                   .excludedDataCenters("DC1,DC2")
+                                                   .tokenRangeCacheSize(20)
+                                                   .searchCacheSize(30)
+                                                   .defaultAnalyzer("my_analyzer")
+                                                   .analyzer("my_analyzer", classpathAnalyzer("my_class"))
+                                                   .analyzer("snow", snowballAnalyzer("tartar").stopwords("a,b,c"))
+                                                   .mapper("uuid", uuidMapper().validated(true))
+                                                   .mapper("string", stringMapper())
+                                                   .build();
+        String expected = "CREATE CUSTOM INDEX idx ON keyspace.table() " +
                           "USING 'com.stratio.cassandra.lucene.Index' " +
                           "WITH OPTIONS = {" +
                           "'refresh_seconds':'10.0'," +
@@ -68,6 +69,8 @@ public class BuilderTest {
                           "'indexing_threads':'4'," +
                           "'indexing_queues_size':'100'," +
                           "'excluded_data_centers':'DC1,DC2'," +
+                          "'token_range_cache_size':'20'," +
+                          "'search_cache_size':'30'," +
                           "'schema':'{" +
                           "\"analyzers\":{" +
                           "\"my_analyzer\":{\"type\":\"classpath\",\"class\":\"my_class\"}," +
@@ -433,8 +436,12 @@ public class BuilderTest {
 
     @Test
     public void testFuzzyConditionFull() {
-        String actual = fuzzy("field", "value").maxEdits(1).maxExpansions(2).prefixLength(3).transpositions(true).boost(
-                2).build();
+        String actual = fuzzy("field", "value").maxEdits(1)
+                                               .maxExpansions(2)
+                                               .prefixLength(3)
+                                               .transpositions(true)
+                                               .boost(2)
+                                               .build();
         String expected = "{\"type\":\"fuzzy\",\"field\":\"field\",\"value\":\"value\",\"boost\":2.0," +
                           "\"transpositions\":true,\"max_edits\":1,\"prefix_length\":3,\"max_expansions\":2}";
         assertEquals("fuzzy condition serialization is wrong", expected, actual);
@@ -610,7 +617,9 @@ public class BuilderTest {
     @Test
     public void testGeoDistanceSortFieldFull() {
         String actual = geoDistanceSortField("field1", 0.0, 0.0).reverse(true).build();
-        String expected = "{\"type\":\"geo_distance\",\"mapper\":\"field1\",\"longitude\":0.0,\"latitude\":0.0,\"reverse\":true}";
+        String
+                expected
+                = "{\"type\":\"geo_distance\",\"mapper\":\"field1\",\"longitude\":0.0,\"latitude\":0.0,\"reverse\":true}";
         assertEquals("sort field condition serialization is wrong", expected, actual);
     }
 
@@ -623,9 +632,12 @@ public class BuilderTest {
 
     @Test
     public void testSortFull() {
-        String actual = search().sort(field("field1"), field("field2"),
+        String actual = search().sort(field("field1"),
+                                      field("field2"),
                                       geoDistanceSortField("field1", 0.0, 0.0).reverse(true)).build();
-        String expected = "{\"sort\":{\"fields\":[{\"type\":\"simple\",\"field\":\"field1\"},{\"type\":\"simple\",\"field\":\"field2\"},{\"type\":\"geo_distance\",\"mapper\":\"field1\",\"longitude\":0.0,\"latitude\":0.0,\"reverse\":true}]}}";
+        String
+                expected
+                = "{\"sort\":{\"fields\":[{\"type\":\"simple\",\"field\":\"field1\"},{\"type\":\"simple\",\"field\":\"field2\"},{\"type\":\"geo_distance\",\"mapper\":\"field1\",\"longitude\":0.0,\"latitude\":0.0,\"reverse\":true}]}}";
         assertEquals("sort condition serialization is wrong", expected, actual);
     }
 
@@ -672,16 +684,15 @@ public class BuilderTest {
 
     @Test
     public void testIndexExample() {
-        String actual = index("messages", "lucene").name("my_index")
-                                                   .refreshSeconds(10)
-                                                   .defaultAnalyzer("english")
-                                                   .analyzer("danish", snowballAnalyzer("danish"))
-                                                   .mapper("id", uuidMapper())
-                                                   .mapper("user", stringMapper().caseSensitive(false))
-                                                   .mapper("message", textMapper().analyzer("danish"))
-                                                   .mapper("date", dateMapper().pattern("yyyyMMdd"))
-                                                   .build();
-        String expected = "CREATE CUSTOM INDEX my_index ON messages (lucene) " +
+        String actual = index("messages", "my_index").refreshSeconds(10)
+                                                     .defaultAnalyzer("english")
+                                                     .analyzer("danish", snowballAnalyzer("danish"))
+                                                     .mapper("id", uuidMapper())
+                                                     .mapper("user", stringMapper().caseSensitive(false))
+                                                     .mapper("message", textMapper().analyzer("danish"))
+                                                     .mapper("date", dateMapper().pattern("yyyyMMdd"))
+                                                     .build();
+        String expected = "CREATE CUSTOM INDEX my_index ON messages() " +
                           "USING 'com.stratio.cassandra.lucene.Index' WITH OPTIONS = {" +
                           "'refresh_seconds':'10'," +
                           "'schema':'{\"analyzers\":{\"danish\":{\"type\":\"snowball\",\"language\":\"danish\"}}," +

@@ -43,8 +43,8 @@ public class RegexpCondition extends SingleColumnCondition {
      * Constructor using the field name and the value to be matched.
      *
      * @param boost The boost for this query clause. Documents matching this clause will (in addition to the normal
-     *              weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link
-     *              #DEFAULT_BOOST} is used as default.
+     * weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link #DEFAULT_BOOST} is used as
+     * default.
      * @param field The name of the field to be matched.
      * @param value The wildcard expression to be matched.
      */

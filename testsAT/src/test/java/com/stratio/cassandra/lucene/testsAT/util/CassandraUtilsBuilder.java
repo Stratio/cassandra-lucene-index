@@ -24,7 +24,8 @@ import com.stratio.cassandra.lucene.builder.index.schema.mapping.SingleColumnMap
 import java.util.*;
 
 import static com.stratio.cassandra.lucene.builder.Builder.*;
-import static com.stratio.cassandra.lucene.testsAT.util.CassandraConfig.*;
+import static com.stratio.cassandra.lucene.testsAT.util.CassandraConfig.INDEX;
+import static com.stratio.cassandra.lucene.testsAT.util.CassandraConfig.TABLE;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
@@ -34,11 +35,11 @@ public class CassandraUtilsBuilder {
     private final String name;
     private String table = TABLE;
     private String index = INDEX;
-    private String column = COLUMN;
     private Map<String, String> columns;
     private Map<String, Mapper> mappers;
     private List<String> partitionKey;
     private List<String> clusteringKey;
+    private final Map<String, Map<String, String>> udts;
 
     CassandraUtilsBuilder(String name) {
         super();
@@ -47,6 +48,7 @@ public class CassandraUtilsBuilder {
         this.mappers = new HashMap<>();
         this.partitionKey = new ArrayList<>();
         this.clusteringKey = new ArrayList<>();
+        this.udts = new LinkedHashMap<>();
     }
 
     public CassandraUtilsBuilder withTable(String table) {
@@ -56,11 +58,6 @@ public class CassandraUtilsBuilder {
 
     public CassandraUtilsBuilder withIndex(String index) {
         this.index = index;
-        return this;
-    }
-
-    public CassandraUtilsBuilder withIndexColumn(String indexColumn) {
-        this.column = indexColumn;
         return this;
     }
 
@@ -85,17 +82,26 @@ public class CassandraUtilsBuilder {
         return this;
     }
 
-    public CassandraUtilsBuilder withStaticColumn(String name, String type,boolean createMapper) {
-        columns.put(name, type+" static");
+    public CassandraUtilsBuilder withStaticColumn(String name, String type, boolean createMapper) {
+        columns.put(name, type + " static");
         if (createMapper) {
             String baseType = type.replaceAll("(.*)(<|,)", "").replace(">", "");
             SingleColumnMapper<?> mapper = defaultMapper(baseType);
             if (baseType.equals(type)) {
                 mapper.sorted(true);
             }
-
             mappers.put(name, mapper);
         }
+        return this;
+    }
+
+    public CassandraUtilsBuilder withUDT(String column, String field, String type) {
+        Map<String, String> udt = udts.get(column);
+        if (udt == null) {
+            udt = new HashMap<>();
+            udts.put(column, udt);
+        }
+        udt.put(field, type);
         return this;
     }
 
@@ -166,6 +172,6 @@ public class CassandraUtilsBuilder {
                                   mappers,
                                   partitionKey,
                                   clusteringKey,
-                                  column);
+                                  udts);
     }
 }

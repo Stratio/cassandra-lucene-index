@@ -18,10 +18,10 @@
 
 package com.stratio.cassandra.lucene.schema.mapping;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.IndexException;
-import com.stratio.cassandra.lucene.schema.column.Column;
-import com.stratio.cassandra.lucene.schema.column.Columns;
+import com.stratio.cassandra.lucene.column.Column;
+import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.util.DateParser;
 import org.apache.cassandra.db.marshal.*;
 import org.apache.commons.lang3.StringUtils;
@@ -75,14 +75,14 @@ public class BitemporalMapper extends Mapper {
     /**
      * Builds a new {@link BitemporalMapper}.
      *
-     * @param field     The name of the field.
+     * @param field The name of the field.
      * @param validated If the field must be validated.
-     * @param vtFrom    The column name containing the valid time start.
-     * @param vtTo      The column name containing the valid time stop.
-     * @param ttFrom    The column name containing the transaction time start.
-     * @param ttTo      The column name containing the transaction time stop.
-     * @param pattern   The date format pattern to be used.
-     * @param nowValue  The value representing now.
+     * @param vtFrom The column name containing the valid time start.
+     * @param vtTo The column name containing the valid time stop.
+     * @param ttFrom The column name containing the transaction time start.
+     * @param ttTo The column name containing the transaction time stop.
+     * @param pattern The date format pattern to be used.
+     * @param nowValue The value representing now.
      */
     public BitemporalMapper(String field,
                             Boolean validated,
@@ -187,7 +187,7 @@ public class BitemporalMapper extends Mapper {
     /**
      * returns a {@link BitemporalDateTime} read from columns
      *
-     * @param columns   the {@link Columns} where it is the data
+     * @param columns the {@link Columns} where it is the data
      * @param fieldName the filed Name to read from {@link Columns}
      * @return a {@link BitemporalDateTime} read from columns
      */
@@ -235,16 +235,16 @@ public class BitemporalMapper extends Mapper {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                      .add("field", field)
-                      .add("validated", validated)
-                      .add("vtFrom", vtFrom)
-                      .add("vtTo", vtTo)
-                      .add("ttFrom", ttFrom)
-                      .add("ttTo", ttTo)
-                      .add("pattern", pattern)
-                      .add("nowValue", nowValue)
-                      .toString();
+        return MoreObjects.toStringHelper(this)
+                          .add("field", field)
+                          .add("validated", validated)
+                          .add("vtFrom", vtFrom)
+                          .add("vtTo", vtTo)
+                          .add("ttFrom", ttFrom)
+                          .add("ttTo", ttTo)
+                          .add("pattern", pattern)
+                          .add("nowValue", nowValue)
+                          .toString();
     }
 
     public static class BitemporalDateTime implements Comparable<BitemporalDateTime> {
@@ -334,4 +334,3 @@ public class BitemporalMapper extends Mapper {
         }
     }
 }
-

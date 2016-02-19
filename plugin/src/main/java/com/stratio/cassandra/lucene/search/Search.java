@@ -18,12 +18,11 @@
 
 package com.stratio.cassandra.lucene.search;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.search.condition.Condition;
 import com.stratio.cassandra.lucene.search.sort.Sort;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.SortField;
+import org.apache.lucene.search.*;
 
 import java.util.List;
 
@@ -38,10 +37,10 @@ public class Search {
     private static final boolean DEFAULT_FORCE_REFRESH = false;
 
     /** The {@link Condition} for querying, maybe {@code null} meaning no querying. */
-    private final Condition queryCondition;
+    private final Condition query;
 
     /** The {@link Condition} for filtering, maybe {@code null} meaning no filtering. */
-    private final Condition filterCondition;
+    private final Condition filter;
 
     /**
      * The {@link Sort} for the query. Note that is the order in which the data will be read before querying, not the
@@ -55,17 +54,21 @@ public class Search {
     /**
      * Returns a new {@link Search} composed by the specified querying and filtering conditions.
      *
-     * @param queryCondition  The {@link Condition} for querying, maybe {@code null} meaning no querying.
-     * @param filterCondition The {@link Condition} for filtering, maybe {@code null} meaning no filtering.
-     * @param sort            The {@link Sort} for the query. Note that is the order in which the data will be read
-     *                        before querying, not the order of the results after querying.
-     * @param refresh         If this search must refresh the index before reading it.
+     * @param query The {@link Condition} for querying, maybe {@code null} meaning no querying.
+     * @param filter The {@link Condition} for filtering, maybe {@code null} meaning no filtering.
+     * @param sort The {@link Sort} for the query. Note that is the order in which the data will be read before
+     * querying, not the order of the results after querying.
+     * @param refresh If this search must refresh the index before reading it.
      */
-    public Search(Condition queryCondition, Condition filterCondition, Sort sort, Boolean refresh) {
-        this.queryCondition = queryCondition;
-        this.filterCondition = filterCondition;
+    public Search(Condition query, Condition filter, Sort sort, Boolean refresh) {
+        this.query = query;
+        this.filter = filter;
         this.sort = sort;
         this.refresh = refresh == null ? DEFAULT_FORCE_REFRESH : refresh;
+    }
+
+    public boolean isTopK() {
+        return usesRelevance() || usesSorting();
     }
 
     /**
@@ -83,7 +86,7 @@ public class Search {
      * @return {@code true} if this search uses Lucene relevance formula, {@code false} otherwise.
      */
     public boolean usesRelevance() {
-        return queryCondition != null;
+        return query != null;
     }
 
     /**
@@ -101,7 +104,7 @@ public class Search {
      * @return {@code true} if this search doesn't specify any filter, query or sort, {@code false} otherwise.
      */
     public boolean isEmpty() {
-        return queryCondition == null && filterCondition == null && sort == null;
+        return query == null && filter == null && sort == null;
     }
 
     /**
@@ -126,7 +129,7 @@ public class Search {
      * Returns the Lucene {@link SortField}s represented by this using the specified {@link Schema}. Maybe {@code null}
      * meaning no sorting.
      *
-     * @param schema A {@link Schema}.
+     * @param schema the {@link Schema}
      * @return The Lucene {@link SortField}s represented by this using {@code schema}.
      */
     public List<SortField> sortFields(Schema schema) {
@@ -135,24 +138,29 @@ public class Search {
 
     /**
      * Returns the Lucene {@link Query} represented by this using the specified {@link Schema}. Maybe {@code null}
-     * meaning no query.
+     * meaning no filtering query.
      *
-     * @param schema A {@link Schema}.
-     * @return The Lucene {@link Query} represented by this using the specified {@link Schema}
+     * @param schema the {@link Schema}
+     * @param preFilter the extra {@link Filter} to be applied
+     * @return a Lucene {@link Query}
      */
-    public Query query(Schema schema) {
-        return queryCondition == null ? null : queryCondition.query(schema);
+    public Query query(Schema schema, Query preFilter) {
+        BooleanQuery.Builder builder = new BooleanQuery.Builder();
+        if (preFilter != null) {
+            builder.add(preFilter, BooleanClause.Occur.FILTER);
+        }
+        if (filter != null) {
+            builder.add(filter.filter(schema), BooleanClause.Occur.FILTER);
+        }
+        if (query != null) {
+            builder.add(query.query(schema), BooleanClause.Occur.MUST);
+        }
+        BooleanQuery booleanQuery = builder.build();
+        return booleanQuery.clauses().isEmpty() ? new MatchAllDocsQuery() : booleanQuery;
     }
 
-    /**
-     * Returns the Lucene filtering {@link Query} represented by this using the specified {@link Schema}. Maybe {@code
-     * null} meaning no filtering query.
-     *
-     * @param schema A {@link Schema}.
-     * @return The Lucene filtering {@link Query} represented by this using the specified {@link Schema}
-     */
-    public Query filter(Schema schema) {
-        return filterCondition == null ? null : filterCondition.query(schema);
+    public Query query(Schema schema) {
+        return query(schema, null);
     }
 
     /**
@@ -161,11 +169,11 @@ public class Search {
      * @param schema A {@link Schema}.
      */
     public void validate(Schema schema) {
-        if (queryCondition != null) {
-            query(schema);
+        if (query != null) {
+            query.filter(schema);
         }
-        if (filterCondition != null) {
-            filter(schema);
+        if (filter != null) {
+            filter.filter(schema);
         }
         if (sort != null) {
             sort.sortFields(schema);
@@ -175,10 +183,10 @@ public class Search {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                      .add("queryCondition", queryCondition)
-                      .add("filterCondition", filterCondition)
-                      .add("sort", sort)
-                      .toString();
+        return MoreObjects.toStringHelper(this)
+                          .add("query", query)
+                          .add("filter", filter)
+                          .add("sort", sort)
+                          .toString();
     }
 }

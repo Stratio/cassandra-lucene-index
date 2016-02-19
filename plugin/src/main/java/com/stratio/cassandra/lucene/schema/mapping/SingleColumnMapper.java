@@ -18,10 +18,10 @@
 
 package com.stratio.cassandra.lucene.schema.mapping;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.IndexException;
-import com.stratio.cassandra.lucene.schema.column.Column;
-import com.stratio.cassandra.lucene.schema.column.Columns;
+import com.stratio.cassandra.lucene.column.Column;
+import com.stratio.cassandra.lucene.column.Columns;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.document.Document;
@@ -46,13 +46,14 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
 
     /**
      * Builds a new {@link SingleColumnMapper} supporting the specified types for indexing and clustering.
-     *  @param field          The name of the field.
-     * @param column         The name of the column to be mapped.
-     * @param indexed        If the field supports searching.
-     * @param sorted         If the field supports sorting.
-     * @param validated      If the field must be validated.
-     * @param analyzer       The name of the analyzer to be used.
-     * @param base           The Lucene type for this mapper.
+     *
+     * @param field The name of the field.
+     * @param column The name of the column to be mapped.
+     * @param indexed If the field supports searching.
+     * @param sorted If the field supports sorting.
+     * @param validated If the field must be validated.
+     * @param analyzer The name of the analyzer to be used.
+     * @param base The Lucene type for this mapper.
      * @param supportedTypes The supported Cassandra types for indexing.
      */
     public SingleColumnMapper(String field,
@@ -97,8 +98,8 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
      * Adds the specified column name and value to the specified {@link Document}.
      *
      * @param document A {@link Document}.
-     * @param name     The name of the column to be mapped.
-     * @param value    The value of the column to be mapped.
+     * @param name The name of the column to be mapped.
+     * @param value The value of the column to be mapped.
      */
     private void addFields(Document document, String name, Object value) {
         if (value != null) {
@@ -115,7 +116,7 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
     /**
      * Returns the {@link Field} to search for the mapped column.
      *
-     * @param name  The name of the column.
+     * @param name The name of the column.
      * @param value The value of the column.
      * @return The {@link Field} to search for the mapped column.
      */
@@ -124,7 +125,7 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
     /**
      * Returns the {@link Field} to sort by the mapped column.
      *
-     * @param name  The name of the column.
+     * @param name The name of the column.
      * @param value The value of the column.
      * @return The {@link Field} to sort by the mapped column.
      */
@@ -145,7 +146,7 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
 
     /** {@inheritDoc} */
     @Override
-    protected Objects.ToStringHelper toStringHelper(Object self) {
+    protected MoreObjects.ToStringHelper toStringHelper(Object self) {
         return super.toStringHelper(self).add("column", column);
     }
 

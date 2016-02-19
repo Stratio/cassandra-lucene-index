@@ -40,7 +40,7 @@ public class DateRangeMapper extends Mapper<DateRangeMapper> {
      * Returns a new {@link DateRangeMapper}.
      *
      * @param from The column containing the from date.
-     * @param to   The column containing the to date.
+     * @param to The column containing the to date.
      */
     public DateRangeMapper(@JsonProperty("from") String from, @JsonProperty("to") String to) {
         this.from = from;

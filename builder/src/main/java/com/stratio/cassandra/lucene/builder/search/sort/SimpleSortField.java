@@ -30,7 +30,7 @@ public class SimpleSortField extends SortField {
 
     /** The name of the field to be used for sort. */
     @JsonProperty("field")
-    String field;
+    final String field;
 
     /**
      * Creates a new {@link SimpleSortField} for the specified field and reverse option.
