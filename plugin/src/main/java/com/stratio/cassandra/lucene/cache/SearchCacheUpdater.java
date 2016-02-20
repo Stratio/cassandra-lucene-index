@@ -28,6 +28,8 @@ import org.apache.lucene.search.ScoreDoc;
 import java.util.UUID;
 
 /**
+ * A cache updater to update a cache entry.
+ *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class SearchCacheUpdater {
@@ -38,11 +40,11 @@ public class SearchCacheUpdater {
     private final PartitionRangeReadCommand command;
     private final Query query;
 
-    public SearchCacheUpdater(SearchCache cache,
-                              String search,
-                              UUID key,
-                              ReadCommand command,
-                              Query query) {
+    SearchCacheUpdater(SearchCache cache,
+                       String search,
+                       UUID key,
+                       ReadCommand command,
+                       Query query) {
         this.cache = cache;
         this.search = search;
         this.key = key;
@@ -50,6 +52,13 @@ public class SearchCacheUpdater {
         this.query = query;
     }
 
+    /**
+     * Updates the cached entry with the specified pointer to a search result.
+     *
+     * @param decoratedKey the row partition key
+     * @param clustering the row clustering key
+     * @param scoreDoc the row score for the query
+     */
     public void put(DecoratedKey decoratedKey, Clustering clustering, ScoreDoc scoreDoc) {
         if (command != null) {
             cache.put(key, new SearchCacheEntry(cache, search, command, decoratedKey, clustering, scoreDoc, query));

@@ -169,8 +169,8 @@ public class IndexQueryHandler implements QueryHandler {
                         "to prevent excessive memory consumption.");
             } else if (page < limit) {
                 String json = UTF8Type.instance.compose(expression.getValue());
-                logger.warn("Disabling paging of {} rows/page for top-k search requesting {} rows: {}",
-                            page, json, limit);
+                logger.warn("Disabling paging of {} rows per page for top-k search requesting {} rows: {}",
+                            page, limit, json);
                 return executeWithoutPaging(select, state, options);
             }
         }

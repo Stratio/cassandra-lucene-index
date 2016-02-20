@@ -42,10 +42,10 @@ public class SearchCacheEntry {
     private final ClusteringPrefix startPrefix;
     private final ClusteringPrefix stopPrefix;
 
-    public SearchCacheEntry(SearchCache searchCache,
-                            String search,
-                            PartitionRangeReadCommand command,
-                            Query query) {
+    SearchCacheEntry(SearchCache searchCache,
+                     String search,
+                     PartitionRangeReadCommand command,
+                     Query query) {
         this.searchCache = searchCache;
         this.search = search;
         this.command = command;
@@ -59,13 +59,13 @@ public class SearchCacheEntry {
         scoreDoc = null;
     }
 
-    public SearchCacheEntry(SearchCache searchCache,
-                            String search,
-                            PartitionRangeReadCommand command,
-                            DecoratedKey decoratedKey,
-                            Clustering clustering,
-                            ScoreDoc scoreDoc,
-                            Query query) {
+    SearchCacheEntry(SearchCache searchCache,
+                     String search,
+                     PartitionRangeReadCommand command,
+                     DecoratedKey decoratedKey,
+                     Clustering clustering,
+                     ScoreDoc scoreDoc,
+                     Query query) {
         this.searchCache = searchCache;
         this.search = search;
         this.command = command;
@@ -79,64 +79,87 @@ public class SearchCacheEntry {
         stopPrefix = KeyMapper.stopClusteringPrefix(command.dataRange());
     }
 
-    public boolean isValid(ClusteringComparator comparator, String search, PartitionRangeReadCommand command) {
-
-        if (!search.equals(this.search)) {
-            return false;
+    boolean isValid(ClusteringComparator comparator, String search, PartitionRangeReadCommand command) {
+        if (search.equals(this.search)) {
+            DataRange dataRange = command.dataRange();
+            return validKey(dataRange) && validPrefix(comparator, dataRange);
         }
+        return false;
+    }
 
-        DataRange dataRange = command.dataRange();
-        PartitionPosition startPosition = dataRange.startKey();
-        PartitionPosition stopPosition = dataRange.stopKey();
+    private boolean validKey(DataRange dataRange) {
+
+        PartitionPosition start = dataRange.startKey();
+        PartitionPosition stop = dataRange.stopKey();
 
         // Discard key
-        if (position.compareTo(startPosition) != 0) {
+        if (position.compareTo(start) != 0) {
             return false;
         }
 
         // Discard start position
-        if (this.startPosition.compareTo(startPosition) > 0) {
+        if (this.startPosition.compareTo(start) > 0) {
             return false;
         }
 
         // Discard stop position
-        if (this.stopPosition.compareTo(stopPosition) != 0) {
-            return false;
-        }
-
-        // Discard start prefix
-        ClusteringPrefix startPrefix = KeyMapper.startClusteringPrefix(dataRange);
-        if (startPrefix != null && this.startPrefix != null && comparator.compare(this.startPrefix, startPrefix) > 0) {
-            return false;
-        }
-
-        // Discard null clusterings
-        if (startPrefix == null && clustering != null || startPrefix != null && clustering == null) {
-            return false;
-        }
-
-        // Discard clustering
-        if (startPrefix != null && comparator.compare(new Clustering(startPrefix.getRawValues()), clustering) != 0) {
-            return false;
-        }
-
-        // Discard stop prefix
-        ClusteringPrefix stopPrefix = KeyMapper.stopClusteringPrefix(dataRange);
-        if (stopPrefix != null && this.stopPrefix != null && comparator.compare(this.stopPrefix, stopPrefix) != 0) {
+        if (this.stopPosition.compareTo(stop) != 0) {
             return false;
         }
 
         return true;
     }
 
+    private boolean validPrefix(ClusteringComparator comparator, DataRange dataRange) {
+
+        // Discard start prefix
+        ClusteringPrefix start = KeyMapper.startClusteringPrefix(dataRange);
+        if (start != null && this.startPrefix != null && comparator.compare(this.startPrefix, start) > 0) {
+            return false;
+        }
+
+        // Discard null clusterings
+        if (start == null && clustering != null || start != null && clustering == null) {
+            return false;
+        }
+
+        // Discard clustering
+        if (start != null && comparator.compare(new Clustering(start.getRawValues()), clustering) != 0) {
+            return false;
+        }
+
+        // Discard stop prefix
+        ClusteringPrefix stop = KeyMapper.stopClusteringPrefix(dataRange);
+        if (stop != null && this.stopPrefix != null && comparator.compare(this.stopPrefix, stop) != 0) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Returns a new {@link SearchCacheUpdater} for updating this entry.
+     *
+     * @return the cache updater
+     */
     public SearchCacheUpdater updater() {
         return searchCache.updater(search, command, query);
     }
 
+    /**
+     * Returns the cached {@link ScoreDoc}.
+     *
+     * @return the score of the last cached position
+     */
     public ScoreDoc getScoreDoc() {
         return scoreDoc;
     }
 
+    /**
+     * Returns the cached {@link Query}.
+     *
+     * @return the cached Lucene's query
+     */
     public Query getQuery() {
         return query;
     }

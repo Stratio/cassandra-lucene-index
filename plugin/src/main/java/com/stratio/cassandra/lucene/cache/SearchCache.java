@@ -39,6 +39,12 @@ public class SearchCache {
     private final ClusteringComparator comparator;
     private final Cache<UUID, SearchCacheEntry> cache;
 
+    /**
+     * Constructor taking the base table metadata and the max number of cache entries.
+     *
+     * @param metadata the base table metadata
+     * @param cacheSize the max number of cache entries
+     */
     public SearchCache(CFMetaData metadata, int cacheSize) {
         this.comparator = metadata.comparator;
         this.cache = CacheBuilder.newBuilder().maximumSize(cacheSize).build();
@@ -48,6 +54,13 @@ public class SearchCache {
         cache.put(key, entry);
     }
 
+    /**
+     * Puts a cache entry associating the specified search and {@link ReadCommand} with the specified {@link Query}.
+     *
+     * @param search the search
+     * @param command the read command
+     * @param query the cached query
+     */
     public void put(String search, ReadCommand command, Query query) {
         if (command instanceof PartitionRangeReadCommand) {
             PartitionRangeReadCommand rangeCommand = (PartitionRangeReadCommand) command;
@@ -55,14 +68,33 @@ public class SearchCache {
         }
     }
 
+    /**
+     * Returns a {@link SearchCacheUpdater} for updating an entry associating the specified search and {@link
+     * ReadCommand} with the specified {@link Query}.
+     *
+     * @param search the search
+     * @param command the read command
+     * @param query the cached query
+     * @return the cache updater
+     */
     public SearchCacheUpdater updater(String search, ReadCommand command, Query query) {
         return new SearchCacheUpdater(this, search, UUID.randomUUID(), command, query);
     }
 
+    /**
+     * Discards all cached entries.
+     */
     public void invalidate() {
         cache.invalidateAll();
     }
 
+    /**
+     * Gets the optional {@link SearchCacheEntry} associated to the specified search and {@link ReadCommand}.
+     *
+     * @param search the search
+     * @param command the read command
+     * @return the cache entry, maybe empty
+     */
     public Optional<SearchCacheEntry> get(String search, ReadCommand command) {
         if (command instanceof PartitionRangeReadCommand) {
             PartitionRangeReadCommand rangeCommand = (PartitionRangeReadCommand) command;
