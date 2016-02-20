@@ -129,6 +129,12 @@ public final class Column<T> {
         return cellName + getUDTSuffix();
     }
 
+    /**
+     * Returns the cell name of the specified field name.
+     *
+     * @param field the field name
+     * @return the cell name
+     */
     public static String getCellName(String field) {
         return field.split(UDT_PATTERN)[0].split(MAP_PATTERN)[0];
     }

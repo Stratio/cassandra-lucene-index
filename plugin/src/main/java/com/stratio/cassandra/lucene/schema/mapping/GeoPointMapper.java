@@ -72,6 +72,8 @@ public class GeoPointMapper extends Mapper {
      * Builds a new {@link GeoPointMapper}.
      *
      * @param field The name of the field.
+     * @param indexed If the field supports searching.
+     * @param sorted If the field supports sorting.
      * @param validated If the field must be validated.
      * @param latitude The name of the column containing the latitude.
      * @param longitude The name of the column containing the longitude.

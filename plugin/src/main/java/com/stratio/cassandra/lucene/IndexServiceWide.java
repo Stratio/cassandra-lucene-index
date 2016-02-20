@@ -170,9 +170,9 @@ public class IndexServiceWide extends IndexService {
         ClusteringPrefix startClustering = KeyMapper.startClusteringPrefix(dataRange);
         ClusteringPrefix stopClustering = KeyMapper.stopClusteringPrefix(dataRange);
 
-        if (startPosition.compareTo(stopPosition) == 0 && startPosition.getToken().isMinimum()) { // Full ring
+        if (startPosition.compareTo(stopPosition) == 0 && startToken.isMinimum()) {
             return null;
-        } else if (startClustering == null && stopClustering == null) { // No clustering keys involved
+        } else if (startClustering == null && stopClustering == null) {
             return query(startPosition, stopPosition);
         } else {
             BooleanQuery.Builder builder = new BooleanQuery.Builder();

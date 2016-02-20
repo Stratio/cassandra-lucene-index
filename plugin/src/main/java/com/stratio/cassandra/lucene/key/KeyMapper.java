@@ -123,8 +123,8 @@ public final class KeyMapper {
             String name = columnDefinition.name.toString();
             int position = columnDefinition.position();
             ByteBuffer value = clustering.get(position);
-            AbstractType<?> type = columnDefinition.cellValueType();
-            columns.add(Column.builder(name).buildWithDecomposed(value, type));
+            AbstractType<?> valueType = columnDefinition.cellValueType();
+            columns.add(Column.builder(name).buildWithDecomposed(value, valueType));
         }
     }
 

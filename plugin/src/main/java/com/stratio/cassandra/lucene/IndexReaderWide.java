@@ -78,8 +78,29 @@ public class IndexReaderWide extends IndexReader {
             nextDoc = documents.next();
         }
 
-        NavigableSet<Clustering> clusterings = service.clusterings();
+
         DecoratedKey key = service.decoratedKey(nextDoc.left);
+        NavigableSet<Clustering> clusterings = clusterings(key);
+
+        if (clusterings.isEmpty()) {
+            return prepareNext();
+        }
+
+        ClusteringIndexFilter filter = new ClusteringIndexNamesFilter(clusterings, false);
+        UnfilteredRowIterator data = read(key, filter);
+
+        if (data.isEmpty()) {
+            data.close();
+            return prepareNext();
+        }
+
+        next = data;
+        return true;
+    }
+
+    private NavigableSet<Clustering> clusterings(DecoratedKey key) {
+
+        NavigableSet<Clustering> clusterings = service.clusterings();
         Clustering clustering = service.clustering(nextDoc.left);
 
         Clustering lastClustering = null;
@@ -100,20 +121,6 @@ public class IndexReaderWide extends IndexReader {
                 break;
             }
         }
-
-        if (clusterings.isEmpty()) {
-            return prepareNext();
-        }
-
-        ClusteringIndexFilter filter = new ClusteringIndexNamesFilter(clusterings, false);
-        UnfilteredRowIterator data = read(key, filter);
-
-        if (data.isEmpty()) {
-            data.close();
-            return prepareNext();
-        }
-
-        next = data;
-        return true;
+        return clusterings;
     }
 }

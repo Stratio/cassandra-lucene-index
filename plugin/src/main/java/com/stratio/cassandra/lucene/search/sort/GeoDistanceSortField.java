@@ -105,7 +105,8 @@ public class GeoDistanceSortField extends SortField {
         SpatialStrategy strategy = geoPointMapper.getDistanceStrategy();
         Point pt = GeoPointMapper.SPATIAL_CONTEXT.makePoint(longitude, latitude);
 
-        ValueSource valueSource = strategy.makeDistanceValueSource(pt, DistanceUtils.DEG_TO_KM);//the distance (in km)
+        // The distance (in km)
+        ValueSource valueSource = strategy.makeDistanceValueSource(pt, DistanceUtils.DEG_TO_KM);
         return valueSource.getSortField(this.reverse);
     }
 
@@ -113,11 +114,7 @@ public class GeoDistanceSortField extends SortField {
     @Override
     public Comparator<Columns> comparator(Schema schema) {
         final Mapper mapper = schema.getMapper(this.mapper);
-        return new Comparator<Columns>() {
-            public int compare(Columns o1, Columns o2) {
-                return GeoDistanceSortField.this.compare((GeoPointMapper) mapper, o1, o2);
-            }
-        };
+        return (Columns o1, Columns o2) -> compare((GeoPointMapper) mapper, o1, o2);
     }
 
     protected int compare(GeoPointMapper mapper, Columns o1, Columns o2) {

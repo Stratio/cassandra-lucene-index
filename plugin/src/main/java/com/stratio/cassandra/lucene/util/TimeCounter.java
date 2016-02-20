@@ -62,9 +62,12 @@ public final class TimeCounter {
                 watch.start();
                 break;
             case RUNNING:
-                throw new IllegalStateException("Already started. ");
+                throw new IllegalStateException("Already started");
             case STOPPED:
                 watch.resume();
+                break;
+            default:
+                throw new IllegalStateException("Unrecognized state " + state);
         }
         state = State.RUNNING;
         return this;
@@ -83,9 +86,10 @@ public final class TimeCounter {
                 throw new IllegalStateException("Already stopped. ");
             case RUNNING:
                 watch.suspend();
+            default:
+                state = State.STOPPED;
+                return this;
         }
-        state = State.STOPPED;
-        return this;
     }
 
     /**

@@ -18,6 +18,7 @@
 
 package com.stratio.cassandra.lucene.column;
 
+import com.stratio.cassandra.lucene.IndexException;
 import org.apache.cassandra.config.ColumnDefinition;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.CollectionType;
@@ -94,6 +95,9 @@ public final class ColumnsMapper {
                         addColumns(columns, builder.withMapName(nameSuffix), type, value);
                         break;
                     }
+                    default: {
+                        throw new IndexException("Unknown collection type %s", collectionType.kind);
+                    }
                 }
             } else {
                 addColumns(columns, Column.builder(name), type, value);
@@ -101,12 +105,9 @@ public final class ColumnsMapper {
         }
     }
 
-    private void addColumns(Columns columns,
-                            ColumnBuilder builder,
-                            AbstractType type,
-                            ByteBuffer value) {
+    private void addColumns(Columns columns, ColumnBuilder builder, AbstractType type, ByteBuffer value) {
         if (type.isCollection()) {
-            value = ByteBufferUtil.clone(value); // TODO: Check if this value cloning is required
+            value = ByteBufferUtil.clone(value);
             CollectionType<?> collectionType = (CollectionType<?>) type;
             switch (collectionType.kind) {
                 case SET: {
@@ -140,6 +141,9 @@ public final class ColumnsMapper {
                     }
                     break;
                 }
+                default: {
+                    throw new IndexException("Unknown collection type %s", collectionType.kind);
+                }
             }
         } else if (type instanceof UserType) {
             UserType userType = (UserType) type;
@@ -147,7 +151,7 @@ public final class ColumnsMapper {
             for (int i = 0; i < userType.fieldNames().size(); i++) {
                 String itemName = userType.fieldNameAsString(i);
                 AbstractType<?> itemType = userType.fieldType(i);
-                // this only occurs in UDT not fully composed
+                // This only occurs in UDT not fully composed
                 if (values[i] != null) {
                     addColumns(columns, builder.withUDTName(itemName), itemType, values[i]);
                 }
@@ -160,7 +164,7 @@ public final class ColumnsMapper {
                 AbstractType<?> itemType = tupleType.type(i);
                 addColumns(columns, builder.withUDTName(itemName), itemType, values[i]);
             }
-        } else { // Leaf type
+        } else {
             if (value != null) {
                 columns.add(builder.buildWithDecomposed(value, type));
             }

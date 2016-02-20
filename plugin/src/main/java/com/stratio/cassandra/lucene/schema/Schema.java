@@ -109,11 +109,22 @@ public class Schema implements Closeable {
         return mappers.get(mapperName);
     }
 
+    /**
+     * Returns the {@link SingleColumnMapper} identified by the specified field name.
+     *
+     * @param field the field name
+     * @return the mapper, or {@code null} if not found
+     */
     public SingleColumnMapper getSingleColumnMapper(String field) {
         Mapper mapper = getMapper(field);
         return mapper == null ? null : (SingleColumnMapper) mapper;
     }
 
+    /**
+     * Returns the names of the cells mapped by the mappers.
+     *
+     * @return the names of the mapped cells
+     */
     public Set<String> getMappedCells() {
         return mappedCells;
     }

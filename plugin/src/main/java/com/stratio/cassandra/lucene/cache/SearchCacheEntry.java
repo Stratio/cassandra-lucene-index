@@ -88,33 +88,19 @@ public class SearchCacheEntry {
     }
 
     private boolean validKey(DataRange dataRange) {
-
         PartitionPosition start = dataRange.startKey();
-        PartitionPosition stop = dataRange.stopKey();
-
-        // Discard key
-        if (position.compareTo(start) != 0) {
-            return false;
+        if (position.compareTo(start) == 0 && startPosition.compareTo(start) <= 0) {
+            PartitionPosition stop = dataRange.stopKey();
+            return stopPosition.compareTo(stop) == 0;
         }
-
-        // Discard start position
-        if (this.startPosition.compareTo(start) > 0) {
-            return false;
-        }
-
-        // Discard stop position
-        if (this.stopPosition.compareTo(stop) != 0) {
-            return false;
-        }
-
-        return true;
+        return false;
     }
 
     private boolean validPrefix(ClusteringComparator comparator, DataRange dataRange) {
 
         // Discard start prefix
         ClusteringPrefix start = KeyMapper.startClusteringPrefix(dataRange);
-        if (start != null && this.startPrefix != null && comparator.compare(this.startPrefix, start) > 0) {
+        if (start != null && startPrefix != null && comparator.compare(startPrefix, start) > 0) {
             return false;
         }
 
@@ -130,7 +116,7 @@ public class SearchCacheEntry {
 
         // Discard stop prefix
         ClusteringPrefix stop = KeyMapper.stopClusteringPrefix(dataRange);
-        if (stop != null && this.stopPrefix != null && comparator.compare(this.stopPrefix, stop) != 0) {
+        if (stop != null && stopPrefix != null && comparator.compare(stopPrefix, stop) != 0) {
             return false;
         }
 

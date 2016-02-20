@@ -339,14 +339,14 @@ public abstract class IndexService {
         if (optional.isPresent()) {
             logger.debug("Search cache hits");
             SearchCacheEntry entry = optional.get();
-            Query query = entry.getQuery(); // Recover old cached query
-            ScoreDoc after = entry.getScoreDoc(); // Recover last index position
-            SearchCacheUpdater cacheUpdater = entry.updater(); // Prepare cache updater
+            Query query = entry.getQuery();
+            ScoreDoc after = entry.getScoreDoc();
+            SearchCacheUpdater cacheUpdater = entry.updater();
             return (ReadOrderGroup orderGroup) -> read(query, sort, after, command, orderGroup, cacheUpdater);
         } else {
             logger.debug("Search cache fails");
             Query query = new CachingWrapperQuery(search.query(schema, query(command)));
-            searchCache.put(expression, command, query); // Cache query
+            searchCache.put(expression, command, query);
             SearchCacheUpdater cacheUpdater = searchCache.updater(expression, command, query);
             return (ReadOrderGroup orderGroup) -> read(query, sort, null, command, orderGroup, cacheUpdater);
         }

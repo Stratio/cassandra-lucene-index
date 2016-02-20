@@ -32,8 +32,6 @@ import org.apache.cassandra.db.ReadQuery;
 import org.apache.cassandra.db.filter.RowFilter;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.exceptions.InvalidRequestException;
-import org.apache.cassandra.exceptions.RequestExecutionException;
-import org.apache.cassandra.exceptions.RequestValidationException;
 import org.apache.cassandra.service.ClientState;
 import org.apache.cassandra.service.QueryState;
 import org.apache.cassandra.transport.messages.ResultMessage;
@@ -137,7 +135,7 @@ public class IndexQueryHandler implements QueryHandler {
                         try {
                             return process(select, state, options, customExpression);
                         } catch (ReflectiveOperationException e) {
-                            throw new RuntimeException(e);
+                            throw new IndexException(e);
                         } finally {
                             logger.debug("Lucene search total time: {}\n", time.stop());
                         }

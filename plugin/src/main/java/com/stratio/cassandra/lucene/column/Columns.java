@@ -21,7 +21,6 @@ package com.stratio.cassandra.lucene.column;
 import com.google.common.base.MoreObjects;
 
 import java.util.*;
-import java.util.stream.Stream;
 
 /**
  * A sorted list of CQL3 logic {@link Column}s.
@@ -77,30 +76,6 @@ public class Columns implements Iterable<Column<?>> {
         for (Column<?> column : columns) {
             add(column);
         }
-        return this;
-    }
-
-    /**
-     * Replaces the specified {@link Column}.
-     *
-     * @param column the {@link Column} to be replaced.
-     * @return this
-     */
-    public Columns replace(Column<?> column) {
-        String name = column.getFullName();
-        columns.removeIf(c -> c.getFullName().equals(name));
-        columns.add(column);
-        return this;
-    }
-
-    /**
-     * Replaces the specified {@link Column}s.
-     *
-     * @param columns the {@link Column}s to be replaced.
-     * @return this
-     */
-    public Columns replaceAll(Columns columns) {
-        columns.forEach(this::replace);
         return this;
     }
 
@@ -182,10 +157,6 @@ public class Columns implements Iterable<Column<?>> {
 
     public Column<?> getFirst() {
         return columns.isEmpty() ? null : columns.get(0);
-    }
-
-    public Stream<Column<?>> stream() {
-        return columns.stream();
     }
 
     /** {@inheritDoc} */

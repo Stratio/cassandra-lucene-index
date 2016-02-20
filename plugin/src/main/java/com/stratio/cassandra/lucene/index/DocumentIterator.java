@@ -9,10 +9,7 @@ import org.apache.lucene.search.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.NoSuchElementException;
-import java.util.Set;
+import java.util.*;
 
 /**
  * {@link Iterator} for retrieving Lucene {@link Document}s satisfying a {@link Query} from an {@link IndexSearcher}.
@@ -29,7 +26,7 @@ public class DocumentIterator implements CloseableIterator<Pair<Document, ScoreD
     private ScoreDoc after;
     private Integer page;
     private Set<String> fields;
-    private LinkedList<Pair<Document, ScoreDoc>> documents = new LinkedList<>();
+    private Deque<Pair<Document, ScoreDoc>> documents = new LinkedList<>();
     private boolean mayHaveMore = true;
 
     /**
@@ -79,7 +76,7 @@ public class DocumentIterator implements CloseableIterator<Pair<Document, ScoreD
                     after = scoreDoc;
                 }
 
-                logger.debug("Get page with {} documents in {}", scoreDocs.length, time.stop());
+                logger.debug("Get page {} with {} documents in {}", query, scoreDocs.length, time.stop());
 
             } finally {
                 manager.release(searcher);

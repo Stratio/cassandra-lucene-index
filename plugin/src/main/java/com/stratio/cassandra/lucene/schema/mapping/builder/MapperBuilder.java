@@ -26,7 +26,8 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
 /**
  * Abstract builder for creating new {@link Mapper}s.
  *
- * @param <T> The type of the specific {@link Mapper} to be built.
+ * @param <T> the type of the specific {@link Mapper} to be built.
+ * @param <K> the type of the specific {@link MapperBuilder} implementing this
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")

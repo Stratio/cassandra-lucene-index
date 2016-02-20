@@ -33,7 +33,7 @@ import java.util.Optional;
  */
 public class IndexWriterSkinny extends IndexWriter {
 
-    private Optional<Row> row;
+    private Optional<Row> optionalRow;
 
     /**
      * Builds a new {@link IndexWriter} for tables with skinny rows.
@@ -50,26 +50,26 @@ public class IndexWriterSkinny extends IndexWriter {
                              OpOrder.Group opGroup,
                              IndexTransaction.Type transactionType) {
         super(service, key, nowInSec, opGroup, transactionType);
-        row = Optional.empty();
+        optionalRow = Optional.empty();
     }
 
     /** {@inheritDoc} */
     @Override
     protected void delete() {
         service.delete(key);
-        row = Optional.empty();
+        optionalRow = Optional.empty();
     }
 
     /** {@inheritDoc} */
     @Override
     protected void index(Row row) {
-        this.row = Optional.of(row);
+        this.optionalRow = Optional.of(row);
     }
 
     /** {@inheritDoc} */
     @Override
     public void finish() {
-        row.ifPresent(row -> {
+        optionalRow.ifPresent(row -> {
             if (service.needsReadBeforeWrite(key, row)) {
                 UnfilteredRowIterator iterator = service.read(key, nowInSec, opGroup);
                 if (iterator.hasNext()) {

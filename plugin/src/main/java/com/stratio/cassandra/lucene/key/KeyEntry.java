@@ -25,6 +25,7 @@ import org.apache.cassandra.dht.Murmur3Partitioner;
 import org.apache.cassandra.dht.Token;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 /**
  * Class representing a Cassandra's wide table primary key. This is composed by token, partition key and clustering
@@ -45,7 +46,7 @@ public class KeyEntry implements Comparable<KeyEntry> {
      */
     public KeyEntry(KeyMapper mapper, ByteBuffer[] components) {
         this.mapper = mapper;
-        this.components = components;
+        this.components = Arrays.copyOf(components, components.length);
     }
 
     /**

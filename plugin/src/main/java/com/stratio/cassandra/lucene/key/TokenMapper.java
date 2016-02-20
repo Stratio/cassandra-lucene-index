@@ -67,7 +67,9 @@ public final class TokenMapper {
     private final Cache<CacheKey, CachingWrapperQuery> cache;
 
     /**
-     * Default constructor.
+     * Constructor using the token range cache size.
+     *
+     * @param cacheSize the max number of token ranges to be cached
      */
     public TokenMapper(int cacheSize) {
         if (!(DatabaseDescriptor.getPartitioner() instanceof Murmur3Partitioner)) {
@@ -79,8 +81,8 @@ public final class TokenMapper {
     /**
      * Adds to the specified {@link Document} the {@link Field}s associated to the token of the specified row key.
      *
-     * @param document A {@link Document}.
-     * @param key The raw partition key to be added.
+     * @param document the document
+     * @param key the partition key
      */
     public void addFields(Document document, DecoratedKey key) {
         Token token = key.getToken();
