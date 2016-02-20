@@ -76,7 +76,7 @@ public class DocumentIterator implements CloseableIterator<Pair<Document, ScoreD
                     after = scoreDoc;
                 }
 
-                logger.debug("Get page {} with {} documents in {}", query, scoreDocs.length, time.stop());
+                logger.debug("Get page with {} documents in {}", scoreDocs.length, time.stop());
 
             } finally {
                 manager.release(searcher);

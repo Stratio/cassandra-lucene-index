@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.0.3.1 (upcoming)
+
+* Fix performance issues with ClusteringIndexNamesFilter
+
 ## 3.0.3.0 (19 February 2016)
 
 * Upgrade to Apache Cassandra 3.0.3

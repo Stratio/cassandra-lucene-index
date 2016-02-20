@@ -25,6 +25,7 @@ import com.stratio.cassandra.lucene.key.KeyMapper;
 import com.stratio.cassandra.lucene.key.PartitionMapper;
 import org.apache.cassandra.db.*;
 import org.apache.cassandra.db.filter.ClusteringIndexFilter;
+import org.apache.cassandra.db.filter.ClusteringIndexNamesFilter;
 import org.apache.cassandra.db.filter.ClusteringIndexSliceFilter;
 import org.apache.cassandra.db.rows.Row;
 import org.apache.cassandra.dht.Token;
@@ -149,14 +150,7 @@ public class IndexServiceWide extends IndexService {
     /** {@inheritDoc} */
     @Override
     public Query query(DecoratedKey key, ClusteringIndexFilter clusteringFilter) {
-        if (clusteringFilter instanceof ClusteringIndexSliceFilter) {
-            ClusteringIndexSliceFilter sliceFilter = (ClusteringIndexSliceFilter) clusteringFilter;
-            Slices slices = sliceFilter.requestedSlices();
-            ClusteringPrefix startBound = slices.get(0).start();
-            ClusteringPrefix stopBound = slices.get(slices.size() - 1).end();
-            return keyMapper.query(key, startBound, stopBound, false, false);
-        }
-        return null;
+        return keyMapper.query(key, clusteringFilter);
     }
 
     /** {@inheritDoc} */
