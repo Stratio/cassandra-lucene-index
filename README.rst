@@ -103,8 +103,9 @@ For more details about Apache Cassandra please see its `documentation <http://ca
 Upgrading Cassandra
 -------------------
 
-If you want to upgrade your cassandra cluster to a newer version the rule for the Lucene secondary indexes is to delete
-them with older version, upgrade cassandra and lucene index jar and create them again with running newer version.
+If you want to upgrade your cassandra cluster to a newer version you must follow the Datastax official [upgrade instructions](https://docs.datastax.com/en/upgrade/doc/upgrade/cassandra/upgradeCassandra_g.html)
+
+The rule for the Lucene secondary indexes is to delete them with older version, upgrade cassandra and lucene index jar and create them again with running newer version.
 
 If you have huge amount of data in your cluster this could be an expensive task. We have tested it and here you have a 
  compatibility matrix that states between which versions it is not needed to delete the index
@@ -112,17 +113,17 @@ If you have huge amount of data in your cluster this could be an expensive task.
 
 
 +-----------+---------+---------+---------+---------+----------+----------+---------+
-| From\\ To | 2.1.6.2 | 2.1.7.1 | 2.1.8.5 | 2.1.9.0 | 2.1.10.0 | 2.1.11.1 | 2.2.4.1 |
+| From\\ To | 2.1.6.2 | 2.1.7.1 | 2.1.8.5 | 2.1.9.0 | 2.1.10.0 | 2.1.11.1 | 2.2.4.3 |
 +===========+=========+=========+=========+=========+==========+==========+=========+
 | 2.1.6.0   |   YES   |   YES   |    NO   |    NO   |    NO    |    NO    |    NO   |
 +-----------+---------+---------+---------+---------+----------+----------+---------+
 | 2.1.6.1   |   YES   |   YES   |    NO   |    NO   |    NO    |    NO    |    NO   |
 +-----------+---------+---------+---------+---------+----------+----------+---------+
-| 2.1.6.2   |    NO   |   YES   |    NO   |    NO   |    NO    |    NO    |    NO   |
+| 2.1.6.2   |    --   |   YES   |    NO   |    NO   |    NO    |    NO    |    NO   |
 +-----------+---------+---------+---------+---------+----------+----------+---------+
 | 2.1.7.0   |    NO   |   YES   |    NO   |    NO   |    NO    |    NO    |    NO   |
 +-----------+---------+---------+---------+---------+----------+----------+---------+
-| 2.1.7.1   |    NO   |    NO   |    NO   |    NO   |    NO    |    NO    |    NO   |
+| 2.1.7.1   |    NO   |    --   |    NO   |    NO   |    NO    |    NO    |    NO   |
 +-----------+---------+---------+---------+---------+----------+----------+---------+
 | 2.1.8.0   |    NO   |    NO   |    NO   |    NO   |    NO    |    NO    |    NO   |
 +-----------+---------+---------+---------+---------+----------+----------+---------+
@@ -134,15 +135,15 @@ If you have huge amount of data in your cluster this could be an expensive task.
 +-----------+---------+---------+---------+---------+----------+----------+---------+
 | 2.1.8.4   |    NO   |    NO   |   YES   |   YES   |    NO    |    NO    |    NO   |
 +-----------+---------+---------+---------+---------+----------+----------+---------+
-| 2.1.8.5   |    NO   |    NO   |    NO   |   YES   |    NO    |    NO    |    NO   |
+| 2.1.8.5   |    NO   |    NO   |    --   |   YES   |    NO    |    NO    |    NO   |
 +-----------+---------+---------+---------+---------+----------+----------+---------+
-| 2.1.9.0   |    NO   |    NO   |    NO   |    NO   |    NO    |    NO    |    NO   |
+| 2.1.9.0   |    NO   |    NO   |    NO   |    --   |    NO    |    NO    |    NO   |
 +-----------+---------+---------+---------+---------+----------+----------+---------+
-| 2.1.10.0  |    NO   |    NO   |    NO   |    NO   |    NO    |    NO    |    NO   |
+| 2.1.10.0  |    NO   |    NO   |    NO   |    NO   |    --    |    NO    |    NO   |
 +-----------+---------+---------+---------+---------+----------+----------+---------+
 | 2.1.11.0  |    NO   |    NO   |    NO   |    NO   |    NO    |    NO    |    NO   |
 +-----------+---------+---------+---------+---------+----------+----------+---------+
-| 2.1.11.1  |    NO   |    NO   |    NO   |    NO   |    NO    |    NO    |   YES   |
+| 2.1.11.1  |    NO   |    NO   |    NO   |    NO   |    NO    |    --    |   YES   |
 +-----------+---------+---------+---------+---------+----------+----------+---------+
 | 2.2.3.0   |    NO   |    NO   |    NO   |    NO   |    NO    |    NO    |   YES   |
 +-----------+---------+---------+---------+---------+----------+----------+---------+
@@ -151,6 +152,10 @@ If you have huge amount of data in your cluster this could be an expensive task.
 | 2.2.3.2   |    NO   |    NO   |    NO   |    NO   |    NO    |    NO    |   YES   |
 +-----------+---------+---------+---------+---------+----------+----------+---------+
 | 2.2.4.0   |    NO   |    NO   |    NO   |    NO   |    NO    |    NO    |   YES   |
++-----------+---------+---------+---------+---------+----------+----------+---------+
+| 2.2.4.1   |    NO   |    NO   |    NO   |    NO   |    NO    |    NO    |   YES   |
++-----------+---------+---------+---------+---------+----------+----------+---------+
+| 2.2.4.2   |    NO   |    NO   |    NO   |    NO   |    NO    |    NO    |   YES   |
 +-----------+---------+---------+---------+---------+----------+----------+---------+
 
 
