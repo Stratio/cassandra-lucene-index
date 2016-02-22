@@ -104,7 +104,6 @@ is ``/var/lib/cassandra/data``, and each index is placed next to the SSTables of
 
 For more details about Apache Cassandra please see its `documentation <http://cassandra.apache.org/>`__.
 
-
 Example
 -------
 
