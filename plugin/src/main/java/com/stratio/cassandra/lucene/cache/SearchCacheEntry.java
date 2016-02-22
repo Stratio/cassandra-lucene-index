@@ -35,8 +35,8 @@ public class SearchCacheEntry {
     private final SearchCache searchCache;
     private final String search;
     private final ReadCommand command;
-    private final PartitionPosition position;
-    private final Optional<Clustering> clustering;
+    private final PartitionPosition currentPosition;
+    private final Optional<Clustering> currentClustering;
     private final ScoreDoc scoreDoc;
     private final Query query;
     private final PartitionPosition startPosition;
@@ -56,8 +56,8 @@ public class SearchCacheEntry {
         stopPosition = command.dataRange().stopKey();
         startPrefix = KeyMapper.startClusteringPrefix(command.dataRange());
         stopPrefix = KeyMapper.stopClusteringPrefix(command.dataRange());
-        position = startPosition;
-        clustering = startPrefix.isPresent()
+        currentPosition = startPosition;
+        currentClustering = startPrefix.isPresent()
                      ? Optional.of(new Clustering(startPrefix.get().getRawValues()))
                      : Optional.empty();
         scoreDoc = null;
@@ -67,14 +67,14 @@ public class SearchCacheEntry {
                      String search,
                      PartitionRangeReadCommand command,
                      DecoratedKey decoratedKey,
-                     Optional<Clustering> clustering,
+                     Optional<Clustering> currentClustering,
                      ScoreDoc scoreDoc,
                      Query query) {
         this.searchCache = searchCache;
         this.search = search;
         this.command = command;
-        this.position = decoratedKey;
-        this.clustering = clustering;
+        this.currentPosition = decoratedKey;
+        this.currentClustering = currentClustering;
         this.scoreDoc = scoreDoc;
         this.query = query;
         startPosition = command.dataRange().startKey();
@@ -93,7 +93,7 @@ public class SearchCacheEntry {
 
     private boolean validKey(DataRange dataRange) {
         PartitionPosition start = dataRange.startKey();
-        if (position.compareTo(start) == 0 && startPosition.compareTo(start) <= 0) {
+        if (currentPosition.compareTo(start) == 0 && startPosition.compareTo(start) <= 0) {
             PartitionPosition stop = dataRange.stopKey();
             return stopPosition.compareTo(stop) == 0;
         }
@@ -109,13 +109,13 @@ public class SearchCacheEntry {
         }
 
         // Discard null clusterings
-        if (start.isPresent() != clustering.isPresent()) {
+        if (start.isPresent() != currentClustering.isPresent()) {
             return false;
         }
 
         // Discard clustering
         if (start.isPresent() &&
-            comparator.compare(new Clustering(start.get().getRawValues()), clustering.get()) != 0) {
+            comparator.compare(new Clustering(start.get().getRawValues()), currentClustering.get()) != 0) {
             return false;
         }
 
