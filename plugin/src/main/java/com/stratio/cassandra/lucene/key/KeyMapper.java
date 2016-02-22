@@ -18,6 +18,7 @@
 
 package com.stratio.cassandra.lucene.key;
 
+import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.column.Column;
 import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.util.ByteBufferUtils;
@@ -25,6 +26,7 @@ import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
 import org.apache.cassandra.db.*;
 import org.apache.cassandra.db.filter.ClusteringIndexFilter;
+import org.apache.cassandra.db.filter.ClusteringIndexNamesFilter;
 import org.apache.cassandra.db.filter.ClusteringIndexSliceFilter;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.CompositeType;
@@ -35,16 +37,17 @@ import org.apache.lucene.document.FieldType;
 import org.apache.lucene.index.DocValuesType;
 import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.search.FieldComparator;
-import org.apache.lucene.search.FieldComparatorSource;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.SortField;
+import org.apache.lucene.search.*;
 import org.apache.lucene.util.BytesRef;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.NavigableSet;
+import java.util.Optional;
+
+import static org.apache.lucene.search.BooleanClause.Occur.SHOULD;
 
 /**
  * Class for several clustering key mappings between Cassandra and Lucene.
@@ -236,7 +239,7 @@ public final class KeyMapper {
      * @param dataRange the data range
      * @return the start clustering prefix of {@code dataRange}, or {@code null} if there is no such start
      */
-    public static ClusteringPrefix startClusteringPrefix(DataRange dataRange) {
+    public static Optional<ClusteringPrefix> startClusteringPrefix(DataRange dataRange) {
         PartitionPosition startPosition = dataRange.startKey();
         if (startPosition instanceof DecoratedKey) {
             DecoratedKey startKey = (DecoratedKey) startPosition;
@@ -244,10 +247,10 @@ public final class KeyMapper {
             if (filter instanceof ClusteringIndexSliceFilter) {
                 ClusteringIndexSliceFilter sliceFilter = (ClusteringIndexSliceFilter) filter;
                 Slices slices = sliceFilter.requestedSlices();
-                return slices.get(0).start();
+                return Optional.of(slices.get(0).start());
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     /**
@@ -256,7 +259,7 @@ public final class KeyMapper {
      * @param dataRange the data range
      * @return the stop clustering prefix of {@code dataRange}, or {@code null} if there is no such start
      */
-    public static ClusteringPrefix stopClusteringPrefix(DataRange dataRange) {
+    public static Optional<ClusteringPrefix> stopClusteringPrefix(DataRange dataRange) {
         PartitionPosition stopPosition = dataRange.stopKey();
         if (stopPosition instanceof DecoratedKey) {
             DecoratedKey stopKey = (DecoratedKey) stopPosition;
@@ -264,10 +267,10 @@ public final class KeyMapper {
             if (filter instanceof ClusteringIndexSliceFilter) {
                 ClusteringIndexSliceFilter sliceFilter = (ClusteringIndexSliceFilter) filter;
                 Slices slices = sliceFilter.requestedSlices();
-                return slices.get(slices.size() - 1).end();
+                return Optional.of(slices.get(slices.size() - 1).end());
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     /**
@@ -304,7 +307,7 @@ public final class KeyMapper {
     /**
      * Returns a Lucene {@link Query} to retrieve all the rows in the specified partition slice.
      *
-     * @param key the partition's key
+     * @param key the partition key
      * @param start the start clustering prefix
      * @param stop the stop clustering prefix
      * @param acceptLowerConflicts if rows with the same token before key should be accepted
@@ -317,6 +320,67 @@ public final class KeyMapper {
                        boolean acceptLowerConflicts,
                        boolean acceptUpperConflicts) {
         return new KeyQuery(this, key, start, stop, acceptLowerConflicts, acceptUpperConflicts);
+    }
+
+    /**
+     * Returns a Lucene {@link Query} to retrieve all the rows in the specified clustering slice filter.
+     *
+     * @param key the partition key
+     * @param sliceFilter the slice filter
+     * @return the Lucene query
+     */
+    public Query query(DecoratedKey key, ClusteringIndexSliceFilter sliceFilter) {
+        Slices slices = sliceFilter.requestedSlices();
+        ClusteringPrefix startBound = slices.get(0).start();
+        ClusteringPrefix stopBound = slices.get(slices.size() - 1).end();
+        return query(key, startBound, stopBound, false, false);
+    }
+
+    /**
+     * Returns a Lucene {@link Query} to retrieve all the rows in the specified clustering names filter.
+     *
+     * @param key the partition key
+     * @param namesFilter the names filter
+     * @return the Lucene query
+     */
+    public Query query(DecoratedKey key, ClusteringIndexNamesFilter namesFilter) {
+        NavigableSet<Clustering> clusterings = namesFilter.requestedRows();
+        if (!clusterings.isEmpty()) {
+            BooleanQuery.Builder builder = new BooleanQuery.Builder();
+            for (Clustering clustering : clusterings) {
+                builder.add(query(key, clustering), SHOULD);
+            }
+            return builder.build();
+        }
+        return null;
+    }
+
+    /**
+     * Returns a Lucene {@link Query} to retrieve all the rows in the specified clustering filter.
+     *
+     * @param key the partition's key
+     * @param filter the clustering filter
+     * @return the Lucene query
+     */
+    public Query query(DecoratedKey key, ClusteringIndexFilter filter) {
+        if (filter instanceof ClusteringIndexNamesFilter) {
+            return query(key, (ClusteringIndexNamesFilter) filter);
+        } else if (filter instanceof ClusteringIndexSliceFilter) {
+            return query(key, (ClusteringIndexSliceFilter) filter);
+        } else {
+            throw new IndexException("Unknown filter type %s", filter);
+        }
+    }
+
+    /**
+     * Returns a Lucene {@link Query} to retrieve the row with the specified primary key.
+     *
+     * @param key the partition key
+     * @param clustering the clustering key
+     * @return the Lucene query
+     */
+    public Query query(DecoratedKey key, Clustering clustering) {
+        return new TermQuery(term(key, clustering));
     }
 
 }

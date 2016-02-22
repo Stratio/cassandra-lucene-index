@@ -25,6 +25,7 @@ import org.apache.cassandra.db.ReadCommand;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -34,7 +35,7 @@ import java.util.UUID;
  */
 public class SearchCacheUpdater {
 
-    private final UUID key;
+    private final UUID id;
     private final SearchCache cache;
     private final String search;
     private final PartitionRangeReadCommand command;
@@ -42,12 +43,12 @@ public class SearchCacheUpdater {
 
     SearchCacheUpdater(SearchCache cache,
                        String search,
-                       UUID key,
+                       UUID id,
                        ReadCommand command,
                        Query query) {
         this.cache = cache;
         this.search = search;
-        this.key = key;
+        this.id = id;
         this.command = command instanceof PartitionRangeReadCommand ? (PartitionRangeReadCommand) command : null;
         this.query = query;
     }
@@ -55,13 +56,25 @@ public class SearchCacheUpdater {
     /**
      * Updates the cached entry with the specified pointer to a search result.
      *
-     * @param decoratedKey the row partition key
+     * @param key the row partition key
      * @param clustering the row clustering key
      * @param scoreDoc the row score for the query
      */
-    public void put(DecoratedKey decoratedKey, Clustering clustering, ScoreDoc scoreDoc) {
+    public void put(DecoratedKey key, Clustering clustering, ScoreDoc scoreDoc) {
         if (command != null) {
-            cache.put(key, new SearchCacheEntry(cache, search, command, decoratedKey, clustering, scoreDoc, query));
+            cache.put(id, new SearchCacheEntry(cache, search, command, key, Optional.of(clustering), scoreDoc, query));
+        }
+    }
+
+    /**
+     * Updates the cached entry with the specified pointer to a search result.
+     *
+     * @param key the row partition key
+     * @param scoreDoc the row score for the query
+     */
+    public void put(DecoratedKey key, ScoreDoc scoreDoc) {
+        if (command != null) {
+            cache.put(id, new SearchCacheEntry(cache, search, command, key, Optional.empty(), scoreDoc, query));
         }
     }
 

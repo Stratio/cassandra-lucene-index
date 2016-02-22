@@ -63,6 +63,8 @@ import org.slf4j.LoggerFactory;
 import java.nio.ByteBuffer;
 import java.util.*;
 
+import static org.apache.lucene.search.BooleanClause.Occur.FILTER;
+import static org.apache.lucene.search.BooleanClause.Occur.MUST;
 import static org.apache.lucene.search.SortField.FIELD_SCORE;
 
 /**
@@ -345,7 +347,7 @@ public abstract class IndexService {
             return (ReadOrderGroup orderGroup) -> read(query, sort, after, command, orderGroup, cacheUpdater);
         } else {
             logger.debug("Search cache fails");
-            Query query = new CachingWrapperQuery(search.query(schema, query(command)));
+            Query query = new CachingWrapperQuery(query(search, command));
             searchCache.put(expression, command, query);
             SearchCacheUpdater cacheUpdater = searchCache.updater(expression, command, query);
             return (ReadOrderGroup orderGroup) -> read(query, sort, null, command, orderGroup, cacheUpdater);
@@ -382,16 +384,36 @@ public abstract class IndexService {
     }
 
     /**
+     * Returns the Lucene {@link Query} represented by the specified {@link Search} and key filter.
+     *
+     * @param search the search
+     * @param command the command
+     * @return a Lucene {@link Query}
+     */
+    public Query query(Search search, ReadCommand command) {
+        Query searchQuery = search.query(schema);
+        Optional<Query> maybeKeyRangeQuery = query(command);
+        if (maybeKeyRangeQuery.isPresent()) {
+            BooleanQuery.Builder builder = new BooleanQuery.Builder();
+            builder.add(maybeKeyRangeQuery.get(), FILTER);
+            builder.add(searchQuery, MUST);
+            return builder.build();
+        } else {
+            return searchQuery;
+        }
+    }
+
+    /**
      * Returns the key range query represented by the specified {@link ReadCommand}.
      *
      * @param command the read command
      * @return the key range query
      */
-    private Query query(ReadCommand command) {
+    private Optional<Query> query(ReadCommand command) {
         if (command instanceof SinglePartitionReadCommand) {
             DecoratedKey key = ((SinglePartitionReadCommand) command).partitionKey();
             ClusteringIndexFilter clusteringFilter = command.clusteringIndexFilter(key);
-            return query(key, clusteringFilter);
+            return Optional.of(query(key, clusteringFilter));
         } else if (command instanceof PartitionRangeReadCommand) {
             DataRange dataRange = ((PartitionRangeReadCommand) command).dataRange();
             return query(dataRange);
@@ -416,7 +438,7 @@ public abstract class IndexService {
      * @param dataRange the {@link DataRange}
      * @return a query to get the {@link Document}s satisfying the {@code dataRange}
      */
-    abstract Query query(DataRange dataRange);
+    abstract Optional<Query> query(DataRange dataRange);
 
     /**
      * Returns a Lucene {@link Query} to retrieve all the rows in the specified partition position.
@@ -437,13 +459,7 @@ public abstract class IndexService {
      * @param stop the upper accepted partition position, {@code null} means no upper limit
      * @return the query, or {@code null} if it doesn't filter anything
      */
-    public Query query(PartitionPosition start, PartitionPosition stop) {
-        if (start.compareTo(stop) == 0) {
-            if (start.isMinimum()) {
-                return null;
-            }
-            return query(start);
-        }
+    public Optional<Query> query(PartitionPosition start, PartitionPosition stop) {
         return tokenMapper.query(start, stop);
     }
 
@@ -545,46 +561,52 @@ public abstract class IndexService {
 
         Search search = search(command);
 
-        // TODO: Skip if only one node is involved
         // Skip if search does not require full scan
-        if (!search.requiresFullScan()) {
-            return partitions;
+        if (search.requiresFullScan()) {
+
+            List<Pair<DecoratedKey, SimpleRowIterator>> collectedRows = collect(partitions);
+
+            Query query = search.query(schema);
+            Sort sort = sort(search);
+            int limit = command.limits().count();
+
+            // Skip if search is not top-k TODO: Skip if only one partitioner range is involved
+            if (search.isTopK()) {
+                return process(query, sort, limit, collectedRows);
+            }
         }
+        return partitions;
+    }
 
-        Query query = search.query(schema);
-        Sort sort = sort(search);
-        int limit = command.limits().count();
-
-        int count = 0;
-        List<Pair<DecoratedKey, SimpleRowIterator>> pairs = new ArrayList<>();
-        TimeCounter collectTime = TimeCounter.create().start();
+    private List<Pair<DecoratedKey, SimpleRowIterator>> collect(PartitionIterator partitions) {
+        List<Pair<DecoratedKey, SimpleRowIterator>> rows = new ArrayList<>();
+        TimeCounter time = TimeCounter.create().start();
         try {
             while (partitions.hasNext()) {
                 try (RowIterator partition = partitions.next()) {
                     DecoratedKey key = partition.partitionKey();
                     while (partition.hasNext()) {
                         SimpleRowIterator rowIterator = new SimpleRowIterator(partition);
-                        pairs.add(Pair.create(key, rowIterator));
-                        count++;
+                        rows.add(Pair.create(key, rowIterator));
                     }
                 }
             }
         } finally {
-            logger.debug("Collected {} rows in {}", count, collectTime.stop());
+            logger.debug("Collected {} rows in {}", rows.size(), time.stop());
         }
+        return rows;
+    }
 
-        // Skip if search is not top-k
-        if (!search.isTopK()) {
-            return partitions;
-        }
-
+    private SimplePartitionIterator process(Query query, Sort sort, int limit,
+                                            List<Pair<DecoratedKey, SimpleRowIterator>> collectedRows) {
         TimeCounter sortTime = TimeCounter.create().start();
+        List<SimpleRowIterator> processedRows = new LinkedList<>();
         try {
 
             // Index collected rows in memory
             RAMIndex index = new RAMIndex(schema.getAnalyzer());
             Map<Term, SimpleRowIterator> rowsByTerm = new HashMap<>();
-            for (Pair<DecoratedKey, SimpleRowIterator> pair : pairs) {
+            for (Pair<DecoratedKey, SimpleRowIterator> pair : collectedRows) {
                 DecoratedKey key = pair.left;
                 SimpleRowIterator rowIterator = pair.right;
                 Row row = rowIterator.getRow();
@@ -592,7 +614,6 @@ public abstract class IndexService {
                 Document document = document(key, row).get();
                 rowsByTerm.put(term, rowIterator);
                 index.add(document);
-
             }
 
             // Repeat search to sort partial results
@@ -600,17 +621,17 @@ public abstract class IndexService {
             index.close();
 
             // Collect post processed results
-            List<SimpleRowIterator> rows = new LinkedList<>();
             for (Document document : documents) {
                 Term term = term(document);
                 SimpleRowIterator rowIterator = rowsByTerm.get(term);
-                rows.add(rowIterator);
+                processedRows.add(rowIterator);
             }
-            return new SimplePartitionIterator(rows);
 
         } finally {
-            logger.debug("Post-processed {} rows in {}", count, sortTime.stop());
+            logger.debug("Post-processed {} collected rows to {} rows in {}",
+                         collectedRows.size(), processedRows.size(), sortTime.stop());
         }
+        return new SimplePartitionIterator(processedRows);
     }
 
     /**

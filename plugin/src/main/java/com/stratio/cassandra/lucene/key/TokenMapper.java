@@ -40,6 +40,7 @@ import org.apache.lucene.util.BytesRefBuilder;
 import org.apache.lucene.util.NumericUtils;
 
 import java.nio.ByteBuffer;
+import java.util.Optional;
 
 /**
  * Class for several token mappings between Cassandra and Lucene.
@@ -67,9 +68,7 @@ public final class TokenMapper {
     private final Cache<CacheKey, CachingWrapperQuery> cache;
 
     /**
-     * Constructor using the token range cache size.
-     *
-     * @param cacheSize the max number of token ranges to be cached
+     * Default constructor.
      */
     public TokenMapper(int cacheSize) {
         if (!(DatabaseDescriptor.getPartitioner() instanceof Murmur3Partitioner)) {
@@ -81,8 +80,8 @@ public final class TokenMapper {
     /**
      * Adds to the specified {@link Document} the {@link Field}s associated to the token of the specified row key.
      *
-     * @param document the document
-     * @param key the partition key
+     * @param document A {@link Document}.
+     * @param key The raw partition key to be added.
      */
     public void addFields(Document document, DecoratedKey key) {
         Token token = key.getToken();
@@ -163,11 +162,16 @@ public final class TokenMapper {
      * @param includeUpper if the upper token should be included
      * @return the query to find the documents containing a token inside the range
      */
-    public Query query(Token lower, Token upper, boolean includeLower, boolean includeUpper) {
+    public Optional<Query> query(Token lower, Token upper, boolean includeLower, boolean includeUpper) {
+
+        // Skip if it's full data range
+        if (lower.isMinimum() && upper.isMinimum()) {
+            return Optional.empty();
+        }
 
         // Get token values
-        Long start = lower == null || lower.isMinimum() ? null : value(lower);
-        Long stop = upper == null || upper.isMinimum() ? null : value(upper);
+        Long start = lower.isMinimum() ? null : value(lower);
+        Long stop = upper.isMinimum() ? null : value(upper);
 
         // Do with cache
         CacheKey cacheKey = new CacheKey(start, stop, includeLower, includeUpper);
@@ -177,7 +181,7 @@ public final class TokenMapper {
             cachedQuery = new CachingWrapperQuery(query);
             cache.put(cacheKey, cachedQuery);
         }
-        return cachedQuery;
+        return Optional.of(cachedQuery);
     }
 
     /**
@@ -188,7 +192,7 @@ public final class TokenMapper {
      * @param stop the stop position
      * @return the query to find the documents containing a token inside the range
      */
-    public Query query(PartitionPosition start, PartitionPosition stop) {
+    public Optional<Query> query(PartitionPosition start, PartitionPosition stop) {
         return query(start.getToken(), stop.getToken(), includeStart(start), includeStop(stop));
     }
 

@@ -23,6 +23,8 @@ import org.junit.runners.Suite.SuiteClasses;
 @RunWith(Suite.class)
 @SuiteClasses({AllowFilteringWith1000SimilarRowsAT.class,
                AllowFilteringWith1000MixedRowsAT.class,
+               InOperatorWithSkinnyRowsAT.class,
+               InOperatorWithWideRowsAT.class,
                TokenRangeWithSkinnyRowsAT.class,
                TokenRangeWithWideRowsMultiPartitionAT.class,
                TokenRangeWithWideRowsMultiClusteringAT.class,
