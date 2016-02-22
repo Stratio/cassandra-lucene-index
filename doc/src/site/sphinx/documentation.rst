@@ -7,7 +7,7 @@ Stratio's Cassandra Lucene Index
     - `Architecture <#architecture>`__
     - `Requirements <#requirements>`__
     - `Installation <#installation>`__
-    - `Upgrading Cassandra <#upgrading-cassandra>`__
+    - `Upgrade <#upgrade>`__
     - `Example <#example>`__
 - `Indexing <#indexing>`__
     - `Analyzers <#analysis>`__
@@ -184,8 +184,8 @@ directory is ``/var/lib/cassandra/data``, and each index is placed next to the S
 
 For more details about Apache Cassandra please see its `documentation <http://cassandra.apache.org/>`__.
 
-Upgrading Cassandra
-===================
+Upgrade
+=======
 
 If you want to upgrade your cassandra cluster to a newer version you must follow the Datastax official `upgrade instructions <https://docs.datastax.com/en/upgrade/doc/upgrade/cassandra/upgradeCassandra_g.html>`__.
 
