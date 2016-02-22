@@ -103,7 +103,7 @@ For more details about Apache Cassandra please see its `documentation <http://ca
 Upgrading Cassandra
 -------------------
 
-If you want to upgrade your cassandra cluster to a newer version you must follow the Datastax official [upgrade instructions](https://docs.datastax.com/en/upgrade/doc/upgrade/cassandra/upgradeCassandra_g.html)
+If you want to upgrade your cassandra cluster to a newer version you must follow the Datastax official `upgrade instructions <https://docs.datastax.com/en/upgrade/doc/upgrade/cassandra/upgradeCassandra_g.html>`__.
 
 The rule for the Lucene secondary indexes is to delete them with older version, upgrade cassandra and lucene index jar and create them again with running newer version.
 
