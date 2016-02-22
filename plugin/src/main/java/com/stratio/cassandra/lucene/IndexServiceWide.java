@@ -25,8 +25,6 @@ import com.stratio.cassandra.lucene.key.KeyMapper;
 import com.stratio.cassandra.lucene.key.PartitionMapper;
 import org.apache.cassandra.db.*;
 import org.apache.cassandra.db.filter.ClusteringIndexFilter;
-import org.apache.cassandra.db.filter.ClusteringIndexNamesFilter;
-import org.apache.cassandra.db.filter.ClusteringIndexSliceFilter;
 import org.apache.cassandra.db.rows.Row;
 import org.apache.cassandra.dht.Token;
 import org.apache.cassandra.index.transactions.IndexTransaction;
@@ -155,34 +153,39 @@ public class IndexServiceWide extends IndexService {
 
     /** {@inheritDoc} */
     @Override
-    public Query query(DataRange dataRange) {
+    public Optional<Query> query(DataRange dataRange) {
 
+        // Extract data range data
         PartitionPosition startPosition = dataRange.startKey();
         PartitionPosition stopPosition = dataRange.stopKey();
         Token startToken = startPosition.getToken();
         Token stopToken = stopPosition.getToken();
-        ClusteringPrefix startClustering = KeyMapper.startClusteringPrefix(dataRange);
-        ClusteringPrefix stopClustering = KeyMapper.stopClusteringPrefix(dataRange);
+        Optional<ClusteringPrefix> maybeStartClustering = KeyMapper.startClusteringPrefix(dataRange);
+        Optional<ClusteringPrefix> maybeStopClustering = KeyMapper.stopClusteringPrefix(dataRange);
 
-        if (startPosition.compareTo(stopPosition) == 0 && startToken.isMinimum()) {
-            return null;
-        } else if (startClustering == null && stopClustering == null) {
-            return query(startPosition, stopPosition);
-        } else {
-            BooleanQuery.Builder builder = new BooleanQuery.Builder();
-            boolean includeStart = startPosition.kind() == MIN_BOUND && startClustering == null;
-            boolean includeStop = stopPosition.kind() == MAX_BOUND && stopClustering == null;
-            if (startClustering != null) {
-                DecoratedKey startKey = (DecoratedKey) startPosition;
-                builder.add(keyMapper.query(startKey, startClustering, null, false, true), SHOULD);
-            }
-            builder.add(tokenMapper.query(startToken, stopToken, includeStart, includeStop), SHOULD);
-            if (stopClustering != null) {
-                DecoratedKey stopKey = (DecoratedKey) stopPosition;
-                builder.add(keyMapper.query(stopKey, null, stopClustering, true, false), SHOULD);
-            }
-            return builder.build();
-        }
+        // Prepare query builder
+        BooleanQuery.Builder builder = new BooleanQuery.Builder();
+
+        // Add first partition filter
+        maybeStartClustering.ifPresent(startClustering -> {
+            DecoratedKey startKey = (DecoratedKey) startPosition;
+            builder.add(keyMapper.query(startKey, startClustering, null, false, true), SHOULD);
+        });
+
+        // Add token range filter
+        boolean includeStart = startPosition.kind() == MIN_BOUND && !maybeStartClustering.isPresent();
+        boolean includeStop = stopPosition.kind() == MAX_BOUND && !maybeStopClustering.isPresent();
+        tokenMapper.query(startToken, stopToken, includeStart, includeStop).ifPresent(x -> builder.add(x, SHOULD));
+
+        // Add last partition filter
+        maybeStopClustering.ifPresent(stopClustering -> {
+            DecoratedKey stopKey = (DecoratedKey) stopPosition;
+            builder.add(keyMapper.query(stopKey, null, stopClustering, true, false), SHOULD);
+        });
+
+        // Return query, or empty if there are no restrictions
+        BooleanQuery query = builder.build();
+        return query.clauses().isEmpty() ? Optional.empty() : Optional.of(query);
     }
 
     /** {@inheritDoc} */

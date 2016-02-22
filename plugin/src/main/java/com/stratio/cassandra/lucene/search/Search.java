@@ -22,9 +22,15 @@ import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.search.condition.Condition;
 import com.stratio.cassandra.lucene.search.sort.Sort;
-import org.apache.lucene.search.*;
+import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.MatchAllDocsQuery;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.SortField;
 
 import java.util.List;
+
+import static org.apache.lucene.search.BooleanClause.Occur.FILTER;
+import static org.apache.lucene.search.BooleanClause.Occur.MUST;
 
 /**
  * Class representing an Lucene index search. It is formed by an optional querying {@link Condition} and an optional
@@ -56,8 +62,8 @@ public class Search {
      *
      * @param query the condition for querying, maybe {@code null} meaning no querying
      * @param filter the condition for filtering, maybe {@code null} meaning no filtering
-     * @param sort the sort for the query. Note that is the order in which the data will be read before
-     * querying, not the order of the results after querying
+     * @param sort the sort for the query. Note that is the order in which the data will be read before querying, not
+     * the order of the results after querying
      * @param refresh if this search must refresh the index before reading it
      */
     public Search(Condition query, Condition filter, Sort sort, Boolean refresh) {
@@ -137,36 +143,24 @@ public class Search {
     }
 
     /**
-     * Returns the Lucene {@link Query} represented by this using the specified {@link Schema}. Maybe {@code null}
-     * meaning no filtering query.
-     *
-     * @param schema the {@link Schema}
-     * @param preFilter the extra {@link Filter} to be applied
-     * @return a Lucene {@link Query}
-     */
-    public Query query(Schema schema, Query preFilter) {
-        BooleanQuery.Builder builder = new BooleanQuery.Builder();
-        if (preFilter != null) {
-            builder.add(preFilter, BooleanClause.Occur.FILTER);
-        }
-        if (filter != null) {
-            builder.add(filter.filter(schema), BooleanClause.Occur.FILTER);
-        }
-        if (query != null) {
-            builder.add(query.query(schema), BooleanClause.Occur.MUST);
-        }
-        BooleanQuery booleanQuery = builder.build();
-        return booleanQuery.clauses().isEmpty() ? new MatchAllDocsQuery() : booleanQuery;
-    }
-
-    /**
      * Returns the Lucene {@link Query} represented by this using the specified {@link Schema}.
      *
      * @param schema the {@link Schema}
      * @return a Lucene {@link Query}
      */
     public Query query(Schema schema) {
-        return query(schema, null);
+        if (query == null && filter == null) {
+            return new MatchAllDocsQuery();
+        } else if (filter == null) {
+            return query.query(schema);
+        } else if (query == null) {
+            return filter.filter(schema);
+        } else {
+            BooleanQuery.Builder builder = new BooleanQuery.Builder();
+            builder.add(filter.filter(schema), FILTER);
+            builder.add(query.query(schema), MUST);
+            return builder.build();
+        }
     }
 
     /**

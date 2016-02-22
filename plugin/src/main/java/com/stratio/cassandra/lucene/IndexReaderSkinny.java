@@ -73,7 +73,7 @@ public class IndexReaderSkinny extends IndexReader {
                     data.close();
                 } else {
                     next = data;
-                    cacheUpdater.put(key, null, nextDoc.right);
+                    cacheUpdater.put(key, nextDoc.right);
                 }
             }
         }

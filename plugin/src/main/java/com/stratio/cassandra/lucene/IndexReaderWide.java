@@ -78,7 +78,6 @@ public class IndexReaderWide extends IndexReader {
             nextDoc = documents.next();
         }
 
-
         DecoratedKey key = service.decoratedKey(nextDoc.left);
         NavigableSet<Clustering> clusterings = clusterings(key);
 

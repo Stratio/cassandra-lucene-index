@@ -37,6 +37,7 @@ public class ColumnBuilder {
 
     /**
      * Constructor taking the cell name.
+     *
      * @param cellName the cell name
      */
     public ColumnBuilder(String cellName) {
@@ -47,6 +48,7 @@ public class ColumnBuilder {
 
     /**
      * Returns a new {@link Column} using the specified composed value and its type.
+     *
      * @param composedValue the decomposed value
      * @param type the value type
      * @param <T> the marshaller's base type
@@ -59,6 +61,7 @@ public class ColumnBuilder {
 
     /**
      * Returns a new {@link Column} using the specified decomposed value and its type.
+     *
      * @param decomposedValue the decomposed value
      * @param type the value type
      * @param <T> the marshaller's base type
@@ -71,6 +74,7 @@ public class ColumnBuilder {
 
     /**
      * Returns this builder with the specified UDT name component.
+     *
      * @param name the UDT name component
      * @return this
      */
@@ -82,6 +86,7 @@ public class ColumnBuilder {
 
     /**
      * Returns this builder with the specified map name component.
+     *
      * @param name the map key name component
      * @return this
      */
@@ -93,7 +98,7 @@ public class ColumnBuilder {
 
     /**
      * Returns a new copy of this.
-
+     *
      * @return the copy
      */
     public ColumnBuilder copy() {

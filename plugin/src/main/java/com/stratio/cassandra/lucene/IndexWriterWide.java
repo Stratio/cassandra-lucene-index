@@ -24,7 +24,10 @@ import org.apache.cassandra.db.rows.Row;
 import org.apache.cassandra.index.transactions.IndexTransaction;
 import org.apache.cassandra.utils.concurrent.OpOrder;
 
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.NavigableSet;
+import java.util.Optional;
 
 /**
  * {@link IndexWriter} for wide rows.

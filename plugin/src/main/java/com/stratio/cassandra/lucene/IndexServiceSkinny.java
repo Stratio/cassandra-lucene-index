@@ -118,7 +118,7 @@ public class IndexServiceSkinny extends IndexService {
 
     /** {@inheritDoc} */
     @Override
-    public Query query(DataRange dataRange) {
+    public Optional<Query> query(DataRange dataRange) {
         PartitionPosition startPosition = dataRange.startKey();
         PartitionPosition stopPosition = dataRange.stopKey();
         return query(startPosition, stopPosition);

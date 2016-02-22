@@ -23,6 +23,8 @@ import org.apache.cassandra.db.*;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 
+import java.util.Optional;
+
 /**
  * A entry of the {@link SearchCache}.
  *
@@ -34,13 +36,13 @@ public class SearchCacheEntry {
     private final String search;
     private final ReadCommand command;
     private final PartitionPosition position;
-    private final Clustering clustering;
+    private final Optional<Clustering> clustering;
     private final ScoreDoc scoreDoc;
     private final Query query;
     private final PartitionPosition startPosition;
     private final PartitionPosition stopPosition;
-    private final ClusteringPrefix startPrefix;
-    private final ClusteringPrefix stopPrefix;
+    private final Optional<ClusteringPrefix> startPrefix;
+    private final Optional<ClusteringPrefix> stopPrefix;
 
     SearchCacheEntry(SearchCache searchCache,
                      String search,
@@ -55,7 +57,9 @@ public class SearchCacheEntry {
         startPrefix = KeyMapper.startClusteringPrefix(command.dataRange());
         stopPrefix = KeyMapper.stopClusteringPrefix(command.dataRange());
         position = startPosition;
-        clustering = startPrefix == null ? null : new Clustering(startPrefix.getRawValues());
+        clustering = startPrefix.isPresent()
+                     ? Optional.of(new Clustering(startPrefix.get().getRawValues()))
+                     : Optional.empty();
         scoreDoc = null;
     }
 
@@ -63,7 +67,7 @@ public class SearchCacheEntry {
                      String search,
                      PartitionRangeReadCommand command,
                      DecoratedKey decoratedKey,
-                     Clustering clustering,
+                     Optional<Clustering> clustering,
                      ScoreDoc scoreDoc,
                      Query query) {
         this.searchCache = searchCache;
@@ -99,24 +103,25 @@ public class SearchCacheEntry {
     private boolean validPrefix(ClusteringComparator comparator, DataRange dataRange) {
 
         // Discard start prefix
-        ClusteringPrefix start = KeyMapper.startClusteringPrefix(dataRange);
-        if (start != null && startPrefix != null && comparator.compare(startPrefix, start) > 0) {
+        Optional<ClusteringPrefix> start = KeyMapper.startClusteringPrefix(dataRange);
+        if (start.isPresent() && startPrefix.isPresent() && comparator.compare(startPrefix.get(), start.get()) > 0) {
             return false;
         }
 
         // Discard null clusterings
-        if (start == null && clustering != null || start != null && clustering == null) {
+        if (start.isPresent() != clustering.isPresent()) {
             return false;
         }
 
         // Discard clustering
-        if (start != null && comparator.compare(new Clustering(start.getRawValues()), clustering) != 0) {
+        if (start.isPresent() &&
+            comparator.compare(new Clustering(start.get().getRawValues()), clustering.get()) != 0) {
             return false;
         }
 
         // Discard stop prefix
-        ClusteringPrefix stop = KeyMapper.stopClusteringPrefix(dataRange);
-        if (stop != null && stopPrefix != null && comparator.compare(stopPrefix, stop) != 0) {
+        Optional<ClusteringPrefix> stop = KeyMapper.stopClusteringPrefix(dataRange);
+        if (stop.isPresent() && stopPrefix.isPresent() && comparator.compare(stopPrefix.get(), stop.get()) != 0) {
             return false;
         }
 
