@@ -107,13 +107,13 @@ For more details about Apache Cassandra please see its `documentation <http://ca
 Upgrading Cassandra
 -------------------
 
-If you want to upgrade your cassandra cluster to a newer version  you must follow the Datastax official `upgrade instructions <https://docs.datastax.com/en/upgrade/doc/upgrade/cassandra/upgradeCassandra_g.html>`__.
+If you want to upgrade your Cassandra cluster to a newer version you must follow the Datastax official `upgrade instructions <https://docs.datastax.com/en/upgrade/doc/upgrade/cassandra/upgradeCassandra_g.html>`__.
 
-The rule for the Lucene secondary indexes is to delete them with older version, upgrade cassandra and lucene index jar
-and create them again with running newer version.
+The rule for upgrading the Lucene secondary indexes is to delete them using the older version, stop Cassandra,
+upgrade Cassandra if required, replace the Lucene index JAR file, start Cassandra and build indexes again.
 
 If you have huge amount of data in your cluster this could be an expensive task. We have tested it and here you have a
-compatibility matrix that states between which versions it is not needed to delete the index
+compatibility matrix that states between which versions it is not needed to rebuild the indexes:
 
 
 +-----------+---------+---------+---------+---------+----------+----------+---------+---------+---------+---------+
