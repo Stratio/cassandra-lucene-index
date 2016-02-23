@@ -33,6 +33,8 @@ import org.apache.commons.lang3.StringUtils;
  */
 public abstract class SingleFieldCondition extends Condition {
 
+
+
     /** The name of the field to be matched. */
     public final String field;
 

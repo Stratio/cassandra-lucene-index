@@ -18,13 +18,11 @@
 
 package com.stratio.cassandra.lucene.search.condition;
 
-import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
-import com.spatial4j.core.io.jts.JtsWktShapeParser;
 import com.spatial4j.core.shape.Shape;
+import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.mapping.GeoPointMapper;
-import com.vividsolutions.jts.geom.Geometry;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.spatial.SpatialStrategy;
@@ -32,44 +30,65 @@ import org.apache.lucene.spatial.query.SpatialArgs;
 import org.apache.lucene.spatial.query.SpatialOperation;
 
 import java.text.ParseException;
+import java.util.List;
 
 /**
  * A {@link Condition} that matches documents containing a shape contained in a certain bounding box.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class GeoPolygonCondition extends SingleMapperCondition<GeoPointMapper> {
+public class GeoShapeCondition extends SingleMapperCondition<GeoPointMapper> {
+
+    public static final GeoOperation DEFAULT_OPERATION = GeoOperation.IS_WITHIN;
 
     /** The list of shape in WKT format. */
     public final String shape;
+    public final GeoOperation operation;
+    public final List<GeoTransformation> transformations;
 
-    public GeoPolygonCondition(Float boost,
-                               String field,
-                               String shape) {
+    public GeoShapeCondition(Float boost,
+                             String field,
+                             String shape,
+                             GeoOperation operation,
+                             List<GeoTransformation> transformations) {
         super(boost, field, GeoPointMapper.class);
-
         this.shape = shape;
+        this.operation = operation == null ? DEFAULT_OPERATION : operation;
+        this.transformations = transformations;
     }
 
     /** {@inheritDoc} */
     @Override
     public Query query(GeoPointMapper mapper, Analyzer analyzer) {
 
-        SpatialStrategy spatialStrategy = mapper.distanceStrategy;
+        SpatialStrategy strategy = mapper.distanceStrategy;
+        JtsSpatialContext context = JtsSpatialContext.GEO;
 
-//        SpatialContext context = GeoPointMapper.SPATIAL_CONTEXT;
-
-        Shape shape;
+        // Parse geometry
+        JtsGeometry geometry;
         try {
-
-            shape = JtsSpatialContext.GEO.getWktShapeParser().parse(this.shape);
-
+            Shape shape = context.getWktShapeParser().parse(this.shape);
+            geometry = context.makeShape(context.getGeometryFrom(shape));
         } catch (ParseException e) {
             throw new IndexException("Shape is not parseable", e);
         }
-        SpatialArgs args = new SpatialArgs(SpatialOperation.Intersects, shape);
+
+        // Apply transformations
+        logger.debug("SHAPE {}", geometry);
+        if (transformations != null) {
+            for (GeoTransformation transformation : transformations) {
+                geometry = transformation.transform(geometry, context);
+                logger.debug("TRANSFORMED TO {}", geometry);
+            }
+        }
+
+        logger.debug("OPERATION {}", operation);
+        logger.debug("SPATIAL OPERATION {}", operation.getSpatialOperation());
+
+        // Build query
+        SpatialArgs args = new SpatialArgs(operation.getSpatialOperation(), geometry);
         args.setDistErr(0.0);
-        Query query = spatialStrategy.makeQuery(args);
+        Query query = strategy.makeQuery(args);
         query.setBoost(boost);
         return query;
     }

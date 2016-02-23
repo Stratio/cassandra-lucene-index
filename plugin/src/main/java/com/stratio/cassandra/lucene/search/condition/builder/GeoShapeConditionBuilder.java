@@ -19,16 +19,22 @@
 package com.stratio.cassandra.lucene.search.condition.builder;
 
 import com.stratio.cassandra.lucene.search.condition.GeoBBoxCondition;
-import com.stratio.cassandra.lucene.search.condition.GeoPolygonCondition;
+import com.stratio.cassandra.lucene.search.condition.GeoOperation;
+import com.stratio.cassandra.lucene.search.condition.GeoShapeCondition;
+import com.stratio.cassandra.lucene.search.condition.GeoTransformation;
+import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * {@link ConditionBuilder} for building a new {@link GeoPolygonCondition}.
+ * {@link ConditionBuilder} for building a new {@link GeoShapeCondition}.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class GeoPolygonConditionBuilder extends ConditionBuilder<GeoPolygonCondition, GeoPolygonConditionBuilder> {
+public class GeoShapeConditionBuilder extends ConditionBuilder<GeoShapeCondition, GeoShapeConditionBuilder> {
 
     /** The name of the field to be matched. */
     @JsonProperty("field")
@@ -37,9 +43,14 @@ public class GeoPolygonConditionBuilder extends ConditionBuilder<GeoPolygonCondi
     @JsonProperty("shape")
     private final String shape;
 
+    @JsonProperty("operation")
+    private String operation;
+
+    @JsonProperty("transformations")
+    private List<GeoTransformationBuilder> transformations = new ArrayList<>();
+
     @JsonCreator
-    public GeoPolygonConditionBuilder(@JsonProperty("field") String field,
-                                      @JsonProperty("shape") String shape) {
+    public GeoShapeConditionBuilder(@JsonProperty("field") String field, @JsonProperty("shape") String shape) {
         this.field = field;
         this.shape = shape;
     }
@@ -47,10 +58,15 @@ public class GeoPolygonConditionBuilder extends ConditionBuilder<GeoPolygonCondi
     /**
      * Returns the {@link GeoBBoxCondition} represented by this builder.
      *
-     * @return The {@link GeoBBoxCondition} represented by this builder.
+     * @return the condition
      */
     @Override
-    public GeoPolygonCondition build() {
-        return new GeoPolygonCondition(boost, field, shape);
+    public GeoShapeCondition build() {
+        GeoOperation geoOperation = StringUtils.isBlank(operation) ? null : GeoOperation.parse(operation);
+        List<GeoTransformation> transformations = new ArrayList<>();
+        for (GeoTransformationBuilder builder : this.transformations) {
+            transformations.add(builder.build());
+        }
+        return new GeoShapeCondition(boost, field, shape, geoOperation, transformations);
     }
 }
