@@ -77,7 +77,9 @@ public class UDTIndexingAT extends BaseAT {
         cassandraUtils.execute(new SimpleStatement(addressUDT.toString()));
         cassandraUtils.execute(new SimpleStatement(tableCreationQuery));
 
-        String createIndexQuery = "CREATE CUSTOM INDEX test_index ON " +
+        String createIndexQuery = "CREATE CUSTOM INDEX " +
+                                  cassandraUtils.getIndexName() +
+                                  " ON " +
                                   cassandraUtils.getKeyspace() +
                                   "." +
                                   cassandraUtils.getTable() +
