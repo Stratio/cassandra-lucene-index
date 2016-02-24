@@ -88,6 +88,7 @@ public class LuceneIndex implements LuceneIndexMBean {
         SearcherFactory searcherFactory = new SearcherFactory() {
             @Override
             public IndexSearcher newSearcher(IndexReader reader, IndexReader previousReader) {
+                logger.debug("{} creating new index searcher", name);
                 IndexSearcher searcher = new IndexSearcher(reader);
                 searcher.setSimilarity(new NoIDFSimilarity());
                 return searcher;
@@ -182,7 +183,7 @@ public class LuceneIndex implements LuceneIndexMBean {
     @Override
     public void commit() throws IOException {
         indexWriter.commit();
-        logger.info("{} committed", name);
+        logger.debug("{} committed", name);
     }
 
     /**
@@ -322,7 +323,7 @@ public class LuceneIndex implements LuceneIndexMBean {
      */
     @Override
     public void refresh() throws IOException {
-        logger.info("{} refreshing readers", name);
+        logger.debug("{} refreshing index searcher", name);
         commit();
         searcherManager.maybeRefreshBlocking();
     }
