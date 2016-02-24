@@ -47,13 +47,10 @@ public class GeoDistanceCondition extends SingleMapperCondition<GeoPointMapper> 
     public final double longitude;
 
     /** The min allowed distance. */
-    public final String minDistance;
+    public final GeoDistance minGeoDistance;
 
     /** The max allowed distance. */
-    public final String maxDistance;
-
-    private final GeoDistance minGeoDistance;
-    private final GeoDistance maxGeoDistance;
+    public final GeoDistance maxGeoDistance;
 
     /**
      * Constructor using the field name and the value to be matched.
@@ -64,33 +61,31 @@ public class GeoDistanceCondition extends SingleMapperCondition<GeoPointMapper> 
      * @param field       The name of the field to be matched.
      * @param latitude    The latitude of the reference point.
      * @param longitude   The longitude of the reference point.
-     * @param minDistance The min allowed distance.
-     * @param maxDistance The max allowed distance.
+     * @param minGeoDistance The min allowed distance.
+     * @param maxGeoDistance The max allowed distance.
      */
     public GeoDistanceCondition(Float boost,
                                 String field,
                                 Double latitude,
                                 Double longitude,
-                                String minDistance,
-                                String maxDistance) {
+                                GeoDistance minGeoDistance,
+                                GeoDistance maxGeoDistance) {
         super(boost, field, GeoPointMapper.class);
 
         this.latitude = GeoPointMapper.checkLatitude("latitude", latitude);
         this.longitude = GeoPointMapper.checkLongitude("longitude", longitude);
 
-        if (StringUtils.isBlank(maxDistance)) {
+        if (maxGeoDistance == null) {
             throw new IndexException("max_distance must be provided");
         }
 
-        minGeoDistance = minDistance == null ? null : GeoDistance.create(minDistance);
-        maxGeoDistance = GeoDistance.create(maxDistance);
+        this.maxGeoDistance = maxGeoDistance;
+        this.minGeoDistance = minGeoDistance;
+
 
         if (minGeoDistance != null && minGeoDistance.compareTo(maxGeoDistance) >= 0) {
             throw new IndexException("min_distance must be lower than max_distance");
         }
-
-        this.minDistance = minDistance;
-        this.maxDistance = maxDistance;
     }
 
     /** {@inheritDoc} */
@@ -122,8 +117,8 @@ public class GeoDistanceCondition extends SingleMapperCondition<GeoPointMapper> 
     public String toString() {
         return toStringHelper(this).add("latitude", latitude)
                                    .add("longitude", longitude)
-                                   .add("minDistance", minDistance)
-                                   .add("maxDistance", maxDistance)
+                                   .add("minGeoDistance", minGeoDistance)
+                                   .add("maxGeoDistance", maxGeoDistance)
                                    .toString();
     }
 

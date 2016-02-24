@@ -19,8 +19,11 @@
 package com.stratio.cassandra.lucene.search.condition;
 
 import com.google.common.base.Objects;
+import com.spatial4j.core.distance.DistanceUtils;
 import com.stratio.cassandra.lucene.IndexException;
 import org.codehaus.jackson.annotate.JsonCreator;
+
+import java.util.List;
 
 /**
  * Class representing a geographical distance.
@@ -39,7 +42,7 @@ public final class GeoDistance implements Comparable<GeoDistance> {
      * Builds a new {@link GeoDistance} defined by the specified quantitative value and distance unit.
      *
      * @param value The quantitative distance value.
-     * @param unit  The distance unit.
+     * @param unit The distance unit.
      */
     private GeoDistance(double value, GeoDistanceUnit unit) {
         this.value = value;
@@ -52,8 +55,18 @@ public final class GeoDistance implements Comparable<GeoDistance> {
      * @param unit The distance unit to be used.
      * @return The numeric distance value in the specified unit.
      */
-    public Double getValue(GeoDistanceUnit unit) {
+    public double getValue(GeoDistanceUnit unit) {
         return this.unit.getMetres() * value / unit.getMetres();
+    }
+
+    /**
+     * Return the numeric distance value in degrees.
+     *
+     * @return the degrees
+     */
+    public double getDegrees() {
+        double kms = getValue(GeoDistanceUnit.KILOMETRES);
+        return DistanceUtils.dist2Degrees(kms, DistanceUtils.EARTH_MEAN_RADIUS_KM);
     }
 
     /**
@@ -63,15 +76,19 @@ public final class GeoDistance implements Comparable<GeoDistance> {
      * @return The {@link GeoDistance} represented by the specified JSON {@code String}.
      */
     @JsonCreator
-    public static GeoDistance create(String json) {
+    public static GeoDistance parse(String json) {
         try {
+            String unit = null;
             for (GeoDistanceUnit geoDistanceUnit : GeoDistanceUnit.values()) {
                 for (String name : geoDistanceUnit.getNames()) {
-                    if (json.endsWith(name)) {
-                        double value = Double.parseDouble(json.substring(0, json.indexOf(name)));
-                        return new GeoDistance(value, geoDistanceUnit);
+                    if (json.endsWith(name) && (unit == null || unit.length() < name.length())) {
+                        unit = name;
                     }
                 }
+            }
+            if (unit != null) {
+                double value = Double.parseDouble(json.substring(0, json.indexOf(unit)));
+                return new GeoDistance(value, GeoDistanceUnit.create(unit));
             }
             double value = Double.parseDouble(json);
             return new GeoDistance(value, GeoDistanceUnit.METRES);
@@ -83,12 +100,29 @@ public final class GeoDistance implements Comparable<GeoDistance> {
     /** {@inheritDoc} */
     @Override
     public int compareTo(GeoDistance other) {
-        return getValue(GeoDistanceUnit.MILLIMETRES).compareTo(other.getValue(GeoDistanceUnit.MILLIMETRES));
+        return Double.valueOf(getValue(GeoDistanceUnit.MILLIMETRES))
+                     .compareTo(other.getValue(GeoDistanceUnit.MILLIMETRES));
     }
 
     /** {@inheritDoc} */
     @Override
     public String toString() {
         return Objects.toStringHelper(this).add("value", value).add("unit", unit).toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        GeoDistance that = (GeoDistance) o;
+
+        return Double.compare(that.value, value) == 0 && unit == that.unit;
+
     }
 }

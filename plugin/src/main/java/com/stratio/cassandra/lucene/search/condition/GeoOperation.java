@@ -11,7 +11,6 @@ public enum GeoOperation {
 
     INTERSECTS("intersects", SpatialOperation.Intersects),
     IS_WITHIN("is_within", SpatialOperation.IsWithin),
-    IS_DISJOINT_TO("is_disjoint_to", SpatialOperation.IsDisjointTo), // TODO: Not supported by recursive prefix tree strategy
     CONTAINS("contains", SpatialOperation.Contains);
 
     private final String name;
@@ -22,6 +21,9 @@ public enum GeoOperation {
         this.spatialOperation = spatialOperation;
     }
 
+    /** Returns the represented Lucene's {@link SpatialOperation}.
+     * @return the Lucene's spatial operation
+     */
     public SpatialOperation getSpatialOperation() {
         return spatialOperation;
     }

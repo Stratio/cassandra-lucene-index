@@ -19,56 +19,81 @@
 package com.stratio.cassandra.lucene.search.condition;
 
 import com.spatial4j.core.context.jts.JtsSpatialContext;
-import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.vividsolutions.jts.geom.Geometry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
+ * Class representing the transformation of a JTS geographical shape into a new shape.
+ *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public interface GeoTransformation {
 
-    JtsGeometry transform(JtsGeometry shape, JtsSpatialContext spatialContext);
+    /**
+     * Returns the transformed {@link JtsGeometry} resulting of applying this transformation to the specified {@link
+     * JtsGeometry} using the specified {@link JtsSpatialContext}.
+     *
+     * @param shape the JTS shape to be transformed
+     * @param context the JTS spatial context to be used
+     * @return the transformed JTS shape
+     */
+    JtsGeometry apply(JtsGeometry shape, JtsSpatialContext context);
 
-    class Identity implements GeoTransformation {
+    /**
+     * {@link GeoTransformation} for getting copying of a JTS geographical shape.
+     */
+    class Copy implements GeoTransformation {
 
+        /**
+         * Returns a copy of the specified {@link JtsGeometry}.
+         *
+         * @param shape the JTS shape to be copied
+         * @param context the JTS spatial context to be used
+         * @return the copy of the JTS shape
+         */
         @Override
-        public JtsGeometry transform(JtsGeometry shape, JtsSpatialContext spatialContext) {
-            return shape;
+        public JtsGeometry apply(JtsGeometry shape, JtsSpatialContext context) {
+            return context.makeShape(shape.getGeom());
         }
     }
 
-    class Clipper implements GeoTransformation {
-
-        protected static final Logger logger = LoggerFactory.getLogger(Clipper.class);
+    /**
+     * {@link GeoTransformation} for getting the bounding shape of a JTS geographical shape.
+     */
+    class Buffer implements GeoTransformation {
 
         public final GeoDistance maxDistance;
         public final GeoDistance minDistance;
 
-        public Clipper(GeoDistance maxDistance, GeoDistance minDistance) {
-
+        /**
+         * Constructor receiving the max and minimum accepted distances.
+         *
+         * @param maxDistance the max accepted distance
+         * @param minDistance the min accepted distance
+         */
+        public Buffer(GeoDistance maxDistance, GeoDistance minDistance) {
             this.maxDistance = maxDistance;
             this.minDistance = minDistance;
         }
 
+        /**
+         * Returns the buffer of the specified {@link JtsGeometry}.
+         *
+         * @param shape the JTS shape to be transformed
+         * @param context the JTS spatial context to be used
+         * @return the buffer
+         */
         @Override
-        public JtsGeometry transform(JtsGeometry shape, JtsSpatialContext spatialContext) {
+        public JtsGeometry apply(JtsGeometry shape, JtsSpatialContext context) {
 
-            double kms = maxDistance.getValue(GeoDistanceUnit.KILOMETRES);
-            double degrees = DistanceUtils.dist2Degrees(kms, DistanceUtils.EARTH_MEAN_RADIUS_KM);
-            JtsGeometry max = shape.getBuffered(degrees, spatialContext);
-            logger.debug("MAX {}", max);
+            JtsGeometry max = maxDistance == null
+                              ? context.makeShape(shape.getGeom())
+                              : shape.getBuffered(maxDistance.getDegrees(), context);
 
             if (minDistance != null) {
-                kms = minDistance.getValue(GeoDistanceUnit.KILOMETRES);
-                degrees = DistanceUtils.dist2Degrees(kms, DistanceUtils.EARTH_MEAN_RADIUS_KM);
-                JtsGeometry min = shape.getBuffered(degrees, spatialContext);
-                logger.debug("MIN {}", min);
+                JtsGeometry min = shape.getBuffered(minDistance.getDegrees(), context);
                 Geometry difference = max.getGeom().difference(min.getGeom());
-                logger.debug("DIFFERENCE {}", difference);
-                return spatialContext.makeShape(difference);
+                return context.makeShape(difference);
             }
             return max;
         }

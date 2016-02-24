@@ -38,69 +38,79 @@ public class GeoDistanceConditionTest extends AbstractConditionTest {
 
     @Test
     public void testConstructor() {
-        GeoDistanceCondition condition = new GeoDistanceCondition(0.5f, "name", 90D, -180D, "3km", "10km");
+        GeoDistanceCondition condition = new GeoDistanceCondition(0.5f,
+                                                                  "name",
+                                                                  90D,
+                                                                  -180D,
+                                                                  GeoDistance.parse("3km"),
+                                                                  GeoDistance.parse("10km"));
         assertEquals("Boost is not set", 0.5, condition.boost, 0);
         assertEquals("Field is not set", "name", condition.field);
         assertEquals("Longitude is not set", -180, condition.longitude, 0);
         assertEquals("Latitude is not set", 90, condition.latitude, 0);
-        assertEquals("Min distance is not set", "3km", condition.minDistance);
-        assertEquals("Max distance is not set", "10km", condition.maxDistance);
+        assertEquals("Min distance is not set", GeoDistance.parse("3km"), condition.minGeoDistance);
+        assertEquals("Max distance is not set", GeoDistance.parse("10km"), condition.maxGeoDistance);
     }
 
     @Test
     public void testConstructorWithDefaults() {
-        GeoDistanceCondition condition = new GeoDistanceCondition(null, "name", 90D, -180D, null, "1yd");
+        GeoDistanceCondition condition = new GeoDistanceCondition(null,
+                                                                  "name",
+                                                                  90D,
+                                                                  -180D,
+                                                                  null,
+                                                                  GeoDistance.parse("1yd"));
         assertEquals("Boost is not to default", Condition.DEFAULT_BOOST, condition.boost, 0);
         assertEquals("Field is not set", "name", condition.field);
         assertEquals("Longitude is not set", -180, condition.longitude, 0);
         assertEquals("Latitude is not set", 90, condition.latitude, 0);
-        assertNull("Min distance is not set", condition.minDistance);
-        assertEquals("Max distance is not set", "1yd", condition.maxDistance);
+        assertNull("Min distance is not set", condition.minGeoDistance);
+        assertEquals("Max distance is not set", GeoDistance.parse("1yd"), condition.maxGeoDistance);
     }
 
     @Test(expected = IndexException.class)
     public void testConstructorWithNullField() {
-        new GeoDistanceCondition(null, null, 90D, -180D, "1km", "3km");
+        new GeoDistanceCondition(null, null, 90D, -180D, GeoDistance.parse("1km"), GeoDistance.parse("3km"));
     }
 
     @Test(expected = IndexException.class)
     public void testConstructorWithEmptyField() {
-        new GeoDistanceCondition(null, "", 90D, -180D, "1km", "3km");
+        new GeoDistanceCondition(null, "", 90D, -180D, GeoDistance.parse("1km"), GeoDistance.parse("3km"));
     }
 
     @Test(expected = IndexException.class)
     public void testConstructorWithBlankField() {
-        new GeoDistanceCondition(null, " ", 90D, -180D, "1km", "3km");
+        new GeoDistanceCondition(null, " ", 90D, -180D, GeoDistance.parse("1km"), GeoDistance.parse("3km"));
     }
 
     @Test(expected = IndexException.class)
     public void testConstructorWithNullLongitude() {
-        new GeoDistanceCondition(null, "name", 90D, null, "1km", "3km");
+        new GeoDistanceCondition(null, "name", 90D, null, GeoDistance.parse("1km"), GeoDistance.parse("3km"));
     }
 
     @Test(expected = IndexException.class)
     public void testConstructorWithToSmallLongitude() {
-        new GeoDistanceCondition(null, "name", 90D, -181D, "1km", "3km");
+        new GeoDistanceCondition(null, "name", 90D, -181D, GeoDistance.parse("1km"), GeoDistance.parse("3km"));
     }
 
     @Test(expected = IndexException.class)
     public void testConstructorWithToBigLongitude() {
-        new GeoDistanceCondition(null, "name", 90D, 181D, "1km", "3km");
+        new GeoDistanceCondition(null, "name", 90D, 181D, GeoDistance.parse("1km"), GeoDistance.parse("3km"));
     }
 
     @Test(expected = IndexException.class)
     public void testConstructorWithNullLatitude() {
-        new GeoDistanceCondition(null, "name", null, -180D, "1km", "3km");
+        new GeoDistanceCondition(null, "name", null, -180D, GeoDistance.parse("1km"), GeoDistance.parse("3km"));
     }
 
     @Test(expected = IndexException.class)
     public void testConstructorWithTooSmallLatitude() {
-        new GeoDistanceCondition(null, "name", -91D, -180D, "1km", "3km");
+        new GeoDistanceCondition(null, "name", -91D, -180D, GeoDistance.parse("1km"), GeoDistance.parse("3km"));
     }
 
     @Test(expected = IndexException.class)
     public void testConstructorWithTooBigLatitude() {
-        new GeoDistanceCondition(null, "name", 91D, -180D, "1km", "3km");
+        new GeoDistanceCondition(null, "name", 91D, -180D, GeoDistance.parse("1km"), GeoDistance.parse("3km"));
     }
 
     @Test(expected = IndexException.class)
@@ -110,13 +120,18 @@ public class GeoDistanceConditionTest extends AbstractConditionTest {
 
     @Test(expected = IndexException.class)
     public void testConstructorWithMinLongitudeGreaterThanMaxLongitude() {
-        new GeoDistanceCondition(null, "name", 90D, -180D, "10km", "3km");
+        new GeoDistanceCondition(null, "name", 90D, -180D, GeoDistance.parse("10km"), GeoDistance.parse("3km"));
     }
 
     @Test
     public void testQueryMax() {
         Schema schema = schema().mapper("name", geoPointMapper("lat", "lon").maxLevels(8)).build();
-        GeoDistanceCondition condition = new GeoDistanceCondition(0.5f, "name", 90D, -180D, null, "10hm");
+        GeoDistanceCondition condition = new GeoDistanceCondition(0.5f,
+                                                                  "name",
+                                                                  90D,
+                                                                  -180D,
+                                                                  null,
+                                                                  GeoDistance.parse("10hm"));
         Query query = condition.query(schema);
         assertNotNull("Query is not built", query);
         BooleanQuery booleanQuery = (BooleanQuery) query;
@@ -136,13 +151,18 @@ public class GeoDistanceConditionTest extends AbstractConditionTest {
 
     @Test(expected = IndexException.class)
     public void testQueryMin() {
-        new GeoDistanceCondition(0.5f, "name", 90D, -180D, "3km", null);
+        new GeoDistanceCondition(0.5f, "name", 90D, -180D, GeoDistance.parse("3km"), null);
     }
 
     @Test
     public void testQueryMinMax() {
         Schema schema = schema().mapper("name", geoPointMapper("lat", "lon").maxLevels(8)).build();
-        GeoDistanceCondition condition = new GeoDistanceCondition(0.5f, "name", 90D, -180D, "1km", "3km");
+        GeoDistanceCondition condition = new GeoDistanceCondition(0.5f,
+                                                                  "name",
+                                                                  90D,
+                                                                  -180D,
+                                                                  GeoDistance.parse("1km"),
+                                                                  GeoDistance.parse("3km"));
         Query query = condition.query(schema);
         assertNotNull("Query is not built", query);
         assertTrue("Query type is wrong", query instanceof BooleanQuery);
@@ -177,7 +197,7 @@ public class GeoDistanceConditionTest extends AbstractConditionTest {
     @Test(expected = IndexException.class)
     public void testQueryWithoutValidMapper() {
         Schema schema = schema().mapper("name", uuidMapper()).build();
-        Condition condition = new GeoDistanceCondition(0.5f, "name", 90D, -180D, null, "3km");
+        Condition condition = new GeoDistanceCondition(0.5f, "name", 90D, -180D, null, GeoDistance.parse("3km"));
         condition.query(schema);
     }
 
@@ -186,7 +206,9 @@ public class GeoDistanceConditionTest extends AbstractConditionTest {
         GeoDistanceCondition condition = geoDistance("name", -1D, 9, "3km").setMinDistance("1km").boost(0.4f).build();
         assertEquals("Method #toString is wrong",
                      "GeoDistanceCondition{boost=0.4, field=name, " +
-                     "latitude=9.0, longitude=-1.0, minDistance=1km, maxDistance=3km}",
+                     "latitude=9.0, longitude=-1.0, " +
+                     "minGeoDistance=GeoDistance{value=1.0, unit=KILOMETRES}, " +
+                     "maxGeoDistance=GeoDistance{value=3.0, unit=KILOMETRES}}",
                      condition.toString());
     }
 

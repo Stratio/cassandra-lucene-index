@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.2.4.4 (upcoming)
+
+* Added search of points by WKT geographical shapes
+* Fix geo distance parsing of nautical miles
+
 ## 2.2.4.3 (19 February 2016)
 
 * Fixed explicit null values insertion (#94)

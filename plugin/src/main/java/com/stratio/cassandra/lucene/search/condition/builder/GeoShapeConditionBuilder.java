@@ -40,19 +40,47 @@ public class GeoShapeConditionBuilder extends ConditionBuilder<GeoShapeCondition
     @JsonProperty("field")
     private final String field;
 
+    /** The shape in <a href="http://en.wikipedia.org/wiki/Well-known_text"> WKT</a> format. */
     @JsonProperty("shape")
     private final String shape;
 
+    /** The spatial operation to be applied. */
     @JsonProperty("operation")
     private String operation;
 
+    /** The sequence of transformations to be applied to the shape before searching. */
     @JsonProperty("transformations")
     private List<GeoTransformationBuilder> transformations = new ArrayList<>();
 
+    /**
+     * Constructor receiving the name of the field and the shape.
+     * @param field the name of the field
+     * @param shape the shape in <a href="http://en.wikipedia.org/wiki/Well-known_text"> WKT</a> format
+     */
     @JsonCreator
     public GeoShapeConditionBuilder(@JsonProperty("field") String field, @JsonProperty("shape") String shape) {
         this.field = field;
         this.shape = shape;
+    }
+
+    /**
+     * Sets the name of the spatial operation to be performed.
+     * @param operation the name of the spatial operation
+     * @return this with the operation set
+     */
+    public GeoShapeConditionBuilder setOperation(String operation) {
+        this.operation = operation;
+        return this;
+    }
+
+    /**
+     * Sets the transformations to be applied to the shape before using it for searching.
+     * @param transformations the sequence of transformations
+     * @return this with the transformations set
+     */
+    public GeoShapeConditionBuilder setTransformations(List<GeoTransformationBuilder> transformations) {
+        this.transformations = transformations;
+        return this;
     }
 
     /**

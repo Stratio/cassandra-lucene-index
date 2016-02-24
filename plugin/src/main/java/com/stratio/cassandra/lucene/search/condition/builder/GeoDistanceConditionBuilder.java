@@ -18,6 +18,7 @@
 
 package com.stratio.cassandra.lucene.search.condition.builder;
 
+import com.stratio.cassandra.lucene.search.condition.GeoDistance;
 import com.stratio.cassandra.lucene.search.condition.GeoDistanceCondition;
 import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
@@ -86,6 +87,8 @@ public class GeoDistanceConditionBuilder extends ConditionBuilder<GeoDistanceCon
      */
     @Override
     public GeoDistanceCondition build() {
-        return new GeoDistanceCondition(boost, field, latitude, longitude, minDistance, maxDistance);
+        GeoDistance min = minDistance == null ? null : GeoDistance.parse(minDistance);
+        GeoDistance max = maxDistance == null ? null : GeoDistance.parse(maxDistance);
+        return new GeoDistanceCondition(boost, field, latitude, longitude, min, max);
     }
 }
