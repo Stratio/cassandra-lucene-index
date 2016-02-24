@@ -2217,6 +2217,37 @@ where:
 -  **min\_distance** : a string value being the min allowed distance
    from the reference point.
 
+
+**min\_distance** and **max\_distance** are string values composed by a double and distance units. These are the available options for distance units. The default distance unit is metre
+
++------------+----------------+
+|    Value   |      Units     |
++============+================+
+|         mm |    millimetres |
++------------+----------------+
+|         cm |    centimetres |
++------------+----------------+
+|         dm |     decimetres |
++------------+----------------+
+|        dam |     decametres |
++------------+----------------+
+|         hm |    hectometres |
++------------+----------------+
+|         km |     kilometres |
++------------+----------------+
+|         ft |          foots |
++------------+----------------+
+|         yd |          yards |
++------------+----------------+
+|         in |         inches |
++------------+----------------+
+|         mi |          miles |
++------------+----------------+
+|          m |         metres |
++------------+----------------+
+| M, NM, mil | nautical_miles |
++------------+----------------+
+
 Example 1: will return any rows where “place” is within one kilometer
 from the geo point (40.225479, -3.999278).
 
