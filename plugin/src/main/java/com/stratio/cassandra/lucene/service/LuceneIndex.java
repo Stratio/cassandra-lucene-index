@@ -324,7 +324,6 @@ public class LuceneIndex implements LuceneIndexMBean {
     @Override
     public void refresh() throws IOException {
         logger.debug("{} refreshing index searcher", name);
-        commit();
         searcherManager.maybeRefreshBlocking();
     }
 }
