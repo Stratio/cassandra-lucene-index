@@ -2245,7 +2245,7 @@ where:
 +------------+----------------+
 |          m |         metres |
 +------------+----------------+
-| M, NM, mil | nautical_miles |
+| M, NM, mil | nautical miles |
 +------------+----------------+
 
 Example 1: will return any rows where “place” is within one kilometer
