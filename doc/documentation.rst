@@ -2215,33 +2215,37 @@ where:
 
 **min\_distance** and **max\_distance** are string values composed by a double and distance units. These are the available options for distance units. The default distance unit is metre
 
-+------------+----------------+
-|    Value   |      Units     |
-+============+================+
-|         mm |    millimetres |
-+------------+----------------+
-|         cm |    centimetres |
-+------------+----------------+
-|         dm |     decimetres |
-+------------+----------------+
-|        dam |     decametres |
-+------------+----------------+
-|         hm |    hectometres |
-+------------+----------------+
-|         km |     kilometres |
-+------------+----------------+
-|         ft |          foots |
-+------------+----------------+
-|         yd |          yards |
-+------------+----------------+
-|         in |         inches |
-+------------+----------------+
-|         mi |          miles |
-+------------+----------------+
-|          m |         metres |
-+------------+----------------+
-| M, NM, mil | nautical miles |
-+------------+----------------+
++------------+---------------+
+|    Value   |     Units     |
++============+===============+
+|         mm |    millimetre |
++------------+---------------+
+|         cm |    centimetre |
++------------+---------------+
+|         dm |     decimetre |
++------------+---------------+
+|        dam |     decametre |
++------------+---------------+
+|         hm |    hectometre |
++------------+---------------+
+|         km |     kilometre |
++------------+---------------+
+|         ft |          foot |
++------------+---------------+
+|         yd |          yard |
++------------+---------------+
+|         in |         inche |
++------------+---------------+
+|         mi |          mile |
++------------+---------------+
+|          m |         metre |
++------------+---------------+
+| M, NM, mil | nautical mile |
++------------+---------------+
+
+This query internally converts distance units to degrees using the spherical distance algorithm
+considering the earth a perfect sphere with a radius of 6371.0087714 km.
+
 
 Example 1: will return any rows where “place” is within one kilometer
 from the geo point (40.225479, -3.999278).
