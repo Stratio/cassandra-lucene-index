@@ -123,8 +123,7 @@ We will create the following table to store tweets:
         longitude FLOAT
     );
 
-We have created a column called *lucene* to link the index searches. This column will not store data. Now you can create
-a custom Lucene index on it with the following statement:
+Now you can create a custom Lucene index on it with the following statement:
 
 .. code-block:: sql
 
