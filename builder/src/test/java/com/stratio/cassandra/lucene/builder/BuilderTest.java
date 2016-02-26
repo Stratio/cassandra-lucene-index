@@ -18,6 +18,8 @@
 
 package com.stratio.cassandra.lucene.builder;
 
+import com.stratio.cassandra.lucene.builder.search.condition.transformations.Buffer;
+import com.stratio.cassandra.lucene.builder.search.condition.transformations.Copy;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Test;
 
@@ -584,6 +586,21 @@ public class BuilderTest {
         String expected = "{\"type\":\"geo_distance\",\"field\":\"field\",\"latitude\":2.0,\"longitude\":1.0," +
                           "\"max_distance\":\"1km\",\"boost\":0.5,\"min_distance\":\"500m\"}";
         assertEquals("geo distance condition serialization is wrong", expected, actual);
+    }
+
+    @Test
+    public void testGeoShapeConditionDefaults() {
+        String actual= geoShape("field","shape").build();
+        String expected= "{\"type\":\"geo_shape\",\"field\":\"field\",\"shape\":\"shape\",\"transformations\":[]}";
+        assertEquals("geo shape condition serialization is wrong", expected, actual);
+    }
+
+    @Test
+    public void testGeoShapeConditionFull() {
+        String actual= geoShape("field","shape").operation("intersects").transformations(new Copy(), new Buffer("2m")).build();
+        String expected= "{\"type\":\"geo_shape\",\"field\":\"field\",\"shape\":\"shape\",\"operation\":\"intersects\",\"transformations\":[{\"type\":\"copy\"},{\"type\":\"buffer\",\"max_distance\":\"2m\"}]}";
+        assertEquals("geo shape condition serialization is wrong", expected, actual);
+
     }
 
     @Test
