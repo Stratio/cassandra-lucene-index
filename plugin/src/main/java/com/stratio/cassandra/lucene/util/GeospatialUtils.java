@@ -55,7 +55,7 @@ public class GeospatialUtils {
             WKTReader reader = new WKTReader(geometryFactory);
             Geometry geometry = reader.read(string);
             return context.makeShape(geometry);
-        } catch (ParseException e) {
+        } catch (ParseException | IllegalArgumentException e) {
             throw new IndexException(e, "Shape '%s' is not parseable", string);
         }
     }
