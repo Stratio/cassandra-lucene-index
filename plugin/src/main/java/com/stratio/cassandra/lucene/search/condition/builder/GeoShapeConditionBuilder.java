@@ -54,6 +54,7 @@ public class GeoShapeConditionBuilder extends ConditionBuilder<GeoShapeCondition
 
     /**
      * Constructor receiving the name of the field and the shape.
+     *
      * @param field the name of the field
      * @param shape the shape in <a href="http://en.wikipedia.org/wiki/Well-known_text"> WKT</a> format
      */
@@ -65,6 +66,7 @@ public class GeoShapeConditionBuilder extends ConditionBuilder<GeoShapeCondition
 
     /**
      * Sets the name of the spatial operation to be performed.
+     *
      * @param operation the name of the spatial operation
      * @return this with the operation set
      */
@@ -75,6 +77,7 @@ public class GeoShapeConditionBuilder extends ConditionBuilder<GeoShapeCondition
 
     /**
      * Sets the transformations to be applied to the shape before using it for searching.
+     *
      * @param transformations the sequence of transformations
      * @return this with the transformations set
      */
@@ -92,8 +95,10 @@ public class GeoShapeConditionBuilder extends ConditionBuilder<GeoShapeCondition
     public GeoShapeCondition build() {
         GeoOperation geoOperation = StringUtils.isBlank(operation) ? null : GeoOperation.parse(operation);
         List<GeoTransformation> transformations = new ArrayList<>();
-        for (GeoTransformationBuilder builder : this.transformations) {
-            transformations.add(builder.build());
+        if (this.transformations != null) {
+            for (GeoTransformationBuilder builder : this.transformations) {
+                transformations.add(builder.build());
+            }
         }
         return new GeoShapeCondition(boost, field, shape, geoOperation, transformations);
     }

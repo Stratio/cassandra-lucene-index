@@ -88,7 +88,7 @@ public class GeoShapeCondition extends SingleMapperCondition<GeoPointMapper> {
      * @param string the WKT text
      * @return the parsed geometry
      */
-    private static JtsGeometry geometryFromWKT(String string) {
+    protected static JtsGeometry geometryFromWKT(String string) {
         if (StringUtils.isBlank(string)) {
             throw new IndexException("Shape shouldn't be blank");
         }
