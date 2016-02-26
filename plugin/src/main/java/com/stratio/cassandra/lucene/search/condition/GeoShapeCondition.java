@@ -19,17 +19,17 @@
 package com.stratio.cassandra.lucene.search.condition;
 
 import com.spatial4j.core.context.jts.JtsSpatialContext;
-import com.spatial4j.core.shape.Shape;
 import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.stratio.cassandra.lucene.IndexException;
+import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.GeoPointMapper;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.lucene.analysis.Analyzer;
+import com.stratio.cassandra.lucene.schema.mapping.GeoShapeMapper;
+import com.stratio.cassandra.lucene.schema.mapping.Mapper;
+import com.stratio.cassandra.lucene.util.GeospatialUtils;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.spatial.SpatialStrategy;
 import org.apache.lucene.spatial.query.SpatialArgs;
 
-import java.text.ParseException;
 import java.util.Collections;
 import java.util.List;
 
@@ -40,9 +40,16 @@ import java.util.List;
  * The shapes are defined using the <a href="http://en.wikipedia.org/wiki/Well-known_text"> Well Known Text (WKT)</a>
  * format.
  *
+ * This class depends on <a href="http://www.vividsolutions.com/jts">Java Topology Suite (JTS)</a>. This library can't
+ * be distributed together with this project due to license compatibility problems, but you can add it by putting <a
+ * href="http://search.maven.org/remotecontent?filepath=com/vividsolutions/jts-core/1.14.0/jts-core-1.14.0.jar">jts-core-1.14.0.jar</a>
+ * into Cassandra lib directory.
+ *
+ * Pole wrapping is not supported.
+ *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class GeoShapeCondition extends SingleMapperCondition<GeoPointMapper> {
+public class GeoShapeCondition extends SingleFieldCondition {
 
     /** The default spatial operation. */
     public static final GeoOperation DEFAULT_OPERATION = GeoOperation.IS_WITHIN;
@@ -76,43 +83,35 @@ public class GeoShapeCondition extends SingleMapperCondition<GeoPointMapper> {
                              String shape,
                              GeoOperation operation,
                              List<GeoTransformation> transformations) {
-        super(boost, field, GeoPointMapper.class);
-        this.geometry = geometryFromWKT(shape);
+        super(boost, field);
+        this.geometry = GeospatialUtils.geometryFromWKT(CONTEXT, shape);
         this.operation = operation == null ? DEFAULT_OPERATION : operation;
         this.transformations = (transformations == null) ? Collections.<GeoTransformation>emptyList() : transformations;
     }
 
-    /**
-     * Returns the {@link JtsGeometry} represented by the specified WKT text.
-     *
-     * @param string the WKT text
-     * @return the parsed geometry
-     */
-    private static JtsGeometry geometryFromWKT(String string) {
-        if (StringUtils.isBlank(string)) {
-            throw new IndexException("Shape shouldn't be blank");
-        }
-        try {
-            Shape shape = CONTEXT.getWktShapeParser().parse(string);
-            return CONTEXT.makeShape(CONTEXT.getGeometryFrom(shape));
-        } catch (ParseException e) {
-            throw new IndexException(e, "Shape '%s' is not parseable", string);
-        }
-    }
-
     /** {@inheritDoc} */
     @Override
-    public Query query(GeoPointMapper mapper, Analyzer analyzer) {
+    public Query query(Schema schema) {
 
-        SpatialStrategy strategy = mapper.distanceStrategy;
+        // Get the spatial strategy from the mapper
+        SpatialStrategy strategy;
+        Mapper mapper = schema.getMapper(field);
+        if (mapper == null) {
+            throw new IndexException("No mapper found for field '%s'", field);
+        } else if (mapper instanceof GeoShapeMapper) {
+            strategy = ((GeoShapeMapper) mapper).strategy;
+        } else if(mapper instanceof GeoPointMapper) {
+            strategy = ((GeoPointMapper) mapper).distanceStrategy;
+        } else {
+            throw new IndexException("'geo_shape' search requires a mapper of type 'geo_point' or 'geo_shape' " +
+                                     "but found %s:%s", field, mapper);
+        }
 
         // Apply transformations
-        logger.debug("INITIAL SHAPE: {}", geometry);
         JtsGeometry transformedGeometry = geometry;
         if (transformations != null) {
             for (GeoTransformation transformation : transformations) {
                 transformedGeometry = transformation.apply(transformedGeometry, CONTEXT);
-                logger.debug("TRANSFORMED TO: {}", transformedGeometry);
             }
         }
 

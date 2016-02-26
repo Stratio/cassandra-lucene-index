@@ -32,7 +32,7 @@ import org.apache.lucene.util.NumericUtils;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class DoubleMapper extends SingleColumnMapper<Double> {
+public class DoubleMapper extends SingleColumnMapper.SingleFieldMapper<Double> {
 
     /** The default boost. */
     public static final float DEFAULT_BOOST = 1.0f;

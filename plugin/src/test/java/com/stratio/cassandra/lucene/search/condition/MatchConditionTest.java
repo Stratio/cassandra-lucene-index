@@ -263,7 +263,7 @@ public class MatchConditionTest extends AbstractConditionTest {
         matchCondition.query(schema);
     }
 
-    private class MockedMapper extends SingleColumnMapper<UUID> {
+    private class MockedMapper extends SingleColumnMapper.SingleFieldMapper<UUID> {
 
         MockedMapper() {
             super("field", null, null, null, true, null, UUID.class, UUIDType.instance);

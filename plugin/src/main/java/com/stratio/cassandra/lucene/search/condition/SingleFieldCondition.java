@@ -27,13 +27,12 @@ import org.apache.commons.lang3.StringUtils;
  *
  * Known subclasses are: <ul> <li> {@link FuzzyCondition} <li> {@link MatchCondition} <li> {@link PhraseCondition} <li>
  * {@link PrefixCondition} <li> {@link RangeCondition} <li> {@link WildcardCondition} <li> {@link BitemporalCondition}
- * <li> {@link DateRangeCondition} <li> {@link GeoDistanceCondition} <li> {@link GeoBBoxCondition} </ul>
+ * <li> {@link DateRangeCondition} <li> {@link GeoDistanceCondition} <li> {@link GeoBBoxCondition} <li> {@link
+ * GeoShapeCondition} </ul>
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public abstract class SingleFieldCondition extends Condition {
-
-
 
     /** The name of the field to be matched. */
     public final String field;
@@ -42,7 +41,7 @@ public abstract class SingleFieldCondition extends Condition {
      * Abstract {@link SingleFieldCondition} builder receiving the boost to be used.
      *
      * @param boost The boost for this query clause. Documents matching this clause will (in addition to the normal
-     *              weightings) have their score multiplied by {@code boost}.
+     * weightings) have their score multiplied by {@code boost}.
      * @param field The name of the field to be matched.
      */
     public SingleFieldCondition(Float boost, String field) {
