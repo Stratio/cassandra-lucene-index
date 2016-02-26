@@ -18,6 +18,7 @@
 
 package com.stratio.cassandra.lucene.search.condition;
 
+import com.google.common.base.Objects;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.vividsolutions.jts.geom.Geometry;
@@ -96,6 +97,14 @@ public interface GeoTransformation {
                 return context.makeShape(difference);
             }
             return max;
+        }
+
+        @Override
+        public String toString() {
+            return Objects.toStringHelper(this)
+                          .add("maxDistance", maxDistance)
+                          .add("minDistance", minDistance)
+                          .toString();
         }
     }
 }
