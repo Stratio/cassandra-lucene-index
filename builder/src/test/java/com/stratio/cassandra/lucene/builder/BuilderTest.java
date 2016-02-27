@@ -433,8 +433,12 @@ public class BuilderTest {
 
     @Test
     public void testFuzzyConditionFull() {
-        String actual = fuzzy("field", "value").maxEdits(1).maxExpansions(2).prefixLength(3).transpositions(true).boost(
-                2).build();
+        String actual = fuzzy("field", "value").maxEdits(1)
+                                               .maxExpansions(2)
+                                               .prefixLength(3)
+                                               .transpositions(true)
+                                               .boost(2)
+                                               .build();
         String expected = "{\"type\":\"fuzzy\",\"field\":\"field\",\"value\":\"value\",\"boost\":2.0," +
                           "\"transpositions\":true,\"max_edits\":1,\"prefix_length\":3,\"max_expansions\":2}";
         assertEquals("fuzzy condition serialization is wrong", expected, actual);
@@ -587,6 +591,28 @@ public class BuilderTest {
     }
 
     @Test
+    public void testGeoShapeConditionDefaults() {
+        String actual = geoShape("field", "shape").build();
+        String expected = "{\"type\":\"geo_shape\",\"field\":\"field\",\"shape\":\"shape\",\"transformations\":[]}";
+        assertEquals("geo shape condition serialization is wrong", expected, actual);
+    }
+
+    @Test
+    public void testGeoShapeConditionFull() {
+        String actual = geoShape("field", "shape").operation("intersects")
+                                                  .transform(bufferTransformation().maxDistance("2km"),
+                                                             bufferTransformation().minDistance("1km"),
+                                                             bufferTransformation().maxDistance("10km")
+                                                                                   .minDistance("5km"))
+                                                  .build();
+        String expected = "{\"type\":\"geo_shape\",\"field\":\"field\",\"shape\":\"shape\"," +
+                          "\"operation\":\"intersects\",\"transformations\":[{\"type\":\"buffer\"," +
+                          "\"max_distance\":\"2km\"},{\"type\":\"buffer\",\"min_distance\":\"1km\"}," +
+                          "{\"type\":\"buffer\",\"max_distance\":\"10km\",\"min_distance\":\"5km\"}]}";
+        assertEquals("geo shape condition serialization is wrong", expected, actual);
+    }
+
+    @Test
     public void testSimpleSortFieldDefaults() {
         String actual = field("field1").build();
         String expected = "{\"type\":\"simple\",\"field\":\"field1\"}";
@@ -610,7 +636,9 @@ public class BuilderTest {
     @Test
     public void testGeoDistanceSortFieldFull() {
         String actual = geoDistanceSortField("field1", 0.0, 0.0).reverse(true).build();
-        String expected = "{\"type\":\"geo_distance\",\"mapper\":\"field1\",\"longitude\":0.0,\"latitude\":0.0,\"reverse\":true}";
+        String
+                expected
+                = "{\"type\":\"geo_distance\",\"mapper\":\"field1\",\"longitude\":0.0,\"latitude\":0.0,\"reverse\":true}";
         assertEquals("sort field condition serialization is wrong", expected, actual);
     }
 
@@ -623,9 +651,12 @@ public class BuilderTest {
 
     @Test
     public void testSortFull() {
-        String actual = search().sort(field("field1"), field("field2"),
+        String actual = search().sort(field("field1"),
+                                      field("field2"),
                                       geoDistanceSortField("field1", 0.0, 0.0).reverse(true)).build();
-        String expected = "{\"sort\":{\"fields\":[{\"type\":\"simple\",\"field\":\"field1\"},{\"type\":\"simple\",\"field\":\"field2\"},{\"type\":\"geo_distance\",\"mapper\":\"field1\",\"longitude\":0.0,\"latitude\":0.0,\"reverse\":true}]}}";
+        String
+                expected
+                = "{\"sort\":{\"fields\":[{\"type\":\"simple\",\"field\":\"field1\"},{\"type\":\"simple\",\"field\":\"field2\"},{\"type\":\"geo_distance\",\"mapper\":\"field1\",\"longitude\":0.0,\"latitude\":0.0,\"reverse\":true}]}}";
         assertEquals("sort condition serialization is wrong", expected, actual);
     }
 

@@ -459,6 +459,28 @@ public abstract class Builder {
     }
 
     /**
+     * Returns a new {@link GeoShapeCondition} with the specified field reference point.
+     *
+     * /** Constructor receiving the name of the field and the shape.
+     *
+     * @param field the name of the field
+     * @param shape the shape in <a href="http://en.wikipedia.org/wiki/Well-known_text"> WKT</a> format
+     * @return A new {@link GeoShapeCondition}.
+     */
+    public static GeoShapeCondition geoShape(String field, String shape) {
+        return new GeoShapeCondition(field, shape);
+    }
+
+    /**
+     * Returns a new {@link GeoTransformation.Buffer}.
+     *
+     * @return the buffer transformation
+     */
+    public static GeoTransformation.Buffer bufferTransformation() {
+        return new GeoTransformation.Buffer();
+    }
+
+    /**
      * Returns a new {@link DateRangeCondition} with the specified field reference point.
      *
      * @param field The name of the field to be matched.
