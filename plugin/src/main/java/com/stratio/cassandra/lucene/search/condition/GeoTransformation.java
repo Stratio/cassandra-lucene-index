@@ -41,24 +41,6 @@ public interface GeoTransformation {
     JtsGeometry apply(JtsGeometry shape, JtsSpatialContext context);
 
     /**
-     * {@link GeoTransformation} for getting copying of a JTS geographical shape.
-     */
-    class Copy implements GeoTransformation {
-
-        /**
-         * Returns a copy of the specified {@link JtsGeometry}.
-         *
-         * @param shape the JTS shape to be copied
-         * @param context the JTS spatial context to be used
-         * @return the copy of the JTS shape
-         */
-        @Override
-        public JtsGeometry apply(JtsGeometry shape, JtsSpatialContext context) {
-            return context.makeShape(shape.getGeom());
-        }
-    }
-
-    /**
      * {@link GeoTransformation} for getting the bounding shape of a JTS geographical shape.
      */
     class Buffer implements GeoTransformation {

@@ -43,7 +43,6 @@ public class GeoShapeMapperBuilder extends MapperBuilder<GeoShapeMapper, GeoShap
      * @param column The name of the Cassandra column to be mapped.
      * @return This.
      */
-    @SuppressWarnings("unchecked")
     public final GeoShapeMapperBuilder column(String column) {
         this.column = column;
         return this;

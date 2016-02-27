@@ -29,24 +29,10 @@ import org.slf4j.LoggerFactory;
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
-@JsonSubTypes({@JsonSubTypes.Type(value = GeoTransformationBuilder.Buffer.class, name = "buffer"),
-               @JsonSubTypes.Type(value = GeoTransformationBuilder.Copy.class, name = "copy")})
+@JsonSubTypes({@JsonSubTypes.Type(value = GeoTransformationBuilder.Buffer.class, name = "buffer")})
 public interface GeoTransformationBuilder<T extends GeoTransformation> {
 
     T build();
-
-    @JsonTypeName("identity")
-    final class Copy implements GeoTransformationBuilder<GeoTransformation.Copy> {
-
-        @JsonCreator
-        public Copy() {
-        }
-
-        @Override
-        public GeoTransformation.Copy build() {
-            return new GeoTransformation.Copy();
-        }
-    }
 
     @JsonTypeName("clipper")
     final class Buffer implements GeoTransformationBuilder<GeoTransformation.Buffer> {

@@ -39,16 +39,6 @@ public class GeoTransformationTest extends AbstractConditionTest {
     }
 
     @Test
-    public void testCopyTransformation() {
-        GeoTransformation transformation = new GeoTransformation.Copy();
-        JtsGeometry geometry = geometry("POLYGON((1 1,5 1,5 5,1 5,1 1),(2 2, 3 2, 3 3, 2 3,2 2))");
-        JtsGeometry transformedGeometry = transformation.apply(geometry, GeoShapeCondition.CONTEXT);
-        assertEquals("Applied CopyTransformation to a geometry must return a equals JTSGeometry",
-                     geometry,
-                     transformedGeometry);
-    }
-
-    @Test
     public void testBufferTransformationWithNullMaxDistance() {
         GeoDistance minDistance = GeoDistance.parse("1m");
 

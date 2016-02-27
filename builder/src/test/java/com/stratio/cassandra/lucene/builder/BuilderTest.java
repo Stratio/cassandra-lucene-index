@@ -247,6 +247,20 @@ public class BuilderTest {
     }
 
     @Test
+    public void testGeoShapeMapperDefaults() {
+        String actual = geoShapeMapper().build();
+        String expected = "{\"type\":\"geo_shape\"}";
+        assertEquals("geo shape mapper serialization is wrong", expected, actual);
+    }
+
+    @Test
+    public void testGeoShapeMapperFull() {
+        String actual = geoShapeMapper().column("shape").maxLevels(7).build();
+        String expected = "{\"type\":\"geo_shape\",\"column\":\"shape\",\"max_levels\":7}";
+        assertEquals("geo shape mapper serialization is wrong", expected, actual);
+    }
+
+    @Test
     public void testInetMapperDefaults() {
         String actual = inetMapper().build();
         String expected = "{\"type\":\"inet\"}";
@@ -734,7 +748,8 @@ public class BuilderTest {
                                 .build();
         String expected = "{\"query\":{\"type\":\"phrase\",\"field\":\"message\",\"value\":\"cassandra rules\"}," +
                           "\"filter\":{\"type\":\"match\",\"field\":\"user\",\"value\":\"adelapena\"}," +
-                          "\"sort\":{\"fields\":[{\"type\":\"simple\",\"field\":\"date\",\"reverse\":true}]},\"refresh\":true}";
+                          "\"sort\":{\"fields\":[{\"type\":\"simple\",\"field\":\"date\",\"reverse\":true}]}," +
+                          "\"refresh\":true}";
         assertEquals("search serialization is wrong", expected, actual);
     }
 

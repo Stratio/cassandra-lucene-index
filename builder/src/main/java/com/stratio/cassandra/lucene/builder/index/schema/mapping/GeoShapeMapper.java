@@ -18,7 +18,6 @@
 
 package com.stratio.cassandra.lucene.builder.index.schema.mapping;
 
-import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
@@ -28,69 +27,33 @@ import org.codehaus.jackson.annotate.JsonProperty;
  */
 public class GeoShapeMapper extends Mapper<GeoShapeMapper> {
 
-    /** The name of the column containing the latitude. */
-    @JsonProperty("latitude")
-    final String latitude;
-
-    /** The name of the column containing the longitude. */
-    @JsonProperty("longitude")
-    final String longitude;
+    /** The name of the column to be mapped. */
+    @JsonProperty("column")
+    private String column;
 
     /** The maximum number of levels in the tree. */
     @JsonProperty("max_levels")
-    Integer maxLevels;
-
-    /** The name of the column containing the longitude. */
-    @JsonProperty("indexed")
-    Boolean indexed;
-
-    /** The maximum number of levels in the tree. */
-    @JsonProperty("sorted")
-    Boolean sorted;
+    private Integer maxLevels;
 
     /**
-     * Builds a new {@code GeoPointMapper}.
+     * Sets the name of the Cassandra column to be mapped.
      *
-     * @param latitude  The name of the column containing the latitude.
-     * @param longitude The name of the column containing the longitude.
+     * @param column the name of the Cassandra column to be mapped
+     * @return This.
      */
-    @JsonCreator
-    public GeoShapeMapper(@JsonProperty("latitude") String latitude,
-                          @JsonProperty("longitude") String longitude) {
-        this.latitude = latitude;
-        this.longitude = longitude;
+    public final GeoShapeMapper column(String column) {
+        this.column = column;
+        return this;
     }
 
     /**
      * Sets the maximum number of levels in the tree.
      *
-     * @param maxLevels The maximum number of levels in the tree.
+     * @param maxLevels the maximum number of levels in the tree
      * @return This
      */
     public GeoShapeMapper maxLevels(Integer maxLevels) {
         this.maxLevels = maxLevels;
-        return this;
-    }
-
-    /**
-     * Sets if the field supports searching.
-     *
-     * @param indexed if the field supports searching.
-     * @return This.
-     */
-    public final GeoShapeMapper indexed(Boolean indexed) {
-        this.indexed = indexed;
-        return this;
-    }
-
-    /**
-     * Sets if the field supports sorting.
-     *
-     * @param sorted if the field supports sorting.
-     * @return This.
-     */
-    public final GeoShapeMapper sorted(Boolean sorted) {
-        this.sorted = sorted;
         return this;
     }
 }
