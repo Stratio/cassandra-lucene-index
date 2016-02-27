@@ -2,9 +2,10 @@
 
 ## 2.2.4.4 (upcoming)
 
-* Added indexing of WKT formatted geographical shapes (point, linestring, polygon and its multipart)
-* Added search by WKT formatted geographical shapes (point, linestring, polygon and its multipart)
-* Added search-time transformations of geographical shapes
+* Add indexing of WKT geographical shapes (point, linestring, polygon and their multipart)
+* Add search by WKT geographical shapes (point, linestring, polygon and their multipart)
+* Add API for search-time transformation of WKT geographical shapes
+* Add transformation for getting the buffer around a geographical shape
 * Fix geo distance parsing of nautical miles
 
 ## 2.2.4.3 (19 February 2016)
