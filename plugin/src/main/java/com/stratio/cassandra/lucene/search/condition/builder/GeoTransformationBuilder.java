@@ -41,15 +41,21 @@ public interface GeoTransformationBuilder<T extends GeoTransformation> {
 
         /** The max allowed distance. */
         @JsonProperty("max_distance")
-        private final String maxDistance;
+        private String maxDistance;
 
         /** The min allowed distance. */
         @JsonProperty("min_distance")
         private String minDistance;
 
-        @JsonCreator
-        public Buffer(@JsonProperty("max_distance") String maxDistance) {
+        /**
+         * Sets the max allowed distance.
+         *
+         * @param maxDistance the max distance
+         * @return this with the specified max distance
+         */
+        public Buffer setMaxDistance(String maxDistance) {
             this.maxDistance = maxDistance;
+            return this;
         }
 
         /**
