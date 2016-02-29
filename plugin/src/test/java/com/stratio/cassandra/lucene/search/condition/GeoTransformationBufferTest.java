@@ -21,16 +21,22 @@ package com.stratio.cassandra.lucene.search.condition;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.stratio.cassandra.lucene.schema.mapping.GeoShapeMapper;
+import com.stratio.cassandra.lucene.search.condition.builder.GeoTransformationBuilder;
 import com.stratio.cassandra.lucene.util.GeospatialUtils;
+import com.stratio.cassandra.lucene.util.JsonSerializer;
 import com.vividsolutions.jts.geom.Geometry;
 import org.junit.Test;
+
+import java.io.IOException;
 
 import static junit.framework.Assert.assertEquals;
 
 /**
+ * Unit tests for {@link GeoTransformation.Buffer}.
+ *
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
-public class GeoTransformationTest extends AbstractConditionTest {
+public class GeoTransformationBufferTest extends AbstractConditionTest {
 
     private static final JtsSpatialContext CONTEXT = GeoShapeMapper.SPATIAL_CONTEXT;
 
@@ -153,10 +159,22 @@ public class GeoTransformationTest extends AbstractConditionTest {
         GeoDistance minDistance = GeoDistance.parse("-1m");
         GeoDistance maxDistance = GeoDistance.parse("-2m");
         GeoTransformation transformation = new GeoTransformation.Buffer(maxDistance, minDistance);
-        assertEquals("Failed GeoTransformation.toString ",
+        assertEquals("Failed GeoTransformation.Buffer.toString ",
                      "Buffer{maxDistance=GeoDistance{value=-2.0, unit=METRES}, " +
                      "minDistance=GeoDistance{value=-1.0, unit=METRES}}",
                      transformation.toString());
+    }
+
+    @Test
+    public void testBufferTransformationBuilder() throws IOException {
+        GeoTransformationBuilder builder = new GeoTransformationBuilder.Buffer().maxDistance("1km").minDistance("10m");
+        String json = JsonSerializer.toString(builder);
+        assertEquals("JSON serialization is wrong", "{type:\"buffer\",max_distance:\"1km\",min_distance:\"10m\"}", json);
+        builder = JsonSerializer.fromString(json, GeoTransformationBuilder.Buffer.class);
+        assertEquals("JSON parsing is wrong ",
+                     "Buffer{maxDistance=GeoDistance{value=1.0, unit=KILOMETRES}, " +
+                     "minDistance=GeoDistance{value=10.0, unit=METRES}}",
+                     builder.build().toString());
     }
 
 }

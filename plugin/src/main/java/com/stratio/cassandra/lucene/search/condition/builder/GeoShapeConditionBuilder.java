@@ -96,7 +96,7 @@ public class GeoShapeConditionBuilder extends ConditionBuilder<GeoShapeCondition
         GeoOperation geoOperation = StringUtils.isBlank(operation) ? null : GeoOperation.parse(operation);
         List<GeoTransformation> transformations = new ArrayList<>();
         if (this.transformations != null) {
-            for (GeoTransformationBuilder builder : this.transformations) {
+            for (GeoTransformationBuilder<?> builder : this.transformations) {
                 transformations.add(builder.build());
             }
         }

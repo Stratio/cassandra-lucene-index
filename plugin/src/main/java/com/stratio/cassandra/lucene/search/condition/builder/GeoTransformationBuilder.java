@@ -20,10 +20,9 @@ package com.stratio.cassandra.lucene.search.condition.builder;
 
 import com.stratio.cassandra.lucene.search.condition.GeoDistance;
 import com.stratio.cassandra.lucene.search.condition.GeoTransformation;
+import com.stratio.cassandra.lucene.util.Builder;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.annotate.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Builder for geospatial transformations.
@@ -35,17 +34,13 @@ import org.slf4j.LoggerFactory;
                @JsonSubTypes.Type(value = GeoTransformationBuilder.Difference.class, name = "difference"),
                @JsonSubTypes.Type(value = GeoTransformationBuilder.Intersection.class, name = "intersection"),
                @JsonSubTypes.Type(value = GeoTransformationBuilder.Union.class, name = "union")})
-public interface GeoTransformationBuilder<T extends GeoTransformation> {
-
-    T build();
+public interface GeoTransformationBuilder<T extends GeoTransformation> extends Builder<T> {
 
     /**
      * {@link GeoTransformation} that gets the buffer around a JTS geographical shape.
      */
     @JsonTypeName("buffer")
-    final class Buffer implements GeoTransformationBuilder<GeoTransformation.Buffer> {
-
-        protected static final Logger logger = LoggerFactory.getLogger(GeoTransformationBuilder.class);
+    class Buffer implements GeoTransformationBuilder<GeoTransformation.Buffer> {
 
         /** The max allowed distance. */
         @JsonProperty("max_distance")
@@ -54,6 +49,28 @@ public interface GeoTransformationBuilder<T extends GeoTransformation> {
         /** The min allowed distance. */
         @JsonProperty("min_distance")
         public String minDistance;
+
+        /**
+         * Sets the max allowed distance.
+         *
+         * @param maxDistance the min distance
+         * @return this with the specified min distance
+         */
+        public Buffer maxDistance(String maxDistance) {
+            this.maxDistance = maxDistance;
+            return this;
+        }
+
+        /**
+         * Sets the min allowed distance.
+         *
+         * @param minDistance the min distance
+         * @return this with the specified min distance
+         */
+        public Buffer minDistance(String minDistance) {
+            this.minDistance = minDistance;
+            return this;
+        }
 
         /** {@inheritDoc} */
         @Override
@@ -69,7 +86,7 @@ public interface GeoTransformationBuilder<T extends GeoTransformation> {
      * {@link GeoTransformation} that gets the difference of two JTS geographical shapes.
      */
     @JsonTypeName("difference")
-    final class Difference implements GeoTransformationBuilder<GeoTransformation.Difference> {
+    class Difference implements GeoTransformationBuilder<GeoTransformation.Difference> {
 
         /** The other shape. */
         @JsonProperty("shape")
@@ -97,7 +114,7 @@ public interface GeoTransformationBuilder<T extends GeoTransformation> {
      * {@link GeoTransformation} that gets the intersection of two JTS geographical shapes.
      */
     @JsonTypeName("intersection")
-    final class Intersection implements GeoTransformationBuilder<GeoTransformation.Intersection> {
+    class Intersection implements GeoTransformationBuilder<GeoTransformation.Intersection> {
 
         /** The other shape. */
         @JsonProperty("shape")
@@ -125,7 +142,7 @@ public interface GeoTransformationBuilder<T extends GeoTransformation> {
      * {@link GeoTransformation} that gets the union of two JTS geographical shapes.
      */
     @JsonTypeName("union")
-    final class Union implements GeoTransformationBuilder<GeoTransformation.Union> {
+    class Union implements GeoTransformationBuilder<GeoTransformation.Union> {
 
         /** The other shape. */
         @JsonProperty("shape")
