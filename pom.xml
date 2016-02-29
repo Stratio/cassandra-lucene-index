@@ -38,7 +38,6 @@
 
     <modules>
         <module>builder</module>
-        <module>doc</module>
         <module>plugin</module>
     </modules>
 

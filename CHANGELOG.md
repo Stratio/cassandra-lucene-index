@@ -10,6 +10,7 @@
 * Add transformation for getting the intersection between two geographical shapes
 * Add transformation for getting the union between two geographical shapes
 * Fix geo distance parsing of nautical miles
+* Remove Sphinx documentation module
 
 ## 2.2.4.3 (19 February 2016)
 
