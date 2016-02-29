@@ -207,6 +207,21 @@ public class CassandraUtilsSelect {
         return parent;
     }
 
+    public CassandraUtils checkStringColumnWithoutOrder(String name, String... expected) {
+        List<Row> rows = get();
+        assertEquals(String.format("Expected %d results!", expected.length), expected.length, rows.size());
+        String[] actual = new String[expected.length];
+        for (int i = 0; i < expected.length; i++) {
+            actual[i] = rows.get(i).getString(name);
+        }
+        Arrays.sort(expected);
+        Arrays.sort(actual);
+        assertArrayEquals(String.format("Expected %s but found %s", Arrays.toString(expected), Arrays.toString(actual)),
+                          expected,
+                          actual);
+        return parent;
+    }
+
     public Integer[] intColumn(String name) {
         List<Row> rows = get();
         Integer[] values = new Integer[rows.size()];

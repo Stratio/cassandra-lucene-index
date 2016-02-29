@@ -116,7 +116,7 @@ public class GeoShapeCondition extends SingleFieldCondition {
         }
 
         // Build query
-        SpatialArgs args = new SpatialArgs(operation.getSpatialOperation(), geometry);
+        SpatialArgs args = new SpatialArgs(operation.getSpatialOperation(), transformedGeometry);
         args.setDistErr(0.0);
         Query query = strategy.makeQuery(args);
         query.setBoost(boost);
