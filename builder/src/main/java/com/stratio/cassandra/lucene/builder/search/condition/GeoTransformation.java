@@ -18,9 +18,7 @@
 
 package com.stratio.cassandra.lucene.builder.search.condition;
 
-
 import com.stratio.cassandra.lucene.builder.Builder;
-import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.annotate.JsonSubTypes;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
@@ -29,12 +27,12 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
-@JsonSubTypes({@JsonSubTypes.Type(value = GeoTransformation.Buffer.class, name = "buffer")})
+@JsonSubTypes({@JsonSubTypes.Type(value = GeoTransformation.Buffer.class, name = "buffer"),
+               @JsonSubTypes.Type(value = GeoTransformation.Difference.class, name = "difference"),
+               @JsonSubTypes.Type(value = GeoTransformation.Intersection.class, name = "intersection"),
+               @JsonSubTypes.Type(value = GeoTransformation.Union.class, name = "union")})
 public abstract class GeoTransformation extends Builder {
 
-    /**
-     * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
-     */
     public static class Buffer extends GeoTransformation {
 
         /** The max allowed distance. */
@@ -66,6 +64,57 @@ public abstract class GeoTransformation extends Builder {
             this.minDistance = minDistance;
             return this;
         }
+    }
+
+    public static class Difference extends GeoTransformation {
+
+        /** The other shape. */
+        @JsonProperty("shape")
+        public final String shape;
+
+        /**
+         * Constructor receiving the geometry to be subtracted.
+         *
+         * @param shape the geometry to be subtracted in WKT format
+         */
+        public Difference(String shape) {
+            this.shape = shape;
+        }
+
+    }
+
+    public static class Intersection extends GeoTransformation {
+
+        /** The other shape. */
+        @JsonProperty("shape")
+        public final String shape;
+
+        /**
+         * Constructor receiving the geometry to be intersected.
+         *
+         * @param shape the geometry to be intersected in WKT format
+         */
+        public Intersection(String shape) {
+            this.shape = shape;
+        }
+
+    }
+
+    public static class Union extends GeoTransformation {
+
+        /** The other shape. */
+        @JsonProperty("shape")
+        public final String shape;
+
+        /**
+         * Constructor receiving the geometry to be added.
+         *
+         * @param shape the geometry to be added in WKT format
+         */
+        public Union(String shape) {
+            this.shape = shape;
+        }
+
     }
 
 }

@@ -149,7 +149,7 @@ public class GeoTransformationTest extends AbstractConditionTest {
     }
 
     @Test
-    public void testToString() {
+    public void testBufferTransformationToString() {
         GeoDistance minDistance = GeoDistance.parse("-1m");
         GeoDistance maxDistance = GeoDistance.parse("-2m");
         GeoTransformation transformation = new GeoTransformation.Buffer(maxDistance, minDistance);

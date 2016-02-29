@@ -21,6 +21,7 @@ package com.stratio.cassandra.lucene.search.condition;
 import com.google.common.base.Objects;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.shape.jts.JtsGeometry;
+import com.stratio.cassandra.lucene.util.GeospatialUtils;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**
@@ -81,12 +82,123 @@ public interface GeoTransformation {
             return max;
         }
 
+        /** {@inheritDoc} */
         @Override
         public String toString() {
             return Objects.toStringHelper(this)
                           .add("maxDistance", maxDistance)
                           .add("minDistance", minDistance)
                           .toString();
+        }
+    }
+
+    /**
+     * {@link GeoTransformation} that gets the onion of two JTS geographical shapes.
+     */
+    class Union implements GeoTransformation {
+
+        public final String other;
+
+        /**
+         * Constructor receiving the geometry to be added.
+         *
+         * @param other the geometry to be added
+         */
+        public Union(String other) {
+            this.other = other;
+        }
+
+        /**
+         * Returns the union of the specified {@link JtsGeometry}.
+         *
+         * @param shape the JTS shape to be transformed
+         * @param context the JTS spatial context to be used
+         * @return the union
+         */
+        @Override
+        public JtsGeometry apply(JtsGeometry shape, JtsSpatialContext context) {
+            Geometry geometry = GeospatialUtils.geometryFromWKT(context, other).getGeom();
+            Geometry union = shape.getGeom().union(geometry);
+            return context.makeShape(union);
+        }
+
+        @Override
+        public String toString() {
+            return Objects.toStringHelper(this).add("other", other).toString();
+        }
+    }
+
+    /**
+     * {@link GeoTransformation} that gets the onion of two JTS geographical shapes.
+     */
+    class Intersection implements GeoTransformation {
+
+        public final String other;
+
+        /**
+         * Constructor receiving the geometry to be added.
+         *
+         * @param other the geometry to be added
+         */
+        public Intersection(String other) {
+            this.other = other;
+        }
+
+        /**
+         * Returns the intersection of the specified {@link JtsGeometry}.
+         *
+         * @param shape the JTS shape to be transformed
+         * @param context the JTS spatial context to be used
+         * @return the intersection
+         */
+        @Override
+        public JtsGeometry apply(JtsGeometry shape, JtsSpatialContext context) {
+            Geometry geometry = GeospatialUtils.geometryFromWKT(context, other).getGeom();
+            Geometry intersection = shape.getGeom().intersection(geometry);
+            return context.makeShape(intersection);
+        }
+
+        /** {@inheritDoc} */
+        @Override
+        public String toString() {
+            return Objects.toStringHelper(this).add("other", other).toString();
+        }
+    }
+
+    /**
+     * {@link GeoTransformation} that gets the union of two JTS geographical shapes.
+     */
+    class Difference implements GeoTransformation {
+
+        public final String other;
+
+        /**
+         * Constructor receiving the geometry to be subtracted.
+         *
+         * @param other the geometry
+         */
+        public Difference(String other) {
+            this.other = other;
+        }
+
+        /**
+         * Returns the difference of the specified {@link JtsGeometry}.
+         *
+         * @param shape the JTS shape to be transformed
+         * @param context the JTS spatial context to be used
+         * @return the difference
+         */
+        @Override
+        public JtsGeometry apply(JtsGeometry shape, JtsSpatialContext context) {
+            Geometry geometry = GeospatialUtils.geometryFromWKT(context, other).getGeom();
+            Geometry difference = shape.getGeom().difference(geometry);
+            return context.makeShape(difference);
+        }
+
+        /** {@inheritDoc} */
+        @Override
+        public String toString() {
+            return Objects.toStringHelper(this).add("other", other).toString();
         }
     }
 }

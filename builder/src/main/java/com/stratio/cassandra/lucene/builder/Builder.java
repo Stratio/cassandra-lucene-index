@@ -485,8 +485,38 @@ public abstract class Builder {
      *
      * @return the buffer transformation
      */
-    public static GeoTransformation.Buffer bufferTransformation() {
+    public static GeoTransformation.Buffer bufferGeoTransformation() {
         return new GeoTransformation.Buffer();
+    }
+
+    /**
+     * Returns a new {@link GeoTransformation.Difference}.
+     *
+     * @param shape the shape to be subtracted
+     * @return the intersection transformation
+     */
+    public static GeoTransformation.Difference differenceGeoTransformation(String shape) {
+        return new GeoTransformation.Difference(shape);
+    }
+
+    /**
+     * Returns a new {@link GeoTransformation.Intersection}.
+     *
+     * @param shape the shape to be intersected
+     * @return the intersection transformation
+     */
+    public static GeoTransformation.Intersection intersectionGeoTransformation(String shape) {
+        return new GeoTransformation.Intersection(shape);
+    }
+
+    /**
+     * Returns a new {@link GeoTransformation.Union}.
+     *
+     * @param shape the shape to be added
+     * @return the union transformation
+     */
+    public static GeoTransformation.Union unionGeoTransformation(String shape) {
+        return new GeoTransformation.Union(shape);
     }
 
     /**

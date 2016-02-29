@@ -114,6 +114,7 @@ public class GeoShapeCondition extends SingleFieldCondition {
                 transformedGeometry = transformation.apply(transformedGeometry, CONTEXT);
             }
         }
+        logger.debug("Transformed shape: {}", transformedGeometry);
 
         // Build query
         SpatialArgs args = new SpatialArgs(operation.getSpatialOperation(), geometry);
