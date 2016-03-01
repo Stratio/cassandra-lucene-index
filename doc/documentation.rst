@@ -2455,7 +2455,6 @@ Using builder:
 
 .. image:: /doc/resources/buffer-transformation.png
     :width: 100 %
-    :scale: 100 %
     :alt: buffer transformation
     :align: center
 
