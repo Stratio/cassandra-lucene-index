@@ -2426,8 +2426,8 @@ Using builder:
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT * FROM TABLE WHERE lucene = ?",
-        search().filter(geoShape("place","POLYGON((-0.07 51.63, 0.03 51.54, 0.05 51.65, -0.07 51.63))")).build());
+      "SELECT * FROM TABLE WHERE lucene = ?",
+      search().filter(geoShape("place", "POLYGON((-0.07 51.63, 0.03 51.54, 0.05 51.65, -0.07 51.63))")).build());
 
 Example 2: search for shapes intersecting with a shape defined by a buffer 10 kilometers around a segment of the
 Florida's coastline:
@@ -2436,11 +2436,11 @@ Florida's coastline:
 
     SELECT * FROM test
     WHERE lucene ='{filter : {
-                      type : "geo_shape",
-                     field : "place",
-                  relation : "intersects",
-                     shape : "LINESTRING(-80.90 29.05, -80.51 28.47, -80.60 28.12, -80.00 26.85, -80.05 26.37)",
-           transformations : [{type:"buffer", max_distance:"10km"}] }}';
+                  type : "geo_shape",
+                 field : "place",
+              relation : "intersects",
+                 shape : "LINESTRING(-80.90 29.05, -80.51 28.47, -80.60 28.12, -80.00 26.85, -80.05 26.37)",
+       transformations : [{type:"buffer", max_distance:"10km"}] }}';
 
 Using builder:
 
