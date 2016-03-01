@@ -148,6 +148,17 @@ public class GeoShapeMapperTest extends AbstractMapperTest {
     }
 
     @Test
+    public void testAddFieldsWithValidLinearRing() {
+        GeoShapeMapper mapper = geoShapeMapper().column("column").maxLevels(10).build("field");
+        Columns columns = new Columns();
+        columns.add(Column.builder("column").composedValue("LINEARRING(30 10, 10 30, 40 40,30 10)", UTF8Type.instance));
+        Document document = new Document();
+        mapper.addFields(document, columns);
+        assertEquals("Fields are not properly created", 1, document.getFields("field").length);
+        assertEquals("Fields are not properly created", 1, document.getFields().size());
+    }
+
+    @Test
     public void testAddFieldsWithValidPolygon() {
         GeoShapeMapper mapper = geoShapeMapper().column("column").maxLevels(10).build("field");
         Columns columns = new Columns();
@@ -238,7 +249,7 @@ public class GeoShapeMapperTest extends AbstractMapperTest {
         assertEquals("Fields are not properly created", 1, document.getFields("field").length);
         assertEquals("Fields are not properly created", 1, document.getFields().size());
     }
-
+   
     @Test
     public void testAddFieldsWithNullColumns() {
         GeoShapeMapper mapper = geoShapeMapper().column("column").maxLevels(10).build("field");
