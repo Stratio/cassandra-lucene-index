@@ -249,7 +249,7 @@ public class GeoShapeMapperTest extends AbstractMapperTest {
         assertEquals("Fields are not properly created", 1, document.getFields("field").length);
         assertEquals("Fields are not properly created", 1, document.getFields().size());
     }
-   
+
     @Test
     public void testAddFieldsWithNullColumns() {
         GeoShapeMapper mapper = geoShapeMapper().column("column").maxLevels(10).build("field");

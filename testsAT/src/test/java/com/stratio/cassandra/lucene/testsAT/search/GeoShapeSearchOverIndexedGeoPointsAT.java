@@ -29,15 +29,13 @@ import org.junit.runners.JUnit4;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static com.stratio.cassandra.lucene.builder.Builder.bufferTransformation;
-import static com.stratio.cassandra.lucene.builder.Builder.geoPointMapper;
-import static com.stratio.cassandra.lucene.builder.Builder.geoShape;
+import static com.stratio.cassandra.lucene.builder.Builder.*;
 
 /**
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
 @RunWith(JUnit4.class)
-public class GeoShapeSearchAT extends BaseAT {
+public class GeoShapeSearchOverIndexedGeoPointsAT extends BaseAT {
     protected static CassandraUtils cassandraUtils;
 
     public static final Map<String, String> data1, data2,data3,data4,data5,data6,data7,data8,data9,data10,data11,data12;
@@ -228,7 +226,7 @@ public class GeoShapeSearchAT extends BaseAT {
     public void testBufferShape() {
         cassandraUtils.filter(geoShape("location","LINESTRING(-3.8033294999999994 40.4349602,-3.7986946 40.44511810000001," +
                                                   "-3.785691299999999 40.445020199999995)")
-                                      .operation("intersects").transform(bufferTransformation().maxDistance("500m")))
+                                      .operation("intersects").transform(bufferGeoTransformation().maxDistance("500m")))
                       .checkStringColumnWithoutOrder("place", "POINT_3", "POINT_4", "POINT_6", "POINT_7","POINT_8","POINT_9","POINT_10","POINT_11","POINT_12");
 
     }
