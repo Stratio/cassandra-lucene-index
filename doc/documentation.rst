@@ -2454,9 +2454,9 @@ Using builder:
              .operation("intersects").transform(bufferGeoTransformation().maxDistance("10km"))).build());
 
 .. image:: /doc/resources/buffer-transformation.png
-    :width: 1000px
+    :width: 100%
     :alt: buffer transformation
-    :align: center
+    :align: middle
 
 
 Match search
