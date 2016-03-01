@@ -146,6 +146,15 @@ public final class SchemaBuilders {
     }
 
     /**
+     * Returns a new {@link GeoShapeMapperBuilder}.
+     *
+     * @return A new {@link GeoShapeMapperBuilder}.
+     */
+    public static GeoShapeMapperBuilder geoShapeMapper() {
+        return new GeoShapeMapperBuilder();
+    }
+
+    /**
      * Returns a new {@link InetMapperBuilder}.
      *
      * @return A new {@link InetMapperBuilder}.
