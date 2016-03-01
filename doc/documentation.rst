@@ -1028,9 +1028,14 @@ Example:
         PRIMARY KEY (id)
     );
 
-    INSERT INTO test(id, shape) VALUES (1, 'POINT(-0.139 51.500)');
-    INSERT INTO test(id, shape) VALUES (2, 'LINESTRING(-0.254 51.522, -0.089 51.396, -0.023 51.423)');
-    INSERT INTO test(id, shape) VALUES (3, 'POLYGON((-0.078 51.637, 0.030 51.544, 0.058 51.659, -0.078 51.637))');
+    INSERT INTO test(id, shape) VALUES (1, 'POINT(-0.13 51.50)');
+    INSERT INTO test(id, shape) VALUES (2, 'LINESTRING(-0.25 51.52, -0.08 51.39, -0.02 51.42)');
+    INSERT INTO test(id, shape) VALUES (3, 'POLYGON((-0.07 51.63, 0.03 51.54, 0.05 51.65, -0.07 51.63))');
+    INSERT INTO test(id, shape) VALUES (4, 'MULTIPOINT(-0.65 52.60, -1.00 51.76, -0.65 52.60)');
+    INSERT INTO test(id, shape) VALUES (5, 'MULTILINESTRING((-0.43 51.56, -0.33 51.35, -0.13 51.35),
+                                                            (-0.25 51.56, -0.14 51.48))');
+    INSERT INTO test(id, shape) VALUES (6, 'MULTIPOLYGON(((-0.51 51.58, -0.18 51.14, 0.49 51.73, -0.51 51.58),
+                                                          (-0.25 51.54, -0.12 51.32, 0.16 51.59, -0.25 51.54)))');
 
     CREATE CUSTOM INDEX test_index on test(lucene)
     USING 'com.stratio.cassandra.lucene.Index'
