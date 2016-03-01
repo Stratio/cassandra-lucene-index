@@ -2429,6 +2429,11 @@ Using builder:
       "SELECT * FROM TABLE WHERE lucene = ?",
       search().filter(geoShape("place", "POLYGON((-0.07 51.63, 0.03 51.54, 0.05 51.65, -0.07 51.63))")).build());
 
+.. image:: /doc/resources/geo_shape_condition_example_1.png
+    :width: 100%
+    :alt: search by shape
+    :align: center
+
 Example 2: search for shapes intersecting with a shape defined by a buffer 10 kilometers around a segment of the
 Florida's coastline:
 
@@ -2453,7 +2458,7 @@ Using builder:
         search().filter(geoShape("place", "POLYGON((-0.07 51.63, 0.03 51.54, 0.05 51.65, -0.07 51.63))")
              .operation("intersects").transform(bufferGeoTransformation().maxDistance("10km"))).build());
 
-.. image:: /doc/resources/buffer-transformation.png
+.. image:: /doc/resources/geo_shape_condition_example_2.png
     :width: 100%
     :alt: buffer transformation
     :align: center
