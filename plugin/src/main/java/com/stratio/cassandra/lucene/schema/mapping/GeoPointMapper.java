@@ -53,7 +53,6 @@ public class GeoPointMapper extends Mapper {
     private static final double MAX_LONGITUDE = 180.0;
 
     public static final SpatialContext SPATIAL_CONTEXT = SpatialContext.GEO;
-    public static final int DEFAULT_MAX_LEVELS = 11;
 
     /** The name of the latitude column. */
     public final String latitude;
