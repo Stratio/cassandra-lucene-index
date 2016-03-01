@@ -1009,13 +1009,13 @@ Supported CQL types: ascii, bigint, decimal, double, float, int, smallint, text,
 GeoShape mapper
 _______________
 
-Maps a geographical shape stored in a text column with <a href="http://en.wikipedia.org/wiki/Well-known_text"> Well Known Text (WKT)</a> format.
-The supported shapes are point, linestring, polygon, multipoint, multilinestring and multipolygon.
+Maps a geographical shape stored in a text column with `Well Known Text (WKT) <http://en.wikipedia.org/wiki/Well-known_text>`__
+format. The supported WKT shapes are point, linestring, polygon, multipoint, multilinestring and multipolygon.
 
 This mapper depends on <a href="http://www.vividsolutions.com/jts">Java Topology Suite (JTS)</a>.
 This library can't be distributed together with this project due to license compatibility problems, but you can add it
-by putting <a href="http://search.maven.org/remotecontent?filepath=com/vividsolutions/jts-core/1.14.0/jts-core-1.14.0.jar">
-jts-core-1.14.0.jar</a> into your Cassandra installation lib directory.
+by putting `jts-core-1.14.0.jar <http://search.maven.org/remotecontent?filepath=com/vividsolutions/jts-core/1.14.0/jts-core-1.14.0.jar>`__ 
+into your Cassandra installation lib directory.
 
 Example:
 
