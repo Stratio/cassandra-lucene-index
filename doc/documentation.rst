@@ -2456,7 +2456,7 @@ Using builder:
 .. image:: /doc/resources/buffer-transformation.png
     :width: 100%
     :alt: buffer transformation
-    :align: middle
+    :align: center
 
 
 Match search
