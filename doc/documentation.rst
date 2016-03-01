@@ -24,6 +24,7 @@ Stratio's Cassandra Lucene Index
         - `Double mapper <#double-mapper>`__
         - `Float mapper <#float-mapper>`__
         - `GeoPoint mapper <#geopoint-mapper>`__
+        - `GeoShape mapper <#geoshape-mapper>`__
         - `Inet mapper <#inet-mapper>`__
         - `Integer mapper <#integer-mapper>`__
         - `Long mapper <#long-mapper>`__
@@ -627,6 +628,10 @@ Details and default values are listed in the table below.
 |                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | max_levels      | integer         | 11                             | No        |
 +-------------------------------------+-----------------+-----------------+--------------------------------+-----------+
+| `geo_shape <#geoshape-mapper>`__    | column          | string          | mapper_name of the schema      | No        |
+|                                     +-----------------+-----------------+--------------------------------+-----------+
+|                                     | max_levels      | integer         | 11                             | No        |
++-------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 | `inet <#inet-mapper>`__             | column          | string          | mapper_name of the schema      | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | indexed         | boolean         | true                           | No        |
@@ -1000,6 +1005,49 @@ Example:
 
 
 Supported CQL types: ascii, bigint, decimal, double, float, int, smallint, text, timestamp, varchar, varint
+
+GeoShape mapper
+_______________
+
+Maps a geographical shape stored in a text column with <a href="http://en.wikipedia.org/wiki/Well-known_text"> Well Known Text (WKT)</a> format.
+The supported shapes are point, linestring, polygon, multipoint, multilinestring and multipolygon.
+
+This mapper depends on <a href="http://www.vividsolutions.com/jts">Java Topology Suite (JTS)</a>.
+This library can't be distributed together with this project due to license compatibility problems, but you can add it
+by putting <a href="http://search.maven.org/remotecontent?filepath=com/vividsolutions/jts-core/1.14.0/jts-core-1.14.0.jar">
+jts-core-1.14.0.jar</a> into your Cassandra installation lib directory.
+
+Example:
+
+.. code-block:: sql
+
+    CREATE TABLE IF NOT EXISTS test (
+        id int,
+        shape text,
+        lucene text,
+        PRIMARY KEY (id)
+    );
+
+    INSERT INTO test(id, shape) VALUES (1, 'POINT(-0.139 51.500)');
+    INSERT INTO test(id, shape) VALUES (2, 'LINESTRING(-0.254 51.522, -0.089 51.396, -0.023 51.423)');
+    INSERT INTO test(id, shape) VALUES (3, 'POLYGON((-0.078 51.637, 0.030 51.544, 0.058 51.659, -0.078 51.637))');
+
+    CREATE CUSTOM INDEX test_index on test(lucene)
+    USING 'com.stratio.cassandra.lucene.Index'
+    WITH OPTIONS = {
+        'refresh_seconds' : '1',
+        'schema' : '{
+            fields : {
+                shape : {
+                    type       : "geo_shape",
+                    max_levels : 15
+                }
+            }
+        }'
+    };
+
+
+Supported CQL types: ascii, text, and varchar
 
 Inet mapper
 ___________
