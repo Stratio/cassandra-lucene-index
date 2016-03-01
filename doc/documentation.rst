@@ -23,8 +23,8 @@ Stratio's Cassandra Lucene Index
         - `Date range mapper <#daterange-mapper>`__
         - `Double mapper <#double-mapper>`__
         - `Float mapper <#float-mapper>`__
-        - `GeoPoint mapper <#geopoint-mapper>`__
-        - `GeoShape mapper <#geoshape-mapper>`__
+        - `Geo point mapper <#geo-point-mapper>`__
+        - `Geo shape mapper <#geo-shape-mapper>`__
         - `Inet mapper <#inet-mapper>`__
         - `Integer mapper <#integer-mapper>`__
         - `Long mapper <#long-mapper>`__
@@ -41,6 +41,7 @@ Stratio's Cassandra Lucene Index
     - `Fuzzy search <#fuzzy-search>`__
     - `Geo bounding box search <#geo-bbox-search>`__
     - `Geo distance search <#geo-distance-search>`__
+    - `Geo shape search <#geo-shape-search>`__
     - `Match search <#match-search>`__
     - `None search <#none-search>`__
     - `Phrase search <#phrase-search>`__
@@ -620,7 +621,7 @@ Details and default values are listed in the table below.
 |                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | boost           | integer         | 0.1f                           | No        |
 +-------------------------------------+-----------------+-----------------+--------------------------------+-----------+
-| `geo_point <#geopoint-mapper>`__    | latitude        | string          |                                | Yes       |
+| `geo_point <#geo-point-mapper>`__   | latitude        | string          |                                | Yes       |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | longitude       | string          |                                | Yes       |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
@@ -628,7 +629,7 @@ Details and default values are listed in the table below.
 |                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | max_levels      | integer         | 11                             | No        |
 +-------------------------------------+-----------------+-----------------+--------------------------------+-----------+
-| `geo_shape <#geoshape-mapper>`__    | column          | string          | mapper_name of the schema      | No        |
+| `geo_shape <#geo-shape-mapper>`__   | column          | string          | mapper_name of the schema      | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | max_levels      | integer         | 11                             | No        |
 +-------------------------------------+-----------------+-----------------+--------------------------------+-----------+
@@ -977,8 +978,8 @@ Example:
 
 Supported CQL types: ascii, bigint, decimal, double, float, int, smallint, timestamp, tinyint, varchar, varint
 
-GeoPoint mapper
-_______________
+Geo point mapper
+________________
 
 Maps a geospatial location (point) defined by two columns containing a latitude and a longitude.
 
@@ -1006,8 +1007,8 @@ Example:
 
 Supported CQL types: ascii, bigint, decimal, double, float, int, smallint, text, timestamp, varchar, varint
 
-GeoShape mapper
-_______________
+Geo shape mapper
+________________
 
 Maps a geographical shape stored in a text column with `Well Known Text (WKT) <http://en.wikipedia.org/wiki/Well-known_text>`__
 format. The supported WKT shapes are point, linestring, polygon, multipoint, multilinestring and multipolygon.
@@ -1430,6 +1431,14 @@ a “\ **boost**\ ” option that acts as a weight on the resulting score.
 |                                         | max_distance    | string          |                                | Yes       |
 |                                         +-----------------+-----------------+--------------------------------+-----------+
 |                                         | min_distance    | string          |                                | No        |
++-----------------------------------------+-----------------+-----------------+--------------------------------+-----------+
+| `Geo shape <#geo-shape-search>`__       | field           | string          |                                | Yes       |
+|                                         +-----------------+-----------------+--------------------------------+-----------+
+|                                         | shape           | string (WKT)    |                                | Yes       |
+|                                         +-----------------+-----------------+--------------------------------+-----------+
+|                                         | operation       | string          | is_within                      | No        |
+|                                         +-----------------+-----------------+--------------------------------+-----------+
+|                                         | transformations | array           |                                | No        |
 +-----------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 | `Match <#match-search>`__               | field           | string          |                                | Yes       |
 |                                         +-----------------+-----------------+--------------------------------+-----------+
@@ -2365,6 +2374,89 @@ Using Builder
                                     ;
     ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users")
                                     .where(eq(indexColumn, search.build()));
+
+Geo shape search
+================
+
+Searches for `geographical points <#geo-point-mapper>`__ or `geographical shapes <#geo-shape-mapper>`__ related to a
+specified shape with `Well Known Text (WKT) <http://en.wikipedia.org/wiki/Well-known_text>`__ format.
+The supported WKT shapes are point, linestring, polygon, multipoint, multilinestring and multipolygon.
+
+This search type depends on `Java Topology Suite (JTS) <http://www.vividsolutions.com/jts>`__.
+This library can't be distributed together with this project due to license compatibility problems, but you can add it
+by putting `jts-core-1.14.0.jar <http://search.maven.org/remotecontent?filepath=com/vividsolutions/jts-core/1.14.0/jts-core-1.14.0.jar>`__
+into your Cassandra installation lib directory.
+
+Syntax:
+
+.. code-block:: sql
+
+    SELECT ( <fields> | * )
+    FROM <table>
+    WHERE <magic_column> = '{ (filter | query) : {
+                                type               : "geo_shape",
+                                field              : <fieldname> ,
+                                shape              : <shape>
+                                (, operation       : <operation>)?
+                                (, transformations : [(<transformation>,)?])?
+                              }}';
+
+where:
+
+-  **shape** : a double value between -90 and 90 being the latitude
+   of the reference point.
+-  **operation** : the type of spatial operation to be performed. The possible values are "intersects", "is_within" and
+"contains". Defaults to "is_within".
+-  **transformation** : a list of geometrical transformations to be applied to the shape before using it for searching.
+
+Example 1: search for shapes within a polygon:
+
+.. code-block:: sql
+
+    SELECT * FROM test
+    WHERE lucene ='{filter : {
+                      type : "geo_shape",
+                     field : "place",
+                     shape : "POLYGON((-0.07 51.63, 0.03 51.54, 0.05 51.65, -0.07 51.63))" }}';
+
+Using builder:
+
+.. code-block:: java
+
+    import static com.stratio.cassandra.lucene.builder.Builder.*;
+    (...)
+    ResultSet rs = session.execute(
+        "SELECT * FROM TABLE WHERE lucene = ?",
+        search().filter(geoShape("place","POLYGON((-0.07 51.63, 0.03 51.54, 0.05 51.65, -0.07 51.63))")).build());
+
+Example 2: search for shapes intersecting with a shape defined by a buffer 10 kilometers around a segment of the
+Florida's coastline:
+
+.. code-block:: sql
+
+    SELECT * FROM test
+    WHERE lucene ='{filter : {
+                      type : "geo_shape",
+                     field : "place",
+                  relation : "intersects",
+                     shape : "LINESTRING(-80.90 29.05, -80.51 28.47, -80.60 28.12, -80.00 26.85, -80.05 26.37)",
+           transformations : [{type:"buffer", max_distance:"10km"}] }}';
+
+Using builder:
+
+.. code-block:: java
+
+    import static com.stratio.cassandra.lucene.builder.Builder.*;
+    (...)
+    ResultSet rs = session.execute(
+        "SELECT * FROM TABLE WHERE lucene = ?",
+        search().filter(geoShape("place", "POLYGON((-0.07 51.63, 0.03 51.54, 0.05 51.65, -0.07 51.63))")
+             .operation("intersects").transform(bufferGeoTransformation().maxDistance("10km"))).build());
+
+.. image:: /doc/resources/buffer-transformation.png
+    :scale: 100 %
+    :alt: buffer transformation
+    :align: center
 
 
 Match search
