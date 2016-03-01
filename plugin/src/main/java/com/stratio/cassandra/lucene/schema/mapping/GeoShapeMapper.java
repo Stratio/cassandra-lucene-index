@@ -51,7 +51,6 @@ import javax.validation.constraints.NotNull;
 public class GeoShapeMapper extends SingleColumnMapper<String> {
 
     public static final JtsSpatialContext SPATIAL_CONTEXT = JtsSpatialContext.GEO;
-    public static final int DEFAULT_MAX_LEVELS = 11;
 
     /** The name of the mapped column. */
     public final String column;
@@ -87,7 +86,7 @@ public class GeoShapeMapper extends SingleColumnMapper<String> {
             throw new IndexException("Column must not be whitespace, but found '%s'", column);
         }
 
-        this.maxLevels = maxLevels == null ? DEFAULT_MAX_LEVELS : maxLevels;
+        this.maxLevels = GeospatialUtils.validateGeohashMaxLevels(maxLevels);
         SpatialPrefixTree grid = new GeohashPrefixTree(SPATIAL_CONTEXT, this.maxLevels);
         strategy = new RecursivePrefixTreeStrategy(grid, field);
     }

@@ -24,15 +24,8 @@ import com.spatial4j.core.shape.Point;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
-import org.apache.cassandra.db.marshal.AsciiType;
-import org.apache.cassandra.db.marshal.DecimalType;
-import org.apache.cassandra.db.marshal.DoubleType;
-import org.apache.cassandra.db.marshal.FloatType;
-import org.apache.cassandra.db.marshal.Int32Type;
-import org.apache.cassandra.db.marshal.IntegerType;
-import org.apache.cassandra.db.marshal.LongType;
-import org.apache.cassandra.db.marshal.ShortType;
-import org.apache.cassandra.db.marshal.UTF8Type;
+import com.stratio.cassandra.lucene.util.GeospatialUtils;
+import org.apache.cassandra.db.marshal.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.StoredField;
@@ -113,12 +106,14 @@ public class GeoPointMapper extends Mapper {
 
         this.latitude = latitude;
         this.longitude = longitude;
-        this.maxLevels = maxLevels == null ? DEFAULT_MAX_LEVELS : maxLevels;
+        this.maxLevels = GeospatialUtils.validateGeohashMaxLevels(maxLevels);
 
         SpatialPrefixTree grid = new GeohashPrefixTree(SPATIAL_CONTEXT, this.maxLevels);
         distanceStrategy = new RecursivePrefixTreeStrategy(grid, field + ".dist");
         bboxStrategy = new BBoxStrategy(SPATIAL_CONTEXT, field + ".bbox");
     }
+
+
 
     /**
      * Checks if the specified latitude is correct.

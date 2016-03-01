@@ -68,6 +68,21 @@ public class GeoPointMapperTest extends AbstractMapperTest {
         assertNotNull("Spatial strategy for bounding boxes Latitude is not properly set", mapper.bboxStrategy);
     }
 
+    @Test(expected = IndexException.class)
+    public void testConstructorWithZeroLevels() {
+        geoPointMapper("lat", "lon").maxLevels(0).build("field");
+    }
+
+    @Test(expected = IndexException.class)
+    public void testConstructorWithNegativeLevels() {
+        geoPointMapper("lat", "lon").maxLevels(-1).build("field");
+    }
+
+    @Test(expected = IndexException.class)
+    public void testConstructorWithTooManyLevels() {
+        geoPointMapper("lat", "lon").maxLevels(25).build("field");
+    }
+
     @Test
     public void testJsonSerialization() {
         GeoPointMapperBuilder builder = geoPointMapper("lat", "lon").maxLevels(5);
