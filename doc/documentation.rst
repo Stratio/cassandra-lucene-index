@@ -383,7 +383,7 @@ Alternatively, you can restrict the search to retrieve tweets that are within a 
 Indexing
 ********
 
-Syntax:
+**Syntax:**
 
 .. code-block:: sql
 
@@ -476,7 +476,7 @@ __________________
 Analyzer which instances a Lucene's `analyzer <https://lucene.apache.org/core/5_3_0/core/org/apache/lucene/analysis/Analyzer.html>`__
 present in classpath.
 
-Example:
+**Example:**
 
 .. code-block:: sql
 
@@ -499,7 +499,7 @@ _________________
 
 Analyzer using a `http://snowball.tartarus.org/ <http://snowball.tartarus.org/>`__ snowball filter `SnowballFilter <https://lucene.apache.org/core/5_3_0/analyzers-common/org/apache/lucene/analysis/snowball/SnowballFilter.html>`__
 
-Example:
+**Example:**
 
 .. code-block:: sql
 
@@ -714,7 +714,7 @@ __________________
 
 Maps arbitrary precision decimal values.
 
-Example:
+**Example:**
 
 .. code-block:: sql
 
@@ -745,7 +745,7 @@ __________________
 
 Maps arbitrary precision integer values.
 
-Example:
+**Example:**
 
 .. code-block:: sql
 
@@ -775,7 +775,7 @@ _________________
 
 Maps four columns containing the four columns of a bitemporal fact.
 
-Example:
+**Example:**
 
 .. code-block:: sql
 
@@ -807,7 +807,7 @@ ___________
 
 Maps a blob value.
 
-Example:
+**Example:**
 
 .. code-block:: sql
 
@@ -835,7 +835,7 @@ ______________
 
 Maps a boolean value.
 
-Example:
+**Example:**
 
 .. code-block:: sql
 
@@ -864,7 +864,7 @@ ___________
 
 Maps dates using a either a pattern or a UNIX timestamp.
 
-Example:
+**Example:**
 
 .. code-block:: sql
 
@@ -894,7 +894,7 @@ _________________
 
 Maps a time duration/period defined by a start date and a stop date.
 
-Example:
+**Example:**
 
 .. code-block:: sql
 
@@ -923,7 +923,7 @@ _____________
 
 Maps a 64-bit decimal number.
 
-Example:
+**Example:**
 
 .. code-block:: sql
 
@@ -953,7 +953,7 @@ ____________
 
 Maps a 32-bit decimal number.
 
-Example:
+**Example:**
 
 .. code-block:: sql
 
@@ -983,7 +983,7 @@ ________________
 
 Maps a geospatial location (point) defined by two columns containing a latitude and a longitude.
 
-Example:
+**Example:**
 
 .. code-block:: sql
 
@@ -1018,7 +1018,7 @@ This library can't be distributed together with this project due to license comp
 by putting `jts-core-1.14.0.jar <http://search.maven.org/remotecontent?filepath=com/vividsolutions/jts-core/1.14.0/jts-core-1.14.0.jar>`__
 into your Cassandra installation lib directory.
 
-Example:
+**Example:**
 
 .. code-block:: sql
 
@@ -1060,7 +1060,7 @@ ___________
 
 Maps an IP address. Either IPv4 and IPv6 are supported.
 
-Example:
+**Example:**
 
 .. code-block:: sql
 
@@ -1089,7 +1089,7 @@ ______________
 
 Maps a 32-bit integer number.
 
-Example:
+**Example:**
 
 .. code-block:: sql
 
@@ -1119,7 +1119,7 @@ ___________
 
 Maps a 64-bit integer number.
 
-Example:
+**Example:**
 
 .. code-block:: sql
 
@@ -1149,7 +1149,7 @@ _____________
 
 Maps a not-analyzed text value.
 
-Example:
+**Example:**
 
 .. code-block:: sql
 
@@ -1179,7 +1179,7 @@ ___________
 
 Maps a language-aware text value analyzed according to the specified analyzer.
 
-Example:
+**Example:**
 
 .. code-block:: sql
 
@@ -1216,7 +1216,7 @@ ___________
 
 Maps an UUID value.
 
-Example:
+**Example:**
 
 .. code-block:: sql
 
@@ -1291,7 +1291,7 @@ Cassandra shell:
 Searching
 *********
 
-Syntax:
+**Syntax:**
 
 .. code-block:: sql
 
@@ -1478,7 +1478,7 @@ a “\ **boost**\ ” option that acts as a weight on the resulting score.
 All search
 ==========
 
-Syntax:
+**Syntax:**
 
 .. code-block:: sql
 
@@ -1486,7 +1486,7 @@ Syntax:
     FROM <table>
     WHERE <magic_column> = '{ (filter | query) : { type  : "all"} }';
 
-Example: will return all the indexed rows
+**Example:** will return all the indexed rows
 
 .. code-block:: sql
 
@@ -1509,7 +1509,7 @@ Using Builder
 Bitemporal search
 =================
 
-Syntax:
+**Syntax:**
 
 .. code-block:: sql
 
@@ -1753,7 +1753,7 @@ This code is available in CQL script here: `example_bitemporal.cql </doc/resourc
 Boolean search
 ==============
 
-Syntax:
+**Syntax:**
 
 .. code-block:: sql
 
@@ -1800,7 +1800,7 @@ Using Builder
                                     .where(eq(indexColumn, search.build()));
 
 
-Example 2: will return rows where food starts with “tu” but name does
+**Example 2:** will return rows where food starts with “tu” but name does
 not end with “a”
 
 .. code-block:: sql
@@ -1822,7 +1822,7 @@ Using Builder
     ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users")
                                     .where(eq(indexColumn, search.build()));
 
-Example 3: will return rows where name ends with “a” or food starts with
+**Example 3:** will return rows where name ends with “a” or food starts with
 “tu”
 
 .. code-block:: sql
@@ -1845,7 +1845,7 @@ Using Builder
                                     .where(eq(indexColumn, search.build()));
 
 
-Example 4: will return zero rows independently of the index contents
+**Example 4** will return zero rows independently of the index contents
 
 .. code-block:: sql
 
@@ -1888,7 +1888,7 @@ Using Builder
 Contains search
 ===============
 
-Syntax:
+**Syntax:**
 
 .. code-block:: sql
 
@@ -1921,7 +1921,7 @@ Using Builder
                                     .where(eq(indexColumn, search.build()));
 
 
-Example 2: will return rows where date matches “2014/01/01″,
+**Example 2:** will return rows where date matches “2014/01/01″,
 “2014/01/02″ or “2014/01/03″
 
 .. code-block:: sql
@@ -1947,7 +1947,7 @@ Using Builder
 Date range search
 =================
 
-Syntax:
+**Syntax:**
 
 .. code-block:: sql
 
@@ -1994,7 +1994,7 @@ Using Builder
                                     .where(eq(indexColumn, search.build()));
 
 
-Example 2: will return rows where duration contains "2014/06/01" and
+**Example 2:** will return rows where duration contains "2014/06/01" and
 "2014/06/02"
 
 .. code-block:: sql
@@ -2020,7 +2020,7 @@ Using Builder
                                     .where(eq(indexColumn, search.build()));
 
 
-Example 3: will return rows where duration is within "2014/01/01" and
+**Example 3:** will return rows where duration is within "2014/01/01" and
 "2014/12/31"
 
 .. code-block:: sql
@@ -2050,7 +2050,7 @@ Using Builder
 Fuzzy search
 ============
 
-Syntax:
+**Syntax:**
 
 .. code-block:: sql
 
@@ -2106,7 +2106,7 @@ Using Builder
                                     .where(eq(indexColumn, search.build()));
 
 
-Example 2: same as example 1 but will limit the results to rows where
+**Example 2:** same as example 1 but will limit the results to rows where
 phrase contains a word that starts with “pu”.
 
 .. code-block:: sql
@@ -2133,7 +2133,7 @@ Using Builder
 Geo bbox search
 ===============
 
-Syntax:
+**Syntax:**
 
 .. code-block:: sql
 
@@ -2185,7 +2185,7 @@ Using Builder
                                     .where(eq(indexColumn, search.build()));
 
 
-Example 2: will return any rows where “place” is formed by a latitude
+**Example 2:** will return any rows where “place” is formed by a latitude
 between -90.0 and 90.0, and a longitude between 0.0 and
 10.0.
 
@@ -2212,7 +2212,7 @@ Using Builder
                                     .where(eq(indexColumn, search.build()));
 
 
-Example 3: will return any rows where “place” is formed by a latitude
+**Example 3:** will return any rows where “place” is formed by a latitude
 between 0.0 and 10.0, and a longitude between -180.0 and
 180.0 sorted by min distance to point [0.0, 0.0].
 
@@ -2253,7 +2253,7 @@ Using Builder
 Geo distance search
 ===================
 
-Syntax:
+**Syntax:**
 
 .. code-block:: sql
 
@@ -2337,7 +2337,7 @@ Using Builder
                                     .where(eq(indexColumn, search.build()));
 
 
-Example 2: will return any rows where “place” is within one yard and ten
+**Example 2:** will return any rows where “place” is within one yard and ten
 yards from the geo point (40.225479, -3.999278) sorted by min distance to point (40.225479, -3.999278).
 
 .. code-block:: sql
@@ -2387,7 +2387,7 @@ This library can't be distributed together with this project due to license comp
 by putting `jts-core-1.14.0.jar <http://search.maven.org/remotecontent?filepath=com/vividsolutions/jts-core/1.14.0/jts-core-1.14.0.jar>`__
 into your Cassandra installation lib directory.
 
-Syntax:
+**Syntax:**
 
 .. code-block:: sql
 
@@ -2434,7 +2434,7 @@ Using builder:
     :alt: search by shape
     :align: center
 
-Example 2: search for shapes intersecting with a shape defined by a buffer 10 kilometers around a segment of the
+**Example 2:** search for shapes intersecting with a shape defined by a buffer 10 kilometers around a segment of the
 Florida's coastline:
 
 .. code-block:: sql
@@ -2467,7 +2467,7 @@ Using builder:
 Match search
 ============
 
-Syntax:
+**Syntax:**
 
 .. code-block:: sql
 
@@ -2500,7 +2500,7 @@ Using Builder
                                     .where(eq(indexColumn, search.build()));
 
 
-Example 2: will return rows where phrase contains “mancha”
+**Example 2:** will return rows where phrase contains “mancha”
 
 .. code-block:: sql
 
@@ -2522,7 +2522,7 @@ Using Builder
                                     .where(eq(indexColumn, search.build()));
 
 
-Example 3: will return rows where date matches “2014/01/01″
+**Example 3:** will return rows where date matches “2014/01/01″
 
 .. code-block:: sql
 
@@ -2547,7 +2547,7 @@ Using Builder
 None search
 ===========
 
-Syntax:
+**Syntax:**
 
 .. code-block:: sql
 
@@ -2555,7 +2555,7 @@ Syntax:
     FROM <table>
     WHERE <magic_column> = '{ (filter | query) : { type  : "none"} }';
 
-Example: will return no one of the indexed rows
+**Example:** will return no one of the indexed rows
 
 .. code-block:: sql
 
@@ -2576,7 +2576,7 @@ Using Builder
 Phrase search
 =============
 
-Syntax:
+**Syntax:**
 
 .. code-block:: sql
 
@@ -2616,7 +2616,7 @@ Using Builder
     ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users")
                                     .where(eq(indexColumn, search.build()));
 
-Example 2: will return rows where “phrase” contains the word “mancha”
+**Example 2:** will return rows where “phrase” contains the word “mancha”
 followed by the word “camisa” having 0 to 2 words in between.
 
 .. code-block:: sql
@@ -2642,7 +2642,7 @@ Using Builder
 Prefix search
 =============
 
-Syntax:
+**Syntax:**
 
 .. code-block:: sql
 
@@ -2653,7 +2653,7 @@ Syntax:
                                 field : <fieldname> ,
                                 value : <value> }}';
 
-Example: will return rows where “phrase” contains a word starting with
+**Example:** will return rows where “phrase” contains a word starting with
 “lu”. If the column is indexed as “text” and uses an analyzer, words
 ignored by the analyzer will not be retrieved.
 
@@ -2679,7 +2679,7 @@ Using Builder
 Range search
 ============
 
-Syntax:
+**Syntax:**
 
 .. code-block:: sql
 
@@ -2730,7 +2730,7 @@ Using Builder
     ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users")
                                     .where(eq(indexColumn, search.build()));
 
-Example 2: will return rows where *age* is in (-∞, 0]
+**Example 2:** will return rows where *age* is in (-∞, 0]
 
 .. code-block:: sql
 
@@ -2752,7 +2752,7 @@ Using Builder
     ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users")
                                     .where(eq(indexColumn, search.build()));
 
-Example 3: will return rows where *age* is in [-1, 1]
+**Example 3:** will return rows where *age* is in [-1, 1]
 
 .. code-block:: sql
 
@@ -2777,7 +2777,7 @@ Using Builder
     ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users")
                                     .where(eq(indexColumn, search.build()));
 
-Example 4: will return rows where *date* is in [2014/01/01, 2014/01/02]
+**Example 4** will return rows where *date* is in [2014/01/01, 2014/01/02]
 
 .. code-block:: sql
 
@@ -2805,7 +2805,7 @@ Using Builder
 Regexp search
 =============
 
-Syntax:
+**Syntax:**
 
 .. code-block:: sql
 
@@ -2822,7 +2822,7 @@ where:
    `org.apache.lucene.util.automaton.RegExp <http://lucene.apache.org/core/4_6_1/core/org/apache/lucene/util/automaton/RegExp.html>`__
    for syntax reference.
 
-Example: will return rows where name contains a word that starts with
+**Example:** will return rows where name contains a word that starts with
 “p” and a vowel repeated twice (e.g. “pape”).
 
 .. code-block:: sql
@@ -2847,7 +2847,7 @@ Using Builder
 Wildcard search
 ===============
 
-Syntax:
+**Syntax:**
 
 .. code-block:: sql
 
@@ -2864,7 +2864,7 @@ where:
    matches any character sequence (including the empty one), and ?,
    which matches any single character. ” is the escape character.
 
-Example: will return rows where food starts with or is “tu”.
+**Example:** will return rows where food starts with or is “tu”.
 
 .. code-block:: sql
 
@@ -3169,7 +3169,7 @@ age) where (name, gender) is the partition key. When combining the token
 function and a Lucene-based filter in a where clause, the filter on
 tokens is applied first and then the condition of the filter clause.
 
-Example: will retrieve rows which tokens are greater than (‘Alicia’,
+**Example:** will retrieve rows which tokens are greater than (‘Alicia’,
 ‘female’) and then test them against the match condition.
 
 .. code-block:: sql
