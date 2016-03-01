@@ -1777,7 +1777,7 @@ where:
 Since "not" will be applied to the results of a "must" or "should"
 condition, it can not be used in isolation.
 
-Example 1: will return rows where name ends with “a” AND food starts
+**Example 1:** will return rows where name ends with “a” AND food starts
 with “tu”
 
 .. code-block:: sql
@@ -1899,7 +1899,7 @@ Contains search
                                 field  : <fieldname> ,
                                 values : <value_list> }}';
 
-Example 1: will return rows where name matches “Alicia” or “mancha”
+**Example 1:** will return rows where name matches “Alicia” or “mancha”
 
 .. code-block:: sql
 
@@ -1968,7 +1968,7 @@ where:
 -  **operation**: the spatial operation to be performed, it can be
    **intersects**, **contains** and **is\_within**.
 
-Example 1: will return rows where duration intersects "2014/01/01" and
+**Example 1:** will return rows where duration intersects "2014/01/01" and
 "2014/12/31"
 
 .. code-block:: sql
@@ -2082,7 +2082,7 @@ where:
    When false, comparisons will implement the classic `Levenshtein
    distance <http://en.wikipedia.org/wiki/Levenshtein_distance>`__.
 
-Example 1: will return any rows where “phrase” contains a word that
+**Example 1:** will return any rows where “phrase” contains a word that
 differs in one edit operation from “puma”, such as “pumas”.
 
 .. code-block:: sql
@@ -2159,7 +2159,7 @@ where:
 -  **max\_longitude** : a double value between -180 and 180 being the
    max allowed longitude.
 
-Example 1: will return any rows where “place” is formed by a latitude
+**Example 1:** will return any rows where “place” is formed by a latitude
 between -90.0 and 90.0, and a longitude between -180.0 and
 180.0.
 
@@ -2313,7 +2313,7 @@ where:
 This query internally converts distance units to degrees using the spherical distance algorithm
 considering the earth a perfect sphere with a radius of 6371.0087714 km.
 
-Example 1: will return any rows where “place” is within one kilometer
+**Example 1:** will return any rows where “place” is within one kilometer
 from the geo point (40.225479, -3.999278).
 
 .. code-block:: sql
@@ -2409,7 +2409,7 @@ where:
 "contains". Defaults to "is_within".
 -  **transformation** : a list of geometrical transformations to be applied to the shape before using it for searching.
 
-Example 1: search for shapes within a polygon:
+**Example 1:** search for shapes within a polygon:
 
 .. code-block:: sql
 
@@ -2478,7 +2478,7 @@ Match search
                                   field : <fieldname> ,
                                   value : <value> }}';
 
-Example 1: will return rows where name matches “Alicia”
+**Example 1:** will return rows where name matches “Alicia”
 
 .. code-block:: sql
 
@@ -2594,7 +2594,7 @@ where:
 -  **values**: an ordered list of values.
 -  **slop** (default = 0): number of words permitted between words.
 
-Example 1: will return rows where “phrase” contains the word “camisa”
+**Example 1:** will return rows where “phrase” contains the word “camisa”
 followed by the word “manchada”.
 
 .. code-block:: sql
@@ -2708,7 +2708,7 @@ returned. If only “upper” is specified then all rows with field values
 up to “upper” will be returned. If both are omitted than all rows will
 be returned.
 
-Example 1: will return rows where *age* is in [1, ∞)
+**Example 1:** will return rows where *age* is in [1, ∞)
 
 .. code-block:: sql
 
