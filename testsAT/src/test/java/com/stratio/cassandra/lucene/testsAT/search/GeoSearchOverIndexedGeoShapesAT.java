@@ -50,8 +50,8 @@ public class GeoSearchOverIndexedGeoShapesAT extends BaseAT {
         data2 = new LinkedHashMap<>();
         data2.put("place", "'SHAPE_2'");
         data2.put("shape",
-                  "'POLYGON((-3.8012266 40.4384634, -3.7821293000000002 40.44178680000001," +
-                  "-3.7937164 40.4453468, -3.7937164 40.453054, -3.8012266 40.4384634))'");
+                      "'POLYGON((-3.8012266 40.4384634, -3.7821293000000002 40.44178680000001," +
+                      "-3.7937164 40.4453468, -3.7937164 40.453054, -3.8012266 40.4384634))'");
 
         data3 = new LinkedHashMap<>();
         data3.put("place", "'SHAPE_3'");
@@ -92,7 +92,7 @@ public class GeoSearchOverIndexedGeoShapesAT extends BaseAT {
         data11.put("shape", "'MULTIPOLYGON (((30 20, 45 40, 10 40, 30 20)),((15 5, 40 10, 10 20, 5 10, 15 5)))'");
 
         data12 = new LinkedHashMap<>();
-        data12.put("place", "'MULTIPOLYGON_1'");
+        data12.put("place", "'MULTIPOLYGON_2'");
         data12.put("shape",
                    "'MULTIPOLYGON (((40 40, 20 45, 45 30, 40 40)),((20 35, 10 30, 10 10, 30 5, 45 20, 20 35),(30 20, 20 15, 20 25, 30 20)))'");
 
@@ -469,6 +469,7 @@ public class GeoSearchOverIndexedGeoShapesAT extends BaseAT {
                                                      "MULTIPOINT_1",
                                                      "MULTIPOINT_2",
                                                      "MULTIPOLYGON_1",
+                                                     "MULTIPOLYGON_2",
                                                      "POLYGON_2");
     }
 
@@ -494,6 +495,7 @@ public class GeoSearchOverIndexedGeoShapesAT extends BaseAT {
                                                      "MULTIPOINT_1",
                                                      "MULTIPOINT_2",
                                                      "MULTIPOLYGON_1",
+                                                     "MULTIPOLYGON_2",
                                                      "POLYGON_2");
     }
 
@@ -539,6 +541,7 @@ public class GeoSearchOverIndexedGeoShapesAT extends BaseAT {
                                                      "MULTIPOINT_1",
                                                      "MULTIPOINT_2",
                                                      "MULTIPOLYGON_1",
+                                                     "MULTIPOLYGON_2",
                                                      "POLYGON_2");
     }
 
@@ -567,6 +570,7 @@ public class GeoSearchOverIndexedGeoShapesAT extends BaseAT {
                                                      "MULTIPOINT_1",
                                                      "MULTIPOINT_2",
                                                      "MULTIPOLYGON_1",
+                                                     "MULTIPOLYGON_2",
                                                      "POLYGON_2");
     }
 
@@ -594,6 +598,7 @@ public class GeoSearchOverIndexedGeoShapesAT extends BaseAT {
                                                      "MULTIPOINT_1",
                                                      "MULTIPOINT_2",
                                                      "MULTIPOLYGON_1",
+                                                     "MULTIPOLYGON_2",
                                                      "POLYGON_2");
     }
 
@@ -621,6 +626,7 @@ public class GeoSearchOverIndexedGeoShapesAT extends BaseAT {
                                                      "MULTIPOINT_1",
                                                      "MULTIPOINT_2",
                                                      "MULTIPOLYGON_1",
+                                                     "MULTIPOLYGON_2",
                                                      "POLYGON_2");
     }
 
@@ -650,6 +656,7 @@ public class GeoSearchOverIndexedGeoShapesAT extends BaseAT {
                                                      "MULTIPOINT_1",
                                                      "MULTIPOINT_2",
                                                      "MULTIPOLYGON_1",
+                                                     "MULTIPOLYGON_2",
                                                      "POLYGON_2");
     }
 
@@ -657,7 +664,7 @@ public class GeoSearchOverIndexedGeoShapesAT extends BaseAT {
     public void testMultipolygonContains() {
         cassandraUtils.filter(geoShape("shape",
                                        "MULTIPOLYGON (((30 20, 45 40, 10 40, 30 20)),((15 5, 40 10, 10 20, 5 10, 15 5)))")
-                                      .operation("contains")).checkStringColumnWithoutOrder("place");
+                                      .operation("contains")).checkStringColumnWithoutOrder("place","MULTIPOLYGON_1");
     }
 
     @Test
@@ -679,6 +686,7 @@ public class GeoSearchOverIndexedGeoShapesAT extends BaseAT {
                                                      "MULTIPOINT_1",
                                                      "MULTIPOINT_2",
                                                      "MULTIPOLYGON_1",
+                                                     "MULTIPOLYGON_2",
                                                      "POLYGON_2");
     }
 
@@ -686,7 +694,7 @@ public class GeoSearchOverIndexedGeoShapesAT extends BaseAT {
     public void testMultipolygon2Contains() {
         cassandraUtils.filter(geoShape("shape",
                                        "MULTIPOLYGON (((40 40, 20 45, 45 30, 40 40)),((20 35, 10 30, 10 10, 30 5, 45 20, 20 35),(30 20, 20 15, 20 25, 30 20)))")
-                                      .operation("contains")).checkStringColumnWithoutOrder("place", "LINE_1");
+                                      .operation("contains")).checkStringColumnWithoutOrder("place", "LINE_1","MULTIPOLYGON_2");
     }
 
     @Test
