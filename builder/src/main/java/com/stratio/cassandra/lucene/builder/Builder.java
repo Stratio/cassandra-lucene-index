@@ -488,12 +488,20 @@ public abstract class Builder {
     public static GeoTransformation.Buffer bufferGeoTransformation() {
         return new GeoTransformation.Buffer();
     }
+    /**
+     * Returns a new {@link GeoTransformation.Centroid}.
+     *
+     * @return the buffer transformation
+     */
+    public static GeoTransformation.Centroid centroidGeoTransformation() {
+        return new GeoTransformation.Centroid();
+    }
 
     /**
      * Returns a new {@link GeoTransformation.Difference}.
      *
      * @param shape the shape to be subtracted
-     * @return the intersection transformation
+     * @return the difference transformation
      */
     public static GeoTransformation.Difference differenceGeoTransformation(String shape) {
         return new GeoTransformation.Difference(shape);

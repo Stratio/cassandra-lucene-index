@@ -93,35 +93,61 @@ public interface GeoTransformation {
     }
 
     /**
-     * {@link GeoTransformation} that gets the onion of two JTS geographical shapes.
+     * {@link GeoTransformation} that gets the center point of a JTS geographical shape.
      */
-    class Union implements GeoTransformation {
+    class Centroid implements GeoTransformation {
+
+        /**
+         * Returns the center of the specified {@link JtsGeometry}.
+         *
+         * @param shape the JTS shape to be transformed
+         * @param context the JTS spatial context to be used
+         * @return the center
+         */
+        @Override
+        public JtsGeometry apply(JtsGeometry shape, JtsSpatialContext context) {
+            Geometry centroid = shape.getGeom().getCentroid();
+            return context.makeShape(centroid);
+        }
+
+        /** {@inheritDoc} */
+        @Override
+        public String toString() {
+            return Objects.toStringHelper(this).toString();
+        }
+    }
+
+    /**
+     * {@link GeoTransformation} that gets the difference of two JTS geographical shapes.
+     */
+    class Difference implements GeoTransformation {
 
         public final String other;
 
         /**
-         * Constructor receiving the geometry to be added.
+         * Constructor receiving the geometry to be subtracted.
          *
-         * @param other the geometry to be added
+         * @param other the geometry
          */
-        public Union(String other) {
+        public Difference(String other) {
             this.other = other;
         }
 
         /**
-         * Returns the union of the specified {@link JtsGeometry}.
+         * Returns the difference of the specified {@link JtsGeometry}.
          *
          * @param shape the JTS shape to be transformed
          * @param context the JTS spatial context to be used
-         * @return the union
+         * @return the difference
          */
         @Override
         public JtsGeometry apply(JtsGeometry shape, JtsSpatialContext context) {
             Geometry geometry = GeospatialUtils.geometryFromWKT(context, other).getGeom();
-            Geometry union = shape.getGeom().union(geometry);
-            return context.makeShape(union);
+            Geometry difference = shape.getGeom().difference(geometry);
+            return context.makeShape(difference);
         }
 
+        /** {@inheritDoc} */
         @Override
         public String toString() {
             return Objects.toStringHelper(this).add("other", other).toString();
@@ -129,7 +155,7 @@ public interface GeoTransformation {
     }
 
     /**
-     * {@link GeoTransformation} that gets the onion of two JTS geographical shapes.
+     * {@link GeoTransformation} that gets the intersection of two JTS geographical shapes.
      */
     class Intersection implements GeoTransformation {
 
@@ -168,34 +194,33 @@ public interface GeoTransformation {
     /**
      * {@link GeoTransformation} that gets the union of two JTS geographical shapes.
      */
-    class Difference implements GeoTransformation {
+    class Union implements GeoTransformation {
 
         public final String other;
 
         /**
-         * Constructor receiving the geometry to be subtracted.
+         * Constructor receiving the geometry to be added.
          *
-         * @param other the geometry
+         * @param other the geometry to be added
          */
-        public Difference(String other) {
+        public Union(String other) {
             this.other = other;
         }
 
         /**
-         * Returns the difference of the specified {@link JtsGeometry}.
+         * Returns the union of the specified {@link JtsGeometry}.
          *
          * @param shape the JTS shape to be transformed
          * @param context the JTS spatial context to be used
-         * @return the difference
+         * @return the union
          */
         @Override
         public JtsGeometry apply(JtsGeometry shape, JtsSpatialContext context) {
             Geometry geometry = GeospatialUtils.geometryFromWKT(context, other).getGeom();
-            Geometry difference = shape.getGeom().difference(geometry);
-            return context.makeShape(difference);
+            Geometry union = shape.getGeom().union(geometry);
+            return context.makeShape(union);
         }
 
-        /** {@inheritDoc} */
         @Override
         public String toString() {
             return Objects.toStringHelper(this).add("other", other).toString();

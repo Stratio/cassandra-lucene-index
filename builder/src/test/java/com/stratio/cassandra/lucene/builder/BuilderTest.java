@@ -614,7 +614,8 @@ public class BuilderTest {
     @Test
     public void testGeoShapeConditionFull() {
         String actual = geoShape("field", "my_shape").operation("intersects")
-                                                     .transform(differenceGeoTransformation("my_difference_shape"),
+                                                     .transform(centroidGeoTransformation(),
+                                                                differenceGeoTransformation("my_difference_shape"),
                                                                 intersectionGeoTransformation("my_intersection_shape"),
                                                                 unionGeoTransformation("my_union_shape"),
                                                                 bufferGeoTransformation().maxDistance("10km")
@@ -622,6 +623,7 @@ public class BuilderTest {
                                                      .build();
         String expected = "{\"type\":\"geo_shape\",\"field\":\"field\",\"shape\":\"my_shape\"," +
                           "\"operation\":\"intersects\",\"transformations\":[" +
+                          "{\"type\":\"centroid\"}," +
                           "{\"type\":\"difference\",\"shape\":\"my_difference_shape\"}," +
                           "{\"type\":\"intersection\",\"shape\":\"my_intersection_shape\"}," +
                           "{\"type\":\"union\",\"shape\":\"my_union_shape\"}," +

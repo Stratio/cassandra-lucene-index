@@ -31,6 +31,7 @@ import org.codehaus.jackson.annotate.*;
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({@JsonSubTypes.Type(value = GeoTransformationBuilder.Buffer.class, name = "buffer"),
+               @JsonSubTypes.Type(value = GeoTransformationBuilder.Centroid.class, name = "centroid"),
                @JsonSubTypes.Type(value = GeoTransformationBuilder.Difference.class, name = "difference"),
                @JsonSubTypes.Type(value = GeoTransformationBuilder.Intersection.class, name = "intersection"),
                @JsonSubTypes.Type(value = GeoTransformationBuilder.Union.class, name = "union")})
@@ -78,6 +79,20 @@ public interface GeoTransformationBuilder<T extends GeoTransformation> extends B
             GeoDistance min = StringUtils.isBlank(minDistance) ? null : GeoDistance.parse(minDistance);
             GeoDistance max = StringUtils.isBlank(maxDistance) ? null : GeoDistance.parse(maxDistance);
             return new GeoTransformation.Buffer(max, min);
+        }
+
+    }
+
+    /**
+     * {@link GeoTransformation} that gets the centroid of a JTS geographical shape.
+     */
+    @JsonTypeName("centroid")
+    class Centroid implements GeoTransformationBuilder<GeoTransformation.Centroid> {
+
+        /** {@inheritDoc} */
+        @Override
+        public GeoTransformation.Centroid build() {
+            return new GeoTransformation.Centroid();
         }
 
     }

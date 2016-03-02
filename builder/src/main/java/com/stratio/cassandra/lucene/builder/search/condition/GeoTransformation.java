@@ -28,11 +28,15 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({@JsonSubTypes.Type(value = GeoTransformation.Buffer.class, name = "buffer"),
+               @JsonSubTypes.Type(value = GeoTransformation.Centroid.class, name = "centroid"),
                @JsonSubTypes.Type(value = GeoTransformation.Difference.class, name = "difference"),
                @JsonSubTypes.Type(value = GeoTransformation.Intersection.class, name = "intersection"),
                @JsonSubTypes.Type(value = GeoTransformation.Union.class, name = "union")})
 public abstract class GeoTransformation extends Builder {
 
+    /**
+     * {@link GeoTransformation} for getting the bounding shape of a JTS geographical shape.
+     */
     public static class Buffer extends GeoTransformation {
 
         /** The max allowed distance. */
@@ -66,6 +70,16 @@ public abstract class GeoTransformation extends Builder {
         }
     }
 
+    /**
+     * {@link GeoTransformation} that gets the center point of a JTS geographical shape.
+     */
+    public static class Centroid extends GeoTransformation {
+
+    }
+
+    /**
+     * {@link GeoTransformation} that gets the difference of two JTS geographical shapes.
+     */
     public static class Difference extends GeoTransformation {
 
         /** The other shape. */
@@ -83,6 +97,9 @@ public abstract class GeoTransformation extends Builder {
 
     }
 
+    /**
+     * {@link GeoTransformation} that gets the intersection of two JTS geographical shapes.
+     */
     public static class Intersection extends GeoTransformation {
 
         /** The other shape. */
@@ -100,6 +117,9 @@ public abstract class GeoTransformation extends Builder {
 
     }
 
+    /**
+     * {@link GeoTransformation} that gets the union of two JTS geographical shapes.
+     */
     public static class Union extends GeoTransformation {
 
         /** The other shape. */
