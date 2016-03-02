@@ -20,16 +20,17 @@ package com.stratio.cassandra.lucene.search.condition;
 
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.shape.jts.JtsGeometry;
-import com.stratio.cassandra.lucene.IndexException;
+import com.stratio.cassandra.lucene.common.GeoTransformation;
 import com.stratio.cassandra.lucene.schema.mapping.GeoShapeMapper;
-import com.stratio.cassandra.lucene.search.condition.builder.GeoTransformationBuilder;
 import com.stratio.cassandra.lucene.util.GeospatialUtils;
 import com.stratio.cassandra.lucene.util.JsonSerializer;
 import org.junit.Test;
 
 import java.io.IOException;
 
+import static com.stratio.cassandra.lucene.common.GeoTransformation.Centroid;
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
 
 /**
  * Unit tests for {@link GeoTransformation.Centroid}.
@@ -103,12 +104,10 @@ public class GeoTransformationCentroidTest extends AbstractConditionTest {
     }
 
     @Test
-    public void testCentroidTransformationBuilder() throws IOException {
-        GeoTransformationBuilder builder = new GeoTransformationBuilder.Centroid();
-        String json = JsonSerializer.toString(builder);
-        assertEquals("JSON serialization is wrong", "{type:\"centroid\"}", json);
-        builder = JsonSerializer.fromString(json, GeoTransformationBuilder.Centroid.class);
-        assertEquals("JSON parsing is wrong ", "Centroid{}", builder.build().toString());
+    public void testCentroidTransformationParsing() throws IOException {
+        String json = "{type:\"centroid\"}";
+        Centroid centroid = JsonSerializer.fromString(json, Centroid.class);
+        assertNotNull("JSON serialization is wrong", centroid);
     }
 
 }

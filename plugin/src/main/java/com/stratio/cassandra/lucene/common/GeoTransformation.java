@@ -16,19 +16,26 @@
  * under the License.
  */
 
-package com.stratio.cassandra.lucene.search.condition;
+package com.stratio.cassandra.lucene.common;
 
 import com.google.common.base.Objects;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.stratio.cassandra.lucene.util.GeospatialUtils;
 import com.vividsolutions.jts.geom.Geometry;
+import org.codehaus.jackson.annotate.*;
 
 /**
  * Class representing the transformation of a JTS geographical shape into a new shape.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+@JsonSubTypes({@JsonSubTypes.Type(value = GeoTransformation.Buffer.class, name = "buffer"),
+               @JsonSubTypes.Type(value = GeoTransformation.Centroid.class, name = "centroid"),
+               @JsonSubTypes.Type(value = GeoTransformation.Difference.class, name = "difference"),
+               @JsonSubTypes.Type(value = GeoTransformation.Intersection.class, name = "intersection"),
+               @JsonSubTypes.Type(value = GeoTransformation.Union.class, name = "union")})
 public interface GeoTransformation {
 
     /**
@@ -46,18 +53,42 @@ public interface GeoTransformation {
      */
     class Buffer implements GeoTransformation {
 
-        public final GeoDistance maxDistance;
-        public final GeoDistance minDistance;
+        /** The max allowed distance. */
+        @JsonProperty("max_distance")
+        private GeoDistance maxDistance;
+
+        /** The min allowed distance. */
+        @JsonProperty("min_distance")
+        private GeoDistance minDistance;
 
         /**
-         * Constructor receiving the max and minimum accepted distances.
+         * Sets the max allowed distance.
          *
-         * @param maxDistance the max accepted distance
-         * @param minDistance the min accepted distance
+         * @param maxDistance the min distance
+         * @return this with the specified min distance
          */
-        public Buffer(GeoDistance maxDistance, GeoDistance minDistance) {
+        public Buffer maxDistance(GeoDistance maxDistance) {
             this.maxDistance = maxDistance;
+            return this;
+        }
+
+        /**
+         * Sets the min allowed distance.
+         *
+         * @param minDistance the min distance
+         * @return this with the specified min distance
+         */
+        public Buffer minDistance(GeoDistance minDistance) {
             this.minDistance = minDistance;
+            return this;
+        }
+
+        public GeoDistance maxDistance() {
+            return maxDistance;
+        }
+
+        public GeoDistance minDistance() {
+            return minDistance;
         }
 
         /**
@@ -95,6 +126,7 @@ public interface GeoTransformation {
     /**
      * {@link GeoTransformation} that gets the center point of a JTS geographical shape.
      */
+    @JsonTypeName("centroid")
     class Centroid implements GeoTransformation {
 
         /**
@@ -122,6 +154,7 @@ public interface GeoTransformation {
      */
     class Difference implements GeoTransformation {
 
+        @JsonProperty("shape")
         public final String other;
 
         /**
@@ -129,7 +162,8 @@ public interface GeoTransformation {
          *
          * @param other the geometry
          */
-        public Difference(String other) {
+        @JsonCreator
+        public Difference(@JsonProperty("shape") String other) {
             this.other = other;
         }
 
@@ -159,6 +193,7 @@ public interface GeoTransformation {
      */
     class Intersection implements GeoTransformation {
 
+        @JsonProperty("shape")
         public final String other;
 
         /**
@@ -166,7 +201,8 @@ public interface GeoTransformation {
          *
          * @param other the geometry to be added
          */
-        public Intersection(String other) {
+        @JsonCreator
+        public Intersection(@JsonProperty("shape") String other) {
             this.other = other;
         }
 
@@ -196,6 +232,7 @@ public interface GeoTransformation {
      */
     class Union implements GeoTransformation {
 
+        @JsonProperty("shape")
         public final String other;
 
         /**
@@ -203,7 +240,8 @@ public interface GeoTransformation {
          *
          * @param other the geometry to be added
          */
-        public Union(String other) {
+        @JsonCreator
+        public Union(@JsonProperty("shape") String other) {
             this.other = other;
         }
 

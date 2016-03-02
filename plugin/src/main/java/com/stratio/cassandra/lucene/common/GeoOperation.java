@@ -1,4 +1,4 @@
-package com.stratio.cassandra.lucene.search.condition;
+package com.stratio.cassandra.lucene.common;
 
 import com.stratio.cassandra.lucene.IndexException;
 import org.apache.lucene.spatial.query.SpatialOperation;

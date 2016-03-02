@@ -21,6 +21,9 @@ package com.stratio.cassandra.lucene.search.condition;
 import com.spatial4j.core.shape.Shape;
 import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.stratio.cassandra.lucene.IndexException;
+import com.stratio.cassandra.lucene.common.GeoDistance;
+import com.stratio.cassandra.lucene.common.GeoOperation;
+import com.stratio.cassandra.lucene.common.GeoTransformation;
 import com.stratio.cassandra.lucene.schema.Schema;
 import org.apache.lucene.search.ConstantScoreQuery;
 import org.apache.lucene.search.Query;
@@ -47,7 +50,8 @@ public class GeoShapeConditionTest extends AbstractConditionTest {
     @Test
     public void testConstructor() throws ParseException {
         List<GeoTransformation> transformationList = new ArrayList<>();
-        transformationList.add(new GeoTransformation.Buffer(GeoDistance.parse("2m"), GeoDistance.parse("1m")));
+        transformationList.add(new GeoTransformation.Buffer().maxDistance(GeoDistance.parse("2m"))
+                                                             .minDistance(GeoDistance.parse("1m")));
 
         GeoShapeCondition condition = new GeoShapeCondition(0.1f,
                                                             "geo_point",
@@ -113,7 +117,8 @@ public class GeoShapeConditionTest extends AbstractConditionTest {
         Schema schema = schema().mapper("geo_point", geoPointMapper("lat", "lon").maxLevels(8)).build();
 
         List<GeoTransformation> transformations = new ArrayList<>();
-        transformations.add(new GeoTransformation.Buffer(GeoDistance.parse("2m"), GeoDistance.parse("1m")));
+        transformations.add(new GeoTransformation.Buffer().maxDistance(GeoDistance.parse("2m"))
+                                                          .minDistance(GeoDistance.parse("1m")));
 
         Condition condition = new GeoShapeCondition(0.1f, "geo_point", WKT, GeoOperation.IS_WITHIN, transformations);
 
@@ -161,7 +166,8 @@ public class GeoShapeConditionTest extends AbstractConditionTest {
         Schema schema = schema().mapper("geo_point", geoPointMapper("lat", "lon").maxLevels(8)).build();
 
         List<GeoTransformation> transformations = new ArrayList<>();
-        transformations.add(new GeoTransformation.Buffer(GeoDistance.parse("2m"), GeoDistance.parse("1m")));
+        transformations.add(new GeoTransformation.Buffer().maxDistance(GeoDistance.parse("2m"))
+                                                          .minDistance(GeoDistance.parse("1m")));
 
         Condition condition = new GeoShapeCondition(0.1f, "geo_point", WKT, GeoOperation.INTERSECTS, transformations);
 
@@ -208,7 +214,8 @@ public class GeoShapeConditionTest extends AbstractConditionTest {
         Schema schema = schema().mapper("geo_point", geoPointMapper("lat", "lon").maxLevels(8)).build();
 
         List<GeoTransformation> transformations = new ArrayList<>();
-        transformations.add(new GeoTransformation.Buffer(GeoDistance.parse("2m"), GeoDistance.parse("1m")));
+        transformations.add(new GeoTransformation.Buffer().maxDistance(GeoDistance.parse("2m"))
+                                                          .minDistance(GeoDistance.parse("1m")));
 
         Condition condition = new GeoShapeCondition(0.1f, "geo_point", WKT, GeoOperation.CONTAINS, transformations);
 

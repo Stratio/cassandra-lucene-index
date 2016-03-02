@@ -19,6 +19,8 @@
 package com.stratio.cassandra.lucene.search.condition;
 
 import com.stratio.cassandra.lucene.IndexException;
+import com.stratio.cassandra.lucene.common.GeoDistance;
+import com.stratio.cassandra.lucene.common.GeoDistanceUnit;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

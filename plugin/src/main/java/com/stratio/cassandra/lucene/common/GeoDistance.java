@@ -16,14 +16,16 @@
  * under the License.
  */
 
-package com.stratio.cassandra.lucene.search.condition;
+package com.stratio.cassandra.lucene.common;
 
 import com.google.common.base.Objects;
 import com.spatial4j.core.distance.DistanceUtils;
 import com.stratio.cassandra.lucene.IndexException;
 import org.codehaus.jackson.annotate.JsonCreator;
-
-import java.util.List;
+import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.annotate.JsonRawValue;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 /**
  * Class representing a geographical distance.

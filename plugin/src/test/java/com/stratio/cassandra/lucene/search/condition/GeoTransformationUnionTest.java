@@ -21,15 +21,17 @@ package com.stratio.cassandra.lucene.search.condition;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.stratio.cassandra.lucene.IndexException;
+import com.stratio.cassandra.lucene.common.GeoTransformation;
 import com.stratio.cassandra.lucene.schema.mapping.GeoShapeMapper;
-import com.stratio.cassandra.lucene.search.condition.builder.GeoTransformationBuilder;
 import com.stratio.cassandra.lucene.util.GeospatialUtils;
 import com.stratio.cassandra.lucene.util.JsonSerializer;
 import org.junit.Test;
 
 import java.io.IOException;
 
+import static com.stratio.cassandra.lucene.common.GeoTransformation.Union;
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
 
 /**
  * Unit tests for {@link GeoTransformation.Union}.
@@ -51,7 +53,7 @@ public class GeoTransformationUnionTest extends AbstractConditionTest {
         String shape2 = "POLYGON((-30 0, 30 0, 30 -30, -30 -30, -30 0))";
         String union = "POLYGON ((-30 0, -30 30, 30 30, 30 0, 30 -30, -30 -30, -30 0))";
 
-        GeoTransformation transformation = new GeoTransformation.Union(shape2);
+        GeoTransformation transformation = new Union(shape2);
         JtsGeometry geometry = geometry(shape1);
         JtsGeometry transformedGeometry = transformation.apply(geometry, GeoShapeCondition.CONTEXT);
 
@@ -61,7 +63,7 @@ public class GeoTransformationUnionTest extends AbstractConditionTest {
     @Test(expected = IndexException.class)
     public void testUnionTransformationWithNullShape() {
         String shape1 = "POLYGON((-30 30, -30 0, 30 0, 30 30, -30 30))";
-        GeoTransformation transformation = new GeoTransformation.Union(null);
+        GeoTransformation transformation = new Union(null);
         JtsGeometry geometry = geometry(shape1);
         transformation.apply(geometry, GeoShapeCondition.CONTEXT);
     }
@@ -69,7 +71,7 @@ public class GeoTransformationUnionTest extends AbstractConditionTest {
     @Test(expected = IndexException.class)
     public void testUnionTransformationWithEmptyShape() {
         String shape1 = "POLYGON((-30 30, -30 0, 30 0, 30 30, -30 30))";
-        GeoTransformation transformation = new GeoTransformation.Union("");
+        GeoTransformation transformation = new Union("");
         JtsGeometry geometry = geometry(shape1);
         transformation.apply(geometry, GeoShapeCondition.CONTEXT);
     }
@@ -77,7 +79,7 @@ public class GeoTransformationUnionTest extends AbstractConditionTest {
     @Test(expected = IndexException.class)
     public void testUnionTransformationWithWrongShape() {
         String shape1 = "POLYGON((-30 30, -30 0, 30 0, 30 30, -30 30))";
-        GeoTransformation transformation = new GeoTransformation.Union("POLYGON((-30 0, 30 0, 30 -30, -30 -30))");
+        GeoTransformation transformation = new Union("POLYGON((-30 0, 30 0, 30 -30, -30 -30))");
         JtsGeometry geometry = geometry(shape1);
         transformation.apply(geometry, GeoShapeCondition.CONTEXT);
     }
@@ -85,17 +87,16 @@ public class GeoTransformationUnionTest extends AbstractConditionTest {
     @Test
     public void testUnionTransformationToString() {
         String shape1 = "POLYGON((-30 30, -30 0, 30 0, 30 30, -30 30))";
-        GeoTransformation transformation = new GeoTransformation.Union(shape1);
+        GeoTransformation transformation = new Union(shape1);
         assertEquals("Union{other=POLYGON((-30 30, -30 0, 30 0, 30 30, -30 30))}", transformation.toString());
     }
 
     @Test
-    public void testUnionTransformationBuilder() throws IOException {
-        GeoTransformationBuilder builder = new GeoTransformationBuilder.Union("LINESTRING(2 4, 30 3)");
-        String json = JsonSerializer.toString(builder);
-        assertEquals("JSON serialization is wrong", "{type:\"union\",shape:\"LINESTRING(2 4, 30 3)\"}", json);
-        builder = JsonSerializer.fromString(json, GeoTransformationBuilder.Union.class);
-        assertEquals("JSON parsing is wrong ", "Union{other=LINESTRING(2 4, 30 3)}", builder.build().toString());
+    public void testUnionTransformationParsing() throws IOException {
+        String json = "{type:\"union\",shape:\"LINESTRING(2 4, 30 3)\"}";
+        Union union = JsonSerializer.fromString(json, Union.class);
+        assertNotNull("JSON serialization is wrong", union);
+        assertEquals("JSON serialization is wrong", "LINESTRING(2 4, 30 3)", union.other);
     }
 
 }

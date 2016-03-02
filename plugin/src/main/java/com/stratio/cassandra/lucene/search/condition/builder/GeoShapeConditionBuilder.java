@@ -19,9 +19,9 @@
 package com.stratio.cassandra.lucene.search.condition.builder;
 
 import com.stratio.cassandra.lucene.search.condition.GeoBBoxCondition;
-import com.stratio.cassandra.lucene.search.condition.GeoOperation;
+import com.stratio.cassandra.lucene.common.GeoOperation;
 import com.stratio.cassandra.lucene.search.condition.GeoShapeCondition;
-import com.stratio.cassandra.lucene.search.condition.GeoTransformation;
+import com.stratio.cassandra.lucene.common.GeoTransformation;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
@@ -50,7 +50,7 @@ public class GeoShapeConditionBuilder extends ConditionBuilder<GeoShapeCondition
 
     /** The sequence of transformations to be applied to the shape before searching. */
     @JsonProperty("transformations")
-    private List<GeoTransformationBuilder> transformations = new ArrayList<>();
+    private List<GeoTransformation> transformations = new ArrayList<>();
 
     /**
      * Constructor receiving the name of the field and the shape.
@@ -81,7 +81,7 @@ public class GeoShapeConditionBuilder extends ConditionBuilder<GeoShapeCondition
      * @param transformations the sequence of transformations
      * @return this with the transformations set
      */
-    public GeoShapeConditionBuilder setTransformations(List<GeoTransformationBuilder> transformations) {
+    public GeoShapeConditionBuilder setTransformations(List<GeoTransformation> transformations) {
         this.transformations = transformations;
         return this;
     }
@@ -94,11 +94,8 @@ public class GeoShapeConditionBuilder extends ConditionBuilder<GeoShapeCondition
     @Override
     public GeoShapeCondition build() {
         GeoOperation geoOperation = StringUtils.isBlank(operation) ? null : GeoOperation.parse(operation);
-        List<GeoTransformation> transformations = new ArrayList<>();
-        if (this.transformations != null) {
-            for (GeoTransformationBuilder<?> builder : this.transformations) {
-                transformations.add(builder.build());
-            }
+        if (transformations == null) {
+            transformations = new ArrayList<>();
         }
         return new GeoShapeCondition(boost, field, shape, geoOperation, transformations);
     }
