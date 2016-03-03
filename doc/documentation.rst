@@ -1059,6 +1059,11 @@ into your Cassandra installation lib directory.
 
 **Example 2:** Index only the centroid of the WKT shape contained in the indexed column
 
+.. image:: /doc/resources/geo_shape_mapper_example_2.png
+:width: 100%
+    :alt: search by shape
+        :align: center
+
 .. code-block:: sql
 
     CREATE TABLE IF NOT EXISTS cities (
@@ -1086,12 +1091,12 @@ into your Cassandra installation lib directory.
         }'
     };
 
-.. image:: /doc/resources/geo_shape_mapper_example_2.png
+**Example 3:** Index a buffer 50 kilometres around the area of a city
+
+.. image:: /doc/resources/geo_shape_mapper_example_3.png
     :width: 100%
     :alt: search by shape
     :align: center
-
-**Example 3:** Index a buffer 50 kilometres around the area of a city
 
 .. code-block:: sql
 
@@ -1120,12 +1125,12 @@ into your Cassandra installation lib directory.
         }'
     };
 
-.. image:: /doc/resources/geo_shape_mapper_example_3.png
-:width: 100%
+**Example 4:** Index a buffer 50 kilometres around the borders of a country
+
+.. image:: /doc/resources/geo_shape_mapper_example_4.png
+    :width: 100%
     :alt: search by shape
     :align: center
-
-**Example 4:** Index a buffer 50 kilometres around the borders of a country
 
 .. code-block:: sql
 
@@ -1153,11 +1158,6 @@ into your Cassandra installation lib directory.
             }
         }'
     };
-
-.. image:: /doc/resources/geo_shape_mapper_example_4.png
-:width: 100%
-    :alt: search by shape
-        :align: center
 
 
 Supported CQL types: ascii, text, and varchar
