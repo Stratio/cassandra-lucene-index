@@ -22,10 +22,6 @@ import com.google.common.base.Objects;
 import com.spatial4j.core.distance.DistanceUtils;
 import com.stratio.cassandra.lucene.IndexException;
 import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonIgnore;
-import org.codehaus.jackson.annotate.JsonProperty;
-import org.codehaus.jackson.annotate.JsonRawValue;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 /**
  * Class representing a geographical distance.

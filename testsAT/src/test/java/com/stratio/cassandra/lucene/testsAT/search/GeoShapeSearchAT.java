@@ -38,6 +38,7 @@ import static com.stratio.cassandra.lucene.builder.Builder.geoShape;
  */
 @RunWith(JUnit4.class)
 public class GeoShapeSearchAT extends BaseAT {
+
     protected static CassandraUtils cassandraUtils;
 
     public static final Map<String, String> data1, data2,data3,data4,data5,data6,data7,data8,data9,data10,data11,data12;

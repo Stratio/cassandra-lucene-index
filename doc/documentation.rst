@@ -632,6 +632,8 @@ Details and default values are listed in the table below.
 | `geo_shape <#geo-shape-mapper>`__   | column          | string          | mapper_name of the schema      | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | max_levels      | integer         | 11                             | No        |
+|                                     +-----------------+-----------------+--------------------------------+-----------+
+|                                     | transformations | array           |                                | No        |
 +-------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 | `inet <#inet-mapper>`__             | column          | string          | mapper_name of the schema      | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
@@ -1013,12 +1015,15 @@ ________________
 Maps a geographical shape stored in a text column with `Well Known Text (WKT) <http://en.wikipedia.org/wiki/Well-known_text>`__
 format. The supported WKT shapes are point, linestring, polygon, multipoint, multilinestring and multipolygon.
 
+It is possible to specify a sequence of geometrical transformations to be applied to the shape before indexing it.
+It could be used for indexing only the centroid of the shape, or a buffer around it, etc.
+
 This mapper depends on `Java Topology Suite (JTS) <http://www.vividsolutions.com/jts>`__.
 This library can't be distributed together with this project due to license compatibility problems, but you can add it
 by putting `jts-core-1.14.0.jar <http://search.maven.org/remotecontent?filepath=com/vividsolutions/jts-core/1.14.0/jts-core-1.14.0.jar>`__
 into your Cassandra installation lib directory.
 
-**Example:**
+**Example 1:**
 
 .. code-block:: sql
 
@@ -1051,6 +1056,108 @@ into your Cassandra installation lib directory.
             }
         }'
     };
+
+**Example 2:** Index only the centroid of the WKT shape contained in the indexed column
+
+.. code-block:: sql
+
+    CREATE TABLE IF NOT EXISTS cities (
+        name text,
+        shape text,
+        lucene text,
+        PRIMARY KEY (name)
+    );
+
+    INSERT INTO cities(name, shape) VALUES ('birmingham', 'POLYGON((-2.25 52.63, -2.26 52.49, -2.13 52.36, -1.80 52.34, -1.57 52.54, -1.89 52.67, -2.25 52.63))');
+    INSERT INTO cities(name, shape) VALUES ('london', 'POLYGON((-0.55 51.50, -0.13 51.19, 0.21 51.35, 0.30 51.62, -0.02 51.75, -0.34 51.69, -0.55 51.50))');
+
+    CREATE CUSTOM INDEX cities_index on cities(lucene)
+    USING 'com.stratio.cassandra.lucene.Index'
+    WITH OPTIONS = {
+        'refresh_seconds' : '1',
+        'schema' : '{
+            fields : {
+                shape : {
+                    type            : "geo_shape",
+                    max_levels      : 15,
+                    transformations : [{type:"centroid"}]
+                }
+            }
+        }'
+    };
+
+.. image:: /doc/resources/geo_shape_mapper_example_2.png
+    :width: 100%
+    :alt: search by shape
+    :align: center
+
+**Example 3:** Index a buffer 50 kilometres around the area of a city
+
+.. code-block:: sql
+
+    CREATE TABLE IF NOT EXISTS cities (
+        name text,
+        shape text,
+        lucene text,
+        PRIMARY KEY (name)
+    );
+
+    INSERT INTO cities(name, shape) VALUES ('birmingham', 'POLYGON((-2.25 52.63, -2.26 52.49, -2.13 52.36, -1.80 52.34, -1.57 52.54, -1.89 52.67, -2.25 52.63))');
+    INSERT INTO cities(name, shape) VALUES ('london', 'POLYGON((-0.55 51.50, -0.13 51.19, 0.21 51.35, 0.30 51.62, -0.02 51.75, -0.34 51.69, -0.55 51.50))');
+
+    CREATE CUSTOM INDEX cities_index on cities(lucene)
+    USING 'com.stratio.cassandra.lucene.Index'
+    WITH OPTIONS = {
+        'refresh_seconds' : '1',
+        'schema' : '{
+            fields : {
+                shape : {
+                    type            : "geo_shape",
+                    max_levels      : 15,
+                    transformations : [{type:"buffer", min_distance:"50km"}]
+                }
+            }
+        }'
+    };
+
+.. image:: /doc/resources/geo_shape_mapper_example_3.png
+:width: 100%
+    :alt: search by shape
+    :align: center
+
+**Example 4:** Index a buffer 50 kilometres around the borders of a country
+
+.. code-block:: sql
+
+    CREATE TABLE IF NOT EXISTS borders (
+        country text,
+        shape text,
+        lucene text,
+        PRIMARY KEY (country)
+    );
+
+    INSERT INTO borders(country, shape) VALUES ('france', 'LINESTRING(-1.8037198483943 43.463094234466, -1.3642667233943 43.331258296966, -1.3642667233943 43.111531734466, -0.74903234839434 42.979695796966, -0.66114172339434 42.847859859466, -0.17774328589434 42.891805171966, -0.089852660894337 42.759969234466, 0.61327233910569 42.716023921966, 0.61327233910569 42.891805171966, 1.3163973391057 42.759969234466, 1.4482332766057 42.672078609466, 1.4482332766057 42.496297359466, 1.6240145266057 42.496297359466, 1.6679598391057 42.540242671966, 2.0195223391057 42.408406734466, 2.2392489016057 42.496297359466, 2.5908114016057 42.408406734466, 2.8984285891057 42.496297359466, 3.2060457766057 42.408406734466)');
+    INSERT INTO borders(country, shape) VALUES ('portugal', 'LINESTRING(-8.8789151608943 41.925008296966, -8.2636807858943 42.100789546966, -8.1318448483943 42.056844234466, -8.1757901608943 41.881062984466, -7.8242276608943 41.793172359466, -7.7802823483943 41.925008296966, -7.1650479733943 41.925008296966, -7.1211026608943 42.012898921966, -6.5498135983943 42.056844234466, -6.5498135983943 41.661336421966, -6.1982510983943 41.661336421966, -6.3740323483943 41.353719234466, -6.9013760983943 41.002156734466, -6.7255948483943 40.738484859466, -6.8134854733943 40.474812984466, -7.0771573483943 40.167195796966, -6.9013760983943 40.123250484466, -6.9892667233943 39.683797359466, -7.4726651608943 39.683797359466, -7.2529385983943 39.464070796966, -7.2529385983943 39.156453609466, -7.0771573483943 39.112508296966, -7.0771573483943 38.936727046966, -7.2529385983943 38.585164546966, -7.1650479733943 38.277547359466, -6.9013760983943 38.277547359466, -7.1211026608943 38.057820796966, -7.4726651608943 37.706258296966, -7.3408292233943 37.178914546966)');
+
+    CREATE CUSTOM INDEX borders_index on borders(lucene)
+    USING 'com.stratio.cassandra.lucene.Index'
+    WITH OPTIONS = {
+        'refresh_seconds' : '1',
+        'schema' : '{
+            fields : {
+                shape : {
+                    type            : "geo_shape",
+                    max_levels      : 15,
+                    transformations : [{type:"buffer", max_distance:"50km"}]
+                }
+            }
+        }'
+    };
+
+.. image:: /doc/resources/geo_shape_mapper_example_4.png
+:width: 100%
+    :alt: search by shape
+        :align: center
 
 
 Supported CQL types: ascii, text, and varchar
