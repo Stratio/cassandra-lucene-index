@@ -48,9 +48,9 @@ This project is not intended to replace Apache Cassandra denormalized tables, in
 indexes. It is just a tool to perform some kind of queries which are really hard to be addressed using Apache Cassandra
 out of the box features, filling the gap between real-time and analytics.
 
-.. image:: /doc/resources/between_real_time_and_analytics.png
+.. image:: /doc/resources/oltp_olap.png
    :width: 100%
-   :alt: between_real_time_and_analytics
+   :alt: oltp_olap
    :align: center
 
 More detailed information is available at `Stratio’s Cassandra Lucene Index documentation <doc/documentation.rst>`__.
