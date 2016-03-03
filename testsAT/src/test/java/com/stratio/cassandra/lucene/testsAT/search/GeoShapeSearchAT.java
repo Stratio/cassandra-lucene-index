@@ -29,7 +29,7 @@ import org.junit.runners.JUnit4;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static com.stratio.cassandra.lucene.builder.Builder.bufferTransformation;
+import static com.stratio.cassandra.lucene.builder.Builder.bufferGeoTransformation;
 import static com.stratio.cassandra.lucene.builder.Builder.geoPointMapper;
 import static com.stratio.cassandra.lucene.builder.Builder.geoShape;
 
@@ -228,7 +228,7 @@ public class GeoShapeSearchAT extends BaseAT {
     public void testBufferShape() {
         cassandraUtils.filter(geoShape("location","LINESTRING(-3.8033294999999994 40.4349602,-3.7986946 40.44511810000001," +
                                                   "-3.785691299999999 40.445020199999995)")
-                                      .operation("intersects").transform(bufferTransformation().maxDistance("500m")))
+                                      .operation("intersects").transform(bufferGeoTransformation().maxDistance("500m")))
                       .checkStringColumnWithoutOrder("place", "POINT_3", "POINT_4", "POINT_6", "POINT_7","POINT_8","POINT_9","POINT_10","POINT_11","POINT_12");
 
     }
