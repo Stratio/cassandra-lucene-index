@@ -72,27 +72,44 @@ Stratio's Cassandra Lucene Index
 Overview
 ********
 
-`Cassandra <http://cassandra.apache.org/>`__ index functionality has
-been extended to provide near real time search such as
-`ElasticSearch <http://www.elasticsearch.org/>`__ or
-`Solr <https://lucene.apache.org/solr/>`__, including full text search
-capabilities and multivariable, geospatial and bitemporal search.
+Stratio’s Cassandra Lucene Index, derived from `Stratio Cassandra <https://github.com/Stratio/stratio-cassandra>`__, is
+a plugin for `Apache Cassandra <http://cassandra.apache.org/>`__ that extends its index functionality to provide near
+real time search such as ElasticSearch or Solr, including `full text search <http://en.wikipedia.org/wiki/Full_text_search>`__
+capabilities and free multivariable, geospatial and bitemporal search. It is achieved through an `Apache Lucene <http://lucene.apache.org/>`__
+based implementation of Cassandra secondary indexes, where each node of the cluster indexes its own data. Stratio’s
+Cassandra indexes are one of the core modules on which `Stratio’s BigData platform <http://www.stratio.com/>`__ is based.
 
-It is also fully compatible with `Apache
-Spark <https://spark.apache.org/>`__ and `Apache
-Hadoop <https://hadoop.apache.org/>`__, allowing you to filter data at
-database level. This speeds up jobs reducing the amount of data to be
-collected and processed.
+.. image:: /doc/resources/architecture.png
+   :width: 100%
+   :alt: architecture
+   :align: center
 
-This project is not intended to replace Apache Cassandra denormalized
-tables, inverted indexes, and/or secondary indexes. It is just a tool
-to perform some kind of queries which are really hard to be addressed
-using Apache Cassandra out of the box features.
+Index `relevance searches <http://en.wikipedia.org/wiki/Relevance_(information_retrieval)>`__ allows you to retrieve the
+*n* more relevant results satisfying a search. The coordinator node sends the search to each node in the cluster, each node
+returns its *n* best results and then the coordinator combines these partial results and gives you the *n* best of them,
+avoiding full scan. You can also base the sorting in a combination of fields.
 
-Indexing is achieved through a Lucene based implementation of Cassandra
-secondary indexes, where each node of the cluster indexes its own data.
-Stratio Cassandra is one of the core modules on which Stratio's BigData
-platform (SDS) is based.
+Any cell in the tables can be indexed, including those in the primary key as well as collections. Wide rows are also
+supported. You can scan token/key ranges, apply additional CQL3 clauses and page on the filtered results.
+
+Index filtered searches are a powerful help when analyzing the data stored in Cassandra with `MapReduce <http://es.wikipedia.org/wiki/MapReduce>`__
+frameworks as `Apache Hadoop <http://hadoop.apache.org/>`__ or, even better, `Apache Spark <http://spark.apache.org/>`__.
+Adding Lucene filters in the jobs input can dramatically reduce the amount of data to be processed, avoiding full scan.
+
+.. image:: /doc/resources/spark_architecture.png
+   :width: 100%
+   :alt: spark_architecture
+   :align: center
+
+This project is not intended to replace Apache Cassandra denormalized tables, inverted indexes, and/or secondary
+indexes. It is just a tool to perform some kind of queries which are really hard to be addressed using Apache Cassandra
+out of the box features, filling the gap between real-time and analytics.
+
+.. image:: /doc/resources/oltp_olap.png
+   :width: 100%
+   :alt: oltp_olap
+   :align: center
+
 
 Features
 ========

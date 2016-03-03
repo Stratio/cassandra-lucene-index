@@ -10,37 +10,35 @@ based implementation of Cassandra secondary indexes, where each node of the clus
 Cassandra indexes are one of the core modules on which `Stratio’s BigData platform <http://www.stratio.com/>`__ is based.
 
 .. image:: /doc/resources/architecture.png
-    :width: 100%
-    :alt: architecture
-    :align: center
+   :width: 100%
+   :alt: architecture
+   :align: center
 
 Index `relevance searches <http://en.wikipedia.org/wiki/Relevance_(information_retrieval)>`__ allows you to retrieve the
 *n* more relevant results satisfying a search. The coordinator node sends the search to each node in the cluster, each node
 returns its *n* best results and then the coordinator combines these partial results and gives you the *n* best of them,
 avoiding full scan. You can also base the sorting in a combination of fields.
 
+Any cell in the tables can be indexed, including those in the primary key as well as collections. Wide rows are also
+supported. You can scan token/key ranges, apply additional CQL3 clauses and page on the filtered results.
+
 Index filtered searches are a powerful help when analyzing the data stored in Cassandra with `MapReduce <http://es.wikipedia.org/wiki/MapReduce>`__
 frameworks as `Apache Hadoop <http://hadoop.apache.org/>`__ or, even better, `Apache Spark <http://spark.apache.org/>`__.
 Adding Lucene filters in the jobs input can dramatically reduce the amount of data to be processed, avoiding full scan.
 
 .. image:: /doc/resources/spark_architecture.png
-    :width: 100%
-    :alt: spark_architecture
-    :align: center
+   :width: 100%
+   :alt: spark_architecture
+   :align: center
 
-Any cell in the tables can be indexed, including those in the primary key as well as collections. Wide rows are also
-supported. You can scan token/key ranges, apply additional CQL3 clauses and page on the filtered results.
-
-This project is not intended to replace Apache Cassandra denormalized
-tables, inverted indexes, and/or secondary indexes. It is just a tool
-to perform some kind of queries which are really hard to be addressed
-using Apache Cassandra out of the box features, filling the gap between
-real-time and analytics.
+This project is not intended to replace Apache Cassandra denormalized tables, inverted indexes, and/or secondary
+indexes. It is just a tool to perform some kind of queries which are really hard to be addressed using Apache Cassandra
+out of the box features, filling the gap between real-time and analytics.
 
 .. image:: /doc/resources/oltp_olap.png
-    :width: 100%
-    :alt: oltp_olap
-    :align: center
+   :width: 100%
+   :alt: oltp_olap
+   :align: center
 
 More detailed information is available at `Stratio’s Cassandra Lucene Index documentation <doc/documentation.rst>`__.
 
@@ -116,8 +114,8 @@ The Lucene’s index files will be stored in the same directories where the Cass
 
 For more details about Apache Cassandra please see its `documentation <http://cassandra.apache.org/>`__.
 
-Example
--------
+Examples
+--------
 
 We will create the following table to store tweets:
 
