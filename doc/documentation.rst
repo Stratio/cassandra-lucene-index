@@ -1911,7 +1911,7 @@ Since "not" will be applied to the results of a "must" or "should"
 condition, it can not be used in isolation.
 
 **Example 1:** search for rows where name ends with “a” AND food starts
-with “tu”
+with “tu”:
 
 .. code-block:: sql
 
@@ -1933,7 +1933,7 @@ Using `query builder <#query-builder>`__:
                                     .where(eq(indexColumn, search.build()));
 
 
-**Example 2:** search for rows where food starts with “tu” but name does not end with “a”
+**Example 2:** search for rows where food starts with “tu” but name does not end with “a”:
 
 .. code-block:: sql
 
@@ -1955,7 +1955,7 @@ Using `query builder <#query-builder>`__:
                                     .where(eq(indexColumn, search.build()));
 
 **Example 3:** search for rows where name ends with “a” or food starts with
-“tu”
+“tu”:
 
 .. code-block:: sql
 
@@ -1977,7 +1977,7 @@ Using `query builder <#query-builder>`__:
                                     .where(eq(indexColumn, search.build()));
 
 
-**Example 4:** will return zero rows independently of the index contents
+**Example 4:** will return zero rows independently of the index contents:
 
 .. code-block:: sql
 
@@ -1996,8 +1996,8 @@ Using `query builder <#query-builder>`__:
                                     .where(eq(indexColumn, search.build()));
 
 
-Example 5: search for rows where name does not end with “a”, which is
-a resource-intensive pure negation search
+**Example 5:** search for rows where name does not end with “a”, which is
+a resource-intensive pure negation search:
 
 .. code-block:: sql
 
@@ -2031,7 +2031,7 @@ Contains search
                                 field  : <fieldname> ,
                                 values : <value_list> }}';
 
-**Example 1:** search for rows where name matches “Alicia” or “mancha”
+**Example 1:** search for rows where name matches “Alicia” or “mancha”:
 
 .. code-block:: sql
 
@@ -2054,7 +2054,7 @@ Using `query builder <#query-builder>`__:
 
 
 **Example 2:** search for rows where date matches “2014/01/01″,
-“2014/01/02″ or “2014/01/03″
+“2014/01/02″ or “2014/01/03″:
 
 .. code-block:: sql
 
@@ -2101,7 +2101,7 @@ where:
    **intersects**, **contains** and **is\_within**.
 
 **Example 1:** will return rows where duration intersects "2014/01/01" and
-"2014/12/31"
+"2014/12/31":
 
 .. code-block:: sql
 
@@ -2127,7 +2127,7 @@ Using `query builder <#query-builder>`__:
 
 
 **Example 2:** search for rows where duration contains "2014/06/01" and
-"2014/06/02"
+"2014/06/02":
 
 .. code-block:: sql
 
@@ -2153,7 +2153,7 @@ Using `query builder <#query-builder>`__:
 
 
 **Example 3:** search for rows where duration is within "2014/01/01" and
-"2014/12/31"
+"2014/12/31":
 
 .. code-block:: sql
 
@@ -2215,7 +2215,7 @@ where:
    distance <http://en.wikipedia.org/wiki/Levenshtein_distance>`__.
 
 **Example 1:** search for any rows where “phrase” contains a word that
-differs in one edit operation from “puma”, such as “pumas”.
+differs in one edit operation from “puma”, such as “pumas”:
 
 .. code-block:: sql
 
@@ -2239,7 +2239,7 @@ Using `query builder <#query-builder>`__:
 
 
 **Example 2:** same as example 1 but will limit the results to rows where
-phrase contains a word that starts with “pu”.
+phrase contains a word that starts with “pu”:
 
 .. code-block:: sql
 
@@ -2293,7 +2293,7 @@ where:
 
 **Example 1:** search for any rows where “place” is formed by a latitude
 between -90.0 and 90.0, and a longitude between -180.0 and
-180.0.
+180.0:
 
 .. code-block:: sql
 
@@ -2319,7 +2319,7 @@ Using `query builder <#query-builder>`__:
 
 **Example 2:** search for any rows where “place” is formed by a latitude
 between -90.0 and 90.0, and a longitude between 0.0 and
-10.0.
+10.0:
 
 .. code-block:: sql
 
@@ -2346,7 +2346,7 @@ Using `query builder <#query-builder>`__:
 
 **Example 3:** search for any rows where “place” is formed by a latitude
 between 0.0 and 10.0, and a longitude between -180.0 and
-180.0 sorted by min distance to point [0.0, 0.0].
+180.0 sorted by min distance to point [0.0, 0.0]:
 
 .. code-block:: sql
 
@@ -2416,7 +2416,7 @@ This query internally converts distance units to degrees using the spherical dis
 considering the earth a perfect sphere with a radius of 6371.0087714 km.
 
 **Example 1:** search for any rows where “place” is within one kilometer
-from the geo point (40.225479, -3.999278).
+from the geo point (40.225479, -3.999278):
 
 .. code-block:: sql
 
@@ -2440,7 +2440,7 @@ Using `query builder <#query-builder>`__:
 
 
 **Example 2:** search for any rows where “place” is within one yard and ten
-yards from the geo point (40.225479, -3.999278) sorted by min distance to point (40.225479, -3.999278).
+yards from the geo point (40.225479, -3.999278) sorted by min distance to point (40.225479, -3.999278):
 
 .. code-block:: sql
 
@@ -2580,7 +2580,7 @@ Match search
                                   field : <fieldname> ,
                                   value : <value> }}';
 
-**Example 1:** will return rows where name matches “Alicia”
+**Example 1:** search for rows where name matches “Alicia”:
 
 .. code-block:: sql
 
@@ -2602,7 +2602,7 @@ Using `query builder <#query-builder>`__:
                                     .where(eq(indexColumn, search.build()));
 
 
-**Example 2:** search for any rows where phrase contains “mancha”
+**Example 2:** search for any rows where phrase contains “mancha”:
 
 .. code-block:: sql
 
@@ -2624,7 +2624,7 @@ Using `query builder <#query-builder>`__:
                                     .where(eq(indexColumn, search.build()));
 
 
-**Example 3:** will return rows where date matches “2014/01/01″
+**Example 3:** search for rows where date matches “2014/01/01″:
 
 .. code-block:: sql
 
@@ -2657,7 +2657,7 @@ None search
     FROM <table>
     WHERE <magic_column> = '{ (filter | query) : { type  : "none"} }';
 
-**Example:** will return no one of the indexed rows
+**Example:** will return no one of the indexed rows:
 
 .. code-block:: sql
 
@@ -2697,7 +2697,7 @@ where:
 -  **slop** (default = 0): number of words permitted between words.
 
 **Example 1:** search for rows where “phrase” contains the word “camisa”
-followed by the word “manchada”.
+followed by the word “manchada”:
 
 .. code-block:: sql
 
@@ -2719,7 +2719,7 @@ Using `query builder <#query-builder>`__:
                                     .where(eq(indexColumn, search.build()));
 
 **Example 2:** search for rows where “phrase” contains the word “mancha”
-followed by the word “camisa” having 0 to 2 words in between.
+followed by the word “camisa” having 0 to 2 words in between:
 
 .. code-block:: sql
 
@@ -2757,7 +2757,7 @@ Prefix search
 
 **Example:** search for rows where “phrase” contains a word starting with
 “lu”. If the column is indexed as “text” and uses an analyzer, words
-ignored by the analyzer will not be retrieved.
+ignored by the analyzer will not be retrieved:
 
 .. code-block:: sql
 
@@ -2810,7 +2810,7 @@ returned. If only “upper” is specified then all rows with field values
 up to “upper” will be returned. If both are omitted than all rows will
 be returned.
 
-**Example 1:** search for rows where *age* is in [1, ∞)
+**Example 1:** search for rows where *age* is in [1, ∞):
 
 .. code-block:: sql
 
@@ -2832,7 +2832,7 @@ Using `query builder <#query-builder>`__:
     ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users")
                                     .where(eq(indexColumn, search.build()));
 
-**Example 2:** search for rows where *age* is in (-∞, 0]
+**Example 2:** search for rows where *age* is in (-∞, 0]:
 
 .. code-block:: sql
 
@@ -2854,7 +2854,7 @@ Using `query builder <#query-builder>`__:
     ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users")
                                     .where(eq(indexColumn, search.build()));
 
-**Example 3:** search for rows where *age* is in [-1, 1]
+**Example 3:** search for rows where *age* is in [-1, 1]:
 
 .. code-block:: sql
 
@@ -2879,7 +2879,7 @@ Using `query builder <#query-builder>`__:
     ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users")
                                     .where(eq(indexColumn, search.build()));
 
-**Example 4:** search for rows where *date* is in [2014/01/01, 2014/01/02]
+**Example 4:** search for rows where *date* is in [2014/01/01, 2014/01/02]:
 
 .. code-block:: sql
 
@@ -2925,7 +2925,7 @@ where:
    for syntax reference.
 
 **Example:** search for rows where name contains a word that starts with
-“p” and a vowel repeated twice (e.g. “pape”).
+“p” and a vowel repeated twice (e.g. “pape”):
 
 .. code-block:: sql
 
@@ -2966,7 +2966,7 @@ where:
    matches any character sequence (including the empty one), and ?,
    which matches any single character. ” is the escape character.
 
-**Example:** search for rows where food starts with or is “tu”.
+**Example:** search for rows where food starts with or is “tu”:
 
 .. code-block:: sql
 
@@ -3450,7 +3450,7 @@ function and a Lucene-based filter in a where clause, the filter on
 tokens is applied first and then the condition of the filter clause.
 
 **Example:** search for rows which tokens are greater than (‘Alicia’,
-‘female’) and then test them against the match condition.
+‘female’) and then test them against the match condition:
 
 .. code-block:: sql
 
