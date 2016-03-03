@@ -57,6 +57,7 @@ Stratio's Cassandra Lucene Index
 - `Spark and Hadoop <#spark-and-hadoop>`__
     - `Token range searches <#token-range-searches>`__
     - `Paging <#paging>`__
+    - `Performance <#performance>`__
 - `JMX interface <#jmx-interface>`__
 - `Performance tips <#performance-tips>`__
     - `Choose the right use case <#choose-the-right-use-case>`__
@@ -3316,6 +3317,27 @@ the rows starting from a certain key. For example, if the primary key is
         AND userid = 3543534
         AND createdAt > 2011-02-03 04:05+0000
       LIMIT 5000;
+
+Performance
+===========
+
+Lucene indexes should be combined with Spark only with searches requesting a relatively small fraction of the total
+data. Generally, reading *n* rows from an index is slower that reading the same *n* rows in a token range query.
+However, the relevance of the index stems from the efficiency to collect only the required data.
+
+The following benchmark compares the performance of Spark using full scan or using a Lucene index to filter the data.
+We do successive queries requesting from the 1% to 100% of the stored data. We can see a high performance for the
+index for the queries requesting strongly filtered data. However, the performance decays in less restrictive queries.
+As the number of records returned by the query increases, we reach a point where the index becomes slower than the full
+scan. So, the decision to use indexes in your Spark jobs depends on the query selectivity. The tradeoff between both
+approaches depends on the particular use case. Generally, combining Lucene indexes with Spark is recommended for jobs
+retrieving no more than the 25% of the stored data.
+
+.. image:: /doc/resources/spark_performance.png
+   :width: 100%
+   :alt: spark_performance
+   :align: center
+
 
 JMX Interface
 *************
