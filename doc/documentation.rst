@@ -1626,7 +1626,7 @@ All search
     SELECT * FROM test.users
     WHERE stratio_col = '{filter : { type  : "all" } }';
 
-Using Builder
+Using `query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -1777,7 +1777,7 @@ If you want to know what is the last info about where John resides, you perform 
     }'
     AND name='John';
 
-Using Builder
+Using `query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -1808,7 +1808,7 @@ If you want to know what is the last info about where John resides now, you perf
     }'
     AND name='John';
 
-Using Builder
+Using `query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -1839,7 +1839,7 @@ If the test case needs to know what the system was thinking at '2015/03/01' abou
     }'
     AND name = 'John';
 
-Using Builder
+Using `query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -1868,7 +1868,7 @@ If the test case needs to know what the system was thinking at '2015/07/05' abou
     }'
     AND name='John';
 
-Using Builder
+Using `query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -1921,7 +1921,7 @@ with “tu”
                             must : [{type : "wildcard", field : "name", value : "*a"},
                                     {type : "wildcard", field : "food", value : "tu*"}]}}';
 
-Using Builder
+Using `query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -1944,7 +1944,7 @@ not end with “a”
                             not  : [{type : "wildcard", field : "name", value : "*a"}],
                             must : [{type : "wildcard", field : "food", value : "tu*"}]}}';
 
-Using Builder
+Using `query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -1966,7 +1966,7 @@ Using Builder
                             should : [{type : "wildcard", field : "name", value : "*a"},
                                       {type : "wildcard", field : "food", value : "tu*"}]}}';
 
-Using Builder
+Using `query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -1985,7 +1985,7 @@ Using Builder
     SELECT * FROM test.users
     WHERE stratio_col = '{filter : { type   : "boolean"} }';
 
-Using Builder
+Using `query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -2006,7 +2006,7 @@ a resource-intensive pure negation search
     WHERE stratio_col = '{filter : {
                             not  : [{type : "wildcard", field : "name", value : "*a"}]}}';
 
-Using Builder
+Using `query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -2042,7 +2042,7 @@ Contains search
                             field  : "name",
                             values : ["Alicia","mancha"] }}';
 
-Using Builder
+Using `query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -2065,7 +2065,7 @@ Using Builder
                             field  : "date",
                             values : ["2014/01/01", "2014/01/02", "2014/01/03"] }}';
 
-Using Builder
+Using `query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -2114,7 +2114,7 @@ where:
                         to        : "2014/12/31",
                         operation : "intersects"}}';
 
-Using Builder
+Using `query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -2140,7 +2140,7 @@ Using Builder
                         to        : "2014/06/02",
                         operation : "contains"}}';
 
-Using Builder
+Using `query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -2167,7 +2167,7 @@ Using Builder
                         operation : "is_within"}}';
 
 
-Using Builder
+Using `query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -2227,7 +2227,7 @@ differs in one edit operation from “puma”, such as “pumas”.
                                      max_edits : 1 }}';
 
 
-Using Builder
+Using `query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -2251,7 +2251,7 @@ phrase contains a word that starts with “pu”.
                                      max_edits     : 1,
                                      prefix_length : 2 }}';
 
-Using Builder
+Using `query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -2306,7 +2306,7 @@ between -90.0 and 90.0, and a longitude between -180.0 and
                                      min_longitude : -180.0,
                                      max_longitude : 180.0 }}';
 
-Using Builder
+Using `query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -2333,7 +2333,7 @@ between -90.0 and 90.0, and a longitude between 0.0 and
                                      max_longitude : 10.0 }}';
 
 
-Using Builder
+Using `query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -2370,7 +2370,7 @@ between 0.0 and 10.0, and a longitude between -180.0 and
                          }';
 
 
-Using Builder
+Using `query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -2428,7 +2428,7 @@ from the geo point (40.225479, -3.999278).
                                      longitude    : -3.999278,
                                      max_distance : "1km"}}';
 
-Using Builder
+Using `query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -2462,7 +2462,7 @@ yards from the geo point (40.225479, -3.999278) sorted by min distance to point 
                                      }
                         }';
 
-Using Builder
+Using `query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -2527,7 +2527,7 @@ where:
                      field : "place",
                      shape : "POLYGON((-0.07 51.63, 0.03 51.54, 0.05 51.65, -0.07 51.63))" }}';
 
-Using builder:
+Using `query builder <#query-builder>`__::
 
 .. code-block:: java
 
@@ -2555,7 +2555,7 @@ Florida's coastline:
                  shape : "LINESTRING(-80.90 29.05, -80.51 28.47, -80.60 28.12, -80.00 26.85, -80.05 26.37)",
        transformations : [{type:"buffer", max_distance:"10km"}] }}';
 
-Using builder:
+Using `query builder <#query-builder>`__::
 
 .. code-block:: java
 
@@ -2591,7 +2591,7 @@ Match search
                            field : "name",
                            value : "Alicia" }}';
 
-Using Builder
+Using `query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -2613,7 +2613,7 @@ Using Builder
                            field : "phrase",
                            value : "mancha" }}';
 
-Using Builder
+Using `query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -2635,7 +2635,7 @@ Using Builder
                            field : "date",
                            value : "2014/01/01" }}';
 
-Using Builder
+Using `query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -2665,7 +2665,7 @@ None search
     SELECT * FROM test.users
     WHERE stratio_col = '{filter : { type  : "none" } }';
 
-Using Builder
+Using `query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -2708,7 +2708,7 @@ followed by the word “manchada”.
                           field  : "phrase",
                           values : "camisa manchada" }}';
 
-Using Builder
+Using `query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -2731,7 +2731,7 @@ followed by the word “camisa” having 0 to 2 words in between.
                           values : "mancha camisa",
                           slop   : 2 }}';
 
-Using Builder
+Using `query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -2768,7 +2768,7 @@ ignored by the analyzer will not be retrieved.
                            field : "phrase",
                            value : "lu" }}';
 
-Using Builder
+Using `query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -2822,7 +2822,7 @@ be returned.
                             lower         : 1,
                             include_lower : true }}';
 
-Using Builder
+Using `query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -2844,7 +2844,7 @@ Using Builder
                             upper         : 0,
                             include_upper : true }}';
 
-Using Builder
+Using `query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -2868,7 +2868,7 @@ Using Builder
                             include_lower : true,
                             include_upper : true }}';
 
-Using Builder
+Using `query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -2893,7 +2893,7 @@ Using Builder
                             include_lower : true,
                             include_upper : true }}';
 
-Using Builder
+Using `query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -2936,7 +2936,7 @@ where:
                            field : "name",
                            value : "[J][aeiou]{2}.*" }}';
 
-Using Builder
+Using `query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -2978,7 +2978,7 @@ where:
                            value : "tu*" }}';
 
 
-Using Builder
+Using `query builder <#query-builder>`__:
 
 .. code-block:: java
 
