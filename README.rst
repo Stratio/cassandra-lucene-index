@@ -23,9 +23,9 @@ Index filtered searches are a powerful help when analyzing the data stored in Ca
 frameworks as `Apache Hadoop <http://hadoop.apache.org/>`__ or, even better, `Apache Spark <http://spark.apache.org/>`__.
 Adding Lucene filters in the jobs input can dramatically reduce the amount of data to be processed, avoiding full scan.
 
-.. image:: /doc/resources/oltp-spark_architecture.png
+.. image:: /doc/resources/spark_architecture.png
     :width: 100%
-    :alt: oltp-spark_architecture
+    :alt: spark_architecture
     :align: center
 
 Any cell in the tables can be indexed, including those in the primary key as well as collections. Wide rows are also
@@ -37,9 +37,9 @@ to perform some kind of queries which are really hard to be addressed
 using Apache Cassandra out of the box features, filling the gap between
 real-time and analytics.
 
-.. image:: /doc/resources/oltp-olap.png
+.. image:: /doc/resources/oltp_olap.png
     :width: 100%
-    :alt: oltp-olap
+    :alt: oltp_olap
     :align: center
 
 More detailed information is available at `Stratio’s Cassandra Lucene Index documentation <doc/documentation.rst>`__.
