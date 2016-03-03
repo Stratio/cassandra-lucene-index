@@ -23,6 +23,7 @@ import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import com.stratio.cassandra.lucene.schema.mapping.builder.GeoShapeMapperBuilder;
 import com.stratio.cassandra.lucene.util.GeospatialUtils;
+import com.stratio.cassandra.lucene.util.JsonSerializer;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.db.ColumnFamilyType;
 import org.apache.cassandra.db.composites.CellNameType;
@@ -34,6 +35,10 @@ import org.apache.cassandra.exceptions.ConfigurationException;
 import org.apache.lucene.document.Document;
 import org.junit.Test;
 
+import java.io.IOException;
+
+import static com.stratio.cassandra.lucene.common.GeoTransformation.Centroid;
+import static com.stratio.cassandra.lucene.common.GeoTransformation.Difference;
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.geoShapeMapper;
 import static org.apache.cassandra.config.ColumnDefinition.regularDef;
 import static org.junit.Assert.*;
@@ -51,25 +56,34 @@ public class GeoShapeMapperTest extends AbstractMapperTest {
         assertTrue("Mapped columns are not properly set", mapper.mappedColumns.contains("field"));
         assertEquals("Max levels is not properly set", GeospatialUtils.DEFAULT_GEOHASH_MAX_LEVELS, mapper.maxLevels);
         assertNotNull("Spatial strategy for distances is not properly set", mapper.strategy);
+        assertNotNull("Transformations list is not properly set", mapper.transformations);
+        assertTrue("Transformations list is not properly set", mapper.transformations.isEmpty());
     }
 
     @Test
     public void testConstructorWithAllArgs() {
-        GeoShapeMapper mapper = geoShapeMapper().column("column").maxLevels(10).build("field");
+        GeoShapeMapper mapper = geoShapeMapper().column("column")
+                                                .validated(true)
+                                                .maxLevels(10)
+                                                .transformations(new Centroid(), new Difference("POINT (10 10)"))
+                                                .build("field");
         assertEquals("Field name is not properly set", "field", mapper.field);
         assertTrue("Indexed is not properly set", mapper.indexed);
         assertFalse("Sorted is not properly set", mapper.sorted);
+        assertTrue("Validated is not properly set", mapper.validated);
         assertEquals("Column is not properly set", "column", mapper.column);
         assertEquals("Mapped columns are not properly set", 1, mapper.mappedColumns.size());
         assertTrue("Mapped columns are not properly set", mapper.mappedColumns.contains("column"));
         assertEquals("Max levels is not properly set", 10, mapper.maxLevels);
         assertNotNull("Spatial strategy for distances is not properly set", mapper.strategy);
+        assertNotNull("Transformations list is not properly set", mapper.transformations);
+        assertEquals("Transformations list is not properly set", 2, mapper.transformations.size());
     }
 
     @Test
     public void testJsonSerialization() {
-        GeoShapeMapperBuilder builder = geoShapeMapper().column("column").maxLevels(10);
-        testJson(builder, "{type:\"geo_shape\",column:\"column\",max_levels:10}");
+        GeoShapeMapperBuilder builder = geoShapeMapper().column("column").maxLevels(10).transformations(new Centroid());
+        testJson(builder, "{type:\"geo_shape\",column:\"column\",transformations:[{type:\"centroid\"}],max_levels:10}");
     }
 
     @Test
@@ -265,7 +279,7 @@ public class GeoShapeMapperTest extends AbstractMapperTest {
         assertEquals("Fields are not properly created", 1, document.getFields("field").length);
         assertEquals("Fields are not properly created", 1, document.getFields().size());
     }
-   
+
     @Test
     public void testAddFieldsWithNullColumns() {
         GeoShapeMapper mapper = geoShapeMapper().column("column").maxLevels(10).build("field");
@@ -279,8 +293,8 @@ public class GeoShapeMapperTest extends AbstractMapperTest {
     public void testAddFieldsWithInvalidShape() {
         GeoShapeMapper mapper = geoShapeMapper().column("column").maxLevels(10).build("field");
         Columns columns = new Columns();
-        columns.add(Column.builder("column").composedValue("POLYON((0.0 0.0,0.0 10.0,10.0 0.0,0.0 0.0))",
-                                                           UTF8Type.instance));
+        columns.add(Column.builder("column")
+                          .composedValue("POLYON((0.0 0.0,0.0 10.0,10.0 0.0,0.0 0.0))", UTF8Type.instance));
         Document document = new Document();
         mapper.addFields(document, columns);
     }
@@ -318,8 +332,12 @@ public class GeoShapeMapperTest extends AbstractMapperTest {
 
     @Test
     public void testToString() {
-        GeoShapeMapper mapper = geoShapeMapper().column("column").maxLevels(10).build("field");
-        String exp = "GeoShapeMapper{field=field, column=column, validated=false, maxLevels=10}";
+        GeoShapeMapper mapper = geoShapeMapper().column("column")
+                                                .maxLevels(10)
+                                                .transformations(new Centroid(), new Difference("POINT (10 10)"))
+                                                .build("field");
+        String exp = "GeoShapeMapper{field=field, column=column, validated=false, maxLevels=10, " +
+                     "transformations=[Centroid{}, Difference{other=POINT (10 10)}]}";
         assertEquals("Method #toString is wrong", exp, mapper.toString());
     }
 }

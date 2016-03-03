@@ -70,7 +70,7 @@ public class GeoShapeConditionBuilder extends ConditionBuilder<GeoShapeCondition
      * @param operation the name of the spatial operation
      * @return this with the operation set
      */
-    public GeoShapeConditionBuilder setOperation(String operation) {
+    public GeoShapeConditionBuilder operation(String operation) {
         this.operation = operation;
         return this;
     }
@@ -81,7 +81,7 @@ public class GeoShapeConditionBuilder extends ConditionBuilder<GeoShapeCondition
      * @param transformations the sequence of transformations
      * @return this with the transformations set
      */
-    public GeoShapeConditionBuilder setTransformations(List<GeoTransformation> transformations) {
+    public GeoShapeConditionBuilder transformations(List<GeoTransformation> transformations) {
         this.transformations = transformations;
         return this;
     }

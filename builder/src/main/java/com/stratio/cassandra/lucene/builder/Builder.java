@@ -18,6 +18,7 @@
 
 package com.stratio.cassandra.lucene.builder;
 
+import com.stratio.cassandra.lucene.builder.common.GeoTransformation;
 import com.stratio.cassandra.lucene.builder.index.Index;
 import com.stratio.cassandra.lucene.builder.index.schema.Schema;
 import com.stratio.cassandra.lucene.builder.index.schema.analysis.ClasspathAnalyzer;

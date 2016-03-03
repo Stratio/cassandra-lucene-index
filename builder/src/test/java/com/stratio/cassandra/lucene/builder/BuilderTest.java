@@ -255,8 +255,21 @@ public class BuilderTest {
 
     @Test
     public void testGeoShapeMapperFull() {
-        String actual = geoShapeMapper().column("shape").maxLevels(7).build();
-        String expected = "{\"type\":\"geo_shape\",\"column\":\"shape\",\"max_levels\":7}";
+        String actual = geoShapeMapper().column("shape")
+                                        .maxLevels(7)
+                                        .transform(centroidGeoTransformation(),
+                                                   differenceGeoTransformation("my_difference_shape"),
+                                                   intersectionGeoTransformation("my_intersection_shape"),
+                                                   unionGeoTransformation("my_union_shape"),
+                                                   bufferGeoTransformation().maxDistance("10km").minDistance("5km"))
+                                        .build();
+        String expected = "{\"type\":\"geo_shape\",\"column\":\"shape\",\"transformations\":[" +
+                          "{\"type\":\"centroid\"}," +
+                          "{\"type\":\"difference\",\"shape\":\"my_difference_shape\"}," +
+                          "{\"type\":\"intersection\",\"shape\":\"my_intersection_shape\"}," +
+                          "{\"type\":\"union\",\"shape\":\"my_union_shape\"}," +
+                          "{\"type\":\"buffer\",\"max_distance\":\"10km\",\"min_distance\":\"5km\"}]," +
+                          "\"max_levels\":7}";
         assertEquals("geo shape mapper serialization is wrong", expected, actual);
     }
 
@@ -607,7 +620,7 @@ public class BuilderTest {
     @Test
     public void testGeoShapeConditionDefaults() {
         String actual = geoShape("field", "shape").build();
-        String expected = "{\"type\":\"geo_shape\",\"field\":\"field\",\"shape\":\"shape\",\"transformations\":[]}";
+        String expected = "{\"type\":\"geo_shape\",\"field\":\"field\",\"shape\":\"shape\"}";
         assertEquals("geo shape condition serialization is wrong", expected, actual);
     }
 

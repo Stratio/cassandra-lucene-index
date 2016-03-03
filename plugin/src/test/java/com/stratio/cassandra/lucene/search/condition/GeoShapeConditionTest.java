@@ -268,7 +268,7 @@ public class GeoShapeConditionTest extends AbstractConditionTest {
     @Test
     public void testToString() {
         String wkt = "POLYGON((1 1,5 1,5 5,1 5,1 1),(2 2, 3 2, 3 3, 2 3,2 2))";
-        GeoShapeCondition condition = geoShape("name", wkt).setOperation("intersects").setTransformations(null).build();
+        GeoShapeCondition condition = geoShape("name", wkt).operation("intersects").transformations(null).build();
         assertEquals("Method #toString is wrong", "GeoShapeCondition{boost=1.0, field=name, geometry=" +
                                                   "POLYGON ((1 1, 5 1, 5 5, 1 5, 1 1), (2 2, 3 2, 3 3, 2 3, 2 2)), " +
                                                   "operation=INTERSECTS, transformations=[]}", condition.toString());

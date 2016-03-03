@@ -20,8 +20,9 @@ package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.google.common.base.Objects;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
-import com.spatial4j.core.shape.Shape;
+import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.stratio.cassandra.lucene.IndexException;
+import com.stratio.cassandra.lucene.common.GeoTransformation;
 import com.stratio.cassandra.lucene.util.GeospatialUtils;
 import org.apache.cassandra.db.marshal.AsciiType;
 import org.apache.cassandra.db.marshal.UTF8Type;
@@ -34,6 +35,8 @@ import org.apache.lucene.spatial.prefix.tree.GeohashPrefixTree;
 import org.apache.lucene.spatial.prefix.tree.SpatialPrefixTree;
 
 import javax.validation.constraints.NotNull;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * A {@link Mapper} to map geographical shapes represented according to the <a href="http://en.wikipedia.org/wiki/Well-known_text">
@@ -61,24 +64,24 @@ public class GeoShapeMapper extends SingleColumnMapper<String> {
     /** The spatial strategy for radial distance searches. */
     public final RecursivePrefixTreeStrategy strategy;
 
+    /** The sequence of transformations to be applied to the shape before indexing. */
+    public final List<GeoTransformation> transformations;
+
     /**
      * Builds a new {@link GeoShapeMapper}.
      *
-     * @param field The name of the field.
-     * @param column The name of the column.
-     * @param validated If the field must be validated.
-     * @param maxLevels The maximum number of levels in the tree.
+     * @param field the name of the field
+     * @param column the name of the column
+     * @param validated if the field must be validated
+     * @param maxLevels the maximum number of levels in the tree
+     * @param transformations the sequence of operations to be applied to the specified shape
      */
-    public GeoShapeMapper(String field, String column, Boolean validated, Integer maxLevels) {
-        super(field,
-              column,
-              true,
-              false,
-              validated,
-              null,
-              String.class,
-              AsciiType.instance,
-              UTF8Type.instance);
+    public GeoShapeMapper(String field,
+                          String column,
+                          Boolean validated,
+                          Integer maxLevels,
+                          List<GeoTransformation> transformations) {
+        super(field, column, true, false, validated, null, String.class, AsciiType.instance, UTF8Type.instance);
 
         this.column = column == null ? field : column;
 
@@ -89,13 +92,24 @@ public class GeoShapeMapper extends SingleColumnMapper<String> {
         this.maxLevels = GeospatialUtils.validateGeohashMaxLevels(maxLevels);
         SpatialPrefixTree grid = new GeohashPrefixTree(SPATIAL_CONTEXT, this.maxLevels);
         strategy = new RecursivePrefixTreeStrategy(grid, field);
+
+        this.transformations = (transformations == null) ? Collections.<GeoTransformation>emptyList() : transformations;
     }
 
     /** {@inheritDoc} */
     @Override
     public void addIndexedFields(Document document, String name, String value) {
-        Shape shape = GeospatialUtils.geometryFromWKT(SPATIAL_CONTEXT, value);
-        for (IndexableField field : strategy.createIndexableFields(shape)) {
+        JtsGeometry shape = GeospatialUtils.geometryFromWKT(SPATIAL_CONTEXT, value);
+
+        // Apply transformations
+        JtsGeometry transformedGeometry = shape;
+        if (transformations != null) {
+            for (GeoTransformation transformation : transformations) {
+                transformedGeometry = transformation.apply(transformedGeometry, SPATIAL_CONTEXT);
+            }
+        }
+
+        for (IndexableField field : strategy.createIndexableFields(transformedGeometry)) {
             document.add(field);
         }
     }
@@ -124,6 +138,7 @@ public class GeoShapeMapper extends SingleColumnMapper<String> {
                       .add("column", column)
                       .add("validated", validated)
                       .add("maxLevels", maxLevels)
+                      .add("transformations", transformations)
                       .toString();
     }
 

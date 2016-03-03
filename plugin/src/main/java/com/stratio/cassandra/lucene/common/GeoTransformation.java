@@ -23,7 +23,10 @@ import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.stratio.cassandra.lucene.util.GeospatialUtils;
 import com.vividsolutions.jts.geom.Geometry;
-import org.codehaus.jackson.annotate.*;
+import org.codehaus.jackson.annotate.JsonCreator;
+import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.annotate.JsonSubTypes;
+import org.codehaus.jackson.annotate.JsonTypeInfo;
 
 /**
  * Class representing the transformation of a JTS geographical shape into a new shape.
@@ -49,7 +52,7 @@ public interface GeoTransformation {
     JtsGeometry apply(JtsGeometry shape, JtsSpatialContext context);
 
     /**
-     * {@link GeoTransformation} for getting the bounding shape of a JTS geographical shape.
+     * {@link GeoTransformation} that returns the bounding shape of a JTS geographical shape.
      */
     class Buffer implements GeoTransformation {
 
@@ -83,10 +86,20 @@ public interface GeoTransformation {
             return this;
         }
 
+        /**
+         * Returns the max allowed distance.
+         *
+         * @return the max distance
+         */
         public GeoDistance maxDistance() {
             return maxDistance;
         }
 
+        /**
+         * Returns the min allowed distance.
+         *
+         * @return the min distance
+         */
         public GeoDistance minDistance() {
             return minDistance;
         }
@@ -124,9 +137,8 @@ public interface GeoTransformation {
     }
 
     /**
-     * {@link GeoTransformation} that gets the center point of a JTS geographical shape.
+     * {@link GeoTransformation} that returns the center point of a JTS geographical shape.
      */
-    @JsonTypeName("centroid")
     class Centroid implements GeoTransformation {
 
         /**
@@ -150,7 +162,7 @@ public interface GeoTransformation {
     }
 
     /**
-     * {@link GeoTransformation} that gets the difference of two JTS geographical shapes.
+     * {@link GeoTransformation} that returns the difference of two JTS geographical shapes.
      */
     class Difference implements GeoTransformation {
 
@@ -189,7 +201,7 @@ public interface GeoTransformation {
     }
 
     /**
-     * {@link GeoTransformation} that gets the intersection of two JTS geographical shapes.
+     * {@link GeoTransformation} that returns the intersection of two JTS geographical shapes.
      */
     class Intersection implements GeoTransformation {
 
@@ -228,7 +240,7 @@ public interface GeoTransformation {
     }
 
     /**
-     * {@link GeoTransformation} that gets the union of two JTS geographical shapes.
+     * {@link GeoTransformation} that returns the union of two JTS geographical shapes.
      */
     class Union implements GeoTransformation {
 

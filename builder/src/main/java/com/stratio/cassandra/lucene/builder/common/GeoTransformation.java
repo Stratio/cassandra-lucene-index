@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package com.stratio.cassandra.lucene.builder.search.condition;
+package com.stratio.cassandra.lucene.builder.common;
 
 import com.stratio.cassandra.lucene.builder.Builder;
 import org.codehaus.jackson.annotate.JsonProperty;

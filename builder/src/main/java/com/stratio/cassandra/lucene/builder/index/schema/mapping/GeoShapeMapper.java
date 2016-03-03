@@ -18,7 +18,11 @@
 
 package com.stratio.cassandra.lucene.builder.index.schema.mapping;
 
+import com.stratio.cassandra.lucene.builder.common.GeoTransformation;
 import org.codehaus.jackson.annotate.JsonProperty;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * A {@link Mapper} to map geographical points.
@@ -34,6 +38,10 @@ public class GeoShapeMapper extends Mapper<GeoShapeMapper> {
     /** The maximum number of levels in the tree. */
     @JsonProperty("max_levels")
     private Integer maxLevels;
+
+    /** The sequence of transformations to be applied to the shape before indexing it. */
+    @JsonProperty("transformations")
+    private List<GeoTransformation> transformations;
 
     /**
      * Sets the name of the Cassandra column to be mapped.
@@ -54,6 +62,21 @@ public class GeoShapeMapper extends Mapper<GeoShapeMapper> {
      */
     public GeoShapeMapper maxLevels(Integer maxLevels) {
         this.maxLevels = maxLevels;
+        return this;
+    }
+
+    /**
+     * Sets the transformations to be applied to the shape before using it for indexing it.
+     *
+     * @param transformations the sequence of transformations
+     * @return this with the transformations set
+     */
+    public GeoShapeMapper transform(GeoTransformation... transformations) {
+        if (this.transformations == null) {
+            this.transformations = Arrays.asList(transformations);
+        } else {
+            this.transformations.addAll(Arrays.asList(transformations));
+        }
         return this;
     }
 }
