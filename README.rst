@@ -50,8 +50,8 @@ out of the box features, filling the gap between real-time and analytics.
 
 .. image:: /doc/resources/between_real_time_and_analytics.png
    :width: 100%
-   :alt: oltp_olap
-   :align: between_real_time_and_analytics
+   :alt: between_real_time_and_analytics
+   :align: center
 
 More detailed information is available at `Stratio’s Cassandra Lucene Index documentation <doc/documentation.rst>`__.
 
