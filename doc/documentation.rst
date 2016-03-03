@@ -1057,12 +1057,12 @@ into your Cassandra installation lib directory.
         }'
     };
 
-**Example 2:** Index only the centroid of the WKT shape contained in the indexed column
+**Example 2:** Index only the centroid of the WKT shape contained in the indexed column:
 
 .. image:: /doc/resources/geo_shape_mapper_example_2.png
-:width: 100%
+    :width: 100%
     :alt: search by shape
-        :align: center
+    :align: center
 
 .. code-block:: sql
 
@@ -1091,7 +1091,7 @@ into your Cassandra installation lib directory.
         }'
     };
 
-**Example 3:** Index a buffer 50 kilometres around the area of a city
+**Example 3:** Index a buffer 50 kilometres around the area of a city:
 
 .. image:: /doc/resources/geo_shape_mapper_example_3.png
     :width: 100%
@@ -1125,7 +1125,7 @@ into your Cassandra installation lib directory.
         }'
     };
 
-**Example 4:** Index a buffer 50 kilometres around the borders of a country
+**Example 4:** Index a buffer 50 kilometres around the borders of a country:
 
 .. image:: /doc/resources/geo_shape_mapper_example_4.png
     :width: 100%
@@ -2518,6 +2518,11 @@ where:
 
 **Example 1:** search for shapes within a polygon:
 
+.. image:: /doc/resources/geo_shape_condition_example_1.png
+    :width: 100%
+    :alt: search by shape
+    :align: center
+
 .. code-block:: sql
 
     SELECT * FROM test
@@ -2536,13 +2541,13 @@ Using builder:
       "SELECT * FROM TABLE WHERE lucene = ?",
       search().filter(geoShape("place", "POLYGON((-0.07 51.63, 0.03 51.54, 0.05 51.65, -0.07 51.63))")).build());
 
-.. image:: /doc/resources/geo_shape_condition_example_1.png
-    :width: 100%
-    :alt: search by shape
-    :align: center
-
 **Example 2:** search for shapes intersecting with a shape defined by a buffer 10 kilometers around a segment of the
 Florida's coastline:
+
+.. image:: /doc/resources/geo_shape_condition_example_2.png
+    :width: 100%
+    :alt: buffer transformation
+    :align: center
 
 .. code-block:: sql
 
@@ -2564,11 +2569,6 @@ Using builder:
         "SELECT * FROM TABLE WHERE lucene = ?",
         search().filter(geoShape("place", "POLYGON((-0.07 51.63, 0.03 51.54, 0.05 51.65, -0.07 51.63))")
              .operation("intersects").transform(bufferGeoTransformation().maxDistance("10km"))).build());
-
-.. image:: /doc/resources/geo_shape_condition_example_2.png
-    :width: 100%
-    :alt: buffer transformation
-    :align: center
 
 
 Match search
