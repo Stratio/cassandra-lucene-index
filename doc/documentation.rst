@@ -3029,6 +3029,19 @@ options for distance units. The default distance unit is metre.
 | M, NM, mil, nautical_miles | nautical mile |
 +----------------------------+---------------+
 
+**Example:** the following `geo distance search <#geo-distance-search>`__ will return any rows where “place” is within
+one kilometer from the geo point (40.225479, -3.999278). The distance is expressed in kilometers.
+
+.. code-block:: sql
+
+    SELECT * FROM test.users
+    WHERE stratio_col = '{filter : { type         : "geo_distance",
+                                     field        : "place",
+                                     latitude     : 40.225479,
+                                     longitude    : -3.999278,
+                                     max_distance : "1km"}}';
+
+
 Transformations
 ===============
 
@@ -3055,6 +3068,19 @@ where:
 -  **min_distance**: the inside buffer `distance <#distance>`__. Optional.
 -  **max_distance**: the outside buffer `distance <#distance>`__. Optional.
 
+**Example:** the following `geo shape search <#geo-shape-search>`__ will retrieve shapes intersecting with a shape
+defined by a buffer 10 kilometers around a segment of the Florida's coastline:
+
+.. code-block:: sql
+
+    SELECT * FROM test
+    WHERE lucene ='{filter : {
+                  type : "geo_shape",
+                 field : "place",
+              relation : "intersects",
+                 shape : "LINESTRING(-80.90 29.05, -80.51 28.47, -80.60 28.12, -80.00 26.85, -80.05 26.37)",
+       transformations : [{type:"buffer", max_distance:"10km"}] }}';
+
 Centroid
 ________
 
@@ -3065,6 +3091,26 @@ Centroid transformation returns the geometric center of a shape.
 .. code-block:: sql
 
     { type : "centroid" }
+
+**Example:** The following `geo shape mapper <#geo-shape-mapper>`__ will index only the centroid of the WKT shape
+contained in the indexed column:
+
+.. code-block:: sql
+
+    CREATE CUSTOM INDEX cities_index on cities(lucene)
+    USING 'com.stratio.cassandra.lucene.Index'
+    WITH OPTIONS = {
+        'refresh_seconds' : '1',
+        'schema' : '{
+            fields : {
+                shape : {
+                    type            : "geo_shape",
+                    max_levels      : 15,
+                    transformations : [{type:"centroid"}]
+                }
+            }
+        }'
+    };
 
 Difference
 __________
