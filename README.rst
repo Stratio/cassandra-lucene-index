@@ -9,7 +9,10 @@ capabilities and free multivariable, geospatial and bitemporal search. It is ach
 based implementation of Cassandra secondary indexes, where each node of the cluster indexes its own data. Stratio’s
 Cassandra indexes are one of the core modules on which `Stratio’s BigData platform <http://www.stratio.com/>`__ is based.
 
-<img align="center" src="/doc/resources/architecture.png" alt="architecture">
+.. image:: /doc/resources/architecture.png
+    :width: 100%
+    :alt: architecture
+    :align: center
 
 Index `relevance searches <http://en.wikipedia.org/wiki/Relevance_(information_retrieval)>`__ allows you to retrieve the
 *n* more relevant results satisfying a search. The coordinator node sends the search to each node in the cluster, each node
@@ -20,7 +23,10 @@ Index filtered searches are a powerful help when analyzing the data stored in Ca
 frameworks as `Apache Hadoop <http://hadoop.apache.org/>`__ or, even better, `Apache Spark <http://spark.apache.org/>`__.
 Adding Lucene filters in the jobs input can dramatically reduce the amount of data to be processed, avoiding full scan.
 
-<img align="center" src="/doc/resources/spark_architecture.png" alt="spark_architecture">
+.. image:: /doc/resources/oltp-spark_architecture.png
+    :width: 100%
+    :alt: oltp-spark_architecture
+    :align: center
 
 Any cell in the tables can be indexed, including those in the primary key as well as collections. Wide rows are also
 supported. You can scan token/key ranges, apply additional CQL3 clauses and page on the filtered results.
@@ -31,7 +37,10 @@ to perform some kind of queries which are really hard to be addressed
 using Apache Cassandra out of the box features, filling the gap between
 real-time and analytics.
 
-<img align="center" src="/doc/resources/oltp-olap.png" alt="oltp-olap">
+.. image:: /doc/resources/oltp-olap.png
+    :width: 100%
+    :alt: oltp-olap
+    :align: center
 
 More detailed information is available at `Stratio’s Cassandra Lucene Index documentation <doc/documentation.rst>`__.
 
