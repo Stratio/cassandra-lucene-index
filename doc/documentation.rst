@@ -101,19 +101,17 @@ Lucene search technology integration into Cassandra provides:
 
 Stratio’s Cassandra Lucene Index and its integration with Lucene search technology provides:
 
--  Full text search
--  Geospatial search
--  Bitemporal search
--  Boolean (and, or, not) search
--  Near real-time search
--  Relevance scoring and sorting
--  General top-k queries
--  Custom analyzers
+-  Full text search (language-aware analysis, wildcard, fuzzy, regexp)
+-  Geospatial indexing (points, lines, polygons and their multiparts)
+-  Geospatial transformations (union, difference, intersection, buffer, centroid)
+-  Geospatial operations (intersects, contains, is within)
+-  Bitemporal search (valid and transaction time durations)
+-  Boolean search (and, or, not)
+-  Top-k queries (relevance scoring, sort by value, sort by distance)
 -  CQL complex types (list, set, map, tuple and UDT)
 -  CQL user defined functions (UDF)
 -  Third-party CQL-based drivers compatibility
--  Spark compatibility
--  Hadoop compatibility
+-  Spark and Hadoop compatibility
 
 Not yet supported:
 

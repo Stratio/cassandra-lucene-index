@@ -9,6 +9,8 @@ capabilities and free multivariable, geospatial and bitemporal search. It is ach
 based implementation of Cassandra secondary indexes, where each node of the cluster indexes its own data. Stratio’s
 Cassandra indexes are one of the core modules on which `Stratio’s BigData platform <http://www.stratio.com/>`__ is based.
 
+<img align="center" src="/doc/resources/architecture.png" alt="architecture">
+
 Index `relevance searches <http://en.wikipedia.org/wiki/Relevance_(information_retrieval)>`__ allows you to retrieve the
 *n* more relevant results satisfying a search. The coordinator node sends the search to each node in the cluster, each node
 returns its *n* best results and then the coordinator combines these partial results and gives you the *n* best of them,
@@ -18,34 +20,39 @@ Index filtered searches are a powerful help when analyzing the data stored in Ca
 frameworks as `Apache Hadoop <http://hadoop.apache.org/>`__ or, even better, `Apache Spark <http://spark.apache.org/>`__.
 Adding Lucene filters in the jobs input can dramatically reduce the amount of data to be processed, avoiding full scan.
 
+<img align="center" src="/doc/resources/spark_architecture.png" alt="spark_architecture">
+
 Any cell in the tables can be indexed, including those in the primary key as well as collections. Wide rows are also
 supported. You can scan token/key ranges, apply additional CQL3 clauses and page on the filtered results.
 
 This project is not intended to replace Apache Cassandra denormalized
 tables, inverted indexes, and/or secondary indexes. It is just a tool
 to perform some kind of queries which are really hard to be addressed
-using Apache Cassandra out of the box features.
+using Apache Cassandra out of the box features, filling the gap between
+real-time and analytics.
+
+<img align="center" src="/doc/resources/oltp-olap.png" alt="oltp-olap">
 
 More detailed information is available at `Stratio’s Cassandra Lucene Index documentation <doc/documentation.rst>`__.
 
 Features
 --------
 
+Lucene search technology integration into Cassandra provides:
+
 Stratio’s Cassandra Lucene Index and its integration with Lucene search technology provides:
 
--  Full text search
--  Geospatial search
--  Bitemporal search
--  Boolean (and, or, not) search
--  Near real-time search
--  Relevance scoring and sorting
--  General top-k queries
--  Custom analyzers
+-  Full text search (language-aware analysis, wildcard, fuzzy, regexp)
+-  Geospatial indexing (points, lines, polygons and their multiparts)
+-  Geospatial transformations (union, difference, intersection, buffer, centroid)
+-  Geospatial operations (intersects, contains, is within)
+-  Bitemporal search (valid and transaction time durations)
+-  Boolean search (and, or, not)
+-  Top-k queries (relevance scoring, sort by value, sort by distance)
 -  CQL complex types (list, set, map, tuple and UDT)
 -  CQL user defined functions (UDF)
 -  Third-party CQL-based drivers compatibility
--  Spark compatibility
--  Hadoop compatibility
+-  Spark and Hadoop compatibility
 
 Not yet supported:
 
@@ -53,7 +60,7 @@ Not yet supported:
 -  Legacy compact storage option
 -  Indexing ``counter`` columns
 -  Columns with TTL
--  Indexing static columns
+-  Static columns
 
 Requirements
 ------------
