@@ -49,6 +49,14 @@ Stratio's Cassandra Lucene Index
     - `Range search <#range-search>`__
     - `Regexp search <#regexp-search>`__
     - `Wildcard search <#wildcard-search>`__
+- `Geographical elements <#geographical-elements>`__
+    - `Distance <#distance>`__
+    - `Transformations <#tranformations>`__
+        - `Buffer <#buffer>`__
+        - `Centroid <#centroid>`__
+        - `Difference <#difference>`__
+        - `Intersection <#intersection>`__
+        - `Union <#intersection>`__
 - `Complex data types <#complex-data-types>`__
     - `Tuples <#tuples>`__
     - `User Defined Types <#user-defined-types>`__
@@ -1033,8 +1041,8 @@ ________________
 Maps a geographical shape stored in a text column with `Well Known Text (WKT) <http://en.wikipedia.org/wiki/Well-known_text>`__
 format. The supported WKT shapes are point, linestring, polygon, multipoint, multilinestring and multipolygon.
 
-It is possible to specify a sequence of geometrical transformations to be applied to the shape before indexing it.
-It could be used for indexing only the centroid of the shape, or a buffer around it, etc.
+It is possible to specify a sequence of `geometrical transformations <#transformations>`__ to be applied to the shape
+before indexing it. It could be used for indexing only the centroid of the shape, or a buffer around it, etc.
 
 This mapper depends on `Java Topology Suite (JTS) <http://www.vividsolutions.com/jts>`__.
 This library can't be distributed together with this project due to license compatibility problems, but you can add it
@@ -2399,41 +2407,11 @@ where:
    of the reference point.
 -  **longitude** : a double value between -180 and 180 being the
    longitude of the reference point.
--  **max\_distance** : a string value being the max allowed distance
-   from the reference point.
--  **min\_distance** : a string value being the min allowed distance
-   from the reference point.
+-  **max\_distance** : a string value being the max allowed `distance <#distance>`__ from the reference point.
+-  **min\_distance** : a string value being the min allowed `distance <#distance>`__ from the reference point.
 
 
-**min\_distance** and **max\_distance** are string values composed by a double and distance units. These are the available options for distance units. The default distance unit is metre
-
-+----------------------------+---------------+
-|            Values          |      Unit     |
-+============================+===============+
-|            mm, millimetres |    millimetre |
-+----------------------------+---------------+
-|            cm, centimetres |    centimetre |
-+----------------------------+---------------+
-|             dm, decimetres |     decimetre |
-+----------------------------+---------------+
-|                  m, metres |         metre |
-+----------------------------+---------------+
-|            dam, decametres |     decametre |
-+----------------------------+---------------+
-|            hm, hectometres |    hectometre |
-+----------------------------+---------------+
-|             km, kilometres |     kilometre |
-+----------------------------+---------------+
-|                  ft, foots |          foot |
-+----------------------------+---------------+
-|                  yd, yards |          yard |
-+----------------------------+---------------+
-|                 in, inches |          inch |
-+----------------------------+---------------+
-|                  mi, miles |          mile |
-+----------------------------+---------------+
-| M, NM, mil, nautical_miles | nautical mile |
-+----------------------------+---------------+
+**min\_distance** and **max\_distance** are string values composed by a double and distance units.
 
 This query internally converts distance units to degrees using the spherical distance algorithm
 considering the earth a perfect sphere with a radius of 6371.0087714 km.
@@ -2532,7 +2510,7 @@ where:
    of the reference point.
 -  **operation** : the type of spatial operation to be performed. The possible values are "intersects", "is_within" and
 "contains". Defaults to "is_within".
--  **transformation** : a list of geometrical transformations to be applied to the shape before using it for searching.
+-  **transformation** : a list of `geometrical transformations <#transformations>`__ to be applied to the shape before using it for searching.
 
 **Example 1:** search for shapes within a polygon:
 
@@ -3010,6 +2988,141 @@ Using Builder
     Search search = search().filter(wildcard("food","tu*"));
     ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users")
                                     .where(eq(indexColumn, search.build()));
+
+Geographical elements
+*********************
+
+Geographical indexing and search make use of some common elements that are described in this section.
+
+Distance
+========
+
+Both `geo distance search <#geo-distance-search>`__ and `buffer transformation <#buffer>`__ take a spatial distance as
+argument. This distance is just a string with the form "1km", "1000m", etc. The following table shows the available
+options for distance units. The default distance unit is metre.
+
++----------------------------+---------------+
+|            Values          |      Unit     |
++============================+===============+
+|            mm, millimetres |    millimetre |
++----------------------------+---------------+
+|            cm, centimetres |    centimetre |
++----------------------------+---------------+
+|             dm, decimetres |     decimetre |
++----------------------------+---------------+
+|                  m, metres |         metre |
++----------------------------+---------------+
+|            dam, decametres |     decametre |
++----------------------------+---------------+
+|            hm, hectometres |    hectometre |
++----------------------------+---------------+
+|             km, kilometres |     kilometre |
++----------------------------+---------------+
+|                  ft, foots |          foot |
++----------------------------+---------------+
+|                  yd, yards |          yard |
++----------------------------+---------------+
+|                 in, inches |          inch |
++----------------------------+---------------+
+|                  mi, miles |          mile |
++----------------------------+---------------+
+| M, NM, mil, nautical_miles | nautical mile |
++----------------------------+---------------+
+
+Transformations
+===============
+
+Both `geo shape mapper <#geo-shape-mapper>`__ and `geo shape search <#geo-shape-search>`__ take a  list of geometrical
+transformations as argument. These transformations are sequentially applied to the shape that is going to be indexed or
+searched.
+
+Buffer
+______
+
+Buffer transformation returns a buffer around a shape.
+
+**Syntax:**
+
+.. code-block:: sql
+
+    { type : "buffer"
+      (, min_distance : <distance> )?
+      (, max_distance : <distance> )?
+    }
+
+where:
+
+-  **min_distance**: the inside buffer `distance <#distance>`__. Optional.
+-  **max_distance**: the outside buffer `distance <#distance>`__. Optional.
+
+Centroid
+________
+
+Centroid transformation returns the geometric center of a shape.
+
+**Syntax:**
+
+.. code-block:: sql
+
+    { type : "centroid" }
+
+Difference
+__________
+
+Difference transformation subtracts the specified shape.
+
+**Syntax:**
+
+.. code-block:: sql
+
+    {
+      type : "difference",
+      shape : "<shape>"
+    }
+
+where:
+
+-  **shape**: The shape to be subtracted as a `Well Known Text (WKT) <http://en.wikipedia.org/wiki/Well-known_text>`__
+string. Mandatory.
+
+Intersection
+____________
+
+Intersection transformation intersects the specified shape.
+
+**Syntax:**
+
+.. code-block:: sql
+
+    {
+      type : "intersection",
+      shape : "<shape>"
+    }
+
+where:
+
+-  **shape**: The shape to be intersected as a `Well Known Text (WKT) <http://en.wikipedia.org/wiki/Well-known_text>`__
+string. Mandatory.
+
+Union
+_____
+
+Union transformation adds the specified shape.
+
+**Syntax:**
+
+.. code-block:: sql
+
+    {
+      type : "union",
+      shape : "<shape>"
+    }
+
+where:
+
+-  **shape**: The shape to be added as a `Well Known Text (WKT) <http://en.wikipedia.org/wiki/Well-known_text>`__
+string. Mandatory.
+
 
 Complex data types
 ******************
