@@ -31,14 +31,27 @@ Adding Lucene filters in the jobs input can dramatically reduce the amount of da
    :alt: spark_architecture
    :align: center
 
+The following benchmark result can give you an idea about the expected performance when combining Lucene indexes with
+Spark. We do successive queries requesting from the 1% to 100% of the stored data. We can see a high performance for the
+index for the queries requesting strongly filtered data. However, the performance decays in less restrictive queries.
+As the number of records returned by the query increases, we reach a point where the index becomes slower than the full
+scan. So, the decision to use indexes in your Spark jobs depends on the query selectivity. The tradeoff between both
+approaches depends on the particular use case. Generally, combining Lucene indexes with Spark is recommended for jobs
+retrieving no more than the 25% of the stored data.
+
+.. image:: /doc/resources/spark_performance.png
+   :width: 100%
+   :alt: spark_performance
+   :align: center
+
 This project is not intended to replace Apache Cassandra denormalized tables, inverted indexes, and/or secondary
 indexes. It is just a tool to perform some kind of queries which are really hard to be addressed using Apache Cassandra
 out of the box features, filling the gap between real-time and analytics.
 
-.. image:: /doc/resources/oltp_olap.png
+.. image:: /doc/resources/between_real_time_and_analytics.png
    :width: 100%
    :alt: oltp_olap
-   :align: center
+   :align: between_real_time_and_analytics
 
 More detailed information is available at `Stratio’s Cassandra Lucene Index documentation <doc/documentation.rst>`__.
 
