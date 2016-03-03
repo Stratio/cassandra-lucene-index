@@ -1978,7 +1978,7 @@ Using `query builder <#query-builder>`__:
                                     .where(eq(indexColumn, search.build()));
 
 
-**Example 4** will return zero rows independently of the index contents
+**Example 4:** will return zero rows independently of the index contents
 
 .. code-block:: sql
 
@@ -2880,7 +2880,7 @@ Using `query builder <#query-builder>`__:
     ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users")
                                     .where(eq(indexColumn, search.build()));
 
-**Example 4** will return rows where *date* is in [2014/01/01, 2014/01/02]
+**Example 4:** will return rows where *date* is in [2014/01/01, 2014/01/02]
 
 .. code-block:: sql
 
