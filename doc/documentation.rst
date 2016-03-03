@@ -3128,8 +3128,7 @@ Difference transformation subtracts the specified shape.
 
 where:
 
--  **shape**: The shape to be subtracted as a `Well Known Text (WKT) <http://en.wikipedia.org/wiki/Well-known_text>`__
-string. Mandatory.
+-  **shape**: The shape to be subtracted as a `Well Known Text (WKT) <http://en.wikipedia.org/wiki/Well-known_text>`__ string. Mandatory.
 
 Intersection
 ____________
@@ -3147,8 +3146,7 @@ Intersection transformation intersects the specified shape.
 
 where:
 
--  **shape**: The shape to be intersected as a `Well Known Text (WKT) <http://en.wikipedia.org/wiki/Well-known_text>`__
-string. Mandatory.
+-  **shape**: The shape to be intersected as a `Well Known Text (WKT) <http://en.wikipedia.org/wiki/Well-known_text>`__ string. Mandatory.
 
 Union
 _____
@@ -3166,8 +3164,7 @@ Union transformation adds the specified shape.
 
 where:
 
--  **shape**: The shape to be added as a `Well Known Text (WKT) <http://en.wikipedia.org/wiki/Well-known_text>`__
-string. Mandatory.
+-  **shape**: The shape to be added as a `Well Known Text (WKT) <http://en.wikipedia.org/wiki/Well-known_text>`__ string. Mandatory.
 
 
 Complex data types
