@@ -93,8 +93,7 @@ public class GeoSearchOverIndexedGeoShapesAT extends BaseAT {
 
         data12 = new LinkedHashMap<>();
         data12.put("place", "'MULTIPOLYGON_2'");
-        data12.put("shape",
-                   "'MULTIPOLYGON (((40 40, 20 45, 45 30, 40 40)),((20 35, 10 30, 10 10, 30 5, 45 20, 20 35),(30 20, 20 15, 20 25, 30 20)))'");
+        data12.put("shape","'MULTIPOLYGON (((40 40, 20 45, 45 30, 40 40)),((20 35, 10 30, 10 10, 30 5, 45 20, 20 35),(30 20, 20 15, 20 25, 30 20)))'");
 
     }
 
@@ -694,7 +693,7 @@ public class GeoSearchOverIndexedGeoShapesAT extends BaseAT {
     public void testMultipolygon2Contains() {
         cassandraUtils.filter(geoShape("shape",
                                        "MULTIPOLYGON (((40 40, 20 45, 45 30, 40 40)),((20 35, 10 30, 10 10, 30 5, 45 20, 20 35),(30 20, 20 15, 20 25, 30 20)))")
-                                      .operation("contains")).checkStringColumnWithoutOrder("place", "LINE_1","MULTIPOLYGON_2");
+                                      .operation("contains")).checkStringColumnWithoutOrder("place", "MULTIPOLYGON_2");
     }
 
     @Test

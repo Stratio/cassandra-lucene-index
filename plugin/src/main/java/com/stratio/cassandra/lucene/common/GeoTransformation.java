@@ -16,19 +16,29 @@
  * under the License.
  */
 
-package com.stratio.cassandra.lucene.search.condition;
+package com.stratio.cassandra.lucene.common;
 
 import com.google.common.base.Objects;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.stratio.cassandra.lucene.util.GeospatialUtils;
 import com.vividsolutions.jts.geom.Geometry;
+import org.codehaus.jackson.annotate.JsonCreator;
+import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.annotate.JsonSubTypes;
+import org.codehaus.jackson.annotate.JsonTypeInfo;
 
 /**
  * Class representing the transformation of a JTS geographical shape into a new shape.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+@JsonSubTypes({@JsonSubTypes.Type(value = GeoTransformation.Buffer.class, name = "buffer"),
+               @JsonSubTypes.Type(value = GeoTransformation.Centroid.class, name = "centroid"),
+               @JsonSubTypes.Type(value = GeoTransformation.Difference.class, name = "difference"),
+               @JsonSubTypes.Type(value = GeoTransformation.Intersection.class, name = "intersection"),
+               @JsonSubTypes.Type(value = GeoTransformation.Union.class, name = "union")})
 public interface GeoTransformation {
 
     /**
@@ -42,22 +52,56 @@ public interface GeoTransformation {
     JtsGeometry apply(JtsGeometry shape, JtsSpatialContext context);
 
     /**
-     * {@link GeoTransformation} for getting the bounding shape of a JTS geographical shape.
+     * {@link GeoTransformation} that returns the bounding shape of a JTS geographical shape.
      */
     class Buffer implements GeoTransformation {
 
-        public final GeoDistance maxDistance;
-        public final GeoDistance minDistance;
+        /** The max allowed distance. */
+        @JsonProperty("max_distance")
+        private GeoDistance maxDistance;
+
+        /** The min allowed distance. */
+        @JsonProperty("min_distance")
+        private GeoDistance minDistance;
 
         /**
-         * Constructor receiving the max and minimum accepted distances.
+         * Sets the max allowed distance.
          *
-         * @param maxDistance the max accepted distance
-         * @param minDistance the min accepted distance
+         * @param maxDistance the min distance
+         * @return this with the specified min distance
          */
-        public Buffer(GeoDistance maxDistance, GeoDistance minDistance) {
+        public Buffer maxDistance(GeoDistance maxDistance) {
             this.maxDistance = maxDistance;
+            return this;
+        }
+
+        /**
+         * Sets the min allowed distance.
+         *
+         * @param minDistance the min distance
+         * @return this with the specified min distance
+         */
+        public Buffer minDistance(GeoDistance minDistance) {
             this.minDistance = minDistance;
+            return this;
+        }
+
+        /**
+         * Returns the max allowed distance.
+         *
+         * @return the max distance
+         */
+        public GeoDistance maxDistance() {
+            return maxDistance;
+        }
+
+        /**
+         * Returns the min allowed distance.
+         *
+         * @return the min distance
+         */
+        public GeoDistance minDistance() {
+            return minDistance;
         }
 
         /**
@@ -93,35 +137,63 @@ public interface GeoTransformation {
     }
 
     /**
-     * {@link GeoTransformation} that gets the onion of two JTS geographical shapes.
+     * {@link GeoTransformation} that returns the center point of a JTS geographical shape.
      */
-    class Union implements GeoTransformation {
+    class Centroid implements GeoTransformation {
 
+        /**
+         * Returns the center of the specified {@link JtsGeometry}.
+         *
+         * @param shape the JTS shape to be transformed
+         * @param context the JTS spatial context to be used
+         * @return the center
+         */
+        @Override
+        public JtsGeometry apply(JtsGeometry shape, JtsSpatialContext context) {
+            Geometry centroid = shape.getGeom().getCentroid();
+            return context.makeShape(centroid);
+        }
+
+        /** {@inheritDoc} */
+        @Override
+        public String toString() {
+            return Objects.toStringHelper(this).toString();
+        }
+    }
+
+    /**
+     * {@link GeoTransformation} that returns the difference of two JTS geographical shapes.
+     */
+    class Difference implements GeoTransformation {
+
+        @JsonProperty("shape")
         public final String other;
 
         /**
-         * Constructor receiving the geometry to be added.
+         * Constructor receiving the geometry to be subtracted.
          *
-         * @param other the geometry to be added
+         * @param other the geometry
          */
-        public Union(String other) {
+        @JsonCreator
+        public Difference(@JsonProperty("shape") String other) {
             this.other = other;
         }
 
         /**
-         * Returns the union of the specified {@link JtsGeometry}.
+         * Returns the difference of the specified {@link JtsGeometry}.
          *
          * @param shape the JTS shape to be transformed
          * @param context the JTS spatial context to be used
-         * @return the union
+         * @return the difference
          */
         @Override
         public JtsGeometry apply(JtsGeometry shape, JtsSpatialContext context) {
             Geometry geometry = GeospatialUtils.geometryFromWKT(context, other).getGeom();
-            Geometry union = shape.getGeom().union(geometry);
-            return context.makeShape(union);
+            Geometry difference = shape.getGeom().difference(geometry);
+            return context.makeShape(difference);
         }
 
+        /** {@inheritDoc} */
         @Override
         public String toString() {
             return Objects.toStringHelper(this).add("other", other).toString();
@@ -129,10 +201,11 @@ public interface GeoTransformation {
     }
 
     /**
-     * {@link GeoTransformation} that gets the onion of two JTS geographical shapes.
+     * {@link GeoTransformation} that returns the intersection of two JTS geographical shapes.
      */
     class Intersection implements GeoTransformation {
 
+        @JsonProperty("shape")
         public final String other;
 
         /**
@@ -140,7 +213,8 @@ public interface GeoTransformation {
          *
          * @param other the geometry to be added
          */
-        public Intersection(String other) {
+        @JsonCreator
+        public Intersection(@JsonProperty("shape") String other) {
             this.other = other;
         }
 
@@ -166,36 +240,37 @@ public interface GeoTransformation {
     }
 
     /**
-     * {@link GeoTransformation} that gets the union of two JTS geographical shapes.
+     * {@link GeoTransformation} that returns the union of two JTS geographical shapes.
      */
-    class Difference implements GeoTransformation {
+    class Union implements GeoTransformation {
 
+        @JsonProperty("shape")
         public final String other;
 
         /**
-         * Constructor receiving the geometry to be subtracted.
+         * Constructor receiving the geometry to be added.
          *
-         * @param other the geometry
+         * @param other the geometry to be added
          */
-        public Difference(String other) {
+        @JsonCreator
+        public Union(@JsonProperty("shape") String other) {
             this.other = other;
         }
 
         /**
-         * Returns the difference of the specified {@link JtsGeometry}.
+         * Returns the union of the specified {@link JtsGeometry}.
          *
          * @param shape the JTS shape to be transformed
          * @param context the JTS spatial context to be used
-         * @return the difference
+         * @return the union
          */
         @Override
         public JtsGeometry apply(JtsGeometry shape, JtsSpatialContext context) {
             Geometry geometry = GeospatialUtils.geometryFromWKT(context, other).getGeom();
-            Geometry difference = shape.getGeom().difference(geometry);
-            return context.makeShape(difference);
+            Geometry union = shape.getGeom().union(geometry);
+            return context.makeShape(union);
         }
 
-        /** {@inheritDoc} */
         @Override
         public String toString() {
             return Objects.toStringHelper(this).add("other", other).toString();

@@ -19,7 +19,6 @@
 package com.stratio.cassandra.lucene.testsAT.search;
 
 import com.stratio.cassandra.lucene.builder.search.condition.GeoShapeCondition;
-import com.stratio.cassandra.lucene.builder.search.condition.GeoTransformation;
 import com.stratio.cassandra.lucene.testsAT.BaseAT;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
 import org.junit.AfterClass;
@@ -48,13 +47,6 @@ public class GeoShapesSearchAT extends BaseAT {
     static String shape_8="POLYGON((0 0,1 0,1 2,0 2,0 0))";
     static String shape_9="POLYGON((1 0,2 0,1 2,1 2,1 0))";
     static String shape_10="POLYGON((0 1,2 1,2 2,0 2,0 1))";
-
-
-
-    static String shape_11="POLYGON((0 0,1 0, 1 1,0 1,0 0))";
-    static String shape_12="POLYGON((0 0,1 0, 1 1,0 1,0 0))";
-
-
 
     public static final Map<String, String> data1, data2, data3, data4, data5, data6, data7, data8, data9;
     protected static CassandraUtils cassandraUtils;
@@ -181,112 +173,264 @@ public class GeoShapesSearchAT extends BaseAT {
 
     @Test
     public void testCase1WithDifference() {
-        testCase(geoShape("shape",shape_6).transform(new GeoTransformation.Difference(shape_3)),1,new String[]{"1"},new String[]{"1"},new String[]{});
+        testCase(geoShape("shape", shape_6).transform(differenceGeoTransformation(shape_3)),
+                 1,
+                 new String[]{"1"},
+                 new String[]{"1"},
+                 new String[]{});
     }
     @Test
     public void testCase2WithDifference() {
         //shape_1 (2) is within shape_3 so must return
-        testCase(geoShape("shape",shape_6).transform(new GeoTransformation.Difference(shape_3)),2,new String[]{"1","2"},new String[]{"1","2"},new String[]{});
+        testCase(geoShape("shape", shape_6).transform(differenceGeoTransformation(shape_3)),
+                 2,
+                 new String[]{"1", "2"},
+                 new String[]{"1", "2"},
+                 new String[]{});
     }
     @Test
     public void testCase3WithDifference() {
         //shape_1 shares with shape_3 just one exterior border so must intersects in the two ways and no more
-        testCase(geoShape("shape",shape_6).transform(new GeoTransformation.Difference(shape_3)),3,new String[]{"1"},new String[]{"1","3"},new String[]{});
-        testCase(geoShape("shape", shape_6).transform(new GeoTransformation.Difference(shape_1)),3,new String[]{"3"},new String[]{"1","3"},new String[]{});
+        testCase(geoShape("shape", shape_6).transform(differenceGeoTransformation(shape_3)),
+                 3,
+                 new String[]{"1"},
+                 new String[]{"1", "3"},
+                 new String[]{});
+        testCase(geoShape("shape", shape_6).transform(differenceGeoTransformation(shape_1)),
+                 3,
+                 new String[]{"3"},
+                 new String[]{"1", "3"},
+                 new String[]{});
     }
 
     @Test
     public void testCase4WithDifference() {
         //shape_1 (2) is within shape_3
-        testCase(geoShape("shape", shape_6).transform(new GeoTransformation.Difference(shape_3)),4,new String[]{"1"},new String[]{"1","4"},new String[]{});
-        testCase(geoShape("shape", shape_9).transform(new GeoTransformation.Difference(shape_3)),4,new String[]{"4"},new String[]{"1","4"},new String[]{});
+        testCase(geoShape("shape", shape_6).transform(differenceGeoTransformation(shape_3)),
+                 4,
+                 new String[]{"1"},
+                 new String[]{"1", "4"},
+                 new String[]{});
+        testCase(geoShape("shape", shape_9).transform(differenceGeoTransformation(shape_3)),
+                 4,
+                 new String[]{"4"},
+                 new String[]{"1", "4"},
+                 new String[]{});
     }
 
     @Test
     public void testCase5WithDifference() {
         //shape_1 disjoint shape5
-        testCase(geoShape("shape",shape_6).transform(new GeoTransformation.Difference(shape_3)),5,new String[]{"1"},new String[]{"1"},new String[]{});
+        testCase(geoShape("shape", shape_6).transform(differenceGeoTransformation(shape_3)),
+                 5,
+                 new String[]{"1"},
+                 new String[]{"1"},
+                 new String[]{});
     }
 
     //Intersection shape1= SHAPE_6 Intersectoion SHAPE_8, intersection is idempotent
     @Test
     public void testCase1WithIntersection() {
         // index A, search A must return intersecs and Contains but no is_within
-        testCase(geoShape("shape",shape_6).transform(new GeoTransformation.Intersection(shape_8)),1,new String[]{"1"},new String[]{"1"},new String[]{});
-        testCase(geoShape("shape",shape_8).transform(new GeoTransformation.Intersection(shape_6)),1,new String[]{"1"},new String[]{"1"},new String[]{});
+        testCase(geoShape("shape", shape_6).transform(intersectionGeoTransformation(shape_8)),
+                 1,
+                 new String[]{"1"},
+                 new String[]{"1"},
+                 new String[]{});
+        testCase(geoShape("shape", shape_8).transform(intersectionGeoTransformation(shape_6)),
+                 1,
+                 new String[]{"1"},
+                 new String[]{"1"},
+                 new String[]{});
     }
 
     @Test
     public void testCase2WithIntersection() {
         //shape_1 (2) is within shape_3 so must return
-        testCase(geoShape("shape",shape_6).transform(new GeoTransformation.Intersection(shape_8)),2,new String[]{"1","2"},new String[]{"1","2"}, new String[]{});
-        testCase(geoShape("shape",shape_8).transform(new GeoTransformation.Intersection(shape_6)),2,new String[]{"1","2"},new String[]{"1","2"}, new String[]{});
+        testCase(geoShape("shape", shape_6).transform(intersectionGeoTransformation(shape_8)),
+                 2,
+                 new String[]{"1", "2"},
+                 new String[]{"1", "2"},
+                 new String[]{});
+        testCase(geoShape("shape", shape_8).transform(intersectionGeoTransformation(shape_6)),
+                 2,
+                 new String[]{"1", "2"},
+                 new String[]{"1", "2"},
+                 new String[]{});
     }
 
     @Test
     public void testCase3WithIntersection() {
         //shape_1 shares with shape_3 just one exterior border so must intersects in the two ways and no more
-        testCase(geoShape("shape",shape_6).transform(new GeoTransformation.Intersection(shape_8)),3,new String[]{"1"},new String[]{"1", "3"},new String[]{});
-        testCase(geoShape("shape",shape_8).transform(new GeoTransformation.Intersection(shape_6)),3,new String[]{"1"},new String[]{"1", "3"},new String[]{});
-        testCase(geoShape("shape", shape_6).transform(new GeoTransformation.Intersection(shape_9)), 3, new String[]{"3"}, new String[]{"1", "3"}, new String[]{});
-        testCase(geoShape("shape", shape_9).transform(new GeoTransformation.Intersection(shape_6)), 3, new String[]{"3"}, new String[]{"1", "3"}, new String[]{});
+        testCase(geoShape("shape", shape_6).transform(intersectionGeoTransformation(shape_8)),
+                 3,
+                 new String[]{"1"},
+                 new String[]{"1", "3"},
+                 new String[]{});
+        testCase(geoShape("shape", shape_8).transform(intersectionGeoTransformation(shape_6)),
+                 3,
+                 new String[]{"1"},
+                 new String[]{"1", "3"},
+                 new String[]{});
+        testCase(geoShape("shape", shape_6).transform(intersectionGeoTransformation(shape_9)),
+                 3,
+                 new String[]{"3"},
+                 new String[]{"1", "3"},
+                 new String[]{});
+        testCase(geoShape("shape", shape_9).transform(intersectionGeoTransformation(shape_6)),
+                 3,
+                 new String[]{"3"},
+                 new String[]{"1", "3"},
+                 new String[]{});
     }
 
     @Test
     public void testCase4WithIntersection() {
         //shape_1 (2) is within shape_3
-        testCase(geoShape("shape",shape_6).transform(new GeoTransformation.Intersection(shape_8)),4,new String[]{"1"}, new String[]{"1", "4"}, new String[]{});
-        testCase(geoShape("shape",shape_8).transform(new GeoTransformation.Intersection(shape_6)),4,new String[]{"1"}, new String[]{"1", "4"}, new String[]{});
-        testCase(geoShape("shape", shape_9).transform(new GeoTransformation.Intersection(shape_10)), 4, new String[]{"4"},new String[]{"1","4"},new String[]{});
-        testCase(geoShape("shape", shape_10).transform(new GeoTransformation.Intersection(shape_9)), 4, new String[]{"4"},new String[]{"1","4"},new String[]{});
+        testCase(geoShape("shape", shape_6).transform(intersectionGeoTransformation(shape_8)),
+                 4,
+                 new String[]{"1"},
+                 new String[]{"1", "4"},
+                 new String[]{});
+        testCase(geoShape("shape", shape_8).transform(intersectionGeoTransformation(shape_6)),
+                 4,
+                 new String[]{"1"},
+                 new String[]{"1", "4"},
+                 new String[]{});
+        testCase(geoShape("shape", shape_9).transform(intersectionGeoTransformation(shape_10)),
+                 4,
+                 new String[]{"4"},
+                 new String[]{"1", "4"},
+                 new String[]{});
+        testCase(geoShape("shape", shape_10).transform(intersectionGeoTransformation(shape_9)),
+                 4,
+                 new String[]{"4"},
+                 new String[]{"1", "4"},
+                 new String[]{});
     }
 
 
     @Test
     public void testCase5WithIntersection() {
         //shape_1 disjoint shape5
-        testCase(geoShape("shape", shape_6).transform(new GeoTransformation.Intersection(shape_8)), 5, new String[]{"1"}, new String[]{"1"}, new String[]{});
-        testCase(geoShape("shape", shape_8).transform(new GeoTransformation.Intersection(shape_6)), 5, new String[]{"1"}, new String[]{"1"}, new String[]{});
+        testCase(geoShape("shape", shape_6).transform(intersectionGeoTransformation(shape_8)),
+                 5,
+                 new String[]{"1"},
+                 new String[]{"1"},
+                 new String[]{});
+        testCase(geoShape("shape", shape_8).transform(intersectionGeoTransformation(shape_6)),
+                 5,
+                 new String[]{"1"},
+                 new String[]{"1"},
+                 new String[]{});
     }
 
 
     @Test
     public void testCase1WithUnion() {
         // index A, search A must return intersecs and Contains but no is_within
-        testCase(geoShape("shape",shape_1).transform(new GeoTransformation.Union(shape_3), new GeoTransformation.Intersection(shape_8)),1,new String[]{"1"},new String[]{"1"},new String[]{});
-        testCase(geoShape("shape",shape_1).transform(new GeoTransformation.Union(shape_7), new GeoTransformation.Intersection(shape_6)),1,new String[]{"1"},new String[]{"1"},new String[]{});
+        testCase(geoShape("shape", shape_1).transform(unionGeoTransformation(shape_3),
+                                                      intersectionGeoTransformation(shape_8)),
+                 1,
+                 new String[]{"1"},
+                 new String[]{"1"},
+                 new String[]{});
+        testCase(geoShape("shape", shape_1).transform(unionGeoTransformation(shape_7),
+                                                      intersectionGeoTransformation(shape_6)),
+                 1,
+                 new String[]{"1"},
+                 new String[]{"1"},
+                 new String[]{});
     }
 
     @Test
     public void testCase2WithUnion() {
         //shape_1 (2) is within shape_3 so must return
-        testCase(geoShape("shape",shape_1).transform(new GeoTransformation.Union(shape_3), new GeoTransformation.Intersection(shape_8)),2,new String[]{"1","2"},new String[]{"1","2"}, new String[]{});
-        testCase(geoShape("shape",shape_1).transform(new GeoTransformation.Union(shape_7),new GeoTransformation.Intersection(shape_6)),2,new String[]{"1","2"},new String[]{"1","2"}, new String[]{});
+        testCase(geoShape("shape", shape_1).transform(unionGeoTransformation(shape_3),
+                                                      intersectionGeoTransformation(shape_8)),
+                 2,
+                 new String[]{"1", "2"},
+                 new String[]{"1", "2"},
+                 new String[]{});
+        testCase(geoShape("shape", shape_1).transform(unionGeoTransformation(shape_7),
+                                                      intersectionGeoTransformation(shape_6)),
+                 2,
+                 new String[]{"1", "2"},
+                 new String[]{"1", "2"},
+                 new String[]{});
     }
 
     @Test
     public void testCase3WithUnion() {
         //shape_1 shares with shape_3 just one exterior border so must intersects in the two ways and no more
-        testCase(geoShape("shape",shape_1).transform(new GeoTransformation.Union(shape_3), new GeoTransformation.Intersection(shape_8)),3,new String[]{"1"},new String[]{"1", "3"},new String[]{});
-        testCase(geoShape("shape",shape_1).transform(new GeoTransformation.Union(shape_7),new GeoTransformation.Intersection(shape_6)),3,new String[]{"1"},new String[]{"1", "3"},new String[]{});
-        testCase(geoShape("shape",shape_1).transform(new GeoTransformation.Union(shape_3), new GeoTransformation.Intersection(shape_9)), 3, new String[]{"3"}, new String[]{"1", "3"}, new String[]{});
-        testCase(geoShape("shape", shape_9).transform(new GeoTransformation.Intersection(shape_6)), 3, new String[]{"3"}, new String[]{"1", "3"}, new String[]{});
+        testCase(geoShape("shape", shape_1).transform(unionGeoTransformation(shape_3),
+                                                      intersectionGeoTransformation(shape_8)),
+                 3,
+                 new String[]{"1"},
+                 new String[]{"1", "3"},
+                 new String[]{});
+        testCase(geoShape("shape", shape_1).transform(unionGeoTransformation(shape_7),
+                                                      intersectionGeoTransformation(shape_6)),
+                 3,
+                 new String[]{"1"},
+                 new String[]{"1", "3"},
+                 new String[]{});
+        testCase(geoShape("shape", shape_1).transform(unionGeoTransformation(shape_3),
+                                                      intersectionGeoTransformation(shape_9)),
+                 3,
+                 new String[]{"3"},
+                 new String[]{"1", "3"},
+                 new String[]{});
+        testCase(geoShape("shape", shape_9).transform(intersectionGeoTransformation(shape_6)),
+                 3,
+                 new String[]{"3"},
+                 new String[]{"1", "3"},
+                 new String[]{});
     }
 
     @Test
     public void testCase4WithUnion() {
         //shape_1 (2) is within shape_3
-        testCase(geoShape("shape",shape_1).transform(new GeoTransformation.Union(shape_3),new GeoTransformation.Intersection(shape_8)),4,new String[]{"1"}, new String[]{"1", "4"}, new String[]{});
-        testCase(geoShape("shape",shape_1).transform(new GeoTransformation.Union(shape_7),new GeoTransformation.Intersection(shape_6)),4,new String[]{"1"}, new String[]{"1", "4"}, new String[]{});
-        testCase(geoShape("shape", shape_9).transform(new GeoTransformation.Intersection(shape_10)), 4, new String[]{"4"},new String[]{"1","4"},new String[]{});
-        testCase(geoShape("shape", shape_4).transform(new GeoTransformation.Union(shape_7),new GeoTransformation.Intersection(shape_9)), 4, new String[]{"4"},new String[]{"1","4"},new String[]{});
+        testCase(geoShape("shape", shape_1).transform(unionGeoTransformation(shape_3),
+                                                      intersectionGeoTransformation(shape_8)),
+                 4,
+                 new String[]{"1"},
+                 new String[]{"1", "4"},
+                 new String[]{});
+        testCase(geoShape("shape", shape_1).transform(unionGeoTransformation(shape_7),
+                                                      intersectionGeoTransformation(shape_6)),
+                 4,
+                 new String[]{"1"},
+                 new String[]{"1", "4"},
+                 new String[]{});
+        testCase(geoShape("shape", shape_9).transform(intersectionGeoTransformation(shape_10)),
+                 4,
+                 new String[]{"4"},
+                 new String[]{"1", "4"},
+                 new String[]{});
+        testCase(geoShape("shape", shape_4).transform(unionGeoTransformation(shape_7),
+                                                      intersectionGeoTransformation(shape_9)),
+                 4,
+                 new String[]{"4"},
+                 new String[]{"1", "4"},
+                 new String[]{});
     }
 
 
     @Test
     public void testCase5WithUnion() {
         //shape_1 disjoint shape5
-        testCase(geoShape("shape", shape_1).transform(new GeoTransformation.Union(shape_3), new GeoTransformation.Intersection(shape_8)), 5, new String[]{"1"}, new String[]{"1"}, new String[]{});
-        testCase(geoShape("shape", shape_1).transform(new GeoTransformation.Union(shape_7),new GeoTransformation.Intersection(shape_6)), 5, new String[]{"1"}, new String[]{"1"}, new String[]{});
+        testCase(geoShape("shape", shape_1).transform(unionGeoTransformation(shape_3),
+                                                      intersectionGeoTransformation(shape_8)),
+                 5,
+                 new String[]{"1"},
+                 new String[]{"1"},
+                 new String[]{});
+        testCase(geoShape("shape", shape_1).transform(unionGeoTransformation(shape_7),
+                                                      intersectionGeoTransformation(shape_6)),
+                 5,
+                 new String[]{"1"},
+                 new String[]{"1"},
+                 new String[]{});
     }
 }

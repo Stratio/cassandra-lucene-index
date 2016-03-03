@@ -23,19 +23,18 @@ import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static com.stratio.cassandra.lucene.builder.Builder.*;
 
+
 /**
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
-@RunWith(JUnit4.class)
 public class GeoShapeSearchOverIndexedGeoPointsAT extends BaseAT {
+
     protected static CassandraUtils cassandraUtils;
 
     public static final Map<String, String> data1, data2,data3,data4,data5,data6,data7,data8,data9,data10,data11,data12;

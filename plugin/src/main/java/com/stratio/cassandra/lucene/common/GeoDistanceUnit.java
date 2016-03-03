@@ -1,4 +1,4 @@
-package com.stratio.cassandra.lucene.search.condition;
+package com.stratio.cassandra.lucene.common;
 
 import org.codehaus.jackson.annotate.JsonCreator;
 

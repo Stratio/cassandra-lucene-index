@@ -21,6 +21,8 @@ package com.stratio.cassandra.lucene.search.condition;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.stratio.cassandra.lucene.IndexException;
+import com.stratio.cassandra.lucene.common.GeoOperation;
+import com.stratio.cassandra.lucene.common.GeoTransformation;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.GeoPointMapper;
 import com.stratio.cassandra.lucene.schema.mapping.GeoShapeMapper;
@@ -114,7 +116,6 @@ public class GeoShapeCondition extends SingleFieldCondition {
                 transformedGeometry = transformation.apply(transformedGeometry, CONTEXT);
             }
         }
-        logger.debug("Transformed shape: {}", transformedGeometry);
 
         // Build query
         SpatialArgs args = new SpatialArgs(operation.getSpatialOperation(), transformedGeometry);

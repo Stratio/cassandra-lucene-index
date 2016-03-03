@@ -18,9 +18,14 @@
 
 package com.stratio.cassandra.lucene.schema.mapping.builder;
 
+import com.stratio.cassandra.lucene.common.GeoTransformation;
 import com.stratio.cassandra.lucene.schema.mapping.GeoPointMapper;
 import com.stratio.cassandra.lucene.schema.mapping.GeoShapeMapper;
 import org.codehaus.jackson.annotate.JsonProperty;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * {@link MapperBuilder} to build a new {@link GeoPointMapper}.
@@ -36,6 +41,10 @@ public class GeoShapeMapperBuilder extends MapperBuilder<GeoShapeMapper, GeoShap
     /** The maximum number of levels in the tree. */
     @JsonProperty("max_levels")
     private Integer maxLevels;
+
+    /** The sequence of transformations to be applied to the shape before indexing. */
+    @JsonProperty("transformations")
+    private List<GeoTransformation> transformations;
 
     /**
      * Sets the name of the Cassandra column to be mapped.
@@ -60,6 +69,27 @@ public class GeoShapeMapperBuilder extends MapperBuilder<GeoShapeMapper, GeoShap
     }
 
     /**
+     * Sets the transformations to be applied to the shape before using it for searching.
+     *
+     * @param transformations the sequence of transformations
+     * @return this with the transformations set
+     */
+    public GeoShapeMapperBuilder transformations(List<GeoTransformation> transformations) {
+        this.transformations = transformations;
+        return this;
+    }
+
+    /**
+     * Sets the transformations to be applied to the shape before using it for searching.
+     *
+     * @param transformations the sequence of transformations
+     * @return this with the transformations set
+     */
+    public GeoShapeMapperBuilder transformations(GeoTransformation... transformations) {
+        return transformations(Arrays.asList(transformations));
+    }
+
+    /**
      * Returns the {@link GeoShapeMapper} represented by this {@link MapperBuilder}.
      *
      * @param field The name of the field to be built.
@@ -67,6 +97,6 @@ public class GeoShapeMapperBuilder extends MapperBuilder<GeoShapeMapper, GeoShap
      */
     @Override
     public GeoShapeMapper build(String field) {
-        return new GeoShapeMapper(field, column, validated, maxLevels);
+        return new GeoShapeMapper(field, column, validated, maxLevels, transformations);
     }
 }

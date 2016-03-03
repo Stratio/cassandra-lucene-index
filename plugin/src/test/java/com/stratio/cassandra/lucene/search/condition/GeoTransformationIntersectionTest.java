@@ -21,15 +21,17 @@ package com.stratio.cassandra.lucene.search.condition;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.stratio.cassandra.lucene.IndexException;
+import com.stratio.cassandra.lucene.common.GeoTransformation;
 import com.stratio.cassandra.lucene.schema.mapping.GeoShapeMapper;
-import com.stratio.cassandra.lucene.search.condition.builder.GeoTransformationBuilder;
 import com.stratio.cassandra.lucene.util.GeospatialUtils;
 import com.stratio.cassandra.lucene.util.JsonSerializer;
 import org.junit.Test;
 
 import java.io.IOException;
 
+import static com.stratio.cassandra.lucene.common.GeoTransformation.Intersection;
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
 
 /**
  * Unit tests for {@link GeoTransformation.Intersection}.
@@ -51,7 +53,7 @@ public class GeoTransformationIntersectionTest extends AbstractConditionTest {
         String shape2 = "POLYGON((-30 0, 30 0, 30 -30, -30 -30, -30 0))";
         String union = "LINESTRING (-30 0, 30 0)";
 
-        GeoTransformation transformation = new GeoTransformation.Intersection(shape2);
+        GeoTransformation transformation = new Intersection(shape2);
         JtsGeometry geometry = geometry(shape1);
         JtsGeometry transformedGeometry = transformation.apply(geometry, GeoShapeCondition.CONTEXT);
 
@@ -61,7 +63,7 @@ public class GeoTransformationIntersectionTest extends AbstractConditionTest {
     @Test(expected = IndexException.class)
     public void testIntersectionTransformationWithNullShape() {
         String shape1 = "POLYGON((-30 30, -30 0, 30 0, 30 30, -30 30))";
-        GeoTransformation transformation = new GeoTransformation.Intersection(null);
+        GeoTransformation transformation = new Intersection(null);
         JtsGeometry geometry = geometry(shape1);
         transformation.apply(geometry, GeoShapeCondition.CONTEXT);
     }
@@ -69,7 +71,7 @@ public class GeoTransformationIntersectionTest extends AbstractConditionTest {
     @Test(expected = IndexException.class)
     public void testIntersectionTransformationWithEmptyShape() {
         String shape1 = "POLYGON((-30 30, -30 0, 30 0, 30 30, -30 30))";
-        GeoTransformation transformation = new GeoTransformation.Intersection("");
+        GeoTransformation transformation = new Intersection("");
         JtsGeometry geometry = geometry(shape1);
         transformation.apply(geometry, GeoShapeCondition.CONTEXT);
     }
@@ -77,7 +79,7 @@ public class GeoTransformationIntersectionTest extends AbstractConditionTest {
     @Test(expected = IndexException.class)
     public void testIntersectionTransformationWithWrongShape() {
         String shape1 = "POLYGON((-30 30, -30 0, 30 0, 30 30, -30 30))";
-        GeoTransformation transformation = new GeoTransformation.Intersection("POLYGON((-30 0, 30 0, 30 -30, -30 -30))");
+        GeoTransformation transformation = new Intersection("POLYGON((-30 0, 30 0, 30 -30, -30 -30))");
         JtsGeometry geometry = geometry(shape1);
         transformation.apply(geometry, GeoShapeCondition.CONTEXT);
     }
@@ -90,12 +92,11 @@ public class GeoTransformationIntersectionTest extends AbstractConditionTest {
     }
 
     @Test
-    public void testIntersectionTransformationBuilder() throws IOException {
-        GeoTransformationBuilder builder = new GeoTransformationBuilder.Intersection("LINESTRING(2 4, 30 3)");
-        String json = JsonSerializer.toString(builder);
-        assertEquals("JSON serialization is wrong", "{type:\"intersection\",shape:\"LINESTRING(2 4, 30 3)\"}", json);
-        builder = JsonSerializer.fromString(json, GeoTransformationBuilder.Intersection.class);
-        assertEquals("JSON parsing is wrong ", "Intersection{other=LINESTRING(2 4, 30 3)}", builder.build().toString());
+    public void testIntersectionTransformationParsing() throws IOException {
+        String json = "{type:\"intersection\",shape:\"LINESTRING(2 4, 30 3)\"}";
+        Intersection intersection = JsonSerializer.fromString(json, Intersection.class);
+        assertNotNull("JSON serialization is wrong", intersection);
+        assertEquals("JSON serialization is wrong", "LINESTRING(2 4, 30 3)", intersection.other);
     }
 
 }

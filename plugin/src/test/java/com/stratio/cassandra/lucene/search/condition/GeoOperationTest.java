@@ -19,6 +19,7 @@
 package com.stratio.cassandra.lucene.search.condition;
 
 import com.stratio.cassandra.lucene.IndexException;
+import com.stratio.cassandra.lucene.common.GeoOperation;
 import org.apache.lucene.spatial.query.SpatialOperation;
 import org.junit.Test;
 

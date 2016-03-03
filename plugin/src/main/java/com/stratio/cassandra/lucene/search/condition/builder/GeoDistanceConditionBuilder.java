@@ -18,7 +18,7 @@
 
 package com.stratio.cassandra.lucene.search.condition.builder;
 
-import com.stratio.cassandra.lucene.search.condition.GeoDistance;
+import com.stratio.cassandra.lucene.common.GeoDistance;
 import com.stratio.cassandra.lucene.search.condition.GeoDistanceCondition;
 import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;

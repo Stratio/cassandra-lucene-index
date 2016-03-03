@@ -18,6 +18,7 @@
 
 package com.stratio.cassandra.lucene.builder.search.condition;
 
+import com.stratio.cassandra.lucene.builder.common.GeoTransformation;
 import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
 
@@ -46,7 +47,7 @@ public class GeoShapeCondition extends Condition {
 
     /** The sequence of transformations to be applied to the shape before searching. */
     @JsonProperty("transformations")
-    private List<GeoTransformation> transformations = new ArrayList<>();
+    private List<GeoTransformation> transformations;
 
     /**
      * Constructor receiving the name of the field and the shape.
@@ -73,13 +74,17 @@ public class GeoShapeCondition extends Condition {
     }
 
     /**
-     * Sets the transformations to be applied to the shape before using it for searching.
+     * Sets the transformations to be applied to the shape before using it for indexing it.
      *
      * @param transformations the sequence of transformations
      * @return this with the transformations set
      */
     public GeoShapeCondition transform(GeoTransformation... transformations) {
-        this.transformations.addAll(Arrays.asList(transformations));
+        if (this.transformations == null) {
+            this.transformations = Arrays.asList(transformations);
+        } else {
+            this.transformations.addAll(Arrays.asList(transformations));
+        }
         return this;
     }
 }

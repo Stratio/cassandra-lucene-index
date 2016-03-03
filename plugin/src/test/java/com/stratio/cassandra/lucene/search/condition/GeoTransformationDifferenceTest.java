@@ -21,15 +21,17 @@ package com.stratio.cassandra.lucene.search.condition;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.stratio.cassandra.lucene.IndexException;
+import com.stratio.cassandra.lucene.common.GeoTransformation;
 import com.stratio.cassandra.lucene.schema.mapping.GeoShapeMapper;
-import com.stratio.cassandra.lucene.search.condition.builder.GeoTransformationBuilder;
 import com.stratio.cassandra.lucene.util.GeospatialUtils;
 import com.stratio.cassandra.lucene.util.JsonSerializer;
 import org.junit.Test;
 
 import java.io.IOException;
 
+import static com.stratio.cassandra.lucene.common.GeoTransformation.Difference;
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
 
 /**
  * Unit tests for {@link GeoTransformation.Difference}.
@@ -51,7 +53,7 @@ public class GeoTransformationDifferenceTest extends AbstractConditionTest {
         String shape2 = "POLYGON((-20 20, -20 0, 20 0, 20 20, -20 20))";
         String difference = "POLYGON ((-20 0, -30 0, -30 30, 30 30, 30 0, 20 0, 20 20, -20 20, -20 0))";
 
-        GeoTransformation transformation = new GeoTransformation.Difference(shape2);
+        GeoTransformation transformation = new Difference(shape2);
         JtsGeometry geometry = geometry(shape1);
         JtsGeometry transformedGeometry = transformation.apply(geometry, GeoShapeCondition.CONTEXT);
 
@@ -61,7 +63,7 @@ public class GeoTransformationDifferenceTest extends AbstractConditionTest {
     @Test(expected = IndexException.class)
     public void testDifferenceTransformationWithNullShape() {
         String shape1 = "POLYGON((-30 30, -30 0, 30 0, 30 30, -30 30))";
-        GeoTransformation transformation = new GeoTransformation.Difference(null);
+        GeoTransformation transformation = new Difference(null);
         JtsGeometry geometry = geometry(shape1);
         transformation.apply(geometry, GeoShapeCondition.CONTEXT);
     }
@@ -69,7 +71,7 @@ public class GeoTransformationDifferenceTest extends AbstractConditionTest {
     @Test(expected = IndexException.class)
     public void testDifferenceTransformationWithEmptyShape() {
         String shape1 = "POLYGON((-30 30, -30 0, 30 0, 30 30, -30 30))";
-        GeoTransformation transformation = new GeoTransformation.Difference("");
+        GeoTransformation transformation = new Difference("");
         JtsGeometry geometry = geometry(shape1);
         transformation.apply(geometry, GeoShapeCondition.CONTEXT);
     }
@@ -77,7 +79,7 @@ public class GeoTransformationDifferenceTest extends AbstractConditionTest {
     @Test(expected = IndexException.class)
     public void testDifferenceTransformationWithWrongShape() {
         String shape1 = "POLYGON((-30 30, -30 0, 30 0, 30 30, -30 30))";
-        GeoTransformation transformation = new GeoTransformation.Difference("POLYGON((-30 0, 30 0, 30 -30, -30 -30))");
+        GeoTransformation transformation = new Difference("POLYGON((-30 0, 30 0, 30 -30, -30 -30))");
         JtsGeometry geometry = geometry(shape1);
         transformation.apply(geometry, GeoShapeCondition.CONTEXT);
     }
@@ -85,17 +87,16 @@ public class GeoTransformationDifferenceTest extends AbstractConditionTest {
     @Test
     public void testDifferenceTransformationToString() {
         String shape1 = "POLYGON((-30 30, -30 0, 30 0, 30 30, -30 30))";
-        GeoTransformation transformation = new GeoTransformation.Difference(shape1);
+        GeoTransformation transformation = new Difference(shape1);
         assertEquals("Difference{other=POLYGON((-30 30, -30 0, 30 0, 30 30, -30 30))}", transformation.toString());
     }
 
     @Test
-    public void testDifferenceTransformationBuilder() throws IOException {
-        GeoTransformationBuilder builder = new GeoTransformationBuilder.Difference("LINESTRING(2 28, 30 3)");
-        String json = JsonSerializer.toString(builder);
-        assertEquals("JSON serialization is wrong", "{type:\"difference\",shape:\"LINESTRING(2 28, 30 3)\"}", json);
-        builder = JsonSerializer.fromString(json, GeoTransformationBuilder.Difference.class);
-        assertEquals("JSON parsing is wrong ", "Difference{other=LINESTRING(2 28, 30 3)}", builder.build().toString());
+    public void testDifferenceTransformationParsing() throws IOException {
+        String json ="{type:\"difference\",shape:\"LINESTRING(2 28, 30 3)\"}";
+        Difference difference = JsonSerializer.fromString(json, Difference.class);
+        assertNotNull("JSON serialization is wrong", difference);
+        assertEquals("JSON serialization is wrong", "LINESTRING(2 28, 30 3)", difference.other);
     }
 
 }
