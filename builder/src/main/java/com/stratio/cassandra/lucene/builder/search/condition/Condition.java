@@ -42,6 +42,7 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
                @JsonSubTypes.Type(value = FuzzyCondition.class, name = "fuzzy"),
                @JsonSubTypes.Type(value = GeoDistanceCondition.class, name = "geo_distance"),
                @JsonSubTypes.Type(value = GeoBBoxCondition.class, name = "geo_bbox"),
+               @JsonSubTypes.Type(value = GeoShapeCondition.class, name = "geo_shape"),
                @JsonSubTypes.Type(value = LuceneCondition.class, name = "lucene"),
                @JsonSubTypes.Type(value = MatchCondition.class, name = "match"),
                @JsonSubTypes.Type(value = NoneCondition.class, name = "none"),

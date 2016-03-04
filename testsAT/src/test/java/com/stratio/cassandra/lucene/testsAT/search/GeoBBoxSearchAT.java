@@ -33,7 +33,7 @@ import static com.stratio.cassandra.lucene.builder.Builder.geoBBox;
 import static com.stratio.cassandra.lucene.builder.Builder.geoPointMapper;
 
 @RunWith(JUnit4.class)
-public class GeospatialSearchAT extends BaseAT {
+public class GeoBBoxSearchAT extends BaseAT {
 
     protected static CassandraUtils cassandraUtils;
 

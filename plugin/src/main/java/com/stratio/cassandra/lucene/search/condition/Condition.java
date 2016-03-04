@@ -23,6 +23,8 @@ import com.stratio.cassandra.lucene.schema.Schema;
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.QueryWrapperFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The abstract base class for queries.
@@ -35,6 +37,8 @@ import org.apache.lucene.search.QueryWrapperFilter;
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public abstract class Condition {
+
+    protected static final Logger logger = LoggerFactory.getLogger(Condition.class);
 
     /** The default boost to be used. */
     public static final float DEFAULT_BOOST = 1.0f;

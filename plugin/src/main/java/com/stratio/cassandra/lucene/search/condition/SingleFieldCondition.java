@@ -27,7 +27,8 @@ import org.apache.commons.lang3.StringUtils;
  *
  * Known subclasses are: <ul> <li> {@link FuzzyCondition} <li> {@link MatchCondition} <li> {@link PhraseCondition} <li>
  * {@link PrefixCondition} <li> {@link RangeCondition} <li> {@link WildcardCondition} <li> {@link BitemporalCondition}
- * <li> {@link DateRangeCondition} <li> {@link GeoDistanceCondition} <li> {@link GeoBBoxCondition} </ul>
+ * <li> {@link DateRangeCondition} <li> {@link GeoDistanceCondition} <li> {@link GeoBBoxCondition} <li> {@link
+ * GeoShapeCondition} </ul>
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */

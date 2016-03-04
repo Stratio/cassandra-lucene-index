@@ -31,7 +31,7 @@ import org.apache.lucene.search.SortField.Type;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class IntegerMapper extends SingleColumnMapper<Integer> {
+public class IntegerMapper extends SingleColumnMapper.SingleFieldMapper<Integer> {
 
     /** The default boost. */
     public static final Float DEFAULT_BOOST = 1.0f;

@@ -221,6 +221,19 @@ public final class SearchBuilders {
     }
 
     /**
+     * Returns a new {@link GeoShapeConditionBuilder} with the specified field reference point.
+     *
+     * /** Constructor receiving the name of the field and the shape.
+     *
+     * @param field the name of the field
+     * @param shape the shape in <a href="http://en.wikipedia.org/wiki/Well-known_text"> WKT</a> format
+     * @return A new {@link GeoShapeConditionBuilder}.
+     */
+    public static GeoShapeConditionBuilder geoShape(String field, String shape) {
+        return new GeoShapeConditionBuilder(field, shape);
+    }
+
+    /**
      * Returns a new {@link DateRangeConditionBuilder} with the specified field reference point.
      *
      * @param field The name of the field to be matched.
@@ -251,7 +264,6 @@ public final class SearchBuilders {
     public static GeoDistanceSortFieldBuilder geoDistanceSortField(String mapper, double longitude, double latitude) {
         return new GeoDistanceSortFieldBuilder(mapper, longitude, latitude);
     }
-
     /**
      * Returns a new {@link BitemporalConditionBuilder} for the specified field.
      *

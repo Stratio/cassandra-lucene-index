@@ -33,7 +33,7 @@ import org.codehaus.jackson.annotate.JsonCreator;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class FloatMapper extends SingleColumnMapper<Float> {
+public class FloatMapper extends SingleColumnMapper.SingleFieldMapper<Float> {
 
     /** The default boost. */
     public static final Float DEFAULT_BOOST = 1.0f;

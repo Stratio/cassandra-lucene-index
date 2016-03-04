@@ -49,8 +49,10 @@ public class GeoDistanceSortField extends SortField {
     /**
      * Returns a new {@link SortField}.
      *
-     * @param mapper The name of mapper to use to calculate distance.
-     * @param reverse {@code true} if natural order should be reversed.
+     * @param mapper the name of mapper to use to calculate distance
+     * @param reverse {@code true} if natural order should be reversed
+     * @param longitude the longitude
+     * @param latitude the latitude
      */
     public GeoDistanceSortField(String mapper, Boolean reverse, double longitude, double latitude) {
         super(reverse);

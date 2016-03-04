@@ -250,6 +250,33 @@ public class BuilderTest {
     }
 
     @Test
+    public void testGeoShapeMapperDefaults() {
+        String actual = geoShapeMapper().build();
+        String expected = "{\"type\":\"geo_shape\"}";
+        assertEquals("geo shape mapper serialization is wrong", expected, actual);
+    }
+
+    @Test
+    public void testGeoShapeMapperFull() {
+        String actual = geoShapeMapper().column("shape")
+                                        .maxLevels(7)
+                                        .transform(centroidGeoTransformation(),
+                                                   differenceGeoTransformation("my_difference_shape"),
+                                                   intersectionGeoTransformation("my_intersection_shape"),
+                                                   unionGeoTransformation("my_union_shape"),
+                                                   bufferGeoTransformation().maxDistance("10km").minDistance("5km"))
+                                        .build();
+        String expected = "{\"type\":\"geo_shape\",\"column\":\"shape\",\"transformations\":[" +
+                          "{\"type\":\"centroid\"}," +
+                          "{\"type\":\"difference\",\"shape\":\"my_difference_shape\"}," +
+                          "{\"type\":\"intersection\",\"shape\":\"my_intersection_shape\"}," +
+                          "{\"type\":\"union\",\"shape\":\"my_union_shape\"}," +
+                          "{\"type\":\"buffer\",\"max_distance\":\"10km\",\"min_distance\":\"5km\"}]," +
+                          "\"max_levels\":7}";
+        assertEquals("geo shape mapper serialization is wrong", expected, actual);
+    }
+
+    @Test
     public void testInetMapperDefaults() {
         String actual = inetMapper().build();
         String expected = "{\"type\":\"inet\"}";
@@ -594,6 +621,33 @@ public class BuilderTest {
     }
 
     @Test
+    public void testGeoShapeConditionDefaults() {
+        String actual = geoShape("field", "shape").build();
+        String expected = "{\"type\":\"geo_shape\",\"field\":\"field\",\"shape\":\"shape\"}";
+        assertEquals("geo shape condition serialization is wrong", expected, actual);
+    }
+
+    @Test
+    public void testGeoShapeConditionFull() {
+        String actual = geoShape("field", "my_shape").operation("intersects")
+                                                     .transform(centroidGeoTransformation(),
+                                                                differenceGeoTransformation("my_difference_shape"),
+                                                                intersectionGeoTransformation("my_intersection_shape"),
+                                                                unionGeoTransformation("my_union_shape"),
+                                                                bufferGeoTransformation().maxDistance("10km")
+                                                                                         .minDistance("5km"))
+                                                     .build();
+        String expected = "{\"type\":\"geo_shape\",\"field\":\"field\",\"shape\":\"my_shape\"," +
+                          "\"operation\":\"intersects\",\"transformations\":[" +
+                          "{\"type\":\"centroid\"}," +
+                          "{\"type\":\"difference\",\"shape\":\"my_difference_shape\"}," +
+                          "{\"type\":\"intersection\",\"shape\":\"my_intersection_shape\"}," +
+                          "{\"type\":\"union\",\"shape\":\"my_union_shape\"}," +
+                          "{\"type\":\"buffer\",\"max_distance\":\"10km\",\"min_distance\":\"5km\"}]}";
+        assertEquals("geo shape condition serialization is wrong", expected, actual);
+    }
+
+    @Test
     public void testSimpleSortFieldDefaults() {
         String actual = field("field1").build();
         String expected = "{\"type\":\"simple\",\"field\":\"field1\"}";
@@ -714,7 +768,8 @@ public class BuilderTest {
                                 .build();
         String expected = "{\"query\":{\"type\":\"phrase\",\"field\":\"message\",\"value\":\"cassandra rules\"}," +
                           "\"filter\":{\"type\":\"match\",\"field\":\"user\",\"value\":\"adelapena\"}," +
-                          "\"sort\":{\"fields\":[{\"type\":\"simple\",\"field\":\"date\",\"reverse\":true}]},\"refresh\":true}";
+                          "\"sort\":{\"fields\":[{\"type\":\"simple\",\"field\":\"date\",\"reverse\":true}]}," +
+                          "\"refresh\":true}";
         assertEquals("search serialization is wrong", expected, actual);
     }
 

@@ -68,7 +68,9 @@ public final class TokenMapper {
     private final Cache<CacheKey, CachingWrapperQuery> cache;
 
     /**
-     * Default constructor.
+     * Constructor taking the cache size.
+     *
+     * @param cacheSize the max token cache size
      */
     public TokenMapper(int cacheSize) {
         if (!(DatabaseDescriptor.getPartitioner() instanceof Murmur3Partitioner)) {

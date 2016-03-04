@@ -1,8 +1,19 @@
 # Changelog
 
-## 3.0.3.1 (upcoming)
+## 3.0.3.1 (4 March 2016)
 
 * Fix performance issues with ClusteringIndexNamesFilter
+Merged from 2.2.5.2:
+* Add indexing of WKT geographical shapes (point, linestring, polygon and their multipart)
+* Add search by WKT geographical shapes (point, linestring, polygon and their multipart)
+* Add API for search-time transformation of WKT geographical shapes
+* Add API for index-time transformation of WKT geographical shapes
+* Add transformation for getting the buffer around a geographical shape
+* Add transformation for getting the centroid of a geographical shape
+* Add transformation for getting the difference between two geographical shapes
+* Add transformation for getting the intersection between two geographical shapes
+* Add transformation for getting the union between two geographical shapes
+* Fix geo distance parsing of nautical miles
 
 ## 3.0.3.0 (19 February 2016)
 

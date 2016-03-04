@@ -55,6 +55,11 @@ public class KeyQuery extends MultiTermQuery {
      * Returns a new clustering key query for the specified clustering key range using the specified mapper.
      *
      * @param mapper the clustering key mapper to be used
+     * @param key the partition key
+     * @param start the start clustering
+     * @param stop the stop clustering
+     * @param acceptLowerConflicts if accept lower token conflicts
+     * @param acceptUpperConflicts if accept upper token conflicts
      */
     public KeyQuery(KeyMapper mapper,
                     DecoratedKey key,

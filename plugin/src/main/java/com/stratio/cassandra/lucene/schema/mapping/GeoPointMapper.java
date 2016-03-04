@@ -24,6 +24,7 @@ import com.spatial4j.core.shape.Point;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.column.Column;
 import com.stratio.cassandra.lucene.column.Columns;
+import com.stratio.cassandra.lucene.util.GeospatialUtils;
 import org.apache.cassandra.db.marshal.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.document.Document;
@@ -51,7 +52,6 @@ public class GeoPointMapper extends Mapper {
     private static final double MAX_LONGITUDE = 180.0;
 
     public static final SpatialContext SPATIAL_CONTEXT = SpatialContext.GEO;
-    public static final int DEFAULT_MAX_LEVELS = 11;
 
     /** The name of the latitude column. */
     public final String latitude;
@@ -112,12 +112,14 @@ public class GeoPointMapper extends Mapper {
 
         this.latitude = latitude;
         this.longitude = longitude;
-        this.maxLevels = maxLevels == null ? DEFAULT_MAX_LEVELS : maxLevels;
+        this.maxLevels = GeospatialUtils.validateGeohashMaxLevels(maxLevels);
 
         SpatialPrefixTree grid = new GeohashPrefixTree(SPATIAL_CONTEXT, this.maxLevels);
         distanceStrategy = new RecursivePrefixTreeStrategy(grid, field + ".dist");
         bboxStrategy = new BBoxStrategy(SPATIAL_CONTEXT, field + ".bbox");
     }
+
+
 
     /**
      * Checks if the specified latitude is correct.
@@ -199,6 +201,7 @@ public class GeoPointMapper extends Mapper {
      * Returns the latitude contained in the specified {@link Columns}. A valid latitude must in the range [-90, 90].
      *
      * @param columns The {@link Columns} containing the latitude.
+     * @return the validated latitude
      */
     public Double readLatitude(Columns columns) {
         Column<?> column = columns.getColumnsByFullName(latitude).getFirst();
@@ -209,7 +212,8 @@ public class GeoPointMapper extends Mapper {
      * Returns the longitude contained in the specified {@link Columns}. A valid longitude must in the range [-180,
      * 180].
      *
-     * @param columns The {@link Columns} containing the latitude.
+     * @param columns The {@link Columns} containing the longitude.
+     * @return the validated longitude
      */
     public Double readLongitude(Columns columns) {
         Column<?> column = columns.getColumnsByFullName(longitude).getFirst();

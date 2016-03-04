@@ -31,7 +31,7 @@ import org.apache.lucene.util.BytesRef;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class TextMapper extends SingleColumnMapper<String> {
+public class TextMapper extends SingleColumnMapper.SingleFieldMapper<String> {
 
     /**
      * Builds a new {@link TextMapper} using the specified Lucene {@link org.apache.lucene.analysis.Analyzer}.

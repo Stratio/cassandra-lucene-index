@@ -32,7 +32,7 @@ import org.apache.lucene.util.BytesRef;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public abstract class KeywordMapper extends SingleColumnMapper<String> {
+public abstract class KeywordMapper extends SingleColumnMapper.SingleFieldMapper<String> {
 
     static final FieldType FIELD_TYPE = new FieldType();
 

@@ -18,6 +18,7 @@
 
 package com.stratio.cassandra.lucene.builder;
 
+import com.stratio.cassandra.lucene.builder.common.GeoTransformation;
 import com.stratio.cassandra.lucene.builder.index.Index;
 import com.stratio.cassandra.lucene.builder.index.schema.Schema;
 import com.stratio.cassandra.lucene.builder.index.schema.analysis.ClasspathAnalyzer;
@@ -203,6 +204,15 @@ public abstract class Builder {
      */
     public static GeoPointMapper geoPointMapper(String latitude, String longitude) {
         return new GeoPointMapper(latitude, longitude);
+    }
+
+    /**
+     * Returns a new {@link GeoShapeMapper}.
+     *
+     * @return A new {@link GeoShapeMapper}.
+     */
+    public static GeoShapeMapper geoShapeMapper() {
+        return new GeoShapeMapper();
     }
 
     /**
@@ -456,6 +466,66 @@ public abstract class Builder {
                                                    double latitude,
                                                    String maxDistance) {
         return new GeoDistanceCondition(field, latitude, longitude, maxDistance);
+    }
+
+    /**
+     * Returns a new {@link GeoShapeCondition} with the specified field reference point.
+     *
+     * /** Constructor receiving the name of the field and the shape.
+     *
+     * @param field the name of the field
+     * @param shape the shape in <a href="http://en.wikipedia.org/wiki/Well-known_text"> WKT</a> format
+     * @return A new {@link GeoShapeCondition}.
+     */
+    public static GeoShapeCondition geoShape(String field, String shape) {
+        return new GeoShapeCondition(field, shape);
+    }
+
+    /**
+     * Returns a new {@link GeoTransformation.Buffer}.
+     *
+     * @return the buffer transformation
+     */
+    public static GeoTransformation.Buffer bufferGeoTransformation() {
+        return new GeoTransformation.Buffer();
+    }
+    /**
+     * Returns a new {@link GeoTransformation.Centroid}.
+     *
+     * @return the buffer transformation
+     */
+    public static GeoTransformation.Centroid centroidGeoTransformation() {
+        return new GeoTransformation.Centroid();
+    }
+
+    /**
+     * Returns a new {@link GeoTransformation.Difference}.
+     *
+     * @param shape the shape to be subtracted
+     * @return the difference transformation
+     */
+    public static GeoTransformation.Difference differenceGeoTransformation(String shape) {
+        return new GeoTransformation.Difference(shape);
+    }
+
+    /**
+     * Returns a new {@link GeoTransformation.Intersection}.
+     *
+     * @param shape the shape to be intersected
+     * @return the intersection transformation
+     */
+    public static GeoTransformation.Intersection intersectionGeoTransformation(String shape) {
+        return new GeoTransformation.Intersection(shape);
+    }
+
+    /**
+     * Returns a new {@link GeoTransformation.Union}.
+     *
+     * @param shape the shape to be added
+     * @return the union transformation
+     */
+    public static GeoTransformation.Union unionGeoTransformation(String shape) {
+        return new GeoTransformation.Union(shape);
     }
 
     /**

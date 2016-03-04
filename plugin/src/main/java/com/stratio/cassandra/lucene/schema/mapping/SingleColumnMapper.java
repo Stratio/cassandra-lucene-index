@@ -33,7 +33,7 @@ import java.util.Collections;
 /**
  * Class for mapping between Cassandra's columns and Lucene documents.
  *
- * @param <T> THe base type.
+ * @param <T> The base type.
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper {
@@ -105,10 +105,10 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
         if (value != null) {
             T b = base(name, value);
             if (indexed) {
-                document.add(indexedField(name, b));
+                addIndexedFields(document, name, b);
             }
             if (sorted) {
-                document.add(sortedField(name, b));
+                addSortedFields(document, name, b);
             }
         }
     }
@@ -116,20 +116,20 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
     /**
      * Returns the {@link Field} to search for the mapped column.
      *
+     * @param document A {@link Document}.
      * @param name The name of the column.
      * @param value The value of the column.
-     * @return The {@link Field} to search for the mapped column.
      */
-    public abstract Field indexedField(String name, T value);
+    public abstract void addIndexedFields(Document document, String name, T value);
 
     /**
      * Returns the {@link Field} to sort by the mapped column.
      *
+     * @param document A {@link Document}.
      * @param name The name of the column.
      * @param value The value of the column.
-     * @return The {@link Field} to sort by the mapped column.
      */
-    public abstract Field sortedField(String name, T value);
+    public abstract void addSortedFields(Document document, String name, T value);
 
     /**
      * Returns the {@link Column} query value resulting from the mapping of the specified object.
@@ -154,6 +154,54 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
     @Override
     public String toString() {
         return toStringHelper(this).toString();
+    }
+
+    /**
+     * {@link SingleColumnMapper} that produces just a single field.
+     *
+     * @param <T> the base type
+     */
+    public static abstract class SingleFieldMapper<T extends Comparable<T>> extends SingleColumnMapper<T> {
+        public SingleFieldMapper(String field,
+                                 String column,
+                                 Boolean indexed,
+                                 Boolean sorted,
+                                 Boolean validated,
+                                 String analyzer,
+                                 Class<T> base,
+                                 AbstractType<?>... supportedTypes) {
+            super(field, column, indexed, sorted, validated, analyzer, base, supportedTypes);
+        }
+
+        /** {@inheritDoc} */
+        @Override
+        public void addIndexedFields(Document document, String name, T value) {
+            document.add(indexedField(name, value));
+        }
+
+        /** {@inheritDoc} */
+        @Override
+        public void addSortedFields(Document document, String name, T value) {
+            document.add(sortedField(name, value));
+        }
+
+        /**
+         * Returns the {@link Field} to index by the mapped column.
+         *
+         * @param name The name of the column.
+         * @param value The value of the column.
+         * @return The {@link Field} to sort by the mapped column.
+         */
+        public abstract Field indexedField(String name, T value);
+
+        /**
+         * Returns the {@link Field} to sort by the mapped column.
+         *
+         * @param name The name of the column.
+         * @param value The value of the column.
+         * @return The {@link Field} to sort by the mapped column.
+         */
+        public abstract Field sortedField(String name, T value);
     }
 
 }
