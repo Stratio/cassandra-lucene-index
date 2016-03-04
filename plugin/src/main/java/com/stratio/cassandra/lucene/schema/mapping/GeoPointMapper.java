@@ -73,6 +73,8 @@ public class GeoPointMapper extends Mapper {
      * Builds a new {@link GeoPointMapper}.
      *
      * @param field     The name of the field.
+     * @param indexed   If the field supports searching.
+     * @param sorted    If the field supports sorting.
      * @param validated If the field must be validated.
      * @param latitude  The name of the column containing the latitude.
      * @param longitude The name of the column containing the longitude.
@@ -194,6 +196,7 @@ public class GeoPointMapper extends Mapper {
      * Returns the latitude contained in the specified {@link Columns}. A valid latitude must in the range [-90, 90].
      *
      * @param columns The {@link Columns} containing the latitude.
+     * @return the validated latitude
      */
     public Double readLatitude(Columns columns) {
         Column<?> column = columns.getColumnsByFullName(latitude).getFirst();
@@ -204,7 +207,8 @@ public class GeoPointMapper extends Mapper {
      * Returns the longitude contained in the specified {@link Columns}. A valid longitude must in the range [-180,
      * 180].
      *
-     * @param columns The {@link Columns} containing the latitude.
+     * @param columns The {@link Columns} containing the longitude.
+     * @return the validated longitude
      */
     public Double readLongitude(Columns columns) {
         Column<?> column = columns.getColumnsByFullName(longitude).getFirst();

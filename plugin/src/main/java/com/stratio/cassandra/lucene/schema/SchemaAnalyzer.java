@@ -68,7 +68,8 @@ public class SchemaAnalyzer extends DelegatingAnalyzerWrapper {
      * Returns the {@link Analyzer} identified by the specified name. If there is no analyzer with the specified name,
      * then it will be interpreted as a class name and it will be instantiated by reflection.
      *
-     * @param name The name of the {@link Analyzer} to be returned.
+     * @param name      The name of the {@link Analyzer} to be returned.
+     * @param analyzers The user defined {@link Analyzer}s.
      * @return The {@link Analyzer} identified by the specified name.
      */
     protected static Analyzer getAnalyzer(Map<String, Analyzer> analyzers, String name) {
