@@ -22,6 +22,7 @@ import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import com.stratio.cassandra.lucene.schema.mapping.builder.GeoPointMapperBuilder;
+import com.stratio.cassandra.lucene.util.GeospatialUtils;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.db.ColumnFamilyType;
 import org.apache.cassandra.db.composites.CellNameType;
@@ -29,11 +30,13 @@ import org.apache.cassandra.db.composites.SimpleSparseCellNameType;
 import org.apache.cassandra.db.marshal.*;
 import org.apache.cassandra.exceptions.ConfigurationException;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.util.GeoHashUtils;
 import org.junit.Test;
 
 import java.util.UUID;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.geoPointMapper;
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.geoShapeMapper;
 import static org.apache.cassandra.config.ColumnDefinition.regularDef;
 import static org.junit.Assert.*;
 
@@ -50,7 +53,7 @@ public class GeoPointMapperTest extends AbstractMapperTest {
         assertEquals("Mapped columns are not properly set", 2, mapper.mappedColumns.size());
         assertTrue("Mapped columns are not properly set", mapper.mappedColumns.contains("lat"));
         assertTrue("Mapped columns are not properly set", mapper.mappedColumns.contains("lon"));
-        assertEquals("Max levels is not properly set", GeoPointMapper.DEFAULT_MAX_LEVELS, mapper.maxLevels);
+        assertEquals("Max levels is not properly set", GeospatialUtils.DEFAULT_GEOHASH_MAX_LEVELS, mapper.maxLevels);
         assertNotNull("Spatial strategy for distances is not properly set", mapper.distanceStrategy);
         assertNotNull("Spatial strategy for bounding boxes Latitude is not properly set", mapper.bboxStrategy);
     }
@@ -66,6 +69,27 @@ public class GeoPointMapperTest extends AbstractMapperTest {
         assertEquals("Max levels is not properly set", 5, mapper.maxLevels);
         assertNotNull("Spatial strategy for distances is not properly set", mapper.distanceStrategy);
         assertNotNull("Spatial strategy for bounding boxes Latitude is not properly set", mapper.bboxStrategy);
+    }
+
+    @Test
+    public void testConstructorWithNullMaxLevels() {
+        GeoPointMapper mapper = geoPointMapper("lat", "lon").maxLevels(null).build("field");
+        assertEquals("Max levels is not properly set", GeospatialUtils.DEFAULT_GEOHASH_MAX_LEVELS, mapper.maxLevels);
+    }
+
+    @Test(expected = IndexException.class)
+    public void testConstructorWithZeroLevels() {
+        geoPointMapper("lat", "lon").maxLevels(0).build("field");
+    }
+
+    @Test(expected = IndexException.class)
+    public void testConstructorWithNegativeLevels() {
+        geoPointMapper("lat", "lon").maxLevels(-1).build("field");
+    }
+
+    @Test(expected = IndexException.class)
+    public void testConstructorWithTooManyLevels() {
+        geoPointMapper("lat", "lon").maxLevels(25).build("field");
     }
 
     @Test

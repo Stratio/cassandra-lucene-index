@@ -71,10 +71,10 @@ public class UDTCollectionsAT extends BaseAT {
         cassandraUtils.execute(new SimpleStatement(addressUDT.toString()));
         cassandraUtils.execute(new SimpleStatement(tableCreationQuery));
 
-        String createIndexQuery = "CREATE CUSTOM INDEX test_index ON " +
-                                  cassandraUtils.getKeyspace() +
-                                  "." +
-                                  cassandraUtils.getTable() +
+        String createIndexQuery = "CREATE CUSTOM INDEX " +
+                                  cassandraUtils.getIndexColumn() +
+                                  " ON " +
+                                  cassandraUtils.getQualifiedTable() +
                                   "(lucene) " +
                                   "USING 'com.stratio.cassandra.lucene.Index' " +
                                   "WITH OPTIONS = { " +

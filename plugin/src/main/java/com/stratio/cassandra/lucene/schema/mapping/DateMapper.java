@@ -33,7 +33,7 @@ import java.util.Date;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class DateMapper extends SingleColumnMapper<Long> {
+public class DateMapper extends SingleColumnMapper.SingleFieldMapper<Long> {
 
     /** The date format pattern. */
     public final String pattern;

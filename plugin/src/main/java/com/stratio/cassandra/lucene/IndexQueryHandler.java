@@ -121,7 +121,6 @@ public class IndexQueryHandler implements QueryHandler {
     public ResultMessage process(String query, QueryState state, QueryOptions options,
                                  Map<String, ByteBuffer> customPayload)
     throws RequestExecutionException, RequestValidationException {
-
         ParsedStatement.Prepared p = QueryProcessor.getStatement(query, state.getClientState());
         options.prepare(p.boundNames);
         if (!state.getClientState().isInternal) {

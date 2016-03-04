@@ -25,17 +25,20 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({AllSearchAT.class,
+               BitemporalSearchAT.class,
+               BooleanSearchAT.class,
                FuzzySearchAT.class,
-               GeospatialSearchAT.class,
-               WildcardSearchAT.class,
+               GeoBBoxSearchAT.class,
+               GeoSearchOverIndexedGeoShapesAT.class,
+               GeoShapeSearchOverIndexedGeoPointsAT.class,
+               GeoShapesSearchAT.class,
                MatchSearchAT.class,
                NoneSearchAT.class,
                PrefixSearchAT.class,
                PhraseSearchAT.class,
                RegexpSearchAT.class,
                RangeSearchAT.class,
-               BooleanSearchAT.class,
                SortedSearchAT.class,
-               BitemporalSearchAT.class})
+               WildcardSearchAT.class})
 public class SearchSuite {
 }
