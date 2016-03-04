@@ -21,7 +21,7 @@ package com.stratio.cassandra.lucene.common;
 import com.google.common.base.Objects;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.shape.jts.JtsGeometry;
-import com.stratio.cassandra.lucene.util.GeospatialUtils;
+import com.stratio.cassandra.lucene.util.GeospatialUtilsJTS;
 import com.vividsolutions.jts.geom.Geometry;
 import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
@@ -188,7 +188,7 @@ public interface GeoTransformation {
          */
         @Override
         public JtsGeometry apply(JtsGeometry shape, JtsSpatialContext context) {
-            Geometry geometry = GeospatialUtils.geometryFromWKT(context, other).getGeom();
+            Geometry geometry = GeospatialUtilsJTS.geometryFromWKT(context, other).getGeom();
             Geometry difference = shape.getGeom().difference(geometry);
             return context.makeShape(difference);
         }
@@ -227,7 +227,7 @@ public interface GeoTransformation {
          */
         @Override
         public JtsGeometry apply(JtsGeometry shape, JtsSpatialContext context) {
-            Geometry geometry = GeospatialUtils.geometryFromWKT(context, other).getGeom();
+            Geometry geometry = GeospatialUtilsJTS.geometryFromWKT(context, other).getGeom();
             Geometry intersection = shape.getGeom().intersection(geometry);
             return context.makeShape(intersection);
         }
@@ -266,7 +266,7 @@ public interface GeoTransformation {
          */
         @Override
         public JtsGeometry apply(JtsGeometry shape, JtsSpatialContext context) {
-            Geometry geometry = GeospatialUtils.geometryFromWKT(context, other).getGeom();
+            Geometry geometry = GeospatialUtilsJTS.geometryFromWKT(context, other).getGeom();
             Geometry union = shape.getGeom().union(geometry);
             return context.makeShape(union);
         }

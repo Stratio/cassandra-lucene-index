@@ -24,7 +24,7 @@ import com.stratio.cassandra.lucene.common.GeoDistance;
 import com.stratio.cassandra.lucene.common.GeoDistanceUnit;
 import com.stratio.cassandra.lucene.common.GeoTransformation;
 import com.stratio.cassandra.lucene.schema.mapping.GeoShapeMapper;
-import com.stratio.cassandra.lucene.util.GeospatialUtils;
+import com.stratio.cassandra.lucene.util.GeospatialUtilsJTS;
 import com.stratio.cassandra.lucene.util.JsonSerializer;
 import com.vividsolutions.jts.geom.Geometry;
 import org.junit.Test;
@@ -45,7 +45,7 @@ public class GeoTransformationBufferTest extends AbstractConditionTest {
     private static final JtsSpatialContext CONTEXT = GeoShapeMapper.SPATIAL_CONTEXT;
 
     private static JtsGeometry geometry(String string) {
-        return GeospatialUtils.geometryFromWKT(CONTEXT, string);
+        return GeospatialUtilsJTS.geometryFromWKT(CONTEXT, string);
     }
 
     @Test

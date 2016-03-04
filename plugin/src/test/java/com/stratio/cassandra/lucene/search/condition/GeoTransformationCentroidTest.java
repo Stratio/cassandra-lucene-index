@@ -22,7 +22,7 @@ import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.stratio.cassandra.lucene.common.GeoTransformation;
 import com.stratio.cassandra.lucene.schema.mapping.GeoShapeMapper;
-import com.stratio.cassandra.lucene.util.GeospatialUtils;
+import com.stratio.cassandra.lucene.util.GeospatialUtilsJTS;
 import com.stratio.cassandra.lucene.util.JsonSerializer;
 import org.junit.Test;
 
@@ -42,7 +42,7 @@ public class GeoTransformationCentroidTest extends AbstractConditionTest {
     private static final JtsSpatialContext CONTEXT = GeoShapeMapper.SPATIAL_CONTEXT;
 
     private static JtsGeometry geometry(String string) {
-        return GeospatialUtils.geometryFromWKT(CONTEXT, string);
+        return GeospatialUtilsJTS.geometryFromWKT(CONTEXT, string);
     }
 
     @Test

@@ -24,6 +24,7 @@ import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.common.GeoTransformation;
 import com.stratio.cassandra.lucene.schema.mapping.GeoShapeMapper;
 import com.stratio.cassandra.lucene.util.GeospatialUtils;
+import com.stratio.cassandra.lucene.util.GeospatialUtilsJTS;
 import com.stratio.cassandra.lucene.util.JsonSerializer;
 import org.junit.Test;
 
@@ -43,7 +44,7 @@ public class GeoTransformationIntersectionTest extends AbstractConditionTest {
     private static final JtsSpatialContext CONTEXT = GeoShapeMapper.SPATIAL_CONTEXT;
 
     private static JtsGeometry geometry(String string) {
-        return GeospatialUtils.geometryFromWKT(CONTEXT, string);
+        return GeospatialUtilsJTS.geometryFromWKT(CONTEXT, string);
     }
 
     @Test
