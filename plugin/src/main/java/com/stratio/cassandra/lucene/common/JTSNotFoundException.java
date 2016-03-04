@@ -21,10 +21,16 @@ package com.stratio.cassandra.lucene.common;
 import com.stratio.cassandra.lucene.IndexException;
 
 /**
+ * {@link IndexException} to be thrown if <a href="http://www.vividsolutions.com/jts">Java Topology Suite (JTS)</a>
+ * library is not found in classpath
+ *
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
 public class JTSNotFoundException extends IndexException {
-    static final String message="JTS JAR is not provided due to license compatibility issues, please include jts-core-1.14.0.jar in Cassandra lib directory in order to use GeoShapeMapper or GeoShapeCondition";
+
+    static final String message = "JTS JAR is not provided due to license compatibility issues, please include " +
+                                  "jts-core-1.14.0.jar in Cassandra lib directory in order to use GeoShapeMapper or " +
+                                  "GeoShapeCondition";
 
     public JTSNotFoundException() {
         super(message);
