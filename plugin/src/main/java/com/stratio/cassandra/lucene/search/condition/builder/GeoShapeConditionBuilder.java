@@ -18,6 +18,7 @@
 
 package com.stratio.cassandra.lucene.search.condition.builder;
 
+import com.stratio.cassandra.lucene.JTSNotFoundException;
 import com.stratio.cassandra.lucene.search.condition.GeoBBoxCondition;
 import com.stratio.cassandra.lucene.common.GeoOperation;
 import com.stratio.cassandra.lucene.search.condition.GeoShapeCondition;
@@ -97,6 +98,11 @@ public class GeoShapeConditionBuilder extends ConditionBuilder<GeoShapeCondition
         if (transformations == null) {
             transformations = new ArrayList<>();
         }
-        return new GeoShapeCondition(boost, field, shape, geoOperation, transformations);
+        try {
+            return new GeoShapeCondition(boost, field, shape, geoOperation, transformations);
+        } catch (NoClassDefFoundError e) {
+            throw new JTSNotFoundException();
+
+        }
     }
 }

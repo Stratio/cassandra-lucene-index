@@ -18,6 +18,7 @@
 
 package com.stratio.cassandra.lucene.schema.mapping.builder;
 
+import com.stratio.cassandra.lucene.JTSNotFoundException;
 import com.stratio.cassandra.lucene.common.GeoTransformation;
 import com.stratio.cassandra.lucene.schema.mapping.GeoPointMapper;
 import com.stratio.cassandra.lucene.schema.mapping.GeoShapeMapper;
@@ -97,6 +98,10 @@ public class GeoShapeMapperBuilder extends MapperBuilder<GeoShapeMapper, GeoShap
      */
     @Override
     public GeoShapeMapper build(String field) {
-        return new GeoShapeMapper(field, column, validated, maxLevels, transformations);
+        try {
+            return new GeoShapeMapper(field, column, validated, maxLevels, transformations);
+        } catch (NoClassDefFoundError e) {
+            throw new JTSNotFoundException();
+        }
     }
 }

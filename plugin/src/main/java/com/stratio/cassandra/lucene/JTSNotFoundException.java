@@ -21,10 +21,10 @@ package com.stratio.cassandra.lucene;
 /**
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
-public class JTSNofFoundException extends IndexException {
+public class JTSNotFoundException extends IndexException {
     static final String message="JTS jar not provided";
 
-    public JTSNofFoundException() {
+    public JTSNotFoundException() {
         super(message);
     }
 }
