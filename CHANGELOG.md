@@ -2,7 +2,7 @@
 
 ## 2.2.5.2 (4 March 2016)
 
-Merged from 2.2.4.4:IndexQ
+Merged from 2.2.4.4:
 * Add indexing of WKT geographical shapes (point, linestring, polygon and their multipart)
 * Add search by WKT geographical shapes (point, linestring, polygon and their multipart)
 * Add API for search-time transformation of WKT geographical shapes
