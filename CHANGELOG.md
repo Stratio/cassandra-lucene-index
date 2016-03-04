@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.2.4.4 (upcoming)
+## 2.2.4.4 (4 March 2016)
 
 * Add indexing of WKT geographical shapes (point, linestring, polygon and their multipart)
 * Add search by WKT geographical shapes (point, linestring, polygon and their multipart)
