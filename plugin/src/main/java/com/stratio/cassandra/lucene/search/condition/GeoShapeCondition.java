@@ -27,7 +27,7 @@ import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.GeoPointMapper;
 import com.stratio.cassandra.lucene.schema.mapping.GeoShapeMapper;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
-import com.stratio.cassandra.lucene.util.GeospatialUtils;
+import com.stratio.cassandra.lucene.util.GeospatialUtilsJTS;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.spatial.SpatialStrategy;
 import org.apache.lucene.spatial.query.SpatialArgs;
@@ -86,7 +86,7 @@ public class GeoShapeCondition extends SingleFieldCondition {
                              GeoOperation operation,
                              List<GeoTransformation> transformations) {
         super(boost, field);
-        this.geometry = GeospatialUtils.geometryFromWKT(CONTEXT, shape);
+        this.geometry = GeospatialUtilsJTS.geometryFromWKT(CONTEXT, shape);
         this.operation = operation == null ? DEFAULT_OPERATION : operation;
         this.transformations = (transformations == null) ? Collections.<GeoTransformation>emptyList() : transformations;
     }

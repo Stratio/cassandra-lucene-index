@@ -18,50 +18,17 @@
 
 package com.stratio.cassandra.lucene.util;
 
-import com.spatial4j.core.context.jts.JtsSpatialContext;
-import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.stratio.cassandra.lucene.IndexException;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.io.ParseException;
-import com.vividsolutions.jts.io.WKTReader;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.spatial.prefix.tree.GeohashPrefixTree;
 
 /**
- * Utilities for Java Topology Suite (JTS) related stuff.
- *
- * This class depends on <a href="http://www.vividsolutions.com/jts">Java Topology Suite (JTS)</a>. This library can't
- * be distributed together with this project due to license compatibility problems, but you can add it by putting <a
- * href="http://search.maven.org/remotecontent?filepath=com/vividsolutions/jts-core/1.14.0/jts-core-1.14.0.jar">jts-core-1.14.0.jar</a>
- * into Cassandra lib directory.
+ * Utilities for geospatial related stuff.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class GeospatialUtils {
 
     public static final int DEFAULT_GEOHASH_MAX_LEVELS = 11;
-
-    /**
-     * Returns the {@link JtsGeometry} represented by the specified WKT text.
-     *
-     * @param context the JTS spatial context
-     * @param string the WKT text
-     * @return the parsed geometry
-     */
-    public static JtsGeometry geometryFromWKT(JtsSpatialContext context, String string) {
-        if (StringUtils.isBlank(string)) {
-            throw new IndexException("Shape shouldn't be blank");
-        }
-        try {
-            GeometryFactory geometryFactory = context.getGeometryFactory();
-            WKTReader reader = new WKTReader(geometryFactory);
-            Geometry geometry = reader.read(string);
-            return context.makeShape(geometry);
-        } catch (ParseException | IllegalArgumentException e) {
-            throw new IndexException(e, "Shape '%s' is not parseable", string);
-        }
-    }
 
     /**
      * Checks if the specified max levels is correct.

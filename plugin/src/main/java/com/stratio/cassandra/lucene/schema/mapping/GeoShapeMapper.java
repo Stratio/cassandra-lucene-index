@@ -24,6 +24,7 @@ import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.common.GeoTransformation;
 import com.stratio.cassandra.lucene.util.GeospatialUtils;
+import com.stratio.cassandra.lucene.util.GeospatialUtilsJTS;
 import org.apache.cassandra.db.marshal.AsciiType;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.commons.lang3.StringUtils;
@@ -99,7 +100,7 @@ public class GeoShapeMapper extends SingleColumnMapper<String> {
     /** {@inheritDoc} */
     @Override
     public void addIndexedFields(Document document, String name, String value) {
-        JtsGeometry shape = GeospatialUtils.geometryFromWKT(SPATIAL_CONTEXT, value);
+        JtsGeometry shape = GeospatialUtilsJTS.geometryFromWKT(SPATIAL_CONTEXT, value);
 
         // Apply transformations
         JtsGeometry transformedGeometry = shape;

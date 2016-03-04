@@ -26,7 +26,6 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.lucene.spatial.prefix.tree.GeohashPrefixTree;
 
 /**
  * Utilities for Java Topology Suite (JTS) related stuff.
@@ -38,9 +37,7 @@ import org.apache.lucene.spatial.prefix.tree.GeohashPrefixTree;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class GeospatialUtilsJTS {
-
-    public static final int DEFAULT_GEOHASH_MAX_LEVELS = 11;
+public class GeospatialUtilsJTS extends GeospatialUtils {
 
     /**
      * Returns the {@link JtsGeometry} represented by the specified WKT text.
@@ -61,22 +58,5 @@ public class GeospatialUtilsJTS {
         } catch (ParseException | IllegalArgumentException e) {
             throw new IndexException(e, "Shape '%s' is not parseable", string);
         }
-    }
-
-    /**
-     * Checks if the specified max levels is correct.
-     *
-     * @param maxLevels The maximum number of levels in the tree.
-     * @return The validated max levels.
-     */
-    public static int validateGeohashMaxLevels(Integer maxLevels) {
-        if (maxLevels == null) {
-            return DEFAULT_GEOHASH_MAX_LEVELS;
-        } else if (maxLevels < 1 || maxLevels > GeohashPrefixTree.getMaxLevelsPossible()) {
-            throw new IndexException("max_levels must be in range [1, %s], but found %s",
-                                     GeohashPrefixTree.getMaxLevelsPossible(),
-                                     maxLevels);
-        }
-        return maxLevels;
     }
 }
