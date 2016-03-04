@@ -32,6 +32,9 @@ public class JTSNotFoundException extends IndexException {
                                   "jts-core-1.14.0.jar in Cassandra lib directory in order to use GeoShapeMapper or " +
                                   "GeoShapeCondition";
 
+    /**
+     * Default constructor.
+     */
     public JTSNotFoundException() {
         super(message);
     }
