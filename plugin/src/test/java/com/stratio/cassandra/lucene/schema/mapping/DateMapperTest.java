@@ -93,13 +93,13 @@ public class DateMapperTest extends AbstractMapperTest {
         dateMapper().pattern("hello").build("name");
     }
 
-    @Test()
+    @Test
     public void testBaseClass() {
         DateMapper mapper = dateMapper().pattern(PATTERN).build("name");
         assertEquals("Base class is wrong", Long.class, mapper.base);
     }
 
-    @Test()
+    @Test
     public void testSortField() {
         DateMapper mapper = dateMapper().pattern(PATTERN).build("name");
         SortField sortField = mapper.sortField("name", true);
@@ -107,7 +107,7 @@ public class DateMapperTest extends AbstractMapperTest {
         assertTrue("SortField reverse is wrong", sortField.getReverse());
     }
 
-    @Test()
+    @Test
     public void testValueNull() {
         DateMapper mapper = dateMapper().pattern(PATTERN).build("name");
         assertNull("Base value is not properly parsed", mapper.base("test", null));

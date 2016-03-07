@@ -73,7 +73,7 @@ public class DoubleMapperTest extends AbstractMapperTest {
         testJson(builder, "{type:\"double\"}");
     }
 
-    @Test()
+    @Test
     public void testSortField() {
         DoubleMapper mapper = doubleMapper().boost(2.3f).build("field");
         SortField sortField = mapper.sortField("field", true);
@@ -81,13 +81,13 @@ public class DoubleMapperTest extends AbstractMapperTest {
         assertTrue("Sort field reverse is wrong", sortField.getReverse());
     }
 
-    @Test()
+    @Test
     public void testValueNull() {
         DoubleMapper mapper = doubleMapper().boost(1f).build("field");
         assertNull("Base for nulls is wrong", mapper.base("test", null));
     }
 
-    @Test()
+    @Test
     public void testValueString() {
         DoubleMapper mapper = doubleMapper().boost(1f).build("field");
         Double parsed = mapper.base("test", "3.4");

@@ -120,7 +120,7 @@ public class DateRangeMapperTest extends AbstractMapperTest {
         dateRangeMapper("from", " ").build("name");
     }
 
-    @Test()
+    @Test
     public void testReadFromFromIntColumn() {
         DateRangeMapper mapper = dateRangeMapper("from", "to").pattern(TIMESTAMP_PATTERN).build("name");
         Columns columns = new Columns();
@@ -211,7 +211,7 @@ public class DateRangeMapperTest extends AbstractMapperTest {
         assertNull("From is not properly parsed", mapper.readFrom(columns));
     }
 
-    @Test()
+    @Test
     public void testReadToFromIntColumn() {
         DateRangeMapper mapper = dateRangeMapper("from", "to").pattern(TIMESTAMP_PATTERN).build("name");
         Columns columns = new Columns();
@@ -220,7 +220,7 @@ public class DateRangeMapperTest extends AbstractMapperTest {
         assertEquals("To is not properly parsed", new Date(5L * 24L * 60L * 60L * 1000L), mapper.readTo(columns));
     }
 
-    @Test()
+    @Test
     public void testGetToFromLongColumn() {
         DateRangeMapper mapper = dateRangeMapper("from", "to").pattern(TIMESTAMP_PATTERN).build("name");
         Columns columns = new Columns();
@@ -229,7 +229,7 @@ public class DateRangeMapperTest extends AbstractMapperTest {
         assertEquals("To is not properly parsed", new Date(5), mapper.readTo(columns));
     }
 
-    @Test()
+    @Test
     public void testGetToFromFloatColumn() {
         DateRangeMapper mapper = dateRangeMapper("from", "to").pattern(TIMESTAMP_PATTERN).build("name");
         Columns columns = new Columns();
@@ -238,7 +238,7 @@ public class DateRangeMapperTest extends AbstractMapperTest {
         assertEquals("To is not properly parsed", new Date(5), mapper.readTo(columns));
     }
 
-    @Test()
+    @Test
     public void testGetToFromDoubleColumn() {
         DateRangeMapper mapper = dateRangeMapper("from", "to").pattern(TIMESTAMP_PATTERN).build("name");
         Columns columns = new Columns();
@@ -247,7 +247,7 @@ public class DateRangeMapperTest extends AbstractMapperTest {
         assertEquals("To is not properly parsed", new Date(5), mapper.readTo(columns));
     }
 
-    @Test()
+    @Test
     public void testGetToFromTimeUUIDColumn() {
         DateRangeMapper mapper = dateRangeMapper("from", "to").pattern(TIMESTAMP_PATTERN).build("name");
         Columns columns = new Columns();

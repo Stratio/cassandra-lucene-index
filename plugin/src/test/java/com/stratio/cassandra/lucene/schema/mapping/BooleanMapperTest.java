@@ -66,7 +66,7 @@ public class BooleanMapperTest extends AbstractMapperTest {
         testJson(builder, "{type:\"boolean\"}");
     }
 
-    @Test()
+    @Test
     public void testValueNull() {
         BooleanMapper mapper = booleanMapper().build("field");
         assertNull("Base value is not properly parsed", mapper.base("test", null));

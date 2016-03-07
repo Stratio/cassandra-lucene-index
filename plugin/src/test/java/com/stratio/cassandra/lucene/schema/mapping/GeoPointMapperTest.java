@@ -134,7 +134,7 @@ public class GeoPointMapperTest extends AbstractMapperTest {
         geoPointMapper(" ", "lon").build("field");
     }
 
-    @Test()
+    @Test
     public void testGetLatitudeFromIntColumn() {
         GeoPointMapper mapper = geoPointMapper("lat", "lon").build("field");
         Columns columns = new Columns();
@@ -143,7 +143,7 @@ public class GeoPointMapperTest extends AbstractMapperTest {
         assertEquals("Latitude is not properly parsed", 5d, mapper.readLatitude(columns), 0);
     }
 
-    @Test()
+    @Test
     public void testGetLatitudeFromLongColumn() {
         GeoPointMapper mapper = geoPointMapper("lat", "lon").build("field");
         Columns columns = new Columns();
@@ -152,7 +152,7 @@ public class GeoPointMapperTest extends AbstractMapperTest {
         assertEquals("Latitude is not properly parsed", 5d, mapper.readLatitude(columns), 0);
     }
 
-    @Test()
+    @Test
     public void testGetLatitudeFromFloatColumn() {
         GeoPointMapper mapper = geoPointMapper("lat", "lon").build("field");
         Columns columns = new Columns();
@@ -161,7 +161,7 @@ public class GeoPointMapperTest extends AbstractMapperTest {
         assertEquals("Latitude is not properly parsed", 5.3f, mapper.readLatitude(columns), 0);
     }
 
-    @Test()
+    @Test
     public void testGetLatitudeFromDoubleColumn() {
         GeoPointMapper mapper = geoPointMapper("lat", "lon").build("field");
         Columns columns = new Columns();
@@ -170,7 +170,7 @@ public class GeoPointMapperTest extends AbstractMapperTest {
         assertEquals("Latitude is not properly parsed", 5.3d, mapper.readLatitude(columns), 0);
     }
 
-    @Test()
+    @Test
     public void testGetLatitudeFromStringColumn() {
         GeoPointMapper mapper = geoPointMapper("lat", "lon").build("field");
         Columns columns = new Columns();
@@ -179,7 +179,7 @@ public class GeoPointMapperTest extends AbstractMapperTest {
         assertEquals("Latitude is not properly parsed", 5.3d, mapper.readLatitude(columns), 0);
     }
 
-    @Test()
+    @Test
     public void testGetLatitudeFromShortColumn() {
         GeoPointMapper mapper = geoPointMapper("lat", "lon").build("field");
         Columns columns = new Columns();
@@ -239,7 +239,7 @@ public class GeoPointMapperTest extends AbstractMapperTest {
         mapper.readLatitude(columns);
     }
 
-    @Test()
+    @Test
     public void testGetLongitudeFromIntColumn() {
         GeoPointMapper mapper = geoPointMapper("lat", "lon").build("field");
         Columns columns = new Columns();
@@ -248,7 +248,7 @@ public class GeoPointMapperTest extends AbstractMapperTest {
         assertEquals("Longitude is not properly parsed", 5d, mapper.readLongitude(columns), 0);
     }
 
-    @Test()
+    @Test
     public void testGetLongitudeFromLongColumn() {
         GeoPointMapper mapper = geoPointMapper("lat", "lon").build("field");
         Columns columns = new Columns();
@@ -257,7 +257,7 @@ public class GeoPointMapperTest extends AbstractMapperTest {
         assertEquals("Longitude is not properly parsed", 5d, mapper.readLongitude(columns), 0);
     }
 
-    @Test()
+    @Test
     public void testGetLongitudeFromFloatColumn() {
         GeoPointMapper mapper = geoPointMapper("lat", "lon").build("field");
         Columns columns = new Columns();
@@ -266,7 +266,7 @@ public class GeoPointMapperTest extends AbstractMapperTest {
         assertEquals("Longitude is not properly parsed", 5.3f, mapper.readLongitude(columns), 0);
     }
 
-    @Test()
+    @Test
     public void testGetLongitudeFromDoubleColumn() {
         GeoPointMapper mapper = geoPointMapper("lat", "lon").build("field");
         Columns columns = new Columns();
@@ -275,7 +275,7 @@ public class GeoPointMapperTest extends AbstractMapperTest {
         assertEquals("Longitude is not properly parsed", 5.3d, mapper.readLongitude(columns), 0);
     }
 
-    @Test()
+    @Test
     public void testGetLongitudeFromStringColumn() {
         GeoPointMapper mapper = geoPointMapper("lat", "lon").build("field");
         Columns columns = new Columns();
@@ -284,7 +284,7 @@ public class GeoPointMapperTest extends AbstractMapperTest {
         assertEquals("Longitude is not properly parsed", 5.3d, mapper.readLongitude(columns), 0);
     }
 
-    @Test()
+    @Test
     public void testGetLongitudeFromShortColumn() {
         GeoPointMapper mapper = geoPointMapper("lat", "lon").build("field");
         Columns columns = new Columns();
