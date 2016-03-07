@@ -21,6 +21,7 @@ package com.stratio.cassandra.lucene.schema.mapping;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.mapping.builder.DateMapperBuilder;
 import com.stratio.cassandra.lucene.util.DateParser;
+import org.apache.cassandra.utils.UUIDGen;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.DocValuesType;
 import org.apache.lucene.search.SortField;
@@ -29,6 +30,7 @@ import org.junit.Test;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.UUID;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.dateMapper;
 import static org.junit.Assert.*;
@@ -145,7 +147,6 @@ public class DateMapperTest extends AbstractMapperTest {
         DateMapper mapper = dateMapper().pattern(TIMESTAMP_PATTERN).build("name");
         Long parsed = mapper.base("test", 3.5f);
         assertEquals("Base value is not properly parsed", Long.valueOf(3), parsed);
-
     }
 
     @Test
@@ -153,7 +154,6 @@ public class DateMapperTest extends AbstractMapperTest {
         DateMapper mapper = dateMapper().pattern(TIMESTAMP_PATTERN).build("name");
         Long parsed = mapper.base("test", 3.6f);
         assertEquals("Base value is not properly parsed", Long.valueOf(3), parsed);
-
     }
 
     @Test
@@ -168,7 +168,6 @@ public class DateMapperTest extends AbstractMapperTest {
         DateMapper mapper = dateMapper().pattern(TIMESTAMP_PATTERN).build("name");
         Long parsed = mapper.base("test", 3.5d);
         assertEquals("Base value is not properly parsed", Long.valueOf(3), parsed);
-
     }
 
     @Test
@@ -176,7 +175,6 @@ public class DateMapperTest extends AbstractMapperTest {
         DateMapper mapper = dateMapper().pattern(TIMESTAMP_PATTERN).build("name");
         Long parsed = mapper.base("test", 3.6d);
         assertEquals("Base value is not properly parsed", Long.valueOf(3), parsed);
-
     }
 
     @Test
@@ -205,6 +203,19 @@ public class DateMapperTest extends AbstractMapperTest {
     public void testValueStringWithoutPatternInvalid() throws ParseException {
         DateMapper mapper = dateMapper().build("name");
         mapper.base("test", "2014-03-19");
+    }
+
+    @Test
+    public void testValueTimeUUID() {
+        DateMapper mapper = dateMapper().pattern(TIMESTAMP_PATTERN).build("name");
+        Long parsed = mapper.base("test", UUIDGen.getTimeUUID(1000));
+        assertEquals("Base value is not properly parsed", Long.valueOf(1000), parsed);
+    }
+
+    @Test(expected = IndexException.class)
+    public void testValueNotTimeUUID() {
+        DateMapper mapper = dateMapper().pattern(TIMESTAMP_PATTERN).build("name");
+        mapper.base("test", UUID.randomUUID());
     }
 
     @Test

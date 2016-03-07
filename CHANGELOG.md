@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.0.3.2 (upcoming)
+
+* Add support for indexing time UUID columns with date, date_range and bitemporal mappers
+
 ## 3.0.3.1 (4 March 2016)
 
 * Fix performance issues with ClusteringIndexNamesFilter

@@ -19,11 +19,14 @@
 package com.stratio.cassandra.lucene.util;
 
 import com.stratio.cassandra.lucene.IndexException;
+import org.apache.cassandra.db.marshal.UUIDType;
+import org.apache.cassandra.utils.UUIDGen;
 
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.UUID;
 
 /**
  * Unified class for parse a {@link Date}s from {@link Object}s including a {@code String} pattern.
@@ -93,6 +96,12 @@ public class DateParser {
                 throw new IndexException("Required positive Long for dates but found '%s'", value);
             } else {
                 return new Date((Long) value);
+            }
+        } else if (value instanceof UUID) {
+            try {
+                return new Date(UUIDGen.unixTimestamp((UUID) value));
+            } catch (UnsupportedOperationException e) {
+                throw new IndexException("Required a version 1 UUID but found '%s'", value);
             }
         } else {
             if (pattern.equals(TIMESTAMP_PATTERN_FIELD)) {
