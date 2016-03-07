@@ -34,6 +34,7 @@ public class Index extends Builder {
     private String keyspace;
     private String table;
     private String name;
+    private String indexColumn;
     private Number refreshSeconds;
     private String directoryPath;
     private Integer ramBufferMb;
@@ -55,6 +56,17 @@ public class Index extends Builder {
         this.schema = new Schema();
         this.table = table;
         this.name = name;
+    }
+
+    /**
+     * Sets the column name of lucene index.
+     *
+     * @param keyspace The keyspace name.
+     * @return This.
+     */
+    public Index indexColumn(String column) {
+        this.indexColumn = column;
+        return this;
     }
 
     /**
@@ -230,7 +242,7 @@ public class Index extends Builder {
         sb.append("CREATE CUSTOM INDEX ");
         sb.append(name).append(" ");
         String fullTable = keyspace == null ? table : keyspace + "." + table;
-        sb.append(String.format("ON %s() ", fullTable));
+        sb.append(String.format("ON %s(%s) ", fullTable, indexColumn == null ? "" : indexColumn));
         sb.append("USING 'com.stratio.cassandra.lucene.Index' WITH OPTIONS = {");
         option(sb, "refresh_seconds", refreshSeconds);
         option(sb, "directory_path", directoryPath);
