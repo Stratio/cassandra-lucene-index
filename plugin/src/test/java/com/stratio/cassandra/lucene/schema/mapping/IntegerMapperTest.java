@@ -73,7 +73,7 @@ public class IntegerMapperTest extends AbstractMapperTest {
         testJson(builder, "{type:\"integer\"}");
     }
 
-    @Test()
+    @Test
     public void testSortField() {
         IntegerMapper mapper = integerMapper().boost(2.3f).build("field");
         SortField sortField = mapper.sortField("field", true);
@@ -81,13 +81,13 @@ public class IntegerMapperTest extends AbstractMapperTest {
         assertTrue("Sort field reverse is wrong", sortField.getReverse());
     }
 
-    @Test()
+    @Test
     public void testValueNull() {
         IntegerMapper mapper = integerMapper().boost(1f).build("field");
         assertNull("Base for nulls is wrong", mapper.base("test", null));
     }
 
-    @Test()
+    @Test
     public void testValueString() {
         IntegerMapper mapper = integerMapper().boost(1f).build("field");
         Integer parsed = mapper.base("test", "2.7");

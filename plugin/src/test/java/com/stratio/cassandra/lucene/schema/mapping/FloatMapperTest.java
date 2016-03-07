@@ -70,7 +70,7 @@ public class FloatMapperTest extends AbstractMapperTest {
         testJson(builder, "{type:\"float\"}");
     }
 
-    @Test()
+    @Test
     public void testSortField() {
         FloatMapper mapper = floatMapper().boost(2.3f).build("field");
         SortField sortField = mapper.sortField("field", true);
@@ -78,13 +78,13 @@ public class FloatMapperTest extends AbstractMapperTest {
         assertTrue("Sort field reverse is wrong", sortField.getReverse());
     }
 
-    @Test()
+    @Test
     public void testValueNull() {
         FloatMapper mapper = floatMapper().boost(1f).build("field");
         assertNull("Base for nulls is wrong", mapper.base("test", null));
     }
 
-    @Test()
+    @Test
     public void testValueString() {
         FloatMapper mapper = floatMapper().boost(1f).build("field");
         Float parsed = mapper.base("test", "3.4");

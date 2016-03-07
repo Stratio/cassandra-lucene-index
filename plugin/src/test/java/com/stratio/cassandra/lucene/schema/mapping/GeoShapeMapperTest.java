@@ -140,7 +140,7 @@ public class GeoShapeMapperTest extends AbstractMapperTest {
         geoShapeMapper().column("column").maxLevels(10).build(" ");
     }
 
-    @Test()
+    @Test
     public void testGetShapeFromString() {
         GeoShapeMapper mapper = geoShapeMapper().column("column").maxLevels(10).build("field");
         assertEquals("Latitude is not properly parsed", "POLYGON", mapper.base("column", "POLYGON"));

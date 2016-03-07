@@ -71,7 +71,7 @@ public class BlobMapperTest extends AbstractMapperTest {
         testJson(builder, "{type:\"bytes\"}");
     }
 
-    @Test()
+    @Test
     public void testValueNull() {
         BlobMapper mapper = blobMapper().build("field");
         assertNull("Base value is not properly parsed", mapper.base("test", null));

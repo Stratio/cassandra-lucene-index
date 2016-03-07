@@ -74,7 +74,7 @@ public class BigIntegerMapperTest extends AbstractMapperTest {
         testJson(builder, "{type:\"bigint\"}");
     }
 
-    @Test()
+    @Test
     public void testValueNull() {
         BigIntegerMapper mapper = bigIntegerMapper().digits(10).build("field");
         assertNull("Base value is not properly parsed", mapper.base("test", null));

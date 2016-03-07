@@ -77,13 +77,13 @@ public class TextMapperTest extends AbstractMapperTest {
         testJson(builder, "{type:\"text\"}");
     }
 
-    @Test()
+    @Test
     public void testBaseClass() {
         TextMapper mapper = textMapper().analyzer("SpanishAnalyzer").build("field");
         assertEquals("Base class is wrong", String.class, mapper.base);
     }
 
-    @Test()
+    @Test
     public void testSortField() {
         TextMapper mapper = textMapper().sorted(true).analyzer("SpanishAnalyzer").build("field");
         SortField sortField = mapper.sortField("field", true);
@@ -91,7 +91,7 @@ public class TextMapperTest extends AbstractMapperTest {
         assertTrue("Sort field reverse is not set", sortField.getReverse());
     }
 
-    @Test()
+    @Test
     public void testValueNull() {
         TextMapper mapper = textMapper().build("field");
         assertNull("Base for nulls is wrong", mapper.base("test", null));

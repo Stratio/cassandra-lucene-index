@@ -122,32 +122,32 @@ public class PhraseSearchAT extends AbstractSearchAT {
         query(phrase("map_1$k1", ("v1"))).check(2);
     }
 
-    @Test()
+    @Test
     public void phraseFilterTextFieldTest1() {
         filter(phrase("text_1", "Frase espacios")).check(0);
     }
 
-    @Test()
+    @Test
     public void phraseFilterTextFieldWithSlopTest1() {
         filter(phrase("text_1", "Frase espacios").slop(2)).check(1);
     }
 
-    @Test()
+    @Test
     public void phraseFilterTextFieldTest2() {
         filter(phrase("text_1", "articulos suficientes")).check(0);
     }
 
-    @Test()
+    @Test
     public void phraseFilterTextFieldWithSlopTest() {
         filter(phrase("text_1", "articulos palabras").slop(2)).check(1);
     }
 
-    @Test()
+    @Test
     public void phraseFilterTextFieldTest3() {
         filter(phrase("text_1", "con los")).check(0);
     }
 
-    @Test()
+    @Test
     public void phraseFilterTextFieldTest4() {
         filter(phrase("text_1", "")).check(0);
     }

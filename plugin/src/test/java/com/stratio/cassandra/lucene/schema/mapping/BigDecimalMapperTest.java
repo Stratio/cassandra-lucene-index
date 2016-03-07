@@ -82,7 +82,7 @@ public class BigDecimalMapperTest extends AbstractMapperTest {
         testJson(builder, "{type:\"bigdec\"}");
     }
 
-    @Test()
+    @Test
     public void testValueNull() {
         BigDecimalMapper mapper = bigDecimalMapper().integerDigits(10).decimalDigits(10).build("field");
         assertNull("Base value is not properly parsed", mapper.base("test", null));

@@ -67,7 +67,7 @@ public class InetMapperTest extends AbstractMapperTest {
         testJson(builder, "{type:\"inet\"}");
     }
 
-    @Test()
+    @Test
     public void testValueNull() {
         InetMapper mapper = inetMapper().build("field");
         assertNull("Base for nulls is wrong", mapper.base("test", null));
