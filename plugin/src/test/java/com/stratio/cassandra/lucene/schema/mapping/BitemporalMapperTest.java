@@ -30,6 +30,7 @@ import org.apache.cassandra.db.composites.CellNameType;
 import org.apache.cassandra.db.composites.SimpleSparseCellNameType;
 import org.apache.cassandra.db.marshal.*;
 import org.apache.cassandra.exceptions.ConfigurationException;
+import org.apache.cassandra.utils.UUIDGen;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.IndexableField;
@@ -210,6 +211,18 @@ public class BitemporalMapperTest extends AbstractMapperTest {
     }
 
     @Test()
+    public void testReadVtFromFieldFromTimeUUIDColumn() {
+        BitemporalMapper mapper = bitemporalMapper("vtFrom", "vtTo", "ttFrom", "ttTo").pattern("timestamp")
+                                                                                      .build("field");
+        Columns columns = new Columns();
+        columns.add(Column.builder("vtFrom").composedValue(UUIDGen.getTimeUUID(5L), TimeUUIDType.instance));
+        columns.add(Column.builder("vtTo").composedValue(UUIDGen.getTimeUUID(0L), TimeUUIDType.instance));
+        columns.add(Column.builder("ttFrom").composedValue(UUIDGen.getTimeUUID(0L), TimeUUIDType.instance));
+        columns.add(Column.builder("ttTo").composedValue(UUIDGen.getTimeUUID(0L), TimeUUIDType.instance));
+        assertEquals("Date parsing is wrong", new BitemporalDateTime(5L), mapper.readBitemporalDate(columns, "vtFrom"));
+    }
+
+    @Test()
     public void testReadVtFromFieldFromIntegerColumn() {
         BitemporalMapper mapper = bitemporalMapper("vtFrom", "vtTo", "ttFrom", "ttTo").pattern("timestamp")
                                                                                       .build("field");
@@ -364,6 +377,18 @@ public class BitemporalMapperTest extends AbstractMapperTest {
     }
 
     @Test()
+    public void testReadVtToFieldsFromTimeUUIDColumn() {
+        BitemporalMapper mapper = bitemporalMapper("vtFrom", "vtTo", "ttFrom", "ttTo").pattern("timestamp")
+                                                                                      .build("field");
+        Columns columns = new Columns();
+        columns.add(Column.builder("vtFrom").composedValue(UUIDGen.getTimeUUID(0L), TimeUUIDType.instance));
+        columns.add(Column.builder("vtTo").composedValue(UUIDGen.getTimeUUID(5L), TimeUUIDType.instance));
+        columns.add(Column.builder("ttFrom").composedValue(UUIDGen.getTimeUUID(0L), TimeUUIDType.instance));
+        columns.add(Column.builder("ttTo").composedValue(UUIDGen.getTimeUUID(0L), TimeUUIDType.instance));
+        assertEquals("Date parsing is wrong", new BitemporalDateTime(5L), mapper.readBitemporalDate(columns, "vtTo"));
+    }
+
+    @Test()
     public void testReadVtToFieldsFromIntegerColumn() {
         BitemporalMapper mapper = bitemporalMapper("vtFrom", "vtTo", "ttFrom", "ttTo").pattern("timestamp")
                                                                                       .build("field");
@@ -508,6 +533,18 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         columns.add(Column.builder("vtTo").composedValue(0L, LongType.instance));
         columns.add(Column.builder("ttFrom").composedValue(5L, LongType.instance));
         columns.add(Column.builder("ttTo").composedValue(0L, LongType.instance));
+        assertEquals("Date parsing is wrong", new BitemporalDateTime(5L), mapper.readBitemporalDate(columns, "ttFrom"));
+    }
+
+    @Test()
+    public void testReadTtFromFieldFromTimeUUIDColumn() {
+        BitemporalMapper mapper = bitemporalMapper("vtFrom", "vtTo", "ttFrom", "ttTo").pattern("timestamp")
+                                                                                      .build("field");
+        Columns columns = new Columns();
+        columns.add(Column.builder("vtFrom").composedValue(UUIDGen.getTimeUUID(0L), TimeUUIDType.instance));
+        columns.add(Column.builder("vtTo").composedValue(UUIDGen.getTimeUUID(0L), TimeUUIDType.instance));
+        columns.add(Column.builder("ttFrom").composedValue(UUIDGen.getTimeUUID(5L), TimeUUIDType.instance));
+        columns.add(Column.builder("ttTo").composedValue(UUIDGen.getTimeUUID(0L), TimeUUIDType.instance));
         assertEquals("Date parsing is wrong", new BitemporalDateTime(5L), mapper.readBitemporalDate(columns, "ttFrom"));
     }
 
@@ -662,6 +699,18 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         columns.add(Column.builder("vtTo").composedValue(0L, LongType.instance));
         columns.add(Column.builder("ttFrom").composedValue(0L, LongType.instance));
         columns.add(Column.builder("ttTo").composedValue(5L, LongType.instance));
+        assertEquals("Date parsing is wrong", new BitemporalDateTime(5L), mapper.readBitemporalDate(columns, "ttTo"));
+    }
+
+    @Test()
+    public void testReadTtToFieldFromTimeUUIDColumn() {
+        BitemporalMapper mapper = bitemporalMapper("vtFrom", "vtTo", "ttFrom", "ttTo").pattern("timestamp")
+                                                                                      .build("field");
+        Columns columns = new Columns();
+        columns.add(Column.builder("vtFrom").composedValue(UUIDGen.getTimeUUID(0L), TimeUUIDType.instance));
+        columns.add(Column.builder("vtTo").composedValue(UUIDGen.getTimeUUID(0L), TimeUUIDType.instance));
+        columns.add(Column.builder("ttFrom").composedValue(UUIDGen.getTimeUUID(0L), TimeUUIDType.instance));
+        columns.add(Column.builder("ttTo").composedValue(UUIDGen.getTimeUUID(5L), TimeUUIDType.instance));
         assertEquals("Date parsing is wrong", new BitemporalDateTime(5L), mapper.readBitemporalDate(columns, "ttTo"));
     }
 

@@ -82,7 +82,8 @@ public class DateRangeMapper extends Mapper {
               LongType.instance,
               IntegerType.instance,
               SimpleDateType.instance,
-              TimestampType.instance);
+              TimestampType.instance,
+              TimeUUIDType.instance);
 
         if (StringUtils.isBlank(from)) {
             throw new IndexException("from column name is required");

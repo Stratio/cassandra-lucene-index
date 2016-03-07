@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.2.5.3 (upcoming)
+
+* Add support for indexing time UUID columns with date, date_range and bitemporal mappers
+
 ## 2.2.5.2 (4 March 2016)
 
 Merged from 2.2.4.4:

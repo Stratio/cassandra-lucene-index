@@ -105,7 +105,8 @@ public class BitemporalMapper extends Mapper {
               LongType.instance,
               IntegerType.instance,
               SimpleDateType.instance,
-              TimestampType.instance);
+              TimestampType.instance,
+              TimeUUIDType.instance);
 
         if (StringUtils.isBlank(vtFrom)) {
             throw new IndexException("vt_from column name is required");

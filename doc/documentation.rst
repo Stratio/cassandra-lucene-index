@@ -834,7 +834,7 @@ Maps four columns containing the four columns of a bitemporal fact.
     };
 
 
-Supported CQL types: ascii, bigint, date, int, text, timestamp, varchar, varint
+Supported CQL types: ascii, bigint, date, int, text, timestamp, timeuuid, varchar, varint
 
 Blob mapper
 ___________
@@ -896,7 +896,7 @@ Supported CQL types: ascii, boolean , text, varchar
 Date mapper
 ___________
 
-Maps dates using a either a pattern or a UNIX timestamp.
+Maps dates using a either a pattern, an UNIX timestamp or a time UUID.
 
 **Example:**
 
@@ -921,7 +921,7 @@ Maps dates using a either a pattern or a UNIX timestamp.
     };
 
 
-Supported CQL types: ascii, bigint, date, int, text, timestamp, varchar, varint
+Supported CQL types: ascii, bigint, date, int, text, timestamp, timeuuid, varchar, varint
 
 Date range mapper
 _________________
@@ -950,7 +950,7 @@ Maps a time duration/period defined by a start date and a stop date.
     };
 
 
-Supported CQL types: ascii, bigint, date, int, text, timestamp, varchar, varint
+Supported CQL types: ascii, bigint, date, int, text, timestamp, timeuuid, varchar, varint
 
 Double mapper
 _____________
