@@ -35,7 +35,7 @@ public class BigIntegerMapperBuilder extends SingleColumnMapperBuilder<BigIntege
      * Sets the max number of digits.
      *
      * @param digits The max number of digits.
-     * @return This.
+     * @return this
      */
     public BigIntegerMapperBuilder digits(Integer digits) {
         this.digits = digits;
@@ -45,8 +45,8 @@ public class BigIntegerMapperBuilder extends SingleColumnMapperBuilder<BigIntege
     /**
      * Returns the {@link BigIntegerMapper} represented by this {@link MapperBuilder}.
      *
-     * @param field The name of the field to be built.
-     * @return The {@link BigIntegerMapper} represented by this.
+     * @param field the name of the field to be built
+     * @return the {@link BigIntegerMapper} represented by this
      */
     @Override
     public BigIntegerMapper build(String field) {

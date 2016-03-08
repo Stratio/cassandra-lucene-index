@@ -35,7 +35,7 @@ public abstract class AnalyzerBuilder {
     /**
      * Gets or creates the Lucene {@link Analyzer}.
      *
-     * @return The built Lucene {@link Analyzer}.
+     * @return the built analyzer
      */
     public abstract Analyzer analyzer();
 }

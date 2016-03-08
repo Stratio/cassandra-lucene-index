@@ -115,7 +115,7 @@ public class SearchBuilder implements Builder<Search> {
     /**
      * Returns the {@link Search} represented by this builder.
      *
-     * @return The {@link Search} represented by this builder.
+     * @return the {@link Search} represented by this builder
      */
     public Search build() {
         Condition query = queryBuilder == null ? null : queryBuilder.build();

@@ -30,8 +30,8 @@ public class InetMapperBuilder extends SingleColumnMapperBuilder<InetMapper, Ine
     /**
      * Returns the {@link InetMapper} represented by this {@link MapperBuilder}.
      *
-     * @param field The name of the field to be built.
-     * @return The {@link InetMapper} represented by this.
+     * @param field the name of the field to be built
+     * @return the {@link InetMapper} represented by this
      */
     @Override
     public InetMapper build(String field) {

@@ -45,8 +45,8 @@ public class IntegerMapperBuilder extends SingleColumnMapperBuilder<IntegerMappe
     /**
      * Returns the {@link IntegerMapper} represented by this {@link MapperBuilder}.
      *
-     * @param field The name of the field to be built.
-     * @return The {@link IntegerMapper} represented by this.
+     * @param field the name of the field to be built
+     * @return the {@link IntegerMapper} represented by this
      */
     @Override
     public IntegerMapper build(String field) {

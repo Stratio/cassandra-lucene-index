@@ -34,8 +34,8 @@ public class DoubleMapperBuilder extends SingleColumnMapperBuilder<DoubleMapper,
     /**
      * Sets the boost to be used.
      *
-     * @param boost The boost to be used.
-     * @return This.
+     * @param boost the boost to be used
+     * @return this
      */
     public DoubleMapperBuilder boost(Float boost) {
         this.boost = boost;
@@ -45,8 +45,8 @@ public class DoubleMapperBuilder extends SingleColumnMapperBuilder<DoubleMapper,
     /**
      * Returns the {@link DoubleMapper} represented by this {@link MapperBuilder}.
      *
-     * @param field The name of the field to be built.
-     * @return The {@link DoubleMapper} represented by this.
+     * @param field the name of the field to be built
+     * @return the {@link DoubleMapper} represented by this
      */
     @Override
     public DoubleMapper build(String field) {

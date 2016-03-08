@@ -356,7 +356,7 @@ public enum StandardAnalyzers {
     /**
      * Returns a new instance of the defined {@link Analyzer}.
      *
-     * @return A new instance of the defined {@link Analyzer}.
+     * @return a new analyzer
      */
     abstract Analyzer build();
 
@@ -364,9 +364,8 @@ public enum StandardAnalyzers {
      * Returns the prebuilt {@link Analyzer} identified by the specified name, or {@code null} if there is no such
      * {@link Analyzer}.
      *
-     * @param name A prebuilt {@link Analyzer} name.
-     * @return The prebuilt {@link Analyzer} identified by the specified name, or {@code null} if there is no such
-     * {@link Analyzer}.
+     * @param name a prebuilt {@link Analyzer} name
+     * @return the analyzer, or {@code null} if there is no such analyzer
      */
     public static Analyzer get(String name) {
         try {
@@ -379,7 +378,7 @@ public enum StandardAnalyzers {
     /**
      * Returns the {@link Analyzer} defined by this.
      *
-     * @return The {@link Analyzer} defined by this.
+     * @return the analyzer
      */
     public Analyzer get() {
         return build();

@@ -45,8 +45,8 @@ public class DateMapperBuilder extends SingleColumnMapperBuilder<DateMapper, Dat
     /**
      * Returns the {@link DateMapper} represented by this {@link MapperBuilder}.
      *
-     * @param field The name of the field to be built.
-     * @return The {@link DateMapper} represented by this.
+     * @param field the name of the field to be built
+     * @return the {@link DateMapper} represented by this
      */
     @Override
     public DateMapper build(String field) {

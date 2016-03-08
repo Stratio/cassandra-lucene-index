@@ -30,8 +30,8 @@ public class UUIDMapperBuilder extends SingleColumnMapperBuilder<UUIDMapper, UUI
     /**
      * Returns the {@link UUIDMapper} represented by this {@link MapperBuilder}.
      *
-     * @param field The name of the field to be built.
-     * @return The {@link UUIDMapper} represented by this.
+     * @param field the name of the field to be built
+     * @return the {@link UUIDMapper} represented by this
      */
     @Override
     public UUIDMapper build(String field) {

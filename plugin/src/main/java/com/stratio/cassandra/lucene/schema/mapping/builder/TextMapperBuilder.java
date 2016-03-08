@@ -34,8 +34,8 @@ public class TextMapperBuilder extends SingleColumnMapperBuilder<TextMapper, Tex
     /**
      * Sets the name of the {@link org.apache.lucene.analysis.Analyzer} to be used.
      *
-     * @param analyzer The name of the {@link org.apache.lucene.analysis.Analyzer} to be used.
-     * @return This.
+     * @param analyzer the name of the {@link org.apache.lucene.analysis.Analyzer} to be used
+     * @return this
      */
     public TextMapperBuilder analyzer(String analyzer) {
         this.analyzer = analyzer;
@@ -45,8 +45,8 @@ public class TextMapperBuilder extends SingleColumnMapperBuilder<TextMapper, Tex
     /**
      * Returns the {@link TextMapper} represented by this {@link MapperBuilder}.
      *
-     * @param field The name of the field to be built.
-     * @return The {@link TextMapper} represented by this.
+     * @param field the name of the field to be built
+     * @return the {@link TextMapper} represented by this
      */
     @Override
     public TextMapper build(String field) {
