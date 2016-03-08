@@ -56,7 +56,7 @@ public abstract class Builder {
     /**
      * Returns the JSON {@code String} representation of the specified object.
      *
-     * @return The JSON {@code String} representation of the specified object.
+     * @return the JSON {@code String}
      */
     @Override
     public String toString() {
@@ -66,7 +66,7 @@ public abstract class Builder {
     /**
      * Returns the JSON representation of this {@link Builder}.
      *
-     * @return The JSON representation of this {@link Builder}.
+     * @return a JSON representing this
      */
     public String build() {
         try {
@@ -79,9 +79,9 @@ public abstract class Builder {
     /**
      * Returns a new index creation statement using the session's keyspace.
      *
-     * @param table The table name.
-     * @param name The index name.
-     * @return A new index creation statement.
+     * @param table the table name
+     * @param name the index name
+     * @return a new index creation statement
      */
     public static Index index(String table, String name) {
         return new Index(table, name);
@@ -90,10 +90,10 @@ public abstract class Builder {
     /**
      * Returns a new index creation statement using the session's keyspace.
      *
-     * @param keyspace The keyspace name.
-     * @param table The table name.
-     * @param name The index name.
-     * @return A new index creation statement.
+     * @param keyspace the keyspace name
+     * @param table the table name
+     * @param name the index name
+     * @return a new index creation statement
      */
     public static Index index(String keyspace, String table, String name) {
         return new Index(table, name).keyspace(keyspace);
@@ -102,7 +102,7 @@ public abstract class Builder {
     /**
      * Returns a new {@link Schema}.
      *
-     * @return A new {@link Schema}.
+     * @return the {@link Schema}
      */
     public static Schema schema() {
         return new Schema();
@@ -111,7 +111,7 @@ public abstract class Builder {
     /**
      * Returns a new {@link BigDecimalMapper}.
      *
-     * @return A new {@link BigDecimalMapper}.
+     * @return a new {@link BigDecimalMapper}
      */
     public static BigDecimalMapper bigDecimalMapper() {
         return new BigDecimalMapper();
@@ -120,7 +120,7 @@ public abstract class Builder {
     /**
      * Returns a new {@link BigIntegerMapper}.
      *
-     * @return A new {@link BigIntegerMapper}.
+     * @return a new {@link BigIntegerMapper}
      */
     public static BigIntegerMapper bigIntegerMapper() {
         return new BigIntegerMapper();
@@ -129,11 +129,11 @@ public abstract class Builder {
     /**
      * Returns a new {@link BitemporalMapper}.
      *
-     * @param vtFrom The column name containing the valid time start.
-     * @param vtTo The column name containing the valid time stop.
-     * @param ttFrom The column name containing the transaction time start.
-     * @param ttTo The column name containing the transaction time stop.
-     * @return A new {@link BitemporalMapper}.
+     * @param vtFrom the column name containing the valid time start
+     * @param vtTo the column name containing the valid time stop
+     * @param ttFrom the column name containing the transaction time start
+     * @param ttTo the column name containing the transaction time stop
+     * @return a new {@link BitemporalMapper}
      */
     public static BitemporalMapper bitemporalMapper(String vtFrom, String vtTo, String ttFrom, String ttTo) {
         return new BitemporalMapper(vtFrom, vtTo, ttFrom, ttTo);
@@ -142,7 +142,7 @@ public abstract class Builder {
     /**
      * Returns a new {@link BlobMapper}.
      *
-     * @return A new {@link BlobMapper}.
+     * @return a new {@link BlobMapper}.
      */
     public static BlobMapper blobMapper() {
         return new BlobMapper();
@@ -151,7 +151,7 @@ public abstract class Builder {
     /**
      * Returns a new {@link BooleanMapper}.
      *
-     * @return A new {@link BooleanMapper}.
+     * @return a new {@link BooleanMapper}.
      */
     public static BooleanMapper booleanMapper() {
         return new BooleanMapper();
@@ -160,7 +160,7 @@ public abstract class Builder {
     /**
      * Returns a new {@link DateMapper}.
      *
-     * @return A new {@link DateMapper}.
+     * @return a new {@link DateMapper}.
      */
     public static DateMapper dateMapper() {
         return new DateMapper();
@@ -169,9 +169,9 @@ public abstract class Builder {
     /**
      * Returns a new {@link DateRangeMapper}.
      *
-     * @param from The column containing the start date.
-     * @param to The column containing the end date.
-     * @return A new {@link DateRangeMapper}.
+     * @param from the column containing the start date
+     * @param to the column containing the end date
+     * @return a new {@link DateRangeMapper}
      */
     public static DateRangeMapper dateRangeMapper(String from, String to) {
         return new DateRangeMapper(from, to);
@@ -180,7 +180,7 @@ public abstract class Builder {
     /**
      * Returns a new {@link DoubleMapper}.
      *
-     * @return A new {@link DoubleMapper}.
+     * @return a new {@link DoubleMapper}
      */
     public static DoubleMapper doubleMapper() {
         return new DoubleMapper();
@@ -189,7 +189,7 @@ public abstract class Builder {
     /**
      * Returns a new {@link FloatMapper}.
      *
-     * @return A new {@link FloatMapper}.
+     * @return a new {@link FloatMapper}
      */
     public static FloatMapper floatMapper() {
         return new FloatMapper();
@@ -198,9 +198,9 @@ public abstract class Builder {
     /**
      * Returns a new {@link GeoPointMapper}.
      *
-     * @param latitude The name of the column containing the latitude.
-     * @param longitude The name of the column containing the longitude.
-     * @return A new {@link GeoPointMapper}.
+     * @param latitude the name of the column containing the latitude
+     * @param longitude the name of the column containing the longitude
+     * @return a new {@link GeoPointMapper}
      */
     public static GeoPointMapper geoPointMapper(String latitude, String longitude) {
         return new GeoPointMapper(latitude, longitude);
@@ -209,7 +209,7 @@ public abstract class Builder {
     /**
      * Returns a new {@link GeoShapeMapper}.
      *
-     * @return A new {@link GeoShapeMapper}.
+     * @return a new {@link GeoShapeMapper}
      */
     public static GeoShapeMapper geoShapeMapper() {
         return new GeoShapeMapper();
@@ -218,7 +218,7 @@ public abstract class Builder {
     /**
      * Returns a new {@link InetMapper}.
      *
-     * @return A new {@link InetMapper}.
+     * @return a new {@link InetMapper}
      */
     public static InetMapper inetMapper() {
         return new InetMapper();
@@ -227,7 +227,7 @@ public abstract class Builder {
     /**
      * Returns a new {@link IntegerMapper}.
      *
-     * @return A new {@link IntegerMapper}.
+     * @return a new {@link IntegerMapper}
      */
     public static IntegerMapper integerMapper() {
         return new IntegerMapper();
@@ -236,7 +236,7 @@ public abstract class Builder {
     /**
      * Returns a new {@link LongMapper}.
      *
-     * @return A new {@link LongMapper}.
+     * @return a new {@link LongMapper}
      */
     public static LongMapper longMapper() {
         return new LongMapper();
@@ -245,7 +245,7 @@ public abstract class Builder {
     /**
      * Returns a new {@link StringMapper}.
      *
-     * @return A new {@link StringMapper}.
+     * @return a new {@link StringMapper}
      */
     public static StringMapper stringMapper() {
         return new StringMapper();
@@ -254,7 +254,7 @@ public abstract class Builder {
     /**
      * Returns a new {@link TextMapper}.
      *
-     * @return A new {@link TextMapper}.
+     * @return a new {@link TextMapper}
      */
     public static TextMapper textMapper() {
         return new TextMapper();
@@ -263,7 +263,7 @@ public abstract class Builder {
     /**
      * Returns a new {@link UUIDMapper}.
      *
-     * @return A new {@link UUIDMapper}.
+     * @return a new {@link UUIDMapper}
      */
     public static UUIDMapper uuidMapper() {
         return new UUIDMapper();
@@ -272,8 +272,8 @@ public abstract class Builder {
     /**
      * Returns a new {@link ClasspathAnalyzer}.
      *
-     * @param className An Lucene's {@code Analyzer} full class name.
-     * @return A new {@link ClasspathAnalyzer}.
+     * @param className the Lucene's {@code Analyzer} full class name.
+     * @return a new {@link ClasspathAnalyzer}
      */
     public static ClasspathAnalyzer classpathAnalyzer(String className) {
         return new ClasspathAnalyzer(className);
@@ -285,7 +285,7 @@ public abstract class Builder {
      * @param language The language. The supported languages are English, French, Spanish, Portuguese, Italian,
      * Romanian, German, Dutch, Swedish, Norwegian, Danish, Russian, Finnish, Irish, Hungarian, Turkish, Armenian,
      * Basque and Catalan.
-     * @return A new {@link SnowballAnalyzer}.
+     * @return a new {@link SnowballAnalyzer}
      */
     public static SnowballAnalyzer snowballAnalyzer(String language) {
         return new SnowballAnalyzer(language);
@@ -294,16 +294,16 @@ public abstract class Builder {
     /**
      * Returns a new {@link Search}.
      *
-     * @return a new {@link Search}.
+     * @return a new {@link Search}
      */
     public static Search search() {
         return new Search();
     }
 
     /**
-     * Returns a new {@link AllCondition} for the specified field and value.
+     * Returns a new {@link AllCondition}.
      *
-     * @return A new {@link AllCondition} for the specified field and value.
+     * @return a new {@link AllCondition}
      */
     public static AllCondition all() {
         return new AllCondition();
@@ -312,8 +312,8 @@ public abstract class Builder {
     /**
      * Returns a new {@link BitemporalCondition} for the specified field.
      *
-     * @param field The name of the field to be sorted.
-     * @return A new {@link BitemporalCondition} for the specified field.
+     * @param field The name of the field to be sorted
+     * @return a new {@link BitemporalCondition} for the specified field
      */
     public static BitemporalCondition bitemporal(String field) {
         return new BitemporalCondition(field);
@@ -322,7 +322,7 @@ public abstract class Builder {
     /**
      * Returns a new {@link BooleanCondition}.
      *
-     * @return A new {@link BooleanCondition}.
+     * @return a new {@link BooleanCondition}
      */
     public static BooleanCondition bool() {
         return new BooleanCondition();
@@ -331,9 +331,9 @@ public abstract class Builder {
     /**
      * Returns a new {@link ContainsCondition}.
      *
-     * @param field The name of the field to be matched.
-     * @param values The values of the field to be matched.
-     * @return A new {@link ContainsCondition}.
+     * @param field the name of the field to be matched
+     * @param values the values of the field to be matched
+     * @return a new {@link ContainsCondition}
      */
     public static ContainsCondition contains(String field, Object... values) {
         return new ContainsCondition(field, values);
@@ -342,9 +342,9 @@ public abstract class Builder {
     /**
      * Returns a new {@link FuzzyCondition} for the specified field and value.
      *
-     * @param field The name of the field to be matched.
-     * @param value The value of the field to be matched.
-     * @return A new {@link FuzzyCondition} for the specified field and value.
+     * @param field the name of the field to be matched
+     * @param value the value of the field to be matched
+     * @return a new {@link FuzzyCondition} for the specified field and value
      */
     public static FuzzyCondition fuzzy(String field, String value) {
         return new FuzzyCondition(field, value);
@@ -353,8 +353,8 @@ public abstract class Builder {
     /**
      * Returns a new {@link LuceneCondition} with the specified query.
      *
-     * @param query The Lucene syntax query.
-     * @return A new {@link LuceneCondition} with the specified query.
+     * @param query the Lucene syntax query
+     * @return a new {@link LuceneCondition} with the specified query
      */
     public static LuceneCondition lucene(String query) {
         return new LuceneCondition(query);
@@ -363,18 +363,18 @@ public abstract class Builder {
     /**
      * Returns a new {@link MatchCondition} for the specified field and value.
      *
-     * @param field The name of the field to be matched.
-     * @param value The value of the field to be matched.
-     * @return A new {@link MatchCondition} for the specified field and value.
+     * @param field the name of the field to be matched
+     * @param value the value of the field to be matched
+     * @return a new {@link MatchCondition} for the specified field and value
      */
     public static MatchCondition match(String field, Object value) {
         return new MatchCondition(field, value);
     }
 
     /**
-     * Returns a new {@link NoneCondition} for the specified field and value.
+     * Returns a new {@link NoneCondition}.
      *
-     * @return A new {@link NoneCondition} for the specified field and value.
+     * @return a new {@link NoneCondition}
      */
     public static NoneCondition none() {
         return new NoneCondition();
@@ -383,9 +383,9 @@ public abstract class Builder {
     /**
      * Returns a new {@link PhraseCondition} for the specified field and values.
      *
-     * @param field The name of the field to be matched.
-     * @param value The text to be matched.
-     * @return A new {@link PhraseCondition} for the specified field and values.
+     * @param field the name of the field to be matched
+     * @param value the text to be matched
+     * @return a new {@link PhraseCondition}
      */
     public static PhraseCondition phrase(String field, String value) {
         return new PhraseCondition(field, value);
@@ -394,9 +394,9 @@ public abstract class Builder {
     /**
      * Returns a new {@link PrefixCondition} for the specified field and value.
      *
-     * @param field The name of the field to be matched.
-     * @param value The value of the field to be matched.
-     * @return A new {@link PrefixCondition} for the specified field and value.
+     * @param field the name of the field to be matched
+     * @param value the value of the field to be matched
+     * @return a new {@link PrefixCondition}
      */
     public static PrefixCondition prefix(String field, String value) {
         return new PrefixCondition(field, value);
@@ -405,8 +405,8 @@ public abstract class Builder {
     /**
      * Returns a new {@link RangeCondition} for the specified field.
      *
-     * @param field The name of the field to be matched.
-     * @return A new {@link RangeCondition} for the specified field.
+     * @param field the name of the field to be matched
+     * @return a new {@link RangeCondition} for the specified field
      */
     public static RangeCondition range(String field) {
         return new RangeCondition(field);
@@ -415,9 +415,9 @@ public abstract class Builder {
     /**
      * Returns a new {@link RegexpCondition} for the specified field and value.
      *
-     * @param field The name of the field to be matched.
-     * @param value The value of the field to be matched.
-     * @return A new {@link RegexpCondition} for the specified field and value.
+     * @param field the name of the field to be matched
+     * @param value the value of the field to be matched
+     * @return a new {@link RegexpCondition} for the specified field and value
      */
     public static RegexpCondition regexp(String field, String value) {
         return new RegexpCondition(field, value);
@@ -426,9 +426,9 @@ public abstract class Builder {
     /**
      * Returns a new {@link WildcardCondition} for the specified field and value.
      *
-     * @param field The name of the field to be matched.
-     * @param value The value of the field to be matched.
-     * @return A new {@link WildcardCondition} for the specified field and value.
+     * @param field the name of the field to be matched
+     * @param value the value of the field to be matched
+     * @return a new {@link WildcardCondition}
      */
     public static WildcardCondition wildcard(String field, String value) {
         return new WildcardCondition(field, value);
@@ -437,12 +437,12 @@ public abstract class Builder {
     /**
      * Returns a new {@link GeoBBoxCondition} with the specified field name and bounding box coordinates.
      *
-     * @param field The name of the field to be matched.
-     * @param minLongitude The minimum accepted longitude.
-     * @param maxLongitude The maximum accepted longitude.
-     * @param minLatitude The minimum accepted latitude.
-     * @param maxLatitude The maximum accepted latitude.
-     * @return A new {@link GeoBBoxCondition}.
+     * @param field the name of the field to be matched
+     * @param minLongitude the minimum accepted longitude
+     * @param maxLongitude the maximum accepted longitude
+     * @param minLatitude the minimum accepted latitude
+     * @param maxLatitude the maximum accepted latitude
+     * @return a new {@link GeoBBoxCondition}
      */
     public static GeoBBoxCondition geoBBox(String field,
                                            double minLongitude,
@@ -455,11 +455,11 @@ public abstract class Builder {
     /**
      * Returns a new {@link GeoDistanceCondition} with the specified field reference point.
      *
-     * @param field The name of the field to be matched.
-     * @param longitude The longitude of the reference point.
-     * @param latitude The latitude of the reference point.
-     * @param maxDistance The max allowed distance.
-     * @return A new {@link GeoDistanceCondition}.
+     * @param field the name of the field to be matched
+     * @param longitude the longitude of the reference point
+     * @param latitude the latitude of the reference point
+     * @param maxDistance the max allowed distance
+     * @return a new {@link GeoDistanceCondition}
      */
     public static GeoDistanceCondition geoDistance(String field,
                                                    double longitude,
@@ -471,11 +471,9 @@ public abstract class Builder {
     /**
      * Returns a new {@link GeoShapeCondition} with the specified field reference point.
      *
-     * /** Constructor receiving the name of the field and the shape.
-     *
      * @param field the name of the field
      * @param shape the shape in <a href="http://en.wikipedia.org/wiki/Well-known_text"> WKT</a> format
-     * @return A new {@link GeoShapeCondition}.
+     * @return a new {@link GeoShapeCondition}.
      */
     public static GeoShapeCondition geoShape(String field, String shape) {
         return new GeoShapeCondition(field, shape);
@@ -531,8 +529,8 @@ public abstract class Builder {
     /**
      * Returns a new {@link DateRangeCondition} with the specified field reference point.
      *
-     * @param field The name of the field to be matched.
-     * @return A new {@link DateRangeCondition}.
+     * @param field the name of the field to be matched
+     * @return a new {@link DateRangeCondition}
      */
     public static DateRangeCondition dateRange(String field) {
         return new DateRangeCondition(field);
@@ -541,8 +539,8 @@ public abstract class Builder {
     /**
      * Returns a new {@link SimpleSortField} for the specified field.
      *
-     * @param field The name of the field to be sorted.
-     * @return A new {@link SimpleSortField} for the specified field.
+     * @param field the name of the field to be sorted
+     * @return a new {@link SimpleSortField} for the specified field
      */
     public static SimpleSortField field(String field) {
         return new SimpleSortField(field);
@@ -551,10 +549,10 @@ public abstract class Builder {
     /**
      * Returns a new {@link GeoDistanceSortField} for the specified field.
      *
-     * @param mapper The name of the field to be used for sort.
-     * @param longitude The longitude in degrees of the point to min distance sort by.
-     * @param latitude The latitude in degrees of the point to min distance sort by.
-     * @return A new {@link GeoDistanceSortField} for the specified field.
+     * @param mapper the name of the field to be used for sort
+     * @param longitude the longitude in degrees of the point to min distance sort by
+     * @param latitude the latitude in degrees of the point to min distance sort by
+     * @return a new {@link GeoDistanceSortField} for the specified field
      */
     public static GeoDistanceSortField geoDistanceSortField(String mapper, double longitude, double latitude) {
         return new GeoDistanceSortField(mapper, longitude, latitude);

@@ -39,8 +39,8 @@ public class ContainsCondition extends Condition {
     /**
      * Creates a new {@link ContainsCondition} for the specified field and value.
      *
-     * @param field The name of the field to be matched.
-     * @param values The values of the field to be matched.
+     * @param field the name of the field to be matched
+     * @param values the values of the field to be matched
      */
     @JsonCreator
     public ContainsCondition(@JsonProperty("field") String field, @JsonProperty("values") Object... values) {

@@ -30,17 +30,19 @@ import java.math.BigDecimal;
  */
 public class BigDecimalMapper extends SingleColumnMapper<BigDecimalMapper> {
 
+    /** The max number of digits for the integer part. */
     @JsonProperty("integer_digits")
     Integer integerDigits;
 
+    /** The max number of digits for the decimal part. */
     @JsonProperty("decimal_digits")
     Integer decimalDigits;
 
     /**
      * Sets the max number of digits for the integer part.
      *
-     * @param integerDigits The max number of digits for the integer part.
-     * @return This.
+     * @param integerDigits the max number of integer digits
+     * @return this with the specified max number of integer digits
      */
     public BigDecimalMapper integerDigits(Integer integerDigits) {
         this.integerDigits = integerDigits;
@@ -50,8 +52,8 @@ public class BigDecimalMapper extends SingleColumnMapper<BigDecimalMapper> {
     /**
      * Sets the max number of digits for the decimal part.
      *
-     * @param decimalDigits The max number of digits for the decimal part.
-     * @return This.
+     * @param decimalDigits the max number of decimal digits
+     * @return this with the specified max number of decimal digits
      */
     public BigDecimalMapper decimalDigits(Integer decimalDigits) {
         this.decimalDigits = decimalDigits;

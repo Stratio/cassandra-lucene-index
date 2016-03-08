@@ -51,10 +51,10 @@ public class GeoDistanceCondition extends Condition {
     /**
      * Returns a new {@link GeoDistanceCondition} with the specified field reference point.
      *
-     * @param field The name of the field to be matched.
-     * @param latitude The latitude of the reference point.
-     * @param longitude The longitude of the reference point.
-     * @param maxDistance The max allowed distance.
+     * @param field the name of the field to be matched
+     * @param latitude the latitude of the reference point
+     * @param longitude the longitude of the reference point
+     * @param maxDistance the max allowed distance
      */
     @JsonCreator
     public GeoDistanceCondition(@JsonProperty("field") String field,
@@ -70,8 +70,8 @@ public class GeoDistanceCondition extends Condition {
     /**
      * Sets the min allowed distance.
      *
-     * @param minDistance The min allowed distance.
-     * @return This.
+     * @param minDistance the min allowed distance
+     * @return this
      */
     public GeoDistanceCondition minDistance(String minDistance) {
         this.minDistance = minDistance;

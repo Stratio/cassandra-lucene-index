@@ -56,8 +56,8 @@ public abstract class Mapper<T extends Mapper> extends Builder {
     /**
      * Sets if the field must be validated.
      *
-     * @param validated if the field must be validated.
-     * @return This.
+     * @param validated if the field must be validated
+     * @return this with the specified {@code validated} option
      */
     @SuppressWarnings("unchecked")
     public final T validated(Boolean validated) {

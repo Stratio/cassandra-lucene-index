@@ -43,8 +43,8 @@ public class RegexpCondition extends Condition {
     /**
      * Creates a new {@link RegexpCondition} for the specified field and expression.
      *
-     * @param field The name of the field to be matched.
-     * @param value The wildcard expression to be matched.
+     * @param field the name of the field to be matched
+     * @param value the wildcard expression to be matched
      */
     @JsonCreator
     public RegexpCondition(@JsonProperty("field") String field, @JsonProperty("value") String value) {

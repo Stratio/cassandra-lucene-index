@@ -43,8 +43,8 @@ public class WildcardCondition extends Condition {
     /**
      * Creates a new {@link WildcardCondition} for the specified field and value.
      *
-     * @param field The name of the field to be matched.
-     * @param value The wildcard expression to be matched.
+     * @param field the name of the field to be matched
+     * @param value the wildcard expression to be matched
      */
     @JsonCreator
     public WildcardCondition(@JsonProperty("field") String field, @JsonProperty("value") String value) {

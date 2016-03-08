@@ -59,11 +59,10 @@ public abstract class Condition extends Builder {
 
     /**
      * Sets the boost for the {@code Condition} to be built. Documents matching this condition will (in addition to the
-     * normal weightings) have their score multiplied by {@code boost}. If {@code null}, then {@code
-     * Condition#DEFAULT_BOOST}
+     * normal weightings) have their score multiplied by {@code boost}. Defaults to {@code 1.0}.
      *
-     * @param boost The boost for the {@code Condition} to be built.
-     * @return This builder with the specified boost.
+     * @param boost the boost for the {@code Condition} to be built
+     * @return this with the specified boost
      */
     @SuppressWarnings("unchecked")
     public Condition boost(float boost) {
@@ -73,11 +72,10 @@ public abstract class Condition extends Builder {
 
     /**
      * Sets the boost for the {@code Condition} to be built. Documents matching this condition will (in addition to the
-     * normal weightings) have their score multiplied by {@code boost}. If {@code null}, then {@code
-     * Condition#DEFAULT_BOOST}
+     * normal weightings) have their score multiplied by {@code boost}. Defaults to {@code 1.0}.
      *
-     * @param boost The boost for the {@code Condition} to be built.
-     * @return This builder with the specified boost.
+     * @param boost the boost for the {@code Condition} to be built
+     * @return this with the specified boost
      */
     @SuppressWarnings("unchecked")
     public Condition boost(Number boost) {

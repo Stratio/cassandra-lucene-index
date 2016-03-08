@@ -33,8 +33,8 @@ public class StringMapper extends SingleColumnMapper<StringMapper> {
     /**
      * Sets if the {@code StringMapper} to be built must be case sensitive.
      *
-     * @param caseSensitive If the {@code StringMapper} to be built must be case sensitive.
-     * @return This.
+     * @param caseSensitive if the {@code StringMapper} must be case sensitive
+     * @return this with the specified casing option
      */
     public StringMapper caseSensitive(Boolean caseSensitive) {
         this.caseSensitive = caseSensitive;

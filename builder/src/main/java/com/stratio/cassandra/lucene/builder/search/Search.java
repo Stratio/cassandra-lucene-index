@@ -26,7 +26,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * Class representing an Lucene index search. It is formed by an optional querying {@link Condition} and an optional
- * filtering {@link Condition}. It can be translated to a Lucene {@code Query} using a {@code Schema}.
+ * filtering {@link Condition}.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
@@ -53,10 +53,10 @@ public class Search extends Builder {
     }
 
     /**
-     * Returns this {@link Search} with the specified querying condition.
+     * Sets the querying condition. The specified condition will be taken into account in the relevance scoring.
      *
-     * @param query The querying condition to be set.
-     * @return This {@link Search} with the specified querying condition.
+     * @param query the querying condition to be set
+     * @return this with the specified query
      */
     public Search query(Condition query) {
         this.query = query;
@@ -64,10 +64,10 @@ public class Search extends Builder {
     }
 
     /**
-     * Returns this {@link Search} with the specified filtering condition.
+     * Sets the filtering condition. The specified condition won't be taken into account in the relevance scoring.
      *
-     * @param filter The filtering condition to be set.
-     * @return This {@link Search} with the specified filtering condition.
+     * @param filter the filtering condition to be set
+     * @return this with the specified filter
      */
     public Search filter(Condition filter) {
         this.filter = filter;
@@ -75,10 +75,10 @@ public class Search extends Builder {
     }
 
     /**
-     * Returns this {@link Search} with the specified sorting.
+     * Sets the sorting fields.
      *
-     * @param sortFields The sorting fields to be set.
-     * @return This {@link Search} with the specified sorting.
+     * @param sortFields the sorting fields to be set
+     * @return this with the specified sort
      */
     public Search sort(SortField... sortFields) {
         this.sort = new Sort(sortFields);
@@ -86,18 +86,15 @@ public class Search extends Builder {
     }
 
     /**
-     * Sets if the {@link Search} must refresh the index before reading it.
+     * Sets if the {@link Search} must refresh the Lucene's index searcher before using it. Refresh is a costly
+     * operation so you should use it only when it is strictly required.
      *
-     * @param refresh If the {@link Search} must refresh the index before reading it.
-     * @return This {@link Search} with the specified refresh.
+     * @param refresh if the {@link Search} must refresh the index before reading it
+     * @return this with the specified refresh
      */
     public Search refresh(Boolean refresh) {
         this.refresh = refresh;
         return this;
-    }
-
-    public boolean isTopK() {
-        return query != null || sort != null;
     }
 
 }

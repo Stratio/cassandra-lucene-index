@@ -35,7 +35,7 @@ import org.apache.cassandra.utils.ByteBufferUtil;
 import java.nio.ByteBuffer;
 
 /**
- * Class for several clustering key mappings between Cassandra and Lucene.
+ * Class for several regular column mappings between Cassandra and Lucene.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */

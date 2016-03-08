@@ -40,8 +40,8 @@ public abstract class SortField extends Builder {
     /**
      * Returns this {@link SortField} with the specified reverse option.
      *
-     * @param reverse {@code true} if natural order should be reversed.
-     * @return This.
+     * @param reverse {@code true} if natural order should be reversed, {@code false} otherwise
+     * @return this with the specified reverse option set
      */
     public SortField reverse(Boolean reverse) {
         this.reverse = reverse;

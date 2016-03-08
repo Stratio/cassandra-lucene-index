@@ -39,7 +39,7 @@ public class LuceneCondition extends Condition {
     /**
      * Returns a new {@link LuceneCondition} with the specified query.
      *
-     * @param query The Lucene query syntax expression.
+     * @param query the Lucene query syntax expression
      */
     @JsonCreator
     public LuceneCondition(@JsonProperty("query") String query) {
@@ -47,11 +47,10 @@ public class LuceneCondition extends Condition {
     }
 
     /**
-     * Returns this builder with the specified default field name. This is the field where the clauses will be applied
-     * by default.
+     * Set the default field name. This is the field where the clauses will be applied by default.
      *
-     * @param defaultField The name of the field where the clauses will be applied by default.
-     * @return This builder with the specified name of the default field.
+     * @param defaultField the name of the field where the clauses will be applied by default
+     * @return this with the specified default field
      */
     public LuceneCondition defaultField(String defaultField) {
         this.defaultField = defaultField;

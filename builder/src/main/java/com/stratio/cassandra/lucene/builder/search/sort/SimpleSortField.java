@@ -28,14 +28,14 @@ import org.codehaus.jackson.annotate.JsonProperty;
  */
 public class SimpleSortField extends SortField {
 
-    /** The name of the field to be used for sort. */
+    /** The name of the field to be used for sorting. */
     @JsonProperty("field")
     final String field;
 
     /**
      * Creates a new {@link SimpleSortField} for the specified field and reverse option.
      *
-     * @param field The name of the field to be used for sort.
+     * @param field the name of the field to be used for sorting
      */
     @JsonCreator
     public SimpleSortField(@JsonProperty("field") String field) {

@@ -27,14 +27,15 @@ import org.codehaus.jackson.annotate.JsonProperty;
  */
 public class LongMapper extends SingleColumnMapper<LongMapper> {
 
+    /** The field's index-time boost. */
     @JsonProperty("boost")
     Float boost;
 
     /**
      * Sets the boost to be used.
      *
-     * @param boost The boost to be used.
-     * @return This.
+     * @param boost the boost
+     * @return this with the specified boost
      */
     public LongMapper boost(Float boost) {
         this.boost = boost;

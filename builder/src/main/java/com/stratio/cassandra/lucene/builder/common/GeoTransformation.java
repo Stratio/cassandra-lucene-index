@@ -50,8 +50,8 @@ public abstract class GeoTransformation extends Builder {
         /**
          * Sets the max allowed distance.
          *
-         * @param maxDistance the min distance
-         * @return this with the specified min distance
+         * @param maxDistance the max distance
+         * @return this with the specified max distance
          */
         public Buffer maxDistance(String maxDistance) {
             this.maxDistance = maxDistance;

@@ -55,10 +55,10 @@ public class BitemporalMapper extends Mapper<BitemporalMapper> {
     /**
      * Returns a new {@link BitemporalMapper}.
      *
-     * @param vtFrom The column name containing the valid time start.
-     * @param vtTo The column name containing the valid time stop.
-     * @param ttFrom The column name containing the transaction time start.
-     * @param ttTo The column name containing the transaction time stop.
+     * @param vtFrom the column name containing the valid time start
+     * @param vtTo the column name containing the valid time stop
+     * @param ttFrom the column name containing the transaction time start
+     * @param ttTo the column name containing the transaction time stop
      */
     @JsonCreator
     public BitemporalMapper(@JsonProperty("vt_from") String vtFrom,
@@ -74,8 +74,8 @@ public class BitemporalMapper extends Mapper<BitemporalMapper> {
     /**
      * Sets the date format pattern to be used.
      *
-     * @param pattern The date format pattern to be used.
-     * @return This.
+     * @param pattern the date pattern
+     * @return this with the specified date pattern
      */
     public BitemporalMapper pattern(String pattern) {
         this.pattern = pattern;
@@ -85,8 +85,8 @@ public class BitemporalMapper extends Mapper<BitemporalMapper> {
     /**
      * Sets the now value to be used.
      *
-     * @param nowValue The now value to be used.
-     * @return This.
+     * @param nowValue the now value
+     * @return this with the specified now value
      */
     public BitemporalMapper nowValue(Object nowValue) {
         this.nowValue = nowValue;

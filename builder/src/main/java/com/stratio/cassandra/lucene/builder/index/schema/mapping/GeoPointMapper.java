@@ -51,12 +51,11 @@ public class GeoPointMapper extends Mapper<GeoPointMapper> {
     /**
      * Builds a new {@code GeoPointMapper}.
      *
-     * @param latitude The name of the column containing the latitude.
-     * @param longitude The name of the column containing the longitude.
+     * @param latitude the name of the column containing the latitude
+     * @param longitude the name of the column containing the longitude
      */
     @JsonCreator
-    public GeoPointMapper(@JsonProperty("latitude") String latitude,
-                          @JsonProperty("longitude") String longitude) {
+    public GeoPointMapper(@JsonProperty("latitude") String latitude, @JsonProperty("longitude") String longitude) {
         this.latitude = latitude;
         this.longitude = longitude;
     }
@@ -64,8 +63,8 @@ public class GeoPointMapper extends Mapper<GeoPointMapper> {
     /**
      * Sets the maximum number of levels in the tree.
      *
-     * @param maxLevels The maximum number of levels in the tree.
-     * @return This
+     * @param maxLevels the maximum number of levels
+     * @return this with hte specified max number of levels
      */
     public GeoPointMapper maxLevels(Integer maxLevels) {
         this.maxLevels = maxLevels;
@@ -73,10 +72,10 @@ public class GeoPointMapper extends Mapper<GeoPointMapper> {
     }
 
     /**
-     * Sets if the field supports searching.
+     * Sets if the field must be indexed to support searching.
      *
-     * @param indexed if the field supports searching.
-     * @return This.
+     * @param indexed {@code true} if the field supports searching, {@code false} otherwise
+     * @return this with the specified {@code indexes} option
      */
     public final GeoPointMapper indexed(Boolean indexed) {
         this.indexed = indexed;
@@ -84,10 +83,10 @@ public class GeoPointMapper extends Mapper<GeoPointMapper> {
     }
 
     /**
-     * Sets if the field supports sorting.
+     * Sets if the field must be indexed to support sorting.
      *
-     * @param sorted if the field supports sorting.
-     * @return This.
+     * @param sorted {@code true} if the field supports sorting, {@code false} otherwise
+     * @return this with the specified {@code sorted} option
      */
     public final GeoPointMapper sorted(Boolean sorted) {
         this.sorted = sorted;

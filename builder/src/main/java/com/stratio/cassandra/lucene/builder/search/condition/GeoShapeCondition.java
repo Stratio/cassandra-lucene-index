@@ -75,6 +75,7 @@ public class GeoShapeCondition extends Condition {
 
     /**
      * Sets the transformations to be applied to the shape before using it for indexing it.
+     * Possible values are {@code intersects}, {@code is_within} and {@code contains}. Defaults to {@code is_within}.
      *
      * @param transformations the sequence of transformations
      * @return this with the transformations set

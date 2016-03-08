@@ -23,7 +23,7 @@ import org.codehaus.jackson.annotate.JsonSubTypes;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
 
 /**
- * An Lucene {@code Analyzer}.
+ * A Lucene {@code Analyzer}.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */

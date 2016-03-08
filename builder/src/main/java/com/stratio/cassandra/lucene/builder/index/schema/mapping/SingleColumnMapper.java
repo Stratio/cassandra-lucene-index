@@ -43,8 +43,8 @@ public abstract class SingleColumnMapper<T extends SingleColumnMapper<T>> extend
     /**
      * Sets if the field supports searching.
      *
-     * @param indexed if the field supports searching.
-     * @return This.
+     * @param indexed if the field supports searching
+     * @return this with the specified {@code indexed} option
      */
     @SuppressWarnings("unchecked")
     public final T indexed(Boolean indexed) {
@@ -55,8 +55,8 @@ public abstract class SingleColumnMapper<T extends SingleColumnMapper<T>> extend
     /**
      * Sets if the field supports sorting.
      *
-     * @param sorted if the field supports sorting.
-     * @return This.
+     * @param sorted if the field supports sorting
+     * @return this with the specified {@code sorted} option
      */
     @SuppressWarnings("unchecked")
     public final T sorted(Boolean sorted) {
@@ -67,8 +67,8 @@ public abstract class SingleColumnMapper<T extends SingleColumnMapper<T>> extend
     /**
      * Sets the name of the Cassandra column to be mapped.
      *
-     * @param column The name of the Cassandra column to be mapped.
-     * @return This.
+     * @param column the name of the column to be mapped
+     * @return this with the specified column
      */
     @SuppressWarnings("unchecked")
     public final T column(String column) {

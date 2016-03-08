@@ -30,9 +30,9 @@ public class BuilderException extends RuntimeException {
     /**
      * Constructs a new index exception with the specified formatted detail message.
      *
-     * @param cause The cause.
-     * @param message The detail message.
-     * @param args Arguments referenced by the format specifiers in the format message.
+     * @param cause the cause, which is saved for later retrieval by the {@link #getCause()} method
+     * @param message the detail message, which is saved for later retrieval by the {@link #getMessage()} method
+     * @param args arguments referenced by the format specifiers in the format message
      */
     public BuilderException(Throwable cause, String message, Object... args) {
         super(String.format(message, args), cause);

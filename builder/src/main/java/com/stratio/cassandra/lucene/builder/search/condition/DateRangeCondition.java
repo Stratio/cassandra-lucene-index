@@ -32,11 +32,11 @@ public class DateRangeCondition extends Condition {
     @JsonProperty("field")
     final String field;
 
-    /** The lower accepted date. Maybe null meaning no lower limit. */
+    /** The lower accepted date. Maybe {@code null} meaning no lower limit. */
     @JsonProperty("from")
     Object from;
 
-    /** The upper accepted date. Maybe null meaning no upper limit. */
+    /** The upper accepted date. Maybe {@code null} meaning no upper limit. */
     @JsonProperty("to")
     Object to;
 
@@ -47,7 +47,7 @@ public class DateRangeCondition extends Condition {
     /**
      * Returns a new {@link DateRangeCondition} with the specified field reference point.
      *
-     * @param field The name of the field to be matched.
+     * @param field the name of the field to be matched
      */
     @JsonCreator
     public DateRangeCondition(@JsonProperty("field") String field) {
@@ -55,10 +55,10 @@ public class DateRangeCondition extends Condition {
     }
 
     /**
-     * Sets the lower accepted date. Maybe null meaning no lower limit.
+     * Sets the lower accepted date. Maybe {@code null} meaning no lower limit.
      *
-     * @param from The lower accepted date. Maybe null meaning no lower limit.
-     * @return This.
+     * @param from the lower accepted date, or {@code null} if there is no lower limit
+     * @return this with the specified lower accepted date
      */
     public DateRangeCondition from(Object from) {
         this.from = from;
@@ -66,10 +66,10 @@ public class DateRangeCondition extends Condition {
     }
 
     /**
-     * Sets the upper accepted date. Maybe null meaning no lower limit.
+     * Sets the upper accepted date. Maybe {@code null} meaning no upper limit.
      *
-     * @param to The upper accepted date. Maybe null meaning no lower limit.
-     * @return This.
+     * @param to the upper accepted date, or {@code null} if there is no upper limit
+     * @return this with the specified upper accepted date
      */
     public DateRangeCondition to(Object to) {
         this.to = to;
@@ -77,10 +77,11 @@ public class DateRangeCondition extends Condition {
     }
 
     /**
-     * Sets the operation to be performed.
+     * Sets the spatial operation to be performed.
+     * Possible values are {@code intersects}, {@code is_within} and {@code contains}. Defaults to {@code intersects}.
      *
-     * @param operation The operation to be performed.
-     * @return This.
+     * @param operation the operation
+     * @return this with the specified operation
      */
     public DateRangeCondition operation(String operation) {
         this.operation = operation;

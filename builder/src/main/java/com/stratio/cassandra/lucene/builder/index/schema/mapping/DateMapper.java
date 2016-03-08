@@ -27,14 +27,15 @@ import org.codehaus.jackson.annotate.JsonProperty;
  */
 public class DateMapper extends SingleColumnMapper<DateMapper> {
 
+    /** The date pattern to be used. */
     @JsonProperty("pattern")
     String pattern;
 
     /**
      * Sets the date format pattern to be used.
      *
-     * @param pattern The date format pattern to be used.
-     * @return This.
+     * @param pattern the date pattern
+     * @return this with the specified date pattern
      */
     public DateMapper pattern(String pattern) {
         this.pattern = pattern;
