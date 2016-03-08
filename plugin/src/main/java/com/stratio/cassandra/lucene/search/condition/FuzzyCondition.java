@@ -69,15 +69,15 @@ public class FuzzyCondition extends SingleColumnCondition {
      * @param boost The boost for this query clause. Documents matching this clause will (in addition to the normal
      * weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link #DEFAULT_BOOST} is used as
      * default.
-     * @param field The field name.
-     * @param value The field fuzzy value.
-     * @param maxEdits Must be {@literal >=} 0 and {@literal <=} {@link LevenshteinAutomata#MAXIMUM_SUPPORTED_DISTANCE}.
-     * @param prefixLength Length of common (non-fuzzy) prefix
+     * @param field the field name
+     * @param value the field fuzzy value
+     * @param maxEdits must be {@literal >=} 0 and {@literal <=} {@link LevenshteinAutomata#MAXIMUM_SUPPORTED_DISTANCE}.
+     * @param prefixLength length of common (non-fuzzy) prefix
      * @param maxExpansions The maximum number of terms to match. If this number is greater than {@link
      * org.apache.lucene.search.BooleanQuery#getMaxClauseCount} when the query is rewritten, then the maxClauseCount
      * will be used instead.
-     * @param transpositions True if transpositions should be treated as a primitive edit operation. If this is false,
-     * comparisons will implement the classic Levenshtein algorithm.
+     * @param transpositions {@code true} if transpositions should be treated as a primitive edit operation. If this is
+     * {@code false}, comparisons will implement the classic Levenshtein algorithm.
      */
     public FuzzyCondition(Float boost,
                           String field,

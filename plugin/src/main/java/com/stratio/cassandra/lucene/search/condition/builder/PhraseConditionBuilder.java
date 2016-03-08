@@ -44,8 +44,8 @@ public class PhraseConditionBuilder extends ConditionBuilder<PhraseCondition, Ph
     /**
      * Returns a new {@link PhraseConditionBuilder} with the specified field name and values to be matched.
      *
-     * @param field The name of the field to be matched.
-     * @param value The phrase terms to be matched.
+     * @param field the name of the field to be matched
+     * @param value the phrase terms to be matched
      */
     @JsonCreator
     public PhraseConditionBuilder(@JsonProperty("field") String field, @JsonProperty("value") String value) {
@@ -57,8 +57,8 @@ public class PhraseConditionBuilder extends ConditionBuilder<PhraseCondition, Ph
      * Returns this builder with the specified slop. Slop is the number of other words permitted between words in
      * phrase.
      *
-     * @param slop The number of other words permitted between words in phrase to set.
-     * @return this builder with the specified slop.
+     * @param slop the number of other words permitted between words in phrase to set
+     * @return this with the specified slop
      */
     public PhraseConditionBuilder slop(Integer slop) {
         this.slop = slop;
@@ -68,7 +68,7 @@ public class PhraseConditionBuilder extends ConditionBuilder<PhraseCondition, Ph
     /**
      * Returns the {@link PhraseCondition} represented by this builder.
      *
-     * @return The {@link PhraseCondition} represented by this builder.
+     * @return a new phrase condition
      */
     @Override
     public PhraseCondition build() {

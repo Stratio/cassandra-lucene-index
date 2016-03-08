@@ -68,8 +68,8 @@ public class FuzzyConditionBuilder extends ConditionBuilder<FuzzyCondition, Fuzz
     /**
      * Returns this builder with the specified Damerau-Levenshtein max distance.
      *
-     * @param maxEdits The Damerau-Levenshtein max distance.
-     * @return This builder with the specified Damerau-Levenshtein max distance.
+     * @param maxEdits the Damerau-Levenshtein max distance
+     * @return this with the specified Damerau-Levenshtein max distance
      */
     public FuzzyConditionBuilder maxEdits(Integer maxEdits) {
         this.maxEdits = maxEdits;
@@ -79,8 +79,8 @@ public class FuzzyConditionBuilder extends ConditionBuilder<FuzzyCondition, Fuzz
     /**
      * Returns this builder with the length of common (non-fuzzy) prefix.
      *
-     * @param prefixLength The length of common (non-fuzzy) prefix.
-     * @return This builder with the length of common (non-fuzzy) prefix.
+     * @param prefixLength the length of common (non-fuzzy) prefix
+     * @return this with the specified prefix length
      */
     public FuzzyConditionBuilder prefixLength(Integer prefixLength) {
         this.prefixLength = prefixLength;
@@ -90,8 +90,8 @@ public class FuzzyConditionBuilder extends ConditionBuilder<FuzzyCondition, Fuzz
     /**
      * Returns this builder with the specified maximum number of terms to match.
      *
-     * @param maxExpansions The maximum number of terms to match.
-     * @return This builder with the specified maximum number of terms to match.
+     * @param maxExpansions the maximum number of terms to match
+     * @return the specified max expansions
      */
     public FuzzyConditionBuilder maxExpansions(Integer maxExpansions) {
         this.maxExpansions = maxExpansions;

@@ -59,16 +59,16 @@ public abstract class Condition {
     /**
      * Returns the Lucene {@link Query} representation of this condition.
      *
-     * @param schema The schema to be used.
-     * @return The Lucene {@link Query} representation of this condition.
+     * @param schema the schema to be used
+     * @return The Lucene query
      */
     public abstract Query query(Schema schema);
 
     /**
      * Returns the Lucene {@link Filter} representation of this condition.
      *
-     * @param schema The schema to be used.
-     * @return The Lucene {@link Filter} representation of this condition.
+     * @param schema the schema to be used
+     * @return the Lucene filter
      */
     public Filter filter(Schema schema) {
         return new QueryWrapperFilter(query(schema));

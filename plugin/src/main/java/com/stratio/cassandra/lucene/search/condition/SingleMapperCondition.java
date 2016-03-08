@@ -41,11 +41,11 @@ public abstract class SingleMapperCondition<T extends Mapper> extends SingleFiel
     /**
      * Constructor using the boost and the name of the mapper.
      *
-     * @param boost The boost for this query clause. Documents matching this clause will (in addition to the normal
-     * weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link #DEFAULT_BOOST} is used as
-     * default.
-     * @param field The name of the field to be matched.
-     * @param type The type of the {@link Mapper}.
+     * @param boost the boost for this query clause. Documents matching this clause will (in addition to the normal
+     *              weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link
+     *              #DEFAULT_BOOST} will be used as default
+     * @param field the name of the field to be matched
+     * @param type the type of the {@link Mapper}
      */
     protected SingleMapperCondition(Float boost, String field, Class<? extends T> type) {
         super(boost, field);

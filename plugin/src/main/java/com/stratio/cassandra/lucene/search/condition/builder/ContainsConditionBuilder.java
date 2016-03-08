@@ -40,8 +40,8 @@ public class ContainsConditionBuilder extends ConditionBuilder<ContainsCondition
     /**
      * Creates a new {@link ContainsConditionBuilder} for the specified field and value.
      *
-     * @param field The name of the field to be matched.
-     * @param values The values of the field to be matched.
+     * @param field the name of the field to be matched
+     * @param values the values of the field to be matched
      */
     @JsonCreator
     public ContainsConditionBuilder(@JsonProperty("field") String field, @JsonProperty("values") Object... values) {
@@ -52,7 +52,7 @@ public class ContainsConditionBuilder extends ConditionBuilder<ContainsCondition
     /**
      * Returns the {@link ContainsCondition} represented by this builder.
      *
-     * @return The {@link ContainsCondition} represented by this builder.
+     * @return a new contains condition
      */
     @Override
     public ContainsCondition build() {

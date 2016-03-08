@@ -71,13 +71,13 @@ public class GeoPointMapper extends Mapper {
     /**
      * Builds a new {@link GeoPointMapper}.
      *
-     * @param field The name of the field.
-     * @param indexed If the field supports searching.
-     * @param sorted If the field supports sorting.
-     * @param validated If the field must be validated.
-     * @param latitude The name of the column containing the latitude.
-     * @param longitude The name of the column containing the longitude.
-     * @param maxLevels The maximum number of levels in the tree.
+     * @param field the name of the field
+     * @param indexed if the field supports searching
+     * @param sorted if the field supports sorting
+     * @param validated if the field must be validated
+     * @param latitude the name of the column containing the latitude
+     * @param longitude the name of the column containing the longitude
+     * @param maxLevels the maximum number of levels in the tree
      */
     public GeoPointMapper(String field,
                           Boolean indexed,
@@ -124,9 +124,9 @@ public class GeoPointMapper extends Mapper {
     /**
      * Checks if the specified latitude is correct.
      *
-     * @param name The name of the latitude field.
-     * @param latitude The value of the latitude field.
-     * @return The latitude.
+     * @param name the name of the latitude field
+     * @param latitude the value of the latitude field
+     * @return the latitude
      */
     public static Double checkLatitude(String name, Double latitude) {
         if (latitude == null) {
@@ -144,9 +144,9 @@ public class GeoPointMapper extends Mapper {
     /**
      * Checks if the specified longitude is correct.
      *
-     * @param name The name of the longitude field.
-     * @param longitude The value of the longitude field.
-     * @return The longitude.
+     * @param name the name of the longitude field
+     * @param longitude the value of the longitude field
+     * @return the longitude
      */
     public static Double checkLongitude(String name, Double longitude) {
         if (longitude == null) {
@@ -200,7 +200,7 @@ public class GeoPointMapper extends Mapper {
     /**
      * Returns the latitude contained in the specified {@link Columns}. A valid latitude must in the range [-90, 90].
      *
-     * @param columns The {@link Columns} containing the latitude.
+     * @param columns the columns containing the latitude
      * @return the validated latitude
      */
     public Double readLatitude(Columns columns) {
@@ -212,7 +212,7 @@ public class GeoPointMapper extends Mapper {
      * Returns the longitude contained in the specified {@link Columns}. A valid longitude must in the range [-180,
      * 180].
      *
-     * @param columns The {@link Columns} containing the longitude.
+     * @param columns the columns containing the longitude
      * @return the validated longitude
      */
     public Double readLongitude(Columns columns) {
@@ -225,8 +225,8 @@ public class GeoPointMapper extends Mapper {
      *
      * A valid latitude must in the range [-90, 90].
      *
-     * @param o The {@link Object} containing the latitude.
-     * @return The latitude.
+     * @param o the {@link Object} containing the latitude
+     * @return the latitude
      */
     private double readLatitude(Object o) {
         Double value;
@@ -245,7 +245,7 @@ public class GeoPointMapper extends Mapper {
     /**
      * Returns the distance {@link SpatialStrategy}.
      *
-     * @return The {@link SpatialStrategy}.
+     * @return the {@link SpatialStrategy}
      */
     public SpatialStrategy getDistanceStrategy() {
         return distanceStrategy;
@@ -256,8 +256,8 @@ public class GeoPointMapper extends Mapper {
      *
      * A valid longitude must in the range [-180, 180].
      *
-     * @param o The {@link Object} containing the latitude.
-     * @return The longitude.
+     * @param o the {@link Object} containing the latitude
+     * @return the longitude
      */
     private static double readLongitude(Object o) {
         Double value;

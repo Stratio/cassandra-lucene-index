@@ -58,10 +58,10 @@ public class SearchBuilder implements Builder<Search> {
     }
 
     /**
-     * Returns this builder with the specified querying condition.
+     * Sets the specified querying condition.
      *
-     * @param queryBuilder The querying condition to be set.
-     * @return This builder with the specified querying condition.
+     * @param queryBuilder the querying condition to be set
+     * @return this builder with the specified querying condition
      */
     public SearchBuilder query(ConditionBuilder<?, ?> queryBuilder) {
         this.queryBuilder = queryBuilder;
@@ -69,10 +69,10 @@ public class SearchBuilder implements Builder<Search> {
     }
 
     /**
-     * Returns this builder with the specified filtering condition.
+     * Sets the specified filtering condition.
      *
-     * @param filterBuilder The filtering condition to be set.
-     * @return This builder with the specified filtering condition.
+     * @param filterBuilder the filtering condition to be set
+     * @return this builder with the specified filtering condition
      */
     public SearchBuilder filter(ConditionBuilder<?, ?> filterBuilder) {
         this.filterBuilder = filterBuilder;
@@ -80,10 +80,10 @@ public class SearchBuilder implements Builder<Search> {
     }
 
     /**
-     * Returns this builder with the specified sorting.
+     * Sets the specified sorting.
      *
      * @param sortBuilder The sorting fields to be set.
-     * @return This builder with the specified sorting.
+     * @return this builder with the specified sort
      */
     public SearchBuilder sort(SortBuilder sortBuilder) {
         this.sortBuilder = sortBuilder;
@@ -91,10 +91,10 @@ public class SearchBuilder implements Builder<Search> {
     }
 
     /**
-     * Returns this builder with the specified sorting.
+     * Sets the specified sorting.
      *
      * @param sortFieldBuilders The sorting fields to be set.
-     * @return This builder with the specified sorting.
+     * @return this builder with the specified sorting
      */
     public SearchBuilder sort(SortFieldBuilder... sortFieldBuilders) {
         this.sortBuilder = new SortBuilder(sortFieldBuilders);
@@ -102,10 +102,12 @@ public class SearchBuilder implements Builder<Search> {
     }
 
     /**
-     * Sets if the {@link Search} to be built must refresh the index before reading it.
+     * Sets if the {@link Search} to be built must refresh the index before reading it. Refresh is a costly operation so
+     * you should use it only when it is strictly required.
      *
-     * @param refresh If the {@link Search} to be built must refresh the index before reading it.
-     * @return This builder with the specified refresh.
+     * @param refresh {@code true} if the {@link Search} to be built must refresh the Lucene's index searcher before
+     *                searching, {@code false} otherwise
+     * @return this builder with the specified refresh
      */
     public SearchBuilder refresh(boolean refresh) {
         this.refresh = refresh;
@@ -115,7 +117,7 @@ public class SearchBuilder implements Builder<Search> {
     /**
      * Returns the {@link Search} represented by this builder.
      *
-     * @return The {@link Search} represented by this builder.
+     * @return the search represented by this builder
      */
     public Search build() {
         Condition query = queryBuilder == null ? null : queryBuilder.build();
@@ -127,7 +129,7 @@ public class SearchBuilder implements Builder<Search> {
     /**
      * Returns the JSON representation of this object.
      *
-     * @return the JSON representation of this object.
+     * @return a JSON representation of this object
      */
     public String toJson() {
         build();
@@ -141,8 +143,8 @@ public class SearchBuilder implements Builder<Search> {
     /**
      * Returns the {@link SearchBuilder} represented by the specified JSON {@code String}.
      *
-     * @param json A JSON {@code String} representing a {@link SearchBuilder}.
-     * @return The {@link SearchBuilder} represented by the specified JSON {@code String}.
+     * @param json the JSON {@code String} representing a {@link SearchBuilder}
+     * @return the {@link SearchBuilder} represented by the specified JSON {@code String}
      */
     public static SearchBuilder fromJson(String json) {
         try {

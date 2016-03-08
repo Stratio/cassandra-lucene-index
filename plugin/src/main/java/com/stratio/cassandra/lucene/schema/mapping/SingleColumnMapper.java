@@ -47,14 +47,14 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
     /**
      * Builds a new {@link SingleColumnMapper} supporting the specified types for indexing and clustering.
      *
-     * @param field The name of the field.
-     * @param column The name of the column to be mapped.
-     * @param indexed If the field supports searching.
-     * @param sorted If the field supports sorting.
-     * @param validated If the field must be validated.
-     * @param analyzer The name of the analyzer to be used.
-     * @param base The Lucene type for this mapper.
-     * @param supportedTypes The supported Cassandra types for indexing.
+     * @param field the name of the field
+     * @param column the name of the column to be mapped
+     * @param indexed if the field supports searching
+     * @param sorted if the field supports sorting
+     * @param validated if the field must be validated
+     * @param analyzer the name of the analyzer to be used
+     * @param base the Lucene type for this mapper
+     * @param supportedTypes the supported Cassandra types for indexing
      */
     public SingleColumnMapper(String field,
                               String column,
@@ -97,9 +97,9 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
     /**
      * Adds the specified column name and value to the specified {@link Document}.
      *
-     * @param document A {@link Document}.
-     * @param name The name of the column to be mapped.
-     * @param value The value of the column to be mapped.
+     * @param document a {@link Document}
+     * @param name the name of the column to be mapped
+     * @param value the value of the column to be mapped
      */
     private void addFields(Document document, String name, Object value) {
         if (value != null) {
@@ -116,27 +116,27 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
     /**
      * Returns the {@link Field} to search for the mapped column.
      *
-     * @param document A {@link Document}.
-     * @param name The name of the column.
-     * @param value The value of the column.
+     * @param document a {@link Document}
+     * @param name the name of the column
+     * @param value the value of the column
      */
     public abstract void addIndexedFields(Document document, String name, T value);
 
     /**
      * Returns the {@link Field} to sort by the mapped column.
      *
-     * @param document A {@link Document}.
-     * @param name The name of the column.
-     * @param value The value of the column.
+     * @param document a {@link Document}
+     * @param name the name of the column
+     * @param value the value of the column
      */
     public abstract void addSortedFields(Document document, String name, T value);
 
     /**
      * Returns the {@link Column} query value resulting from the mapping of the specified object.
      *
-     * @param field The field name.
-     * @param value The object to be mapped, never is {@code null}.
-     * @return The {@link Column} index value resulting from the mapping of the specified object.
+     * @param field the field name
+     * @param value the object to be mapped, never is {@code null}
+     * @return the {@link Column} index value resulting from the mapping of the specified object
      */
     public final T base(String field, Object value) {
         return value == null ? null : doBase(field, value);
@@ -162,6 +162,19 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
      * @param <T> the base type
      */
     public static abstract class SingleFieldMapper<T extends Comparable<T>> extends SingleColumnMapper<T> {
+
+        /**
+         * Builds a new {@link SingleFieldMapper} supporting the specified types for indexing and clustering.
+         *
+         * @param field the name of the field
+         * @param column the name of the column to be mapped
+         * @param indexed if the field supports searching
+         * @param sorted if the field supports sorting
+         * @param validated if the field must be validated
+         * @param analyzer the name of the analyzer to be used
+         * @param base the Lucene type for this mapper
+         * @param supportedTypes the supported Cassandra types for indexing
+         */
         public SingleFieldMapper(String field,
                                  String column,
                                  Boolean indexed,
@@ -188,18 +201,18 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
         /**
          * Returns the {@link Field} to index by the mapped column.
          *
-         * @param name The name of the column.
-         * @param value The value of the column.
-         * @return The {@link Field} to sort by the mapped column.
+         * @param name the name of the column
+         * @param value the value of the column
+         * @return the field to sort by the mapped column
          */
         public abstract Field indexedField(String name, T value);
 
         /**
          * Returns the {@link Field} to sort by the mapped column.
          *
-         * @param name The name of the column.
-         * @param value The value of the column.
-         * @return The {@link Field} to sort by the mapped column.
+         * @param name the name of the column
+         * @param value the value of the column
+         * @return the field to sort by the mapped column
          */
         public abstract Field sortedField(String name, T value);
     }

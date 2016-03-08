@@ -49,8 +49,8 @@ public class LuceneCondition extends Condition {
      * @param boost The boost for this query clause. Documents matching this clause will (in addition to the normal
      * weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link #DEFAULT_BOOST} is used as
      * default.
-     * @param defaultField the default field name.
-     * @param query the Lucene Query Syntax query.
+     * @param defaultField the default field name
+     * @param query the Lucene Query Syntax query
      */
     public LuceneCondition(Float boost, String defaultField, String query) {
         super(boost);

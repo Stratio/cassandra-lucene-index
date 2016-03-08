@@ -76,8 +76,7 @@ public class GeoShapeCondition extends SingleFieldCondition {
      * default.
      * @param field the field name
      * @param shape the shape in <a href="http://en.wikipedia.org/wiki/Well-known_text"> WKT</a> format
-     * @param operation The spatial operation to be done.  If {@code null}, then {@link #DEFAULT_OPERATION} is used as
-     * default.
+     * @param operation The spatial operation to be done. Defaults to {@link #DEFAULT_OPERATION}.
      * @param transformations the sequence of operations to be applied to the specified shape
      */
     public GeoShapeCondition(Float boost,
@@ -102,7 +101,7 @@ public class GeoShapeCondition extends SingleFieldCondition {
             throw new IndexException("No mapper found for field '%s'", field);
         } else if (mapper instanceof GeoShapeMapper) {
             strategy = ((GeoShapeMapper) mapper).strategy;
-        } else if(mapper instanceof GeoPointMapper) {
+        } else if (mapper instanceof GeoPointMapper) {
             strategy = ((GeoPointMapper) mapper).distanceStrategy;
         } else {
             throw new IndexException("'geo_shape' search requires a mapper of type 'geo_point' or 'geo_shape' " +

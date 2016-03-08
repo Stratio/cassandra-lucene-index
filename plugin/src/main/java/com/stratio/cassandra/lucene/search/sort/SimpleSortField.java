@@ -42,8 +42,8 @@ public class SimpleSortField extends SortField {
     /**
      * Returns a new {@link SortField}.
      *
-     * @param field The name of field to sort by.
-     * @param reverse {@code true} if natural order should be reversed.
+     * @param field the name of field to sort by
+     * @param reverse {@code true} if natural order should be reversed, {@code false} otherwise
      */
     public SimpleSortField(String field, Boolean reverse) {
         super(reverse);
@@ -56,7 +56,7 @@ public class SimpleSortField extends SortField {
     /**
      * Returns the name of field to sort by.
      *
-     * @return The name of field to sort by.
+     * @return the name of field to sort by
      */
     public String getField() {
         return field;
@@ -65,8 +65,8 @@ public class SimpleSortField extends SortField {
     /**
      * Returns the Lucene {@link org.apache.lucene.search.SortField} representing this {@link SortField}.
      *
-     * @param schema The {@link Schema} to be used.
-     * @return the Lucene {@link org.apache.lucene.search.SortField} representing this {@link SortField}.
+     * @param schema the {@link Schema} to be used
+     * @return the equivalent Lucene sort field
      */
     @Override
     public org.apache.lucene.search.SortField sortField(Schema schema) {
@@ -86,16 +86,12 @@ public class SimpleSortField extends SortField {
     /**
      * Returns a Java {@link Comparator} for {@link Columns} with the same logic as this {@link SortField}.
      *
-     * @param schema The used {@link Schema}.
-     * @return A Java {@link Comparator} for {@link Columns} with the same logic as this {@link SortField}.
+     * @param schema the used {@link Schema}
+     * @return the equivalent columns comparator
      */
     public Comparator<Columns> comparator(Schema schema) {
         final SingleColumnMapper mapper = schema.getSingleColumnMapper(field);
-        return new Comparator<Columns>() {
-            public int compare(Columns o1, Columns o2) {
-                return SimpleSortField.this.compare(mapper, o1, o2);
-            }
-        };
+        return (Columns o1, Columns o2) -> compare(mapper, o1, o2);
     }
 
     protected int compare(SingleColumnMapper mapper, Columns o1, Columns o2) {

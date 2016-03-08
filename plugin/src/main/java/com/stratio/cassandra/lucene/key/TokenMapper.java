@@ -82,8 +82,8 @@ public final class TokenMapper {
     /**
      * Adds to the specified {@link Document} the {@link Field}s associated to the token of the specified row key.
      *
-     * @param document A {@link Document}.
-     * @param key The raw partition key to be added.
+     * @param document a {@link Document}
+     * @param key the raw partition key to be added
      */
     public void addFields(Document document, DecoratedKey key) {
         Token token = key.getToken();

@@ -53,11 +53,11 @@ public class GeoBBoxCondition extends SingleMapperCondition<GeoPointMapper> {
      * @param boost The boost for this query clause. Documents matching this clause will (in addition to the normal
      * weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link #DEFAULT_BOOST} is used as
      * default.
-     * @param field The name of the field to be matched.
-     * @param minLatitude The minimum accepted latitude.
-     * @param maxLatitude The maximum accepted latitude.
-     * @param minLongitude The minimum accepted longitude.
-     * @param maxLongitude The maximum accepted longitude.
+     * @param field the name of the field to be matched
+     * @param minLatitude the minimum accepted latitude
+     * @param maxLatitude the maximum accepted latitude
+     * @param minLongitude the minimum accepted longitude
+     * @param maxLongitude the maximum accepted longitude
      */
     public GeoBBoxCondition(Float boost,
                             String field,

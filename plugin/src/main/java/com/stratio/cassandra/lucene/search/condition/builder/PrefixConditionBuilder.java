@@ -40,8 +40,8 @@ public class PrefixConditionBuilder extends ConditionBuilder<PrefixCondition, Pr
     /**
      * Creates a new {@link PrefixConditionBuilder}.
      *
-     * @param field The name of the field to be matched.
-     * @param value The prefix to be matched.
+     * @param field the name of the field to be matched
+     * @param value the prefix to be matched
      */
     @JsonCreator
     public PrefixConditionBuilder(@JsonProperty("field") String field, @JsonProperty("value") String value) {
@@ -52,7 +52,7 @@ public class PrefixConditionBuilder extends ConditionBuilder<PrefixCondition, Pr
     /**
      * Returns the {@link PrefixCondition} represented by this builder.
      *
-     * @return The {@link PrefixCondition} represented by this builder.
+     * @return a new prefix condition
      */
     @Override
     public PrefixCondition build() {

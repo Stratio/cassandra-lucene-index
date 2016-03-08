@@ -61,8 +61,8 @@ public class BooleanConditionBuilder extends ConditionBuilder<BooleanCondition, 
     /**
      * Returns this builder with the specified optional conditions.
      *
-     * @param conditionBuilders The optional conditions to be added.
-     * @return this builder with the specified optional conditions.
+     * @param conditionBuilders The optional conditions to be added
+     * @return this builder with the specified optional conditions
      */
     public BooleanConditionBuilder should(ConditionBuilder<?, ?>... conditionBuilders) {
         should.addAll(Arrays.asList(conditionBuilders));
@@ -72,8 +72,8 @@ public class BooleanConditionBuilder extends ConditionBuilder<BooleanCondition, 
     /**
      * Returns this builder with the specified mandatory not conditions.
      *
-     * @param conditionBuilders The mandatory not conditions to be added.
-     * @return this builder with the specified mandatory not conditions.
+     * @param conditionBuilders The mandatory not conditions to be added
+     * @return this builder with the specified mandatory not conditions
      */
     public BooleanConditionBuilder not(ConditionBuilder<?, ?>... conditionBuilders) {
         not.addAll(Arrays.asList(conditionBuilders));
@@ -83,7 +83,7 @@ public class BooleanConditionBuilder extends ConditionBuilder<BooleanCondition, 
     /**
      * Returns the {@link BooleanCondition} represented by this builder.
      *
-     * @return The {@link BooleanCondition} represented by this builder.
+     * @return a new boolean condition
      */
     @Override
     public BooleanCondition build() {

@@ -46,11 +46,11 @@ public class BigIntegerMapper extends KeywordMapper {
     /**
      * Builds a new {@link BigDecimalMapper} using the specified max number of digits.
      *
-     * @param field The name of the field.
-     * @param column The name of the column to be mapped.
-     * @param indexed If the field supports searching.
-     * @param sorted If the field supports sorting.
-     * @param validated If the field must be validated.
+     * @param field the name of the field
+     * @param column the name of the column to be mapped
+     * @param indexed if the field supports searching
+     * @param sorted if the field supports sorting
+     * @param validated if the field must be validated
      * @param digits The max number of digits. If {@code null}, the {@link #DEFAULT_DIGITS} will be used.
      */
     public BigIntegerMapper(String field,

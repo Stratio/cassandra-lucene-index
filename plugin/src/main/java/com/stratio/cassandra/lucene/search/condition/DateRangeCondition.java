@@ -63,10 +63,10 @@ public class DateRangeCondition extends SingleMapperCondition<DateRangeMapper> {
      * @param boost The boost for this query clause. Documents matching this clause will (in addition to the normal
      * weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link #DEFAULT_BOOST} is used as
      * default.
-     * @param field The name of the field to be matched.
-     * @param from The lower accepted {@link Date}. Maybe {@code null} meaning no lower limit.
-     * @param to The upper accepted {@link Date}. Maybe {@code null} meaning no upper limit.
-     * @param operation The spatial operation to be performed.
+     * @param field the name of the field to be matched
+     * @param from the lower accepted {@link Date}. Maybe {@code null} meaning no lower limit
+     * @param to the upper accepted {@link Date}. Maybe {@code null} meaning no upper limit
+     * @param operation the spatial operation to be performed
      */
     public DateRangeCondition(Float boost, String field, Object from, Object to, String operation) {
         super(boost, field, DateRangeMapper.class);
@@ -99,8 +99,8 @@ public class DateRangeCondition extends SingleMapperCondition<DateRangeMapper> {
     /**
      * Returns the {@link SpatialOperation} representing the specified {@code String}.
      *
-     * @param operation A {@code String} representing a {@link SpatialOperation}.
-     * @return The {@link SpatialOperation} representing the specified {@code String}.
+     * @param operation a {@code String} representing a {@link SpatialOperation}
+     * @return the {@link SpatialOperation} representing the specified {@code String}
      */
     static SpatialOperation parseSpatialOperation(String operation) {
         if (operation == null) {

@@ -37,7 +37,7 @@ public final class SearchBuilders {
     /**
      * Returns a new {@link SearchBuilder}.
      *
-     * @return a new {@link SearchBuilder}.
+     * @return the search builder
      */
     public static SearchBuilder search() {
         return new SearchBuilder();
@@ -46,37 +46,37 @@ public final class SearchBuilders {
     /**
      * Returns a new {@link SearchBuilder} using the specified {@link ConditionBuilder} as query.
      *
-     * @param conditionBuilder The {@link ConditionBuilder} containing the query.
-     * @return a new {@link SearchBuilder} using the specified {@link ConditionBuilder} as query.
+     * @param query the condition builder to be used as query
+     * @return a new {@link SearchBuilder} with the specified query
      */
-    public static SearchBuilder query(ConditionBuilder<?, ?> conditionBuilder) {
-        return search().query(conditionBuilder);
+    public static SearchBuilder query(ConditionBuilder<?, ?> query) {
+        return search().query(query);
     }
 
     /**
-     * Returns a new {@link SearchBuilder} using the specified {@link ConditionBuilder} as clusteringKeyFilter.
+     * Returns a new {@link SearchBuilder} using the specified {@link ConditionBuilder} as filter.
      *
-     * @param conditionBuilder The {@link ConditionBuilder} containing the filter.
-     * @return a new {@link SearchBuilder} using the specified {@link ConditionBuilder} as clusteringKeyFilter.
+     * @param filter the condition builder to be used as filter
+     * @return a new {@link SearchBuilder} with the specified filter
      */
-    public static SearchBuilder filter(ConditionBuilder<?, ?> conditionBuilder) {
-        return search().filter(conditionBuilder);
+    public static SearchBuilder filter(ConditionBuilder<?, ?> filter) {
+        return search().filter(filter);
     }
 
     /**
      * Returns a new {@link SearchBuilder} using the specified {@link SortFieldBuilder}s as sorting.
      *
-     * @param sortFieldBuilders The {@link SortFieldBuilder}s.
-     * @return a new {@link SearchBuilder} using the specified {@link SortFieldBuilder}s as sorting.
+     * @param sortFields the sorting builder
+     * @return a new {@link SearchBuilder} with the specified sort
      */
-    public static SearchBuilder sort(SortFieldBuilder... sortFieldBuilders) {
-        return search().sort(sortFieldBuilders);
+    public static SearchBuilder sort(SortFieldBuilder... sortFields) {
+        return search().sort(sortFields);
     }
 
     /**
      * Returns a new {@link BooleanConditionBuilder}.
      *
-     * @return A new {@link BooleanConditionBuilder}.
+     * @return a new boolean condition builder
      */
     public static BooleanConditionBuilder bool() {
         return new BooleanConditionBuilder();
@@ -85,7 +85,7 @@ public final class SearchBuilders {
     /**
      * Returns a new {@link AllConditionBuilder} for the specified field and value.
      *
-     * @return A new {@link AllConditionBuilder} for the specified field and value.
+     * @return a new all condition builder
      */
     public static AllConditionBuilder all() {
         return new AllConditionBuilder();
@@ -94,9 +94,9 @@ public final class SearchBuilders {
     /**
      * Returns a new {@link FuzzyConditionBuilder} for the specified field and value.
      *
-     * @param field The name of the field to be matched.
-     * @param value The value of the field to be matched.
-     * @return A new {@link FuzzyConditionBuilder} for the specified field and value.
+     * @param field the name of the field to be matched
+     * @param value the value of the field to be matched
+     * @return a new fuzzy condition builder
      */
     public static FuzzyConditionBuilder fuzzy(String field, String value) {
         return new FuzzyConditionBuilder(field, value);
@@ -105,8 +105,8 @@ public final class SearchBuilders {
     /**
      * Returns a new {@link LuceneConditionBuilder} with the specified query.
      *
-     * @param query The Lucene syntax query.
-     * @return A new {@link LuceneConditionBuilder} with the specified query.
+     * @param query the Lucene syntax query
+     * @return a new Lucene condition builder
      */
     public static LuceneConditionBuilder lucene(String query) {
         return new LuceneConditionBuilder(query);
@@ -115,9 +115,9 @@ public final class SearchBuilders {
     /**
      * Returns a new {@link MatchConditionBuilder} for the specified field and value.
      *
-     * @param field The name of the field to be matched.
-     * @param value The value of the field to be matched.
-     * @return A new {@link MatchConditionBuilder} for the specified field and value.
+     * @param field the name of the field to be matched
+     * @param value the value of the field to be matched
+     * @return a new match condition builder
      */
     public static MatchConditionBuilder match(String field, Object value) {
         return new MatchConditionBuilder(field, value);
@@ -126,7 +126,7 @@ public final class SearchBuilders {
     /**
      * Returns a new {@link NoneConditionBuilder} for the specified field and value.
      *
-     * @return A new {@link NoneConditionBuilder} for the specified field and value.
+     * @return a new none condition builder
      */
     public static NoneConditionBuilder none() {
         return new NoneConditionBuilder();
@@ -135,9 +135,9 @@ public final class SearchBuilders {
     /**
      * Returns a new {@link PhraseConditionBuilder} for the specified field and values.
      *
-     * @param field The name of the field to be matched.
+     * @param field the name of the field to be matched
      * @param value The text to be matched.
-     * @return A new {@link PhraseConditionBuilder} for the specified field and values.
+     * @return a new phrase condition builder
      */
     public static PhraseConditionBuilder phrase(String field, String value) {
         return new PhraseConditionBuilder(field, value);
@@ -146,9 +146,9 @@ public final class SearchBuilders {
     /**
      * Returns a new {@link PrefixConditionBuilder} for the specified field and value.
      *
-     * @param field The name of the field to be matched.
-     * @param value The value of the field to be matched.
-     * @return A new {@link PrefixConditionBuilder} for the specified field and value.
+     * @param field the name of the field to be matched
+     * @param value the value of the field to be matched
+     * @return a new prefix condition builder
      */
     public static PrefixConditionBuilder prefix(String field, String value) {
         return new PrefixConditionBuilder(field, value);
@@ -157,8 +157,8 @@ public final class SearchBuilders {
     /**
      * Returns a new {@link RangeConditionBuilder} for the specified field.
      *
-     * @param field The name of the field to be matched.
-     * @return A new {@link RangeConditionBuilder} for the specified field.
+     * @param field the name of the field to be matched
+     * @return a new range condition builder
      */
     public static RangeConditionBuilder range(String field) {
         return new RangeConditionBuilder(field);
@@ -167,9 +167,9 @@ public final class SearchBuilders {
     /**
      * Returns a new {@link RegexpConditionBuilder} for the specified field and value.
      *
-     * @param field The name of the field to be matched.
-     * @param value The value of the field to be matched.
-     * @return A new {@link RegexpConditionBuilder} for the specified field and value.
+     * @param field the name of the field to be matched
+     * @param value the value of the field to be matched
+     * @return a new regexp condition builder
      */
     public static RegexpConditionBuilder regexp(String field, String value) {
         return new RegexpConditionBuilder(field, value);
@@ -178,9 +178,9 @@ public final class SearchBuilders {
     /**
      * Returns a new {@link WildcardConditionBuilder} for the specified field and value.
      *
-     * @param field The name of the field to be matched.
-     * @param value The value of the field to be matched.
-     * @return A new {@link WildcardConditionBuilder} for the specified field and value.
+     * @param field the name of the field to be matched
+     * @param value the value of the field to be matched
+     * @return a new wildcard condition builder
      */
     public static WildcardConditionBuilder wildcard(String field, String value) {
         return new WildcardConditionBuilder(field, value);
@@ -189,12 +189,12 @@ public final class SearchBuilders {
     /**
      * Returns a new {@link GeoBBoxConditionBuilder} with the specified field name and bounding box coordinates.
      *
-     * @param field The name of the field to be matched.
+     * @param field the name of the field to be matched
      * @param minLongitude The minimum accepted longitude.
      * @param maxLongitude The maximum accepted longitude.
      * @param minLatitude The minimum accepted latitude.
      * @param maxLatitude The maximum accepted latitude.
-     * @return A new {@link GeoBBoxConditionBuilder}.
+     * @return a new geo bounding box condition builder
      */
     public static GeoBBoxConditionBuilder geoBBox(String field,
                                                   double minLongitude,
@@ -207,11 +207,11 @@ public final class SearchBuilders {
     /**
      * Returns a new {@link GeoDistanceConditionBuilder} with the specified field reference point.
      *
-     * @param field The name of the field to be matched.
+     * @param field the name of the field to be matched
      * @param longitude The longitude of the reference point.
      * @param latitude The latitude of the reference point.
      * @param maxDistance The max allowed distance.
-     * @return A new {@link GeoDistanceConditionBuilder}.
+     * @return a new geo distance condition builder
      */
     public static GeoDistanceConditionBuilder geoDistance(String field,
                                                           double longitude,
@@ -227,7 +227,7 @@ public final class SearchBuilders {
      *
      * @param field the name of the field
      * @param shape the shape in <a href="http://en.wikipedia.org/wiki/Well-known_text"> WKT</a> format
-     * @return A new {@link GeoShapeConditionBuilder}.
+     * @return a new geo shape condition builder
      */
     public static GeoShapeConditionBuilder geoShape(String field, String shape) {
         return new GeoShapeConditionBuilder(field, shape);
@@ -236,8 +236,8 @@ public final class SearchBuilders {
     /**
      * Returns a new {@link DateRangeConditionBuilder} with the specified field reference point.
      *
-     * @param field The name of the field to be matched.
-     * @return A new {@link DateRangeConditionBuilder}.
+     * @param field the name of the field to be matched
+     * @return a new date range condition builder
      */
     public static DateRangeConditionBuilder dateRange(String field) {
         return new DateRangeConditionBuilder(field);
@@ -246,8 +246,8 @@ public final class SearchBuilders {
     /**
      * Returns a new {@link SimpleSortFieldBuilder} for the specified field.
      *
-     * @param field The name of the field to be sorted by.
-     * @return A new {@link SimpleSortFieldBuilder} for the specified field.
+     * @param field the name of the field to be sorted by
+     * @return a new simple sort field condition builder
      */
     public static SimpleSortFieldBuilder field(String field) {
         return new SimpleSortFieldBuilder(field);
@@ -256,19 +256,20 @@ public final class SearchBuilders {
     /**
      * Returns a new {@link SimpleSortFieldBuilder} for the specified field.
      *
-     * @param mapper The name of mapper to use to calculate distance.
-     * @param longitude The longitude of the center point to sort by min distance to it.
-     * @param latitude The latitude of the center point to sort by min distance to it.
-     * @return A new {@link SimpleSortFieldBuilder} for the specified field.
+     * @param mapper the name of mapper to use to calculate distance
+     * @param longitude the longitude of the reference point
+     * @param latitude the latitude of the reference point
+     * @return a new geo distance sort field builder
      */
     public static GeoDistanceSortFieldBuilder geoDistanceSortField(String mapper, double longitude, double latitude) {
         return new GeoDistanceSortFieldBuilder(mapper, longitude, latitude);
     }
+
     /**
      * Returns a new {@link BitemporalConditionBuilder} for the specified field.
      *
      * @param field The name of the field to be sorted.
-     * @return A new {@link BitemporalConditionBuilder} for the specified field.
+     * @returna new bitemporal condition builder for the specified field.
      */
     public static BitemporalConditionBuilder bitemporalSearch(String field) {
         return new BitemporalConditionBuilder(field);

@@ -44,9 +44,9 @@ public class SchemaAnalyzer extends DelegatingAnalyzerWrapper {
     /**
      * Constructs with default analyzer and a map of analyzers to use for specific fields.
      *
-     * @param defaultAnalyzer The default {@link Analyzer}s.
-     * @param analyzers The user defined {@link Analyzer}s.
-     * @param mappers The user defined {@link Mapper}s.
+     * @param defaultAnalyzer the default analyzer
+     * @param analyzers the user-defined analyzers
+     * @param mappers the user-defined mappers
      */
     public SchemaAnalyzer(Analyzer defaultAnalyzer, Map<String, Analyzer> analyzers, Map<String, Mapper> mappers) {
         super(PER_FIELD_REUSE_STRATEGY);
@@ -68,9 +68,9 @@ public class SchemaAnalyzer extends DelegatingAnalyzerWrapper {
      * Returns the {@link Analyzer} identified by the specified name. If there is no analyzer with the specified name,
      * then it will be interpreted as a class name and it will be instantiated by reflection.
      *
-     * @param analyzers The per field {@link Analyzer}s to be used.
-     * @param name The name of the {@link Analyzer} to be returned.
-     * @return The {@link Analyzer} identified by the specified name.
+     * @param analyzers the per field analyzers to be used
+     * @param name the name of the {@link Analyzer} to be returned
+     * @return the analyzer identified by the specified name
      */
     protected static Analyzer getAnalyzer(Map<String, Analyzer> analyzers, String name) {
         if (StringUtils.isBlank(name)) {
@@ -93,7 +93,7 @@ public class SchemaAnalyzer extends DelegatingAnalyzerWrapper {
     /**
      * Returns the default {@link Analyzer}.
      *
-     * @return The default {@link Analyzer}.
+     * @return the default analyzer
      */
     public TokenLengthAnalyzer getDefaultAnalyzer() {
         return defaultAnalyzer;
@@ -102,8 +102,8 @@ public class SchemaAnalyzer extends DelegatingAnalyzerWrapper {
     /**
      * Returns the {@link Analyzer} identified by the specified field name.
      *
-     * @param fieldName The name of the {@link Analyzer} to be returned.
-     * @return The {@link Analyzer} identified by the specified field name.
+     * @param fieldName the name of the {@link Analyzer} to be returned
+     * @return the {@link Analyzer} identified by the specified field name
      */
     public TokenLengthAnalyzer getAnalyzer(String fieldName) {
 

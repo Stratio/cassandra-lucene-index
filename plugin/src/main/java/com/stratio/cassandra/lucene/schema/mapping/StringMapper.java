@@ -36,12 +36,12 @@ public class StringMapper extends KeywordMapper {
     /**
      * Builds a new {@link StringMapper}.
      *
-     * @param field The name of the field.
-     * @param column The name of the column to be mapped.
-     * @param indexed If the field supports searching.
-     * @param sorted If the field supports sorting.
-     * @param validated If the field must be validated.
-     * @param caseSensitive If the analyzer must be case sensitive.
+     * @param field the name of the field
+     * @param column the name of the column to be mapped
+     * @param indexed if the field supports searching
+     * @param sorted if the field supports sorting
+     * @param validated if the field must be validated
+     * @param caseSensitive if the analyzer must be case sensitive
      */
     public StringMapper(String field,
                         String column,

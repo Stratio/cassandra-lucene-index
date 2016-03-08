@@ -39,8 +39,8 @@ public abstract class SingleColumnCondition extends SingleFieldCondition {
      * Abstract {@link SingleColumnCondition} builder receiving the boost to be used.
      *
      * @param boost The boost for this query clause. Documents matching this clause will (in addition to the normal
-     * weightings) have their score multiplied by {@code boost}.
-     * @param field The name of the field to be matched.
+     *              weightings) have their score multiplied by {@code boost}.
+     * @param field the name of the field to be matched
      */
     public SingleColumnCondition(Float boost, String field) {
         super(boost, field);
@@ -65,9 +65,9 @@ public abstract class SingleColumnCondition extends SingleFieldCondition {
     /**
      * Returns the Lucene {@link Query} representation of this condition.
      *
-     * @param mapper The {@link Mapper} to be used.
-     * @param analyzer The {@link Schema} {@link Analyzer}.
-     * @return The Lucene {@link Query} representation of this condition.
+     * @param mapper   the mapper to be used
+     * @param analyzer the {@link Schema} analyzer
+     * @return the Lucene query
      */
     public abstract Query query(SingleColumnMapper<?> mapper, Analyzer analyzer);
 }

@@ -89,7 +89,7 @@ public class Search {
     /**
      * Returns if this search uses Lucene relevance formula.
      *
-     * @return {@code true} if this search uses Lucene relevance formula, {@code false} otherwise.
+     * @return {@code true} if this search uses Lucene relevance formula, {@code false} otherwise
      */
     public boolean usesRelevance() {
         return query != null;

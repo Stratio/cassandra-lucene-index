@@ -65,8 +65,8 @@ public class SchemaBuilder {
     /**
      * Sets the name of the default {@link Analyzer}.
      *
-     * @param name The name of the default {@link Analyzer}.
-     * @return This.
+     * @param name the name of the default {@link Analyzer}
+     * @return this with the specified default analyzer
      */
     public SchemaBuilder defaultAnalyzer(String name) {
         defaultAnalyzerName = name;
@@ -76,9 +76,9 @@ public class SchemaBuilder {
     /**
      * Adds a new {@link Analyzer}.
      *
-     * @param name The name of the {@link Analyzer} to be added.
-     * @param analyzer The builder of the {@link Analyzer} to be added.
-     * @return This.
+     * @param name the name of the {@link Analyzer} to be added
+     * @param analyzer the builder of the {@link Analyzer} to be added
+     * @return this with the specified analyzer
      */
     public SchemaBuilder analyzer(String name, AnalyzerBuilder analyzer) {
         analyzerBuilders.put(name, analyzer);
@@ -88,9 +88,9 @@ public class SchemaBuilder {
     /**
      * Adds a new {@link Mapper}.
      *
-     * @param field The name of the {@link Mapper} to be added.
-     * @param mapper The builder of the {@link Mapper} to be added.
-     * @return This.
+     * @param field the name of the {@link Mapper} to be added
+     * @param mapper the builder of the {@link Mapper} to be added
+     * @return this with the specified mapper
      */
     public SchemaBuilder mapper(String field, MapperBuilder<?, ?> mapper) {
         mapperBuilders.put(field, mapper);
@@ -100,7 +100,7 @@ public class SchemaBuilder {
     /**
      * Returns the {@link Schema} defined by this.
      *
-     * @return The {@link Schema} defined by this.
+     * @return a new schema
      */
     public Schema build() {
 
@@ -142,7 +142,7 @@ public class SchemaBuilder {
     /**
      * Returns the JSON representation of this builder.
      *
-     * @return The JSON representation of this builder.
+     * @return a JSON {@code String}
      */
     public String toJson() {
         try {
@@ -155,8 +155,8 @@ public class SchemaBuilder {
     /**
      * Returns the {@link Schema} contained in the specified JSON {@code String}.
      *
-     * @param json A {@code String} containing the JSON representation of the {@link Schema} to be parsed.
-     * @return The {@link Schema} contained in the specified JSON {@code String}.
+     * @param json a {@code String} containing the JSON representation of the {@link Schema} to be parsed
+     * @return the schema contained in the specified JSON {@code String}
      */
     public static SchemaBuilder fromJson(String json) {
         try {

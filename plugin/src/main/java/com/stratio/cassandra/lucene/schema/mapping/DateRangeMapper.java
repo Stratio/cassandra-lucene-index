@@ -63,11 +63,11 @@ public class DateRangeMapper extends Mapper {
     /**
      * Builds a new {@link DateRangeMapper}.
      *
-     * @param field The name of the field.
-     * @param validated If the field must be validated.
-     * @param from The name of the column containing the from date.
-     * @param to The name of the column containing the to date.
-     * @param pattern The date format pattern to be used.
+     * @param field the name of the field
+     * @param validated if the field must be validated
+     * @param from the name of the column containing the from date
+     * @param to the name of the column containing the to date
+     * @param pattern the date format pattern
      */
     public DateRangeMapper(String field, Boolean validated, String from, String to, String pattern) {
         super(field,
@@ -141,9 +141,9 @@ public class DateRangeMapper extends Mapper {
     /**
      * Makes an spatial shape representing the time range defined by the two specified dates.
      *
-     * @param from The from {@link Date}.
-     * @param to The to {@link Date}.
-     * @return The spatial shape representing the time range defined by the two specified dates.
+     * @param from the start {@link Date}
+     * @param to the end {@link Date}
+     * @return a shape
      */
     public NRShape makeShape(Date from, Date to) {
         UnitNRShape fromShape = tree.toUnitShape(from);
@@ -152,10 +152,10 @@ public class DateRangeMapper extends Mapper {
     }
 
     /**
-     * Returns the from {@link Date} contained in the specified {@link Columns}.
+     * Returns the start {@link Date} contained in the specified {@link Columns}.
      *
-     * @param columns The {@link Columns} containing the from {@link Date}.
-     * @return The star {@link Date} contained in the specified {@link Columns}.
+     * @param columns the columns containing the start {@link Date}
+     * @return the start date
      */
     Date readFrom(Columns columns) {
         Column<?> column = columns.getColumnsByFullName(from).getFirst();
@@ -170,10 +170,10 @@ public class DateRangeMapper extends Mapper {
     }
 
     /**
-     * Returns the to {@link Date} contained in the specified {@link Columns}.
+     * Returns the end {@link Date} contained in the specified {@link Columns}.
      *
-     * @param columns The {@link Columns} containing the to {@link Date}.
-     * @return The to {@link Date} contained in the specified {@link Columns}.
+     * @param columns the columns containing the end {@link Date}
+     * @return the end date
      */
     Date readTo(Columns columns) {
         Column<?> column = columns.getColumnsByFullName(to).getFirst();
@@ -189,10 +189,10 @@ public class DateRangeMapper extends Mapper {
 
     /**
      * Returns the {@link Date} represented by the specified object, or {@code null} if there is no one. A {@link
-     * IllegalArgumentException} if the date is not parsable.
+     * IllegalArgumentException} if the date is not parseable.
      *
-     * @param value A value which could represent a {@link Date}.
-     * @return The {@link Date} represented by the specified object, or {@code null} if there is no one.
+     * @param value a value which could represent a {@link Date}
+     * @return the date represented by the specified object, or {@code null} if there is no one
      */
     public Date base(Object value) {
         return dateParser.parse(value);

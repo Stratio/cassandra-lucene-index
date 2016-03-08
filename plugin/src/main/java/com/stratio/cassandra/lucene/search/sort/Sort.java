@@ -41,7 +41,7 @@ public class Sort implements Iterable<SortField> {
     /**
      * Builds a new {@link Sort} for the specified {@link SortField}s.
      *
-     * @param sortFields The specified {@link SortField}s.
+     * @param sortFields the sort fields
      */
     public Sort(List<SortField> sortFields) {
         this.sortFields = sortFields;
@@ -56,17 +56,17 @@ public class Sort implements Iterable<SortField> {
     /**
      * Returns the {@link SortField}s to be used.
      *
-     * @return The {@link SortField}s to be used.
+     * @return the sort fields
      */
     public List<SortField> getSortFields() {
         return sortFields;
     }
 
     /**
-     * Returns the {@link Sort} representing this {@link Sort}.
+     * Returns the Lucene's {@link org.apache.lucene.search.SortField}s representing this {@link Sort}.
      *
-     * @param schema The {@link Schema} to be used.
-     * @return the Lucene {@link Sort} representing this {@link Sort}.
+     * @param schema the schema
+     * @return the Lucene sort fields
      */
     public List<org.apache.lucene.search.SortField> sortFields(Schema schema) {
         return sortFields.stream().map(s -> s.sortField(schema)).collect(Collectors.toList());
@@ -75,8 +75,8 @@ public class Sort implements Iterable<SortField> {
     /**
      * Returns the {@link Columns} {@link Comparator} specified by this {@link Sort}.
      *
-     * @param schema The used {@link Schema}.
-     * @return The {@link Columns} {@link Comparator} specified by this {@link Sort}.
+     * @param schema the schema
+     * @return the equivalent columns comparator
      */
     public Comparator<Columns> comparator(Schema schema) {
         return Ordering.compound(getSortFields().stream().map(s -> s.comparator(schema)).collect(Collectors.toList()));

@@ -40,8 +40,8 @@ public class MatchConditionBuilder extends ConditionBuilder<MatchCondition, Matc
     /**
      * Creates a new {@link MatchConditionBuilder} for the specified field and value.
      *
-     * @param field The name of the field to be matched.
-     * @param value The value of the field to be matched.
+     * @param field the name of the field to be matched
+     * @param value the value of the field to be matched
      */
     @JsonCreator
     public MatchConditionBuilder(@JsonProperty("field") String field, @JsonProperty("value") Object value) {
@@ -52,7 +52,7 @@ public class MatchConditionBuilder extends ConditionBuilder<MatchCondition, Matc
     /**
      * Returns the {@link MatchCondition} represented by this builder.
      *
-     * @return The {@link MatchCondition} represented by this builder.
+     * @return a new match condition
      */
     @Override
     public MatchCondition build() {

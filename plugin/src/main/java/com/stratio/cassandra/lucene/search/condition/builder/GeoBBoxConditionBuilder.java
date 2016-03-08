@@ -52,11 +52,11 @@ public class GeoBBoxConditionBuilder extends ConditionBuilder<GeoBBoxCondition, 
     /**
      * Returns a new {@link GeoBBoxConditionBuilder} with the specified field name and bounding box coordinates.
      *
-     * @param field The name of the field to be matched.
-     * @param minLatitude The minimum accepted latitude.
-     * @param maxLatitude The maximum accepted latitude.
-     * @param minLongitude The minimum accepted longitude.
-     * @param maxLongitude The maximum accepted longitude.
+     * @param field the name of the field to be matched
+     * @param minLatitude the minimum accepted latitude
+     * @param maxLatitude the maximum accepted latitude
+     * @param minLongitude the minimum accepted longitude
+     * @param maxLongitude the maximum accepted longitude
      */
     @JsonCreator
     public GeoBBoxConditionBuilder(@JsonProperty("field") String field,
@@ -74,7 +74,7 @@ public class GeoBBoxConditionBuilder extends ConditionBuilder<GeoBBoxCondition, 
     /**
      * Returns the {@link GeoBBoxCondition} represented by this builder.
      *
-     * @return The {@link GeoBBoxCondition} represented by this builder.
+     * @return a new geo bounding box condition
      */
     @Override
     public GeoBBoxCondition build() {

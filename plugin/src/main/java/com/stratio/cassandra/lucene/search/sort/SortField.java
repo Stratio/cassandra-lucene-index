@@ -47,27 +47,27 @@ public abstract class SortField {
     }
 
     /**
-     * Returns {@code true} if natural order should be reversed.
+     * Returns if natural order should be reversed.
      *
-     * @return {@code true} if natural order should be reversed.
+     * @return {@code true} if natural order should be reversed, {@code false} otherwise.
      */
     public boolean isReverse() {
         return reverse;
     }
 
     /**
-     * Returns the Lucene {@link org.apache.lucene.search.SortField} representing this {@link SortField}.
+     * Returns the Lucene's {@link org.apache.lucene.search.SortField} representing this {@link SortField}.
      *
-     * @param schema The {@link Schema} to be used.
-     * @return the Lucene {@link org.apache.lucene.search.SortField} representing this {@link SortField}.
+     * @param schema the {@link Schema} to be used
+     * @return the Lucene's sort field
      */
     public abstract org.apache.lucene.search.SortField sortField(Schema schema);
 
     /**
      * Returns a Java {@link Comparator} for {@link Columns} with the same logic as this {@link SortField}.
      *
-     * @param schema The used {@link Schema}.
-     * @return A Java {@link Comparator} for {@link Columns} with the same logic as this {@link SortField}.
+     * @param schema the used {@link Schema}
+     * @return the columns comparator
      */
     public abstract Comparator<Columns> comparator(Schema schema);
 

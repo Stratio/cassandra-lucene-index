@@ -90,7 +90,7 @@ public class GeoShapeConditionBuilder extends ConditionBuilder<GeoShapeCondition
     /**
      * Returns the {@link GeoBBoxCondition} represented by this builder.
      *
-     * @return the condition
+     * @return a new geo shape condition
      */
     @Override
     public GeoShapeCondition build() {

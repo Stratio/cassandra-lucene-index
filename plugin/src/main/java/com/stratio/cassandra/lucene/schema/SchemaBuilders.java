@@ -38,7 +38,7 @@ public final class SchemaBuilders {
     /**
      * Returns a new {@link SchemaBuilder}.
      *
-     * @return A new {@link SchemaBuilder}.
+     * @return a new schema builder
      */
     public static SchemaBuilder schema() {
         return new SchemaBuilder(null, new LinkedHashMap<>(), new LinkedHashMap<>());
@@ -47,7 +47,7 @@ public final class SchemaBuilders {
     /**
      * Returns a new {@link BigDecimalMapperBuilder}.
      *
-     * @return A new {@link BigDecimalMapperBuilder}.
+     * @return a new big decimal mapper builder
      */
     public static BigDecimalMapperBuilder bigDecimalMapper() {
         return new BigDecimalMapperBuilder();
@@ -56,7 +56,7 @@ public final class SchemaBuilders {
     /**
      * Returns a new {@link BigIntegerMapperBuilder}.
      *
-     * @return A new {@link BigIntegerMapperBuilder}.
+     * @return a new big integer mapper builder
      */
     public static BigIntegerMapperBuilder bigIntegerMapper() {
         return new BigIntegerMapperBuilder();
@@ -65,11 +65,11 @@ public final class SchemaBuilders {
     /**
      * Returns a new {@link BitemporalMapperBuilder}.
      *
-     * @param vtFrom The column name containing the valid time start.
-     * @param vtTo The column name containing the valid time stop.
-     * @param ttFrom The column name containing the transaction time start.
-     * @param ttTo The column name containing the transaction time stop.
-     * @return A new {@link BitemporalMapperBuilder}.
+     * @param vtFrom the column name containing the valid time start
+     * @param vtTo the column name containing the valid time stop
+     * @param ttFrom the column name containing the transaction time start
+     * @param ttTo the column name containing the transaction time stop
+     * @return a new bitemporal mapper builder
      */
     public static BitemporalMapperBuilder bitemporalMapper(String vtFrom, String vtTo, String ttFrom, String ttTo) {
         return new BitemporalMapperBuilder(vtFrom, vtTo, ttFrom, ttTo);
@@ -78,7 +78,7 @@ public final class SchemaBuilders {
     /**
      * Returns a new {@link BlobMapperBuilder}.
      *
-     * @return A new {@link BlobMapperBuilder}.
+     * @return a new blob mapper builder
      */
     public static BlobMapperBuilder blobMapper() {
         return new BlobMapperBuilder();
@@ -87,7 +87,7 @@ public final class SchemaBuilders {
     /**
      * Returns a new {@link BooleanMapperBuilder}.
      *
-     * @return A new {@link BooleanMapperBuilder}.
+     * @return a new boolean mapper builder
      */
     public static BooleanMapperBuilder booleanMapper() {
         return new BooleanMapperBuilder();
@@ -96,7 +96,7 @@ public final class SchemaBuilders {
     /**
      * Returns a new {@link DateMapperBuilder}.
      *
-     * @return A new {@link DateMapperBuilder}.
+     * @return a new decimal mapper builder
      */
     public static DateMapperBuilder dateMapper() {
         return new DateMapperBuilder();
@@ -105,9 +105,9 @@ public final class SchemaBuilders {
     /**
      * Returns a new {@link DateRangeMapperBuilder}.
      *
-     * @param from The column containing the start date.
-     * @param to The column containing the end date.
-     * @return A new {@link DateRangeMapperBuilder}.
+     * @param from the name of the column containing the start date
+     * @param to the name of the column containing the end date
+     * @return a new date range mapper builder
      */
     public static DateRangeMapperBuilder dateRangeMapper(String from, String to) {
         return new DateRangeMapperBuilder(from, to);
@@ -116,7 +116,7 @@ public final class SchemaBuilders {
     /**
      * Returns a new {@link DoubleMapperBuilder}.
      *
-     * @return A new {@link DoubleMapperBuilder}.
+     * @return a new double mapper builder
      */
     public static DoubleMapperBuilder doubleMapper() {
         return new DoubleMapperBuilder();
@@ -125,7 +125,7 @@ public final class SchemaBuilders {
     /**
      * Returns a new {@link FloatMapperBuilder}.
      *
-     * @return A new {@link FloatMapperBuilder}.
+     * @return a new float mapper builder
      */
     public static FloatMapperBuilder floatMapper() {
         return new FloatMapperBuilder();
@@ -134,9 +134,9 @@ public final class SchemaBuilders {
     /**
      * Returns a new {@link GeoPointMapperBuilder}.
      *
-     * @param latitude The name of the column containing the latitude.
-     * @param longitude The name of the column containing the longitude.
-     * @return A new {@link GeoPointMapperBuilder}.
+     * @param latitude the name of the column containing the latitude
+     * @param longitude the name of the column containing the longitude
+     * @return a new geo point mapper builder
      */
     public static GeoPointMapperBuilder geoPointMapper(String latitude, String longitude) {
         return new GeoPointMapperBuilder(latitude, longitude);
@@ -145,7 +145,7 @@ public final class SchemaBuilders {
     /**
      * Returns a new {@link GeoShapeMapperBuilder}.
      *
-     * @return A new {@link GeoShapeMapperBuilder}.
+     * @return a new geo shape mapper builder
      */
     public static GeoShapeMapperBuilder geoShapeMapper() {
         return new GeoShapeMapperBuilder();
@@ -154,7 +154,7 @@ public final class SchemaBuilders {
     /**
      * Returns a new {@link InetMapperBuilder}.
      *
-     * @return A new {@link InetMapperBuilder}.
+     * @return a new inet mapper builder
      */
     public static InetMapperBuilder inetMapper() {
         return new InetMapperBuilder();
@@ -163,7 +163,7 @@ public final class SchemaBuilders {
     /**
      * Returns a new {@link IntegerMapperBuilder}.
      *
-     * @return A new {@link IntegerMapperBuilder}.
+     * @return a new integer mapper builder
      */
     public static IntegerMapperBuilder integerMapper() {
         return new IntegerMapperBuilder();
@@ -172,7 +172,7 @@ public final class SchemaBuilders {
     /**
      * Returns a new {@link LongMapperBuilder}.
      *
-     * @return A new {@link LongMapperBuilder}.
+     * @return a new long mapper builder
      */
     public static LongMapperBuilder longMapper() {
         return new LongMapperBuilder();
@@ -181,7 +181,7 @@ public final class SchemaBuilders {
     /**
      * Returns a new {@link StringMapperBuilder}.
      *
-     * @return A new {@link StringMapperBuilder}.
+     * @return a new string mapper builder
      */
     public static StringMapperBuilder stringMapper() {
         return new StringMapperBuilder();
@@ -190,7 +190,7 @@ public final class SchemaBuilders {
     /**
      * Returns a new {@link TextMapperBuilder}.
      *
-     * @return A new {@link TextMapperBuilder}.
+     * @return a new text mapper builder
      */
     public static TextMapperBuilder textMapper() {
         return new TextMapperBuilder();
@@ -199,7 +199,7 @@ public final class SchemaBuilders {
     /**
      * Returns a new {@link UUIDMapperBuilder}.
      *
-     * @return A new {@link UUIDMapperBuilder}.
+     * @return a new UUID mapper builder
      */
     public static UUIDMapperBuilder uuidMapper() {
         return new UUIDMapperBuilder();
@@ -208,8 +208,8 @@ public final class SchemaBuilders {
     /**
      * Returns a new {@link ClasspathAnalyzerBuilder}.
      *
-     * @param className An {@link org.apache.lucene.analysis.Analyzer} full class name.
-     * @return A new {@link ClasspathAnalyzerBuilder}.
+     * @param className the {@link org.apache.lucene.analysis.Analyzer} full class name
+     * @return a new classpath analyzer builder
      */
     public static ClasspathAnalyzerBuilder classpathAnalyzer(String className) {
         return new ClasspathAnalyzerBuilder(className);
@@ -221,8 +221,8 @@ public final class SchemaBuilders {
      * @param language The language. The supported languages are English, French, Spanish, Portuguese, Italian,
      * Romanian, German, Dutch, Swedish, Norwegian, Danish, Russian, Finnish, Irish, Hungarian, Turkish, Armenian,
      * Basque and Catalan.
-     * @param stopwords The comma separated stopwords {@code String}.
-     * @return A new {@link SnowballAnalyzerBuilder}.
+     * @param stopwords the comma separated stopwords {@code String} list
+     * @return a new snowball analyzer builder
      */
     public static SnowballAnalyzerBuilder snowballAnalyzer(String language, String stopwords) {
         return new SnowballAnalyzerBuilder(language, stopwords);

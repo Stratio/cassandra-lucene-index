@@ -60,11 +60,11 @@ public class RangeCondition extends SingleColumnCondition {
      * @param boost The boost for this query clause. Documents matching this clause will (in addition to the normal
      * weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link #DEFAULT_BOOST} is used as
      * default.
-     * @param field The name of the field to be matched.
-     * @param lowerValue The lower accepted value. Maybe {@code null} meaning no lower limit.
-     * @param upperValue The upper accepted value. Maybe {@code null} meaning no upper limit.
-     * @param includeLower if {@code true}, the {@code lowerValue} is included in the range.
-     * @param includeUpper if {@code true}, the {@code upperValue} is included in the range.
+     * @param field the name of the field to be matched.
+     * @param lowerValue the lower accepted value. Maybe {@code null} meaning no lower limit
+     * @param upperValue the upper accepted value. Maybe {@code null} meaning no upper limit
+     * @param includeLower if {@code true}, the {@code lowerValue} is included in the range
+     * @param includeUpper if {@code true}, the {@code upperValue} is included in the range
      */
     public RangeCondition(Float boost,
                           String field,

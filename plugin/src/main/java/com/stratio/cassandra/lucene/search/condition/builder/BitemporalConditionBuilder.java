@@ -52,7 +52,7 @@ public class BitemporalConditionBuilder extends ConditionBuilder<BitemporalCondi
     /**
      * Returns a new {@link BitemporalConditionBuilder} with the specified field reference point.
      *
-     * @param field The name of the field to be matched.
+     * @param field the name of the field to be matched
      */
     @JsonCreator
     public BitemporalConditionBuilder(@JsonProperty("field") String field) {
@@ -62,8 +62,8 @@ public class BitemporalConditionBuilder extends ConditionBuilder<BitemporalCondi
     /**
      * Sets the valid time start.
      *
-     * @param vtFrom The valid time start to be set.
-     * @return This.
+     * @param vtFrom the valid time start to be set
+     * @return this with the specified valid time start
      */
     public BitemporalConditionBuilder vtFrom(Object vtFrom) {
         this.vtFrom = vtFrom;
@@ -73,8 +73,8 @@ public class BitemporalConditionBuilder extends ConditionBuilder<BitemporalCondi
     /**
      * Sets the valid time end.
      *
-     * @param vtTo The valid time end to be set.
-     * @return This.
+     * @param vtTo the valid time end to be set
+     * @return this with the specified valid time end
      */
     public BitemporalConditionBuilder vtTo(Object vtTo) {
         this.vtTo = vtTo;
@@ -84,8 +84,8 @@ public class BitemporalConditionBuilder extends ConditionBuilder<BitemporalCondi
     /**
      * Sets the transaction time start.
      *
-     * @param ttFrom The transaction time start to be set.
-     * @return This.
+     * @param ttFrom the transaction time start to be set
+     * @return this with the specified transaction time start
      */
     public BitemporalConditionBuilder ttFrom(Object ttFrom) {
         this.ttFrom = ttFrom;
@@ -95,8 +95,8 @@ public class BitemporalConditionBuilder extends ConditionBuilder<BitemporalCondi
     /**
      * Sets the transaction time end.
      *
-     * @param ttTo The transaction time end to be set.
-     * @return This.
+     * @param ttTo the transaction time end to be set
+     * @return this with the specified transaction time end
      */
     public BitemporalConditionBuilder ttTo(Object ttTo) {
         this.ttTo = ttTo;
@@ -106,7 +106,7 @@ public class BitemporalConditionBuilder extends ConditionBuilder<BitemporalCondi
     /**
      * Returns the {@link BitemporalCondition} represented by this builder.
      *
-     * @return The {@link BitemporalCondition} represented by this builder.
+     * @return a new bitemporal condition
      */
     @Override
     public BitemporalCondition build() {

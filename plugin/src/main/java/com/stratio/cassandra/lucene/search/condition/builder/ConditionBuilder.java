@@ -60,8 +60,8 @@ public abstract class ConditionBuilder<T extends Condition, K extends ConditionB
      * normal weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link
      * Condition#DEFAULT_BOOST}
      *
-     * @param boost The boost for the {@link Condition} to be built.
-     * @return This builder with the specified boost.
+     * @param boost the boost
+     * @return this with the specified boost
      */
     @SuppressWarnings("unchecked")
     public K boost(float boost) {
@@ -74,8 +74,8 @@ public abstract class ConditionBuilder<T extends Condition, K extends ConditionB
      * normal weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link
      * Condition#DEFAULT_BOOST}
      *
-     * @param boost The boost for the {@link Condition} to be built.
-     * @return This builder with the specified boost.
+     * @param boost he boost
+     * @return this with the specified boost
      */
     @SuppressWarnings("unchecked")
     public K boost(Number boost) {
@@ -86,7 +86,7 @@ public abstract class ConditionBuilder<T extends Condition, K extends ConditionB
     /**
      * Returns the {@link Condition} represented by this builder.
      *
-     * @return The {@link Condition} represented by this builder.
+     * @return a new condition
      */
     @Override
     public abstract T build();
