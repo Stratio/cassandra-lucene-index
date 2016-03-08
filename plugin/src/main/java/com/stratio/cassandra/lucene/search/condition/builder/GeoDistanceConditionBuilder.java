@@ -53,9 +53,9 @@ public class GeoDistanceConditionBuilder extends ConditionBuilder<GeoDistanceCon
     /**
      * Returns a new {@link GeoDistanceConditionBuilder} with the specified field reference point.
      *
-     * @param field       The name of the field to be matched.
-     * @param latitude    The latitude of the reference point.
-     * @param longitude   The longitude of the reference point.
+     * @param field The name of the field to be matched.
+     * @param latitude The latitude of the reference point.
+     * @param longitude The longitude of the reference point.
      * @param maxDistance The max allowed distance.
      */
     @JsonCreator
@@ -72,8 +72,8 @@ public class GeoDistanceConditionBuilder extends ConditionBuilder<GeoDistanceCon
     /**
      * Sets the min allowed distance.
      *
-     * @param minDistance The min allowed distance.
-     * @return This.
+     * @param minDistance the min allowed distance
+     * @return this with the specified min distance
      */
     public GeoDistanceConditionBuilder setMinDistance(String minDistance) {
         this.minDistance = minDistance;
@@ -83,7 +83,7 @@ public class GeoDistanceConditionBuilder extends ConditionBuilder<GeoDistanceCon
     /**
      * Returns the {@link GeoDistanceCondition} represented by this builder.
      *
-     * @return The {@link GeoDistanceCondition} represented by this builder.
+     * @return a new geo distance condition
      */
     @Override
     public GeoDistanceCondition build() {

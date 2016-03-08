@@ -62,9 +62,9 @@ public final class JsonSerializer {
     /**
      * Returns the object of the specified class represented by the specified JSON {@code String}.
      *
-     * @param value     A JSON {@code String} to be parsed.
+     * @param value A JSON {@code String} to be parsed.
      * @param valueType The class of the object to be parsed.
-     * @param <T>       The type of the object to be parsed.
+     * @param <T> The type of the object to be parsed.
      * @return The object of the specified class represented by the specified JSON {@code String}.
      * @throws IOException If there are parsing problems.
      */

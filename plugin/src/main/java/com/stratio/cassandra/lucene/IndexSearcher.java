@@ -63,10 +63,10 @@ public class IndexSearcher extends SecondaryIndexSearcher {
     /**
      * Returns a new {@code RowIndexSearcher}.
      *
-     * @param indexManager A 2i manger.
-     * @param index        A {@link Index}.
-     * @param columns      A set of columns.
-     * @param rowService   A {@link RowService}.
+     * @param indexManager the 2i manager
+     * @param index the index
+     * @param columns a set of columns
+     * @param rowService the row service
      */
     public IndexSearcher(SecondaryIndexManager indexManager,
                          Index index,

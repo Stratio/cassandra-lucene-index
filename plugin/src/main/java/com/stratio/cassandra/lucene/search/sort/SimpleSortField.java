@@ -42,8 +42,8 @@ public class SimpleSortField extends SortField {
     /**
      * Returns a new {@link SortField}.
      *
-     * @param field   The name of field to sort by.
-     * @param reverse {@code true} if natural order should be reversed.
+     * @param field the name of field to sort by
+     * @param reverse {@code true} if natural order should be reversed, {@code false} otherwise
      */
     public SimpleSortField(String field, Boolean reverse) {
         super(reverse);

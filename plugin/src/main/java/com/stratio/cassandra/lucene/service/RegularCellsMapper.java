@@ -55,7 +55,7 @@ public final class RegularCellsMapper {
      * Builds a new {@link RegularCellsMapper} for the specified column family metadata and schema.
      *
      * @param metadata The column family metadata.
-     * @param schema   A {@link Schema}.
+     * @param schema A {@link Schema}.
      */
     private RegularCellsMapper(CFMetaData metadata, Schema schema) {
         this.metadata = metadata;
@@ -66,7 +66,7 @@ public final class RegularCellsMapper {
      * Returns a new {@link RegularCellsMapper} for the specified column family metadata.
      *
      * @param metadata The column family metadata.
-     * @param schema   A {@link Schema}.
+     * @param schema A {@link Schema}.
      * @return A new {@link RegularCellsMapper} for the specified column family metadata.
      */
     public static RegularCellsMapper instance(CFMetaData metadata, Schema schema) {
@@ -87,10 +87,7 @@ public final class RegularCellsMapper {
                     int colSize = CollectionSerializer.readCollectionSize(value, Server.CURRENT_VERSION);
                     for (int j = 0; j < colSize; j++) {
                         ByteBuffer itemValue = CollectionSerializer.readValue(value, Server.CURRENT_VERSION);
-                        columns.add(process(columnBuilder,
-                                            nameType,
-                                            itemValue,
-                                            hasAnyNotFrozenCollectionAsParent));
+                        columns.add(process(columnBuilder, nameType, itemValue, hasAnyNotFrozenCollectionAsParent));
                     }
                     break;
                 }
@@ -99,10 +96,7 @@ public final class RegularCellsMapper {
                     int colSize = CollectionSerializer.readCollectionSize(value, Server.CURRENT_VERSION);
                     for (int j = 0; j < colSize; j++) {
                         ByteBuffer itemValue = CollectionSerializer.readValue(value, Server.CURRENT_VERSION);
-                        columns.add(process(columnBuilder,
-                                            valueType,
-                                            itemValue,
-                                            hasAnyNotFrozenCollectionAsParent));
+                        columns.add(process(columnBuilder, valueType, itemValue, hasAnyNotFrozenCollectionAsParent));
                     }
                     break;
                 }
@@ -132,7 +126,7 @@ public final class RegularCellsMapper {
                 String itemName = userType.fieldNameAsString(i);
                 AbstractType<?> itemType = userType.fieldType(i);
                 // this only occurs in UDT not fully composed
-                if (values[i]!=null) {
+                if (values[i] != null) {
                     columns.add(process(columnBuilder.clone().udtName(itemName),
                                         itemType,
                                         values[i],

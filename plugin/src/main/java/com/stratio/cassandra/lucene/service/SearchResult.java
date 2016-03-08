@@ -41,9 +41,9 @@ public class SearchResult {
     /**
      * Builds a new {@link SearchResult} for the specified CQL3 row key and search hit info.
      *
-     * @param partitionKey  The partition key.
+     * @param partitionKey The partition key.
      * @param clusteringKey The clustering key.
-     * @param scoreDoc      The search hit info.
+     * @param scoreDoc The search hit info.
      */
     public SearchResult(DecoratedKey partitionKey, CellName clusteringKey, ScoreDoc scoreDoc) {
         this.partitionKey = partitionKey;

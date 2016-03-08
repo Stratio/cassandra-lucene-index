@@ -54,7 +54,7 @@ public final class FullKeyMapper {
     /**
      * Returns a new {@link FullKeyMapper} using the specified column family metadata.
      *
-     * @param partitionKeyMapper  A {@link PartitionKeyMapper}.
+     * @param partitionKeyMapper A {@link PartitionKeyMapper}.
      * @param clusteringKeyMapper A {@link ClusteringKeyMapper}.
      */
     private FullKeyMapper(PartitionKeyMapper partitionKeyMapper, ClusteringKeyMapper clusteringKeyMapper) {
@@ -67,7 +67,7 @@ public final class FullKeyMapper {
     /**
      * Returns a new {@link FullKeyMapper} using the specified column family metadata.
      *
-     * @param partitionKeyMapper  A {@link PartitionKeyMapper}.
+     * @param partitionKeyMapper A {@link PartitionKeyMapper}.
      * @param clusteringKeyMapper A {@link ClusteringKeyMapper}.
      * @return A new {@link FullKeyMapper} using the specified column family metadata.
      */
@@ -80,7 +80,7 @@ public final class FullKeyMapper {
      * Returns the {@link ByteBuffer} representation of the full row key formed by the specified partition key and the
      * clustering key.
      *
-     * @param partitionKey  A partition key.
+     * @param partitionKey A partition key.
      * @param clusteringKey A clustering key.
      * @return The {@link ByteBuffer} representation of the full row key formed by the specified key pair.
      */
@@ -104,7 +104,7 @@ public final class FullKeyMapper {
     /**
      * Returns a hash code to uniquely identify a CQL logical row key.
      *
-     * @param partitionKey  A partition key.
+     * @param partitionKey A partition key.
      * @param clusteringKey A clustering key.
      * @return A hash code to uniquely identify a CQL logical row key.
      */
@@ -116,8 +116,8 @@ public final class FullKeyMapper {
      * Adds to the specified Lucene {@link Document} the full row key formed by the specified partition key and the
      * clustering key.
      *
-     * @param document      A Lucene {@link Document}.
-     * @param partitionKey  A partition key.
+     * @param document A Lucene {@link Document}.
+     * @param partitionKey A partition key.
      * @param clusteringKey A clustering key.
      */
     public void addFields(Document document, DecoratedKey partitionKey, CellName clusteringKey) {
@@ -131,7 +131,7 @@ public final class FullKeyMapper {
      * Returns the Lucene {@link Term} representing the full row key formed by the specified partition key and the
      * clustering key.
      *
-     * @param partitionKey  A partition key.
+     * @param partitionKey A partition key.
      * @param clusteringKey A clustering key.
      * @return The Lucene {@link Term} representing the full row key formed by the specified key pair.
      */

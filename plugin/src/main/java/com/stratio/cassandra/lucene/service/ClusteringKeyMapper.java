@@ -85,7 +85,7 @@ public final class ClusteringKeyMapper {
      * Returns a new {@code ClusteringKeyMapper} according to the specified column family meta data.
      *
      * @param metadata The column family meta data.
-     * @param schema   A {@link Schema}.
+     * @param schema A {@link Schema}.
      */
     private ClusteringKeyMapper(CFMetaData metadata, Schema schema) {
         this.metadata = metadata;
@@ -97,7 +97,7 @@ public final class ClusteringKeyMapper {
      * Returns a new {@code ClusteringKeyMapper} according to the specified column family meta data.
      *
      * @param metadata The column family meta data.
-     * @param schema   A {@link Schema}.
+     * @param schema A {@link Schema}.
      * @return A new {@code ClusteringKeyMapper} according to the specified column family meta data.
      */
     public static ClusteringKeyMapper instance(CFMetaData metadata, Schema schema) {
@@ -154,7 +154,7 @@ public final class ClusteringKeyMapper {
     /**
      * Returns the storage engine column name for the specified column identifier using the specified clustering key.
      *
-     * @param cellName         The clustering key.
+     * @param cellName The clustering key.
      * @param columnDefinition The column definition.
      * @return A storage engine column name.
      */
@@ -275,10 +275,10 @@ public final class ClusteringKeyMapper {
      */
     public Map<CellName, ColumnFamily> splitRows(ColumnFamily columnFamily) {
         Map<CellName, ColumnFamily> columnFamilies = new LinkedHashMap<>();
-        ColumnFamily staticColumns=null;
+        ColumnFamily staticColumns = null;
 
         if (metadata.hasStaticColumns()) {
-            staticColumns= ArrayBackedSortedColumns.factory.create(metadata);
+            staticColumns = ArrayBackedSortedColumns.factory.create(metadata);
             for (Cell cell : columnFamily) {
                 if (cell.name().isStatic()) {
                     staticColumns.addColumn(cell);
@@ -367,7 +367,7 @@ public final class ClusteringKeyMapper {
      * specified column name prefixes.
      *
      * @param start The start key.
-     * @param stop  The stop key.
+     * @param stop The stop key.
      * @return A Lucene {@link Query} array to retrieving documents/rows whose clustering key is between the two
      * specified column name prefixes.
      */

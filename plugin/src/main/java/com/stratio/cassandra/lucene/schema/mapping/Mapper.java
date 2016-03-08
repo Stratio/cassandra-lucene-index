@@ -84,13 +84,13 @@ public abstract class Mapper {
     /**
      * Builds a new {@link Mapper} supporting the specified types for indexing.
      *
-     * @param field          The name of the Lucene field.
-     * @param indexed        If the field supports searching.
-     * @param sorted         If the field supports sorting.
-     * @param validated      If the field must be validated.
-     * @param analyzer       The name of the analyzer to be used.
-     * @param mappedColumns  The names of the columns to be mapped.
-     * @param supportedTypes The supported Cassandra types for indexing.
+     * @param field the name of the field
+     * @param indexed if the field supports searching
+     * @param sorted if the field supports sorting
+     * @param validated if the field must be validated
+     * @param analyzer the name of the analyzer to be used
+     * @param mappedColumns the names of the columns to be mapped
+     * @param supportedTypes the supported Cassandra types for indexing
      */
     protected Mapper(String field,
                      Boolean indexed,
@@ -115,15 +115,15 @@ public abstract class Mapper {
      * Adds to the specified {@link Document} the Lucene {@link org.apache.lucene.document.Field}s resulting from the
      * mapping of the specified {@link Columns}.
      *
-     * @param document The {@link Document} where the {@link org.apache.lucene.document.Field} are going to be added.
-     * @param columns  The {@link Columns}.
+     * @param document the {@link Document} where the fields are going to be added
+     * @param columns the columns
      */
     public abstract void addFields(Document document, Columns columns);
 
     /**
      * Validates the specified {@link Columns} if {#validated}.
      *
-     * @param columns The {@link Columns} to be validated.
+     * @param columns the columns to be validated
      */
     public final void validate(Columns columns) {
         if (validated) {
@@ -134,17 +134,17 @@ public abstract class Mapper {
     /**
      * Returns the {@link SortField} resulting from the mapping of the specified object.
      *
-     * @param name    The name of the sorting field.
-     * @param reverse If the sort must be reversed.
-     * @return The {@link SortField} resulting from the mapping of the specified object.
+     * @param name the name of the sorting field
+     * @param reverse {@code true} the sort must be reversed, {@code false} otherwise
+     * @return the sort field
      */
     public abstract SortField sortField(String name, boolean reverse);
 
     /**
-     * Returns {@code true} if the specified Cassandra type/marshaller is supported, {@code false} otherwise.
+     * Returns if the specified Cassandra type/marshaller is supported.
      *
-     * @param type A Cassandra type/marshaller.
-     * @return {@code true} if the specified Cassandra type/marshaller is supported, {@code false} otherwise.
+     * @param type a Cassandra type/marshaller
+     * @return {@code true} if {@code type}, {@code false} otherwise.
      */
     protected boolean supports(final AbstractType<?> type) {
         AbstractType<?> checkedType = type;
@@ -175,7 +175,7 @@ public abstract class Mapper {
     /**
      * Validates this {@link Mapper} against the specified {@link CFMetaData}.
      *
-     * @param metadata A column family {@link CFMetaData}.
+     * @param metadata the column family metadata
      */
     public final void validate(CFMetaData metadata) {
         for (String column : mappedColumns) {
@@ -186,9 +186,9 @@ public abstract class Mapper {
     /**
      * Finds the child {@link AbstractType} by its name.
      *
-     * @param parent    The parent {@link AbstractType}.
-     * @param childName The name of the child {@link AbstractType}.
-     * @return The child {@link AbstractType}, or {@code null} if it doesn't exist.
+     * @param parent the parent type
+     * @param childName the name of the child type
+     * @return the child type, or {@code null} if it doesn't exist
      */
     private AbstractType<?> findChildType(AbstractType<?> parent, String childName) {
         if (parent instanceof UserType) {
@@ -224,8 +224,8 @@ public abstract class Mapper {
     /**
      * Validates this {@link Mapper} against the specified tuple type column.
      *
-     * @param metadata A column family {@link CFMetaData}.
-     * @param column   The name of the tuple column to be validated.
+     * @param metadata the column family metadata
+     * @param column the name of the tuple column to be validated
      */
     private void validateTuple(CFMetaData metadata, String column) {
 
@@ -258,8 +258,8 @@ public abstract class Mapper {
     /**
      * Validates this {@link Mapper} against the specified column.
      *
-     * @param metadata A column family {@link CFMetaData}.
-     * @param column   The name of the column to be validated.
+     * @param metadata the column family metadata
+     * @param column the name of the column to be validated
      */
     private void validate(CFMetaData metadata, String column) {
         if (Column.isTuple(column)) {
@@ -302,7 +302,7 @@ public abstract class Mapper {
     /**
      * Returns if the specified {@link Columns} contains the mapped columns.
      *
-     * @param columns A {@link Columns}.
+     * @param columns the columns
      * @return {@code true} if the specified {@link Columns} contains the mapped columns, {@code false} otherwise.
      */
     public final boolean maps(Columns columns) {

@@ -53,12 +53,12 @@ public class BooleanCondition extends Condition {
     /**
      * Returns a new {@link BooleanCondition} compound by the specified {@link Condition}s.
      *
-     * @param boost  The boost for this query clause. Documents matching this clause will (in addition to the normal
-     *               weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link
-     *               #DEFAULT_BOOST} is used as default.
-     * @param must   the mandatory {@link Condition}s.
-     * @param should the optional {@link Condition}s.
-     * @param not    the mandatory not {@link Condition}s.
+     * @param boost The boost for this query clause. Documents matching this clause will (in addition to the normal
+     * weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link #DEFAULT_BOOST} is used as
+     * default.
+     * @param must the mandatory {@link Condition}s
+     * @param should the optional {@link Condition}s
+     * @param not the mandatory not {@link Condition}s
      */
     public BooleanCondition(Float boost, List<Condition> must, List<Condition> should, List<Condition> not) {
 

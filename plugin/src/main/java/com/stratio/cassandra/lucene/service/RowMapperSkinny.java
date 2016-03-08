@@ -67,7 +67,7 @@ public class RowMapperSkinny extends RowMapper {
      * {@link Columns}.
      *
      * @param partitionKey The partition key of the logical CQL row.
-     * @param columns      The {@link Columns} of the logical CQL row.
+     * @param columns The {@link Columns} of the logical CQL row.
      * @return A Lucene {@link Document} representing the specified logical CQL row
      */
     public Document document(DecoratedKey partitionKey, Columns columns) {

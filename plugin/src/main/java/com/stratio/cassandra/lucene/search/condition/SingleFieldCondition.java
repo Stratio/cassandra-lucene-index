@@ -40,9 +40,9 @@ public abstract class SingleFieldCondition extends Condition {
     /**
      * Abstract {@link SingleFieldCondition} builder receiving the boost to be used.
      *
-     * @param boost The boost for this query clause. Documents matching this clause will (in addition to the normal
+     * @param boost the boost for this query clause. Documents matching this clause will (in addition to the normal
      * weightings) have their score multiplied by {@code boost}.
-     * @param field The name of the field to be matched.
+     * @param field the name of the field to be matched
      */
     public SingleFieldCondition(Float boost, String field) {
         super(boost);

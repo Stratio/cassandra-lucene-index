@@ -49,7 +49,7 @@ public class GeoDistanceSortField extends SortField {
     /**
      * Returns a new {@link SortField}.
      *
-     * @param mapper  {@code true} if natural order should be reversed.
+     * @param mapper {@code true} if natural order should be reversed.
      * @param reverse {@code true} if natural order should be reversed.
      * @param longitude the longitude of the center point to sort by min distance to it.
      * @param latitude the latitude of the center point to sort by min distance to it.
@@ -65,27 +65,27 @@ public class GeoDistanceSortField extends SortField {
     }
 
     /**
-     * Returns the name of mapper to use to calculate distance.
+     * Returns the name of mapper to be used to calculate distance.
      *
-     * @return The name of mapper to use to calculate distance.
+     * @return the name of mapper
      */
     public String getMapper() {
         return mapper;
     }
 
     /**
-     * Returns the longitude of the center point to sort by min distance to it.
+     * Returns the longitude of the reference point to sort by min distance to it.
      *
-     * @return The longitude of the center point to sort by min distance to it.
+     * @return the longitude of the reference point
      */
     public double getLongitude() {
         return longitude;
     }
 
     /**
-     * Returns the latitude of the center point to sort by min distance to it.
+     * Returns the latitude of the reference point to sort by min distance to it.
      *
-     * @return The latitude of the center point to sort by min distance to it.
+     * @return the latitude of the reference point
      */
     public double getLatitude() {
         return latitude;
@@ -180,7 +180,9 @@ public class GeoDistanceSortField extends SortField {
     }
 
     private Double distance(Double oLon, Double oLat) {
-        if ((oLon == null) || (oLat == null)) return null;
+        if ((oLon == null) || (oLat == null)) {
+            return null;
+        }
         return DistanceUtils.distHaversineRAD(DistanceUtils.toRadians(latitude),
                                               DistanceUtils.toRadians(longitude),
                                               DistanceUtils.toRadians(oLat),

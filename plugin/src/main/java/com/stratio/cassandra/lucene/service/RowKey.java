@@ -38,7 +38,7 @@ public class RowKey {
     /**
      * Builds a new row key.
      *
-     * @param partitionKey  The partition key.
+     * @param partitionKey The partition key.
      * @param clusteringKey The clustering key.
      */
     public RowKey(DecoratedKey partitionKey, CellName clusteringKey) {

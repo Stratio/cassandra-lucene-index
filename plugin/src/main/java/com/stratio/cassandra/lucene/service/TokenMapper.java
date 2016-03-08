@@ -58,7 +58,7 @@ public abstract class TokenMapper {
      * Adds to the specified {@link Document} the {@link org.apache.lucene.document.Field}s associated to the token of
      * the specified row key.
      *
-     * @param document     A {@link Document}.
+     * @param document A {@link Document}.
      * @param partitionKey The raw partition key to be added.
      */
     public abstract void addFields(Document document, DecoratedKey partitionKey);
@@ -66,8 +66,8 @@ public abstract class TokenMapper {
     /**
      * Returns a Lucene {@link Query} for retrieving the documents inside the specified {@link Token} range.
      *
-     * @param lower        The lower accepted {@link Token}. Maybe null meaning no lower limit.
-     * @param upper        The upper accepted {@link Token}. Maybe null meaning no lower limit.
+     * @param lower The lower accepted {@link Token}. Maybe null meaning no lower limit.
+     * @param upper The upper accepted {@link Token}. Maybe null meaning no lower limit.
      * @param includeLower If the {@code lowerValue} is included in the range.
      * @param includeUpper If the {@code upperValue} is included in the range.
      * @return A Lucene {@link Query} for retrieving the documents inside the specified {@link Token} range.
@@ -105,8 +105,8 @@ public abstract class TokenMapper {
     /**
      * Returns a Lucene {@link Query} for retrieving the documents inside the specified {@link Token} range.
      *
-     * @param lower        The lower accepted {@link Token}. Maybe null meaning no lower limit.
-     * @param upper        The upper accepted {@link Token}. Maybe null meaning no lower limit.
+     * @param lower The lower accepted {@link Token}. Maybe null meaning no lower limit.
+     * @param upper The upper accepted {@link Token}. Maybe null meaning no lower limit.
      * @param includeLower If the {@code lowerValue} is included in the range.
      * @param includeUpper If the {@code upperValue} is included in the range.
      * @return A Lucene {@link Query} for retrieving the documents inside the specified {@link Token} range.

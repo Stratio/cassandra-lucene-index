@@ -75,7 +75,7 @@ public abstract class RowService {
     /**
      * Returns a new {@code RowService} for the specified {@link IndexConfig}.
      *
-     * @param cfs    The indexed {@link ColumnFamilyStore}.
+     * @param cfs The indexed {@link ColumnFamilyStore}.
      * @param config The {@link IndexConfig}.
      * @throws IOException If there are I/O errors.
      */
@@ -94,7 +94,7 @@ public abstract class RowService {
     /**
      * Returns a new {@link RowService} for the specified {@link IndexConfig}.
      *
-     * @param cfs    The indexed {@link ColumnFamilyStore}.
+     * @param cfs The indexed {@link ColumnFamilyStore}.
      * @param config The {@link IndexConfig}.
      * @return A new {@link RowService} for the specified {@link IndexConfig}.
      * @throws IOException If there are I/O errors.
@@ -122,7 +122,7 @@ public abstract class RowService {
     /**
      * Validates the row insertion specified by the specified partition key and column family.
      *
-     * @param key          A partition key.
+     * @param key A partition key.
      * @param columnFamily A {@link ColumnFamily} with a single common cluster key.
      */
     public abstract void validate(final ByteBuffer key, final ColumnFamily columnFamily);
@@ -133,9 +133,9 @@ public abstract class RowService {
      * columns than the specified ones. The specified {@link ColumnFamily} is used for determine the cluster key. This
      * operation is performed asynchronously.
      *
-     * @param key          A partition key.
+     * @param key A partition key.
      * @param columnFamily A {@link ColumnFamily} with a single common cluster key.
-     * @param timestamp    The insertion time.
+     * @param timestamp The insertion time.
      * @throws IOException If there are I/O errors.
      */
     public void index(final ByteBuffer key, final ColumnFamily columnFamily, final long timestamp) throws IOException {
@@ -159,9 +159,9 @@ public abstract class RowService {
      * Puts in the Lucene index the Cassandra's the row identified by the specified partition key and the clustering
      * keys contained in the specified {@link ColumnFamily}.
      *
-     * @param key          A partition key.
+     * @param key A partition key.
      * @param columnFamily A {@link ColumnFamily} with a single common cluster key.
-     * @param timestamp    The insertion time.
+     * @param timestamp The insertion time.
      * @throws IOException If there are I/O errors.
      */
     protected abstract void doIndex(ByteBuffer key, ColumnFamily columnFamily, long timestamp) throws IOException;
@@ -237,7 +237,7 @@ public abstract class RowService {
      *
      * @param partitionKey A partition key.
      * @param columnFamily A column family.
-     * @param timestamp    The operation time.
+     * @param timestamp The operation time.
      * @return The Lucene {@link Document}s represented by the specified Cassandra row associated with their identifying
      * {@link Term}s.
      */
@@ -246,13 +246,13 @@ public abstract class RowService {
     /**
      * Returns the stored and indexed {@link Row}s satisfying the specified restrictions.
      *
-     * @param search      The {@link Search} to be performed.
+     * @param search The {@link Search} to be performed.
      * @param expressions A list of filtering {@link IndexExpression}s to be satisfied.
-     * @param dataRange   A {@link DataRange} to be satisfied.
-     * @param limit       The max number of {@link Row}s to be returned.
-     * @param timestamp   The operation time stamp.
-     * @param after       A {@link RowKey} to start the search after.
-     * @param distinct    If CQL DISTINCT operator is used.
+     * @param dataRange A {@link DataRange} to be satisfied.
+     * @param limit The max number of {@link Row}s to be returned.
+     * @param timestamp The operation time stamp.
+     * @param after A {@link RowKey} to start the search after.
+     * @param distinct If CQL DISTINCT operator is used.
      * @return The {@link Row}s satisfying the specified restrictions.
      * @throws IOException If there are I/O errors.
      */
@@ -297,7 +297,7 @@ public abstract class RowService {
 
         SearcherManager searcherManager = lucene.getSearcherManager();
         IndexSearcher searcher = searcherManager.acquire();
-        sort=sort.rewrite(searcher);
+        sort = sort.rewrite(searcher);
         Set<DecoratedKey> partitionKeys = new HashSet<>();
         try {
 
@@ -319,8 +319,9 @@ public abstract class RowService {
                     last = scoreDoc;
                     SearchResult searchResult = mapper.searchResult(document, scoreDoc);
                     DecoratedKey partitionKey = searchResult.getPartitionKey();
-                    if (!(distinct && (partitionKeys.contains(partitionKey)
-                                       || after != null && after.getPartitionKey().equals(partitionKey)))) {
+                    if (!(distinct &&
+                          (partitionKeys.contains(partitionKey) ||
+                           after != null && after.getPartitionKey().equals(partitionKey)))) {
                         searchResults.add(searchResult);
                         partitionKeys.add(partitionKey);
                     }
@@ -373,7 +374,7 @@ public abstract class RowService {
      * Returns the {@link Query} representation of the specified {@link Search} filtered by the specified {@link
      * DataRange}.
      *
-     * @param search    A {@link Search}.
+     * @param search A {@link Search}.
      * @param dataRange A {@link DataRange}.
      * @return The {@link Query} representation of the specified {@link Search} filtered by the specified {@link
      * DataRange}.
@@ -428,9 +429,9 @@ public abstract class RowService {
      * Returns the {@link ScoreDoc} of a previous search.
      *
      * @param searcher The Lucene {@link IndexSearcher} to be used.
-     * @param key      The key of the last found row.
-     * @param query    The previous query.
-     * @param sort     The previous sort.
+     * @param key The key of the last found row.
+     * @param query The previous query.
+     * @param sort The previous sort.
      * @return The {@link ScoreDoc} of a previous search.
      * @throws IOException If there are I/O errors.
      */
@@ -453,7 +454,7 @@ public abstract class RowService {
      * Returns {@code true} if the specified {@link Row} satisfies the all the specified {@link IndexExpression}s,
      * {@code false} otherwise.
      *
-     * @param row         A {@link Row}.
+     * @param row A {@link Row}.
      * @param expressions A list of {@link IndexExpression}s to be satisfied by {@code row}.
      * @return {@code true} if the specified {@link Row} satisfies the all the specified {@link IndexExpression}s,
      * {@code false} otherwise.
@@ -474,7 +475,7 @@ public abstract class RowService {
      * Returns {@code true} if the specified {@link Columns} satisfies the the specified {@link IndexExpression}, {@code
      * false} otherwise.
      *
-     * @param columns    A {@link Columns}.
+     * @param columns A {@link Columns}.
      * @param expression A {@link IndexExpression}s to be satisfied by {@code columns}.
      * @return {@code true} if the specified {@link Columns} satisfies the the specified {@link IndexExpression}, {@code
      * false} otherwise.
@@ -499,10 +500,10 @@ public abstract class RowService {
      * Returns {@code true} if the specified {@link Column} satisfies the the specified expression, {@code false}
      * otherwise.
      *
-     * @param column    A {@link Column}.
+     * @param column A {@link Column}.
      * @param validator An expression validator.
-     * @param operator  An expression operator.
-     * @param value     An expression value.
+     * @param operator An expression operator.
+     * @param value An expression value.
      * @return {@code true} if the specified {@link Column} satisfies the the specified expression, {@code false}
      * otherwise.
      */
@@ -542,8 +543,8 @@ public abstract class RowService {
      * Returns the {@link Row}s identified by the specified {@link Document}s, using the specified time stamp to ignore
      * deleted columns. The {@link Row}s are retrieved from the storage engine, so it involves IO operations.
      *
-     * @param results       The {@link SearchResult}s
-     * @param timestamp     The time stamp to ignore deleted columns.
+     * @param results The {@link SearchResult}s
+     * @param timestamp The time stamp to ignore deleted columns.
      * @param scorePosition The position where score column is placed.
      * @return The {@link Row}s identified by the specified {@link Document}s
      */
@@ -553,7 +554,7 @@ public abstract class RowService {
      * Returns a {@link ColumnFamily} composed by the non expired {@link Cell}s of the specified  {@link ColumnFamily}.
      *
      * @param columnFamily A {@link ColumnFamily}.
-     * @param timestamp    The max allowed timestamp for the {@link Cell}s.
+     * @param timestamp The max allowed timestamp for the {@link Cell}s.
      * @return A {@link ColumnFamily} composed by the non expired {@link Cell}s of the specified  {@link ColumnFamily}.
      */
     protected ColumnFamily cleanExpired(ColumnFamily columnFamily, long timestamp) {
@@ -569,9 +570,9 @@ public abstract class RowService {
     /**
      * Adds to the specified {@link Row} the specified Lucene score column.
      *
-     * @param row           A {@link Row}.
-     * @param timestamp     The score column timestamp.
-     * @param scoreDoc      The score column value.
+     * @param row A {@link Row}.
+     * @param timestamp The score column timestamp.
+     * @param scoreDoc The score column value.
      * @param scorePosition The position where score column is placed.
      * @return The {@link Row} with the score.
      */

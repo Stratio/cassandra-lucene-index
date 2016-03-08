@@ -40,8 +40,8 @@ public class RegexpConditionBuilder extends ConditionBuilder<RegexpCondition, Re
     /**
      * Creates a new {@link RegexpConditionBuilder} for the specified field and expression.
      *
-     * @param field The name of the field to be matched.
-     * @param value The wildcard expression to be matched.
+     * @param field the name of the field to be matched
+     * @param value the wildcard expression to be matched
      */
     @JsonCreator
     public RegexpConditionBuilder(@JsonProperty("field") String field, @JsonProperty("value") String value) {
@@ -52,7 +52,7 @@ public class RegexpConditionBuilder extends ConditionBuilder<RegexpCondition, Re
     /**
      * Returns the {@link RegexpCondition} represented by this builder.
      *
-     * @return The {@link RegexpCondition} represented by this builder.
+     * @return a new regexp condition
      */
     @Override
     public RegexpCondition build() {

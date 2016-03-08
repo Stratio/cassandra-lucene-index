@@ -57,13 +57,13 @@ public class BitemporalCondition extends SingleMapperCondition<BitemporalMapper>
      * Constructs a query selecting all fields that intersects with valid time and transaction time ranges including
      * limits.
      *
-     * @param boost  The boost for this query clause. Documents matching this clause will (in addition to the normal
-     *               weightings) have their score multiplied by {@code boost}.
-     * @param field  The name of the field to be matched.
-     * @param vtFrom The Valid Time Start.
-     * @param vtTo   The Valid Time End.
-     * @param ttFrom The Transaction Time Start.
-     * @param ttTo   The Transaction Time End.
+     * @param boost The boost for this query clause. Documents matching this clause will (in addition to the normal
+     * weightings) have their score multiplied by {@code boost}.
+     * @param field The name of the field to be matched
+     * @param vtFrom the valid time start
+     * @param vtTo the valid time end
+     * @param ttFrom the transaction time start
+     * @param ttTo the transaction time end
      */
     public BitemporalCondition(Float boost, String field, Object vtFrom, Object vtTo, Object ttFrom, Object ttTo) {
         super(boost, field, BitemporalMapper.class);
@@ -151,9 +151,9 @@ public class BitemporalCondition extends SingleMapperCondition<BitemporalMapper>
     }
 
     private static Long parseTime(BitemporalMapper mapper, Long defaultTime, Object value) {
-        return value == null ?
-               new BitemporalDateTime(defaultTime).toDate().getTime() :
-               mapper.parseBitemporalDate(value).toDate().getTime();
+        return value == null
+               ? new BitemporalDateTime(defaultTime).toDate().getTime()
+               : mapper.parseBitemporalDate(value).toDate().getTime();
     }
 
     /** {@inheritDoc} */

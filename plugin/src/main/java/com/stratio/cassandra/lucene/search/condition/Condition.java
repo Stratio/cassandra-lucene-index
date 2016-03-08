@@ -31,8 +31,8 @@ import org.slf4j.LoggerFactory;
  *
  * Known subclasses are: <ul> <li> {@link AllCondition} <li> {@link BitemporalCondition} <li> {@link ContainsCondition}
  * <li> {@link FuzzyCondition} <li> {@link MatchCondition} <li> {@link PhraseCondition} <li> {@link PrefixCondition}
- * <li> {@link RangeCondition} <li> {@link WildcardCondition} <li> {@link GeoDistanceCondition}
- * <li> {@link GeoBBoxCondition} </ul>
+ * <li> {@link RangeCondition} <li> {@link WildcardCondition} <li> {@link GeoDistanceCondition} <li> {@link
+ * GeoBBoxCondition} </ul>
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
@@ -50,7 +50,7 @@ public abstract class Condition {
      * Abstract {@link Condition} builder receiving the boost to be used.
      *
      * @param boost The boost for this query clause. Documents matching this clause will (in addition to the normal
-     *              weightings) have their score multiplied by {@code boost}.
+     * weightings) have their score multiplied by {@code boost}.
      */
     public Condition(Float boost) {
         this.boost = boost == null ? DEFAULT_BOOST : boost;
@@ -59,16 +59,16 @@ public abstract class Condition {
     /**
      * Returns the Lucene {@link Query} representation of this condition.
      *
-     * @param schema The schema to be used.
-     * @return The Lucene {@link Query} representation of this condition.
+     * @param schema the schema to be used
+     * @return The Lucene query
      */
     public abstract Query query(Schema schema);
 
     /**
      * Returns the Lucene {@link Filter} representation of this condition.
      *
-     * @param schema The schema to be used.
-     * @return The Lucene {@link Filter} representation of this condition.
+     * @param schema the schema to be used
+     * @return the Lucene filter
      */
     public Filter filter(Schema schema) {
         return new QueryWrapperFilter(query(schema));

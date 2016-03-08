@@ -55,11 +55,11 @@ public class Search {
     /**
      * Returns a new {@link Search} composed by the specified querying and filtering conditions.
      *
-     * @param queryCondition  The {@link Condition} for querying, maybe {@code null} meaning no querying.
+     * @param queryCondition The {@link Condition} for querying, maybe {@code null} meaning no querying.
      * @param filterCondition The {@link Condition} for filtering, maybe {@code null} meaning no filtering.
-     * @param sort            The {@link Sort} for the query. Note that is the order in which the data will be read
-     *                        before querying, not the order of the results after querying.
-     * @param refresh         If this search must refresh the index before reading it.
+     * @param sort The {@link Sort} for the query. Note that is the order in which the data will be read before
+     * querying, not the order of the results after querying.
+     * @param refresh If this search must refresh the index before reading it.
      */
     public Search(Condition queryCondition, Condition filterCondition, Sort sort, Boolean refresh) {
         this.queryCondition = queryCondition;
@@ -80,7 +80,7 @@ public class Search {
     /**
      * Returns {@code true} if this search uses Lucene relevance formula, {@code false} otherwise.
      *
-     * @return {@code true} if this search uses Lucene relevance formula, {@code false} otherwise.
+     * @return {@code true} if this search uses Lucene relevance formula, {@code false} otherwise
      */
     public boolean usesRelevance() {
         return queryCondition != null;

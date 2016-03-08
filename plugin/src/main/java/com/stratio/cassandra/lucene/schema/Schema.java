@@ -56,9 +56,9 @@ public class Schema implements Closeable {
     /**
      * Returns a new {@code Schema} for the specified {@link Mapper}s and {@link Analyzer}s.
      *
-     * @param defaultAnalyzer The default {@link Analyzer} to be used.
-     * @param mappers         The per field {@link Mapper}s builders to be used.
-     * @param analyzers       The per field {@link Analyzer}s to be used.
+     * @param defaultAnalyzer the default {@link Analyzer} to be used
+     * @param mappers the per field {@link Mapper}s builders to be used
+     * @param analyzers the per field {@link Analyzer}s to be used
      */
     public Schema(Analyzer defaultAnalyzer, Map<String, Mapper> mappers, Map<String, Analyzer> analyzers) {
         this.mappers = mappers;
@@ -72,7 +72,7 @@ public class Schema implements Closeable {
     /**
      * Returns the used {@link Analyzer}.
      *
-     * @return The used {@link Analyzer}.
+     * @return the used {@link Analyzer}
      */
     public Analyzer getAnalyzer() {
         return analyzer;
@@ -81,7 +81,7 @@ public class Schema implements Closeable {
     /**
      * Returns the default {@link Analyzer}.
      *
-     * @return The default {@link Analyzer}.
+     * @return the default {@link Analyzer}
      */
     public Analyzer getDefaultAnalyzer() {
         return analyzer.getDefaultAnalyzer().getAnalyzer();
@@ -90,8 +90,8 @@ public class Schema implements Closeable {
     /**
      * Returns the {@link Analyzer} identified by the specified field name.
      *
-     * @param fieldName A field name.
-     * @return The {@link Analyzer} identified by the specified field name.
+     * @param fieldName a field name
+     * @return an {@link Analyzer}
      */
     public Analyzer getAnalyzer(String fieldName) {
         return analyzer.getAnalyzer(fieldName).getAnalyzer();
@@ -100,8 +100,8 @@ public class Schema implements Closeable {
     /**
      * Returns the {@link Mapper} identified by the specified field name, or {@code null} if not found.
      *
-     * @param field A field name.
-     * @return The {@link Mapper} identified by the specified field name, or {@code null} if not found.
+     * @param field a field name
+     * @return the mapper, or {@code null} if not found.
      */
     public Mapper getMapper(String field) {
         String mapperName = Column.getMapperName(field);
@@ -116,7 +116,7 @@ public class Schema implements Closeable {
     /**
      * Validates the specified {@link Columns} for mapping.
      *
-     * @param columns The {@link Columns} to be validated.
+     * @param columns the {@link Columns} to be validated
      */
     public void validate(Columns columns) {
         for (Mapper mapper : mappers.values()) {
@@ -129,8 +129,8 @@ public class Schema implements Closeable {
      *
      * This is done in a best-effort way, so each mapper errors are logged and ignored.
      *
-     * @param document The Lucene {@link Document} where the fields are going to be added.
-     * @param columns  The {@link Columns} to be added.
+     * @param document the Lucene {@link Document} where the fields are going to be added
+     * @param columns the {@link Columns} to be added
      */
     public void addFields(Document document, Columns columns) {
         for (Mapper mapper : mappers.values()) {
@@ -148,7 +148,7 @@ public class Schema implements Closeable {
     /**
      * Checks if this is consistent with the specified column family metadata.
      *
-     * @param metadata A column family metadata.
+     * @param metadata the column family metadata to be validated
      */
     public void validate(CFMetaData metadata) {
         for (Mapper mapper : mappers.values()) {

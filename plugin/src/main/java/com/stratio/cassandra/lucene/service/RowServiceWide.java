@@ -60,7 +60,7 @@ public class RowServiceWide extends RowService {
     /**
      * Returns a new {@code RowServiceWide} to manage wide rows.
      *
-     * @param cfs    The indexed {@link ColumnFamilyStore}.
+     * @param cfs The indexed {@link ColumnFamilyStore}.
      * @param config The {@link IndexConfig}.
      * @throws IOException If there are I/O errors.
      */
@@ -206,9 +206,9 @@ public class RowServiceWide extends RowService {
      * Returns the CQL3 {@link Row} identified by the specified key pair, using the specified time stamp to ignore
      * deleted columns. The {@link Row} is retrieved from the storage engine, so it involves IO operations.
      *
-     * @param partitionKey   The partition key.
+     * @param partitionKey The partition key.
      * @param clusteringKeys The clustering keys.
-     * @param timestamp      The time stamp to ignore deleted columns.
+     * @param timestamp The time stamp to ignore deleted columns.
      * @return The CQL3 {@link Row} identified by the specified key pair.
      */
     private Map<CellName, ColumnFamily> rows(DecoratedKey partitionKey, List<CellName> clusteringKeys, long timestamp) {

@@ -38,7 +38,7 @@ public class AllConditionBuilder extends ConditionBuilder<AllCondition, AllCondi
     /**
      * Returns the {@link AllCondition} represented by this builder.
      *
-     * @return The {@link AllCondition} represented by this builder.
+     * @return a new all condition
      */
     @Override
     public AllCondition build() {

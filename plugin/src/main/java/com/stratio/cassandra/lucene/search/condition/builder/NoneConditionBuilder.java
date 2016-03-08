@@ -38,7 +38,7 @@ public class NoneConditionBuilder extends ConditionBuilder<NoneCondition, NoneCo
     /**
      * Returns the {@link NoneCondition} represented by this builder.
      *
-     * @return The {@link NoneCondition} represented by this builder.
+     * @return a new none condition
      */
     @Override
     public NoneCondition build() {

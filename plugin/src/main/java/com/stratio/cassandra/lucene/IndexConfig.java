@@ -84,7 +84,7 @@ public class IndexConfig {
      * Builds a new {@link IndexConfig} for the column family defined by the specified metadata using the specified
      * index options.
      *
-     * @param metadata         The indexed column family metadata.
+     * @param metadata The indexed column family metadata.
      * @param columnDefinition The index column definition.
      */
     public IndexConfig(CFMetaData metadata, ColumnDefinition columnDefinition) {

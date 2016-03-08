@@ -66,7 +66,7 @@ public final class PartitionKeyMapper {
      * Returns a new {@code PartitionKeyMapper} according to the specified column family meta data.
      *
      * @param metadata The column family metadata.
-     * @param schema   A {@link Schema}.
+     * @param schema A {@link Schema}.
      */
     private PartitionKeyMapper(CFMetaData metadata, Schema schema) {
         partitioner = DatabaseDescriptor.getPartitioner();
@@ -79,7 +79,7 @@ public final class PartitionKeyMapper {
      * Returns a new {@code PartitionKeyMapper} according to the specified column family meta data.
      *
      * @param metadata The column family metadata.
-     * @param schema   A {@link Schema}.
+     * @param schema A {@link Schema}.
      * @return a new {@code PartitionKeyMapper} according to the specified column family meta data.
      */
     public static PartitionKeyMapper instance(CFMetaData metadata, Schema schema) {
@@ -93,7 +93,7 @@ public final class PartitionKeyMapper {
     /**
      * Adds to the specified {@link Document} the {@link Field}s associated to the specified raw partition key.
      *
-     * @param document     The document in which the fields are going to be added.
+     * @param document The document in which the fields are going to be added.
      * @param partitionKey The raw partition key to be converted.
      */
     public void addFields(Document document, DecoratedKey partitionKey) {

@@ -76,9 +76,9 @@ public class RowMapperWide extends RowMapper {
      * Returns a Lucene {@link Document} representing the logical CQL row represented by the specified partition key,
      * clustering key and {@link Columns}.
      *
-     * @param partitionKey  The partition key of the logical CQL row.
+     * @param partitionKey The partition key of the logical CQL row.
      * @param clusteringKey The clustering key of the logical CQL row.
-     * @param columns       The {@link Columns} of the logical CQL row.
+     * @param columns The {@link Columns} of the logical CQL row.
      * @return A Lucene {@link Document} representing the specified logical CQL row
      */
     public Document document(DecoratedKey partitionKey, CellName clusteringKey, Columns columns) {
@@ -127,7 +127,7 @@ public class RowMapperWide extends RowMapper {
      * Returns the Lucene {@link Term} to get the {@link Document}s containing the specified decorated partition key and
      * clustering key.
      *
-     * @param partitionKey  A decorated partition key.
+     * @param partitionKey A decorated partition key.
      * @param clusteringKey A clustering key.
      * @return The Lucene {@link Term} to get the {@link Document}s containing the specified decorated partition key and
      * clustering key.
@@ -203,7 +203,7 @@ public class RowMapperWide extends RowMapper {
      * Returns the Lucene {@link Query} to get the {@link Document}s satisfying the specified partition key and {@link
      * RangeTombstone}.
      *
-     * @param partitionKey   A partition key.
+     * @param partitionKey A partition key.
      * @param rangeTombstone A {@link RangeTombstone}.
      * @return The Lucene {@link Query} to get the {@link Document}s satisfying the specified partition key and {@link
      * RangeTombstone}.
@@ -248,7 +248,7 @@ public class RowMapperWide extends RowMapper {
     /**
      * Returns a hash code to uniquely identify a CQL logical row key.
      *
-     * @param partitionKey  A partition key.
+     * @param partitionKey A partition key.
      * @param clusteringKey A clustering key.
      * @return A hash code to uniquely identify a CQL logical row key.
      */

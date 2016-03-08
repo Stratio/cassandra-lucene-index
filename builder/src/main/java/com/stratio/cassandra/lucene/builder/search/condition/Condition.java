@@ -28,8 +28,8 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
  *
  * Known subclasses are: <ul> <li> {@link AllCondition} <li> {@link BitemporalCondition} <li> {@link ContainsCondition}
  * <li> {@link FuzzyCondition} <li> {@link MatchCondition} <li> {@link PhraseCondition} <li> {@link PrefixCondition}
- * <li> {@link RangeCondition} <li> {@link WildcardCondition} <li> {@link GeoDistanceCondition}
- * <li> {@link GeoBBoxCondition} </ul>
+ * <li> {@link RangeCondition} <li> {@link WildcardCondition} <li> {@link GeoDistanceCondition} <li> {@link
+ * GeoBBoxCondition} </ul>
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */

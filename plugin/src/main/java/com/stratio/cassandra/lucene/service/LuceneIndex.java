@@ -120,7 +120,7 @@ public class LuceneIndex implements LuceneIndexMBean {
      * the new document. The delete and then add are atomic as seen by a reader on the same index (flush may happen only
      * after the add).
      *
-     * @param term     The {@link Term} to identify the document(s) to be deleted.
+     * @param term The {@link Term} to identify the document(s) to be deleted.
      * @param document The {@link Document} to be added.
      * @throws IOException If Lucene throws IO errors.
      */
@@ -224,11 +224,11 @@ public class LuceneIndex implements LuceneIndexMBean {
      * the hits by {@code sort}.
      *
      * @param searcher The {@link IndexSearcher} to be used.
-     * @param query    The {@link Query} to search for.
-     * @param sort     The {@link Sort} to be applied.
-     * @param after    The starting {@link ScoreDoc}.
-     * @param count    The max number of results to be collected.
-     * @param fields   The names of the fields to be loaded.
+     * @param query The {@link Query} to search for.
+     * @param sort The {@link Sort} to be applied.
+     * @param after The starting {@link ScoreDoc}.
+     * @param count The max number of results to be collected.
+     * @param fields The names of the fields to be loaded.
      * @return The found documents, sorted according to the supplied {@link Sort} instance.
      * @throws IOException If Lucene throws IO errors.
      */
@@ -292,7 +292,7 @@ public class LuceneIndex implements LuceneIndexMBean {
      * until all merging completes.
      *
      * @param maxNumSegments The maximum number of segments left in the index after merging finishes.
-     * @param doWait         {@code true} if the call should block until the operation completes.
+     * @param doWait {@code true} if the call should block until the operation completes.
      * @throws IOException If Lucene throws IO errors.
      */
     @Override

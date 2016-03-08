@@ -18,11 +18,11 @@
 
 package com.stratio.cassandra.lucene.search.condition.builder;
 
+import com.stratio.cassandra.lucene.common.GeoOperation;
+import com.stratio.cassandra.lucene.common.GeoTransformation;
 import com.stratio.cassandra.lucene.common.JTSNotFoundException;
 import com.stratio.cassandra.lucene.search.condition.GeoBBoxCondition;
-import com.stratio.cassandra.lucene.common.GeoOperation;
 import com.stratio.cassandra.lucene.search.condition.GeoShapeCondition;
-import com.stratio.cassandra.lucene.common.GeoTransformation;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
@@ -90,7 +90,7 @@ public class GeoShapeConditionBuilder extends ConditionBuilder<GeoShapeCondition
     /**
      * Returns the {@link GeoBBoxCondition} represented by this builder.
      *
-     * @return the condition
+     * @return a new geo shape condition
      */
     @Override
     public GeoShapeCondition build() {

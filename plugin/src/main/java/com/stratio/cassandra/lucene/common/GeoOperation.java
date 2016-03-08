@@ -21,7 +21,9 @@ public enum GeoOperation {
         this.spatialOperation = spatialOperation;
     }
 
-    /** Returns the represented Lucene's {@link SpatialOperation}.
+    /**
+     * Returns the represented Lucene's {@link SpatialOperation}.
+     *
      * @return the Lucene's spatial operation
      */
     public SpatialOperation getSpatialOperation() {

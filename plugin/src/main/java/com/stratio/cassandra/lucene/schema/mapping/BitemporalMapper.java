@@ -75,14 +75,14 @@ public class BitemporalMapper extends Mapper {
     /**
      * Builds a new {@link BitemporalMapper}.
      *
-     * @param field     The name of the field.
-     * @param validated If the field must be validated.
-     * @param vtFrom    The column name containing the valid time start.
-     * @param vtTo      The column name containing the valid time stop.
-     * @param ttFrom    The column name containing the transaction time start.
-     * @param ttTo      The column name containing the transaction time stop.
-     * @param pattern   The date format pattern to be used.
-     * @param nowValue  The value representing now.
+     * @param field the name of the field
+     * @param validated if the field must be validated
+     * @param vtFrom the name of the column containing the valid time start
+     * @param vtTo the name of the column containing the valid time end
+     * @param ttFrom the name of the column containing the transaction time start
+     * @param ttTo the name of the column containing the transaction time end
+     * @param pattern the date format pattern to be used
+     * @param nowValue the value representing now
      */
     public BitemporalMapper(String field,
                             Boolean validated,
@@ -186,11 +186,11 @@ public class BitemporalMapper extends Mapper {
     }
 
     /**
-     * returns a {@link BitemporalDateTime} read from columns
+     * Returns a {@link BitemporalDateTime} read from the specified {@link Columns}.
      *
-     * @param columns   the {@link Columns} where it is the data
-     * @param fieldName the filed Name to read from {@link Columns}
-     * @return a {@link BitemporalDateTime} read from columns
+     * @param columns the column where the data is
+     * @param fieldName the name of the field to be read from {@code columns}
+     * @return a bitemporal date time
      */
     BitemporalDateTime readBitemporalDate(Columns columns, String fieldName) {
         Column<?> column = columns.getColumnsByFullName(fieldName).getFirst();
@@ -214,9 +214,8 @@ public class BitemporalMapper extends Mapper {
      * Parses an {@link Object} into a {@link BitemporalDateTime}. It parses {@link Long} and {@link String} format
      * values based in pattern.
      *
-     * @param value The object to be parsed.
-     * @return a parsed {@link BitemporalDateTime} from an {@link Object}. it parses {@link Long} and {@link String}
-     * format values based in pattern.
+     * @param value the object to be parsed
+     * @return a bitemporal date time
      */
     public BitemporalDateTime parseBitemporalDate(Object value) {
         Date opt = dateParser.parse(value);

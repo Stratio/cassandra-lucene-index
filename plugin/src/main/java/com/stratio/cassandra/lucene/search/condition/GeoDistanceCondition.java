@@ -56,14 +56,14 @@ public class GeoDistanceCondition extends SingleMapperCondition<GeoPointMapper> 
     /**
      * Constructor using the field name and the value to be matched.
      *
-     * @param boost       The boost for this query clause. Documents matching this clause will (in addition to the
-     *                    normal weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link
-     *                    #DEFAULT_BOOST} is used as default.
-     * @param field       The name of the field to be matched.
-     * @param latitude    The latitude of the reference point.
-     * @param longitude   The longitude of the reference point.
-     * @param minGeoDistance The min allowed distance.
-     * @param maxGeoDistance The max allowed distance.
+     * @param boost The boost for this query clause. Documents matching this clause will (in addition to the normal
+     * weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link #DEFAULT_BOOST} is used as
+     * default.
+     * @param field the name of the field to be matched
+     * @param latitude the latitude of the reference point
+     * @param longitude the longitude of the reference point
+     * @param minGeoDistance the min allowed distance
+     * @param maxGeoDistance the max allowed distance
      */
     public GeoDistanceCondition(Float boost,
                                 String field,
@@ -82,7 +82,6 @@ public class GeoDistanceCondition extends SingleMapperCondition<GeoPointMapper> 
 
         this.maxGeoDistance = maxGeoDistance;
         this.minGeoDistance = minGeoDistance;
-
 
         if (minGeoDistance != null && minGeoDistance.compareTo(maxGeoDistance) >= 0) {
             throw new IndexException("min_distance must be lower than max_distance");

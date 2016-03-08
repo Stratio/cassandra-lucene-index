@@ -102,7 +102,9 @@ public class IndexQueryHandler implements QueryHandler {
     }
 
     @Override
-    public ResultMessage processPrepared(CQLStatement statement, QueryState state, QueryOptions options,
+    public ResultMessage processPrepared(CQLStatement statement,
+                                         QueryState state,
+                                         QueryOptions options,
                                          Map<String, ByteBuffer> customPayload)
     throws RequestExecutionException, RequestValidationException {
         QueryProcessor.metrics.preparedStatementsExecuted.inc();
@@ -111,14 +113,18 @@ public class IndexQueryHandler implements QueryHandler {
     }
 
     @Override
-    public ResultMessage processBatch(BatchStatement statement, QueryState state, BatchQueryOptions options,
+    public ResultMessage processBatch(BatchStatement statement,
+                                      QueryState state,
+                                      BatchQueryOptions options,
                                       Map<String, ByteBuffer> customPayload)
     throws RequestExecutionException, RequestValidationException {
         return cqlProcessor.processBatch(statement, state, options);
     }
 
     @Override
-    public ResultMessage process(String query, QueryState state, QueryOptions options,
+    public ResultMessage process(String query,
+                                 QueryState state,
+                                 QueryOptions options,
                                  Map<String, ByteBuffer> customPayload)
     throws RequestExecutionException, RequestValidationException {
         ParsedStatement.Prepared p = QueryProcessor.getStatement(query, state.getClientState());
@@ -130,7 +136,10 @@ public class IndexQueryHandler implements QueryHandler {
         return process(p.statement, state, options, customPayload);
 
     }
-    public ResultMessage process(CQLStatement statement, QueryState state, QueryOptions options,
+
+    public ResultMessage process(CQLStatement statement,
+                                 QueryState state,
+                                 QueryOptions options,
                                  Map<String, ByteBuffer> customPayload)
     throws RequestExecutionException, RequestValidationException {
 

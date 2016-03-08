@@ -54,11 +54,11 @@ public class TokenQuery extends MultiTermQuery {
     /**
      * Builds a new {@link TokenQuery}.
      *
-     * @param lower        The lower accepted {@link Token}. Maybe null meaning no lower limit.
-     * @param upper        The upper accepted {@link Token}. Maybe null meaning no lower limit.
+     * @param lower The lower accepted {@link Token}. Maybe null meaning no lower limit.
+     * @param upper The upper accepted {@link Token}. Maybe null meaning no lower limit.
      * @param includeLower If the {@code lowerValue} is included in the range.
      * @param includeUpper If the {@code upperValue} is included in the range.
-     * @param tokenMapper  The used {@link TokenMapperGeneric}.
+     * @param tokenMapper The used {@link TokenMapperGeneric}.
      */
     public TokenQuery(Token lower,
                       Token upper,

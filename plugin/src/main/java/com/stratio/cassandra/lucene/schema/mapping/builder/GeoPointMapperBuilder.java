@@ -49,8 +49,6 @@ public class GeoPointMapperBuilder extends MapperBuilder<GeoPointMapper, GeoPoin
     @JsonProperty("sorted")
     private Boolean sorted;
 
-
-
     /**
      * Builds a new {@link GeoPointMapper}.
      *

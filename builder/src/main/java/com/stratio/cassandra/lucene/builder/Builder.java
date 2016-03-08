@@ -487,6 +487,7 @@ public abstract class Builder {
     public static GeoTransformation.Buffer bufferGeoTransformation() {
         return new GeoTransformation.Buffer();
     }
+
     /**
      * Returns a new {@link GeoTransformation.Centroid}.
      *

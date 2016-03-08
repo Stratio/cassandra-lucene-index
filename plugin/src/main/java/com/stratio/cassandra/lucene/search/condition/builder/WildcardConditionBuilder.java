@@ -40,8 +40,8 @@ public class WildcardConditionBuilder extends ConditionBuilder<WildcardCondition
     /**
      * Creates a new {@link WildcardConditionBuilder} for the specified field and value.
      *
-     * @param field The name of the field to be matched.
-     * @param value The wildcard expression to be matched.
+     * @param field the name of the field to be matched
+     * @param value the wildcard expression to be matched
      */
     @JsonCreator
     public WildcardConditionBuilder(@JsonProperty("field") String field, @JsonProperty("value") String value) {
@@ -52,7 +52,7 @@ public class WildcardConditionBuilder extends ConditionBuilder<WildcardCondition
     /**
      * Returns the {@link WildcardCondition} represented by this builder.
      *
-     * @return The {@link WildcardCondition} represented by this builder.
+     * @return a new wildcard condition
      */
     @Override
     public WildcardCondition build() {

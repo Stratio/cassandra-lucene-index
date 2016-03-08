@@ -46,8 +46,8 @@ public class SnowballAnalyzer extends Analyzer {
      * Builds a new {@link SnowballAnalyzer} for the specified language and stopwords.
      *
      * @param language The language. The supported languages are English, French, Spanish, Portuguese, Italian,
-     *                 Romanian, German, Dutch, Swedish, Norwegian, Danish, Russian, Finnish, Irish, Hungarian,
-     *                 Turkish, Armenian, Basque and Catalan.
+     * Romanian, German, Dutch, Swedish, Norwegian, Danish, Russian, Finnish, Irish, Hungarian, Turkish, Armenian,
+     * Basque and Catalan.
      */
     @JsonCreator
     public SnowballAnalyzer(@JsonProperty("language") String language) {

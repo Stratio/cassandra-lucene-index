@@ -48,7 +48,7 @@ public class DateRangeConditionBuilder extends ConditionBuilder<DateRangeConditi
     /**
      * Returns a new {@link DateRangeConditionBuilder} with the specified field reference point.
      *
-     * @param field The name of the field to be matched.
+     * @param field the name of the field to be matched
      */
     @JsonCreator
     public DateRangeConditionBuilder(@JsonProperty("field") String field) {
@@ -58,8 +58,8 @@ public class DateRangeConditionBuilder extends ConditionBuilder<DateRangeConditi
     /**
      * Sets the lower accepted date. Maybe null meaning no lower limit.
      *
-     * @param from The lower accepted date. Maybe null meaning no lower limit.
-     * @return This.
+     * @param from the lower accepted date, or {@code null} if there is no lower limit
+     * @return this with the specified lower limit
      */
     public DateRangeConditionBuilder from(Object from) {
         this.from = from;
@@ -69,8 +69,8 @@ public class DateRangeConditionBuilder extends ConditionBuilder<DateRangeConditi
     /**
      * Sets the upper accepted date. Maybe null meaning no lower limit.
      *
-     * @param to The upper accepted date. Maybe null meaning no lower limit.
-     * @return This.
+     * @param to the upper accepted date, or {@code null} if there is no upper limit
+     * @return this with the specified upper limit
      */
     public DateRangeConditionBuilder to(Object to) {
         this.to = to;
@@ -78,9 +78,10 @@ public class DateRangeConditionBuilder extends ConditionBuilder<DateRangeConditi
     }
 
     /**
-     * Sets the operation to be performed.
+     * Sets the operation to be performed. Possible values are {@code intersects}, {@code is_within} and {@code
+     * contains}. Defaults to {@code intersects}.
      *
-     * @param operation The operation to be performed.
+     * @param operation the operation
      * @return This.
      */
     public DateRangeConditionBuilder operation(String operation) {
@@ -91,7 +92,7 @@ public class DateRangeConditionBuilder extends ConditionBuilder<DateRangeConditi
     /**
      * Returns the {@link DateRangeCondition} represented by this builder.
      *
-     * @return The {@link DateRangeCondition} represented by this builder.
+     * @return a new date range condition
      */
     @Override
     public DateRangeCondition build() {

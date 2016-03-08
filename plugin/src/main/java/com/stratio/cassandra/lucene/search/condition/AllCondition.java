@@ -34,8 +34,8 @@ public class AllCondition extends Condition {
      * Constructor without field arguments.
      *
      * @param boost The boost for this query clause. Documents matching this clause will (in addition to the normal
-     *              weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link
-     *              #DEFAULT_BOOST} is used as default.
+     * weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link #DEFAULT_BOOST} is used as
+     * default.
      */
     public AllCondition(Float boost) {
         super(boost);

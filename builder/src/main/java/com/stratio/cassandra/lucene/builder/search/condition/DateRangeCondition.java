@@ -77,8 +77,8 @@ public class DateRangeCondition extends Condition {
     }
 
     /**
-     * Sets the spatial operation to be performed.
-     * Possible values are {@code intersects}, {@code is_within} and {@code contains}. Defaults to {@code intersects}.
+     * Sets the spatial operation to be performed. Possible values are {@code intersects}, {@code is_within} and {@code
+     * contains}. Defaults to {@code intersects}.
      *
      * @param operation the operation
      * @return this with the specified operation

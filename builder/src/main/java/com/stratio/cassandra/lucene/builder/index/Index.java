@@ -47,7 +47,7 @@ public class Index extends Builder {
     /**
      * Builds a new {@link Index} creation statement for the specified table and column.
      *
-     * @param table  The table name.
+     * @param table The table name.
      * @param column THe indexed column name.
      */
     public Index(String table, String column) {

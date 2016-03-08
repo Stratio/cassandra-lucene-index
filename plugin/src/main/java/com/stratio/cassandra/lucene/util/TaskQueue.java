@@ -75,8 +75,8 @@ public class TaskQueue {
      * The specified identifier is used to choose the thread executor where the task will be queued. The selection and
      * load balancing is based in the {@link #hashCode()} of this identifier.
      *
-     * @param id   The identifier of the task used to choose the thread executor where the task will be queued for
-     *             asynchronous execution.
+     * @param id The identifier of the task used to choose the thread executor where the task will be queued for
+     * asynchronous execution.
      * @param task A task to be queued for asynchronous execution.
      * @return A future for the submitted task.
      */

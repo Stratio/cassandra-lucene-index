@@ -20,7 +20,10 @@ package com.stratio.cassandra.lucene.service;
 
 import com.stratio.cassandra.lucene.IndexConfig;
 import com.stratio.cassandra.lucene.schema.column.Columns;
-import org.apache.cassandra.db.*;
+import org.apache.cassandra.db.ColumnFamily;
+import org.apache.cassandra.db.ColumnFamilyStore;
+import org.apache.cassandra.db.DecoratedKey;
+import org.apache.cassandra.db.Row;
 import org.apache.cassandra.db.filter.QueryFilter;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.Term;
@@ -51,7 +54,7 @@ public class RowServiceSkinny extends RowService {
     /**
      * Returns a new {@code RowServiceSimple} to manage simple rows.
      *
-     * @param cfs    The indexed {@link ColumnFamilyStore}.
+     * @param cfs The indexed {@link ColumnFamilyStore}.
      * @param config The {@link IndexConfig}.
      * @throws IOException If there are I/O errors.
      */
@@ -140,7 +143,7 @@ public class RowServiceSkinny extends RowService {
      * deleted columns. The {@link Row} is retrieved from the storage engine, so it involves IO operations.
      *
      * @param partitionKey The partition key.
-     * @param timestamp    The time stamp to ignore deleted columns.
+     * @param timestamp The time stamp to ignore deleted columns.
      * @return The CQL3 {@link Row} identified by the specified key pair.
      */
     private ColumnFamily row(DecoratedKey partitionKey, long timestamp) {

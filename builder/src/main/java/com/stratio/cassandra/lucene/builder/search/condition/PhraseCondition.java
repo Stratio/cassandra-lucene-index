@@ -53,8 +53,7 @@ public class PhraseCondition extends Condition {
     }
 
     /**
-     * Sets the specified slop. Slop is the number of other words permitted between words in
-     * phrase.
+     * Sets the specified slop. Slop is the number of other words permitted between words in phrase.
      *
      * @param slop the number of other words permitted between words in phrase to set
      * @return this with the specified slop

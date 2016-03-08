@@ -53,7 +53,7 @@ public interface LuceneIndexMBean {
      * until all merging completes.
      *
      * @param maxNumSegments The maximum number of segments left in the index after merging finishes.
-     * @param doWait         {@code true} if the call should block until the operation completes.
+     * @param doWait {@code true} if the call should block until the operation completes.
      * @throws IOException If Lucene throws IO errors.
      */
     void forceMerge(int maxNumSegments, boolean doWait) throws IOException;

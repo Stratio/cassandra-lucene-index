@@ -44,11 +44,11 @@ public class ContainsCondition extends SingleColumnCondition {
     /**
      * Constructor using the field name and the value to be matched.
      *
-     * @param boost  The boost for this query clause. Documents matching this clause will (in addition to the normal
-     *               weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link
-     *               #DEFAULT_BOOST} is used as default.
-     * @param field  The name of the field to be matched.
-     * @param values The value of the field to be matched.
+     * @param boost The boost for this query clause. Documents matching this clause will (in addition to the normal
+     * weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link #DEFAULT_BOOST} is used as
+     * default.
+     * @param field the name of the field to be matched
+     * @param values the value of the field to be matched
      */
     public ContainsCondition(Float boost, String field, Object... values) {
         super(boost, field);

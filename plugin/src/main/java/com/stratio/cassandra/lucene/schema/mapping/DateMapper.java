@@ -44,12 +44,12 @@ public class DateMapper extends SingleColumnMapper.SingleFieldMapper<Long> {
     /**
      * Builds a new {@link DateMapper} using the specified pattern.
      *
-     * @param field   The name of the field.
-     * @param column  The name of the column to be mapped.
-     * @param indexed If the field supports searching.
-     * @param sorted  If the field supports sorting.
-     * @param validated If the field must be validated.
-     * @param pattern The date format pattern to be used.
+     * @param field the name of the field
+     * @param column the name of the column to be mapped
+     * @param indexed if the field supports searching
+     * @param sorted if the field supports sorting
+     * @param validated if the field must be validated
+     * @param pattern the date format pattern to be used
      */
     public DateMapper(String field, String column, Boolean indexed, Boolean sorted, Boolean validated, String pattern) {
         super(field,
