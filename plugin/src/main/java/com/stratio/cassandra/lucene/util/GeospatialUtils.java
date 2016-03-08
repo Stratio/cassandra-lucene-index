@@ -33,8 +33,8 @@ public class GeospatialUtils {
     /**
      * Checks if the specified max levels is correct.
      *
-     * @param maxLevels The maximum number of levels in the tree.
-     * @return The validated max levels.
+     * @param maxLevels the maximum number of levels in the tree
+     * @return the validated max levels
      */
     public static int validateGeohashMaxLevels(Integer maxLevels) {
         if (maxLevels == null) {

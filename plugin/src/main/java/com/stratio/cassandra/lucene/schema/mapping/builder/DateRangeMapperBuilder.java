@@ -40,8 +40,8 @@ public class DateRangeMapperBuilder extends MapperBuilder<DateRangeMapper, DateR
     /**
      * Returns a new {@link DateRangeMapperBuilder}.
      *
-     * @param from The column containing the from date.
-     * @param to The column containing the to date.
+     * @param from he column containing the from date
+     * @param to the column containing the to date
      */
     public DateRangeMapperBuilder(@JsonProperty("from") String from, @JsonProperty("to") String to) {
         this.from = from;
@@ -51,8 +51,8 @@ public class DateRangeMapperBuilder extends MapperBuilder<DateRangeMapper, DateR
     /**
      * Sets the date pattern to be used.
      *
-     * @param pattern The date pattern to be used.
-     * @return This.
+     * @param pattern the date pattern to be used
+     * @return this
      */
     public DateRangeMapperBuilder pattern(String pattern) {
         this.pattern = pattern;
@@ -62,8 +62,8 @@ public class DateRangeMapperBuilder extends MapperBuilder<DateRangeMapper, DateR
     /**
      * Returns the {@link DateRangeMapper} represented by this {@link MapperBuilder}.
      *
-     * @param field The name of the field to be built.
-     * @return The {@link DateRangeMapper} represented by this.
+     * @param field the name of the field to be built
+     * @return the {@link DateRangeMapper} represented by this
      */
     @Override
     public DateRangeMapper build(String field) {

@@ -56,10 +56,10 @@ public class BitemporalMapperBuilder extends MapperBuilder<BitemporalMapper, Bit
     /**
      * Returns a new {@link BitemporalMapperBuilder}.
      *
-     * @param vtFrom The column name containing the valid time start.
-     * @param vtTo The column name containing the valid time stop.
-     * @param ttFrom The column name containing the transaction time start.
-     * @param ttTo The column name containing the transaction time stop.
+     * @param vtFrom the column name containing the valid time start
+     * @param vtTo the column name containing the valid time stop
+     * @param ttFrom the column name containing the transaction time start
+     * @param ttTo the column name containing the transaction time stop
      */
     @JsonCreator
     public BitemporalMapperBuilder(@JsonProperty("vt_from") String vtFrom,
@@ -75,8 +75,8 @@ public class BitemporalMapperBuilder extends MapperBuilder<BitemporalMapper, Bit
     /**
      * Sets the date format pattern to be used.
      *
-     * @param pattern The date format pattern to be used.
-     * @return This.
+     * @param pattern the date format pattern to be used
+     * @return this
      */
     public BitemporalMapperBuilder pattern(String pattern) {
         this.pattern = pattern;
@@ -86,8 +86,8 @@ public class BitemporalMapperBuilder extends MapperBuilder<BitemporalMapper, Bit
     /**
      * Sets the now value to be used.
      *
-     * @param nowValue The now value to be used.
-     * @return This.
+     * @param nowValue the now value to be used
+     * @return this
      */
     public BitemporalMapperBuilder nowValue(Object nowValue) {
         this.nowValue = nowValue;
@@ -97,8 +97,8 @@ public class BitemporalMapperBuilder extends MapperBuilder<BitemporalMapper, Bit
     /**
      * Returns the {@link BitemporalMapper} represented by this {@link MapperBuilder}.
      *
-     * @param field The name of the field to be built.
-     * @return The {@link BitemporalMapper} represented by this.
+     * @param field the name of the field to be built
+     * @return the {@link BitemporalMapper} represented by this
      */
     @Override
     public BitemporalMapper build(String field) {

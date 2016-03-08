@@ -34,8 +34,8 @@ public class StringMapperBuilder extends SingleColumnMapperBuilder<StringMapper,
     /**
      * Sets if the {@link StringMapper} to be built must be case sensitive.
      *
-     * @param caseSensitive If the {@link StringMapper} to be built must be case sensitive.
-     * @return This.
+     * @param caseSensitive if the {@link StringMapper} to be built must be case sensitive
+     * @return this
      */
     public StringMapperBuilder caseSensitive(Boolean caseSensitive) {
         this.caseSensitive = caseSensitive;
@@ -45,8 +45,8 @@ public class StringMapperBuilder extends SingleColumnMapperBuilder<StringMapper,
     /**
      * Returns the {@link StringMapper} represented by this {@link MapperBuilder}.
      *
-     * @param field The name of the field to be built.
-     * @return The {@link StringMapper} represented by this.
+     * @param field the name of the field to be built
+     * @return the {@link StringMapper} represented by this
      */
     @Override
     public StringMapper build(String field) {

@@ -38,7 +38,7 @@ public class ClasspathAnalyzerBuilder extends AnalyzerBuilder {
     /**
      * Builds a new {@link AnalyzerBuilder} using the specified {@link Analyzer} full class name.
      *
-     * @param className An {@link Analyzer} full class name.
+     * @param className an {@link Analyzer} full qualified class name
      */
     @JsonCreator
     public ClasspathAnalyzerBuilder(@JsonProperty("class") String className) {

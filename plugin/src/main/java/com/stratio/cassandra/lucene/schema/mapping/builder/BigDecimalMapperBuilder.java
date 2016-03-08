@@ -37,8 +37,8 @@ public class BigDecimalMapperBuilder extends SingleColumnMapperBuilder<BigDecima
     /**
      * Sets the max number of digits for the integer part.
      *
-     * @param integerDigits The max number of digits for the integer part.
-     * @return This.
+     * @param integerDigits the max number of digits for the integer part
+     * @return this
      */
     public BigDecimalMapperBuilder integerDigits(Integer integerDigits) {
         this.integerDigits = integerDigits;
@@ -48,8 +48,8 @@ public class BigDecimalMapperBuilder extends SingleColumnMapperBuilder<BigDecima
     /**
      * Sets the max number of digits for the decimal part.
      *
-     * @param decimalDigits The max number of digits for the decimal part.
-     * @return This.
+     * @param decimalDigits the max number of digits for the decimal part
+     * @return this
      */
     public BigDecimalMapperBuilder decimalDigits(Integer decimalDigits) {
         this.decimalDigits = decimalDigits;
@@ -59,8 +59,8 @@ public class BigDecimalMapperBuilder extends SingleColumnMapperBuilder<BigDecima
     /**
      * Returns the {@link BigDecimalMapper} represented by this {@link MapperBuilder}.
      *
-     * @param field The name of the field to be built.
-     * @return The {@link BigDecimalMapper} represented by this.
+     * @param field the name of the field to be built
+     * @return the {@link BigDecimalMapper} represented by this
      */
     @Override
     public BigDecimalMapper build(String field) {

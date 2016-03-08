@@ -35,7 +35,7 @@ public class FloatMapperBuilder extends SingleColumnMapperBuilder<FloatMapper, F
      * Sets the boost to be used.
      *
      * @param boost The boost to be used.
-     * @return This.
+     * @return this
      */
     public FloatMapperBuilder boost(Float boost) {
         this.boost = boost;
@@ -45,8 +45,8 @@ public class FloatMapperBuilder extends SingleColumnMapperBuilder<FloatMapper, F
     /**
      * Returns the {@link FloatMapper} represented by this {@link MapperBuilder}.
      *
-     * @param field The name of the field to be built.
-     * @return The {@link FloatMapper} represented by this.
+     * @param field the name of the field to be built
+     * @return the {@link FloatMapper} represented by this
      */
     @Override
     public FloatMapper build(String field) {

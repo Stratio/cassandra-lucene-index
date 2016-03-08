@@ -34,8 +34,8 @@ public class LongMapperBuilder extends SingleColumnMapperBuilder<LongMapper, Lon
     /**
      * Sets the boost to be used.
      *
-     * @param boost The boost to be used.
-     * @return This.
+     * @param boost the boost to be used
+     * @return this
      */
     public LongMapperBuilder boost(Float boost) {
         this.boost = boost;
@@ -45,8 +45,8 @@ public class LongMapperBuilder extends SingleColumnMapperBuilder<LongMapper, Lon
     /**
      * Returns the {@link LongMapper} represented by this {@link MapperBuilder}.
      *
-     * @param field The name of the field to be built.
-     * @return The {@link LongMapper} represented by this.
+     * @param field the name of the field to be built
+     * @return the {@link LongMapper} represented by this
      */
     @Override
     public LongMapper build(String field) {

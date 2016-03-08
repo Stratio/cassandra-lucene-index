@@ -52,8 +52,8 @@ public class GeoPointMapperBuilder extends MapperBuilder<GeoPointMapper, GeoPoin
     /**
      * Builds a new {@link GeoPointMapper}.
      *
-     * @param latitude The name of the column containing the latitude.
-     * @param longitude The name of the column containing the longitude.
+     * @param latitude the name of the column containing the latitude
+     * @param longitude the name of the column containing the longitude
      */
     @JsonCreator
     public GeoPointMapperBuilder(@JsonProperty("latitude") String latitude,
@@ -65,8 +65,8 @@ public class GeoPointMapperBuilder extends MapperBuilder<GeoPointMapper, GeoPoin
     /**
      * Sets the maximum number of levels in the tree.
      *
-     * @param maxLevels The maximum number of levels in the tree.
-     * @return This
+     * @param maxLevels the maximum number of levels in the tree
+     * @return this
      */
     public GeoPointMapperBuilder maxLevels(Integer maxLevels) {
         this.maxLevels = maxLevels;
@@ -76,8 +76,8 @@ public class GeoPointMapperBuilder extends MapperBuilder<GeoPointMapper, GeoPoin
     /**
      * Sets if the field supports searching.
      *
-     * @param indexed if the field supports searching.
-     * @return This.
+     * @param indexed if the field supports searching
+     * @return this
      */
     @SuppressWarnings("unchecked")
     public final GeoPointMapperBuilder indexed(Boolean indexed) {
@@ -88,8 +88,8 @@ public class GeoPointMapperBuilder extends MapperBuilder<GeoPointMapper, GeoPoin
     /**
      * Sets if the field supports sorting.
      *
-     * @param sorted if the field supports sorting.
-     * @return This.
+     * @param sorted if the field supports sorting
+     * @return this
      */
     @SuppressWarnings("unchecked")
     public final GeoPointMapperBuilder sorted(Boolean sorted) {
@@ -100,8 +100,8 @@ public class GeoPointMapperBuilder extends MapperBuilder<GeoPointMapper, GeoPoin
     /**
      * Returns the {@link GeoPointMapper} represented by this {@link MapperBuilder}.
      *
-     * @param field The name of the field to be built.
-     * @return The {@link GeoPointMapper} represented by this.
+     * @param field the name of the field to be built
+     * @return the {@link GeoPointMapper} represented by this
      */
     @Override
     public GeoPointMapper build(String field) {

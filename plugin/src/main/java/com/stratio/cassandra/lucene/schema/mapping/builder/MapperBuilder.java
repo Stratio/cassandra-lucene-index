@@ -57,8 +57,8 @@ public abstract class MapperBuilder<T extends Mapper, K extends MapperBuilder<T,
     /**
      * Sets if the field must be validated.
      *
-     * @param validated if the field must be validated.
-     * @return This.
+     * @param validated if the field must be validated
+     * @return this
      */
     @SuppressWarnings("unchecked")
     public final K validated(Boolean validated) {
@@ -69,8 +69,8 @@ public abstract class MapperBuilder<T extends Mapper, K extends MapperBuilder<T,
     /**
      * Returns the {@link Mapper} represented by this.
      *
-     * @param field The name of the field to be built.
-     * @return The {@link Mapper} represented by this.
+     * @param field the name of the field to be built
+     * @return the {@link Mapper} represented by this
      */
     public abstract T build(String field);
 }

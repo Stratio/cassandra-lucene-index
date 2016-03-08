@@ -30,8 +30,8 @@ public class BlobMapperBuilder extends SingleColumnMapperBuilder<BlobMapper, Blo
     /**
      * Returns the {@link BlobMapper} represented by this {@link MapperBuilder}.
      *
-     * @param field The name of the field to be built.
-     * @return The {@link BlobMapper} represented by this.
+     * @param field the name of the field to be built
+     * @return the {@link BlobMapper} represented by this
      */
     @Override
     public BlobMapper build(String field) {

@@ -30,8 +30,8 @@ public class BooleanMapperBuilder extends SingleColumnMapperBuilder<BooleanMappe
     /**
      * Returns the {@link BooleanMapper} represented by this {@link MapperBuilder}.
      *
-     * @param field The name of the field to be built.
-     * @return The {@link BooleanMapper} represented by this.
+     * @param field the name of the field to be built
+     * @return the {@link BooleanMapper} represented by this
      */
     @Override
     public BooleanMapper build(String field) {

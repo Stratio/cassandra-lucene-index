@@ -57,7 +57,7 @@ public class SnowballAnalyzerBuilder extends AnalyzerBuilder {
      * @param language The language. The supported languages are English, French, Spanish, Portuguese, Italian,
      * Romanian, German, Dutch, Swedish, Norwegian, Danish, Russian, Finnish, Irish, Hungarian, Turkish, Armenian,
      * Basque and Catalan.
-     * @param stopwords The comma separated stopwords {@code String}.
+     * @param stopwords the comma separated stopwords list.
      */
     @JsonCreator
     public SnowballAnalyzerBuilder(@JsonProperty("language") String language,
@@ -86,8 +86,8 @@ public class SnowballAnalyzerBuilder extends AnalyzerBuilder {
      * @param language The language code. The supported languages are English, French, Spanish, Portuguese, Italian,
      * Romanian, German, Dutch, Swedish, Norwegian, Danish, Russian, Finnish, Irish, Hungarian, Turkish, Armenian,
      * Basque and Catalan.
-     * @param stopwords The stop words.
-     * @return The snowball {@link Analyzer} for the specified language and stopwords.
+     * @param stopwords the stop words list
+     * @return a new snowball analyzer
      */
     private static Analyzer buildAnalyzer(final String language, final CharArraySet stopwords) {
         return new SnowballAnalyzer(language, stopwords);
@@ -96,8 +96,8 @@ public class SnowballAnalyzerBuilder extends AnalyzerBuilder {
     /**
      * Returns the stopwords {@link CharArraySet} for the specified comma separated stopwords {@code String}.
      *
-     * @param stopwords A {@code String} comma separated stopwords list.
-     * @return The stopwords {@link CharArraySet} for the specified comma separated stopwords {@code String}.
+     * @param stopwords a {@code String} comma separated stopwords list
+     * @return the stopwords list as a char array set
      */
     private static CharArraySet getStopwords(String stopwords) {
         List<String> stopwordsList = new ArrayList<>();
@@ -113,7 +113,7 @@ public class SnowballAnalyzerBuilder extends AnalyzerBuilder {
      * @param language The language for which the stopwords are. The supported languages are English, French, Spanish,
      * Portuguese, Italian, Romanian, German, Dutch, Swedish, Norwegian, Danish, Russian, Finnish, Irish, Hungarian,
      * Turkish, Armenian, Basque and Catalan.
-     * @return The default stopwords set used by Lucene language analyzers.
+     * @return the default stopwords set used by Lucene language analyzers
      */
     private static CharArraySet getDefaultStopwords(String language) {
         return StandardStopwords.get(language);
@@ -133,7 +133,7 @@ public class SnowballAnalyzerBuilder extends AnalyzerBuilder {
          * @param language The language. The supported languages are English, French, Spanish, Portuguese, Italian,
          * Romanian, German, Dutch, Swedish, Norwegian, Danish, Russian, Finnish, Irish, Hungarian, Turkish, Armenian,
          * Basque and Catalan.
-         * @param stopwords The comma separated stopwords {@code String}.
+         * @param stopwords the comma separated stopwords {@code String}
          */
         public SnowballAnalyzer(String language, CharArraySet stopwords) {
             this.language = language;
