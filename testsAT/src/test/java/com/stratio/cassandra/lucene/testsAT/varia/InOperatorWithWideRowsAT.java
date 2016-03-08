@@ -65,25 +65,25 @@ public class InOperatorWithWideRowsAT extends BaseAT {
 
     @Test
     public void partitionKeyInTest() {
-        utils.searchAll().and("AND pk IN (0, 9)")
+        utils.searchAll()
+             .and("AND pk IN (0, 9)")
              .checkIntColumn("rc", 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99);
     }
 
     @Test
     public void reversedPartitionKeyInTest() {
-        utils.searchAll().and("AND pk IN (9, 0)")
+        utils.searchAll()
+             .and("AND pk IN (9, 0)")
              .checkIntColumn("rc", 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99);
     }
 
     @Test
     public void bothKeysInTest() {
-        utils.searchAll().and("AND pk IN (0, 9) AND ck IN (0, 9)")
-             .checkIntColumn("rc", 0, 9, 90, 99);
+        utils.searchAll().and("AND pk IN (0, 9) AND ck IN (0, 9)").checkIntColumn("rc", 0, 9, 90, 99);
     }
 
     @Test
     public void reversedBothKeysInTest() {
-        utils.searchAll().and("AND pk IN (9, 0) AND ck IN (9, 0)")
-             .checkIntColumn("rc", 0, 9, 90, 99);
+        utils.searchAll().and("AND pk IN (9, 0) AND ck IN (9, 0)").checkIntColumn("rc", 0, 9, 90, 99);
     }
 }

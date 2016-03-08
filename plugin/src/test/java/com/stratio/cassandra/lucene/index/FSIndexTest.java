@@ -54,7 +54,8 @@ public class FSIndexTest {
     @Test
     public void testCRUD() throws IOException, InterruptedException {
 
-        FSIndex index = new FSIndex("test_index", "com.stratio.cassandra.lucene:type=LuceneIndexes",
+        FSIndex index = new FSIndex("test_index",
+                                    "com.stratio.cassandra.lucene:type=LuceneIndexes",
                                     Paths.get(folder.newFolder("directory" + UUID.randomUUID()).getPath()),
                                     new StandardAnalyzer(),
                                     REFRESH_SECONDS,

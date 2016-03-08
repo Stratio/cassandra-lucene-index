@@ -44,11 +44,7 @@ public class DoubleMapperTest extends AbstractMapperTest {
 
     @Test
     public void testConstructorWithAllArgs() {
-        DoubleMapper mapper = doubleMapper().indexed(false)
-                                            .sorted(true)
-                                            .column("column")
-                                            .boost(0.3f)
-                                            .build("field");
+        DoubleMapper mapper = doubleMapper().indexed(false).sorted(true).column("column").boost(0.3f).build("field");
         assertEquals("Field is not properly set", "field", mapper.field);
         assertFalse("Indexed is not properly set", mapper.indexed);
         assertTrue("Sorted is not properly set", mapper.sorted);
@@ -60,10 +56,7 @@ public class DoubleMapperTest extends AbstractMapperTest {
 
     @Test
     public void testJsonSerialization() {
-        DoubleMapperBuilder builder = doubleMapper().indexed(false)
-                                                    .sorted(true)
-                                                    .column("column")
-                                                    .boost(0.3f);
+        DoubleMapperBuilder builder = doubleMapper().indexed(false).sorted(true).column("column").boost(0.3f);
         testJson(builder, "{type:\"double\",indexed:false,sorted:true,column:\"column\",boost:0.3}");
     }
 

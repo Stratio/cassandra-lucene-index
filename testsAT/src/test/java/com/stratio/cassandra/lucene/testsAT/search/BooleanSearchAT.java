@@ -44,14 +44,12 @@ public class BooleanSearchAT extends AbstractSearchAT {
 
     @Test
     public void booleanFilterMustTest() {
-        filter(bool().must(wildcard("ascii_1", "frase*"))
-                     .must(wildcard("inet_1", "127.0.*"))).check(2);
+        filter(bool().must(wildcard("ascii_1", "frase*")).must(wildcard("inet_1", "127.0.*"))).check(2);
     }
 
     @Test
     public void booleanFilterShouldTest() {
-        filter(bool().should(wildcard("ascii_1", "frase*"))
-                     .should(wildcard("inet_1", "127.0.*"))).check(4);
+        filter(bool().should(wildcard("ascii_1", "frase*")).should(wildcard("inet_1", "127.0.*"))).check(4);
     }
 
     @Test
@@ -102,14 +100,12 @@ public class BooleanSearchAT extends AbstractSearchAT {
 
     @Test
     public void booleanQueryMustTest() {
-        query(bool().must(wildcard("ascii_1", "frase*"))
-                    .must(wildcard("inet_1", "127.0.*"))).check(2);
+        query(bool().must(wildcard("ascii_1", "frase*")).must(wildcard("inet_1", "127.0.*"))).check(2);
     }
 
     @Test
     public void booleanQueryShouldTest() {
-        query(bool().should(wildcard("ascii_1", "frase*"))
-                    .should(wildcard("inet_1", "127.0.*"))).check(4);
+        query(bool().should(wildcard("ascii_1", "frase*")).should(wildcard("inet_1", "127.0.*"))).check(4);
     }
 
     @Test

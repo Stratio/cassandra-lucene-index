@@ -23,21 +23,13 @@ import com.stratio.cassandra.lucene.column.Column;
 import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.schema.mapping.builder.GeoShapeMapperBuilder;
 import com.stratio.cassandra.lucene.util.GeospatialUtils;
-import com.stratio.cassandra.lucene.util.JsonSerializer;
-import org.apache.cassandra.config.CFMetaData;
-import org.apache.cassandra.db.marshal.FloatType;
 import org.apache.cassandra.db.marshal.UTF8Type;
-import org.apache.cassandra.db.marshal.UUIDType;
-import org.apache.cassandra.exceptions.ConfigurationException;
 import org.apache.lucene.document.Document;
 import org.junit.Test;
-
-import java.io.IOException;
 
 import static com.stratio.cassandra.lucene.common.GeoTransformation.Centroid;
 import static com.stratio.cassandra.lucene.common.GeoTransformation.Difference;
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.geoShapeMapper;
-import static org.apache.cassandra.config.ColumnDefinition.regularDef;
 import static org.junit.Assert.*;
 
 public class GeoShapeMapperTest extends AbstractMapperTest {
@@ -178,7 +170,8 @@ public class GeoShapeMapperTest extends AbstractMapperTest {
     public void testAddFieldsWithValidLinearRing() {
         GeoShapeMapper mapper = geoShapeMapper().column("column").maxLevels(10).build("field");
         Columns columns = new Columns();
-        columns.add(Column.builder("column").buildWithComposed("LINEARRING(30 10, 10 30, 40 40,30 10)", UTF8Type.instance));
+        columns.add(Column.builder("column")
+                          .buildWithComposed("LINEARRING(30 10, 10 30, 40 40,30 10)", UTF8Type.instance));
         Document document = new Document();
         mapper.addFields(document, columns);
         assertEquals("Fields are not properly created", 1, document.getFields("field").length);
@@ -202,8 +195,9 @@ public class GeoShapeMapperTest extends AbstractMapperTest {
         GeoShapeMapper mapper = geoShapeMapper().column("column").maxLevels(10).build("field");
         Columns columns = new Columns();
         columns.add(Column.builder("column")
-                          .buildWithComposed("POLYGON ((35 10, 45 45, 15 40, 10 20, 35 10), (20 30, 35 35, 30 20, 20 30))",
-                                         UTF8Type.instance));
+                          .buildWithComposed(
+                                  "POLYGON ((35 10, 45 45, 15 40, 10 20, 35 10), (20 30, 35 35, 30 20, 20 30))",
+                                  UTF8Type.instance));
         Document document = new Document();
         mapper.addFields(document, columns);
         assertEquals("Fields are not properly created", 1, document.getFields("field").length);
@@ -241,7 +235,7 @@ public class GeoShapeMapperTest extends AbstractMapperTest {
         Columns columns = new Columns();
         columns.add(Column.builder("column")
                           .buildWithComposed("MULTILINESTRING ((10 10, 20 20, 10 40),(40 40, 30 30, 40 20, 30 10))",
-                                         UTF8Type.instance));
+                                             UTF8Type.instance));
         Document document = new Document();
         mapper.addFields(document, columns);
         assertEquals("Fields are not properly created", 1, document.getFields("field").length);

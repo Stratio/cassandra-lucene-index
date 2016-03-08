@@ -28,7 +28,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
-public class GeoOperationTest extends AbstractConditionTest  {
+public class GeoOperationTest extends AbstractConditionTest {
 
     @Test(expected = IndexException.class)
     public void testParseNull() {

@@ -112,7 +112,7 @@ public class IndexServiceSkinny extends IndexService {
 
     /** {@inheritDoc} */
     @Override
-    public Query query(DecoratedKey key, ClusteringIndexFilter clusteringFilter) {
+    public Query query(DecoratedKey key, ClusteringIndexFilter filter) {
         return new TermQuery(term(key));
     }
 

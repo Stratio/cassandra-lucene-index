@@ -142,7 +142,7 @@ public abstract class Builder {
     /**
      * Returns a new {@link BlobMapper}.
      *
-     * @return a new {@link BlobMapper}.
+     * @return a new blob mapper
      */
     public static BlobMapper blobMapper() {
         return new BlobMapper();
@@ -151,7 +151,7 @@ public abstract class Builder {
     /**
      * Returns a new {@link BooleanMapper}.
      *
-     * @return a new {@link BooleanMapper}.
+     * @return a new boolean mapper.
      */
     public static BooleanMapper booleanMapper() {
         return new BooleanMapper();
@@ -160,7 +160,7 @@ public abstract class Builder {
     /**
      * Returns a new {@link DateMapper}.
      *
-     * @return a new {@link DateMapper}.
+     * @return a new date mapper
      */
     public static DateMapper dateMapper() {
         return new DateMapper();
@@ -180,7 +180,7 @@ public abstract class Builder {
     /**
      * Returns a new {@link DoubleMapper}.
      *
-     * @return a new {@link DoubleMapper}
+     * @return a new double mapper
      */
     public static DoubleMapper doubleMapper() {
         return new DoubleMapper();
@@ -189,7 +189,7 @@ public abstract class Builder {
     /**
      * Returns a new {@link FloatMapper}.
      *
-     * @return a new {@link FloatMapper}
+     * @return a new float mapper
      */
     public static FloatMapper floatMapper() {
         return new FloatMapper();
@@ -200,7 +200,7 @@ public abstract class Builder {
      *
      * @param latitude the name of the column containing the latitude
      * @param longitude the name of the column containing the longitude
-     * @return a new {@link GeoPointMapper}
+     * @return a new geo point mapper
      */
     public static GeoPointMapper geoPointMapper(String latitude, String longitude) {
         return new GeoPointMapper(latitude, longitude);
@@ -209,7 +209,7 @@ public abstract class Builder {
     /**
      * Returns a new {@link GeoShapeMapper}.
      *
-     * @return a new {@link GeoShapeMapper}
+     * @return a new geo shape mapper
      */
     public static GeoShapeMapper geoShapeMapper() {
         return new GeoShapeMapper();
@@ -218,7 +218,7 @@ public abstract class Builder {
     /**
      * Returns a new {@link InetMapper}.
      *
-     * @return a new {@link InetMapper}
+     * @return a new inet mapper
      */
     public static InetMapper inetMapper() {
         return new InetMapper();
@@ -227,7 +227,7 @@ public abstract class Builder {
     /**
      * Returns a new {@link IntegerMapper}.
      *
-     * @return a new {@link IntegerMapper}
+     * @return a new integer mapper
      */
     public static IntegerMapper integerMapper() {
         return new IntegerMapper();
@@ -236,7 +236,7 @@ public abstract class Builder {
     /**
      * Returns a new {@link LongMapper}.
      *
-     * @return a new {@link LongMapper}
+     * @return a new long mapper
      */
     public static LongMapper longMapper() {
         return new LongMapper();
@@ -245,7 +245,7 @@ public abstract class Builder {
     /**
      * Returns a new {@link StringMapper}.
      *
-     * @return a new {@link StringMapper}
+     * @return a new string mapper
      */
     public static StringMapper stringMapper() {
         return new StringMapper();
@@ -254,7 +254,7 @@ public abstract class Builder {
     /**
      * Returns a new {@link TextMapper}.
      *
-     * @return a new {@link TextMapper}
+     * @return a new text mapper
      */
     public static TextMapper textMapper() {
         return new TextMapper();
@@ -263,7 +263,7 @@ public abstract class Builder {
     /**
      * Returns a new {@link UUIDMapper}.
      *
-     * @return a new {@link UUIDMapper}
+     * @return a new UUID mapper
      */
     public static UUIDMapper uuidMapper() {
         return new UUIDMapper();
@@ -273,7 +273,7 @@ public abstract class Builder {
      * Returns a new {@link ClasspathAnalyzer}.
      *
      * @param className the Lucene's {@code Analyzer} full class name.
-     * @return a new {@link ClasspathAnalyzer}
+     * @return a new classpath analyzer
      */
     public static ClasspathAnalyzer classpathAnalyzer(String className) {
         return new ClasspathAnalyzer(className);
@@ -285,7 +285,7 @@ public abstract class Builder {
      * @param language The language. The supported languages are English, French, Spanish, Portuguese, Italian,
      * Romanian, German, Dutch, Swedish, Norwegian, Danish, Russian, Finnish, Irish, Hungarian, Turkish, Armenian,
      * Basque and Catalan.
-     * @return a new {@link SnowballAnalyzer}
+     * @return a new snowball analyzer
      */
     public static SnowballAnalyzer snowballAnalyzer(String language) {
         return new SnowballAnalyzer(language);
@@ -294,7 +294,7 @@ public abstract class Builder {
     /**
      * Returns a new {@link Search}.
      *
-     * @return a new {@link Search}
+     * @return a new search
      */
     public static Search search() {
         return new Search();
@@ -303,7 +303,7 @@ public abstract class Builder {
     /**
      * Returns a new {@link AllCondition}.
      *
-     * @return a new {@link AllCondition}
+     * @return a new all condition
      */
     public static AllCondition all() {
         return new AllCondition();
@@ -312,8 +312,8 @@ public abstract class Builder {
     /**
      * Returns a new {@link BitemporalCondition} for the specified field.
      *
-     * @param field The name of the field to be sorted
-     * @return a new {@link BitemporalCondition} for the specified field
+     * @param field the name of the field to be sorted
+     * @return a new bitemporal condition
      */
     public static BitemporalCondition bitemporal(String field) {
         return new BitemporalCondition(field);
@@ -322,7 +322,7 @@ public abstract class Builder {
     /**
      * Returns a new {@link BooleanCondition}.
      *
-     * @return a new {@link BooleanCondition}
+     * @return a new boolean condition
      */
     public static BooleanCondition bool() {
         return new BooleanCondition();
@@ -333,7 +333,7 @@ public abstract class Builder {
      *
      * @param field the name of the field to be matched
      * @param values the values of the field to be matched
-     * @return a new {@link ContainsCondition}
+     * @return a new conatins condition
      */
     public static ContainsCondition contains(String field, Object... values) {
         return new ContainsCondition(field, values);
@@ -344,7 +344,7 @@ public abstract class Builder {
      *
      * @param field the name of the field to be matched
      * @param value the value of the field to be matched
-     * @return a new {@link FuzzyCondition} for the specified field and value
+     * @return a new fuzzy condition
      */
     public static FuzzyCondition fuzzy(String field, String value) {
         return new FuzzyCondition(field, value);
@@ -354,7 +354,7 @@ public abstract class Builder {
      * Returns a new {@link LuceneCondition} with the specified query.
      *
      * @param query the Lucene syntax query
-     * @return a new {@link LuceneCondition} with the specified query
+     * @return a new Lucene condition
      */
     public static LuceneCondition lucene(String query) {
         return new LuceneCondition(query);
@@ -365,7 +365,7 @@ public abstract class Builder {
      *
      * @param field the name of the field to be matched
      * @param value the value of the field to be matched
-     * @return a new {@link MatchCondition} for the specified field and value
+     * @return a new match condition
      */
     public static MatchCondition match(String field, Object value) {
         return new MatchCondition(field, value);
@@ -374,7 +374,7 @@ public abstract class Builder {
     /**
      * Returns a new {@link NoneCondition}.
      *
-     * @return a new {@link NoneCondition}
+     * @return a new none condition
      */
     public static NoneCondition none() {
         return new NoneCondition();
@@ -385,7 +385,7 @@ public abstract class Builder {
      *
      * @param field the name of the field to be matched
      * @param value the text to be matched
-     * @return a new {@link PhraseCondition}
+     * @return a new phrase condition
      */
     public static PhraseCondition phrase(String field, String value) {
         return new PhraseCondition(field, value);
@@ -396,7 +396,7 @@ public abstract class Builder {
      *
      * @param field the name of the field to be matched
      * @param value the value of the field to be matched
-     * @return a new {@link PrefixCondition}
+     * @return a new prefix condition
      */
     public static PrefixCondition prefix(String field, String value) {
         return new PrefixCondition(field, value);
@@ -406,7 +406,7 @@ public abstract class Builder {
      * Returns a new {@link RangeCondition} for the specified field.
      *
      * @param field the name of the field to be matched
-     * @return a new {@link RangeCondition} for the specified field
+     * @return a new range condition
      */
     public static RangeCondition range(String field) {
         return new RangeCondition(field);
@@ -417,7 +417,7 @@ public abstract class Builder {
      *
      * @param field the name of the field to be matched
      * @param value the value of the field to be matched
-     * @return a new {@link RegexpCondition} for the specified field and value
+     * @return a new regexp condition
      */
     public static RegexpCondition regexp(String field, String value) {
         return new RegexpCondition(field, value);
@@ -428,7 +428,7 @@ public abstract class Builder {
      *
      * @param field the name of the field to be matched
      * @param value the value of the field to be matched
-     * @return a new {@link WildcardCondition}
+     * @return a new wildcard condition
      */
     public static WildcardCondition wildcard(String field, String value) {
         return new WildcardCondition(field, value);
@@ -442,7 +442,7 @@ public abstract class Builder {
      * @param maxLongitude the maximum accepted longitude
      * @param minLatitude the minimum accepted latitude
      * @param maxLatitude the maximum accepted latitude
-     * @return a new {@link GeoBBoxCondition}
+     * @return a new geo bounding box condition
      */
     public static GeoBBoxCondition geoBBox(String field,
                                            double minLongitude,
@@ -459,7 +459,7 @@ public abstract class Builder {
      * @param longitude the longitude of the reference point
      * @param latitude the latitude of the reference point
      * @param maxDistance the max allowed distance
-     * @return a new {@link GeoDistanceCondition}
+     * @return a new geo distance condition
      */
     public static GeoDistanceCondition geoDistance(String field,
                                                    double longitude,
@@ -473,7 +473,7 @@ public abstract class Builder {
      *
      * @param field the name of the field
      * @param shape the shape in <a href="http://en.wikipedia.org/wiki/Well-known_text"> WKT</a> format
-     * @return a new {@link GeoShapeCondition}.
+     * @return a new geos hape condition
      */
     public static GeoShapeCondition geoShape(String field, String shape) {
         return new GeoShapeCondition(field, shape);
@@ -482,7 +482,7 @@ public abstract class Builder {
     /**
      * Returns a new {@link GeoTransformation.Buffer}.
      *
-     * @return the buffer transformation
+     * @return a new buffer transformation
      */
     public static GeoTransformation.Buffer bufferGeoTransformation() {
         return new GeoTransformation.Buffer();
@@ -491,7 +491,7 @@ public abstract class Builder {
     /**
      * Returns a new {@link GeoTransformation.Centroid}.
      *
-     * @return the buffer transformation
+     * @return a new buffer transformation
      */
     public static GeoTransformation.Centroid centroidGeoTransformation() {
         return new GeoTransformation.Centroid();
@@ -501,7 +501,7 @@ public abstract class Builder {
      * Returns a new {@link GeoTransformation.Difference}.
      *
      * @param shape the shape to be subtracted
-     * @return the difference transformation
+     * @return a new difference transformation
      */
     public static GeoTransformation.Difference differenceGeoTransformation(String shape) {
         return new GeoTransformation.Difference(shape);
@@ -511,7 +511,7 @@ public abstract class Builder {
      * Returns a new {@link GeoTransformation.Intersection}.
      *
      * @param shape the shape to be intersected
-     * @return the intersection transformation
+     * @return a new intersection transformation
      */
     public static GeoTransformation.Intersection intersectionGeoTransformation(String shape) {
         return new GeoTransformation.Intersection(shape);
@@ -521,7 +521,7 @@ public abstract class Builder {
      * Returns a new {@link GeoTransformation.Union}.
      *
      * @param shape the shape to be added
-     * @return the union transformation
+     * @return a new union transformation
      */
     public static GeoTransformation.Union unionGeoTransformation(String shape) {
         return new GeoTransformation.Union(shape);
@@ -531,7 +531,7 @@ public abstract class Builder {
      * Returns a new {@link DateRangeCondition} with the specified field reference point.
      *
      * @param field the name of the field to be matched
-     * @return a new {@link DateRangeCondition}
+     * @return a new date range condition
      */
     public static DateRangeCondition dateRange(String field) {
         return new DateRangeCondition(field);
@@ -541,7 +541,7 @@ public abstract class Builder {
      * Returns a new {@link SimpleSortField} for the specified field.
      *
      * @param field the name of the field to be sorted
-     * @return a new {@link SimpleSortField} for the specified field
+     * @return a new simple sort field
      */
     public static SimpleSortField field(String field) {
         return new SimpleSortField(field);
@@ -553,9 +553,9 @@ public abstract class Builder {
      * @param mapper the name of the field to be used for sort
      * @param longitude the longitude in degrees of the point to min distance sort by
      * @param latitude the latitude in degrees of the point to min distance sort by
-     * @return a new {@link GeoDistanceSortField} for the specified field
+     * @return a new geo distance sort field
      */
-    public static GeoDistanceSortField geoDistanceSortField(String mapper, double longitude, double latitude) {
+    public static GeoDistanceSortField geoDistanceField(String mapper, double longitude, double latitude) {
         return new GeoDistanceSortField(mapper, longitude, latitude);
     }
 }

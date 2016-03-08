@@ -61,10 +61,7 @@ public class BigIntegerMapperTest extends AbstractMapperTest {
 
     @Test
     public void testJsonSerialization() {
-        BigIntegerMapperBuilder builder = bigIntegerMapper().indexed(false)
-                                                            .sorted(true)
-                                                            .column("column")
-                                                            .digits(6);
+        BigIntegerMapperBuilder builder = bigIntegerMapper().indexed(false).sorted(true).column("column").digits(6);
         testJson(builder, "{type:\"bigint\",indexed:false,sorted:true,column:\"column\",digits:6}");
     }
 

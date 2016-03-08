@@ -165,13 +165,6 @@ public class CassandraUtilsBuilder {
 
     public CassandraUtils build() {
         String keyspace = name + "_" + Math.abs(new Random().nextLong());
-        return new CassandraUtils(keyspace,
-                                  table,
-                                  index,
-                                  columns,
-                                  mappers,
-                                  partitionKey,
-                                  clusteringKey,
-                                  udts);
+        return new CassandraUtils(keyspace, table, index, columns, mappers, partitionKey, clusteringKey, udts);
     }
 }

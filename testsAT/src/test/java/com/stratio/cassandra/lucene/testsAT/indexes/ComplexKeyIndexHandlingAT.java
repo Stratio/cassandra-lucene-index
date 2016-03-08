@@ -74,7 +74,8 @@ public class ComplexKeyIndexHandlingAT extends BaseAT {
                       .createIndex()
                       .waitForIndexing()
                       .refresh()
-                      .filter(wildcard("ascii_1", "*")).check(19);
+                      .filter(wildcard("ascii_1", "*"))
+                      .check(19);
     }
 
     @Test
@@ -85,7 +86,8 @@ public class ComplexKeyIndexHandlingAT extends BaseAT {
                       .waitForIndexing()
                       .insert(data16, data17, data18, data19, data20)
                       .refresh()
-                      .filter(wildcard("ascii_1", "*")).check(19);
+                      .filter(wildcard("ascii_1", "*"))
+                      .check(19);
     }
 
     @Test
@@ -97,7 +99,8 @@ public class ComplexKeyIndexHandlingAT extends BaseAT {
                       .refresh()
                       .insert(data5, data10, data15, data20)
                       .refresh()
-                      .filter(wildcard("ascii_1", "*")).check(20);
+                      .filter(wildcard("ascii_1", "*"))
+                      .check(20);
     }
 
     @Test
@@ -108,7 +111,8 @@ public class ComplexKeyIndexHandlingAT extends BaseAT {
                       .waitForIndexing()
                       .insert(data1, data7, data13, data19)
                       .refresh()
-                      .filter(wildcard("ascii_1", "*")).check(20);
+                      .filter(wildcard("ascii_1", "*"))
+                      .check(20);
     }
 
     @Test
@@ -118,8 +122,13 @@ public class ComplexKeyIndexHandlingAT extends BaseAT {
                       .insert(data1, data2, data3, data4, data5, data6, data7, data8, data9, data10)
                       .insert(data11, data12, data13, data14, data15, data16, data17, data18, data19, data20)
                       .refresh()
-                      .filter(wildcard("ascii_1", "*")).check(20)
-                      .dropIndex().createIndex().waitForIndexing().refresh()
-                      .query(wildcard("ascii_1", "*")).check(20);
+                      .filter(wildcard("ascii_1", "*"))
+                      .check(20)
+                      .dropIndex()
+                      .createIndex()
+                      .waitForIndexing()
+                      .refresh()
+                      .query(wildcard("ascii_1", "*"))
+                      .check(20);
     }
 }

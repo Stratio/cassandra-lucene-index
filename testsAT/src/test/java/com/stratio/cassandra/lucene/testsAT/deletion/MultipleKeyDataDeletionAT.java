@@ -77,8 +77,12 @@ public class MultipleKeyDataDeletionAT extends BaseAT {
     @Test
     public void columnDeletion() {
 
-        List<Row> rows = cassandraUtils.delete("bigint_1").where("integer_1", 1).and("ascii_1", "ascii")
-                                       .refresh().query(wildcard("ascii_1", "*")).get();
+        List<Row> rows = cassandraUtils.delete("bigint_1")
+                                       .where("integer_1", 1)
+                                       .and("ascii_1", "ascii")
+                                       .refresh()
+                                       .query(wildcard("ascii_1", "*"))
+                                       .get();
 
         assertEquals("Expected 10 results!", 10, rows.size());
 
@@ -98,8 +102,12 @@ public class MultipleKeyDataDeletionAT extends BaseAT {
     @Test
     public void mapElementDeletion() {
 
-        List<Row> rows = cassandraUtils.delete("map_1['k1']").where("integer_1", 1).and("ascii_1", "ascii")
-                                       .refresh().filter(wildcard("ascii_1", "*")).get();
+        List<Row> rows = cassandraUtils.delete("map_1['k1']")
+                                       .where("integer_1", 1)
+                                       .and("ascii_1", "ascii")
+                                       .refresh()
+                                       .filter(wildcard("ascii_1", "*"))
+                                       .get();
 
         assertEquals("Expected 10 results!", 10, rows.size());
 
@@ -123,8 +131,12 @@ public class MultipleKeyDataDeletionAT extends BaseAT {
     @Test
     public void listElementDeletion() {
 
-        List<Row> rows = cassandraUtils.delete("list_1[0]").where("integer_1", 1).and("ascii_1", "ascii")
-                                       .refresh().filter(wildcard("ascii_1", "*")).get();
+        List<Row> rows = cassandraUtils.delete("list_1[0]")
+                                       .where("integer_1", 1)
+                                       .and("ascii_1", "ascii")
+                                       .refresh()
+                                       .filter(wildcard("ascii_1", "*"))
+                                       .get();
 
         assertEquals("Expected 10 results!", 10, rows.size());
 
@@ -148,8 +160,12 @@ public class MultipleKeyDataDeletionAT extends BaseAT {
     @Test
     public void totalPartitionDeletion() {
 
-        int n = cassandraUtils.delete().where("integer_1", 1).and("ascii_1", "ascii")
-                              .refresh().filter(wildcard("ascii_1", "*")).count();
+        int n = cassandraUtils.delete()
+                              .where("integer_1", 1)
+                              .and("ascii_1", "ascii")
+                              .refresh()
+                              .filter(wildcard("ascii_1", "*"))
+                              .count();
 
         assertEquals("Expected 9 results!", 9, n);
 

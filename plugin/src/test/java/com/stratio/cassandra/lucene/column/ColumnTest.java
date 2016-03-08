@@ -142,9 +142,10 @@ public class ColumnTest {
         LongType type = LongType.instance;
         Long composedValue = 5L;
         ByteBuffer decomposedValue = type.decompose(composedValue);
-        Column<Long> column = Column.builder("my").withUDTName("1").withMapName("2").buildWithDecomposed(
-                decomposedValue,
-                type);
+        Column<Long> column = Column.builder("my")
+                                    .withUDTName("1")
+                                    .withMapName("2")
+                                    .buildWithDecomposed(decomposedValue, type);
         assertEquals("Method #toString is wrong",
                      "Column{fullName=my.1$2, buildWithComposed=5, type=LongType}",
                      column.toString());

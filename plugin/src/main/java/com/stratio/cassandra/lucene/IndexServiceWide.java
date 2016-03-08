@@ -147,8 +147,8 @@ public class IndexServiceWide extends IndexService {
 
     /** {@inheritDoc} */
     @Override
-    public Query query(DecoratedKey key, ClusteringIndexFilter clusteringFilter) {
-        return keyMapper.query(key, clusteringFilter);
+    public Query query(DecoratedKey key, ClusteringIndexFilter filter) {
+        return keyMapper.query(key, filter);
     }
 
     /** {@inheritDoc} */

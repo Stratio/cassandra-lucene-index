@@ -261,17 +261,17 @@ public final class SearchBuilders {
      * @param latitude the latitude of the reference point
      * @return a new geo distance sort field builder
      */
-    public static GeoDistanceSortFieldBuilder geoDistanceSortField(String mapper, double longitude, double latitude) {
+    public static GeoDistanceSortFieldBuilder geoDistance(String mapper, double longitude, double latitude) {
         return new GeoDistanceSortFieldBuilder(mapper, longitude, latitude);
     }
 
     /**
      * Returns a new {@link BitemporalConditionBuilder} for the specified field.
      *
-     * @param field The name of the field to be sorted.
-     * @returna new bitemporal condition builder for the specified field.
+     * @param field the name of the field to be sorted
+     * @return a new bitemporal condition builder for the specified field
      */
-    public static BitemporalConditionBuilder bitemporalSearch(String field) {
+    public static BitemporalConditionBuilder bitemporal(String field) {
         return new BitemporalConditionBuilder(field);
     }
 }

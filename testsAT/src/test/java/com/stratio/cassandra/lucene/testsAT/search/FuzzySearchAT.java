@@ -231,8 +231,7 @@ public class FuzzySearchAT extends AbstractSearchAT {
 
     @Test
     public void fuzzyFilterVarcharFieldWith5MaxEditsAndTranspositionsTest() {
-        filter(fuzzy("varchar_1", "frasesenicllasnespaciosperomaslarga").maxEdits(1)
-                                                                        .transpositions(true)).check(0);
+        filter(fuzzy("varchar_1", "frasesenicllasnespaciosperomaslarga").maxEdits(1).transpositions(true)).check(0);
     }
 
     @Test

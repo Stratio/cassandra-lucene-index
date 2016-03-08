@@ -37,7 +37,8 @@ import static com.stratio.cassandra.lucene.builder.Builder.*;
 @RunWith(JUnit4.class)
 public class GeoSearchOverIndexedGeoShapesAT extends BaseAT {
 
-    public static final Map<String, String> data1, data2, data3, data4, data5, data6, data7, data8, data9, data10, data11, data12;
+    public static final Map<String, String> data1, data2, data3, data4, data5, data6, data7, data8, data9, data10,
+            data11, data12;
     protected static CassandraUtils cassandraUtils;
 
     static {
@@ -50,8 +51,8 @@ public class GeoSearchOverIndexedGeoShapesAT extends BaseAT {
         data2 = new LinkedHashMap<>();
         data2.put("place", "'SHAPE_2'");
         data2.put("shape",
-                      "'POLYGON((-3.8012266 40.4384634, -3.7821293000000002 40.44178680000001," +
-                      "-3.7937164 40.4453468, -3.7937164 40.453054, -3.8012266 40.4384634))'");
+                  "'POLYGON((-3.8012266 40.4384634, -3.7821293000000002 40.44178680000001," +
+                  "-3.7937164 40.4453468, -3.7937164 40.453054, -3.8012266 40.4384634))'");
 
         data3 = new LinkedHashMap<>();
         data3.put("place", "'SHAPE_3'");
@@ -93,7 +94,8 @@ public class GeoSearchOverIndexedGeoShapesAT extends BaseAT {
 
         data12 = new LinkedHashMap<>();
         data12.put("place", "'MULTIPOLYGON_2'");
-        data12.put("shape","'MULTIPOLYGON (((40 40, 20 45, 45 30, 40 40)),((20 35, 10 30, 10 10, 30 5, 45 20, 20 35),(30 20, 20 15, 20 25, 30 20)))'");
+        data12.put("shape",
+                   "'MULTIPOLYGON (((40 40, 20 45, 45 30, 40 40)),((20 35, 10 30, 10 10, 30 5, 45 20, 20 35),(30 20, 20 15, 20 25, 30 20)))'");
 
     }
 
@@ -414,8 +416,8 @@ public class GeoSearchOverIndexedGeoShapesAT extends BaseAT {
     public void testStarShapedIsWithinQuery2() {
         cassandraUtils.filter(geoShape("shape",
                                        "POLYGON((-3.8012266 40.4384634, -3.7821293000000002 40.44178680000001, " +
-                                       "-3.7937164 40.4453468, -3.7937164 40.453054, -3.8012266 40.4384634))")
-                                      .operation("is_within")).checkStringColumnWithoutOrder("place");
+                                       "-3.7937164 40.4453468, -3.7937164 40.453054, -3.8012266 40.4384634))").operation(
+                "is_within")).checkStringColumnWithoutOrder("place");
     }
 
     @Test
@@ -432,8 +434,9 @@ public class GeoSearchOverIndexedGeoShapesAT extends BaseAT {
     public void testBufferIntersectsShape() {
         cassandraUtils.filter(geoShape("shape",
                                        "LINESTRING(-3.8033294999999994 40.4349602,-3.7986946 40.44511810000001," +
-                                       "-3.785691299999999 40.445020199999995)")
-                                      .operation("intersects").transform(bufferGeoTransformation().maxDistance("500m")))
+                                       "-3.785691299999999 40.445020199999995)").operation("intersects")
+                                                                                .transform(bufferGeoTransformation().maxDistance(
+                                                                                        "500m")))
                       .checkStringColumnWithoutOrder("place", "SHAPE_1", "SHAPE_2", "SHAPE_3");
 
     }
@@ -442,8 +445,9 @@ public class GeoSearchOverIndexedGeoShapesAT extends BaseAT {
     public void testBufferContainsShape() {
         cassandraUtils.filter(geoShape("shape",
                                        "LINESTRING(-3.8033294999999994 40.4349602,-3.7986946 40.44511810000001," +
-                                       "-3.785691299999999 40.445020199999995)")
-                                      .operation("contains").transform(bufferGeoTransformation().maxDistance("500m")))
+                                       "-3.785691299999999 40.445020199999995)").operation("contains")
+                                                                                .transform(bufferGeoTransformation().maxDistance(
+                                                                                        "500m")))
                       .checkStringColumnWithoutOrder("place");
 
     }
@@ -452,8 +456,9 @@ public class GeoSearchOverIndexedGeoShapesAT extends BaseAT {
     public void testBufferIsWithinShape() {
         cassandraUtils.filter(geoShape("shape",
                                        "LINESTRING(-3.8033294999999994 40.4349602,-3.7986946 40.44511810000001," +
-                                       "-3.785691299999999 40.445020199999995)")
-                                      .operation("is_within").transform(bufferGeoTransformation().maxDistance("500m")))
+                                       "-3.785691299999999 40.445020199999995)").operation("is_within")
+                                                                                .transform(bufferGeoTransformation().maxDistance(
+                                                                                        "500m")))
                       .checkStringColumnWithoutOrder("place");
 
     }
@@ -663,7 +668,7 @@ public class GeoSearchOverIndexedGeoShapesAT extends BaseAT {
     public void testMultipolygonContains() {
         cassandraUtils.filter(geoShape("shape",
                                        "MULTIPOLYGON (((30 20, 45 40, 10 40, 30 20)),((15 5, 40 10, 10 20, 5 10, 15 5)))")
-                                      .operation("contains")).checkStringColumnWithoutOrder("place","MULTIPOLYGON_1");
+                                      .operation("contains")).checkStringColumnWithoutOrder("place", "MULTIPOLYGON_1");
     }
 
     @Test

@@ -59,8 +59,10 @@ public class LargeFieldAT {
         cassandraUtils.insert(new String[]{"id", "name", "age", "data"}, new Object[]{"2", "b", "2", "good_dat"})
                       .insert(new String[]{"id", "name", "age", "data"}, new Object[]{"1", "a", "1", largeString})
                       .refresh()
-                      .query(bool().must(match("id", "2")).must(match("name", "b"))).check(1)
-                      .query(bool().must(match("id", "1")).must(match("name", "a"))).check(1)
+                      .query(bool().must(match("id", "2")).must(match("name", "b")))
+                      .check(1)
+                      .query(bool().must(match("id", "1")).must(match("name", "a")))
+                      .check(1)
                       .dropKeyspace();
     }
 }

@@ -663,14 +663,14 @@ public class BuilderTest {
 
     @Test
     public void testGeoDistanceSortFieldDefaults() {
-        String actual = geoDistanceSortField("field1", 0.0, 0.0).build();
+        String actual = geoDistanceField("field1", 0.0, 0.0).build();
         String expected = "{\"type\":\"geo_distance\",\"mapper\":\"field1\",\"longitude\":0.0,\"latitude\":0.0}";
         assertEquals("sort field condition serialization is wrong", expected, actual);
     }
 
     @Test
     public void testGeoDistanceSortFieldFull() {
-        String actual = geoDistanceSortField("field1", 0.0, 0.0).reverse(true).build();
+        String actual = geoDistanceField("field1", 0.0, 0.0).reverse(true).build();
         String
                 expected
                 = "{\"type\":\"geo_distance\",\"mapper\":\"field1\",\"longitude\":0.0,\"latitude\":0.0,\"reverse\":true}";
@@ -688,7 +688,7 @@ public class BuilderTest {
     public void testSortFull() {
         String actual = search().sort(field("field1"),
                                       field("field2"),
-                                      geoDistanceSortField("field1", 0.0, 0.0).reverse(true)).build();
+                                      geoDistanceField("field1", 0.0, 0.0).reverse(true)).build();
         String
                 expected
                 = "{\"sort\":{\"fields\":[{\"type\":\"simple\",\"field\":\"field1\"},{\"type\":\"simple\",\"field\":\"field2\"},{\"type\":\"geo_distance\",\"mapper\":\"field1\",\"longitude\":0.0,\"latitude\":0.0,\"reverse\":true}]}}";

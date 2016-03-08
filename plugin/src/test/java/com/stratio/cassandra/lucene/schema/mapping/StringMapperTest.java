@@ -72,10 +72,7 @@ public class StringMapperTest extends AbstractMapperTest {
 
     @Test
     public void testJsonSerialization() {
-        StringMapperBuilder builder = stringMapper().indexed(false)
-                                                    .sorted(true)
-                                                    .column("column")
-                                                    .caseSensitive(false);
+        StringMapperBuilder builder = stringMapper().indexed(false).sorted(true).column("column").caseSensitive(false);
         testJson(builder, "{type:\"string\",indexed:false,sorted:true,column:\"column\",case_sensitive:false}");
     }
 

@@ -44,11 +44,7 @@ public class LongMapperTest extends AbstractMapperTest {
 
     @Test
     public void testConstructorWithAllArgs() {
-        LongMapper mapper = longMapper().indexed(false)
-                                        .sorted(true)
-                                        .column("column")
-                                        .boost(2.3f)
-                                        .build("field");
+        LongMapper mapper = longMapper().indexed(false).sorted(true).column("column").boost(2.3f).build("field");
         assertEquals("Field is not set", "field", mapper.field);
         assertFalse("Indexed is not set", mapper.indexed);
         assertTrue("Sorted is not set", mapper.sorted);

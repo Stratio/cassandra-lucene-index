@@ -73,7 +73,8 @@ public class UDTIndexingAT extends BaseAT {
                                        .withMapper("address.city", stringMapper())
                                        .withMapper("address.point.latitude", floatMapper())
                                        .withMapper("address.point.longitude", floatMapper())
-                                       .build().createKeyspace()
+                                       .build()
+                                       .createKeyspace()
                                        .createUDTs()
                                        .createTable()
                                        .createIndex();
@@ -518,7 +519,6 @@ public class UDTIndexingAT extends BaseAT {
         cassandraUtils.refresh();
 
         CassandraUtilsSelect select = cassandraUtils.filter(match("address.city", "Madrid"));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"),
-                                      new String[]{"USER10"});
+        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER10"});
     }
 }

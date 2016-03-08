@@ -116,8 +116,8 @@ public class UDTValidationAT extends BaseAT {
                                      "for mapper 'address.non-existent.latitude'";
             assertEquals(String.format("Creating invalid index must return InvalidConfigurationInQueryException(%s) " +
                                        "but returns InvalidConfigurationInQueryException(%s)",
-                                       expectedMessage, e.getMessage()),
-                         expectedMessage, e.getMessage());
+                                       expectedMessage,
+                                       e.getMessage()), expectedMessage, e.getMessage());
 
         }
     }

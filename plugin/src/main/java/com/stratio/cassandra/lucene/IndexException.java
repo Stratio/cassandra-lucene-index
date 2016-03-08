@@ -33,7 +33,7 @@ public class IndexException extends RuntimeException {
      * Constructs a new index exception with the specified formatted detail message.
      *
      * @param message the detail message.
-     * @param args Arguments referenced by the format specifiers in the format message.
+     * @param args arguments referenced by the format specifiers in the format message
      */
     public IndexException(String message, Object... args) {
         super(String.format(message, args));
@@ -42,9 +42,9 @@ public class IndexException extends RuntimeException {
     /**
      * Constructs a new index exception with the specified formatted detail message.
      *
-     * @param cause The cause.
-     * @param message The detail message.
-     * @param args Arguments referenced by the format specifiers in the format message.
+     * @param cause the cause
+     * @param message the detail message
+     * @param args arguments referenced by the format specifiers in the format message
      */
     public IndexException(Throwable cause, String message, Object... args) {
         super(String.format(message, args), cause);
@@ -53,10 +53,10 @@ public class IndexException extends RuntimeException {
     /**
      * Constructs a new index exception with the specified formatted detail message.
      *
-     * @param logger A logger to log the message with ERROR level.
-     * @param cause The cause.
-     * @param message The detail message.
-     * @param args Arguments referenced by the format specifiers in the format message.
+     * @param logger a logger to log the message with ERROR level
+     * @param cause the cause
+     * @param message the detail message
+     * @param args arguments referenced by the format specifiers in the format message
      */
     public IndexException(Logger logger, Throwable cause, String message, Object... args) {
         this(cause, message, args);
@@ -66,7 +66,7 @@ public class IndexException extends RuntimeException {
     /**
      * Constructs a new index exception with the specified cause.
      *
-     * @param cause The cause.
+     * @param cause the cause
      */
     public IndexException(Throwable cause) {
         super(cause);

@@ -97,8 +97,12 @@ public class ComplexKeyDataDeletionAT extends BaseAT {
     public void columnDeletion() {
 
         List<Row> rows = cassandraUtils.delete("bigint_1")
-                                       .where("integer_1", 1).and("ascii_1", "ascii").and("double_1", 1)
-                                       .refresh().filter(wildcard("ascii_1", "*")).get();
+                                       .where("integer_1", 1)
+                                       .and("ascii_1", "ascii")
+                                       .and("double_1", 1)
+                                       .refresh()
+                                       .filter(wildcard("ascii_1", "*"))
+                                       .get();
 
         assertEquals("Expected 20 results!", 20, rows.size());
 
@@ -119,8 +123,12 @@ public class ComplexKeyDataDeletionAT extends BaseAT {
     public void mapElementDeletion() {
 
         List<Row> rows = cassandraUtils.delete("map_1['k1']")
-                                       .where("integer_1", 1).and("ascii_1", "ascii").and("double_1", 1)
-                                       .refresh().filter(wildcard("ascii_1", "*")).get();
+                                       .where("integer_1", 1)
+                                       .and("ascii_1", "ascii")
+                                       .and("double_1", 1)
+                                       .refresh()
+                                       .filter(wildcard("ascii_1", "*"))
+                                       .get();
 
         assertEquals("Expected 20 results!", 20, rows.size());
 
@@ -145,8 +153,13 @@ public class ComplexKeyDataDeletionAT extends BaseAT {
     public void listElementDeletion() {
 
         List<Row> rows = cassandraUtils.delete("list_1[0]")
-                                       .where("integer_1", 1).and("ascii_1", "ascii").and("double_1", 1)
-                                       .refresh().select().filter(wildcard("ascii_1", "*")).get();
+                                       .where("integer_1", 1)
+                                       .and("ascii_1", "ascii")
+                                       .and("double_1", 1)
+                                       .refresh()
+                                       .select()
+                                       .filter(wildcard("ascii_1", "*"))
+                                       .get();
 
         assertEquals("Expected 20 results!", 20, rows.size());
 
@@ -169,16 +182,27 @@ public class ComplexKeyDataDeletionAT extends BaseAT {
 
     @Test
     public void totalPartitionDeletion() {
-        int n = cassandraUtils.delete().where("integer_1", 1).where("ascii_1", "ascii").where("double_1", 1)
-                              .refresh().select().filter(wildcard("ascii_1", "*")).count();
+        int n = cassandraUtils.delete()
+                              .where("integer_1", 1)
+                              .where("ascii_1", "ascii")
+                              .where("double_1", 1)
+                              .refresh()
+                              .select()
+                              .filter(wildcard("ascii_1", "*"))
+                              .count();
         assertEquals("Expected 19 results!", 19, n);
 
     }
 
     @Test
     public void partialPartitionDeletion() {
-        int n = cassandraUtils.delete().where("integer_1", 1).and("ascii_1", "ascii")
-                              .refresh().select().filter(wildcard("ascii_1", "*")).count();
+        int n = cassandraUtils.delete()
+                              .where("integer_1", 1)
+                              .and("ascii_1", "ascii")
+                              .refresh()
+                              .select()
+                              .filter(wildcard("ascii_1", "*"))
+                              .count();
         assertEquals("Expected 18 results!", 18, n);
     }
 }

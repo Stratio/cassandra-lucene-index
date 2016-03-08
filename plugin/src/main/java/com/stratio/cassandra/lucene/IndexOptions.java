@@ -130,9 +130,9 @@ public class IndexOptions {
      * Validates the specified index options.
      *
      * @param options the options to be validated
-     * @param tableMetadata the indexed table metadata
+     * @param metadata the indexed table metadata
      */
-    public static void validateOptions(Map<String, String> options, CFMetaData tableMetadata) {
+    public static void validateOptions(Map<String, String> options, CFMetaData metadata) {
         parseRefresh(options);
         parseRamBufferMB(options);
         parseMaxMergeMB(options);
@@ -142,8 +142,8 @@ public class IndexOptions {
         parseExcludedDataCenters(options);
         parseTokenRangeCacheSize(options);
         parseSearchCacheSize(options);
-        parseSchema(options, tableMetadata);
-        parsePath(options, tableMetadata, null);
+        parseSchema(options, metadata);
+        parsePath(options, metadata, null);
     }
 
     private static double parseRefresh(Map<String, String> options) {

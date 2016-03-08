@@ -78,7 +78,8 @@ public class GeoDistanceSortFieldBuilderTest {
             builder.build();
         } catch (IndexException e) {
             assertEquals("Creating a GeoDistanceSortFieldBuilder with invalid longitude must throw an IndexException",
-                         "latitude must be in range [-90.0, 90.0], but found 91.0", e.getMessage());
+                         "latitude must be in range [-90.0, 90.0], but found 91.0",
+                         e.getMessage());
         }
 
     }
@@ -94,7 +95,8 @@ public class GeoDistanceSortFieldBuilderTest {
             builder.build();
         } catch (IndexException e) {
             assertEquals("Creating a GeoDistanceSortFieldBuilder with invalid longitude must throw an IndexException",
-                         "longitude must be in range [-180.0, 180.0], but found 200.0", e.getMessage());
+                         "longitude must be in range [-180.0, 180.0], but found 200.0",
+                         e.getMessage());
         }
     }
 

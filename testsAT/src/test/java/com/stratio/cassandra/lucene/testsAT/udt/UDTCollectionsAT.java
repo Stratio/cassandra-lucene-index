@@ -359,8 +359,7 @@ public class UDTCollectionsAT extends BaseAT {
                      expected.length,
                      received.length);
         assertTrue("Unexpected results!! Expected: " + Arrays.toString(expected) + ", but got: " +
-                   Arrays.toString(received),
-                   isThisAndOnlyThis(received, expected));
+                   Arrays.toString(received), isThisAndOnlyThis(received, expected));
 
     }
 

@@ -22,7 +22,6 @@ import com.stratio.cassandra.lucene.testsAT.BaseAT;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -49,7 +48,7 @@ public class InOperatorWithSkinnyRowsAT extends BaseAT {
                               .createTable()
                               .createIndex();
         for (int i = 0; i < NUM_PARTITIONS; i++) {
-                utils.insert(new String[]{"pk", "rc"}, new Object[]{i, i});
+            utils.insert(new String[]{"pk", "rc"}, new Object[]{i, i});
         }
         utils.waitForIndexing().refresh();
     }

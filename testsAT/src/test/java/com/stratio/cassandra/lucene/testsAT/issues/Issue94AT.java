@@ -36,19 +36,18 @@ public class Issue94AT extends BaseAT {
 
     @Test
     public void testInsertExplicitlyNullColumns() {
-        CassandraUtils utils = builder("issue_94")
-                .withTable("test")
-                .withIndex("test")
-                .withPartitionKey("a")
-                .withColumn("a", "int", integerMapper())
-                .withColumn("b", "text", stringMapper())
-                .withColumn("c", "text", stringMapper())
-                .withColumn("lucene", "text")
-                .build()
-                .createKeyspace()
-                .createTable()
-                .createIndex()
-                .refresh();
+        CassandraUtils utils = builder("issue_94").withTable("test")
+                                                  .withIndex("test")
+                                                  .withPartitionKey("a")
+                                                  .withColumn("a", "int", integerMapper())
+                                                  .withColumn("b", "text", stringMapper())
+                                                  .withColumn("c", "text", stringMapper())
+                                                  .withColumn("lucene", "text")
+                                                  .build()
+                                                  .createKeyspace()
+                                                  .createTable()
+                                                  .createIndex()
+                                                  .refresh();
         utils.insert(new String[]{"a", "b", "c"}, new Object[]{1, null, null});
         utils.execute("INSERT INTO %s(a , b , c ) VALUES (1, null, null);", utils.getQualifiedTable());
         utils.dropTable().dropKeyspace();

@@ -134,10 +134,8 @@ public class TupleIndexingAT extends BaseAT {
 
         Integer[] returnedValues = cassandraUtils.filter(geoDistance("geo_point", -3.784519, 40.442163, "10000km"))
                                                  .refresh(true)
-                                                 .sort(
-                                                         geoDistanceSortField("geo_point",
-                                                                              -3.784519,
-                                                                              40.442163).reverse(false))
+                                                 .sort(geoDistanceField("geo_point", -3.784519, 40.442163).reverse(
+                                                         false))
                                                  .intColumn("k");
 
         assertEquals("Expected 7 results!", 7, returnedValues.length);

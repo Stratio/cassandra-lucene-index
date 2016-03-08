@@ -23,7 +23,6 @@ import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.common.GeoTransformation;
 import com.stratio.cassandra.lucene.schema.mapping.GeoShapeMapper;
-import com.stratio.cassandra.lucene.util.GeospatialUtils;
 import com.stratio.cassandra.lucene.util.GeospatialUtilsJTS;
 import com.stratio.cassandra.lucene.util.JsonSerializer;
 import org.junit.Test;
@@ -94,7 +93,7 @@ public class GeoTransformationDifferenceTest extends AbstractConditionTest {
 
     @Test
     public void testDifferenceTransformationParsing() throws IOException {
-        String json ="{type:\"difference\",shape:\"LINESTRING(2 28, 30 3)\"}";
+        String json = "{type:\"difference\",shape:\"LINESTRING(2 28, 30 3)\"}";
         Difference difference = JsonSerializer.fromString(json, Difference.class);
         assertNotNull("JSON serialization is wrong", difference);
         assertEquals("JSON serialization is wrong", "LINESTRING(2 28, 30 3)", difference.other);

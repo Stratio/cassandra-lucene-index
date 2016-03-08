@@ -41,10 +41,7 @@ public class CassandraConnection {
         if (cluster == null) {
             try {
 
-                cluster = Cluster
-                        .builder()
-                        .addContactPoint(HOST)
-                        .build();
+                cluster = Cluster.builder().addContactPoint(HOST).build();
 
                 cluster.getConfiguration().getQueryOptions().setConsistencyLevel(CONSISTENCY).setFetchSize(FETCH);
                 cluster.getConfiguration()

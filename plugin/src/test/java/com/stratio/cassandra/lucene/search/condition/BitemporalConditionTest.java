@@ -27,7 +27,7 @@ import org.apache.lucene.search.Query;
 import org.junit.Test;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
-import static com.stratio.cassandra.lucene.search.SearchBuilders.bitemporalSearch;
+import static com.stratio.cassandra.lucene.search.SearchBuilders.bitemporal;
 import static com.stratio.cassandra.lucene.search.condition.Condition.DEFAULT_BOOST;
 import static org.junit.Assert.*;
 
@@ -99,10 +99,8 @@ public class BitemporalConditionTest extends AbstractConditionTest {
     @Test
     public void testQuery() {
 
-        MapperBuilder<?, ?> mapperBuilder = bitemporalMapper("vtFrom",
-                                                             "vtTo",
-                                                             "ttFrom",
-                                                             "ttTo").pattern(TIMESTAMP_PATTERN);
+        MapperBuilder<?, ?> mapperBuilder = bitemporalMapper("vtFrom", "vtTo", "ttFrom", "ttTo").pattern(
+                TIMESTAMP_PATTERN);
         Schema schema = schema().mapper("name", mapperBuilder).build();
         BitemporalCondition condition = new BitemporalCondition(0.5f, "name", 1, 2, 3, 4);
 
@@ -120,7 +118,7 @@ public class BitemporalConditionTest extends AbstractConditionTest {
 
     @Test
     public void testToString() {
-        BitemporalCondition condition = bitemporalSearch("name").vtFrom(1).vtTo(2).ttFrom(3).ttTo(4).boost(0.3).build();
+        BitemporalCondition condition = bitemporal("name").vtFrom(1).vtTo(2).ttFrom(3).ttTo(4).boost(0.3).build();
         assertEquals("Method #toString is wrong",
                      "BitemporalCondition{boost=0.3, field=name, vtFrom=1, vtTo=2, ttFrom=3, ttTo=4}",
                      condition.toString());

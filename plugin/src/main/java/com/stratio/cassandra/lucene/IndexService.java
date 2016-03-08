@@ -425,10 +425,10 @@ public abstract class IndexService {
      * {@link ClusteringIndexFilter}.
      *
      * @param key the partition key
-     * @param clusteringFilter the clustering key range
+     * @param filter the clustering key range
      * @return a query to get the {@link Document}s satisfying the key range
      */
-    abstract Query query(DecoratedKey key, ClusteringIndexFilter clusteringFilter);
+    abstract Query query(DecoratedKey key, ClusteringIndexFilter filter);
 
     /**
      * Returns a Lucene {@link Query} to get the {@link Document}s satisfying the specified {@link DataRange}.
