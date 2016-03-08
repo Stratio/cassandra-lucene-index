@@ -33,12 +33,15 @@ import java.util.Map;
  */
 public class Schema extends Builder {
 
+    /** The default analyzer. */
     @JsonProperty("default_analyzer")
     String defaultAnalyzerName;
 
+    /** The analyzers. */
     @JsonProperty("analyzers")
     Map<String, Analyzer> analyzers;
 
+    /** The mappers. */
     @JsonProperty("fields")
     Map<String, Mapper> mappers;
 

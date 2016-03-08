@@ -27,6 +27,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
  */
 public class TextMapper extends SingleColumnMapper<TextMapper> {
 
+    /** The analyzer. */
     @JsonProperty("analyzer")
     String analyzer;
 
