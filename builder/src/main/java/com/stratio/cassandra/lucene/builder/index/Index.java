@@ -57,10 +57,10 @@ public class Index extends Builder {
     }
 
     /**
-     * Sets the name keyspace name.
+     * Sets the name of the keyspace.
      *
-     * @param keyspace The keyspace name.
-     * @return This.
+     * @param keyspace the keyspace name
+     * @return this with the specified keyspace name
      */
     public Index keyspace(String keyspace) {
         this.keyspace = keyspace;
@@ -71,7 +71,7 @@ public class Index extends Builder {
      * Sets the name of the indexed column.
      *
      * @param name The name of the indexed column.
-     * @return This.
+     * @return this with the specified indexed column name
      */
     public Index name(String name) {
         this.name = name;
@@ -81,8 +81,8 @@ public class Index extends Builder {
     /**
      * Sets the index searcher refresh period.
      *
-     * @param refreshSeconds The refresh seconds.
-     * @return This.
+     * @param refreshSeconds the number of seconds between refreshes
+     * @return this with the specified refresh seconds
      */
     public Index refreshSeconds(Number refreshSeconds) {
         this.refreshSeconds = refreshSeconds;
@@ -92,8 +92,8 @@ public class Index extends Builder {
     /**
      * Sets the path of the Lucene directory files.
      *
-     * @param directoryPath The path of the Lucene directory files.
-     * @return This.
+     * @param directoryPath the path of the Lucene directory files.
+     * @return this with the specified directory path
      */
     public Index directoryPath(String directoryPath) {
         this.directoryPath = directoryPath;
@@ -103,8 +103,8 @@ public class Index extends Builder {
     /**
      * Sets the Lucene's RAM buffer size in MBs.
      *
-     * @param ramBufferMb The Lucene's RAM buffer size in MBs.
-     * @return This.
+     * @param ramBufferMb the RAM buffer size
+     * @return this with the specified RAM buffer size
      */
     public Index ramBufferMb(Integer ramBufferMb) {
         this.ramBufferMb = ramBufferMb;
@@ -114,8 +114,8 @@ public class Index extends Builder {
     /**
      * Sets the Lucene's max merge MBs.
      *
-     * @param maxMergeMb The Lucene's max merge MBs.
-     * @return This.
+     * @param maxMergeMb the max merge MBs
+     * @return this with the specified max merge MBs
      */
     public Index maxMergeMb(Integer maxMergeMb) {
         this.maxMergeMb = maxMergeMb;
@@ -125,8 +125,8 @@ public class Index extends Builder {
     /**
      * Sets the Lucene's max cached MBs.
      *
-     * @param maxCachedMb The Lucene's max cached MBs.
-     * @return This.
+     * @param maxCachedMb the Lucene's max cached MBs
+     * @return this with the specified max cached MBs
      */
     public Index maxCachedMb(Integer maxCachedMb) {
         this.maxCachedMb = maxCachedMb;
@@ -136,8 +136,8 @@ public class Index extends Builder {
     /**
      * Sets the number of asynchronous indexing threads, where {@code 0} means synchronous indexing.
      *
-     * @param indexingThreads The number of asynchronous indexing threads.
-     * @return This.
+     * @param indexingThreads the number of asynchronous indexing threads
+     * @return this with the specified number of asynchronous indexing threads
      */
     public Index indexingThreads(Integer indexingThreads) {
         this.indexingThreads = indexingThreads;
@@ -147,8 +147,8 @@ public class Index extends Builder {
     /**
      * Sets the max number of queued documents per asynchronous indexing thread.
      *
-     * @param indexingQueuesSize The max number of queued documents per asynchronous indexing thread.
-     * @return This.
+     * @param indexingQueuesSize the max number of queued documents
+     * @return this with the specified max number of queued documents
      */
     public Index indexingQueuesSize(Integer indexingQueuesSize) {
         this.indexingQueuesSize = indexingQueuesSize;
@@ -158,8 +158,8 @@ public class Index extends Builder {
     /**
      * Sets the list of excluded data centers.
      *
-     * @param excludedDataCenters The list of excluded data centers.
-     * @return This.
+     * @param excludedDataCenters the excluded data centers
+     * @return this with the specified excluded data centers
      */
     public Index excludedDataCenters(String excludedDataCenters) {
         this.excludedDataCenters = excludedDataCenters;
@@ -169,8 +169,8 @@ public class Index extends Builder {
     /**
      * Sets the name of the default {@link Analyzer}.
      *
-     * @param name The name of the default {@link Analyzer}.
-     * @return This.
+     * @param name the name of the default {@link Analyzer}
+     * @return this with the specified default analyzer
      */
     public Index defaultAnalyzer(String name) {
         schema.defaultAnalyzer(name);
@@ -180,9 +180,9 @@ public class Index extends Builder {
     /**
      * Adds a new {@link Analyzer}.
      *
-     * @param name     The name of the {@link Analyzer} to be added.
-     * @param analyzer The builder of the {@link Analyzer} to be added.
-     * @return This.
+     * @param name the name of the {@link Analyzer} to be added
+     * @param analyzer the {@link Analyzer} to be added
+     * @return this with the specified analyzer
      */
     public Index analyzer(String name, Analyzer analyzer) {
         schema.analyzer(name, analyzer);
@@ -192,9 +192,9 @@ public class Index extends Builder {
     /**
      * Adds a new {@link Mapper}.
      *
-     * @param field  The name of the {@link Mapper} to be added.
-     * @param mapper The builder of the {@link Mapper} to be added.
-     * @return This.
+     * @param field the name of the {@link Mapper} to be added
+     * @param mapper the {@link Mapper} to be added
+     * @return this with the specified mapper
      */
     public Index mapper(String field, Mapper mapper) {
         schema.mapper(field, mapper);
@@ -204,14 +204,15 @@ public class Index extends Builder {
     /**
      * Sets the {@link Schema}.
      *
-     * @param schema A {@link Schema}.
-     * @return This.
+     * @param schema the {@link Schema}
+     * @return this with the specified schema
      */
     public Index schema(Schema schema) {
         this.schema = schema;
         return this;
     }
 
+    /** {@inheritDoc} */
     @Override
     public String build() {
         StringBuilder sb = new StringBuilder();

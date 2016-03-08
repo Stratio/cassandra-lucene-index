@@ -39,8 +39,8 @@ public class PrefixCondition extends Condition {
     /**
      * Creates a new {@link PrefixCondition}.
      *
-     * @param field The name of the field to be matched.
-     * @param value The prefix to be matched.
+     * @param field the name of the field to be matched
+     * @param value the prefix to be matched
      */
     @JsonCreator
     public PrefixCondition(@JsonProperty("field") String field, @JsonProperty("value") String value) {

@@ -22,7 +22,7 @@ import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
- * A {@link Condition} implementation that matches bi-temporal (four) fields within two range of values.
+ * A {@link Condition} implementation that matches bi-temporal (four) fields within two ranges of values.
  *
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
@@ -49,9 +49,9 @@ public class BitemporalCondition extends Condition {
     Object ttTo;
 
     /**
-     * Returns a new {@link BitemporalCondition} with the specified field reference point.
+     * Returns a new {@link BitemporalCondition} for the specified field.
      *
-     * @param field The name of the field to be matched.
+     * @param field the name of the field
      */
     @JsonCreator
     public BitemporalCondition(@JsonProperty("field") String field) {
@@ -61,8 +61,8 @@ public class BitemporalCondition extends Condition {
     /**
      * Sets the valid time start.
      *
-     * @param vtFrom The valid time start to be set.
-     * @return This.
+     * @param vtFrom the valid time start
+     * @return this with the specified valid time start
      */
     public BitemporalCondition vtFrom(Object vtFrom) {
         this.vtFrom = vtFrom;
@@ -72,8 +72,8 @@ public class BitemporalCondition extends Condition {
     /**
      * Sets the valid time end.
      *
-     * @param vtTo The valid time end to be set.
-     * @return This.
+     * @param vtTo the valid time end
+     * @return this with the specified valid time end
      */
     public BitemporalCondition vtTo(Object vtTo) {
         this.vtTo = vtTo;
@@ -83,8 +83,8 @@ public class BitemporalCondition extends Condition {
     /**
      * Sets the transaction time start.
      *
-     * @param ttFrom The transaction time start to be set.
-     * @return This.
+     * @param ttFrom the transaction time start
+     * @return this with the specified transaction time start
      */
     public BitemporalCondition ttFrom(Object ttFrom) {
         this.ttFrom = ttFrom;
@@ -94,8 +94,8 @@ public class BitemporalCondition extends Condition {
     /**
      * Sets the transaction time end.
      *
-     * @param ttTo The transaction time end to be set.
-     * @return This.
+     * @param ttTo the transaction time end
+     * @return this with the specified transaction time end
      */
     public BitemporalCondition ttTo(Object ttTo) {
         this.ttTo = ttTo;

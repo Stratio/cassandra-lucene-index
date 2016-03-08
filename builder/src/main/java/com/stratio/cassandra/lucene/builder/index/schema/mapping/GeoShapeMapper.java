@@ -33,11 +33,11 @@ public class GeoShapeMapper extends Mapper<GeoShapeMapper> {
 
     /** The name of the column to be mapped. */
     @JsonProperty("column")
-    private String column;
+    String column;
 
     /** The maximum number of levels in the tree. */
     @JsonProperty("max_levels")
-    private Integer maxLevels;
+    Integer maxLevels;
 
     /** The sequence of transformations to be applied to the shape before indexing it. */
     @JsonProperty("transformations")
@@ -47,7 +47,7 @@ public class GeoShapeMapper extends Mapper<GeoShapeMapper> {
      * Sets the name of the Cassandra column to be mapped.
      *
      * @param column the name of the Cassandra column to be mapped
-     * @return This.
+     * @return this with the specified column
      */
     public final GeoShapeMapper column(String column) {
         this.column = column;
@@ -58,7 +58,7 @@ public class GeoShapeMapper extends Mapper<GeoShapeMapper> {
      * Sets the maximum number of levels in the tree.
      *
      * @param maxLevels the maximum number of levels in the tree
-     * @return This
+     * @return this with hte specified max number of levels
      */
     public GeoShapeMapper maxLevels(Integer maxLevels) {
         this.maxLevels = maxLevels;
@@ -66,10 +66,10 @@ public class GeoShapeMapper extends Mapper<GeoShapeMapper> {
     }
 
     /**
-     * Sets the transformations to be applied to the shape before using it for indexing it.
+     * Sets the transformations to be applied to the shape before indexing it.
      *
      * @param transformations the sequence of transformations
-     * @return this with the transformations set
+     * @return this with the specified sequence of transformations
      */
     public GeoShapeMapper transform(GeoTransformation... transformations) {
         if (this.transformations == null) {

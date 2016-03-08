@@ -40,18 +40,18 @@ public class RangeCondition extends Condition {
     @JsonProperty("upper")
     Object upper;
 
-    /** If the lower value must be included if not null. */
+    /** If the lower value must be included if not {@code null}. */
     @JsonProperty("include_lower")
     Boolean includeLower;
 
-    /** If the upper value must be included if not null. */
+    /** If the upper value must be included if not {@code null}. */
     @JsonProperty("include_upper")
     Boolean includeUpper;
 
     /**
      * Creates a new {@link RangeCondition} for the specified field.
      *
-     * @param field the name of the field to be matched.
+     * @param field the name of the field to be matched
      */
     @JsonCreator
     public RangeCondition(@JsonProperty("field") String field) {
@@ -59,10 +59,10 @@ public class RangeCondition extends Condition {
     }
 
     /**
-     * Sets the lower value to be matched.
+     * Sets the lower value to be matched, if any.
      *
-     * @param lower The lower value to be matched.
-     * @return This builder with the specified lower value to be matched.
+     * @param lower the lower value to be matched, or {@code null} if there is no lower limit
+     * @return this with the specified lower value to be matched
      */
     public RangeCondition lower(Object lower) {
         this.lower = lower;
@@ -70,10 +70,10 @@ public class RangeCondition extends Condition {
     }
 
     /**
-     * Sets the upper value to be matched.
+     * Sets the upper value to be matched, if any.
      *
-     * @param upper The lower value to be matched.
-     * @return This builder with the specified upper value to be matched.
+     * @param upper the lower value to be matched, or {@code null} if there is no upper limit
+     * @return this with the specified upper value to be matched
      */
     public RangeCondition upper(Object upper) {
         this.upper = upper;
@@ -83,8 +83,8 @@ public class RangeCondition extends Condition {
     /**
      * Sets if the lower value must be included.
      *
-     * @param includeLower If the lower value must be included.
-     * @return This builder with the specified lower interval option.
+     * @param includeLower {@code true} if the lower value must be included, {@code false} otherwise
+     * @return this with the specified lower interval option
      */
     public RangeCondition includeLower(Boolean includeLower) {
         this.includeLower = includeLower;
@@ -94,8 +94,8 @@ public class RangeCondition extends Condition {
     /**
      * Sets if the upper value must be included.
      *
-     * @param includeUpper If the upper value must be included.
-     * @return This builder with the specified upper interval option.
+     * @param includeUpper {@code true} if the upper value must be included, {@code false} otherwise
+     * @return this with the specified upper interval option
      */
     public RangeCondition includeUpper(Boolean includeUpper) {
         this.includeUpper = includeUpper;

@@ -39,7 +39,7 @@ public class Sort extends Builder {
     /**
      * Creates a new {@link Sort} for the specified {@link SortField}.
      *
-     * @param sortFields The {@link SortField}s.
+     * @param sortFields the {@link SortField}s
      */
     public Sort(List<SortField> sortFields) {
         this.sortFields = sortFields;
@@ -48,7 +48,7 @@ public class Sort extends Builder {
     /**
      * Creates a new {@link Sort} for the specified {@link SortField}.
      *
-     * @param sortFields The {@link SortField}s.
+     * @param sortFields the {@link SortField}s
      */
     @JsonCreator
     public Sort(@JsonProperty("fields") SortField... sortFields) {

@@ -31,9 +31,14 @@ import org.codehaus.jackson.annotate.JsonProperty;
  */
 public class SnowballAnalyzer extends Analyzer {
 
+    /**
+     * The language. The supported values are English, French, Spanish, Portuguese, Italian, Romanian, German, Dutch,
+     * Swedish, Norwegian, Danish, Russian, Finnish, Irish, Hungarian, Turkish, Armenian, Basque and Catalan.
+     */
     @JsonProperty("language")
     final String language;
 
+    /** The comma-separated stopwords list. */
     @JsonProperty("stopwords")
     String stopwords;
 
@@ -52,8 +57,8 @@ public class SnowballAnalyzer extends Analyzer {
     /**
      * Returns this with the specified stopwords.
      *
-     * @param stopwords The comma separated stopwords.
-     * @return This with the specified stopwords.
+     * @param stopwords the comma-separated stopwords list
+     * @return this with the specified stopwords
      */
     public SnowballAnalyzer stopwords(String stopwords) {
         this.stopwords = stopwords;

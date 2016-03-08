@@ -30,13 +30,14 @@ import org.codehaus.jackson.annotate.JsonProperty;
  */
 public class ClasspathAnalyzer extends Analyzer {
 
+    /** The {@code Analyzer} full qualified class name. */
     @JsonProperty("class")
     final String className;
 
     /**
      * Builds a new {@link Analyzer} using the specified {@code Analyzer} full class name.
      *
-     * @param className An {@code Analyzer} full class name.
+     * @param className the {@code Analyzer} full class name
      */
     @JsonCreator
     public ClasspathAnalyzer(@JsonProperty("class") String className) {

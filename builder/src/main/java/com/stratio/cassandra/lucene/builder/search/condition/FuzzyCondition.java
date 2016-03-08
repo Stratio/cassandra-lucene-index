@@ -57,8 +57,8 @@ public class FuzzyCondition extends Condition {
     /**
      * Returns a new {@link FuzzyCondition}.
      *
-     * @param field the name of the field to be matched.
-     * @param value the value of the field to be matched.
+     * @param field the name of the field to be matched
+     * @param value the value of the field to be matched
      */
     @JsonCreator
     public FuzzyCondition(@JsonProperty("field") String field, @JsonProperty("value") String value) {
@@ -67,10 +67,10 @@ public class FuzzyCondition extends Condition {
     }
 
     /**
-     * Returns this builder with the specified Damerau-Levenshtein max distance.
+     * Sets the specified Damerau-Levenshtein max distance.
      *
-     * @param maxEdits The Damerau-Levenshtein max distance.
-     * @return This builder with the specified Damerau-Levenshtein max distance.
+     * @param maxEdits the Damerau-Levenshtein max distance
+     * @return this with the specified max edits
      */
     public FuzzyCondition maxEdits(Integer maxEdits) {
         this.maxEdits = maxEdits;
@@ -78,10 +78,10 @@ public class FuzzyCondition extends Condition {
     }
 
     /**
-     * Returns this builder with the length of common (non-fuzzy) prefix.
+     * Sets the length of common (non-fuzzy) prefix.
      *
-     * @param prefixLength The length of common (non-fuzzy) prefix.
-     * @return This builder with the length of common (non-fuzzy) prefix.
+     * @param prefixLength the length of common (non-fuzzy) prefix
+     * @return this with the specified prefix length
      */
     public FuzzyCondition prefixLength(Integer prefixLength) {
         this.prefixLength = prefixLength;
@@ -89,10 +89,10 @@ public class FuzzyCondition extends Condition {
     }
 
     /**
-     * Returns this builder with the specified maximum number of terms to match.
+     * Sets the specified maximum number of terms to match.
      *
-     * @param maxExpansions The maximum number of terms to match.
-     * @return This builder with the specified maximum number of terms to match.
+     * @param maxExpansions the maximum number of terms to match
+     * @return this with the specified max expansions
      */
     public FuzzyCondition maxExpansions(Integer maxExpansions) {
         this.maxExpansions = maxExpansions;
@@ -100,10 +100,10 @@ public class FuzzyCondition extends Condition {
     }
 
     /**
-     * Returns this builder with the specified  if transpositions should be treated as a primitive edit operation.
+     * Sets the specified if transpositions should be treated as a primitive edit operation.
      *
-     * @param transpositions If transpositions should be treated as a primitive edit operation.
-     * @return This builder with the specified  if transpositions should be treated as a primitive edit operation.
+     * @param transpositions if transpositions should be treated as a primitive edit operation
+     * @return this with the specified transpositions option
      */
     public FuzzyCondition transpositions(Boolean transpositions) {
         this.transpositions = transpositions;

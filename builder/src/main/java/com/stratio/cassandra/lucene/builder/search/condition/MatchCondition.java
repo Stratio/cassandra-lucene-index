@@ -39,8 +39,8 @@ public class MatchCondition extends Condition {
     /**
      * Creates a new {@link MatchCondition} for the specified field and value.
      *
-     * @param field The name of the field to be matched.
-     * @param value The value of the field to be matched.
+     * @param field the name of the field to be matched
+     * @param value the value of the field to be matched
      */
     @JsonCreator
     public MatchCondition(@JsonProperty("field") String field, @JsonProperty("value") Object value) {

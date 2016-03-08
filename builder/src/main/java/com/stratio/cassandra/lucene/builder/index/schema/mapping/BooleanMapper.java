@@ -19,7 +19,7 @@
 package com.stratio.cassandra.lucene.builder.index.schema.mapping;
 
 /**
- * A {@link Mapper} to map a date field.
+ * A {@link Mapper} to map a boolean field.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */

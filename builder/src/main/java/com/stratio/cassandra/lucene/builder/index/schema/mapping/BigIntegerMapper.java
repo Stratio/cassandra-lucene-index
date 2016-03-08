@@ -29,14 +29,15 @@ import java.math.BigInteger;
  */
 public class BigIntegerMapper extends SingleColumnMapper<BigIntegerMapper> {
 
+    /** The max number of digits. */
     @JsonProperty("digits")
     Integer digits;
 
     /**
      * Sets the max number of digits.
      *
-     * @param digits The max number of digits.
-     * @return This.
+     * @param digits the max number of digits
+     * @return this with the specified max number of digits
      */
     public BigIntegerMapper digits(Integer digits) {
         this.digits = digits;

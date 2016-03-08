@@ -45,10 +45,10 @@ public class BooleanCondition extends Condition {
     final List<Condition> not = new ArrayList<>();
 
     /**
-     * Returns this builder with the specified mandatory conditions.
+     * Sets the specified mandatory conditions.
      *
-     * @param conditions The mandatory conditions to be added.
-     * @return this builder with the specified mandatory conditions.
+     * @param conditions the mandatory conditions to be added
+     * @return this with the specified mandatory conditions
      */
     public BooleanCondition must(Condition... conditions) {
         must.addAll(Arrays.asList(conditions));
@@ -56,10 +56,10 @@ public class BooleanCondition extends Condition {
     }
 
     /**
-     * Returns this builder with the specified optional conditions.
+     * Sets the specified optional conditions.
      *
-     * @param conditions The optional conditions to be added.
-     * @return this builder with the specified optional conditions.
+     * @param conditions the optional conditions to be added
+     * @return this with the specified optional conditions
      */
     public BooleanCondition should(Condition... conditions) {
         should.addAll(Arrays.asList(conditions));
@@ -67,10 +67,10 @@ public class BooleanCondition extends Condition {
     }
 
     /**
-     * Returns this builder with the specified mandatory not conditions.
+     * Sets the specified mandatory not conditions.
      *
-     * @param conditions The mandatory not conditions to be added.
-     * @return this builder with the specified mandatory not conditions.
+     * @param conditions the mandatory not conditions to be added
+     * @return this with the specified mandatory not conditions
      */
     public BooleanCondition not(Condition... conditions) {
         not.addAll(Arrays.asList(conditions));

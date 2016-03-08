@@ -27,14 +27,15 @@ import org.codehaus.jackson.annotate.JsonProperty;
  */
 public class StringMapper extends SingleColumnMapper<StringMapper> {
 
+    /** If the mapping must be case sensitive. */
     @JsonProperty("case_sensitive")
     Boolean caseSensitive;
 
     /**
-     * Sets if the {@code StringMapper} to be built must be case sensitive.
+     * Sets if the mapping must be case sensitive.
      *
-     * @param caseSensitive If the {@code StringMapper} to be built must be case sensitive.
-     * @return This.
+     * @param caseSensitive if the mapping must be case sensitive
+     * @return this with the specified casing option
      */
     public StringMapper caseSensitive(Boolean caseSensitive) {
         this.caseSensitive = caseSensitive;

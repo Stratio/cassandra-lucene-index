@@ -33,20 +33,23 @@ import java.util.Map;
  */
 public class Schema extends Builder {
 
+    /** The default analyzer. */
     @JsonProperty("default_analyzer")
     String defaultAnalyzerName;
 
+    /** The analyzers. */
     @JsonProperty("analyzers")
     Map<String, Analyzer> analyzers;
 
+    /** The mappers. */
     @JsonProperty("fields")
     Map<String, Mapper> mappers;
 
     /**
      * Sets the name of the default {@link Analyzer}.
      *
-     * @param name The name of the default {@link Analyzer}.
-     * @return This.
+     * @param name the name of the default {@link Analyzer}
+     * @return this with the specified default analyzer
      */
     public Schema defaultAnalyzer(String name) {
         defaultAnalyzerName = name;
@@ -56,9 +59,9 @@ public class Schema extends Builder {
     /**
      * Adds a new {@link Analyzer}.
      *
-     * @param name     The name of the {@link Analyzer} to be added.
-     * @param analyzer The builder of the {@link Analyzer} to be added.
-     * @return This.
+     * @param name the name of the {@link Analyzer} to be added
+     * @param analyzer the {@link Analyzer} to be added
+     * @return this with the specified analyzer
      */
     public Schema analyzer(String name, Analyzer analyzer) {
         if (analyzers == null) {
@@ -71,9 +74,9 @@ public class Schema extends Builder {
     /**
      * Adds a new {@link Mapper}.
      *
-     * @param field  The name of the {@link Mapper} to be added.
-     * @param mapper The builder of the {@link Mapper} to be added.
-     * @return This.
+     * @param field the name of the {@link Mapper} to be added
+     * @param mapper the {@link Mapper} to be added
+     * @return this with the specified mapper
      */
     public Schema mapper(String field, Mapper mapper) {
         if (mappers == null) {

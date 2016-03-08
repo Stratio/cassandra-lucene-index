@@ -27,14 +27,15 @@ import org.codehaus.jackson.annotate.JsonProperty;
  */
 public class TextMapper extends SingleColumnMapper<TextMapper> {
 
+    /** The analyzer. */
     @JsonProperty("analyzer")
     String analyzer;
 
     /**
      * Sets the name of the {@code Analyzer} to be used.
      *
-     * @param analyzer The name of the {@code Analyzer} to be used.
-     * @return This.
+     * @param analyzer the name of the {@code Analyzer}
+     * @return this with the specified analyzer
      */
     public TextMapper analyzer(String analyzer) {
         this.analyzer = analyzer;
