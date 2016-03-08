@@ -299,9 +299,7 @@ public class BlockingExecutor extends ThreadPoolExecutor {
         private TimeUnit maxBlockingTimeUnit;
         private Callable<Boolean> blockingTimeCallback;
 
-        BlockThenRunPolicy(long maxBlockingTime,
-                           TimeUnit maxBlockingTimeUnit,
-                           Callable<Boolean> blockingTimeCallback) {
+        BlockThenRunPolicy(long maxBlockingTime, TimeUnit maxBlockingTimeUnit, Callable<Boolean> blockingTimeCallback) {
             this.maxBlockingTime = maxBlockingTime;
             this.maxBlockingTimeUnit = maxBlockingTimeUnit;
             this.blockingTimeCallback = blockingTimeCallback;

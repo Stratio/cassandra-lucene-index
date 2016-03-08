@@ -106,7 +106,7 @@ public class SearchBuilder implements Builder<Search> {
      * you should use it only when it is strictly required.
      *
      * @param refresh {@code true} if the {@link Search} to be built must refresh the Lucene's index searcher before
-     *                searching, {@code false} otherwise
+     * searching, {@code false} otherwise
      * @return this builder with the specified refresh
      */
     public SearchBuilder refresh(boolean refresh) {

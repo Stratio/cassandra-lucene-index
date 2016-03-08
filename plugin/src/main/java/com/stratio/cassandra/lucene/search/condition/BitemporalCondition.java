@@ -151,9 +151,9 @@ public class BitemporalCondition extends SingleMapperCondition<BitemporalMapper>
     }
 
     private static Long parseTime(BitemporalMapper mapper, Long defaultTime, Object value) {
-        return value == null ?
-               new BitemporalDateTime(defaultTime).toDate().getTime() :
-               mapper.parseBitemporalDate(value).toDate().getTime();
+        return value == null
+               ? new BitemporalDateTime(defaultTime).toDate().getTime()
+               : mapper.parseBitemporalDate(value).toDate().getTime();
     }
 
     /** {@inheritDoc} */

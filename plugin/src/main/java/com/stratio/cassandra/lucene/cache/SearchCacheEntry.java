@@ -44,10 +44,7 @@ public class SearchCacheEntry {
     private final Optional<ClusteringPrefix> startPrefix;
     private final Optional<ClusteringPrefix> stopPrefix;
 
-    SearchCacheEntry(SearchCache searchCache,
-                     String search,
-                     PartitionRangeReadCommand command,
-                     Query query) {
+    SearchCacheEntry(SearchCache searchCache, String search, PartitionRangeReadCommand command, Query query) {
         this.searchCache = searchCache;
         this.search = search;
         this.command = command;
@@ -58,8 +55,8 @@ public class SearchCacheEntry {
         stopPrefix = KeyMapper.stopClusteringPrefix(command.dataRange());
         currentPosition = startPosition;
         currentClustering = startPrefix.isPresent()
-                     ? Optional.of(new Clustering(startPrefix.get().getRawValues()))
-                     : Optional.empty();
+                            ? Optional.of(new Clustering(startPrefix.get().getRawValues()))
+                            : Optional.empty();
         scoreDoc = null;
     }
 

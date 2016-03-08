@@ -285,12 +285,10 @@ public abstract class IndexService {
      * @param row the row to be upserted
      */
     public void upsert(DecoratedKey key, Row row) {
-        queue.submitAsynchronous(key, () ->
-                document(key, row).ifPresent(document -> {
-                    Term term = term(key, row);
-                    lucene.upsert(term, document);
-                })
-        );
+        queue.submitAsynchronous(key, () -> document(key, row).ifPresent(document -> {
+            Term term = term(key, row);
+            lucene.upsert(term, document);
+        }));
     }
 
     /**
@@ -597,7 +595,9 @@ public abstract class IndexService {
         return rows;
     }
 
-    private SimplePartitionIterator process(Query query, Sort sort, int limit,
+    private SimplePartitionIterator process(Query query,
+                                            Sort sort,
+                                            int limit,
                                             List<Pair<DecoratedKey, SimpleRowIterator>> collectedRows) {
         TimeCounter sortTime = TimeCounter.create().start();
         List<SimpleRowIterator> processedRows = new LinkedList<>();
@@ -629,7 +629,9 @@ public abstract class IndexService {
 
         } finally {
             logger.debug("Post-processed {} collected rows to {} rows in {}",
-                         collectedRows.size(), processedRows.size(), sortTime.stop());
+                         collectedRows.size(),
+                         processedRows.size(),
+                         sortTime.stop());
         }
         return new SimplePartitionIterator(processedRows);
     }

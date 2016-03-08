@@ -83,7 +83,6 @@ public class GeoDistanceCondition extends SingleMapperCondition<GeoPointMapper> 
         this.maxGeoDistance = maxGeoDistance;
         this.minGeoDistance = minGeoDistance;
 
-
         if (minGeoDistance != null && minGeoDistance.compareTo(maxGeoDistance) >= 0) {
             throw new IndexException("min_distance must be lower than max_distance");
         }

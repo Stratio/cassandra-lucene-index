@@ -57,50 +57,44 @@ public class IndexQueryHandler implements QueryHandler {
     private static final Logger logger = LoggerFactory.getLogger(IndexQueryHandler.class);
 
     @Override
-    /** {@inheritDoc} */
-    public ResultMessage.Prepared prepare(String query,
-                                          QueryState state,
-                                          Map<String, ByteBuffer> customPayload) {
+    /** {@inheritDoc} */ public ResultMessage.Prepared prepare(String query,
+                                                               QueryState state,
+                                                               Map<String, ByteBuffer> customPayload) {
         return QueryProcessor.instance.prepare(query, state);
     }
 
     @Override
-    /** {@inheritDoc} */
-    public ParsedStatement.Prepared getPrepared(MD5Digest id) {
+    /** {@inheritDoc} */ public ParsedStatement.Prepared getPrepared(MD5Digest id) {
         return QueryProcessor.instance.getPrepared(id);
     }
 
     @Override
-    /** {@inheritDoc} */
-    public ParsedStatement.Prepared getPreparedForThrift(Integer id) {
+    /** {@inheritDoc} */ public ParsedStatement.Prepared getPreparedForThrift(Integer id) {
         return QueryProcessor.instance.getPreparedForThrift(id);
     }
 
     @Override
-    /** {@inheritDoc} */
-    public ResultMessage processBatch(BatchStatement statement,
-                                      QueryState state,
-                                      BatchQueryOptions options,
-                                      Map<String, ByteBuffer> customPayload) {
+    /** {@inheritDoc} */ public ResultMessage processBatch(BatchStatement statement,
+                                                           QueryState state,
+                                                           BatchQueryOptions options,
+                                                           Map<String, ByteBuffer> customPayload) {
         return QueryProcessor.instance.processBatch(statement, state, options, customPayload);
     }
 
     @Override
-    /** {@inheritDoc} */
-    public ResultMessage processPrepared(CQLStatement statement,
-                                         QueryState state,
-                                         QueryOptions options,
-                                         Map<String, ByteBuffer> customPayload) {
+    /** {@inheritDoc} */ public ResultMessage processPrepared(CQLStatement statement,
+                                                              QueryState state,
+                                                              QueryOptions options,
+                                                              Map<String, ByteBuffer> customPayload) {
         QueryProcessor.metrics.preparedStatementsExecuted.inc();
         return processStatement(statement, state, options);
     }
 
     @Override
-    /** {@inheritDoc} */
-    public ResultMessage process(String query,
-                                 QueryState state,
-                                 QueryOptions options,
-                                 Map<String, ByteBuffer> customPayload) {
+    /** {@inheritDoc} */ public ResultMessage process(String query,
+                                                      QueryState state,
+                                                      QueryOptions options,
+                                                      Map<String, ByteBuffer> customPayload) {
         ParsedStatement.Prepared p = QueryProcessor.getStatement(query, state.getClientState());
         options.prepare(p.boundNames);
         CQLStatement prepared = p.statement;
@@ -168,7 +162,9 @@ public class IndexQueryHandler implements QueryHandler {
             } else if (page < limit) {
                 String json = UTF8Type.instance.compose(expression.getValue());
                 logger.warn("Disabling paging of {} rows per page for top-k search requesting {} rows: {}",
-                            page, limit, json);
+                            page,
+                            limit,
+                            json);
                 return executeWithoutPaging(select, state, options);
             }
         }
@@ -200,12 +196,13 @@ public class IndexQueryHandler implements QueryHandler {
         int userLimit = select.getLimit(options);
         ReadQuery query = select.getQuery(options, nowInSec, userLimit);
 
-        Method method = select.getClass().getDeclaredMethod("execute",
-                                                            ReadQuery.class,
-                                                            QueryOptions.class,
-                                                            QueryState.class,
-                                                            int.class,
-                                                            int.class);
+        Method method = select.getClass()
+                              .getDeclaredMethod("execute",
+                                                 ReadQuery.class,
+                                                 QueryOptions.class,
+                                                 QueryState.class,
+                                                 int.class,
+                                                 int.class);
         method.setAccessible(true);
         return (ResultMessage.Rows) method.invoke(select, query, options, state, nowInSec, userLimit);
     }

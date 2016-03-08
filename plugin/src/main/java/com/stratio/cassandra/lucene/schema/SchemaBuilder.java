@@ -54,12 +54,8 @@ public class SchemaBuilder {
                   @JsonProperty("analyzers") Map<String, AnalyzerBuilder> analyzerBuilders,
                   @JsonProperty("fields") Map<String, MapperBuilder<?, ?>> mapperBuilders) {
         this.defaultAnalyzerName = defaultAnalyzerName;
-        this.analyzerBuilders = analyzerBuilders != null
-                                ? analyzerBuilders
-                                : new LinkedHashMap<>();
-        this.mapperBuilders = mapperBuilders != null
-                              ? mapperBuilders
-                              : new LinkedHashMap<>();
+        this.analyzerBuilders = analyzerBuilders != null ? analyzerBuilders : new LinkedHashMap<>();
+        this.mapperBuilders = mapperBuilders != null ? mapperBuilders : new LinkedHashMap<>();
     }
 
     /**

@@ -98,11 +98,7 @@ public class SearchCache {
     public Optional<SearchCacheEntry> get(String search, ReadCommand command) {
         if (command instanceof PartitionRangeReadCommand) {
             PartitionRangeReadCommand rangeCommand = (PartitionRangeReadCommand) command;
-            return cache.asMap()
-                        .values()
-                        .stream()
-                        .filter(e -> e.isValid(comparator, search, rangeCommand))
-                        .findAny();
+            return cache.asMap().values().stream().filter(e -> e.isValid(comparator, search, rangeCommand)).findAny();
         }
         return Optional.empty();
     }

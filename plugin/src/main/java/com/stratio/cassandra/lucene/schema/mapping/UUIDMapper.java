@@ -45,14 +45,7 @@ public class UUIDMapper extends KeywordMapper {
      * @param validated if the field must be validated
      */
     public UUIDMapper(String field, String column, Boolean indexed, Boolean sorted, Boolean validated) {
-        super(field,
-              column,
-              indexed,
-              sorted,
-              validated,
-              UTF8Type.instance,
-              UUIDType.instance,
-              TimeUUIDType.instance);
+        super(field, column, indexed, sorted, validated, UTF8Type.instance, UUIDType.instance, TimeUUIDType.instance);
     }
 
     /** {@inheritDoc} */

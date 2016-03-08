@@ -78,8 +78,8 @@ public class DateRangeConditionBuilder extends ConditionBuilder<DateRangeConditi
     }
 
     /**
-     * Sets the operation to be performed.
-     * Possible values are {@code intersects}, {@code is_within} and {@code contains}. Defaults to {@code intersects}.
+     * Sets the operation to be performed. Possible values are {@code intersects}, {@code is_within} and {@code
+     * contains}. Defaults to {@code intersects}.
      *
      * @param operation the operation
      * @return This.

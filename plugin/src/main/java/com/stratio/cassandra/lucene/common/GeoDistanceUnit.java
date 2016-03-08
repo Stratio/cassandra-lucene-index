@@ -24,11 +24,10 @@ public enum GeoDistanceUnit {
     private final Double metres;
 
     /**
-     * Builds the {@link GeoDistanceUnit} defined by the specified value in metres and the specified identifying
-     * names.
+     * Builds the {@link GeoDistanceUnit} defined by the specified value in metres and the specified identifying names.
      *
-     * @param metres The value in metres.
-     * @param names  The identifying names.
+     * @param metres the value in metres
+     * @param names the identifying names
      */
     GeoDistanceUnit(double metres, String... names) {
         this.names = names;
@@ -38,7 +37,7 @@ public enum GeoDistanceUnit {
     /**
      * Returns the equivalency in metres.
      *
-     * @return The equivalency in metres.
+     * @return the equivalency in metres
      */
     public Double getMetres() {
         return metres;
@@ -47,7 +46,7 @@ public enum GeoDistanceUnit {
     /**
      * Returns the identifying names.
      *
-     * @return The identifying names.
+     * @return the identifying names
      */
     public String[] getNames() {
         return names;
@@ -56,8 +55,8 @@ public enum GeoDistanceUnit {
     /**
      * Returns the {@link GeoDistanceUnit} represented by the specified {@code String}.
      *
-     * @param value The {@code String} representation of the {@link GeoDistanceUnit} to be created.
-     * @return The {@link GeoDistanceUnit} represented by the specified {@code String}.
+     * @param value the {@code String} representation of the {@link GeoDistanceUnit} to be created
+     * @return the {@link GeoDistanceUnit} represented by the specified {@code String}
      */
     @JsonCreator
     public static GeoDistanceUnit create(String value) {

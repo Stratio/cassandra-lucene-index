@@ -18,8 +18,8 @@
 
 package com.stratio.cassandra.lucene.schema.mapping.builder;
 
-import com.stratio.cassandra.lucene.common.JTSNotFoundException;
 import com.stratio.cassandra.lucene.common.GeoTransformation;
+import com.stratio.cassandra.lucene.common.JTSNotFoundException;
 import com.stratio.cassandra.lucene.schema.mapping.GeoPointMapper;
 import com.stratio.cassandra.lucene.schema.mapping.GeoShapeMapper;
 import org.codehaus.jackson.annotate.JsonProperty;

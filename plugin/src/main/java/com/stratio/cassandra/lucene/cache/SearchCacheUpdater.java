@@ -41,11 +41,7 @@ public class SearchCacheUpdater {
     private final PartitionRangeReadCommand command;
     private final Query query;
 
-    SearchCacheUpdater(SearchCache cache,
-                       String search,
-                       UUID id,
-                       ReadCommand command,
-                       Query query) {
+    SearchCacheUpdater(SearchCache cache, String search, UUID id, ReadCommand command, Query query) {
         this.cache = cache;
         this.search = search;
         this.id = id;

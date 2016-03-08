@@ -119,8 +119,6 @@ public class GeoPointMapper extends Mapper {
         bboxStrategy = new BBoxStrategy(SPATIAL_CONTEXT, field + ".bbox");
     }
 
-
-
     /**
      * Checks if the specified latitude is correct.
      *
