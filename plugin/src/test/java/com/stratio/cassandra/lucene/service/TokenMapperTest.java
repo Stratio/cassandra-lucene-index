@@ -146,7 +146,7 @@ public class TokenMapperTest {
 
     @Test
     public void testComparator() {
-        CFMetaData metaData = CFMetaData.denseCFMetaData("keyspace","cf", UTF8Type.instance);
+        CFMetaData metaData = CFMetaData.denseCFMetaData("keyspace", "cf", UTF8Type.instance);
         Row row1 = new Row(decoratedKey("k1"), ArrayBackedSortedColumns.factory.create(metaData));
         Row row2 = new Row(decoratedKey("k2"), ArrayBackedSortedColumns.factory.create(metaData));
         Comparator<Row> comparator = mapper.comparator();

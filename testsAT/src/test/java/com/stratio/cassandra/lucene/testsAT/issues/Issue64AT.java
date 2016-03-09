@@ -36,28 +36,32 @@ public class Issue64AT extends BaseAT {
     @Test
     public void test() {
 
-        CassandraUtils cassandraUtils = builder("issue_64")
-                .withTable("flights")
-                .withIndex("flights_index")
-                .withPartitionKey("id")
-                .withColumn("id", "uuid", null)
-                .withColumn("arrival_aerodrome", "text", stringMapper())
-                .withColumn("assigned_squawk", "text", stringMapper())
-                .withColumn("departure_aerodrome", "text", stringMapper())
-                .withColumn("departure_time", "timestamp", dateMapper().pattern("yyyy-MM-dd HH:mm:ss"))
-                .withColumn("arrival_time", "timestamp", dateMapper().pattern("yyyy-MM-dd HH:mm:ss"))
-                .withColumn("flight_status", "text", stringMapper())
-                .withColumn("registration", "text", stringMapper())
-                .withColumn("target_address", "text", stringMapper())
-                .withColumn("target_identification", "text", stringMapper())
-                .withColumn("lucene", "text")
-                .withMapper("operation_duration",
-                            dateRangeMapper("departure_time", "arrival_time").pattern("yyyy-MM-dd HH:mm:ss"))
-                .build()
-                .createKeyspace()
-                .createTable()
-                .createIndex()
-                .refresh();
+        CassandraUtils cassandraUtils = builder("issue_64").withTable("flights")
+                                                           .withIndex("flights_index")
+                                                           .withPartitionKey("id")
+                                                           .withColumn("id", "uuid", null)
+                                                           .withColumn("arrival_aerodrome", "text", stringMapper())
+                                                           .withColumn("assigned_squawk", "text", stringMapper())
+                                                           .withColumn("departure_aerodrome", "text", stringMapper())
+                                                           .withColumn("departure_time",
+                                                                       "timestamp",
+                                                                       dateMapper().pattern("yyyy-MM-dd HH:mm:ss"))
+                                                           .withColumn("arrival_time",
+                                                                       "timestamp",
+                                                                       dateMapper().pattern("yyyy-MM-dd HH:mm:ss"))
+                                                           .withColumn("flight_status", "text", stringMapper())
+                                                           .withColumn("registration", "text", stringMapper())
+                                                           .withColumn("target_address", "text", stringMapper())
+                                                           .withColumn("target_identification", "text", stringMapper())
+                                                           .withColumn("lucene", "text")
+                                                           .withMapper("operation_duration",
+                                                                       dateRangeMapper("departure_time", "arrival_time")
+                                                                               .pattern("yyyy-MM-dd HH:mm:ss"))
+                                                           .build()
+                                                           .createKeyspace()
+                                                           .createTable()
+                                                           .createIndex()
+                                                           .refresh();
         cassandraUtils.filter(dateRange("operation_duration").from("2014-01-01 00:00:00")
                                                              .to("2014-12-31 23:59:59")
                                                              .operation("intersects")).get();

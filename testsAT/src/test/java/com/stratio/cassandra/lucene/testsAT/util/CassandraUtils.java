@@ -212,11 +212,7 @@ public class CassandraUtils {
     }
 
     public CassandraUtils dropIndex() {
-        execute(new StringBuilder().append("DROP INDEX ")
-                                   .append(keyspace)
-                                   .append(".")
-                                   .append(index)
-                                   .append(";"));
+        execute(new StringBuilder().append("DROP INDEX ").append(keyspace).append(".").append(index).append(";"));
         return this;
     }
 

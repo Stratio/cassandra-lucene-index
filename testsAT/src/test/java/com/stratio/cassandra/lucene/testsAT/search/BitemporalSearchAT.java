@@ -349,7 +349,10 @@ public class BitemporalSearchAT extends BaseAT {
                              .withColumn("tt_to", "text")
                              .withColumn("lucene", "text")
                              .withMapper("bitemporal", mapper)
-                             .build().createKeyspace().createTable().createIndex();
+                             .build()
+                             .createKeyspace()
+                             .createTable()
+                             .createIndex();
     }
 
     private CassandraUtils setUpSuite4() {
@@ -364,8 +367,7 @@ public class BitemporalSearchAT extends BaseAT {
                              .withColumn("lucene", "text")
                              .withMapper("bitemporal",
                                          bitemporalMapper("vt_from", "vt_to", "tt_from", "tt_to").pattern(
-                                                 "yyyy/MM/dd HH:mm:ss.SSS").nowValue(
-                                                 "2200/01/01 00:00:00.000"))
+                                                 "yyyy/MM/dd HH:mm:ss.SSS").nowValue("2200/01/01 00:00:00.000"))
                              .build()
                              .createKeyspace()
                              .createTable()
@@ -409,8 +411,7 @@ public class BitemporalSearchAT extends BaseAT {
         //testing with string value
         String nowValue = "2015/04/15 12:00:00.000";
 
-        CassandraUtils cu = this.setUpSuite2(nowValue, SIMPLE_DATE_PATTERN)
-                                .insert(data1, data2, data3);
+        CassandraUtils cu = this.setUpSuite2(nowValue, SIMPLE_DATE_PATTERN).insert(data1, data2, data3);
 
         //testing if inserting data translate it to Long.max
         CassandraUtilsSelect select = cu.query(bitemporal("bitemporal").vtFrom("2014/12/31 12:00:00.000")
@@ -429,8 +430,7 @@ public class BitemporalSearchAT extends BaseAT {
         //testing with string value
         String nowValue = "2015/04/15 12:00:00.000";
 
-        CassandraUtils cu = this.setUpSuite2(nowValue, SIMPLE_DATE_PATTERN)
-                                .insert(data1, data2, data3);
+        CassandraUtils cu = this.setUpSuite2(nowValue, SIMPLE_DATE_PATTERN).insert(data1, data2, data3);
 
         //testing if inserting data translate it to Long.max
         CassandraUtilsSelect select = cu.query(bitemporal("bitemporal").ttFrom("2015/01/14 00:00:00.000")
@@ -447,8 +447,7 @@ public class BitemporalSearchAT extends BaseAT {
         //testing with string value
         String nowValue = "2015/04/15 12:00:00.000";
 
-        CassandraUtils cu = this.setUpSuite2(nowValue, SIMPLE_DATE_PATTERN)
-                                .insert(data1, data2, data3);
+        CassandraUtils cu = this.setUpSuite2(nowValue, SIMPLE_DATE_PATTERN).insert(data1, data2, data3);
 
         //testing if inserting data translate it to Long.max
         CassandraUtilsSelect select = cu.query(bitemporal("bitemporal").vtFrom("2014/12/31 12:00:00.000")
@@ -546,8 +545,8 @@ public class BitemporalSearchAT extends BaseAT {
     @Test
     public void testFuture() {
         CassandraUtils cu = this.setUpSuite4();
-        CassandraUtilsSelect select = cu.filter(bitemporal("bitemporal").ttFrom(
-                "2015/01/02 12:00:00.001").ttTo("2015/01/02 12:00:00.001")).refresh(true);
+        CassandraUtilsSelect select = cu.filter(bitemporal("bitemporal").ttFrom("2015/01/02 12:00:00.001")
+                                                                        .ttTo("2015/01/02 12:00:00.001")).refresh(true);
 
         assertEquals("Expected 1 results!", 1, select.count());
         assertTrue("Unexpected results!! Expected: {1}, got: " + fromInteger(select.intColumn("integer_1")),
@@ -558,8 +557,8 @@ public class BitemporalSearchAT extends BaseAT {
     @Test
     public void testFuture2() {
         CassandraUtils cu = this.setUpSuite4();
-        CassandraUtilsSelect select = cu.filter(bitemporal("bitemporal").ttFrom(
-                "2015/01/06 12:00:00.001").ttTo("2015/01/06 12:00:00.001")).refresh(true);
+        CassandraUtilsSelect select = cu.filter(bitemporal("bitemporal").ttFrom("2015/01/06 12:00:00.001")
+                                                                        .ttTo("2015/01/06 12:00:00.001")).refresh(true);
 
         assertEquals("Expected 1 results!", 1, select.count());
         assertTrue("Unexpected results!! Expected: {2}, got: " + fromInteger(select.intColumn("integer_1")),
@@ -570,8 +569,8 @@ public class BitemporalSearchAT extends BaseAT {
     @Test
     public void testFuture3() {
         CassandraUtils cu = this.setUpSuite4();
-        CassandraUtilsSelect select = cu.filter(bitemporal("bitemporal").ttFrom(
-                "2015/01/15 12:00:00.001").ttTo("2015/01/15 12:00:00.001")).refresh(true);
+        CassandraUtilsSelect select = cu.filter(bitemporal("bitemporal").ttFrom("2015/01/15 12:00:00.001")
+                                                                        .ttTo("2015/01/15 12:00:00.001")).refresh(true);
 
         assertEquals("Expected 1 results!", 1, select.count());
         assertTrue("Unexpected results!! Expected: {3}, got: " + fromInteger(select.intColumn("integer_1")),
@@ -582,8 +581,8 @@ public class BitemporalSearchAT extends BaseAT {
     @Test
     public void testFuture4() {
         CassandraUtils cu = this.setUpSuite4();
-        CassandraUtilsSelect select = cu.filter(bitemporal("bitemporal").vtFrom(
-                "2016/01/15 12:00:00.001").vtTo("2016/01/15 12:00:00.001")).refresh(true);
+        CassandraUtilsSelect select = cu.filter(bitemporal("bitemporal").vtFrom("2016/01/15 12:00:00.001")
+                                                                        .vtTo("2016/01/15 12:00:00.001")).refresh(true);
 
         assertEquals("Expected 2 results!", 2, select.count());
         assertTrue("Unexpected results!! Expected: {1,3}, got: " + fromInteger(select.intColumn("integer_1")),
@@ -608,8 +607,8 @@ public class BitemporalSearchAT extends BaseAT {
     @Test
     public void testFuture6() {
         CassandraUtils cu = this.setUpSuite4();
-        CassandraUtilsSelect select = cu.filter(bitemporal("bitemporal").ttFrom(
-                "2200/01/01 00:00:00.000").ttTo("2200/01/01 00:00:00.000")).refresh(true);
+        CassandraUtilsSelect select = cu.filter(bitemporal("bitemporal").ttFrom("2200/01/01 00:00:00.000")
+                                                                        .ttTo("2200/01/01 00:00:00.000")).refresh(true);
 
         assertEquals("Expected 1 result!", 1, select.count());
         assertTrue("Unexpected results!! Expected: {3}, got: " + fromInteger(select.intColumn("integer_1")),

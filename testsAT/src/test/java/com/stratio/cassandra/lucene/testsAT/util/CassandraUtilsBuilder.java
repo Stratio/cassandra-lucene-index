@@ -85,8 +85,8 @@ public class CassandraUtilsBuilder {
         return this;
     }
 
-    public CassandraUtilsBuilder withStaticColumn(String name, String type,boolean createMapper) {
-        columns.put(name, type+" static");
+    public CassandraUtilsBuilder withStaticColumn(String name, String type, boolean createMapper) {
+        columns.put(name, type + " static");
         if (createMapper) {
             String baseType = type.replaceAll("(.*)(<|,)", "").replace(">", "");
             SingleColumnMapper<?> mapper = defaultMapper(baseType);
@@ -159,13 +159,6 @@ public class CassandraUtilsBuilder {
 
     public CassandraUtils build() {
         String keyspace = name + "_" + Math.abs(new Random().nextLong());
-        return new CassandraUtils(keyspace,
-                                  table,
-                                  index,
-                                  columns,
-                                  mappers,
-                                  partitionKey,
-                                  clusteringKey,
-                                  column);
+        return new CassandraUtils(keyspace, table, index, columns, mappers, partitionKey, clusteringKey, column);
     }
 }

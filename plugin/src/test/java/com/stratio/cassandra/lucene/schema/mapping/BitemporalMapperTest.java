@@ -100,8 +100,8 @@ public class BitemporalMapperTest extends AbstractMapperTest {
 
     @Test
     public void testParseJSONWithAllArgs() throws IOException {
-        BitemporalMapperBuilder builder = bitemporalMapper("vtFrom", "vtTo", "ttFrom", "ttTo").pattern(
-                "yyyy/MM/dd").nowValue("2021/03/11");
+        BitemporalMapperBuilder builder = bitemporalMapper("vtFrom", "vtTo", "ttFrom", "ttTo").pattern("yyyy/MM/dd")
+                                                                                              .nowValue("2021/03/11");
         testJson(builder,
                  "{type:\"bitemporal\",vt_from:\"vtFrom\",vt_to:\"vtTo\",tt_from:\"ttFrom\",tt_to:\"ttTo\"," +
                  "pattern:\"yyyy/MM/dd\",now_value:\"2021/03/11\"}");
@@ -936,8 +936,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         Date expectedDate = sdf.parse("2015-02-28");
 
         BitemporalMapper mapper = bitemporalMapper("vt_from", "vt_to", "tt_from", "tt_to").pattern("yyyy-MM-dd")
-                                                                                          .nowValue(
-                                                                                                  "2025-12-23")
+                                                                                          .nowValue("2025-12-23")
                                                                                           .build("field");
 
         Columns columns = new Columns();
@@ -1119,8 +1118,8 @@ public class BitemporalMapperTest extends AbstractMapperTest {
     @Test
     public void testAddFieldsT1() {
         String nowValue = "2100/01/01 00:00:00.001 GMT";
-        BitemporalMapper mapper = bitemporalMapper("vtFrom", "vtTo", "ttFrom", "ttTo").nowValue(nowValue).build(
-                "field");
+        BitemporalMapper mapper = bitemporalMapper("vtFrom", "vtTo", "ttFrom", "ttTo").nowValue(nowValue)
+                                                                                      .build("field");
 
         Columns columns = new Columns();
         columns.add(Column.builder("vtFrom").composedValue("2015/02/28 01:02:03.004 GMT", UTF8Type.instance));

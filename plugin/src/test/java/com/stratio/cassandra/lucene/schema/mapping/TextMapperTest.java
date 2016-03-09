@@ -64,10 +64,7 @@ public class TextMapperTest extends AbstractMapperTest {
 
     @Test
     public void testJsonSerialization() {
-        TextMapperBuilder builder = textMapper().indexed(false)
-                                                .sorted(true)
-                                                .column("column")
-                                                .analyzer("spanish");
+        TextMapperBuilder builder = textMapper().indexed(false).sorted(true).column("column").analyzer("spanish");
         testJson(builder, "{type:\"text\",indexed:false,sorted:true,column:\"column\",analyzer:\"spanish\"}");
     }
 

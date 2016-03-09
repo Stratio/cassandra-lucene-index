@@ -36,9 +36,9 @@ import static org.junit.Assert.assertTrue;
 @RunWith(JUnit4.class)
 public class CheckNonFrozenUDTAT extends BaseAT {
     /**
-     * Now, cassandra (2.1.11, 2.2.3 ) demand that User Defined Types and collections Of
-     * UDF must be frozen but this may change in next future so i include these tests to
-     * be able in next versions to detect this change because it is problematic
+     * Now, cassandra (2.1.11, 2.2.3 ) demand that User Defined Types and collections Of UDF must be frozen but this may
+     * change in next future so i include these tests to be able in next versions to detect this change because it is
+     * problematic
      */
     private static CassandraUtils cassandraUtils;
     static final String KEYSPACE_NAME = "non_frozen_udt";

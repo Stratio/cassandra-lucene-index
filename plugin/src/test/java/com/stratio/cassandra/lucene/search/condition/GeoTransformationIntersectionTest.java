@@ -23,7 +23,6 @@ import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.common.GeoTransformation;
 import com.stratio.cassandra.lucene.schema.mapping.GeoShapeMapper;
-import com.stratio.cassandra.lucene.util.GeospatialUtils;
 import com.stratio.cassandra.lucene.util.GeospatialUtilsJTS;
 import com.stratio.cassandra.lucene.util.JsonSerializer;
 import org.junit.Test;

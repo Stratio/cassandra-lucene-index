@@ -26,12 +26,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import static com.stratio.cassandra.lucene.builder.Builder.geoPointMapper;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static com.stratio.cassandra.lucene.builder.Builder.*;
+import static com.stratio.cassandra.lucene.builder.Builder.geoBBox;
+import static com.stratio.cassandra.lucene.builder.Builder.geoPointMapper;
 
 @RunWith(JUnit4.class)
 public class GeoBBoxSearchAT extends BaseAT {
@@ -39,6 +38,7 @@ public class GeoBBoxSearchAT extends BaseAT {
     protected static CassandraUtils cassandraUtils;
 
     public static final Map<String, String> data1;
+
     static {
         data1 = new LinkedHashMap<>();
         data1.put("place", "'Madrid'");
@@ -47,6 +47,7 @@ public class GeoBBoxSearchAT extends BaseAT {
     }
 
     public static final Map<String, String> data2;
+
     static {
         data2 = new LinkedHashMap<>();
         data2.put("place", "'Barcelona'");
@@ -62,7 +63,7 @@ public class GeoBBoxSearchAT extends BaseAT {
                                        .withColumn("lucene", "text", null)
                                        .withColumn("place", "text", null)
                                        .withColumn("latitude", "decimal", null)
-                                       .withColumn("longitude", "decimal",null)
+                                       .withColumn("longitude", "decimal", null)
                                        .withMapper("location", geoPointMapper("latitude", "longitude"))
                                        .build()
                                        .createKeyspace()
@@ -72,7 +73,6 @@ public class GeoBBoxSearchAT extends BaseAT {
                                        .insert(data2)
                                        .refresh();
     }
-
 
     @AfterClass
     public static void tearDownSuite() {

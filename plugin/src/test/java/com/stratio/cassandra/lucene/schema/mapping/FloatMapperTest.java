@@ -44,11 +44,7 @@ public class FloatMapperTest extends AbstractMapperTest {
 
     @Test
     public void testConstructorWithAllArgs() {
-        FloatMapper mapper = floatMapper().indexed(false)
-                                          .sorted(true)
-                                          .column("column")
-                                          .boost(0.3f)
-                                          .build("field");
+        FloatMapper mapper = floatMapper().indexed(false).sorted(true).column("column").boost(0.3f).build("field");
         assertEquals("Field is not properly set", "field", mapper.field);
         assertFalse("Indexed is not properly set", mapper.indexed);
         assertTrue("Sorted is not properly set", mapper.sorted);

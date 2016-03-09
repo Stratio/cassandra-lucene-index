@@ -43,7 +43,7 @@ public class GeoDistanceSortFieldTest {
         assertEquals("SortField is not created", "geo_place", sortField.getMapper());
         assertTrue("SortField reverse is not set", sortField.isReverse());
         assertTrue("SortField longitude is not set", sortField.getLongitude() == 0.0);
-        assertTrue("SortField latitude is not set", sortField.getLatitude()==0.0);
+        assertTrue("SortField latitude is not set", sortField.getLatitude() == 0.0);
 
     }
 
@@ -72,14 +72,16 @@ public class GeoDistanceSortFieldTest {
     @Test
     public void testGeoDistanceSortFieldDefaults() {
 
-        Schema schema = schema().mapper("field", geoPointMapper("latitude","longitude").sorted(true)).build();
+        Schema schema = schema().mapper("field", geoPointMapper("latitude", "longitude").sorted(true)).build();
 
         GeoDistanceSortField sortField = new GeoDistanceSortField("field", null, 0.0, 0.0);
         org.apache.lucene.search.SortField luceneSortField = sortField.sortField(schema);
 
         assertNotNull("SortField is not created", luceneSortField);
         assertEquals("SortField reverse is wrong", SortField.DEFAULT_REVERSE, luceneSortField.getReverse());
-        assertEquals("SortField type is wrong", luceneSortField.getType(), org.apache.lucene.search.SortField.Type.REWRITEABLE);
+        assertEquals("SortField type is wrong",
+                     luceneSortField.getType(),
+                     org.apache.lucene.search.SortField.Type.REWRITEABLE);
     }
 
     @Test
@@ -130,8 +132,6 @@ public class GeoDistanceSortFieldTest {
 
         Column<Double> lat = Column.builder("latitude").composedValue(0.0, DoubleType.instance);
         Column<Double> lon = Column.builder("longitude").composedValue(0.0, DoubleType.instance);
-
-
 
         Column<Double> lat2 = Column.builder("latitude").composedValue(10.0, DoubleType.instance);
         Column<Double> lon2 = Column.builder("longitude").composedValue(10.0, DoubleType.instance);
@@ -214,7 +214,6 @@ public class GeoDistanceSortFieldTest {
         Column<Double> lat2 = Column.builder("latitude").composedValue(10.0, DoubleType.instance);
         Column<Double> lon2 = Column.builder("longitude").composedValue(10.0, DoubleType.instance);
 
-
         Columns columns1 = new Columns().add(lat).add(lon);
         Columns columns2 = new Columns().add(lat2).add(lon2);
         Columns emptyColumns = new Columns();
@@ -278,6 +277,8 @@ public class GeoDistanceSortFieldTest {
     @Test
     public void testToString() {
         GeoDistanceSortField sortField = new GeoDistanceSortField("field", true, 0.0, 0.0);
-        assertEquals("Method #toString is wrong", "GeoDistanceSortField{field=field, reverse=true, longitude=0.0, latitude=0.0}", sortField.toString());
+        assertEquals("Method #toString is wrong",
+                     "GeoDistanceSortField{field=field, reverse=true, longitude=0.0, latitude=0.0}",
+                     sortField.toString());
     }
 }

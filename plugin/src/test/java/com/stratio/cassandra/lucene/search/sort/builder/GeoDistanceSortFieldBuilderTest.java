@@ -38,10 +38,12 @@ public class GeoDistanceSortFieldBuilderTest {
     @Test
     public void testBuild() {
         String mapper = "geo_place";
-        double latitude=0.0;
-        double longitude=0.0;
+        double latitude = 0.0;
+        double longitude = 0.0;
 
-        GeoDistanceSortFieldBuilder builder = new GeoDistanceSortFieldBuilder(mapper,longitude,latitude).reverse(true);
+        GeoDistanceSortFieldBuilder builder = new GeoDistanceSortFieldBuilder(mapper,
+                                                                              longitude,
+                                                                              latitude).reverse(true);
         GeoDistanceSortField sortField = builder.build();
         assertNotNull("GeoDistanceSortField is not built", sortField);
         assertEquals("GeoDistanceSortField mapper name is not set", mapper, sortField.getMapper());
@@ -53,28 +55,31 @@ public class GeoDistanceSortFieldBuilderTest {
     @Test
     public void testBuildDefault() {
         String mapper = "geo_place";
-        double latitude=0.0;
-        double longitude=0.0;
+        double latitude = 0.0;
+        double longitude = 0.0;
 
-        GeoDistanceSortFieldBuilder builder = new GeoDistanceSortFieldBuilder(mapper,longitude,latitude);
+        GeoDistanceSortFieldBuilder builder = new GeoDistanceSortFieldBuilder(mapper, longitude, latitude);
         GeoDistanceSortField sortField = builder.build();
         assertNotNull("GeoDistanceSortField is not built", sortField);
         assertEquals("GeoDistanceSortField mapper name is not set", mapper, sortField.getMapper());
-        assertEquals("GeoDistanceSortField reverse is not set to default", SortField.DEFAULT_REVERSE, sortField.isReverse());
+        assertEquals("GeoDistanceSortField reverse is not set to default",
+                     SortField.DEFAULT_REVERSE,
+                     sortField.isReverse());
     }
 
     @Test
     public void testBuildInvalidLat() {
         String field = "field";
-        double latitude=91.0;
-        double longitude=0.0;
+        double latitude = 91.0;
+        double longitude = 0.0;
 
-        GeoDistanceSortFieldBuilder builder = new GeoDistanceSortFieldBuilder(field,longitude,latitude);
+        GeoDistanceSortFieldBuilder builder = new GeoDistanceSortFieldBuilder(field, longitude, latitude);
         try {
             builder.build();
-        }catch(IndexException e) {
+        } catch (IndexException e) {
             assertEquals("Creating a GeoDistanceSortFieldBuilder with invalid longitude must throw an IndexException",
-                         "latitude must be in range [-90.0, 90.0], but found 91.0",e.getMessage());
+                         "latitude must be in range [-90.0, 90.0], but found 91.0",
+                         e.getMessage());
         }
 
     }
@@ -82,23 +87,27 @@ public class GeoDistanceSortFieldBuilderTest {
     @Test
     public void testBuildInvalidLong() {
         String field = "field";
-        double latitude=0.0;
-        double longitude=200.0;
+        double latitude = 0.0;
+        double longitude = 200.0;
 
-        GeoDistanceSortFieldBuilder builder = new GeoDistanceSortFieldBuilder(field,longitude,latitude);
+        GeoDistanceSortFieldBuilder builder = new GeoDistanceSortFieldBuilder(field, longitude, latitude);
         try {
             builder.build();
-        }catch(IndexException e) {
+        } catch (IndexException e) {
             assertEquals("Creating a GeoDistanceSortFieldBuilder with invalid longitude must throw an IndexException",
-                         "longitude must be in range [-180.0, 180.0], but found 200.0",e.getMessage());
+                         "longitude must be in range [-180.0, 180.0], but found 200.0",
+                         e.getMessage());
         }
     }
+
     @Test
     public void testBuildReverse() {
         String mapper = "geo_place";
-        double latitude=0.0;
-        double longitude=0.0;
-        GeoDistanceSortFieldBuilder builder = new GeoDistanceSortFieldBuilder(mapper,longitude,latitude).reverse(false);
+        double latitude = 0.0;
+        double longitude = 0.0;
+        GeoDistanceSortFieldBuilder builder = new GeoDistanceSortFieldBuilder(mapper,
+                                                                              longitude,
+                                                                              latitude).reverse(false);
         GeoDistanceSortField sortField = builder.build();
         assertNotNull("GeoDistanceSortField is not built", sortField);
         assertEquals("GeoDistanceSortField mapper name is not set", mapper, sortField.getMapper());
@@ -108,7 +117,8 @@ public class GeoDistanceSortFieldBuilderTest {
     @Test
     public void testJson() throws IOException {
         String json1 = "{type:\"geo_distance\",mapper:\"field\",longitude:0.0,latitude:0.0,reverse:false}";
-        GeoDistanceSortFieldBuilder sortFieldBuilder = JsonSerializer.fromString(json1, GeoDistanceSortFieldBuilder.class);
+        GeoDistanceSortFieldBuilder sortFieldBuilder = JsonSerializer.fromString(json1,
+                                                                                 GeoDistanceSortFieldBuilder.class);
         String json2 = JsonSerializer.toString(sortFieldBuilder);
         assertEquals("JSON serialization is wrong", json1, json2);
     }
@@ -116,7 +126,8 @@ public class GeoDistanceSortFieldBuilderTest {
     @Test
     public void testJsonDefault() throws IOException {
         String json1 = "{type:\"geo_distance\",mapper:\"geo_mapper\",longitude:0.0,latitude:0.0,reverse:false}";
-        GeoDistanceSortFieldBuilder sortFieldBuilder = JsonSerializer.fromString(json1, GeoDistanceSortFieldBuilder.class);
+        GeoDistanceSortFieldBuilder sortFieldBuilder = JsonSerializer.fromString(json1,
+                                                                                 GeoDistanceSortFieldBuilder.class);
         String json2 = JsonSerializer.toString(sortFieldBuilder);
         assertEquals("JSON serialization is wrong", json1, json2);
     }
@@ -124,7 +135,8 @@ public class GeoDistanceSortFieldBuilderTest {
     @Test
     public void testJsonReverse() throws IOException {
         String json1 = "{type:\"geo_distance\",mapper:\"geo_mapper\",longitude:0.0,latitude:0.0,reverse:true}";
-        GeoDistanceSortFieldBuilder sortFieldBuilder = JsonSerializer.fromString(json1, GeoDistanceSortFieldBuilder.class);
+        GeoDistanceSortFieldBuilder sortFieldBuilder = JsonSerializer.fromString(json1,
+                                                                                 GeoDistanceSortFieldBuilder.class);
         String json2 = JsonSerializer.toString(sortFieldBuilder);
         assertEquals("JSON serialization is wrong", json1, json2);
     }

@@ -474,21 +474,21 @@ public class UDTIndexingAT extends BaseAT {
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER7"});
 
         select = cassandraUtils.filter(range("address.point.latitude").lower(1.0)
-                                                                     .upper(3.0)
-                                                                     .includeLower(true)
-                                                                     .includeUpper(true));
+                                                                      .upper(3.0)
+                                                                      .includeLower(true)
+                                                                      .includeUpper(true));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1", "USER2", "USER3"});
 
         select = cassandraUtils.filter(range("address.point.latitude").lower(2.0)
-                                                                     .upper(5.0)
-                                                                     .includeLower(true)
-                                                                     .includeUpper(true));
+                                                                      .upper(5.0)
+                                                                      .includeLower(true)
+                                                                      .includeUpper(true));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER2", "USER3", "USER4", "USER5"});
 
         select = cassandraUtils.filter(range("address.point.latitude").lower(1.0)
-                                                                     .upper(7.0)
-                                                                     .includeLower(true)
-                                                                     .includeUpper(true));
+                                                                      .upper(7.0)
+                                                                      .includeLower(true)
+                                                                      .includeUpper(true));
         assertEqualsAndOnlyThisString(select.stringColumn("login"),
                                       new String[]{"USER1", "USER2", "USER3", "USER4", "USER5", "USER6", "USER7"});
 
@@ -503,21 +503,21 @@ public class UDTIndexingAT extends BaseAT {
                                       new String[]{"USER2", "USER3", "USER4", "USER5", "USER6"});
 
         select = cassandraUtils.filter(range("address.point.latitude").lower(1.0)
-                                                                     .upper(3.0)
-                                                                     .includeLower(true)
-                                                                     .includeUpper(true));
+                                                                      .upper(3.0)
+                                                                      .includeLower(true)
+                                                                      .includeUpper(true));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1", "USER2", "USER3"});
 
         select = cassandraUtils.filter(range("address.point.latitude").lower(2.0)
-                                                                     .upper(5.0)
-                                                                     .includeLower(true)
-                                                                     .includeUpper(true));
+                                                                      .upper(5.0)
+                                                                      .includeLower(true)
+                                                                      .includeUpper(true));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER2", "USER3", "USER4", "USER5"});
 
         select = cassandraUtils.filter(range("address.point.latitude").lower(1.0)
-                                                                     .upper(7.0)
-                                                                     .includeLower(true)
-                                                                     .includeUpper(true));
+                                                                      .upper(7.0)
+                                                                      .includeLower(true)
+                                                                      .includeUpper(true));
         assertEqualsAndOnlyThisString(select.stringColumn("login"),
                                       new String[]{"USER1", "USER2", "USER3", "USER4", "USER5", "USER6", "USER7"});
 
@@ -538,7 +538,6 @@ public class UDTIndexingAT extends BaseAT {
         assertTrue("Selecting a non-existent type inside udt inside udt must return an Exception", true);
     }
 
-
     @Test
     public void testNonCompleteUDT() {
 
@@ -549,15 +548,14 @@ public class UDTIndexingAT extends BaseAT {
                         "(login, first_name, last_name, address) VALUES (" +
                         "'USER10'," +
                         "'Tom'," +
-                        "'Smith',{"+
+                        "'Smith',{" +
                         "city: 'Madrid'});";
 
         cassandraUtils.execute(new SimpleStatement(insert));
         cassandraUtils.refresh();
 
-        CassandraUtilsSelect select = cassandraUtils.filter(match("address.city","Madrid"));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"),
-                                      new String[]{"USER10"});
+        CassandraUtilsSelect select = cassandraUtils.filter(match("address.city", "Madrid"));
+        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER10"});
     }
 
 }

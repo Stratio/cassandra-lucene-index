@@ -44,11 +44,7 @@ public class IntegerMapperTest extends AbstractMapperTest {
 
     @Test
     public void testConstructorWithAllArgs() {
-        IntegerMapper mapper = integerMapper().indexed(false)
-                                              .sorted(true)
-                                              .column("column")
-                                              .boost(2.3f)
-                                              .build("field");
+        IntegerMapper mapper = integerMapper().indexed(false).sorted(true).column("column").boost(2.3f).build("field");
         assertEquals("Field is not properly set", "field", mapper.field);
         assertFalse("Indexed is not properly set", mapper.indexed);
         assertTrue("Sorted is not properly set", mapper.sorted);
@@ -60,10 +56,7 @@ public class IntegerMapperTest extends AbstractMapperTest {
 
     @Test
     public void testJsonSerialization() {
-        IntegerMapperBuilder builder = integerMapper().indexed(false)
-                                                      .sorted(true)
-                                                      .column("column")
-                                                      .boost(0.3f);
+        IntegerMapperBuilder builder = integerMapper().indexed(false).sorted(true).column("column").boost(0.3f);
         testJson(builder, "{type:\"integer\",indexed:false,sorted:true,column:\"column\",boost:0.3}");
     }
 

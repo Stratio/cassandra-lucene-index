@@ -184,20 +184,28 @@ public class SimpleKeyDataHandlingAT extends BaseAT {
 
     @Test
     public void updateTest() {
-        cassandraUtils.query(wildcard("text_1", "text")).check(3)
-                      .update().set("text_1", "other").where("integer_1", 2)
+        cassandraUtils.query(wildcard("text_1", "text"))
+                      .check(3)
+                      .update()
+                      .set("text_1", "other")
+                      .where("integer_1", 2)
                       .refresh()
-                      .query(wildcard("text_1", "text")).check(2)
-                      .query(wildcard("text_1", "other")).check(1);
+                      .query(wildcard("text_1", "text"))
+                      .check(2)
+                      .query(wildcard("text_1", "other"))
+                      .check(1);
     }
 
     @Test
     public void insertWithUpdateTest() {
-        cassandraUtils.query(wildcard("text_1", "text")).check(3)
-                      .update().set("text_1", "new")
+        cassandraUtils.query(wildcard("text_1", "text"))
+                      .check(3)
+                      .update()
+                      .set("text_1", "new")
                       .where("integer_1", 1000)
                       .refresh()
-                      .query(wildcard("text_1", "new")).check(1);
+                      .query(wildcard("text_1", "new"))
+                      .check(1);
     }
 
     private static boolean containsElementByIntegerKey(List<Row> resultList, int key) {

@@ -82,7 +82,8 @@ public class SimpleKeyIndexHandlingAT extends BaseAT {
                       .createIndex()
                       .waitForIndexing()
                       .insert(data4, data5)
-                      .refresh().query(wildcard("ascii_1", "*"))
+                      .refresh()
+                      .query(wildcard("ascii_1", "*"))
                       .check(5);
     }
 
@@ -91,7 +92,8 @@ public class SimpleKeyIndexHandlingAT extends BaseAT {
         cassandraUtils.createIndex()
                       .waitForIndexing()
                       .insert(data1, data2, data3, data4, data5)
-                      .refresh().query(wildcard("ascii_1", "*"))
+                      .refresh()
+                      .query(wildcard("ascii_1", "*"))
                       .check(5)
                       .dropIndex()
                       .createIndex()

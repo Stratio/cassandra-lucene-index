@@ -73,7 +73,8 @@ public class ComposedKeyIndexHandlingAT extends BaseAT {
                       .createIndex()
                       .waitForIndexing()
                       .refresh()
-                      .filter(wildcard("ascii_1", "*")).check(10);
+                      .filter(wildcard("ascii_1", "*"))
+                      .check(10);
     }
 
     @Test
@@ -83,7 +84,8 @@ public class ComposedKeyIndexHandlingAT extends BaseAT {
                       .waitForIndexing()
                       .insert(data9, data10)
                       .refresh()
-                      .filter(wildcard("ascii_1", "*")).check(10);
+                      .filter(wildcard("ascii_1", "*"))
+                      .check(10);
     }
 
     @Test
@@ -96,7 +98,8 @@ public class ComposedKeyIndexHandlingAT extends BaseAT {
                       .waitForIndexing()
                       .insert(data5, data10)
                       .refresh()
-                      .filter(wildcard("ascii_1", "*")).check(10);
+                      .filter(wildcard("ascii_1", "*"))
+                      .check(10);
     }
 
     @Test
@@ -106,7 +109,8 @@ public class ComposedKeyIndexHandlingAT extends BaseAT {
                       .waitForIndexing()
                       .insert(data1, data10)
                       .refresh()
-                      .filter(wildcard("ascii_1", "*")).check(10);
+                      .filter(wildcard("ascii_1", "*"))
+                      .check(10);
     }
 
     @Test
@@ -115,11 +119,13 @@ public class ComposedKeyIndexHandlingAT extends BaseAT {
                       .waitForIndexing()
                       .insert(data1, data2, data3, data4, data5, data6, data7, data8, data9, data10)
                       .refresh()
-                      .filter(wildcard("ascii_1", "*")).check(10)
+                      .filter(wildcard("ascii_1", "*"))
+                      .check(10)
                       .dropIndex()
                       .createIndex()
                       .waitForIndexing()
                       .refresh()
-                      .filter(wildcard("ascii_1", "*")).check(10);
+                      .filter(wildcard("ascii_1", "*"))
+                      .check(10);
     }
 }

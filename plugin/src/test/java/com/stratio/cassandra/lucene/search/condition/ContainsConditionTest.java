@@ -21,11 +21,7 @@ package com.stratio.cassandra.lucene.search.condition;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.search.condition.builder.ContainsConditionBuilder;
-import org.apache.lucene.search.BooleanClause;
-import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.NumericRangeQuery;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.*;
 import org.junit.Test;
 
 import java.util.List;

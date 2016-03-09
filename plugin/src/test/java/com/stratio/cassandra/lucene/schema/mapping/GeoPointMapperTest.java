@@ -30,13 +30,11 @@ import org.apache.cassandra.db.composites.SimpleSparseCellNameType;
 import org.apache.cassandra.db.marshal.*;
 import org.apache.cassandra.exceptions.ConfigurationException;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.util.GeoHashUtils;
 import org.junit.Test;
 
 import java.util.UUID;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.geoPointMapper;
-import static com.stratio.cassandra.lucene.schema.SchemaBuilders.geoShapeMapper;
 import static org.apache.cassandra.config.ColumnDefinition.regularDef;
 import static org.junit.Assert.*;
 

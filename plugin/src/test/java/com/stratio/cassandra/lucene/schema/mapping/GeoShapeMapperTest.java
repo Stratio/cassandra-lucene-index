@@ -23,7 +23,6 @@ import com.stratio.cassandra.lucene.schema.column.Column;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import com.stratio.cassandra.lucene.schema.mapping.builder.GeoShapeMapperBuilder;
 import com.stratio.cassandra.lucene.util.GeospatialUtils;
-import com.stratio.cassandra.lucene.util.JsonSerializer;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.db.ColumnFamilyType;
 import org.apache.cassandra.db.composites.CellNameType;
@@ -34,8 +33,6 @@ import org.apache.cassandra.db.marshal.UUIDType;
 import org.apache.cassandra.exceptions.ConfigurationException;
 import org.apache.lucene.document.Document;
 import org.junit.Test;
-
-import java.io.IOException;
 
 import static com.stratio.cassandra.lucene.common.GeoTransformation.Centroid;
 import static com.stratio.cassandra.lucene.common.GeoTransformation.Difference;

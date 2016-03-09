@@ -44,8 +44,7 @@ public class CassandraServer {
      * @throws IOException
      * @throws InterruptedException
      */
-    public void setup() throws TTransportException, IOException,
-                               InterruptedException, ConfigurationException {
+    public void setup() throws TTransportException, IOException, InterruptedException, ConfigurationException {
 
         // Create temp dir to store data
         dir = Files.createTempDir();
@@ -93,8 +92,7 @@ public class CassandraServer {
      * @param directory
      * @throws IOException
      */
-    private static void copy(String resource, String directory)
-            throws IOException {
+    private static void copy(String resource, String directory) throws IOException {
         mkdir(directory);
         InputStream is = CassandraServer.class.getResourceAsStream(resource);
         String fileName = resource.substring(resource.lastIndexOf("/") + 1);

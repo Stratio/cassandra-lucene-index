@@ -24,7 +24,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import static com.stratio.cassandra.lucene.builder.Builder.*;
+import static com.stratio.cassandra.lucene.builder.Builder.integerMapper;
+import static com.stratio.cassandra.lucene.builder.Builder.stringMapper;
 import static com.stratio.cassandra.lucene.testsAT.util.CassandraUtils.builder;
 
 /**
@@ -35,21 +36,20 @@ public class Issue94AT extends BaseAT {
 
     @Test
     public void testInsertExplicitlyNullColumns() {
-        CassandraUtils utils = builder("issue_94")
-                .withTable("test")
-                .withIndex("test")
-                .withPartitionKey("a")
-                .withColumn("a", "int", integerMapper())
-                .withColumn("b", "text", stringMapper())
-                .withColumn("c", "text", stringMapper())
-                .withColumn("lucene", "text")
-                .build()
-                .createKeyspace()
-                .createTable()
-                .createIndex()
-                .refresh();
-        utils.insert(new String[]{"a","b","c"},new Object[]{1, null, null});
-        utils.execute("INSERT INTO "+utils.getKeyspace()+".test(a , b , c ) VALUES ( 1,null,null);");
+        CassandraUtils utils = builder("issue_94").withTable("test")
+                                                  .withIndex("test")
+                                                  .withPartitionKey("a")
+                                                  .withColumn("a", "int", integerMapper())
+                                                  .withColumn("b", "text", stringMapper())
+                                                  .withColumn("c", "text", stringMapper())
+                                                  .withColumn("lucene", "text")
+                                                  .build()
+                                                  .createKeyspace()
+                                                  .createTable()
+                                                  .createIndex()
+                                                  .refresh();
+        utils.insert(new String[]{"a", "b", "c"}, new Object[]{1, null, null});
+        utils.execute("INSERT INTO " + utils.getKeyspace() + ".test(a , b , c ) VALUES ( 1,null,null);");
         utils.dropTable().dropKeyspace();
     }
 }

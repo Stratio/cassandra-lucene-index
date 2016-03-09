@@ -45,7 +45,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.apache.cassandra.dht.Murmur3Partitioner.LongToken;
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.stringMapper;
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.textMapper;
 import static junit.framework.Assert.assertEquals;

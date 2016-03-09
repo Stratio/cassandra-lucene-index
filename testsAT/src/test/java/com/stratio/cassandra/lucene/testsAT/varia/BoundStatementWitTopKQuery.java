@@ -57,6 +57,7 @@ public class BoundStatementWitTopKQuery extends AbstractSearchAT {
 
         return utils.execute(b).all();
     }
+
     private Integer[] intColumn(List<Row> rows, String name) {
         Integer[] values = new Integer[rows.size()];
         int count = 0;
@@ -65,6 +66,7 @@ public class BoundStatementWitTopKQuery extends AbstractSearchAT {
         }
         return values;
     }
+
     private Double[] doubleColumn(List<Row> rows, String name) {
         Double[] values = new Double[rows.size()];
         int count = 0;
@@ -74,140 +76,142 @@ public class BoundStatementWitTopKQuery extends AbstractSearchAT {
         return values;
     }
 
-        @Test
-        public void sortIntegerAsc() {
-            String query=search().sort(new SimpleSortField("integer_1").reverse(false)).build();
-            Integer[] returnedValues = intColumn(prepareAndExecuteBoundingBox(query),"integer_1");
-            Assert.assertEquals("Expected 5 results!", 5, returnedValues.length);
-            Integer[] expectedValues = new Integer[]{-5, -4, -3, -2, -1};
-            assertArrayEquals("Wrong sort!", expectedValues, returnedValues);
-        }
+    @Test
+    public void sortIntegerAsc() {
+        String query = search().sort(new SimpleSortField("integer_1").reverse(false)).build();
+        Integer[] returnedValues = intColumn(prepareAndExecuteBoundingBox(query), "integer_1");
+        Assert.assertEquals("Expected 5 results!", 5, returnedValues.length);
+        Integer[] expectedValues = new Integer[]{-5, -4, -3, -2, -1};
+        assertArrayEquals("Wrong sort!", expectedValues, returnedValues);
+    }
 
-        @Test
-        public void sortIntegerDesc() {
-            String query=search().sort(field("integer_1").reverse(true)).build();
-            Integer[] returnedValues = intColumn(prepareAndExecuteBoundingBox(query),"integer_1");
-            Assert.assertEquals("Expected 5 results!", 5, returnedValues.length);
-            Integer[] expectedValues = new Integer[]{-1, -2, -3, -4, -5};
-            assertArrayEquals("Wrong sort!", expectedValues, returnedValues);
-        }
+    @Test
+    public void sortIntegerDesc() {
+        String query = search().sort(field("integer_1").reverse(true)).build();
+        Integer[] returnedValues = intColumn(prepareAndExecuteBoundingBox(query), "integer_1");
+        Assert.assertEquals("Expected 5 results!", 5, returnedValues.length);
+        Integer[] expectedValues = new Integer[]{-1, -2, -3, -4, -5};
+        assertArrayEquals("Wrong sort!", expectedValues, returnedValues);
+    }
 
-        @Test
-        public void sortIntegerDefault() {
-            String query=search().sort(field("integer_1")).build();
-            Integer[] returnedValues = intColumn(prepareAndExecuteBoundingBox(query),"integer_1");
-            Assert.assertEquals("Expected 5 results!", 5, returnedValues.length);
-            Integer[] expectedValues = new Integer[]{-5, -4, -3, -2, -1};
-            assertArrayEquals("Wrong sort!", expectedValues, returnedValues);
-        }
+    @Test
+    public void sortIntegerDefault() {
+        String query = search().sort(field("integer_1")).build();
+        Integer[] returnedValues = intColumn(prepareAndExecuteBoundingBox(query), "integer_1");
+        Assert.assertEquals("Expected 5 results!", 5, returnedValues.length);
+        Integer[] expectedValues = new Integer[]{-5, -4, -3, -2, -1};
+        assertArrayEquals("Wrong sort!", expectedValues, returnedValues);
+    }
 
-        @Test
-        public void sortDoubleAsc() {
-            String query=search().sort(field("double_1").reverse(false)).build();
-            Double[] returnedValues = doubleColumn(prepareAndExecuteBoundingBox(query), "double_1");
-            Assert.assertEquals("Expected 5 results!", 5, returnedValues.length);
-            Double[] expectedValues = new Double[]{1D, 2D, 3D, 3D, 3D};
-            assertArrayEquals("Wrong sort!", expectedValues, returnedValues);
-        }
+    @Test
+    public void sortDoubleAsc() {
+        String query = search().sort(field("double_1").reverse(false)).build();
+        Double[] returnedValues = doubleColumn(prepareAndExecuteBoundingBox(query), "double_1");
+        Assert.assertEquals("Expected 5 results!", 5, returnedValues.length);
+        Double[] expectedValues = new Double[]{1D, 2D, 3D, 3D, 3D};
+        assertArrayEquals("Wrong sort!", expectedValues, returnedValues);
+    }
 
-        @Test
-        public void sortDoubleDesc() {
-            String query=search().sort(field("double_1").reverse(true)).build();
-            Double[] returnedValues = doubleColumn(prepareAndExecuteBoundingBox(query), "double_1");
-            Assert.assertEquals("Expected 5 results!", 5, returnedValues.length);
-            Double[] expectedValues = new Double[]{3D, 3D, 3D, 2D, 1D};
-            assertArrayEquals("Wrong sort!", expectedValues, returnedValues);
-        }
+    @Test
+    public void sortDoubleDesc() {
+        String query = search().sort(field("double_1").reverse(true)).build();
+        Double[] returnedValues = doubleColumn(prepareAndExecuteBoundingBox(query), "double_1");
+        Assert.assertEquals("Expected 5 results!", 5, returnedValues.length);
+        Double[] expectedValues = new Double[]{3D, 3D, 3D, 2D, 1D};
+        assertArrayEquals("Wrong sort!", expectedValues, returnedValues);
+    }
 
-        @Test
-        public void sortDoubleDefault() {
-            String query=search().sort(field("double_1")).build();
-            Double[] returnedValues = doubleColumn(prepareAndExecuteBoundingBox(query), "double_1");
-            Assert.assertEquals("Expected 5 results!", 5, returnedValues.length);
-            Double[] expectedValues = new Double[]{1D, 2D, 3D, 3D, 3D};
-            assertArrayEquals("Wrong sort!", expectedValues, returnedValues);
-        }
+    @Test
+    public void sortDoubleDefault() {
+        String query = search().sort(field("double_1")).build();
+        Double[] returnedValues = doubleColumn(prepareAndExecuteBoundingBox(query), "double_1");
+        Assert.assertEquals("Expected 5 results!", 5, returnedValues.length);
+        Double[] expectedValues = new Double[]{1D, 2D, 3D, 3D, 3D};
+        assertArrayEquals("Wrong sort!", expectedValues, returnedValues);
+    }
 
-        @Test
-        public void sortCombined() {
-            String query=search().sort(field("double_1"),field("integer_1")).build();
-            List<Row> rows=prepareAndExecuteBoundingBox(query);
-            Double[] returnedDoubleValues = doubleColumn(rows, "double_1");
-            Assert.assertEquals("Expected 5 results!", 5, returnedDoubleValues.length);
-            Integer[] returnedIntValues = intColumn(rows,"integer_1") ;
-            Assert.assertEquals("Expected 5 results!", 5, returnedIntValues.length);
-            Double[] expectedDoubleValues = new Double[]{1D, 2D, 3D, 3D, 3D};
-            Integer[] expectedIntValues = new Integer[]{-1, -2, -5, -4, -3};
-            assertArrayEquals("Wrong doubles sort!", expectedDoubleValues, returnedDoubleValues);
-            assertArrayEquals("Wrong integers sort!", expectedIntValues, returnedIntValues);
-        }
+    @Test
+    public void sortCombined() {
+        String query = search().sort(field("double_1"), field("integer_1")).build();
+        List<Row> rows = prepareAndExecuteBoundingBox(query);
+        Double[] returnedDoubleValues = doubleColumn(rows, "double_1");
+        Assert.assertEquals("Expected 5 results!", 5, returnedDoubleValues.length);
+        Integer[] returnedIntValues = intColumn(rows, "integer_1");
+        Assert.assertEquals("Expected 5 results!", 5, returnedIntValues.length);
+        Double[] expectedDoubleValues = new Double[]{1D, 2D, 3D, 3D, 3D};
+        Integer[] expectedIntValues = new Integer[]{-1, -2, -5, -4, -3};
+        assertArrayEquals("Wrong doubles sort!", expectedDoubleValues, returnedDoubleValues);
+        assertArrayEquals("Wrong integers sort!", expectedIntValues, returnedIntValues);
+    }
 
-        @Test
-        public void sortWithFilter() {
-            String query = search().filter(all()).sort(field("integer_1").reverse(false)).build();
-            Integer[] returnedValues =intColumn(prepareAndExecuteBoundingBox(query), "integer_1");
-            Assert.assertEquals("Expected 5 results!", 5, returnedValues.length);
-            Integer[] expectedValues = new Integer[]{-5, -4, -3, -2, -1};
-            assertArrayEquals("Wrong sort!", expectedValues, returnedValues);
-        }
+    @Test
+    public void sortWithFilter() {
+        String query = search().filter(all()).sort(field("integer_1").reverse(false)).build();
+        Integer[] returnedValues = intColumn(prepareAndExecuteBoundingBox(query), "integer_1");
+        Assert.assertEquals("Expected 5 results!", 5, returnedValues.length);
+        Integer[] expectedValues = new Integer[]{-5, -4, -3, -2, -1};
+        assertArrayEquals("Wrong sort!", expectedValues, returnedValues);
+    }
 
-        @Test
-        public void sortWithQuery() {
-            String query= search().query(all()).sort(field("integer_1").reverse(false)).build();
-            Integer[] returnedValues =intColumn(prepareAndExecuteBoundingBox(query),"integer_1");
-            Assert.assertEquals("Expected 5 results!", 5, returnedValues.length);
-            Integer[] expectedValues = new Integer[]{-5, -4, -3, -2, -1};
-            assertArrayEquals("Wrong sort!", expectedValues, returnedValues);
-        }
+    @Test
+    public void sortWithQuery() {
+        String query = search().query(all()).sort(field("integer_1").reverse(false)).build();
+        Integer[] returnedValues = intColumn(prepareAndExecuteBoundingBox(query), "integer_1");
+        Assert.assertEquals("Expected 5 results!", 5, returnedValues.length);
+        Integer[] expectedValues = new Integer[]{-5, -4, -3, -2, -1};
+        assertArrayEquals("Wrong sort!", expectedValues, returnedValues);
+    }
 
-        @Test
-        public void sortWithFilterAndQuery() {
-            String query = search().filter(all()).query(all()).sort(field("integer_1").reverse(false)).build();
-            Integer[] returnedValues =intColumn(prepareAndExecuteBoundingBox(query),"integer_1");
-            Assert.assertEquals("Expected 5 results!", 5, returnedValues.length);
-            Integer[] expectedValues = new Integer[]{-5, -4, -3, -2, -1};
-            assertArrayEquals("Wrong sort!", expectedValues, returnedValues);
-        }
+    @Test
+    public void sortWithFilterAndQuery() {
+        String query = search().filter(all()).query(all()).sort(field("integer_1").reverse(false)).build();
+        Integer[] returnedValues = intColumn(prepareAndExecuteBoundingBox(query), "integer_1");
+        Assert.assertEquals("Expected 5 results!", 5, returnedValues.length);
+        Integer[] expectedValues = new Integer[]{-5, -4, -3, -2, -1};
+        assertArrayEquals("Wrong sort!", expectedValues, returnedValues);
+    }
 
-        @Test
-        public void sortWithGeoDistanceFilterNotReversed() {
-            String query =search().filter(geoDistance("geo_point", -3.784519, 40.442163, "10000km")).sort(
-                    geoDistanceSortField("geo_point", -3.784519, 40.442163).reverse(false)).build();
-            Integer[] returnedValues =intColumn(prepareAndExecuteBoundingBox(query),"integer_1");
-            Assert.assertEquals("Expected 5 results!", 5, returnedValues.length);
-            Integer[] expectedValues = new Integer[]{-1, -2, -3, -4, -5};
-            assertArrayEquals("Wrong geoDistance sort!", expectedValues, returnedValues);
-        }
+    @Test
+    public void sortWithGeoDistanceFilterNotReversed() {
+        String query = search().filter(geoDistance("geo_point", -3.784519, 40.442163, "10000km"))
+                               .sort(geoDistanceSortField("geo_point", -3.784519, 40.442163).reverse(false))
+                               .build();
+        Integer[] returnedValues = intColumn(prepareAndExecuteBoundingBox(query), "integer_1");
+        Assert.assertEquals("Expected 5 results!", 5, returnedValues.length);
+        Integer[] expectedValues = new Integer[]{-1, -2, -3, -4, -5};
+        assertArrayEquals("Wrong geoDistance sort!", expectedValues, returnedValues);
+    }
 
-        @Test public void sortWithGeoDistanceQueryNotReversed() {
-            String query = search().query(geoDistance("geo_point", -3.784519, 40.442163, "10000km")).sort(geoDistanceSortField(
-                    "geo_point",
-                    -3.784519,
-                    40.442163).reverse(false)).build();
-            Integer[] returnedValues = intColumn(prepareAndExecuteBoundingBox(query),"integer_1");
-            Assert.assertEquals("Expected 5 results!", 5, returnedValues.length);
-            Integer[] expectedValues = new Integer[]{-1, -2, -3, -4, -5};
-            assertArrayEquals("Wrong geoDistance sort!", expectedValues, returnedValues);
-        }
+    @Test
+    public void sortWithGeoDistanceQueryNotReversed() {
+        String query = search().query(geoDistance("geo_point", -3.784519, 40.442163, "10000km"))
+                               .sort(geoDistanceSortField("geo_point", -3.784519, 40.442163).reverse(false))
+                               .build();
+        Integer[] returnedValues = intColumn(prepareAndExecuteBoundingBox(query), "integer_1");
+        Assert.assertEquals("Expected 5 results!", 5, returnedValues.length);
+        Integer[] expectedValues = new Integer[]{-1, -2, -3, -4, -5};
+        assertArrayEquals("Wrong geoDistance sort!", expectedValues, returnedValues);
+    }
 
-        @Test
-        public void sortWithGeoDistanceFilterReversed() {
-            String query=search().filter(geoDistance("geo_point", -3.784519, 40.442163, "10000km")).sort(
-                    geoDistanceSortField("geo_point", -3.784519, 40.442163).reverse(true)).build();
-            Integer[] returnedValues =intColumn(prepareAndExecuteBoundingBox(query),"integer_1");
-                    Assert.assertEquals("Expected 5 results!", 5, returnedValues.length);
-            Integer[] expectedValues = new Integer[]{-5, -4, -3, -2, -1};
-            assertArrayEquals("Wrong geoDistance sort!", expectedValues, returnedValues);
-        }
+    @Test
+    public void sortWithGeoDistanceFilterReversed() {
+        String query = search().filter(geoDistance("geo_point", -3.784519, 40.442163, "10000km"))
+                               .sort(geoDistanceSortField("geo_point", -3.784519, 40.442163).reverse(true))
+                               .build();
+        Integer[] returnedValues = intColumn(prepareAndExecuteBoundingBox(query), "integer_1");
+        Assert.assertEquals("Expected 5 results!", 5, returnedValues.length);
+        Integer[] expectedValues = new Integer[]{-5, -4, -3, -2, -1};
+        assertArrayEquals("Wrong geoDistance sort!", expectedValues, returnedValues);
+    }
 
-        @Test
-        public void sortWithGeoDistanceQueryReversed() {
-            String query=search().query(geoDistance("geo_point", -3.784519, 40.442163, "10000km"))
-                    .sort(geoDistanceSortField("geo_point", -3.784519, 40.442163).reverse(true))
-                    .build();
-            Integer[] returnedValues = intColumn(prepareAndExecuteBoundingBox(query),"integer_1");
-            Assert.assertEquals("Expected 5 results!", 5, returnedValues.length);
-            Integer[] expectedValues = new Integer[]{-5, -4, -3, -2, -1};
-            assertArrayEquals("Wrong geoDistance sort!", expectedValues, returnedValues);
-        }
+    @Test
+    public void sortWithGeoDistanceQueryReversed() {
+        String query = search().query(geoDistance("geo_point", -3.784519, 40.442163, "10000km"))
+                               .sort(geoDistanceSortField("geo_point", -3.784519, 40.442163).reverse(true))
+                               .build();
+        Integer[] returnedValues = intColumn(prepareAndExecuteBoundingBox(query), "integer_1");
+        Assert.assertEquals("Expected 5 results!", 5, returnedValues.length);
+        Integer[] expectedValues = new Integer[]{-5, -4, -3, -2, -1};
+        assertArrayEquals("Wrong geoDistance sort!", expectedValues, returnedValues);
+    }
 }
