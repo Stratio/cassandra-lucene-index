@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.0.4.0 (upcoming)
+## 3.0.4.0 (10 March 2016)
 
 * Upgrade to Apache Cassandra 3.0.4
 * Add indexing of time UUID columns with date, date_range and bitemporal mappers
