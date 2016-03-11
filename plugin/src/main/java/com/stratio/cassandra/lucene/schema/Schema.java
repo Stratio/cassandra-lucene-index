@@ -25,6 +25,7 @@ import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
 import org.apache.cassandra.config.CFMetaData;
+import org.apache.cassandra.config.ColumnDefinition;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
 import org.slf4j.Logger;
@@ -170,6 +171,16 @@ public class Schema implements Closeable {
         for (Mapper mapper : mappers.values()) {
             mapper.validate(metadata);
         }
+    }
+
+    /**
+     * Returns if this has any mapping for the specified column definition.
+     *
+     * @param column the column definition
+     * @return {@code true} if there is any mapping for the column, {@code false} otherwise
+     */
+    public boolean maps(ColumnDefinition column) {
+        return mappers.values().stream().anyMatch(mapper -> mapper.maps(column));
     }
 
     /** {@inheritDoc} */

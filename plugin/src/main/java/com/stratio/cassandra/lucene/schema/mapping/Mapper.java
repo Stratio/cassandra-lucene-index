@@ -25,6 +25,7 @@ import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.schema.analysis.StandardAnalyzers;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
+import org.apache.cassandra.cql3.ColumnIdentifier;
 import org.apache.cassandra.db.marshal.*;
 import org.apache.cassandra.db.marshal.CollectionType.Kind;
 import org.apache.commons.lang3.StringUtils;
@@ -297,6 +298,17 @@ public abstract class Mapper {
                 throw new IndexException("'%s' can't be sorted because it's a list", column);
             }
         }
+    }
+
+    /**
+     * Returns if this maps the specified column definition.
+     *
+     * @param column the column definition
+     * @return {@code true} if this maps the column, {@code false} otherwise
+     */
+    public boolean maps(ColumnDefinition column) {
+        String name = column.name.toString();
+        return mappedColumns.stream().anyMatch(x -> x.equals(name));
     }
 
     protected MoreObjects.ToStringHelper toStringHelper(Object self) {

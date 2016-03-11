@@ -129,7 +129,7 @@ public abstract class IndexService {
         columnsMapper = new ColumnsMapper();
         mapsMultiCells = metadata.allColumns()
                                  .stream()
-                                 .filter(x -> schema.getMappedCells().contains(x.name))
+                                 .filter(x -> schema.getMappedCells().contains(x.name.toString()))
                                  .anyMatch(x -> x.type.isMultiCell());
     }
 

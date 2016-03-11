@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.0.4.1 (upcoming)
+
+* Allow altering unmapped columns
+
 ## 3.0.4.0 (10 March 2016)
 
 * Upgrade to Apache Cassandra 3.0.4
