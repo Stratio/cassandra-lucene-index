@@ -127,6 +127,15 @@ public class GeoPointMapperTest extends AbstractMapperTest {
     }
 
     @Test
+    public void testGetLatitudeFromNullColumn() {
+        GeoPointMapper mapper = geoPointMapper("lat", "lon").build("field");
+        Columns columns = new Columns();
+        columns.add(Column.builder("lat").buildWithComposed(null, Int32Type.instance));
+        columns.add(Column.builder("lon").buildWithComposed(0, Int32Type.instance));
+        assertNull("Latitude is not properly parsed", mapper.readLatitude(columns));
+    }
+
+    @Test
     public void testGetLatitudeFromIntColumn() {
         GeoPointMapper mapper = geoPointMapper("lat", "lon").build("field");
         Columns columns = new Columns();
@@ -229,6 +238,15 @@ public class GeoPointMapperTest extends AbstractMapperTest {
         columns.add(Column.builder("lat").buildWithComposed(new Short("91"), ShortType.instance));
         columns.add(Column.builder("lon").buildWithComposed(0, Int32Type.instance));
         mapper.readLatitude(columns);
+    }
+
+    @Test
+    public void testGetLongitudeFromNullColumn() {
+        GeoPointMapper mapper = geoPointMapper("lat", "lon").build("field");
+        Columns columns = new Columns();
+        columns.add(Column.builder("lat").buildWithComposed(5, Int32Type.instance));
+        columns.add(Column.builder("lon").buildWithComposed(null, Int32Type.instance));
+        assertNull("Longitude is not properly parsed", mapper.readLongitude(columns));
     }
 
     @Test
