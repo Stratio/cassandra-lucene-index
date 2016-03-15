@@ -226,9 +226,11 @@ public class GeoPointMapper extends Mapper {
      * @param o the {@link Object} containing the latitude
      * @return the latitude
      */
-    private double readLatitude(Object o) {
+    private Double readLatitude(Object o) {
         Double value;
-        if (o instanceof Number) {
+        if (o == null) {
+            return null;
+        } else if (o instanceof Number) {
             value = ((Number) o).doubleValue();
         } else {
             try {
@@ -241,15 +243,6 @@ public class GeoPointMapper extends Mapper {
     }
 
     /**
-     * Returns the distance {@link SpatialStrategy}.
-     *
-     * @return the {@link SpatialStrategy}
-     */
-    public SpatialStrategy getDistanceStrategy() {
-        return distanceStrategy;
-    }
-
-    /**
      * Returns the longitude contained in the specified {@link Object}.
      *
      * A valid longitude must in the range [-180, 180].
@@ -257,9 +250,11 @@ public class GeoPointMapper extends Mapper {
      * @param o the {@link Object} containing the latitude
      * @return the longitude
      */
-    private static double readLongitude(Object o) {
+    private static Double readLongitude(Object o) {
         Double value;
-        if (o instanceof Number) {
+        if (o == null) {
+            return null;
+        } else if (o instanceof Number) {
             value = ((Number) o).doubleValue();
         } else {
             try {

@@ -104,7 +104,7 @@ public class GeoDistanceSortField extends SortField {
         }
         GeoPointMapper geoPointMapper = (GeoPointMapper) mapper;
 
-        SpatialStrategy strategy = geoPointMapper.getDistanceStrategy();
+        SpatialStrategy strategy = geoPointMapper.distanceStrategy;
         Point pt = GeoPointMapper.SPATIAL_CONTEXT.makePoint(longitude, latitude);
 
         // The distance (in km)

@@ -3,6 +3,7 @@
 ## 3.0.4.1 (upcoming)
 
 * Allow altering unmapped columns
+* Fix NPE while mapping geo points with explicitly null latitude/longitude value
 
 ## 3.0.4.0 (10 March 2016)
 
