@@ -18,7 +18,7 @@
 
 package com.stratio.cassandra.lucene.schema.mapping;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.stratio.cassandra.lucene.IndexException;
@@ -100,17 +100,19 @@ public class GeoShapeMapper extends SingleColumnMapper<String> {
     /** {@inheritDoc} */
     @Override
     public void addIndexedFields(Document document, String name, String value) {
+
+        // Parse shape
         JtsGeometry shape = GeospatialUtilsJTS.geometryFromWKT(SPATIAL_CONTEXT, value);
 
         // Apply transformations
-        JtsGeometry transformedGeometry = shape;
         if (transformations != null) {
             for (GeoTransformation transformation : transformations) {
-                transformedGeometry = transformation.apply(transformedGeometry, SPATIAL_CONTEXT);
+                shape = transformation.apply(shape, SPATIAL_CONTEXT);
             }
         }
 
-        for (IndexableField field : strategy.createIndexableFields(transformedGeometry)) {
+        // Add fields
+        for (IndexableField field : strategy.createIndexableFields(shape)) {
             document.add(field);
         }
     }
@@ -134,13 +136,13 @@ public class GeoShapeMapper extends SingleColumnMapper<String> {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                      .add("field", field)
-                      .add("column", column)
-                      .add("validated", validated)
-                      .add("maxLevels", maxLevels)
-                      .add("transformations", transformations)
-                      .toString();
+        return MoreObjects.toStringHelper(this)
+                          .add("field", field)
+                          .add("column", column)
+                          .add("validated", validated)
+                          .add("maxLevels", maxLevels)
+                          .add("transformations", transformations)
+                          .toString();
     }
 
 }

@@ -33,6 +33,8 @@ import org.apache.lucene.spatial.SpatialStrategy;
 import java.util.Comparator;
 
 /**
+ * {@link SortField} to sort geo points by their distance to a fixed reference point.
+ *
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
 public class GeoDistanceSortField extends SortField {

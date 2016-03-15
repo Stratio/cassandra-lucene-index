@@ -44,6 +44,7 @@ public abstract class SortFieldBuilder<T extends SortField, K extends SortFieldB
      * @param reverse {@code true} if natural order should be reversed.
      * @return This.
      */
+    @SuppressWarnings("unchecked")
     public K reverse(boolean reverse) {
         this.reverse = reverse;
         return (K) this;

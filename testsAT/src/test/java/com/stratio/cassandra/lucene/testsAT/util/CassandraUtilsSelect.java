@@ -44,10 +44,10 @@ import static org.junit.Assert.*;
  */
 public class CassandraUtilsSelect {
 
-    private CassandraUtils parent;
+    private final CassandraUtils parent;
+    private final LinkedList<Clause> clauses;
+    private final LinkedList<String> extras;
     private Search search;
-    private LinkedList<Clause> clauses;
-    private LinkedList<String> extras;
     private Integer limit;
     private Integer fetchSize;
     private boolean refresh = true;
@@ -149,9 +149,7 @@ public class CassandraUtilsSelect {
 
     public List<Row> get() {
         Select.Where where = QueryBuilder.select().from(parent.getKeyspace(), parent.getTable()).where();
-        for (Clause clause : clauses) {
-            where.and(clause);
-        }
+        clauses.forEach(where::and);
 
         String query = where.toString();
         query = query.substring(0, query.length() - 1); // Remove semicolon

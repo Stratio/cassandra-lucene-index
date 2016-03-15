@@ -57,8 +57,8 @@ public class Index implements org.apache.cassandra.index.Index {
 
     private static final Logger logger = LoggerFactory.getLogger(Index.class);
 
-    private ColumnFamilyStore table;
-    private IndexMetadata indexMetadata;
+    private final ColumnFamilyStore table;
+    private final IndexMetadata indexMetadata;
     private IndexService service;
     private String name;
 

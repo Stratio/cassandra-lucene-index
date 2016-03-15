@@ -20,13 +20,13 @@ public class DocumentIterator implements CloseableIterator<Pair<Document, ScoreD
 
     private static final Logger logger = LoggerFactory.getLogger(DocumentIterator.class);
 
-    private SearcherManager manager;
-    private Query query;
+    private final SearcherManager manager;
+    private final Query query;
+    private final Integer page;
+    private final Set<String> fields;
+    private final Deque<Pair<Document, ScoreDoc>> documents = new LinkedList<>();
     private Sort sort;
     private ScoreDoc after;
-    private Integer page;
-    private Set<String> fields;
-    private Deque<Pair<Document, ScoreDoc>> documents = new LinkedList<>();
     private boolean mayHaveMore = true;
 
     /**
@@ -101,6 +101,11 @@ public class DocumentIterator implements CloseableIterator<Pair<Document, ScoreD
         return !documents.isEmpty();
     }
 
+    /**
+     * Returns if more {@link Document}s should be fetched from the Lucene index.
+     *
+     * @return {@code true} if more documents should be fetched, {@code false} otherwise
+     */
     public boolean needsFetch() {
         return mayHaveMore && documents.isEmpty();
     }
