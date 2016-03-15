@@ -3,6 +3,7 @@
 ## 2.2.5.3 (upcoming)
 
 * Add support for indexing time UUID columns with date, date_range and bitemporal mappers
+* Fix NPE while mapping geo points with explicitly null latitude/longitude value
 
 ## 2.2.5.2 (4 March 2016)
 
