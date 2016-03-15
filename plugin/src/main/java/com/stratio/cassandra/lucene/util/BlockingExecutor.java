@@ -41,7 +41,7 @@ public class BlockingExecutor extends ThreadPoolExecutor {
     /**
      * Counts the number of current tasks in process.
      */
-    private AtomicInteger tasksInProcess = new AtomicInteger();
+    private final AtomicInteger tasksInProcess = new AtomicInteger();
 
     /**
      * This is the Synchronizer instance that is used in order to notify all interested code of when all the tasks that
@@ -49,7 +49,7 @@ public class BlockingExecutor extends ThreadPoolExecutor {
      * of times. It is all up to the client code. Whenever the ThreadPoolExecutor concludes to run all the tasks the
      * Synchronizer object will be notified and will in turn notify the code which is waiting on it.
      */
-    private Synchronizer synchronizer = new Synchronizer();
+    private final Synchronizer synchronizer = new Synchronizer();
 
     /**
      * This constructor is used in order to maintain the first functionality specified above. It does so by using an

@@ -38,7 +38,7 @@ import org.apache.lucene.search.ScoreDoc;
 public class IndexReaderSkinny extends IndexReader {
 
     private final IndexServiceSkinny service;
-    private SearchCacheUpdater cacheUpdater;
+    private final SearchCacheUpdater cacheUpdater;
 
     /**
      * Constructor taking the Cassandra read data and the Lucene results iterator.

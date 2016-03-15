@@ -38,9 +38,9 @@ import java.util.NavigableSet;
 public class IndexReaderWide extends IndexReader {
 
     private final IndexServiceWide service;
+    private final ClusteringComparator comparator;
+    private final SearchCacheUpdater cacheUpdater;
     private Pair<Document, ScoreDoc> nextDoc;
-    private ClusteringComparator comparator;
-    private SearchCacheUpdater cacheUpdater;
 
     /**
      * Constructor taking the Cassandra read data and the Lucene results iterator.

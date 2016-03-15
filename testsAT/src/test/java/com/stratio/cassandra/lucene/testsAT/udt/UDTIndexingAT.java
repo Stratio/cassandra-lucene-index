@@ -274,8 +274,10 @@ public class UDTIndexingAT extends BaseAT {
         assertEquals("Expected " + expected.length + " results but received: " + received.length,
                      expected.length,
                      received.length);
-        assertTrue("Unexpected results!! Expected: " + Arrays.toString(expected) + ",but got: " + received,
-                   isThisAndOnlyThis(received, expected));
+        assertTrue("Unexpected results!! Expected: " +
+                   Arrays.toString(expected) +
+                   ", but got: " +
+                   Arrays.toString(received), isThisAndOnlyThis(received, expected));
 
     }
 
