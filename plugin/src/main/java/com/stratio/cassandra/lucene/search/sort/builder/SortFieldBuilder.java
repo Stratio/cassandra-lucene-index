@@ -27,6 +27,8 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
 /**
  * {@link Builder} for building a new {@link SortField}.
  *
+ * @param <T> the {@link SortField}
+ * @param <K> the {@link SortField} builder
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type", defaultImpl = SimpleSortFieldBuilder.class)
@@ -41,7 +43,7 @@ public abstract class SortFieldBuilder<T extends SortField, K extends SortFieldB
     /**
      * Returns this {@link SortFieldBuilder} with the specified reverse option.
      *
-     * @param reverse {@code true} if natural order should be reversed.
+     * @param reverse {@code true} if natural order should be reversed
      * @return This.
      */
     @SuppressWarnings("unchecked")

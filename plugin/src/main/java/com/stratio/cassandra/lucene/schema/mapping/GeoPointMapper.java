@@ -46,11 +46,6 @@ import java.util.Arrays;
  */
 public class GeoPointMapper extends Mapper {
 
-    private static final double MIN_LATITUDE = -90.0;
-    private static final double MAX_LATITUDE = 90.0;
-    private static final double MIN_LONGITUDE = -180.0;
-    private static final double MAX_LONGITUDE = 180.0;
-
     public static final SpatialContext SPATIAL_CONTEXT = SpatialContext.GEO;
 
     /** The name of the latitude column. */
@@ -117,46 +112,6 @@ public class GeoPointMapper extends Mapper {
         SpatialPrefixTree grid = new GeohashPrefixTree(SPATIAL_CONTEXT, this.maxLevels);
         distanceStrategy = new RecursivePrefixTreeStrategy(grid, field + ".dist");
         bboxStrategy = new BBoxStrategy(SPATIAL_CONTEXT, field + ".bbox");
-    }
-
-    /**
-     * Checks if the specified latitude is correct.
-     *
-     * @param name the name of the latitude field
-     * @param latitude the value of the latitude field
-     * @return the latitude
-     */
-    public static Double checkLatitude(String name, Double latitude) {
-        if (latitude == null) {
-            throw new IndexException("%s required", name);
-        } else if (latitude < MIN_LATITUDE || latitude > MAX_LATITUDE) {
-            throw new IndexException("%s must be in range [%s, %s], but found %s",
-                                     name,
-                                     MIN_LATITUDE,
-                                     MAX_LATITUDE,
-                                     latitude);
-        }
-        return latitude;
-    }
-
-    /**
-     * Checks if the specified longitude is correct.
-     *
-     * @param name the name of the longitude field
-     * @param longitude the value of the longitude field
-     * @return the longitude
-     */
-    public static Double checkLongitude(String name, Double longitude) {
-        if (longitude == null) {
-            throw new IndexException("%s required", name);
-        } else if (longitude < MIN_LONGITUDE || longitude > MAX_LONGITUDE) {
-            throw new IndexException("%s must be in range [%s, %s], but found %s",
-                                     name,
-                                     MIN_LONGITUDE,
-                                     MAX_LONGITUDE,
-                                     longitude);
-        }
-        return longitude;
     }
 
     /** {@inheritDoc} */
@@ -239,7 +194,7 @@ public class GeoPointMapper extends Mapper {
                 throw new IndexException("Unparseable latitude: %s", o);
             }
         }
-        return checkLatitude("latitude", value);
+        return GeospatialUtils.checkLatitude("latitude", value);
     }
 
     /**
@@ -263,7 +218,7 @@ public class GeoPointMapper extends Mapper {
                 throw new IndexException("Unparseable longitude: %s", o);
             }
         }
-        return checkLongitude("longitude", value);
+        return GeospatialUtils.checkLongitude("longitude", value);
     }
 
     /** {@inheritDoc} */

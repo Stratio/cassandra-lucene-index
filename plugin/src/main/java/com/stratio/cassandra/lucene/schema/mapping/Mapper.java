@@ -25,7 +25,6 @@ import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.schema.analysis.StandardAnalyzers;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
-import org.apache.cassandra.cql3.ColumnIdentifier;
 import org.apache.cassandra.db.marshal.*;
 import org.apache.cassandra.db.marshal.CollectionType.Kind;
 import org.apache.commons.lang3.StringUtils;

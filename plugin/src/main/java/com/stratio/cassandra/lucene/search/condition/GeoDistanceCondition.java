@@ -24,6 +24,7 @@ import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.common.GeoDistance;
 import com.stratio.cassandra.lucene.common.GeoDistanceUnit;
 import com.stratio.cassandra.lucene.schema.mapping.GeoPointMapper;
+import com.stratio.cassandra.lucene.util.GeospatialUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
@@ -73,8 +74,8 @@ public class GeoDistanceCondition extends SingleMapperCondition<GeoPointMapper> 
                                 GeoDistance maxGeoDistance) {
         super(boost, field, GeoPointMapper.class);
 
-        this.latitude = GeoPointMapper.checkLatitude("latitude", latitude);
-        this.longitude = GeoPointMapper.checkLongitude("longitude", longitude);
+        this.latitude = GeospatialUtils.checkLatitude("latitude", latitude);
+        this.longitude = GeospatialUtils.checkLongitude("longitude", longitude);
 
         if (maxGeoDistance == null) {
             throw new IndexException("max_distance must be provided");

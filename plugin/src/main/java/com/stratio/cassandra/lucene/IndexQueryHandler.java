@@ -56,45 +56,49 @@ public class IndexQueryHandler implements QueryHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(IndexQueryHandler.class);
 
+    /** {@inheritDoc} */
     @Override
-    /** {@inheritDoc} */ public ResultMessage.Prepared prepare(String query,
-                                                               QueryState state,
-                                                               Map<String, ByteBuffer> customPayload) {
+    public ResultMessage.Prepared prepare(String query, QueryState state, Map<String, ByteBuffer> customPayload) {
         return QueryProcessor.instance.prepare(query, state);
     }
 
+    /** {@inheritDoc} */
     @Override
-    /** {@inheritDoc} */ public ParsedStatement.Prepared getPrepared(MD5Digest id) {
+    public ParsedStatement.Prepared getPrepared(MD5Digest id) {
         return QueryProcessor.instance.getPrepared(id);
     }
 
+    /** {@inheritDoc} */
     @Override
-    /** {@inheritDoc} */ public ParsedStatement.Prepared getPreparedForThrift(Integer id) {
+    public ParsedStatement.Prepared getPreparedForThrift(Integer id) {
         return QueryProcessor.instance.getPreparedForThrift(id);
     }
 
+    /** {@inheritDoc} */
     @Override
-    /** {@inheritDoc} */ public ResultMessage processBatch(BatchStatement statement,
-                                                           QueryState state,
-                                                           BatchQueryOptions options,
-                                                           Map<String, ByteBuffer> customPayload) {
+    public ResultMessage processBatch(BatchStatement statement,
+                                      QueryState state,
+                                      BatchQueryOptions options,
+                                      Map<String, ByteBuffer> customPayload) {
         return QueryProcessor.instance.processBatch(statement, state, options, customPayload);
     }
 
+    /** {@inheritDoc} */
     @Override
-    /** {@inheritDoc} */ public ResultMessage processPrepared(CQLStatement statement,
-                                                              QueryState state,
-                                                              QueryOptions options,
-                                                              Map<String, ByteBuffer> customPayload) {
+    public ResultMessage processPrepared(CQLStatement statement,
+                                         QueryState state,
+                                         QueryOptions options,
+                                         Map<String, ByteBuffer> customPayload) {
         QueryProcessor.metrics.preparedStatementsExecuted.inc();
         return processStatement(statement, state, options);
     }
 
+    /** {@inheritDoc} */
     @Override
-    /** {@inheritDoc} */ public ResultMessage process(String query,
-                                                      QueryState state,
-                                                      QueryOptions options,
-                                                      Map<String, ByteBuffer> customPayload) {
+    public ResultMessage process(String query,
+                                 QueryState state,
+                                 QueryOptions options,
+                                 Map<String, ByteBuffer> customPayload) {
         ParsedStatement.Prepared p = QueryProcessor.getStatement(query, state.getClientState());
         options.prepare(p.boundNames);
         CQLStatement prepared = p.statement;
@@ -109,7 +113,7 @@ public class IndexQueryHandler implements QueryHandler {
         return processStatement(prepared, state, options);
     }
 
-    public ResultMessage processStatement(CQLStatement statement, QueryState state, QueryOptions options) {
+    private ResultMessage processStatement(CQLStatement statement, QueryState state, QueryOptions options) {
 
         logger.trace("Process {} @CL.{}", statement, options.getConsistency());
         ClientState clientState = state.getClientState();
@@ -173,7 +177,7 @@ public class IndexQueryHandler implements QueryHandler {
         return execute(select, state, options);
     }
 
-    public ResultMessage execute(CQLStatement statement, QueryState state, QueryOptions options) {
+    private ResultMessage execute(CQLStatement statement, QueryState state, QueryOptions options) {
         ResultMessage result = statement.execute(state, options);
         return result == null ? new ResultMessage.Void() : result;
     }
@@ -184,7 +188,7 @@ public class IndexQueryHandler implements QueryHandler {
         return (int) method.invoke(select, options);
     }
 
-    public ResultMessage.Rows executeWithoutPaging(SelectStatement select, QueryState state, QueryOptions options)
+    private ResultMessage.Rows executeWithoutPaging(SelectStatement select, QueryState state, QueryOptions options)
     throws ReflectiveOperationException {
 
         ConsistencyLevel cl = options.getConsistency();

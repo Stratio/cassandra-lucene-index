@@ -166,6 +166,7 @@ public interface GeoTransformation {
      */
     class Difference implements GeoTransformation {
 
+        /** The shape to be subtracted. */
         @JsonProperty("shape")
         public final String other;
 
@@ -205,6 +206,7 @@ public interface GeoTransformation {
      */
     class Intersection implements GeoTransformation {
 
+        /** The shape to be intersected. */
         @JsonProperty("shape")
         public final String other;
 
@@ -244,6 +246,7 @@ public interface GeoTransformation {
      */
     class Union implements GeoTransformation {
 
+        /** The shape to be added. */
         @JsonProperty("shape")
         public final String other;
 

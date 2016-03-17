@@ -28,7 +28,20 @@ import org.apache.lucene.spatial.prefix.tree.GeohashPrefixTree;
  */
 public class GeospatialUtils {
 
+    /** The default max number of levels for geohash search trees. */
     public static final int DEFAULT_GEOHASH_MAX_LEVELS = 11;
+
+    /** The min accepted longitude. */
+    public static final double MIN_LATITUDE = -90.0;
+
+    /** The max accepted longitude. */
+    public static final double MAX_LATITUDE = 90.0;
+
+    /** The min accepted longitude. */
+    public static final double MIN_LONGITUDE = -180.0;
+
+    /** The max accepted longitude. */
+    public static final double MAX_LONGITUDE = 180.0;
 
     /**
      * Checks if the specified max levels is correct.
@@ -45,5 +58,45 @@ public class GeospatialUtils {
                                      maxLevels);
         }
         return maxLevels;
+    }
+
+    /**
+     * Checks if the specified latitude is correct.
+     *
+     * @param name the name of the latitude field
+     * @param latitude the value of the latitude field
+     * @return the latitude
+     */
+    public static Double checkLatitude(String name, Double latitude) {
+        if (latitude == null) {
+            throw new IndexException("%s required", name);
+        } else if (latitude < MIN_LATITUDE || latitude > MAX_LATITUDE) {
+            throw new IndexException("%s must be in range [%s, %s], but found %s",
+                                     name,
+                                     MIN_LATITUDE,
+                                     MAX_LATITUDE,
+                                     latitude);
+        }
+        return latitude;
+    }
+
+    /**
+     * Checks if the specified longitude is correct.
+     *
+     * @param name the name of the longitude field
+     * @param longitude the value of the longitude field
+     * @return the longitude
+     */
+    public static Double checkLongitude(String name, Double longitude) {
+        if (longitude == null) {
+            throw new IndexException("%s required", name);
+        } else if (longitude < MIN_LONGITUDE || longitude > MAX_LONGITUDE) {
+            throw new IndexException("%s must be in range [%s, %s], but found %s",
+                                     name,
+                                     MIN_LONGITUDE,
+                                     MAX_LONGITUDE,
+                                     longitude);
+        }
+        return longitude;
     }
 }

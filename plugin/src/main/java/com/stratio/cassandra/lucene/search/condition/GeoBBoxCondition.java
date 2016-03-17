@@ -22,6 +22,7 @@ import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.shape.Rectangle;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.mapping.GeoPointMapper;
+import com.stratio.cassandra.lucene.util.GeospatialUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.spatial.SpatialStrategy;
@@ -67,10 +68,10 @@ public class GeoBBoxCondition extends SingleMapperCondition<GeoPointMapper> {
                             Double maxLongitude) {
         super(boost, field, GeoPointMapper.class);
 
-        this.minLatitude = GeoPointMapper.checkLatitude("min_latitude", minLatitude);
-        this.maxLatitude = GeoPointMapper.checkLatitude("max_latitude", maxLatitude);
-        this.minLongitude = GeoPointMapper.checkLongitude("min_longitude", minLongitude);
-        this.maxLongitude = GeoPointMapper.checkLongitude("max_longitude", maxLongitude);
+        this.minLatitude = GeospatialUtils.checkLatitude("min_latitude", minLatitude);
+        this.maxLatitude = GeospatialUtils.checkLatitude("max_latitude", maxLatitude);
+        this.minLongitude = GeospatialUtils.checkLongitude("min_longitude", minLongitude);
+        this.maxLongitude = GeospatialUtils.checkLongitude("max_longitude", maxLongitude);
 
         if (minLongitude > maxLongitude) {
             throw new IndexException("min_longitude must be lower than max_longitude");

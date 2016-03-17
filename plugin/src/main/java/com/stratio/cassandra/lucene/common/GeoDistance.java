@@ -123,4 +123,14 @@ public final class GeoDistance implements Comparable<GeoDistance> {
         return Double.compare(that.value, value) == 0 && unit == that.unit;
 
     }
+
+    @Override
+    public int hashCode() {
+        int result;
+        long temp;
+        temp = Double.doubleToLongBits(value);
+        result = (int) (temp ^ (temp >>> 32));
+        result = 31 * result + (unit != null ? unit.hashCode() : 0);
+        return result;
+    }
 }

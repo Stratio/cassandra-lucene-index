@@ -28,7 +28,7 @@ import com.stratio.cassandra.lucene.IndexException;
  */
 public class JTSNotFoundException extends IndexException {
 
-    static final String message = "JTS JAR is not provided due to license compatibility issues, please include " +
+    static final String MESSAGE = "JTS JAR is not provided due to license compatibility issues, please include " +
                                   "jts-core-1.14.0.jar in Cassandra lib directory in order to use GeoShapeMapper or " +
                                   "GeoShapeCondition";
 
@@ -36,6 +36,6 @@ public class JTSNotFoundException extends IndexException {
      * Default constructor.
      */
     public JTSNotFoundException() {
-        super(message);
+        super(MESSAGE);
     }
 }

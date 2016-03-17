@@ -215,7 +215,7 @@ public final class TokenMapper {
         private final boolean includeLower;
         private final boolean includeUpper;
 
-        public CacheKey(Long lower, Long upper, boolean includeLower, boolean includeUpper) {
+        CacheKey(Long lower, Long upper, boolean includeLower, boolean includeUpper) {
             this.lower = lower;
             this.upper = upper;
             this.includeLower = includeLower;

@@ -102,8 +102,8 @@ public final class PartitionMapper {
         for (ColumnDefinition columnDefinition : columnDefinitions) {
             String name = columnDefinition.name.toString();
             ByteBuffer value = components[columnDefinition.position()];
-            AbstractType<?> type = columnDefinition.cellValueType();
-            columns.add(Column.builder(name).buildWithDecomposed(value, type));
+            AbstractType<?> valueType = columnDefinition.cellValueType();
+            columns.add(Column.builder(name).buildWithDecomposed(value, valueType));
         }
     }
 

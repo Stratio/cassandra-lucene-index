@@ -26,6 +26,7 @@ import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.GeoPointMapper;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
+import com.stratio.cassandra.lucene.util.GeospatialUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.queries.function.ValueSource;
 import org.apache.lucene.spatial.SpatialStrategy;
@@ -62,8 +63,8 @@ public class GeoDistanceSortField extends SortField {
             throw new IndexException("Mapper name required");
         }
         this.mapper = mapper;
-        this.longitude = GeoPointMapper.checkLongitude("longitude", longitude);
-        this.latitude = GeoPointMapper.checkLatitude("latitude", latitude);
+        this.longitude = GeospatialUtils.checkLongitude("longitude", longitude);
+        this.latitude = GeospatialUtils.checkLatitude("latitude", latitude);
     }
 
     /**
