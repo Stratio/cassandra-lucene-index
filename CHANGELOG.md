@@ -2,6 +2,7 @@
 
 ## 3.0.4.1 (upcoming)
 
+* Upgrade to Lucene 5.5.0
 * Allow altering unmapped columns
 * Fix NPE while mapping geo points with explicitly null latitude/longitude value
 

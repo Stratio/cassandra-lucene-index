@@ -23,7 +23,7 @@ import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.search.condition.builder.DateRangeConditionBuilder;
 import org.apache.lucene.search.ConstantScoreQuery;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.spatial.prefix.IntersectsPrefixTreeFilter;
+import org.apache.lucene.spatial.prefix.IntersectsPrefixTreeQuery;
 import org.junit.Test;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
@@ -162,14 +162,11 @@ public class DateRangeConditionTest extends AbstractConditionTest {
         DateRangeCondition condition = new DateRangeCondition(null, "name", 1L, 2L, null);
         Query query = condition.query(schema);
         assertNotNull("Query is not built", query);
-        assertTrue("Query type is wrong", query instanceof ConstantScoreQuery);
-        query = ((ConstantScoreQuery) query).getQuery();
-        assertTrue("Query type is wrong", query instanceof IntersectsPrefixTreeFilter);
-        IntersectsPrefixTreeFilter filter = (IntersectsPrefixTreeFilter) query;
+        assertEquals("Query type is wrong", IntersectsPrefixTreeQuery.class, query.getClass());
         assertEquals("Query is wrong",
-                     "IntersectsPrefixTreeFilter(fieldName=name,queryShape=" +
+                     "IntersectsPrefixTreeQuery(fieldName=name,queryShape=" +
                      "[1970-01-01T00:00:00.001 TO 1970-01-01T00:00:00.002],detailLevel=9,prefixGridScanLevel=7)",
-                     filter.toString());
+                     query.toString());
     }
 
     @Test(expected = IndexException.class)
