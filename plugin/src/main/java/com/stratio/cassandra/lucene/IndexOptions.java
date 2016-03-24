@@ -61,9 +61,6 @@ public class IndexOptions {
     public static final String EXCLUDED_DATA_CENTERS_OPTION = "excluded_data_centers";
     public static final List<String> DEFAULT_EXCLUDED_DATA_CENTERS = Collections.emptyList();
 
-    public static final String TOKEN_RANGE_CACHE_SIZE_OPTION = "token_range_cache_size";
-    public static final int DEFAULT_TOKEN_RANGE_CACHE_SIZE = 16;
-
     public static final String SEARCH_CACHE_SIZE_OPTION = "search_cache_size";
     public static final int DEFAULT_SEARCH_CACHE_SIZE = 16;
 
@@ -96,9 +93,6 @@ public class IndexOptions {
     /** The size of the asynchronous indexing queues */
     public final int indexingQueuesSize;
 
-    /** The max size of the token range cache */
-    public final int tokenRangeCacheSize;
-
     /** The max size of the search cache */
     public final int searchCacheSize;
 
@@ -120,7 +114,6 @@ public class IndexOptions {
         indexingThreads = parseIndexingThreads(options);
         indexingQueuesSize = parseIndexingQueuesSize(options);
         excludedDataCenters = parseExcludedDataCenters(options);
-        tokenRangeCacheSize = parseTokenRangeCacheSize(options);
         searchCacheSize = parseSearchCacheSize(options);
         path = parsePath(options, tableMetadata, indexMetadata);
         schema = parseSchema(options, tableMetadata);
@@ -140,7 +133,6 @@ public class IndexOptions {
         parseIndexingThreads(options);
         parseIndexingQueuesSize(options);
         parseExcludedDataCenters(options);
-        parseTokenRangeCacheSize(options);
         parseSearchCacheSize(options);
         parseSchema(options, metadata);
         parsePath(options, metadata, null);
@@ -259,24 +251,6 @@ public class IndexOptions {
         }
     }
 
-    private static int parseTokenRangeCacheSize(Map<String, String> options) {
-        String tokenRangeCacheSizeOption = options.get(TOKEN_RANGE_CACHE_SIZE_OPTION);
-        if (tokenRangeCacheSizeOption != null) {
-            int tokenRangeCacheSize;
-            try {
-                tokenRangeCacheSize = Integer.parseInt(tokenRangeCacheSizeOption);
-            } catch (NumberFormatException e) {
-                throw new IndexException("'%s' must be a positive integer", TOKEN_RANGE_CACHE_SIZE_OPTION);
-            }
-            if (tokenRangeCacheSize < 0) {
-                throw new IndexException("'%s' must be positive", TOKEN_RANGE_CACHE_SIZE_OPTION);
-            }
-            return tokenRangeCacheSize;
-        } else {
-            return DEFAULT_TOKEN_RANGE_CACHE_SIZE;
-        }
-    }
-
     private static int parseSearchCacheSize(Map<String, String> options) {
         String searchCacheSizeOption = options.get(SEARCH_CACHE_SIZE_OPTION);
         if (searchCacheSizeOption != null) {
@@ -334,7 +308,6 @@ public class IndexOptions {
                           .add("indexingThreads", indexingThreads)
                           .add("indexingQueuesSize", indexingQueuesSize)
                           .add("excludedDataCenters", excludedDataCenters)
-                          .add("tokenRangeCacheSize", tokenRangeCacheSize)
                           .add("searchCacheSize", searchCacheSize)
                           .add("path", path)
                           .add("schema", schema)

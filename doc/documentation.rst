@@ -447,7 +447,6 @@ where <options> is a JSON object:
                    ('indexing_queues_size'   : '<int_value>',)?
                    ('directory_path'         : '<string_value>',)?
                    ('excluded_data_centers'  : '<string_value>',)?
-                   ('token_range_cache_size' : '<int_value>',)?
                    ('search_cache_size'      : '<int_value>',)?
                    'schema'                  : '<schema_definition>'};
 
@@ -469,7 +468,6 @@ All options take a value enclosed in single quotes:
 -  **excluded\_data\_centers**: The comma-separated list of the data centers
    to be excluded. The index will be created on this data centers but all the
    write operations will be silently ignored.
--  **token\_range\_cache\_size**: max number of token ranges to be cached. Defaults to ’16’.
 -  **search\_cache\_size**: max number of searches to be cached. Defaults to ’16’.
 -  **schema**: see below
 
@@ -1409,7 +1407,6 @@ Cassandra shell:
         'max_merge_mb'           : '5',
         'max_cached_mb'          : '30',
         'excluded_data_centers'  : 'dc2,dc3',
-        'token_range_cache_size' : '16',
         'search_cache_size'      : '16',
         'schema' : '{
             analyzers : {

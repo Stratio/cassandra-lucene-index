@@ -124,7 +124,7 @@ public abstract class IndexService {
 
         // Setup mapping
         schema = options.schema;
-        tokenMapper = new TokenMapper(options.tokenRangeCacheSize);
+        tokenMapper = new TokenMapper();
         partitionMapper = new PartitionMapper(metadata);
         columnsMapper = new ColumnsMapper();
         mapsMultiCells = metadata.allColumns()
@@ -345,7 +345,7 @@ public abstract class IndexService {
             return (ReadOrderGroup orderGroup) -> read(query, sort, after, command, orderGroup, cacheUpdater);
         } else {
             logger.debug("Search cache fails");
-            Query query = new CachingWrapperQuery(query(search, command));
+            Query query = query(search, command);
             searchCache.put(expression, command, query);
             SearchCacheUpdater cacheUpdater = searchCache.updater(expression, command, query);
             return (ReadOrderGroup orderGroup) -> read(query, sort, null, command, orderGroup, cacheUpdater);

@@ -18,8 +18,6 @@
 
 package com.stratio.cassandra.lucene.key;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import com.stratio.cassandra.lucene.IndexException;
 import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.db.DecoratedKey;
@@ -34,7 +32,10 @@ import org.apache.lucene.document.LongField;
 import org.apache.lucene.index.DocValuesType;
 import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.search.*;
+import org.apache.lucene.search.DocValuesRangeQuery;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.SortField;
+import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.util.BytesRef;
 import org.apache.lucene.util.BytesRefBuilder;
 import org.apache.lucene.util.NumericUtils;
@@ -64,19 +65,13 @@ public final class TokenMapper {
         FIELD_TYPE.freeze();
     }
 
-    /** A query cache of token range queries */
-    private final Cache<CacheKey, CachingWrapperQuery> cache;
-
     /**
      * Constructor taking the cache size.
-     *
-     * @param cacheSize the max token cache size
      */
-    public TokenMapper(int cacheSize) {
+    public TokenMapper() {
         if (!(DatabaseDescriptor.getPartitioner() instanceof Murmur3Partitioner)) {
             throw new IndexException("Only Murmur3 partitioner is supported");
         }
-        cache = CacheBuilder.newBuilder().maximumSize(cacheSize).build();
     }
 
     /**
@@ -175,15 +170,9 @@ public final class TokenMapper {
         Long start = lower.isMinimum() ? null : value(lower);
         Long stop = upper.isMinimum() ? null : value(upper);
 
-        // Do with cache
-        CacheKey cacheKey = new CacheKey(start, stop, includeLower, includeUpper);
-        CachingWrapperQuery cachedQuery = cache.getIfPresent(cacheKey);
-        if (cachedQuery == null) {
-            Query query = DocValuesRangeQuery.newLongRange(FIELD_NAME, start, stop, includeLower, includeUpper);
-            cachedQuery = new CachingWrapperQuery(query);
-            cache.put(cacheKey, cachedQuery);
-        }
-        return Optional.of(cachedQuery);
+        // Do query
+        Query query = DocValuesRangeQuery.newLongRange(FIELD_NAME, start, stop, includeLower, includeUpper);
+        return Optional.of(query);
     }
 
     /**
@@ -206,55 +195,5 @@ public final class TokenMapper {
      */
     public Query query(Token token) {
         return new TermQuery(new Term(FIELD_NAME, bytesRef(token)));
-    }
-
-    private static final class CacheKey {
-
-        private final Long lower;
-        private final Long upper;
-        private final boolean includeLower;
-        private final boolean includeUpper;
-
-        CacheKey(Long lower, Long upper, boolean includeLower, boolean includeUpper) {
-            this.lower = lower;
-            this.upper = upper;
-            this.includeLower = includeLower;
-            this.includeUpper = includeUpper;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-
-            CacheKey that = (CacheKey) o;
-
-            if (includeLower != that.includeLower) {
-                return false;
-            }
-            if (includeUpper != that.includeUpper) {
-                return false;
-            }
-
-            if (lower != null ? !lower.equals(that.lower) : that.lower != null) {
-                return false;
-            }
-            return upper != null ? upper.equals(that.upper) : that.upper == null;
-
-        }
-
-        @Override
-        public int hashCode() {
-            int result = lower != null ? lower.hashCode() : 0;
-            result = 31 * result + (upper != null ? upper.hashCode() : 0);
-            result = 31 * result + (includeLower ? 1 : 0);
-            result = 31 * result + (includeUpper ? 1 : 0);
-            return result;
-        }
     }
 }
