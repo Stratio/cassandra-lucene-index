@@ -88,9 +88,9 @@ public class IntegerMapper extends SingleColumnMapper.SingleFieldMapper<Integer>
     /** {@inheritDoc} */
     @Override
     public Field indexedField(String name, Integer value) {
-        IntField field = new IntField(name, value, STORE);
-        field.setBoost(boost);
-        return field;
+        IntField intField = new IntField(name, value, STORE);
+        intField.setBoost(boost);
+        return intField;
     }
 
     /** {@inheritDoc} */

@@ -140,21 +140,21 @@ public class BitemporalMapper extends Mapper {
     @Override
     public void addFields(Document document, Columns columns) {
 
-        BitemporalDateTime vtFrom = readBitemporalDate(columns, this.vtFrom);
-        BitemporalDateTime vtTo = readBitemporalDate(columns, this.vtTo);
-        BitemporalDateTime ttFrom = readBitemporalDate(columns, this.ttFrom);
-        BitemporalDateTime ttTo = readBitemporalDate(columns, this.ttTo);
+        BitemporalDateTime vtFromTime = readBitemporalDate(columns, vtFrom);
+        BitemporalDateTime vtToTime = readBitemporalDate(columns, vtTo);
+        BitemporalDateTime ttFromTime = readBitemporalDate(columns, ttFrom);
+        BitemporalDateTime ttToTime = readBitemporalDate(columns, ttTo);
 
-        if (vtFrom == null && vtTo == null && ttFrom == null && ttTo == null) {
+        if (vtFromTime == null && vtToTime == null && ttFromTime == null && ttToTime == null) {
             return;
         }
 
-        validate(vtFrom, vtTo, ttFrom, ttTo);
+        validate(vtFromTime, vtToTime, ttFromTime, ttToTime);
 
-        document.add(new LongField(field + VT_FROM_FIELD_SUFFIX, vtFrom.toDate().getTime(), STORE));
-        document.add(new LongField(field + VT_TO_FIELD_SUFFIX, vtTo.toDate().getTime(), STORE));
-        document.add(new LongField(field + TT_FROM_FIELD_SUFFIX, ttFrom.toDate().getTime(), STORE));
-        document.add(new LongField(field + TT_TO_FIELD_SUFFIX, ttTo.toDate().getTime(), STORE));
+        document.add(new LongField(field + VT_FROM_FIELD_SUFFIX, vtFromTime.toDate().getTime(), STORE));
+        document.add(new LongField(field + VT_TO_FIELD_SUFFIX, vtToTime.toDate().getTime(), STORE));
+        document.add(new LongField(field + TT_FROM_FIELD_SUFFIX, ttFromTime.toDate().getTime(), STORE));
+        document.add(new LongField(field + TT_TO_FIELD_SUFFIX, ttToTime.toDate().getTime(), STORE));
     }
 
     private void validate(BitemporalDateTime vtFrom,

@@ -111,7 +111,7 @@ public class SearchCacheEntry {
         }
 
         // Discard clustering
-        if (start.isPresent() &&
+        if (start.isPresent() && currentClustering.isPresent() &&
             comparator.compare(new Clustering(start.get().getRawValues()), currentClustering.get()) != 0) {
             return false;
         }

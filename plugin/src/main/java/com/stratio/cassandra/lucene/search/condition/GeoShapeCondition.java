@@ -87,7 +87,7 @@ public class GeoShapeCondition extends SingleFieldCondition {
         super(boost, field);
         this.geometry = GeospatialUtilsJTS.geometryFromWKT(CONTEXT, shape);
         this.operation = operation == null ? DEFAULT_OPERATION : operation;
-        this.transformations = (transformations == null) ? Collections.<GeoTransformation>emptyList() : transformations;
+        this.transformations = (transformations == null) ? Collections.emptyList() : transformations;
     }
 
     /** {@inheritDoc} */

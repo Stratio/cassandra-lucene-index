@@ -94,7 +94,7 @@ public class GeoShapeMapper extends SingleColumnMapper<String> {
         SpatialPrefixTree grid = new GeohashPrefixTree(SPATIAL_CONTEXT, this.maxLevels);
         strategy = new RecursivePrefixTreeStrategy(grid, field);
 
-        this.transformations = (transformations == null) ? Collections.<GeoTransformation>emptyList() : transformations;
+        this.transformations = (transformations == null) ? Collections.emptyList() : transformations;
     }
 
     /** {@inheritDoc} */
@@ -112,8 +112,8 @@ public class GeoShapeMapper extends SingleColumnMapper<String> {
         }
 
         // Add fields
-        for (IndexableField field : strategy.createIndexableFields(shape)) {
-            document.add(field);
+        for (IndexableField indexableField : strategy.createIndexableFields(shape)) {
+            document.add(indexableField);
         }
     }
 

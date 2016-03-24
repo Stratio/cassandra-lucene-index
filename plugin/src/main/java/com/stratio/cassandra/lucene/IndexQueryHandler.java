@@ -52,7 +52,7 @@ import static org.apache.cassandra.cql3.statements.RequestValidations.checkNotNu
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class IndexQueryHandler implements QueryHandler {
+class IndexQueryHandler implements QueryHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(IndexQueryHandler.class);
 

@@ -35,7 +35,7 @@ import org.apache.lucene.search.ScoreDoc;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class IndexReaderSkinny extends IndexReader {
+class IndexReaderSkinny extends IndexReader {
 
     private final IndexServiceSkinny service;
     private final SearchCacheUpdater cacheUpdater;
@@ -50,12 +50,12 @@ public class IndexReaderSkinny extends IndexReader {
      * @param documents the documents iterator
      * @param cacheUpdater the search cache updater
      */
-    public IndexReaderSkinny(IndexServiceSkinny service,
-                             ReadCommand command,
-                             ColumnFamilyStore table,
-                             ReadOrderGroup orderGroup,
-                             DocumentIterator documents,
-                             SearchCacheUpdater cacheUpdater) {
+    IndexReaderSkinny(IndexServiceSkinny service,
+                      ReadCommand command,
+                      ColumnFamilyStore table,
+                      ReadOrderGroup orderGroup,
+                      DocumentIterator documents,
+                      SearchCacheUpdater cacheUpdater) {
         super(command, table, orderGroup, documents);
         this.service = service;
         this.cacheUpdater = cacheUpdater;

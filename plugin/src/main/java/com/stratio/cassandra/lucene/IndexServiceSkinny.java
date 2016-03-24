@@ -41,7 +41,7 @@ import java.util.*;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class IndexServiceSkinny extends IndexService {
+class IndexServiceSkinny extends IndexService {
 
     /**
      * Constructor using the specified {@link IndexOptions}.
@@ -49,7 +49,7 @@ public class IndexServiceSkinny extends IndexService {
      * @param table the indexed table
      * @param indexMetadata the index metadata
      */
-    protected IndexServiceSkinny(ColumnFamilyStore table, IndexMetadata indexMetadata) {
+    IndexServiceSkinny(ColumnFamilyStore table, IndexMetadata indexMetadata) {
         super(table, indexMetadata);
     }
 

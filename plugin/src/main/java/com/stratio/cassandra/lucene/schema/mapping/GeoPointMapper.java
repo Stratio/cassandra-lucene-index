@@ -131,11 +131,11 @@ public class GeoPointMapper extends Mapper {
 
         Point point = SPATIAL_CONTEXT.makePoint(lon, lat);
         if (indexed) {
-            for (IndexableField field : distanceStrategy.createIndexableFields(point)) {
-                document.add(field);
+            for (IndexableField indexableField : distanceStrategy.createIndexableFields(point)) {
+                document.add(indexableField);
             }
-            for (IndexableField field : bboxStrategy.createIndexableFields(point)) {
-                document.add(field);
+            for (IndexableField indexableField : bboxStrategy.createIndexableFields(point)) {
+                document.add(indexableField);
             }
         }
 

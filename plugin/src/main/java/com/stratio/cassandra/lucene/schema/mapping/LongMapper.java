@@ -88,9 +88,9 @@ public class LongMapper extends SingleColumnMapper.SingleFieldMapper<Long> {
     /** {@inheritDoc} */
     @Override
     public Field indexedField(String name, Long value) {
-        LongField field = new LongField(name, value, STORE);
-        field.setBoost(boost);
-        return field;
+        LongField longField = new LongField(name, value, STORE);
+        longField.setBoost(boost);
+        return longField;
     }
 
     /** {@inheritDoc} */

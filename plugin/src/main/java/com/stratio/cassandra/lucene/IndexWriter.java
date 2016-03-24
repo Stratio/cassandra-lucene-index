@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public abstract class IndexWriter implements Index.Indexer {
+abstract class IndexWriter implements Index.Indexer {
 
     protected static final Logger logger = LoggerFactory.getLogger(IndexWriter.class);
 
@@ -51,11 +51,11 @@ public abstract class IndexWriter implements Index.Indexer {
      * @param opGroup operation group spanning the update operation
      * @param transactionType what kind of update is being performed on the base data
      */
-    protected IndexWriter(IndexService service,
-                          DecoratedKey key,
-                          int nowInSec,
-                          OpOrder.Group opGroup,
-                          IndexTransaction.Type transactionType) {
+    IndexWriter(IndexService service,
+                DecoratedKey key,
+                int nowInSec,
+                OpOrder.Group opGroup,
+                IndexTransaction.Type transactionType) {
         this.service = service;
         this.key = key;
         this.nowInSec = nowInSec;

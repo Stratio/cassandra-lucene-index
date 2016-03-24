@@ -30,7 +30,7 @@ import org.apache.cassandra.db.rows.UnfilteredRowIterator;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public abstract class IndexReader implements UnfilteredPartitionIterator {
+abstract class IndexReader implements UnfilteredPartitionIterator {
 
     protected final ReadCommand command;
     protected final ColumnFamilyStore table;
@@ -46,10 +46,7 @@ public abstract class IndexReader implements UnfilteredPartitionIterator {
      * @param orderGroup the order group of the read operation
      * @param documents the documents iterator
      */
-    public IndexReader(ReadCommand command,
-                       ColumnFamilyStore table,
-                       ReadOrderGroup orderGroup,
-                       DocumentIterator documents) {
+    IndexReader(ReadCommand command, ColumnFamilyStore table, ReadOrderGroup orderGroup, DocumentIterator documents) {
         this.command = command;
         this.table = table;
         this.orderGroup = orderGroup;

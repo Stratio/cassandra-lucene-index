@@ -115,8 +115,8 @@ public class DateRangeMapper extends Mapper {
         validate(fromDate, toDate);
 
         NRShape shape = makeShape(fromDate, toDate);
-        for (IndexableField field : strategy.createIndexableFields(shape)) {
-            document.add(field);
+        for (IndexableField indexableField : strategy.createIndexableFields(shape)) {
+            document.add(indexableField);
         }
     }
 

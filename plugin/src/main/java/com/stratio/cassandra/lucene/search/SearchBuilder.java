@@ -54,7 +54,7 @@ public class SearchBuilder implements Builder<Search> {
     private boolean refresh;
 
     /** Default constructor. */
-    public SearchBuilder() {
+    SearchBuilder() {
     }
 
     /**

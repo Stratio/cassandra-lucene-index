@@ -33,7 +33,7 @@ import java.util.Arrays;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class KeyEntry implements Comparable<KeyEntry> {
+class KeyEntry implements Comparable<KeyEntry> {
 
     private final KeyMapper mapper;
     private final ByteBuffer[] components;
@@ -44,7 +44,7 @@ public class KeyEntry implements Comparable<KeyEntry> {
      * @param mapper the mapper
      * @param components the binary components
      */
-    public KeyEntry(KeyMapper mapper, ByteBuffer[] components) {
+    KeyEntry(KeyMapper mapper, ByteBuffer[] components) {
         this.mapper = mapper;
         this.components = Arrays.copyOf(components, components.length);
     }
@@ -54,7 +54,7 @@ public class KeyEntry implements Comparable<KeyEntry> {
      *
      * @return the token
      */
-    public Token getToken() {
+    Token getToken() {
         return Murmur3Partitioner.instance.getTokenFactory().fromByteArray(components[0]);
     }
 
@@ -72,7 +72,7 @@ public class KeyEntry implements Comparable<KeyEntry> {
      *
      * @return the partition key
      */
-    public DecoratedKey getDecoratedKey() {
+    DecoratedKey getDecoratedKey() {
         return DatabaseDescriptor.getPartitioner().decorateKey(getKey());
     }
 

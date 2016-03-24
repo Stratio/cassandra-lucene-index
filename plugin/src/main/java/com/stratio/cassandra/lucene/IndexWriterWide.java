@@ -34,7 +34,7 @@ import java.util.Optional;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class IndexWriterWide extends IndexWriter {
+class IndexWriterWide extends IndexWriter {
 
     private final NavigableSet<Clustering> rowsToRead;
     private final Map<Clustering, Optional<Row>> rows;
@@ -48,11 +48,11 @@ public class IndexWriterWide extends IndexWriter {
      * @param opGroup operation group spanning the update operation
      * @param transactionType what kind of update is being performed on the base data
      */
-    public IndexWriterWide(IndexServiceWide service,
-                           DecoratedKey key,
-                           int nowInSec,
-                           OpOrder.Group opGroup,
-                           IndexTransaction.Type transactionType) {
+    IndexWriterWide(IndexServiceWide service,
+                    DecoratedKey key,
+                    int nowInSec,
+                    OpOrder.Group opGroup,
+                    IndexTransaction.Type transactionType) {
         super(service, key, nowInSec, opGroup, transactionType);
         rowsToRead = service.clusterings();
         rows = new LinkedHashMap<>();

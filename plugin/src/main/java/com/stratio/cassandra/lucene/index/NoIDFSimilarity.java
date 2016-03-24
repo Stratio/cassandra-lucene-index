@@ -18,15 +18,15 @@
 
 package com.stratio.cassandra.lucene.index;
 
-import org.apache.lucene.search.similarities.DefaultSimilarity;
+import org.apache.lucene.search.similarities.ClassicSimilarity;
 
 /**
- * {@link DefaultSimilarity} that ignores the inverse document frequency, doing the similarity independent of the index
+ * {@link ClassicSimilarity} that ignores the inverse document frequency, doing the similarity independent of the index
  * context.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-class NoIDFSimilarity extends DefaultSimilarity {
+class NoIDFSimilarity extends ClassicSimilarity {
 
     /**
      * Returns a constant neutral score value of {@code 1.0}.

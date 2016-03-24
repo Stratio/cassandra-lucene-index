@@ -35,7 +35,7 @@ import java.util.NavigableSet;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class IndexReaderWide extends IndexReader {
+class IndexReaderWide extends IndexReader {
 
     private final IndexServiceWide service;
     private final ClusteringComparator comparator;
@@ -52,12 +52,12 @@ public class IndexReaderWide extends IndexReader {
      * @param documents the documents iterator
      * @param cacheUpdater the search cache updater
      */
-    public IndexReaderWide(IndexServiceWide service,
-                           ReadCommand command,
-                           ColumnFamilyStore table,
-                           ReadOrderGroup orderGroup,
-                           DocumentIterator documents,
-                           SearchCacheUpdater cacheUpdater) {
+    IndexReaderWide(IndexServiceWide service,
+                    ReadCommand command,
+                    ColumnFamilyStore table,
+                    ReadOrderGroup orderGroup,
+                    DocumentIterator documents,
+                    SearchCacheUpdater cacheUpdater) {
         super(command, table, orderGroup, documents);
         this.service = service;
         this.comparator = service.metadata.comparator;

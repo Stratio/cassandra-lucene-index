@@ -133,7 +133,7 @@ public class BlockingExecutor extends ThreadPoolExecutor {
 
     /**
      * After calling super's implementation of this method, the amount of tasks which are currently in process is
-     * decremented. Finally, if the amount of tasks currently running is zero the synchronizer's signallAll() method is
+     * decremented. Finally, if the amount of tasks currently running is zero the synchronizer's signalAll() method is
      * invoked, thus anyone awaiting on this instance of ThreadPoolExecutor is released.
      *
      * @see ThreadPoolExecutor#afterExecute(Runnable, Throwable)
@@ -193,7 +193,7 @@ public class BlockingExecutor extends ThreadPoolExecutor {
      * is currently sent to the ThreadPool not from this thread context. Thus it is not safe to call this method in case
      * there are several threads feeding the TreadPool with tasks (calling execute). The safe way to call this method is
      * from the thread that is calling execute and when there is only one such thread. Note that this method differs
-     * from awaitTemination, as it can be called without shutting down the ThreadPoolExecuter.
+     * from awaitTermination, as it can be called without shutting down the ThreadPoolExecuter.
      *
      * @throws InterruptedException when the internal condition throws it.
      */
@@ -207,7 +207,7 @@ public class BlockingExecutor extends ThreadPoolExecutor {
      *
      * @param timeout The timeout.
      * @param timeUnit The time unit.
-     * @return false if the timeout elapsed, true if the synch event we are waiting for had happened.
+     * @return false if the timeout elapsed, true if the sync event we are waiting for had happened.
      * @throws InterruptedException when the internal condition throws it.
      */
     public boolean await(long timeout, TimeUnit timeUnit) throws InterruptedException {

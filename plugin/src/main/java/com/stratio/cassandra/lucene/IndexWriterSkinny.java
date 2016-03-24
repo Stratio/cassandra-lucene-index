@@ -31,7 +31,7 @@ import java.util.Optional;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class IndexWriterSkinny extends IndexWriter {
+class IndexWriterSkinny extends IndexWriter {
 
     private Optional<Row> optionalRow;
 
@@ -44,11 +44,11 @@ public class IndexWriterSkinny extends IndexWriter {
      * @param opGroup operation group spanning the update operation
      * @param transactionType what kind of update is being performed on the base data
      */
-    public IndexWriterSkinny(IndexServiceSkinny service,
-                             DecoratedKey key,
-                             int nowInSec,
-                             OpOrder.Group opGroup,
-                             IndexTransaction.Type transactionType) {
+    IndexWriterSkinny(IndexServiceSkinny service,
+                      DecoratedKey key,
+                      int nowInSec,
+                      OpOrder.Group opGroup,
+                      IndexTransaction.Type transactionType) {
         super(service, key, nowInSec, opGroup, transactionType);
         optionalRow = Optional.empty();
     }

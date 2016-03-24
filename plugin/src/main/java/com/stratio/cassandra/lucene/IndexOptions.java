@@ -105,7 +105,7 @@ public class IndexOptions {
      * @param tableMetadata the indexed table metadata
      * @param indexMetadata the index metadata
      */
-    public IndexOptions(CFMetaData tableMetadata, IndexMetadata indexMetadata) {
+    IndexOptions(CFMetaData tableMetadata, IndexMetadata indexMetadata) {
         Map<String, String> options = indexMetadata.options;
         refreshSeconds = parseRefresh(options);
         ramBufferMB = parseRamBufferMB(options);
@@ -125,7 +125,7 @@ public class IndexOptions {
      * @param options the options to be validated
      * @param metadata the indexed table metadata
      */
-    public static void validateOptions(Map<String, String> options, CFMetaData metadata) {
+    static void validateOptions(Map<String, String> options, CFMetaData metadata) {
         parseRefresh(options);
         parseRamBufferMB(options);
         parseMaxMergeMB(options);

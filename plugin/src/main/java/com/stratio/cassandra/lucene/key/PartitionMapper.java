@@ -53,7 +53,7 @@ public final class PartitionMapper {
     public static final String FIELD_NAME = "_partition_key";
 
     /** The Lucene field type. */
-    public static final FieldType FIELD_TYPE = new FieldType();
+    private static final FieldType FIELD_TYPE = new FieldType();
 
     static {
         FIELD_TYPE.setOmitNorms(true);
@@ -161,17 +161,7 @@ public final class PartitionMapper {
     public DecoratedKey decoratedKey(Document document) {
         BytesRef bytesRef = document.getBinaryValue(FIELD_NAME);
         ByteBuffer bb = ByteBufferUtils.byteBuffer(bytesRef);
-        return decoratedKey(bb);
-    }
-
-    /**
-     * Returns the specified binary partition key as a {@link DecoratedKey}.
-     *
-     * @param partitionKey the binary representation of a partition key
-     * @return the specified partition key as a a {@link DecoratedKey}
-     */
-    public DecoratedKey decoratedKey(ByteBuffer partitionKey) {
-        return partitioner.decorateKey(partitionKey);
+        return partitioner.decorateKey(bb);
     }
 
     /**

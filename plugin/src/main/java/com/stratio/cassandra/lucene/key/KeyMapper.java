@@ -62,7 +62,7 @@ public final class KeyMapper {
     public static final String FIELD_NAME = "_primary_key";
 
     /** The Lucene field type. */
-    public static final FieldType FIELD_TYPE = new FieldType();
+    private static final FieldType FIELD_TYPE = new FieldType();
 
     static {
         FIELD_TYPE.setOmitNorms(true);
@@ -102,7 +102,7 @@ public final class KeyMapper {
      *
      * @return the comparator
      */
-    public ClusteringComparator clusteringComparator() {
+    ClusteringComparator clusteringComparator() {
         return clusteringComparator;
     }
 
@@ -111,7 +111,7 @@ public final class KeyMapper {
      *
      * @return the composite type
      */
-    public CompositeType clusteringType() {
+    CompositeType clusteringType() {
         return clusteringType;
     }
 
@@ -137,7 +137,7 @@ public final class KeyMapper {
      * @param bytesRef the Lucene field binary value
      * @return the represented key entry
      */
-    public KeyEntry entry(BytesRef bytesRef) {
+    KeyEntry entry(BytesRef bytesRef) {
         ByteBuffer bb = ByteBufferUtils.byteBuffer(bytesRef);
         ByteBuffer[] components = type.split(bb);
         return new KeyEntry(this, components);
@@ -161,7 +161,7 @@ public final class KeyMapper {
      * @param clustering the clustering key
      * @return the {@link ByteBuffer} representation of the primary key
      */
-    public ByteBuffer byteBuffer(DecoratedKey key, Clustering clustering) {
+    private ByteBuffer byteBuffer(DecoratedKey key, Clustering clustering) {
         return type.builder()
                    .add(TokenMapper.byteBuffer(key.getToken()))
                    .add(key.getKey())
@@ -175,7 +175,7 @@ public final class KeyMapper {
      * @param clustering the clustering key
      * @return the byte buffer representing {@code clustering}
      */
-    public ByteBuffer byteBuffer(Clustering clustering) {
+    private ByteBuffer byteBuffer(Clustering clustering) {
         CompositeType.Builder builder = type.builder();
         for (ByteBuffer component : clustering.getRawValues()) {
             builder.add(component);
@@ -217,7 +217,7 @@ public final class KeyMapper {
      * @param clustering the clustering key
      * @return the Lucene field binary value
      */
-    public BytesRef bytesRef(DecoratedKey key, Clustering clustering) {
+    BytesRef bytesRef(DecoratedKey key, Clustering clustering) {
         ByteBuffer bb = byteBuffer(key, clustering);
         return ByteBufferUtils.bytesRef(bb);
     }

@@ -91,9 +91,9 @@ public class FloatMapper extends SingleColumnMapper.SingleFieldMapper<Float> {
     /** {@inheritDoc} */
     @Override
     public Field indexedField(String name, Float value) {
-        FloatField field = new FloatField(name, value, STORE);
-        field.setBoost(boost);
-        return field;
+        FloatField floatField = new FloatField(name, value, STORE);
+        floatField.setBoost(boost);
+        return floatField;
     }
 
     /** {@inheritDoc} */

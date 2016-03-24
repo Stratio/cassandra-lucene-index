@@ -47,7 +47,7 @@ import static org.apache.lucene.search.BooleanClause.Occur.SHOULD;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class IndexServiceWide extends IndexService {
+class IndexServiceWide extends IndexService {
 
     private final KeyMapper keyMapper;
 
@@ -57,7 +57,7 @@ public class IndexServiceWide extends IndexService {
      * @param table the indexed table
      * @param indexMetadata the index metadata
      */
-    protected IndexServiceWide(ColumnFamilyStore table, IndexMetadata indexMetadata) {
+    IndexServiceWide(ColumnFamilyStore table, IndexMetadata indexMetadata) {
         super(table, indexMetadata);
         keyMapper = new KeyMapper(metadata);
     }

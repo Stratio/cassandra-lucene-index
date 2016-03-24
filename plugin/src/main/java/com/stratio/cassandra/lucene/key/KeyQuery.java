@@ -40,7 +40,7 @@ import java.io.IOException;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class KeyQuery extends MultiTermQuery {
+class KeyQuery extends MultiTermQuery {
 
     public static final Logger logger = LoggerFactory.getLogger(KeyMapper.class);
 
@@ -61,12 +61,12 @@ public class KeyQuery extends MultiTermQuery {
      * @param acceptLowerConflicts if accept lower token conflicts
      * @param acceptUpperConflicts if accept upper token conflicts
      */
-    public KeyQuery(KeyMapper mapper,
-                    DecoratedKey key,
-                    ClusteringPrefix start,
-                    ClusteringPrefix stop,
-                    boolean acceptLowerConflicts,
-                    boolean acceptUpperConflicts) {
+    KeyQuery(KeyMapper mapper,
+             DecoratedKey key,
+             ClusteringPrefix start,
+             ClusteringPrefix stop,
+             boolean acceptLowerConflicts,
+             boolean acceptUpperConflicts) {
         super(KeyMapper.FIELD_NAME);
         this.mapper = mapper;
         this.key = key;

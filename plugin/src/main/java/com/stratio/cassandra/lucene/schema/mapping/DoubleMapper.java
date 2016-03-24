@@ -90,9 +90,9 @@ public class DoubleMapper extends SingleColumnMapper.SingleFieldMapper<Double> {
     /** {@inheritDoc} */
     @Override
     public Field indexedField(String name, Double value) {
-        DoubleField field = new DoubleField(name, value, STORE);
-        field.setBoost(boost);
-        return field;
+        DoubleField doubleField = new DoubleField(name, value, STORE);
+        doubleField.setBoost(boost);
+        return doubleField;
     }
 
     /** {@inheritDoc} */

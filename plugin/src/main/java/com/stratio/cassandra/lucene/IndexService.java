@@ -72,7 +72,7 @@ import static org.apache.lucene.search.SortField.FIELD_SCORE;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public abstract class IndexService {
+abstract class IndexService {
 
     protected static final Logger logger = LoggerFactory.getLogger(IndexService.class);
 
@@ -81,12 +81,12 @@ public abstract class IndexService {
     protected final FSIndex lucene;
     protected final String name;
     protected final String qualifiedName;
-    protected final TaskQueue queue;
+    private final TaskQueue queue;
     protected final Schema schema;
     protected final TokenMapper tokenMapper;
     protected final PartitionMapper partitionMapper;
     protected final ColumnsMapper columnsMapper;
-    protected final boolean mapsMultiCells;
+    private final boolean mapsMultiCells;
 
     private final SearchCache searchCache;
 
@@ -96,7 +96,7 @@ public abstract class IndexService {
      * @param indexedTable the indexed table
      * @param indexMetadata the index metadata
      */
-    protected IndexService(ColumnFamilyStore indexedTable, IndexMetadata indexMetadata) {
+    IndexService(ColumnFamilyStore indexedTable, IndexMetadata indexMetadata) {
         table = indexedTable;
         metadata = table.metadata;
 
@@ -215,7 +215,7 @@ public abstract class IndexService {
      * @param row the {@link Row}
      * @return {@code true} if read-before-write is required, {@code false} otherwise
      */
-    public boolean needsReadBeforeWrite(DecoratedKey key, Row row) {
+    boolean needsReadBeforeWrite(DecoratedKey key, Row row) {
         if (mapsMultiCells) {
             return true;
         } else {
@@ -230,7 +230,7 @@ public abstract class IndexService {
      * @param clusterings the clusterings to be included in the set
      * @return the navigable sorted set
      */
-    public NavigableSet<Clustering> clusterings(Clustering... clusterings) {
+    NavigableSet<Clustering> clusterings(Clustering... clusterings) {
         NavigableSet<Clustering> sortedClusterings = new TreeSet<>(metadata.comparator);
         if (clusterings.length > 0) {
             sortedClusterings.addAll(Arrays.asList(clusterings));
@@ -244,7 +244,7 @@ public abstract class IndexService {
      * @param document the {@link Document} containing the partition key to be get
      * @return the {@link DecoratedKey} contained in the specified Lucene {@link Document}
      */
-    public DecoratedKey decoratedKey(Document document) {
+    DecoratedKey decoratedKey(Document document) {
         return partitionMapper.decoratedKey(document);
     }
 
@@ -257,23 +257,23 @@ public abstract class IndexService {
      * @param transactionType what kind of update is being performed on the base data
      * @return the newly created {@code IndexWriter}
      */
-    public abstract IndexWriter indexWriter(DecoratedKey key,
-                                            int nowInSec,
-                                            OpOrder.Group opGroup,
-                                            IndexTransaction.Type transactionType);
+    abstract IndexWriter indexWriter(DecoratedKey key,
+                                     int nowInSec,
+                                     OpOrder.Group opGroup,
+                                     IndexTransaction.Type transactionType);
 
     /** Commits the pending changes. */
-    public final void commit() {
+    final void commit() {
         queue.submitSynchronous(lucene::commit);
     }
 
     /** Deletes all the index contents. */
-    public final void truncate() {
+    final void truncate() {
         queue.submitSynchronous(lucene::truncate);
     }
 
     /** Closes and removes all the index files. */
-    public final void delete() {
+    final void delete() {
         queue.shutdown();
         lucene.delete();
     }
@@ -284,7 +284,7 @@ public abstract class IndexService {
      * @param key the partition key
      * @param row the row to be upserted
      */
-    public void upsert(DecoratedKey key, Row row) {
+    void upsert(DecoratedKey key, Row row) {
         queue.submitAsynchronous(key, () -> document(key, row).ifPresent(document -> {
             Term term = term(key, row);
             lucene.upsert(term, document);
@@ -297,7 +297,7 @@ public abstract class IndexService {
      * @param key the partition key
      * @param row the row to be deleted
      */
-    public void delete(DecoratedKey key, Row row) {
+    void delete(DecoratedKey key, Row row) {
         queue.submitAsynchronous(key, () -> {
             Term term = term(key, row);
             lucene.delete(term);
@@ -309,7 +309,7 @@ public abstract class IndexService {
      *
      * @param key the partition key
      */
-    public void delete(DecoratedKey key) {
+    void delete(DecoratedKey key) {
         queue.submitAsynchronous(key, () -> {
             Term term = term(key);
             lucene.delete(term);
@@ -322,7 +322,7 @@ public abstract class IndexService {
      * @param command the read command being executed
      * @return a searcher with which to perform the supplied command
      */
-    public Index.Searcher searcher(ReadCommand command) {
+    Index.Searcher searcher(ReadCommand command) {
 
         // Parse search
         String expression = expression(command);
@@ -358,7 +358,7 @@ public abstract class IndexService {
      * @param command the read command containing the {@link Search}
      * @return the {@link Search} contained in {@code command}
      */
-    public Search search(ReadCommand command) {
+    private Search search(ReadCommand command) {
         return SearchBuilder.fromJson(expression(command)).build();
     }
 
@@ -368,7 +368,7 @@ public abstract class IndexService {
      * @param command the read command containing the {@link Search}
      * @return the {@link Search} contained in {@code command}
      */
-    public String expression(ReadCommand command) {
+    private String expression(ReadCommand command) {
         for (Expression expression : command.rowFilter().getExpressions()) {
             if (expression.isCustom()) {
                 RowFilter.CustomExpression customExpression = (RowFilter.CustomExpression) expression;
@@ -388,7 +388,7 @@ public abstract class IndexService {
      * @param command the command
      * @return a Lucene {@link Query}
      */
-    public Query query(Search search, ReadCommand command) {
+    private Query query(Search search, ReadCommand command) {
         Query searchQuery = search.query(schema);
         Optional<Query> maybeKeyRangeQuery = query(command);
         if (maybeKeyRangeQuery.isPresent()) {
@@ -439,25 +439,13 @@ public abstract class IndexService {
     abstract Optional<Query> query(DataRange dataRange);
 
     /**
-     * Returns a Lucene {@link Query} to retrieve all the rows in the specified partition position.
-     *
-     * @param position the ring position
-     * @return the query
-     */
-    public Query query(PartitionPosition position) {
-        return position instanceof DecoratedKey
-               ? partitionMapper.query((DecoratedKey) position)
-               : tokenMapper.query(position.getToken());
-    }
-
-    /**
      * Returns a Lucene {@link Query} to retrieve all the rows in the specified partition range.
      *
      * @param start the lower accepted partition position, {@code null} means no lower limit
      * @param stop the upper accepted partition position, {@code null} means no upper limit
      * @return the query, or {@code null} if it doesn't filter anything
      */
-    public Optional<Query> query(PartitionPosition start, PartitionPosition stop) {
+    Optional<Query> query(PartitionPosition start, PartitionPosition stop) {
         return tokenMapper.query(start, stop);
     }
 
@@ -489,10 +477,10 @@ public abstract class IndexService {
      * @param opGroup operation group spanning the calling operation
      * @return a {@link Row} iterator
      */
-    public UnfilteredRowIterator read(DecoratedKey key,
-                                      NavigableSet<Clustering> clusterings,
-                                      int nowInSec,
-                                      OpOrder.Group opGroup) {
+    UnfilteredRowIterator read(DecoratedKey key,
+                               NavigableSet<Clustering> clusterings,
+                               int nowInSec,
+                               OpOrder.Group opGroup) {
         ClusteringIndexNamesFilter filter = new ClusteringIndexNamesFilter(clusterings, false);
         ColumnFilter columnFilter = ColumnFilter.all(metadata);
         return SinglePartitionReadCommand.create(metadata, nowInSec, key, columnFilter, filter)
@@ -507,7 +495,7 @@ public abstract class IndexService {
      * @param opGroup operation group spanning the calling operation
      * @return a {@link Row} iterator
      */
-    public UnfilteredRowIterator read(DecoratedKey key, int nowInSec, OpOrder.Group opGroup) {
+    UnfilteredRowIterator read(DecoratedKey key, int nowInSec, OpOrder.Group opGroup) {
         return read(key, clusterings(Clustering.EMPTY), nowInSec, opGroup);
     }
 
@@ -522,12 +510,12 @@ public abstract class IndexService {
      * @param cacheUpdater the search cache updater
      * @return the local {@link Row}s satisfying the search
      */
-    public UnfilteredPartitionIterator read(Query query,
-                                            Sort sort,
-                                            ScoreDoc after,
-                                            ReadCommand command,
-                                            ReadOrderGroup orderGroup,
-                                            SearchCacheUpdater cacheUpdater) {
+    private UnfilteredPartitionIterator read(Query query,
+                                             Sort sort,
+                                             ScoreDoc after,
+                                             ReadCommand command,
+                                             ReadOrderGroup orderGroup,
+                                             SearchCacheUpdater cacheUpdater) {
         int limit = command.limits().count();
         DocumentIterator documents = lucene.search(query, sort, after, limit, fieldsToLoad());
         return indexReader(documents, command, orderGroup, cacheUpdater);
@@ -542,10 +530,10 @@ public abstract class IndexService {
      * @param cacheUpdater the search cache updater
      * @return the local {@link Row}s satisfying the search
      */
-    public abstract IndexReader indexReader(DocumentIterator documents,
-                                            ReadCommand command,
-                                            ReadOrderGroup orderGroup,
-                                            SearchCacheUpdater cacheUpdater);
+    abstract IndexReader indexReader(DocumentIterator documents,
+                                     ReadCommand command,
+                                     ReadOrderGroup orderGroup,
+                                     SearchCacheUpdater cacheUpdater);
 
     /**
      * Post processes in the coordinator node the results of a distributed search. Gets the k globally best results from
@@ -555,7 +543,7 @@ public abstract class IndexService {
      * @param command the read command
      * @return the k globally best results
      */
-    public PartitionIterator postProcess(PartitionIterator partitions, ReadCommand command) {
+    PartitionIterator postProcess(PartitionIterator partitions, ReadCommand command) {
 
         Search search = search(command);
 
@@ -611,9 +599,10 @@ public abstract class IndexService {
                 SimpleRowIterator rowIterator = pair.right;
                 Row row = rowIterator.getRow();
                 Term term = term(key, row);
-                Document document = document(key, row).get();
-                rowsByTerm.put(term, rowIterator);
-                index.add(document);
+                document(key, row).ifPresent(doc -> {
+                    rowsByTerm.put(term, rowIterator);
+                    index.add(doc);
+                });
             }
 
             // Repeat search to sort partial results
@@ -641,7 +630,7 @@ public abstract class IndexService {
      *
      * @param update the partition update containing the values to be validated
      */
-    public void validate(PartitionUpdate update) {
+    void validate(PartitionUpdate update) {
         DecoratedKey key = update.partitionKey();
         for (Row row : update) {
             schema.validate(columns(key, row));

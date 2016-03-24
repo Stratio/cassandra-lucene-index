@@ -51,10 +51,10 @@ import java.util.Optional;
 public final class TokenMapper {
 
     /** The Lucene field name */
-    static final String FIELD_NAME = "_token";
+    private static final String FIELD_NAME = "_token";
 
     /** The Lucene field type */
-    static final FieldType FIELD_TYPE = new FieldType();
+    private static final FieldType FIELD_TYPE = new FieldType();
 
     static {
         FIELD_TYPE.setTokenized(true);
@@ -103,7 +103,7 @@ public final class TokenMapper {
      * @param token a Murmur3 token
      * @return the {@code token}'s {code ByteBuffer} value
      */
-    public static ByteBuffer byteBuffer(Token token) {
+    static ByteBuffer byteBuffer(Token token) {
         return LongType.instance.decompose(value(token));
     }
 
@@ -135,7 +135,7 @@ public final class TokenMapper {
      * @param position a {@link PartitionPosition}
      * @return {@code true} if {@code position} must be included, {@code false} otherwise
      */
-    public boolean includeStart(PartitionPosition position) {
+    private static boolean includeStart(PartitionPosition position) {
         return position.kind() == PartitionPosition.Kind.MIN_BOUND;
     }
 
@@ -145,7 +145,7 @@ public final class TokenMapper {
      * @param position a {@link PartitionPosition}
      * @return {@code true} if {@code position} must be included, {@code false} otherwise
      */
-    public boolean includeStop(PartitionPosition position) {
+    private static boolean includeStop(PartitionPosition position) {
         return position.kind() == PartitionPosition.Kind.MAX_BOUND;
     }
 

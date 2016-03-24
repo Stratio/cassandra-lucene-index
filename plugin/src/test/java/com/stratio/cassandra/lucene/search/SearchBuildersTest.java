@@ -87,11 +87,12 @@ public class SearchBuildersTest {
 
     @Test
     public void testPhrase() throws IOException {
-        PhraseConditionBuilder builder = phrase("field", "value1 value2");
+        PhraseConditionBuilder builder = phrase("field", "value1 value2").slop(2);
         assertNotNull("Condition builder is not built", builder);
         PhraseCondition condition = builder.build();
         assertEquals("Condition field is not set", "field", condition.field);
         assertEquals("Condition value is not set", "value1 value2", condition.value);
+        assertEquals("Condition slop is not set", 2, condition.slop);
     }
 
     @Test

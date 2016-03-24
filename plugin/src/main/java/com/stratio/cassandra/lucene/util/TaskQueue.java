@@ -60,12 +60,7 @@ public class TaskQueue {
                                                 0,
                                                 TimeUnit.NANOSECONDS,
                                                 null);
-                pools[i].submit(new Runnable() {
-                    @Override
-                    public void run() {
-                        logger.debug("Task queue starts");
-                    }
-                });
+                pools[i].submit(() -> logger.debug("Task queue starts"));
             }
         }
     }

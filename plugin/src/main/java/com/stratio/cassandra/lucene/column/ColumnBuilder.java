@@ -40,7 +40,7 @@ public class ColumnBuilder {
      *
      * @param cellName the cell name
      */
-    public ColumnBuilder(String cellName) {
+    ColumnBuilder(String cellName) {
         this.cellName = cellName;
         udtNames = new ArrayList<>();
         mapNames = new ArrayList<>();
@@ -78,7 +78,7 @@ public class ColumnBuilder {
      * @param name the UDT name component
      * @return this
      */
-    public ColumnBuilder withUDTName(String name) {
+    ColumnBuilder withUDTName(String name) {
         ColumnBuilder clone = copy();
         clone.udtNames.add(name);
         return clone;
@@ -90,7 +90,7 @@ public class ColumnBuilder {
      * @param name the map key name component
      * @return this
      */
-    public ColumnBuilder withMapName(String name) {
+    ColumnBuilder withMapName(String name) {
         ColumnBuilder clone = copy();
         clone.mapNames.add(name);
         return clone;
