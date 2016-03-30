@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.1.8.6 (upcoming)
+
+* Skip schema validation in already created indexes
+
 ## 2.1.8.5 (9 September 2015)
 
  * Remove problematic logback.xml
