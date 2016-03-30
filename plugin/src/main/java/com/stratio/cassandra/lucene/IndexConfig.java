@@ -25,8 +25,11 @@ import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
 import org.apache.cassandra.db.Directories;
 import org.apache.lucene.analysis.Analyzer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -40,6 +43,8 @@ import java.util.Map;
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class IndexConfig {
+
+    private static final Logger logger = LoggerFactory.getLogger(IndexConfig.class);
 
     public static final String SCHEMA_OPTION = "schema";
 
@@ -95,11 +100,11 @@ public class IndexConfig {
         parseRamBufferMB();
         parseMaxMergeMB();
         parseMaxCachedMB();
-        parseSchema();
         parsePath();
         parseIndexingThreads();
         parseIndexingQueuesSize();
         parseExcludedDataCenters();
+        parseSchema(!Files.exists(path));
     }
 
     /**
@@ -314,12 +319,16 @@ public class IndexConfig {
         }
     }
 
-    private void parseSchema() {
+    private void parseSchema(boolean validate) {
         String schemaOption = options.get(SCHEMA_OPTION);
         if (schemaOption != null && !schemaOption.trim().isEmpty()) {
             try {
                 schema = SchemaBuilder.fromJson(schemaOption).build();
-                schema.validate(metadata);
+                if (validate) {
+                    schema.validate(metadata);
+                } else {
+                    logger.warn("Skipping index schema validation");
+                }
             } catch (Exception e) {
                 throw new IndexException(e, "'%s' is invalid : %s", SCHEMA_OPTION, e.getMessage());
             }
