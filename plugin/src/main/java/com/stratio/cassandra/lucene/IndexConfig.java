@@ -323,7 +323,7 @@ public class IndexConfig {
                     columnDefinition.getIndexName(),
                     e.getMessage()));
             } else {
-                throw e;
+                throw new IndexException(e, "'%s' is invalid : %s", SCHEMA_OPTION, e.getMessage());
             }
         }
     }
