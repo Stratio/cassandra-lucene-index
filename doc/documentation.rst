@@ -1617,6 +1617,8 @@ a “\ **boost**\ ” option that acts as a weight on the resulting score.
 All search
 ==========
 
+Search for all the indexed documents.
+
 **Syntax:**
 
 .. code-block:: sql
@@ -1647,6 +1649,8 @@ Using `query builder <#query-builder>`__:
 
 Bitemporal search
 =================
+
+Search for bitemporally-indexed data according to transaction time and valid time ranges.
 
 **Syntax:**
 
@@ -1892,6 +1896,8 @@ This code is available in CQL script here: `example_bitemporal.cql </doc/resourc
 Boolean search
 ==============
 
+Searches for rows matching boolean combinations of other searches.
+
 **Syntax:**
 
 .. code-block:: sql
@@ -2026,6 +2032,8 @@ Using `query builder <#query-builder>`__:
 Contains search
 ===============
 
+Searches for rows matching one or more of the specified terms.
+
 **Syntax:**
 
 .. code-block:: sql
@@ -2084,6 +2092,8 @@ Using `query builder <#query-builder>`__:
 
 Date range search
 =================
+
+Searches for rows within a specified date range.
 
 **Syntax:**
 
@@ -2188,6 +2198,9 @@ Using `query builder <#query-builder>`__:
 Fuzzy search
 ============
 
+Searches for rows matching a term using similarity based on
+(`Damerau-Levenshtein distance <http://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance>`__). edit distance.
+
 **Syntax:**
 
 .. code-block:: sql
@@ -2270,6 +2283,8 @@ Using `query builder <#query-builder>`__:
 
 Geo bbox search
 ===============
+
+Searches for rows with geospatial locations spatially related to the specified bounding box.
 
 **Syntax:**
 
@@ -2390,6 +2405,8 @@ Using `query builder <#query-builder>`__:
 
 Geo distance search
 ===================
+
+Searches for rows with geoespatial locations within an distance range from a reference point.
 
 **Syntax:**
 
@@ -2575,6 +2592,8 @@ Using `query builder <#query-builder>`__:
 Match search
 ============
 
+Searches for rows with columns containing the specified term. The matching depends on the used analyzer.
+
 **Syntax:**
 
 .. code-block:: sql
@@ -2655,6 +2674,8 @@ Using `query builder <#query-builder>`__:
 None search
 ===========
 
+Returns no results.
+
 **Syntax:**
 
 .. code-block:: sql
@@ -2683,6 +2704,8 @@ Using `query builder <#query-builder>`__:
 
 Phrase search
 =============
+
+Searches for rows with columns containing a particular sequence of terms.
 
 **Syntax:**
 
@@ -2750,6 +2773,8 @@ Using `query builder <#query-builder>`__:
 Prefix search
 =============
 
+Searches for rows with columns with terms starting with the specified prefix.
+
 **Syntax:**
 
 .. code-block:: sql
@@ -2786,6 +2811,8 @@ Using `query builder <#query-builder>`__:
 
 Range search
 ============
+
+Searches for rows with columns with terms within the specified term range.
 
 **Syntax:**
 
@@ -2913,6 +2940,8 @@ Using `query builder <#query-builder>`__:
 Regexp search
 =============
 
+Searches for rows with columns with terms satisfying the specified regular expression.
+
 **Syntax:**
 
 .. code-block:: sql
@@ -2954,6 +2983,8 @@ Using `query builder <#query-builder>`__:
 
 Wildcard search
 ===============
+
+Searches for rows with columns with terms satisfying the specified wildcard pattern.
 
 **Syntax:**
 
