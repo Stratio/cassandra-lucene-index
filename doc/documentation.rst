@@ -10,7 +10,7 @@ Stratio's Cassandra Lucene Index
     - `Upgrade <#upgrade>`__
     - `Example <#example>`__
 - `Indexing <#indexing>`__
-    - `Analyzers <#analysis>`__
+    - `Analyzers <#analyzers>`__
         - `Classpath analyzer <#classpath-analyzer>`__
         - `Snowball analyzer <#snowball-analyzer>`__
     - `Mappers <#mappers>`__
@@ -1617,7 +1617,7 @@ a “\ **boost**\ ” option that acts as a weight on the resulting score.
 All search
 ==========
 
-Search for all the indexed documents.
+Search for all the indexed rows.
 
 **Syntax:**
 
@@ -1627,7 +1627,7 @@ Search for all the indexed documents.
     FROM <table>
     WHERE <magic_column> = '{ (filter | query) : { type  : "all"} }';
 
-**Example:** search for all the indexed rows
+**Example:** search for all the indexed rows:
 
 .. code-block:: sql
 
@@ -1650,7 +1650,8 @@ Using `query builder <#query-builder>`__:
 Bitemporal search
 =================
 
-Search for bitemporally-indexed data according to transaction time and valid time ranges.
+Search for `bitemporally-indexed <https://en.wikipedia.org/wiki/Temporal_database>`__ rows according to the specified
+transaction time and valid time ranges.
 
 **Syntax:**
 
@@ -2199,7 +2200,7 @@ Fuzzy search
 ============
 
 Searches for rows matching a term using similarity based on
-(`Damerau-Levenshtein distance <http://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance>`__). edit distance.
+`Damerau-Levenshtein distance <http://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance>`__ edit distance.
 
 **Syntax:**
 
