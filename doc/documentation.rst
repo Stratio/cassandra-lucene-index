@@ -10,7 +10,7 @@ Stratio's Cassandra Lucene Index
     - `Upgrade <#upgrade>`__
     - `Example <#example>`__
 - `Indexing <#indexing>`__
-    - `Analyzers <#analysis>`__
+    - `Analyzers <#analyzers>`__
         - `Classpath analyzer <#classpath-analyzer>`__
         - `Snowball analyzer <#snowball-analyzer>`__
     - `Mappers <#mappers>`__
@@ -425,6 +425,11 @@ Alternatively, you can restrict the search to retrieve tweets that are within a 
 
 Indexing
 ********
+
+Lucene indexes are an extension of the Cassandra secondary indexes. As such, they are created through CQL
+`CREATE CUSTOM INDEX statement <https://cassandra.apache.org/doc/cql3/CQL.html#createIndexStmt>`__, specifying the full
+qualified class name and a list of configuration options that are specified in this section.
+
 
 **Syntax:**
 
@@ -1439,6 +1444,8 @@ Cassandra shell:
 Searching
 *********
 
+Lucene indexes are queried using a custom JSON syntax defining the kind of search to be done.
+
 **Syntax:**
 
 .. code-block:: sql
@@ -1625,6 +1632,8 @@ a “\ **boost**\ ” option that acts as a weight on the resulting score.
 All search
 ==========
 
+Search for all the indexed rows.
+
 **Syntax:**
 
 .. code-block:: sql
@@ -1633,7 +1642,7 @@ All search
     FROM <table>
     WHERE expr(<index_name>, '{ (filter | query) : { type  : "all"} }');
 
-**Example:** search for all the indexed rows
+**Example:** search for all the indexed rows:
 
 .. code-block:: sql
 
@@ -1654,6 +1663,9 @@ Using `query builder <#query-builder>`__:
 
 Bitemporal search
 =================
+
+Search for `bitemporally-indexed <https://en.wikipedia.org/wiki/Temporal_database>`__ rows according to the specified
+transaction time and valid time ranges.
 
 **Syntax:**
 
@@ -1896,6 +1908,8 @@ This code is available in CQL script here: `example_bitemporal.cql </doc/resourc
 Boolean search
 ==============
 
+Searches for rows matching boolean combinations of other searches.
+
 **Syntax:**
 
 .. code-block:: sql
@@ -2027,6 +2041,8 @@ Using `query builder <#query-builder>`__:
 Contains search
 ===============
 
+Searches for rows matching one or more of the specified terms.
+
 **Syntax:**
 
 .. code-block:: sql
@@ -2083,6 +2099,8 @@ Using `query builder <#query-builder>`__:
 
 Date range search
 =================
+
+Searches for rows within a specified date range.
 
 **Syntax:**
 
@@ -2181,6 +2199,9 @@ Using `query builder <#query-builder>`__:
 Fuzzy search
 ============
 
+Searches for rows matching a term using similarity based on
+`Damerau-Levenshtein distance <http://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance>`__ edit distance.
+
 **Syntax:**
 
 .. code-block:: sql
@@ -2261,6 +2282,9 @@ Using `query builder <#query-builder>`__:
 
 Geo bbox search
 ===============
+
+Searches for rows with `geographical points <#geo-point-mapper>`__ or `geographical shapes <#geo-shape-mapper>`__
+contained in the specified bounding box.
 
 **Syntax:**
 
@@ -2379,6 +2403,9 @@ Using `query builder <#query-builder>`__:
 Geo distance search
 ===================
 
+Searches for rows with `geographical points <#geo-point-mapper>`__ or `geographical shapes <#geo-shape-mapper>`__
+within a distance range from a specified point.
+
 **Syntax:**
 
 .. code-block:: sql
@@ -2462,8 +2489,8 @@ Using `query builder <#query-builder>`__:
 Geo shape search
 ================
 
-Searches for `geographical points <#geo-point-mapper>`__ or `geographical shapes <#geo-shape-mapper>`__ related to a
-specified shape with `Well Known Text (WKT) <http://en.wikipedia.org/wiki/Well-known_text>`__ format.
+Searches for rows with `geographical points <#geo-point-mapper>`__ or `geographical shapes <#geo-shape-mapper>`__
+related to a specified shape with `Well Known Text (WKT) <http://en.wikipedia.org/wiki/Well-known_text>`__ format.
 The supported WKT shapes are point, linestring, polygon, multipoint, multilinestring and multipolygon.
 
 This search type depends on `Java Topology Suite (JTS) <http://www.vividsolutions.com/jts>`__.
@@ -2551,6 +2578,8 @@ Using `query builder <#query-builder>`__:
 Match search
 ============
 
+Searches for rows with columns containing the specified term. The matching depends on the used analyzer.
+
 **Syntax:**
 
 .. code-block:: sql
@@ -2628,6 +2657,8 @@ Using `query builder <#query-builder>`__:
 None search
 ===========
 
+Returns no results.
+
 **Syntax:**
 
 .. code-block:: sql
@@ -2655,6 +2686,8 @@ Using `query builder <#query-builder>`__:
 
 Phrase search
 =============
+
+Searches for rows with columns containing a particular sequence of terms.
 
 **Syntax:**
 
@@ -2720,6 +2753,8 @@ Using `query builder <#query-builder>`__:
 Prefix search
 =============
 
+Searches for rows with columns with terms starting with the specified prefix.
+
 **Syntax:**
 
 .. code-block:: sql
@@ -2755,6 +2790,8 @@ Using `query builder <#query-builder>`__:
 
 Range search
 ============
+
+Searches for rows with columns with terms within the specified term range.
 
 **Syntax:**
 
@@ -2881,6 +2918,8 @@ Using `query builder <#query-builder>`__:
 Regexp search
 =============
 
+Searches for rows with columns with terms satisfying the specified regular expression.
+
 **Syntax:**
 
 .. code-block:: sql
@@ -2921,6 +2960,8 @@ Using `query builder <#query-builder>`__:
 
 Wildcard search
 ===============
+
+Searches for rows with columns with terms satisfying the specified wildcard pattern.
 
 **Syntax:**
 

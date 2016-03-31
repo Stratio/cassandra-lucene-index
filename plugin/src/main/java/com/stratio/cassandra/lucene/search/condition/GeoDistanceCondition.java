@@ -36,7 +36,7 @@ import static org.apache.lucene.search.BooleanClause.Occur.FILTER;
 import static org.apache.lucene.search.BooleanClause.Occur.MUST_NOT;
 
 /**
- * A {@link Condition} that matches documents containing a point contained between two certain circles.
+ * A {@link Condition} that matches documents containing a shape contained between two certain circles.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
