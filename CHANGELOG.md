@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.1.8.6 (upcoming)
+## 2.1.8.6 (31 March 2016)
 
 * Skip schema validation in already created indexes
 
