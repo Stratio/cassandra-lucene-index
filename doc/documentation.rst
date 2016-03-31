@@ -417,6 +417,10 @@ Alternatively, you can restrict the search to retrieve tweets that are within a 
 Indexing
 ********
 
+Lucene indexes are an extension of the Cassandra secondary indexes. As such, they are created through CQL
+`CREATE CUSTOM INDEX statement <https://cassandra.apache.org/doc/cql3/CQL.html#createIndexStmt>`__, specifying the full
+qualified class name and a list of configuration options that are specified in this section.
+
 **Syntax:**
 
 .. code-block:: sql
@@ -1431,6 +1435,8 @@ Cassandra shell:
 
 Searching
 *********
+
+Lucene indexes are queried using a custom JSON syntax defining the kind of search to be done.
 
 **Syntax:**
 
