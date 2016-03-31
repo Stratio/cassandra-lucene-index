@@ -104,7 +104,8 @@ public class IndexConfig {
         parseIndexingThreads();
         parseIndexingQueuesSize();
         parseExcludedDataCenters();
-        parseSchema(!Files.exists(path));
+        parseSchema();
+        validate();
     }
 
     /**
@@ -319,16 +320,11 @@ public class IndexConfig {
         }
     }
 
-    private void parseSchema(boolean validate) {
+    private void parseSchema() {
         String schemaOption = options.get(SCHEMA_OPTION);
         if (schemaOption != null && !schemaOption.trim().isEmpty()) {
             try {
                 schema = SchemaBuilder.fromJson(schemaOption).build();
-                if (validate) {
-                    schema.validate(metadata);
-                } else {
-                    logger.warn("Skipping index schema validation");
-                }
             } catch (Exception e) {
                 throw new IndexException(e, "'%s' is invalid : %s", SCHEMA_OPTION, e.getMessage());
             }
@@ -378,6 +374,21 @@ public class IndexConfig {
         if (excludedDataCentersOption != null) {
             String[] array = excludedDataCentersOption.trim().split(",");
             excludedDataCenters = Arrays.asList(array);
+        }
+    }
+
+    private void validate() {
+        try {
+            schema.validate(metadata);
+        } catch (IndexException e) {
+            if (Files.exists(path)) {
+                logger.error(String.format(
+                    "Lucene index '%s' has an invalid schema probably due to schema changes in the indexed table: %s",
+                    columnDefinition.getIndexName(),
+                    e.getMessage()));
+            } else {
+                throw new IndexException(e, "'%s' is invalid : %s", SCHEMA_OPTION, e.getMessage());
+            }
         }
     }
 
