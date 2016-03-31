@@ -86,7 +86,8 @@ public class IndexConfig {
         maxMergeMB = parseMaxMergeMB();
         maxCachedMB = parseMaxCachedMB();
         path = parsePath();
-        schema = parseSchema(!Files.exists(path));
+        schema = parseSchema();
+        validate();
     }
 
     /**
@@ -278,17 +279,13 @@ public class IndexConfig {
             return DEFAULT_MAX_CACHED_MB;
         }
     }
-    private Schema parseSchema(boolean validate) {
+
+    private Schema parseSchema() {
         String schemaOption = options.get(SCHEMA_OPTION);
         Schema schema;
         if (schemaOption != null && !schemaOption.trim().isEmpty()) {
             try {
                 schema = SchemaBuilder.fromJson(schemaOption).build();
-                if (validate) {
-                    schema.validate(metadata);
-                } else {
-                    logger.warn("Skipping index schema validation");
-                }
             } catch (Exception e) {
                 throw new IndexException(e, "'%s' is invalid : %s", SCHEMA_OPTION, e.getMessage());
             }
@@ -313,6 +310,21 @@ public class IndexConfig {
             return Paths.get(pathString);
         } else {
             return Paths.get(pathOption);
+        }
+    }
+
+    private void validate() {
+        try {
+            schema.validate(metadata);
+        } catch (IndexException e) {
+            if (Files.exists(path)) {
+                logger.error(String.format(
+                    "Lucene index '%s' has an invalid schema probably due to schema changes in the indexed table: %s",
+                    columnDefinition.getIndexName(),
+                    e.getMessage()));
+            } else {
+                throw e;
+            }
         }
     }
 
