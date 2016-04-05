@@ -120,11 +120,6 @@ out of the box features, filling the gap between real-time and analytics.
    :alt: oltp_olap
    :align: center
 
-
-IMPORTANT -- cassandra-driver-core does not support new 3.0 'expr' Clauses
-yet, so please note all the Using Builder examples in this document are
-obsolete until cassandra-driver-core includes this new type of Clauses in QueryBuilder
-
 Features
 ========
 
