@@ -439,7 +439,7 @@ public class Index implements org.apache.cassandra.index.Index {
         try {
             String json = UTF8Type.instance.compose(expression.getValue());
             Search search = SearchBuilder.fromJson(json).build();
-            search.query(service.schema);
+            search.validate(service.schema);
             return search;
         } catch (Exception e) {
             throw new InvalidRequestException(e.getMessage());

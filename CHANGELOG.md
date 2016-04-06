@@ -6,6 +6,7 @@
 * Allow altering unmapped columns
 * Remove token range cache in favour of Lucene query cache
 * Fix NPE while mapping geo points with explicitly null latitude/longitude value
+* Fix missed validation of sort fields
 
 ## 3.0.4.0 (10 March 2016)
 

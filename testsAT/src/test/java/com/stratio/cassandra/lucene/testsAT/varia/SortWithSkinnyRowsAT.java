@@ -18,6 +18,7 @@
 
 package com.stratio.cassandra.lucene.testsAT.varia;
 
+import com.datastax.driver.core.exceptions.InvalidQueryException;
 import com.stratio.cassandra.lucene.testsAT.BaseAT;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
 import org.junit.AfterClass;
@@ -85,5 +86,10 @@ public class SortWithSkinnyRowsAT extends BaseAT {
     @Test
     public void sortTokenRangeDesc() {
         utils.sort(field("rc").reverse(true)).andGt("token(pk)", 0).limit(3).check("rc", Integer.class, 9, 7, 6);
+    }
+
+    @Test
+    public void sortNotExistingColumn() {
+        utils.sort(field("missing").reverse(true)).check(InvalidQueryException.class);
     }
 }
