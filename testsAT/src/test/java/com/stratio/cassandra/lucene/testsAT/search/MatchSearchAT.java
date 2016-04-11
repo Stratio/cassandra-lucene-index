@@ -90,12 +90,14 @@ public class MatchSearchAT extends AbstractSearchAT {
 
     @Test
     public void matchQueryBlobTest3() {
-        query(match("blob_1", "3E0A161")).check(InvalidQueryException.class);
+        String msg = "Field 'blob_1' requires an hex string, but found '3E0A161'";
+        query(match("blob_1", "3E0A161")).check(InvalidQueryException.class, msg);
     }
 
     @Test
     public void matchQueryBlobTest4() {
-        query(match("blob_1", "3E0A1")).check(InvalidQueryException.class);
+        String msg = "Field 'blob_1' requires an hex string, but found '3E0A1'";
+        query(match("blob_1", "3E0A1")).check(InvalidQueryException.class, msg);
     }
 
     @Test
@@ -105,7 +107,8 @@ public class MatchSearchAT extends AbstractSearchAT {
 
     @Test
     public void matchQueryBooleanTest1() {
-        query(match("boolean_1", "")).check(InvalidQueryException.class);
+        String msg = "Boolean field 'boolean_1' requires either 'true' or 'false', but found ''";
+        query(match("boolean_1", "")).check(InvalidQueryException.class, msg);
     }
 
     @Test
@@ -120,7 +123,8 @@ public class MatchSearchAT extends AbstractSearchAT {
 
     @Test
     public void matchQueryBooleanTest5() {
-        query(match("boolean_1", "else")).check(InvalidQueryException.class);
+        String msg = "Boolean field 'boolean_1' requires either 'true' or 'false', but found 'else'";
+        query(match("boolean_1", "else")).check(InvalidQueryException.class, msg);
     }
 
     @Test
@@ -248,12 +252,14 @@ public class MatchSearchAT extends AbstractSearchAT {
 
     @Test
     public void matchQueryUuidTest3() {
-        query(match("uuid_1", "60297440-b4fa-11e3-0002a5d5c51b")).check(InvalidQueryException.class);
+        String msg = "Field 'uuid_1' with value '60297440-b4fa-11e3-0002a5d5c51b' can not be parsed as UUID";
+        query(match("uuid_1", "60297440-b4fa-11e3-0002a5d5c51b")).check(InvalidQueryException.class, msg);
     }
 
     @Test
     public void matchQueryTimeuuidTest1() {
-        query(match("timeuuid_1", "0")).check(InvalidQueryException.class);
+        String msg = "Field 'timeuuid_1' with value '0' can not be parsed as UUID";
+        query(match("timeuuid_1", "0")).check(InvalidQueryException.class, msg);
     }
 
     @Test
@@ -263,7 +269,8 @@ public class MatchSearchAT extends AbstractSearchAT {
 
     @Test
     public void matchQueryTimeuuidTest3() {
-        query(match("timeuuid_1", "a4a70900-24e1-11df-001ff3591711")).check(InvalidQueryException.class);
+        String msg = "Field 'timeuuid_1' with value 'a4a70900-24e1-11df-001ff3591711' can not be parsed as UUID";
+        query(match("timeuuid_1", "a4a70900-24e1-11df-001ff3591711")).check(InvalidQueryException.class, msg);
     }
 
     @Test
@@ -278,12 +285,14 @@ public class MatchSearchAT extends AbstractSearchAT {
 
     @Test
     public void matchQueryInetFieldTest3() {
-        query(match("inet_1", "127.1.1.")).check(InvalidQueryException.class);
+        String msg = "Field 'inet_1' with value '127.1.1.' can not be parsed as an inet address";
+        query(match("inet_1", "127.1.1.")).check(InvalidQueryException.class, msg);
     }
 
     @Test
     public void matchQueryInetFieldTest4() {
-        query(match("inet_1", "")).check(InvalidQueryException.class);
+        String msg = "Field 'inet_1' with value '' can not be parsed as an inet address";
+        query(match("inet_1", "")).check(InvalidQueryException.class, msg);
     }
 
     @Test
@@ -433,12 +442,14 @@ public class MatchSearchAT extends AbstractSearchAT {
 
     @Test
     public void matchFilterBlobTest3() {
-        filter(match("blob_1", "3E0A161")).check(InvalidQueryException.class);
+        String msg = "Field 'blob_1' requires an hex string, but found '3E0A161'";
+        filter(match("blob_1", "3E0A161")).check(InvalidQueryException.class, msg);
     }
 
     @Test
     public void matchFilterBlobTest4() {
-        filter(match("blob_1", "3E0A1")).check(InvalidQueryException.class);
+        String msg = "Field 'blob_1' requires an hex string, but found '3E0A1'";
+        filter(match("blob_1", "3E0A1")).check(InvalidQueryException.class, msg);
     }
 
     @Test
@@ -448,7 +459,8 @@ public class MatchSearchAT extends AbstractSearchAT {
 
     @Test
     public void matchFilterBooleanTest1() {
-        filter(match("boolean_1", "")).check(InvalidQueryException.class);
+        String msg = "Boolean field 'boolean_1' requires either 'true' or 'false', but found ''";
+        filter(match("boolean_1", "")).check(InvalidQueryException.class, msg);
     }
 
     @Test
@@ -463,7 +475,8 @@ public class MatchSearchAT extends AbstractSearchAT {
 
     @Test
     public void matchFilterBooleanTest5() {
-        filter(match("boolean_1", "else")).check(InvalidQueryException.class);
+        String msg = "Boolean field 'boolean_1' requires either 'true' or 'false', but found 'else'";
+        filter(match("boolean_1", "else")).check(InvalidQueryException.class, msg);
     }
 
     @Test
@@ -584,23 +597,25 @@ public class MatchSearchAT extends AbstractSearchAT {
 
     @Test
     public void matchFilterUuidTest1() {
-        filter(match("uuid_1", "0")).check(InvalidQueryException.class);
+        String msg = "Field 'uuid_1' with value '0' can not be parsed as UUID";
+        filter(match("uuid_1", "0")).check(InvalidQueryException.class, msg);
     }
 
     @Test
     public void matchFilterUuidTest2() {
-
         filter(match("uuid_1", "60297440-b4fa-11e3-8b5a-0002a5d5c51b")).check(1);
     }
 
     @Test
     public void matchFilterUuidTest3() {
-        filter(match("uuid_1", "60297440-b4fa-11e3-0002a5d5c51b")).check(InvalidQueryException.class);
+        String msg = "Field 'uuid_1' with value '60297440-b4fa-11e3-0002a5d5c51b' can not be parsed as UUID";
+        filter(match("uuid_1", "60297440-b4fa-11e3-0002a5d5c51b")).check(InvalidQueryException.class, msg);
     }
 
     @Test
     public void matchFilterTimeuuidTest1() {
-        filter(match("timeuuid_1", "0")).check(InvalidQueryException.class);
+        String msg = "Field 'timeuuid_1' with value '0' can not be parsed as UUID";
+        filter(match("timeuuid_1", "0")).check(InvalidQueryException.class, msg);
     }
 
     @Test
@@ -610,7 +625,8 @@ public class MatchSearchAT extends AbstractSearchAT {
 
     @Test
     public void matchFilterTimeuuidTest3() {
-        filter(match("timeuuid_1", "a4a70900-24e1-11df-001ff3591711")).check(InvalidQueryException.class);
+        String msg = "Field 'timeuuid_1' with value 'a4a70900-24e1-11df-001ff3591711' can not be parsed as UUID";
+        filter(match("timeuuid_1", "a4a70900-24e1-11df-001ff3591711")).check(InvalidQueryException.class, msg);
     }
 
     @Test
@@ -625,12 +641,14 @@ public class MatchSearchAT extends AbstractSearchAT {
 
     @Test
     public void matchFilterInetFieldTest3() {
-        filter(match("inet_1", "127.1.1.")).check(InvalidQueryException.class);
+        String msg = "Field 'inet_1' with value '127.1.1.' can not be parsed as an inet address";
+        filter(match("inet_1", "127.1.1.")).check(InvalidQueryException.class, msg);
     }
 
     @Test
     public void matchFilterInetFieldTest4() {
-        filter(match("inet_1", "")).check(InvalidQueryException.class);
+        String msg = "Field 'inet_1' with value '' can not be parsed as an inet address";
+        filter(match("inet_1", "")).check(InvalidQueryException.class, msg);
     }
 
     @Test

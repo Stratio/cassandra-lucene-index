@@ -19,6 +19,7 @@
 package com.stratio.cassandra.lucene.testsAT.search;
 
 import com.datastax.driver.core.exceptions.DriverException;
+import com.datastax.driver.core.exceptions.InvalidQueryException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -216,7 +217,8 @@ public class RangeSearchAT extends AbstractSearchAT {
 
     @Test
     public void rangeQueryUuidTest2() {
-        query(range("uuid_1").lower("1").upper("9")).check(DriverException.class);
+        String msg = "Field 'uuid_1' with value '1' can not be parsed as UUID";
+        query(range("uuid_1").lower("1").upper("9")).check(InvalidQueryException.class, msg);
     }
 
     @Test
@@ -240,7 +242,8 @@ public class RangeSearchAT extends AbstractSearchAT {
 
     @Test
     public void rangeQueryTimeuuidTest2() {
-        query(range("timeuuid_1").lower("a").upper("z")).check(DriverException.class);
+        String msg = "Field 'timeuuid_1' with value 'a' can not be parsed as UUID";
+        query(range("timeuuid_1").lower("a").upper("z")).check(InvalidQueryException.class, msg);
     }
 
     @Test
@@ -572,7 +575,8 @@ public class RangeSearchAT extends AbstractSearchAT {
 
     @Test
     public void rangeFilterUuidTest2() {
-        filter(range("uuid_1").lower("1").upper("9")).check(DriverException.class);
+        String msg = "Field 'uuid_1' with value '1' can not be parsed as UUID";
+        filter(range("uuid_1").lower("1").upper("9")).check(InvalidQueryException.class, msg);
     }
 
     @Test
@@ -596,7 +600,8 @@ public class RangeSearchAT extends AbstractSearchAT {
 
     @Test
     public void rangeFilterTimeuuidTest2() {
-        filter(range("timeuuid_1").lower("a").upper("z")).check(DriverException.class);
+        String msg = "Field 'timeuuid_1' with value 'a' can not be parsed as UUID";
+        filter(range("timeuuid_1").lower("a").upper("z")).check(InvalidQueryException.class, msg);
     }
 
     @Test

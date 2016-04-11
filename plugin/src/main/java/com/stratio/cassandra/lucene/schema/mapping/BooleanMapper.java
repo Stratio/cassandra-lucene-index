@@ -65,7 +65,8 @@ public class BooleanMapper extends KeywordMapper {
         } else if (value.equalsIgnoreCase(FALSE)) {
             return FALSE;
         } else {
-            throw new IndexException("Field '%s' requires '%s' or '%s', but found '%s'", TRUE, FALSE, name, value);
+            throw new IndexException("Boolean field '%s' requires either '%s' or '%s', but found '%s'",
+                                     name, TRUE, FALSE, value);
         }
     }
 
