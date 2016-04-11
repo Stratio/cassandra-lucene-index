@@ -18,6 +18,7 @@
 
 package com.stratio.cassandra.lucene.search.condition;
 
+import com.google.common.base.MoreObjects;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.stratio.cassandra.lucene.IndexException;
@@ -72,8 +73,7 @@ public class GeoShapeCondition extends SingleFieldCondition {
      * Constructor receiving the shape, the spatial operation to be done and the transformations to be applied.
      *
      * @param boost The boost for this query clause. Documents matching this clause will (in addition to the normal
-     * weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link #DEFAULT_BOOST} is used as
-     * default.
+     * weightings) have their score multiplied by {@code boost}.
      * @param field the field name
      * @param shape the shape in <a href="http://en.wikipedia.org/wiki/Well-known_text"> WKT</a> format
      * @param operation The spatial operation to be done. Defaults to {@link #DEFAULT_OPERATION}.
@@ -92,7 +92,7 @@ public class GeoShapeCondition extends SingleFieldCondition {
 
     /** {@inheritDoc} */
     @Override
-    public Query query(Schema schema) {
+    public Query doQuery(Schema schema) {
 
         // Get the spatial strategy from the mapper
         SpatialStrategy strategy;
@@ -119,17 +119,14 @@ public class GeoShapeCondition extends SingleFieldCondition {
         // Build query
         SpatialArgs args = new SpatialArgs(operation.getSpatialOperation(), transformedGeometry);
         args.setDistErr(0.0);
-        Query query = strategy.makeQuery(args);
-        query.setBoost(boost);
-        return query;
+        return strategy.makeQuery(args);
     }
 
     /** {@inheritDoc} */
     @Override
-    public String toString() {
+    public MoreObjects.ToStringHelper toStringHelper() {
         return toStringHelper(this).add("geometry", geometry)
                                    .add("operation", operation)
-                                   .add("transformations", transformations)
-                                   .toString();
+                                   .add("transformations", transformations);
     }
 }

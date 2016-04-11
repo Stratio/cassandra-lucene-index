@@ -42,8 +42,7 @@ public abstract class SingleMapperCondition<T extends Mapper> extends SingleFiel
      * Constructor using the boost and the name of the mapper.
      *
      * @param boost the boost for this query clause. Documents matching this clause will (in addition to the normal
-     * weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link #DEFAULT_BOOST} will be
-     * used as default
+     * weightings) have their score multiplied by {@code boost}.
      * @param field the name of the field to be matched
      * @param type the type of the {@link Mapper}
      */
@@ -55,14 +54,14 @@ public abstract class SingleMapperCondition<T extends Mapper> extends SingleFiel
     /** {@inheritDoc} */
     @Override
     @SuppressWarnings("unchecked")
-    public Query query(Schema schema) {
+    public final Query doQuery(Schema schema) {
         Mapper mapper = schema.getMapper(field);
         if (mapper == null) {
             throw new IndexException("No mapper found for field '%s'", field);
         } else if (!type.isAssignableFrom(mapper.getClass())) {
             throw new IndexException("Field '%s' requires a mapper of type '%s' but found '%s'", field, type, mapper);
         }
-        return query((T) mapper, schema.getAnalyzer());
+        return doQuery((T) mapper, schema.getAnalyzer());
     }
 
     /**
@@ -73,5 +72,5 @@ public abstract class SingleMapperCondition<T extends Mapper> extends SingleFiel
      * @return The Lucene {@link Query} representation of this condition.
      */
     @SuppressWarnings("UnusedParameters")
-    public abstract Query query(T mapper, Analyzer analyzer);
+    public abstract Query doQuery(T mapper, Analyzer analyzer);
 }

@@ -121,10 +121,12 @@ public class SearchTest {
                                 .sort(field("field"))
                                 .refresh(true)
                                 .build();
-        assertEquals("Method #toString is wrong", "Search{query=MatchCondition{boost=1.0, field=field, value=value}, " +
-                                                  "filter=MatchCondition{boost=1.0, field=field, value=value}, " +
-                                                  "sort=Sort{sortFields=[SimpleSortField{field=field, reverse=false}]}, " +
-                                                  "refresh=true}", search.toString());
+        assertEquals("Method #toString is wrong",
+                     "Search{query=MatchCondition{boost=null, field=field, value=value}, " +
+                     "filter=MatchCondition{boost=null, field=field, value=value}, " +
+                     "sort=Sort{sortFields=[SimpleSortField{field=field, reverse=false}]}, " +
+                     "refresh=true}",
+                     search.toString());
     }
 
 }

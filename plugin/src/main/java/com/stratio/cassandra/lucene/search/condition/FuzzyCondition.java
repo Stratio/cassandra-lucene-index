@@ -18,6 +18,7 @@
 
 package com.stratio.cassandra.lucene.search.condition;
 
+import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
 import org.apache.commons.lang3.StringUtils;
@@ -67,8 +68,7 @@ public class FuzzyCondition extends SingleColumnCondition {
      * Returns a new {@link FuzzyCondition}.
      *
      * @param boost The boost for this query clause. Documents matching this clause will (in addition to the normal
-     * weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link #DEFAULT_BOOST} is used as
-     * default.
+     * weightings) have their score multiplied by {@code boost}.
      * @param field the field name
      * @param value the field fuzzy value
      * @param maxEdits must be {@literal >=} 0 and {@literal <=} {@link LevenshteinAutomata#MAXIMUM_SUPPORTED_DISTANCE}.
@@ -142,12 +142,10 @@ public class FuzzyCondition extends SingleColumnCondition {
 
     /** {@inheritDoc} */
     @Override
-    public Query query(SingleColumnMapper<?> mapper, Analyzer analyzer) {
+    public Query doQuery(SingleColumnMapper<?> mapper, Analyzer analyzer) {
         if (mapper.base == String.class) {
             Term term = new Term(field, value);
-            Query query = new FuzzyQuery(term, maxEdits, prefixLength, maxExpansions, transpositions);
-            query.setBoost(boost);
-            return query;
+            return new FuzzyQuery(term, maxEdits, prefixLength, maxExpansions, transpositions);
         } else {
             throw new IndexException("Fuzzy queries are not supported by mapper %s", mapper);
         }
@@ -155,12 +153,11 @@ public class FuzzyCondition extends SingleColumnCondition {
 
     /** {@inheritDoc} */
     @Override
-    public String toString() {
+    public MoreObjects.ToStringHelper toStringHelper() {
         return toStringHelper(this).add("value", value)
                                    .add("maxEdits", maxEdits)
                                    .add("prefixLength", prefixLength)
                                    .add("maxExpansions", maxExpansions)
-                                   .add("transpositions", transpositions)
-                                   .toString();
+                                   .add("transpositions", transpositions);
     }
 }

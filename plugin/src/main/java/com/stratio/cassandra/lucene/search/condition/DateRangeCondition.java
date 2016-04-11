@@ -18,6 +18,7 @@
 
 package com.stratio.cassandra.lucene.search.condition;
 
+import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.mapping.DateRangeMapper;
 import org.apache.lucene.analysis.Analyzer;
@@ -61,8 +62,7 @@ public class DateRangeCondition extends SingleMapperCondition<DateRangeMapper> {
      * exclusive (you can't select all but the first or last term without explicitly specifying the term to exclude.)
      *
      * @param boost The boost for this query clause. Documents matching this clause will (in addition to the normal
-     * weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link #DEFAULT_BOOST} is used as
-     * default.
+     * weightings) have their score multiplied by {@code boost}.
      * @param field the name of the field to be matched
      * @param from the lower accepted {@link Date}. Maybe {@code null} meaning no lower limit
      * @param to the upper accepted {@link Date}. Maybe {@code null} meaning no upper limit
@@ -79,7 +79,7 @@ public class DateRangeCondition extends SingleMapperCondition<DateRangeMapper> {
      * {@inheritDoc}
      */
     @Override
-    public Query query(DateRangeMapper mapper, Analyzer analyzer) {
+    public Query doQuery(DateRangeMapper mapper, Analyzer analyzer) {
 
         SpatialStrategy strategy = mapper.strategy;
 
@@ -91,9 +91,7 @@ public class DateRangeCondition extends SingleMapperCondition<DateRangeMapper> {
         SpatialOperation spatialOperation = parseSpatialOperation(operation);
 
         SpatialArgs args = new SpatialArgs(spatialOperation, shape);
-        Query query = strategy.makeQuery(args);
-        query.setBoost(boost);
-        return query;
+        return strategy.makeQuery(args);
     }
 
     /**
@@ -120,7 +118,7 @@ public class DateRangeCondition extends SingleMapperCondition<DateRangeMapper> {
      * {@inheritDoc}
      */
     @Override
-    public String toString() {
-        return toStringHelper(this).add("from", from).add("to", to).add("operation", operation).toString();
+    public MoreObjects.ToStringHelper toStringHelper() {
+        return toStringHelper(this).add("from", from).add("to", to).add("operation", operation);
     }
 }

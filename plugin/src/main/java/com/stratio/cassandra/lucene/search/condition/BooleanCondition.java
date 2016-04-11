@@ -54,8 +54,7 @@ public class BooleanCondition extends Condition {
      * Returns a new {@link BooleanCondition} compound by the specified {@link Condition}s.
      *
      * @param boost The boost for this query clause. Documents matching this clause will (in addition to the normal
-     * weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link #DEFAULT_BOOST} is used as
-     * default.
+     * weightings) have their score multiplied by {@code boost}.
      * @param must the mandatory {@link Condition}s
      * @param should the optional {@link Condition}s
      * @param not the mandatory not {@link Condition}s
@@ -70,7 +69,7 @@ public class BooleanCondition extends Condition {
 
     /** {@inheritDoc} */
     @Override
-    public Query query(Schema schema) {
+    public Query doQuery(Schema schema) {
         BooleanQuery.Builder builder = new BooleanQuery.Builder();
         for (Condition condition : must) {
             builder.add(condition.query(schema), MUST);
@@ -85,19 +84,15 @@ public class BooleanCondition extends Condition {
             logger.warn("Performing resource-intensive pure negation search");
             builder.add(new MatchAllDocsQuery(), FILTER);
         }
-        Query query = builder.build();
-        query.setBoost(boost);
-        return query;
+        return builder.build();
     }
 
     /** {@inheritDoc} */
     @Override
-    public String toString() {
-        return MoreObjects.toStringHelper(this)
-                          .add("boost", boost)
-                          .add("must", must)
-                          .add("should", should)
-                          .add("not", not)
-                          .toString();
+    public MoreObjects.ToStringHelper toStringHelper() {
+        return toStringHelper(this)
+                .add("must", must)
+                .add("should", should)
+                .add("not", not);
     }
 }

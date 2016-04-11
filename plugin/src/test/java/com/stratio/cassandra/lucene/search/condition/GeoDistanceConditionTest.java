@@ -61,7 +61,7 @@ public class GeoDistanceConditionTest extends AbstractConditionTest {
                                                                   -180D,
                                                                   null,
                                                                   GeoDistance.parse("1yd"));
-        assertEquals("Boost is not to default", Condition.DEFAULT_BOOST, condition.boost, 0);
+        assertNull("Boost is not set to default", condition.boost);
         assertEquals("Field is not set", "name", condition.field);
         assertEquals("Longitude is not set", -180, condition.longitude, 0);
         assertEquals("Latitude is not set", 90, condition.latitude, 0);
@@ -133,7 +133,7 @@ public class GeoDistanceConditionTest extends AbstractConditionTest {
                                                                   -180D,
                                                                   null,
                                                                   GeoDistance.parse("10hm"));
-        Query query = condition.query(schema);
+        Query query = condition.doQuery(schema);
         assertNotNull("Query is not built", query);
         BooleanQuery booleanQuery = (BooleanQuery) query;
         assertEquals("Query num clauses is wrong", 1, booleanQuery.clauses().size());
@@ -162,7 +162,7 @@ public class GeoDistanceConditionTest extends AbstractConditionTest {
                                                                   -180D,
                                                                   GeoDistance.parse("1km"),
                                                                   GeoDistance.parse("3km"));
-        Query query = condition.query(schema);
+        Query query = condition.doQuery(schema);
         assertNotNull("Query is not built", query);
         assertTrue("Query type is wrong", query instanceof BooleanQuery);
         BooleanQuery booleanQuery = (BooleanQuery) query;

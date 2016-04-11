@@ -29,6 +29,7 @@ import org.junit.Test;
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
@@ -50,7 +51,7 @@ public class WildcardConditionTest extends AbstractConditionTest {
         WildcardConditionBuilder builder = new WildcardConditionBuilder("field", "value");
         WildcardCondition condition = builder.build();
         assertNotNull("Condition is not built", condition);
-        assertEquals("Boost is not set", Condition.DEFAULT_BOOST, condition.boost, 0);
+        assertNull("Boost is not set to default", condition.boost);
         assertEquals("Field is not set", "field", condition.field);
         assertEquals("Value is not set", "value", condition.value);
     }
@@ -78,14 +79,13 @@ public class WildcardConditionTest extends AbstractConditionTest {
         Schema schema = schema().mapper("name", stringMapper().indexed(true).sorted(true)).build();
 
         WildcardCondition wildcardCondition = new WildcardCondition(0.5f, "name", " ");
-        Query query = wildcardCondition.query(schema);
+        Query query = wildcardCondition.doQuery(schema);
 
         assertNotNull("Query is not built", query);
         assertEquals("Expected wildcard query", WildcardQuery.class, query.getClass());
         WildcardQuery wildcardQuery = (WildcardQuery) query;
         assertEquals("Field name is not properly set", "name", wildcardQuery.getField());
         assertEquals("Term text is not properly set", " ", wildcardQuery.getTerm().text());
-        assertEquals("Boost is not properly set", 0.5f, query.getBoost(), 0);
     }
 
     @Test
@@ -94,14 +94,13 @@ public class WildcardConditionTest extends AbstractConditionTest {
         Schema schema = schema().mapper("name", stringMapper().indexed(true).sorted(true)).build();
 
         WildcardCondition wildcardCondition = new WildcardCondition(0.5f, "name", "tr*");
-        Query query = wildcardCondition.query(schema);
+        Query query = wildcardCondition.doQuery(schema);
 
         assertNotNull("Query is not built", query);
         assertEquals("Expected wildcard query", WildcardQuery.class, query.getClass());
         WildcardQuery wildcardQuery = (WildcardQuery) query;
         assertEquals("Field name is not properly set", "name", wildcardQuery.getField());
         assertEquals("Term text is not properly set", "tr*", wildcardQuery.getTerm().text());
-        assertEquals("Boost is not properly set", 0.5f, query.getBoost(), 0);
     }
 
     @Test(expected = IndexException.class)
@@ -119,14 +118,13 @@ public class WildcardConditionTest extends AbstractConditionTest {
         Schema schema = schema().mapper("name", inetMapper()).build();
 
         WildcardCondition wildcardCondition = new WildcardCondition(0.5f, "name", "192.168.*");
-        Query query = wildcardCondition.query(schema);
+        Query query = wildcardCondition.doQuery(schema);
 
         assertNotNull("Query is not built", query);
         assertEquals("Expected wildcard query", WildcardQuery.class, query.getClass());
         WildcardQuery wildcardQuery = (WildcardQuery) query;
         assertEquals("Field name is not properly set", "name", wildcardQuery.getField());
         assertEquals("Term text is not properly set", "192.168.*", wildcardQuery.getTerm().text());
-        assertEquals("Boost is not properly set", 0.5f, query.getBoost(), 0);
     }
 
     @Test
@@ -135,14 +133,13 @@ public class WildcardConditionTest extends AbstractConditionTest {
         Schema schema = schema().mapper("name", inetMapper()).build();
 
         WildcardCondition condition = new WildcardCondition(0.5f, "name", "2001:db8:2de:0:0:0:0:e*");
-        Query query = condition.query(schema);
+        Query query = condition.doQuery(schema);
 
         assertNotNull("Query is not built", query);
         assertEquals("Expected wildcard query", WildcardQuery.class, query.getClass());
         WildcardQuery wildcardQuery = (WildcardQuery) query;
         assertEquals("Field name is not properly set", "name", wildcardQuery.getField());
         assertEquals("Term text is not properly set", "2001:db8:2de:0:0:0:0:e*", wildcardQuery.getTerm().text());
-        assertEquals("Boost is not properly set", 0.5f, query.getBoost(), 0);
     }
 
     @Test

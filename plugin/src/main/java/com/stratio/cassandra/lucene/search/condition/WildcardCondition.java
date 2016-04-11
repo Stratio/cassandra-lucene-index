@@ -18,6 +18,7 @@
 
 package com.stratio.cassandra.lucene.search.condition;
 
+import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
 import org.apache.lucene.analysis.Analyzer;
@@ -43,8 +44,7 @@ public class WildcardCondition extends SingleColumnCondition {
      * Constructor using the field name and the value to be matched.
      *
      * @param boost the boost for this query clause. Documents matching this clause will (in addition to the normal
-     * weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link #DEFAULT_BOOST} will be
-     * used as default.
+     * weightings) have their score multiplied by {@code boost}.
      * @param field the name of the field to be matched
      * @param value the wildcard expression to be matched
      */
@@ -58,12 +58,10 @@ public class WildcardCondition extends SingleColumnCondition {
 
     /** {@inheritDoc} */
     @Override
-    public Query query(SingleColumnMapper<?> mapper, Analyzer analyzer) {
+    public Query doQuery(SingleColumnMapper<?> mapper, Analyzer analyzer) {
         if (mapper.base == String.class) {
             Term term = new Term(field, value);
-            Query query = new WildcardQuery(term);
-            query.setBoost(boost);
-            return query;
+            return new WildcardQuery(term);
         } else {
             throw new IndexException("Wildcard queries are not supported by mapper '%s'", mapper);
         }
@@ -71,7 +69,7 @@ public class WildcardCondition extends SingleColumnCondition {
 
     /** {@inheritDoc} */
     @Override
-    public String toString() {
-        return toStringHelper(this).add("value", value).toString();
+    public MoreObjects.ToStringHelper toStringHelper() {
+        return toStringHelper(this).add("value", value);
     }
 }

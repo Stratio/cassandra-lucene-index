@@ -29,6 +29,7 @@ import static com.stratio.cassandra.lucene.schema.SchemaBuilders.schema;
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.textMapper;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
@@ -51,7 +52,7 @@ public class PhraseConditionTest extends AbstractConditionTest {
         PhraseConditionBuilder builder = new PhraseConditionBuilder("field", "value1 value2");
         PhraseCondition condition = builder.build();
         assertNotNull("Condition is not built", condition);
-        assertEquals("Boost is not set to default", Condition.DEFAULT_BOOST, condition.boost, 0);
+        assertNull("Boost is not set to default", condition.boost);
         assertEquals("Field is not set", "field", condition.field);
         assertEquals("Value is not set", "value1 value2", condition.value);
         assertEquals("Slop is not set to default", PhraseCondition.DEFAULT_SLOP, condition.slop);
@@ -86,7 +87,7 @@ public class PhraseConditionTest extends AbstractConditionTest {
 
         String value = "hola adios  the    a";
         PhraseCondition condition = new PhraseCondition(0.5f, "name", value, 2);
-        Query query = condition.query(schema);
+        Query query = condition.doQuery(schema);
 
         assertNotNull("Query is not built", query);
         assertEquals("Query type is wrong", PhraseQuery.class, query.getClass());
@@ -94,7 +95,6 @@ public class PhraseConditionTest extends AbstractConditionTest {
         PhraseQuery luceneQuery = (PhraseQuery) query;
         assertEquals("Query terms are wrong", 3, luceneQuery.getTerms().length);
         assertEquals("Query slop is wrong", 2, luceneQuery.getSlop());
-        assertEquals("Query boost is wrong", 0.5f, query.getBoost(), 0);
     }
 
     @Test

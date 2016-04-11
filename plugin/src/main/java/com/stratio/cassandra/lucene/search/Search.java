@@ -154,10 +154,10 @@ public class Search {
         } else if (filter == null) {
             return query.query(schema);
         } else if (query == null) {
-            return filter.filter(schema);
+            return filter.query(schema);
         } else {
             BooleanQuery.Builder builder = new BooleanQuery.Builder();
-            builder.add(filter.filter(schema), FILTER);
+            builder.add(filter.query(schema), FILTER);
             builder.add(query.query(schema), MUST);
             return builder.build();
         }
@@ -170,10 +170,10 @@ public class Search {
      */
     public void validate(Schema schema) {
         if (query != null) {
-            query.filter(schema);
+            query.query(schema);
         }
         if (filter != null) {
-            filter.filter(schema);
+            filter.query(schema);
         }
         if (sort != null) {
             sort.sortFields(schema);

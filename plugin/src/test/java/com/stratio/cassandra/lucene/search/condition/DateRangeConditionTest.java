@@ -74,7 +74,7 @@ public class DateRangeConditionTest extends AbstractConditionTest {
         DateRangeConditionBuilder builder = new DateRangeConditionBuilder("field");
         DateRangeCondition condition = builder.build();
         assertNotNull("Condition is not built", condition);
-        assertEquals("Boost is not set to default", DEFAULT_BOOST, condition.boost, 0);
+        assertNull("Boost is not set to default", condition.boost);
         assertEquals("Field is not set", "field", condition.field);
         assertEquals("From is not set to default", DEFAULT_FROM, condition.from);
         assertEquals("To is not set to default", DEFAULT_TO, condition.to);

@@ -18,6 +18,7 @@
 
 package com.stratio.cassandra.lucene.search.condition;
 
+import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
@@ -30,64 +31,57 @@ import static com.stratio.cassandra.lucene.schema.SchemaBuilders.schema;
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.stringMapper;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class SingleColumnConditionTest {
 
+    private static class MockCondition extends SingleColumnCondition {
+
+        MockCondition(Float boost, String field) {
+            super(boost, field);
+        }
+
+        @Override
+        public Query doQuery(SingleColumnMapper<?> mapper, Analyzer analyzer) {
+            return new MatchAllDocsQuery();
+        }
+
+        @Override
+        public MoreObjects.ToStringHelper toStringHelper() {
+            return toStringHelper(this);
+        }
+    }
+
     @Test
     public void testBuild() {
-        SingleColumnCondition condition = new SingleColumnCondition(0.5f, "field") {
-            @Override
-            public Query query(SingleColumnMapper<?> mapper, Analyzer analyzer) {
-                return null;
-            }
-        };
+        SingleColumnCondition condition = new MockCondition(0.5f, "field");
         assertEquals("Boost is not properly set", 0.5f, condition.boost, 0);
         assertEquals("Field name is not properly set", "field", condition.field);
     }
 
     @Test
     public void testBuildDefaults() {
-        SingleColumnCondition condition = new SingleColumnCondition(null, "field") {
-            @Override
-            public Query query(SingleColumnMapper<?> mapper, Analyzer analyzer) {
-                return null;
-            }
-        };
-        assertEquals("Boost is not set to default value", Condition.DEFAULT_BOOST, condition.boost, 0);
+        SingleColumnCondition condition = new MockCondition(null, "field");
+        assertNull("Boost is not set to default", condition.boost);
     }
 
     @Test(expected = IndexException.class)
     public void testBuildNullField() {
-        new SingleColumnCondition(null, null) {
-            @Override
-            public Query query(SingleColumnMapper<?> mapper, Analyzer analyzer) {
-                return null;
-            }
-        };
+        new MockCondition(null, null);
     }
 
     @Test(expected = IndexException.class)
     public void testBuildBlankField() {
-        new SingleColumnCondition(null, " ") {
-            @Override
-            public Query query(SingleColumnMapper<?> mapper, Analyzer analyzer) {
-                return null;
-            }
-        };
+        new MockCondition(null, " ");
     }
 
     @Test
     public void testGetMapper() {
         Schema schema = schema().mapper("field", stringMapper()).build();
-        SingleColumnCondition condition = new SingleColumnCondition(null, "field") {
-            @Override
-            public Query query(SingleColumnMapper<?> mapper, Analyzer analyzer) {
-                return new MatchAllDocsQuery();
-            }
-        };
+        SingleColumnCondition condition = new MockCondition(null, "field");
         Query query = condition.query(schema);
         assertNotNull("Query is not built", query);
         assertEquals("Query type is wrong", MatchAllDocsQuery.class, query.getClass());
@@ -97,12 +91,7 @@ public class SingleColumnConditionTest {
     @Test(expected = IndexException.class)
     public void testGetMapperNotFound() {
         Schema schema = schema().build();
-        SingleColumnCondition condition = new SingleColumnCondition(null, "field") {
-            @Override
-            public Query query(SingleColumnMapper<?> mapper, Analyzer analyzer) {
-                return new MatchAllDocsQuery();
-            }
-        };
+        SingleColumnCondition condition = new MockCondition(null, "field");
         condition.query(schema);
     }
 

@@ -18,6 +18,7 @@
 
 package com.stratio.cassandra.lucene.search.condition;
 
+import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
 import org.apache.lucene.analysis.Analyzer;
@@ -58,8 +59,7 @@ public class RangeCondition extends SingleColumnCondition {
      * exclusive (you can't select all but the first or last term without explicitly specifying the term to exclude.)
      *
      * @param boost The boost for this query clause. Documents matching this clause will (in addition to the normal
-     * weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link #DEFAULT_BOOST} is used as
-     * default.
+     * weightings) have their score multiplied by {@code boost}.
      * @param field the name of the field to be matched.
      * @param lowerValue the lower accepted value. Maybe {@code null} meaning no lower limit
      * @param upperValue the upper accepted value. Maybe {@code null} meaning no upper limit
@@ -83,7 +83,7 @@ public class RangeCondition extends SingleColumnCondition {
      * {@inheritDoc}
      */
     @Override
-    public Query query(SingleColumnMapper<?> mapper, Analyzer analyzer) {
+    public Query doQuery(SingleColumnMapper<?> mapper, Analyzer analyzer) {
         Class<?> clazz = mapper.base;
         Query query;
         if (clazz == String.class) {
@@ -109,7 +109,6 @@ public class RangeCondition extends SingleColumnCondition {
         } else {
             throw new IndexException("Range queries are not supported by mapper '%s'", mapper);
         }
-        query.setBoost(boost);
         return query;
     }
 
@@ -117,11 +116,10 @@ public class RangeCondition extends SingleColumnCondition {
      * {@inheritDoc}
      */
     @Override
-    public String toString() {
+    public MoreObjects.ToStringHelper toStringHelper() {
         return toStringHelper(this).add("lower", lower)
                                    .add("upper", upper)
                                    .add("includeLower", includeLower)
-                                   .add("includeUpper", includeUpper)
-                                   .toString();
+                                   .add("includeUpper", includeUpper);
     }
 }

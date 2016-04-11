@@ -54,6 +54,7 @@ public abstract class SingleFieldCondition extends Condition {
         this.field = field;
     }
 
+    @Override
     protected MoreObjects.ToStringHelper toStringHelper(Object o) {
         return super.toStringHelper(o).add("field", field);
     }

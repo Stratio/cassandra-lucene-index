@@ -36,6 +36,7 @@ import java.util.UUID;
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
@@ -47,7 +48,7 @@ public class MatchConditionTest extends AbstractConditionTest {
         MatchConditionBuilder builder = new MatchConditionBuilder("field", "value");
         MatchCondition condition = builder.build();
         assertNotNull("Condition is not built", condition);
-        assertEquals("Boost is not set to default", Condition.DEFAULT_BOOST, condition.boost, 0);
+        assertNull("Boost is not set to default", condition.boost);
         assertEquals("Field is not set", "field", condition.field);
         assertEquals("Value is not set", "value", condition.value);
     }
@@ -105,14 +106,13 @@ public class MatchConditionTest extends AbstractConditionTest {
         Schema schema = schema().mapper("name", stringMapper()).build();
 
         MatchCondition matchCondition = new MatchCondition(0.5f, "name", "value");
-        Query query = matchCondition.query(schema);
+        Query query = matchCondition.doQuery(schema);
 
         assertNotNull("Query is not built", query);
         assertEquals("Query type is wrong", TermQuery.class, query.getClass());
 
         TermQuery termQuery = (TermQuery) query;
         assertEquals("Query value is wrong", "value", termQuery.getTerm().bytes().utf8ToString());
-        assertEquals("Query boost is wrong", 0.5f, query.getBoost(), 0);
     }
 
     @Test
@@ -121,11 +121,10 @@ public class MatchConditionTest extends AbstractConditionTest {
         Schema schema = schema().mapper("name", textMapper().analyzer("english")).build();
 
         MatchCondition matchCondition = new MatchCondition(0.5f, "name", "the");
-        Query query = matchCondition.query(schema);
+        Query query = matchCondition.doQuery(schema);
 
         assertNotNull("Query is not built", query);
         assertEquals("Query type is wrong", BooleanQuery.class, query.getClass());
-        assertEquals("Query boost is wrong", 0.5f, query.getBoost(), 0);
     }
 
     @Test
@@ -134,7 +133,7 @@ public class MatchConditionTest extends AbstractConditionTest {
         Schema schema = schema().mapper("name", integerMapper()).build();
 
         MatchCondition matchCondition = new MatchCondition(0.5f, "name", 42);
-        Query query = matchCondition.query(schema);
+        Query query = matchCondition.doQuery(schema);
 
         assertNotNull("Query is not built", query);
         assertEquals("Query type is wrong", NumericRangeQuery.class, query.getClass());
@@ -144,7 +143,6 @@ public class MatchConditionTest extends AbstractConditionTest {
         assertEquals("Query value is wrong", 42, numericRangeQuery.getMax());
         assertEquals("Query value is wrong", true, numericRangeQuery.includesMin());
         assertEquals("Query value is wrong", true, numericRangeQuery.includesMax());
-        assertEquals("Query boost is wrong", 0.5f, query.getBoost(), 0);
     }
 
     @Test
@@ -153,7 +151,7 @@ public class MatchConditionTest extends AbstractConditionTest {
         Schema schema = schema().mapper("name", longMapper()).build();
 
         MatchCondition matchCondition = new MatchCondition(0.5f, "name", 42L);
-        Query query = matchCondition.query(schema);
+        Query query = matchCondition.doQuery(schema);
 
         assertNotNull("Query is not built", query);
         assertEquals("Query type is wrong", NumericRangeQuery.class, query.getClass());
@@ -163,7 +161,6 @@ public class MatchConditionTest extends AbstractConditionTest {
         assertEquals("Query value is wrong", 42L, numericRangeQuery.getMax());
         assertEquals("Query value is wrong", true, numericRangeQuery.includesMin());
         assertEquals("Query value is wrong", true, numericRangeQuery.includesMax());
-        assertEquals("Query boost is wrong", 0.5f, query.getBoost(), 0);
     }
 
     @Test
@@ -172,7 +169,7 @@ public class MatchConditionTest extends AbstractConditionTest {
         Schema schema = schema().mapper("name", floatMapper()).build();
 
         MatchCondition matchCondition = new MatchCondition(0.5f, "name", 42.42F);
-        Query query = matchCondition.query(schema);
+        Query query = matchCondition.doQuery(schema);
 
         assertNotNull("Query is not built", query);
         assertEquals("Query type is wrong", NumericRangeQuery.class, query.getClass());
@@ -182,7 +179,6 @@ public class MatchConditionTest extends AbstractConditionTest {
         assertEquals("Query value is wrong", 42.42F, numericRangeQuery.getMax());
         assertEquals("Query value is wrong", true, numericRangeQuery.includesMin());
         assertEquals("Query value is wrong", true, numericRangeQuery.includesMax());
-        assertEquals("Query boost is wrong", 0.5f, query.getBoost(), 0);
     }
 
     @Test
@@ -191,7 +187,7 @@ public class MatchConditionTest extends AbstractConditionTest {
         Schema schema = schema().mapper("name", doubleMapper()).build();
 
         MatchCondition matchCondition = new MatchCondition(0.5f, "name", 42.42D);
-        Query query = matchCondition.query(schema);
+        Query query = matchCondition.doQuery(schema);
 
         assertNotNull("Query is not built", query);
         assertEquals("Query type is wrong", NumericRangeQuery.class, query.getClass());
@@ -201,7 +197,6 @@ public class MatchConditionTest extends AbstractConditionTest {
         assertEquals("Query value is wrong", 42.42D, numericRangeQuery.getMax());
         assertEquals("Query value is wrong", true, numericRangeQuery.includesMin());
         assertEquals("Query value is wrong", true, numericRangeQuery.includesMax());
-        assertEquals("Query boost is wrong", 0.5f, query.getBoost(), 0);
     }
 
     @Test
@@ -210,14 +205,13 @@ public class MatchConditionTest extends AbstractConditionTest {
         Schema schema = schema().mapper("name", blobMapper()).build();
 
         MatchCondition matchCondition = new MatchCondition(0.5f, "name", "0Fa1");
-        Query query = matchCondition.query(schema);
+        Query query = matchCondition.doQuery(schema);
 
         assertNotNull("Query is not built", query);
         assertEquals("Query type is wrong", TermQuery.class, query.getClass());
 
         TermQuery termQuery = (TermQuery) query;
         assertEquals("Query value is wrong", "0fa1", termQuery.getTerm().bytes().utf8ToString());
-        assertEquals("Query boost is wrong", 0.5f, query.getBoost(), 0);
     }
 
     @Test
@@ -226,14 +220,13 @@ public class MatchConditionTest extends AbstractConditionTest {
         Schema schema = schema().mapper("name", inetMapper()).build();
 
         MatchCondition matchCondition = new MatchCondition(0.5f, "name", "192.168.0.01");
-        Query query = matchCondition.query(schema);
+        Query query = matchCondition.doQuery(schema);
 
         assertNotNull("Query is not built", query);
         assertEquals("Query type is wrong", TermQuery.class, query.getClass());
 
         TermQuery termQuery = (TermQuery) query;
         assertEquals("Query value is wrong", "192.168.0.1", termQuery.getTerm().bytes().utf8ToString());
-        assertEquals("Query boost is wrong", 0.5f, query.getBoost(), 0);
     }
 
     @Test
@@ -242,14 +235,13 @@ public class MatchConditionTest extends AbstractConditionTest {
         Schema schema = schema().mapper("name", inetMapper()).build();
 
         MatchCondition matchCondition = new MatchCondition(0.5f, "name", "2001:DB8:2de::0e13");
-        Query query = matchCondition.query(schema);
+        Query query = matchCondition.doQuery(schema);
 
         assertNotNull("Query is not built", query);
         assertEquals("Query type is wrong", TermQuery.class, query.getClass());
 
         TermQuery termQuery = (TermQuery) query;
         assertEquals("Query value is wrong", "2001:db8:2de:0:0:0:0:e13", termQuery.getTerm().bytes().utf8ToString());
-        assertEquals("Query boost is wrong", 0.5f, query.getBoost(), 0);
     }
 
     @Test(expected = IndexException.class)
@@ -260,7 +252,7 @@ public class MatchConditionTest extends AbstractConditionTest {
         Schema schema = schema().mapper("field", new MockedMapperBuilder(mapper)).build();
 
         MatchCondition matchCondition = new MatchCondition(0.5f, "field", "2001:DB8:2de::0e13");
-        matchCondition.query(schema);
+        matchCondition.doQuery(schema);
     }
 
     private class MockedMapper extends SingleColumnMapper.SingleFieldMapper<UUID> {

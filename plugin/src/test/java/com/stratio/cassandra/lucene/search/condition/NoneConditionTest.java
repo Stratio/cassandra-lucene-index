@@ -27,6 +27,7 @@ import org.junit.Test;
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.schema;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
@@ -46,7 +47,7 @@ public class NoneConditionTest extends AbstractConditionTest {
         NoneConditionBuilder builder = new NoneConditionBuilder();
         NoneCondition condition = builder.build();
         assertNotNull("Condition is not built", condition);
-        assertEquals("Boost is not set to default", Condition.DEFAULT_BOOST, condition.boost, 0);
+        assertNull("Boost is not set to default", condition.boost);
     }
 
     @Test
@@ -65,10 +66,9 @@ public class NoneConditionTest extends AbstractConditionTest {
     public void testQuery() {
         Schema schema = schema().build();
         NoneCondition condition = new NoneCondition(0.7f);
-        Query query = condition.query(schema);
+        Query query = condition.doQuery(schema);
         assertNotNull("Query is not built", query);
         assertEquals("Query type is wrong", BooleanQuery.class, query.getClass());
-        assertEquals("Query boost is wrong", 0.7f, query.getBoost(), 0);
     }
 
     @Test

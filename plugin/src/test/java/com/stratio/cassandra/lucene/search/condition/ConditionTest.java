@@ -18,59 +18,63 @@
 
 package com.stratio.cassandra.lucene.search.condition;
 
+import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.schema.Schema;
-import org.apache.lucene.search.Filter;
-import org.apache.lucene.search.MatchAllDocsQuery;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.QueryWrapperFilter;
+import org.apache.lucene.search.*;
 import org.junit.Test;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.schema;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class ConditionTest {
 
+    private static class MockCondition extends Condition {
+
+        MockCondition(Float boost) {
+            super(boost);
+        }
+        @Override
+        public Query doQuery(Schema schema) {
+            return new MatchAllDocsQuery();
+        }
+
+        @Override
+        public MoreObjects.ToStringHelper toStringHelper() {
+            return toStringHelper(this);
+        }
+    }
+
     @Test
     public void testConstructorWithBoost() {
-        Condition condition = new Condition(0.7f) {
-            @Override
-            public Query query(Schema schema) {
-                return null;
-            }
-        };
+        Condition condition = new MockCondition(0.7F);
         assertEquals("Query boost is wrong", 0.7f, condition.boost, 0);
     }
 
     @Test
-    public void testConstructor() {
-        Condition condition = new Condition(null) {
-            @Override
-            public Query query(Schema schema) {
-                return null;
-            }
-        };
-        assertEquals("Query boost is wrong", Condition.DEFAULT_BOOST, condition.boost, 0);
+    public void testConstructorWithoutBoost() {
+        Condition condition = new MockCondition(null);
+        assertNull("Query boost is wrong", condition.boost);
     }
 
     @Test
-    public void testFilter() {
+    public void testQueryWithBoost() {
+        Condition condition = new MockCondition(0.7f);
         Schema schema = schema().build();
-        Condition condition = new Condition(null) {
-            @Override
-            public Query query(Schema schema) {
-                return new MatchAllDocsQuery();
-            }
-        };
-        Filter filter = condition.filter(schema);
-        assertNotNull("Filter is not built", filter);
-        assertEquals("Filter type is wrong", QueryWrapperFilter.class, filter.getClass());
-        QueryWrapperFilter queryWrapperFilter = (QueryWrapperFilter) filter;
-        Query query = queryWrapperFilter.getQuery();
-        assertNotNull("Query is not built", query);
+        Query query = condition.query(schema);
+        assertEquals("Query boost is wrong", BoostQuery.class, query.getClass());
+        BoostQuery boostQuery = (BoostQuery) query;
+        assertEquals("Query type is wrong", 0.7f, boostQuery.getBoost(), 0);
+    }
+
+    @Test
+    public void testQueryWithoutBoost() {
+        Condition condition = new MockCondition(null);
+        Schema schema = schema().build();
+        Query query = condition.query(schema);
         assertEquals("Query type is wrong", MatchAllDocsQuery.class, query.getClass());
     }
 

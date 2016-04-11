@@ -20,9 +20,8 @@ package com.stratio.cassandra.lucene.search.condition;
 
 import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.schema.Schema;
-import org.apache.lucene.search.Filter;
+import org.apache.lucene.search.BoostQuery;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.search.QueryWrapperFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,11 +39,8 @@ public abstract class Condition {
 
     protected static final Logger logger = LoggerFactory.getLogger(Condition.class);
 
-    /** The default boost to be used. */
-    public static final float DEFAULT_BOOST = 1.0f;
-
     /** The boost to be used. */
-    public final float boost;
+    public final Float boost;
 
     /**
      * Abstract {@link Condition} builder receiving the boost to be used.
@@ -53,7 +49,7 @@ public abstract class Condition {
      * weightings) have their score multiplied by {@code boost}.
      */
     public Condition(Float boost) {
-        this.boost = boost == null ? DEFAULT_BOOST : boost;
+        this.boost = boost;
     }
 
     /**
@@ -62,19 +58,28 @@ public abstract class Condition {
      * @param schema the schema to be used
      * @return The Lucene query
      */
-    public abstract Query query(Schema schema);
+    public final Query query(Schema schema) {
+        Query query = doQuery(schema);
+        return boost == null ? query : new BoostQuery(query, boost);
+    }
 
     /**
-     * Returns the Lucene {@link Filter} representation of this condition.
+     * Returns the Lucene {@link Query} representation of this condition without boost.
      *
      * @param schema the schema to be used
-     * @return the Lucene filter
+     * @return The Lucene query
      */
-    public Filter filter(Schema schema) {
-        return new QueryWrapperFilter(query(schema));
-    }
+    protected abstract Query doQuery(Schema schema);
 
     protected MoreObjects.ToStringHelper toStringHelper(Object o) {
         return MoreObjects.toStringHelper(o).add("boost", boost);
+    }
+
+    protected abstract MoreObjects.ToStringHelper toStringHelper();
+
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        return toStringHelper().toString();
     }
 }

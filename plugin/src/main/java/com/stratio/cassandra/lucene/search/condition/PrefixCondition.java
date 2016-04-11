@@ -40,8 +40,7 @@ public class PrefixCondition extends SingleColumnCondition {
      * Constructor using the field name and the value to be matched.
      *
      * @param boost the boost for this query clause. Documents matching this clause will (in addition to the normal
-     * weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link #DEFAULT_BOOST} is used as
-     * default.
+     * weightings) have their score multiplied by {@code boost}.
      * @param field the name of the field to be matched
      * @param value the field prefix to be matched
      */
@@ -55,12 +54,10 @@ public class PrefixCondition extends SingleColumnCondition {
 
     /** {@inheritDoc} */
     @Override
-    public Query query(SingleColumnMapper<?> mapper, Analyzer analyzer) {
+    public Query doQuery(SingleColumnMapper<?> mapper, Analyzer analyzer) {
         if (mapper.base == String.class) {
             Term term = new Term(field, value);
-            Query query = new PrefixQuery(term);
-            query.setBoost(boost);
-            return query;
+            return new PrefixQuery(term);
         } else {
             throw new IndexException("Prefix queries are not supported by mapper '%s'", mapper);
         }
@@ -68,7 +65,7 @@ public class PrefixCondition extends SingleColumnCondition {
 
     /** {@inheritDoc} */
     @Override
-    public String toString() {
-        return MoreObjects.toStringHelper(this).add("field", field).add("value", value).toString();
+    public MoreObjects.ToStringHelper toStringHelper() {
+        return toStringHelper(this).add("value", value);
     }
 }

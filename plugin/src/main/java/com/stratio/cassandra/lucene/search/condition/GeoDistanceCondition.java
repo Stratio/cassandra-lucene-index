@@ -18,6 +18,7 @@
 
 package com.stratio.cassandra.lucene.search.condition;
 
+import com.google.common.base.MoreObjects;
 import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.shape.Circle;
 import com.stratio.cassandra.lucene.IndexException;
@@ -58,8 +59,7 @@ public class GeoDistanceCondition extends SingleMapperCondition<GeoPointMapper> 
      * Constructor using the field name and the value to be matched.
      *
      * @param boost The boost for this query clause. Documents matching this clause will (in addition to the normal
-     * weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link #DEFAULT_BOOST} is used as
-     * default.
+     * weightings) have their score multiplied by {@code boost}.
      * @param field the name of the field to be matched
      * @param latitude the latitude of the reference point
      * @param longitude the longitude of the reference point
@@ -91,18 +91,14 @@ public class GeoDistanceCondition extends SingleMapperCondition<GeoPointMapper> 
 
     /** {@inheritDoc} */
     @Override
-    public Query query(GeoPointMapper mapper, Analyzer analyzer) {
-
+    public Query doQuery(GeoPointMapper mapper, Analyzer analyzer) {
         SpatialStrategy spatialStrategy = mapper.distanceStrategy;
-
         BooleanQuery.Builder builder = new BooleanQuery.Builder();
         builder.add(query(maxGeoDistance, spatialStrategy), FILTER);
         if (minGeoDistance != null) {
             builder.add(query(minGeoDistance, spatialStrategy), MUST_NOT);
         }
-        Query query = builder.build();
-        query.setBoost(boost);
-        return query;
+        return builder.build();
     }
 
     private Query query(GeoDistance geoDistance, SpatialStrategy spatialStrategy) {
@@ -115,11 +111,10 @@ public class GeoDistanceCondition extends SingleMapperCondition<GeoPointMapper> 
 
     /** {@inheritDoc} */
     @Override
-    public String toString() {
+    public MoreObjects.ToStringHelper toStringHelper() {
         return toStringHelper(this).add("latitude", latitude)
                                    .add("longitude", longitude)
                                    .add("minGeoDistance", minGeoDistance)
-                                   .add("maxGeoDistance", maxGeoDistance)
-                                   .toString();
+                                   .add("maxGeoDistance", maxGeoDistance);
     }
 }

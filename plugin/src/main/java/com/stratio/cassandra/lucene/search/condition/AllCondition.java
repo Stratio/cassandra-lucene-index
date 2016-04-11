@@ -34,8 +34,7 @@ public class AllCondition extends Condition {
      * Constructor without field arguments.
      *
      * @param boost The boost for this query clause. Documents matching this clause will (in addition to the normal
-     * weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link #DEFAULT_BOOST} is used as
-     * default.
+     * weightings) have their score multiplied by {@code boost}.
      */
     public AllCondition(Float boost) {
         super(boost);
@@ -43,15 +42,13 @@ public class AllCondition extends Condition {
 
     /** {@inheritDoc} */
     @Override
-    public Query query(Schema schema) {
-        Query query = new MatchAllDocsQuery();
-        query.setBoost(boost);
-        return query;
+    public Query doQuery(Schema schema) {
+        return new MatchAllDocsQuery();
     }
 
     /** {@inheritDoc} */
     @Override
-    public String toString() {
-        return MoreObjects.toStringHelper(this).add("boost", boost).toString();
+    public MoreObjects.ToStringHelper toStringHelper() {
+        return toStringHelper(this);
     }
 }

@@ -29,6 +29,7 @@ import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
 import static com.stratio.cassandra.lucene.search.condition.FuzzyCondition.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
@@ -58,7 +59,7 @@ public class FuzzyConditionTest extends AbstractConditionTest {
         FuzzyConditionBuilder builder = new FuzzyConditionBuilder("field", "value");
         FuzzyCondition condition = builder.build();
         assertNotNull("Condition is not built", condition);
-        assertEquals("Boost is not set to default", DEFAULT_BOOST, condition.boost, 0);
+        assertNull("Boost is not set to default", condition.boost);
         assertEquals("Field is not set", "field", condition.field);
         assertEquals("Value is not set", "value", condition.value);
         assertEquals("Max edits is not set to default", DEFAULT_MAX_EDITS, condition.maxEdits);
@@ -121,7 +122,7 @@ public class FuzzyConditionTest extends AbstractConditionTest {
         Schema schema = schema().mapper("name", stringMapper()).build();
 
         FuzzyCondition condition = new FuzzyCondition(0.5f, "name", "tr", 1, 2, 49, true);
-        Query query = condition.query(schema);
+        Query query = condition.doQuery(schema);
 
         assertNotNull("Query is not built", query);
         assertEquals("Query type is wrong", FuzzyQuery.class, query.getClass());
@@ -131,7 +132,6 @@ public class FuzzyConditionTest extends AbstractConditionTest {
         assertEquals("Query term is wrong", "tr", fuzzyQuery.getTerm().text());
         assertEquals("Query max edits is wrong", 1, fuzzyQuery.getMaxEdits());
         assertEquals("Query prefix length is wrong", 2, fuzzyQuery.getPrefixLength());
-        assertEquals("Query boost is wrong", 0.5f, query.getBoost(), 0);
     }
 
     @Test(expected = IndexException.class)

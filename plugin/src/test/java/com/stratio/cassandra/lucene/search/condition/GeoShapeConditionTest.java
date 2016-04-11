@@ -72,7 +72,7 @@ public class GeoShapeConditionTest extends AbstractConditionTest {
     public void testConstructorWithDefaults() throws ParseException {
         GeoShapeCondition condition = new GeoShapeCondition(null, "geo_point", WKT, null, null);
 
-        assertEquals("Boost is not to default", Condition.DEFAULT_BOOST, condition.boost, 0);
+        assertNull("Boost is not set to default", condition.boost);
         assertEquals("Field is not set", "geo_point", condition.field);
 
         Shape shape = GeoShapeCondition.CONTEXT.getWktShapeParser().parse(WKT);
@@ -122,7 +122,7 @@ public class GeoShapeConditionTest extends AbstractConditionTest {
 
         Condition condition = new GeoShapeCondition(0.1f, "geo_point", WKT, GeoOperation.IS_WITHIN, transformations);
 
-        Query query = condition.query(schema);
+        Query query = condition.doQuery(schema);
         assertNotNull("Query is not built", query);
 
         assertEquals("Query type is wrong", WithinPrefixTreeQuery.class, query.getClass());
@@ -168,7 +168,7 @@ public class GeoShapeConditionTest extends AbstractConditionTest {
 
         Condition condition = new GeoShapeCondition(0.1f, "geo_point", WKT, GeoOperation.INTERSECTS, transformations);
 
-        Query query = condition.query(schema);
+        Query query = condition.doQuery(schema);
         assertNotNull("Query is not built", query);
 
         assertEquals("Query type is wrong", IntersectsPrefixTreeQuery.class, query.getClass());
@@ -213,7 +213,7 @@ public class GeoShapeConditionTest extends AbstractConditionTest {
 
         Condition condition = new GeoShapeCondition(0.1f, "geo_point", WKT, GeoOperation.CONTAINS, transformations);
 
-        Query query = condition.query(schema);
+        Query query = condition.doQuery(schema);
         assertNotNull("Query is not built", query);
 
         assertEquals("Query type is wrong", ContainsPrefixTreeQuery.class, query.getClass());
@@ -260,7 +260,7 @@ public class GeoShapeConditionTest extends AbstractConditionTest {
     public void testToString() {
         String wkt = "POLYGON((1 1,5 1,5 5,1 5,1 1),(2 2, 3 2, 3 3, 2 3,2 2))";
         GeoShapeCondition condition = geoShape("name", wkt).operation("intersects").transformations(null).build();
-        assertEquals("Method #toString is wrong", "GeoShapeCondition{boost=1.0, field=name, geometry=" +
+        assertEquals("Method #toString is wrong", "GeoShapeCondition{boost=null, field=name, geometry=" +
                                                   "POLYGON ((1 1, 5 1, 5 5, 1 5, 1 1), (2 2, 3 2, 3 3, 2 3, 2 2)), " +
                                                   "operation=INTERSECTS, transformations=[]}", condition.toString());
     }

@@ -49,7 +49,7 @@ public abstract class SingleColumnCondition extends SingleFieldCondition {
     /** {@inheritDoc} */
     @Override
     @SuppressWarnings("unchecked")
-    public final Query query(Schema schema) {
+    public final Query doQuery(Schema schema) {
         Mapper mapper = schema.getMapper(field);
         if (mapper == null) {
             throw new IndexException("No mapper found for field '%s'", field);
@@ -59,7 +59,7 @@ public abstract class SingleColumnCondition extends SingleFieldCondition {
                                      SingleColumnMapper.class.getSimpleName(),
                                      mapper);
         }
-        return query((SingleColumnMapper<?>) mapper, schema.getAnalyzer());
+        return doQuery((SingleColumnMapper<?>) mapper, schema.getAnalyzer());
     }
 
     /**
@@ -69,5 +69,5 @@ public abstract class SingleColumnCondition extends SingleFieldCondition {
      * @param analyzer the {@link Schema} analyzer
      * @return the Lucene query
      */
-    public abstract Query query(SingleColumnMapper<?> mapper, Analyzer analyzer);
+    public abstract Query doQuery(SingleColumnMapper<?> mapper, Analyzer analyzer);
 }

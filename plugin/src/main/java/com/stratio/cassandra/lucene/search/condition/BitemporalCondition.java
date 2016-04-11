@@ -18,6 +18,7 @@
 
 package com.stratio.cassandra.lucene.search.condition;
 
+import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.schema.mapping.BitemporalMapper;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.search.BooleanQuery;
@@ -75,7 +76,7 @@ public class BitemporalCondition extends SingleMapperCondition<BitemporalMapper>
 
     /** {@inheritDoc} */
     @Override
-    public Query query(BitemporalMapper mapper, Analyzer analyzer) {
+    public Query doQuery(BitemporalMapper mapper, Analyzer analyzer) {
 
         Long vtFromTime = parseTime(mapper, DEFAULT_FROM, vtFrom);
         Long vtToTime = parseTime(mapper, DEFAULT_TO, vtTo);
@@ -145,9 +146,7 @@ public class BitemporalCondition extends SingleMapperCondition<BitemporalMapper>
             builder.add(transactionBuilder.build(), MUST);
         }
 
-        Query query = builder.build();
-        query.setBoost(boost);
-        return query;
+        return builder.build();
     }
 
     private static Long parseTime(BitemporalMapper mapper, Long defaultTime, Object value) {
@@ -158,11 +157,10 @@ public class BitemporalCondition extends SingleMapperCondition<BitemporalMapper>
 
     /** {@inheritDoc} */
     @Override
-    public String toString() {
+    public MoreObjects.ToStringHelper toStringHelper() {
         return toStringHelper(this).add("vtFrom", vtFrom)
                                    .add("vtTo", vtTo)
                                    .add("ttFrom", ttFrom)
-                                   .add("ttTo", ttTo)
-                                   .toString();
+                                   .add("ttTo", ttTo);
     }
 }

@@ -18,6 +18,7 @@
 
 package com.stratio.cassandra.lucene.search.condition;
 
+import com.google.common.base.MoreObjects;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.shape.Rectangle;
 import com.stratio.cassandra.lucene.IndexException;
@@ -52,8 +53,7 @@ public class GeoBBoxCondition extends SingleMapperCondition<GeoPointMapper> {
      * Constructor using the field name and the value to be matched.
      *
      * @param boost The boost for this query clause. Documents matching this clause will (in addition to the normal
-     * weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link #DEFAULT_BOOST} is used as
-     * default.
+     * weightings) have their score multiplied by {@code boost}.
      * @param field the name of the field to be matched
      * @param minLatitude the minimum accepted latitude
      * @param maxLatitude the maximum accepted latitude
@@ -84,7 +84,7 @@ public class GeoBBoxCondition extends SingleMapperCondition<GeoPointMapper> {
 
     /** {@inheritDoc} */
     @Override
-    public Query query(GeoPointMapper mapper, Analyzer analyzer) {
+    public Query doQuery(GeoPointMapper mapper, Analyzer analyzer) {
 
         SpatialStrategy spatialStrategy = mapper.bboxStrategy;
 
@@ -92,18 +92,15 @@ public class GeoBBoxCondition extends SingleMapperCondition<GeoPointMapper> {
         Rectangle rectangle = context.makeRectangle(minLongitude, maxLongitude, minLatitude, maxLatitude);
 
         SpatialArgs args = new SpatialArgs(SpatialOperation.BBoxIntersects, rectangle);
-        Query query = spatialStrategy.makeQuery(args);
-        query.setBoost(boost);
-        return query;
+        return spatialStrategy.makeQuery(args);
     }
 
     /** {@inheritDoc} */
     @Override
-    public String toString() {
+    public MoreObjects.ToStringHelper toStringHelper() {
         return toStringHelper(this).add("minLatitude", minLatitude)
                                    .add("maxLatitude", maxLatitude)
                                    .add("minLongitude", minLongitude)
-                                   .add("maxLongitude", maxLongitude)
-                                   .toString();
+                                   .add("maxLongitude", maxLongitude);
     }
 }

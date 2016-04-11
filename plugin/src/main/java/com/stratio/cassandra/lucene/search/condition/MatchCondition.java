@@ -18,6 +18,7 @@
 
 package com.stratio.cassandra.lucene.search.condition;
 
+import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
 import com.stratio.cassandra.lucene.schema.mapping.TextMapper;
@@ -43,8 +44,7 @@ public class MatchCondition extends SingleColumnCondition {
      * Constructor using the field name and the value to be matched.
      *
      * @param boost The boost for this query clause. Documents matching this clause will (in addition to the normal
-     * weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link #DEFAULT_BOOST} is used as
-     * default.
+     * weightings) have their score multiplied by {@code boost}.
      * @param field the name of the field to be matched
      * @param value the value of the field to be matched
      */
@@ -58,7 +58,7 @@ public class MatchCondition extends SingleColumnCondition {
 
     /** {@inheritDoc} */
     @Override
-    public Query query(SingleColumnMapper<?> mapper, Analyzer analyzer) {
+    public Query doQuery(SingleColumnMapper<?> mapper, Analyzer analyzer) {
         Class<?> clazz = mapper.base;
         Query query;
         if (clazz == String.class) {
@@ -87,13 +87,12 @@ public class MatchCondition extends SingleColumnCondition {
         } else {
             throw new IndexException("Match queries are not supported by mapper '%s'", mapper);
         }
-        query.setBoost(boost);
         return query;
     }
 
     /** {@inheritDoc} */
     @Override
-    public String toString() {
-        return toStringHelper(this).add("value", value).toString();
+    public MoreObjects.ToStringHelper toStringHelper() {
+        return toStringHelper(this).add("value", value);
     }
 }

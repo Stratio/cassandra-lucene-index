@@ -45,8 +45,7 @@ public class ContainsCondition extends SingleColumnCondition {
      * Constructor using the field name and the value to be matched.
      *
      * @param boost The boost for this query clause. Documents matching this clause will (in addition to the normal
-     * weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link #DEFAULT_BOOST} is used as
-     * default.
+     * weightings) have their score multiplied by {@code boost}.
      * @param field the name of the field to be matched
      * @param values the value of the field to be matched
      */
@@ -63,24 +62,18 @@ public class ContainsCondition extends SingleColumnCondition {
 
     /** {@inheritDoc} */
     @Override
-    public Query query(SingleColumnMapper<?> mapper, Analyzer analyzer) {
+    public Query doQuery(SingleColumnMapper<?> mapper, Analyzer analyzer) {
         BooleanQuery.Builder builder = new BooleanQuery.Builder();
         for (Object value : values) {
-            MatchCondition condition = new MatchCondition(boost, field, value);
-            builder.add(condition.query(mapper, analyzer), BooleanClause.Occur.SHOULD);
+            MatchCondition condition = new MatchCondition(null, field, value);
+            builder.add(condition.doQuery(mapper, analyzer), BooleanClause.Occur.SHOULD);
         }
-        Query query = builder.build();
-        query.setBoost(boost);
-        return query;
+        return builder.build();
     }
 
     /** {@inheritDoc} */
     @Override
-    public String toString() {
-        return MoreObjects.toStringHelper(this)
-                          .add("boost", boost)
-                          .add("field", field)
-                          .add("values", Arrays.toString(values))
-                          .toString();
+    public MoreObjects.ToStringHelper toStringHelper() {
+        return toStringHelper(this).add("values", Arrays.toString(values));
     }
 }
