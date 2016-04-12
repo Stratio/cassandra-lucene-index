@@ -44,15 +44,22 @@ public class FSIndex implements FSIndexMBean {
 
     private static final Logger logger = LoggerFactory.getLogger(FSIndex.class);
 
-    private final Path path;
     private final String name;
+    private final String mbeanName;
+    private final Path path;
+    private final Analyzer analyzer;
+    private final double refresh;
+    private final int ramBufferMB;
+    private final int maxMergeMB;
+    private final int maxCachedMB;
+    private final Runnable refreshTask;
 
-    private final Directory directory;
-    private final IndexWriter indexWriter;
-    private final SearcherManager searcherManager;
-    private final ControlledRealTimeReopenThread<IndexSearcher> searcherReopener;
+    private Directory directory;
+    private IndexWriter indexWriter;
+    private SearcherManager searcherManager;
+    private ControlledRealTimeReopenThread<IndexSearcher> searcherReopener;
 
-    private final ObjectName mbean;
+    private ObjectName mbean;
 
     // Disable max boolean query clauses limit
     static {
@@ -81,9 +88,19 @@ public class FSIndex implements FSIndexMBean {
                    int maxMergeMB,
                    int maxCachedMB,
                    Runnable refreshTask) {
+        this.name = name;
+        this.mbeanName = mbeanName;
+        this.path = path;
+        this.analyzer = analyzer;
+        this.refresh = refresh;
+        this.ramBufferMB = ramBufferMB;
+        this.maxMergeMB = maxMergeMB;
+        this.maxCachedMB = maxCachedMB;
+        this.refreshTask = refreshTask;
+    }
+
+    public void init() {
         try {
-            this.path = path;
-            this.name = name;
 
             // Open or create directory
             FSDirectory fsDirectory = FSDirectory.open(path);
@@ -216,7 +233,7 @@ public class FSIndex implements FSIndexMBean {
         try {
             close();
         } catch (Exception e) {
-            throw new IndexException(logger, e, "Error deleting %s", name);
+            logger.error(String.format("Error deleting %s", name), e);
         } finally {
             FileUtils.deleteRecursive(path.toFile());
         }

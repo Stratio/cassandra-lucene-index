@@ -97,10 +97,9 @@ abstract class IndexService {
      * @param indexMetadata the index metadata
      */
     IndexService(ColumnFamilyStore indexedTable, IndexMetadata indexMetadata) {
+
         table = indexedTable;
         metadata = table.metadata;
-
-        // Setup monitoring names
         name = indexMetadata.name;
         qualifiedName = String.format("%s.%s.%s", metadata.ksName, metadata.cfName, indexMetadata.name);
         String mbeanName = String.format("com.stratio.cassandra.lucene:type=Lucene,keyspace=%s,table=%s,index=%s",
@@ -108,19 +107,8 @@ abstract class IndexService {
                                          metadata.cfName,
                                          name);
 
-        // Setup cache, index and write queue
+        // Parse options
         IndexOptions options = new IndexOptions(metadata, indexMetadata);
-        searchCache = new SearchCache(metadata, options.searchCacheSize);
-        lucene = new FSIndex(name,
-                             mbeanName,
-                             options.path,
-                             options.schema.getAnalyzer(),
-                             options.refreshSeconds,
-                             options.ramBufferMB,
-                             options.maxMergeMB,
-                             options.maxCachedMB,
-                             searchCache::invalidate);
-        queue = new TaskQueue(options.indexingThreads, options.indexingQueuesSize);
 
         // Setup mapping
         schema = options.schema;
@@ -131,6 +119,31 @@ abstract class IndexService {
                                  .stream()
                                  .filter(x -> schema.getMappedCells().contains(x.name.toString()))
                                  .anyMatch(x -> x.type.isMultiCell());
+
+        // Setup cache, FS index and write queue
+        searchCache = new SearchCache(metadata, options.searchCacheSize);
+        queue = new TaskQueue(options.indexingThreads, options.indexingQueuesSize);
+        lucene = new FSIndex(name,
+                             mbeanName,
+                             options.path,
+                             options.schema.getAnalyzer(),
+                             options.refreshSeconds,
+                             options.ramBufferMB,
+                             options.maxMergeMB,
+                             options.maxCachedMB,
+                             searchCache::invalidate);
+
+        // Try FS index initialization
+        try {
+            lucene.init();
+        } catch (Exception e) {
+            logger.error(String.format(
+                    "Initialization of Lucene FS directory for index '%s' has failed, " +
+                    "this could be caused by on-disk data corruption, " +
+                    "or by an upgrade to an incompatible version, " +
+                    "try to drop the failing index and create it again:",
+                    name), e);
+        }
     }
 
     /**
@@ -274,8 +287,11 @@ abstract class IndexService {
 
     /** Closes and removes all the index files. */
     final void delete() {
-        queue.shutdown();
-        lucene.delete();
+        try {
+            queue.shutdown();
+        } finally {
+            lucene.delete();
+        }
     }
 
     /**
