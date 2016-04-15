@@ -20,71 +20,42 @@ public class DocumentIterator implements CloseableIterator<Pair<Document, ScoreD
 
     private static final Logger logger = LoggerFactory.getLogger(DocumentIterator.class);
 
-    private final SearcherManager manager;
+    private final FSIndex index;
     private final Query query;
     private final Integer page;
-    private final Set<String> fields;
     private final Deque<Pair<Document, ScoreDoc>> documents = new LinkedList<>();
-    private Sort sort;
+    private final Sort sort;
     private ScoreDoc after;
     private boolean mayHaveMore = true;
 
     /**
      * Builds a new iterator over the {@link Document}s satisfying the specified {@link Query}.
      *
-     * @param manager the index searcher manager
+     * @param index the Lucene index
      * @param query the query to be satisfied by the documents
      * @param sort the sort in which the documents are going to be retrieved
      * @param after a pointer to the start document (not included)
-     * @param limit the max number of documents to be retrieved
-     * @param fields the names of the fields to be loaded
+     * @param page the iteration page size
      */
-    DocumentIterator(SearcherManager manager,
-                     Query query,
-                     Sort sort,
-                     ScoreDoc after,
-                     Integer limit,
-                     Set<String> fields) {
-        this.manager = manager;
+    DocumentIterator(FSIndex index, Query query, Sort sort, ScoreDoc after, Integer page) {
+        this.index = index;
         this.query = query;
         this.sort = sort;
         this.after = after;
-        this.page = limit < Integer.MAX_VALUE ? limit + 1 : limit;
-        this.fields = fields;
+        this.page = page < Integer.MAX_VALUE ? page + 1 : page;
     }
 
     private void fetch() {
-        try {
 
-            IndexSearcher searcher = manager.acquire();
-            try {
+        TimeCounter time = TimeCounter.create().start();
+        List<Pair<Document, ScoreDoc>> docs = index.doSearch(query, sort, after, page);
+        logger.debug("Get page with {} documents in {}", docs.size(), time.stop());
 
-                TimeCounter time = TimeCounter.create().start();
-
-                // Search for top documents
-                sort = sort.rewrite(searcher);
-                TopDocs topDocs = searcher.searchAfter(after, query, page, sort);
-                ScoreDoc[] scoreDocs = topDocs.scoreDocs;
-
-                // Check inf mayHaveMore
-                mayHaveMore = scoreDocs.length == page;
-
-                // Collect the documents from query result
-                for (ScoreDoc scoreDoc : scoreDocs) {
-                    Document document = searcher.doc(scoreDoc.doc, fields);
-                    documents.add(Pair.create(document, scoreDoc));
-                    after = scoreDoc;
-                }
-
-                logger.debug("Get page with {} documents in {}", scoreDocs.length, time.stop());
-
-            } finally {
-                manager.release(searcher);
-            }
-
-        } catch (Exception e) {
-            throw new IndexException(logger, e, "Error searching in with %s and %s", query, sort);
-        }
+        mayHaveMore = docs.size() == page;
+        docs.forEach(pair -> {
+            documents.add(pair);
+            after = pair.right;
+        });
     }
 
     /**

@@ -51,6 +51,7 @@ class IndexServiceSkinny extends IndexService {
      */
     IndexServiceSkinny(ColumnFamilyStore table, IndexMetadata indexMetadata) {
         super(table, indexMetadata);
+        init();
     }
 
     /** {@inheritDoc} */
@@ -112,8 +113,8 @@ class IndexServiceSkinny extends IndexService {
 
     /** {@inheritDoc} */
     @Override
-    public Query query(DecoratedKey key, ClusteringIndexFilter filter) {
-        return new TermQuery(term(key));
+    public Optional<Query> query(DecoratedKey key, ClusteringIndexFilter filter) {
+        return Optional.of(new TermQuery(term(key)));
     }
 
     /** {@inheritDoc} */

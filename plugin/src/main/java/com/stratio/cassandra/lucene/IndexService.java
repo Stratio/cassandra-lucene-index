@@ -36,6 +36,7 @@ import com.stratio.cassandra.lucene.util.SimpleRowIterator;
 import com.stratio.cassandra.lucene.util.TaskQueue;
 import com.stratio.cassandra.lucene.util.TimeCounter;
 import org.apache.cassandra.config.CFMetaData;
+import org.apache.cassandra.config.ColumnDefinition;
 import org.apache.cassandra.db.*;
 import org.apache.cassandra.db.filter.ClusteringIndexFilter;
 import org.apache.cassandra.db.filter.ClusteringIndexNamesFilter;
@@ -76,18 +77,17 @@ abstract class IndexService {
 
     protected static final Logger logger = LoggerFactory.getLogger(IndexService.class);
 
+    final String qualifiedName;
+    final TokenMapper tokenMapper;
+    final PartitionMapper partitionMapper;
+    final ColumnsMapper columnsMapper;
     protected final ColumnFamilyStore table;
     protected final CFMetaData metadata;
-    protected final FSIndex lucene;
-    protected final String name;
-    protected final String qualifiedName;
-    private final TaskQueue queue;
     protected final Schema schema;
-    protected final TokenMapper tokenMapper;
-    protected final PartitionMapper partitionMapper;
-    protected final ColumnsMapper columnsMapper;
+    private final FSIndex lucene;
+    private final String name;
+    private final TaskQueue queue;
     private final boolean mapsMultiCells;
-
     private final SearchCache searchCache;
 
     /**
@@ -132,10 +132,19 @@ abstract class IndexService {
                              options.maxMergeMB,
                              options.maxCachedMB,
                              searchCache::invalidate);
+    }
 
-        // Try FS index initialization
+    void init() {
+
+        List<SortField> keySortFields = keySortFields();
+        Sort keySort = new Sort(keySortFields.toArray(new SortField[keySortFields.size()])) {
+            public String toString() {
+                return "key_sort";
+            }
+        };
+
         try {
-            lucene.init();
+            lucene.init(keySort, fieldsToLoad());
         } catch (Exception e) {
             logger.error(String.format(
                     "Initialization of Lucene FS directory for index '%s' has failed, " +
@@ -153,10 +162,33 @@ abstract class IndexService {
      * @param indexMetadata the index metadata
      * @return the index service
      */
-    public static IndexService build(ColumnFamilyStore table, IndexMetadata indexMetadata) {
+    static IndexService build(ColumnFamilyStore table, IndexMetadata indexMetadata) {
         return table.getComparator().subtypes().isEmpty()
                ? new IndexServiceSkinny(table, indexMetadata)
                : new IndexServiceWide(table, indexMetadata);
+    }
+
+    /**
+     * Returns if the specified column definition is mapped by this index.
+     *
+     * @param column a column definition
+     * @return {@code true} if the column is mapped, {@code false} otherwise
+     */
+    boolean maps(ColumnDefinition column) {
+        return schema.maps(column);
+    }
+
+    /**
+     * Returns the validated {@link Search} contained in the specified expression.
+     *
+     * @param expression a custom CQL expression
+     * @return the validated expression
+     */
+    Search validate(RowFilter.CustomExpression expression) {
+        String json = UTF8Type.instance.compose(expression.getValue());
+        Search search = SearchBuilder.fromJson(json).build();
+        search.validate(schema);
+        return search;
     }
 
     /**
@@ -164,14 +196,14 @@ abstract class IndexService {
      *
      * @return the names of the fields to be loaded
      */
-    public abstract Set<String> fieldsToLoad();
+    abstract Set<String> fieldsToLoad();
 
     /**
      * Returns the Lucene {@link SortField}s required to retrieve documents sorted by Cassandra's primary key.
      *
      * @return the sort fields
      */
-    public abstract List<SortField> keySortFields();
+    abstract List<SortField> keySortFields();
 
     /**
      * Returns a {@link Columns} representing the specified {@link Row}.
@@ -180,7 +212,7 @@ abstract class IndexService {
      * @param row the {@link Row}
      * @return the columns representing the specified {@link Row}
      */
-    public abstract Columns columns(DecoratedKey key, Row row);
+    abstract Columns columns(DecoratedKey key, Row row);
 
     /**
      * Returns a {@code Optional} with the Lucene {@link Document} representing the specified {@link Row}, or  an empty
@@ -190,7 +222,7 @@ abstract class IndexService {
      * @param row the {@link Row}
      * @return maybe a document
      */
-    public abstract Optional<Document> document(DecoratedKey key, Row row);
+    abstract Optional<Document> document(DecoratedKey key, Row row);
 
     /**
      * Returns a Lucene {@link Term} uniquely identifying the specified {@link Row}.
@@ -199,7 +231,7 @@ abstract class IndexService {
      * @param row the {@link Row}
      * @return a Lucene identifying {@link Term}
      */
-    public abstract Term term(DecoratedKey key, Row row);
+    abstract Term term(DecoratedKey key, Row row);
 
     /**
      * Returns a Lucene {@link Term} uniquely identifying the specified {@link Document}.
@@ -207,7 +239,7 @@ abstract class IndexService {
      * @param document the document
      * @return a Lucene identifying {@link Term}
      */
-    public abstract Term term(Document document);
+    abstract Term term(Document document);
 
     /**
      * Returns a Lucene {@link Term} identifying documents representing all the {@link Row}'s which are in the partition
@@ -216,7 +248,7 @@ abstract class IndexService {
      * @param key the partition key
      * @return a Lucene {@link Term} representing {@code key}
      */
-    public Term term(DecoratedKey key) {
+    Term term(DecoratedKey key) {
         return partitionMapper.term(key);
     }
 
@@ -427,7 +459,7 @@ abstract class IndexService {
         if (command instanceof SinglePartitionReadCommand) {
             DecoratedKey key = ((SinglePartitionReadCommand) command).partitionKey();
             ClusteringIndexFilter clusteringFilter = command.clusteringIndexFilter(key);
-            return Optional.of(query(key, clusteringFilter));
+            return query(key, clusteringFilter);
         } else if (command instanceof PartitionRangeReadCommand) {
             DataRange dataRange = ((PartitionRangeReadCommand) command).dataRange();
             return query(dataRange);
@@ -444,7 +476,7 @@ abstract class IndexService {
      * @param filter the clustering key range
      * @return a query to get the {@link Document}s satisfying the key range
      */
-    abstract Query query(DecoratedKey key, ClusteringIndexFilter filter);
+    abstract Optional<Query> query(DecoratedKey key, ClusteringIndexFilter filter);
 
     /**
      * Returns a Lucene {@link Query} to get the {@link Document}s satisfying the specified {@link DataRange}.
@@ -473,6 +505,9 @@ abstract class IndexService {
      * @return a Lucene sort according to {@code search}
      */
     private Sort sort(Search search) {
+        if (!search.usesRelevance() && !search.usesSorting()) {
+            return null;
+        }
         List<SortField> sortFields = new ArrayList<>();
         if (search.usesSorting()) {
             sortFields.addAll(search.sortFields(schema));
@@ -533,7 +568,7 @@ abstract class IndexService {
                                              ReadOrderGroup orderGroup,
                                              SearchCacheUpdater cacheUpdater) {
         int limit = command.limits().count();
-        DocumentIterator documents = lucene.search(query, sort, after, limit, fieldsToLoad());
+        DocumentIterator documents = lucene.search(query, sort, after, limit);
         return indexReader(documents, command, orderGroup, cacheUpdater);
     }
 

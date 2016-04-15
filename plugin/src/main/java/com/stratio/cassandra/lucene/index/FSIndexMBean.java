@@ -33,14 +33,14 @@ public interface FSIndexMBean {
      *
      * @return the number of {@link org.apache.lucene.document.Document}s
      */
-    long getNumDocs();
+    int getNumDocs();
 
     /**
      * Returns the total number of deleted {@link org.apache.lucene.document.Document}s in this index.
      *
      * @return the number of deleted {@link org.apache.lucene.document.Document}s
      */
-    long getNumDeletedDocs();
+    int getNumDeletedDocs();
 
     /**
      * Optimizes the index forcing merge segments leaving the specified number of segments. This operation may block

@@ -60,6 +60,7 @@ class IndexServiceWide extends IndexService {
     IndexServiceWide(ColumnFamilyStore table, IndexMetadata indexMetadata) {
         super(table, indexMetadata);
         keyMapper = new KeyMapper(metadata);
+        super.init();
     }
 
     /** {@inheritDoc} */
@@ -147,7 +148,7 @@ class IndexServiceWide extends IndexService {
 
     /** {@inheritDoc} */
     @Override
-    public Query query(DecoratedKey key, ClusteringIndexFilter filter) {
+    public Optional<Query> query(DecoratedKey key, ClusteringIndexFilter filter) {
         return keyMapper.query(key, filter);
     }
 

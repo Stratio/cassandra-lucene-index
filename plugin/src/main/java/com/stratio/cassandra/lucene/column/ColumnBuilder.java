@@ -101,7 +101,7 @@ public class ColumnBuilder {
      *
      * @return the copy
      */
-    public ColumnBuilder copy() {
+    private ColumnBuilder copy() {
         ColumnBuilder clone = new ColumnBuilder(cellName);
         clone.udtNames.addAll(udtNames);
         clone.mapNames.addAll(mapNames);

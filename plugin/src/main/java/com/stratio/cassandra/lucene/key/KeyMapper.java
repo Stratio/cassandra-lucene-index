@@ -329,11 +329,11 @@ public final class KeyMapper {
      * @param sliceFilter the slice filter
      * @return the Lucene query
      */
-    public Query query(DecoratedKey key, ClusteringIndexSliceFilter sliceFilter) {
+    public Optional<Query> query(DecoratedKey key, ClusteringIndexSliceFilter sliceFilter) {
         Slices slices = sliceFilter.requestedSlices();
         ClusteringPrefix startBound = slices.get(0).start();
         ClusteringPrefix stopBound = slices.get(slices.size() - 1).end();
-        return query(key, startBound, stopBound, false, false);
+        return Optional.of(query(key, startBound, stopBound, false, false));
     }
 
     /**
@@ -343,16 +343,16 @@ public final class KeyMapper {
      * @param namesFilter the names filter
      * @return the Lucene query
      */
-    public Query query(DecoratedKey key, ClusteringIndexNamesFilter namesFilter) {
+    public Optional<Query> query(DecoratedKey key, ClusteringIndexNamesFilter namesFilter) {
         NavigableSet<Clustering> clusterings = namesFilter.requestedRows();
         if (!clusterings.isEmpty()) {
             BooleanQuery.Builder builder = new BooleanQuery.Builder();
             for (Clustering clustering : clusterings) {
                 builder.add(query(key, clustering), SHOULD);
             }
-            return builder.build();
+            return Optional.of(builder.build());
         }
-        return null;
+        return Optional.empty();
     }
 
     /**
@@ -362,7 +362,7 @@ public final class KeyMapper {
      * @param filter the clustering filter
      * @return the Lucene query
      */
-    public Query query(DecoratedKey key, ClusteringIndexFilter filter) {
+    public Optional<Query> query(DecoratedKey key, ClusteringIndexFilter filter) {
         if (filter instanceof ClusteringIndexNamesFilter) {
             return query(key, (ClusteringIndexNamesFilter) filter);
         } else if (filter instanceof ClusteringIndexSliceFilter) {

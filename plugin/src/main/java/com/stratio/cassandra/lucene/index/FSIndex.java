@@ -20,6 +20,7 @@ package com.stratio.cassandra.lucene.index;
 
 import com.stratio.cassandra.lucene.IndexException;
 import org.apache.cassandra.io.util.FileUtils;
+import org.apache.cassandra.utils.Pair;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.*;
@@ -31,8 +32,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.management.ObjectName;
+import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -54,6 +58,9 @@ public class FSIndex implements FSIndexMBean {
     private final int maxCachedMB;
     private final Runnable refreshTask;
 
+    private Sort defaultSort;
+    private Set<String> fields;
+    private SortingMergePolicy sortingMergePolicy;
     private Directory directory;
     private IndexWriter indexWriter;
     private SearcherManager searcherManager;
@@ -99,19 +106,24 @@ public class FSIndex implements FSIndexMBean {
         this.refreshTask = refreshTask;
     }
 
-    public void init() {
+    public void init(Sort defaultSort, Set<String> fields) {
+        this.defaultSort = defaultSort;
+        this.fields = fields;
         try {
 
             // Open or create directory
             FSDirectory fsDirectory = FSDirectory.open(path);
             directory = new NRTCachingDirectory(fsDirectory, maxMergeMB, maxCachedMB);
 
+            TieredMergePolicy tieredMergePolicy = new TieredMergePolicy();
+            sortingMergePolicy = new SortingMergePolicy(tieredMergePolicy, defaultSort);
+
             // Setup index writer
             IndexWriterConfig indexWriterConfig = new IndexWriterConfig(analyzer);
             indexWriterConfig.setRAMBufferSizeMB(ramBufferMB);
             indexWriterConfig.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
             indexWriterConfig.setUseCompoundFile(true);
-            indexWriterConfig.setMergePolicy(new TieredMergePolicy());
+            indexWriterConfig.setMergePolicy(sortingMergePolicy);
             indexWriter = new IndexWriter(directory, indexWriterConfig);
 
             // Setup NRT search
@@ -138,6 +150,20 @@ public class FSIndex implements FSIndexMBean {
         } catch (Exception e) {
             throw new IndexException(logger, e, "Error while creating index %s", name);
         }
+    }
+
+    private <T> T doWithSearcher(CheckedFunction<IndexSearcher, T> function) throws IOException {
+        IndexSearcher searcher = searcherManager.acquire();
+        try {
+            return function.apply(searcher);
+        } finally {
+            searcherManager.release(searcher);
+        }
+    }
+
+    @FunctionalInterface
+    private interface CheckedFunction<T, R> {
+        R apply(T t) throws IOException;
     }
 
     /**
@@ -247,16 +273,43 @@ public class FSIndex implements FSIndexMBean {
      * @param sort the {@link Sort} to be applied
      * @param after the starting {@link ScoreDoc}
      * @param count the max number of results to be collected
-     * @param fields the names of the fields to be loaded
      * @return the found documents, sorted according to the supplied {@link Sort} instance
      */
-    public DocumentIterator search(Query query, Sort sort, ScoreDoc after, Integer count, Set<String> fields) {
+    public DocumentIterator search(Query query, Sort sort, ScoreDoc after, int count) {
         logger.debug("Searching in {}\n" +
                      "count: {}\n" +
                      "after: {}\n" +
                      "query: {}\n" +
                      " sort: {}", name, count, after, query, sort);
-        return new DocumentIterator(searcherManager, query, sort, after, count, fields);
+        return new DocumentIterator(this, query, sort, after, count);
+    }
+
+    List<Pair<Document, ScoreDoc>> doSearch(Query query, Sort sort, ScoreDoc after, int count) {
+        try {
+            return doWithSearcher(searcher -> {
+                TopDocs topDocs;
+                if (sort == null && after == null) {
+                    TopFieldCollector tfc = TopFieldCollector.create(defaultSort, count, null, true, false, false);
+                    EarlyTerminatingSortingCollector collector;
+                    collector = new EarlyTerminatingSortingCollector(tfc, defaultSort, count, defaultSort);
+                    searcher.search(query, collector);
+                    logger.trace("Terminated early : " + collector.terminatedEarly());
+                    topDocs = tfc.topDocs();
+                } else {
+                    Sort rewrittenSort = sort == null ? defaultSort : sort.rewrite(searcher);
+                    topDocs = searcher.searchAfter(after, query, count, rewrittenSort);
+                }
+
+                List<Pair<Document, ScoreDoc>> results = new ArrayList<>(count);
+                for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
+                    Document document = searcher.doc(scoreDoc.doc, fields);
+                    results.add(Pair.create(document, scoreDoc));
+                }
+                return results;
+            });
+        } catch (Exception e) {
+            throw new IndexException(logger, e, "Error searching in with %s and %s", query, sort);
+        }
     }
 
     /**
@@ -265,15 +318,10 @@ public class FSIndex implements FSIndexMBean {
      * @return the number of {@link Document}s
      */
     @Override
-    public long getNumDocs() {
+    public int getNumDocs() {
         logger.debug("Getting {} num docs", name);
         try {
-            IndexSearcher searcher = searcherManager.acquire();
-            try {
-                return searcher.getIndexReader().numDocs();
-            } finally {
-                searcherManager.release(searcher);
-            }
+            return doWithSearcher(searcher -> searcher.getIndexReader().numDocs());
         } catch (Exception e) {
             throw new IndexException(logger, e, "Error getting %s num docs", name);
         }
@@ -285,15 +333,10 @@ public class FSIndex implements FSIndexMBean {
      * @return the number of deleted {@link Document}s
      */
     @Override
-    public long getNumDeletedDocs() {
+    public int getNumDeletedDocs() {
         logger.debug("Getting %s num deleted docs", name);
         try {
-            IndexSearcher searcher = searcherManager.acquire();
-            try {
-                return searcher.getIndexReader().numDeletedDocs();
-            } finally {
-                searcherManager.release(searcher);
-            }
+            return doWithSearcher(searcher -> searcher.getIndexReader().numDeletedDocs());
         } catch (Exception e) {
             throw new IndexException(logger, e, "Error getting %s num docs", name);
         }

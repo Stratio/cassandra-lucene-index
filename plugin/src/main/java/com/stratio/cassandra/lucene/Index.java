@@ -274,7 +274,7 @@ public class Index implements org.apache.cassandra.index.Index {
     @Override
     public boolean dependsOn(ColumnDefinition column) { // TODO: Could return true only for key and/or mapped columns
         logger.trace("Asking if it depends on column {}", column);
-        return service.schema.maps(column);
+        return service.maps(column);
     }
 
     /**
@@ -437,10 +437,7 @@ public class Index implements org.apache.cassandra.index.Index {
      */
     public Search validate(RowFilter.CustomExpression expression) {
         try {
-            String json = UTF8Type.instance.compose(expression.getValue());
-            Search search = SearchBuilder.fromJson(json).build();
-            search.validate(service.schema);
-            return search;
+            return service.validate(expression);
         } catch (Exception e) {
             throw new InvalidRequestException(e.getMessage());
         }
