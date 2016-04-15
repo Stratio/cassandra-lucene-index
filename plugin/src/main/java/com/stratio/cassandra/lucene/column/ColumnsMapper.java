@@ -39,7 +39,7 @@ import java.nio.ByteBuffer;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public final class ColumnsMapper {
+public class ColumnsMapper {
 
     /**
      * Adds to the specified {@link Column} to the {@link Column}s contained in the specified {@link Row}.

@@ -59,7 +59,6 @@ public class FSIndex implements FSIndexMBean {
 
     private Sort defaultSort;
     private Set<String> fields;
-    private SortingMergePolicy sortingMergePolicy;
     private Directory directory;
     private IndexWriter indexWriter;
     private SearcherManager searcherManager;
@@ -112,7 +111,7 @@ public class FSIndex implements FSIndexMBean {
             directory = new NRTCachingDirectory(fsDirectory, maxMergeMB, maxCachedMB);
 
             TieredMergePolicy tieredMergePolicy = new TieredMergePolicy();
-            sortingMergePolicy = new SortingMergePolicy(tieredMergePolicy, defaultSort);
+            SortingMergePolicy sortingMergePolicy = new SortingMergePolicy(tieredMergePolicy, defaultSort);
 
             // Setup index writer
             IndexWriterConfig indexWriterConfig = new IndexWriterConfig(analyzer);
@@ -283,8 +282,8 @@ public class FSIndex implements FSIndexMBean {
                 TopDocs topDocs;
                 if (sort == null && after == null) {
                     TopFieldCollector tfc = TopFieldCollector.create(defaultSort, count, null, true, false, false);
-                    EarlyTerminatingSortingCollector collector;
-                    collector = new EarlyTerminatingSortingCollector(tfc, defaultSort, count, defaultSort);
+                    FilterCollector collector;
+                    collector = new FilterCollector(tfc, defaultSort, count, defaultSort);
                     searcher.search(query, collector);
                     logger.trace("Terminated early : " + collector.terminatedEarly());
                     topDocs = tfc.topDocs();

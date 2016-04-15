@@ -19,7 +19,6 @@
 package com.stratio.cassandra.lucene;
 
 import com.stratio.cassandra.lucene.search.Search;
-import com.stratio.cassandra.lucene.search.SearchBuilder;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
 import org.apache.cassandra.cql3.Operator;

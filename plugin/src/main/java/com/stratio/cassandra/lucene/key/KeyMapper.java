@@ -39,8 +39,6 @@ import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.*;
 import org.apache.lucene.util.BytesRef;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -55,8 +53,6 @@ import static org.apache.lucene.search.BooleanClause.Occur.SHOULD;
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public final class KeyMapper {
-
-    public static final Logger logger = LoggerFactory.getLogger(KeyMapper.class);
 
     /** The Lucene field name. */
     public static final String FIELD_NAME = "_primary_key";

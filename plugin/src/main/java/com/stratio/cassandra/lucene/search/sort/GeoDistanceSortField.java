@@ -41,13 +41,13 @@ import java.util.Comparator;
 public class GeoDistanceSortField extends SortField {
 
     /** The name of mapper to use to calculate distance. */
-    final String mapper;
+    public final String mapper;
 
     /** The longitude of the center point to sort by min distance to it. */
-    final double longitude;
+    public final double longitude;
 
     /** The latitude of the center point to sort by min distance to it. */
-    final double latitude;
+    public final double latitude;
 
     /**
      * Returns a new {@link SortField}.
@@ -65,33 +65,6 @@ public class GeoDistanceSortField extends SortField {
         this.mapper = mapper;
         this.longitude = GeospatialUtils.checkLongitude("longitude", longitude);
         this.latitude = GeospatialUtils.checkLatitude("latitude", latitude);
-    }
-
-    /**
-     * Returns the name of mapper to be used to calculate distance.
-     *
-     * @return the name of mapper
-     */
-    public String getMapper() {
-        return mapper;
-    }
-
-    /**
-     * Returns the longitude of the reference point to sort by min distance to it.
-     *
-     * @return the longitude of the reference point
-     */
-    public double getLongitude() {
-        return longitude;
-    }
-
-    /**
-     * Returns the latitude of the reference point to sort by min distance to it.
-     *
-     * @return the latitude of the reference point
-     */
-    public double getLatitude() {
-        return latitude;
     }
 
     /** {@inheritDoc} */

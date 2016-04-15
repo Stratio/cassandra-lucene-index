@@ -47,15 +47,6 @@ public abstract class SortField {
     }
 
     /**
-     * Returns if natural order should be reversed.
-     *
-     * @return {@code true} if natural order should be reversed, {@code false} otherwise.
-     */
-    public boolean isReverse() {
-        return reverse;
-    }
-
-    /**
      * Returns the Lucene's {@link org.apache.lucene.search.SortField} representing this {@link SortField}.
      *
      * @param schema the {@link Schema} to be used

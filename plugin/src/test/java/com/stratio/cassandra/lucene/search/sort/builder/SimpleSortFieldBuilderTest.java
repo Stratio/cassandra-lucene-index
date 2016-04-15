@@ -42,7 +42,7 @@ public class SimpleSortFieldBuilderTest {
         SimpleSortField sortField = builder.build();
         assertNotNull("SimpleSortField is not built", sortField);
         assertEquals("SimpleSortField field name is not set", field, sortField.getField());
-        assertEquals("SimpleSortField reverse is not set", true, sortField.isReverse());
+        assertEquals("SimpleSortField reverse is not set", true, sortField.reverse);
     }
 
     @Test
@@ -52,7 +52,7 @@ public class SimpleSortFieldBuilderTest {
         SimpleSortField sortField = builder.build();
         assertNotNull("SimpleSortField is not built", sortField);
         assertEquals("SimpleSortField field name is not set", field, sortField.getField());
-        assertEquals("SimpleSortField reverse is not set to default", SortField.DEFAULT_REVERSE, sortField.isReverse());
+        assertEquals("SimpleSortField reverse is not set to default", SortField.DEFAULT_REVERSE, sortField.reverse);
     }
 
     @Test
@@ -62,7 +62,7 @@ public class SimpleSortFieldBuilderTest {
         SimpleSortField sortField = builder.build();
         assertNotNull("SimpleSortField is not built", sortField);
         assertEquals("SimpleSortField field name is not set", field, sortField.getField());
-        assertEquals("SimpleSortField reverse is not set", false, sortField.isReverse());
+        assertEquals("SimpleSortField reverse is not set", false, sortField.reverse);
     }
 
     @Test

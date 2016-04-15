@@ -30,8 +30,6 @@ import org.apache.lucene.index.TermsEnum;
 import org.apache.lucene.search.MultiTermQuery;
 import org.apache.lucene.util.AttributeSource;
 import org.apache.lucene.util.BytesRef;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
@@ -41,8 +39,6 @@ import java.io.IOException;
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 class KeyQuery extends MultiTermQuery {
-
-    public static final Logger logger = LoggerFactory.getLogger(KeyMapper.class);
 
     private final KeyMapper mapper;
     private final DecoratedKey key;

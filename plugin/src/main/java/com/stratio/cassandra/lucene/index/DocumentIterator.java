@@ -1,11 +1,13 @@
 package com.stratio.cassandra.lucene.index;
 
-import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.util.TimeCounter;
 import org.apache.cassandra.utils.CloseableIterator;
 import org.apache.cassandra.utils.Pair;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.search.*;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.Sort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -36,7 +36,7 @@ public class GeoShapeMapperBuilder extends MapperBuilder<GeoShapeMapper, GeoShap
 
     /** The name of the column to be mapped. */
     @JsonProperty("column")
-    protected String column;
+    private String column;
 
     /** The maximum number of levels in the tree. */
     @JsonProperty("max_levels")

@@ -43,10 +43,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * equivalent instances, this collector will not detect sorted segments,</li> <li>if you suddenly change the {@link
  * IndexWriter}'s {@code SortingMergePolicy} to sort according to another criterion and if both the old and the new
  * {@code Sort}s have the same identifier, this {@code Collector} will incorrectly detect sorted segments.</li> </ul>
- *
- * @lucene.experimental
  */
-public class EarlyTerminatingSortingCollector extends FilterCollector {
+public class FilterCollector extends org.apache.lucene.search.FilterCollector {
 
     private static final Logger logger = LoggerFactory.getLogger(FSIndex.class);
 
@@ -76,7 +74,7 @@ public class EarlyTerminatingSortingCollector extends FilterCollector {
     private final AtomicBoolean terminatedEarly = new AtomicBoolean(false);
 
     /**
-     * Create a new {@link com.stratio.cassandra.lucene.index.EarlyTerminatingSortingCollector} instance.
+     * Create a new {@link FilterCollector} instance.
      *
      * @param in the collector to wrap
      * @param sort the sort you are sorting the search results on
@@ -86,7 +84,7 @@ public class EarlyTerminatingSortingCollector extends FilterCollector {
      * @throws IllegalArgumentException if the sort order doesn't allow for early termination with the given merge
      * policy.
      */
-    public EarlyTerminatingSortingCollector(Collector in, Sort sort, int numDocsToCollect, Sort mergePolicySort) {
+    public FilterCollector(Collector in, Sort sort, int numDocsToCollect, Sort mergePolicySort) {
         super(in);
         if (numDocsToCollect <= 0) {
             throw new IllegalArgumentException("numDocsToCollect must always be > 0, got " + numDocsToCollect);

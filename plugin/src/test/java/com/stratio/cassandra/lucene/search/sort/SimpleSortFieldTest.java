@@ -42,14 +42,14 @@ public class SimpleSortFieldTest {
     public void testBuild() {
         SimpleSortField sortField = new SimpleSortField("field", true);
         assertEquals("SortField is not created", "field", sortField.getField());
-        assertTrue("SortField reverse is not set", sortField.isReverse());
+        assertTrue("SortField reverse is not set", sortField.reverse);
     }
 
     @Test
     public void testBuildDefaults() {
         SimpleSortField sortField = new SimpleSortField("field", null);
         assertEquals("SortField is not created", "field", sortField.getField());
-        assertEquals("SortField reverse is not set to default", SortField.DEFAULT_REVERSE, sortField.isReverse());
+        assertEquals("SortField reverse is not set to default", SortField.DEFAULT_REVERSE, sortField.reverse);
     }
 
     @Test(expected = IndexException.class)

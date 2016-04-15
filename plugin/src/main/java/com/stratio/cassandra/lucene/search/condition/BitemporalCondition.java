@@ -37,22 +37,22 @@ import static org.apache.lucene.search.NumericRangeQuery.newLongRange;
 public class BitemporalCondition extends SingleMapperCondition<BitemporalMapper> {
 
     /** The default from value for vtFrom and ttFrom. */
-    public static final Long DEFAULT_FROM = 0L;
+    private static final Long DEFAULT_FROM = 0L;
 
     /** The default to value for vtTo and ttTo. */
-    public static final Long DEFAULT_TO = Long.MAX_VALUE;
+    private static final Long DEFAULT_TO = Long.MAX_VALUE;
 
     /** The Valid Time Start. */
-    public final Object vtFrom;
+    final Object vtFrom;
 
     /** The Valid Time End. */
-    public final Object vtTo;
+    final Object vtTo;
 
     /** The Transaction Time Start. */
-    public final Object ttFrom;
+    final Object ttFrom;
 
     /** The Transaction Time End. */
-    public final Object ttTo;
+    final Object ttTo;
 
     /**
      * Constructs a query selecting all fields that intersects with valid time and transaction time ranges including
