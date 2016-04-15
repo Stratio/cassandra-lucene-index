@@ -18,7 +18,6 @@
 
 package com.stratio.cassandra.lucene;
 
-import com.stratio.cassandra.lucene.cache.SearchCacheUpdater;
 import com.stratio.cassandra.lucene.index.DocumentIterator;
 import org.apache.cassandra.db.ColumnFamilyStore;
 import org.apache.cassandra.db.DecoratedKey;
@@ -38,7 +37,6 @@ import org.apache.lucene.search.ScoreDoc;
 class IndexReaderSkinny extends IndexReader {
 
     private final IndexServiceSkinny service;
-    private final SearchCacheUpdater cacheUpdater;
 
     /**
      * Constructor taking the Cassandra read data and the Lucene results iterator.
@@ -48,17 +46,14 @@ class IndexReaderSkinny extends IndexReader {
      * @param table the base table
      * @param orderGroup the order group of the read operation
      * @param documents the documents iterator
-     * @param cacheUpdater the search cache updater
      */
     IndexReaderSkinny(IndexServiceSkinny service,
                       ReadCommand command,
                       ColumnFamilyStore table,
                       ReadOrderGroup orderGroup,
-                      DocumentIterator documents,
-                      SearchCacheUpdater cacheUpdater) {
+                      DocumentIterator documents) {
         super(command, table, orderGroup, documents);
         this.service = service;
-        this.cacheUpdater = cacheUpdater;
     }
 
     @Override
@@ -73,7 +68,6 @@ class IndexReaderSkinny extends IndexReader {
                     data.close();
                 } else {
                     next = data;
-                    cacheUpdater.put(key, nextDoc.right);
                 }
             }
         }

@@ -18,7 +18,6 @@
 
 package com.stratio.cassandra.lucene;
 
-import com.stratio.cassandra.lucene.cache.SearchCacheUpdater;
 import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.index.DocumentIterator;
 import com.stratio.cassandra.lucene.key.KeyMapper;
@@ -191,11 +190,8 @@ class IndexServiceWide extends IndexService {
 
     /** {@inheritDoc} */
     @Override
-    public IndexReaderWide indexReader(DocumentIterator documents,
-                                       ReadCommand command,
-                                       ReadOrderGroup orderGroup,
-                                       SearchCacheUpdater cacheUpdater) {
-        return new IndexReaderWide(this, command, table, orderGroup, documents, cacheUpdater);
+    public IndexReaderWide indexReader(DocumentIterator documents, ReadCommand command, ReadOrderGroup orderGroup) {
+        return new IndexReaderWide(this, command, table, orderGroup, documents);
     }
 
 }

@@ -37,8 +37,6 @@ public class CassandraConfig {
     public static final String TABLE = getString("table", "test_table");
     public static final String INDEX = getString("index", "test_table_idx");
     public static final int LIMIT = getInt("limit", 10000); // Top-k
-    public static final int TOKEN_RANGE_CACHE_SIZE = getInt("token_range_cache_size", 16);
-    public static final int SEARCH_CACHE_SIZE = getInt("search_cache_size", 16);
 
     private static String getString(String key, String def) {
         return System.getProperty("it." + key, def);

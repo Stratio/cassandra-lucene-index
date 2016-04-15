@@ -61,9 +61,6 @@ public class IndexOptions {
     public static final String EXCLUDED_DATA_CENTERS_OPTION = "excluded_data_centers";
     public static final List<String> DEFAULT_EXCLUDED_DATA_CENTERS = Collections.emptyList();
 
-    public static final String SEARCH_CACHE_SIZE_OPTION = "search_cache_size";
-    public static final int DEFAULT_SEARCH_CACHE_SIZE = 16;
-
     public static final String DIRECTORY_PATH_OPTION = "directory_path";
     public static final String INDEXES_DIR_NAME = "lucene";
 
@@ -93,9 +90,6 @@ public class IndexOptions {
     /** The size of the asynchronous indexing queues */
     public final int indexingQueuesSize;
 
-    /** The max size of the search cache */
-    public final int searchCacheSize;
-
     /** The names of the data centers excluded from indexing */
     public final List<String> excludedDataCenters;
 
@@ -114,7 +108,6 @@ public class IndexOptions {
         indexingThreads = parseIndexingThreads(options);
         indexingQueuesSize = parseIndexingQueuesSize(options);
         excludedDataCenters = parseExcludedDataCenters(options);
-        searchCacheSize = parseSearchCacheSize(options);
         path = parsePath(options, tableMetadata, indexMetadata);
         schema = parseSchema(options, tableMetadata);
     }
@@ -133,7 +126,6 @@ public class IndexOptions {
         parseIndexingThreads(options);
         parseIndexingQueuesSize(options);
         parseExcludedDataCenters(options);
-        parseSearchCacheSize(options);
         parseSchema(options, metadata);
         parsePath(options, metadata, null);
     }
@@ -251,24 +243,6 @@ public class IndexOptions {
         }
     }
 
-    private static int parseSearchCacheSize(Map<String, String> options) {
-        String searchCacheSizeOption = options.get(SEARCH_CACHE_SIZE_OPTION);
-        if (searchCacheSizeOption != null) {
-            int searchCacheSize;
-            try {
-                searchCacheSize = Integer.parseInt(searchCacheSizeOption);
-            } catch (NumberFormatException e) {
-                throw new IndexException("'%s' must be a positive integer", SEARCH_CACHE_SIZE_OPTION);
-            }
-            if (searchCacheSize < 0) {
-                throw new IndexException("'%s' must be positive", SEARCH_CACHE_SIZE_OPTION);
-            }
-            return searchCacheSize;
-        } else {
-            return DEFAULT_SEARCH_CACHE_SIZE;
-        }
-    }
-
     private static Path parsePath(Map<String, String> options, CFMetaData tableMetadata, IndexMetadata indexMetadata) {
         String pathOption = options.get(DIRECTORY_PATH_OPTION);
         if (pathOption != null) {
@@ -308,7 +282,6 @@ public class IndexOptions {
                           .add("indexingThreads", indexingThreads)
                           .add("indexingQueuesSize", indexingQueuesSize)
                           .add("excludedDataCenters", excludedDataCenters)
-                          .add("searchCacheSize", searchCacheSize)
                           .add("path", path)
                           .add("schema", schema)
                           .toString();

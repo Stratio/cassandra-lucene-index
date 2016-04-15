@@ -20,7 +20,6 @@ package com.stratio.cassandra.lucene.index;
 
 import com.google.common.collect.Sets;
 import com.stratio.cassandra.lucene.IndexOptions;
-import org.apache.cassandra.utils.Pair;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -64,8 +63,7 @@ public class FSIndexTest {
                                     REFRESH_SECONDS,
                                     IndexOptions.DEFAULT_RAM_BUFFER_MB,
                                     IndexOptions.DEFAULT_MAX_MERGE_MB,
-                                    IndexOptions.DEFAULT_MAX_CACHED_MB,
-                                    null);
+                                    IndexOptions.DEFAULT_MAX_CACHED_MB);
         Sort sort = new Sort(new SortField("field", SortField.Type.STRING));
         Set<String> fields = Sets.newHashSet("field");
         index.init(sort, fields);

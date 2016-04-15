@@ -18,7 +18,6 @@
 
 package com.stratio.cassandra.lucene;
 
-import com.stratio.cassandra.lucene.cache.SearchCacheUpdater;
 import com.stratio.cassandra.lucene.index.DocumentIterator;
 import org.apache.cassandra.db.*;
 import org.apache.cassandra.db.filter.ClusteringIndexFilter;
@@ -39,7 +38,6 @@ class IndexReaderWide extends IndexReader {
 
     private final IndexServiceWide service;
     private final ClusteringComparator comparator;
-    private final SearchCacheUpdater cacheUpdater;
     private Pair<Document, ScoreDoc> nextDoc;
 
     /**
@@ -50,18 +48,15 @@ class IndexReaderWide extends IndexReader {
      * @param table the base table
      * @param orderGroup the order group of the read operation
      * @param documents the documents iterator
-     * @param cacheUpdater the search cache updater
      */
     IndexReaderWide(IndexServiceWide service,
                     ReadCommand command,
                     ColumnFamilyStore table,
                     ReadOrderGroup orderGroup,
-                    DocumentIterator documents,
-                    SearchCacheUpdater cacheUpdater) {
+                    DocumentIterator documents) {
         super(command, table, orderGroup, documents);
         this.service = service;
         this.comparator = service.metadata.comparator;
-        this.cacheUpdater = cacheUpdater;
     }
 
     @Override
@@ -108,7 +103,6 @@ class IndexReaderWide extends IndexReader {
             if (command.selectsKey(key) && command.selectsClustering(key, clustering)) {
                 lastClustering = clustering;
                 clusterings.add(clustering);
-                cacheUpdater.put(key, clustering, nextDoc.right);
             }
             if (documents.hasNext()) {
                 nextDoc = documents.next();

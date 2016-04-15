@@ -18,9 +18,6 @@
 
 package com.stratio.cassandra.lucene;
 
-import com.stratio.cassandra.lucene.cache.SearchCache;
-import com.stratio.cassandra.lucene.cache.SearchCacheEntry;
-import com.stratio.cassandra.lucene.cache.SearchCacheUpdater;
 import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.column.ColumnsMapper;
 import com.stratio.cassandra.lucene.index.DocumentIterator;
@@ -88,7 +85,6 @@ abstract class IndexService {
     private final String name;
     private final TaskQueue queue;
     private final boolean mapsMultiCells;
-    private final SearchCache searchCache;
 
     /**
      * Constructor using the specified indexed table and index metadata.
@@ -120,8 +116,7 @@ abstract class IndexService {
                                  .filter(x -> schema.getMappedCells().contains(x.name.toString()))
                                  .anyMatch(x -> x.type.isMultiCell());
 
-        // Setup cache, FS index and write queue
-        searchCache = new SearchCache(metadata, options.searchCacheSize);
+        // Setup FS index and write queue
         queue = new TaskQueue(options.indexingThreads, options.indexingQueuesSize);
         lucene = new FSIndex(name,
                              mbeanName,
@@ -130,8 +125,7 @@ abstract class IndexService {
                              options.refreshSeconds,
                              options.ramBufferMB,
                              options.maxMergeMB,
-                             options.maxCachedMB,
-                             searchCache::invalidate);
+                             options.maxCachedMB);
     }
 
     void init() {
@@ -382,22 +376,9 @@ abstract class IndexService {
             lucene.refresh();
         }
 
-        // Try luck with cache
-        Optional<SearchCacheEntry> optional = searchCache.get(expression, command);
-        if (optional.isPresent()) {
-            logger.debug("Search cache hits");
-            SearchCacheEntry entry = optional.get();
-            Query query = entry.getQuery();
-            ScoreDoc after = entry.getScoreDoc();
-            SearchCacheUpdater cacheUpdater = entry.updater();
-            return (ReadOrderGroup orderGroup) -> read(query, sort, after, command, orderGroup, cacheUpdater);
-        } else {
-            logger.debug("Search cache fails");
-            Query query = query(search, command);
-            searchCache.put(expression, command, query);
-            SearchCacheUpdater cacheUpdater = searchCache.updater(expression, command, query);
-            return (ReadOrderGroup orderGroup) -> read(query, sort, null, command, orderGroup, cacheUpdater);
-        }
+        // Search
+        Query query = query(search, command);
+        return (ReadOrderGroup orderGroup) -> read(query, sort, null, command, orderGroup);
     }
 
     /**
@@ -558,18 +539,16 @@ abstract class IndexService {
      * @param after the last Lucene doc
      * @param command the Cassandra command
      * @param orderGroup the Cassandra read order group
-     * @param cacheUpdater the search cache updater
      * @return the local {@link Row}s satisfying the search
      */
     private UnfilteredPartitionIterator read(Query query,
                                              Sort sort,
                                              ScoreDoc after,
                                              ReadCommand command,
-                                             ReadOrderGroup orderGroup,
-                                             SearchCacheUpdater cacheUpdater) {
+                                             ReadOrderGroup orderGroup) {
         int limit = command.limits().count();
         DocumentIterator documents = lucene.search(query, sort, after, limit);
-        return indexReader(documents, command, orderGroup, cacheUpdater);
+        return indexReader(documents, command, orderGroup);
     }
 
     /**
@@ -578,13 +557,9 @@ abstract class IndexService {
      * @param documents the Lucene documents
      * @param command the Cassandra command
      * @param orderGroup the Cassandra read order group
-     * @param cacheUpdater the search cache updater
      * @return the local {@link Row}s satisfying the search
      */
-    abstract IndexReader indexReader(DocumentIterator documents,
-                                     ReadCommand command,
-                                     ReadOrderGroup orderGroup,
-                                     SearchCacheUpdater cacheUpdater);
+    abstract IndexReader indexReader(DocumentIterator documents, ReadCommand command, ReadOrderGroup orderGroup);
 
     /**
      * Post processes in the coordinator node the results of a distributed search. Gets the k globally best results from

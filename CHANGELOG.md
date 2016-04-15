@@ -3,8 +3,9 @@
 ## 3.0.4.1 (upcoming)
 
 * Upgrade to Lucene 5.5.0
-* Add sorting merge policy (improves filter performance)
-* Allow altering unmapped columns
+* Add sorting merge policy (dramatically improves filter performance)
+* Add support for altering unmapped columns
+* Remove score docs cache, overtaken by sorting merge policy
 * Remove token range cache in favour of Lucene query cache
 * Fix NPE while mapping geo points with explicitly null latitude/longitude value
 * Fix missed validation of sort fields

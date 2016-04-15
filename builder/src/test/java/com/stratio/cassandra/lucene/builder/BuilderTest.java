@@ -50,8 +50,6 @@ public class BuilderTest {
                                                    .indexingThreads(4)
                                                    .indexingQueuesSize(100)
                                                    .excludedDataCenters("DC1,DC2")
-                                                   .tokenRangeCacheSize(20)
-                                                   .searchCacheSize(30)
                                                    .defaultAnalyzer("my_analyzer")
                                                    .analyzer("my_analyzer", classpathAnalyzer("my_class"))
                                                    .analyzer("snow", snowballAnalyzer("tartar").stopwords("a,b,c"))
@@ -69,8 +67,6 @@ public class BuilderTest {
                           "'indexing_threads':'4'," +
                           "'indexing_queues_size':'100'," +
                           "'excluded_data_centers':'DC1,DC2'," +
-                          "'token_range_cache_size':'20'," +
-                          "'search_cache_size':'30'," +
                           "'schema':'{" +
                           "\"analyzers\":{" +
                           "\"my_analyzer\":{\"type\":\"classpath\",\"class\":\"my_class\"}," +
