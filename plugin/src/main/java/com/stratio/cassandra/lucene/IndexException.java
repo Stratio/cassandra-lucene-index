@@ -60,7 +60,7 @@ public class IndexException extends RuntimeException {
      */
     public IndexException(Logger logger, Throwable cause, String message, Object... args) {
         this(cause, message, args);
-        logger.error(getMessage());
+        logger.error(getMessage(), cause);
     }
 
     /**
