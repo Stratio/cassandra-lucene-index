@@ -20,14 +20,9 @@ package com.stratio.cassandra.lucene.search.sort;
 
 import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.IndexException;
-import com.stratio.cassandra.lucene.column.Column;
-import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
-import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
 import org.apache.commons.lang3.StringUtils;
-
-import java.util.Comparator;
 
 import static org.apache.lucene.search.SortField.FIELD_SCORE;
 
@@ -81,34 +76,6 @@ public class SimpleSortField extends SortField {
         } else {
             return mapper.sortField(field, reverse);
         }
-    }
-
-    /**
-     * Returns a Java {@link Comparator} for {@link Columns} with the same logic as this {@link SortField}.
-     *
-     * @param schema the used {@link Schema}
-     * @return the equivalent columns comparator
-     */
-    public Comparator<Columns> comparator(Schema schema) {
-        final SingleColumnMapper mapper = schema.getSingleColumnMapper(field);
-        return (Columns o1, Columns o2) -> compare(mapper, o1, o2);
-    }
-
-    protected int compare(SingleColumnMapper mapper, Columns o1, Columns o2) {
-
-        if (o1 == null) {
-            return o2 == null ? 0 : 1;
-        } else if (o2 == null) {
-            return -1;
-        }
-
-        String column = mapper.getColumn();
-        Column<?> column1 = o1.getColumnsByFullName(column).getFirst();
-        Column<?> column2 = o2.getColumnsByFullName(column).getFirst();
-        Comparable base1 = column1 == null ? null : mapper.base(column, column1.getComposedValue());
-        Comparable base2 = column2 == null ? null : mapper.base(column, column2.getComposedValue());
-
-        return compare(base1, base2);
     }
 
     /** {@inheritDoc} */

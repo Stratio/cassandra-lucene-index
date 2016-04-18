@@ -72,26 +72,6 @@ public class Sort implements Iterable<SortField> {
         return sortFields.stream().map(s -> s.sortField(schema)).collect(Collectors.toList());
     }
 
-    /**
-     * Returns the {@link Columns} {@link Comparator}s specified by this {@link Sort}.
-     *
-     * @param schema the schema
-     * @return the equivalent columns comparators
-     */
-    private List<Comparator<Columns>> comparators(Schema schema) {
-        return sortFields.stream().map(s -> s.comparator(schema)).collect(Collectors.toList());
-    }
-
-    /**
-     * Returns the {@link Columns} {@link Comparator} specified by this {@link Sort}.
-     *
-     * @param schema the schema
-     * @return the equivalent columns comparator
-     */
-    public Comparator<Columns> comparator(Schema schema) {
-        return Ordering.compound(comparators(schema));
-    }
-
     /** {@inheritDoc} */
     @Override
     public String toString() {

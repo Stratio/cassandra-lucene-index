@@ -18,10 +18,7 @@
 
 package com.stratio.cassandra.lucene.search.sort;
 
-import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.schema.Schema;
-
-import java.util.Comparator;
 
 /**
  * A sorting for a field of a search.
@@ -53,27 +50,6 @@ public abstract class SortField {
      * @return the Lucene's sort field
      */
     public abstract org.apache.lucene.search.SortField sortField(Schema schema);
-
-    /**
-     * Returns a Java {@link Comparator} for {@link Columns} with the same logic as this {@link SortField}.
-     *
-     * @param schema the used {@link Schema}
-     * @return the columns comparator
-     */
-    public abstract Comparator<Columns> comparator(Schema schema);
-
-    @SuppressWarnings("unchecked")
-    protected int compare(Comparable column1, Comparable column2) {
-        if (column1 == null) {
-            return column2 == null ? 0 : 1;
-        } else if (column2 == null) {
-            return -1;
-        } else if (reverse) {
-            return column2.compareTo(column1);
-        } else {
-            return column1.compareTo(column2);
-        }
-    }
 
     /** {@inheritDoc} */
     @Override

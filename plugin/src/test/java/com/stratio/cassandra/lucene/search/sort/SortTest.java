@@ -18,18 +18,11 @@
 
 package com.stratio.cassandra.lucene.search.sort;
 
-import com.stratio.cassandra.lucene.column.Column;
-import com.stratio.cassandra.lucene.column.Columns;
-import com.stratio.cassandra.lucene.schema.Schema;
-import org.apache.cassandra.db.marshal.UTF8Type;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
-import static com.stratio.cassandra.lucene.schema.SchemaBuilders.schema;
-import static com.stratio.cassandra.lucene.schema.SchemaBuilders.stringMapper;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
@@ -88,52 +81,5 @@ public class SortTest {
                         !sortF.equals(sortField) && !sortF.equals(sortField2) && !sortF.equals(sortField3));
         }
         assertEquals("Sort build with 3 elements iterator must return 3 elems", numElems, 3);
-    }
-
-    @Test
-    public void testComparator() {
-
-        SimpleSortField sortField1 = new SimpleSortField("field_1", false);
-        SimpleSortField sortField2 = new SimpleSortField("field_2", false);
-        SimpleSortField sortField3 = new SimpleSortField("field_3", false);
-        List<SortField> sortFields = new ArrayList<>();
-        sortFields.add(sortField1);
-        sortFields.add(sortField2);
-        sortFields.add(sortField3);
-        Sort sort = new Sort(sortFields);
-
-        Schema schema = schema().mapper("field_1", stringMapper().sorted(true))
-                                .mapper("field_2", stringMapper().sorted(true))
-                                .mapper("field_3", stringMapper().sorted(true))
-                                .build();
-        Comparator<Columns> comparator = sort.comparator(schema);
-
-        Column<String> column1 = Column.builder("field_1").buildWithComposed("a", UTF8Type.instance);
-        Column<String> column2 = Column.builder("field_1").buildWithComposed("b", UTF8Type.instance);
-        Column<String> column3 = Column.builder("field_1").buildWithComposed("c", UTF8Type.instance);
-
-        Column<String> columnField2_1 = Column.builder("field_2").buildWithComposed("a", UTF8Type.instance);
-        Column<String> columnField2_2 = Column.builder("field_2").buildWithComposed("b", UTF8Type.instance);
-        Column<String> columnField2_3 = Column.builder("field_2").buildWithComposed("c", UTF8Type.instance);
-
-        Column<String> columnField3_1 = Column.builder("field_3").buildWithComposed("e", UTF8Type.instance);
-        Column<String> columnField3_2 = Column.builder("field_3").buildWithComposed("d", UTF8Type.instance);
-        Column<String> columnField3_3 = Column.builder("field_3").buildWithComposed("c", UTF8Type.instance);
-
-        Columns columns1 = new Columns().add(column1).add(columnField2_1).add(columnField3_1);
-        Columns columns2 = new Columns().add(column2).add(columnField2_2).add(columnField3_2);
-        Columns columns3 = new Columns().add(column3).add(columnField2_3).add(columnField3_3);
-
-        assertEquals("SortField columns comparator is wrong", -1, comparator.compare(columns1, columns2));
-        assertEquals("SortField columns comparator is wrong", -2, comparator.compare(columns1, columns3));
-        assertEquals("SortField columns comparator is wrong", -1, comparator.compare(columns2, columns3));
-
-        assertEquals("SortField columns comparator is wrong", 1, comparator.compare(columns2, columns1));
-        assertEquals("SortField columns comparator is wrong", 2, comparator.compare(columns3, columns1));
-        assertEquals("SortField columns comparator is wrong", 1, comparator.compare(columns3, columns2));
-
-        assertEquals("SortField columns comparator is wrong", 0, comparator.compare(columns1, columns1));
-        assertEquals("SortField columns comparator is wrong", 0, comparator.compare(columns2, columns2));
-        assertEquals("SortField columns comparator is wrong", 0, comparator.compare(columns3, columns3));
     }
 }

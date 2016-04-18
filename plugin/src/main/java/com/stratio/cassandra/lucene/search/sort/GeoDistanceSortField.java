@@ -22,7 +22,6 @@ import com.google.common.base.MoreObjects;
 import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.shape.Point;
 import com.stratio.cassandra.lucene.IndexException;
-import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.GeoPointMapper;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
@@ -30,8 +29,6 @@ import com.stratio.cassandra.lucene.util.GeospatialUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.queries.function.ValueSource;
 import org.apache.lucene.spatial.SpatialStrategy;
-
-import java.util.Comparator;
 
 /**
  * {@link SortField} to sort geo points by their distance to a fixed reference point.
@@ -90,33 +87,6 @@ public class GeoDistanceSortField extends SortField {
 
     /** {@inheritDoc} */
     @Override
-    public Comparator<Columns> comparator(Schema schema) {
-        final Mapper mapper = schema.getMapper(this.mapper);
-        return (Columns o1, Columns o2) -> compare((GeoPointMapper) mapper, o1, o2);
-    }
-
-    protected int compare(GeoPointMapper mapper, Columns o1, Columns o2) {
-
-        if (o1 == null) {
-            return o2 == null ? 0 : 1;
-        } else if (o2 == null) {
-            return -1;
-        }
-
-        Double longO1 = mapper.readLongitude(o1);
-        Double latO1 = mapper.readLatitude(o1);
-
-        Double longO2 = mapper.readLongitude(o2);
-        Double latO2 = mapper.readLatitude(o2);
-
-        Double base1 = distance(longO1, latO1);
-        Double base2 = distance(longO2, latO2);
-
-        return compare(base1, base2);
-    }
-
-    /** {@inheritDoc} */
-    @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
                           .add("mapper", this.mapper)
@@ -150,15 +120,5 @@ public class GeoDistanceSortField extends SortField {
         result = 31 * result + new Double(latitude).hashCode();
         result = 31 * result + new Double(longitude).hashCode();
         return result;
-    }
-
-    private Double distance(Double oLon, Double oLat) {
-        if ((oLon == null) || (oLat == null)) {
-            return null;
-        }
-        return DistanceUtils.distHaversineRAD(DistanceUtils.toRadians(latitude),
-                                              DistanceUtils.toRadians(longitude),
-                                              DistanceUtils.toRadians(oLat),
-                                              DistanceUtils.toRadians(oLon));
     }
 }

@@ -19,14 +19,8 @@
 package com.stratio.cassandra.lucene.search.sort;
 
 import com.stratio.cassandra.lucene.IndexException;
-import com.stratio.cassandra.lucene.column.Column;
-import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.mapping.GeoPointMapper;
-import org.apache.cassandra.db.marshal.DoubleType;
 import org.junit.Test;
-
-import java.util.Comparator;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.geoPointMapper;
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.schema;
@@ -128,121 +122,6 @@ public class GeoDistanceSortFieldTest {
         Schema schema = schema().build();
         GeoDistanceSortField sortField = new GeoDistanceSortField("field", false, 0.0, 0.0);
         sortField.sortField(schema);
-    }
-
-    @Test
-    public void testComparatorNatural() {
-
-        Schema schema = schema().mapper("field", geoPointMapper("latitude", "longitude").sorted(true)).build();
-
-        GeoDistanceSortField sortField = new GeoDistanceSortField("field", false, 0.0, 0.0);
-        Comparator<Columns> comparator = sortField.comparator(schema);
-
-        Column<Double> lat = Column.builder("latitude").buildWithComposed(0.0, DoubleType.instance);
-        Column<Double> lon = Column.builder("longitude").buildWithComposed(0.0, DoubleType.instance);
-
-        Column<Double> lat2 = Column.builder("latitude").buildWithComposed(10.0, DoubleType.instance);
-        Column<Double> lon2 = Column.builder("longitude").buildWithComposed(10.0, DoubleType.instance);
-
-        Columns columns1 = new Columns().add(lat).add(lon);
-        Columns columns2 = new Columns().add(lat2).add(lon2);
-
-        assertEquals("SortField columns comparator is wrong", -1, comparator.compare(columns1, columns2));
-        assertEquals("SortField columns comparator is wrong", 0, comparator.compare(columns1, columns1));
-    }
-
-    @Test
-    public void testComparatorReverse() {
-
-        Schema schema = schema().mapper("field", geoPointMapper("latitude", "longitude").sorted(true)).build();
-
-        GeoDistanceSortField sortField = new GeoDistanceSortField("field", true, 0.0, 0.0);
-        Comparator<Columns> comparator = sortField.comparator(schema);
-
-        Column<Double> lat = Column.builder("latitude").buildWithComposed(0.0, DoubleType.instance);
-        Column<Double> lon = Column.builder("longitude").buildWithComposed(0.0, DoubleType.instance);
-
-        Column<Double> lat2 = Column.builder("latitude").buildWithComposed(10.0, DoubleType.instance);
-        Column<Double> lon2 = Column.builder("longitude").buildWithComposed(10.0, DoubleType.instance);
-
-        Columns columns1 = new Columns().add(lat).add(lon);
-        Columns columns2 = new Columns().add(lat2).add(lon2);
-
-        assertEquals("SortField columns comparator is wrong", 1, comparator.compare(columns1, columns2));
-        assertEquals("SortField columns comparator is wrong", 0, comparator.compare(columns1, columns1));
-    }
-
-    @Test
-    public void testComparatorNullColumns() {
-
-        Schema schema = schema().mapper("field", geoPointMapper("latitude", "longitude").sorted(true)).build();
-
-        GeoDistanceSortField sortField = new GeoDistanceSortField("field", true, 0.0, 0.0);
-        Comparator<Columns> comparator = sortField.comparator(schema);
-
-        Column<Double> lat = Column.builder("latitude").buildWithComposed(0.0, DoubleType.instance);
-        Column<Double> lon = Column.builder("longitude").buildWithComposed(0.0, DoubleType.instance);
-
-        Columns columns = new Columns().add(lat).add(lon);
-
-        assertEquals("SortField columns comparator is wrong", -1, comparator.compare(columns, null));
-        assertEquals("SortField columns comparator is wrong", 1, comparator.compare(null, columns));
-        assertEquals("SortField columns comparator is wrong", 0, comparator.compare(null, null));
-    }
-
-    @Test
-    public void testComparatorNullColumn() {
-
-        Schema schema = schema().mapper("field", geoPointMapper("latitude", "longitude").sorted(true)).build();
-
-        GeoDistanceSortField sortField = new GeoDistanceSortField("field", true, 0.0, 0.0);
-        Comparator<Columns> comparator = sortField.comparator(schema);
-
-        Column<Double> lat = Column.builder("latitude").buildWithComposed(0.0, DoubleType.instance);
-        Column<Double> lon = Column.builder("longitude").buildWithComposed(0.0, DoubleType.instance);
-
-        Columns columns1 = new Columns().add(lat).add(lon);
-        Columns columns2 = new Columns();
-
-        assertEquals("SortField columns comparator is wrong", -1, comparator.compare(columns1, columns2));
-        assertEquals("SortField columns comparator is wrong", 1, comparator.compare(columns2, columns1));
-    }
-
-    @Test
-    public void testCompareColumns() {
-        GeoPointMapper mapper = geoPointMapper("latitude", "longitude").build("field");
-        GeoDistanceSortField sortField = new GeoDistanceSortField("field", true, 0.0, 0.0);
-
-        Column<Double> lat = Column.builder("latitude").buildWithComposed(0.0, DoubleType.instance);
-        Column<Double> lon = Column.builder("longitude").buildWithComposed(0.0, DoubleType.instance);
-
-        Column<Double> lat2 = Column.builder("latitude").buildWithComposed(10.0, DoubleType.instance);
-        Column<Double> lon2 = Column.builder("longitude").buildWithComposed(10.0, DoubleType.instance);
-
-        Columns columns1 = new Columns().add(lat).add(lon);
-        Columns columns2 = new Columns().add(lat2).add(lon2);
-        Columns emptyColumns = new Columns();
-
-        assertEquals("SortField compare is wrong", 1, sortField.compare(mapper, columns1, columns2));
-        assertEquals("SortField compare is wrong", -1, sortField.compare(mapper, columns2, columns1));
-        assertEquals("SortField compare is wrong", 1, sortField.compare(mapper, emptyColumns, columns1));
-        assertEquals("SortField compare is wrong", -1, sortField.compare(mapper, columns2, emptyColumns));
-        assertEquals("SortField compare is wrong", 0, sortField.compare(mapper, emptyColumns, emptyColumns));
-    }
-
-    @Test
-    public void testCompareColumn() {
-
-        GeoDistanceSortField sortField = new GeoDistanceSortField("field", true, 0.0, 0.0);
-
-        Comparable column1 = "a";
-        Comparable column2 = "z";
-
-        assertEquals("SortField compare is wrong", 25, sortField.compare(column1, column2));
-        assertEquals("SortField compare is wrong", -25, sortField.compare(column2, column1));
-        assertEquals("SortField compare is wrong", 1, sortField.compare(null, column1));
-        assertEquals("SortField compare is wrong", -1, sortField.compare(column2, null));
-        assertEquals("SortField compare is wrong", 0, sortField.compare(null, null));
     }
 
     @Test
