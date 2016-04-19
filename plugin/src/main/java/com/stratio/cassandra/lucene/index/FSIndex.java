@@ -282,10 +282,7 @@ public class FSIndex implements FSIndexMBean {
                 TopDocs topDocs;
                 if (sort == null && after == null) {
                     TopFieldCollector tfc = TopFieldCollector.create(defaultSort, count, null, true, false, false);
-                    FilterCollector collector;
-                    collector = new FilterCollector(tfc, defaultSort, count, defaultSort);
-                    searcher.search(query, collector);
-                    logger.trace("Terminated early : " + collector.terminatedEarly());
+                    searcher.search(query, new EarlyTerminatingSortingCollector(tfc, defaultSort, count, defaultSort));
                     topDocs = tfc.topDocs();
                 } else {
                     Sort rewrittenSort = sort == null ? defaultSort : sort.rewrite(searcher);
