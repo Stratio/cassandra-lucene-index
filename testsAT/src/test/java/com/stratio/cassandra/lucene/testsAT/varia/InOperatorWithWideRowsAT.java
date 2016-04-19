@@ -18,6 +18,7 @@
 
 package com.stratio.cassandra.lucene.testsAT.varia;
 
+import com.datastax.driver.core.exceptions.InvalidQueryException;
 import com.stratio.cassandra.lucene.testsAT.BaseAT;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
 import org.junit.AfterClass;
@@ -26,6 +27,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import static com.stratio.cassandra.lucene.builder.Builder.all;
+import static com.stratio.cassandra.lucene.builder.Builder.field;
 import static com.stratio.cassandra.lucene.builder.Builder.integerMapper;
 
 /**
@@ -33,6 +36,10 @@ import static com.stratio.cassandra.lucene.builder.Builder.integerMapper;
  */
 @RunWith(JUnit4.class)
 public class InOperatorWithWideRowsAT extends BaseAT {
+
+    private static String TOPK_ERROR = "Top-k searches can't be directed to more than one partition, " +
+                                       "you should either direct them to one single partition or " +
+                                       "don't use any partition restrictions.";
 
     private static final int NUM_PARTITIONS = 10;
     private static final int PARTITION_SIZE = 10;
@@ -43,7 +50,7 @@ public class InOperatorWithWideRowsAT extends BaseAT {
         utils = CassandraUtils.builder("in_operator_with_wide_rows")
                               .withPartitionKey("pk")
                               .withClusteringKey("ck")
-                              .withColumn("pk", "int", integerMapper())
+                              .withColumn("pk", "int", integerMapper().sorted(true))
                               .withColumn("ck", "int", integerMapper())
                               .withColumn("rc", "int", integerMapper())
                               .build()
@@ -85,5 +92,25 @@ public class InOperatorWithWideRowsAT extends BaseAT {
     @Test
     public void reversedBothKeysInTest() {
         utils.searchAll().and("AND pk IN (9, 0) AND ck IN (9, 0)").checkIntColumn("rc", 0, 9, 90, 99);
+    }
+
+    @Test
+    public void queryWithInTest() {
+        utils.query(all()).and("AND pk IN (9, 0)").check(InvalidQueryException.class, TOPK_ERROR);
+    }
+
+    @Test
+    public void queryWithInBothTest() {
+        utils.query(all()).and("AND pk IN (9, 0) AND ck IN (9, 0)").check(InvalidQueryException.class, TOPK_ERROR);
+    }
+
+    @Test
+    public void sortWithInTest() {
+        utils.sort(field("pk")).and("AND pk IN (9, 0)").check(InvalidQueryException.class, TOPK_ERROR);
+    }
+
+    @Test
+    public void sortWithInBothTest() {
+        utils.sort(field("pk")).and("AND pk IN (9, 0) AND ck IN (9, 0)").check(InvalidQueryException.class, TOPK_ERROR);
     }
 }

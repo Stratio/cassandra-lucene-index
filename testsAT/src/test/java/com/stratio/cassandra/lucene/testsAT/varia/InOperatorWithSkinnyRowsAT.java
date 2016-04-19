@@ -18,6 +18,7 @@
 
 package com.stratio.cassandra.lucene.testsAT.varia;
 
+import com.datastax.driver.core.exceptions.InvalidQueryException;
 import com.stratio.cassandra.lucene.testsAT.BaseAT;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
 import org.junit.AfterClass;
@@ -26,13 +27,17 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import static com.stratio.cassandra.lucene.builder.Builder.integerMapper;
+import static com.stratio.cassandra.lucene.builder.Builder.*;
 
 /**
  * @author Andres de la Pena <adelapena@stratio.com>
  */
 @RunWith(JUnit4.class)
 public class InOperatorWithSkinnyRowsAT extends BaseAT {
+
+    private static String TOPK_ERROR = "Top-k searches can't be directed to more than one partition, " +
+                                       "you should either direct them to one single partition or " +
+                                       "don't use any partition restrictions.";
 
     private static final int NUM_PARTITIONS = 10;
     private static CassandraUtils utils;
@@ -41,7 +46,7 @@ public class InOperatorWithSkinnyRowsAT extends BaseAT {
     public static void before() {
         utils = CassandraUtils.builder("in_operator_with_skinny_rows")
                               .withPartitionKey("pk")
-                              .withColumn("pk", "int", integerMapper())
+                              .withColumn("pk", "int", integerMapper().sorted(true))
                               .withColumn("rc", "int", integerMapper())
                               .build()
                               .createKeyspace()
@@ -66,5 +71,15 @@ public class InOperatorWithSkinnyRowsAT extends BaseAT {
     @Test
     public void reversedPartitionKeyInTest() {
         utils.searchAll().fetchSize(4).and("AND pk IN (9, 5, 0)").checkIntColumn("rc", 0, 5, 9);
+    }
+
+    @Test
+    public void queryWithInTest() {
+        utils.query(all()).and("AND pk IN (9, 5, 0)").check(InvalidQueryException.class, TOPK_ERROR);
+    }
+
+    @Test
+    public void sortWithInTest() {
+        utils.sort(field("pk")).and("AND pk IN (9, 5, 0)").check(InvalidQueryException.class, TOPK_ERROR);
     }
 }

@@ -158,8 +158,18 @@ class IndexQueryHandler implements QueryHandler {
         // Check paging
         int limit = select.getLimit(options);
         int page = getPageSize(select, options);
+
         if (search.isTopK()) {
-            if (limit == Integer.MAX_VALUE) { // Avoid unlimited
+
+            // Avoid IN operator
+            if (select.getRestrictions().getPartitionKeys(options).size() > 1) {
+                throw new InvalidRequestException(
+                        "Top-k searches can't be directed to more than one partition, you should either " +
+                        "direct them to one single partition or don't use any partition restrictions.");
+            }
+
+            // Avoid unlimited
+            if (limit == Integer.MAX_VALUE) {
                 throw new InvalidRequestException(
                         "Top-k searches don't support paging, so a cautious LIMIT clause should be provided " +
                         "to prevent excessive memory consumption.");
