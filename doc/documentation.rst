@@ -1637,7 +1637,7 @@ Search for all the indexed rows.
 
 .. code-block:: sql
 
-    SELECT * FROM test.users WHERE expr(users_index, '
+    SELECT * FROM users WHERE expr(users_index, '
         {filter : { type  : "all" }
     }');
 
@@ -1648,7 +1648,7 @@ Using `query builder <#query-builder>`__:
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT * FROM test.users WHERE expr(users_index, ?)",
+        "SELECT * FROM users WHERE expr(users_index, ?)",
         search().filter(all()).build());
 
 
@@ -1743,7 +1743,7 @@ We insert the population of 5 citizens lives in each city from 2015/01/01 until 
     VALUES ('Edward', 'New York','2015/01/01', '2200/12/31', '2015/01/01', '2200/12/31');
 
     INSERT INTO census(name, city, vt_from, vt_to, tt_from, tt_to)
-    VALUES ('Johnatan', 'San Francisco', '2015/01/01', '2200/12/31', '2015/01/01', '2200/12/31');
+    VALUES ('Jonathan', 'San Francisco', '2015/01/01', '2200/12/31', '2015/01/01', '2200/12/31');
 
 
 John moves to Amsterdam in '2015/03/05' but he does not comunicate this to census bureau until '2015/06/29' because he need it to apply for taxes reduction.
@@ -1779,8 +1779,7 @@ If you want to know what is the last info about where John resides, you perform 
 
 .. code-block:: sql
 
-    SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM census
-    WHERE expr(tweets_index, '{
+    SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM census WHERE expr(tweets_index, '{
         filter : {
             type    : "bitemporal",
             field   : "bitemporal",
@@ -1789,8 +1788,7 @@ If you want to know what is the last info about where John resides, you perform 
             tt_from : "2200/12/31",
             tt_to   : "2200/12/31"
         }
-    }')
-    AND name='John';
+    }') AND name='John';
 
 Using `query builder <#query-builder>`__:
 
@@ -1811,8 +1809,7 @@ If you want to know what is the last info about where John resides now, you perf
 
 .. code-block:: sql
 
-    SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM census
-    WHERE expr(tweets_index,'{
+    SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM census WHERE expr(census_index, '{
         filter : {
             type    : "bitemporal",
             field   : "bitemporal",
@@ -1821,8 +1818,7 @@ If you want to know what is the last info about where John resides now, you perf
             tt_from : "2200/12/31",
             tt_to   : "2200/12/31"
         }
-    }')
-    AND name='John';
+    }') AND name='John';
 
 Using `query builder <#query-builder>`__:
 
@@ -1842,8 +1838,7 @@ If the test case needs to know what the system was thinking at '2015/03/01' abou
 
 .. code-block:: sql
 
-    SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM census
-    WHERE expr(tweets_index, '{
+    SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM census WHERE expr(census_index, '{
         filter : {
             type    : "bitemporal",
             field   : "bitemporal",
@@ -1852,8 +1847,7 @@ If the test case needs to know what the system was thinking at '2015/03/01' abou
             tt_from : "2015/03/01",
             tt_to   : "2015/03/01"
         }
-    }')
-    AND name = 'John';
+    }') AND name = 'John';
 
 Using `query builder <#query-builder>`__:
 
@@ -1872,16 +1866,14 @@ If the test case needs to know what the system was thinking at '2015/07/05' abou
 
 .. code-block:: sql
 
-    SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM census
-    WHERE expr(tweets_index,'{
+    SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM census WHERE expr(census_index,'{
         filter : {
             type    : "bitemporal",
             field   : "bitemporal",
             tt_from : "2015/07/05",
             tt_to   : "2015/07/05"
         }
-    }')
-    AND name='John';
+    }') AND name='John';
 
 Using `query builder <#query-builder>`__:
 
@@ -1930,7 +1922,7 @@ with “tu”:
 
 .. code-block:: sql
 
-    SELECT * FROM test.users WHERE expr(users_index, '{
+    SELECT * FROM users WHERE expr(users_index, '{
         filter : {
             type : "boolean",
             must : [ {type : "wildcard", field : "name", value : "*a"},
@@ -1944,7 +1936,7 @@ Using `query builder <#query-builder>`__:
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT * FROM test.users WHERE expr(users_index, ?)",
+        "SELECT * FROM users WHERE expr(users_index, ?)",
         search().filter(bool().must(wildcard("name", "*a"), wildcard("food", "tu*"))).build());
 
 
@@ -1953,7 +1945,7 @@ Using `query builder <#query-builder>`__:
 
 .. code-block:: sql
 
-    SELECT * FROM test.users WHERE expr(users_index, '{
+    SELECT * FROM users WHERE expr(users_index, '{
         filter : {
             type : "boolean",
             not  : [ {type : "wildcard", field : "name", value : "*a" } ],
@@ -1967,7 +1959,7 @@ Using `query builder <#query-builder>`__:
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT * FROM test.users WHERE expr(users_index, ?)",
+        "SELECT * FROM users WHERE expr(users_index, ?)",
         search().filter(bool().not(wildcard("name", "*a")).must(wildcard("food", "tu*"))).build());
 
 
@@ -1976,7 +1968,7 @@ Using `query builder <#query-builder>`__:
 
 .. code-block:: sql
 
-    SELECT * FROM test.users WHERE expr(users_index, '{
+    SELECT * FROM users WHERE expr(users_index, '{
         filter : {
             type   : "boolean",
             should : [ { type : "wildcard", field : "name", value : "*a" },
@@ -1990,7 +1982,7 @@ Using `query builder <#query-builder>`__:
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT * FROM test.users WHERE expr(users_index, ?)",
+        "SELECT * FROM users WHERE expr(users_index, ?)",
         search().filter(bool().should(wildcard("name", "*a"), wildcard("food", "tu*"))).build());
 
 
@@ -1998,8 +1990,9 @@ Using `query builder <#query-builder>`__:
 
 .. code-block:: sql
 
-    SELECT * FROM test.users
-    WHERE expr(users_index, '{filter : { type   : "boolean"}}');
+    SELECT * FROM users WHERE expr(users_index, '{
+        filter : { type : "boolean" }
+    }');
 
 Using `query builder <#query-builder>`__:
 
@@ -2008,7 +2001,7 @@ Using `query builder <#query-builder>`__:
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT * FROM test.users WHERE expr(users_index, ?)",
+        "SELECT * FROM users WHERE expr(users_index, ?)",
         search().filter(bool()).build());
 
 
@@ -2017,7 +2010,7 @@ a resource-intensive pure negation search:
 
 .. code-block:: sql
 
-    SELECT * FROM test.users WHERE expr(users_index, '{
+    SELECT * FROM users WHERE expr(users_index, '{
         filter : {
             not  : [ {
                 type : "wildcard", field : "name", value : "*a" } ] }
@@ -2030,7 +2023,7 @@ Using `query builder <#query-builder>`__:
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT * FROM test.users WHERE expr(users_index, ?)",
+        "SELECT * FROM users WHERE expr(users_index, ?)",
         search().filter(bool().not(wildcard("name", "*a"))).build());
 
 
@@ -2054,7 +2047,7 @@ Searches for rows matching one or more of the specified terms.
 
 .. code-block:: sql
 
-    SELECT * FROM test.users WHERE expr(users_index, '{
+    SELECT * FROM users WHERE expr(users_index, '{
         filter : {
             type   : "contains",
             field  : "name",
@@ -2068,7 +2061,7 @@ Using `query builder <#query-builder>`__:
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT * FROM test.users WHERE expr(users_index, ?)",
+        "SELECT * FROM users WHERE expr(users_index, ?)",
         search().filter(contains("name", "Alicia", "mancha").build());
 
 
@@ -2077,7 +2070,7 @@ Using `query builder <#query-builder>`__:
 
 .. code-block:: sql
 
-    SELECT * FROM test.users WHERE expr(users_index, '{
+    SELECT * FROM users WHERE expr(users_index, '{
         filter : {
             type   : "contains",
             field  : "date",
@@ -2091,7 +2084,7 @@ Using `query builder <#query-builder>`__:
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT * FROM test.users WHERE expr(users_index, ?)",
+        "SELECT * FROM users WHERE expr(users_index, ?)",
         search().filter(contains("date", "2014/01/01", "2014/01/02", "2014/01/03")).build());
 
 
@@ -2125,7 +2118,7 @@ where:
 
 .. code-block:: sql
 
-    SELECT * FROM test.users WHERE expr(users_index, '{
+    SELECT * FROM users WHERE expr(users_index, '{
         filter : {
             type      : "date_range",
             field     : "duration",
@@ -2141,7 +2134,7 @@ Using `query builder <#query-builder>`__:
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT * FROM test.users WHERE expr(users_index, ?)",
+        "SELECT * FROM users WHERE expr(users_index, ?)",
         search().filter(dateRange("duration").from("2014/01/01").to("2014/12/31").operation("intersects")).build());
 
 
@@ -2150,7 +2143,7 @@ Using `query builder <#query-builder>`__:
 
 .. code-block:: sql
 
-    SELECT * FROM test.users WHERE expr(users_index, '{
+    SELECT * FROM users WHERE expr(users_index, '{
         filter : {
             type      : "date_range",
             field     : "duration",
@@ -2166,7 +2159,7 @@ Using `query builder <#query-builder>`__:
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT * FROM test.users WHERE expr(users_index, ?)",
+        "SELECT * FROM users WHERE expr(users_index, ?)",
         search().filter(dateRange("duration").from("2014/06/01").to("2014/06/02").operation("contains")).build());
 
 
@@ -2175,7 +2168,7 @@ Using `query builder <#query-builder>`__:
 
 .. code-block:: sql
 
-    SELECT * FROM test.users WHERE expr(users_index, '{
+    SELECT * FROM users WHERE expr(users_index, '{
         filter : {
             type      : "date_range",
             field     : "duration",
@@ -2192,7 +2185,7 @@ Using `query builder <#query-builder>`__:
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT * FROM test.users WHERE expr(users_index, ?)",
+        "SELECT * FROM users WHERE expr(users_index, ?)",
         search().filter(dateRange("duration").from("2014/01/01").to("2014/12/31").operation("is_within")).build());
 
 
@@ -2238,7 +2231,7 @@ differs in one edit operation from “puma”, such as “pumas”:
 
 .. code-block:: sql
 
-    SELECT * FROM test.users WHERE expr(users_index, '{
+    SELECT * FROM users WHERE expr(users_index, '{
         filter : {
             type      : "fuzzy",
             field     : "phrase",
@@ -2254,7 +2247,7 @@ Using `query builder <#query-builder>`__:
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT * FROM test.users WHERE expr(users_index, ?)",
+        "SELECT * FROM users WHERE expr(users_index, ?)",
         search().filter(fuzzy("phrase", "puma").maxEdits(1)).build());
 
 
@@ -2263,7 +2256,7 @@ phrase contains a word that starts with “pu”:
 
 .. code-block:: sql
 
-    SELECT * FROM test.users WHERE expr(users_index, '{
+    SELECT * FROM users WHERE expr(users_index, '{
         filter : {
             type          : "fuzzy",
             field         : "phrase",
@@ -2279,7 +2272,7 @@ Using `query builder <#query-builder>`__:
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT * FROM test.users WHERE expr(users_index, ?)",
+        "SELECT * FROM users WHERE expr(users_index, ?)",
         search().filter(fuzzy("phrase", "puma").maxEdits(1).prefixLength(2)).build());
 
 
@@ -2320,7 +2313,7 @@ between -90.0 and 90.0, and a longitude between -180.0 and
 
 .. code-block:: sql
 
-    SELECT * FROM test.users WHERE expr(users_index, '{
+    SELECT * FROM users WHERE expr(users_index, '{
         filter : {
             type          : "geo_bbox",
             field         : "place",
@@ -2337,7 +2330,7 @@ Using `query builder <#query-builder>`__:
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT * FROM test.users WHERE expr(users_index, ?)",
+        "SELECT * FROM users WHERE expr(users_index, ?)",
         search().filter(geoBBox("place", -180.0, 180.0, -90.0, 90.0)).build());
 
 
@@ -2347,7 +2340,7 @@ between -90.0 and 90.0, and a longitude between 0.0 and
 
 .. code-block:: sql
 
-    SELECT * FROM test.users WHERE expr(users_index, '{
+    SELECT * FROM users WHERE expr(users_index, '{
         filter : {
             type          : "geo_bbox",
             field         : "place",
@@ -2365,7 +2358,7 @@ Using `query builder <#query-builder>`__:
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT * FROM test.users WHERE expr(users_index, ?)",
+        "SELECT * FROM users WHERE expr(users_index, ?)",
         search().filter(geoBBox("place",0.0,10.0,-90.0,90.0)).build());
 
 
@@ -2375,7 +2368,7 @@ between 0.0 and 10.0, and a longitude between -180.0 and
 
 .. code-block:: sql
 
-    SELECT * FROM test.users WHERE expr(users_index, '{
+    SELECT * FROM users WHERE expr(users_index, '{
         filter : {
             type          : "geo_bbox",
             field         : "place",
@@ -2400,7 +2393,7 @@ Using `query builder <#query-builder>`__:
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT * FROM test.users WHERE expr(users_index, ?) LIMIT 100",
+        "SELECT * FROM users WHERE expr(users_index, ?) LIMIT 100",
         search().filter(geoBBox("place", -180.0, 180.0, 0.0, 10.0))
                 .sort(geoDistanceSortField("geo_point", 0.0, 0.0).reverse(false)
                 .build());
@@ -2438,7 +2431,7 @@ where:
 
 .. code-block:: sql
 
-    SELECT * FROM test.users WHERE expr(users_index, '{
+    SELECT * FROM users WHERE expr(users_index, '{
         filter : {
             type         : "geo_distance",
             field        : "place",
@@ -2454,7 +2447,7 @@ Using `query builder <#query-builder>`__:
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT * FROM test.users WHERE expr(users_index, ?)",
+        "SELECT * FROM users WHERE expr(users_index, ?)",
         search().filter(geoDistance("place", -3.999278d, 40.225479d, "1km").build());
 
 
@@ -2463,7 +2456,7 @@ yards from the geo point (40.225479, -3.999278) sorted by min distance to point 
 
 .. code-block:: sql
 
-    SELECT * FROM test.users WHERE expr(users_index, '{
+    SELECT * FROM users WHERE expr(users_index, '{
         filter : {
             type          : "geo_distance",
             field         : "place",
@@ -2487,7 +2480,7 @@ Using `query builder <#query-builder>`__:
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT * FROM test.users WHERE expr(users_index, ?) LIMIT 100",
+        "SELECT * FROM users WHERE expr(users_index, ?) LIMIT 100",
         search().filter(geoDistance("place", -3.999278d, 40.225479d, "10yd").minDistance("1yd"))
                 .sort(geoDistanceSortField("geo_point", -3.999278, 40.225479).reverse(false))
                 .build());
@@ -2602,7 +2595,7 @@ Searches for rows with columns containing the specified term. The matching depen
 
 .. code-block:: sql
 
-    SELECT * FROM test.users WHERE expr(users_index, '{
+    SELECT * FROM users WHERE expr(users_index, '{
         filter : {
             type  : "match",
             field : "name",
@@ -2616,7 +2609,7 @@ Using `query builder <#query-builder>`__:
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT * FROM test.users WHERE expr(users_index, ?)",
+        "SELECT * FROM users WHERE expr(users_index, ?)",
         search().filter(match("name", "Alicia")).build());
 
 
@@ -2624,7 +2617,7 @@ Using `query builder <#query-builder>`__:
 
 .. code-block:: sql
 
-    SELECT * FROM test.users WHERE expr(users_index, '{
+    SELECT * FROM users WHERE expr(users_index, '{
         filter : {
             type  : "match",
             field : "phrase",
@@ -2638,7 +2631,7 @@ Using `query builder <#query-builder>`__:
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT * FROM test.users WHERE expr(users_index, ?)",
+        "SELECT * FROM users WHERE expr(users_index, ?)",
         search().filter(match("phrase", "mancha").build());
 
 
@@ -2646,7 +2639,7 @@ Using `query builder <#query-builder>`__:
 
 .. code-block:: sql
 
-    SELECT * FROM test.users WHERE expr(users_index, '{
+    SELECT * FROM users WHERE expr(users_index, '{
         filter : {
             type  : "match",
             field : "date",
@@ -2660,7 +2653,7 @@ Using `query builder <#query-builder>`__:
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT * FROM test.users WHERE expr(users_index, ?)",
+        "SELECT * FROM users WHERE expr(users_index, ?)",
         search().filter(match("date", "2014/01/01")).build());
 
 
@@ -2681,7 +2674,7 @@ Returns no results.
 
 .. code-block:: sql
 
-    SELECT * FROM test.users WHERE expr(users_index, '{
+    SELECT * FROM users WHERE expr(users_index, '{
         filter : { type  : "none" }
     }');
 
@@ -2692,7 +2685,7 @@ Using `query builder <#query-builder>`__:
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT * FROM test.users WHERE expr(users_index, ?)",
+        "SELECT * FROM users WHERE expr(users_index, ?)",
         search().filter(none()).build());
 
 Phrase search
@@ -2722,7 +2715,7 @@ followed by the word “manchada”:
 
 .. code-block:: sql
 
-    SELECT * FROM test.users WHERE expr(users_index, '{
+    SELECT * FROM users WHERE expr(users_index, '{
         filter : {
         type   : "phrase",
         field  : "phrase",
@@ -2736,7 +2729,7 @@ Using `query builder <#query-builder>`__:
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT * FROM test.users WHERE expr(users_index, ?)",
+        "SELECT * FROM users WHERE expr(users_index, ?)",
         search().filter(phrase("phrase", "camisa manchada")).build());
 
 **Example 2:** search for rows where “phrase” contains the word “mancha”
@@ -2744,7 +2737,7 @@ followed by the word “camisa” having 0 to 2 words in between:
 
 .. code-block:: sql
 
-    SELECT * FROM test.users WHERE expr(users_index, '{
+    SELECT * FROM users WHERE expr(users_index, '{
         filter : {
             type   : "phrase",
             field  : "phrase",
@@ -2759,7 +2752,7 @@ Using `query builder <#query-builder>`__:
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT * FROM test.users WHERE expr(users_index, ?)",
+        "SELECT * FROM users WHERE expr(users_index, ?)",
         search().filter(phrase("phrase", "camisa manchada").slop(2)).build());
 
 Prefix search
@@ -2784,7 +2777,7 @@ ignored by the analyzer will not be retrieved:
 
 .. code-block:: sql
 
-    SELECT * FROM test.users WHERE expr(users_index, '{
+    SELECT * FROM users WHERE expr(users_index, '{
         filter : {
             type  : "prefix",
             field : "phrase",
@@ -2798,7 +2791,7 @@ Using `query builder <#query-builder>`__:
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT * FROM test.users WHERE expr(users_index, ?)",
+        "SELECT * FROM users WHERE expr(users_index, ?)",
         search().filter(prefix("phrase", "lu")).build());
 
 Range search
@@ -2810,7 +2803,7 @@ Searches for rows with columns with terms within the specified term range.
 
 .. code-block:: sql
 
-    SELECT * FROM test.users WHERE expr(users_index, '{
+    SELECT * FROM users WHERE expr(users_index, '{
         (filter | query) : {
             type     : "range",
             field    : <field_name>
@@ -2839,7 +2832,7 @@ be returned.
 
 .. code-block:: sql
 
-    SELECT * FROM test.users WHERE expr(users_index, '{
+    SELECT * FROM users WHERE expr(users_index, '{
         filter : {
             type          : "range",
             field         : "age",
@@ -2854,14 +2847,14 @@ Using `query builder <#query-builder>`__:
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT * FROM test.users WHERE expr(users_index, ?)",
+        "SELECT * FROM users WHERE expr(users_index, ?)",
         search().filter(range("age").lower(1).includeLower(true)).build());
 
 **Example 2:** search for rows where *age* is in (-∞, 0]:
 
 .. code-block:: sql
 
-    SELECT * FROM test.users WHERE expr(users_index, '{
+    SELECT * FROM users WHERE expr(users_index, '{
         filter : {
             type          : "range",
             field         : "age",
@@ -2876,14 +2869,14 @@ Using `query builder <#query-builder>`__:
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT * FROM test.users WHERE expr(users_index, ?)",
+        "SELECT * FROM users WHERE expr(users_index, ?)",
         search().filter(range("age").upper(0).includeUpper(true)).build());
 
 **Example 3:** search for rows where *age* is in [-1, 1]:
 
 .. code-block:: sql
 
-    SELECT * FROM test.users WHERE expr(users_index, '{
+    SELECT * FROM users WHERE expr(users_index, '{
         filter : {
             type          : "range",
             field         : "age",
@@ -2900,7 +2893,7 @@ Using `query builder <#query-builder>`__:
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT * FROM test.users WHERE expr(users_index, ?)",
+        "SELECT * FROM users WHERE expr(users_index, ?)",
         search().filter(range("age").lower(-1).upper(1)
                                     .includeLower(true)
                                     .includeUpper(true)).build());
@@ -2909,7 +2902,7 @@ Using `query builder <#query-builder>`__:
 
 .. code-block:: sql
 
-    SELECT * FROM test.users WHERE expr(users_index, '{
+    SELECT * FROM users WHERE expr(users_index, '{
         filter : {
             type          : "range",
             field         : "date",
@@ -2926,7 +2919,7 @@ Using `query builder <#query-builder>`__:
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT * FROM test.users WHERE expr(users_index, ?)",
+        "SELECT * FROM users WHERE expr(users_index, ?)",
         search().filter(range("date").lower("2014/01/01")
                                      .upper( "2014/01/02")
                                      .includeLower(true)
@@ -2941,7 +2934,7 @@ Searches for rows with columns with terms satisfying the specified regular expre
 
 .. code-block:: sql
 
-    SELECT * FROM test.users WHERE expr(users_index, '{
+    SELECT * FROM users WHERE expr(users_index, '{
         (filter | query) : {
             type  : "regexp",
             field : <field_name>,
@@ -2959,7 +2952,7 @@ where:
 
 .. code-block:: sql
 
-    SELECT * FROM test.users WHERE expr(users_index, '{
+    SELECT * FROM users WHERE expr(users_index, '{
         filter : {
             type  : "regexp",
             field : "name",
@@ -2973,7 +2966,7 @@ Using `query builder <#query-builder>`__:
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT * FROM test.users WHERE expr(users_index, ?)",
+        "SELECT * FROM users WHERE expr(users_index, ?)",
         search().filter(regexp("name", "[J][aeiou]{2}.*")).build());
 
 Wildcard search
@@ -2985,7 +2978,7 @@ Searches for rows with columns with terms satisfying the specified wildcard patt
 
 .. code-block:: sql
 
-    SELECT * FROM test.users WHERE expr(users_index, '{
+    SELECT * FROM users WHERE expr(users_index, '{
         (filter | query) : {
             type  : "wildcard" ,
             field : <field_name> ,
@@ -3002,7 +2995,7 @@ where:
 
 .. code-block:: sql
 
-    SELECT * FROM test.users WHERE expr(users_index, '{
+    SELECT * FROM users WHERE expr(users_index, '{
         filter : {
             type  : "wildcard",
             field : "food",
@@ -3017,7 +3010,7 @@ Using `query builder <#query-builder>`__:
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     ResultSet rs = session.execute(
-        "SELECT * FROM test.users WHERE expr(users_index, ?)",
+        "SELECT * FROM users WHERE expr(users_index, ?)",
         search().filter(wildcard("food", "tu*")).build());
 
 Geographical elements
@@ -3479,10 +3472,9 @@ tokens is applied first and then the condition of the filter clause.
 
 .. code-block:: sql
 
-    SELECT name, gender
-      FROM test.users
-     WHERE expr(users_index, '{filter : {type : "match", field : "food", value : "chips"}}')
-       AND token(name, gender) > token('Alicia', 'female');
+    SELECT name, gender FROM test.users WHERE expr(users_index, '{
+        filter : {type : "match", field : "food", value : "chips"}}
+    ') AND token(name, gender) > token('Alicia', 'female');
 
 Paging
 ======
@@ -3493,12 +3485,9 @@ the rows starting from a certain key. For example, if the primary key is
 
 .. code-block:: sql
 
-    SELECT *
-      FROM tweets
-      WHERE expr(users_index, ‘{ filter : {type:”match",  field:”text", value:”cassandra”}}’)
-        AND userid = 3543534
-        AND createdAt > 2011-02-03 04:05+0000
-      LIMIT 5000;
+    SELECT * FROM tweets WHERE expr(users_index, ‘{
+        filter : {type:”match",  field:”text", value:”cassandra”}}
+    ') AND userid = 3543534 AND createdAt > 2011-02-03 04:05+0000 LIMIT 5000;
 
 Examples
 ========

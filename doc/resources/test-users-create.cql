@@ -7,6 +7,7 @@ WITH REPLICATION = {
 
 
 USE test;
+
 -- Create table
 CREATE TABLE IF NOT EXISTS test.users (
   name varchar,
