@@ -1442,13 +1442,12 @@ Lucene indexes are queried using a custom JSON syntax defining the kind of searc
 
 .. code-block:: sql
 
-    SELECT ( <fields> | * )
-    FROM <table_name>
-    WHERE expr(<index_name>, '{ (   filter  : <filter>  )?
-                                ( , query   : <query>   )?
-                                ( , sort    : <sort>    )?
-                                ( , refresh : ( true | false ) )?
-                               }');
+    SELECT ( <fields> | * ) FROM <table_name> WHERE expr(<index_name>, '{
+        (   filter  : <filter>  )?
+        ( , query   : <query>   )?
+        ( , sort    : <sort>    )?
+        ( , refresh : ( true | false ) )?
+    }');
 
 where <filter> and <query> are a JSON object:
 
@@ -1630,16 +1629,17 @@ Search for all the indexed rows.
 
 .. code-block:: sql
 
-    SELECT ( <fields> | * )
-    FROM <table>
-    WHERE expr(<index_name>, '{ (filter | query) : { type  : "all"} }');
+    SELECT ( <fields> | * ) FROM <table> WHERE expr(<index_name>, '{
+        (filter | query) : { type  : "all"}
+    }');
 
 **Example:** search for all the indexed rows:
 
 .. code-block:: sql
 
-    SELECT * FROM test.users
-    WHERE expr(users_index, '{filter : { type  : "all" }}');
+    SELECT * FROM test.users WHERE expr(users_index, '
+        {filter : { type  : "all" }
+    }');
 
 Using `query builder <#query-builder>`__:
 
@@ -1663,16 +1663,15 @@ transaction time and valid time ranges.
 
 .. code-block:: sql
 
-    SELECT ( <fields> | * )
-    FROM <table>
-    WHERE expr(<index_name>, '{ (filter | query) : {
-                                type       : "bitemporal",
-                                (vt_from   : <vt_from> ,)?
-                                (vt_to     : <vt_to> ,)?
-                                (tt_from   : <tt_from> ,)?
-                                (tt_to     : <tt_to> ,)?
-                                (operation : <operation> )?
-                              }}');
+    SELECT ( <fields> | * ) FROM <table> WHERE expr(<index_name>, '{
+        (filter | query) : {
+            type       : "bitemporal",
+            (vt_from   : <vt_from> ,)?
+            (vt_to     : <vt_to> ,)?
+            (tt_from   : <tt_from> ,)?
+            (tt_to     : <tt_to> ,)?
+            (operation : <operation> )? }
+    }');
 
 where:
 
@@ -1812,8 +1811,8 @@ If you want to know what is the last info about where John resides now, you perf
 
 .. code-block:: sql
 
-    SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM census WHERE
-    expr(tweets_index,'{
+    SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM census
+    WHERE expr(tweets_index,'{
         filter : {
             type    : "bitemporal",
             field   : "bitemporal",
@@ -1873,8 +1872,8 @@ If the test case needs to know what the system was thinking at '2015/07/05' abou
 
 .. code-block:: sql
 
-    SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM census WHERE
-    expr(tweets_index,'{
+    SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM census
+    WHERE expr(tweets_index,'{
         filter : {
             type    : "bitemporal",
             field   : "bitemporal",
@@ -1906,13 +1905,13 @@ Searches for rows matching boolean combinations of other searches.
 
 .. code-block:: sql
 
-    SELECT ( <fields> | * )
-    FROM <table>
-    WHERE expr(<index_name>, '{ (filter | query) : {
-                               type     : "boolean",
-                               ( must   : [(search,)?] , )?
-                               ( should : [(search,)?] , )?
-                               ( not    : [(search,)?] , )? } }');
+    SELECT ( <fields> | * ) FROM <table> WHERE expr(<index_name>, '{
+        (filter | query) : {
+            type     : "boolean",
+            ( must   : [(search,)?] , )?
+            ( should : [(search,)?] , )?
+            ( not    : [(search,)?] , )? }
+    }');
 
 where:
 
@@ -1931,11 +1930,12 @@ with “tu”:
 
 .. code-block:: sql
 
-    SELECT * FROM test.users
-    WHERE expr(users_index, '{filter : {
-                            type : "boolean",
-                            must : [{type : "wildcard", field : "name", value : "*a"},
-                                    {type : "wildcard", field : "food", value : "tu*"}]}}');
+    SELECT * FROM test.users WHERE expr(users_index, '{
+        filter : {
+            type : "boolean",
+            must : [ {type : "wildcard", field : "name", value : "*a"},
+                     {type : "wildcard", field : "food", value : "tu*"} ]}
+    }');
 
 Using `query builder <#query-builder>`__:
 
@@ -1953,11 +1953,12 @@ Using `query builder <#query-builder>`__:
 
 .. code-block:: sql
 
-    SELECT * FROM test.users
-    WHERE expr(users_index, '{filter : {
-                            type : "boolean",
-                            not  : [{type : "wildcard", field : "name", value : "*a"}],
-                            must : [{type : "wildcard", field : "food", value : "tu*"}]}}');
+    SELECT * FROM test.users WHERE expr(users_index, '{
+        filter : {
+            type : "boolean",
+            not  : [ {type : "wildcard", field : "name", value : "*a" } ],
+            must : [ {type : "wildcard", field : "food", value : "tu*" } ] }
+    }');
 
 Using `query builder <#query-builder>`__:
 
@@ -1975,11 +1976,12 @@ Using `query builder <#query-builder>`__:
 
 .. code-block:: sql
 
-    SELECT * FROM test.users
-    WHERE expr(users_index, '{filter : {
-                            type   : "boolean",
-                            should : [{type : "wildcard", field : "name", value : "*a"},
-                                      {type : "wildcard", field : "food", value : "tu*"}]}}');
+    SELECT * FROM test.users WHERE expr(users_index, '{
+        filter : {
+            type   : "boolean",
+            should : [ { type : "wildcard", field : "name", value : "*a" },
+                       { type : "wildcard", field : "food", value : "tu*" } ] }
+    }');
 
 Using `query builder <#query-builder>`__:
 
@@ -2005,7 +2007,7 @@ Using `query builder <#query-builder>`__:
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
-    SResultSet rs = session.execute(
+    ResultSet rs = session.execute(
         "SELECT * FROM test.users WHERE expr(users_index, ?)",
         search().filter(bool()).build());
 
@@ -2015,9 +2017,11 @@ a resource-intensive pure negation search:
 
 .. code-block:: sql
 
-    SELECT * FROM test.users
-    WHERE expr(users_index, '{filter : {
-                            not  : [{type : "wildcard", field : "name", value : "*a"}]}}');
+    SELECT * FROM test.users WHERE expr(users_index, '{
+        filter : {
+            not  : [ {
+                type : "wildcard", field : "name", value : "*a" } ] }
+    }');
 
 Using `query builder <#query-builder>`__:
 
@@ -2039,22 +2043,23 @@ Searches for rows matching one or more of the specified terms.
 
 .. code-block:: sql
 
-    SELECT ( <fields> | * )
-    FROM <table>
-    WHERE expr(<index_name>, '{ (filter | query) : {
-                                type   : "contains",
-                                field  : <field_name> ,
-                                values : <value_list> }}');
+    SELECT ( <fields> | * ) FROM <table> WHERE expr(<index_name>, '{
+        ( filter | query ) : {
+            type   : "contains",
+            field  : <field_name> ,
+            values : <value_list> }
+    }');
 
 **Example 1:** search for rows where name matches “Alicia” or “mancha”:
 
 .. code-block:: sql
 
-    SELECT * FROM test.users
-    WHERE expr(users_index, '{filter : {
-                            type   : "contains",
-                            field  : "name",
-                            values : ["Alicia", "mancha"] }}');
+    SELECT * FROM test.users WHERE expr(users_index, '{
+        filter : {
+            type   : "contains",
+            field  : "name",
+            values : [ "Alicia", "mancha" ] }
+    }');
 
 Using `query builder <#query-builder>`__:
 
@@ -2072,11 +2077,12 @@ Using `query builder <#query-builder>`__:
 
 .. code-block:: sql
 
-    SELECT * FROM test.users
-    WHERE expr(users_index, '{filter : {
-                              type   : "contains",
-                              field  : "date",
-                              values : ["2014/01/01", "2014/01/02", "2014/01/03"] }}');
+    SELECT * FROM test.users WHERE expr(users_index, '{
+        filter : {
+            type   : "contains",
+            field  : "date",
+            values : [ "2014/01/01", "2014/01/02", "2014/01/03" ] }
+    }');
 
 Using `query builder <#query-builder>`__:
 
@@ -2098,14 +2104,13 @@ Searches for rows within a specified date range.
 
 .. code-block:: sql
 
-    SELECT ( <fields> | * )
-    FROM <table>
-    WHERE expr(<index_name>, '{ (filter | query) : {
-                                type  : "date_range",
-                                (from : <from> ,)?
-                                (to   : <to> ,)?
-                                (operation: <operation> )?
-                              }}');
+    SELECT ( <fields> | * ) FROM <table> WHERE expr(<index_name>, '{
+        (filter | query) : {
+            type  : "date_range",
+            (from : <from> ,)?
+            (to   : <to> ,)?
+            (operation: <operation> )? }
+    }');
 
 where:
 
@@ -2120,13 +2125,14 @@ where:
 
 .. code-block:: sql
 
-    SELECT * FROM test.users
-    WHERE expr(users_index, '{ filter : {
-                        type      : "date_range",
-                        field     : "duration",
-                        from      : "2014/01/01",
-                        to        : "2014/12/31",
-                        operation : "intersects"}}');
+    SELECT * FROM test.users WHERE expr(users_index, '{
+        filter : {
+            type      : "date_range",
+            field     : "duration",
+            from      : "2014/01/01",
+            to        : "2014/12/31",
+            operation : "intersects" }
+    }');
 
 Using `query builder <#query-builder>`__:
 
@@ -2144,13 +2150,14 @@ Using `query builder <#query-builder>`__:
 
 .. code-block:: sql
 
-    SELECT * FROM test.users
-    WHERE expr(users_index, '{ filter : {
-                        type      : "date_range",
-                        field     : "duration",
-                        from      : "2014/06/01",
-                        to        : "2014/06/02",
-                        operation : "contains"}}');
+    SELECT * FROM test.users WHERE expr(users_index, '{
+        filter : {
+            type      : "date_range",
+            field     : "duration",
+            from      : "2014/06/01",
+            to        : "2014/06/02",
+            operation : "contains" }
+    }');
 
 Using `query builder <#query-builder>`__:
 
@@ -2168,13 +2175,14 @@ Using `query builder <#query-builder>`__:
 
 .. code-block:: sql
 
-    SELECT * FROM test.users
-    WHERE expr(users_index, '{ filter : {
-                        type      : "date_range",
-                        field     : "duration",
-                        from      : "2014/01/01",
-                        to        : "2014/12/31",
-                        operation : "is_within"}}');
+    SELECT * FROM test.users WHERE expr(users_index, '{
+        filter : {
+            type      : "date_range",
+            field     : "duration",
+            from      : "2014/01/01",
+            to        : "2014/12/31",
+            operation : "is_within" }
+    }');
 
 
 Using `query builder <#query-builder>`__:
@@ -2198,17 +2206,16 @@ Searches for rows matching a term using similarity based on
 
 .. code-block:: sql
 
-    SELECT ( <fields> | * )
-    FROM <table>
-    WHERE expr(<index_name>, '{ (filter | query) : {
-                                type  : "fuzzy",
-                                field : <field_name> ,
-                                value : <value>
-                                (, max_edits      : <max_edits> )?
-                                (, prefix_length  : <prefix_length> )?
-                                (, max_expansions : <max_expansion> )?
-                                (, transpositions : <transposition> )?
-                              }}');
+    SELECT ( <fields> | * ) FROM <table> WHERE expr(<index_name>, '{
+        (filter | query) : {
+            type  : "fuzzy",
+            field : <field_name> ,
+            value : <value>
+            (, max_edits      : <max_edits> )?
+            (, prefix_length  : <prefix_length> )?
+            (, max_expansions : <max_expansion> )?
+            (, transpositions : <transposition> )? }
+    }');
 
 where:
 
@@ -2231,11 +2238,13 @@ differs in one edit operation from “puma”, such as “pumas”:
 
 .. code-block:: sql
 
-    SELECT * FROM test.users
-    WHERE expr(users_index, '{filter : { type      : "fuzzy",
-                                         field     : "phrase",
-                                         value     : "puma",
-                                         max_edits : 1 }}');
+    SELECT * FROM test.users WHERE expr(users_index, '{
+        filter : {
+            type      : "fuzzy",
+            field     : "phrase",
+            value     : "puma",
+            max_edits : 1 }
+    }');
 
 
 Using `query builder <#query-builder>`__:
@@ -2254,12 +2263,14 @@ phrase contains a word that starts with “pu”:
 
 .. code-block:: sql
 
-    SELECT * FROM test.users
-    WHERE expr(users_index, '{filter : { type          : "fuzzy",
-                                         field         : "phrase",
-                                         value         : "puma",
-                                         max_edits     : 1,
-                                         prefix_length : 2 }}');
+    SELECT * FROM test.users WHERE expr(users_index, '{
+        filter : {
+            type          : "fuzzy",
+            field         : "phrase",
+            value         : "puma",
+            max_edits     : 1,
+            prefix_length : 2 }
+    }');
 
 Using `query builder <#query-builder>`__:
 
@@ -2282,16 +2293,15 @@ contained in the specified bounding box.
 
 .. code-block:: sql
 
-    SELECT ( <fields> | * )
-    FROM <table>
-    WHERE expr(<index_name>, '{ (filter | query) : {
-                                type          : "geo_bbox",
-                                field         : <field_name>,
-                                min_latitude  : <min_latitude> ,
-                                max_latitude  : <max_latitude> ,
-                                min_longitude : <min_longitude> ,
-                                max_longitude : <max_longitude>
-                              }}');
+    SELECT ( <fields> | * ) FROM <table> WHERE expr(<index_name>, '{
+        (filter | query) : {
+            type          : "geo_bbox",
+            field         : <field_name>,
+            min_latitude  : <min_latitude> ,
+            max_latitude  : <max_latitude> ,
+            min_longitude : <min_longitude> ,
+            max_longitude : <max_longitude> }
+    }');
 
 where:
 
@@ -2310,13 +2320,15 @@ between -90.0 and 90.0, and a longitude between -180.0 and
 
 .. code-block:: sql
 
-    SELECT * FROM test.users
-    WHERE expr(users_index, '{filter : { type          : "geo_bbox",
-                                         field         : "place",
-                                         min_latitude  : -90.0,
-                                         max_latitude  : 90.0,
-                                         min_longitude : -180.0,
-                                         max_longitude : 180.0 }}');
+    SELECT * FROM test.users WHERE expr(users_index, '{
+        filter : {
+            type          : "geo_bbox",
+            field         : "place",
+            min_latitude  : -90.0,
+            max_latitude  : 90.0,
+            min_longitude : -180.0,
+            max_longitude : 180.0 }
+    }');
 
 Using `query builder <#query-builder>`__:
 
@@ -2335,13 +2347,15 @@ between -90.0 and 90.0, and a longitude between 0.0 and
 
 .. code-block:: sql
 
-    SELECT * FROM test.users
-    WHERE expr(users_index, '{filter : { type          : "geo_bbox",
-                                         field         : "place",
-                                         min_latitude  : -90.0,
-                                         max_latitude  : 90.0,
-                                         min_longitude : 0.0,
-                                         max_longitude : 10.0 }}');
+    SELECT * FROM test.users WHERE expr(users_index, '{
+        filter : {
+            type          : "geo_bbox",
+            field         : "place",
+            min_latitude  : -90.0,
+            max_latitude  : 90.0,
+            min_longitude : 0.0,
+            max_longitude : 10.0 }
+    }');
 
 
 Using `query builder <#query-builder>`__:
@@ -2361,23 +2375,22 @@ between 0.0 and 10.0, and a longitude between -180.0 and
 
 .. code-block:: sql
 
-    SELECT * FROM test.users
-    WHERE expr(users_index, '{  filter : { type          : "geo_bbox",
-                                           field         : "place",
-                                           min_latitude  : 0.0,
-                                           max_latitude  : 10.0,
-                                           min_longitude : -180.0,
-                                           max_longitude : 180.0
-                                         },
-                                sort   : { fields: [
-                                          { type      : "geo_distance",
-                                            mapper    : "geo_point",
-                                            reverse   : false,
-                                            latitude  : 0.0,
-                                            longitude : 0.0
-                                          }]
-                                         }
-                              }');
+    SELECT * FROM test.users WHERE expr(users_index, '{
+        filter : {
+            type          : "geo_bbox",
+            field         : "place",
+            min_latitude  : 0.0,
+            max_latitude  : 10.0,
+            min_longitude : -180.0,
+            max_longitude : 180.0 },
+        sort : {
+            fields: [ {
+                type      : "geo_distance",
+                mapper    : "geo_point",
+                reverse   : false,
+                latitude  : 0.0,
+                longitude : 0.0 }]
+    }');
 
 
 Using `query builder <#query-builder>`__:
@@ -2402,16 +2415,15 @@ within a distance range from a specified point.
 
 .. code-block:: sql
 
-    SELECT ( <fields> | * )
-    FROM <table>
-    WHERE expr(<index_name>, '{ (filter | query) : {
-                                type            : "geo_distance",
-                                field           : <field_name> ,
-                                latitude        : <latitude> ,
-                                longitude       : <longitude> ,
-                                max_distance    : <max_distance>
-                                (, min_distance : <min_distance> )?
-                              }}');
+    SELECT ( <fields> | * ) FROM <table> WHERE expr(<index_name>, '{
+        (filter | query) : {
+            type            : "geo_distance",
+            field           : <field_name> ,
+            latitude        : <latitude> ,
+            longitude       : <longitude> ,
+            max_distance    : <max_distance>
+            (, min_distance : <min_distance> )? }
+    }');
 
 where:
 
@@ -2426,12 +2438,14 @@ where:
 
 .. code-block:: sql
 
-    SELECT * FROM test.users
-    WHERE expr(users_index, '{filter : { type         : "geo_distance",
-                                         field        : "place",
-                                         latitude     : 40.225479,
-                                         longitude    : -3.999278,
-                                         max_distance : "1km"}}');
+    SELECT * FROM test.users WHERE expr(users_index, '{
+        filter : {
+            type         : "geo_distance",
+            field        : "place",
+            latitude     : 40.225479,
+            longitude    : -3.999278,
+            max_distance : "1km" }
+    }');
 
 Using `query builder <#query-builder>`__:
 
@@ -2449,22 +2463,22 @@ yards from the geo point (40.225479, -3.999278) sorted by min distance to point 
 
 .. code-block:: sql
 
-    SELECT * FROM test.users
-    WHERE expr(users_index, '{filter : { type         : "geo_distance",
-                                         field        : "place",
-                                         latitude     : 40.225479,
-                                         longitude    : -3.999278,
-                                         max_distance : "10yd" ,
-                                         min_distance : "1yd" },
-                              sort   : { fields: [
-                                        { type      : "geo_distance",
-                                          mapper    : "geo_point",
-                                          reverse   : false,
-                                          latitude  : 40.225479,
-                                          longitude : -3.999278}
-                                          ]
-                                        }
-                        }');
+    SELECT * FROM test.users WHERE expr(users_index, '{
+        filter : {
+            type          : "geo_distance",
+            field         : "place",
+            latitude      : 40.225479,
+            longitude     : -3.999278,
+            max_distance  : "10yd" ,
+            min_distance  : "1yd" },
+        sort   : {
+            fields: [ {
+                type      : "geo_distance",
+                mapper    : "geo_point",
+                reverse   : false,
+                latitude  : 40.225479,
+                longitude : -3.999278} ] }
+    }');
 
 Using `query builder <#query-builder>`__:
 
@@ -2494,15 +2508,14 @@ into your Cassandra installation lib directory.
 
 .. code-block:: sql
 
-    SELECT ( <fields> | * )
-    FROM <table>
-    WHERE expr(<index_name, '{ (filter | query) : {
-                                type               : "geo_shape",
-                                field              : <fieldname> ,
-                                shape              : <shape>
-                                (, operation       : <operation>)?
-                                (, transformations : [(<transformation>,)?])?
-                              }}');
+    SELECT ( <fields> | * ) FROM <table> WHERE expr(<index_name, '{
+        (filter | query) : {
+            type               : "geo_shape",
+            field              : <fieldname> ,
+            shape              : <shape>
+            (, operation       : <operation>)?
+            (, transformations : [(<transformation>,)?])?
+    }}');
 
 where:
 
@@ -2521,11 +2534,12 @@ where:
 
 .. code-block:: sql
 
-    SELECT * FROM test
-    WHERE expr(test_index, '{filter : {
-                               type : "geo_shape",
-                              field : "place",
-                              shape : "POLYGON((-0.07 51.63, 0.03 51.54, 0.05 51.65, -0.07 51.63))" }}';
+    SELECT * FROM test WHERE expr(test_index, '{
+        filter : {
+            type  : "geo_shape",
+            field : "place",
+            shape : "POLYGON((-0.07 51.63, 0.03 51.54, 0.05 51.65, -0.07 51.63))" }
+    }';
 
 Using `query builder <#query-builder>`__:
 
@@ -2547,13 +2561,14 @@ Florida's coastline:
 
 .. code-block:: sql
 
-    SELECT * FROM test
-    WHERE expr(test_index, '{filter : {
-                  type : "geo_shape",
-                 field : "place",
-              relation : "intersects",
-                 shape : "LINESTRING(-80.90 29.05, -80.51 28.47, -80.60 28.12, -80.00 26.85, -80.05 26.37)",
-       transformations : [{type:"buffer", max_distance:"10km"}] }}';
+    SELECT * FROM test WHERE expr(test_index, '{
+        filter : {
+            type            : "geo_shape",
+            field           : "place",
+            relation        : "intersects",
+            shape           : "LINESTRING(-80.90 29.05, -80.51 28.47, -80.60 28.12, -80.00 26.85, -80.05 26.37)",
+            transformations : [{type:"buffer", max_distance:"10km"}] }
+    }';
 
 Using `query builder <#query-builder>`__:
 
@@ -2576,22 +2591,23 @@ Searches for rows with columns containing the specified term. The matching depen
 
 .. code-block:: sql
 
-    SELECT ( <fields> | * )
-    FROM <table>
-    WHERE expr(<index_name>, '{ (filter | query) : {
-                                  type  : "match",
-                                  field : <field_name> ,
-                                  value : <value> }}');
+    SELECT ( <fields> | * ) FROM <table> WHERE expr(<index_name>, '{
+        (filter | query) : {
+            type  : "match",
+            field : <field_name> ,
+            value : <value> }
+    }');
 
 **Example 1:** search for rows where name matches “Alicia”:
 
 .. code-block:: sql
 
-    SELECT * FROM test.users
-    WHERE expr(users_index, '{filter : {
-                           type  : "match",
-                           field : "name",
-                           value : "Alicia" }}');
+    SELECT * FROM test.users WHERE expr(users_index, '{
+        filter : {
+            type  : "match",
+            field : "name",
+            value : "Alicia" }
+    }');
 
 Using `query builder <#query-builder>`__:
 
@@ -2608,11 +2624,12 @@ Using `query builder <#query-builder>`__:
 
 .. code-block:: sql
 
-    SELECT * FROM test.users
-    WHERE expr(users_index, '{filter : {
-                           type  : "match",
-                           field : "phrase",
-                           value : "mancha" }}');
+    SELECT * FROM test.users WHERE expr(users_index, '{
+        filter : {
+            type  : "match",
+            field : "phrase",
+            value : "mancha" }
+    }');
 
 Using `query builder <#query-builder>`__:
 
@@ -2629,11 +2646,12 @@ Using `query builder <#query-builder>`__:
 
 .. code-block:: sql
 
-    SELECT * FROM test.users
-    WHERE expr(users_index, '{filter : {
-                           type  : "match",
-                           field : "date",
-                           value : "2014/01/01" }}');
+    SELECT * FROM test.users WHERE expr(users_index, '{
+        filter : {
+            type  : "match",
+            field : "date",
+            value : "2014/01/01" }
+    }');
 
 Using `query builder <#query-builder>`__:
 
@@ -2655,16 +2673,17 @@ Returns no results.
 
 .. code-block:: sql
 
-    SELECT ( <fields> | * )
-    FROM <table>
-    WHERE expr(<index_name>, '{ (filter | query) : { type  : "none"} }');
+    SELECT ( <fields> | * ) FROM <table> WHERE expr(<index_name>, '{
+        (filter | query) : { type  : "none"}
+    }');
 
 **Example:** will return no one of the indexed rows:
 
 .. code-block:: sql
 
-    SELECT * FROM test.users
-    WHERE expr(users_index, '{filter : { type  : "none" }}');
+    SELECT * FROM test.users WHERE expr(users_index, '{
+        filter : { type  : "none" }
+    }');
 
 Using `query builder <#query-builder>`__:
 
@@ -2685,14 +2704,13 @@ Searches for rows with columns containing a particular sequence of terms.
 
 .. code-block:: sql
 
-    SELECT ( <fields> | * )
-    FROM <table>
-    WHERE expr(<index_name>, '{ (filter | query) : {
-                                type  :"phrase",
-                                field : <field_name> ,
-                                value : <value>
-                                (, slop : <slop> )?
-                            }}');
+    SELECT ( <fields> | * ) FROM <table> WHERE expr(<index_name>, '{
+        (filter | query) : {
+            type    : "phrase",
+            field   : <field_name> ,
+            value   : <value>
+            (, slop : <slop> )? }
+    }');
 
 where:
 
@@ -2704,11 +2722,12 @@ followed by the word “manchada”:
 
 .. code-block:: sql
 
-    SELECT * FROM test.users
-    WHERE expr(users_index, '{filter : {
-                          type   : "phrase",
-                          field  : "phrase",
-                          values : "camisa manchada" }}');
+    SELECT * FROM test.users WHERE expr(users_index, '{
+        filter : {
+        type   : "phrase",
+        field  : "phrase",
+        values : "camisa manchada" }
+    }');
 
 Using `query builder <#query-builder>`__:
 
@@ -2725,12 +2744,13 @@ followed by the word “camisa” having 0 to 2 words in between:
 
 .. code-block:: sql
 
-    SELECT * FROM test.users
-    WHERE expr(users_index, '{filter : {
-                          type   : "phrase",
-                          field  : "phrase",
-                          values : "mancha camisa",
-                          slop   : 2 }}');
+    SELECT * FROM test.users WHERE expr(users_index, '{
+        filter : {
+            type   : "phrase",
+            field  : "phrase",
+            values : "mancha camisa",
+            slop   : 2 }
+    }');
 
 Using `query builder <#query-builder>`__:
 
@@ -2751,12 +2771,12 @@ Searches for rows with columns with terms starting with the specified prefix.
 
 .. code-block:: sql
 
-    SELECT ( <fields> | * )
-    FROM <table>
-    WHERE expr(<index_name>, '{ (filter | query) : {
-                                type  : "prefix",
-                                field : <field_name> ,
-                                value : <value> }}');
+    SELECT ( <fields> | * ) FROM <table> WHERE expr(<index_name>, '{
+        (filter | query) : {
+            type  : "prefix",
+            field : <field_name> ,
+            value : <value> }
+    }');
 
 **Example:** search for rows where “phrase” contains a word starting with
 “lu”. If the column is indexed as “text” and uses an analyzer, words
@@ -2764,11 +2784,12 @@ ignored by the analyzer will not be retrieved:
 
 .. code-block:: sql
 
-    SELECT * FROM test.users
-    WHERE expr(users_index, '{filter : {
-                           type  : "prefix",
-                           field : "phrase",
-                           value : "lu" }}');
+    SELECT * FROM test.users WHERE expr(users_index, '{
+        filter : {
+            type  : "prefix",
+            field : "phrase",
+            value : "lu" }
+    }');
 
 Using `query builder <#query-builder>`__:
 
@@ -2789,13 +2810,13 @@ Searches for rows with columns with terms within the specified term range.
 
 .. code-block:: sql
 
-    SELECT * FROM test.users
-    WHERE expr(users_index, '{(filter | query) : {
-                            type     : "range",
-                            field    : <field_name>
-                            (, lower : <min> , include_lower : <min_included> )?
-                            (, upper : <max> , include_upper : <max_included> )?
-                         }}');
+    SELECT * FROM test.users WHERE expr(users_index, '{
+        (filter | query) : {
+            type     : "range",
+            field    : <field_name>
+            (, lower : <min> , include_lower : <min_included> )?
+            (, upper : <max> , include_upper : <max_included> )? }
+    }');
 
 where:
 
@@ -2818,12 +2839,13 @@ be returned.
 
 .. code-block:: sql
 
-    SELECT * FROM test.users
-    WHERE expr(users_index, '{filter : {
-                            type          : "range",
-                            field         : "age",
-                            lower         : 1,
-                            include_lower : true }}');
+    SELECT * FROM test.users WHERE expr(users_index, '{
+        filter : {
+            type          : "range",
+            field         : "age",
+            lower         : 1,
+            include_lower : true }
+    }');
 
 Using `query builder <#query-builder>`__:
 
@@ -2839,12 +2861,13 @@ Using `query builder <#query-builder>`__:
 
 .. code-block:: sql
 
-    SELECT * FROM test.users
-    WHERE expr(users_index, '{filter : {
-                            type          : "range",
-                            field         : "age",
-                            upper         : 0,
-                            include_upper : true }}');
+    SELECT * FROM test.users WHERE expr(users_index, '{
+        filter : {
+            type          : "range",
+            field         : "age",
+            upper         : 0,
+            include_upper : true }
+    }');
 
 Using `query builder <#query-builder>`__:
 
@@ -2860,14 +2883,15 @@ Using `query builder <#query-builder>`__:
 
 .. code-block:: sql
 
-    SELECT * FROM test.users
-    WHERE expr(users_index, '{filter : {
-                            type          : "range",
-                            field         : "age",
-                            lower         : -1,
-                            upper         : 1,
-                            include_lower : true,
-                            include_upper : true }}');
+    SELECT * FROM test.users WHERE expr(users_index, '{
+        filter : {
+            type          : "range",
+            field         : "age",
+            lower         : -1,
+            upper         : 1,
+            include_lower : true,
+            include_upper : true }
+    }');
 
 Using `query builder <#query-builder>`__:
 
@@ -2885,14 +2909,15 @@ Using `query builder <#query-builder>`__:
 
 .. code-block:: sql
 
-    SELECT * FROM test.users
-    WHERE expr(users_index, '{filter : {
-                            type          : "range",
-                            field         : "date",
-                            lower         : "2014/01/01",
-                            upper         : "2014/01/02",
-                            include_lower : true,
-                            include_upper : true }}');
+    SELECT * FROM test.users WHERE expr(users_index, '{
+        filter : {
+            type          : "range",
+            field         : "date",
+            lower         : "2014/01/01",
+            upper         : "2014/01/02",
+            include_lower : true,
+            include_upper : true }
+    }');
 
 Using `query builder <#query-builder>`__:
 
@@ -2916,12 +2941,12 @@ Searches for rows with columns with terms satisfying the specified regular expre
 
 .. code-block:: sql
 
-    SELECT * FROM test.users
-    WHERE expr(users_index, '{(filter | query) : {
-                            type  : "regexp",
-                            field : <field_name>,
-                            value : <regexp>
-                         }}');
+    SELECT * FROM test.users WHERE expr(users_index, '{
+        (filter | query) : {
+            type  : "regexp",
+            field : <field_name>,
+            value : <regexp> }
+    }');
 
 where:
 
@@ -2934,11 +2959,12 @@ where:
 
 .. code-block:: sql
 
-    SELECT * FROM test.users
-    WHERE expr(users_index, '{filter : {
-                           type  : "regexp",
-                           field : "name",
-                           value : "[J][aeiou]{2}.*" }}');
+    SELECT * FROM test.users WHERE expr(users_index, '{
+        filter : {
+            type  : "regexp",
+            field : "name",
+            value : "[J][aeiou]{2}.*" }
+    }');
 
 Using `query builder <#query-builder>`__:
 
@@ -2959,12 +2985,12 @@ Searches for rows with columns with terms satisfying the specified wildcard patt
 
 .. code-block:: sql
 
-    SELECT * FROM test.users
-    WHERE expr(users_index, '{(filter | query) : {
-                            type  : "wildcard" ,
-                            field : <field_name> ,
-                            value : <wildcard_exp>
-                         }}');
+    SELECT * FROM test.users WHERE expr(users_index, '{
+        (filter | query) : {
+            type  : "wildcard" ,
+            field : <field_name> ,
+            value : <wildcard_exp> }
+    }');
 
 where:
 
@@ -2976,11 +3002,12 @@ where:
 
 .. code-block:: sql
 
-    SELECT * FROM test.users
-    WHERE expr(users_index, '{filter : {
-                           type  : "wildcard",
-                           field : "food",
-                           value : "tu*" }}');
+    SELECT * FROM test.users WHERE expr(users_index, '{
+        filter : {
+            type  : "wildcard",
+            field : "food",
+            value : "tu*" }
+    }');
 
 
 Using `query builder <#query-builder>`__:
@@ -3038,12 +3065,14 @@ one kilometer from the geo point (40.225479, -3.999278). The distance is express
 
 .. code-block:: sql
 
-    SELECT * FROM test.users
-    WHERE stratio_col = '{filter : { type         : "geo_distance",
-                                     field        : "place",
-                                     latitude     : 40.225479,
-                                     longitude    : -3.999278,
-                                     max_distance : "1km"}}';
+    SELECT * FROM test.users WHERE stratio_col = '{
+        filter : {
+            type         : "geo_distance",
+            field        : "place",
+            latitude     : 40.225479,
+            longitude    : -3.999278,
+            max_distance : "1km" }
+    }';
 
 
 Transformations
@@ -3077,13 +3106,14 @@ defined by a buffer 10 kilometers around a segment of the Florida's coastline:
 
 .. code-block:: sql
 
-    SELECT * FROM test
-    WHERE expr(test_idx,'{filter : {
-                            type : "geo_shape",
-                           field : "place",
-                        relation : "intersects",
-                           shape : "LINESTRING(-80.90 29.05, -80.51 28.47, -80.60 28.12, -80.00 26.85, -80.05 26.37)",
-                 transformations : [{type:"buffer", max_distance:"10km"}] }}');
+    SELECT * FROM test WHERE expr(test_idx,'{
+        filter : {
+            type            : "geo_shape",
+            field           : "place",
+            relation        : "intersects",
+            shape           : "LINESTRING(-80.90 29.05, -80.51 28.47, -80.60 28.12, -80.00 26.85, -80.05 26.37)",
+            transformations : [{type:"buffer", max_distance:"10km"}] }
+    }');
 
 Centroid
 ________
@@ -3198,30 +3228,26 @@ You can index, search and sort tuples this way:
         fields:{
             "v.0":{type:"integer"},
             "v.1":{type:"string"},
-            "v.2":{type:"float"}
-        }
+            "v.2":{type:"float"} }
      }'};
 
     SELECT * FROM collect_things WHERE expr(tweets_index, '{
         filter : {
             type  : "match",
             field : "v.0",
-            value : 1
-        }
+            value : 1 }
     }');
 
     SELECT * FROM collect_things WHERE expr(tweets_index, '{
         filter : {
             type  : "match",
             field : "v.1",
-            value : "bar"
-        }
+            value : "bar" }
     }');
 
     SELECT * FROM collect_things WHERE expr(tweets_index, '{
         sort : {
-            fields : [ {field : "v.2"} ]
-        }
+            fields : [ {field : "v.2"} ] }
     }');
 
 
@@ -3261,8 +3287,7 @@ The components of UDTs can be indexed, searched and sorted this way :
         }'
     };
 
-    SELECT * FROM user_profiles
-    WHERE expr(tweets_index,'{
+    SELECT * FROM user_profiles WHERE expr(tweets_index,'{
         filter : {
             type  : "match",
             field : "address.city",
@@ -3270,8 +3295,7 @@ The components of UDTs can be indexed, searched and sorted this way :
         }
     }');
 
-    SELECT * FROM user_profiles
-    WHERE expr(tweets_index,'{
+    SELECT * FROM user_profiles WHERE expr(tweets_index,'{
         filter : {
             type  : "range",
             field : "address.zip",
@@ -3311,8 +3335,7 @@ Searches are also done in the same way as with regular columns:
 
 .. code-block:: sql
 
-    SELECT * FROM user_profiles
-    WHERE expr(tweets_index,'{
+    SELECT * FROM user_profiles WHERE expr(tweets_index,'{
         filter : {
             type  : "match",
             field : "cities",
@@ -3350,13 +3373,11 @@ For searching map values under a certain key you should use '$' as field-key sep
         VALUES('user','Peter','Handsome',
                 {'San Francisco':'Market street 2', 'Madrid': 'Calle Velazquez' })
 
-    SELECT * FROM user_profiles
-    WHERE expr(tweets_index,'{
+    SELECT * FROM user_profiles WHERE expr(tweets_index,'{
         filter : {
             type  : "match",
             field : "cities$Madrid",
-            value : "San Francisco"
-        }
+            value : "San Francisco" }
     }');
 
 Please don't use map keys containing the separator chars, which are '.' and '$'.
@@ -3551,24 +3572,26 @@ For example, the following search could be more efficiently addressed using a de
 
 .. code-block:: sql
 
-    SELECT * FROM users
-    WHERE expr(tweets_index, '{filter : {
-                      type  : "match",
-                      field : "name",
-                      value : "Alice" }}');
+    SELECT * FROM users WHERE expr(tweets_index, '{
+        filter : {
+            type  : "match",
+            field : "name",
+            value : "Alice" }
+    }');
 
 However, this search could be a good use case for Lucene just because there is no easy counterpart:
 
 .. code-block:: sql
 
-    SELECT * FROM users
-    WHERE expr(tweets_index, '{filter : {
-                       type : "boolean",
-                       must : [{type  : "regexp", field : "name", value : "[J][aeiou]{2}.*"},
-                               {type  : "range",
-                                field : "birthday",
-                                lower : "2014/04/25",
-                                upper : "2014/05/01"}]}}');
+    SELECT * FROM users WHERE expr(tweets_index, '{
+        filter : {
+            type : "boolean",
+            must : [
+                { type  : "regexp", field : "name", value : "[J][aeiou]{2}.*"},
+                { type  : "range", field : "birthday", lower : "2014/04/25"}]},
+         sort : {
+            fields: [ { field : "name" } ] }
+    }') LIMIT 20;
 
 Lucene indexes are intended to be used in those cases that can't be efficiently addressed
 with Apache Cassandra common techniques, such as full-text queries, multidimensional queries,
