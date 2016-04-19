@@ -418,16 +418,12 @@ abstract class IndexService {
      * @return a Lucene {@link Query}
      */
     private Query query(Search search, ReadCommand command) {
-        Query searchQuery = search.query(schema);
-        Optional<Query> maybeKeyRangeQuery = query(command);
-        if (maybeKeyRangeQuery.isPresent()) {
-            BooleanQuery.Builder builder = new BooleanQuery.Builder();
-            builder.add(maybeKeyRangeQuery.get(), FILTER);
-            builder.add(searchQuery, MUST);
-            return builder.build();
-        } else {
-            return searchQuery;
-        }
+        BooleanQuery.Builder builder = new BooleanQuery.Builder();
+        query(command).ifPresent(query -> builder.add(query, FILTER));
+        search.filter(schema).ifPresent(query -> builder.add(query, FILTER));
+        search.query(schema).ifPresent(query -> builder.add(query, MUST));
+        BooleanQuery booleanQuery = builder.build();
+        return booleanQuery.clauses().isEmpty() ? new MatchAllDocsQuery() : booleanQuery;
     }
 
     /**
@@ -578,7 +574,7 @@ abstract class IndexService {
 
             List<Pair<DecoratedKey, SimpleRowIterator>> collectedRows = collect(partitions);
 
-            Query query = search.query(schema);
+            Query query = search.query(schema).orElseGet(MatchAllDocsQuery::new);
             Sort sort = sort(search);
             int limit = command.limits().count();
 
