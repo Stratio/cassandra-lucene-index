@@ -4,7 +4,7 @@
 
 * Upgrade to Apache Cassandra 3.0.5
 
-## 3.0.4.1 (upcoming)
+## 3.0.4.1 (20 April 2016)
 
 * Upgrade to Lucene 5.5.0
 * Add sorting merge policy (dramatically improves filter performance)
