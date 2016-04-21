@@ -37,10 +37,12 @@ import org.apache.lucene.document.FieldType;
 import org.apache.lucene.index.DocValuesType;
 import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.search.*;
+import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.SortField;
+import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.util.BytesRef;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.NavigableSet;
 import java.util.Optional;
@@ -286,18 +288,7 @@ public final class KeyMapper {
      * @return the sort field
      */
     public SortField sortField() {
-        return new SortField(FIELD_NAME, new FieldComparatorSource() {
-            @Override
-            public FieldComparator<?> newComparator(String field, int hits, int sort, boolean reversed)
-            throws IOException {
-                return new FieldComparator.TermValComparator(hits, field, false) {
-                    @Override
-                    public int compareValues(BytesRef val1, BytesRef val2) {
-                        return entry(val1).compareTo(entry(val2));
-                    }
-                };
-            }
-        });
+        return new KeySort(this);
     }
 
     /**

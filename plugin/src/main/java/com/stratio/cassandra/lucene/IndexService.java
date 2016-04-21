@@ -129,14 +129,8 @@ abstract class IndexService {
     }
 
     void init() {
-
         List<SortField> keySortFields = keySortFields();
-        Sort keySort = new Sort(keySortFields.toArray(new SortField[keySortFields.size()])) {
-            public String toString() {
-                return "key_sort";
-            }
-        };
-
+        Sort keySort = new Sort(keySortFields.toArray(new SortField[keySortFields.size()]));
         try {
             lucene.init(keySort, fieldsToLoad());
         } catch (Exception e) {
@@ -482,9 +476,6 @@ abstract class IndexService {
      * @return a Lucene sort according to {@code search}
      */
     private Sort sort(Search search) {
-        if (!search.usesRelevance() && !search.usesSorting()) {
-            return null;
-        }
         List<SortField> sortFields = new ArrayList<>();
         if (search.usesSorting()) {
             sortFields.addAll(search.sortFields(schema));

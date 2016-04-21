@@ -57,7 +57,7 @@ public class FSIndex implements FSIndexMBean {
     private final int maxMergeMB;
     private final int maxCachedMB;
 
-    private Sort defaultSort;
+    private Sort mergeSort;
     private Set<String> fields;
     private Directory directory;
     private IndexWriter indexWriter;
@@ -101,8 +101,8 @@ public class FSIndex implements FSIndexMBean {
         this.maxCachedMB = maxCachedMB;
     }
 
-    public void init(Sort defaultSort, Set<String> fields) {
-        this.defaultSort = defaultSort;
+    public void init(Sort mergeSort, Set<String> fields) {
+        this.mergeSort = mergeSort;
         this.fields = fields;
         try {
 
@@ -111,7 +111,7 @@ public class FSIndex implements FSIndexMBean {
             directory = new NRTCachingDirectory(fsDirectory, maxMergeMB, maxCachedMB);
 
             TieredMergePolicy tieredMergePolicy = new TieredMergePolicy();
-            SortingMergePolicy sortingMergePolicy = new SortingMergePolicy(tieredMergePolicy, defaultSort);
+            SortingMergePolicy sortingMergePolicy = new SortingMergePolicy(tieredMergePolicy, mergeSort);
 
             // Setup index writer
             IndexWriterConfig indexWriterConfig = new IndexWriterConfig(analyzer);
@@ -280,13 +280,12 @@ public class FSIndex implements FSIndexMBean {
         try {
             return doWithSearcher(searcher -> {
                 TopDocs topDocs;
-                if (sort == null && after == null) {
-                    TopFieldCollector tfc = TopFieldCollector.create(defaultSort, count, null, true, false, false);
-                    searcher.search(query, new EarlyTerminatingSortingCollector(tfc, defaultSort, count, defaultSort));
-                    topDocs = tfc.topDocs();
+                if (after == null && EarlyTerminatingSortingCollector.canEarlyTerminate(sort, mergeSort)) {
+                    TopFieldCollector collector = TopFieldCollector.create(sort, count, null, true, false, false);
+                    searcher.search(query, new EarlyTerminatingSortingCollector(collector, sort, count, mergeSort));
+                    topDocs = collector.topDocs();
                 } else {
-                    Sort rewrittenSort = sort == null ? defaultSort : sort.rewrite(searcher);
-                    topDocs = searcher.searchAfter(after, query, count, rewrittenSort);
+                    topDocs = searcher.searchAfter(after, query, count, sort.rewrite(searcher));
                 }
 
                 List<Pair<Document, ScoreDoc>> results = new ArrayList<>(count);
