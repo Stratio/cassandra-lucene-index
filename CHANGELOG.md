@@ -2,7 +2,6 @@
 
 ## 3.0.4.1 (20 April 2016)
 
-* Upgrade to Lucene 5.5.0
 * Add sorting merge policy (dramatically improves filter performance)
 * Add support for altering unmapped columns
 * Remove score docs cache, overtaken by sorting merge policy

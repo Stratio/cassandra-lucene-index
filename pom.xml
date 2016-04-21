@@ -79,7 +79,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <cassandra.version>3.0.4</cassandra.version>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <lucene.version>5.5.0</lucene.version>
+        <lucene.version>5.3.0</lucene.version>
         <coverage.data.dir>${project.build.outputDirectory}</coverage.data.dir>
         <skipTests>false</skipTests>
         <skipITs>false</skipITs>

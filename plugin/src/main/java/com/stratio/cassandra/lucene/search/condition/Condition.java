@@ -20,7 +20,6 @@ package com.stratio.cassandra.lucene.search.condition;
 
 import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.schema.Schema;
-import org.apache.lucene.search.BoostQuery;
 import org.apache.lucene.search.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,7 +59,10 @@ public abstract class Condition {
      */
     public final Query query(Schema schema) {
         Query query = doQuery(schema);
-        return boost == null ? query : new BoostQuery(query, boost);
+        if (boost != null) {
+            query.setBoost(boost);
+        }
+        return query;
     }
 
     /**

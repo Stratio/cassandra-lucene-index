@@ -25,7 +25,7 @@ import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.ConstantScoreQuery;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.spatial.prefix.IntersectsPrefixTreeQuery;
+import org.apache.lucene.spatial.prefix.IntersectsPrefixTreeFilter;
 import org.junit.Test;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
@@ -140,10 +140,12 @@ public class GeoDistanceConditionTest extends AbstractConditionTest {
         BooleanClause maxClause = booleanQuery.clauses().get(0);
         assertEquals("Query occur is wrong", BooleanClause.Occur.FILTER, maxClause.getOccur());
         query = maxClause.getQuery();
-        assertEquals("Query type is wrong", IntersectsPrefixTreeQuery.class, query.getClass());
-        IntersectsPrefixTreeQuery filter = (IntersectsPrefixTreeQuery) query;
+        assertEquals("Query type is wrong", ConstantScoreQuery.class, query.getClass());
+        query = ((ConstantScoreQuery) query).getQuery();
+        assertEquals("Query type is wrong", IntersectsPrefixTreeFilter.class, query.getClass());
+        IntersectsPrefixTreeFilter filter = (IntersectsPrefixTreeFilter) query;
         assertEquals("Query is wrong",
-                     "IntersectsPrefixTreeQuery(fieldName=name.dist,queryShape=Circle(Pt(x=-180.0,y=90.0), " +
+                     "IntersectsPrefixTreeFilter(fieldName=name.dist,queryShape=Circle(Pt(x=-180.0,y=90.0), " +
                      "d=0.0° 1.00km),detailLevel=8,prefixGridScanLevel=4)",
                      filter.toString());
     }
@@ -171,20 +173,24 @@ public class GeoDistanceConditionTest extends AbstractConditionTest {
         BooleanClause minClause = booleanQuery.clauses().get(1);
         assertEquals("Query is wrong", BooleanClause.Occur.MUST_NOT, minClause.getOccur());
         query = minClause.getQuery();
-        assertEquals("Query is wrong", IntersectsPrefixTreeQuery.class, query.getClass());
-        IntersectsPrefixTreeQuery minFilter = (IntersectsPrefixTreeQuery) query;
+        assertEquals("Query type is wrong", ConstantScoreQuery.class, query.getClass());
+        query = ((ConstantScoreQuery) query).getQuery();
+        assertEquals("Query is wrong", IntersectsPrefixTreeFilter.class, query.getClass());
+        IntersectsPrefixTreeFilter minFilter = (IntersectsPrefixTreeFilter) query;
         assertEquals("Query is wrong",
-                     "IntersectsPrefixTreeQuery(fieldName=name.dist,queryShape=Circle(Pt(x=-180.0,y=90.0), " +
+                     "IntersectsPrefixTreeFilter(fieldName=name.dist,queryShape=Circle(Pt(x=-180.0,y=90.0), " +
                      "d=0.0° 1.00km),detailLevel=8,prefixGridScanLevel=4)",
                      minFilter.toString());
 
         BooleanClause maxClause = booleanQuery.clauses().get(0);
         assertEquals("Query is wrong", BooleanClause.Occur.FILTER, maxClause.getOccur());
         query = maxClause.getQuery();
-        assertEquals("Query type is wrong", IntersectsPrefixTreeQuery.class, query.getClass());
-        IntersectsPrefixTreeQuery maxFilter = (IntersectsPrefixTreeQuery) query;
+        assertEquals("Query type is wrong", ConstantScoreQuery.class, query.getClass());
+        query = ((ConstantScoreQuery) query).getQuery();
+        assertEquals("Query type is wrong", IntersectsPrefixTreeFilter.class, query.getClass());
+        IntersectsPrefixTreeFilter maxFilter = (IntersectsPrefixTreeFilter) query;
         assertEquals("Query is wrong",
-                     "IntersectsPrefixTreeQuery(fieldName=name.dist,queryShape=Circle(Pt(x=-180.0,y=90.0), " +
+                     "IntersectsPrefixTreeFilter(fieldName=name.dist,queryShape=Circle(Pt(x=-180.0,y=90.0), " +
                      "d=0.0° 3.00km),detailLevel=8,prefixGridScanLevel=4)",
                      maxFilter.toString());
     }

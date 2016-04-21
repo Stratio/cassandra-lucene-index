@@ -65,9 +65,7 @@ public class ConditionTest {
         Condition condition = new MockCondition(0.7f);
         Schema schema = schema().build();
         Query query = condition.query(schema);
-        assertEquals("Query boost is wrong", BoostQuery.class, query.getClass());
-        BoostQuery boostQuery = (BoostQuery) query;
-        assertEquals("Query type is wrong", 0.7f, boostQuery.getBoost(), 0);
+        assertEquals("Query boost is wrong", 0.7f, query.getBoost(), 0);
     }
 
     @Test
