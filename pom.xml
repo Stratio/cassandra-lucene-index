@@ -28,7 +28,7 @@
         <artifactId>parent</artifactId>
         <version>0.7.0</version>
     </parent>
-
+    <inceptionYear>2016</inceptionYear>
     <packaging>pom</packaging>
     <groupId>com.stratio.cassandra</groupId>
     <artifactId>cassandra-lucene-index-parent</artifactId>
