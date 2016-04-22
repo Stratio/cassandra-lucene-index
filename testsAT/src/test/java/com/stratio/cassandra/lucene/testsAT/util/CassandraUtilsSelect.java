@@ -178,6 +178,11 @@ public class CassandraUtilsSelect {
         return rows.isEmpty() ? null : rows.get(0);
     }
 
+    public Row getLast() {
+        List<Row> rows = get();
+        return rows.isEmpty() ? null : rows.get(rows.size()-1);
+    }
+
     public int count() {
         return get().size();
     }

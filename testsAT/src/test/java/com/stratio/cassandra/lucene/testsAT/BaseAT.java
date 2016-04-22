@@ -16,9 +16,12 @@
 package com.stratio.cassandra.lucene.testsAT;
 
 import com.stratio.cassandra.lucene.testsAT.util.CassandraConnection;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.Callable;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
@@ -32,10 +35,16 @@ public class BaseAT {
         CassandraConnection.connect();
     }
 
-    protected void repeat(int count, Runnable runnable) {
-        for (int i=0; i < count; i++) {
-            runnable.run();
+    private <T> void assertPure(String msg, int count, T expected, Callable<T> callable) throws Exception {
+        if (count > 0) {
+            T actual = callable.call();
+            Assert.assertEquals(msg, expected, actual);
+            assertPure(msg, count - 1, actual, callable);
         }
+    }
+
+    protected <T> void assertPure(String msg, Callable<T> callable) throws Exception {
+        assertPure(msg, 10, callable.call(), callable);
     }
 
 }

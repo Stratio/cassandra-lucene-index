@@ -32,7 +32,7 @@ import org.junit.runners.Suite.SuiteClasses;
                ReadStaticColumnsAT.class,
                UDFsAT.class,
                BoundStatementWitTopKQuery.class,
-               StatelessSearchBehaviourSkinnyAT.class,
-               StatelessWithWideRowsAT.class})
+               StatelessSearchWithSkinnyRowsAT.class,
+               StatelessSearchWithWideRowsAT.class})
 public class VariaSuite {
 }

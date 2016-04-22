@@ -35,7 +35,7 @@ import static com.stratio.cassandra.lucene.builder.Builder.field;
  * @author Andres de la Pena <adelapena@stratio.com>
  */
 @RunWith(JUnit4.class)
-public class StatelessSearchBehaviourSkinnyAT extends BaseAT {
+public class StatelessSearchWithSkinnyRowsAT extends BaseAT {
 
     private static final int NUM_PARTITIONS = 100;
 
@@ -44,7 +44,7 @@ public class StatelessSearchBehaviourSkinnyAT extends BaseAT {
     @BeforeClass
     public static void before() {
 
-        utils = CassandraUtils.builder("repetitions_skinny")
+        utils = CassandraUtils.builder("stateless_search_skinny")
                               .withPartitionKey("pk")
                               .withColumn("pk", "int")
                               .withColumn("rc", "int")
@@ -67,21 +67,21 @@ public class StatelessSearchBehaviourSkinnyAT extends BaseAT {
     }
 
     @Test
-    public void queryTest() {
-        int[] expected = new int[]{23, 53, 91, 55, 33, 5, 28, 42, 50, 95, 88, 82, 49, 10, 83, 60, 67, 79, 16, 63};
-        repeat(4, () -> utils.query(all()).fetchSize(5).limit(20).refresh(false).checkIntColumn("rc", expected));
+    public void queryTest() throws Exception {
+        assertPure("Search with query is not a pure function",
+                   () -> utils.query(all()).fetchSize(10).limit(40).getLast().get("rc", int.class));
 
     }
 
     @Test
-    public void filterTest() {
-        int[] expected = new int[]{23, 53, 91, 55, 33, 5, 28, 42, 50, 95, 88, 82, 49, 10, 83, 60, 67, 79, 16, 63};
-        repeat(4, () -> utils.filter(all()).fetchSize(5).limit(20).refresh(false).checkIntColumn("rc", expected));
+    public void filterTest() throws Exception {
+        assertPure("Search with filter is not a pure function",
+                   () -> utils.filter(all()).fetchSize(1).limit(40).getLast().get("rc", int.class));
     }
 
     @Test
-    public void sortTest() {
-        int[] expected = new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20};
-        repeat(4, () -> utils.sort(field("rc")).fetchSize(5).limit(20).refresh(false).checkIntColumn("rc", expected));
+    public void sortTest() throws Exception {
+        assertPure("Search with sort is not a pure function",
+                   () -> utils.sort(field("rc")).fetchSize(10).limit(40).getLast().get("rc", int.class));
     }
 }
