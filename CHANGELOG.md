@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.0.4.1 (20 April 2016)
+## 3.0.4.1 (22 April 2016)
 
 * Add sorting merge policy (dramatically improves filter performance)
 * Add support for altering unmapped columns
