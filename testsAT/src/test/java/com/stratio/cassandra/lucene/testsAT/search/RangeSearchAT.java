@@ -15,7 +15,6 @@
  */
 package com.stratio.cassandra.lucene.testsAT.search;
 
-import com.datastax.driver.core.exceptions.DriverException;
 import com.datastax.driver.core.exceptions.InvalidQueryException;
 import org.junit.Test;
 import org.junit.runner.RunWith;

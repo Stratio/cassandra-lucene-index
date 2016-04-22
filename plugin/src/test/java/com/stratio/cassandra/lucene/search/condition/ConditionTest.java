@@ -17,7 +17,8 @@ package com.stratio.cassandra.lucene.search.condition;
 
 import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.schema.Schema;
-import org.apache.lucene.search.*;
+import org.apache.lucene.search.MatchAllDocsQuery;
+import org.apache.lucene.search.Query;
 import org.junit.Test;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.schema;
@@ -34,6 +35,7 @@ public class ConditionTest {
         MockCondition(Float boost) {
             super(boost);
         }
+
         @Override
         public Query doQuery(Schema schema) {
             return new MatchAllDocsQuery();

@@ -24,9 +24,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import static com.stratio.cassandra.lucene.builder.Builder.all;
-import static com.stratio.cassandra.lucene.builder.Builder.field;
-import static com.stratio.cassandra.lucene.builder.Builder.integerMapper;
+import static com.stratio.cassandra.lucene.builder.Builder.*;
 
 /**
  * @author Andres de la Pena <adelapena@stratio.com>
