@@ -2,7 +2,7 @@
 
 ## 3.0.4.1 (22 April 2016)
 
-* Add sorting merge policy (dramatically improves filter performance)
+* Add sorting merge policy (dramatically improves filtering performance)
 * Add support for altering unmapped columns
 * Remove score docs cache, overtaken by sorting merge policy
 * Remove token range cache in favour of Lucene query cache
