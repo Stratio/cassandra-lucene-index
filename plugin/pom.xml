@@ -34,6 +34,13 @@
     <name>Cassandra Lucene Index plugin</name>
     <description>Cassandra Lucene Index plugin</description>
 
+    <properties>
+        <cassandra.version>3.0.4</cassandra.version>
+        <lucene.version>5.3.0</lucene.version>
+        <jts.version>1.14.0</jts.version>
+        <mockito.version>1.10.19</mockito.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.apache.cassandra</groupId>
@@ -63,13 +70,13 @@
         <dependency>
             <groupId>com.vividsolutions</groupId>
             <artifactId>jts-core</artifactId>
-            <version>1.14.0</version>
+            <version>${jts.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-all</artifactId>
-            <version>1.10.19</version>
+            <version>${mockito.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
