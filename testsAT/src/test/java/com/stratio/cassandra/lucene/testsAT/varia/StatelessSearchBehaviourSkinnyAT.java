@@ -35,7 +35,7 @@ import static com.stratio.cassandra.lucene.builder.Builder.field;
  * @author Andres de la Pena <adelapena@stratio.com>
  */
 @RunWith(JUnit4.class)
-public class StatelessWithSkinnyRowsAT extends BaseAT {
+public class StatelessSearchBehaviourSkinnyAT extends BaseAT {
 
     private static final int NUM_PARTITIONS = 100;
 
