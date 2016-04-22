@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.0.5.0 (upcoming)
+
+* Upgrade to Apache Cassandra 3.0.5
+
 ## 3.0.4.1 (22 April 2016)
 
 * Add sorting merge policy (dramatically improves filter performance)
