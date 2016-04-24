@@ -57,7 +57,6 @@ public class GeoBBoxSearchAT extends BaseAT {
         cassandraUtils = CassandraUtils.builder("search")
                                        .withPartitionKey("place")
                                        .withClusteringKey()
-                                       .withColumn("lucene", "text", null)
                                        .withColumn("place", "text", null)
                                        .withColumn("latitude", "decimal", null)
                                        .withColumn("longitude", "decimal", null)

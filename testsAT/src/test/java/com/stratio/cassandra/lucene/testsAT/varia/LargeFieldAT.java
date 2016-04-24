@@ -40,7 +40,6 @@ public class LargeFieldAT {
                                                       .withColumn("name", "varchar")
                                                       .withColumn("age", "varchar")
                                                       .withColumn("data", "varchar")
-                                                      .withColumn("lucene", "varchar")
                                                       .build()
                                                       .createKeyspace()
                                                       .createTable()

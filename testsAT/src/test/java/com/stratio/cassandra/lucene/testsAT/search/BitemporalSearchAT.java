@@ -184,7 +184,6 @@ public class BitemporalSearchAT extends BaseAT {
                                        .withColumn("vt_to", "text")
                                        .withColumn("tt_from", "text")
                                        .withColumn("tt_to", "text")
-                                       .withColumn("lucene", "text")
                                        .withMapper("bitemporal", mapper)
                                        .build()
                                        .createKeyspace()
@@ -344,7 +343,6 @@ public class BitemporalSearchAT extends BaseAT {
                              .withColumn("vt_to", "text")
                              .withColumn("tt_from", "text")
                              .withColumn("tt_to", "text")
-                             .withColumn("lucene", "text")
                              .withMapper("bitemporal", mapper)
                              .build()
                              .createKeyspace()
@@ -361,7 +359,6 @@ public class BitemporalSearchAT extends BaseAT {
                              .withColumn("vt_to", "text")
                              .withColumn("tt_from", "text")
                              .withColumn("tt_to", "text")
-                             .withColumn("lucene", "text")
                              .withMapper("bitemporal",
                                          bitemporalMapper("vt_from", "vt_to", "tt_from", "tt_to").pattern(
                                                  "yyyy/MM/dd HH:mm:ss.SSS").nowValue("2200/01/01 00:00:00.000"))
@@ -484,7 +481,6 @@ public class BitemporalSearchAT extends BaseAT {
                                           .withColumn("vt_to", "bigint")
                                           .withColumn("tt_from", "bigint")
                                           .withColumn("tt_to", "bigint")
-                                          .withColumn("lucene", "text")
                                           .withMapper("bitemporal", mapper)
                                           .build()
                                           .createKeyspace()

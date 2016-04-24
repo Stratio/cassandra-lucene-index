@@ -38,7 +38,6 @@ public class Issue69AT extends BaseAT {
                            .withColumn("make", "text")
                            .withColumn("model", "text")
                            .withColumn("color", "text")
-                           .withColumn("lucene", "text")
                            .build()
                            .createKeyspace()
                            .createTable()

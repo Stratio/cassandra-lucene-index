@@ -50,7 +50,6 @@ public class AllowFilteringWith1000SimilarRowsAT extends BaseAT {
                                        .withColumn("list_1", "list<text>")
                                        .withColumn("set_1", "set<text>")
                                        .withColumn("map_1", "map<text,text>")
-                                       .withColumn("lucene", "text")
                                        .build()
                                        .createKeyspace()
                                        .createTable()

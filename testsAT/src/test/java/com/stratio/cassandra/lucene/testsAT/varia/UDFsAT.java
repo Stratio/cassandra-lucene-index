@@ -44,7 +44,6 @@ public class UDFsAT extends BaseAT {
                                        .withPartitionKey("key")
                                        .withColumn("key", "uuid")
                                        .withColumn("value", "int")
-                                       .withColumn("lucene", "text")
                                        .build()
                                        .createKeyspace()
                                        .createTable()

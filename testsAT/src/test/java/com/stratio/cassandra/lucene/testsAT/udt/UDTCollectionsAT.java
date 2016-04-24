@@ -65,7 +65,6 @@ public class UDTCollectionsAT extends BaseAT {
                                        .withColumn("address_set_list", "set<frozen<list<address_udt>>>")
                                        .withColumn("address_set_set", "set<frozen<set<address_udt>>>")
                                        .withColumn("address_set_map", "set<frozen<map<text,address_udt>>>")
-                                       .withColumn("lucene", "text")
                                        .withPartitionKey("login")
                                        .withMapper("address.city", stringMapper)
                                        .withMapper("address_set.city", stringMapper)

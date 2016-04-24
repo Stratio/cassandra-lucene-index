@@ -101,7 +101,6 @@ public class GeoSearchOverIndexedGeoShapesAT extends BaseAT {
         cassandraUtils = CassandraUtils.builder("search")
                                        .withPartitionKey("place")
                                        .withClusteringKey()
-                                       .withColumn("lucene", "text", null)
                                        .withColumn("place", "text", null)
                                        .withColumn("shape", "text", geoShapeMapper())
                                        .build()

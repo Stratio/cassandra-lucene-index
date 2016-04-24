@@ -36,7 +36,6 @@ public class MultiMappingAT extends BaseAT {
         cassandraUtils = CassandraUtils.builder("sort_alias")
                                        .withPartitionKey("key")
                                        .withColumn("key", "int")
-                                       .withColumn("lucene", "text")
                                        .withColumn("text", "text", stringMapper().sorted(true))
                                        .withColumn("map", "map<text, text>", null)
                                        .withMapper("alias_text",

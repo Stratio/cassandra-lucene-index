@@ -109,7 +109,6 @@ public class GeoShapesSearchAT extends BaseAT {
         cassandraUtils = CassandraUtils.builder("search")
                                        .withPartitionKey("id")
                                        .withClusteringKey()
-                                       .withColumn("lucene", "text", null)
                                        .withColumn("id", "text", null)
                                        .withColumn("identity", "text", null)
                                        .withColumn("search_case", "int", integerMapper())

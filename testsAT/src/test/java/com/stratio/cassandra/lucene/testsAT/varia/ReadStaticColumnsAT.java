@@ -44,7 +44,6 @@ public class ReadStaticColumnsAT extends BaseAT {
                                        .withColumn("key", "bigint")
                                        .withColumn("cluster_key", "int")
                                        .withStaticColumn("name", "text", false)
-                                       .withColumn("lucene", "text")
                                        .build()
                                        .createKeyspace()
                                        .createTable()

@@ -39,7 +39,6 @@ public class Issue94AT extends BaseAT {
                                                   .withColumn("a", "int", integerMapper())
                                                   .withColumn("b", "text", stringMapper())
                                                   .withColumn("c", "text", stringMapper())
-                                                  .withColumn("lucene", "text")
                                                   .build()
                                                   .createKeyspace()
                                                   .createTable()

@@ -62,7 +62,6 @@ public class Issue18AT extends BaseAT {
                                                       .withColumn("idcol", "int")
                                                       .withColumn("testtextcol", "text", stringMapper())
                                                       .withColumn("testmapcol", "map<text,text>", stringMapper())
-                                                      .withColumn("lucene", "text")
                                                       .build()
                                                       .createKeyspace()
                                                       .createTable()

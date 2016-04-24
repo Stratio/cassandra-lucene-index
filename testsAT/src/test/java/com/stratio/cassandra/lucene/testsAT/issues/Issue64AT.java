@@ -50,7 +50,6 @@ public class Issue64AT extends BaseAT {
                                                            .withColumn("registration", "text", stringMapper())
                                                            .withColumn("target_address", "text", stringMapper())
                                                            .withColumn("target_identification", "text", stringMapper())
-                                                           .withColumn("lucene", "text")
                                                            .withMapper("operation_duration",
                                                                        dateRangeMapper("departure_time", "arrival_time")
                                                                                .pattern("yyyy-MM-dd HH:mm:ss"))
