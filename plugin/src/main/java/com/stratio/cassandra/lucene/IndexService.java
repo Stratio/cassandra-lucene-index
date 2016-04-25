@@ -369,7 +369,7 @@ abstract class IndexService {
 
         // Search
         Query query = query(search, command);
-        return (ReadOrderGroup orderGroup) -> read(query, sort, null, command, orderGroup);
+        return (ReadExecutionController executionController) -> read(query, sort, null, command, executionController);
     }
 
     /**
@@ -522,17 +522,17 @@ abstract class IndexService {
      * @param sort the Lucene sort
      * @param after the last Lucene doc
      * @param command the Cassandra command
-     * @param orderGroup the Cassandra read order group
+     * @param executionController the Cassandra execution controller
      * @return the local {@link Row}s satisfying the search
      */
     private UnfilteredPartitionIterator read(Query query,
                                              Sort sort,
                                              ScoreDoc after,
                                              ReadCommand command,
-                                             ReadOrderGroup orderGroup) {
+                                             ReadExecutionController executionController) {
         int limit = command.limits().count();
         DocumentIterator documents = lucene.search(query, sort, after, limit);
-        return indexReader(documents, command, orderGroup);
+        return indexReader(documents, command, executionController);
     }
 
     /**
@@ -540,10 +540,12 @@ abstract class IndexService {
      *
      * @param documents the Lucene documents
      * @param command the Cassandra command
-     * @param orderGroup the Cassandra read order group
+     * @param executionController the Cassandra execution controller
      * @return the local {@link Row}s satisfying the search
      */
-    abstract IndexReader indexReader(DocumentIterator documents, ReadCommand command, ReadOrderGroup orderGroup);
+    abstract IndexReader indexReader(DocumentIterator documents,
+                                     ReadCommand command,
+                                     ReadExecutionController executionController);
 
     /**
      * Post processes in the coordinator node the results of a distributed search. Gets the k globally best results from

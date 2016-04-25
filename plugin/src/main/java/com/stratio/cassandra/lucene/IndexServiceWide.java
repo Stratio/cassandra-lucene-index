@@ -187,8 +187,10 @@ class IndexServiceWide extends IndexService {
 
     /** {@inheritDoc} */
     @Override
-    public IndexReaderWide indexReader(DocumentIterator documents, ReadCommand command, ReadOrderGroup orderGroup) {
-        return new IndexReaderWide(this, command, table, orderGroup, documents);
+    public IndexReaderWide indexReader(DocumentIterator documents,
+                                       ReadCommand command,
+                                       ReadExecutionController executionController) {
+        return new IndexReaderWide(this, command, table, executionController, documents);
     }
 
 }

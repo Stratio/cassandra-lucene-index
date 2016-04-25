@@ -43,15 +43,15 @@ class IndexReaderWide extends IndexReader {
      * @param service the index service
      * @param command the read command
      * @param table the base table
-     * @param orderGroup the order group of the read operation
+     * @param executionController the Cassandra execution controller
      * @param documents the documents iterator
      */
     IndexReaderWide(IndexServiceWide service,
                     ReadCommand command,
                     ColumnFamilyStore table,
-                    ReadOrderGroup orderGroup,
+                    ReadExecutionController executionController,
                     DocumentIterator documents) {
-        super(command, table, orderGroup, documents);
+        super(command, table, executionController, documents);
         this.service = service;
         this.comparator = service.metadata.comparator;
     }

@@ -91,7 +91,7 @@ class KeyQuery extends MultiTermQuery {
 
         FullKeyDataRangeFilteredTermsEnum(TermsEnum tenum) {
             super(tenum);
-            setInitialSeekTerm(mapper.bytesRef(key, new Clustering(start.getRawValues())));
+            setInitialSeekTerm(mapper.bytesRef(key, Clustering.make(start.getRawValues())));
 
         }
 

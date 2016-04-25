@@ -79,7 +79,7 @@ class KeyEntry implements Comparable<KeyEntry> {
      * @return the clustering key
      */
     public Clustering getClustering() {
-        return new Clustering(mapper.clusteringType().split(components[2]));
+        return Clustering.make(mapper.clusteringType().split(components[2]));
     }
 
     /** {@inheritDoc} */
