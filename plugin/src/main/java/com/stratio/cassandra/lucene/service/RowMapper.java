@@ -77,7 +77,7 @@ public abstract class RowMapper {
         this.metadata = config.getMetadata();
         this.columnDefinition = config.getColumnDefinition();
         this.schema = config.getSchema();
-        this.tokenMapper = TokenMapper.instance();
+        this.tokenMapper = new TokenMapper();
         this.partitionKeyMapper = PartitionKeyMapper.instance(metadata, schema);
         this.regularCellsMapper = RegularCellsMapper.instance(metadata, schema);
     }

@@ -18,6 +18,7 @@
 
 package com.stratio.cassandra.lucene.service;
 
+import com.stratio.cassandra.lucene.IndexException;
 import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.db.DecoratedKey;
 import org.apache.cassandra.db.Row;
@@ -26,9 +27,16 @@ import org.apache.cassandra.dht.IPartitioner;
 import org.apache.cassandra.dht.Murmur3Partitioner;
 import org.apache.cassandra.dht.Token;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.document.FieldType;
+import org.apache.lucene.document.LongField;
+import org.apache.lucene.index.DocValuesType;
+import org.apache.lucene.index.IndexOptions;
+import org.apache.lucene.search.DocValuesRangeQuery;
+import org.apache.lucene.search.NumericRangeQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.SortField;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -37,20 +45,29 @@ import java.util.List;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public abstract class TokenMapper {
+public final class TokenMapper {
+
+    /** The Lucene field name */
+    protected static final String FIELD_NAME = "_token";
+
+    /** The Lucene field type */
+    private static final FieldType FIELD_TYPE = new FieldType();
+
+    static {
+        FIELD_TYPE.setTokenized(true);
+        FIELD_TYPE.setOmitNorms(true);
+        FIELD_TYPE.setIndexOptions(IndexOptions.DOCS);
+        FIELD_TYPE.setNumericType(FieldType.NumericType.LONG);
+        FIELD_TYPE.setDocValuesType(DocValuesType.NUMERIC);
+        FIELD_TYPE.freeze();
+    }
 
     /**
-     * Returns a new {@link TokenMapper} instance for the current partitioner using the specified column family
-     * metadata.
-     *
-     * @return A new {@link TokenMapper} instance for the current partitioner.
+     * Constructor taking the cache size.
      */
-    public static TokenMapper instance() {
-        IPartitioner partitioner = DatabaseDescriptor.getPartitioner();
-        if (partitioner instanceof Murmur3Partitioner) {
-            return new TokenMapperMurmur();
-        } else {
-            return new TokenMapperGeneric();
+    public TokenMapper() {
+        if (!(DatabaseDescriptor.getPartitioner() instanceof Murmur3Partitioner)) {
+            throw new IndexException("Only Murmur3 partitioner is supported");
         }
     }
 
@@ -61,7 +78,11 @@ public abstract class TokenMapper {
      * @param document A {@link Document}.
      * @param partitionKey The raw partition key to be added.
      */
-    public abstract void addFields(Document document, DecoratedKey partitionKey);
+    public void addFields(Document document, DecoratedKey partitionKey) {
+        Token token = partitionKey.getToken();
+        Long value = value(token);
+        document.add(new LongField(FIELD_NAME, value, FIELD_TYPE));
+    }
 
     /**
      * Returns a Lucene {@link Query} for retrieving the documents inside the specified {@link Token} range.
@@ -100,7 +121,10 @@ public abstract class TokenMapper {
      * @param token A {@link Token}.
      * @return A Lucene {@link Query} for retrieving the documents with the specified {@link Token}.
      */
-    public abstract Query query(Token token);
+    public Query query(Token token) {
+        Long value = value(token);
+        return NumericRangeQuery.newLongRange(FIELD_NAME, value, value, true, true);
+    }
 
     /**
      * Returns a Lucene {@link Query} for retrieving the documents inside the specified {@link Token} range.
@@ -111,14 +135,20 @@ public abstract class TokenMapper {
      * @param includeUpper If the {@code upperValue} is included in the range.
      * @return A Lucene {@link Query} for retrieving the documents inside the specified {@link Token} range.
      */
-    protected abstract Query doQuery(Token lower, Token upper, boolean includeLower, boolean includeUpper);
+    protected Query doQuery(Token lower, Token upper, boolean includeLower, boolean includeUpper) {
+        Long start = lower == null || lower.isMinimum() ? null : value(lower);
+        Long stop = upper == null || upper.isMinimum() ? null : value(upper);
+        return DocValuesRangeQuery.newLongRange(FIELD_NAME, start, stop, includeLower, includeUpper);
+    }
 
     /**
      * Returns a Lucene {@link SortField} list for sorting documents/rows according to the current partitioner.
      *
      * @return A Lucene {@link SortField} list for sorting documents/rows according to the current partitioner.
      */
-    public abstract List<SortField> sortFields();
+    public List<SortField> sortFields() {
+        return Collections.singletonList(new SortField(FIELD_NAME, SortField.Type.LONG));
+    }
 
     /**
      * Returns {@code true} if the specified lower row position kind must be included in the filtered range, {@code
@@ -158,5 +188,9 @@ public abstract class TokenMapper {
                 return t1.compareTo(t2);
             }
         };
+    }
+
+    static Long value(Token token) {
+        return (Long) token.getTokenValue();
     }
 }

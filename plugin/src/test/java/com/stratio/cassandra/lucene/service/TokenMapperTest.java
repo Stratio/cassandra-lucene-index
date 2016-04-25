@@ -18,6 +18,7 @@
 
 package com.stratio.cassandra.lucene.service;
 
+import com.stratio.cassandra.lucene.IndexException;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.Config;
 import org.apache.cassandra.config.DatabaseDescriptor;
@@ -26,10 +27,10 @@ import org.apache.cassandra.db.DecoratedKey;
 import org.apache.cassandra.db.Row;
 import org.apache.cassandra.db.RowPosition;
 import org.apache.cassandra.db.marshal.UTF8Type;
-import org.apache.cassandra.dht.Murmur3Partitioner;
-import org.apache.cassandra.dht.Token;
+import org.apache.cassandra.dht.*;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.search.MatchAllDocsQuery;
+import org.apache.lucene.index.IndexableField;
+import org.apache.lucene.search.DocValuesRangeQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.SortField;
 import org.junit.BeforeClass;
@@ -42,40 +43,74 @@ import java.util.List;
 import static junit.framework.Assert.*;
 import static org.mockito.Mockito.when;
 
+
 /**
- * Unit tests for {@link TokenMapperMurmur}.
+ * Unit tests for {@link TokenMapper}.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class TokenMapperTest {
 
     private static final Murmur3Partitioner partitioner = new Murmur3Partitioner();
-    private static final TokenMapper mapper = new TokenMapper() {
-        @Override
-        public void addFields(Document document, DecoratedKey partitionKey) {
-
-        }
-
-        @Override
-        public Query query(Token token) {
-            return new MatchAllDocsQuery();
-        }
-
-        @Override
-        protected Query doQuery(Token lower, Token upper, boolean includeLower, boolean includeUpper) {
-            return new MatchAllDocsQuery();
-        }
-
-        @Override
-        public List<SortField> sortFields() {
-            return null;
-        }
-    };
+    private static TokenMapper mapper;
 
     @BeforeClass
     public static void beforeClass() {
         Config.setClientMode(true);
         DatabaseDescriptor.setPartitioner(partitioner);
+        mapper= new TokenMapper();
+    }
+
+    @Test
+    public void testConstructorWithoutValidPartitioner1() {
+        IPartitioner partitioner = new ByteOrderedPartitioner();
+        DatabaseDescriptor.setPartitioner(partitioner);
+
+        try {
+            TokenMapper tm = new TokenMapper();
+        } catch (IndexException iE) {
+            assertEquals("Building a TokenMapper with a ByteOrdered Partitioner must return an IndexException with an exact message: \"Only Murmur3 partitioner is supported\"", "Only Murmur3 partitioner is supported", iE.getMessage());
+        }
+    }
+
+    @Test
+    public void testConstructorWithoutValidPartitioner2() {
+        IPartitioner partitioner = new OrderPreservingPartitioner();
+        DatabaseDescriptor.setPartitioner(partitioner);
+        try {
+            TokenMapper tm = new TokenMapper();
+        } catch (IndexException iE) {
+            assertEquals("Building a TokenMapper with a OrderPreserving Partitioner must return an IndexException with an exact message: \"Only Murmur3 partitioner is supported\"", "Only Murmur3 partitioner is supported", iE.getMessage());
+        }
+    }
+
+    @Test
+    public void testConstructorWithoutValidPartitioner3() {
+        IPartitioner partitioner = new RandomPartitioner();
+        DatabaseDescriptor.setPartitioner(partitioner);
+        try {
+            TokenMapper tm = new TokenMapper();
+        } catch (IndexException iE) {
+            assertEquals("Building a TokenMapper with a RandomPartitioner Partitioner must return an IndexException with an exact message: \"Only Murmur3 partitioner is supported\"", "Only Murmur3 partitioner is supported", iE.getMessage());
+        }
+    }
+
+    @Test
+    public void testConstructorWithoutValidPartitioner4() {
+        IPartitioner partitioner = new LocalPartitioner(UTF8Type.instance);
+        DatabaseDescriptor.setPartitioner(partitioner);
+        try {
+            TokenMapper tm = new TokenMapper();
+        } catch (IndexException iE) {
+            assertEquals("Building a TokenMapper with a LocalPartitioner Partitioner must return an IndexException with an exact message: \"Only Murmur3 partitioner is supported\"", "Only Murmur3 partitioner is supported", iE.getMessage());
+        }
+    }
+
+    @Test
+    public void testConstructorWithValidPartitioner() {
+        IPartitioner partitioner = new Murmur3Partitioner();
+        DatabaseDescriptor.setPartitioner(partitioner);
+        new TokenMapper();
     }
 
     @Test
@@ -83,7 +118,7 @@ public class TokenMapperTest {
         Token token = partitioner.getMinimumToken();
         Query query = mapper.query(null, token, false, true);
         assertNotNull("Query should be not null", query);
-        assertEquals("Query must be delegated", MatchAllDocsQuery.class, query.getClass());
+        assertEquals("Query must be delegated", DocValuesRangeQuery.class, query.getClass());
     }
 
     @Test
@@ -91,14 +126,14 @@ public class TokenMapperTest {
         Token token = partitioner.getMinimumToken();
         Query query = mapper.query(token, null, false, true);
         assertNotNull("Query should be not null", query);
-        assertEquals("Query must be delegated", MatchAllDocsQuery.class, query.getClass());
+        assertEquals("Query must be delegated", DocValuesRangeQuery.class, query.getClass());
     }
 
     @Test
     public void testQueryRangeNullBoth() {
         Query query = mapper.query(null, null, false, true);
         assertNotNull("Query should be not null", query);
-        assertEquals("Query must be delegated", MatchAllDocsQuery.class, query.getClass());
+        assertEquals("Query must be delegated", DocValuesRangeQuery.class, query.getClass());
     }
 
     @Test
@@ -107,7 +142,7 @@ public class TokenMapperTest {
         Token token2 = token("key2");
         Query query = mapper.query(token1, token2, true, false);
         assertNotNull("Query should be not null", query);
-        assertEquals("Hash value is wrong", MatchAllDocsQuery.class, query.getClass());
+        assertEquals("Hash value is wrong", DocValuesRangeQuery.class, query.getClass());
     }
 
     @Test
@@ -116,7 +151,7 @@ public class TokenMapperTest {
         Token token2 = partitioner.getMinimumToken();
         Query query = mapper.query(token1, token2, false, true);
         assertNotNull("Query should be not null", query);
-        assertEquals("Hash value is wrong", MatchAllDocsQuery.class, query.getClass());
+        assertEquals("Hash value is wrong", DocValuesRangeQuery.class, query.getClass());
     }
 
     @Test
@@ -141,7 +176,7 @@ public class TokenMapperTest {
         Token token2 = partitioner.getMinimumToken();
         Query query = mapper.query(token1, token2, false, false);
         assertNotNull("Query should be not null", query);
-        assertEquals("Hash value is wrong", MatchAllDocsQuery.class, query.getClass());
+        assertEquals("Hash value is wrong", DocValuesRangeQuery.class, query.getClass());
     }
 
     @Test
@@ -176,6 +211,52 @@ public class TokenMapperTest {
         assertTrue("Include stop is wrong", mapper.includeStop(position));
     }
 
+    @Test
+    public void testAddFields() {
+        DecoratedKey key = partitioner.decorateKey(UTF8Type.instance.decompose("key"));
+        Document document = new Document();
+        mapper.addFields(document, key);
+        IndexableField field = document.getField(TokenMapper.FIELD_NAME);
+        assertNotNull("Field should be added", field);
+        assertEquals("Hash value is wrong", -6847573755651342660L, field.numericValue());
+    }
+
+    @Test
+    public void testSortFields() {
+        List<SortField> sortFields = mapper.sortFields();
+        assertNotNull("Sort fields should be not null", sortFields);
+        assertEquals("Sort fields should contain a single element", 1, sortFields.size());
+    }
+
+    @Test
+    public void testQueryToken() {
+        Token token = token("key");
+        Query query = mapper.query(token);
+        assertNotNull("Query should be not null", query);
+        assertEquals("Hash value is wrong",
+                "_token:[-6847573755651342660 TO -6847573755651342660]",
+                query.toString());
+    }
+
+    @Test
+    public void testQueryRange() {
+        Token token1 = token("key1");
+        Token token2 = token("key2");
+        Query query = mapper.query(token1, token2, true, false);
+        assertNotNull("Query should be not null", query);
+        assertEquals("Hash value is wrong",
+                "_token:[1573573083296714675 TO 8482869187405483569}",
+                query.toString());
+    }
+
+    @Test
+    public void testValue() {
+        DecoratedKey key = decoratedKey("key");
+        Token token = key.getToken();
+        long value = TokenMapper.value(token);
+        assertEquals("Hash value is wrong", -6847573755651342660L, value);
+    }
+
     private static DecoratedKey decoratedKey(String value) {
         return partitioner.decorateKey(UTF8Type.instance.decompose(value));
     }
@@ -183,4 +264,5 @@ public class TokenMapperTest {
     private static Token token(String value) {
         return decoratedKey(value).getToken();
     }
+
 }
