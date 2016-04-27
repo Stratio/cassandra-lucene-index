@@ -427,7 +427,7 @@ abstract class IndexService {
         if (command instanceof SinglePartitionReadCommand) {
             DecoratedKey key = ((SinglePartitionReadCommand) command).partitionKey();
             ClusteringIndexFilter clusteringFilter = command.clusteringIndexFilter(key);
-            return query(key, clusteringFilter);
+            return Optional.of(query(key, clusteringFilter));
         } else if (command instanceof PartitionRangeReadCommand) {
             DataRange dataRange = ((PartitionRangeReadCommand) command).dataRange();
             return query(dataRange);
@@ -444,7 +444,7 @@ abstract class IndexService {
      * @param filter the clustering key range
      * @return a query to get the {@link Document}s satisfying the key range
      */
-    abstract Optional<Query> query(DecoratedKey key, ClusteringIndexFilter filter);
+    abstract Query query(DecoratedKey key, ClusteringIndexFilter filter);
 
     /**
      * Returns a Lucene {@link Query} to get the {@link Document}s satisfying the specified {@link DataRange}.

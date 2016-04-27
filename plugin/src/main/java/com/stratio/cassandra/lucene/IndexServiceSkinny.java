@@ -109,8 +109,8 @@ class IndexServiceSkinny extends IndexService {
 
     /** {@inheritDoc} */
     @Override
-    public Optional<Query> query(DecoratedKey key, ClusteringIndexFilter filter) {
-        return Optional.of(new TermQuery(term(key)));
+    public Query query(DecoratedKey key, ClusteringIndexFilter filter) {
+        return new TermQuery(term(key));
     }
 
     /** {@inheritDoc} */
