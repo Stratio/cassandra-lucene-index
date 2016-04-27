@@ -15,10 +15,7 @@
  */
 package com.stratio.cassandra.lucene.testsAT.util;
 
-import com.datastax.driver.core.Cluster;
-import com.datastax.driver.core.ResultSet;
-import com.datastax.driver.core.Session;
-import com.datastax.driver.core.Statement;
+import com.datastax.driver.core.*;
 import com.stratio.cassandra.lucene.testsAT.BaseAT;
 import org.slf4j.Logger;
 
@@ -29,10 +26,10 @@ import static com.stratio.cassandra.lucene.testsAT.util.CassandraConfig.*;
  */
 public class CassandraConnection {
 
-    protected static final Logger logger = BaseAT.logger;
+    private static final Logger logger = BaseAT.logger;
 
     private static Cluster cluster;
-    public static Session session;
+    private static Session session;
 
     public static void connect() {
         if (cluster == null) {
@@ -61,5 +58,9 @@ public class CassandraConnection {
     public static synchronized ResultSet execute(Statement statement) {
         logger.debug("CQL: {}", statement);
         return session.execute(statement);
+    }
+
+    static PreparedStatement prepare(String query) {
+        return session.prepare(query);
     }
 }

@@ -275,7 +275,7 @@ public class CassandraUtils {
 
     public List<Row> searchWithPreparedStatement(Search search) {
         String query = String.format("SELECT * FROM %s WHERE expr(%s,?) LIMIT %d", qualifiedTable, index, LIMIT);
-        final PreparedStatement stmt = CassandraConnection.session.prepare(query);
+        final PreparedStatement stmt = CassandraConnection.prepare(query);
         BoundStatement b = stmt.bind();
         b.setString(0, search.build());
         return execute(b).all();
