@@ -34,6 +34,7 @@ import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.TermQuery;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
@@ -80,8 +81,8 @@ public class RowMapperSkinny extends RowMapper {
 
     /** {@inheritDoc} */
     @Override
-    public List<SortField> sortFields() {
-        return tokenMapper.sortFields();
+    public List<SortField> keySortFields() {
+        return Arrays.asList(tokenMapper.sortField(), partitionKeyMapper.sortField());
     }
 
     /** {@inheritDoc} */

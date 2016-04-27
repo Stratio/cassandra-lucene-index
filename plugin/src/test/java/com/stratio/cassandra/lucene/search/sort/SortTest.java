@@ -84,7 +84,7 @@ public class SortTest {
         int numElems = 0;
         for (SortField sortF : sort) {
             numElems += 1;
-            assertFalse("Sort iterator not returning all the sortFields",
+            assertFalse("Sort iterator not returning all the keySortFields",
                         !sortF.equals(sortField) && !sortF.equals(sortField2) && !sortF.equals(sortField3));
         }
         assertEquals("Sort build with 3 elements iterator must return 3 elems", numElems, 3);

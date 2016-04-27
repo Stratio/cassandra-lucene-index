@@ -16,13 +16,14 @@
  * under the License.
  */
 
-package com.stratio.cassandra.lucene.service;
+package com.stratio.cassandra.lucene.key;
 
 import com.stratio.cassandra.lucene.IndexException;
 import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.db.DecoratedKey;
 import org.apache.cassandra.db.Row;
 import org.apache.cassandra.db.RowPosition;
+import org.apache.cassandra.db.marshal.LongType;
 import org.apache.cassandra.dht.IPartitioner;
 import org.apache.cassandra.dht.Murmur3Partitioner;
 import org.apache.cassandra.dht.Token;
@@ -35,10 +36,12 @@ import org.apache.lucene.search.DocValuesRangeQuery;
 import org.apache.lucene.search.NumericRangeQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.SortField;
+import org.apache.lucene.util.BytesRef;
+import org.apache.lucene.util.BytesRefBuilder;
+import org.apache.lucene.util.NumericUtils;
 
-import java.util.Collections;
+import java.nio.ByteBuffer;
 import java.util.Comparator;
-import java.util.List;
 
 /**
  * Class for several row partitioning {@link Token} mappings between Cassandra and Lucene.
@@ -48,7 +51,7 @@ import java.util.List;
 public final class TokenMapper {
 
     /** The Lucene field name */
-    protected static final String FIELD_NAME = "_token";
+    public static final String FIELD_NAME = "_token";
 
     /** The Lucene field type */
     private static final FieldType FIELD_TYPE = new FieldType();
@@ -146,8 +149,8 @@ public final class TokenMapper {
      *
      * @return A Lucene {@link SortField} list for sorting documents/rows according to the current partitioner.
      */
-    public List<SortField> sortFields() {
-        return Collections.singletonList(new SortField(FIELD_NAME, SortField.Type.LONG));
+    public SortField sortField() {
+        return new SortField(FIELD_NAME, SortField.Type.LONG);
     }
 
     /**
@@ -190,7 +193,30 @@ public final class TokenMapper {
         };
     }
 
-    static Long value(Token token) {
+    public static Long value(Token token) {
         return (Long) token.getTokenValue();
+    }
+
+    /**
+     * Returns the {code ByteBuffer} value of the specified Murmur3 partitioning {@link Token}.
+     *
+     * @param token a Murmur3 token
+     * @return the {@code token}'s {code ByteBuffer} value
+     */
+    static ByteBuffer byteBuffer(Token token) {
+        return LongType.instance.decompose(value(token));
+    }
+
+    /**
+     * Returns the {@link BytesRef} indexing value of the specified Murmur3 partitioning {@link Token}.
+     *
+     * @param token a Murmur3 token
+     * @return the {@code token}'s indexing value
+     */
+    private static BytesRef bytesRef(Token token) {
+        Long value = value(token);
+        BytesRefBuilder bytesRef = new BytesRefBuilder();
+        NumericUtils.longToPrefixCoded(value, 0, bytesRef);
+        return bytesRef.get();
     }
 }

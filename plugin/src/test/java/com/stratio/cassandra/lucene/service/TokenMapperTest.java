@@ -19,6 +19,7 @@
 package com.stratio.cassandra.lucene.service;
 
 import com.stratio.cassandra.lucene.IndexException;
+import com.stratio.cassandra.lucene.key.TokenMapper;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.Config;
 import org.apache.cassandra.config.DatabaseDescriptor;
@@ -38,7 +39,6 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.util.Comparator;
-import java.util.List;
 
 import static junit.framework.Assert.*;
 import static org.mockito.Mockito.when;
@@ -223,9 +223,8 @@ public class TokenMapperTest {
 
     @Test
     public void testSortFields() {
-        List<SortField> sortFields = mapper.sortFields();
-        assertNotNull("Sort fields should be not null", sortFields);
-        assertEquals("Sort fields should contain a single element", 1, sortFields.size());
+        SortField sortField = mapper.sortField();
+        assertNotNull("Sort fields should be not null", sortField);
     }
 
     @Test

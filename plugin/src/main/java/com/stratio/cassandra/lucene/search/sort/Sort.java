@@ -35,7 +35,7 @@ import java.util.List;
  */
 public class Sort implements Iterable<SortField> {
 
-    /** How to sortFields each field. */
+    /** How to keySortFields each field. */
     private final List<SortField> sortFields;
 
     /**
@@ -93,6 +93,6 @@ public class Sort implements Iterable<SortField> {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("sortFields", sortFields).toString();
+        return Objects.toStringHelper(this).add("keySortFields", sortFields).toString();
     }
 }

@@ -19,6 +19,7 @@
 package com.stratio.cassandra.lucene.service;
 
 import com.stratio.cassandra.lucene.IndexConfig;
+import com.stratio.cassandra.lucene.key.PartitionKeyMapper;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import org.apache.cassandra.db.ColumnFamily;
 import org.apache.cassandra.db.ColumnFamilyStore;

@@ -85,7 +85,7 @@ public abstract class RowService {
         schema = config.getSchema();
         lucene = new LuceneIndex(config);
         mapper = RowMapper.build(config);
-        keySortFields = mapper.sortFields();
+        keySortFields = mapper.keySortFields();
 
         int threads = config.getIndexingThreads();
         indexQueue = threads > 0 ? new TaskQueue(threads, config.getIndexingQueuesSize()) : null;

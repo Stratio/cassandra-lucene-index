@@ -36,7 +36,7 @@ import static org.apache.lucene.search.SortField.FIELD_SCORE;
  */
 public class SimpleSortField extends SortField {
 
-    /** The name of field to sortFields by. */
+    /** The name of field to keySortFields by. */
     public final String field;
 
     /**
@@ -77,7 +77,7 @@ public class SimpleSortField extends SortField {
         }
         Mapper mapper = schema.getMapper(field);
         if (mapper == null) {
-            throw new IndexException("No mapper found for sortFields field '%s'", field);
+            throw new IndexException("No mapper found for keySortFields field '%s'", field);
         } else if (!mapper.sorted) {
             throw new IndexException("Mapper '%s' is not sorted", mapper.field);
         } else {

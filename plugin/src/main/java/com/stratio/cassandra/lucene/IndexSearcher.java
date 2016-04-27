@@ -92,6 +92,7 @@ public class IndexSearcher extends SecondaryIndexSearcher {
             Search search = search(clause);
             return rowService.search(search, expressions, dataRange, limit, timestamp, after, distinct);
         } catch (Exception e) {
+            logger.debug("exception");
             throw new IndexException(e, "Error while searching: %s", extendedFilter);
         }
     }

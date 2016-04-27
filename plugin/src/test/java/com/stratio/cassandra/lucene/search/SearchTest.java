@@ -123,7 +123,7 @@ public class SearchTest {
         assertEquals("Method #toString is wrong",
                      "Search{queryCondition=MatchCondition{boost=1.0, field=field, value=value}, " +
                      "filterCondition=MatchCondition{boost=1.0, field=field, value=value}, " +
-                     "sort=Sort{sortFields=[SimpleSortField{field=field, reverse=false}]}}",
+                     "sort=Sort{keySortFields=[SimpleSortField{field=field, reverse=false}]}}",
                      search.toString());
     }
 
