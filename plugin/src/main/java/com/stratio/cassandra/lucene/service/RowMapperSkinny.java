@@ -62,7 +62,7 @@ public class RowMapperSkinny extends RowMapper {
     @Override
     public Columns columns(DecoratedKey partitionKey, ColumnFamily columnFamily) {
         Columns columns = new Columns();
-        columns.add(partitionKeyMapper.columns(partitionKey));
+        columns.add(partitionMapper.columns(partitionKey));
         columns.add(regularCellsMapper.columns(columnFamily));
         return columns;
     }
@@ -78,7 +78,7 @@ public class RowMapperSkinny extends RowMapper {
     public Document document(DecoratedKey partitionKey, Columns columns) {
         Document document = new Document();
         tokenMapper.addFields(document, partitionKey);
-        partitionKeyMapper.addFields(document, partitionKey);
+        partitionMapper.addFields(document, partitionKey);
         schema.addFields(document, columns);
         return document;
     }
@@ -86,7 +86,7 @@ public class RowMapperSkinny extends RowMapper {
     /** {@inheritDoc} */
     @Override
     public List<SortField> sortFields() {
-        return Arrays.asList(tokenMapper.sortField(), partitionKeyMapper.sortField());
+        return Arrays.asList(tokenMapper.sortField(), partitionMapper.sortField());
     }
 
     /** {@inheritDoc} */
@@ -136,7 +136,7 @@ public class RowMapperSkinny extends RowMapper {
     /** {@inheritDoc} */
     @Override
     public SearchResult searchResult(Document document, ScoreDoc scoreDoc) {
-        DecoratedKey partitionKey = partitionKeyMapper.partitionKey(document);
+        DecoratedKey partitionKey = partitionMapper.partitionKey(document);
         return new SearchResult(partitionKey, null, scoreDoc);
     }
 

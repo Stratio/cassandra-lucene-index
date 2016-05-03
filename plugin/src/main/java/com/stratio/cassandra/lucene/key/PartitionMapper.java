@@ -17,41 +17,30 @@
  */
 package com.stratio.cassandra.lucene.key;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.List;
+import java.io.*;
+import java.nio.*;
+import java.util.*;
 
-import org.apache.cassandra.config.CFMetaData;
-import org.apache.cassandra.config.ColumnDefinition;
-import org.apache.cassandra.config.DatabaseDescriptor;
-import org.apache.cassandra.db.DecoratedKey;
-import org.apache.cassandra.db.marshal.AbstractType;
-import org.apache.cassandra.dht.IPartitioner;
-import org.apache.cassandra.utils.ByteBufferUtil;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
-import org.apache.lucene.document.FieldType;
-import org.apache.lucene.index.DocValuesType;
-import org.apache.lucene.index.IndexOptions;
-import org.apache.lucene.index.Term;
-import org.apache.lucene.search.FieldComparator;
-import org.apache.lucene.search.FieldComparatorSource;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.SortField;
-import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.util.BytesRef;
+import org.apache.cassandra.config.*;
+import org.apache.cassandra.db.*;
+import org.apache.cassandra.db.marshal.*;
+import org.apache.cassandra.dht.*;
+import org.apache.cassandra.utils.*;
+import org.apache.lucene.document.*;
+import org.apache.lucene.index.*;
+import org.apache.lucene.search.*;
+import org.apache.lucene.util.*;
 
 import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.column.Column;
-import com.stratio.cassandra.lucene.schema.column.Columns;
-import com.stratio.cassandra.lucene.util.ByteBufferUtils;
+import com.stratio.cassandra.lucene.schema.column.*;
+import com.stratio.cassandra.lucene.util.*;
 
 /**
  * Class for several partition key mappings between Cassandra and Lucene.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public final class PartitionKeyMapper {
+public final class PartitionMapper {
 
     /**
      * The Lucene field name.
@@ -85,12 +74,12 @@ public final class PartitionKeyMapper {
     private final AbstractType<?> type;
 
     /**
-     * Returns a new {@code PartitionKeyMapper} according to the specified column family meta data.
+     * Returns a new {@code PartitionMapper} according to the specified column family meta data.
      *
      * @param metadata The column family metadata.
      * @param schema   A {@link Schema}.
      */
-    public PartitionKeyMapper(CFMetaData metadata, Schema schema) {
+    public PartitionMapper(CFMetaData metadata, Schema schema) {
         partitioner = DatabaseDescriptor.getPartitioner();
         this.metadata = metadata;
         this.schema = schema;

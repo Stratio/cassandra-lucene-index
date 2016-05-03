@@ -77,7 +77,7 @@ public class RowMapperWide extends RowMapper {
     @Override
     public Columns columns(DecoratedKey partitionKey, ColumnFamily columnFamily) {
         Columns columns = new Columns();
-        columns.add(partitionKeyMapper.columns(partitionKey));
+        columns.add(partitionMapper.columns(partitionKey));
         columns.add(keyMapper.columns(columnFamily));
         columns.add(regularCellsMapper.columns(columnFamily));
         return columns;
@@ -95,7 +95,7 @@ public class RowMapperWide extends RowMapper {
     public Document document(DecoratedKey partitionKey, CellName clusteringKey, Columns columns) {
         Document document = new Document();
         tokenMapper.addFields(document, partitionKey);
-        partitionKeyMapper.addFields(document, partitionKey);
+        partitionMapper.addFields(document, partitionKey);
         keyMapper.addFields(document, partitionKey, clusteringKey);
         schema.addFields(document, columns);
         return document;
@@ -248,7 +248,7 @@ public class RowMapperWide extends RowMapper {
     /** {@inheritDoc} */
     @Override
     public SearchResult searchResult(Document document, ScoreDoc scoreDoc) {
-        DecoratedKey partitionKey = partitionKeyMapper.partitionKey(document);
+        DecoratedKey partitionKey = partitionMapper.partitionKey(document);
         CellName clusteringKey = keyMapper.clusteringKey(document);
         return new SearchResult(partitionKey, clusteringKey, scoreDoc);
     }

@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Ordering;
 import com.stratio.cassandra.lucene.IndexConfig;
-import com.stratio.cassandra.lucene.key.PartitionKeyMapper;
+import com.stratio.cassandra.lucene.key.PartitionMapper;
 import com.stratio.cassandra.lucene.key.TokenMapper;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.column.Columns;
@@ -79,7 +79,7 @@ public abstract class RowMapper {
     /**
      * A partition key mapper for the indexed table.
      */
-    final PartitionKeyMapper partitionKeyMapper;
+    final PartitionMapper partitionMapper;
 
     /**
      * A regular cell mapper for the indexed table.
@@ -96,7 +96,7 @@ public abstract class RowMapper {
         this.columnDefinition = config.getColumnDefinition();
         this.schema = config.getSchema();
         this.tokenMapper = new TokenMapper();
-        this.partitionKeyMapper = new PartitionKeyMapper(metadata, schema);
+        this.partitionMapper = new PartitionMapper(metadata, schema);
         this.regularCellsMapper = RegularCellsMapper.instance(metadata, schema);
     }
 
@@ -136,7 +136,7 @@ public abstract class RowMapper {
      * @return The decorated partition key representing the specified raw partition key.
      */
     public final DecoratedKey partitionKey(ByteBuffer key) {
-        return partitionKeyMapper.partitionKey(key);
+        return partitionMapper.partitionKey(key);
     }
 
     /**
@@ -146,7 +146,7 @@ public abstract class RowMapper {
      * @return A Lucene {@link Term} to get the {@link Document}s containing the specified decorated partition key.
      */
     public Term term(DecoratedKey partitionKey) {
-        return partitionKeyMapper.term(partitionKey);
+        return partitionMapper.term(partitionKey);
     }
 
     /**
