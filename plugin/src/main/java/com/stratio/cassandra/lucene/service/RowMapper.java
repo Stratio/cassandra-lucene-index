@@ -170,7 +170,7 @@ public abstract class RowMapper {
      *
      * @return The Lucene {@link SortField}s to get {@link Document}s in the same order that is used in Cassandra.
      */
-    public abstract List<SortField> keySortFields();
+    public abstract List<SortField> sortFields();
 
     /**
      * Returns a {@link CellName} for the indexed column in the specified column family.

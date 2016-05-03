@@ -18,35 +18,35 @@
 
 package com.stratio.cassandra.lucene.service;
 
-import static java.lang.Math.max;
-import static java.lang.Math.min;
+import static java.lang.Math.*;
 import static org.apache.lucene.search.BooleanClause.Occur.*;
-import static org.apache.lucene.search.SortField.FIELD_SCORE;
+import static org.apache.lucene.search.SortField.*;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
+import java.io.*;
+import java.nio.*;
 import java.util.*;
 
-import org.apache.cassandra.config.CFMetaData;
-import org.apache.cassandra.config.ColumnDefinition;
-import org.apache.cassandra.cql3.Operator;
+import org.apache.cassandra.config.*;
+import org.apache.cassandra.cql3.*;
 import org.apache.cassandra.db.*;
-import org.apache.cassandra.db.composites.CellName;
-import org.apache.cassandra.db.marshal.AbstractType;
-import org.apache.cassandra.db.marshal.UTF8Type;
-import org.apache.lucene.document.Document;
+import org.apache.cassandra.db.composites.*;
+import org.apache.cassandra.db.marshal.*;
+import org.apache.lucene.document.*;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.lucene.search.IndexSearcher;
+import org.slf4j.*;
 
-import com.stratio.cassandra.lucene.IndexConfig;
+import com.stratio.cassandra.lucene.*;
 import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.column.Column;
-import com.stratio.cassandra.lucene.schema.column.Columns;
-import com.stratio.cassandra.lucene.search.Search;
+import com.stratio.cassandra.lucene.schema.column.*;
+import com.stratio.cassandra.lucene.search.*;
 import com.stratio.cassandra.lucene.util.TaskQueue;
-import com.stratio.cassandra.lucene.util.TimeCounter;
+import com.stratio.cassandra.lucene.util.*;
+
+
+
+
 
 /**
  * Class for providing operations between Cassandra and Lucene.
@@ -85,7 +85,7 @@ public abstract class RowService {
         schema = config.getSchema();
         lucene = new LuceneIndex(config);
         mapper = RowMapper.build(config);
-        keySortFields = mapper.keySortFields();
+        keySortFields = mapper.sortFields();
 
         int threads = config.getIndexingThreads();
         indexQueue = threads > 0 ? new TaskQueue(threads, config.getIndexingQueuesSize()) : null;

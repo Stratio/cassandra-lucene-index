@@ -18,15 +18,15 @@
 
 package com.stratio.cassandra.lucene.search.sort;
 
-import com.google.common.base.Objects;
-import com.google.common.collect.Ordering;
-import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.column.Columns;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+
+import com.google.common.base.Objects;
+import com.google.common.collect.Ordering;
+import com.stratio.cassandra.lucene.schema.Schema;
+import com.stratio.cassandra.lucene.schema.column.Columns;
 
 /**
  * A sorting of fields for a search.
@@ -35,7 +35,7 @@ import java.util.List;
  */
 public class Sort implements Iterable<SortField> {
 
-    /** How to keySortFields each field. */
+    /** How to sortFields each field. */
     private final List<SortField> sortFields;
 
     /**
@@ -93,6 +93,6 @@ public class Sort implements Iterable<SortField> {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("keySortFields", sortFields).toString();
+        return Objects.toStringHelper(this).add("sortFields", sortFields).toString();
     }
 }

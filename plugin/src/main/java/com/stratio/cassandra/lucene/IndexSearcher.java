@@ -18,13 +18,15 @@
 
 package com.stratio.cassandra.lucene;
 
-import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.search.Search;
-import com.stratio.cassandra.lucene.search.SearchBuilder;
-import com.stratio.cassandra.lucene.service.RowKey;
-import com.stratio.cassandra.lucene.service.RowMapper;
-import com.stratio.cassandra.lucene.service.RowService;
-import com.stratio.cassandra.lucene.util.TimeCounter;
+import static org.apache.cassandra.cql3.Operator.EQ;
+
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+
 import org.apache.cassandra.db.DataRange;
 import org.apache.cassandra.db.IndexExpression;
 import org.apache.cassandra.db.Row;
@@ -39,10 +41,13 @@ import org.apache.cassandra.utils.ByteBufferUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.ByteBuffer;
-import java.util.*;
-
-import static org.apache.cassandra.cql3.Operator.EQ;
+import com.stratio.cassandra.lucene.schema.Schema;
+import com.stratio.cassandra.lucene.search.Search;
+import com.stratio.cassandra.lucene.search.SearchBuilder;
+import com.stratio.cassandra.lucene.service.RowKey;
+import com.stratio.cassandra.lucene.service.RowMapper;
+import com.stratio.cassandra.lucene.service.RowService;
+import com.stratio.cassandra.lucene.util.TimeCounter;
 
 /**
  * A {@link SecondaryIndexSearcher} for {@link Index}.
@@ -92,7 +97,6 @@ public class IndexSearcher extends SecondaryIndexSearcher {
             Search search = search(clause);
             return rowService.search(search, expressions, dataRange, limit, timestamp, after, distinct);
         } catch (Exception e) {
-            logger.debug("exception");
             throw new IndexException(e, "Error while searching: %s", extendedFilter);
         }
     }

@@ -18,13 +18,13 @@
 
 package com.stratio.cassandra.lucene.search;
 
-import com.stratio.cassandra.lucene.schema.Schema;
-import org.junit.Test;
-
-import static com.stratio.cassandra.lucene.schema.SchemaBuilders.schema;
-import static com.stratio.cassandra.lucene.schema.SchemaBuilders.stringMapper;
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
 import static com.stratio.cassandra.lucene.search.SearchBuilders.*;
 import static org.junit.Assert.*;
+
+import org.junit.*;
+
+import com.stratio.cassandra.lucene.schema.*;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
@@ -123,7 +123,7 @@ public class SearchTest {
         assertEquals("Method #toString is wrong",
                      "Search{queryCondition=MatchCondition{boost=1.0, field=field, value=value}, " +
                      "filterCondition=MatchCondition{boost=1.0, field=field, value=value}, " +
-                     "sort=Sort{keySortFields=[SimpleSortField{field=field, reverse=false}]}}",
+                     "sort=Sort{sortFields=[SimpleSortField{field=field, reverse=false}]}}",
                      search.toString());
     }
 

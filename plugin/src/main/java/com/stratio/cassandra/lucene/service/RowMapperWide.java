@@ -103,7 +103,7 @@ public class RowMapperWide extends RowMapper {
 
     /** {@inheritDoc} */
     @Override
-    public List<SortField> keySortFields() {
+    public List<SortField> sortFields() {
         return Arrays.asList( tokenMapper.sortField(),keyMapper.sortField());
     }
 
