@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2014 Stratio (http://stratio.com)
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,6 +15,10 @@
  */
 package com.stratio.cassandra.lucene.key;
 
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.List;
 
 import org.apache.cassandra.db.DecoratedKey;
 import org.apache.cassandra.db.composites.CellNameType;
@@ -27,11 +31,8 @@ import org.apache.lucene.index.TermsEnum;
 import org.apache.lucene.search.MultiTermQuery;
 import org.apache.lucene.util.AttributeSource;
 import org.apache.lucene.util.BytesRef;
-
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * {@link MultiTermQuery} to get a range of clustering keys.
@@ -39,7 +40,7 @@ import java.util.List;
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 class KeyQuery extends MultiTermQuery {
-
+    private static final Logger logger = LoggerFactory.getLogger(KeyQuery.class);
     private final KeyMapper mapper;
     private final DecoratedKey key;
     private final Token token;
@@ -58,11 +59,11 @@ class KeyQuery extends MultiTermQuery {
      * @param acceptUpperConflicts if accept upper token conflicts
      */
     KeyQuery(KeyMapper mapper,
-             DecoratedKey key,
-             Composite start,
-             Composite stop,
-             boolean acceptLowerConflicts,
-             boolean acceptUpperConflicts) {
+            DecoratedKey key,
+            Composite start,
+            Composite stop,
+            boolean acceptLowerConflicts,
+            boolean acceptUpperConflicts) {
         super(KeyMapper.FIELD_NAME);
         this.mapper = mapper;
         this.key = key;
@@ -84,18 +85,21 @@ class KeyQuery extends MultiTermQuery {
     @Override
     public String toString(String field) {
         return new ToStringBuilder(this).append("field", field)
-                                        .append("key", key)
-                                        .append("start", start)
-                                        .append("stop", stop)
-                                        .toString();
+                .append("key", key)
+                .append("start", start == null ? null : mapper.toString(start))
+                .append("stop", stop == null ? null : mapper.toString(stop))
+
+                .toString();
     }
 
     private class FullKeyDataRangeFilteredTermsEnum extends FilteredTermsEnum {
 
         FullKeyDataRangeFilteredTermsEnum(TermsEnum tenum) {
             super(tenum);
-            List<ByteBuffer> list= Arrays.asList(mapper.clusteringType().split(start.toByteBuffer()));
-            setInitialSeekTerm(mapper.bytesRef(key, mapper.clusteringComparator().builder().buildWith(list)));
+            if (start != null) {
+                List<ByteBuffer> list = Arrays.asList(mapper.clusteringType().split(start.toByteBuffer()));
+                setInitialSeekTerm(mapper.bytesRef(key, mapper.clusteringComparator().builder().buildWith(list)));
+            }
         }
 
         /** {@inheritDoc} */
@@ -124,10 +128,11 @@ class KeyQuery extends MultiTermQuery {
 
             // Check clustering key range
             Composite clustering = entry.getComposite();
-            if (start != null && clusteringComparator.compare(start, clustering) > 0) {
+
+            if (start != null && !start.isEmpty() && clusteringComparator.compare(start, clustering) > 0) {
                 return AcceptStatus.NO;
             }
-            if (stop != null && clusteringComparator.compare(stop, clustering) < 0) {
+            if (stop != null && !stop.isEmpty() && clusteringComparator.compare(stop, clustering) < 0) {
                 return AcceptStatus.NO;
             }
 

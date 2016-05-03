@@ -18,13 +18,15 @@
 
 package com.stratio.cassandra.lucene.service;
 
-import com.stratio.cassandra.lucene.IndexConfig;
-import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.column.Column;
-import com.stratio.cassandra.lucene.schema.column.Columns;
-import com.stratio.cassandra.lucene.search.Search;
-import com.stratio.cassandra.lucene.util.TaskQueue;
-import com.stratio.cassandra.lucene.util.TimeCounter;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+import static org.apache.lucene.search.BooleanClause.Occur.*;
+import static org.apache.lucene.search.SortField.FIELD_SCORE;
+
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.*;
+
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
 import org.apache.cassandra.cql3.Operator;
@@ -38,15 +40,13 @@ import org.apache.lucene.search.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.*;
-
-import static java.lang.Math.max;
-import static java.lang.Math.min;
-import static org.apache.lucene.search.BooleanClause.Occur.FILTER;
-import static org.apache.lucene.search.BooleanClause.Occur.MUST;
-import static org.apache.lucene.search.SortField.FIELD_SCORE;
+import com.stratio.cassandra.lucene.IndexConfig;
+import com.stratio.cassandra.lucene.schema.Schema;
+import com.stratio.cassandra.lucene.schema.column.Column;
+import com.stratio.cassandra.lucene.schema.column.Columns;
+import com.stratio.cassandra.lucene.search.Search;
+import com.stratio.cassandra.lucene.util.TaskQueue;
+import com.stratio.cassandra.lucene.util.TimeCounter;
 
 /**
  * Class for providing operations between Cassandra and Lucene.

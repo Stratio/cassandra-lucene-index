@@ -15,10 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package com.stratio.cassandra.lucene.key;
 
-import com.stratio.cassandra.lucene.IndexException;
+import java.nio.ByteBuffer;
+import java.util.Comparator;
+
 import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.db.DecoratedKey;
 import org.apache.cassandra.db.Row;
@@ -36,12 +37,8 @@ import org.apache.lucene.search.DocValuesRangeQuery;
 import org.apache.lucene.search.NumericRangeQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.SortField;
-import org.apache.lucene.util.BytesRef;
-import org.apache.lucene.util.BytesRefBuilder;
-import org.apache.lucene.util.NumericUtils;
 
-import java.nio.ByteBuffer;
-import java.util.Comparator;
+import com.stratio.cassandra.lucene.IndexException;
 
 /**
  * Class for several row partitioning {@link Token} mappings between Cassandra and Lucene.
@@ -50,10 +47,14 @@ import java.util.Comparator;
  */
 public final class TokenMapper {
 
-    /** The Lucene field name */
+    /**
+     * The Lucene field name
+     */
     public static final String FIELD_NAME = "_token";
 
-    /** The Lucene field type */
+    /**
+     * The Lucene field type
+     */
     private static final FieldType FIELD_TYPE = new FieldType();
 
     static {
@@ -75,10 +76,29 @@ public final class TokenMapper {
     }
 
     /**
+     *
+     * @param token A {@link Token}.
+     * @return the {@code token}'s {@link Long} value
+     */
+    public static Long value(Token token) {
+        return (Long) token.getTokenValue();
+    }
+
+    /**
+     * Returns the {code ByteBuffer} value of the specified Murmur3 partitioning {@link Token}.
+     *
+     * @param token a Murmur3 token
+     * @return the {@code token}'s {code ByteBuffer} value
+     */
+    static ByteBuffer byteBuffer(Token token) {
+        return LongType.instance.decompose(value(token));
+    }
+
+    /**
      * Adds to the specified {@link Document} the {@link org.apache.lucene.document.Field}s associated to the token of
      * the specified row key.
      *
-     * @param document A {@link Document}.
+     * @param document     A {@link Document}.
      * @param partitionKey The raw partition key to be added.
      */
     public void addFields(Document document, DecoratedKey partitionKey) {
@@ -90,8 +110,8 @@ public final class TokenMapper {
     /**
      * Returns a Lucene {@link Query} for retrieving the documents inside the specified {@link Token} range.
      *
-     * @param lower The lower accepted {@link Token}. Maybe null meaning no lower limit.
-     * @param upper The upper accepted {@link Token}. Maybe null meaning no lower limit.
+     * @param lower        The lower accepted {@link Token}. Maybe null meaning no lower limit.
+     * @param upper        The upper accepted {@link Token}. Maybe null meaning no lower limit.
      * @param includeLower If the {@code lowerValue} is included in the range.
      * @param includeUpper If the {@code upperValue} is included in the range.
      * @return A Lucene {@link Query} for retrieving the documents inside the specified {@link Token} range.
@@ -132,13 +152,13 @@ public final class TokenMapper {
     /**
      * Returns a Lucene {@link Query} for retrieving the documents inside the specified {@link Token} range.
      *
-     * @param lower The lower accepted {@link Token}. Maybe null meaning no lower limit.
-     * @param upper The upper accepted {@link Token}. Maybe null meaning no lower limit.
+     * @param lower        The lower accepted {@link Token}. Maybe null meaning no lower limit.
+     * @param upper        The upper accepted {@link Token}. Maybe null meaning no lower limit.
      * @param includeLower If the {@code lowerValue} is included in the range.
      * @param includeUpper If the {@code upperValue} is included in the range.
      * @return A Lucene {@link Query} for retrieving the documents inside the specified {@link Token} range.
      */
-    protected Query doQuery(Token lower, Token upper, boolean includeLower, boolean includeUpper) {
+    private Query doQuery(Token lower, Token upper, boolean includeLower, boolean includeUpper) {
         Long start = lower == null || lower.isMinimum() ? null : value(lower);
         Long stop = upper == null || upper.isMinimum() ? null : value(upper);
         return DocValuesRangeQuery.newLongRange(FIELD_NAME, start, stop, includeLower, includeUpper);
@@ -193,30 +213,4 @@ public final class TokenMapper {
         };
     }
 
-    public static Long value(Token token) {
-        return (Long) token.getTokenValue();
-    }
-
-    /**
-     * Returns the {code ByteBuffer} value of the specified Murmur3 partitioning {@link Token}.
-     *
-     * @param token a Murmur3 token
-     * @return the {@code token}'s {code ByteBuffer} value
-     */
-    static ByteBuffer byteBuffer(Token token) {
-        return LongType.instance.decompose(value(token));
-    }
-
-    /**
-     * Returns the {@link BytesRef} indexing value of the specified Murmur3 partitioning {@link Token}.
-     *
-     * @param token a Murmur3 token
-     * @return the {@code token}'s indexing value
-     */
-    private static BytesRef bytesRef(Token token) {
-        Long value = value(token);
-        BytesRefBuilder bytesRef = new BytesRefBuilder();
-        NumericUtils.longToPrefixCoded(value, 0, bytesRef);
-        return bytesRef.get();
-    }
 }

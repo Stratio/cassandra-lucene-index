@@ -18,26 +18,41 @@
 
 package com.stratio.cassandra.lucene.service;
 
-import com.stratio.cassandra.lucene.IndexConfig;
-import org.apache.cassandra.io.util.FileUtils;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.index.*;
-import org.apache.lucene.search.*;
-import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.FSDirectory;
-import org.apache.lucene.store.NRTCachingDirectory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.management.MBeanException;
-import javax.management.ObjectName;
-import javax.management.OperationsException;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+
+import javax.management.MBeanException;
+import javax.management.ObjectName;
+import javax.management.OperationsException;
+
+import org.apache.cassandra.io.util.FileUtils;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.index.TieredMergePolicy;
+import org.apache.lucene.index.TrackingIndexWriter;
+import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.ControlledRealTimeReopenThread;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.SearcherFactory;
+import org.apache.lucene.search.SearcherManager;
+import org.apache.lucene.search.Sort;
+import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.store.NRTCachingDirectory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.stratio.cassandra.lucene.IndexConfig;
 
 /**
  * Class wrapping a Lucene directory and its readers, writers and searchers for NRT.
@@ -138,6 +153,7 @@ public class LuceneIndex implements LuceneIndexMBean {
      * @throws IOException If Lucene throws IO errors.
      */
     public void upsert(Map<Term, Document> documents) throws IOException {
+
         for (Map.Entry<Term, Document> entry : documents.entrySet()) {
             upsert(entry.getKey(), entry.getValue());
         }
@@ -239,6 +255,7 @@ public class LuceneIndex implements LuceneIndexMBean {
                                           Integer count,
                                           Set<String> fields) throws IOException {
 
+        logger.debug("lucene search with indexSearcher: {}, query: {}, sort: {} after, {}, count {},fields {} ",searcher,query,sort,after,count,fields);
         // Search for top documents
         TopDocs topDocs = searcher.searchAfter(after, query, count, sort);
         ScoreDoc[] scoreDocs = topDocs.scoreDocs;

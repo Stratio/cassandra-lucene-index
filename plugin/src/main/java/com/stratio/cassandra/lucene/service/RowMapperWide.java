@@ -18,18 +18,8 @@
 
 package com.stratio.cassandra.lucene.service;
 
-import com.google.common.collect.Ordering;
-import com.stratio.cassandra.lucene.IndexConfig;
-import com.stratio.cassandra.lucene.key.KeyMapper;
-import com.stratio.cassandra.lucene.schema.column.Columns;
-import org.apache.cassandra.db.*;
-import org.apache.cassandra.db.composites.CellName;
-import org.apache.cassandra.db.composites.Composite;
-import org.apache.cassandra.db.filter.ColumnSlice;
-import org.apache.cassandra.dht.Token;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.index.Term;
-import org.apache.lucene.search.*;
+import static org.apache.lucene.search.BooleanClause.Occur.FILTER;
+import static org.apache.lucene.search.BooleanClause.Occur.SHOULD;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -37,9 +27,31 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
-import static org.apache.cassandra.db.RowPosition.Kind.MAX_BOUND;
-import static org.apache.cassandra.db.RowPosition.Kind.MIN_BOUND;
-import static org.apache.lucene.search.BooleanClause.Occur.SHOULD;
+import org.apache.cassandra.db.ColumnFamily;
+import org.apache.cassandra.db.DataRange;
+import org.apache.cassandra.db.DecoratedKey;
+import org.apache.cassandra.db.RangeTombstone;
+import org.apache.cassandra.db.Row;
+import org.apache.cassandra.db.RowPosition;
+import org.apache.cassandra.db.composites.CellName;
+import org.apache.cassandra.db.composites.Composite;
+import org.apache.cassandra.db.filter.ColumnSlice;
+import org.apache.cassandra.db.filter.SliceQueryFilter;
+import org.apache.cassandra.dht.Token;
+import org.apache.cassandra.utils.ByteBufferUtil;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.search.BooleanClause;
+import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.SortField;
+import org.apache.lucene.search.TermQuery;
+
+import com.google.common.collect.Ordering;
+import com.stratio.cassandra.lucene.IndexConfig;
+import com.stratio.cassandra.lucene.key.KeyMapper;
+import com.stratio.cassandra.lucene.schema.column.Columns;
 
 /**
  * {@link RowMapper} for wide rows.
@@ -47,9 +59,6 @@ import static org.apache.lucene.search.BooleanClause.Occur.SHOULD;
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class RowMapperWide extends RowMapper {
-
-    /** The clustering key mapper. */
-    //private final ClusteringKeyMapper clusteringKeyMapper;
 
     /** The full key mapper. */
     private final KeyMapper keyMapper;
@@ -68,10 +77,8 @@ public class RowMapperWide extends RowMapper {
     @Override
     public Columns columns(DecoratedKey partitionKey, ColumnFamily columnFamily) {
         Columns columns = new Columns();
-
         columns.add(partitionKeyMapper.columns(partitionKey));
         columns.add(keyMapper.columns(columnFamily));
-        //columns.add(clusteringKeyMapper.columns(columnFamily));
         columns.add(regularCellsMapper.columns(columnFamily));
         return columns;
     }
@@ -89,7 +96,6 @@ public class RowMapperWide extends RowMapper {
         Document document = new Document();
         tokenMapper.addFields(document, partitionKey);
         partitionKeyMapper.addFields(document, partitionKey);
-        //clusteringKeyMapper.addFields(document, clusteringKey);
         keyMapper.addFields(document, partitionKey, clusteringKey);
         schema.addFields(document, columns);
         return document;
@@ -107,8 +113,6 @@ public class RowMapperWide extends RowMapper {
         CellName clusteringKey = clusteringKey(columnFamily);
         return keyMapper.makeCellName(clusteringKey, columnDefinition);
     }
-
-
 
     /** {@inheritDoc} */
     @Override
@@ -142,41 +146,59 @@ public class RowMapperWide extends RowMapper {
     /** {@inheritDoc} */
     @Override
     public Query query(DataRange dataRange) {
-
-        // Extract data range data
         RowPosition startPosition = dataRange.startKey();
         RowPosition stopPosition = dataRange.stopKey();
         Token startToken = startPosition.getToken();
         Token stopToken = stopPosition.getToken();
-        Composite maybeStartClustering = KeyMapper.startClusteringPrefix(dataRange);
-        Composite maybeStopClustering = KeyMapper.stopClusteringPrefix(dataRange);
+        SliceQueryFilter sqf;
+        if (startPosition instanceof DecoratedKey) {
+            sqf = (SliceQueryFilter) dataRange.columnFilter(((DecoratedKey) startPosition).getKey());
+        } else {
+            sqf = (SliceQueryFilter) dataRange.columnFilter(ByteBufferUtil.EMPTY_BYTE_BUFFER);
+        }
 
-        // Prepare query builder
+        boolean isSameToken = startToken.compareTo(stopToken) == 0 && !tokenMapper.isMinimum(startToken);
+
+        BooleanClause.Occur occur = isSameToken ? FILTER : SHOULD;
+        boolean includeStart = tokenMapper.includeStart(startPosition);
+        boolean includeStop = tokenMapper.includeStop(stopPosition);
+
+        Composite startName = sqf.start();
+        Composite stopName = sqf.finish();
+
+        if ((isSameToken) && (startPosition instanceof  DecoratedKey)) {
+            return keyMapper.query((DecoratedKey) startPosition,startName,stopName,includeStart, includeStop);
+        }
+
         BooleanQuery.Builder builder = new BooleanQuery.Builder();
 
-        // Add first partition filter
-        if (maybeStartClustering!=null) {
+        if (!startName.isEmpty()) {
+            BooleanQuery.Builder b = new BooleanQuery.Builder();
             DecoratedKey startKey = (DecoratedKey) startPosition;
-            builder.add(keyMapper.query(startKey, maybeStartClustering, null, false, true), SHOULD);
+            b.add(keyMapper.query(startKey, startName, null, false, true), FILTER);
+            builder.add(b.build(), occur);
+            includeStart = false;
         }
 
-        // Add last partition filter
-        if (maybeStopClustering!=null) {
+        if (!stopName.isEmpty()) {
+            BooleanQuery.Builder b = new BooleanQuery.Builder();
             DecoratedKey stopKey = (DecoratedKey) stopPosition;
-            builder.add(keyMapper.query(stopKey, null, maybeStopClustering, true, false), SHOULD);
+            b.add(keyMapper.query(stopKey, null, stopName, true, false), FILTER);
+            builder.add(b.build(), occur);
+            includeStop = false;
         }
 
-        // Add token range filter
-        boolean includeStart = startPosition.kind() == MIN_BOUND && (maybeStartClustering==null);
-        boolean includeStop = stopPosition.kind() == MAX_BOUND && (maybeStopClustering==null);
-        Query query=tokenMapper.query(startToken, stopToken, includeStart, includeStop);
-
-        if (query!=null) builder.add(query, SHOULD);
-
-
-        // Return query, or empty if there are no restrictions
-        BooleanQuery totalQuery = builder.build();
-        return totalQuery.clauses().isEmpty() ? null : query;
+        BooleanQuery query = builder.build();
+        if (!isSameToken) {
+            Query rangeQuery = tokenMapper.query(startToken, stopToken, includeStart, includeStop);
+            if (rangeQuery != null) {
+                builder.add(rangeQuery, SHOULD);
+                query = builder.build();
+            }
+        } else if (query.clauses().isEmpty()) {
+            return tokenMapper.query(startToken);
+        }
+        return query.clauses().isEmpty() ? null : query;
     }
 
     /** {@inheritDoc} */

@@ -15,17 +15,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package com.stratio.cassandra.lucene.key;
 
-import com.stratio.cassandra.lucene.schema.column.Column;
-import com.stratio.cassandra.lucene.schema.column.Columns;
-import com.stratio.cassandra.lucene.service.RowKey;
-import com.stratio.cassandra.lucene.util.ByteBufferUtils;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
 import org.apache.cassandra.config.DatabaseDescriptor;
-import org.apache.cassandra.db.*;
+import org.apache.cassandra.db.ArrayBackedSortedColumns;
+import org.apache.cassandra.db.Cell;
+import org.apache.cassandra.db.ColumnFamily;
+import org.apache.cassandra.db.DataRange;
+import org.apache.cassandra.db.DecoratedKey;
+import org.apache.cassandra.db.Row;
+import org.apache.cassandra.db.RowPosition;
 import org.apache.cassandra.db.composites.CBuilder;
 import org.apache.cassandra.db.composites.CellName;
 import org.apache.cassandra.db.composites.CellNameType;
@@ -47,8 +56,10 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.util.BytesRef;
 
-import java.nio.ByteBuffer;
-import java.util.*;
+import com.stratio.cassandra.lucene.schema.column.Column;
+import com.stratio.cassandra.lucene.schema.column.Columns;
+import com.stratio.cassandra.lucene.service.RowKey;
+import com.stratio.cassandra.lucene.util.ByteBufferUtils;
 
 /**
  * Class for several row full key mappings between Cassandra and Lucene. The full key includes both the partitioning and
@@ -58,10 +69,14 @@ import java.util.*;
  */
 public final class KeyMapper {
 
-    /** The Lucene field name. */
+    /**
+     * The Lucene field name.
+     */
     public static final String FIELD_NAME = "_primary_key";
 
-    /** The Lucene field type. */
+    /**
+     * The Lucene field type.
+     */
     private static final FieldType FIELD_TYPE = new FieldType();
 
     static {
@@ -73,50 +88,93 @@ public final class KeyMapper {
         FIELD_TYPE.freeze();
     }
 
-    /** The type of the full row key, which is composed by the partition and clustering key types. */
+    /**
+     * The type of the full row key, which is composed by the partition and clustering key types.
+     */
     private final CompositeType type;
 
     private final CFMetaData metadata;
 
-    /** The type of the clustering key, which is the type of the column names. */
+    /**
+     * The type of the clustering key, which is the type of the column names.
+     */
     private final CellNameType clusteringComparator;
 
     private final CompositeType clusteringType;
+
     /**
      * Returns a new {@link KeyMapper} using the specified column family metadata.
      *
      * @param metadata the indexed table {@link CFMetaData}
      */
     public KeyMapper(CFMetaData metadata) {
-        this.metadata=metadata;
+        this.metadata = metadata;
         clusteringComparator = metadata.comparator;
         AbstractType<?>[] subtypes = new AbstractType[clusteringComparator.size()];
-        for (int i=0;i<subtypes.length;i++) {
-            subtypes[i]=clusteringComparator.subtype(i);
+        for (int i = 0; i < subtypes.length; i++) {
+            subtypes[i] = clusteringComparator.subtype(i);
         }
         clusteringType = CompositeType.getInstance(subtypes);
+
         type = CompositeType.getInstance(LongType.instance, metadata.getKeyValidator(), clusteringType);
     }
+
+    /**
+     * Returns the start {@link Composite} of the first partition of the specified {@link DataRange}.
+     *
+     * @param dataRange the data range
+     * @return the start clustering prefix of {@code dataRange}, or {@code null} if there is no such start
+     */
+    public static Composite startClusteringPrefix(DataRange dataRange) {
+
+        RowPosition startPosition = dataRange.startKey();
+        if (startPosition instanceof DecoratedKey) {
+            IDiskAtomFilter filter = dataRange.columnFilter(((DecoratedKey) startPosition).getKey());
+            if (filter instanceof SliceQueryFilter) {
+                return ((SliceQueryFilter) filter).slices[0].start;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns the stop {@link Composite} of the last partition of the specified {@link DataRange}.
+     *
+     * @param dataRange the data range
+     * @return the stop clustering prefix of {@code dataRange}, or {@code null} if there is no such start
+     */
+    public static Composite stopClusteringPrefix(DataRange dataRange) {
+        RowPosition stopPosition = dataRange.stopKey();
+        if (stopPosition instanceof DecoratedKey) {
+            IDiskAtomFilter filter = dataRange.columnFilter(((DecoratedKey) stopPosition).getKey());
+            if (filter instanceof SliceQueryFilter) {
+                return ((SliceQueryFilter) filter).slices[0].finish;
+            }
+        }
+        return null;
+    }
+
+    ;
 
     /**
      * The type of the primary key, which is composed by token, partition key and clustering key types.
      *
      * @return the composite type
      */
-    CompositeType clusteringType() {
+    public CompositeType clusteringType() {
 
         return clusteringType;
     }
+
     CellNameType clusteringComparator() {
         return clusteringComparator;
-    };
-
+    }
 
     /**
      * Returns the {@link ByteBuffer} representation of the full row key formed by the specified partition key and the
      * clustering key.
      *
-     * @param partitionKey A partition key.
+     * @param partitionKey  A partition key.
      * @param clusteringKey A clustering key.
      * @return The {@link ByteBuffer} representation of the full row key formed by the specified key pair.
      */
@@ -137,14 +195,14 @@ public final class KeyMapper {
     public RowKey rowKey(ByteBuffer bb) {
         ByteBuffer[] bbs = ByteBufferUtils.split(bb, type);
         DecoratedKey partitionKey = DatabaseDescriptor.getPartitioner().decorateKey(bbs[1]);
-        CellName clusteringKey =    this.clusteringKey(bbs[2]);
+        CellName clusteringKey = this.clusteringKey(bbs[2]);
         return new RowKey(partitionKey, clusteringKey);
     }
 
     /**
      * Returns a hash code to uniquely identify a CQL logical row key.
      *
-     * @param partitionKey A partition key.
+     * @param partitionKey  A partition key.
      * @param clusteringKey A clustering key.
      * @return A hash code to uniquely identify a CQL logical row key.
      */
@@ -156,8 +214,8 @@ public final class KeyMapper {
      * Adds to the specified Lucene {@link Document} the full row key formed by the specified partition key and the
      * clustering key.
      *
-     * @param document A Lucene {@link Document}.
-     * @param partitionKey A partition key.
+     * @param document      A Lucene {@link Document}.
+     * @param partitionKey  A partition key.
      * @param clusteringKey A clustering key.
      */
     public void addFields(Document document, DecoratedKey partitionKey, CellName clusteringKey) {
@@ -170,7 +228,7 @@ public final class KeyMapper {
      * Returns the Lucene {@link Term} representing the full row key formed by the specified partition key and the
      * clustering key.
      *
-     * @param partitionKey A partition key.
+     * @param partitionKey  A partition key.
      * @param clusteringKey A clustering key.
      * @return The Lucene {@link Term} representing the full row key formed by the specified key pair.
      */
@@ -181,7 +239,7 @@ public final class KeyMapper {
     /**
      * Returns the {@link BytesRef} representation of the specified primary key.
      *
-     * @param key the partition key
+     * @param key           the partition key
      * @param clusteringKey the clustering key
      * @return the Lucene field binary value
      */
@@ -258,54 +316,20 @@ public final class KeyMapper {
     }
 
     /**
-     * Returns the start {@link Composite} of the first partition of the specified {@link DataRange}.
-     *
-     * @param dataRange the data range
-     * @return the start clustering prefix of {@code dataRange}, or {@code null} if there is no such start
-     */
-    public static Composite startClusteringPrefix(DataRange dataRange) {
-        RowPosition startPosition = dataRange.startKey();
-        if (startPosition instanceof DecoratedKey) {
-            IDiskAtomFilter filter = dataRange.columnFilter(((DecoratedKey) startPosition).getKey());
-            if (filter instanceof SliceQueryFilter) {
-                return ((SliceQueryFilter) filter).slices[0].start;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Returns the stop {@link Composite} of the last partition of the specified {@link DataRange}.
-     *
-     * @param dataRange the data range
-     * @return the stop clustering prefix of {@code dataRange}, or {@code null} if there is no such start
-     */
-    public static Composite stopClusteringPrefix(DataRange dataRange) {
-        RowPosition stopPosition = dataRange.stopKey();
-        if (stopPosition instanceof DecoratedKey) {
-            IDiskAtomFilter filter = dataRange.columnFilter(((DecoratedKey) stopPosition).getKey());
-            if (filter instanceof SliceQueryFilter) {
-                return ((SliceQueryFilter) filter).slices[0].finish;
-            }
-        }
-        return null;
-    }
-
-    /**
      * Returns a Lucene {@link Query} to retrieve all the rows in the specified partition slice.
      *
-     * @param key the partition key
-     * @param start the start clustering prefix
-     * @param stop the stop clustering prefix
+     * @param key                  the partition key
+     * @param start                the start clustering prefix
+     * @param stop                 the stop clustering prefix
      * @param acceptLowerConflicts if rows with the same token before key should be accepted
      * @param acceptUpperConflicts if rows with the same token after key should be accepted
      * @return the Lucene query
      */
     public Query query(DecoratedKey key,
-                       Composite start,
-                       Composite stop,
-                       boolean acceptLowerConflicts,
-                       boolean acceptUpperConflicts) {
+            Composite start,
+            Composite stop,
+            boolean acceptLowerConflicts,
+            boolean acceptUpperConflicts) {
         return new KeyQuery(this, key, start, stop, acceptLowerConflicts, acceptUpperConflicts);
     }
 
@@ -333,7 +357,7 @@ public final class KeyMapper {
     /**
      * Returns the storage engine column name for the specified column identifier using the specified clustering key.
      *
-     * @param cellName The clustering key.
+     * @param cellName         The clustering key.
      * @param columnDefinition The column definition.
      * @return A storage engine column name.
      */
@@ -451,6 +475,7 @@ public final class KeyMapper {
         ByteBuffer[] bbs = type.split(bb);
         return clusteringComparator.cellFromByteBuffer(bbs[2]);
     }
+
     /**
      * Returns the first clustering key contained in the specified row.
      *
@@ -460,6 +485,7 @@ public final class KeyMapper {
     public CellName clusteringKey(Row row) {
         return clusteringKey(row.cf);
     }
+
     /**
      * Returns a clustering key based {@link Row} {@link Comparator}.
      *
@@ -474,5 +500,15 @@ public final class KeyMapper {
                 return clusteringComparator.compare(name1, name2);
             }
         };
+    }
+
+    /**
+     * Returns the {@code String} human-readable representation of the specified {@link ClusteringPrefix}.
+     *
+     * @param prefix the clustering prefix
+     * @return a {@code String} representing {@code prefix}
+     */
+    public String toString(Composite composite) {
+        return ByteBufferUtils.toString(composite.toByteBuffer(), clusteringType);
     }
 }

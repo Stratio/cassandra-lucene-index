@@ -15,13 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package com.stratio.cassandra.lucene.key;
 
-import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.column.Column;
-import com.stratio.cassandra.lucene.schema.column.Columns;
-import com.stratio.cassandra.lucene.util.ByteBufferUtils;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.List;
+
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
 import org.apache.cassandra.config.DatabaseDescriptor;
@@ -35,12 +34,17 @@ import org.apache.lucene.document.FieldType;
 import org.apache.lucene.index.DocValuesType;
 import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.search.*;
+import org.apache.lucene.search.FieldComparator;
+import org.apache.lucene.search.FieldComparatorSource;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.SortField;
+import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.util.BytesRef;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.List;
+import com.stratio.cassandra.lucene.schema.Schema;
+import com.stratio.cassandra.lucene.schema.column.Column;
+import com.stratio.cassandra.lucene.schema.column.Columns;
+import com.stratio.cassandra.lucene.util.ByteBufferUtils;
 
 /**
  * Class for several partition key mappings between Cassandra and Lucene.
@@ -49,10 +53,14 @@ import java.util.List;
  */
 public final class PartitionKeyMapper {
 
-    /** The Lucene field name. */
+    /**
+     * The Lucene field name.
+     */
     public static final String FIELD_NAME = "_partition_key";
 
-    /** The Lucene field type. */
+    /**
+     * The Lucene field type.
+     */
     private static final FieldType FIELD_TYPE = new FieldType();
 
     static {
@@ -80,7 +88,7 @@ public final class PartitionKeyMapper {
      * Returns a new {@code PartitionKeyMapper} according to the specified column family meta data.
      *
      * @param metadata The column family metadata.
-     * @param schema A {@link Schema}.
+     * @param schema   A {@link Schema}.
      */
     public PartitionKeyMapper(CFMetaData metadata, Schema schema) {
         partitioner = DatabaseDescriptor.getPartitioner();
@@ -96,7 +104,7 @@ public final class PartitionKeyMapper {
     /**
      * Adds to the specified {@link Document} the {@link Field}s associated to the specified raw partition key.
      *
-     * @param document The document in which the fields are going to be added.
+     * @param document     The document in which the fields are going to be added.
      * @param partitionKey The raw partition key to be converted.
      */
     public void addFields(Document document, DecoratedKey partitionKey) {

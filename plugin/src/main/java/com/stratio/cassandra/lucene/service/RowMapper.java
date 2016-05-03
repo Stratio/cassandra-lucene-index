@@ -15,20 +15,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package com.stratio.cassandra.lucene.service;
 
-import com.google.common.collect.Ordering;
-import com.stratio.cassandra.lucene.IndexConfig;
-import com.stratio.cassandra.lucene.key.PartitionKeyMapper;
-import com.stratio.cassandra.lucene.key.TokenMapper;
-import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.column.Columns;
-import com.stratio.cassandra.lucene.search.Search;
-import com.stratio.cassandra.lucene.util.ByteBufferUtils;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
-import org.apache.cassandra.db.*;
+import org.apache.cassandra.db.Cell;
+import org.apache.cassandra.db.ColumnFamily;
+import org.apache.cassandra.db.DataRange;
+import org.apache.cassandra.db.DecoratedKey;
+import org.apache.cassandra.db.Row;
 import org.apache.cassandra.db.composites.CellName;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.lucene.document.Document;
@@ -39,10 +39,14 @@ import org.apache.lucene.search.SortField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import com.google.common.collect.Ordering;
+import com.stratio.cassandra.lucene.IndexConfig;
+import com.stratio.cassandra.lucene.key.PartitionKeyMapper;
+import com.stratio.cassandra.lucene.key.TokenMapper;
+import com.stratio.cassandra.lucene.schema.Schema;
+import com.stratio.cassandra.lucene.schema.column.Columns;
+import com.stratio.cassandra.lucene.search.Search;
+import com.stratio.cassandra.lucene.util.ByteBufferUtils;
 
 /**
  * Class for several {@link Row} mappings between Cassandra and Lucene data models.
@@ -51,23 +55,35 @@ import java.util.List;
  */
 public abstract class RowMapper {
 
-    private static final Logger logger = LoggerFactory.getLogger(RowMapper.class);
-    /** The indexed table metadata. */
+    protected static final Logger logger = LoggerFactory.getLogger(RowMapper.class);
+    /**
+     * The indexed table metadata.
+     */
     final CFMetaData metadata;
 
-    /** The indexed column definition. */
+    /**
+     * The indexed column definition.
+     */
     final ColumnDefinition columnDefinition;
 
-    /** The indexing schema. */
+    /**
+     * The indexing schema.
+     */
     final Schema schema;
 
-    /** A token mapper for the indexed table. */
+    /**
+     * A token mapper for the indexed table.
+     */
     final TokenMapper tokenMapper;
 
-    /** A partition key mapper for the indexed table. */
+    /**
+     * A partition key mapper for the indexed table.
+     */
     final PartitionKeyMapper partitionKeyMapper;
 
-    /** A regular cell mapper for the indexed table. */
+    /**
+     * A regular cell mapper for the indexed table.
+     */
     final RegularCellsMapper regularCellsMapper;
 
     /**
@@ -110,9 +126,7 @@ public abstract class RowMapper {
      * @return The columns contained in the specified columns.
      */
     public final Columns columns(Row row) {
-
         return columns(row.key, row.cf);
-
     }
 
     /**
