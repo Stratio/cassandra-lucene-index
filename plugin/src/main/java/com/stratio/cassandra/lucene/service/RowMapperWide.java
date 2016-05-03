@@ -18,40 +18,24 @@
 
 package com.stratio.cassandra.lucene.service;
 
-import static org.apache.lucene.search.BooleanClause.Occur.FILTER;
-import static org.apache.lucene.search.BooleanClause.Occur.SHOULD;
+import java.nio.*;
+import java.util.*;
 
-import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import org.apache.cassandra.db.*;
+import org.apache.cassandra.db.composites.*;
+import org.apache.cassandra.db.filter.*;
+import org.apache.cassandra.dht.*;
+import org.apache.cassandra.utils.*;
+import org.apache.lucene.document.*;
+import org.apache.lucene.index.*;
+import org.apache.lucene.search.*;
 
-import org.apache.cassandra.db.ColumnFamily;
-import org.apache.cassandra.db.DataRange;
-import org.apache.cassandra.db.DecoratedKey;
-import org.apache.cassandra.db.RangeTombstone;
-import org.apache.cassandra.db.Row;
-import org.apache.cassandra.db.RowPosition;
-import org.apache.cassandra.db.composites.CellName;
-import org.apache.cassandra.db.composites.Composite;
-import org.apache.cassandra.db.filter.ColumnSlice;
-import org.apache.cassandra.db.filter.SliceQueryFilter;
-import org.apache.cassandra.dht.Token;
-import org.apache.cassandra.utils.ByteBufferUtil;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.index.Term;
-import org.apache.lucene.search.BooleanClause;
-import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.SortField;
-import org.apache.lucene.search.TermQuery;
+import com.google.common.collect.*;
+import com.stratio.cassandra.lucene.*;
+import com.stratio.cassandra.lucene.key.*;
+import com.stratio.cassandra.lucene.schema.column.*;
 
-import com.google.common.collect.Ordering;
-import com.stratio.cassandra.lucene.IndexConfig;
-import com.stratio.cassandra.lucene.key.KeyMapper;
-import com.stratio.cassandra.lucene.schema.column.Columns;
+import static org.apache.lucene.search.BooleanClause.Occur.*;
 
 /**
  * {@link RowMapper} for wide rows.
@@ -103,7 +87,7 @@ public class RowMapperWide extends RowMapper {
 
     /** {@inheritDoc} */
     @Override
-    public List<SortField> sortFields() {
+    public List<SortField> keySortFields() {
         return Arrays.asList( tokenMapper.sortField(),keyMapper.sortField());
     }
 

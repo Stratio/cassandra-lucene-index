@@ -85,7 +85,7 @@ public class RowMapperSkinny extends RowMapper {
 
     /** {@inheritDoc} */
     @Override
-    public List<SortField> sortFields() {
+    public List<SortField> keySortFields() {
         return Arrays.asList(tokenMapper.sortField(), partitionMapper.sortField());
     }
 

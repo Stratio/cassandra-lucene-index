@@ -68,7 +68,7 @@ public class LuceneIndex implements LuceneIndexMBean {
      * @param config The {@link IndexConfig}.
      * @throws IOException If Lucene throws IO errors.
      */
-    public LuceneIndex(IndexConfig config) throws IOException {
+    public LuceneIndex(IndexConfig config, Sort mergeSort) throws IOException {
         this.path = config.getPath();
         this.name = config.getName();
 
@@ -76,12 +76,15 @@ public class LuceneIndex implements LuceneIndexMBean {
         FSDirectory fsDirectory = FSDirectory.open(path);
         directory = new NRTCachingDirectory(fsDirectory, config.getMaxMergeMB(), config.getMaxCachedMB());
 
+        TieredMergePolicy tieredMergePolicy = new TieredMergePolicy();
+        SortingMergePolicy sortingMergePolicy = new SortingMergePolicy(tieredMergePolicy, mergeSort);
+
         // Setup index writer
         IndexWriterConfig indexWriterConfig = new IndexWriterConfig(config.getAnalyzer());
         indexWriterConfig.setRAMBufferSizeMB(config.getRamBufferMB());
         indexWriterConfig.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
         indexWriterConfig.setUseCompoundFile(true);
-        indexWriterConfig.setMergePolicy(new TieredMergePolicy());
+        indexWriterConfig.setMergePolicy(sortingMergePolicy);
         indexWriter = new IndexWriter(directory, indexWriterConfig);
 
         // Setup NRT search

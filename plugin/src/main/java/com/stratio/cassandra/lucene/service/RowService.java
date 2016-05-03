@@ -18,10 +18,6 @@
 
 package com.stratio.cassandra.lucene.service;
 
-import static java.lang.Math.*;
-import static org.apache.lucene.search.BooleanClause.Occur.*;
-import static org.apache.lucene.search.SortField.*;
-
 import java.io.*;
 import java.nio.*;
 import java.util.*;
@@ -43,6 +39,10 @@ import com.stratio.cassandra.lucene.schema.column.*;
 import com.stratio.cassandra.lucene.search.*;
 import com.stratio.cassandra.lucene.util.TaskQueue;
 import com.stratio.cassandra.lucene.util.*;
+
+import static java.lang.Math.*;
+import static org.apache.lucene.search.BooleanClause.Occur.*;
+import static org.apache.lucene.search.SortField.*;
 
 
 
@@ -83,10 +83,9 @@ public abstract class RowService {
         baseCfs = cfs;
         metadata = config.getMetadata();
         schema = config.getSchema();
-        lucene = new LuceneIndex(config);
         mapper = RowMapper.build(config);
-        keySortFields = mapper.sortFields();
-
+        keySortFields = mapper.keySortFields();
+        lucene = new LuceneIndex(config,new Sort(keySortFields.toArray(new SortField[keySortFields.size()])));
         int threads = config.getIndexingThreads();
         indexQueue = threads > 0 ? new TaskQueue(threads, config.getIndexingQueuesSize()) : null;
     }
