@@ -18,19 +18,19 @@
 
 package com.stratio.cassandra.lucene.search.sort;
 
-import com.google.common.base.Objects;
-import com.spatial4j.core.distance.DistanceUtils;
-import com.spatial4j.core.shape.Point;
-import com.stratio.cassandra.lucene.IndexException;
-import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.column.Columns;
-import com.stratio.cassandra.lucene.schema.mapping.GeoPointMapper;
-import com.stratio.cassandra.lucene.schema.mapping.Mapper;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.lucene.queries.function.ValueSource;
-import org.apache.lucene.spatial.SpatialStrategy;
+import java.util.*;
 
-import java.util.Comparator;
+import org.apache.commons.lang3.*;
+import org.apache.lucene.queries.function.*;
+import org.apache.lucene.spatial.*;
+
+import com.google.common.base.Objects;
+import com.spatial4j.core.distance.*;
+import com.spatial4j.core.shape.*;
+import com.stratio.cassandra.lucene.*;
+import com.stratio.cassandra.lucene.schema.*;
+import com.stratio.cassandra.lucene.schema.column.*;
+import com.stratio.cassandra.lucene.schema.mapping.*;
 
 /**
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
@@ -96,7 +96,7 @@ public class GeoDistanceSortField extends SortField {
     public org.apache.lucene.search.SortField sortField(Schema schema) {
         final Mapper mapper = schema.getMapper(this.mapper);
         if (mapper == null) {
-            throw new IndexException("No mapper found for keySortFields mapper '%s'", mapper);
+            throw new IndexException("No mapper found for sortFields mapper '%s'", mapper);
         } else if (!mapper.sorted) {
             throw new IndexException("Mapper '%s' is not sorted", mapper.field);
         } else if (!(mapper instanceof GeoPointMapper)) {

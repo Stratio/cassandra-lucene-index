@@ -18,25 +18,24 @@
 
 package com.stratio.cassandra.lucene.search.sort;
 
+import static org.apache.lucene.search.SortField.*;
+
+import java.util.*;
+
+import org.apache.commons.lang3.*;
+
 import com.google.common.base.Objects;
-import com.stratio.cassandra.lucene.IndexException;
-import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.column.Column;
-import com.stratio.cassandra.lucene.schema.column.Columns;
-import com.stratio.cassandra.lucene.schema.mapping.Mapper;
-import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
-import org.apache.commons.lang3.StringUtils;
-
-import java.util.Comparator;
-
-import static org.apache.lucene.search.SortField.FIELD_SCORE;
+import com.stratio.cassandra.lucene.*;
+import com.stratio.cassandra.lucene.schema.*;
+import com.stratio.cassandra.lucene.schema.column.*;
+import com.stratio.cassandra.lucene.schema.mapping.*;
 
 /**
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
 public class SimpleSortField extends SortField {
 
-    /** The name of field to keySortFields by. */
+    /** The name of field to sortFields by. */
     public final String field;
 
     /**
@@ -77,7 +76,7 @@ public class SimpleSortField extends SortField {
         }
         Mapper mapper = schema.getMapper(field);
         if (mapper == null) {
-            throw new IndexException("No mapper found for keySortFields field '%s'", field);
+            throw new IndexException("No mapper found for sortFields field '%s'", field);
         } else if (!mapper.sorted) {
             throw new IndexException("Mapper '%s' is not sorted", mapper.field);
         } else {

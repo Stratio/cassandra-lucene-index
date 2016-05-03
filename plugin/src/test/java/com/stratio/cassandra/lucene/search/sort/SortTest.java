@@ -18,20 +18,16 @@
 
 package com.stratio.cassandra.lucene.search.sort;
 
-import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.column.Column;
-import com.stratio.cassandra.lucene.schema.column.Columns;
-import org.apache.cassandra.db.marshal.UTF8Type;
-import org.junit.Test;
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
+import static org.junit.Assert.*;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
-import static com.stratio.cassandra.lucene.schema.SchemaBuilders.schema;
-import static com.stratio.cassandra.lucene.schema.SchemaBuilders.stringMapper;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import org.apache.cassandra.db.marshal.*;
+import org.junit.*;
+
+import com.stratio.cassandra.lucene.schema.*;
+import com.stratio.cassandra.lucene.schema.column.*;
 
 /**
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
@@ -84,7 +80,7 @@ public class SortTest {
         int numElems = 0;
         for (SortField sortF : sort) {
             numElems += 1;
-            assertFalse("Sort iterator not returning all the keySortFields",
+            assertFalse("Sort iterator not returning all the sortFields",
                         !sortF.equals(sortField) && !sortF.equals(sortField2) && !sortF.equals(sortField3));
         }
         assertEquals("Sort build with 3 elements iterator must return 3 elems", numElems, 3);
