@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.5.0 (Upcoming)
+## 3.5.0 (3 May 2016)
 
 * Upgrade to Apache Cassandra 3.5
 
