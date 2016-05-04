@@ -1,13 +1,11 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Copyright (C) 2014 Stratio (http://stratio.com)
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,46 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.cassandra.service;
 
-import com.stratio.cassandra.lucene.IndexSearcher;
-import com.stratio.cassandra.lucene.service.RowKey;
-import com.stratio.cassandra.lucene.service.RowKeys;
-import com.stratio.cassandra.lucene.service.RowMapper;
-import org.apache.cassandra.concurrent.Stage;
-import org.apache.cassandra.concurrent.StageManager;
-import org.apache.cassandra.config.DatabaseDescriptor;
-import org.apache.cassandra.cql3.Operator;
+import java.lang.reflect.*;
+import java.net.*;
+import java.util.*;
+import java.util.concurrent.*;
+
+import org.apache.cassandra.concurrent.*;
+import org.apache.cassandra.config.*;
+import org.apache.cassandra.cql3.*;
 import org.apache.cassandra.db.*;
-import org.apache.cassandra.db.filter.IDiskAtomFilter;
-import org.apache.cassandra.db.filter.SliceQueryFilter;
-import org.apache.cassandra.db.index.SecondaryIndex;
-import org.apache.cassandra.db.index.SecondaryIndexSearcher;
-import org.apache.cassandra.dht.AbstractBounds;
-import org.apache.cassandra.dht.RingPosition;
-import org.apache.cassandra.exceptions.ReadTimeoutException;
-import org.apache.cassandra.locator.LocalStrategy;
-import org.apache.cassandra.metrics.ClientRequestMetrics;
-import org.apache.cassandra.net.AsyncOneResponse;
-import org.apache.cassandra.net.MessageOut;
-import org.apache.cassandra.net.MessagingService;
-import org.apache.cassandra.tracing.Tracing;
-import org.apache.cassandra.utils.FBUtilities;
-import org.apache.cassandra.utils.Pair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.cassandra.db.filter.*;
+import org.apache.cassandra.db.index.*;
+import org.apache.cassandra.dht.*;
+import org.apache.cassandra.exceptions.*;
+import org.apache.cassandra.locator.*;
+import org.apache.cassandra.metrics.*;
+import org.apache.cassandra.net.*;
+import org.apache.cassandra.tracing.*;
+import org.apache.cassandra.utils.*;
+import org.slf4j.*;
 
-import java.lang.reflect.Method;
-import java.net.InetAddress;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import com.stratio.cassandra.lucene.*;
+import com.stratio.cassandra.lucene.service.*;
 
-import static org.apache.cassandra.service.StorageProxy.LocalRangeSliceRunnable;
+import static org.apache.cassandra.service.StorageProxy.*;
 
 @SuppressWarnings("unchecked")
 public class LuceneStorageProxy {

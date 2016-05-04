@@ -1,55 +1,39 @@
 /*
- * Licensed to STRATIO (C) under one or more contributor license agreements.
- * See the NOTICE file distributed with this work for additional information
- * regarding copyright ownership.  The STRATIO (C) licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+ * Copyright (C) 2014 Stratio (http://stratio.com)
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
-
 package com.stratio.cassandra.lucene;
 
-import com.stratio.cassandra.lucene.service.RowKeys;
-import com.stratio.cassandra.lucene.service.RowMapper;
-import com.stratio.cassandra.lucene.util.ByteBufferUtils;
-import com.stratio.cassandra.lucene.util.TimeCounter;
-import org.apache.cassandra.cql3.*;
-import org.apache.cassandra.cql3.statements.BatchStatement;
-import org.apache.cassandra.cql3.statements.ParsedStatement;
-import org.apache.cassandra.cql3.statements.SelectStatement;
-import org.apache.cassandra.db.*;
-import org.apache.cassandra.db.filter.IDiskAtomFilter;
-import org.apache.cassandra.db.index.SecondaryIndexManager;
-import org.apache.cassandra.db.index.SecondaryIndexSearcher;
-import org.apache.cassandra.dht.AbstractBounds;
-import org.apache.cassandra.exceptions.InvalidRequestException;
-import org.apache.cassandra.exceptions.RequestExecutionException;
-import org.apache.cassandra.exceptions.RequestValidationException;
-import org.apache.cassandra.service.ClientState;
-import org.apache.cassandra.service.LuceneStorageProxy;
-import org.apache.cassandra.service.QueryState;
-import org.apache.cassandra.service.pager.PagingState;
-import org.apache.cassandra.transport.messages.ResultMessage;
-import org.apache.cassandra.utils.MD5Digest;
-import org.apache.cassandra.utils.Pair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.lang.reflect.*;
+import java.nio.*;
+import java.util.*;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.List;
+import org.apache.cassandra.cql3.*;
+import org.apache.cassandra.cql3.statements.*;
+import org.apache.cassandra.db.*;
+import org.apache.cassandra.db.filter.*;
+import org.apache.cassandra.db.index.*;
+import org.apache.cassandra.dht.*;
+import org.apache.cassandra.exceptions.*;
+import org.apache.cassandra.service.*;
+import org.apache.cassandra.service.pager.*;
+import org.apache.cassandra.transport.messages.*;
+import org.apache.cassandra.utils.*;
+import org.slf4j.*;
+
+import com.stratio.cassandra.lucene.service.*;
+import com.stratio.cassandra.lucene.util.*;
 
 /**
  * Abstract {@link QueryHandler} to be used with Lucene searches.
