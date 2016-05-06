@@ -62,11 +62,7 @@ public class DocumentIterator implements CloseableIterator<Pair<Document, ScoreD
         this.query = query;
         this.sort = sort;
         this.after = after;
-        if (page > MAX_PAGE_SIZE) {
-            this.page = MAX_PAGE_SIZE;
-        } else {
-            this.page = page + 1;
-        }
+        this.page = Math.min(page + 1, MAX_PAGE_SIZE);
     }
 
     private void fetch() {
