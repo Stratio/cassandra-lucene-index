@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.5.1 (Upcoming)
+
+* Fix invalid WKT shapes by zero-buffering them
+* Fix memory consumption issues with high fetch sizes
+
 ## 3.0.5.0 (22 April 2016)
 
 * Upgrade to Apache Cassandra 3.0.5
