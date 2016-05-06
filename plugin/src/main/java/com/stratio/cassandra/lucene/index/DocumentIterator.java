@@ -37,6 +37,12 @@ public class DocumentIterator implements CloseableIterator<Pair<Document, ScoreD
 
     private static final Logger logger = LoggerFactory.getLogger(DocumentIterator.class);
 
+    /** The min number of rows to be read per iteration. */
+    private static final int MIN_PAGE_SIZE = 100;
+    /** The max number of rows to be read per iteration. */
+    private static final int MAX_PAGE_SIZE = 10000;
+
+
     private final FSIndex index;
     private final Query query;
     private final Integer page;
@@ -59,7 +65,11 @@ public class DocumentIterator implements CloseableIterator<Pair<Document, ScoreD
         this.query = query;
         this.sort = sort;
         this.after = after;
-        this.page = page < Integer.MAX_VALUE ? page + 1 : page;
+        if (page > MAX_PAGE_SIZE) {
+            this.page=MAX_PAGE_SIZE;
+        } else {
+            this.page=page+1;
+        }
     }
 
     private void fetch() {
