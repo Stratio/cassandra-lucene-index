@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.5.1 (Upcoming)
+
+* Fix invalid WKT shapes by zero-buffering them
+
 ## 3.5.0 (3 May 2016)
 
 * Upgrade to Apache Cassandra 3.5

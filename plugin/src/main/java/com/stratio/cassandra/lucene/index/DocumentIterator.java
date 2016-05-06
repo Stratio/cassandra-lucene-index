@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2014 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -37,6 +37,9 @@ public class DocumentIterator implements CloseableIterator<Pair<Document, ScoreD
 
     private static final Logger logger = LoggerFactory.getLogger(DocumentIterator.class);
 
+    /** The max number of rows to be read per iteration. */
+    private static final int MAX_PAGE_SIZE = 10000;
+
     private final FSIndex index;
     private final Query query;
     private final Integer page;
@@ -59,7 +62,7 @@ public class DocumentIterator implements CloseableIterator<Pair<Document, ScoreD
         this.query = query;
         this.sort = sort;
         this.after = after;
-        this.page = page < Integer.MAX_VALUE ? page + 1 : page;
+        this.page = Math.min(page, MAX_PAGE_SIZE) + 1;
     }
 
     private void fetch() {

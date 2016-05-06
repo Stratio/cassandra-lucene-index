@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2014 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -51,6 +51,9 @@ public class GeospatialUtilsJTS extends GeospatialUtils {
             GeometryFactory geometryFactory = context.getGeometryFactory();
             WKTReader reader = new WKTReader(geometryFactory);
             Geometry geometry = reader.read(string);
+            if (!geometry.isValid()) {
+                geometry = geometry.buffer(0);
+            }
             return context.makeShape(geometry);
         } catch (ParseException | IllegalArgumentException e) {
             throw new IndexException(e, "Shape '%s' is not parseable", string);

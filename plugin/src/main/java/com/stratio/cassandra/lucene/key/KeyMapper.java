@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2014 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -41,7 +41,6 @@ import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.util.BytesRef;
 
 import java.nio.ByteBuffer;
-import java.util.NavigableSet;
 import java.util.Optional;
 
 import static org.apache.lucene.search.BooleanClause.Occur.SHOULD;
@@ -307,17 +306,27 @@ public final class KeyMapper {
     }
 
     /**
+     * Returns a Lucene {@link Query} to retrieve all the rows in the specified clustering slice.
+     *
+     * @param key the partition key
+     * @param slice the slice
+     * @return the Lucene query
+     */
+    public Query query(DecoratedKey key, Slice slice) {
+        return query(key, slice.start(), slice.end(), false, false);
+    }
+
+    /**
      * Returns a Lucene {@link Query} to retrieve all the rows in the specified clustering slice filter.
      *
      * @param key the partition key
      * @param sliceFilter the slice filter
      * @return the Lucene query
      */
-    public Optional<Query> query(DecoratedKey key, ClusteringIndexSliceFilter sliceFilter) {
-        Slices slices = sliceFilter.requestedSlices();
-        ClusteringPrefix startBound = slices.get(0).start();
-        ClusteringPrefix stopBound = slices.get(slices.size() - 1).end();
-        return Optional.of(query(key, startBound, stopBound, false, false));
+    public Query query(DecoratedKey key, ClusteringIndexSliceFilter sliceFilter) {
+        BooleanQuery.Builder builder = new BooleanQuery.Builder();
+        sliceFilter.requestedSlices().forEach(slice -> builder.add(query(key, slice), SHOULD));
+        return builder.build();
     }
 
     /**
@@ -327,16 +336,10 @@ public final class KeyMapper {
      * @param namesFilter the names filter
      * @return the Lucene query
      */
-    public Optional<Query> query(DecoratedKey key, ClusteringIndexNamesFilter namesFilter) {
-        NavigableSet<Clustering> clusterings = namesFilter.requestedRows();
-        if (!clusterings.isEmpty()) {
-            BooleanQuery.Builder builder = new BooleanQuery.Builder();
-            for (Clustering clustering : clusterings) {
-                builder.add(query(key, clustering), SHOULD);
-            }
-            return Optional.of(builder.build());
-        }
-        return Optional.empty();
+    public Query query(DecoratedKey key, ClusteringIndexNamesFilter namesFilter) {
+        BooleanQuery.Builder builder = new BooleanQuery.Builder();
+        namesFilter.requestedRows().forEach(clustering -> builder.add(query(key, clustering), SHOULD));
+        return builder.build();
     }
 
     /**
@@ -346,7 +349,7 @@ public final class KeyMapper {
      * @param filter the clustering filter
      * @return the Lucene query
      */
-    public Optional<Query> query(DecoratedKey key, ClusteringIndexFilter filter) {
+    public Query query(DecoratedKey key, ClusteringIndexFilter filter) {
         if (filter instanceof ClusteringIndexNamesFilter) {
             return query(key, (ClusteringIndexNamesFilter) filter);
         } else if (filter instanceof ClusteringIndexSliceFilter) {

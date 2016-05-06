@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2014 Stratio (http://stratio.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -144,7 +144,7 @@ class IndexServiceWide extends IndexService {
 
     /** {@inheritDoc} */
     @Override
-    public Optional<Query> query(DecoratedKey key, ClusteringIndexFilter filter) {
+    public Query query(DecoratedKey key, ClusteringIndexFilter filter) {
         return keyMapper.query(key, filter);
     }
 
