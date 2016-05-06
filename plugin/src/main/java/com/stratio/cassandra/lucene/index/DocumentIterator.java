@@ -42,7 +42,6 @@ public class DocumentIterator implements CloseableIterator<Pair<Document, ScoreD
     /** The max number of rows to be read per iteration. */
     private static final int MAX_PAGE_SIZE = 10000;
 
-
     private final FSIndex index;
     private final Query query;
     private final Integer page;
@@ -66,9 +65,9 @@ public class DocumentIterator implements CloseableIterator<Pair<Document, ScoreD
         this.sort = sort;
         this.after = after;
         if (page > MAX_PAGE_SIZE) {
-            this.page=MAX_PAGE_SIZE;
+            this.page = MAX_PAGE_SIZE;
         } else {
-            this.page=page+1;
+            this.page = page + 1;
         }
     }
 
