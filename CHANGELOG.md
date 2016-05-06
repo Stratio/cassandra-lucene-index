@@ -3,6 +3,7 @@
 ## 3.5.1 (Upcoming)
 
 * Fix invalid WKT shapes by zero-buffering them
+* Fix memory consumption issues with high fetch sizes
 
 ## 3.5.0 (3 May 2016)
 
