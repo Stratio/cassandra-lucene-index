@@ -26,6 +26,7 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({@JsonSubTypes.Type(value = GeoTransformation.Buffer.class, name = "buffer"),
                @JsonSubTypes.Type(value = GeoTransformation.Centroid.class, name = "centroid"),
+               @JsonSubTypes.Type(value = GeoTransformation.ConvexHull.class, name = "convex_hull"),
                @JsonSubTypes.Type(value = GeoTransformation.Difference.class, name = "difference"),
                @JsonSubTypes.Type(value = GeoTransformation.Intersection.class, name = "intersection"),
                @JsonSubTypes.Type(value = GeoTransformation.Union.class, name = "union")})
@@ -71,6 +72,13 @@ public abstract class GeoTransformation extends Builder {
      * {@link GeoTransformation} that gets the center point of a JTS geographical shape.
      */
     public static class Centroid extends GeoTransformation {
+
+    }
+
+    /**
+     * {@link GeoTransformation} that gets the convex hull of a JTS geographical shape.
+     */
+    public static class ConvexHull extends GeoTransformation {
 
     }
 
