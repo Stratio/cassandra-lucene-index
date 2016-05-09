@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2014 Stratio (http://stratio.com)
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,24 +15,18 @@
  */
 package com.stratio.cassandra.lucene.key;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.List;
+import org.apache.cassandra.db.*;
+import org.apache.cassandra.db.composites.*;
+import org.apache.cassandra.dht.*;
+import org.apache.commons.lang3.builder.*;
+import org.apache.lucene.index.*;
+import org.apache.lucene.search.*;
+import org.apache.lucene.util.*;
+import org.slf4j.*;
 
-import org.apache.cassandra.db.DecoratedKey;
-import org.apache.cassandra.db.composites.CellNameType;
-import org.apache.cassandra.db.composites.Composite;
-import org.apache.cassandra.dht.Token;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.lucene.index.FilteredTermsEnum;
-import org.apache.lucene.index.Terms;
-import org.apache.lucene.index.TermsEnum;
-import org.apache.lucene.search.MultiTermQuery;
-import org.apache.lucene.util.AttributeSource;
-import org.apache.lucene.util.BytesRef;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.*;
+import java.nio.*;
+import java.util.*;
 
 /**
  * {@link MultiTermQuery} to get a range of clustering keys.

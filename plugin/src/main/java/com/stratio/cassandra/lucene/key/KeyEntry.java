@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2014 Stratio (http://stratio.com)
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,15 +15,13 @@
  */
 package com.stratio.cassandra.lucene.key;
 
-import java.nio.ByteBuffer;
-import java.util.Arrays;
+import org.apache.cassandra.config.*;
+import org.apache.cassandra.db.*;
+import org.apache.cassandra.db.composites.*;
+import org.apache.cassandra.dht.*;
 
-import org.apache.cassandra.config.DatabaseDescriptor;
-import org.apache.cassandra.db.DecoratedKey;
-import org.apache.cassandra.db.composites.CBuilder;
-import org.apache.cassandra.db.composites.Composite;
-import org.apache.cassandra.dht.Murmur3Partitioner;
-import org.apache.cassandra.dht.Token;
+import java.nio.*;
+import java.util.*;
 
 /**
  * Class representing a Cassandra's wide table primary key. This is composed by token, partition key and clustering
