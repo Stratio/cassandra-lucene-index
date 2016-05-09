@@ -479,7 +479,7 @@ public abstract class Builder {
     /**
      * Returns a new {@link GeoTransformation.Buffer}.
      *
-     * @return the buffer transformation
+     * @return a new buffer transformation
      */
     public static GeoTransformation.Buffer bufferGeoTransformation() {
         return new GeoTransformation.Buffer();
@@ -488,10 +488,19 @@ public abstract class Builder {
     /**
      * Returns a new {@link GeoTransformation.Centroid}.
      *
-     * @return the buffer transformation
+     * @return a new centroid transformation
      */
     public static GeoTransformation.Centroid centroidGeoTransformation() {
         return new GeoTransformation.Centroid();
+    }
+
+    /**
+     * Returns a new {@link GeoTransformation.Centroid}.
+     *
+     * @return a new convex hull transformation
+     */
+    public static GeoTransformation.ConvexHull convexHullGeoTransformation() {
+        return new GeoTransformation.ConvexHull();
     }
 
     /**

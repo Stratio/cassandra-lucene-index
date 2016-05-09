@@ -54,6 +54,7 @@ Stratio's Cassandra Lucene Index
     - `Transformations <#tranformations>`__
         - `Buffer <#buffer>`__
         - `Centroid <#centroid>`__
+        - `Convex hull <#convex-hull>`__
         - `Difference <#difference>`__
         - `Intersection <#intersection>`__
         - `Union <#intersection>`__
@@ -129,7 +130,7 @@ Stratio’s Cassandra Lucene Index and its integration with Lucene search techno
 
 -  Full text search (language-aware analysis, wildcard, fuzzy, regexp)
 -  Geospatial indexing (points, lines, polygons and their multiparts)
--  Geospatial transformations (union, difference, intersection, buffer, centroid)
+-  Geospatial transformations (union, difference, intersection, buffer, centroid, convex hull)
 -  Geospatial operations (intersects, contains, is within)
 -  Bitemporal search (valid and transaction time durations)
 -  Boolean search (and, or, not)
@@ -3155,6 +3156,37 @@ contained in the indexed column:
                     type            : "geo_shape",
                     max_levels      : 15,
                     transformations : [{type:"centroid"}]
+                }
+            }
+        }'
+    };
+
+Convex hull
+___________
+
+Convex hull transformation returns the `convex envelope <https://en.wikipedia.org/wiki/Convex_hull>`__ of a shape.
+
+**Syntax:**
+
+.. code-block:: sql
+
+    { type : "convex_hull" }
+
+**Example:** The following `geo shape mapper <#geo-shape-mapper>`__ will index only the convex hull of the WKT shape
+contained in the indexed column:
+
+.. code-block:: sql
+
+    CREATE CUSTOM INDEX cities_index on cities()
+    USING 'com.stratio.cassandra.lucene.Index'
+    WITH OPTIONS = {
+        'refresh_seconds' : '1',
+        'schema' : '{
+            fields : {
+                shape : {
+                    type            : "geo_shape",
+                    max_levels      : 15,
+                    transformations : [{type:"convex_hull"}]
                 }
             }
         }'

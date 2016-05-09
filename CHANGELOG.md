@@ -3,6 +3,8 @@
 ## 2.2.5.4 (upcoming)
 
 * Add sorting merge policy (dramatically improves filter performance)
+* Add transformation for getting the convex hull of a geographical shape
+* Fix invalid WKT shapes by zero-buffering them
 * Remove support for other partitioners than Murmur3
 
 ## 2.2.5.3 (31 March 2016)
