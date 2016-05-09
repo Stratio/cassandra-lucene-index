@@ -1,47 +1,35 @@
-/*
- * Licensed to STRATIO (C) under one or more contributor license agreements.
- * See the NOTICE file distributed with this work for additional information
- * regarding copyright ownership.  The STRATIO (C) licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
+/**
+ * Copyright (C) 2014 Stratio (http://stratio.com)
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
+package com.stratio.cassandra.lucene.key;
 
-package com.stratio.cassandra.lucene.service;
-
-import com.stratio.cassandra.lucene.IndexException;
-import com.stratio.cassandra.lucene.key.TokenMapper;
-import org.apache.cassandra.config.CFMetaData;
-import org.apache.cassandra.config.Config;
-import org.apache.cassandra.config.DatabaseDescriptor;
-import org.apache.cassandra.db.ArrayBackedSortedColumns;
-import org.apache.cassandra.db.DecoratedKey;
-import org.apache.cassandra.db.Row;
-import org.apache.cassandra.db.RowPosition;
-import org.apache.cassandra.db.marshal.UTF8Type;
+import org.apache.cassandra.config.*;
+import org.apache.cassandra.db.*;
+import org.apache.cassandra.db.marshal.*;
 import org.apache.cassandra.dht.*;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.index.IndexableField;
-import org.apache.lucene.search.DocValuesRangeQuery;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.SortField;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.mockito.Mockito;
+import org.apache.lucene.document.*;
+import org.apache.lucene.index.*;
+import org.apache.lucene.search.*;
+import org.junit.*;
+import org.mockito.*;
 
-import java.util.Comparator;
+import com.stratio.cassandra.lucene.*;
 
+import java.util.*;
 import static junit.framework.Assert.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 
 /**
@@ -54,6 +42,11 @@ public class TokenMapperTest {
     private static final Murmur3Partitioner partitioner = new Murmur3Partitioner();
     private static TokenMapper mapper;
 
+    private void setMurmur3Partitioneer() {
+        Config.setClientMode(true);
+        DatabaseDescriptor.setPartitioner(partitioner);
+        mapper= new TokenMapper();
+    }
     @BeforeClass
     public static void beforeClass() {
         Config.setClientMode(true);
@@ -115,6 +108,7 @@ public class TokenMapperTest {
 
     @Test
     public void testQueryRangeNullLower() {
+        setMurmur3Partitioneer();
         Token token = partitioner.getMinimumToken();
         Query query = mapper.query(null, token, false, true);
         assertNotNull("Query should be not null", query);
@@ -123,6 +117,7 @@ public class TokenMapperTest {
 
     @Test
     public void testQueryRangeNullUpper() {
+        setMurmur3Partitioneer();
         Token token = partitioner.getMinimumToken();
         Query query = mapper.query(token, null, false, true);
         assertNotNull("Query should be not null", query);
@@ -131,6 +126,7 @@ public class TokenMapperTest {
 
     @Test
     public void testQueryRangeNullBoth() {
+        setMurmur3Partitioneer();
         Query query = mapper.query(null, null, false, true);
         assertNotNull("Query should be not null", query);
         assertEquals("Query must be delegated", DocValuesRangeQuery.class, query.getClass());
@@ -138,6 +134,7 @@ public class TokenMapperTest {
 
     @Test
     public void testQueryRangeMinimumLower() {
+        setMurmur3Partitioneer();
         Token token1 = partitioner.getMinimumToken();
         Token token2 = token("key2");
         Query query = mapper.query(token1, token2, true, false);
@@ -147,6 +144,7 @@ public class TokenMapperTest {
 
     @Test
     public void testQueryRangeMinimumUpper() {
+        setMurmur3Partitioneer();
         Token token1 = token("key1");
         Token token2 = partitioner.getMinimumToken();
         Query query = mapper.query(token1, token2, false, true);
@@ -156,6 +154,7 @@ public class TokenMapperTest {
 
     @Test
     public void testQueryRangeMinimumBoth() {
+        setMurmur3Partitioneer();
         Token token1 = partitioner.getMinimumToken();
         Token token2 = partitioner.getMinimumToken();
         Query query = mapper.query(token1, token2, false, true);
@@ -164,6 +163,7 @@ public class TokenMapperTest {
 
     @Test
     public void testQueryRangeMinimumBothIncluded() {
+        setMurmur3Partitioneer();
         Token token1 = partitioner.getMinimumToken();
         Token token2 = partitioner.getMinimumToken();
         Query query = mapper.query(token1, token2, true, true);
@@ -172,6 +172,7 @@ public class TokenMapperTest {
 
     @Test
     public void testQueryRangeMinimumNotIncluded() {
+        setMurmur3Partitioneer();
         Token token1 = partitioner.getMinimumToken();
         Token token2 = partitioner.getMinimumToken();
         Query query = mapper.query(token1, token2, false, false);
@@ -213,6 +214,7 @@ public class TokenMapperTest {
 
     @Test
     public void testAddFields() {
+        setMurmur3Partitioneer();
         DecoratedKey key = partitioner.decorateKey(UTF8Type.instance.decompose("key"));
         Document document = new Document();
         mapper.addFields(document, key);
@@ -223,12 +225,14 @@ public class TokenMapperTest {
 
     @Test
     public void testSortFields() {
+        setMurmur3Partitioneer();
         SortField sortField = mapper.sortField();
         assertNotNull("Sort fields should be not null", sortField);
     }
 
     @Test
     public void testQueryToken() {
+        setMurmur3Partitioneer();
         Token token = token("key");
         Query query = mapper.query(token);
         assertNotNull("Query should be not null", query);
@@ -239,6 +243,7 @@ public class TokenMapperTest {
 
     @Test
     public void testQueryRange() {
+        setMurmur3Partitioneer();
         Token token1 = token("key1");
         Token token2 = token("key2");
         Query query = mapper.query(token1, token2, true, false);
