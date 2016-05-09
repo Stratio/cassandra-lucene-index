@@ -18,7 +18,9 @@ package com.stratio.cassandra.lucene.service;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
 
 import javax.management.MBeanException;
 import javax.management.ObjectName;
@@ -26,9 +28,27 @@ import javax.management.OperationsException;
 
 import org.apache.cassandra.io.util.FileUtils;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.index.*;
-import org.apache.lucene.search.*;
-import org.apache.lucene.store.*;
+import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.index.SortingMergePolicy;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.index.TieredMergePolicy;
+import org.apache.lucene.index.TrackingIndexWriter;
+import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.ControlledRealTimeReopenThread;
+import org.apache.lucene.search.EarlyTerminatingSortingCollector;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.SearcherFactory;
+import org.apache.lucene.search.SearcherManager;
+import org.apache.lucene.search.Sort;
+import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.search.TopFieldCollector;
+import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.store.NRTCachingDirectory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +67,7 @@ public class LuceneIndex implements LuceneIndexMBean {
 
     private final Path path;
     private final String name;
-
+    private final Sort mergeSort;
     private final Directory directory;
     private final IndexWriter indexWriter;
     private final SearcherManager searcherManager;
@@ -68,7 +88,7 @@ public class LuceneIndex implements LuceneIndexMBean {
     public LuceneIndex(IndexConfig config, Sort mergeSort) throws IOException {
         this.path = config.getPath();
         this.name = config.getName();
-
+        this.mergeSort=mergeSort;
         // Open or create directory
         FSDirectory fsDirectory = FSDirectory.open(path);
         directory = new NRTCachingDirectory(fsDirectory, config.getMaxMergeMB(), config.getMaxCachedMB());
@@ -242,16 +262,20 @@ public class LuceneIndex implements LuceneIndexMBean {
 
         logger.debug("lucene search with indexSearcher: {}, query: {}, sort: {} after, {}, count {},fields {} ",searcher,query,sort,after,count,fields);
         // Search for top documents
-        TopDocs topDocs = searcher.searchAfter(after, query, count, sort);
-        ScoreDoc[] scoreDocs = topDocs.scoreDocs;
+        TopDocs topDocs;
+        if (after == null && EarlyTerminatingSortingCollector.canEarlyTerminate(sort, mergeSort)) {
+            TopFieldCollector collector = TopFieldCollector.create(sort, count, null, true, false, false);
+            searcher.search(query, new EarlyTerminatingSortingCollector(collector, sort, count, mergeSort));
+            topDocs = collector.topDocs();
+        } else {
+            topDocs = searcher.searchAfter(after, query, count, sort.rewrite(searcher));
+        }
 
-        // Collect the documents from query result
         LinkedHashMap<Document, ScoreDoc> searchResults = new LinkedHashMap<>();
-        for (ScoreDoc scoreDoc : scoreDocs) {
+        for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
             Document document = searcher.doc(scoreDoc.doc, fields);
             searchResults.put(document, scoreDoc);
         }
-
         return searchResults;
     }
 
