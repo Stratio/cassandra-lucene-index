@@ -15,17 +15,16 @@
  */
 package com.stratio.cassandra.lucene.index;
 
+import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.util.TimeCounter;
 import org.apache.cassandra.utils.CloseableIterator;
 import org.apache.cassandra.utils.Pair;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.Sort;
+import org.apache.lucene.search.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -40,42 +39,77 @@ public class DocumentIterator implements CloseableIterator<Pair<Document, ScoreD
     /** The max number of rows to be read per iteration. */
     private static final int MAX_PAGE_SIZE = 10000;
 
-    private final FSIndex index;
+    private final SearcherManager manager;
     private final Query query;
-    private final Integer page;
+    private final int page;
     private final Deque<Pair<Document, ScoreDoc>> documents = new LinkedList<>();
-    private final Sort sort;
-    private ScoreDoc after;
-    private boolean mayHaveMore = true;
+    private final Sort sort, mergeSort;
+    private final Set<String> fields;
+    private ScoreDoc after = null;
+    private boolean finished = false;
+    private IndexSearcher searcher;
+    private int numRead = 0;
 
     /**
      * Builds a new iterator over the {@link Document}s satisfying the specified {@link Query}.
      *
-     * @param index the Lucene index
+     * @param manager the Lucene index searcher manager
      * @param query the query to be satisfied by the documents
      * @param sort the sort in which the documents are going to be retrieved
-     * @param after a pointer to the start document (not included)
+     * @param mergeSort the index natural sort
      * @param page the iteration page size
+     * @param fields the names of the document fields to be loaded
      */
-    DocumentIterator(FSIndex index, Query query, Sort sort, ScoreDoc after, Integer page) {
-        this.index = index;
+    DocumentIterator(SearcherManager manager, Query query, Sort sort, Sort mergeSort, int page, Set<String> fields) {
+        this.manager = manager;
         this.query = query;
         this.sort = sort;
-        this.after = after;
+        this.mergeSort = mergeSort;
+        this.fields = fields;
         this.page = Math.min(page, MAX_PAGE_SIZE) + 1;
+        try {
+            searcher = manager.acquire();
+        } catch (IOException e) {
+            throw new IndexException("Error while acquiring index searcher");
+        }
     }
 
-    private void fetch() {
+    private synchronized void fetch() {
 
-        TimeCounter time = TimeCounter.create().start();
-        List<Pair<Document, ScoreDoc>> docs = index.doSearch(query, sort, after, page);
-        logger.debug("Get page with {} documents in {}", docs.size(), time.stop());
+        try {
 
-        mayHaveMore = docs.size() == page;
-        docs.forEach(pair -> {
-            documents.add(pair);
-            after = pair.right;
-        });
+            TimeCounter time = TimeCounter.create().start();
+
+            TopDocs topDocs;
+            if (EarlyTerminatingSortingCollector.canEarlyTerminate(sort, mergeSort)) {
+                FieldDoc fieldDoc = after == null ? null : (FieldDoc) after;
+                TopFieldCollector collector = TopFieldCollector.create(sort, page, fieldDoc, true, false, false);
+                int hits = numRead + page;
+                searcher.search(query, new EarlyTerminatingSortingCollector(collector, sort, hits, mergeSort));
+                topDocs = collector.topDocs();
+            } else {
+                topDocs = searcher.searchAfter(after, query, page, sort.rewrite(searcher));
+            }
+
+            ScoreDoc[] scoreDocs = topDocs.scoreDocs;
+            numRead += scoreDocs.length;
+            finished = scoreDocs.length < page;
+            for (ScoreDoc scoreDoc : scoreDocs) {
+                after = scoreDoc;
+                Document document = searcher.doc(scoreDoc.doc, fields);
+                documents.add(Pair.create(document, scoreDoc));
+            }
+
+            logger.debug("Get page with {} documents in {}", scoreDocs.length, time.stop());
+
+        } catch (Exception e) {
+            close();
+            throw new IndexException(logger, e, "Error searching in with %s and %s", query, sort);
+        }
+
+        if (finished) {
+            close();
+        }
     }
 
     /**
@@ -98,7 +132,7 @@ public class DocumentIterator implements CloseableIterator<Pair<Document, ScoreD
      * @return {@code true} if more documents should be fetched, {@code false} otherwise
      */
     public boolean needsFetch() {
-        return mayHaveMore && documents.isEmpty();
+        return !finished && documents.isEmpty();
     }
 
     /**
@@ -118,6 +152,15 @@ public class DocumentIterator implements CloseableIterator<Pair<Document, ScoreD
 
     /** {@inheritDoc} */
     @Override
-    public void close() {
+    public synchronized void close() {
+        if (searcher != null) {
+            try {
+                manager.release(searcher);
+            } catch (IOException e) {
+                throw new IndexException("Error while releasing index searcher");
+            } finally {
+                searcher = null;
+            }
+        }
     }
 }
