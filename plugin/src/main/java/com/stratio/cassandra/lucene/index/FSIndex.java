@@ -17,7 +17,6 @@ package com.stratio.cassandra.lucene.index;
 
 import com.stratio.cassandra.lucene.IndexException;
 import org.apache.cassandra.io.util.FileUtils;
-import org.apache.cassandra.utils.Pair;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.*;
@@ -32,8 +31,6 @@ import javax.management.ObjectName;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -212,6 +209,7 @@ public class FSIndex implements FSIndexMBean {
     public void truncate() {
         try {
             indexWriter.deleteAll();
+            indexWriter.commit();
         } catch (Exception e) {
             throw new IndexException(logger, e, "Error truncating %s", name);
         }
