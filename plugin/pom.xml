@@ -142,7 +142,7 @@
                             </deb>
                             <rpm>
                                 <group>stratio</group>
-                                <requires>stratio-cassandra =${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}, python
+                                <requires>stratio-cassandra = ${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}, python
                                 </requires>
                             </rpm>
                             <name>Stratio Cassandra Lucene index</name>

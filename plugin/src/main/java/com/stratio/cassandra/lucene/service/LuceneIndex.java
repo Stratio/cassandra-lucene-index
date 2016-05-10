@@ -193,6 +193,7 @@ public class LuceneIndex implements LuceneIndexMBean {
      */
     public void truncate() throws IOException {
         indexWriter.deleteAll();
+        indexWriter.commit();
         logger.info("{} truncated", name);
     }
 
