@@ -15,6 +15,7 @@
  */
 package com.stratio.cassandra.lucene;
 
+import com.stratio.cassandra.lucene.search.Search;
 import com.stratio.cassandra.lucene.service.RowKeys;
 import com.stratio.cassandra.lucene.service.RowMapper;
 import com.stratio.cassandra.lucene.util.ByteBufferUtils;
@@ -105,7 +106,7 @@ public class IndexQueryHandler implements QueryHandler {
                                          Map<String, ByteBuffer> customPayload)
     throws RequestExecutionException, RequestValidationException {
         QueryProcessor.metrics.preparedStatementsExecuted.inc();
-        return process(statement, state, options, customPayload);
+        return process(statement, state, options);
 
     }
 
@@ -130,14 +131,13 @@ public class IndexQueryHandler implements QueryHandler {
             QueryProcessor.metrics.regularStatementsExecuted.inc();
         }
 
-        return process(p.statement, state, options, customPayload);
+        return process(p.statement, state, options);
 
     }
 
-    public ResultMessage process(CQLStatement statement,
+    private ResultMessage process(CQLStatement statement,
                                  QueryState state,
-                                 QueryOptions options,
-                                 Map<String, ByteBuffer> customPayload)
+                                 QueryOptions options)
     throws RequestExecutionException, RequestValidationException {
 
         if (statement.getBoundTerms() != options.getValues().size()) {
@@ -153,8 +153,12 @@ public class IndexQueryHandler implements QueryHandler {
             if (searcher instanceof IndexSearcher) {
                 try {
                     TimeCounter time = TimeCounter.create().start();
-                    ResultMessage msg = process((IndexSearcher) searcher, expressions, select, state, options);
-                    logger.debug("Total Lucene query time: {}\n", time.stop());
+                    IndexSearcher indexSearcher = (IndexSearcher) searcher;
+                    Search search = indexSearcher.search(expressions);
+                    ResultMessage msg = search.requiresFullScan()
+                                        ? process((IndexSearcher) searcher, expressions, select, state, options)
+                                        : cqlProcessor.processStatement(statement, state, options);
+                    logger.debug("Total time : {}\n", time.stop());
                     return msg;
                 } catch (RequestExecutionException | RequestValidationException e) {
                     throw e;

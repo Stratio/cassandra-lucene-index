@@ -79,8 +79,9 @@ Not yet supported:
 -  Thrift API
 -  Legacy compact storage option
 -  Indexing ``counter`` columns
+-  Indexing static columns
 -  Columns with TTL
--  Static columns
+-  Other partitioners than Murmur3
 
 Requirements
 ------------

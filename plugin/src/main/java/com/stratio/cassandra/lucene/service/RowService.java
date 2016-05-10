@@ -392,7 +392,7 @@ public abstract class RowService {
         if (query != null) {
             builder.add(query, MUST);
         }
-        return new CachingWrapperQuery(builder.build());
+        return builder.build();
     }
 
     /**

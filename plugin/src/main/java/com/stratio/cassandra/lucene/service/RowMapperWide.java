@@ -147,25 +147,23 @@ public class RowMapperWide extends RowMapper {
         Composite startName = sqf.start();
         Composite stopName = sqf.finish();
 
-        if ((isSameToken) && (startPosition instanceof  DecoratedKey)) {
+        if ((isSameToken) && (startPosition instanceof DecoratedKey)) {
             return keyMapper.query((DecoratedKey) startPosition,startName,stopName,includeStart, includeStop);
         }
 
         BooleanQuery.Builder builder = new BooleanQuery.Builder();
 
         if (!startName.isEmpty()) {
-            BooleanQuery.Builder b = new BooleanQuery.Builder();
             DecoratedKey startKey = (DecoratedKey) startPosition;
-            b.add(keyMapper.query(startKey, startName, null, false, true), FILTER);
-            builder.add(b.build(), occur);
+            Query query = keyMapper.query(startKey, startName, null, false, true);
+            builder.add(query, occur);
             includeStart = false;
         }
 
         if (!stopName.isEmpty()) {
-            BooleanQuery.Builder b = new BooleanQuery.Builder();
             DecoratedKey stopKey = (DecoratedKey) stopPosition;
-            b.add(keyMapper.query(stopKey, null, stopName, true, false), FILTER);
-            builder.add(b.build(), occur);
+            Query query = keyMapper.query(stopKey, null, stopName, true, false);
+            builder.add(query, occur);
             includeStop = false;
         }
 

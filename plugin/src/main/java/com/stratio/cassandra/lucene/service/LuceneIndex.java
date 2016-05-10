@@ -259,9 +259,7 @@ public class LuceneIndex implements LuceneIndexMBean {
                                           ScoreDoc after,
                                           Integer count,
                                           Set<String> fields) throws IOException {
-
-        logger.debug("lucene search with indexSearcher: {}, query: {}, sort: {} after, {}, count {},fields {} ",searcher,query,sort,after,count,fields);
-        // Search for top documents
+        // Search for top hits
         TopDocs topDocs;
         if (after == null && EarlyTerminatingSortingCollector.canEarlyTerminate(sort, mergeSort)) {
             TopFieldCollector collector = TopFieldCollector.create(sort, count, null, true, false, false);
@@ -271,6 +269,7 @@ public class LuceneIndex implements LuceneIndexMBean {
             topDocs = searcher.searchAfter(after, query, count, sort.rewrite(searcher));
         }
 
+        // Collect documents
         LinkedHashMap<Document, ScoreDoc> searchResults = new LinkedHashMap<>();
         for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
             Document document = searcher.doc(scoreDoc.doc, fields);

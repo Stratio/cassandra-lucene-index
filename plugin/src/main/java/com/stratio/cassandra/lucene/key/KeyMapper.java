@@ -92,49 +92,11 @@ public final class KeyMapper {
     }
 
     /**
-     * Returns the start {@link Composite} of the first partition of the specified {@link DataRange}.
-     *
-     * @param dataRange the data range
-     * @return the start clustering prefix of {@code dataRange}, or {@code null} if there is no such start
-     */
-    public static Composite startClusteringPrefix(DataRange dataRange) {
-
-        RowPosition startPosition = dataRange.startKey();
-        if (startPosition instanceof DecoratedKey) {
-            IDiskAtomFilter filter = dataRange.columnFilter(((DecoratedKey) startPosition).getKey());
-            if (filter instanceof SliceQueryFilter) {
-                return ((SliceQueryFilter) filter).slices[0].start;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Returns the stop {@link Composite} of the last partition of the specified {@link DataRange}.
-     *
-     * @param dataRange the data range
-     * @return the stop clustering prefix of {@code dataRange}, or {@code null} if there is no such start
-     */
-    public static Composite stopClusteringPrefix(DataRange dataRange) {
-        RowPosition stopPosition = dataRange.stopKey();
-        if (stopPosition instanceof DecoratedKey) {
-            IDiskAtomFilter filter = dataRange.columnFilter(((DecoratedKey) stopPosition).getKey());
-            if (filter instanceof SliceQueryFilter) {
-                return ((SliceQueryFilter) filter).slices[0].finish;
-            }
-        }
-        return null;
-    }
-
-    ;
-
-    /**
      * The type of the primary key, which is composed by token, partition key and clustering key types.
      *
      * @return the composite type
      */
     public CompositeType clusteringType() {
-
         return clusteringType;
     }
 
@@ -285,6 +247,16 @@ public final class KeyMapper {
      */
     public CellName clusteringKey(ByteBuffer bb) {
         return clusteringComparator.cellFromByteBuffer(bb);
+    }
+
+    ByteBuffer clusteringKey(Composite composite) {
+        CBuilder builder = clusteringComparator.builder();
+        ByteBuffer[] components = clusteringType.split(composite.toByteBuffer());
+        for (int i = 0; i < metadata.clusteringColumns().size(); i++) {
+            ByteBuffer component = i < components.length ? components[i] : ByteBufferUtil.EMPTY_BYTE_BUFFER;
+            builder.add(component != null ? component : ByteBufferUtil.EMPTY_BYTE_BUFFER);
+        }
+        return builder.build().toByteBuffer();
     }
 
     /**

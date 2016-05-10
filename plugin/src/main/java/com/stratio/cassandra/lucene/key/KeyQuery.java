@@ -91,7 +91,7 @@ class KeyQuery extends MultiTermQuery {
         FullKeyDataRangeFilteredTermsEnum(TermsEnum tenum) {
             super(tenum);
             if (start != null) {
-                List<ByteBuffer> list = Arrays.asList(mapper.clusteringType().split(start.toByteBuffer()));
+                List<ByteBuffer> list = Arrays.asList(mapper.clusteringType().split(mapper.clusteringKey(start)));
                 setInitialSeekTerm(mapper.bytesRef(key, mapper.clusteringComparator().builder().buildWith(list)));
             }
         }

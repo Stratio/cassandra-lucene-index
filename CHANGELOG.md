@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.2.5.4 (upcoming)
+
+* Add sorting merge policy (dramatically improves filter performance)
+* Remove support for other partitioners than Murmur3
+
 ## 2.2.5.3 (31 March 2016)
 
 * Add support for indexing time UUID columns with date, date_range and bitemporal mappers
