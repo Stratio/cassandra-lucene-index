@@ -206,6 +206,7 @@ public class FSIndex implements FSIndexMBean {
     public void truncate() {
         try {
             indexWriter.deleteAll();
+            indexWriter.commit();
         } catch (Exception e) {
             throw new IndexException(logger, e, "Error truncating %s", name);
         }
