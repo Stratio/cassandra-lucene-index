@@ -33,6 +33,7 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({@JsonSubTypes.Type(value = GeoTransformation.Buffer.class, name = "buffer"),
                @JsonSubTypes.Type(value = GeoTransformation.Centroid.class, name = "centroid"),
+               @JsonSubTypes.Type(value = GeoTransformation.ConvexHull.class, name = "convex_hull"),
                @JsonSubTypes.Type(value = GeoTransformation.Difference.class, name = "difference"),
                @JsonSubTypes.Type(value = GeoTransformation.Intersection.class, name = "intersection"),
                @JsonSubTypes.Type(value = GeoTransformation.Union.class, name = "union")})
@@ -148,6 +149,31 @@ public interface GeoTransformation {
         @Override
         public JtsGeometry apply(JtsGeometry shape, JtsSpatialContext context) {
             Geometry centroid = shape.getGeom().getCentroid();
+            return context.makeShape(centroid);
+        }
+
+        /** {@inheritDoc} */
+        @Override
+        public String toString() {
+            return MoreObjects.toStringHelper(this).toString();
+        }
+    }
+
+    /**
+     * {@link GeoTransformation} that returns the convex hull of a JTS geographical shape.
+     */
+    class ConvexHull implements GeoTransformation {
+
+        /**
+         * Returns the convex hull of the specified {@link JtsGeometry}.
+         *
+         * @param shape the JTS shape to be transformed
+         * @param context the JTS spatial context to be used
+         * @return the convex hull
+         */
+        @Override
+        public JtsGeometry apply(JtsGeometry shape, JtsSpatialContext context) {
+            Geometry centroid = shape.getGeom().convexHull();
             return context.makeShape(centroid);
         }
 
