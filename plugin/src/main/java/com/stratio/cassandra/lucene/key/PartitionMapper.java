@@ -13,39 +13,51 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.cassandra.lucene.service;
+package com.stratio.cassandra.lucene.key;
+
+import org.apache.cassandra.config.*;
+import org.apache.cassandra.db.*;
+import org.apache.cassandra.db.marshal.*;
+import org.apache.cassandra.dht.*;
+import org.apache.cassandra.utils.*;
+import org.apache.lucene.document.*;
+import org.apache.lucene.index.*;
+import org.apache.lucene.search.*;
+import org.apache.lucene.util.*;
 
 import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.column.Column;
-import com.stratio.cassandra.lucene.schema.column.Columns;
-import com.stratio.cassandra.lucene.util.ByteBufferUtils;
-import org.apache.cassandra.config.CFMetaData;
-import org.apache.cassandra.config.ColumnDefinition;
-import org.apache.cassandra.config.DatabaseDescriptor;
-import org.apache.cassandra.db.DecoratedKey;
-import org.apache.cassandra.db.marshal.AbstractType;
-import org.apache.cassandra.dht.IPartitioner;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
-import org.apache.lucene.document.Field.Store;
-import org.apache.lucene.document.StringField;
-import org.apache.lucene.index.Term;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.util.BytesRef;
+import com.stratio.cassandra.lucene.schema.column.*;
+import com.stratio.cassandra.lucene.util.*;
 
-import java.nio.ByteBuffer;
-import java.util.List;
+import java.io.*;
+import java.nio.*;
+import java.util.*;
 
 /**
  * Class for several partition key mappings between Cassandra and Lucene.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public final class PartitionKeyMapper {
+public final class PartitionMapper {
 
-    /** The Lucene field name. */
+    /**
+     * The Lucene field name.
+     */
     public static final String FIELD_NAME = "_partition_key";
+
+    /**
+     * The Lucene field type.
+     */
+    private static final FieldType FIELD_TYPE = new FieldType();
+
+    static {
+        FIELD_TYPE.setOmitNorms(true);
+        FIELD_TYPE.setIndexOptions(IndexOptions.DOCS);
+        FIELD_TYPE.setTokenized(false);
+        FIELD_TYPE.setStored(true);
+        FIELD_TYPE.setDocValuesType(DocValuesType.SORTED);
+        FIELD_TYPE.freeze();
+    }
 
     // The active active partition key
     private final IPartitioner partitioner;
@@ -60,27 +72,16 @@ public final class PartitionKeyMapper {
     private final AbstractType<?> type;
 
     /**
-     * Returns a new {@code PartitionKeyMapper} according to the specified column family meta data.
+     * Returns a new {@code PartitionMapper} according to the specified column family meta data.
      *
      * @param metadata The column family metadata.
-     * @param schema A {@link Schema}.
+     * @param schema   A {@link Schema}.
      */
-    private PartitionKeyMapper(CFMetaData metadata, Schema schema) {
+    public PartitionMapper(CFMetaData metadata, Schema schema) {
         partitioner = DatabaseDescriptor.getPartitioner();
         this.metadata = metadata;
         this.schema = schema;
         this.type = metadata.getKeyValidator();
-    }
-
-    /**
-     * Returns a new {@code PartitionKeyMapper} according to the specified column family meta data.
-     *
-     * @param metadata The column family metadata.
-     * @param schema A {@link Schema}.
-     * @return a new {@code PartitionKeyMapper} according to the specified column family meta data.
-     */
-    public static PartitionKeyMapper instance(CFMetaData metadata, Schema schema) {
-        return new PartitionKeyMapper(metadata, schema);
     }
 
     public AbstractType<?> getType() {
@@ -90,14 +91,13 @@ public final class PartitionKeyMapper {
     /**
      * Adds to the specified {@link Document} the {@link Field}s associated to the specified raw partition key.
      *
-     * @param document The document in which the fields are going to be added.
+     * @param document     The document in which the fields are going to be added.
      * @param partitionKey The raw partition key to be converted.
      */
     public void addFields(Document document, DecoratedKey partitionKey) {
         ByteBuffer bb = partitionKey.getKey();
         BytesRef bytesRef = ByteBufferUtils.bytesRef(bb);
-        Field field = new StringField(FIELD_NAME, bytesRef, Store.YES);
-        document.add(field);
+        document.add(new Field(FIELD_NAME, bytesRef, FIELD_TYPE));
     }
 
     /**
@@ -166,6 +166,28 @@ public final class PartitionKeyMapper {
             }
         }
         return columns;
+    }
+
+    /**
+     * Returns a Lucene {@link SortField} for sorting documents/rows according to the partition key.
+     *
+     * @return a sort field for sorting by partition key
+     */
+    public SortField sortField() {
+        return new SortField(FIELD_NAME, new FieldComparatorSource() {
+            @Override
+            public FieldComparator<?> newComparator(String field, int hits, int sort, boolean reversed)
+                    throws IOException {
+                return new FieldComparator.TermValComparator(hits, field, false) {
+                    @Override
+                    public int compareValues(BytesRef val1, BytesRef val2) {
+                        ByteBuffer bb1 = ByteBufferUtils.byteBuffer(val1);
+                        ByteBuffer bb2 = ByteBufferUtils.byteBuffer(val2);
+                        return ByteBufferUtil.compareUnsigned(bb1, bb2);
+                    }
+                };
+            }
+        });
     }
 
 }

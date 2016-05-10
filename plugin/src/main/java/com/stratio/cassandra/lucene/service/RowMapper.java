@@ -15,15 +15,18 @@
  */
 package com.stratio.cassandra.lucene.service;
 
-import com.google.common.collect.Ordering;
-import com.stratio.cassandra.lucene.IndexConfig;
-import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.column.Columns;
-import com.stratio.cassandra.lucene.search.Search;
-import com.stratio.cassandra.lucene.util.ByteBufferUtils;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
-import org.apache.cassandra.db.*;
+import org.apache.cassandra.db.Cell;
+import org.apache.cassandra.db.ColumnFamily;
+import org.apache.cassandra.db.DataRange;
+import org.apache.cassandra.db.DecoratedKey;
+import org.apache.cassandra.db.Row;
 import org.apache.cassandra.db.composites.CellName;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.lucene.document.Document;
@@ -34,10 +37,14 @@ import org.apache.lucene.search.SortField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import com.google.common.collect.Ordering;
+import com.stratio.cassandra.lucene.IndexConfig;
+import com.stratio.cassandra.lucene.key.PartitionMapper;
+import com.stratio.cassandra.lucene.key.TokenMapper;
+import com.stratio.cassandra.lucene.schema.Schema;
+import com.stratio.cassandra.lucene.schema.column.Columns;
+import com.stratio.cassandra.lucene.search.Search;
+import com.stratio.cassandra.lucene.util.ByteBufferUtils;
 
 /**
  * Class for several {@link Row} mappings between Cassandra and Lucene data models.
@@ -46,23 +53,35 @@ import java.util.List;
  */
 public abstract class RowMapper {
 
-    private static final Logger logger = LoggerFactory.getLogger(RowMapper.class);
-    /** The indexed table metadata. */
+    protected static final Logger logger = LoggerFactory.getLogger(RowMapper.class);
+    /**
+     * The indexed table metadata.
+     */
     final CFMetaData metadata;
 
-    /** The indexed column definition. */
+    /**
+     * The indexed column definition.
+     */
     final ColumnDefinition columnDefinition;
 
-    /** The indexing schema. */
+    /**
+     * The indexing schema.
+     */
     final Schema schema;
 
-    /** A token mapper for the indexed table. */
+    /**
+     * A token mapper for the indexed table.
+     */
     final TokenMapper tokenMapper;
 
-    /** A partition key mapper for the indexed table. */
-    final PartitionKeyMapper partitionKeyMapper;
+    /**
+     * A partition key mapper for the indexed table.
+     */
+    final PartitionMapper partitionMapper;
 
-    /** A regular cell mapper for the indexed table. */
+    /**
+     * A regular cell mapper for the indexed table.
+     */
     final RegularCellsMapper regularCellsMapper;
 
     /**
@@ -74,8 +93,8 @@ public abstract class RowMapper {
         this.metadata = config.getMetadata();
         this.columnDefinition = config.getColumnDefinition();
         this.schema = config.getSchema();
-        this.tokenMapper = TokenMapper.instance();
-        this.partitionKeyMapper = PartitionKeyMapper.instance(metadata, schema);
+        this.tokenMapper = new TokenMapper();
+        this.partitionMapper = new PartitionMapper(metadata, schema);
         this.regularCellsMapper = RegularCellsMapper.instance(metadata, schema);
     }
 
@@ -115,7 +134,7 @@ public abstract class RowMapper {
      * @return The decorated partition key representing the specified raw partition key.
      */
     public final DecoratedKey partitionKey(ByteBuffer key) {
-        return partitionKeyMapper.partitionKey(key);
+        return partitionMapper.partitionKey(key);
     }
 
     /**
@@ -125,7 +144,7 @@ public abstract class RowMapper {
      * @return A Lucene {@link Term} to get the {@link Document}s containing the specified decorated partition key.
      */
     public Term term(DecoratedKey partitionKey) {
-        return partitionKeyMapper.term(partitionKey);
+        return partitionMapper.term(partitionKey);
     }
 
     /**
@@ -149,7 +168,7 @@ public abstract class RowMapper {
      *
      * @return The Lucene {@link SortField}s to get {@link Document}s in the same order that is used in Cassandra.
      */
-    public abstract List<SortField> sortFields();
+    public abstract List<SortField> keySortFields();
 
     /**
      * Returns a {@link CellName} for the indexed column in the specified column family.

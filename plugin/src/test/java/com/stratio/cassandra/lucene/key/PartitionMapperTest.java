@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.cassandra.lucene.service;
+package com.stratio.cassandra.lucene.key;
 
 import org.apache.cassandra.exceptions.ConfigurationException;
 import org.apache.cassandra.exceptions.InvalidRequestException;
@@ -22,7 +22,7 @@ import org.junit.Test;
 /**
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
-public class PartitionKeyMapperTest {
+public class PartitionMapperTest {
 
     @Test
     public void testConstructorPartitionKeyMapper() throws InvalidRequestException, ConfigurationException {
@@ -44,9 +44,9 @@ public class PartitionKeyMapperTest {
             Schema schema = SchemaBuilders.schema().mapper("field1", stringMapper()).mapper("field2", textMapper()).build();
 
 
-            PartitionKeyMapper partitionKeyMapper=PartitionKeyMapper.instance(metadata,schema);
+            PartitionMapper partitionMapper=PartitionMapper.instance(metadata,schema);
 
-            assertEquals("clustering KeyMapper ",partitionKeyMapper.getType(),metadata.comparator);
+            assertEquals("clustering KeyMapper ",partitionMapper.getType(),metadata.comparator);
             */
     }
 }

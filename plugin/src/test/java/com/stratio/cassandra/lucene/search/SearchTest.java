@@ -15,13 +15,13 @@
  */
 package com.stratio.cassandra.lucene.search;
 
-import com.stratio.cassandra.lucene.schema.Schema;
-import org.junit.Test;
-
-import static com.stratio.cassandra.lucene.schema.SchemaBuilders.schema;
-import static com.stratio.cassandra.lucene.schema.SchemaBuilders.stringMapper;
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
 import static com.stratio.cassandra.lucene.search.SearchBuilders.*;
 import static org.junit.Assert.*;
+
+import org.junit.*;
+
+import com.stratio.cassandra.lucene.schema.*;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}

@@ -16,6 +16,7 @@
 package com.stratio.cassandra.lucene.service;
 
 import com.stratio.cassandra.lucene.IndexConfig;
+import com.stratio.cassandra.lucene.key.PartitionMapper;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import org.apache.cassandra.db.ColumnFamily;
 import org.apache.cassandra.db.ColumnFamilyStore;
@@ -42,7 +43,7 @@ public class RowServiceSkinny extends RowService {
 
     static {
         FIELDS_TO_LOAD = new HashSet<>();
-        FIELDS_TO_LOAD.add(PartitionKeyMapper.FIELD_NAME);
+        FIELDS_TO_LOAD.add(PartitionMapper.FIELD_NAME);
     }
 
     /** The used row mapper. */

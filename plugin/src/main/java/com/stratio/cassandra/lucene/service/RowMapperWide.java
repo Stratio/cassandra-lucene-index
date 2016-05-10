@@ -15,25 +15,24 @@
  */
 package com.stratio.cassandra.lucene.service;
 
-import com.google.common.collect.Ordering;
-import com.stratio.cassandra.lucene.IndexConfig;
-import com.stratio.cassandra.lucene.schema.column.Columns;
-import org.apache.cassandra.db.*;
-import org.apache.cassandra.db.composites.CellName;
-import org.apache.cassandra.db.composites.Composite;
-import org.apache.cassandra.db.filter.ColumnSlice;
-import org.apache.cassandra.db.filter.SliceQueryFilter;
-import org.apache.cassandra.dht.Token;
-import org.apache.cassandra.utils.ByteBufferUtil;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.index.Term;
-import org.apache.lucene.search.*;
-
-import java.nio.ByteBuffer;
+import java.nio.*;
 import java.util.*;
 
-import static org.apache.lucene.search.BooleanClause.Occur.FILTER;
-import static org.apache.lucene.search.BooleanClause.Occur.SHOULD;
+import org.apache.cassandra.db.*;
+import org.apache.cassandra.db.composites.*;
+import org.apache.cassandra.db.filter.*;
+import org.apache.cassandra.dht.*;
+import org.apache.cassandra.utils.*;
+import org.apache.lucene.document.*;
+import org.apache.lucene.index.*;
+import org.apache.lucene.search.*;
+
+import com.google.common.collect.*;
+import com.stratio.cassandra.lucene.*;
+import com.stratio.cassandra.lucene.key.*;
+import com.stratio.cassandra.lucene.schema.column.*;
+
+import static org.apache.lucene.search.BooleanClause.Occur.*;
 
 /**
  * {@link RowMapper} for wide rows.
@@ -42,11 +41,8 @@ import static org.apache.lucene.search.BooleanClause.Occur.SHOULD;
  */
 public class RowMapperWide extends RowMapper {
 
-    /** The clustering key mapper. */
-    private final ClusteringKeyMapper clusteringKeyMapper;
-
     /** The full key mapper. */
-    private final FullKeyMapper fullKeyMapper;
+    private final KeyMapper keyMapper;
 
     /**
      * Builds a new {@link RowMapperWide} for the specified {@link IndexConfig}.
@@ -55,16 +51,15 @@ public class RowMapperWide extends RowMapper {
      */
     RowMapperWide(IndexConfig config) {
         super(config);
-        this.clusteringKeyMapper = ClusteringKeyMapper.instance(metadata, schema);
-        this.fullKeyMapper = FullKeyMapper.instance(partitionKeyMapper, clusteringKeyMapper);
+        this.keyMapper = new KeyMapper(metadata);
     }
 
     /** {@inheritDoc} */
     @Override
     public Columns columns(DecoratedKey partitionKey, ColumnFamily columnFamily) {
         Columns columns = new Columns();
-        columns.add(partitionKeyMapper.columns(partitionKey));
-        columns.add(clusteringKeyMapper.columns(columnFamily));
+        columns.add(partitionMapper.columns(partitionKey));
+        columns.add(keyMapper.columns(columnFamily));
         columns.add(regularCellsMapper.columns(columnFamily));
         return columns;
     }
@@ -81,33 +76,29 @@ public class RowMapperWide extends RowMapper {
     public Document document(DecoratedKey partitionKey, CellName clusteringKey, Columns columns) {
         Document document = new Document();
         tokenMapper.addFields(document, partitionKey);
-        partitionKeyMapper.addFields(document, partitionKey);
-        clusteringKeyMapper.addFields(document, clusteringKey);
-        fullKeyMapper.addFields(document, partitionKey, clusteringKey);
+        partitionMapper.addFields(document, partitionKey);
+        keyMapper.addFields(document, partitionKey, clusteringKey);
         schema.addFields(document, columns);
         return document;
     }
 
     /** {@inheritDoc} */
     @Override
-    public List<SortField> sortFields() {
-        List<SortField> sortFields = new ArrayList<>();
-        sortFields.addAll(tokenMapper.sortFields());
-        sortFields.addAll(clusteringKeyMapper.sortFields());
-        return sortFields;
+    public List<SortField> keySortFields() {
+        return Arrays.asList( tokenMapper.sortField(),keyMapper.sortField());
     }
 
     /** {@inheritDoc} */
     @Override
     public CellName makeCellName(ColumnFamily columnFamily) {
         CellName clusteringKey = clusteringKey(columnFamily);
-        return clusteringKeyMapper.makeCellName(clusteringKey, columnDefinition);
+        return keyMapper.makeCellName(clusteringKey, columnDefinition);
     }
 
     /** {@inheritDoc} */
     @Override
     public Comparator<Row> comparator() {
-        return Ordering.compound(Arrays.asList(tokenMapper.comparator(), clusteringKeyMapper.comparator()));
+        return Ordering.compound(Arrays.asList(tokenMapper.comparator(), keyMapper.rowComparator()));
     }
 
     /**
@@ -117,7 +108,7 @@ public class RowMapperWide extends RowMapper {
      * @return The first clustering key contained in the specified {@link ColumnFamily}.
      */
     private CellName clusteringKey(ColumnFamily columnFamily) {
-        return clusteringKeyMapper.clusteringKey(columnFamily);
+        return keyMapper.clusteringKey(columnFamily);
     }
 
     /**
@@ -130,45 +121,50 @@ public class RowMapperWide extends RowMapper {
      * clustering key.
      */
     public Term term(DecoratedKey partitionKey, CellName clusteringKey) {
-        return fullKeyMapper.term(partitionKey, clusteringKey);
+        return keyMapper.term(partitionKey, clusteringKey);
     }
 
     /** {@inheritDoc} */
     @Override
     public Query query(DataRange dataRange) {
-
         RowPosition startPosition = dataRange.startKey();
         RowPosition stopPosition = dataRange.stopKey();
         Token startToken = startPosition.getToken();
         Token stopToken = stopPosition.getToken();
-        boolean isSameToken = startToken.compareTo(stopToken) == 0 && !tokenMapper.isMinimum(startToken);
-        BooleanClause.Occur occur = isSameToken ? FILTER : SHOULD;
-        boolean includeStart = tokenMapper.includeStart(startPosition);
-        boolean includeStop = tokenMapper.includeStop(stopPosition);
-
         SliceQueryFilter sqf;
         if (startPosition instanceof DecoratedKey) {
             sqf = (SliceQueryFilter) dataRange.columnFilter(((DecoratedKey) startPosition).getKey());
         } else {
             sqf = (SliceQueryFilter) dataRange.columnFilter(ByteBufferUtil.EMPTY_BYTE_BUFFER);
         }
+
+        boolean isSameToken = startToken.compareTo(stopToken) == 0 && !tokenMapper.isMinimum(startToken);
+
+        BooleanClause.Occur occur = isSameToken ? FILTER : SHOULD;
+        boolean includeStart = tokenMapper.includeStart(startPosition);
+        boolean includeStop = tokenMapper.includeStop(stopPosition);
+
         Composite startName = sqf.start();
         Composite stopName = sqf.finish();
+
+        if ((isSameToken) && (startPosition instanceof  DecoratedKey)) {
+            return keyMapper.query((DecoratedKey) startPosition,startName,stopName,includeStart, includeStop);
+        }
 
         BooleanQuery.Builder builder = new BooleanQuery.Builder();
 
         if (!startName.isEmpty()) {
             BooleanQuery.Builder b = new BooleanQuery.Builder();
-            b.add(tokenMapper.query(startToken), FILTER);
-            b.add(clusteringKeyMapper.query(startName, null), FILTER);
+            DecoratedKey startKey = (DecoratedKey) startPosition;
+            b.add(keyMapper.query(startKey, startName, null, false, true), FILTER);
             builder.add(b.build(), occur);
             includeStart = false;
         }
 
         if (!stopName.isEmpty()) {
             BooleanQuery.Builder b = new BooleanQuery.Builder();
-            b.add(tokenMapper.query(stopToken), FILTER);
-            b.add(clusteringKeyMapper.query(null, stopName), FILTER);
+            DecoratedKey stopKey = (DecoratedKey) stopPosition;
+            b.add(keyMapper.query(stopKey, null, stopName, true, false), FILTER);
             builder.add(b.build(), occur);
             includeStop = false;
         }
@@ -183,7 +179,6 @@ public class RowMapperWide extends RowMapper {
         } else if (query.clauses().isEmpty()) {
             return tokenMapper.query(startToken);
         }
-
         return query.clauses().isEmpty() ? null : query;
     }
 
@@ -206,10 +201,7 @@ public class RowMapperWide extends RowMapper {
      * RangeTombstone}.
      */
     public Query query(DecoratedKey partitionKey, RangeTombstone rangeTombstone) {
-        BooleanQuery.Builder builder = new BooleanQuery.Builder();
-        builder.add(partitionKeyMapper.query(partitionKey), FILTER);
-        builder.add(clusteringKeyMapper.query(rangeTombstone.min, rangeTombstone.max), FILTER);
-        return builder.build();
+        return keyMapper.query(partitionKey,rangeTombstone.min, rangeTombstone.max,false, false);
     }
 
     /**
@@ -221,7 +213,7 @@ public class RowMapperWide extends RowMapper {
      * keys.
      */
     public ColumnSlice[] columnSlices(List<CellName> clusteringKeys) {
-        return clusteringKeyMapper.columnSlices(clusteringKeys);
+        return keyMapper.columnSlices(clusteringKeys);
     }
 
     /**
@@ -231,14 +223,14 @@ public class RowMapperWide extends RowMapper {
      * @return The logical CQL3 column families contained in the specified physical {@link ColumnFamily}.
      */
     public Map<CellName, ColumnFamily> splitRows(ColumnFamily columnFamily) {
-        return clusteringKeyMapper.splitRows(columnFamily);
+        return keyMapper.splitRows(columnFamily);
     }
 
     /** {@inheritDoc} */
     @Override
     public SearchResult searchResult(Document document, ScoreDoc scoreDoc) {
-        DecoratedKey partitionKey = partitionKeyMapper.partitionKey(document);
-        CellName clusteringKey = clusteringKeyMapper.clusteringKey(document);
+        DecoratedKey partitionKey = partitionMapper.partitionKey(document);
+        CellName clusteringKey = keyMapper.clusteringKey(document);
         return new SearchResult(partitionKey, clusteringKey, scoreDoc);
     }
 
@@ -250,7 +242,7 @@ public class RowMapperWide extends RowMapper {
      * @return A hash code to uniquely identify a CQL logical row key.
      */
     public String hash(DecoratedKey partitionKey, CellName clusteringKey) {
-        return fullKeyMapper.hash(partitionKey, clusteringKey);
+        return keyMapper.hash(partitionKey, clusteringKey);
     }
 
     /** {@inheritDoc} */
@@ -258,13 +250,13 @@ public class RowMapperWide extends RowMapper {
     public ByteBuffer byteBuffer(RowKey rowKey) {
         DecoratedKey partitionKey = rowKey.getPartitionKey();
         CellName clusteringKey = rowKey.getClusteringKey();
-        return fullKeyMapper.byteBuffer(partitionKey, clusteringKey);
+        return keyMapper.byteBuffer(partitionKey, clusteringKey);
     }
 
     /** {@inheritDoc} */
     @Override
     public RowKey rowKey(ByteBuffer bb) {
-        return fullKeyMapper.rowKey(bb);
+        return keyMapper.rowKey(bb);
     }
 
     /** {@inheritDoc} */

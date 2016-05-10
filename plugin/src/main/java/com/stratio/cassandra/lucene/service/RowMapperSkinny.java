@@ -15,9 +15,16 @@
  */
 package com.stratio.cassandra.lucene.service;
 
-import com.stratio.cassandra.lucene.IndexConfig;
-import com.stratio.cassandra.lucene.schema.column.Columns;
-import org.apache.cassandra.db.*;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+
+import org.apache.cassandra.db.ColumnFamily;
+import org.apache.cassandra.db.DataRange;
+import org.apache.cassandra.db.DecoratedKey;
+import org.apache.cassandra.db.Row;
+import org.apache.cassandra.db.RowPosition;
 import org.apache.cassandra.db.composites.CellName;
 import org.apache.cassandra.db.composites.Composite;
 import org.apache.cassandra.db.filter.IDiskAtomFilter;
@@ -30,9 +37,8 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.TermQuery;
 
-import java.nio.ByteBuffer;
-import java.util.Comparator;
-import java.util.List;
+import com.stratio.cassandra.lucene.IndexConfig;
+import com.stratio.cassandra.lucene.schema.column.Columns;
 
 /**
  * {@link RowMapper} for skinny rows.
@@ -54,7 +60,7 @@ public class RowMapperSkinny extends RowMapper {
     @Override
     public Columns columns(DecoratedKey partitionKey, ColumnFamily columnFamily) {
         Columns columns = new Columns();
-        columns.add(partitionKeyMapper.columns(partitionKey));
+        columns.add(partitionMapper.columns(partitionKey));
         columns.add(regularCellsMapper.columns(columnFamily));
         return columns;
     }
@@ -70,20 +76,21 @@ public class RowMapperSkinny extends RowMapper {
     public Document document(DecoratedKey partitionKey, Columns columns) {
         Document document = new Document();
         tokenMapper.addFields(document, partitionKey);
-        partitionKeyMapper.addFields(document, partitionKey);
+        partitionMapper.addFields(document, partitionKey);
         schema.addFields(document, columns);
         return document;
     }
 
     /** {@inheritDoc} */
     @Override
-    public List<SortField> sortFields() {
-        return tokenMapper.sortFields();
+    public List<SortField> keySortFields() {
+        return Arrays.asList(tokenMapper.sortField(), partitionMapper.sortField());
     }
 
     /** {@inheritDoc} */
     @Override
     public final Query query(DataRange dataRange) {
+        logger.debug("received query with datarange {}",dataRange);
         RowPosition startPosition = dataRange.startKey();
         RowPosition stopPosition = dataRange.stopKey();
         Token startToken = startPosition.getToken();
@@ -127,7 +134,7 @@ public class RowMapperSkinny extends RowMapper {
     /** {@inheritDoc} */
     @Override
     public SearchResult searchResult(Document document, ScoreDoc scoreDoc) {
-        DecoratedKey partitionKey = partitionKeyMapper.partitionKey(document);
+        DecoratedKey partitionKey = partitionMapper.partitionKey(document);
         return new SearchResult(partitionKey, null, scoreDoc);
     }
 

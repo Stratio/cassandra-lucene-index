@@ -15,31 +15,23 @@
  */
 package com.stratio.cassandra.lucene;
 
-import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.search.Search;
-import com.stratio.cassandra.lucene.search.SearchBuilder;
-import com.stratio.cassandra.lucene.service.RowKey;
-import com.stratio.cassandra.lucene.service.RowMapper;
-import com.stratio.cassandra.lucene.service.RowService;
-import com.stratio.cassandra.lucene.util.TimeCounter;
-import org.apache.cassandra.db.DataRange;
-import org.apache.cassandra.db.IndexExpression;
-import org.apache.cassandra.db.Row;
-import org.apache.cassandra.db.filter.ExtendedFilter;
-import org.apache.cassandra.db.filter.IDiskAtomFilter;
-import org.apache.cassandra.db.filter.SliceQueryFilter;
-import org.apache.cassandra.db.index.SecondaryIndexManager;
-import org.apache.cassandra.db.index.SecondaryIndexSearcher;
-import org.apache.cassandra.db.marshal.UTF8Type;
-import org.apache.cassandra.exceptions.InvalidRequestException;
-import org.apache.cassandra.utils.ByteBufferUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.apache.cassandra.cql3.Operator.*;
 
-import java.nio.ByteBuffer;
+import java.nio.*;
 import java.util.*;
 
-import static org.apache.cassandra.cql3.Operator.EQ;
+import org.apache.cassandra.db.*;
+import org.apache.cassandra.db.filter.*;
+import org.apache.cassandra.db.index.*;
+import org.apache.cassandra.db.marshal.*;
+import org.apache.cassandra.exceptions.*;
+import org.apache.cassandra.utils.*;
+import org.slf4j.*;
+
+import com.stratio.cassandra.lucene.schema.*;
+import com.stratio.cassandra.lucene.search.*;
+import com.stratio.cassandra.lucene.service.*;
+import com.stratio.cassandra.lucene.util.*;
 
 /**
  * A {@link SecondaryIndexSearcher} for {@link Index}.

@@ -17,6 +17,8 @@ package com.stratio.cassandra.lucene.service;
 
 import com.google.common.collect.Lists;
 import com.stratio.cassandra.lucene.IndexConfig;
+import com.stratio.cassandra.lucene.key.*;
+import com.stratio.cassandra.lucene.key.PartitionMapper;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import org.apache.cassandra.db.*;
 import org.apache.cassandra.db.composites.CellName;
@@ -45,8 +47,8 @@ public class RowServiceWide extends RowService {
 
     static {
         FIELDS_TO_LOAD = new HashSet<>();
-        FIELDS_TO_LOAD.add(PartitionKeyMapper.FIELD_NAME);
-        FIELDS_TO_LOAD.add(ClusteringKeyMapper.FIELD_NAME);
+        FIELDS_TO_LOAD.add(PartitionMapper.FIELD_NAME);
+        FIELDS_TO_LOAD.add(KeyMapper.FIELD_NAME);
     }
 
     private static final int ROWS_PER_SLICE_QUERY = 1000;

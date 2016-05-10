@@ -15,15 +15,15 @@
  */
 package com.stratio.cassandra.lucene.search.sort;
 
-import com.google.common.base.Objects;
-import com.google.common.collect.Ordering;
-import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.column.Columns;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+
+import com.google.common.base.Objects;
+import com.google.common.collect.Ordering;
+import com.stratio.cassandra.lucene.schema.Schema;
+import com.stratio.cassandra.lucene.schema.column.Columns;
 
 /**
  * A sorting of fields for a search.
