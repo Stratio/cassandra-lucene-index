@@ -15,10 +15,12 @@
  */
 package com.stratio.cassandra.lucene.key;
 
-import org.apache.lucene.search.*;
-import org.apache.lucene.util.*;
+import org.apache.lucene.search.FieldComparator;
+import org.apache.lucene.search.FieldComparatorSource;
+import org.apache.lucene.search.SortField;
+import org.apache.lucene.util.BytesRef;
 
-import java.io.*;
+import java.io.IOException;
 
 /**
  * {@link SortField} to sort by primary key.
@@ -41,7 +43,7 @@ class KeySort extends SortField {
         super(KeyMapper.FIELD_NAME, new FieldComparatorSource() {
             @Override
             public FieldComparator<?> newComparator(String field, int hits, int sort, boolean reversed)
-                    throws IOException {
+            throws IOException {
                 return new FieldComparator.TermValComparator(hits, field, false) {
                     @Override
                     public int compareValues(BytesRef val1, BytesRef val2) {

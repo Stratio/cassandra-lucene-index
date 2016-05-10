@@ -15,16 +15,20 @@
  */
 package com.stratio.cassandra.lucene.search.sort;
 
-import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
-import static org.junit.Assert.*;
+import com.stratio.cassandra.lucene.schema.Schema;
+import com.stratio.cassandra.lucene.schema.column.Column;
+import com.stratio.cassandra.lucene.schema.column.Columns;
+import org.apache.cassandra.db.marshal.UTF8Type;
+import org.junit.Test;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
-import org.apache.cassandra.db.marshal.*;
-import org.junit.*;
-
-import com.stratio.cassandra.lucene.schema.*;
-import com.stratio.cassandra.lucene.schema.column.*;
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.schema;
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.stringMapper;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 /**
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}

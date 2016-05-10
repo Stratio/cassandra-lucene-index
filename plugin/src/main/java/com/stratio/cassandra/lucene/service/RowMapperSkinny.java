@@ -15,16 +15,9 @@
  */
 package com.stratio.cassandra.lucene.service;
 
-import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-
-import org.apache.cassandra.db.ColumnFamily;
-import org.apache.cassandra.db.DataRange;
-import org.apache.cassandra.db.DecoratedKey;
-import org.apache.cassandra.db.Row;
-import org.apache.cassandra.db.RowPosition;
+import com.stratio.cassandra.lucene.IndexConfig;
+import com.stratio.cassandra.lucene.schema.column.Columns;
+import org.apache.cassandra.db.*;
 import org.apache.cassandra.db.composites.CellName;
 import org.apache.cassandra.db.composites.Composite;
 import org.apache.cassandra.db.filter.IDiskAtomFilter;
@@ -37,8 +30,10 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.TermQuery;
 
-import com.stratio.cassandra.lucene.IndexConfig;
-import com.stratio.cassandra.lucene.schema.column.Columns;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * {@link RowMapper} for skinny rows.
@@ -90,7 +85,7 @@ public class RowMapperSkinny extends RowMapper {
     /** {@inheritDoc} */
     @Override
     public final Query query(DataRange dataRange) {
-        logger.debug("received query with datarange {}",dataRange);
+        logger.debug("received query with datarange {}", dataRange);
         RowPosition startPosition = dataRange.startKey();
         RowPosition stopPosition = dataRange.stopKey();
         Token startToken = startPosition.getToken();

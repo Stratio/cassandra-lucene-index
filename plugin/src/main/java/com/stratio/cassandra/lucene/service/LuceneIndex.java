@@ -15,46 +15,26 @@
  */
 package com.stratio.cassandra.lucene.service;
 
-import java.io.IOException;
-import java.lang.management.ManagementFactory;
-import java.nio.file.Path;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
-
-import javax.management.MBeanException;
-import javax.management.ObjectName;
-import javax.management.OperationsException;
-
+import com.stratio.cassandra.lucene.IndexConfig;
 import org.apache.cassandra.io.util.FileUtils;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.IndexWriterConfig;
-import org.apache.lucene.index.SortingMergePolicy;
-import org.apache.lucene.index.Term;
-import org.apache.lucene.index.TieredMergePolicy;
-import org.apache.lucene.index.TrackingIndexWriter;
-import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.ControlledRealTimeReopenThread;
-import org.apache.lucene.search.EarlyTerminatingSortingCollector;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.SearcherFactory;
-import org.apache.lucene.search.SearcherManager;
-import org.apache.lucene.search.Sort;
-import org.apache.lucene.search.TopDocs;
-import org.apache.lucene.search.TopFieldCollector;
+import org.apache.lucene.index.*;
+import org.apache.lucene.search.*;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.NRTCachingDirectory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.stratio.cassandra.lucene.IndexConfig;
-
-
+import javax.management.MBeanException;
+import javax.management.ObjectName;
+import javax.management.OperationsException;
+import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.nio.file.Path;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Class wrapping a Lucene directory and its readers, writers and searchers for NRT.
@@ -88,7 +68,7 @@ public class LuceneIndex implements LuceneIndexMBean {
     public LuceneIndex(IndexConfig config, Sort mergeSort) throws IOException {
         this.path = config.getPath();
         this.name = config.getName();
-        this.mergeSort=mergeSort;
+        this.mergeSort = mergeSort;
         // Open or create directory
         FSDirectory fsDirectory = FSDirectory.open(path);
         directory = new NRTCachingDirectory(fsDirectory, config.getMaxMergeMB(), config.getMaxCachedMB());

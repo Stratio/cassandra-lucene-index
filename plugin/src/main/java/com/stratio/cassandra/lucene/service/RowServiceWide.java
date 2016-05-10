@@ -17,7 +17,7 @@ package com.stratio.cassandra.lucene.service;
 
 import com.google.common.collect.Lists;
 import com.stratio.cassandra.lucene.IndexConfig;
-import com.stratio.cassandra.lucene.key.*;
+import com.stratio.cassandra.lucene.key.KeyMapper;
 import com.stratio.cassandra.lucene.key.PartitionMapper;
 import com.stratio.cassandra.lucene.schema.column.Columns;
 import org.apache.cassandra.db.*;

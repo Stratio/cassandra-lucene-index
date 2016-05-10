@@ -379,10 +379,8 @@ public class IndexConfig {
             schema.validate(metadata);
         } catch (IndexException e) {
             if (Files.exists(path)) {
-                logger.error(String.format(
-                    "Lucene index '%s' has an invalid schema probably due to schema changes in the indexed table: %s",
-                    columnDefinition.getIndexName(),
-                    e.getMessage()));
+                logger.error("Index '{}' schema is invalid probably due to schema changes in the indexed table: {}",
+                             columnDefinition.getIndexName(), e.getMessage());
             } else {
                 throw new IndexException(e, "'%s' is invalid : %s", SCHEMA_OPTION, e.getMessage());
             }

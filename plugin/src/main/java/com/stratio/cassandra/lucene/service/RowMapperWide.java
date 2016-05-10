@@ -15,24 +15,29 @@
  */
 package com.stratio.cassandra.lucene.service;
 
-import java.nio.*;
-import java.util.*;
-
+import com.google.common.collect.Ordering;
+import com.stratio.cassandra.lucene.IndexConfig;
+import com.stratio.cassandra.lucene.key.KeyMapper;
+import com.stratio.cassandra.lucene.schema.column.Columns;
 import org.apache.cassandra.db.*;
-import org.apache.cassandra.db.composites.*;
-import org.apache.cassandra.db.filter.*;
-import org.apache.cassandra.dht.*;
-import org.apache.cassandra.utils.*;
-import org.apache.lucene.document.*;
-import org.apache.lucene.index.*;
+import org.apache.cassandra.db.composites.CellName;
+import org.apache.cassandra.db.composites.Composite;
+import org.apache.cassandra.db.filter.ColumnSlice;
+import org.apache.cassandra.db.filter.SliceQueryFilter;
+import org.apache.cassandra.dht.Token;
+import org.apache.cassandra.utils.ByteBufferUtil;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.index.Term;
 import org.apache.lucene.search.*;
 
-import com.google.common.collect.*;
-import com.stratio.cassandra.lucene.*;
-import com.stratio.cassandra.lucene.key.*;
-import com.stratio.cassandra.lucene.schema.column.*;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 
-import static org.apache.lucene.search.BooleanClause.Occur.*;
+import static org.apache.lucene.search.BooleanClause.Occur.FILTER;
+import static org.apache.lucene.search.BooleanClause.Occur.SHOULD;
 
 /**
  * {@link RowMapper} for wide rows.
@@ -85,7 +90,7 @@ public class RowMapperWide extends RowMapper {
     /** {@inheritDoc} */
     @Override
     public List<SortField> keySortFields() {
-        return Arrays.asList( tokenMapper.sortField(),keyMapper.sortField());
+        return Arrays.asList(tokenMapper.sortField(), keyMapper.sortField());
     }
 
     /** {@inheritDoc} */
@@ -148,7 +153,7 @@ public class RowMapperWide extends RowMapper {
         Composite stopName = sqf.finish();
 
         if ((isSameToken) && (startPosition instanceof DecoratedKey)) {
-            return keyMapper.query((DecoratedKey) startPosition,startName,stopName,includeStart, includeStop);
+            return keyMapper.query((DecoratedKey) startPosition, startName, stopName, includeStart, includeStop);
         }
 
         BooleanQuery.Builder builder = new BooleanQuery.Builder();
@@ -199,7 +204,7 @@ public class RowMapperWide extends RowMapper {
      * RangeTombstone}.
      */
     public Query query(DecoratedKey partitionKey, RangeTombstone rangeTombstone) {
-        return keyMapper.query(partitionKey,rangeTombstone.min, rangeTombstone.max,false, false);
+        return keyMapper.query(partitionKey, rangeTombstone.min, rangeTombstone.max, false, false);
     }
 
     /**

@@ -15,18 +15,27 @@
  */
 package com.stratio.cassandra.lucene.key;
 
-import org.apache.cassandra.config.*;
-import org.apache.cassandra.db.*;
-import org.apache.cassandra.db.marshal.*;
-import org.apache.cassandra.dht.*;
-import org.apache.lucene.document.*;
-import org.apache.lucene.index.*;
-import org.apache.lucene.search.*;
+import com.stratio.cassandra.lucene.IndexException;
+import org.apache.cassandra.config.DatabaseDescriptor;
+import org.apache.cassandra.db.DecoratedKey;
+import org.apache.cassandra.db.Row;
+import org.apache.cassandra.db.RowPosition;
+import org.apache.cassandra.db.marshal.LongType;
+import org.apache.cassandra.dht.IPartitioner;
+import org.apache.cassandra.dht.Murmur3Partitioner;
+import org.apache.cassandra.dht.Token;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.FieldType;
+import org.apache.lucene.document.LongField;
+import org.apache.lucene.index.DocValuesType;
+import org.apache.lucene.index.IndexOptions;
+import org.apache.lucene.search.DocValuesRangeQuery;
+import org.apache.lucene.search.NumericRangeQuery;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.SortField;
 
-import com.stratio.cassandra.lucene.*;
-
-import java.nio.*;
-import java.util.*;
+import java.nio.ByteBuffer;
+import java.util.Comparator;
 
 /**
  * Class for several row partitioning {@link Token} mappings between Cassandra and Lucene.
@@ -64,7 +73,6 @@ public final class TokenMapper {
     }
 
     /**
-     *
      * @param token A {@link Token}.
      * @return the {@code token}'s {@link Long} value
      */
@@ -86,7 +94,7 @@ public final class TokenMapper {
      * Adds to the specified {@link Document} the {@link org.apache.lucene.document.Field}s associated to the token of
      * the specified row key.
      *
-     * @param document     A {@link Document}.
+     * @param document A {@link Document}.
      * @param partitionKey The raw partition key to be added.
      */
     public void addFields(Document document, DecoratedKey partitionKey) {
@@ -98,8 +106,8 @@ public final class TokenMapper {
     /**
      * Returns a Lucene {@link Query} for retrieving the documents inside the specified {@link Token} range.
      *
-     * @param lower        The lower accepted {@link Token}. Maybe null meaning no lower limit.
-     * @param upper        The upper accepted {@link Token}. Maybe null meaning no lower limit.
+     * @param lower The lower accepted {@link Token}. Maybe null meaning no lower limit.
+     * @param upper The upper accepted {@link Token}. Maybe null meaning no lower limit.
      * @param includeLower If the {@code lowerValue} is included in the range.
      * @param includeUpper If the {@code upperValue} is included in the range.
      * @return A Lucene {@link Query} for retrieving the documents inside the specified {@link Token} range.
@@ -140,8 +148,8 @@ public final class TokenMapper {
     /**
      * Returns a Lucene {@link Query} for retrieving the documents inside the specified {@link Token} range.
      *
-     * @param lower        The lower accepted {@link Token}. Maybe null meaning no lower limit.
-     * @param upper        The upper accepted {@link Token}. Maybe null meaning no lower limit.
+     * @param lower The lower accepted {@link Token}. Maybe null meaning no lower limit.
+     * @param upper The upper accepted {@link Token}. Maybe null meaning no lower limit.
      * @param includeLower If the {@code lowerValue} is included in the range.
      * @param includeUpper If the {@code upperValue} is included in the range.
      * @return A Lucene {@link Query} for retrieving the documents inside the specified {@link Token} range.

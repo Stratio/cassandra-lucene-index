@@ -15,19 +15,19 @@
  */
 package com.stratio.cassandra.lucene.search.sort;
 
-import java.util.*;
-
-import org.apache.commons.lang3.*;
-import org.apache.lucene.queries.function.*;
-import org.apache.lucene.spatial.*;
-
 import com.google.common.base.Objects;
-import com.spatial4j.core.distance.*;
-import com.spatial4j.core.shape.*;
-import com.stratio.cassandra.lucene.*;
-import com.stratio.cassandra.lucene.schema.*;
-import com.stratio.cassandra.lucene.schema.column.*;
-import com.stratio.cassandra.lucene.schema.mapping.*;
+import com.spatial4j.core.distance.DistanceUtils;
+import com.spatial4j.core.shape.Point;
+import com.stratio.cassandra.lucene.IndexException;
+import com.stratio.cassandra.lucene.schema.Schema;
+import com.stratio.cassandra.lucene.schema.column.Columns;
+import com.stratio.cassandra.lucene.schema.mapping.GeoPointMapper;
+import com.stratio.cassandra.lucene.schema.mapping.Mapper;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.lucene.queries.function.ValueSource;
+import org.apache.lucene.spatial.SpatialStrategy;
+
+import java.util.Comparator;
 
 /**
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
@@ -52,10 +52,10 @@ public class GeoDistanceSortField extends SortField {
     /**
      * Returns a new {@link SortField}.
      *
-     * @param mapper    {@code true} if natural order should be reversed.
-     * @param reverse   {@code true} if natural order should be reversed.
+     * @param mapper {@code true} if natural order should be reversed.
+     * @param reverse {@code true} if natural order should be reversed.
      * @param longitude the longitude of the center point to sort by min distance to it.
-     * @param latitude  the latitude of the center point to sort by min distance to it.
+     * @param latitude the latitude of the center point to sort by min distance to it.
      */
     public GeoDistanceSortField(String mapper, Boolean reverse, double longitude, double latitude) {
         super(reverse);
@@ -155,11 +155,11 @@ public class GeoDistanceSortField extends SortField {
     @Override
     public String toString() {
         return Objects.toStringHelper(this)
-                .add("field", mapper)
-                .add("reverse", reverse)
-                .add("longitude", longitude)
-                .add("latitude", latitude)
-                .toString();
+                      .add("field", mapper)
+                      .add("reverse", reverse)
+                      .add("longitude", longitude)
+                      .add("latitude", latitude)
+                      .toString();
     }
 
     /**
@@ -175,9 +175,9 @@ public class GeoDistanceSortField extends SortField {
         }
         GeoDistanceSortField other = (GeoDistanceSortField) o;
         return reverse == other.reverse &&
-                mapper.equals(other.mapper) &&
-                longitude == other.longitude &&
-                latitude == other.latitude;
+               mapper.equals(other.mapper) &&
+               longitude == other.longitude &&
+               latitude == other.latitude;
     }
 
     /**
@@ -197,8 +197,8 @@ public class GeoDistanceSortField extends SortField {
             return null;
         }
         return DistanceUtils.distHaversineRAD(DistanceUtils.toRadians(latitude),
-                DistanceUtils.toRadians(longitude),
-                DistanceUtils.toRadians(oLat),
-                DistanceUtils.toRadians(oLon));
+                                              DistanceUtils.toRadians(longitude),
+                                              DistanceUtils.toRadians(oLat),
+                                              DistanceUtils.toRadians(oLon));
     }
 }

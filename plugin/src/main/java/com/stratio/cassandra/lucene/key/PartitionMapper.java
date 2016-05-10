@@ -15,23 +15,29 @@
  */
 package com.stratio.cassandra.lucene.key;
 
-import org.apache.cassandra.config.*;
-import org.apache.cassandra.db.*;
-import org.apache.cassandra.db.marshal.*;
-import org.apache.cassandra.dht.*;
-import org.apache.cassandra.utils.*;
-import org.apache.lucene.document.*;
-import org.apache.lucene.index.*;
-import org.apache.lucene.search.*;
-import org.apache.lucene.util.*;
-
 import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.column.*;
-import com.stratio.cassandra.lucene.util.*;
+import com.stratio.cassandra.lucene.schema.column.Column;
+import com.stratio.cassandra.lucene.schema.column.Columns;
+import com.stratio.cassandra.lucene.util.ByteBufferUtils;
+import org.apache.cassandra.config.CFMetaData;
+import org.apache.cassandra.config.ColumnDefinition;
+import org.apache.cassandra.config.DatabaseDescriptor;
+import org.apache.cassandra.db.DecoratedKey;
+import org.apache.cassandra.db.marshal.AbstractType;
+import org.apache.cassandra.dht.IPartitioner;
+import org.apache.cassandra.utils.ByteBufferUtil;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
+import org.apache.lucene.document.FieldType;
+import org.apache.lucene.index.DocValuesType;
+import org.apache.lucene.index.IndexOptions;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.search.*;
+import org.apache.lucene.util.BytesRef;
 
-import java.io.*;
-import java.nio.*;
-import java.util.*;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.List;
 
 /**
  * Class for several partition key mappings between Cassandra and Lucene.
@@ -75,7 +81,7 @@ public final class PartitionMapper {
      * Returns a new {@code PartitionMapper} according to the specified column family meta data.
      *
      * @param metadata The column family metadata.
-     * @param schema   A {@link Schema}.
+     * @param schema A {@link Schema}.
      */
     public PartitionMapper(CFMetaData metadata, Schema schema) {
         partitioner = DatabaseDescriptor.getPartitioner();
@@ -91,7 +97,7 @@ public final class PartitionMapper {
     /**
      * Adds to the specified {@link Document} the {@link Field}s associated to the specified raw partition key.
      *
-     * @param document     The document in which the fields are going to be added.
+     * @param document The document in which the fields are going to be added.
      * @param partitionKey The raw partition key to be converted.
      */
     public void addFields(Document document, DecoratedKey partitionKey) {
@@ -177,7 +183,7 @@ public final class PartitionMapper {
         return new SortField(FIELD_NAME, new FieldComparatorSource() {
             @Override
             public FieldComparator<?> newComparator(String field, int hits, int sort, boolean reversed)
-                    throws IOException {
+            throws IOException {
                 return new FieldComparator.TermValComparator(hits, field, false) {
                     @Override
                     public int compareValues(BytesRef val1, BytesRef val2) {

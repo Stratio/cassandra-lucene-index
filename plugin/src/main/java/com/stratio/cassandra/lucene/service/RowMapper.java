@@ -15,18 +15,17 @@
  */
 package com.stratio.cassandra.lucene.service;
 
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-
+import com.google.common.collect.Ordering;
+import com.stratio.cassandra.lucene.IndexConfig;
+import com.stratio.cassandra.lucene.key.PartitionMapper;
+import com.stratio.cassandra.lucene.key.TokenMapper;
+import com.stratio.cassandra.lucene.schema.Schema;
+import com.stratio.cassandra.lucene.schema.column.Columns;
+import com.stratio.cassandra.lucene.search.Search;
+import com.stratio.cassandra.lucene.util.ByteBufferUtils;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
-import org.apache.cassandra.db.Cell;
-import org.apache.cassandra.db.ColumnFamily;
-import org.apache.cassandra.db.DataRange;
-import org.apache.cassandra.db.DecoratedKey;
-import org.apache.cassandra.db.Row;
+import org.apache.cassandra.db.*;
 import org.apache.cassandra.db.composites.CellName;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.lucene.document.Document;
@@ -37,14 +36,10 @@ import org.apache.lucene.search.SortField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Ordering;
-import com.stratio.cassandra.lucene.IndexConfig;
-import com.stratio.cassandra.lucene.key.PartitionMapper;
-import com.stratio.cassandra.lucene.key.TokenMapper;
-import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.schema.column.Columns;
-import com.stratio.cassandra.lucene.search.Search;
-import com.stratio.cassandra.lucene.util.ByteBufferUtils;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * Class for several {@link Row} mappings between Cassandra and Lucene data models.

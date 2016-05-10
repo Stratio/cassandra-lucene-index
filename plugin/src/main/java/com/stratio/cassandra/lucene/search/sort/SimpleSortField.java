@@ -15,17 +15,18 @@
  */
 package com.stratio.cassandra.lucene.search.sort;
 
-import static org.apache.lucene.search.SortField.*;
-
-import java.util.*;
-
-import org.apache.commons.lang3.*;
-
 import com.google.common.base.Objects;
-import com.stratio.cassandra.lucene.*;
-import com.stratio.cassandra.lucene.schema.*;
-import com.stratio.cassandra.lucene.schema.column.*;
-import com.stratio.cassandra.lucene.schema.mapping.*;
+import com.stratio.cassandra.lucene.IndexException;
+import com.stratio.cassandra.lucene.schema.Schema;
+import com.stratio.cassandra.lucene.schema.column.Column;
+import com.stratio.cassandra.lucene.schema.column.Columns;
+import com.stratio.cassandra.lucene.schema.mapping.Mapper;
+import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.Comparator;
+
+import static org.apache.lucene.search.SortField.FIELD_SCORE;
 
 /**
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}

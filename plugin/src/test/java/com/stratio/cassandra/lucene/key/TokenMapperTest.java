@@ -15,22 +15,29 @@
  */
 package com.stratio.cassandra.lucene.key;
 
-import org.apache.cassandra.config.*;
-import org.apache.cassandra.db.*;
-import org.apache.cassandra.db.marshal.*;
+import com.stratio.cassandra.lucene.IndexException;
+import org.apache.cassandra.config.CFMetaData;
+import org.apache.cassandra.config.Config;
+import org.apache.cassandra.config.DatabaseDescriptor;
+import org.apache.cassandra.db.ArrayBackedSortedColumns;
+import org.apache.cassandra.db.DecoratedKey;
+import org.apache.cassandra.db.Row;
+import org.apache.cassandra.db.RowPosition;
+import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.dht.*;
-import org.apache.lucene.document.*;
-import org.apache.lucene.index.*;
-import org.apache.lucene.search.*;
-import org.junit.*;
-import org.mockito.*;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.index.IndexableField;
+import org.apache.lucene.search.DocValuesRangeQuery;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.SortField;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.mockito.Mockito;
 
-import com.stratio.cassandra.lucene.*;
+import java.util.Comparator;
 
-import java.util.*;
 import static junit.framework.Assert.*;
-import static org.mockito.Mockito.*;
-
+import static org.mockito.Mockito.when;
 
 /**
  * Unit tests for {@link TokenMapper}.
@@ -45,13 +52,14 @@ public class TokenMapperTest {
     private void setMurmur3Partitioneer() {
         Config.setClientMode(true);
         DatabaseDescriptor.setPartitioner(partitioner);
-        mapper= new TokenMapper();
+        mapper = new TokenMapper();
     }
+
     @BeforeClass
     public static void beforeClass() {
         Config.setClientMode(true);
         DatabaseDescriptor.setPartitioner(partitioner);
-        mapper= new TokenMapper();
+        mapper = new TokenMapper();
     }
 
     @Test
@@ -62,7 +70,10 @@ public class TokenMapperTest {
         try {
             TokenMapper tm = new TokenMapper();
         } catch (IndexException iE) {
-            assertEquals("Building a TokenMapper with a ByteOrdered Partitioner must return an IndexException with an exact message: \"Only Murmur3 partitioner is supported\"", "Only Murmur3 partitioner is supported", iE.getMessage());
+            assertEquals(
+                    "Building a TokenMapper with a ByteOrdered Partitioner must return an IndexException with an exact message: \"Only Murmur3 partitioner is supported\"",
+                    "Only Murmur3 partitioner is supported",
+                    iE.getMessage());
         }
     }
 
@@ -73,7 +84,10 @@ public class TokenMapperTest {
         try {
             TokenMapper tm = new TokenMapper();
         } catch (IndexException iE) {
-            assertEquals("Building a TokenMapper with a OrderPreserving Partitioner must return an IndexException with an exact message: \"Only Murmur3 partitioner is supported\"", "Only Murmur3 partitioner is supported", iE.getMessage());
+            assertEquals(
+                    "Building a TokenMapper with a OrderPreserving Partitioner must return an IndexException with an exact message: \"Only Murmur3 partitioner is supported\"",
+                    "Only Murmur3 partitioner is supported",
+                    iE.getMessage());
         }
     }
 
@@ -84,7 +98,10 @@ public class TokenMapperTest {
         try {
             TokenMapper tm = new TokenMapper();
         } catch (IndexException iE) {
-            assertEquals("Building a TokenMapper with a RandomPartitioner Partitioner must return an IndexException with an exact message: \"Only Murmur3 partitioner is supported\"", "Only Murmur3 partitioner is supported", iE.getMessage());
+            assertEquals(
+                    "Building a TokenMapper with a RandomPartitioner Partitioner must return an IndexException with an exact message: \"Only Murmur3 partitioner is supported\"",
+                    "Only Murmur3 partitioner is supported",
+                    iE.getMessage());
         }
     }
 
@@ -95,7 +112,10 @@ public class TokenMapperTest {
         try {
             TokenMapper tm = new TokenMapper();
         } catch (IndexException iE) {
-            assertEquals("Building a TokenMapper with a LocalPartitioner Partitioner must return an IndexException with an exact message: \"Only Murmur3 partitioner is supported\"", "Only Murmur3 partitioner is supported", iE.getMessage());
+            assertEquals(
+                    "Building a TokenMapper with a LocalPartitioner Partitioner must return an IndexException with an exact message: \"Only Murmur3 partitioner is supported\"",
+                    "Only Murmur3 partitioner is supported",
+                    iE.getMessage());
         }
     }
 
@@ -237,8 +257,8 @@ public class TokenMapperTest {
         Query query = mapper.query(token);
         assertNotNull("Query should be not null", query);
         assertEquals("Hash value is wrong",
-                "_token:[-6847573755651342660 TO -6847573755651342660]",
-                query.toString());
+                     "_token:[-6847573755651342660 TO -6847573755651342660]",
+                     query.toString());
     }
 
     @Test
@@ -249,8 +269,8 @@ public class TokenMapperTest {
         Query query = mapper.query(token1, token2, true, false);
         assertNotNull("Query should be not null", query);
         assertEquals("Hash value is wrong",
-                "_token:[1573573083296714675 TO 8482869187405483569}",
-                query.toString());
+                     "_token:[1573573083296714675 TO 8482869187405483569}",
+                     query.toString());
     }
 
     @Test

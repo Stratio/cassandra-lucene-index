@@ -15,22 +15,34 @@
  */
 package com.stratio.cassandra.lucene.key;
 
-import org.apache.cassandra.config.*;
+import com.stratio.cassandra.lucene.schema.column.Column;
+import com.stratio.cassandra.lucene.schema.column.Columns;
+import com.stratio.cassandra.lucene.service.RowKey;
+import com.stratio.cassandra.lucene.util.ByteBufferUtils;
+import org.apache.cassandra.config.CFMetaData;
+import org.apache.cassandra.config.ColumnDefinition;
+import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.db.*;
-import org.apache.cassandra.db.composites.*;
-import org.apache.cassandra.db.filter.*;
-import org.apache.cassandra.db.marshal.*;
-import org.apache.cassandra.utils.*;
-import org.apache.lucene.document.*;
-import org.apache.lucene.index.*;
-import org.apache.lucene.search.*;
-import org.apache.lucene.util.*;
+import org.apache.cassandra.db.composites.CBuilder;
+import org.apache.cassandra.db.composites.CellName;
+import org.apache.cassandra.db.composites.CellNameType;
+import org.apache.cassandra.db.composites.Composite;
+import org.apache.cassandra.db.filter.ColumnSlice;
+import org.apache.cassandra.db.marshal.AbstractType;
+import org.apache.cassandra.db.marshal.CompositeType;
+import org.apache.cassandra.db.marshal.LongType;
+import org.apache.cassandra.utils.ByteBufferUtil;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
+import org.apache.lucene.document.FieldType;
+import org.apache.lucene.index.DocValuesType;
+import org.apache.lucene.index.IndexOptions;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.SortField;
+import org.apache.lucene.util.BytesRef;
 
-import com.stratio.cassandra.lucene.schema.column.*;
-import com.stratio.cassandra.lucene.service.*;
-import com.stratio.cassandra.lucene.util.*;
-
-import java.nio.*;
+import java.nio.ByteBuffer;
 import java.util.*;
 
 /**
@@ -108,16 +120,16 @@ public final class KeyMapper {
      * Returns the {@link ByteBuffer} representation of the full row key formed by the specified partition key and the
      * clustering key.
      *
-     * @param partitionKey  A partition key.
+     * @param partitionKey A partition key.
      * @param clusteringKey A clustering key.
      * @return The {@link ByteBuffer} representation of the full row key formed by the specified key pair.
      */
     public ByteBuffer byteBuffer(DecoratedKey partitionKey, Composite clusteringKey) {
         return type.builder()
-                .add(TokenMapper.byteBuffer(partitionKey.getToken()))
-                .add(partitionKey.getKey())
-                .add(clusteringKey.toByteBuffer())
-                .build();
+                   .add(TokenMapper.byteBuffer(partitionKey.getToken()))
+                   .add(partitionKey.getKey())
+                   .add(clusteringKey.toByteBuffer())
+                   .build();
     }
 
     /**
@@ -136,7 +148,7 @@ public final class KeyMapper {
     /**
      * Returns a hash code to uniquely identify a CQL logical row key.
      *
-     * @param partitionKey  A partition key.
+     * @param partitionKey A partition key.
      * @param clusteringKey A clustering key.
      * @return A hash code to uniquely identify a CQL logical row key.
      */
@@ -148,8 +160,8 @@ public final class KeyMapper {
      * Adds to the specified Lucene {@link Document} the full row key formed by the specified partition key and the
      * clustering key.
      *
-     * @param document      A Lucene {@link Document}.
-     * @param partitionKey  A partition key.
+     * @param document A Lucene {@link Document}.
+     * @param partitionKey A partition key.
      * @param clusteringKey A clustering key.
      */
     public void addFields(Document document, DecoratedKey partitionKey, CellName clusteringKey) {
@@ -162,7 +174,7 @@ public final class KeyMapper {
      * Returns the Lucene {@link Term} representing the full row key formed by the specified partition key and the
      * clustering key.
      *
-     * @param partitionKey  A partition key.
+     * @param partitionKey A partition key.
      * @param clusteringKey A clustering key.
      * @return The Lucene {@link Term} representing the full row key formed by the specified key pair.
      */
@@ -173,7 +185,7 @@ public final class KeyMapper {
     /**
      * Returns the {@link BytesRef} representation of the specified primary key.
      *
-     * @param key           the partition key
+     * @param key the partition key
      * @param clusteringKey the clustering key
      * @return the Lucene field binary value
      */
@@ -262,18 +274,18 @@ public final class KeyMapper {
     /**
      * Returns a Lucene {@link Query} to retrieve all the rows in the specified partition slice.
      *
-     * @param key                  the partition key
-     * @param start                the start clustering prefix
-     * @param stop                 the stop clustering prefix
+     * @param key the partition key
+     * @param start the start clustering prefix
+     * @param stop the stop clustering prefix
      * @param acceptLowerConflicts if rows with the same token before key should be accepted
      * @param acceptUpperConflicts if rows with the same token after key should be accepted
      * @return the Lucene query
      */
     public Query query(DecoratedKey key,
-            Composite start,
-            Composite stop,
-            boolean acceptLowerConflicts,
-            boolean acceptUpperConflicts) {
+                       Composite start,
+                       Composite stop,
+                       boolean acceptLowerConflicts,
+                       boolean acceptUpperConflicts) {
         return new KeyQuery(this, key, start, stop, acceptLowerConflicts, acceptUpperConflicts);
     }
 
@@ -301,7 +313,7 @@ public final class KeyMapper {
     /**
      * Returns the storage engine column name for the specified column identifier using the specified clustering key.
      *
-     * @param cellName         The clustering key.
+     * @param cellName The clustering key.
      * @param columnDefinition The column definition.
      * @return A storage engine column name.
      */

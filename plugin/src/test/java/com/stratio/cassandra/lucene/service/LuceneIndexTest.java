@@ -15,24 +15,29 @@
  */
 package com.stratio.cassandra.lucene.service;
 
-import java.io.*;
-import java.nio.file.*;
-import java.util.*;
-
-import org.apache.lucene.analysis.standard.*;
-import org.apache.lucene.document.*;
-import org.apache.lucene.index.*;
-import org.apache.lucene.search.IndexSearcher;
+import com.google.common.collect.Sets;
+import com.stratio.cassandra.lucene.IndexConfig;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
+import org.apache.lucene.document.SortedDocValuesField;
+import org.apache.lucene.document.StringField;
+import org.apache.lucene.index.Term;
 import org.apache.lucene.search.*;
-import org.apache.lucene.util.*;
-import org.junit.*;
-import org.junit.rules.*;
+import org.apache.lucene.util.BytesRef;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
-import com.google.common.collect.*;
-import com.stratio.cassandra.lucene.*;
+import java.io.IOException;
+import java.nio.file.Paths;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
-import static junit.framework.Assert.*;
-import static org.mockito.Mockito.*;
+import static junit.framework.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
@@ -58,7 +63,7 @@ public class LuceneIndexTest {
         when(config.getRefreshSeconds()).thenReturn(REFRESH_SECONDS);
         when(config.getAnalyzer()).thenReturn(new StandardAnalyzer());
         Sort sort = new Sort(new SortField("field", SortField.Type.STRING));
-        LuceneIndex index = new LuceneIndex(config,sort);
+        LuceneIndex index = new LuceneIndex(config, sort);
 
         assertEquals("Index must be empty", 0, index.getNumDocs());
 

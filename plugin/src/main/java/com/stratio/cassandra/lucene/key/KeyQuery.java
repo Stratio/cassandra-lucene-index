@@ -15,18 +15,24 @@
  */
 package com.stratio.cassandra.lucene.key;
 
-import org.apache.cassandra.db.*;
-import org.apache.cassandra.db.composites.*;
-import org.apache.cassandra.dht.*;
-import org.apache.commons.lang3.builder.*;
-import org.apache.lucene.index.*;
-import org.apache.lucene.search.*;
-import org.apache.lucene.util.*;
-import org.slf4j.*;
+import org.apache.cassandra.db.DecoratedKey;
+import org.apache.cassandra.db.composites.CellNameType;
+import org.apache.cassandra.db.composites.Composite;
+import org.apache.cassandra.dht.Token;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.lucene.index.FilteredTermsEnum;
+import org.apache.lucene.index.Terms;
+import org.apache.lucene.index.TermsEnum;
+import org.apache.lucene.search.MultiTermQuery;
+import org.apache.lucene.util.AttributeSource;
+import org.apache.lucene.util.BytesRef;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.*;
-import java.nio.*;
-import java.util.*;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * {@link MultiTermQuery} to get a range of clustering keys.
@@ -53,11 +59,11 @@ class KeyQuery extends MultiTermQuery {
      * @param acceptUpperConflicts if accept upper token conflicts
      */
     KeyQuery(KeyMapper mapper,
-            DecoratedKey key,
-            Composite start,
-            Composite stop,
-            boolean acceptLowerConflicts,
-            boolean acceptUpperConflicts) {
+             DecoratedKey key,
+             Composite start,
+             Composite stop,
+             boolean acceptLowerConflicts,
+             boolean acceptUpperConflicts) {
         super(KeyMapper.FIELD_NAME);
         this.mapper = mapper;
         this.key = key;
@@ -79,11 +85,11 @@ class KeyQuery extends MultiTermQuery {
     @Override
     public String toString(String field) {
         return new ToStringBuilder(this).append("field", field)
-                .append("key", key)
-                .append("start", start == null ? null : mapper.toString(start))
-                .append("stop", stop == null ? null : mapper.toString(stop))
+                                        .append("key", key)
+                                        .append("start", start == null ? null : mapper.toString(start))
+                                        .append("stop", stop == null ? null : mapper.toString(stop))
 
-                .toString();
+                                        .toString();
     }
 
     private class FullKeyDataRangeFilteredTermsEnum extends FilteredTermsEnum {

@@ -136,8 +136,8 @@ public class IndexQueryHandler implements QueryHandler {
     }
 
     private ResultMessage process(CQLStatement statement,
-                                 QueryState state,
-                                 QueryOptions options)
+                                  QueryState state,
+                                  QueryOptions options)
     throws RequestExecutionException, RequestValidationException {
 
         if (statement.getBoundTerms() != options.getValues().size()) {
