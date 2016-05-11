@@ -163,7 +163,7 @@
                                     <mode>0775</mode>
                                 </directoryAttributes>
                                 <fileAttributes>
-                                    <mode>0644</mode>
+                                    <mode>0664</mode>
                                     <user>cassandra</user>
                                     <group>stratio</group>
                                 </fileAttributes>
