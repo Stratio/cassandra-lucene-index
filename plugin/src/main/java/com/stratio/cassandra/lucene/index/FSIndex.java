@@ -17,7 +17,6 @@ package com.stratio.cassandra.lucene.index;
 
 import com.stratio.cassandra.lucene.IndexException;
 import org.apache.cassandra.io.util.FileUtils;
-import org.apache.cassandra.utils.Pair;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.*;
@@ -32,8 +31,6 @@ import javax.management.ObjectName;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -98,6 +95,12 @@ public class FSIndex implements FSIndexMBean {
         this.maxCachedMB = maxCachedMB;
     }
 
+    /**
+     * Initializes this index with the specified merge sort and fields to be loaded.
+     *
+     * @param mergeSort the sort to be applied to the index during merges
+     * @param fields the names of the document fields to be loaded
+     */
     public void init(Sort mergeSort, Set<String> fields) {
         this.mergeSort = mergeSort;
         this.fields = fields;
@@ -271,31 +274,7 @@ public class FSIndex implements FSIndexMBean {
                      "after: {}\n" +
                      "query: {}\n" +
                      " sort: {}", name, count, after, query, sort);
-        return new DocumentIterator(this, query, sort, after, count);
-    }
-
-    List<Pair<Document, ScoreDoc>> doSearch(Query query, Sort sort, ScoreDoc after, int count) {
-        try {
-            return doWithSearcher(searcher -> {
-                TopDocs topDocs;
-                if (after == null && EarlyTerminatingSortingCollector.canEarlyTerminate(sort, mergeSort)) {
-                    TopFieldCollector collector = TopFieldCollector.create(sort, count, null, true, false, false);
-                    searcher.search(query, new EarlyTerminatingSortingCollector(collector, sort, count, mergeSort));
-                    topDocs = collector.topDocs();
-                } else {
-                    topDocs = searcher.searchAfter(after, query, count, sort.rewrite(searcher));
-                }
-
-                List<Pair<Document, ScoreDoc>> results = new ArrayList<>(count);
-                for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
-                    Document document = searcher.doc(scoreDoc.doc, fields);
-                    results.add(Pair.create(document, scoreDoc));
-                }
-                return results;
-            });
-        } catch (Exception e) {
-            throw new IndexException(logger, e, "Error searching in with %s and %s", query, sort);
-        }
+        return new DocumentIterator(searcherManager, query, sort, mergeSort, count, fields);
     }
 
     /**

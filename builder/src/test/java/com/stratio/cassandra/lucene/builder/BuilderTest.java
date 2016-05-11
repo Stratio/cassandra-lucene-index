@@ -254,6 +254,7 @@ public class BuilderTest {
         String actual = geoShapeMapper().column("shape")
                                         .maxLevels(7)
                                         .transform(centroidGeoTransformation(),
+                                                   convexHullGeoTransformation(),
                                                    differenceGeoTransformation("my_difference_shape"),
                                                    intersectionGeoTransformation("my_intersection_shape"),
                                                    unionGeoTransformation("my_union_shape"),
@@ -261,6 +262,7 @@ public class BuilderTest {
                                         .build();
         String expected = "{\"type\":\"geo_shape\",\"column\":\"shape\",\"transformations\":[" +
                           "{\"type\":\"centroid\"}," +
+                          "{\"type\":\"convex_hull\"}," +
                           "{\"type\":\"difference\",\"shape\":\"my_difference_shape\"}," +
                           "{\"type\":\"intersection\",\"shape\":\"my_intersection_shape\"}," +
                           "{\"type\":\"union\",\"shape\":\"my_union_shape\"}," +
@@ -624,6 +626,7 @@ public class BuilderTest {
     public void testGeoShapeConditionFull() {
         String actual = geoShape("field", "my_shape").operation("intersects")
                                                      .transform(centroidGeoTransformation(),
+                                                                convexHullGeoTransformation(),
                                                                 differenceGeoTransformation("my_difference_shape"),
                                                                 intersectionGeoTransformation("my_intersection_shape"),
                                                                 unionGeoTransformation("my_union_shape"),
@@ -633,6 +636,7 @@ public class BuilderTest {
         String expected = "{\"type\":\"geo_shape\",\"field\":\"field\",\"shape\":\"my_shape\"," +
                           "\"operation\":\"intersects\",\"transformations\":[" +
                           "{\"type\":\"centroid\"}," +
+                          "{\"type\":\"convex_hull\"}," +
                           "{\"type\":\"difference\",\"shape\":\"my_difference_shape\"}," +
                           "{\"type\":\"intersection\",\"shape\":\"my_intersection_shape\"}," +
                           "{\"type\":\"union\",\"shape\":\"my_union_shape\"}," +

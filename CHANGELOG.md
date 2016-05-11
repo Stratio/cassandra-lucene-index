@@ -4,6 +4,8 @@
 
 * Fix invalid WKT shapes by zero-buffering them
 * Fix memory consumption issues with high fetch sizes
+* Early terminate in inner pagination (improves allow filtering performance)
+* Add transformation for getting the convex hull of a geographical shape
 
 ## 3.5.0 (3 May 2016)
 
