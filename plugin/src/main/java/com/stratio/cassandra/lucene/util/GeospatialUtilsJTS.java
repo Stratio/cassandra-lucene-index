@@ -36,25 +36,27 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class GeospatialUtilsJTS extends GeospatialUtils {
 
+    /** The spatial context to be used. */
+    public static final JtsSpatialContext CONTEXT = JtsSpatialContext.GEO;
+
     /**
      * Returns the {@link JtsGeometry} represented by the specified WKT text.
      *
-     * @param context the JTS spatial context
      * @param string the WKT text
      * @return the parsed geometry
      */
-    public static JtsGeometry geometryFromWKT(JtsSpatialContext context, String string) {
+    public static JtsGeometry geometry(String string) {
         if (StringUtils.isBlank(string)) {
             throw new IndexException("Shape shouldn't be blank");
         }
         try {
-            GeometryFactory geometryFactory = context.getGeometryFactory();
+            GeometryFactory geometryFactory = CONTEXT.getGeometryFactory();
             WKTReader reader = new WKTReader(geometryFactory);
             Geometry geometry = reader.read(string);
             if (!geometry.isValid()) {
                 geometry = geometry.buffer(0);
             }
-            return context.makeShape(geometry);
+            return CONTEXT.makeShape(geometry);
         } catch (ParseException | IllegalArgumentException e) {
             throw new IndexException(e, "Shape '%s' is not parseable", string);
         }

@@ -24,7 +24,7 @@ import org.junit.Test;
 
 import java.nio.ByteBuffer;
 
-import static junit.framework.Assert.*;
+import static org.junit.Assert.*;
 
 /**
  * Class for testing {@link ByteBufferUtils}.

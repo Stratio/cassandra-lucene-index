@@ -17,7 +17,7 @@ package com.stratio.cassandra.lucene.index;
 
 import org.junit.Test;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
@@ -28,12 +28,12 @@ public class NoIDFSimilarityTest {
     public void testIDFSimilarity() {
         NoIDFSimilarity noIDFSimilarity = new NoIDFSimilarity();
 
-        assertEquals("NoIDFSimilarity must always return 1.0f", noIDFSimilarity.idf(0l, 0l), 1.0f);
-        assertEquals("NoIDFSimilarity must always return 1.0f", noIDFSimilarity.idf(1l, 5l), 1.0f);
-        assertEquals("NoIDFSimilarity must always return 1.0f", noIDFSimilarity.idf(10000l, 10943l), 1.0f);
-        assertEquals("NoIDFSimilarity must always return 1.0f", noIDFSimilarity.idf(-45667l, 2132189l), 1.0f);
-        assertEquals("NoIDFSimilarity must always return 1.0f", noIDFSimilarity.idf(367423794l, -394612l), 1.0f);
-        assertEquals("NoIDFSimilarity must always return 1.0f", noIDFSimilarity.idf(-2147294213l, 15264214l), 1.0f);
+        assertEquals("NoIDFSimilarity must always return 1.0f", noIDFSimilarity.idf(0l, 0l), 1.0f, 0);
+        assertEquals("NoIDFSimilarity must always return 1.0f", noIDFSimilarity.idf(1l, 5l), 1.0f, 0);
+        assertEquals("NoIDFSimilarity must always return 1.0f", noIDFSimilarity.idf(10000l, 10943l), 1.0f, 0);
+        assertEquals("NoIDFSimilarity must always return 1.0f", noIDFSimilarity.idf(-45667l, 2132189l), 1.0f, 0);
+        assertEquals("NoIDFSimilarity must always return 1.0f", noIDFSimilarity.idf(367423794l, -394612l), 1.0f, 0);
+        assertEquals("NoIDFSimilarity must always return 1.0f", noIDFSimilarity.idf(-2147294213l, 15264214l), 1.0f, 0);
     }
 
 }

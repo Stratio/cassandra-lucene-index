@@ -16,12 +16,10 @@
 package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.google.common.base.MoreObjects;
-import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.common.GeoTransformation;
 import com.stratio.cassandra.lucene.util.GeospatialUtils;
-import com.stratio.cassandra.lucene.util.GeospatialUtilsJTS;
 import org.apache.cassandra.db.marshal.AsciiType;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.commons.lang3.StringUtils;
@@ -35,6 +33,7 @@ import org.apache.lucene.spatial.prefix.tree.SpatialPrefixTree;
 import javax.validation.constraints.NotNull;
 import java.util.Collections;
 import java.util.List;
+import static com.stratio.cassandra.lucene.util.GeospatialUtilsJTS.*;
 
 /**
  * A {@link Mapper} to map geographical shapes represented according to the <a href="http://en.wikipedia.org/wiki/Well-known_text">
@@ -50,8 +49,6 @@ import java.util.List;
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class GeoShapeMapper extends SingleColumnMapper<String> {
-
-    public static final JtsSpatialContext SPATIAL_CONTEXT = JtsSpatialContext.GEO;
 
     /** The name of the mapped column. */
     public final String column;
@@ -88,7 +85,7 @@ public class GeoShapeMapper extends SingleColumnMapper<String> {
         }
 
         this.maxLevels = GeospatialUtils.validateGeohashMaxLevels(maxLevels);
-        SpatialPrefixTree grid = new GeohashPrefixTree(SPATIAL_CONTEXT, this.maxLevels);
+        SpatialPrefixTree grid = new GeohashPrefixTree(CONTEXT, this.maxLevels);
         strategy = new RecursivePrefixTreeStrategy(grid, field);
 
         this.transformations = (transformations == null) ? Collections.emptyList() : transformations;
@@ -99,12 +96,12 @@ public class GeoShapeMapper extends SingleColumnMapper<String> {
     public void addIndexedFields(Document document, String name, String value) {
 
         // Parse shape
-        JtsGeometry shape = GeospatialUtilsJTS.geometryFromWKT(SPATIAL_CONTEXT, value);
+        JtsGeometry shape = geometry(value);
 
         // Apply transformations
         if (transformations != null) {
             for (GeoTransformation transformation : transformations) {
-                shape = transformation.apply(shape, SPATIAL_CONTEXT);
+                shape = transformation.apply(shape);
             }
         }
 
