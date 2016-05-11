@@ -101,14 +101,13 @@ public class GeoShapeMapper extends SingleColumnMapper<String> {
         JtsGeometry shape = geometry(value);
 
         // Apply transformations
-        JtsGeometry transformedGeometry = shape;
         if (transformations != null) {
             for (GeoTransformation transformation : transformations) {
                 shape = transformation.apply(shape);
             }
         }
 
-        for (IndexableField field : strategy.createIndexableFields(transformedGeometry)) {
+        for (IndexableField field : strategy.createIndexableFields(shape)) {
             document.add(field);
         }
     }
