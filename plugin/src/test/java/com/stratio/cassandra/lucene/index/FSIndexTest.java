@@ -36,7 +36,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}

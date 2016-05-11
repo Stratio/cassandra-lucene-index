@@ -108,7 +108,7 @@ public class CassandraUtils {
         return execute(new SimpleStatement(query));
     }
 
-    public ResultSet execute(String query, String... args) {
+    public ResultSet execute(String query, Object... args) {
         return execute(String.format(query, args));
     }
 

@@ -15,19 +15,17 @@
  */
 package com.stratio.cassandra.lucene.search.condition;
 
-import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.stratio.cassandra.lucene.common.GeoTransformation;
-import com.stratio.cassandra.lucene.schema.mapping.GeoShapeMapper;
-import com.stratio.cassandra.lucene.util.GeospatialUtilsJTS;
 import com.stratio.cassandra.lucene.util.JsonSerializer;
 import org.junit.Test;
 
 import java.io.IOException;
 
 import static com.stratio.cassandra.lucene.common.GeoTransformation.Centroid;
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
+import static com.stratio.cassandra.lucene.util.GeospatialUtilsJTS.geometry;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Unit tests for {@link GeoTransformation.Centroid}.
@@ -35,12 +33,6 @@ import static junit.framework.Assert.assertNotNull;
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class GeoTransformationCentroidTest extends AbstractConditionTest {
-
-    private static final JtsSpatialContext CONTEXT = GeoShapeMapper.SPATIAL_CONTEXT;
-
-    private static JtsGeometry geometry(String string) {
-        return GeospatialUtilsJTS.geometryFromWKT(CONTEXT, string);
-    }
 
     @Test
     public void testCentroidTransformationPoint() {
@@ -50,7 +42,7 @@ public class GeoTransformationCentroidTest extends AbstractConditionTest {
 
         GeoTransformation transformation = new GeoTransformation.Centroid();
         JtsGeometry geometry = geometry(shape);
-        JtsGeometry transformedGeometry = transformation.apply(geometry, GeoShapeCondition.CONTEXT);
+        JtsGeometry transformedGeometry = transformation.apply(geometry);
 
         assertEquals("Failed applied centroid transformation to point", centroid, transformedGeometry.toString());
     }
@@ -63,7 +55,7 @@ public class GeoTransformationCentroidTest extends AbstractConditionTest {
 
         GeoTransformation transformation = new GeoTransformation.Centroid();
         JtsGeometry geometry = geometry(shape);
-        JtsGeometry transformedGeometry = transformation.apply(geometry, GeoShapeCondition.CONTEXT);
+        JtsGeometry transformedGeometry = transformation.apply(geometry);
 
         assertEquals("Failed applied centroid transformation to line", centroid, transformedGeometry.toString());
     }
@@ -76,7 +68,7 @@ public class GeoTransformationCentroidTest extends AbstractConditionTest {
 
         GeoTransformation transformation = new GeoTransformation.Centroid();
         JtsGeometry geometry = geometry(shape);
-        JtsGeometry transformedGeometry = transformation.apply(geometry, GeoShapeCondition.CONTEXT);
+        JtsGeometry transformedGeometry = transformation.apply(geometry);
 
         assertEquals("Failed applied centroid transformation to polygon", centroid, transformedGeometry.toString());
     }
@@ -89,7 +81,7 @@ public class GeoTransformationCentroidTest extends AbstractConditionTest {
 
         GeoTransformation transformation = new GeoTransformation.Centroid();
         JtsGeometry geometry = geometry(shape);
-        JtsGeometry transformedGeometry = transformation.apply(geometry, GeoShapeCondition.CONTEXT);
+        JtsGeometry transformedGeometry = transformation.apply(geometry);
 
         assertEquals("Failed applied centroid transformation to multipart", centroid, transformedGeometry.toString());
     }
@@ -104,7 +96,7 @@ public class GeoTransformationCentroidTest extends AbstractConditionTest {
     public void testCentroidTransformationParsing() throws IOException {
         String json = "{type:\"centroid\"}";
         Centroid centroid = JsonSerializer.fromString(json, Centroid.class);
-        assertNotNull("JSON serialization is wrong", centroid);
+        assertNotNull("JSON shape serialization is wrong", centroid);
     }
 
 }

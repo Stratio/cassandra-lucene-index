@@ -28,7 +28,7 @@ import org.junit.runners.JUnit4;
 
 import static com.datastax.driver.core.DataType.*;
 import static com.stratio.cassandra.lucene.builder.Builder.*;
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertArrayEquals;
 
 /**

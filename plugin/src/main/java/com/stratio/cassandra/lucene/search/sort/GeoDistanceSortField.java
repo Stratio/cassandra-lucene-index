@@ -27,6 +27,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.queries.function.ValueSource;
 import org.apache.lucene.spatial.SpatialStrategy;
 
+import static com.stratio.cassandra.lucene.util.GeospatialUtils.CONTEXT;
+
 /**
  * {@link SortField} to sort geo points by their distance to a fixed reference point.
  *
@@ -75,7 +77,7 @@ public class GeoDistanceSortField extends SortField {
         GeoPointMapper geoPointMapper = (GeoPointMapper) mapper;
 
         SpatialStrategy strategy = geoPointMapper.distanceStrategy;
-        Point pt = GeoPointMapper.SPATIAL_CONTEXT.makePoint(longitude, latitude);
+        Point pt = CONTEXT.makePoint(longitude, latitude);
 
         // The distance (in km)
         ValueSource valueSource = strategy.makeDistanceValueSource(pt, DistanceUtils.DEG_TO_KM);

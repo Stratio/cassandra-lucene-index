@@ -15,20 +15,18 @@
  */
 package com.stratio.cassandra.lucene.search.condition;
 
-import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.common.GeoTransformation;
-import com.stratio.cassandra.lucene.schema.mapping.GeoShapeMapper;
-import com.stratio.cassandra.lucene.util.GeospatialUtilsJTS;
 import com.stratio.cassandra.lucene.util.JsonSerializer;
 import org.junit.Test;
 
 import java.io.IOException;
 
 import static com.stratio.cassandra.lucene.common.GeoTransformation.Union;
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
+import static com.stratio.cassandra.lucene.util.GeospatialUtilsJTS.geometry;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Unit tests for {@link GeoTransformation.Union}.
@@ -36,12 +34,6 @@ import static junit.framework.Assert.assertNotNull;
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class GeoTransformationUnionTest extends AbstractConditionTest {
-
-    private static final JtsSpatialContext CONTEXT = GeoShapeMapper.SPATIAL_CONTEXT;
-
-    private static JtsGeometry geometry(String string) {
-        return GeospatialUtilsJTS.geometryFromWKT(CONTEXT, string);
-    }
 
     @Test
     public void testUnionTransformation() {
@@ -52,7 +44,7 @@ public class GeoTransformationUnionTest extends AbstractConditionTest {
 
         GeoTransformation transformation = new Union(shape2);
         JtsGeometry geometry = geometry(shape1);
-        JtsGeometry transformedGeometry = transformation.apply(geometry, GeoShapeCondition.CONTEXT);
+        JtsGeometry transformedGeometry = transformation.apply(geometry);
 
         assertEquals("Failed applied UnionTransformation", union, transformedGeometry.toString());
     }
@@ -62,7 +54,7 @@ public class GeoTransformationUnionTest extends AbstractConditionTest {
         String shape1 = "POLYGON((-30 30, -30 0, 30 0, 30 30, -30 30))";
         GeoTransformation transformation = new Union(null);
         JtsGeometry geometry = geometry(shape1);
-        transformation.apply(geometry, GeoShapeCondition.CONTEXT);
+        transformation.apply(geometry);
     }
 
     @Test(expected = IndexException.class)
@@ -70,7 +62,7 @@ public class GeoTransformationUnionTest extends AbstractConditionTest {
         String shape1 = "POLYGON((-30 30, -30 0, 30 0, 30 30, -30 30))";
         GeoTransformation transformation = new Union("");
         JtsGeometry geometry = geometry(shape1);
-        transformation.apply(geometry, GeoShapeCondition.CONTEXT);
+        transformation.apply(geometry);
     }
 
     @Test(expected = IndexException.class)
@@ -78,7 +70,7 @@ public class GeoTransformationUnionTest extends AbstractConditionTest {
         String shape1 = "POLYGON((-30 30, -30 0, 30 0, 30 30, -30 30))";
         GeoTransformation transformation = new Union("POLYGON((-30 0, 30 0, 30 -30, -30 -30))");
         JtsGeometry geometry = geometry(shape1);
-        transformation.apply(geometry, GeoShapeCondition.CONTEXT);
+        transformation.apply(geometry);
     }
 
     @Test
@@ -93,7 +85,7 @@ public class GeoTransformationUnionTest extends AbstractConditionTest {
         String json = "{type:\"union\",shape:\"LINESTRING(2 4, 30 3)\"}";
         Union union = JsonSerializer.fromString(json, Union.class);
         assertNotNull("JSON serialization is wrong", union);
-        assertEquals("JSON serialization is wrong", "LINESTRING(2 4, 30 3)", union.other);
+        assertEquals("JSON shape serialization is wrong", "LINESTRING(2 4, 30 3)", union.other);
     }
 
 }

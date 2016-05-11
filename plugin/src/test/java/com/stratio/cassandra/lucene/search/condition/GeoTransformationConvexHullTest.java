@@ -15,19 +15,17 @@
  */
 package com.stratio.cassandra.lucene.search.condition;
 
-import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.stratio.cassandra.lucene.common.GeoTransformation;
-import com.stratio.cassandra.lucene.schema.mapping.GeoShapeMapper;
-import com.stratio.cassandra.lucene.util.GeospatialUtilsJTS;
 import com.stratio.cassandra.lucene.util.JsonSerializer;
 import org.junit.Test;
 
 import java.io.IOException;
 
 import static com.stratio.cassandra.lucene.common.GeoTransformation.ConvexHull;
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
+import static com.stratio.cassandra.lucene.util.GeospatialUtilsJTS.geometry;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Unit tests for {@link ConvexHull}.
@@ -35,12 +33,6 @@ import static junit.framework.Assert.assertNotNull;
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class GeoTransformationConvexHullTest extends AbstractConditionTest {
-
-    private static final JtsSpatialContext CONTEXT = GeoShapeMapper.SPATIAL_CONTEXT;
-
-    private static JtsGeometry geometry(String string) {
-        return GeospatialUtilsJTS.geometryFromWKT(CONTEXT, string);
-    }
 
     @Test
     public void testConvexHullTransformationPoint() {
@@ -50,7 +42,7 @@ public class GeoTransformationConvexHullTest extends AbstractConditionTest {
 
         GeoTransformation transformation = new ConvexHull();
         JtsGeometry geometry = geometry(shape);
-        JtsGeometry transformedGeometry = transformation.apply(geometry, GeoShapeCondition.CONTEXT);
+        JtsGeometry transformedGeometry = transformation.apply(geometry);
 
         assertEquals("Failed applied convex hull transformation to point", convexHull, transformedGeometry.toString());
     }
@@ -63,7 +55,7 @@ public class GeoTransformationConvexHullTest extends AbstractConditionTest {
 
         GeoTransformation transformation = new ConvexHull();
         JtsGeometry geometry = geometry(shape);
-        JtsGeometry transformedGeometry = transformation.apply(geometry, GeoShapeCondition.CONTEXT);
+        JtsGeometry transformedGeometry = transformation.apply(geometry);
 
         assertEquals("Failed applied convex hull transformation to line", convexHull, transformedGeometry.toString());
     }
@@ -76,9 +68,11 @@ public class GeoTransformationConvexHullTest extends AbstractConditionTest {
 
         GeoTransformation transformation = new ConvexHull();
         JtsGeometry geometry = geometry(shape);
-        JtsGeometry transformedGeometry = transformation.apply(geometry, GeoShapeCondition.CONTEXT);
+        JtsGeometry transformedGeometry = transformation.apply(geometry);
 
-        assertEquals("Failed applied convex hull transformation to polygon", convexHull, transformedGeometry.toString());
+        assertEquals("Failed applied convex hull transformation to polygon",
+                     convexHull,
+                     transformedGeometry.toString());
     }
 
     @Test
@@ -89,9 +83,11 @@ public class GeoTransformationConvexHullTest extends AbstractConditionTest {
 
         GeoTransformation transformation = new ConvexHull();
         JtsGeometry geometry = geometry(shape);
-        JtsGeometry transformedGeometry = transformation.apply(geometry, GeoShapeCondition.CONTEXT);
+        JtsGeometry transformedGeometry = transformation.apply(geometry);
 
-        assertEquals("Failed applied convex hull transformation to multipart", convexHull, transformedGeometry.toString());
+        assertEquals("Failed applied convex hull transformation to multipart",
+                     convexHull,
+                     transformedGeometry.toString());
     }
 
     @Test
@@ -104,7 +100,7 @@ public class GeoTransformationConvexHullTest extends AbstractConditionTest {
     public void testCConvexHullTransformationParsing() throws IOException {
         String json = "{type:\"convex_hull\"}";
         ConvexHull convexHull = JsonSerializer.fromString(json, ConvexHull.class);
-        assertNotNull("JSON serialization is wrong", convexHull);
+        assertNotNull("JSON shape serialization is wrong", convexHull);
     }
 
 }
