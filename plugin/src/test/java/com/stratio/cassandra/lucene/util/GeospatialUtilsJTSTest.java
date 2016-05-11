@@ -15,12 +15,11 @@
  */
 package com.stratio.cassandra.lucene.util;
 
-import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.shape.jts.JtsGeometry;
 import org.junit.Test;
 
-import static com.stratio.cassandra.lucene.util.GeospatialUtilsJTS.geometryFromWKT;
-import static junit.framework.Assert.assertEquals;
+import static com.stratio.cassandra.lucene.util.GeospatialUtilsJTS.geometry;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Class for testing {@link GeospatialUtilsJTS}.
@@ -29,54 +28,52 @@ import static junit.framework.Assert.assertEquals;
  */
 public class GeospatialUtilsJTSTest {
 
-    private static final JtsSpatialContext CONTEXT = JtsSpatialContext.GEO;
-
     @Test
     public void testParseWKTPoint() throws Exception {
         String wkt = "POINT (30.01 -10.7)";
-        JtsGeometry geometry = geometryFromWKT(CONTEXT, wkt);
+        JtsGeometry geometry = geometry(wkt);
         assertEquals("Unable to parse WKT point", wkt, geometry.toString());
     }
 
     @Test
     public void testParseWKTLine() throws Exception {
         String wkt = "LINESTRING (30 10, 10 30, 40 40)";
-        JtsGeometry geometry = geometryFromWKT(CONTEXT, wkt);
+        JtsGeometry geometry = geometry(wkt);
         assertEquals("Unable to parse WKT line", wkt, geometry.toString());
     }
 
     @Test
     public void testParseWKTPolygon() throws Exception {
         String wkt = "LINESTRING (30 10, 10 30, 40 40)";
-        JtsGeometry geometry = geometryFromWKT(CONTEXT, wkt);
+        JtsGeometry geometry = geometry(wkt);
         assertEquals("Unable to parse WKT polygon", wkt, geometry.toString());
     }
 
     @Test
     public void testParseWKTMultipoint() throws Exception {
         String wkt = "MULTIPOINT ((10 40), (40 30), (20 20), (30 10))";
-        JtsGeometry geometry = geometryFromWKT(CONTEXT, wkt);
+        JtsGeometry geometry = geometry(wkt);
         assertEquals("Unable to parse WKT multipoint", wkt, geometry.toString());
     }
 
     @Test
     public void testParseWKTMultiline() throws Exception {
         String wkt = "MULTILINESTRING ((10 10, 20 20, 10 40), (40 40, 30 30, 40 20, 30 10))";
-        JtsGeometry geometry = geometryFromWKT(CONTEXT, wkt);
+        JtsGeometry geometry = geometry(wkt);
         assertEquals("Unable to parse WKT multiline", wkt, geometry.toString());
     }
 
     @Test
     public void testParseWKTMultipolygon() throws Exception {
         String wkt = "MULTIPOLYGON (((30 20, 45 40, 10 40, 30 20)), ((15 5, 40 10, 10 20, 5 10, 15 5)))";
-        JtsGeometry geometry = geometryFromWKT(CONTEXT, wkt);
+        JtsGeometry geometry = geometry(wkt);
         assertEquals("Unable to parse WKT multipolygon", wkt, geometry.toString());
     }
 
     @Test
     public void testParseWKTSelfIntersectingPolygon() throws Exception {
         String wkt = "POLYGON((5 0, 10 0, 10 10, 0 10, 0 0, 5 0, 3 3, 5 6, 7 3, 5 0))";
-        JtsGeometry geometry = geometryFromWKT(CONTEXT, wkt);
+        JtsGeometry geometry = geometry(wkt);
         assertEquals("Unable to parse invalid WKT shape",
                      "POLYGON ((5 0, 0 0, 0 10, 10 10, 10 0, 5 0), (5 0, 7 3, 5 6, 3 3, 5 0))",
                      geometry.toString());

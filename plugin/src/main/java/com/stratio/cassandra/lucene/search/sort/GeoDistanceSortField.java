@@ -29,6 +29,8 @@ import org.apache.lucene.spatial.SpatialStrategy;
 
 import java.util.Comparator;
 
+import static com.stratio.cassandra.lucene.util.GeospatialUtils.CONTEXT;
+
 /**
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
@@ -110,7 +112,7 @@ public class GeoDistanceSortField extends SortField {
         GeoPointMapper geoPointMapper = (GeoPointMapper) mapper;
 
         SpatialStrategy strategy = geoPointMapper.distanceStrategy;
-        Point pt = GeoPointMapper.SPATIAL_CONTEXT.makePoint(longitude, latitude);
+        Point pt = CONTEXT.makePoint(longitude, latitude);
 
         ValueSource valueSource = strategy.makeDistanceValueSource(pt, DistanceUtils.DEG_TO_KM);//the distance (in km)
         return valueSource.getSortField(this.reverse);

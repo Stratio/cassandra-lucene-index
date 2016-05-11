@@ -16,7 +16,6 @@
 package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.google.common.base.Objects;
-import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.shape.Point;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.column.Column;
@@ -36,6 +35,8 @@ import org.apache.lucene.spatial.prefix.tree.SpatialPrefixTree;
 
 import java.util.Arrays;
 
+import static com.stratio.cassandra.lucene.util.GeospatialUtils.CONTEXT;
+
 /**
  * A {@link Mapper} to map geographical points.
  *
@@ -47,9 +48,6 @@ public class GeoPointMapper extends Mapper {
     private static final double MAX_LATITUDE = 90.0;
     private static final double MIN_LONGITUDE = -180.0;
     private static final double MAX_LONGITUDE = 180.0;
-
-    public static final SpatialContext SPATIAL_CONTEXT = SpatialContext.GEO;
-
     /** The name of the latitude column. */
     public final String latitude;
 
@@ -111,9 +109,9 @@ public class GeoPointMapper extends Mapper {
         this.longitude = longitude;
         this.maxLevels = GeospatialUtils.validateGeohashMaxLevels(maxLevels);
 
-        SpatialPrefixTree grid = new GeohashPrefixTree(SPATIAL_CONTEXT, this.maxLevels);
+        SpatialPrefixTree grid = new GeohashPrefixTree(CONTEXT, this.maxLevels);
         distanceStrategy = new RecursivePrefixTreeStrategy(grid, field + ".dist");
-        bboxStrategy = new BBoxStrategy(SPATIAL_CONTEXT, field + ".bbox");
+        bboxStrategy = new BBoxStrategy(CONTEXT, field + ".bbox");
     }
 
     /**
@@ -171,8 +169,7 @@ public class GeoPointMapper extends Mapper {
             throw new IndexException("Longitude column required if there is a latitude");
         }
 
-        Point point = SPATIAL_CONTEXT.makePoint(lon, lat);
-
+        Point point = CONTEXT.makePoint(lon, lat);
         if (indexed) {
             for (IndexableField field : distanceStrategy.createIndexableFields(point)) {
                 document.add(field);

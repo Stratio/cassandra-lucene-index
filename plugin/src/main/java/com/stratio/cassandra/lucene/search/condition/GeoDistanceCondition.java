@@ -28,6 +28,7 @@ import org.apache.lucene.spatial.SpatialStrategy;
 import org.apache.lucene.spatial.query.SpatialArgs;
 import org.apache.lucene.spatial.query.SpatialOperation;
 
+import static com.stratio.cassandra.lucene.util.GeospatialUtils.CONTEXT;
 import static org.apache.lucene.search.BooleanClause.Occur.FILTER;
 import static org.apache.lucene.search.BooleanClause.Occur.MUST_NOT;
 
@@ -104,7 +105,7 @@ public class GeoDistanceCondition extends SingleMapperCondition<GeoPointMapper> 
     private Query query(GeoDistance geoDistance, SpatialStrategy spatialStrategy) {
         double kms = geoDistance.getValue(GeoDistanceUnit.KILOMETRES);
         double distance = DistanceUtils.dist2Degrees(kms, DistanceUtils.EARTH_MEAN_RADIUS_KM);
-        Circle circle = GeoPointMapper.SPATIAL_CONTEXT.makeCircle(longitude, latitude, distance);
+        Circle circle = CONTEXT.makeCircle(longitude, latitude, distance);
         SpatialArgs args = new SpatialArgs(SpatialOperation.Intersects, circle);
         return spatialStrategy.makeQuery(args);
     }

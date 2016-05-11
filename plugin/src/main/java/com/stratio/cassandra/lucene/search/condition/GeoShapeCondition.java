@@ -15,7 +15,6 @@
  */
 package com.stratio.cassandra.lucene.search.condition;
 
-import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.common.GeoOperation;
@@ -24,13 +23,14 @@ import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.GeoPointMapper;
 import com.stratio.cassandra.lucene.schema.mapping.GeoShapeMapper;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
-import com.stratio.cassandra.lucene.util.GeospatialUtilsJTS;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.spatial.SpatialStrategy;
 import org.apache.lucene.spatial.query.SpatialArgs;
 
 import java.util.Collections;
 import java.util.List;
+
+import static com.stratio.cassandra.lucene.util.GeospatialUtilsJTS.geometry;
 
 /**
  * {@link Condition} that matches documents related to a JTS geographical shape. It is possible to apply a sequence of
@@ -52,9 +52,6 @@ public class GeoShapeCondition extends SingleFieldCondition {
 
     /** The default spatial operation. */
     public static final GeoOperation DEFAULT_OPERATION = GeoOperation.IS_WITHIN;
-
-    /** The spatial context to be used. */
-    public static final JtsSpatialContext CONTEXT = JtsSpatialContext.GEO;
 
     /** The shape. */
     public final JtsGeometry geometry;
@@ -82,7 +79,7 @@ public class GeoShapeCondition extends SingleFieldCondition {
                              GeoOperation operation,
                              List<GeoTransformation> transformations) {
         super(boost, field);
-        this.geometry = GeospatialUtilsJTS.geometryFromWKT(CONTEXT, shape);
+        this.geometry = geometry(shape);
         this.operation = operation == null ? DEFAULT_OPERATION : operation;
         this.transformations = (transformations == null) ? Collections.<GeoTransformation>emptyList() : transformations;
     }
@@ -109,7 +106,7 @@ public class GeoShapeCondition extends SingleFieldCondition {
         JtsGeometry transformedGeometry = geometry;
         if (transformations != null) {
             for (GeoTransformation transformation : transformations) {
-                transformedGeometry = transformation.apply(transformedGeometry, CONTEXT);
+                transformedGeometry = transformation.apply(transformedGeometry);
             }
         }
 

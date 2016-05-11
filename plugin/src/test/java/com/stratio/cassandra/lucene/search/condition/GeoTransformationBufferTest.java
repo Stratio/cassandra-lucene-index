@@ -15,22 +15,22 @@
  */
 package com.stratio.cassandra.lucene.search.condition;
 
-import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.stratio.cassandra.lucene.common.GeoDistance;
-import com.stratio.cassandra.lucene.common.GeoDistanceUnit;
 import com.stratio.cassandra.lucene.common.GeoTransformation;
-import com.stratio.cassandra.lucene.schema.mapping.GeoShapeMapper;
-import com.stratio.cassandra.lucene.util.GeospatialUtilsJTS;
 import com.stratio.cassandra.lucene.util.JsonSerializer;
 import com.vividsolutions.jts.geom.Geometry;
 import org.junit.Test;
 
 import java.io.IOException;
 
+import static com.stratio.cassandra.lucene.common.GeoDistanceUnit.KILOMETRES;
+import static com.stratio.cassandra.lucene.common.GeoDistanceUnit.METRES;
 import static com.stratio.cassandra.lucene.common.GeoTransformation.Buffer;
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
+import static com.stratio.cassandra.lucene.util.GeospatialUtilsJTS.CONTEXT;
+import static com.stratio.cassandra.lucene.util.GeospatialUtilsJTS.geometry;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Unit tests for {@link GeoTransformation.Buffer}.
@@ -39,24 +39,18 @@ import static junit.framework.Assert.assertNotNull;
  */
 public class GeoTransformationBufferTest extends AbstractConditionTest {
 
-    private static final JtsSpatialContext CONTEXT = GeoShapeMapper.SPATIAL_CONTEXT;
-
-    private static JtsGeometry geometry(String string) {
-        return GeospatialUtilsJTS.geometryFromWKT(CONTEXT, string);
-    }
-
     @Test
     public void testBufferTransformationWithNullMaxDistance() {
         GeoDistance min = GeoDistance.parse("1m");
 
-        GeoTransformation transformation = new Buffer().minDistance(min);
+        GeoTransformation transformation = new Buffer(min, null);
         JtsGeometry geometry = geometry("POLYGON((1 1,5 1,5 5,1 5,1 1),(2 2, 3 2, 3 3, 2 3,2 2))");
-        JtsGeometry transformedGeometry = transformation.apply(geometry, GeoShapeCondition.CONTEXT);
+        JtsGeometry transformedGeometry = transformation.apply(geometry);
 
-        JtsGeometry max = GeoShapeCondition.CONTEXT.makeShape(geometry.getGeom());
-        JtsGeometry minGeometry = geometry.getBuffered(min.getDegrees(), GeoShapeCondition.CONTEXT);
+        JtsGeometry max = CONTEXT.makeShape(geometry.getGeom());
+        JtsGeometry minGeometry = geometry.getBuffered(min.getDegrees(), CONTEXT);
         Geometry difference = max.getGeom().difference(minGeometry.getGeom());
-        JtsGeometry desiredGeometry = GeoShapeCondition.CONTEXT.makeShape(difference);
+        JtsGeometry desiredGeometry = CONTEXT.makeShape(difference);
 
         assertEquals("Failed applied BufferTransformation", desiredGeometry, transformedGeometry);
     }
@@ -65,19 +59,19 @@ public class GeoTransformationBufferTest extends AbstractConditionTest {
     public void testBufferTransformationWithNullMinDistance() {
         GeoDistance max = GeoDistance.parse("2m");
 
-        GeoTransformation transformation = new Buffer().maxDistance(max);
+        GeoTransformation transformation = new Buffer(null, max);
         JtsGeometry geometry = geometry("POLYGON((1 1,5 1,5 5,1 5,1 1),(2 2, 3 2, 3 3, 2 3,2 2))");
-        JtsGeometry transformedGeometry = transformation.apply(geometry, GeoShapeCondition.CONTEXT);
+        JtsGeometry transformedGeometry = transformation.apply(geometry);
 
-        JtsGeometry desiredGeometry = geometry.getBuffered(max.getDegrees(), GeoShapeCondition.CONTEXT);
+        JtsGeometry desiredGeometry = geometry.getBuffered(max.getDegrees(), CONTEXT);
         assertEquals("Failed applied BufferTransformation", desiredGeometry, transformedGeometry);
     }
 
     @Test
     public void testBufferTransformationWithNullMinMaxDistance() {
-        GeoTransformation transformation = new Buffer();
+        GeoTransformation transformation = new Buffer(null, null);
         JtsGeometry geometry = geometry("POLYGON((1 1,5 1,5 5,1 5,1 1),(2 2, 3 2, 3 3, 2 3,2 2))");
-        JtsGeometry transformedGeometry = transformation.apply(geometry, GeoShapeCondition.CONTEXT);
+        JtsGeometry transformedGeometry = transformation.apply(geometry);
         assertEquals("Applied BufferTransformation with min and max to null must return a equals geometry",
                      geometry,
                      transformedGeometry);
@@ -88,14 +82,14 @@ public class GeoTransformationBufferTest extends AbstractConditionTest {
         GeoDistance min = GeoDistance.parse("1m");
         GeoDistance max = GeoDistance.parse("2m");
 
-        GeoTransformation transformation = new Buffer().maxDistance(max).minDistance(min);
+        GeoTransformation transformation = new Buffer(min, max);
         JtsGeometry geometry = geometry("POLYGON((1 1,5 1,5 5,1 5,1 1),(2 2, 3 2, 3 3, 2 3,2 2))");
-        JtsGeometry transformedGeometry = transformation.apply(geometry, GeoShapeCondition.CONTEXT);
+        JtsGeometry transformedGeometry = transformation.apply(geometry);
 
-        JtsGeometry maxGeometry = geometry.getBuffered(max.getDegrees(), GeoShapeCondition.CONTEXT);
-        JtsGeometry minGeometry = geometry.getBuffered(min.getDegrees(), GeoShapeCondition.CONTEXT);
+        JtsGeometry maxGeometry = geometry.getBuffered(max.getDegrees(), CONTEXT);
+        JtsGeometry minGeometry = geometry.getBuffered(min.getDegrees(), CONTEXT);
         Geometry difference = maxGeometry.getGeom().difference(minGeometry.getGeom());
-        JtsGeometry desiredGeometry = GeoShapeCondition.CONTEXT.makeShape(difference);
+        JtsGeometry desiredGeometry = CONTEXT.makeShape(difference);
 
         assertEquals("Failed applied BufferTransformation WithPositiveDistances", desiredGeometry, transformedGeometry);
     }
@@ -105,14 +99,14 @@ public class GeoTransformationBufferTest extends AbstractConditionTest {
         GeoDistance min = GeoDistance.parse("-1m");
         GeoDistance max = GeoDistance.parse("-2m");
 
-        GeoTransformation transformation = new Buffer().maxDistance(max).minDistance(min);
+        GeoTransformation transformation = new Buffer(min, max);
         JtsGeometry geometry = geometry("POLYGON((1 1,5 1,5 5,1 5,1 1),(2 2, 3 2, 3 3, 2 3,2 2))");
-        JtsGeometry transformedGeometry = transformation.apply(geometry, GeoShapeCondition.CONTEXT);
+        JtsGeometry transformedGeometry = transformation.apply(geometry);
 
-        JtsGeometry maxGeometry = geometry.getBuffered(max.getDegrees(), GeoShapeCondition.CONTEXT);
-        JtsGeometry minGeometry = geometry.getBuffered(min.getDegrees(), GeoShapeCondition.CONTEXT);
+        JtsGeometry maxGeometry = geometry.getBuffered(max.getDegrees(), CONTEXT);
+        JtsGeometry minGeometry = geometry.getBuffered(min.getDegrees(), CONTEXT);
         Geometry difference = maxGeometry.getGeom().difference(minGeometry.getGeom());
-        JtsGeometry desiredGeometry = GeoShapeCondition.CONTEXT.makeShape(difference);
+        JtsGeometry desiredGeometry = CONTEXT.makeShape(difference);
 
         assertEquals("Failed applied BufferTransformation WithNegativeDistances", desiredGeometry, transformedGeometry);
     }
@@ -122,14 +116,14 @@ public class GeoTransformationBufferTest extends AbstractConditionTest {
         GeoDistance min = GeoDistance.parse("2m");
         GeoDistance max = GeoDistance.parse("1m");
 
-        GeoTransformation transformation = new Buffer().maxDistance(max).minDistance(min);
+        GeoTransformation transformation = new Buffer(min, max);
         JtsGeometry geometry = geometry("POLYGON((1 1,5 1,5 5,1 5,1 1),(2 2, 3 2, 3 3, 2 3,2 2))");
-        JtsGeometry transformedGeometry = transformation.apply(geometry, GeoShapeCondition.CONTEXT);
+        JtsGeometry transformedGeometry = transformation.apply(geometry);
 
-        JtsGeometry maxGeometry = geometry.getBuffered(max.getDegrees(), GeoShapeCondition.CONTEXT);
-        JtsGeometry minGeometry = geometry.getBuffered(min.getDegrees(), GeoShapeCondition.CONTEXT);
+        JtsGeometry maxGeometry = geometry.getBuffered(max.getDegrees(), CONTEXT);
+        JtsGeometry minGeometry = geometry.getBuffered(min.getDegrees(), CONTEXT);
         Geometry difference = maxGeometry.getGeom().difference(minGeometry.getGeom());
-        JtsGeometry desiredGeometry = GeoShapeCondition.CONTEXT.makeShape(difference);
+        JtsGeometry desiredGeometry = CONTEXT.makeShape(difference);
 
         assertEquals("Failed applied BufferTransformation WithInvertedPositiveDistances",
                      desiredGeometry,
@@ -141,14 +135,14 @@ public class GeoTransformationBufferTest extends AbstractConditionTest {
         GeoDistance min = GeoDistance.parse("-1m");
         GeoDistance max = GeoDistance.parse("-2m");
 
-        GeoTransformation transformation = new Buffer().maxDistance(max).minDistance(min);
+        GeoTransformation transformation = new Buffer(min, max);
         JtsGeometry geometry = geometry("POLYGON((1 1,5 1,5 5,1 5,1 1),(2 2, 3 2, 3 3, 2 3,2 2))");
-        JtsGeometry transformedGeometry = transformation.apply(geometry, GeoShapeCondition.CONTEXT);
+        JtsGeometry transformedGeometry = transformation.apply(geometry);
 
-        JtsGeometry maxGeometry = geometry.getBuffered(max.getDegrees(), GeoShapeCondition.CONTEXT);
-        JtsGeometry minGeometry = geometry.getBuffered(min.getDegrees(), GeoShapeCondition.CONTEXT);
+        JtsGeometry maxGeometry = geometry.getBuffered(max.getDegrees(), CONTEXT);
+        JtsGeometry minGeometry = geometry.getBuffered(min.getDegrees(), CONTEXT);
         Geometry difference = maxGeometry.getGeom().difference(minGeometry.getGeom());
-        JtsGeometry desiredGeometry = GeoShapeCondition.CONTEXT.makeShape(difference);
+        JtsGeometry desiredGeometry = CONTEXT.makeShape(difference);
 
         assertEquals("Failed applied BufferTransformation WithInvertedNegativeDistances",
                      desiredGeometry,
@@ -159,10 +153,11 @@ public class GeoTransformationBufferTest extends AbstractConditionTest {
     public void testBufferTransformationToString() {
         GeoDistance min = GeoDistance.parse("-1m");
         GeoDistance max = GeoDistance.parse("-2m");
-        GeoTransformation transformation = new Buffer().maxDistance(max).minDistance(min);
+        GeoTransformation transformation = new Buffer(min, max);
         assertEquals("Failed GeoTransformation.Buffer.toString ",
-                     "Buffer{maxDistance=GeoDistance{value=-2.0, unit=METRES}, " +
-                     "minDistance=GeoDistance{value=-1.0, unit=METRES}}",
+                     "Buffer{" +
+                     "minDistance=GeoDistance{value=-1.0, unit=METRES}, " +
+                     "maxDistance=GeoDistance{value=-2.0, unit=METRES}}",
                      transformation.toString());
     }
 
@@ -171,8 +166,8 @@ public class GeoTransformationBufferTest extends AbstractConditionTest {
         String json = "{type:\"buffer\",max_distance:\"1km\",min_distance:\"10m\"}";
         Buffer buffer = JsonSerializer.fromString(json, Buffer.class);
         assertNotNull("JSON serialization is wrong", buffer);
-        assertEquals("JSON serialization is wrong", 1.0, buffer.maxDistance().getValue(GeoDistanceUnit.KILOMETRES));
-        assertEquals("JSON serialization is wrong", 10.0, buffer.minDistance().getValue(GeoDistanceUnit.METRES));
+        assertEquals("JSON min distance serialization is wrong", 10.0, buffer.minDistance.getValue(METRES), 0);
+        assertEquals("JSON max distance serialization is wrong", 1.0, buffer.maxDistance.getValue(KILOMETRES), 0);
     }
 
 }

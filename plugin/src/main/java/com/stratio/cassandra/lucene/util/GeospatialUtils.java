@@ -15,6 +15,7 @@
  */
 package com.stratio.cassandra.lucene.util;
 
+import com.spatial4j.core.context.SpatialContext;
 import com.stratio.cassandra.lucene.IndexException;
 import org.apache.lucene.spatial.prefix.tree.GeohashPrefixTree;
 
@@ -25,6 +26,10 @@ import org.apache.lucene.spatial.prefix.tree.GeohashPrefixTree;
  */
 public class GeospatialUtils {
 
+    /** The spatial context to be used. */
+    public static final SpatialContext CONTEXT = SpatialContext.GEO;
+
+    /** The default max number of levels for geohash search trees. */
     public static final int DEFAULT_GEOHASH_MAX_LEVELS = 11;
 
     /**

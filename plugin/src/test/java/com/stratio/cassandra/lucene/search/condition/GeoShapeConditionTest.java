@@ -15,7 +15,6 @@
  */
 package com.stratio.cassandra.lucene.search.condition;
 
-import com.spatial4j.core.shape.Shape;
 import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.common.GeoDistance;
@@ -35,6 +34,7 @@ import java.util.List;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
 import static com.stratio.cassandra.lucene.search.SearchBuilders.geoShape;
+import static com.stratio.cassandra.lucene.util.GeospatialUtilsJTS.geometry;
 import static org.junit.Assert.*;
 
 /**
@@ -47,8 +47,7 @@ public class GeoShapeConditionTest extends AbstractConditionTest {
     @Test
     public void testConstructor() throws ParseException {
         List<GeoTransformation> transformationList = new ArrayList<>();
-        transformationList.add(new GeoTransformation.Buffer().maxDistance(GeoDistance.parse("2m"))
-                                                             .minDistance(GeoDistance.parse("1m")));
+        transformationList.add(new GeoTransformation.Buffer(GeoDistance.parse("1m"), GeoDistance.parse("2m")));
 
         GeoShapeCondition condition = new GeoShapeCondition(0.1f,
                                                             "geo_point",
@@ -56,8 +55,7 @@ public class GeoShapeConditionTest extends AbstractConditionTest {
                                                             GeoOperation.IS_WITHIN,
                                                             transformationList);
 
-        Shape shape = GeoShapeCondition.CONTEXT.getWktShapeParser().parse(WKT);
-        JtsGeometry geo = GeoShapeCondition.CONTEXT.makeShape(GeoShapeCondition.CONTEXT.getGeometryFrom(shape));
+        JtsGeometry geo = geometry(WKT);
         assertEquals("Boost is not set", 0.1f, condition.boost, 0);
         assertEquals("Field is not set", "geo_point", condition.field);
         assertEquals("Geometry is not set", geo, condition.geometry);
@@ -72,8 +70,7 @@ public class GeoShapeConditionTest extends AbstractConditionTest {
         assertEquals("Boost is not to default", Condition.DEFAULT_BOOST, condition.boost, 0);
         assertEquals("Field is not set", "geo_point", condition.field);
 
-        Shape shape = GeoShapeCondition.CONTEXT.getWktShapeParser().parse(WKT);
-        JtsGeometry geo = GeoShapeCondition.CONTEXT.makeShape(GeoShapeCondition.CONTEXT.getGeometryFrom(shape));
+        JtsGeometry geo = geometry(WKT);
 
         assertEquals("Geometry is not set", geo, condition.geometry);
         assertEquals("Operation is not set", GeoShapeCondition.DEFAULT_OPERATION, condition.operation);
@@ -114,8 +111,7 @@ public class GeoShapeConditionTest extends AbstractConditionTest {
         Schema schema = schema().mapper("geo_point", geoPointMapper("lat", "lon").maxLevels(8)).build();
 
         List<GeoTransformation> transformations = new ArrayList<>();
-        transformations.add(new GeoTransformation.Buffer().maxDistance(GeoDistance.parse("2m"))
-                                                          .minDistance(GeoDistance.parse("1m")));
+        transformations.add(new GeoTransformation.Buffer(GeoDistance.parse("1m"), GeoDistance.parse("2m")));
 
         Condition condition = new GeoShapeCondition(0.1f, "geo_point", WKT, GeoOperation.IS_WITHIN, transformations);
 
@@ -163,8 +159,7 @@ public class GeoShapeConditionTest extends AbstractConditionTest {
         Schema schema = schema().mapper("geo_point", geoPointMapper("lat", "lon").maxLevels(8)).build();
 
         List<GeoTransformation> transformations = new ArrayList<>();
-        transformations.add(new GeoTransformation.Buffer().maxDistance(GeoDistance.parse("2m"))
-                                                          .minDistance(GeoDistance.parse("1m")));
+        transformations.add(new GeoTransformation.Buffer(GeoDistance.parse("1m"), GeoDistance.parse("2m")));
 
         Condition condition = new GeoShapeCondition(0.1f, "geo_point", WKT, GeoOperation.INTERSECTS, transformations);
 
@@ -211,8 +206,7 @@ public class GeoShapeConditionTest extends AbstractConditionTest {
         Schema schema = schema().mapper("geo_point", geoPointMapper("lat", "lon").maxLevels(8)).build();
 
         List<GeoTransformation> transformations = new ArrayList<>();
-        transformations.add(new GeoTransformation.Buffer().maxDistance(GeoDistance.parse("2m"))
-                                                          .minDistance(GeoDistance.parse("1m")));
+        transformations.add(new GeoTransformation.Buffer(GeoDistance.parse("1m"), GeoDistance.parse("2m")));
 
         Condition condition = new GeoShapeCondition(0.1f, "geo_point", WKT, GeoOperation.CONTAINS, transformations);
 
