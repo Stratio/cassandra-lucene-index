@@ -120,7 +120,7 @@
                     <plugin>
                         <groupId>com.stratio.mojo.unix</groupId>
                         <artifactId>unix-maven-plugin</artifactId>
-                        <version>1.1.6</version>
+                        <version>1.2.0</version>
                         <extensions>true</extensions>
                         <inherited>false</inherited>
                         <configuration>
@@ -142,6 +142,9 @@
                             <name>Stratio Cassandra Lucene index</name>
                             <excludeDirectoryAttributes>
                                 <dir>/opt</dir>
+                                <dir>/opt/sds</dir>
+                                <dir>/opt/sds/cassandra</dir>
+                                <dir>/opt/sds/cassandra/lib</dir>
                             </excludeDirectoryAttributes>
                             <assembly>
                                 <copyFile>
@@ -154,7 +157,9 @@
                                     <mode>0775</mode>
                                 </directoryAttributes>
                                 <fileAttributes>
-                                    <mode>0644</mode>
+                                    <mode>0664</mode>
+                                    <user>cassandra</user>
+                                    <group>stratio</group>
                                 </fileAttributes>
                             </defaults>
                         </configuration>
