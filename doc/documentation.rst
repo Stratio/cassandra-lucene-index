@@ -458,15 +458,15 @@ The old fake_column approach
 
     SELECT ( <fields> | * ) FROM <table_name> WHERE <fake_column> = <query>;
 
-and the new 3.0 prettiest fake_column-free way
+and the new 3.0 prettier fake_column-free way
 
 .. code-block:: sql
 
     SELECT ( <fields> | * ) FROM <table_name> WHERE expr(<index_name>,<query>);
 
-We would like to only support the new way but if you want use cassandra 3.x connected though cassandra-spark-connector to spark and cassandra-lucene-index  you need to use the old approach because the cassandra-spark-conector has not uploaded to new secondary index search way (expr).
+We would like to only support the new way but if you want use cassandra 3.x connected through `Datastax spark cassandra connector <https://github.com/datastax/spark-cassandra-connector>`__ to `Apache Spark <http://spark.apache.org>`__ and cassandra-lucene-index you need to use the old approach because the cassandra-spark-conector has not uploaded to new secondary index search way (expr).
 
-The old way of indexing is useful too if you want to get the per-row score in top-k queries retuned in fake-column.
+The old way of indexing is useful too if you want to get the per-row score in top-k queries returned in fake-column.
 
 Every example in this document is written in new 'expr' way but they could be executed in old fake-column way too.
 
