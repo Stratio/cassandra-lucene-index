@@ -424,8 +424,9 @@ Alternatively, you can restrict the search to retrieve tweets that are within a 
     }') LIMIT 100;
 
 
+
 Two ways of Indexing
-****************+***
+********************
 
 Currently, there is two ways of indexing and searching.
 
