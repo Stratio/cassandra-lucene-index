@@ -9,7 +9,7 @@ Stratio's Cassandra Lucene Index
     - `Installation <#installation>`__
     - `Upgrade <#upgrade>`__
     - `Example <#example>`__
-- `Two ways of Indexing <#two_ways_of_indexing>`__
+- `Two ways of Indexing <#two-ways-of-indexing>`__
 - `Indexing <#indexing>`__
     - `Analyzers <#analyzers>`__
         - `Classpath analyzer <#classpath-analyzer>`__
