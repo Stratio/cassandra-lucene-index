@@ -132,7 +132,7 @@ For more details about Apache Cassandra please see its `documentation <http://ca
 
 Examples
 --------
-Currently, there is two ways of create index and query them. Please see `Different ways to index and query <doc/documentation.rst#two-ways-of-indexing>`
+Currently, there is two ways of create index and query them. Please see `Different ways to index and query <doc/documentation.rst#two-ways-of-indexing>`__.
 
 We will create the following table to store tweets:
 
