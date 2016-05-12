@@ -23,6 +23,7 @@ import org.apache.cassandra.db.rows.RowIterator;
 
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.function.Function;
 
 /**
  * {@link RowIterator} representing a single CQL {@link Row}.
@@ -37,6 +38,7 @@ public class SimpleRowIterator implements RowIterator {
     private final Row staticRow;
     private final Row row;
     private final Iterator<Row> rows;
+    private Function<Row, Row> decorator;
 
     /**
      * Builds a new {@link SimpleRowIterator} from the current position of the specified {@link RowIterator}. Any other
@@ -51,6 +53,10 @@ public class SimpleRowIterator implements RowIterator {
         this.staticRow = iterator.staticRow();
         this.row = iterator.next();
         this.rows = Collections.singletonList(row).iterator();
+    }
+
+    public void setDecorator(Function<Row, Row> decorator) {
+        this.decorator = decorator;
     }
 
     /** {@inheritDoc} */
@@ -98,7 +104,8 @@ public class SimpleRowIterator implements RowIterator {
     /** {@inheritDoc} */
     @Override
     public Row next() {
-        return rows.next();
+        Row row = rows.next();
+        return decorator == null ? row : decorator.apply(row);
     }
 
     /**

@@ -43,14 +43,13 @@ import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.db.partitions.PartitionIterator;
 import org.apache.cassandra.db.partitions.PartitionUpdate;
 import org.apache.cassandra.db.partitions.UnfilteredPartitionIterator;
-import org.apache.cassandra.db.rows.Row;
-import org.apache.cassandra.db.rows.RowIterator;
-import org.apache.cassandra.db.rows.UnfilteredRowIterator;
+import org.apache.cassandra.db.rows.*;
 import org.apache.cassandra.index.Index;
 import org.apache.cassandra.index.transactions.IndexTransaction;
 import org.apache.cassandra.schema.IndexMetadata;
 import org.apache.cassandra.utils.Pair;
 import org.apache.cassandra.utils.concurrent.OpOrder;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.*;
@@ -83,6 +82,7 @@ abstract class IndexService {
     private final FSIndex lucene;
     private final String name;
     private final String column;
+    private final ColumnDefinition columnDefinition;
     private final TaskQueue queue;
     private final boolean mapsMultiCells;
 
@@ -97,7 +97,8 @@ abstract class IndexService {
         table = indexedTable;
         metadata = table.metadata;
         name = indexMetadata.name;
-        column = indexMetadata.options.get(IndexTarget.TARGET_OPTION_NAME);
+        column = column(indexMetadata);
+        columnDefinition = columnDefinition(metadata, column);
         qualifiedName = String.format("%s.%s.%s", metadata.ksName, metadata.cfName, indexMetadata.name);
         String mbeanName = String.format("com.stratio.cassandra.lucene:type=Lucene,keyspace=%s,table=%s,index=%s",
                                          metadata.ksName,
@@ -127,6 +128,22 @@ abstract class IndexService {
                              options.ramBufferMB,
                              options.maxMergeMB,
                              options.maxCachedMB);
+    }
+
+    private static String column(IndexMetadata indexMetadata) {
+        String column = indexMetadata.options.get(IndexTarget.TARGET_OPTION_NAME);
+        return StringUtils.isBlank(column) ? null : column;
+    }
+
+    private static ColumnDefinition columnDefinition(CFMetaData metadata, String name) {
+        if (StringUtils.isNotBlank(name)) {
+            for (ColumnDefinition def : metadata.allColumns()) {
+                if (def.name.toString().equals(name)) {
+                    return def;
+                }
+            }
+        }
+        return null;
     }
 
     void init() {
@@ -215,8 +232,11 @@ abstract class IndexService {
      * @param expression a custom CQL expression
      * @return the validated expression
      */
-    Search validate(RowFilter.CustomExpression expression) {
-        String json = UTF8Type.instance.compose(expression.getValue());
+    Search validate(RowFilter.Expression expression) {
+        ByteBuffer value = expression instanceof RowFilter.CustomExpression
+                           ? ((RowFilter.CustomExpression) expression).getValue()
+                           : expression.getIndexValue();
+        String json = UTF8Type.instance.compose(value);
         Search search = SearchBuilder.fromJson(json).build();
         search.validate(schema);
         return search;
@@ -612,13 +632,12 @@ abstract class IndexService {
 
             List<Pair<DecoratedKey, SimpleRowIterator>> collectedRows = collect(partitions);
 
-            Query query = search.query(schema).orElseGet(MatchAllDocsQuery::new);
-            Sort sort = sort(search);
             int limit = command.limits().count();
+            int nowInSec = command.nowInSec();
 
             // Skip if search is not top-k
             if (search.isTopK()) {
-                return process(query, sort, limit, collectedRows);
+                return process(search, limit, nowInSec, collectedRows);
             }
         }
         return partitions;
@@ -643,9 +662,9 @@ abstract class IndexService {
         return rows;
     }
 
-    private SimplePartitionIterator process(Query query,
-                                            Sort sort,
+    private SimplePartitionIterator process(Search search,
                                             int limit,
+                                            int nowInSec,
                                             List<Pair<DecoratedKey, SimpleRowIterator>> collectedRows) {
         TimeCounter sortTime = TimeCounter.create().start();
         List<SimpleRowIterator> processedRows = new LinkedList<>();
@@ -666,13 +685,18 @@ abstract class IndexService {
             }
 
             // Repeat search to sort partial results
-            List<Document> documents = index.search(query, sort, limit, fieldsToLoad());
+            Query query = search.query(schema).orElseGet(MatchAllDocsQuery::new);
+            Sort sort = sort(search);
+            List<Pair<Document, ScoreDoc>> documents = index.search(query, sort, limit, fieldsToLoad());
             index.close();
 
             // Collect post processed results
-            for (Document document : documents) {
+            for (Pair<Document, ScoreDoc> pair : documents) {
+                Document document = pair.left;
+                Float score = pair.right.score;
                 Term term = term(document);
                 SimpleRowIterator rowIterator = rowsByTerm.get(term);
+                rowIterator.setDecorator(row -> decorate(row, score, nowInSec));
                 processedRows.add(rowIterator);
             }
 
@@ -683,6 +707,21 @@ abstract class IndexService {
                          sortTime.stop());
         }
         return new SimplePartitionIterator(processedRows);
+    }
+
+    private Row decorate(Row row, Float score, int nowInSec) {
+        if (column == null || score == null) {
+            return row;
+        }
+        long timestamp = row.primaryKeyLivenessInfo().timestamp();
+        Row.Builder builder = BTreeRow.unsortedBuilder(nowInSec);
+        builder.newRow(row.clustering());
+        builder.addRowDeletion(row.deletion());
+        builder.addPrimaryKeyLivenessInfo(row.primaryKeyLivenessInfo());
+        row.cells().forEach(builder::addCell);
+        ByteBuffer value = UTF8Type.instance.decompose(Float.toString(score));
+        builder.addCell(BufferCell.live(metadata, columnDefinition, timestamp, value));
+        return builder.build();
     }
 
     /**

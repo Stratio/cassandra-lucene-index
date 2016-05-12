@@ -431,7 +431,7 @@ public class Index implements org.apache.cassandra.index.Index {
      * @return the valid search represented by {@code expression}
      * @throws InvalidRequestException if the expression is not valid
      */
-    public Search validate(RowFilter.CustomExpression expression) {
+    public Search validate(RowFilter.Expression expression) {
         try {
             return service.validate(expression);
         } catch (Exception e) {

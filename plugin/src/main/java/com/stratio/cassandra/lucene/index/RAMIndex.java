@@ -16,6 +16,7 @@
 package com.stratio.cassandra.lucene.index;
 
 import com.stratio.cassandra.lucene.IndexException;
+import org.apache.cassandra.utils.Pair;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
@@ -93,18 +94,19 @@ public class RAMIndex {
      * @param fields the names of the fields to be loaded
      * @return the found documents
      */
-    public List<Document> search(Query query, Sort sort, Integer count, Set<String> fields) {
+    public List<Pair<Document, ScoreDoc>> search(Query query, Sort sort, Integer count, Set<String> fields) {
         try {
             indexWriter.commit();
             IndexReader reader = DirectoryReader.open(directory);
             IndexSearcher searcher = new IndexSearcher(reader);
             sort = sort.rewrite(searcher);
-            TopDocs topDocs = searcher.search(query, count, sort);
+            TopDocs topDocs = searcher.search(query, count, sort, true, true);
+            float maxScore = topDocs.getMaxScore();
             ScoreDoc[] scoreDocs = topDocs.scoreDocs;
-            List<Document> documents = new LinkedList<>();
+            List<Pair<Document, ScoreDoc>> documents = new LinkedList<>();
             for (ScoreDoc scoreDoc : scoreDocs) {
                 Document document = searcher.doc(scoreDoc.doc, fields);
-                documents.add(document);
+                documents.add(Pair.create(document, scoreDoc));
             }
             searcher.getIndexReader().close();
             return documents;
