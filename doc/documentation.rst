@@ -456,7 +456,7 @@ The old fake_column approach
 
 .. code-block:: sql
 
-    SELECT ( <fields> | * ) FROM <table_name> WHERE fake_column = <query>;
+    SELECT ( <fields> | * ) FROM <table_name> WHERE <fake_column> = <query>;
 
 and the new 3.0 prettiest fake_column-free way
 
