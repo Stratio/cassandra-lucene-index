@@ -270,7 +270,7 @@ public class Index implements org.apache.cassandra.index.Index {
     @Override
     public boolean dependsOn(ColumnDefinition column) { // TODO: Could return true only for key and/or mapped columns
         logger.trace("Asking if it depends on column {}", column);
-        return service.maps(column);
+        return service.dependsOn(column);
     }
 
     /**
@@ -284,7 +284,7 @@ public class Index implements org.apache.cassandra.index.Index {
     @Override
     public boolean supportsExpression(ColumnDefinition column, Operator operator) {
         logger.trace("Asking if it supports the expression {} {}", column, operator);
-        return false;
+        return service.supportsExpression(column, operator);
     }
 
     /**
@@ -315,7 +315,7 @@ public class Index implements org.apache.cassandra.index.Index {
     @Override
     public RowFilter getPostIndexQueryFilter(RowFilter filter) {
         logger.trace("Getting the post index query filter for {}", filter);
-        return filter;
+        return service.getPostIndexQueryFilter(filter);
     }
 
     /**

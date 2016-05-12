@@ -31,6 +31,8 @@ import com.stratio.cassandra.lucene.util.TaskQueue;
 import com.stratio.cassandra.lucene.util.TimeCounter;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
+import org.apache.cassandra.cql3.Operator;
+import org.apache.cassandra.cql3.statements.IndexTarget;
 import org.apache.cassandra.db.*;
 import org.apache.cassandra.db.filter.ClusteringIndexFilter;
 import org.apache.cassandra.db.filter.ClusteringIndexNamesFilter;
@@ -80,6 +82,7 @@ abstract class IndexService {
     protected final Schema schema;
     private final FSIndex lucene;
     private final String name;
+    private final String column;
     private final TaskQueue queue;
     private final boolean mapsMultiCells;
 
@@ -94,6 +97,7 @@ abstract class IndexService {
         table = indexedTable;
         metadata = table.metadata;
         name = indexMetadata.name;
+        column = indexMetadata.options.get(IndexTarget.TARGET_OPTION_NAME);
         qualifiedName = String.format("%s.%s.%s", metadata.ksName, metadata.cfName, indexMetadata.name);
         String mbeanName = String.format("com.stratio.cassandra.lucene:type=Lucene,keyspace=%s,table=%s,index=%s",
                                          metadata.ksName,
@@ -156,11 +160,53 @@ abstract class IndexService {
     /**
      * Returns if the specified column definition is mapped by this index.
      *
-     * @param column a column definition
+     * @param columnDef a column definition
      * @return {@code true} if the column is mapped, {@code false} otherwise
      */
-    boolean maps(ColumnDefinition column) {
-        return schema.maps(column);
+    boolean dependsOn(ColumnDefinition columnDef) {
+        return schema.maps(columnDef);
+    }
+
+    /**
+     * Returns if the specified {@link Expression} is targeted to this index
+     *
+     * @param expression a CQL query expression
+     * @return {@code true} if {@code expression} is targeted to this index, {@code false} otherwise
+     */
+    boolean supportsExpression(Expression expression) {
+        return supportsExpression(expression.column(), expression.operator());
+    }
+
+    /**
+     * Returns if a CQL expression with the specified {@link ColumnDefinition} and {@link Operator} is targeted to this
+     * index
+     *
+     * @param columnDef the expression column definition
+     * @param operator the expression operator
+     * @return {@code true} if the expression is targeted to this index, {@code false} otherwise
+     */
+    boolean supportsExpression(ColumnDefinition columnDef, Operator operator) {
+        return column != null &&
+               operator == Operator.EQ &&
+               column.equals(columnDef.name.toString()) &&
+               columnDef.cellValueType() instanceof UTF8Type;
+    }
+
+    /**
+     * Returns a copy of the specified {@link RowFilter} without any Lucene {@link Expression}s.
+     *
+     * @param filter a row filter
+     * @return a copy of {@code filter} without Lucene {@link Expression}s
+     */
+    RowFilter getPostIndexQueryFilter(RowFilter filter) {
+        if (column != null) {
+            for (Expression expression : filter) {
+                if (supportsExpression(expression)) {
+                    filter = filter.without(expression);
+                }
+            }
+        }
+        return filter;
     }
 
     /**
@@ -397,6 +443,10 @@ abstract class IndexService {
                     return UTF8Type.instance.compose(bb);
                 }
             }
+            if (supportsExpression(expression)) {
+                ByteBuffer bb = expression.getIndexValue();
+                return UTF8Type.instance.compose(bb);
+            }
         }
         throw new IndexException("Lucene search expression not found in command expressions");
     }
@@ -566,7 +616,7 @@ abstract class IndexService {
             Sort sort = sort(search);
             int limit = command.limits().count();
 
-            // Skip if search is not top-k TODO: Skip if only one partitioner range is involved
+            // Skip if search is not top-k
             if (search.isTopK()) {
                 return process(query, sort, limit, collectedRows);
             }
