@@ -9,6 +9,7 @@ Stratio's Cassandra Lucene Index
     - `Installation <#installation>`__
     - `Upgrade <#upgrade>`__
     - `Example <#example>`__
+- `Two ways of Indexing <#two_ways_of_indexing>`__
 - `Indexing <#indexing>`__
     - `Analyzers <#analyzers>`__
         - `Classpath analyzer <#classpath-analyzer>`__
@@ -421,6 +422,53 @@ Alternatively, you can restrict the search to retrieve tweets that are within a 
         query  : {type:"phrase", field:"body", value:"big data gives organizations", slop:1},
         sort   : {fields: [ {field:"time", reverse:true} ] }
     }') LIMIT 100;
+
+
+Two ways of Indexing
+****************+***
+
+Currently, there is two ways of indexing and searching.
+
+The old one way of indexing is the fake-column approach
+
+.. code-block:: sql
+
+    CREATE CUSTOM INDEX (IF NOT EXISTS)? <index_name>
+                                      ON <table_name> (<fake_column>)
+                                   USING 'com.stratio.cassandra.lucene.Index'
+                            WITH OPTIONS = <options>
+
+where you need to use an additional column where you build the index on.
+
+The new way does not need the fake column.
+
+.. code-block:: sql
+
+    CREATE CUSTOM INDEX (IF NOT EXISTS)? <index_name>
+                                      ON <table_name> ()
+                                   USING 'com.stratio.cassandra.lucene.Index'
+                            WITH OPTIONS = <options>
+
+There is also two ways of searching:
+
+The old fake_column approach
+
+.. code-block:: sql
+
+    SELECT ( <fields> | * ) FROM <table_name> WHERE fake_column = <query>;
+
+and the new 3.0 prettiest fake_column-free way
+
+.. code-block:: sql
+
+    SELECT ( <fields> | * ) FROM <table_name> WHERE expr(<index_name>,<query>);
+
+We would like to only support the new way but if you want use cassandra 3.x connected though cassandra-spark-connector to spark and cassandra-lucene-index  you need to use the old approach because the cassandra-spark-conector has not uploaded to new secondary index search way (expr).
+
+The old way of indexing is useful too if you want to get the per-row score in top-k queries retuned in fake-column.
+
+Every example in this document is written in new 'expr' way but they could be executed in old fake-column way too.
+
 
 Indexing
 ********
