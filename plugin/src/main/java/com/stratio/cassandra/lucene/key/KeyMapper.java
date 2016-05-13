@@ -39,9 +39,13 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.util.BytesRef;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
+import java.util.NavigableSet;
 import java.util.Optional;
+import java.util.TreeSet;
 
 import static org.apache.lucene.search.BooleanClause.Occur.SHOULD;
 
@@ -51,6 +55,8 @@ import static org.apache.lucene.search.BooleanClause.Occur.SHOULD;
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public final class KeyMapper {
+
+    private static final Logger logger = LoggerFactory.getLogger(KeyMapper.class);
 
     /** The Lucene field name. */
     public static final String FIELD_NAME = "_primary_key";
@@ -242,6 +248,12 @@ public final class KeyMapper {
                 ClusteringIndexSliceFilter sliceFilter = (ClusteringIndexSliceFilter) filter;
                 Slices slices = sliceFilter.requestedSlices();
                 return Optional.of(slices.get(0).start());
+            } else if (filter instanceof ClusteringIndexNamesFilter) {
+                ClusteringIndexNamesFilter namesFilter = (ClusteringIndexNamesFilter) filter;
+                Clustering clustering = namesFilter.requestedRows().first();
+                if (clustering != null) {
+                    return Optional.of(clustering);
+                }
             }
         }
         return Optional.empty();
@@ -262,6 +274,12 @@ public final class KeyMapper {
                 ClusteringIndexSliceFilter sliceFilter = (ClusteringIndexSliceFilter) filter;
                 Slices slices = sliceFilter.requestedSlices();
                 return Optional.of(slices.get(slices.size() - 1).end());
+            } else if (filter instanceof ClusteringIndexNamesFilter) {
+                ClusteringIndexNamesFilter namesFilter = (ClusteringIndexNamesFilter) filter;
+                Clustering clustering = namesFilter.requestedRows().last();
+                if (clustering != null) {
+                    return Optional.of(clustering);
+                }
             }
         }
         return Optional.empty();

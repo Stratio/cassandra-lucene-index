@@ -15,12 +15,12 @@
  */
 package com.stratio.cassandra.lucene.key;
 
+import com.google.common.base.MoreObjects;
 import org.apache.cassandra.db.Clustering;
 import org.apache.cassandra.db.ClusteringComparator;
 import org.apache.cassandra.db.ClusteringPrefix;
 import org.apache.cassandra.db.DecoratedKey;
 import org.apache.cassandra.dht.Token;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.lucene.index.FilteredTermsEnum;
 import org.apache.lucene.index.Terms;
 import org.apache.lucene.index.TermsEnum;
@@ -80,19 +80,21 @@ class KeyQuery extends MultiTermQuery {
     /** {@inheritDoc} */
     @Override
     public String toString(String field) {
-        return new ToStringBuilder(this).append("field", field)
-                                        .append("key", key)
-                                        .append("start", start == null ? null : mapper.toString(start))
-                                        .append("stop", stop == null ? null : mapper.toString(stop))
-                                        .toString();
+        return MoreObjects.toStringHelper(this)
+                          .add("field", field)
+                          .add("key", key)
+                          .add("start", start == null ? null : mapper.toString(start))
+                          .add("stop", stop == null ? null : mapper.toString(stop))
+                          .toString();
     }
 
     private class FullKeyDataRangeFilteredTermsEnum extends FilteredTermsEnum {
 
         FullKeyDataRangeFilteredTermsEnum(TermsEnum tenum) {
             super(tenum);
-            setInitialSeekTerm(mapper.bytesRef(key, new Clustering(start.getRawValues())));
-
+            if (start != null) {
+                setInitialSeekTerm(mapper.bytesRef(key, new Clustering(start.getRawValues())));
+            }
         }
 
         /** {@inheritDoc} */

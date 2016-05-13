@@ -145,12 +145,17 @@ class IndexServiceWide extends IndexService {
     /** {@inheritDoc} */
     @Override
     public Query query(DecoratedKey key, ClusteringIndexFilter filter) {
-        return keyMapper.query(key, filter);
+        return filter.selectsAllPartition() ? partitionMapper.query(key) : keyMapper.query(key, filter);
     }
 
     /** {@inheritDoc} */
     @Override
     public Optional<Query> query(DataRange dataRange) {
+
+        // Check trivia
+        if (dataRange.isUnrestricted()) {
+            return Optional.empty();
+        }
 
         // Extract data range data
         PartitionPosition startPosition = dataRange.startKey();
@@ -159,6 +164,21 @@ class IndexServiceWide extends IndexService {
         Token stopToken = stopPosition.getToken();
         Optional<ClusteringPrefix> maybeStartClustering = KeyMapper.startClusteringPrefix(dataRange);
         Optional<ClusteringPrefix> maybeStopClustering = KeyMapper.stopClusteringPrefix(dataRange);
+
+        // Test single partition
+        if (startPosition.equals(stopPosition) && startPosition instanceof DecoratedKey) {
+            if (maybeStartClustering.isPresent() || maybeStopClustering.isPresent()) {
+                DecoratedKey key = (DecoratedKey) startPosition;
+                ClusteringPrefix start = maybeStartClustering.orElse(null);
+                ClusteringPrefix stop = maybeStopClustering.orElse(null);
+                if (start != null && stop != null && start.size() == 0 && stop.size() == 0) {
+                    return Optional.of(partitionMapper.query(key));
+                }
+                return Optional.of(keyMapper.query(key, start, stop, false, false));
+            } else {
+                return tokenMapper.query(startToken, stopToken, true, true);
+            }
+        }
 
         // Prepare query builder
         BooleanQuery.Builder builder = new BooleanQuery.Builder();
