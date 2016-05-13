@@ -6,6 +6,7 @@
 * Fix memory consumption issues with high fetch sizes
 * Early terminate in inner pagination (improves allow filtering performance)
 * Add transformation for getting the convex hull of a geographical shape
+* Add support for old dummy column syntax (Spark compatibility and score retrieval)
 
 ## 3.0.5.0 (22 April 2016)
 

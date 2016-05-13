@@ -9,6 +9,7 @@ Stratio's Cassandra Lucene Index
     - `Installation <#installation>`__
     - `Upgrade <#upgrade>`__
     - `Example <#example>`__
+    - `Alternative syntaxes <#alternative-syntaxes>`__
 - `Indexing <#indexing>`__
     - `Analyzers <#analyzers>`__
         - `Classpath analyzer <#classpath-analyzer>`__
@@ -289,6 +290,82 @@ compatibility matrix that states between which versions it is not needed to dele
 +-----------+---------+---------+---------+---------+----------+----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
 | 3.0.4.1   |    --   |    --   |    --   |    --   |    --    |    --    |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |
 +-----------+---------+---------+---------+---------+----------+----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+
+Alternative syntaxes
+====================
+
+Prior to Cassandra 3.0 per-row secondary index implementations required to be linked to a dummy column due to CQL
+syntax limitations:
+
+.. code-block:: sql
+
+    CREATE TABLE test(pk int PRIMARY KEY, rc text);
+    ALTER TABLE test ADD lucene text; -- Dummy column
+
+    CREATE CUSTOM INDEX idx ON test(lucene)
+    USING 'com.stratio.cassandra.lucene.Index'
+    WITH OPTIONS = {'schema': '{fields: {rc: {type: "text"}}}'};
+
+This column wasn't intended to store anything, it was just a trick to embed Lucene syntax into CQL syntax, so custom
+search predicates could be directed to this dummy column:
+
+.. code-block:: sql
+
+    SELECT * FROM test WHERE lucene = '{...}';
+
+As a collateral benefit, this column was used to return the score assigned by the Lucene query to each of the rows.
+
+However, Cassandra 3.0 introduced `a secondary index API redesign <https://issues.apache.org/jira/browse/CASSANDRA-9459>`__
+including explicit syntactical support for custom per-row indexes using their own query language.
+This new syntax didn't require the dummy column anymore:
+
+.. code-block:: sql
+
+    CREATE TABLE test(pk int PRIMARY KEY, rc text);
+
+    CREATE CUSTOM INDEX idx ON test()
+    USING 'com.stratio.cassandra.lucene.Index'
+    WITH OPTIONS = {'schema': '{fields: {rc: {type: "text"}}}'};
+
+Instead, we can address custom search expressions directly to the index using the new 'expr' operator:
+
+.. code-block:: sql
+
+    SELECT * FROM test WHERE expr(idx, '{...}');
+
+As you can see, this new syntax is far clearer than the previous one.
+However, the old syntax is still supported for compatibility reasons, given than several client applications hasn't
+upgraded to the new approach yet.
+The most remarkable case is `DataStax's connector for Apache Spark <https://github.com/datastax/spark-cassandra-connector>`__,
+which `doesn't allow 'expr' queries <https://datastax-oss.atlassian.net/browse/SPARKC-332>`__  and
+`fails managing tables with new-style indexes <https://datastax-oss.atlassian.net/browse/SPARKC-361>`__ even if the
+Spark operation doesn't use the index at all.
+So, unfortunately, you must continue using the old dummy column approach if you are going to use the Spark connector or
+any other incompatible software.
+
+Additionally, another possible reason for using the old syntax is that it uses the fake column to show the scores assigned
+by the Lucene's scoring formula to each one of the matched rows. This score is internally used for sorting and selecting
+the matched rows according to some user-defined search criteria. Although it is more intended for internal use, showing
+this value could be useful in some specific cases.
+
+Last but not least, it is important to note that you can address searches with the new syntax to indexes created with
+the old fake column approach:
+
+.. code-block:: sql
+
+    CREATE TABLE test(pk int PRIMARY KEY, rc text);
+    ALTER TABLE test ADD lucene text; -- Dummy column
+
+    CREATE CUSTOM INDEX idx ON test(lucene)
+    USING 'com.stratio.cassandra.lucene.Index'
+    WITH OPTIONS = {'schema': '{fields: {rc: {type: "text"}}}'};
+
+    SELECT * FROM test WHERE expr(idx,'{...}');
+
+This offers a good balance between the advantages of both syntaxes.
+
+All the examples in this document use the new syntax, but all of them can be written in the old way.
+
 Example
 =======
 
@@ -3523,6 +3600,9 @@ Spark and Hadoop integrations are fully supported because Lucene searches
 can be combined with token range restrictions and paging, which are the
 basis of MapReduce frameworks support.
 
+Please note that `Cassandra connector for Apache Spark <https://github.com/datastax/spark-cassandra-connector>`__ is not
+compatible with new secondary index syntax yet, so you should use `the old dummy column approach <#alternative-syntaxes>`__.
+
 Token Range Searches
 ====================
 
@@ -3537,9 +3617,9 @@ tokens is applied first and then the condition of the filter clause.
 
 .. code-block:: sql
 
-    SELECT name, gender FROM test.users WHERE expr(users_index, '{
-        filter : {type : "match", field : "food", value : "chips"}}
-    ') AND token(name, gender) > token('Alicia', 'female');
+    SELECT name, gender FROM test.users
+    WHERE lucene = '{filter : {type : "match", field : "food", value : "chips"}}')
+    AND token(name, gender) > token('Alicia', 'female');
 
 Paging
 ======
@@ -3550,9 +3630,9 @@ the rows starting from a certain key. For example, if the primary key is
 
 .. code-block:: sql
 
-    SELECT * FROM tweets WHERE expr(users_index, ‘{
-        filter : {type:”match",  field:”text", value:”cassandra”}}
-    ') AND userid = 3543534 AND createdAt > 2011-02-03 04:05+0000 LIMIT 5000;
+    SELECT * FROM tweets
+    WHERE lucene = ‘{filter : {type:”match",  field:”text", value:”cassandra”}}'
+    AND userid = 3543534 AND createdAt > 2011-02-03 04:05+0000 LIMIT 5000;
 
 Examples
 ========
