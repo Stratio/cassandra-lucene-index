@@ -296,15 +296,15 @@ compatibility matrix that states between which versions it is not needed to dele
 Alternative syntaxes
 ====================
 
-Prior to Cassandra 3.0 per-row secondary index implementations required to be linked to a dummy column due to CQL
-syntax limitations:
+There are two alternative syntaxes for managing indexes. Prior to Cassandra 3.0, indexes had to be linked to a dummy
+column due to CQL syntax limitations:
 
 .. code-block:: sql
 
     CREATE TABLE test(pk int PRIMARY KEY, rc text);
     ALTER TABLE test ADD lucene text; -- Dummy column
 
-    CREATE CUSTOM INDEX idx ON test(lucene)
+    CREATE CUSTOM INDEX idx ON test(lucene) -- Index is linked to the dummy column
     USING 'com.stratio.cassandra.lucene.Index'
     WITH OPTIONS = {'schema': '{fields: {rc: {type: "text"}}}'};
 
@@ -325,7 +325,7 @@ This new syntax didn't require the dummy column anymore:
 
     CREATE TABLE test(pk int PRIMARY KEY, rc text);
 
-    CREATE CUSTOM INDEX idx ON test()
+    CREATE CUSTOM INDEX idx ON test() -- Index is directly linked to the table, without dummy column
     USING 'com.stratio.cassandra.lucene.Index'
     WITH OPTIONS = {'schema': '{fields: {rc: {type: "text"}}}'};
 
@@ -336,8 +336,8 @@ Instead, we can address custom search expressions directly to the index using th
     SELECT * FROM test WHERE expr(idx, '{...}');
 
 As you can see, this new syntax is far clearer than the previous one.
-However, the old syntax is still supported for compatibility reasons, given than several client applications hasn't
-upgraded to the new approach yet.
+However, the old syntax is still supported for compatibility reasons, given that several client applications do not
+support the new syntax yet.
 The most remarkable case is `DataStax's connector for Apache Spark <https://github.com/datastax/spark-cassandra-connector>`__,
 which `doesn't allow 'expr' queries <https://datastax-oss.atlassian.net/browse/SPARKC-332>`__  and
 `fails managing tables with new-style indexes <https://datastax-oss.atlassian.net/browse/SPARKC-361>`__ even if the
@@ -358,7 +358,7 @@ the old fake column approach:
     CREATE TABLE test(pk int PRIMARY KEY, rc text);
     ALTER TABLE test ADD lucene text; -- Dummy column
 
-    CREATE CUSTOM INDEX idx ON test(lucene)
+    CREATE CUSTOM INDEX idx ON test(lucene) -- Index is linked to the dummy column
     USING 'com.stratio.cassandra.lucene.Index'
     WITH OPTIONS = {'schema': '{fields: {rc: {type: "text"}}}'};
 
