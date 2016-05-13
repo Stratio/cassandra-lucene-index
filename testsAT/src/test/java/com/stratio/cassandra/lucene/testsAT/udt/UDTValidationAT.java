@@ -68,7 +68,7 @@ public class UDTValidationAT extends BaseAT {
     public void testValidCreateIndex() {
 
         String createIndexQuery = "CREATE CUSTOM INDEX " +
-                                  cassandraUtils.getIndex() +
+                                  cassandraUtils.getIndexName() +
                                   " ON " +
                                   cassandraUtils.getKeyspace() +
                                   "." +
@@ -92,7 +92,7 @@ public class UDTValidationAT extends BaseAT {
     @Test
     public void testInValidCreateIndex() {
         String createIndexQuery = "CREATE CUSTOM INDEX " +
-                                  cassandraUtils.getIndex() +
+                                  cassandraUtils.getIndexName() +
                                   " ON " +
                                   cassandraUtils.getKeyspace() +
                                   "." +
@@ -122,7 +122,7 @@ public class UDTValidationAT extends BaseAT {
     @Test
     public void testInValidCreateIndex2() {
         String createIndexQuery = "CREATE CUSTOM INDEX " +
-                                  cassandraUtils.getIndex() +
+                                  cassandraUtils.getIndexName() +
                                   " ON " +
                                   cassandraUtils.getKeyspace() +
                                   "." +
@@ -153,7 +153,7 @@ public class UDTValidationAT extends BaseAT {
     @Test
     public void testInValidCreateIndex3() {
         String createIndexQuery = "CREATE CUSTOM INDEX " +
-                                  cassandraUtils.getIndex() +
+                                  cassandraUtils.getIndexName() +
                                   " ON " +
                                   cassandraUtils.getKeyspace() +
                                   "." +
@@ -190,7 +190,7 @@ public class UDTValidationAT extends BaseAT {
     @Test
     public void testInValidCreateIndex4() {
         String createIndexQuery = "CREATE CUSTOM INDEX " +
-                                  cassandraUtils.getIndex() +
+                                  cassandraUtils.getIndexName() +
                                   " ON " +
                                   cassandraUtils.getKeyspace() +
                                   "." +

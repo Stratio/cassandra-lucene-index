@@ -43,6 +43,8 @@ public class InOperatorWithWideRowsAT extends BaseAT {
     @BeforeClass
     public static void before() {
         utils = CassandraUtils.builder("in_operator_with_wide_rows")
+                              .withIndexColumn(null)
+                              .withUseNewQuerySyntax(true)
                               .withPartitionKey("pk")
                               .withClusteringKey("ck")
                               .withColumn("pk", "int", integerMapper().sorted(true))

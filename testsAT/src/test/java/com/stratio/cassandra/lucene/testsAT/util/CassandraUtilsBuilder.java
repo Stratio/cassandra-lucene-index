@@ -21,8 +21,7 @@ import com.stratio.cassandra.lucene.builder.index.schema.mapping.SingleColumnMap
 import java.util.*;
 
 import static com.stratio.cassandra.lucene.builder.Builder.*;
-import static com.stratio.cassandra.lucene.testsAT.util.CassandraConfig.INDEX;
-import static com.stratio.cassandra.lucene.testsAT.util.CassandraConfig.TABLE;
+import static com.stratio.cassandra.lucene.testsAT.util.CassandraConfig.*;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
@@ -31,7 +30,9 @@ public class CassandraUtilsBuilder {
 
     private final String name;
     private String table = TABLE;
-    private String index = INDEX;
+    private String indexName = INDEX;
+    private String indexColumn = COLUMN;
+    private Boolean useNewQuerySyntax = USE_NEW_QUERY_SYNTAX;
     private Map<String, String> columns;
     private Map<String, Mapper> mappers;
     private List<String> partitionKey;
@@ -53,8 +54,18 @@ public class CassandraUtilsBuilder {
         return this;
     }
 
-    public CassandraUtilsBuilder withIndex(String index) {
-        this.index = index;
+    public CassandraUtilsBuilder withIndexName(String index) {
+        this.indexName = index;
+        return this;
+    }
+
+    public CassandraUtilsBuilder withIndexColumn(String indexedColumn) {
+        this.indexColumn = indexedColumn;
+        return this;
+    }
+
+    public CassandraUtilsBuilder withUseNewQuerySyntax(Boolean useNewQuerySyntax) {
+        this.useNewQuerySyntax = useNewQuerySyntax;
         return this;
     }
 
@@ -162,6 +173,15 @@ public class CassandraUtilsBuilder {
 
     public CassandraUtils build() {
         String keyspace = name + "_" + Math.abs(new Random().nextLong());
-        return new CassandraUtils(keyspace, table, index, columns, mappers, partitionKey, clusteringKey, udts);
+        return new CassandraUtils(keyspace,
+                                  table,
+                                  indexName,
+                                  indexColumn,
+                                  useNewQuerySyntax,
+                                  columns,
+                                  mappers,
+                                  partitionKey,
+                                  clusteringKey,
+                                  udts);
     }
 }

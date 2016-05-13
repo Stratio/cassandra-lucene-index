@@ -34,7 +34,7 @@ public class Issue64AT extends BaseAT {
     public void test() {
 
         CassandraUtils cassandraUtils = builder("issue_64").withTable("flights")
-                                                           .withIndex("flights_index")
+                                                           .withIndexName("flights_index")
                                                            .withPartitionKey("id")
                                                            .withColumn("id", "uuid", null)
                                                            .withColumn("arrival_aerodrome", "text", stringMapper())

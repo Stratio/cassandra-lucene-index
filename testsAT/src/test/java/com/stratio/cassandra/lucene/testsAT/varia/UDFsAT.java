@@ -73,7 +73,7 @@ public class UDFsAT extends BaseAT {
 
         Statement statement = cassandraUtils.statement("SELECT key, double(value) FROM %s WHERE expr(%s,'{}');",
                                                        cassandraUtils.getQualifiedTable(),
-                                                       cassandraUtils.getIndex()).setFetchSize(2);
+                                                       cassandraUtils.getIndexName()).setFetchSize(2);
         List<Row> rows = cassandraUtils.execute(statement).all();
         long[] expected = new long[]{2, 4, 6, 8, 10, 12};
         long[] actual = new long[rows.size()];
@@ -121,7 +121,7 @@ public class UDFsAT extends BaseAT {
 
         Statement statement = cassandraUtils.statement("SELECT average(value) FROM %s WHERE expr(%s,'{}');",
                                                        cassandraUtils.getQualifiedTable(),
-                                                       cassandraUtils.getIndex()).setFetchSize(2);
+                                                       cassandraUtils.getIndexName()).setFetchSize(2);
         List<Row> rows = cassandraUtils.execute(statement).all();
         assertEquals("Expected one row!", 1, rows.size());
         assertEquals("Expected 4!", 3.5D, rows.get(0).getDouble(0), 0);
