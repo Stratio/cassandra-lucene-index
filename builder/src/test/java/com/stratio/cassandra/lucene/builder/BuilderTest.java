@@ -39,6 +39,7 @@ public class BuilderTest {
     @Test
     public void testIndexFull() {
         String actual = index("ks", "table", "idx").keyspace("keyspace")
+                                                   .column("lucene")
                                                    .directoryPath("path")
                                                    .refreshSeconds(10D)
                                                    .maxCachedMb(32)
@@ -53,7 +54,7 @@ public class BuilderTest {
                                                    .mapper("uuid", uuidMapper().validated(true))
                                                    .mapper("string", stringMapper())
                                                    .build();
-        String expected = "CREATE CUSTOM INDEX idx ON keyspace.table() " +
+        String expected = "CREATE CUSTOM INDEX idx ON keyspace.table(lucene) " +
                           "USING 'com.stratio.cassandra.lucene.Index' " +
                           "WITH OPTIONS = {" +
                           "'refresh_seconds':'10.0'," +
