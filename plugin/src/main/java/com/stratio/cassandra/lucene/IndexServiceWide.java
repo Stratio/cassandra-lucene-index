@@ -168,34 +168,36 @@ class IndexServiceWide extends IndexService {
         PartitionPosition stopPosition = dataRange.stopKey();
         Token startToken = startPosition.getToken();
         Token stopToken = stopPosition.getToken();
-        ClusteringPrefix start = KeyMapper.startClusteringPrefix(dataRange).orElse(null);
-        ClusteringPrefix stop = KeyMapper.stopClusteringPrefix(dataRange).orElse(null);
+        ClusteringPrefix startClustering = KeyMapper.startClusteringPrefix(dataRange).orElse(null);
+        ClusteringPrefix stopClustering = KeyMapper.stopClusteringPrefix(dataRange).orElse(null);
+        boolean includeStartClustering = startClustering != null && startClustering.size() > 0;
+        boolean includeStopClustering = stopClustering != null && stopClustering.size() > 0;
 
         // Try single partition
         if (startToken.compareTo(stopToken) == 0) {
-            if (start == null && stop == null ||
-                start != null && start.size() == 0 && stop != null && stop.size() == 0) {
+            if (!includeStartClustering && !includeStopClustering) {
                 return Optional.of(query(startPosition));
             }
-            return Optional.of(keyMapper.query(startPosition, start, stop));
+            return Optional.of(keyMapper.query(startPosition, startClustering, stopClustering));
         }
 
         // Prepare query builder
         BooleanQuery.Builder builder = new BooleanQuery.Builder();
 
         // Add first partition filter
-        if (start != null) {
-            builder.add(keyMapper.query(startPosition, start, null), SHOULD);
+        if (includeStartClustering) {
+            builder.add(keyMapper.query(startPosition, startClustering, null), SHOULD);
         }
 
         // Add token range filter
-        boolean includeStart = startPosition.kind() == MIN_BOUND && start == null;
-        boolean includeStop = stopPosition.kind() == MAX_BOUND && stop == null;
-        tokenMapper.query(startToken, stopToken, includeStart, includeStop).ifPresent(x -> builder.add(x, SHOULD));
+        boolean includeStartToken = startPosition.kind() == MIN_BOUND && !includeStartClustering;
+        boolean includeStopToken = stopPosition.kind() == MAX_BOUND && !includeStopClustering;
+        tokenMapper.query(startToken, stopToken, includeStartToken, includeStopToken)
+                   .ifPresent(x -> builder.add(x, SHOULD));
 
         // Add last partition filter
-        if (stop != null) {
-            builder.add(keyMapper.query(stopPosition, null, stop), SHOULD);
+        if (includeStopClustering) {
+            builder.add(keyMapper.query(stopPosition, null, stopClustering), SHOULD);
         }
 
         // Return query, or empty if there are no restrictions
