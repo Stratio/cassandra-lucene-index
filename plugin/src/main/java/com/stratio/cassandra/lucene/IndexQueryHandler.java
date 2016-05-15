@@ -180,10 +180,8 @@ class IndexQueryHandler implements QueryHandler {
         if (search.isTopK()) {
 
             // Avoid IN operator
-            if (select.getRestrictions().getPartitionKeys(options).size() > 1) {
-                throw new InvalidRequestException(
-                        "Top-k searches can't be directed to more than one partition, you should either " +
-                        "direct them to one single partition or don't use any partition restrictions.");
+            if (select.getRestrictions().keyIsInRelation()) {
+                throw new InvalidRequestException("Top-k searches with IN clause for the PRIMARY KEY are not supported");
             }
 
             // Avoid unlimited
