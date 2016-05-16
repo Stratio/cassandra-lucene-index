@@ -29,10 +29,7 @@ import org.apache.lucene.document.LongField;
 import org.apache.lucene.index.DocValuesType;
 import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.search.DocValuesRangeQuery;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.SortField;
-import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.*;
 import org.apache.lucene.util.BytesRef;
 import org.apache.lucene.util.BytesRefBuilder;
 import org.apache.lucene.util.NumericUtils;
@@ -147,6 +144,20 @@ public final class TokenMapper {
     }
 
     /**
+     * Returns if doc values should be used for retrieving token ranges between the specified values.
+     *
+     * @param start the lower accepted token
+     * @param stop the upper accepted token
+     * @return {@code true} if doc values should be used, {@code false} other wise
+     */
+    private static boolean useDocValues(Long start, Long stop) {
+        final long threshold = 1222337203685480000L; // Empirical
+        long min = (start == null ? Long.MIN_VALUE : start) / 10;
+        long max = (stop == null ? Long.MAX_VALUE : stop) / 10;
+        return max - min > threshold;
+    }
+
+    /**
      * Returns a Lucene {@link Query} to find the {@link Document}s containing a {@link Token} inside the specified
      * token range.
      *
@@ -168,7 +179,9 @@ public final class TokenMapper {
         Long stop = upper.isMinimum() ? null : value(upper);
 
         // Do query
-        Query query = DocValuesRangeQuery.newLongRange(FIELD_NAME, start, stop, includeLower, includeUpper);
+        Query query = useDocValues(start, stop)
+                      ? DocValuesRangeQuery.newLongRange(FIELD_NAME, start, stop, includeLower, includeUpper)
+                      : NumericRangeQuery.newLongRange(FIELD_NAME, start, stop, includeLower, includeUpper);
         return Optional.of(query);
     }
 
