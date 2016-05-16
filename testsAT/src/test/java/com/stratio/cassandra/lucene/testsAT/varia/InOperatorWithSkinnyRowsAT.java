@@ -32,9 +32,7 @@ import static com.stratio.cassandra.lucene.builder.Builder.*;
 @RunWith(JUnit4.class)
 public class InOperatorWithSkinnyRowsAT extends BaseAT {
 
-    private static String TOPK_ERROR = "Top-k searches can't be directed to more than one partition, " +
-                                       "you should either direct them to one single partition or " +
-                                       "don't use any partition restrictions.";
+    private static String TOPK_ERROR = "Top-k searches with IN clause for the PRIMARY KEY are not supported";
 
     private static final int NUM_PARTITIONS = 10;
     private static CassandraUtils utils;
