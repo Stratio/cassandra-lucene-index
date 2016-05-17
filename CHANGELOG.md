@@ -5,6 +5,7 @@
 * Fix invalid WKT shapes by zero-buffering them
 * Fix memory consumption issues with high fetch sizes
 * Early terminate in inner pagination (improves allow filtering performance)
+* Improve clustering key filtering with better token prefix collation
 * Add transformation for getting the convex hull of a geographical shape
 * Add support for old dummy column syntax (Spark compatibility and score retrieval)
 

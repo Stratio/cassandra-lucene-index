@@ -17,7 +17,7 @@ package com.stratio.cassandra.lucene.key;
 
 import com.google.common.base.MoreObjects;
 import org.apache.cassandra.db.*;
-import org.apache.cassandra.dht.Token;
+import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.lucene.index.FilteredTermsEnum;
 import org.apache.lucene.index.Terms;
 import org.apache.lucene.index.TermsEnum;
@@ -26,6 +26,7 @@ import org.apache.lucene.util.AttributeSource;
 import org.apache.lucene.util.BytesRef;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 /**
  * {@link MultiTermQuery} to get a range of clustering keys.
@@ -37,7 +38,7 @@ class KeyQuery extends MultiTermQuery {
     private final KeyMapper mapper;
     private final ClusteringPrefix start, stop;
     private final DecoratedKey key;
-    private final Token token;
+    private final ByteBuffer collatedToken;
     private final ClusteringComparator clusteringComparator;
     private final BytesRef seek;
 
@@ -58,7 +59,7 @@ class KeyQuery extends MultiTermQuery {
         this.start = start;
         this.stop = stop;
         key = position instanceof DecoratedKey ? (DecoratedKey) position : null;
-        token = position.getToken();
+        collatedToken = TokenMapper.toCollated(position.getToken());
         clusteringComparator = mapper.clusteringComparator();
         seek = mapper.seek(position);
     }
@@ -94,12 +95,12 @@ class KeyQuery extends MultiTermQuery {
             KeyEntry entry = mapper.entry(term);
 
             // Check token
-            int tokenComparison = entry.getToken().compareTo(token);
+            int tokenComparison = UTF8Type.instance.compare(entry.getCollatedToken(), collatedToken);
             if (tokenComparison < 0) {
                 return AcceptStatus.NO;
             }
             if (tokenComparison > 0) {
-                return seek.length == 0 ? AcceptStatus.NO : AcceptStatus.END;
+                return AcceptStatus.END;
             }
 
             // Check partition key

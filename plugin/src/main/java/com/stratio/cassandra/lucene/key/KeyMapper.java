@@ -27,7 +27,7 @@ import org.apache.cassandra.db.filter.ClusteringIndexNamesFilter;
 import org.apache.cassandra.db.filter.ClusteringIndexSliceFilter;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.CompositeType;
-import org.apache.cassandra.db.marshal.LongType;
+import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.dht.Token;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -90,7 +90,7 @@ public final class KeyMapper {
         this.metadata = metadata;
         clusteringComparator = metadata.comparator;
         clusteringType = CompositeType.getInstance(clusteringComparator.subtypes());
-        type = CompositeType.getInstance(LongType.instance, metadata.getKeyValidator(), clusteringType);
+        type = CompositeType.getInstance(UTF8Type.instance, metadata.getKeyValidator(), clusteringType);
     }
 
     /**
@@ -159,7 +159,7 @@ public final class KeyMapper {
      */
     private ByteBuffer byteBuffer(DecoratedKey key, Clustering clustering) {
         return type.builder()
-                   .add(TokenMapper.byteBuffer(key.getToken()))
+                   .add(TokenMapper.toCollated(key.getToken()))
                    .add(key.getKey())
                    .add(byteBuffer(clustering))
                    .build();
@@ -219,13 +219,8 @@ public final class KeyMapper {
     }
 
     BytesRef seek(PartitionPosition position) {
-        ByteBuffer token = TokenMapper.byteBuffer(position.getToken());
-        if (position instanceof DecoratedKey) {
-            ByteBuffer key = ((DecoratedKey) position).getKey();
-            return ByteBufferUtils.bytesRef(type.builder().add(token).add(key).add(EMPTY_BYTE_BUFFER).build());
-        } else {
-            return ByteBufferUtils.bytesRef(type.builder().add(token).add(EMPTY_BYTE_BUFFER).build());
-        }
+        ByteBuffer token = TokenMapper.toCollated(position.getToken());
+        return ByteBufferUtils.bytesRef(type.builder().add(token).add(EMPTY_BYTE_BUFFER).build());
     }
 
     /**
