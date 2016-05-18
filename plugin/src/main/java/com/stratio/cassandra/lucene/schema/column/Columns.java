@@ -35,7 +35,6 @@ public class Columns implements Iterable<Column<?>> {
     /** Returns an empty {@link Column} list. */
     public Columns() {
         this.columns = new LinkedList<>();
-
     }
 
     /**
