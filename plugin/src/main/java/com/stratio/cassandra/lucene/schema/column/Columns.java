@@ -32,9 +32,7 @@ public class Columns implements Iterable<Column<?>> {
     /** The wrapped columns. */
     private final List<Column<?>> columns;
 
-    /** Returns an empty {@link Column} list.
-     *
-     * */
+    /** Returns an empty {@link Column} list. */
     public Columns() {
         this.columns = new LinkedList<>();
 
@@ -48,6 +46,7 @@ public class Columns implements Iterable<Column<?>> {
     public Columns(Column<?>... columns) {
         this.columns = Arrays.asList(columns);
     }
+    
     /**
      * Adds the specified {@link Column} to the existing ones.
      *
