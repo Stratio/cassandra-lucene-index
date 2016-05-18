@@ -67,7 +67,7 @@ public class SchemaBuilderTest {
                                 .analyzer("custom", classpathAnalyzer("org.apache.lucene.analysis.en.EnglishAnalyzer"))
                                 .analyzer("snowball", snowballAnalyzer("English", "the,at"))
                                 .mapper("big_int", bigIntegerMapper().digits(10))
-                                .mapper("big_dec", bigDecimalMapper().indexed(false).sorted(true))
+                                .mapper("big_dec", bigDecimalMapper())
                                 .mapper("double", doubleMapper())
                                 .mapper("float", floatMapper())
                                 .mapper("int", integerMapper().boost(0.3f))
@@ -108,7 +108,7 @@ public class SchemaBuilderTest {
                               .analyzer("custom", classpathAnalyzer("org.apache.lucene.analysis.en.EnglishAnalyzer"))
                               .analyzer("snowball", snowballAnalyzer("English", "the,at"))
                               .mapper("big_int", bigIntegerMapper().digits(10))
-                              .mapper("big_dec", bigDecimalMapper().indexed(false).sorted(true))
+                              .mapper("big_dec", bigDecimalMapper())
                               .mapper("bitemporal", bitemporalMapper("vtFrom", "vtTo", "ttFrom", "ttTo"))
                               .mapper("blob", blobMapper())
                               .mapper("bool", booleanMapper())
@@ -130,7 +130,7 @@ public class SchemaBuilderTest {
                               "snowball:{type:\"snowball\",language:\"English\",stopwords:\"the,at\"}}," +
                               "fields:" +
                               "{big_int:{type:\"bigint\",digits:10}," +
-                              "big_dec:{type:\"bigdec\",indexed:false,sorted:true}," +
+                              "big_dec:{type:\"bigdec\"}," +
                               "bitemporal:{type:\"bitemporal\"," +
                               "vt_from:\"vtFrom\",vt_to:\"vtTo\",tt_from:\"ttFrom\",tt_to:\"ttTo\"}," +
                               "blob:{type:\"bytes\"}," +
@@ -186,7 +186,7 @@ public class SchemaBuilderTest {
                       "default_analyzer:\"custom\"," +
                       "fields:" +
                       "{big_int:{type:\"bigint\",digits:10}," +
-                      "big_dec:{type:\"bigdec\",indexed:false,sorted:true}," +
+                      "big_dec:{type:\"bigdec\"}," +
                       "double:{type:\"double\"}," +
                       "float:{type:\"float\"}," +
                       "int:{type:\"integer\"}," +

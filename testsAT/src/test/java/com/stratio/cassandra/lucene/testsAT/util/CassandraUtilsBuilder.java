@@ -82,9 +82,6 @@ public class CassandraUtilsBuilder {
         String baseType = type.replaceAll("(.*)(<|,)", "").replace(">", "");
         SingleColumnMapper<?> mapper = defaultMapper(baseType);
         if (mapper != null) {
-            if (baseType.equals(type)) {
-                mapper.sorted(true);
-            }
             mappers.put(name, mapper);
         }
         return this;
@@ -95,9 +92,6 @@ public class CassandraUtilsBuilder {
         if (createMapper) {
             String baseType = type.replaceAll("(.*)(<|,)", "").replace(">", "");
             SingleColumnMapper<?> mapper = defaultMapper(baseType);
-            if (baseType.equals(type)) {
-                mapper.sorted(true);
-            }
             mappers.put(name, mapper);
         }
         return this;

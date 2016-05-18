@@ -42,7 +42,7 @@ public class InOperatorWithSkinnyRowsAT extends BaseAT {
         utils = CassandraUtils.builder("in_operator_with_skinny_rows")
                               .withUseNewQuerySyntax(true)
                               .withPartitionKey("pk")
-                              .withColumn("pk", "int", integerMapper().sorted(true))
+                              .withColumn("pk", "int", integerMapper())
                               .withColumn("rc", "int", integerMapper())
                               .build()
                               .createKeyspace()

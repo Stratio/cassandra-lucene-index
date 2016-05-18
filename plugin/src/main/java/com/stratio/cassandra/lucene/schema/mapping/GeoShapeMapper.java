@@ -33,7 +33,9 @@ import org.apache.lucene.spatial.prefix.tree.SpatialPrefixTree;
 import javax.validation.constraints.NotNull;
 import java.util.Collections;
 import java.util.List;
-import static com.stratio.cassandra.lucene.util.GeospatialUtilsJTS.*;
+
+import static com.stratio.cassandra.lucene.util.GeospatialUtilsJTS.CONTEXT;
+import static com.stratio.cassandra.lucene.util.GeospatialUtilsJTS.geometry;
 
 /**
  * A {@link Mapper} to map geographical shapes represented according to the <a href="http://en.wikipedia.org/wiki/Well-known_text">
@@ -76,7 +78,7 @@ public class GeoShapeMapper extends SingleColumnMapper<String> {
                           Boolean validated,
                           Integer maxLevels,
                           List<GeoTransformation> transformations) {
-        super(field, column, true, false, validated, null, String.class, AsciiType.instance, UTF8Type.instance);
+        super(field, column, false, validated, null, String.class, AsciiType.instance, UTF8Type.instance);
 
         this.column = column == null ? field : column;
 

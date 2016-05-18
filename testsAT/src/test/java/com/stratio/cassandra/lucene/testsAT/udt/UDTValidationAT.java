@@ -155,9 +155,7 @@ public class UDTValidationAT extends BaseAT {
         String createIndexQuery = "CREATE CUSTOM INDEX " +
                                   cassandraUtils.getIndexName() +
                                   " ON " +
-                                  cassandraUtils.getKeyspace() +
-                                  "." +
-                                  cassandraUtils.getTable() +
+                                  cassandraUtils.getQualifiedTable() +
                                   "() " +
                                   "USING 'com.stratio.cassandra.lucene.Index' " +
                                   "WITH OPTIONS = { " +
@@ -176,8 +174,9 @@ public class UDTValidationAT extends BaseAT {
             cassandraUtils.execute(new SimpleStatement(createIndexQuery));
             assertFalse("Creating invalid index must throw an Exception but does not ", true);
         } catch (DriverException e) {
-            String expectedMessage = "'schema' is invalid : 'org.apache.cassandra.db.marshal.FloatType'" +
-                                     " is not supported by mapper 'address.point.longitude'";
+            String expectedMessage = "'schema' is invalid : Type 'org.apache.cassandra.db.marshal.FloatType' " +
+                                     "in column 'address.point.longitude' " +
+                                     "is not supported by mapper 'address.point.longitude'";
             assertEquals("Creating invalid index must return InvalidConfigurationInQueryException(" +
                          expectedMessage +
                          ") but returns InvalidConfigurationInQueryException(" +

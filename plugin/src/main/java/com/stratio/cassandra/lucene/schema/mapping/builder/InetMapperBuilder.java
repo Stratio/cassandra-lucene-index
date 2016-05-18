@@ -32,6 +32,6 @@ public class InetMapperBuilder extends SingleColumnMapperBuilder<InetMapper, Ine
      */
     @Override
     public InetMapper build(String field) {
-        return new InetMapper(field, column, indexed, sorted, validated);
+        return new InetMapper(field, column, validated);
     }
 }

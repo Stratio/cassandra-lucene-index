@@ -39,7 +39,7 @@ public class GeoDistanceSortFieldTest {
     @Test
     public void testBuild() {
         GeoDistanceSortField sortField = new GeoDistanceSortField("geo_place", true, 0.0, 0.0);
-        assertEquals("SortField is not created", "geo_place", sortField.mapper);
+        assertEquals("SortField field name is not set", "geo_place", sortField.field);
         assertTrue("SortField reverse is not set", sortField.reverse);
         assertTrue("SortField longitude is not set", sortField.longitude == 0.0);
         assertTrue("SortField latitude is not set", sortField.latitude == 0.0);
@@ -49,7 +49,7 @@ public class GeoDistanceSortFieldTest {
     @Test
     public void testBuildDefaults() {
         GeoDistanceSortField sortField = new GeoDistanceSortField("geo_place", null, 0.0, 0.0);
-        assertEquals("SortField is not created", "geo_place", sortField.mapper);
+        assertEquals("SortField field name is not set", "geo_place", sortField.field);
         assertEquals("SortField reverse is not set to default", SortField.DEFAULT_REVERSE, sortField.reverse);
     }
 
@@ -71,7 +71,7 @@ public class GeoDistanceSortFieldTest {
     @Test
     public void testGeoDistanceSortFieldDefaults() {
 
-        Schema schema = schema().mapper("field", geoPointMapper("latitude", "longitude").sorted(true)).build();
+        Schema schema = schema().mapper("field", geoPointMapper("latitude", "longitude")).build();
 
         GeoDistanceSortField sortField = new GeoDistanceSortField("field", null, 0.0, 0.0);
         org.apache.lucene.search.SortField luceneSortField = sortField.sortField(schema);
@@ -86,7 +86,7 @@ public class GeoDistanceSortFieldTest {
     @Test
     public void testGeoDistanceSortField() {
 
-        Schema schema = schema().mapper("field", geoPointMapper("latitude", "longitude").sorted(true)).build();
+        Schema schema = schema().mapper("field", geoPointMapper("latitude", "longitude")).build();
 
         GeoDistanceSortField sortField = new GeoDistanceSortField("field", false, 0.0, 0.0);
         org.apache.lucene.search.SortField luceneSortField = sortField.sortField(schema);
@@ -98,20 +98,13 @@ public class GeoDistanceSortFieldTest {
     @Test
     public void testGeoDistanceSortFieldReverse() {
 
-        Schema schema = schema().mapper("field", geoPointMapper("latitude", "longitude").sorted(true)).build();
+        Schema schema = schema().mapper("field", geoPointMapper("latitude", "longitude")).build();
 
         GeoDistanceSortField sortField = new GeoDistanceSortField("field", true, 0.0, 0.0);
         org.apache.lucene.search.SortField luceneSortField = sortField.sortField(schema);
 
         assertNotNull("SortField is not created", luceneSortField);
         assertTrue("sortField reverse is wrong", luceneSortField.getReverse());
-    }
-
-    @Test(expected = IndexException.class)
-    public void testGeoDistanceSortFieldUnsorted() {
-        Schema schema = schema().mapper("field", geoPointMapper("latitude", "longitude").sorted(false)).build();
-        GeoDistanceSortField sortField = new GeoDistanceSortField("field", false, 0.0, 0.0);
-        sortField.sortField(schema);
     }
 
     @Test(expected = IndexException.class)
@@ -151,7 +144,7 @@ public class GeoDistanceSortFieldTest {
     public void testToString() {
         GeoDistanceSortField sortField = new GeoDistanceSortField("field", true, 0.0, 0.0);
         assertEquals("Method #toString is wrong",
-                     "GeoDistanceSortField{mapper=field, reverse=true, longitude=0.0, latitude=0.0}",
+                     "GeoDistanceSortField{field=field, reverse=true, longitude=0.0, latitude=0.0}",
                      sortField.toString());
     }
 }

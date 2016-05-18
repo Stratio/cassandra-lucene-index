@@ -19,10 +19,13 @@ import com.stratio.cassandra.lucene.IndexException;
 import org.apache.cassandra.db.marshal.*;
 import org.apache.lucene.document.DoubleField;
 import org.apache.lucene.document.Field;
-import org.apache.lucene.document.NumericDocValuesField;
+import org.apache.lucene.document.SortedNumericDocValuesField;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.SortField.Type;
+import org.apache.lucene.search.SortedNumericSortField;
 import org.apache.lucene.util.NumericUtils;
+
+import java.util.Optional;
 
 /**
  * A {@link Mapper} to map a double field.
@@ -39,19 +42,15 @@ public class DoubleMapper extends SingleColumnMapper.SingleFieldMapper<Double> {
 
     /**
      * Builds a new {@link DoubleMapper} using the specified boost.
-     *
-     * @param field the name of the field
+     *  @param field the name of the field
      * @param column the name of the column to be mapped
-     * @param indexed if the field supports searching
-     * @param sorted if the field supports sorting
      * @param validated if the field must be validated
      * @param boost the boost
      */
-    public DoubleMapper(String field, String column, Boolean indexed, Boolean sorted, Boolean validated, Float boost) {
+    public DoubleMapper(String field, String column, Boolean validated, Float boost) {
         super(field,
               column,
-              indexed,
-              sorted,
+              true,
               validated,
               null,
               Double.class,
@@ -86,23 +85,23 @@ public class DoubleMapper extends SingleColumnMapper.SingleFieldMapper<Double> {
 
     /** {@inheritDoc} */
     @Override
-    public Field indexedField(String name, Double value) {
+    public Optional<Field> indexedField(String name, Double value) {
         DoubleField doubleField = new DoubleField(name, value, STORE);
         doubleField.setBoost(boost);
-        return doubleField;
+        return Optional.of(doubleField);
     }
 
     /** {@inheritDoc} */
     @Override
-    public Field sortedField(String name, Double value) {
+    public Optional<Field> sortedField(String name, Double value) {
         long sortable = NumericUtils.doubleToSortableLong(value);
-        return new NumericDocValuesField(name, sortable);
+        return Optional.of(new SortedNumericDocValuesField(name, sortable));
     }
 
     /** {@inheritDoc} */
     @Override
     public SortField sortField(String name, boolean reverse) {
-        return new SortField(name, Type.DOUBLE, reverse);
+        return new SortedNumericSortField(name, Type.DOUBLE, reverse);
     }
 
     /** {@inheritDoc} */

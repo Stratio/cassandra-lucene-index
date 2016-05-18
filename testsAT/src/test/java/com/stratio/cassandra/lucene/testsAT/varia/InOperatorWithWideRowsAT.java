@@ -45,7 +45,7 @@ public class InOperatorWithWideRowsAT extends BaseAT {
                               .withUseNewQuerySyntax(true)
                               .withPartitionKey("pk")
                               .withClusteringKey("ck")
-                              .withColumn("pk", "int", integerMapper().sorted(true))
+                              .withColumn("pk", "int", integerMapper())
                               .withColumn("ck", "int", integerMapper())
                               .withColumn("rc", "int", integerMapper())
                               .build()

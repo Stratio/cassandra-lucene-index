@@ -96,14 +96,14 @@ public class SearchTest {
 
     @Test
     public void testSort() {
-        Schema schema = schema().mapper("field", stringMapper().sorted(true)).build();
+        Schema schema = schema().mapper("field", stringMapper()).build();
         assertNotNull("Sort fields is wrong", search().sort(field("field")).build().sortFields(schema));
         assertNull("Sort fields is wrong", search().query(match("field", "value")).build().sortFields(schema));
     }
 
     @Test
     public void testValidate() {
-        Schema schema = schema().mapper("field", stringMapper().sorted(true)).build();
+        Schema schema = schema().mapper("field", stringMapper()).build();
         search().query(match("field", "value"))
                 .filter(match("field", "value"))
                 .sort(field("field"))
@@ -113,14 +113,14 @@ public class SearchTest {
 
     @Test
     public void testToString() {
-        Search search = search().query(match("field", "value"))
-                                .filter(match("field", "value"))
+        Search search = search().query(match("field", "value").boost(0.5))
+                                .filter(match("field", "value").docValues(true))
                                 .sort(field("field"))
                                 .refresh(true)
                                 .build();
         assertEquals("Method #toString is wrong",
-                     "Search{query=MatchCondition{boost=null, field=field, value=value}, " +
-                     "filter=MatchCondition{boost=null, field=field, value=value}, " +
+                     "Search{query=MatchCondition{boost=0.5, field=field, value=value, docValues=false}, " +
+                     "filter=MatchCondition{boost=null, field=field, value=value, docValues=true}, " +
                      "sort=Sort{sortFields=[SimpleSortField{field=field, reverse=false}]}, " +
                      "refresh=true}",
                      search.toString());

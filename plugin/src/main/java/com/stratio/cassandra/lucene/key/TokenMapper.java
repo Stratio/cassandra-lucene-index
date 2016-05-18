@@ -141,7 +141,7 @@ public final class TokenMapper {
      * @param stop the upper accepted token
      * @return {@code true} if doc values should be used, {@code false} other wise
      */
-    private static boolean useDocValues(Long start, Long stop) {
+    private static boolean docValues(Long start, Long stop) {
         final long threshold = 1222337203685480000L; // Empirical
         long min = (start == null ? Long.MIN_VALUE : start) / 10;
         long max = (stop == null ? Long.MAX_VALUE : stop) / 10;
@@ -170,7 +170,7 @@ public final class TokenMapper {
         Long stop = upper.isMinimum() ? null : value(upper);
 
         // Do query
-        Query query = useDocValues(start, stop)
+        Query query = docValues(start, stop)
                       ? DocValuesRangeQuery.newLongRange(FIELD_NAME, start, stop, includeLower, includeUpper)
                       : NumericRangeQuery.newLongRange(FIELD_NAME, start, stop, includeLower, includeUpper);
         return Optional.of(query);

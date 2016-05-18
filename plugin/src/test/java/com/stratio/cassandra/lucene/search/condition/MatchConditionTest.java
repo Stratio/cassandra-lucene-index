@@ -20,17 +20,21 @@ import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
 import com.stratio.cassandra.lucene.schema.mapping.builder.MapperBuilder;
 import com.stratio.cassandra.lucene.search.condition.builder.MatchConditionBuilder;
+import com.stratio.cassandra.lucene.util.ByteBufferUtils;
 import org.apache.cassandra.db.marshal.UUIDType;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.NumericRangeQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.junit.Test;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
+import static com.stratio.cassandra.lucene.search.SearchBuilders.*;
 import static org.junit.Assert.*;
 
 /**
@@ -40,38 +44,37 @@ public class MatchConditionTest extends AbstractConditionTest {
 
     @Test
     public void testBuildDefaults() {
-        MatchConditionBuilder builder = new MatchConditionBuilder("field", "value");
-        MatchCondition condition = builder.build();
+        MatchCondition condition = match("field", "value").build();
         assertNotNull("Condition is not built", condition);
         assertNull("Boost is not set to default", condition.boost);
         assertEquals("Field is not set", "field", condition.field);
         assertEquals("Value is not set", "value", condition.value);
+        assertEquals("Doc values is not set", MatchCondition.DEFAULT_DOC_VALUES, condition.docValues);
     }
 
     @Test
     public void testBuildString() {
-        MatchConditionBuilder builder = new MatchConditionBuilder("field", "value").boost(0.7);
-        MatchCondition condition = builder.build();
+        MatchCondition condition = match("field", "value").boost(0.7).docValues(true).build();
         assertNotNull("Condition is not built", condition);
         assertEquals("Boost is not set", 0.7f, condition.boost, 0);
         assertEquals("Field is not set", "field", condition.field);
         assertEquals("Value is not set", "value", condition.value);
+        assertTrue("Doc values is not set", condition.docValues);
     }
 
     @Test
     public void testBuildNumber() {
-        MatchConditionBuilder builder = new MatchConditionBuilder("field", 3).boost(0.7);
-        MatchCondition condition = builder.build();
+        MatchCondition condition = match("field", 3).boost(0.7).docValues(true).build();
         assertNotNull("Condition is not built", condition);
         assertEquals("Boost is not set", 0.7f, condition.boost, 0);
         assertEquals("Field is not set", "field", condition.field);
         assertEquals("Value is not set", 3, condition.value);
+        assertTrue("Doc values is not set", condition.docValues);
     }
 
     @Test
     public void testBlankValue() {
-        MatchConditionBuilder builder = new MatchConditionBuilder("field", " ").boost(0.7);
-        MatchCondition condition = builder.build();
+        MatchCondition condition = match("field", " ").boost(0.7).build();
         assertEquals("Boost is not set", 0.7f, condition.boost, 0);
         assertEquals("Field is not set", "field", condition.field);
         assertEquals("Value is not set", " ", condition.value);
@@ -79,20 +82,20 @@ public class MatchConditionTest extends AbstractConditionTest {
 
     @Test
     public void testJsonSerializationDefaults() {
-        MatchConditionBuilder builder = new MatchConditionBuilder("field", "value");
+        MatchConditionBuilder builder = match("field", "value");
         testJsonSerialization(builder, "{type:\"match\",field:\"field\",value:\"value\"}");
     }
 
     @Test
     public void testJsonSerializationString() {
-        MatchConditionBuilder builder = new MatchConditionBuilder("field", "value").boost(0.7);
-        testJsonSerialization(builder, "{type:\"match\",field:\"field\",value:\"value\",boost:0.7}");
+        MatchConditionBuilder builder = match("field", "value").boost(0.7).docValues(true);
+        testJsonSerialization(builder, "{type:\"match\",field:\"field\",value:\"value\",boost:0.7,doc_values:true}");
     }
 
     @Test
     public void testJsonSerializationNumber() {
-        MatchConditionBuilder builder = new MatchConditionBuilder("field", 3).boost(0.7);
-        testJsonSerialization(builder, "{type:\"match\",field:\"field\",value:3,boost:0.7}");
+        MatchConditionBuilder builder = match("field", 3).boost(0.7).docValues(true);
+        testJsonSerialization(builder, "{type:\"match\",field:\"field\",value:3,boost:0.7,doc_values:true}");
     }
 
     @Test
@@ -100,7 +103,7 @@ public class MatchConditionTest extends AbstractConditionTest {
 
         Schema schema = schema().mapper("name", stringMapper()).build();
 
-        MatchCondition matchCondition = new MatchCondition(0.5f, "name", "value");
+        MatchCondition matchCondition = new MatchCondition(0.5f, "name", "value", false);
         Query query = matchCondition.doQuery(schema);
 
         assertNotNull("Query is not built", query);
@@ -115,7 +118,7 @@ public class MatchConditionTest extends AbstractConditionTest {
 
         Schema schema = schema().mapper("name", textMapper().analyzer("english")).build();
 
-        MatchCondition matchCondition = new MatchCondition(0.5f, "name", "the");
+        MatchCondition matchCondition = new MatchCondition(0.5f, "name", "the", false);
         Query query = matchCondition.doQuery(schema);
 
         assertNotNull("Query is not built", query);
@@ -127,17 +130,13 @@ public class MatchConditionTest extends AbstractConditionTest {
 
         Schema schema = schema().mapper("name", integerMapper()).build();
 
-        MatchCondition matchCondition = new MatchCondition(0.5f, "name", 42);
+        MatchCondition matchCondition = match("name", 42).boost(0.5f).build();
         Query query = matchCondition.doQuery(schema);
 
         assertNotNull("Query is not built", query);
-        assertEquals("Query type is wrong", NumericRangeQuery.class, query.getClass());
-
-        NumericRangeQuery<?> numericRangeQuery = (NumericRangeQuery<?>) query;
-        assertEquals("Query value is wrong", 42, numericRangeQuery.getMin());
-        assertEquals("Query value is wrong", 42, numericRangeQuery.getMax());
-        assertEquals("Query value is wrong", true, numericRangeQuery.includesMin());
-        assertEquals("Query value is wrong", true, numericRangeQuery.includesMax());
+        assertEquals("Query type is wrong", TermQuery.class, query.getClass());
+        Term term = ((TermQuery) query).getTerm();
+        assertEquals("Query value is wrong", "60080000002a", ByteBufferUtils.toHex(term.bytes()));
     }
 
     @Test
@@ -145,17 +144,13 @@ public class MatchConditionTest extends AbstractConditionTest {
 
         Schema schema = schema().mapper("name", longMapper()).build();
 
-        MatchCondition matchCondition = new MatchCondition(0.5f, "name", 42L);
+        MatchCondition matchCondition = match("name", 42L).build();
         Query query = matchCondition.doQuery(schema);
 
         assertNotNull("Query is not built", query);
-        assertEquals("Query type is wrong", NumericRangeQuery.class, query.getClass());
-
-        NumericRangeQuery<?> numericRangeQuery = (NumericRangeQuery<?>) query;
-        assertEquals("Query value is wrong", 42L, numericRangeQuery.getMin());
-        assertEquals("Query value is wrong", 42L, numericRangeQuery.getMax());
-        assertEquals("Query value is wrong", true, numericRangeQuery.includesMin());
-        assertEquals("Query value is wrong", true, numericRangeQuery.includesMax());
+        assertEquals("Query type is wrong", TermQuery.class, query.getClass());
+        Term term = ((TermQuery) query).getTerm();
+        assertEquals("Query value is wrong", "200100000000000000002a", ByteBufferUtils.toHex(term.bytes()));
     }
 
     @Test
@@ -163,7 +158,7 @@ public class MatchConditionTest extends AbstractConditionTest {
 
         Schema schema = schema().mapper("name", floatMapper()).build();
 
-        MatchCondition matchCondition = new MatchCondition(0.5f, "name", 42.42F);
+        MatchCondition matchCondition = match("name", 42.42F).build();
         Query query = matchCondition.doQuery(schema);
 
         assertNotNull("Query is not built", query);
@@ -181,7 +176,7 @@ public class MatchConditionTest extends AbstractConditionTest {
 
         Schema schema = schema().mapper("name", doubleMapper()).build();
 
-        MatchCondition matchCondition = new MatchCondition(0.5f, "name", 42.42D);
+        MatchCondition matchCondition = match("name", 42.42D).build();
         Query query = matchCondition.doQuery(schema);
 
         assertNotNull("Query is not built", query);
@@ -199,7 +194,7 @@ public class MatchConditionTest extends AbstractConditionTest {
 
         Schema schema = schema().mapper("name", blobMapper()).build();
 
-        MatchCondition matchCondition = new MatchCondition(0.5f, "name", "0Fa1");
+        MatchCondition matchCondition = match("name", "0Fa1").build();
         Query query = matchCondition.doQuery(schema);
 
         assertNotNull("Query is not built", query);
@@ -214,7 +209,7 @@ public class MatchConditionTest extends AbstractConditionTest {
 
         Schema schema = schema().mapper("name", inetMapper()).build();
 
-        MatchCondition matchCondition = new MatchCondition(0.5f, "name", "192.168.0.01");
+        MatchCondition matchCondition = match("name", "192.168.0.01").build();
         Query query = matchCondition.doQuery(schema);
 
         assertNotNull("Query is not built", query);
@@ -229,7 +224,7 @@ public class MatchConditionTest extends AbstractConditionTest {
 
         Schema schema = schema().mapper("name", inetMapper()).build();
 
-        MatchCondition matchCondition = new MatchCondition(0.5f, "name", "2001:DB8:2de::0e13");
+        MatchCondition matchCondition = match("name", "2001:DB8:2de::0e13").build();
         Query query = matchCondition.doQuery(schema);
 
         assertNotNull("Query is not built", query);
@@ -246,23 +241,23 @@ public class MatchConditionTest extends AbstractConditionTest {
 
         Schema schema = schema().mapper("field", new MockedMapperBuilder(mapper)).build();
 
-        MatchCondition matchCondition = new MatchCondition(0.5f, "field", "2001:DB8:2de::0e13");
+        MatchCondition matchCondition = match("field", "2001:DB8:2de::0e13").build();
         matchCondition.doQuery(schema);
     }
 
     private class MockedMapper extends SingleColumnMapper.SingleFieldMapper<UUID> {
 
         MockedMapper() {
-            super("field", null, null, null, true, null, UUID.class, UUIDType.instance);
+            super("field", null, true, true, null, UUID.class, UUIDType.instance);
         }
 
         @Override
-        public Field indexedField(String name, UUID value) {
+        public Optional<Field> indexedField(String name, UUID value) {
             return null;
         }
 
         @Override
-        public Field sortedField(String name, UUID value) {
+        public Optional<Field> sortedField(String name, UUID value) {
             return null;
         }
 
@@ -281,7 +276,7 @@ public class MatchConditionTest extends AbstractConditionTest {
 
         private MockedMapper mapper;
 
-        public MockedMapperBuilder(MockedMapper mapper) {
+        MockedMapperBuilder(MockedMapper mapper) {
             this.mapper = mapper;
         }
 
@@ -293,9 +288,9 @@ public class MatchConditionTest extends AbstractConditionTest {
 
     @Test
     public void testToString() {
-        MatchCondition condition = new MatchCondition(0.5f, "name", "2001:DB8:2de::0e13");
+        MatchCondition condition = match("name", "2001:DB8:2de::0e13").boost(0.5f).docValues(true).build();
         assertEquals("Method #toString is wrong",
-                     "MatchCondition{boost=0.5, field=name, value=2001:DB8:2de::0e13}",
+                     "MatchCondition{boost=0.5, field=name, value=2001:DB8:2de::0e13, docValues=true}",
                      condition.toString());
     }
 

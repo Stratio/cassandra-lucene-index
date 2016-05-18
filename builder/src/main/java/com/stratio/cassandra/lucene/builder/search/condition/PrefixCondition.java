@@ -23,7 +23,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class PrefixCondition extends Condition {
+public class PrefixCondition extends Condition<PrefixCondition> {
 
     /** The name of the field to be matched. */
     @JsonProperty("field")

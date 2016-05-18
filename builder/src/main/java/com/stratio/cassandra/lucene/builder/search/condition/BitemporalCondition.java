@@ -23,7 +23,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
  *
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
-public class BitemporalCondition extends Condition {
+public class BitemporalCondition extends Condition<BitemporalCondition> {
 
     /** The name of the filed to be matched. */
     @JsonProperty("field")

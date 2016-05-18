@@ -47,6 +47,6 @@ public class DateMapperBuilder extends SingleColumnMapperBuilder<DateMapper, Dat
      */
     @Override
     public DateMapper build(String field) {
-        return new DateMapper(field, column, indexed, sorted, validated, pattern);
+        return new DateMapper(field, column, validated, pattern);
     }
 }

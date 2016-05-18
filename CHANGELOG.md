@@ -6,7 +6,9 @@
 * Fix memory consumption issues with high fetch sizes
 * Early terminate in inner pagination (improves allow filtering performance)
 * Improve clustering key filtering with better token prefix collation
+* Remove indexed/sorted mapping options, all mappers store doc values when possible
 * Add transformation for getting the convex hull of a geographical shape
+* Add option to use doc values in match, contains and range searches
 * Add support for old dummy column syntax (Spark compatibility and score retrieval)
 
 ## 3.0.5.0 (22 April 2016)

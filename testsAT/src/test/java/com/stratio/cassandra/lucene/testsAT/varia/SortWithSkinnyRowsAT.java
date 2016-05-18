@@ -39,8 +39,8 @@ public class SortWithSkinnyRowsAT extends BaseAT {
     public static void before() {
         utils = CassandraUtils.builder("sort_with_wide_rows")
                               .withPartitionKey("pk")
-                              .withColumn("pk", "int", integerMapper().sorted(true))
-                              .withColumn("rc", "int", integerMapper().sorted(true))
+                              .withColumn("pk", "int", integerMapper())
+                              .withColumn("rc", "int", integerMapper())
                               .build()
                               .createKeyspace()
                               .createTable()

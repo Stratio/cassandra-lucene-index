@@ -42,8 +42,7 @@ public class DateMapperTest extends AbstractMapperTest {
     public void testConstructorWithoutArgs() {
         DateMapper mapper = new DateMapperBuilder().build("field");
         assertEquals("Name is not properly set", "field", mapper.field);
-        assertEquals("Indexed is not set to default value", Mapper.DEFAULT_INDEXED, mapper.indexed);
-        assertEquals("Sorted is not set to default value", Mapper.DEFAULT_SORTED, mapper.sorted);
+        assertEquals("Validated is not set to default value", Mapper.DEFAULT_VALIDATED, mapper.validated);
         assertEquals("Column is not set to default value", "field", mapper.column);
         assertEquals("Mapped columns are not properly set", 1, mapper.mappedColumns.size());
         assertTrue("Mapped columns are not properly set", mapper.mappedColumns.contains("field"));
@@ -52,15 +51,8 @@ public class DateMapperTest extends AbstractMapperTest {
 
     @Test
     public void testConstructorWithAllArgs() {
-        DateMapper mapper = dateMapper().indexed(false)
-                                        .sorted(true)
-                                        .validated(true)
-                                        .column("column")
-                                        .pattern(PATTERN)
-                                        .build("field");
+        DateMapper mapper = dateMapper().validated(true).column("column").pattern(PATTERN).build("field");
         assertEquals("Name is not properly set", "field", mapper.field);
-        assertFalse("Indexed is not properly set", mapper.indexed);
-        assertTrue("Sorted is not properly set", mapper.sorted);
         assertTrue("Validated is not properly set", mapper.validated);
         assertEquals("Column is not properly set", "column", mapper.column);
         assertEquals("Mapped columns are not properly set", 1, mapper.mappedColumns.size());
@@ -70,13 +62,8 @@ public class DateMapperTest extends AbstractMapperTest {
 
     @Test
     public void testJsonSerialization() {
-        DateMapperBuilder builder = dateMapper().indexed(false)
-                                                .sorted(true)
-                                                .validated(true)
-                                                .column("column")
-                                                .pattern("yyyy-MM-dd");
-        testJson(builder,
-                 "{type:\"date\",validated:true,indexed:false,sorted:true,column:\"column\",pattern:\"yyyy-MM-dd\"}");
+        DateMapperBuilder builder = dateMapper().validated(true).column("column").pattern("yyyy-MM-dd");
+        testJson(builder, "{type:\"date\",validated:true,column:\"column\",pattern:\"yyyy-MM-dd\"}");
     }
 
     @Test
@@ -218,9 +205,9 @@ public class DateMapperTest extends AbstractMapperTest {
     @Test
     public void testIndexedField() throws ParseException {
         long time = sdf.parse("2014-03-19").getTime();
-        DateMapper mapper = dateMapper().indexed(true).pattern(PATTERN).build("name");
-        Field field = mapper.indexedField("name", time);
-        assertNotNull("Indexed field is not created", field);
+        DateMapper mapper = dateMapper().pattern(PATTERN).build("name");
+        Field field = mapper.indexedField("name", time)
+                            .orElseThrow(() -> new AssertionError("Indexed field is not created"));
         assertEquals("Indexed field value is wrong", time, field.numericValue().longValue());
         assertEquals("Indexed field name is wrong", "name", field.name());
         assertEquals("Indexed field type is wrong", false, field.fieldType().stored());
@@ -229,10 +216,9 @@ public class DateMapperTest extends AbstractMapperTest {
     @Test
     public void testSortedField() throws ParseException {
         long time = sdf.parse("2014-03-19").getTime();
-        DateMapper mapper = dateMapper().sorted(true).pattern(PATTERN).build("name");
-        Field field = mapper.sortedField("name", time);
-        assertNotNull("Sorted field is not created", field);
-        assertEquals("Sorted field type is wrong", DocValuesType.NUMERIC, field.fieldType().docValuesType());
+        DateMapper mapper = dateMapper().pattern(PATTERN).build("name");
+        Field field = mapper.sortedField("name", time).orElseThrow(() -> new AssertionError("Sorted field is not created"));
+        assertEquals("Sorted field type is wrong", DocValuesType.SORTED_NUMERIC, field.fieldType().docValuesType());
     }
 
     @Test
@@ -243,10 +229,9 @@ public class DateMapperTest extends AbstractMapperTest {
 
     @Test
     public void testToString() {
-        DateMapper mapper = dateMapper().indexed(false).sorted(true).validated(true).pattern(PATTERN).build("name");
+        DateMapper mapper = dateMapper().validated(true).pattern(PATTERN).build("name");
         assertEquals("Method #toString is wrong",
-                     "DateMapper{field=name, indexed=false, sorted=true, validated=true, column=name, " +
-                     "pattern=yyyy-MM-dd}",
+                     "DateMapper{field=name, validated=true, column=name, pattern=yyyy-MM-dd}",
                      mapper.toString());
     }
 }

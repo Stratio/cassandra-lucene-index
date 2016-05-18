@@ -52,19 +52,19 @@ public class BitemporalMapper extends Mapper {
     public final String pattern;
 
     /** The name of the column containing the valid time start. **/
-    public final String vtFrom;
+    final String vtFrom;
 
     /** The name of the column containing the valid time stop. **/
-    public final String vtTo;
+    final String vtTo;
 
     /** The name of the column containing the transaction time start. **/
-    public final String ttFrom;
+    final String ttFrom;
 
     /** The name of the column containing the transaction time stop. **/
-    public final String ttTo;
+    final String ttTo;
 
     /** The NOW Value. **/
-    public final Long nowValue;
+    final Long nowValue;
 
     /** The {@link DateParser}. */
     private final DateParser dateParser;
@@ -91,7 +91,6 @@ public class BitemporalMapper extends Mapper {
                             Object nowValue) {
 
         super(field,
-              true,
               false,
               validated,
               null,
@@ -102,8 +101,7 @@ public class BitemporalMapper extends Mapper {
               LongType.instance,
               IntegerType.instance,
               SimpleDateType.instance,
-              TimestampType.instance,
-              TimeUUIDType.instance);
+              TimestampType.instance, TimeUUIDType.instance);
 
         if (StringUtils.isBlank(vtFrom)) {
             throw new IndexException("vt_from column name is required");
@@ -255,7 +253,7 @@ public class BitemporalMapper extends Mapper {
         /**
          * @param date A date.
          */
-        public BitemporalDateTime(Date date) {
+        BitemporalDateTime(Date date) {
             timestamp = date.getTime();
             this.date = date;
         }

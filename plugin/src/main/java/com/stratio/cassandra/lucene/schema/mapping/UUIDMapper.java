@@ -34,15 +34,12 @@ public class UUIDMapper extends KeywordMapper {
 
     /**
      * Builds a new {@link UUIDMapper}.
-     *
-     * @param field the name of the field
+     *  @param field the name of the field
      * @param column the name of the column to be mapped
-     * @param indexed if the field supports searching
-     * @param sorted if the field supports sorting
      * @param validated if the field must be validated
      */
-    public UUIDMapper(String field, String column, Boolean indexed, Boolean sorted, Boolean validated) {
-        super(field, column, indexed, sorted, validated, UTF8Type.instance, UUIDType.instance, TimeUUIDType.instance);
+    public UUIDMapper(String field, String column, Boolean validated) {
+        super(field, column, validated, UTF8Type.instance, UUIDType.instance, TimeUUIDType.instance);
     }
 
     /** {@inheritDoc} */
@@ -70,7 +67,7 @@ public class UUIDMapper extends KeywordMapper {
      * @param uuid the {@link UUID} to be serialized
      * @return the {@link String} representation of the specified {@link UUID}
      */
-    public static String serialize(UUID uuid) {
+    static String serialize(UUID uuid) {
 
         StringBuilder sb = new StringBuilder();
 

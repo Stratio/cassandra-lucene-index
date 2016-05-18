@@ -32,6 +32,6 @@ public class UUIDMapperBuilder extends SingleColumnMapperBuilder<UUIDMapper, UUI
      */
     @Override
     public UUIDMapper build(String field) {
-        return new UUIDMapper(field, column, indexed, sorted, validated);
+        return new UUIDMapper(field, column, validated);
     }
 }
