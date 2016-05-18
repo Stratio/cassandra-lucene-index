@@ -29,12 +29,17 @@ import java.util.regex.Pattern;
  * @param <T> The type of the column value.
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public final class Column<T> {
+public final class Column<T>
+{
 
-    /** The map name components separator. */
+    /**
+     * The map name components separator.
+     */
     public static final String MAP_SEPARATOR = "$";
 
-    /** The UDT name components separator. */
+    /**
+     * The UDT name components separator.
+     */
     public static final String UDT_SEPARATOR = ".";
 
     public static final String UDT_PATTERN = Pattern.quote(UDT_SEPARATOR);
@@ -42,36 +47,43 @@ public final class Column<T> {
 
     private static final Pattern NAME_PATTERN = Pattern.compile("[^(\\$|\\.)]*[\\.[^(\\$|\\.)]]*[\\$[^(\\$|\\.)]]*");
 
-    /** The full qualified name, with UDT and map qualifiers. */
+    /**
+     * The full qualified name, with UDT and map qualifiers.
+     */
     private final String cellName;
 
     private final List<String> udtNames;
     private final List<String> mapNames;
 
-    /** The column's value as {@link ByteBuffer}. */
+    /**
+     * The column's value as {@link ByteBuffer}.
+     */
     private final T composedValue;
 
-    /** The column's value as {@link ByteBuffer}. */
+    /**
+     * The column's value as {@link ByteBuffer}.
+     */
     private final ByteBuffer decomposedValue;
 
-    /** The column's Cassandra type. */
+    /**
+     * The column's Cassandra type.
+     */
     private final AbstractType<T> type;
 
     private final boolean isMultiCell;
 
     private final int localDeletionTime;
 
-
     /**
      * Builds a new {@link Column} with the specified name, name suffix, value, and type.
      *
-     * @param cellName The name of the base cell.
-     * @param udtNames The child UDT fields.
-     * @param mapNames The child map keys.
+     * @param cellName        The name of the base cell.
+     * @param udtNames        The child UDT fields.
+     * @param mapNames        The child map keys.
      * @param decomposedValue The decomposed value of the column to be created.
-     * @param composedValue The composed value of the column to be created.
-     * @param type The type/marshaller of the column to be created.
-     * @param isMultiCell If the column is a multiCell column (not frozen Collections).
+     * @param composedValue   The composed value of the column to be created.
+     * @param type            The type/marshaller of the column to be created.
+     * @param isMultiCell     If the column is a multiCell column (not frozen Collections).
      */
     Column(String cellName,
            List<String> udtNames,
@@ -80,7 +92,8 @@ public final class Column<T> {
            T composedValue,
            AbstractType<T> type,
            boolean isMultiCell,
-           int localDeletionTime) {
+           int localDeletionTime)
+    {
         this.cellName = cellName;
         this.udtNames = udtNames;
         this.mapNames = mapNames;
@@ -88,34 +101,41 @@ public final class Column<T> {
         this.decomposedValue = decomposedValue;
         this.type = type;
         this.isMultiCell = isMultiCell;
-        this.localDeletionTime=localDeletionTime;
+        this.localDeletionTime = localDeletionTime;
     }
 
-    public static ColumnBuilder builder(String cellName) {
+    public static ColumnBuilder builder(String cellName)
+    {
         return new ColumnBuilder(cellName);
     }
 
-    public static boolean isTuple(String name) {
+    public static boolean isTuple(String name)
+    {
         return name.contains(UDT_SEPARATOR);
     }
 
-    public static String check(String name) {
-        if (!NAME_PATTERN.matcher(name).matches()) {
+    public static String check(String name)
+    {
+        if (!NAME_PATTERN.matcher(name).matches())
+        {
             throw new IndexException("Name %s doesn't satisfy the mandatory pattern %s", name, NAME_PATTERN.pattern());
         }
         return name;
     }
 
-    public static String getMapperName(String field) {
+    public static String getMapperName(String field)
+    {
         return field.split(MAP_PATTERN)[0];
     }
 
-    public String getMapperName() {
-        return cellName + getUDTSuffix();
+    public static String getCellName(String field)
+    {
+        return field.split(UDT_PATTERN)[0].split(MAP_PATTERN)[0];
     }
 
-    public static String getCellName(String field) {
-        return field.split(UDT_PATTERN)[0].split(MAP_PATTERN)[0];
+    public String getMapperName()
+    {
+        return cellName + getUDTSuffix();
     }
 
     /**
@@ -123,7 +143,8 @@ public final class Column<T> {
      *
      * @return the column name.
      */
-    public String getCellName() {
+    public String getCellName()
+    {
         return cellName;
     }
 
@@ -132,21 +153,26 @@ public final class Column<T> {
      *
      * @return The full name, which is formed by the column name and the suffix.
      */
-    public String getFullName() {
+    public String getFullName()
+    {
         return cellName + getUDTSuffix() + getMapSuffix();
     }
 
-    private String getUDTSuffix() {
+    private String getUDTSuffix()
+    {
         String result = "";
-        for (String udtName : udtNames) {
+        for (String udtName : udtNames)
+        {
             result += UDT_SEPARATOR + udtName;
         }
         return result;
     }
 
-    private String getMapSuffix() {
+    private String getMapSuffix()
+    {
         String result = "";
-        for (String mapName : mapNames) {
+        for (String mapName : mapNames)
+        {
             result += MAP_SEPARATOR + mapName;
         }
         return result;
@@ -157,7 +183,8 @@ public final class Column<T> {
      *
      * @return If the column isLive now.
      */
-    public boolean isLive(long now) {
+    public boolean isLive(long now)
+    {
         return (int) (now / 1000) < localDeletionTime;
     }
 
@@ -167,7 +194,8 @@ public final class Column<T> {
      * @param field A base field name.
      * @return The full column name appending the suffix.
      */
-    public String getFieldName(String field) {
+    public String getFieldName(String field)
+    {
         return field + getMapSuffix();
     }
 
@@ -176,7 +204,8 @@ public final class Column<T> {
      *
      * @return the {@link ByteBuffer} serialized value.
      */
-    public ByteBuffer getDecomposedValue() {
+    public ByteBuffer getDecomposedValue()
+    {
         return decomposedValue;
     }
 
@@ -185,7 +214,8 @@ public final class Column<T> {
      *
      * @return The Java column value.
      */
-    public T getComposedValue() {
+    public T getComposedValue()
+    {
         return composedValue;
     }
 
@@ -194,7 +224,8 @@ public final class Column<T> {
      *
      * @return The Cassandra column type.
      */
-    public AbstractType<T> getType() {
+    public AbstractType<T> getType()
+    {
         return type;
     }
 
@@ -203,17 +234,21 @@ public final class Column<T> {
      *
      * @return if this Column is a multiCell column (not frozen Collections).
      */
-    public boolean isMultiCell() {
+    public boolean isMultiCell()
+    {
         return isMultiCell;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public String toString() {
+    public String toString()
+    {
         return Objects.toStringHelper(this)
-                      .add("fullName", getFullName())
-                      .add("composedValue", getComposedValue())
-                      .add("type", type.getClass().getSimpleName())
-                      .toString();
+                .add("fullName", getFullName())
+                .add("composedValue", getComposedValue())
+                .add("type", type.getClass().getSimpleName())
+                .toString();
     }
 }

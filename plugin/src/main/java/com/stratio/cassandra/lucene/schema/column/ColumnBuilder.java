@@ -26,58 +26,70 @@ import java.util.List;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class ColumnBuilder {
+public class ColumnBuilder
+{
 
     private final String cellName;
     private final List<String> udtNames;
     private final List<String> mapNames;
     private boolean isMultiCell = false;
-    private int localDeletionTime=Integer.MAX_VALUE;
-    public ColumnBuilder(String cellName) {
+    private int localDeletionTime = Integer.MAX_VALUE;
+
+    public ColumnBuilder(String cellName)
+    {
         this.cellName = cellName;
         udtNames = new ArrayList<>();
         mapNames = new ArrayList<>();
     }
 
-    public <T> Column<T> composedValue(T composedValue, AbstractType<T> type) {
+    public <T> Column<T> composedValue(T composedValue, AbstractType<T> type)
+    {
         ByteBuffer decomposedValue = type.decompose(composedValue);
         return new Column<>(cellName, udtNames, mapNames, decomposedValue, composedValue, type, isMultiCell, localDeletionTime);
     }
 
-    public <T> Column<T> decomposedValue(ByteBuffer decomposedValue, AbstractType<T> type) {
+    public <T> Column<T> decomposedValue(ByteBuffer decomposedValue, AbstractType<T> type)
+    {
         T composedValue = type.compose(decomposedValue);
         return new Column<>(cellName, udtNames, mapNames, decomposedValue, composedValue, type, isMultiCell, localDeletionTime);
     }
 
-    public ColumnBuilder multiCell(boolean isMultiCell) {
+    public ColumnBuilder multiCell(boolean isMultiCell)
+    {
         this.isMultiCell = isMultiCell;
         return this;
     }
 
-    public ColumnBuilder udtName(String name) {
+    public ColumnBuilder udtName(String name)
+    {
         udtNames.add(name);
         return this;
     }
 
-    public ColumnBuilder mapName(String name) {
+    public ColumnBuilder mapName(String name)
+    {
         mapNames.add(name);
         return this;
     }
 
-    public ColumnBuilder localDeletionTime(int localDeletionTime) {
-        this.localDeletionTime=localDeletionTime;
+    public ColumnBuilder localDeletionTime(int localDeletionTime)
+    {
+        this.localDeletionTime = localDeletionTime;
         return this;
     }
 
     @Override
-    public ColumnBuilder clone() {
+    public ColumnBuilder clone()
+    {
         ColumnBuilder clone = new ColumnBuilder(cellName);
         clone.isMultiCell = isMultiCell;
-        clone.localDeletionTime= localDeletionTime;
-        for (String udtName : udtNames) {
+        clone.localDeletionTime = localDeletionTime;
+        for (String udtName : udtNames)
+        {
             clone.udtNames.add(udtName);
         }
-        for (String mapName : mapNames) {
+        for (String mapName : mapNames)
+        {
             clone.mapNames.add(mapName);
         }
         return clone;
