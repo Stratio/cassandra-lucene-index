@@ -85,8 +85,8 @@ public class BooleanConditionTest extends AbstractConditionTest {
                                            .boost(0.4f)
                                            .build();
         BoostQuery boostQuery = (BoostQuery) condition.query(schema);
-        assertTrue("Query with boost must be BoostQuery",(boostQuery.getQuery() instanceof BooleanQuery));
-        BooleanQuery query=(BooleanQuery) boostQuery.getQuery();
+        assertTrue("Query with boost must be BoostQuery", (boostQuery.getQuery() instanceof BooleanQuery));
+        BooleanQuery query = (BooleanQuery) boostQuery.getQuery();
         assertEquals("Query count clauses is wrong", 5, query.clauses().size());
         assertEquals("Query boost is wrong", 0.4f, boostQuery.getBoost(), 0f);
     }
@@ -96,8 +96,8 @@ public class BooleanConditionTest extends AbstractConditionTest {
         Schema schema = schema().build();
         BooleanCondition condition = bool().boost(0.4).build();
         BoostQuery boostQuery = (BoostQuery) condition.query(schema);
-        assertTrue("Query with boost must be BoostQuery",(boostQuery.getQuery() instanceof BooleanQuery));
-        BooleanQuery query=(BooleanQuery) boostQuery.getQuery();
+        assertTrue("Query with boost must be BoostQuery", (boostQuery.getQuery() instanceof BooleanQuery));
+        BooleanQuery query = (BooleanQuery) boostQuery.getQuery();
         assertEquals("Query count clauses is wrong", 0, query.clauses().size());
         assertEquals("Query boost is wrong", 0.4f, boostQuery.getBoost(), 0f);
     }
@@ -107,8 +107,8 @@ public class BooleanConditionTest extends AbstractConditionTest {
         Schema schema = schema().mapper("name", stringMapper()).build();
         BooleanCondition condition = bool().not(match("name", "jonathan")).boost(0.4).build();
         BoostQuery boostQuery = (BoostQuery) condition.query(schema);
-        assertTrue("Query with boost must be BooleanQuery",(boostQuery.getQuery() instanceof BooleanQuery));
-        BooleanQuery query=(BooleanQuery) boostQuery.getQuery();
+        assertTrue("Query with boost must be BooleanQuery", (boostQuery.getQuery() instanceof BooleanQuery));
+        BooleanQuery query = (BooleanQuery) boostQuery.getQuery();
         assertEquals("Query count clauses is wrong", 2, query.clauses().size());
         assertEquals("Query boost is wrong", 0.4f, boostQuery.getBoost(), 0f);
     }

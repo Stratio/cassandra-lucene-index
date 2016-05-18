@@ -28,9 +28,7 @@ import org.junit.Test;
 import java.util.UUID;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
@@ -104,8 +102,8 @@ public class MatchConditionTest extends AbstractConditionTest {
 
         assertNotNull("Query is not built", query);
         assertEquals("Query type is wrong", BoostQuery.class, query.getClass());
-        BoostQuery boostQuery=(BoostQuery)query;
-        query=boostQuery.getQuery();
+        BoostQuery boostQuery = (BoostQuery) query;
+        query = boostQuery.getQuery();
         assertEquals("Query type is wrong", TermQuery.class, query.getClass());
 
         TermQuery termQuery = (TermQuery) query;
@@ -123,8 +121,8 @@ public class MatchConditionTest extends AbstractConditionTest {
 
         assertNotNull("Query is not built", query);
         assertEquals("Query is wrong", BoostQuery.class, query.getClass());
-        BoostQuery boostQuery=(BoostQuery)query;
-        query=boostQuery.getQuery();
+        BoostQuery boostQuery = (BoostQuery) query;
+        query = boostQuery.getQuery();
         assertEquals("Query type is wrong", BooleanQuery.class, query.getClass());
         assertEquals("Query boost is wrong", 0.5f, boostQuery.getBoost(), 0);
     }
@@ -139,8 +137,8 @@ public class MatchConditionTest extends AbstractConditionTest {
 
         assertNotNull("Query is not built", query);
         assertEquals("Query type is wrong", BoostQuery.class, query.getClass());
-        BoostQuery boostQuery=(BoostQuery)query;
-        query=boostQuery.getQuery();
+        BoostQuery boostQuery = (BoostQuery) query;
+        query = boostQuery.getQuery();
         assertEquals("Query type is wrong", NumericRangeQuery.class, query.getClass());
 
         NumericRangeQuery<?> numericRangeQuery = (NumericRangeQuery<?>) query;
@@ -161,8 +159,8 @@ public class MatchConditionTest extends AbstractConditionTest {
 
         assertNotNull("Query is not built", query);
         assertEquals("Query is wrong", BoostQuery.class, query.getClass());
-        BoostQuery boostQuery=(BoostQuery)query;
-        query=boostQuery.getQuery();
+        BoostQuery boostQuery = (BoostQuery) query;
+        query = boostQuery.getQuery();
         assertEquals("Query type is wrong", NumericRangeQuery.class, query.getClass());
 
         NumericRangeQuery<?> numericRangeQuery = (NumericRangeQuery<?>) query;
@@ -183,8 +181,8 @@ public class MatchConditionTest extends AbstractConditionTest {
 
         assertNotNull("Query is not built", query);
         assertEquals("Query is wrong", BoostQuery.class, query.getClass());
-        BoostQuery boostQuery=(BoostQuery)query;
-        query=boostQuery.getQuery();
+        BoostQuery boostQuery = (BoostQuery) query;
+        query = boostQuery.getQuery();
         assertEquals("Query type is wrong", NumericRangeQuery.class, query.getClass());
 
         NumericRangeQuery<?> numericRangeQuery = (NumericRangeQuery<?>) query;
@@ -205,8 +203,8 @@ public class MatchConditionTest extends AbstractConditionTest {
 
         assertNotNull("Query is not built", query);
         assertEquals("Query is wrong", BoostQuery.class, query.getClass());
-        BoostQuery boostQuery=(BoostQuery)query;
-        query=boostQuery.getQuery();
+        BoostQuery boostQuery = (BoostQuery) query;
+        query = boostQuery.getQuery();
         assertEquals("Query type is wrong", NumericRangeQuery.class, query.getClass());
 
         NumericRangeQuery<?> numericRangeQuery = (NumericRangeQuery<?>) query;
@@ -227,8 +225,8 @@ public class MatchConditionTest extends AbstractConditionTest {
 
         assertNotNull("Query is not built", query);
         assertEquals("Query is wrong", BoostQuery.class, query.getClass());
-        BoostQuery boostQuery=(BoostQuery)query;
-        query=boostQuery.getQuery();
+        BoostQuery boostQuery = (BoostQuery) query;
+        query = boostQuery.getQuery();
         assertEquals("Query type is wrong", TermQuery.class, query.getClass());
 
         TermQuery termQuery = (TermQuery) query;
@@ -246,8 +244,8 @@ public class MatchConditionTest extends AbstractConditionTest {
 
         assertNotNull("Query is not built", query);
         assertEquals("Query is wrong", BoostQuery.class, query.getClass());
-        BoostQuery boostQuery=(BoostQuery)query;
-        query=boostQuery.getQuery();
+        BoostQuery boostQuery = (BoostQuery) query;
+        query = boostQuery.getQuery();
         assertEquals("Query type is wrong", TermQuery.class, query.getClass());
 
         TermQuery termQuery = (TermQuery) query;
@@ -265,8 +263,8 @@ public class MatchConditionTest extends AbstractConditionTest {
 
         assertNotNull("Query is not built", query);
         assertEquals("Query is wrong", BoostQuery.class, query.getClass());
-        BoostQuery boostQuery=(BoostQuery)query;
-        query=boostQuery.getQuery();
+        BoostQuery boostQuery = (BoostQuery) query;
+        query = boostQuery.getQuery();
         assertEquals("Query type is wrong", TermQuery.class, query.getClass());
 
         TermQuery termQuery = (TermQuery) query;

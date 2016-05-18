@@ -43,7 +43,7 @@ class PartitionSort extends SortField {
         super(PartitionMapper.FIELD_NAME, new FieldComparatorSource() {
             @Override
             public FieldComparator<?> newComparator(String field, int hits, int sort, boolean reversed)
-                    throws IOException {
+            throws IOException {
                 return new FieldComparator.TermValComparator(hits, field, false) {
                     @Override
                     public int compareValues(BytesRef val1, BytesRef val2) {

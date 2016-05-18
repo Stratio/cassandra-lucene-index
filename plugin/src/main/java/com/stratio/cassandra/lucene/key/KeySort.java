@@ -36,6 +36,7 @@ class KeySort extends SortField {
 
     /**
      * Builds a new {@link KeySort} for the specified {@link KeyMapper}.
+     *
      * @param mapper the primary key mapper to be used.
      */
     KeySort(final KeyMapper mapper) {

@@ -106,7 +106,7 @@ public class RowServiceSkinny extends RowService {
             ColumnFamily completeColumnFamily = row(partitionKey, timestamp);
             columns = mapper.columns(partitionKey, completeColumnFamily);
         }
-        columns=columns.cleanExpired(timestamp);
+        columns = columns.cleanExpired(timestamp);
         Document document = mapper.document(partitionKey, columns);
         Term term = mapper.term(partitionKey);
         return Collections.singletonMap(term, document);

@@ -132,7 +132,7 @@ public class RowServiceWide extends RowService {
             ColumnFamily rowColumnFamily = entry.getValue();
             Columns columns = mapper.columns(partitionKey, rowColumnFamily);
             if (schema.mapsAll(columns)) {
-                columns=columns.cleanExpired(timestamp);
+                columns = columns.cleanExpired(timestamp);
                 Term term = mapper.term(partitionKey, clusteringKey);
                 Document document = mapper.document(partitionKey, clusteringKey, columns);
                 documents.put(term, document);

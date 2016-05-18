@@ -25,9 +25,7 @@ import org.junit.Test;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.schema;
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.textMapper;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
@@ -89,8 +87,8 @@ public class PhraseConditionTest extends AbstractConditionTest {
 
         assertNotNull("Query is not built", query);
         assertEquals("Query type is wrong", BoostQuery.class, query.getClass());
-        BoostQuery boostQuery=(BoostQuery)query;
-        query=boostQuery.getQuery();
+        BoostQuery boostQuery = (BoostQuery) query;
+        query = boostQuery.getQuery();
         assertEquals("Query type is wrong", PhraseQuery.class, query.getClass());
 
         PhraseQuery luceneQuery = (PhraseQuery) query;

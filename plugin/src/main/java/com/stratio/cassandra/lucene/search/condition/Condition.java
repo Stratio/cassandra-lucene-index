@@ -58,7 +58,7 @@ public abstract class Condition {
      * @return The Lucene query
      */
     public Query query(Schema schema) {
-        Query query=doQuery(schema);
+        Query query = doQuery(schema);
         return boost == null ? query : new BoostQuery(query, boost);
     }
 
@@ -69,6 +69,7 @@ public abstract class Condition {
      * @return The Lucene query
      */
     public abstract Query doQuery(Schema schema);
+
     /**
      * Returns the Lucene {@link Filter} representation of this condition.
      *

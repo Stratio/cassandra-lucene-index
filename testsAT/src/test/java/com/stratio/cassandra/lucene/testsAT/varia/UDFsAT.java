@@ -73,7 +73,7 @@ public class UDFsAT extends BaseAT {
 
         List<Row> rows = cassandraUtils.waitForIndexing()
                                        .execute(2, "SELECT key, double(value) FROM %s WHERE %s='{}';",
-                                                cassandraUtils.getQualifiedTable(),cassandraUtils.getIndexColumn())
+                                                cassandraUtils.getQualifiedTable(), cassandraUtils.getIndexColumn())
                                        .all();
         long[] expected = new long[]{2, 4, 6, 8, 10, 12};
         long[] actual = new long[rows.size()];

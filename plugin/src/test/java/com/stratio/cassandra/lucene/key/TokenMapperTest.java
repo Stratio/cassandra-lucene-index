@@ -284,44 +284,41 @@ public class TokenMapperTest {
         assertEquals("Hash value is wrong", -6847573755651342660L, value);
     }
 
-
-
-    private static final List<Murmur3Partitioner.LongToken> TOKENS = Arrays.asList(new Murmur3Partitioner.LongToken(Long.MIN_VALUE),
-            new Murmur3Partitioner.LongToken(-12345),
-            new Murmur3Partitioner.LongToken(-123),
-            new Murmur3Partitioner.LongToken(0),
-            new Murmur3Partitioner.LongToken(123),
-            new Murmur3Partitioner.LongToken(12345),
-            new Murmur3Partitioner.LongToken(Long.MAX_VALUE));
+    private static final List<Murmur3Partitioner.LongToken>
+            TOKENS
+            = Arrays.asList(new Murmur3Partitioner.LongToken(Long.MIN_VALUE),
+                            new Murmur3Partitioner.LongToken(-12345),
+                            new Murmur3Partitioner.LongToken(-123),
+                            new Murmur3Partitioner.LongToken(0),
+                            new Murmur3Partitioner.LongToken(123),
+                            new Murmur3Partitioner.LongToken(12345),
+                            new Murmur3Partitioner.LongToken(Long.MAX_VALUE));
 
     private static final List<String> STRINGS = Arrays.asList("0000000000000000",
-            "7fffffffffffcfc7",
-            "7fffffffffffff85",
-            "8000000000000000",
-            "800000000000007b",
-            "8000000000003039",
-            "ffffffffffffffff");
+                                                              "7fffffffffffcfc7",
+                                                              "7fffffffffffff85",
+                                                              "8000000000000000",
+                                                              "800000000000007b",
+                                                              "8000000000003039",
+                                                              "ffffffffffffffff");
 
     @Test
     public void testToCollated() {
         List<String> strings = new ArrayList<String>();
-        for (int i=0;i< STRINGS.size();i++) {
+        for (int i = 0; i < STRINGS.size(); i++) {
             strings.add(UTF8Type.instance.compose(TokenMapper.toCollated(TOKENS.get(i))));
         }
         assertArrayEquals("TokenMapper.toCollated is wrong", STRINGS.toArray(), strings.toArray());
     }
 
-
-
     @Test
     public void testFromCollated() {
         List<Token> tokens = new ArrayList<Token>();
-        for (int i=0;i< STRINGS.size();i++) {
+        for (int i = 0; i < STRINGS.size(); i++) {
             tokens.add(TokenMapper.fromCollated(UTF8Type.instance.decompose(STRINGS.get(i))));
         }
         assertArrayEquals("TokenMapper.toCollated is wrong", TOKENS.toArray(), tokens.toArray());
     }
-
 
     private static DecoratedKey decoratedKey(String value) {
         return partitioner.decorateKey(UTF8Type.instance.decompose(value));

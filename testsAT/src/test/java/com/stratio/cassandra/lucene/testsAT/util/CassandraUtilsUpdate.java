@@ -47,10 +47,12 @@ public class CassandraUtilsUpdate {
         update.where().and(QueryBuilder.eq(name, value));
         return this;
     }
+
     private CassandraUtils execute() {
         parent.execute(update);
         return parent;
     }
+
     public CassandraUtils refresh() {
         return execute().refresh();
     }

@@ -137,6 +137,7 @@ public final class KeyMapper {
         ByteBuffer token = TokenMapper.toCollated(key.getToken());
         return ByteBufferUtils.bytesRef(type.builder().add(token).add(EMPTY_BYTE_BUFFER).build());
     }
+
     /**
      * Returns the {@link RowKey} represented by the specified {@link ByteBuffer}.
      *
@@ -198,7 +199,6 @@ public final class KeyMapper {
         ByteBuffer bb = byteBuffer(key, clusteringKey);
         return ByteBufferUtils.bytesRef(bb);
     }
-
 
     /**
      * Returns the {@link Columns} representing the data contained in the specified {@link ColumnFamily}.

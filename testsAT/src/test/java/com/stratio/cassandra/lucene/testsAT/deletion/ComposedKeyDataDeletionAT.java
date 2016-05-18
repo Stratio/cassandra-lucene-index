@@ -103,7 +103,7 @@ public class ComposedKeyDataDeletionAT extends BaseAT {
         List<Row> rows = cassandraUtils.delete("map_1['k1']")
                                        .where("integer_1", 1)
                                        .and("ascii_1", "ascii")
-                                        .waitForIndexing()
+                                       .waitForIndexing()
                                        .filter(wildcard("ascii_1", "*"))
                                        .get();
 

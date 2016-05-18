@@ -148,9 +148,9 @@ public class GeoBBoxConditionTest extends AbstractConditionTest {
         GeoBBoxCondition condition = new GeoBBoxCondition(0.5f, "name", -90D, 90D, -180D, 180D);
         Query query = condition.query(schema);
         assertNotNull("Query is wrong is not built", query);
-        assertEquals("Query type is wrong", BoostQuery.class,query.getClass());
-        query=((BoostQuery) query).getQuery();
-        assertEquals("Query type is wrong", ConstantScoreQuery.class,query.getClass());
+        assertEquals("Query type is wrong", BoostQuery.class, query.getClass());
+        query = ((BoostQuery) query).getQuery();
+        assertEquals("Query type is wrong", ConstantScoreQuery.class, query.getClass());
         query = ((ConstantScoreQuery) query).getQuery();
         assertTrue("Query type is wrong", query instanceof BooleanQuery);
     }

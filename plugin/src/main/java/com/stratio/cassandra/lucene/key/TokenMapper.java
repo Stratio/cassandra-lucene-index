@@ -199,6 +199,7 @@ public final class TokenMapper {
             }
         };
     }
+
     private static final BigInteger OFFSET = BigInteger.valueOf(Long.MIN_VALUE).negate();
 
     /**

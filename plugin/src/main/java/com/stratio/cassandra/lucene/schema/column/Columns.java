@@ -148,8 +148,9 @@ public class Columns implements Iterable<Column<?>> {
 
     /**
      * Returns the non expired columns from this list using now value.
+     *
      * @param now The millis query's time
-     * @return  A clone of {@link Columns} without the expired columns from this list using now value.
+     * @return A clone of {@link Columns} without the expired columns from this list using now value.
      */
     public Columns cleanExpired(long now) {
         Columns result = new Columns();

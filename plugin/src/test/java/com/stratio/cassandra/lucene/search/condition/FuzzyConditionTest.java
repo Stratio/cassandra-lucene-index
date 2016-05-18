@@ -25,9 +25,7 @@ import org.junit.Test;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
 import static com.stratio.cassandra.lucene.search.condition.FuzzyCondition.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
@@ -125,8 +123,8 @@ public class FuzzyConditionTest extends AbstractConditionTest {
         assertNotNull("Query is not built", query);
         assertEquals("Query type is wrong", BoostQuery.class, query.getClass());
 
-        BoostQuery boostQuery=(BoostQuery) query;
-        query=boostQuery.getQuery();
+        BoostQuery boostQuery = (BoostQuery) query;
+        query = boostQuery.getQuery();
         assertEquals("Query type is wrong", FuzzyQuery.class, query.getClass());
         FuzzyQuery fuzzyQuery = (FuzzyQuery) query;
         assertEquals("Query field is wrong", "name", fuzzyQuery.getField());

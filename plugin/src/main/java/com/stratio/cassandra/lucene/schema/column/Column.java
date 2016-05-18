@@ -61,7 +61,6 @@ public final class Column<T> {
 
     private final int localDeletionTime;
 
-
     /**
      * Builds a new {@link Column} with the specified name, name suffix, value, and type.
      *
@@ -88,7 +87,7 @@ public final class Column<T> {
         this.decomposedValue = decomposedValue;
         this.type = type;
         this.isMultiCell = isMultiCell;
-        this.localDeletionTime=localDeletionTime;
+        this.localDeletionTime = localDeletionTime;
     }
 
     public static ColumnBuilder builder(String cellName) {

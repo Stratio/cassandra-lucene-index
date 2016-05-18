@@ -24,9 +24,7 @@ import org.apache.lucene.search.RegexpQuery;
 import org.junit.Test;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
@@ -48,7 +46,7 @@ public class RegexpConditionTest extends AbstractConditionTest {
         RegexpConditionBuilder builder = new RegexpConditionBuilder("field", "value");
         RegexpCondition condition = builder.build();
         assertNotNull("Condition is not built", condition);
-        assertNull("Boost is not set to default",condition.boost);
+        assertNull("Boost is not set to default", condition.boost);
         assertEquals("Field is not set", "field", condition.field);
         assertEquals("Value is not set", "value", condition.value);
     }
@@ -80,8 +78,8 @@ public class RegexpConditionTest extends AbstractConditionTest {
 
         assertNotNull("Query is not built", query);
         assertEquals("Query type is wrong", BoostQuery.class, query.getClass());
-        BoostQuery boostQuery=(BoostQuery)query;
-        query=boostQuery.getQuery();
+        BoostQuery boostQuery = (BoostQuery) query;
+        query = boostQuery.getQuery();
         assertEquals("Query type is wrong", RegexpQuery.class, query.getClass());
         RegexpQuery regexQuery = (RegexpQuery) query;
         assertEquals("Query field is wrong", "name", regexQuery.getField());
@@ -98,8 +96,8 @@ public class RegexpConditionTest extends AbstractConditionTest {
 
         assertNotNull("Query is not built", query);
         assertEquals("Query type is wrong", BoostQuery.class, query.getClass());
-        BoostQuery boostQuery=(BoostQuery)query;
-        query=boostQuery.getQuery();
+        BoostQuery boostQuery = (BoostQuery) query;
+        query = boostQuery.getQuery();
         assertEquals("Query type is wrong", RegexpQuery.class, query.getClass());
         RegexpQuery regexQuery = (RegexpQuery) query;
         assertEquals("Query field is wrong", "name", regexQuery.getField());
@@ -125,8 +123,8 @@ public class RegexpConditionTest extends AbstractConditionTest {
 
         assertNotNull("Query is not built", query);
         assertEquals("Query type is wrong", BoostQuery.class, query.getClass());
-        BoostQuery boostQuery=(BoostQuery)query;
-        query=boostQuery.getQuery();
+        BoostQuery boostQuery = (BoostQuery) query;
+        query = boostQuery.getQuery();
         assertEquals("Query type is wrong", RegexpQuery.class, query.getClass());
         RegexpQuery regexQuery = (RegexpQuery) query;
         assertEquals("Query field is wrong", "name", regexQuery.getField());
@@ -143,8 +141,8 @@ public class RegexpConditionTest extends AbstractConditionTest {
 
         assertNotNull("Query is not built", query);
         assertEquals("Query type is wrong", BoostQuery.class, query.getClass());
-        BoostQuery boostQuery=(BoostQuery)query;
-        query=boostQuery.getQuery();
+        BoostQuery boostQuery = (BoostQuery) query;
+        query = boostQuery.getQuery();
         assertEquals("Query type is wrong", RegexpQuery.class, query.getClass());
         RegexpQuery regexQuery = (RegexpQuery) query;
         assertEquals("Query field is wrong", "name", regexQuery.getField());

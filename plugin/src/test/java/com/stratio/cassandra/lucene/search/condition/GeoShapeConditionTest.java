@@ -22,7 +22,6 @@ import com.stratio.cassandra.lucene.common.GeoOperation;
 import com.stratio.cassandra.lucene.common.GeoTransformation;
 import com.stratio.cassandra.lucene.schema.Schema;
 import org.apache.lucene.search.BoostQuery;
-import org.apache.lucene.search.ConstantScoreQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.spatial.prefix.ContainsPrefixTreeQuery;
 import org.apache.lucene.spatial.prefix.IntersectsPrefixTreeQuery;
@@ -119,8 +118,8 @@ public class GeoShapeConditionTest extends AbstractConditionTest {
         Query query = condition.query(schema);
         assertNotNull("Query is not built", query);
         assertEquals("Query type is wrong", BoostQuery.class, query.getClass());
-        BoostQuery boostQuery=(BoostQuery)query;
-        query=boostQuery.getQuery();
+        BoostQuery boostQuery = (BoostQuery) query;
+        query = boostQuery.getQuery();
         assertEquals("Query type is wrong", WithinPrefixTreeQuery.class, query.getClass());
         WithinPrefixTreeQuery withinPrefixTreeQuery = (WithinPrefixTreeQuery) query;
         assertEquals("Query is wrong",
@@ -167,8 +166,8 @@ public class GeoShapeConditionTest extends AbstractConditionTest {
         Query query = condition.query(schema);
         assertNotNull("Query is not built", query);
         assertEquals("Query type is wrong", BoostQuery.class, query.getClass());
-        BoostQuery boostQuery=(BoostQuery)query;
-        query=boostQuery.getQuery();
+        BoostQuery boostQuery = (BoostQuery) query;
+        query = boostQuery.getQuery();
         assertTrue("Query type is wrong", query instanceof IntersectsPrefixTreeQuery);
         IntersectsPrefixTreeQuery intersectsPrefixTreeQuery = (IntersectsPrefixTreeQuery) query;
         assertEquals("Query is wrong",
@@ -214,7 +213,7 @@ public class GeoShapeConditionTest extends AbstractConditionTest {
         Query query = condition.query(schema);
         assertNotNull("Query is not built", query);
         assertEquals("Query is wrong", BoostQuery.class, query.getClass());
-        query=((BoostQuery)query).getQuery();
+        query = ((BoostQuery) query).getQuery();
         assertTrue("Query type is wrong", query instanceof ContainsPrefixTreeQuery);
         ContainsPrefixTreeQuery containsPrefixTreeQuery = (ContainsPrefixTreeQuery) query;
         assertEquals("Query is wrong",

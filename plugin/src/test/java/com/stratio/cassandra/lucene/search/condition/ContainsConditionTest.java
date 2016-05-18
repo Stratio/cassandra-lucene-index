@@ -104,8 +104,8 @@ public class ContainsConditionTest extends AbstractConditionTest {
         ContainsCondition condition = new ContainsCondition(boost, "name", values);
         Query boostQuery = condition.query(schema);
         assertNotNull("Query is not built", boostQuery);
-        assertTrue("Query with boost must be BoostQuery",(boostQuery instanceof BoostQuery));
-        BooleanQuery booleanQuery=(BooleanQuery) ((BoostQuery) boostQuery).getQuery();
+        assertTrue("Query with boost must be BoostQuery", (boostQuery instanceof BoostQuery));
+        BooleanQuery booleanQuery = (BooleanQuery) ((BoostQuery) boostQuery).getQuery();
         assertEquals("Boost is not set", 0.7f, boostQuery.getBoost(), 0);
         List<BooleanClause> clauses = booleanQuery.clauses();
         assertEquals("Query is wrong", values.length, clauses.size());
@@ -127,8 +127,8 @@ public class ContainsConditionTest extends AbstractConditionTest {
         ContainsCondition condition = new ContainsCondition(boost, "name", values);
         Query boostQuery = condition.query(schema);
         assertNotNull("Query is not built", boostQuery);
-        assertTrue("Query with boost must be BoostQuery",(boostQuery instanceof BoostQuery));
-        BooleanQuery query=(BooleanQuery) ((BoostQuery) boostQuery).getQuery();
+        assertTrue("Query with boost must be BoostQuery", (boostQuery instanceof BoostQuery));
+        BooleanQuery query = (BooleanQuery) ((BoostQuery) boostQuery).getQuery();
         assertEquals("Query type is wrong", BooleanQuery.class, query.getClass());
         BooleanQuery booleanQuery = (BooleanQuery) query;
         assertEquals("Query boost is wrong", 0.7f, ((BoostQuery) boostQuery).getBoost(), 0);
@@ -154,8 +154,6 @@ public class ContainsConditionTest extends AbstractConditionTest {
         BoostQuery boostQuery = (BoostQuery) query;
 
         BooleanQuery booleanQuery = (BooleanQuery) boostQuery.getQuery();
-
-
 
         assertEquals("Query boost is wrong", 0.7f, boostQuery.getBoost(), 0);
         List<BooleanClause> clauses = booleanQuery.clauses();

@@ -18,7 +18,10 @@ package com.stratio.cassandra.lucene.search.condition;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.common.GeoDistance;
 import com.stratio.cassandra.lucene.schema.Schema;
-import org.apache.lucene.search.*;
+import org.apache.lucene.search.BooleanClause;
+import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.BoostQuery;
+import org.apache.lucene.search.Query;
 import org.apache.lucene.spatial.prefix.IntersectsPrefixTreeQuery;
 import org.junit.Test;
 
@@ -130,7 +133,7 @@ public class GeoDistanceConditionTest extends AbstractConditionTest {
         Query query = condition.query(schema);
         assertNotNull("Query is not built", query);
         assertEquals("Query is wrong", BoostQuery.class, query.getClass());
-        query=((BoostQuery)query).getQuery();
+        query = ((BoostQuery) query).getQuery();
         BooleanQuery booleanQuery = (BooleanQuery) query;
         assertEquals("Query num clauses is wrong", 1, booleanQuery.clauses().size());
         BooleanClause maxClause = booleanQuery.clauses().get(0);
@@ -141,7 +144,7 @@ public class GeoDistanceConditionTest extends AbstractConditionTest {
         assertEquals("Query is wrong",
                      "IntersectsPrefixTreeQuery(fieldName=name.dist,queryShape=Circle(Pt(x=-180.0,y=90.0), " +
                      "d=0.0° 1.00km),detailLevel=8,prefixGridScanLevel=4)",
-                intersectsPrefixTreeQuery.toString());
+                     intersectsPrefixTreeQuery.toString());
     }
 
     @Test(expected = IndexException.class)
@@ -160,14 +163,14 @@ public class GeoDistanceConditionTest extends AbstractConditionTest {
                                                                   GeoDistance.parse("3km"));
 
         BoostQuery boostQuery = (BoostQuery) condition.query(schema);
-        assertTrue("Query with boost must be BoostQuery",(boostQuery.getQuery() instanceof BooleanQuery));
-        BooleanQuery booleanQuery=(BooleanQuery) boostQuery.getQuery();
+        assertTrue("Query with boost must be BoostQuery", (boostQuery.getQuery() instanceof BooleanQuery));
+        BooleanQuery booleanQuery = (BooleanQuery) boostQuery.getQuery();
         assertEquals("Query num clauses is wrong", 2, booleanQuery.clauses().size());
 
         BooleanClause minClause = booleanQuery.clauses().get(1);
         assertEquals("Query is wrong", BooleanClause.Occur.MUST_NOT, minClause.getOccur());
         Query query = minClause.getQuery();
-        assertEquals("Query is wrong",IntersectsPrefixTreeQuery.class, query.getClass());
+        assertEquals("Query is wrong", IntersectsPrefixTreeQuery.class, query.getClass());
         IntersectsPrefixTreeQuery minQuery = (IntersectsPrefixTreeQuery) query;
         assertEquals("Query is wrong",
                      "IntersectsPrefixTreeQuery(fieldName=name.dist,queryShape=Circle(Pt(x=-180.0,y=90.0), " +

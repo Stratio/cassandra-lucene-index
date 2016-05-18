@@ -17,7 +17,6 @@ package com.stratio.cassandra.lucene.search.condition;
 
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.search.condition.builder.AllConditionBuilder;
-import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.BoostQuery;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
@@ -64,8 +63,8 @@ public class AllConditionTest extends AbstractConditionTest {
         AllCondition condition = new AllCondition(0.7f);
         Schema schema = schema().build();
         BoostQuery boostQuery = (BoostQuery) condition.query(schema);
-        assertTrue("Query with boost must be BooleanQuery",(boostQuery.getQuery() instanceof MatchAllDocsQuery));
-        Query query= boostQuery.getQuery();
+        assertTrue("Query with boost must be BooleanQuery", (boostQuery.getQuery() instanceof MatchAllDocsQuery));
+        Query query = boostQuery.getQuery();
         assertNotNull("Query is not built", query);
         assertEquals("Query type is wrong", MatchAllDocsQuery.class, query.getClass());
         assertEquals("Query boost is wrong", 0.7f, boostQuery.getBoost(), 0);

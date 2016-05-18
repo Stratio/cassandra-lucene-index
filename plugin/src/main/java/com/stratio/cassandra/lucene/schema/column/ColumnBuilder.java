@@ -32,7 +32,7 @@ public class ColumnBuilder {
     private final List<String> udtNames;
     private final List<String> mapNames;
     private boolean isMultiCell = false;
-    private int localDeletionTime=Integer.MAX_VALUE;
+    private int localDeletionTime = Integer.MAX_VALUE;
 
     public ColumnBuilder(String cellName) {
         this.cellName = cellName;
@@ -42,12 +42,26 @@ public class ColumnBuilder {
 
     public <T> Column<T> composedValue(T composedValue, AbstractType<T> type) {
         ByteBuffer decomposedValue = type.decompose(composedValue);
-        return new Column<>(cellName, udtNames, mapNames, decomposedValue, composedValue, type, isMultiCell, localDeletionTime);
+        return new Column<>(cellName,
+                            udtNames,
+                            mapNames,
+                            decomposedValue,
+                            composedValue,
+                            type,
+                            isMultiCell,
+                            localDeletionTime);
     }
 
     public <T> Column<T> decomposedValue(ByteBuffer decomposedValue, AbstractType<T> type) {
         T composedValue = type.compose(decomposedValue);
-        return new Column<>(cellName, udtNames, mapNames, decomposedValue, composedValue, type, isMultiCell, localDeletionTime);
+        return new Column<>(cellName,
+                            udtNames,
+                            mapNames,
+                            decomposedValue,
+                            composedValue,
+                            type,
+                            isMultiCell,
+                            localDeletionTime);
     }
 
     public ColumnBuilder multiCell(boolean isMultiCell) {
@@ -66,7 +80,7 @@ public class ColumnBuilder {
     }
 
     public ColumnBuilder localDeletionTime(int localDeletionTime) {
-        this.localDeletionTime=localDeletionTime;
+        this.localDeletionTime = localDeletionTime;
         return this;
     }
 
@@ -74,7 +88,7 @@ public class ColumnBuilder {
     public ColumnBuilder clone() {
         ColumnBuilder clone = new ColumnBuilder(cellName);
         clone.isMultiCell = isMultiCell;
-        clone.localDeletionTime= localDeletionTime;
+        clone.localDeletionTime = localDeletionTime;
         for (String udtName : udtNames) {
             clone.udtNames.add(udtName);
         }
