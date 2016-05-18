@@ -27,19 +27,13 @@ import java.util.List;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class Columns implements Iterable<Column<?>>
-{
+public class Columns implements Iterable<Column<?>> {
 
-    /**
-     * The wrapped columns.
-     */
+    /** The wrapped columns. */
     private final List<Column<?>> columns;
 
-    /**
-     * Returns an empty {@link Column} list.
-     */
-    public Columns()
-    {
+    /** Returns an empty {@link Column} list. */
+    public Columns() {
         this.columns = new LinkedList<>();
 
     }
@@ -49,8 +43,7 @@ public class Columns implements Iterable<Column<?>>
      *
      * @param columns A list of {@link Column}s.
      */
-    public Columns(Column<?>... columns)
-    {
+    public Columns(Column<?>... columns) {
         this.columns = Arrays.asList(columns);
     }
 
@@ -60,8 +53,7 @@ public class Columns implements Iterable<Column<?>>
      * @param column the {@link Column} to be added.
      * @return this
      */
-    public Columns add(Column<?> column)
-    {
+    public Columns add(Column<?> column) {
         columns.add(column);
         return this;
     }
@@ -72,10 +64,8 @@ public class Columns implements Iterable<Column<?>>
      * @param columns The {@link Column}s to be added.
      * @return this {@link Columns} with the specified {@link Column}s.
      */
-    public Columns add(Columns columns)
-    {
-        for (Column<?> column : columns)
-        {
+    public Columns add(Columns columns) {
+        for (Column<?> column : columns) {
             this.columns.add(column);
         }
         return this;
@@ -86,8 +76,7 @@ public class Columns implements Iterable<Column<?>>
      *
      * @return An iterator over the {@link Column}s in insert order.
      */
-    public Iterator<Column<?>> iterator()
-    {
+    public Iterator<Column<?>> iterator() {
         return columns.iterator();
     }
 
@@ -97,13 +86,11 @@ public class Columns implements Iterable<Column<?>>
      *
      * @return The number of {@link Column}s in this list
      */
-    public int size()
-    {
+    public int size() {
         return columns.size();
     }
 
-    public boolean isEmpty()
-    {
+    public boolean isEmpty() {
         return columns.isEmpty();
     }
 
@@ -113,14 +100,11 @@ public class Columns implements Iterable<Column<?>>
      * @param name The full name of the {@link Column} to be returned.
      * @return The {@link Column} identified by the specified full name, or {@code null} if not found.
      */
-    public Columns getColumnsByFullName(String name)
-    {
+    public Columns getColumnsByFullName(String name) {
         Column.check(name);
         Columns result = new Columns();
-        for (Column<?> column : columns)
-        {
-            if (column.getFullName().equals(name))
-            {
+        for (Column<?> column : columns) {
+            if (column.getFullName().equals(name)) {
                 result.add(column);
             }
         }
@@ -133,15 +117,12 @@ public class Columns implements Iterable<Column<?>>
      * @param name The CQL cell name of the{@link Column} to be returned.
      * @return The {@link Column} identified by the specified CQL cell name, or {@code null} if not found.
      */
-    public Columns getColumnsByCellName(String name)
-    {
+    public Columns getColumnsByCellName(String name) {
         Column.check(name);
         String cellName = Column.getCellName(name);
         Columns result = new Columns();
-        for (Column<?> column : columns)
-        {
-            if (column.getCellName().equals(cellName))
-            {
+        for (Column<?> column : columns) {
+            if (column.getCellName().equals(cellName)) {
                 result.add(column);
             }
         }
@@ -154,15 +135,12 @@ public class Columns implements Iterable<Column<?>>
      * @param name The mapper name of the {@link Column} to be returned.
      * @return The {@link Column} identified by the specified mapper name, or {@code null} if not found.
      */
-    public Columns getColumnsByMapperName(String name)
-    {
+    public Columns getColumnsByMapperName(String name) {
         Column.check(name);
         String mapperName = Column.getMapperName(name);
         Columns result = new Columns();
-        for (Column<?> column : columns)
-        {
-            if (column.getMapperName().equals(mapperName))
-            {
+        for (Column<?> column : columns) {
+            if (column.getMapperName().equals(mapperName)) {
                 result.add(column);
             }
         }
@@ -171,37 +149,28 @@ public class Columns implements Iterable<Column<?>>
 
     /**
      * Returns the non expired columns from this list using now value.
-     *
      * @param now The millis query's time
-     * @return A clone of {@link Columns} without the expired columns from this list using now value.
+     * @return  A clone of {@link Columns} without the expired columns from this list using now value.
      */
-    public Columns cleanExpired(long now)
-    {
+    public Columns cleanExpired(long now) {
         Columns result = new Columns();
-        for (Column<?> column : columns)
-        {
-            if (column.isLive(now))
-            {
+        for (Column<?> column : columns) {
+            if (column.isLive(now)) {
                 result.add(column);
             }
         }
         return result;
     }
 
-    public Column<?> getFirst()
-    {
+    public Column<?> getFirst() {
         return columns.isEmpty() ? null : columns.get(0);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
-    public String toString()
-    {
+    public String toString() {
         Objects.ToStringHelper helper = Objects.toStringHelper(this);
-        for (Column<?> column : columns)
-        {
+        for (Column<?> column : columns) {
             helper.add(column.getFullName(), column.getComposedValue());
         }
         return helper.toString();
