@@ -183,19 +183,21 @@ public final class RegularCellsMapper {
 
             AbstractType<?> valueType = columnDefinition.type;
             ByteBuffer value = ByteBufferUtil.clone(cell.value());
-
+            int localDeletionTime=cell.getLocalDeletionTime();
             if ((valueType.isCollection()) && (!valueType.isFrozenCollection())) {
                 CollectionType<?> collectionType = (CollectionType<?>) valueType;
                 switch (collectionType.kind) {
                     case SET: {
                         AbstractType<?> type = collectionType.nameComparator();
                         value = ByteBufferUtil.clone(cell.name().collectionElement());
-                        columns.add(process(Column.builder(name), type, value, true));
+                        ColumnBuilder columnBuilder =Column.builder(name).localDeletionTime(localDeletionTime);
+                        columns.add(process(columnBuilder, type, value, true));
                         break;
                     }
                     case LIST: {
                         AbstractType<?> type = collectionType.valueComparator();
-                        columns.add(process(Column.builder(name), type, value, true));
+                        ColumnBuilder columnBuilder =Column.builder(name).localDeletionTime(localDeletionTime);
+                        columns.add(process(columnBuilder, type, value, true));
                         break;
                     }
                     case MAP: {
@@ -203,13 +205,13 @@ public final class RegularCellsMapper {
                         ByteBuffer keyValue = cell.name().collectionElement();
                         AbstractType<?> keyType = collectionType.nameComparator();
                         String nameSuffix = keyType.compose(keyValue).toString();
-                        ColumnBuilder columnBuilder = Column.builder(name).mapName(nameSuffix);
+                        ColumnBuilder columnBuilder = Column.builder(name).mapName(nameSuffix).localDeletionTime(localDeletionTime);
                         columns.add(process(columnBuilder, type, value, true));
                         break;
                     }
                 }
             } else {
-                columns.add(process(Column.builder(name), valueType, value, false));
+                columns.add(process(Column.builder(name).localDeletionTime(localDeletionTime), valueType, value, false));
             }
         }
         return columns;

@@ -17,7 +17,6 @@ package com.stratio.cassandra.lucene.schema.column;
 
 import com.google.common.base.Objects;
 
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -32,18 +31,15 @@ public class Columns implements Iterable<Column<?>> {
     /** The wrapped columns. */
     private final List<Column<?>> columns;
 
-    /** Returns an empty {@link Column} list. */
+    /** The query timestamp. */
+    private Long timestamp;
+
+    /** Returns an empty {@link Column} list.
+     *
+     * */
     public Columns() {
         this.columns = new LinkedList<>();
-    }
 
-    /**
-     * Returns a new {@link Columns} composed by the specified {@link Column}s.
-     *
-     * @param columns A list of {@link Column}s.
-     */
-    public Columns(Column<?>... columns) {
-        this.columns = Arrays.asList(columns);
     }
 
     /**
@@ -140,6 +136,21 @@ public class Columns implements Iterable<Column<?>> {
         Columns result = new Columns();
         for (Column<?> column : columns) {
             if (column.getMapperName().equals(mapperName)) {
+                result.add(column);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Returns the non expired columns from this list using now value.
+     * @param now The millis query's time
+     * @return  A clone of {@link Columns} without the expired columns from this list using now value.
+     */
+    public Columns cleanExpired(long now) {
+        Columns result = new Columns();
+        for (Column<?> column : columns) {
+            if (column.isLive(now)) {
                 result.add(column);
             }
         }

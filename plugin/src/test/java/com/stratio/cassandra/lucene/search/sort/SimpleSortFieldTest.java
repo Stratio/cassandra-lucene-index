@@ -229,8 +229,8 @@ public class SimpleSortFieldTest {
         Column column1 = Column.builder("field").composedValue("a", UTF8Type.instance);
         Column column2 = Column.builder("field").composedValue("z", UTF8Type.instance);
         SingleColumnMapper mapper = stringMapper().build("field");
-        Columns columns1 = new Columns(column1);
-        Columns columns2 = new Columns(column2);
+        Columns columns1 = new Columns().add(column1);
+        Columns columns2 = new Columns().add(column2);
         Columns emptyColumns = new Columns();
 
         assertEquals("SortField compare is wrong", 25, sortField.compare(mapper, columns1, columns2));
