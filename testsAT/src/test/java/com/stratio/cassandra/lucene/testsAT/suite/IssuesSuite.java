@@ -15,11 +15,10 @@
  */
 package com.stratio.cassandra.lucene.testsAT.suite;
 
-import org.junit.runner.*;
-import org.junit.runners.*;
-import org.junit.runners.Suite.*;
-
 import com.stratio.cassandra.lucene.testsAT.issues.*;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
+import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({Issue18AT.class, Issue64AT.class, Issue69AT.class, Issue94AT.class, Issue132AT.class})

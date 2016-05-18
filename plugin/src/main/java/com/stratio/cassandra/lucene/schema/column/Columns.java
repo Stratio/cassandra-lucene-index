@@ -17,6 +17,7 @@ package com.stratio.cassandra.lucene.schema.column;
 
 import com.google.common.base.Objects;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -31,9 +32,6 @@ public class Columns implements Iterable<Column<?>> {
     /** The wrapped columns. */
     private final List<Column<?>> columns;
 
-    /** The query timestamp. */
-    private Long timestamp;
-
     /** Returns an empty {@link Column} list.
      *
      * */
@@ -42,6 +40,14 @@ public class Columns implements Iterable<Column<?>> {
 
     }
 
+    /**
+     * Returns a new {@link Columns} composed by the specified {@link Column}s.
+     *
+     * @param columns A list of {@link Column}s.
+     */
+    public Columns(Column<?>... columns) {
+        this.columns = Arrays.asList(columns);
+    }
     /**
      * Adds the specified {@link Column} to the existing ones.
      *

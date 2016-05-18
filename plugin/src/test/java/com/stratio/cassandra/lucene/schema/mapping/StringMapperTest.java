@@ -15,15 +15,9 @@
  */
 package com.stratio.cassandra.lucene.schema.mapping;
 
-import static com.stratio.cassandra.lucene.schema.SchemaBuilders.stringMapper;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
-import java.util.UUID;
-
+import com.stratio.cassandra.lucene.schema.column.Column;
+import com.stratio.cassandra.lucene.schema.column.Columns;
+import com.stratio.cassandra.lucene.schema.mapping.builder.StringMapperBuilder;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -32,9 +26,10 @@ import org.apache.lucene.index.DocValuesType;
 import org.apache.lucene.index.IndexableField;
 import org.junit.Test;
 
-import com.stratio.cassandra.lucene.schema.column.Column;
-import com.stratio.cassandra.lucene.schema.column.Columns;
-import com.stratio.cassandra.lucene.schema.mapping.builder.StringMapperBuilder;
+import java.util.UUID;
+
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.stringMapper;
+import static org.junit.Assert.*;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
@@ -236,7 +231,7 @@ public class StringMapperTest extends AbstractMapperTest {
         StringMapper mapper = stringMapper().sorted(true).caseSensitive(true).build("field");
         Document document = new Document();
         Column<?> column = Column.builder("field").composedValue("value", UTF8Type.instance);
-        Columns columns = new Columns().add(column);
+        Columns columns = new Columns(column);
         mapper.addFields(document, columns);
         IndexableField[] indexableFields = document.getFields("field");
         assertEquals("Number of created fields is wrong", 2, indexableFields.length);
