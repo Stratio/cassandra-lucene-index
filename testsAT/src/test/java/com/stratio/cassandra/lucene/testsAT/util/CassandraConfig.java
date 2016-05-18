@@ -25,9 +25,9 @@ import com.datastax.driver.core.ConsistencyLevel;
 class CassandraConfig {
 
     static final String HOST = getString("host", "127.0.0.1");
-    static final int REPLICATION = getInt("replication", 3);
+    static final int REPLICATION = getInt("replication", 1);
     static final ConsistencyLevel CONSISTENCY = ConsistencyLevel.valueOf(getString("consistency", "QUORUM"));
-    static final int FETCH = getInt("fetch", 10);
+    static final int FETCH = getInt("fetch", 100);
     static final int THREADS = getInt("threads", 0);
     static final int REFRESH = getInt("refresh", 1);
     static final int WAIT_FOR_INDEXING = getInt("wait_for_indexing", 2);
