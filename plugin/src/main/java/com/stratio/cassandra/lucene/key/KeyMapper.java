@@ -30,7 +30,7 @@ import org.apache.cassandra.db.composites.Composite;
 import org.apache.cassandra.db.filter.ColumnSlice;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.CompositeType;
-import org.apache.cassandra.db.marshal.LongType;
+import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.utils.ByteBufferUtil;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -44,6 +44,8 @@ import org.apache.lucene.util.BytesRef;
 
 import java.nio.ByteBuffer;
 import java.util.*;
+
+import static org.apache.cassandra.utils.ByteBufferUtil.EMPTY_BYTE_BUFFER;
 
 /**
  * Class for several row full key mappings between Cassandra and Lucene. The full key includes both the partitioning and
@@ -99,8 +101,7 @@ public final class KeyMapper {
             subtypes[i] = clusteringComparator.subtype(i);
         }
         clusteringType = CompositeType.getInstance(subtypes);
-
-        type = CompositeType.getInstance(LongType.instance, metadata.getKeyValidator(), clusteringType);
+        type = CompositeType.getInstance(UTF8Type.instance, metadata.getKeyValidator(), clusteringType);
     }
 
     /**
@@ -126,12 +127,16 @@ public final class KeyMapper {
      */
     public ByteBuffer byteBuffer(DecoratedKey partitionKey, Composite clusteringKey) {
         return type.builder()
-                   .add(TokenMapper.byteBuffer(partitionKey.getToken()))
+                   .add(TokenMapper.toCollated(partitionKey.getToken()))
                    .add(partitionKey.getKey())
                    .add(clusteringKey.toByteBuffer())
                    .build();
     }
 
+    BytesRef seek(DecoratedKey key) {
+        ByteBuffer token = TokenMapper.toCollated(key.getToken());
+        return ByteBufferUtils.bytesRef(type.builder().add(token).add(EMPTY_BYTE_BUFFER).build());
+    }
     /**
      * Returns the {@link RowKey} represented by the specified {@link ByteBuffer}.
      *
@@ -193,6 +198,7 @@ public final class KeyMapper {
         ByteBuffer bb = byteBuffer(key, clusteringKey);
         return ByteBufferUtils.bytesRef(bb);
     }
+
 
     /**
      * Returns the {@link Columns} representing the data contained in the specified {@link ColumnFamily}.
@@ -265,8 +271,8 @@ public final class KeyMapper {
         CBuilder builder = clusteringComparator.builder();
         ByteBuffer[] components = clusteringType.split(composite.toByteBuffer());
         for (int i = 0; i < metadata.clusteringColumns().size(); i++) {
-            ByteBuffer component = i < components.length ? components[i] : ByteBufferUtil.EMPTY_BYTE_BUFFER;
-            builder.add(component != null ? component : ByteBufferUtil.EMPTY_BYTE_BUFFER);
+            ByteBuffer component = i < components.length ? components[i] : EMPTY_BYTE_BUFFER;
+            builder.add(component != null ? component : EMPTY_BYTE_BUFFER);
         }
         return builder.build().toByteBuffer();
     }

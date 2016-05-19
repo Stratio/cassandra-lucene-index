@@ -63,7 +63,7 @@ public class SimpleKeyDataHandlingAT extends BaseAT {
                                        .createTable()
                                        .createIndex()
                                        .insert(data1, data2, data3)
-                                       .refresh();
+                                       .waitForIndexing();
     }
 
     @After
@@ -75,21 +75,21 @@ public class SimpleKeyDataHandlingAT extends BaseAT {
     public void singleInsertion() {
 
         // Data4 insertion
-        cassandraUtils.insert(data4).refresh();
+        cassandraUtils.insert(data4).waitForIndexing();
 
         List<Row> rows = cassandraUtils.query(wildcard("ascii_1", "*")).get();
 
         assertEquals("Expected 4 results!", 4, rows.size());
 
         // Data5 insertion
-        cassandraUtils.insert(data5).refresh();
+        cassandraUtils.insert(data5).waitForIndexing();
 
         rows = cassandraUtils.query(wildcard("ascii_1", "*")).get();
 
         assertEquals("Expected 5 results!", 5, rows.size());
 
         // Data4 removal
-        cassandraUtils.delete().where("integer_1", 4).refresh();
+        cassandraUtils.delete().where("integer_1", 4).waitForIndexing();
 
         rows = cassandraUtils.query(wildcard("ascii_1", "*")).get();
 
@@ -97,7 +97,7 @@ public class SimpleKeyDataHandlingAT extends BaseAT {
         assertFalse("Element not expected!", containsElementByIntegerKey(rows, 4));
 
         // Data5 removal
-        cassandraUtils.delete().where("integer_1", 5).refresh();
+        cassandraUtils.delete().where("integer_1", 5).waitForIndexing();
 
         rows = cassandraUtils.query(wildcard("ascii_1", "*")).get();
 
@@ -105,7 +105,7 @@ public class SimpleKeyDataHandlingAT extends BaseAT {
         assertFalse("Element not expected!", containsElementByIntegerKey(rows, 5));
 
         // Data2 removal
-        cassandraUtils.delete().where("integer_1", 2).refresh();
+        cassandraUtils.delete().where("integer_1", 2).waitForIndexing();
 
         rows = cassandraUtils.query(wildcard("ascii_1", "*")).get();
 
@@ -113,7 +113,7 @@ public class SimpleKeyDataHandlingAT extends BaseAT {
         assertFalse("Element not expected!", containsElementByIntegerKey(rows, 2));
 
         // Data3 removal
-        cassandraUtils.delete().where("integer_1", 3).refresh();
+        cassandraUtils.delete().where("integer_1", 3).waitForIndexing();
 
         rows = cassandraUtils.query(wildcard("ascii_1", "*")).get();
 
@@ -121,7 +121,7 @@ public class SimpleKeyDataHandlingAT extends BaseAT {
         assertFalse("Element not expected!", containsElementByIntegerKey(rows, 3));
 
         // Data1 removal
-        cassandraUtils.delete().where("integer_1", 1).refresh();
+        cassandraUtils.delete().where("integer_1", 1).waitForIndexing();
 
         rows = cassandraUtils.query(wildcard("ascii_1", "*")).get();
 
@@ -133,31 +133,31 @@ public class SimpleKeyDataHandlingAT extends BaseAT {
     public void multipleInsertion() {
 
         // Data4 and data5 insertion
-        List<Row> rows = cassandraUtils.insert(data4, data5).refresh().query(wildcard("ascii_1", "*")).get();
+        List<Row> rows = cassandraUtils.insert(data4, data5).waitForIndexing().query(wildcard("ascii_1", "*")).get();
         assertEquals("Expected 5 results!", 5, rows.size());
 
         // Data4 removal
-        rows = cassandraUtils.delete().where("integer_1", 4).refresh().query(wildcard("ascii_1", "*")).get();
+        rows = cassandraUtils.delete().where("integer_1", 4).waitForIndexing().query(wildcard("ascii_1", "*")).get();
         assertEquals("Expected 4 results!", 4, rows.size());
         assertFalse("Element not expected!", containsElementByIntegerKey(rows, 4));
 
         // Data5 removal
-        rows = cassandraUtils.delete().where("integer_1", 5).refresh().query(wildcard("ascii_1", "*")).get();
+        rows = cassandraUtils.delete().where("integer_1", 5).waitForIndexing().query(wildcard("ascii_1", "*")).get();
         assertEquals("Expected 3 results!", 3, rows.size());
         assertFalse("Element not expected!", containsElementByIntegerKey(rows, 5));
 
         // Data2 removal
-        rows = cassandraUtils.delete().where("integer_1", 2).refresh().query(wildcard("ascii_1", "*")).get();
+        rows = cassandraUtils.delete().where("integer_1", 2).waitForIndexing().query(wildcard("ascii_1", "*")).get();
         assertEquals("Expected 2 results!", 2, rows.size());
         assertFalse("Element not expected!", containsElementByIntegerKey(rows, 2));
 
         // Data3 removal
-        rows = cassandraUtils.delete().where("integer_1", 3).refresh().query(wildcard("ascii_1", "*")).get();
+        rows = cassandraUtils.delete().where("integer_1", 3).waitForIndexing().query(wildcard("ascii_1", "*")).get();
         assertEquals("Expected 1 result!", 1, rows.size());
         assertFalse("Element not expected!", containsElementByIntegerKey(rows, 3));
 
         // Data1 removal
-        rows = cassandraUtils.delete().where("integer_1", 1).refresh().query(wildcard("ascii_1", "*")).get();
+        rows = cassandraUtils.delete().where("integer_1", 1).waitForIndexing().query(wildcard("ascii_1", "*")).get();
         assertEquals("Expected 0 results!", 0, rows.size());
         assertFalse("Element not expected!", containsElementByIntegerKey(rows, 1));
     }
@@ -168,13 +168,13 @@ public class SimpleKeyDataHandlingAT extends BaseAT {
                                        .where("integer_1", 2)
                                        .delete()
                                        .where("integer_1", 3)
-                                       .refresh()
+                                       .waitForIndexing()
                                        .query(wildcard("ascii_1", "*"))
                                        .get();
         assertEquals("Expected 1 result!", 1, rows.size());
         assertFalse("Element not expected!", containsElementByIntegerKey(rows, 3));
 
-        rows = cassandraUtils.delete().where("integer_1", 1).refresh().query(wildcard("ascii_1", "*")).get();
+        rows = cassandraUtils.delete().where("integer_1", 1).waitForIndexing().query(wildcard("ascii_1", "*")).get();
         assertEquals("Expected 0 results!", 0, rows.size());
         assertFalse("Element not expected!", containsElementByIntegerKey(rows, 1));
     }
@@ -186,7 +186,7 @@ public class SimpleKeyDataHandlingAT extends BaseAT {
                       .update()
                       .set("text_1", "other")
                       .where("integer_1", 2)
-                      .refresh()
+                      .waitForIndexing()
                       .query(wildcard("text_1", "text"))
                       .check(2)
                       .query(wildcard("text_1", "other"))
@@ -200,7 +200,7 @@ public class SimpleKeyDataHandlingAT extends BaseAT {
                       .update()
                       .set("text_1", "new")
                       .where("integer_1", 1000)
-                      .refresh()
+                      .waitForIndexing()
                       .query(wildcard("text_1", "new"))
                       .check(1);
     }

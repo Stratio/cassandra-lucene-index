@@ -16,7 +16,6 @@
 package com.stratio.cassandra.lucene.testsAT.varia;
 
 import com.datastax.driver.core.Row;
-import com.datastax.driver.core.Statement;
 import com.stratio.cassandra.lucene.testsAT.BaseAT;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
 import org.junit.AfterClass;
@@ -72,11 +71,10 @@ public class UDFsAT extends BaseAT {
                                "LANGUAGE java AS\n" +
                                "'return input * 2L;';", cassandraUtils.getKeyspace());
 
-        Statement statement = cassandraUtils.statement("SELECT key, double(value) FROM %s.%s WHERE %s='{}';",
-                                                       cassandraUtils.getKeyspace(),
-                                                       cassandraUtils.getTable(),
-                                                       cassandraUtils.getIndexColumn()).setFetchSize(2);
-        List<Row> rows = cassandraUtils.execute(statement).all();
+        List<Row> rows = cassandraUtils.waitForIndexing()
+                                       .execute(2, "SELECT key, double(value) FROM %s WHERE %s='{}';",
+                                                cassandraUtils.getQualifiedTable(),cassandraUtils.getIndexColumn())
+                                       .all();
         long[] expected = new long[]{2, 4, 6, 8, 10, 12};
         long[] actual = new long[rows.size()];
         for (int i = 0; i < rows.size(); i++) {
@@ -121,11 +119,9 @@ public class UDFsAT extends BaseAT {
                                "  FINALFUNC averageFinal\n" +
                                "  INITCOND (0, 0);", cassandraUtils.getKeyspace());
 
-        Statement statement = cassandraUtils.statement("SELECT average(value) FROM %s.%s WHERE %s='{}';",
-                                                       cassandraUtils.getKeyspace(),
-                                                       cassandraUtils.getTable(),
-                                                       cassandraUtils.getIndexColumn()).setFetchSize(2);
-        List<Row> rows = cassandraUtils.execute(statement).all();
+        List<Row> rows = cassandraUtils.execute(2, "SELECT average(value) FROM %s WHERE %s='{}';",
+                                                cassandraUtils.getQualifiedTable(), cassandraUtils.getIndexColumn())
+                                       .all();
         assertEquals("Expected one row!", 1, rows.size());
         assertEquals("Expected 4!", 3.5D, rows.get(0).getDouble(0), 0);
     }

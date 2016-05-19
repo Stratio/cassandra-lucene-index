@@ -6,6 +6,7 @@
 * Add transformation for getting the convex hull of a geographical shape
 * Fix invalid WKT shapes by zero-buffering them
 * Remove support for other partitioners than Murmur3
+* Improve clustering key filtering with better token prefix collation
 
 ## 2.2.5.3 (31 March 2016)
 

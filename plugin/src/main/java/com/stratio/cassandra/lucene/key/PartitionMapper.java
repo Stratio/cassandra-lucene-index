@@ -25,17 +25,17 @@ import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.db.DecoratedKey;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.dht.IPartitioner;
-import org.apache.cassandra.utils.ByteBufferUtil;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldType;
 import org.apache.lucene.index.DocValuesType;
 import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.search.*;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.SortField;
+import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.util.BytesRef;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
 
@@ -180,20 +180,7 @@ public final class PartitionMapper {
      * @return a sort field for sorting by partition key
      */
     public SortField sortField() {
-        return new SortField(FIELD_NAME, new FieldComparatorSource() {
-            @Override
-            public FieldComparator<?> newComparator(String field, int hits, int sort, boolean reversed)
-            throws IOException {
-                return new FieldComparator.TermValComparator(hits, field, false) {
-                    @Override
-                    public int compareValues(BytesRef val1, BytesRef val2) {
-                        ByteBuffer bb1 = ByteBufferUtils.byteBuffer(val1);
-                        ByteBuffer bb2 = ByteBufferUtils.byteBuffer(val2);
-                        return ByteBufferUtil.compareUnsigned(bb1, bb2);
-                    }
-                };
-            }
-        });
+        return new PartitionSort(this);
     }
 
 }
