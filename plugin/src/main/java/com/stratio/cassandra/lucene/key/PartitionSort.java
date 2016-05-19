@@ -15,37 +15,41 @@
  */
 package com.stratio.cassandra.lucene.key;
 
+import com.stratio.cassandra.lucene.util.ByteBufferUtils;
 import org.apache.lucene.search.FieldComparator;
 import org.apache.lucene.search.FieldComparatorSource;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.util.BytesRef;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 /**
- * {@link SortField} to sort by primary key.
+ * {@link SortField} to sort by partition key.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-class KeySort extends SortField {
+class PartitionSort extends SortField {
 
     /** The Lucene sort name. */
-    private static final String SORT_NAME = "<primary_key>";
+    private static final String SORT_NAME = "<partition_key>";
 
     /**
-     * Builds a new {@link KeySort} for the specified {@link KeyMapper}.
+     * Builds a new {@link PartitionSort} for the specified {@link PartitionMapper}.
      *
-     * @param mapper the primary key mapper to be used
+     * @param mapper the partition key mapper to be used
      */
-    KeySort(KeyMapper mapper) {
-        super(KeyMapper.FIELD_NAME, new FieldComparatorSource() {
+    PartitionSort(PartitionMapper mapper) {
+        super(PartitionMapper.FIELD_NAME, new FieldComparatorSource() {
             @Override
             public FieldComparator<?> newComparator(String field, int hits, int sort, boolean reversed)
             throws IOException {
                 return new FieldComparator.TermValComparator(hits, field, false) {
                     @Override
                     public int compareValues(BytesRef val1, BytesRef val2) {
-                        return mapper.entry(val1).compareTo(mapper.entry(val2));
+                        ByteBuffer bb1 = ByteBufferUtils.byteBuffer(val1);
+                        ByteBuffer bb2 = ByteBufferUtils.byteBuffer(val2);
+                        return mapper.getType().compare(bb1, bb2);
                     }
                 };
             }
