@@ -547,23 +547,6 @@ public abstract class RowService {
     protected abstract List<Row> rows(List<SearchResult> results, long timestamp, int scorePosition);
 
     /**
-     * Returns a {@link ColumnFamily} composed by the non expired {@link Cell}s of the specified  {@link ColumnFamily}.
-     *
-     * @param columnFamily A {@link ColumnFamily}.
-     * @param timestamp The max allowed timestamp for the {@link Cell}s.
-     * @return A {@link ColumnFamily} composed by the non expired {@link Cell}s of the specified  {@link ColumnFamily}.
-     */
-    protected ColumnFamily cleanExpired(ColumnFamily columnFamily, long timestamp) {
-        ColumnFamily cleanColumnFamily = ArrayBackedSortedColumns.factory.create(baseCfs.metadata);
-        for (Cell cell : columnFamily) {
-            if (cell.isLive(timestamp)) {
-                cleanColumnFamily.addColumn(cell);
-            }
-        }
-        return cleanColumnFamily;
-    }
-
-    /**
      * Adds to the specified {@link Row} the specified Lucene score column.
      *
      * @param row A {@link Row}.

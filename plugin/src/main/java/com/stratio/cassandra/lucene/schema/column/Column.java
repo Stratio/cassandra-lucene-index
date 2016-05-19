@@ -59,6 +59,9 @@ public final class Column<T> {
 
     private final boolean isMultiCell;
 
+    private final int localDeletionTime;
+
+
     /**
      * Builds a new {@link Column} with the specified name, name suffix, value, and type.
      *
@@ -76,7 +79,8 @@ public final class Column<T> {
            ByteBuffer decomposedValue,
            T composedValue,
            AbstractType<T> type,
-           boolean isMultiCell) {
+           boolean isMultiCell,
+           int localDeletionTime) {
         this.cellName = cellName;
         this.udtNames = udtNames;
         this.mapNames = mapNames;
@@ -84,6 +88,7 @@ public final class Column<T> {
         this.decomposedValue = decomposedValue;
         this.type = type;
         this.isMultiCell = isMultiCell;
+        this.localDeletionTime=localDeletionTime;
     }
 
     public static ColumnBuilder builder(String cellName) {
@@ -145,6 +150,15 @@ public final class Column<T> {
             result += MAP_SEPARATOR + mapName;
         }
         return result;
+    }
+
+    /**
+     * Returns if the column isLive now.
+     *
+     * @return If the column isLive now.
+     */
+    public boolean isLive(long now) {
+        return (int) (now / 1000) < localDeletionTime;
     }
 
     /**

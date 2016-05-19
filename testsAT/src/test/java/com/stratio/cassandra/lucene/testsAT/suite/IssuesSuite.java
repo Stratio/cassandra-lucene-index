@@ -15,15 +15,12 @@
  */
 package com.stratio.cassandra.lucene.testsAT.suite;
 
-import com.stratio.cassandra.lucene.testsAT.issues.Issue18AT;
-import com.stratio.cassandra.lucene.testsAT.issues.Issue64AT;
-import com.stratio.cassandra.lucene.testsAT.issues.Issue69AT;
-import com.stratio.cassandra.lucene.testsAT.issues.Issue94AT;
+import com.stratio.cassandra.lucene.testsAT.issues.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses({Issue18AT.class, Issue64AT.class, Issue69AT.class, Issue94AT.class})
+@SuiteClasses({Issue18AT.class, Issue64AT.class, Issue69AT.class, Issue94AT.class, Issue132AT.class})
 public class IssuesSuite {
 }

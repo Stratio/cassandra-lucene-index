@@ -95,8 +95,7 @@ public class RowServiceWide extends RowService {
         DecoratedKey partitionKey = mapper.partitionKey(key);
 
         if (columnFamily.iterator().hasNext()) {
-            ColumnFamily cleanColumnFamily = cleanExpired(columnFamily, timestamp);
-            lucene.upsert(documents(partitionKey, cleanColumnFamily, timestamp));
+            lucene.upsert(documents(partitionKey, columnFamily, timestamp));
         } else if (deletionInfo != null) {
             Iterator<RangeTombstone> iterator = deletionInfo.rangeIterator();
             if (iterator.hasNext()) {
@@ -133,6 +132,7 @@ public class RowServiceWide extends RowService {
             ColumnFamily rowColumnFamily = entry.getValue();
             Columns columns = mapper.columns(partitionKey, rowColumnFamily);
             if (schema.mapsAll(columns)) {
+                columns=columns.cleanExpired(timestamp);
                 Term term = mapper.term(partitionKey, clusteringKey);
                 Document document = mapper.document(partitionKey, clusteringKey, columns);
                 documents.put(term, document);
@@ -229,13 +229,9 @@ public class RowServiceWide extends RowService {
         // Avoid null
         if (queryColumnFamily == null) {
             return Collections.emptyMap();
+        } else {
+            return mapper.splitRows(queryColumnFamily);
         }
-
-        // Remove deleted/expired columns
-        ColumnFamily cleanQueryColumnFamily = cleanExpired(queryColumnFamily, timestamp);
-
-        // Split and return CQL3 row column families
-        return mapper.splitRows(cleanQueryColumnFamily);
     }
 
 }

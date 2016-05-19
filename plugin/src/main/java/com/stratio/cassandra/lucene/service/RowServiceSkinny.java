@@ -84,8 +84,7 @@ public class RowServiceSkinny extends RowService {
     public void doIndex(ByteBuffer key, ColumnFamily columnFamily, long timestamp) throws IOException {
         DecoratedKey partitionKey = mapper.partitionKey(key);
         if (columnFamily.iterator().hasNext()) {
-            ColumnFamily cleanColumnFamily = cleanExpired(columnFamily, timestamp);
-            lucene.upsert(documents(partitionKey, cleanColumnFamily, timestamp));
+            lucene.upsert(documents(partitionKey, columnFamily, timestamp));
         } else if (columnFamily.deletionInfo() != null) {
             Term term = mapper.term(partitionKey);
             lucene.delete(term);
@@ -107,6 +106,7 @@ public class RowServiceSkinny extends RowService {
             ColumnFamily completeColumnFamily = row(partitionKey, timestamp);
             columns = mapper.columns(partitionKey, completeColumnFamily);
         }
+        columns=columns.cleanExpired(timestamp);
         Document document = mapper.document(partitionKey, columns);
         Term term = mapper.term(partitionKey);
         return Collections.singletonMap(term, document);
@@ -146,10 +146,6 @@ public class RowServiceSkinny extends RowService {
      */
     private ColumnFamily row(DecoratedKey partitionKey, long timestamp) {
         QueryFilter queryFilter = QueryFilter.getIdentityFilter(partitionKey, metadata.cfName, timestamp);
-        ColumnFamily columnFamily = baseCfs.getColumnFamily(queryFilter);
-        if (columnFamily != null) {
-            return cleanExpired(columnFamily, timestamp);
-        }
-        return null;
+        return baseCfs.getColumnFamily(queryFilter);
     }
 }
