@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.0.5.1 (Upcoming)
+## 3.0.5.1 (19 May 2016)
 
 * Upgrade to Apache Lucene 5.5.1
 * Add support for old dummy column syntax (Spark compatibility and score retrieval)
