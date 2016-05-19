@@ -80,6 +80,7 @@ Stratio's Cassandra Lucene Index
     - `Use a low refresh rate <#use-a-low-refresh-rate>`__
     - `Prefer filters over queries <#prefer-filters-over-queries>`__
     - `Limit top-k searches <#limit-top-k-searches>`__
+    - `Try doc values <#try-doc-values>`__
 
 Overview
 ********
@@ -3757,4 +3758,13 @@ not to sort all the contents in the database. For this reason, the search engine
 paging and forces to specify a `LIMIT` clause limiting the number of results to be collected.
 High `LIMIT` clauses (more than a few thousands) are risky because they can produce a memory
 issues in the coordinator node.
+
+Try doc values
+==============
+
+`Match <#match-search>`__, `range <#range-search>`__ and `contains <#contains-search>`__ searches have a property named
+`doc_values` that can be used with single-column not-analyzed fields. When enabled, these Lucene will use doc values
+instead of the inverted index. Doc values searches are typically slower, but they can be faster in the dense case where
+most rows match the search. So, if you suspect that your search is going to match most rows in the table, try to enable
+`doc_values`, because it could dramatically improve performance in some cases.
 
