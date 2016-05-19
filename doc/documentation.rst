@@ -81,6 +81,7 @@ Stratio's Cassandra Lucene Index
     - `Prefer filters over queries <#prefer-filters-over-queries>`__
     - `Limit top-k searches <#limit-top-k-searches>`__
     - `Try doc values <#try-doc-values>`__
+    - `Force segments merge <#force-segments-merge>`__
 
 Overview
 ********
@@ -3617,7 +3618,6 @@ Please note that all the JMX attributes and operations refer to the
 index shard living inside the local JVM, and not to the globally
 distributed index.
 
-
 +-------------------+-----------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 | Name              | Type      | Notes                                                                                                                                                                                 |
 +===================+===========+=======================================================================================================================================================================================+
@@ -3768,3 +3768,11 @@ instead of the inverted index. Doc values searches are typically slower, but the
 most rows match the search. So, if you suspect that your search is going to match most rows in the table, try to enable
 `doc_values`, because it could dramatically improve performance in some cases.
 
+Force segments merge
+====================
+
+`JMX interface <#jmx-interface>`__ allows you to force a complete index segments merge. This is a very heavy operation
+similar to C* compaction that can significantly improve search performance.
+Although this operation is not mandatory at all,
+you should consider using it if your system has off-peak hours that can be used for optimization tasks.
+The ideal scenario is to have all the index in a single segment.
