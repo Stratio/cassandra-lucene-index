@@ -12,6 +12,7 @@
 * Fix invalid WKT shapes by zero-buffering them
 * Fix memory consumption issues with high fetch sizes
 * Fix clustering key filtering with better token prefix collation
+* Fix deletion of unique component of a collection (#132)
 
 ## 3.0.5.0 (22 April 2016)
 

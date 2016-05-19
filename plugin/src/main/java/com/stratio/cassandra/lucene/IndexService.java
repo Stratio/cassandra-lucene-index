@@ -271,9 +271,10 @@ abstract class IndexService {
      *
      * @param key the partition key
      * @param row the {@link Row}
+     * @param nowInSec now in seconds
      * @return maybe a document
      */
-    abstract Optional<Document> document(DecoratedKey key, Row row);
+    abstract Optional<Document> document(DecoratedKey key, Row row, int nowInSec);
 
     /**
      * Returns a Lucene {@link Term} uniquely identifying the specified {@link Row}.
@@ -382,9 +383,10 @@ abstract class IndexService {
      *
      * @param key the partition key
      * @param row the row to be upserted
+     * @param nowInSec now in seconds
      */
-    void upsert(DecoratedKey key, Row row) {
-        queue.submitAsynchronous(key, () -> document(key, row).ifPresent(document -> {
+    void upsert(DecoratedKey key, Row row, int nowInSec) {
+        queue.submitAsynchronous(key, () -> document(key, row, nowInSec).ifPresent(document -> {
             Term term = term(key, row);
             lucene.upsert(term, document);
         }));
@@ -678,7 +680,7 @@ abstract class IndexService {
                 SimpleRowIterator rowIterator = pair.right;
                 Row row = rowIterator.getRow();
                 Term term = term(key, row);
-                document(key, row).ifPresent(doc -> {
+                document(key, row, nowInSec).ifPresent(doc -> {
                     rowsByTerm.put(term, rowIterator);
                     index.add(doc);
                 });

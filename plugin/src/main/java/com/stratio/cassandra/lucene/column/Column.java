@@ -57,38 +57,55 @@ public final class Column<T> {
     /** The column's Cassandra type. */
     private final AbstractType<T> type;
 
+    /** The deletion time in seconds. */
+    private final int deletionTime;
+
     /**
      * Builds a new {@link Column} with the specified name, name suffix, value, and type.
      *
-     * @param cellName The name of the base cell.
-     * @param udtNames The child UDT fields.
-     * @param mapNames The child map keys.
-     * @param decomposedValue The decomposed value of the column to be created.
-     * @param composedValue The composed value of the column to be created.
-     * @param type The type/marshaller of the column to be created.
+     * @param cellName the name of the base cell
+     * @param udtNames he child UDT fields
+     * @param mapNames the child map keys
+     * @param decomposedValue the decomposed value of the column to be created
+     * @param composedValue the composed value of the column to be created
+     * @param type the type/marshaller of the column to be created
+     * @param deletionTime the deletion time in seconds
      */
     Column(String cellName,
            List<String> udtNames,
            List<String> mapNames,
            ByteBuffer decomposedValue,
            T composedValue,
-           AbstractType<T> type) {
+           AbstractType<T> type,
+           int deletionTime) {
         this.cellName = cellName;
         this.udtNames = udtNames;
         this.mapNames = mapNames;
         this.composedValue = composedValue;
         this.decomposedValue = decomposedValue;
         this.type = type;
+        this.deletionTime = deletionTime;
     }
 
     /**
-     * Returns a new {@link ColumnBuilder} using the specified base cell name.
+     * Returns a new {@link ColumnBuilder} using the specified base cell name and deletion time.
+     *
+     * @param cellName the base cell name
+     * @param deletionTime the deletion time in seconds
+     * @return the column builder
+     */
+    public static ColumnBuilder builder(String cellName, int deletionTime) {
+        return new ColumnBuilder(cellName, deletionTime);
+    }
+
+    /**
+     * Returns a new {@link ColumnBuilder} using the specified base cell name and no deletion time.
      *
      * @param cellName the base cell name
      * @return the column builder
      */
     public static ColumnBuilder builder(String cellName) {
-        return new ColumnBuilder(cellName);
+        return builder(cellName, Integer.MAX_VALUE);
     }
 
     /**
@@ -217,6 +234,16 @@ public final class Column<T> {
         return type;
     }
 
+    /**
+     * Returns if the column is live in the specified timestamp.
+     *
+     * @param now a timestamp
+     * @return {@code true} if the column is live in {@code now}, {@code false} otherwise
+     */
+    public boolean isLive(long now) {
+        return now < deletionTime;
+    }
+
     /** {@inheritDoc} */
     @Override
     public String toString() {
@@ -224,6 +251,7 @@ public final class Column<T> {
                           .add("fullName", getFullName())
                           .add("buildWithComposed", getComposedValue())
                           .add("type", type.getClass().getSimpleName())
+                          .add("deletionTime", deletionTime)
                           .toString();
     }
 }

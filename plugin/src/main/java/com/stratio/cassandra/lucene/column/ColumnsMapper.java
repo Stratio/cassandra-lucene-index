@@ -69,7 +69,7 @@ public class ColumnsMapper {
             String name = columnDefinition.name.toString();
             AbstractType<?> type = cell.column().type;
             ByteBuffer value = cell.value();
-            ColumnBuilder builder = Column.builder(name);
+            ColumnBuilder builder = Column.builder(name, cell.localDeletionTime());
             if (type.isCollection() && !type.isFrozenCollection()) {
                 CollectionType<?> collectionType = (CollectionType<?>) type;
                 switch (collectionType.kind) {
@@ -97,7 +97,7 @@ public class ColumnsMapper {
                     }
                 }
             } else {
-                addColumns(columns, Column.builder(name), type, value);
+                addColumns(columns, builder, type, value);
             }
         }
     }

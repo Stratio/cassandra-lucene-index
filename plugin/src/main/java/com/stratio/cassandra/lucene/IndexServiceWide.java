@@ -103,9 +103,9 @@ class IndexServiceWide extends IndexService {
 
     /** {@inheritDoc} */
     @Override
-    public Optional<Document> document(DecoratedKey key, Row row) {
+    public Optional<Document> document(DecoratedKey key, Row row, int nowInSec) {
         Document document = new Document();
-        Columns columns = columns(key, row);
+        Columns columns = columns(key, row).cleanDeleted(nowInSec);
         schema.addFields(document, columns);
         if (document.getFields().isEmpty()) {
             return Optional.empty();

@@ -159,4 +159,16 @@ public class ColumnsTest {
                      "field1.1$1=value, field1.1.1=value, field1$1$1=value}",
                      columns.toString());
     }
+
+    @Test
+    public void testCleanDeleted() {
+        Columns columns = new Columns();
+        columns.add(Column.builder("field1", 1).buildWithComposed("value1", UTF8Type.instance));
+        columns.add(Column.builder("field2", 2).buildWithComposed("value2", UTF8Type.instance));
+        columns.add(Column.builder("field3", 3).buildWithComposed("value3", UTF8Type.instance));
+        columns.add(Column.builder("field4", 4).buildWithComposed("value4", UTF8Type.instance));
+        columns = columns.cleanDeleted(3);
+        assertEquals("Columns clean deleted is wrong", 1, columns.size());
+        assertEquals("Columns clean deleted is wrong", 1, columns.getColumnsByMapperName("field4").size());
+    }
 }

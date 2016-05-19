@@ -31,14 +31,17 @@ public class ColumnBuilder {
     private final String cellName;
     private final List<String> udtNames;
     private final List<String> mapNames;
+    private final int deletionTime;
 
     /**
      * Constructor taking the cell name.
      *
      * @param cellName the cell name
+     * @param deletionTime the deletion time in seconds
      */
-    ColumnBuilder(String cellName) {
+    ColumnBuilder(String cellName, int deletionTime) {
         this.cellName = cellName;
+        this.deletionTime = deletionTime;
         udtNames = new ArrayList<>();
         mapNames = new ArrayList<>();
     }
@@ -53,7 +56,7 @@ public class ColumnBuilder {
      */
     public <T> Column<T> buildWithComposed(T composedValue, AbstractType<T> type) {
         ByteBuffer decomposedValue = type.decompose(composedValue);
-        return new Column<>(cellName, udtNames, mapNames, decomposedValue, composedValue, type);
+        return new Column<>(cellName, udtNames, mapNames, decomposedValue, composedValue, type, deletionTime);
     }
 
     /**
@@ -66,7 +69,7 @@ public class ColumnBuilder {
      */
     public <T> Column<T> buildWithDecomposed(ByteBuffer decomposedValue, AbstractType<T> type) {
         T composedValue = type.compose(decomposedValue);
-        return new Column<>(cellName, udtNames, mapNames, decomposedValue, composedValue, type);
+        return new Column<>(cellName, udtNames, mapNames, decomposedValue, composedValue, type, deletionTime);
     }
 
     /**
@@ -99,7 +102,7 @@ public class ColumnBuilder {
      * @return the copy
      */
     private ColumnBuilder copy() {
-        ColumnBuilder clone = new ColumnBuilder(cellName);
+        ColumnBuilder clone = new ColumnBuilder(cellName, deletionTime);
         clone.udtNames.addAll(udtNames);
         clone.mapNames.addAll(mapNames);
         return clone;
