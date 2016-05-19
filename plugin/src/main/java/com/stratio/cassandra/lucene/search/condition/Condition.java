@@ -18,6 +18,7 @@ package com.stratio.cassandra.lucene.search.condition;
 import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.util.ByteBufferUtils;
+import org.apache.lucene.search.BoostQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.util.BytesRef;
 import org.apache.lucene.util.NumericUtils;
@@ -59,10 +60,7 @@ public abstract class Condition {
      */
     public final Query query(Schema schema) {
         Query query = doQuery(schema);
-        if (boost != null) {
-            query.setBoost(boost);
-        }
-        return query;
+        return boost == null ? query : new BoostQuery(query, boost);
     }
 
     /**

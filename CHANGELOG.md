@@ -2,14 +2,16 @@
 
 ## 3.0.5.1 (Upcoming)
 
+* Upgrade to Apache Lucene 5.5.1
+* Add support for old dummy column syntax (Spark compatibility and score retrieval)
+* Add option to use doc values in match, contains and range searches
+* Add heuristic to build token range queries according to their selectivity
+* Add transformation for getting the convex hull of a geographical shape
+* Add early termination in inner pagination (improves allow filtering performance)
+* Remove indexed/sorted mapping options, all mappers store doc values when possible
 * Fix invalid WKT shapes by zero-buffering them
 * Fix memory consumption issues with high fetch sizes
-* Early terminate in inner pagination (improves allow filtering performance)
-* Improve clustering key filtering with better token prefix collation
-* Remove indexed/sorted mapping options, all mappers store doc values when possible
-* Add transformation for getting the convex hull of a geographical shape
-* Add option to use doc values in match, contains and range searches
-* Add support for old dummy column syntax (Spark compatibility and score retrieval)
+* Fix clustering key filtering with better token prefix collation
 
 ## 3.0.5.0 (22 April 2016)
 

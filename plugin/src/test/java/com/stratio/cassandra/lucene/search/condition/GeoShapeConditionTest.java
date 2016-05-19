@@ -23,9 +23,9 @@ import com.stratio.cassandra.lucene.common.GeoTransformation;
 import com.stratio.cassandra.lucene.schema.Schema;
 import org.apache.lucene.search.ConstantScoreQuery;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.spatial.prefix.ContainsPrefixTreeFilter;
-import org.apache.lucene.spatial.prefix.IntersectsPrefixTreeFilter;
-import org.apache.lucene.spatial.prefix.WithinPrefixTreeFilter;
+import org.apache.lucene.spatial.prefix.ContainsPrefixTreeQuery;
+import org.apache.lucene.spatial.prefix.IntersectsPrefixTreeQuery;
+import org.apache.lucene.spatial.prefix.WithinPrefixTreeQuery;
 import org.junit.Test;
 
 import java.text.ParseException;
@@ -118,11 +118,9 @@ public class GeoShapeConditionTest extends AbstractConditionTest {
         Query query = condition.doQuery(schema);
         assertNotNull("Query is not built", query);
 
-        assertEquals("Query type is wrong", ConstantScoreQuery.class, query.getClass());
-        query = ((ConstantScoreQuery) query).getQuery();
-        assertEquals("Query type is wrong", WithinPrefixTreeFilter.class, query.getClass());
+        assertEquals("Query type is wrong", WithinPrefixTreeQuery.class, query.getClass());
         assertEquals("Query is wrong",
-                     "WithinPrefixTreeFilter(fieldName=geo_point.dist,queryShape=MULTIPOLYGON (((0.9999820135926447 1, " +
+                     "WithinPrefixTreeQuery(fieldName=geo_point.dist,queryShape=MULTIPOLYGON (((0.9999820135926447 1, " +
                      "0.9999820135926447 5, 0.9999823591964186 5.000003508974003, 0.9999833827263811 5.000006883100102, " +
                      "0.9999850448488496 5.000009992712526, 0.9999872816893899 5.00001271831061, 0.9999900072874744 5.00001495515115, " +
                      "0.9999931168998973 5.000016617273619, 0.9999964910259972 5.0000176408035815, 1 5.0000179864073555, " +
@@ -165,11 +163,9 @@ public class GeoShapeConditionTest extends AbstractConditionTest {
         Query query = condition.doQuery(schema);
         assertNotNull("Query is not built", query);
 
-        assertEquals("Query type is wrong", ConstantScoreQuery.class, query.getClass());
-        query = ((ConstantScoreQuery) query).getQuery();
-        assertEquals("Query type is wrong", IntersectsPrefixTreeFilter.class, query.getClass());
+        assertEquals("Query type is wrong", IntersectsPrefixTreeQuery.class, query.getClass());
         assertEquals("Query is wrong",
-                     "IntersectsPrefixTreeFilter(fieldName=geo_point.dist,queryShape=MULTIPOLYGON (((0.9999820135926447 1, 0.9999820135926447 5, " +
+                     "IntersectsPrefixTreeQuery(fieldName=geo_point.dist,queryShape=MULTIPOLYGON (((0.9999820135926447 1, 0.9999820135926447 5, " +
                      "0.9999823591964186 5.000003508974003, 0.9999833827263811 5.000006883100102, 0.9999850448488496 5.000009992712526, " +
                      "0.9999872816893899 5.00001271831061, 0.9999900072874744 5.00001495515115, 0.9999931168998973 5.000016617273619, " +
                      "0.9999964910259972 5.0000176408035815, 1 5.0000179864073555, 5 5.0000179864073555, 5.000003508974003 5.0000176408035815, " +
@@ -211,11 +207,9 @@ public class GeoShapeConditionTest extends AbstractConditionTest {
         Query query = condition.doQuery(schema);
         assertNotNull("Query is not built", query);
 
-        assertEquals("Query type is wrong", ConstantScoreQuery.class, query.getClass());
-        query = ((ConstantScoreQuery) query).getQuery();
-        assertEquals("Query type is wrong", ContainsPrefixTreeFilter.class, query.getClass());
+        assertEquals("Query type is wrong", ContainsPrefixTreeQuery.class, query.getClass());
         assertEquals("Query is wrong",
-                     "ContainsPrefixTreeFilter(fieldName=geo_point.dist,queryShape=MULTIPOLYGON (((0.9999820135926447 1, 0.9999820135926447 5, " +
+                     "ContainsPrefixTreeQuery(fieldName=geo_point.dist,queryShape=MULTIPOLYGON (((0.9999820135926447 1, 0.9999820135926447 5, " +
                      "0.9999823591964186 5.000003508974003, 0.9999833827263811 5.000006883100102, 0.9999850448488496 5.000009992712526, " +
                      "0.9999872816893899 5.00001271831061, 0.9999900072874744 5.00001495515115, 0.9999931168998973 5.000016617273619, " +
                      "0.9999964910259972 5.0000176408035815, 1 5.0000179864073555, 5 5.0000179864073555, 5.000003508974003 5.0000176408035815, " +

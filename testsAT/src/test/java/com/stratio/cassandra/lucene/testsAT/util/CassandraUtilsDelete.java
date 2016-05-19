@@ -17,6 +17,8 @@ package com.stratio.cassandra.lucene.testsAT.util;
 
 import com.datastax.driver.core.querybuilder.Delete;
 import com.datastax.driver.core.querybuilder.QueryBuilder;
+import com.stratio.cassandra.lucene.builder.search.condition.Condition;
+import com.stratio.cassandra.lucene.builder.search.sort.SortField;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
@@ -60,5 +62,21 @@ public class CassandraUtilsDelete {
 
     public CassandraUtils refresh() {
         return execute().refresh();
+    }
+
+    public CassandraUtilsSelect query(Condition query) {
+        return execute().query(query);
+    }
+
+    public CassandraUtilsSelect filter(Condition filter) {
+        return execute().filter(filter);
+    }
+
+    public CassandraUtilsSelect sort(SortField... sort) {
+        return execute().sort(sort);
+    }
+
+    public CassandraUtils waitForIndexing() {
+        return execute().waitForIndexing();
     }
 }
