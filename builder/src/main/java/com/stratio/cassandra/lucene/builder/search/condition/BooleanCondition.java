@@ -27,7 +27,7 @@ import java.util.List;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class BooleanCondition extends Condition {
+public class BooleanCondition extends Condition<BooleanCondition> {
 
     /** The mandatory conditions. */
     @JsonProperty("must")

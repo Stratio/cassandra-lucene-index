@@ -15,12 +15,9 @@
  */
 package com.stratio.cassandra.lucene.key;
 
-import org.apache.cassandra.db.Clustering;
-import org.apache.cassandra.db.ClusteringComparator;
-import org.apache.cassandra.db.ClusteringPrefix;
-import org.apache.cassandra.db.DecoratedKey;
-import org.apache.cassandra.dht.Token;
-import org.apache.commons.lang3.builder.ToStringBuilder;
+import com.google.common.base.MoreObjects;
+import org.apache.cassandra.db.*;
+import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.lucene.index.FilteredTermsEnum;
 import org.apache.lucene.index.Terms;
 import org.apache.lucene.index.TermsEnum;
@@ -29,6 +26,7 @@ import org.apache.lucene.util.AttributeSource;
 import org.apache.lucene.util.BytesRef;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 /**
  * {@link MultiTermQuery} to get a range of clustering keys.
@@ -38,37 +36,32 @@ import java.io.IOException;
 class KeyQuery extends MultiTermQuery {
 
     private final KeyMapper mapper;
-    private final DecoratedKey key;
-    private final Token token;
     private final ClusteringPrefix start, stop;
+    private final DecoratedKey key;
+    private final ByteBuffer collatedToken;
     private final ClusteringComparator clusteringComparator;
-    private final boolean acceptLowerConflicts, acceptUpperConflicts;
+    private final BytesRef seek;
 
     /**
      * Returns a new clustering key query for the specified clustering key range using the specified mapper.
      *
      * @param mapper the clustering key mapper to be used
-     * @param key the partition key
+     * @param position the partition position
      * @param start the start clustering
      * @param stop the stop clustering
-     * @param acceptLowerConflicts if accept lower token conflicts
-     * @param acceptUpperConflicts if accept upper token conflicts
      */
     KeyQuery(KeyMapper mapper,
-             DecoratedKey key,
+             PartitionPosition position,
              ClusteringPrefix start,
-             ClusteringPrefix stop,
-             boolean acceptLowerConflicts,
-             boolean acceptUpperConflicts) {
+             ClusteringPrefix stop) {
         super(KeyMapper.FIELD_NAME);
         this.mapper = mapper;
-        this.key = key;
-        this.token = key.getToken();
         this.start = start;
         this.stop = stop;
-        this.acceptLowerConflicts = acceptLowerConflicts;
-        this.acceptUpperConflicts = acceptUpperConflicts;
+        key = position instanceof DecoratedKey ? (DecoratedKey) position : null;
+        collatedToken = TokenMapper.toCollated(position.getToken());
         clusteringComparator = mapper.clusteringComparator();
+        seek = mapper.seek(position);
     }
 
     /** {@inheritDoc} */
@@ -80,19 +73,19 @@ class KeyQuery extends MultiTermQuery {
     /** {@inheritDoc} */
     @Override
     public String toString(String field) {
-        return new ToStringBuilder(this).append("field", field)
-                                        .append("key", key)
-                                        .append("start", start == null ? null : mapper.toString(start))
-                                        .append("stop", stop == null ? null : mapper.toString(stop))
-                                        .toString();
+        return MoreObjects.toStringHelper(this)
+                          .add("field", field)
+                          .add("key", key)
+                          .add("start", start == null ? null : mapper.toString(start))
+                          .add("stop", stop == null ? null : mapper.toString(stop))
+                          .toString();
     }
 
     private class FullKeyDataRangeFilteredTermsEnum extends FilteredTermsEnum {
 
         FullKeyDataRangeFilteredTermsEnum(TermsEnum tenum) {
             super(tenum);
-            setInitialSeekTerm(mapper.bytesRef(key, Clustering.make(start.getRawValues())));
-
+            setInitialSeekTerm(seek);
         }
 
         /** {@inheritDoc} */
@@ -102,7 +95,7 @@ class KeyQuery extends MultiTermQuery {
             KeyEntry entry = mapper.entry(term);
 
             // Check token
-            int tokenComparison = entry.getToken().compareTo(token);
+            int tokenComparison = UTF8Type.instance.compare(entry.getCollatedToken(), collatedToken);
             if (tokenComparison < 0) {
                 return AcceptStatus.NO;
             }
@@ -111,12 +104,14 @@ class KeyQuery extends MultiTermQuery {
             }
 
             // Check partition key
-            Integer keyComparison = entry.getDecoratedKey().compareTo(key);
-            if (keyComparison < 0 && !acceptLowerConflicts) {
-                return AcceptStatus.NO;
-            }
-            if (keyComparison > 0 && !acceptUpperConflicts) {
-                return AcceptStatus.NO;
+            if (key != null) {
+                Integer keyComparison = entry.getDecoratedKey().compareTo(key);
+                if (keyComparison < 0) {
+                    return AcceptStatus.NO;
+                }
+                if (keyComparison > 0) {
+                    return AcceptStatus.NO;
+                }
             }
 
             // Check clustering key range

@@ -34,8 +34,6 @@ public class BigDecimalMapperTest extends AbstractMapperTest {
         BigDecimalMapper mapper = bigDecimalMapper().build("field");
         assertEquals("Field is not set", "field", mapper.field);
         assertEquals("Column is not set", "field", mapper.column);
-        assertTrue("Indexed is not set", mapper.indexed);
-        assertFalse("Sorted is not set", mapper.sorted);
         assertEquals("Mapped columns are not properly set", 1, mapper.mappedColumns.size());
         assertTrue("Mapped columns are not properly set", mapper.mappedColumns.contains("field"));
         assertEquals("Integer digits is not set to default value",
@@ -48,29 +46,23 @@ public class BigDecimalMapperTest extends AbstractMapperTest {
 
     @Test
     public void testConstructorWithAllArgs() {
-        BigDecimalMapper mapper = bigDecimalMapper().indexed(false)
-                                                    .sorted(true)
+        BigDecimalMapper mapper = bigDecimalMapper().validated(true)
                                                     .column("column")
                                                     .integerDigits(6)
                                                     .decimalDigits(8)
                                                     .build("field");
         assertEquals("Field is not properly set", "field", mapper.field);
-        assertFalse("Indexed is not properly set", mapper.indexed);
-        assertTrue("Sorted is not properly set", mapper.sorted);
         assertEquals("Integer digits is not properly set", 6, mapper.integerDigits);
         assertEquals("Decimal digits is not properly set", 8, mapper.decimalDigits);
     }
 
     @Test
     public void testJsonSerialization() {
-        BigDecimalMapperBuilder builder = bigDecimalMapper().indexed(false)
-                                                            .sorted(true)
+        BigDecimalMapperBuilder builder = bigDecimalMapper().validated(true)
                                                             .column("column")
                                                             .integerDigits(6)
                                                             .decimalDigits(8);
-        testJson(builder,
-                 "{type:\"bigdec\",indexed:false,sorted:true,column:\"column\"," +
-                 "integer_digits:6,decimal_digits:8}");
+        testJson(builder, "{type:\"bigdec\",validated:true,column:\"column\",integer_digits:6,decimal_digits:8}");
     }
 
     @Test
@@ -735,10 +727,10 @@ public class BigDecimalMapperTest extends AbstractMapperTest {
 
     @Test
     public void testIndexedField() {
-        BigDecimalMapper mapper = bigDecimalMapper().indexed(true).integerDigits(4).decimalDigits(4).build("field");
+        BigDecimalMapper mapper = bigDecimalMapper().integerDigits(4).decimalDigits(4).build("field");
         String base = mapper.base("name", "42.43");
-        Field field = mapper.indexedField("name", base);
-        assertNotNull("Indexed field is not created", field);
+        Field field = mapper.indexedField("name", base)
+                            .orElseThrow(() -> new AssertionError("Indexed field is not created"));
         assertEquals("Indexed field value is wrong", "10042.4299", field.stringValue());
         assertEquals("Indexed field name is wrong", "name", field.name());
         assertFalse("Indexed field type is wrong", field.fieldType().stored());
@@ -746,11 +738,11 @@ public class BigDecimalMapperTest extends AbstractMapperTest {
 
     @Test
     public void testSortedField() {
-        BigDecimalMapper mapper = bigDecimalMapper().sorted(true).integerDigits(4).decimalDigits(4).build("field");
+        BigDecimalMapper mapper = bigDecimalMapper().integerDigits(4).decimalDigits(4).build("field");
         String base = mapper.base("name", "42.43");
-        Field field = mapper.sortedField("name", base);
-        assertNotNull("Sorted field is not created", field);
-        assertEquals("Sorted field type is wrong", DocValuesType.SORTED, field.fieldType().docValuesType());
+        Field field = mapper.sortedField("name", base)
+                            .orElseThrow(() -> new AssertionError("Sorted field is not created"));
+        assertEquals("Sorted field type is wrong", DocValuesType.SORTED_SET, field.fieldType().docValuesType());
     }
 
     @Test
@@ -763,8 +755,7 @@ public class BigDecimalMapperTest extends AbstractMapperTest {
     public void testToString() {
         BigDecimalMapper mapper = bigDecimalMapper().integerDigits(8).decimalDigits(100).build("field");
         assertEquals("Method #toString is wrong",
-                     "BigDecimalMapper{field=field, indexed=true, sorted=false, validated=false, column=field, " +
-                     "integerDigits=8, decimalDigits=100}",
+                     "BigDecimalMapper{field=field, validated=false, column=field, integerDigits=8, decimalDigits=100}",
                      mapper.toString());
     }
 }

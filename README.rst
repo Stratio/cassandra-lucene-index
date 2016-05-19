@@ -162,8 +162,8 @@ Now you can create a custom Lucene index on it with the following statement:
                 id    : {type : "integer"},
                 user  : {type : "string"},
                 body  : {type : "text", analyzer : "english"},
-                time  : {type : "date", pattern : "yyyy/MM/dd", sorted : true},
-                place : {type : "geo_point", latitude:"latitude", longitude:"longitude"}
+                time  : {type : "date", pattern : "yyyy/MM/dd"},
+                place : {type : "geo_point", latitude: "latitude", longitude: "longitude"}
             }
         }'
     };
@@ -182,7 +182,7 @@ Now, to search for tweets within a certain date range:
 .. code-block:: sql
 
     SELECT * FROM tweets WHERE expr(tweets_index,'{
-        filter : {type:"range", field:"time", lower:"2014/04/25", upper:"2014/05/01"}
+        filter : {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"}
     }') limit 100;
 
 The same search can be performed forcing an explicit refresh of the involved index shards:
@@ -190,7 +190,7 @@ The same search can be performed forcing an explicit refresh of the involved ind
 .. code-block:: sql
 
     SELECT * FROM tweets WHERE expr(tweets_index,'{
-        filter : {type:"range", field:"time", lower:"2014/04/25", upper:"2014/05/01"},
+        filter : {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
         refresh : true
     }') limit 100;
 
@@ -200,19 +200,19 @@ within the aforementioned date range:
 .. code-block:: sql
 
     SELECT * FROM tweets WHERE expr(tweets_index,'{
-        filter : {type:"range", field:"time", lower:"2014/04/25", upper:"2014/05/01"},
-        query  : {type:"phrase", field:"body", value:"big data gives organizations", slop:1}
+        filter : {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
+        query  : {type: "phrase", field: "body", value: "big data gives organizations", slop: 1}
     }') limit 100;
 
-To refine the search to get only the tweets written by users whose name starts with “a”:
+To refine the search to get only the tweets written by users whose name starts with "a":
 
 .. code-block:: sql
 
     SELECT * FROM tweets WHERE expr(tweets_index,'{
-        filter : {type:"boolean", must:[
-                       {type:"range", field:"time", lower:"2014/04/25", upper:"2014/05/01"},
-                       {type:"prefix", field:"user", value:"a"} ] },
-        query  : {type:"phrase", field:"body", value:"big data gives organizations", slop:1}
+        filter : {type: "boolean", must:[
+                       {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
+                       {type: "prefix", field: "user", value: "a"} ] },
+        query  : {type: "phrase", field: "body", value: "big data gives organizations", slop: 1}
     }') limit 100;
 
 To get the 100 more recent filtered results you can use the *sort* option:
@@ -220,11 +220,11 @@ To get the 100 more recent filtered results you can use the *sort* option:
 .. code-block:: sql
 
     SELECT * FROM tweets WHERE expr(tweets_index,'{
-        filter : {type:"boolean", must:[
-                       {type:"range", field:"time", lower:"2014/04/25", upper:"2014/05/01"},
-                       {type:"prefix", field:"user", value:"a"} ] },
-        query  : {type:"phrase", field:"body", value:"big data gives organizations", slop:1},
-        sort   : {fields: [ {field:"time", reverse:true} ] }
+        filter : {type: "boolean", must:[
+                       {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
+                       {type: "prefix", field: "user", value: "a"} ] },
+        query  : {type: "phrase", field: "body", value: "big data gives organizations", slop: 1},
+        sort   : {fields: [ {field: "time", reverse:true} ] }
     }') limit 100;
 
 The previous search can be restricted to a geographical bounding box:
@@ -232,17 +232,17 @@ The previous search can be restricted to a geographical bounding box:
 .. code-block:: sql
 
     SELECT * FROM tweets WHERE expr(tweets_index,'{
-        filter : {type:"boolean", must:[
-                       {type:"range", field:"time", lower:"2014/04/25", upper:"2014/05/01"},
-                       {type:"prefix", field:"user", value:"a"},
-                       {type:"geo_bbox",
-                        field:"place",
-                        min_latitude:40.225479,
-                        max_latitude:40.560174,
-                        min_longitude:-3.999278,
-                        max_longitude:-3.378550} ] },
-        query  : {type:"phrase", field:"body", value:"big data gives organizations", slop:1},
-        sort   : {fields: [ {field:"time", reverse:true} ] }
+        filter : {type: "boolean", must:[
+                       {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
+                       {type: "prefix", field: "user", value: "a"},
+                       {type: "geo_bbox",
+                        field: "place",
+                        min_latitude: 40.225479,
+                        max_latitude: 40.560174,
+                        min_longitude: -3.999278,
+                        max_longitude: -3.378550} ] },
+        query  : {type: "phrase", field: "body", value: "big data gives organizations", slop: 1},
+        sort   : {fields: [ {field: "time", reverse:true} ] }
     }') limit 100;
 
 Alternatively, you can restrict the search to retrieve tweets that are within a specific distance from a geographical position:
@@ -250,17 +250,17 @@ Alternatively, you can restrict the search to retrieve tweets that are within a 
 .. code-block:: sql
 
     SELECT * FROM tweets WHERE expr(tweets_index,'{
-        filter : {type:"boolean", must:[
-                       {type:"range", field:"time", lower:"2014/04/25", upper:"2014/05/01"},
-                       {type:"prefix", field:"user", value:"a"},
-                       {type:"geo_distance",
-                        field:"place",
-                        latitude:40.393035,
-                        longitude:-3.732859,
-                        max_distance:"10km",
-                        min_distance:"100m"} ] },
-        query  : {type:"phrase", field:"body", value:"big data gives organizations", slop:1},
-        sort   : {fields: [ {field:"time", reverse:true} ] }
+        filter : {type: "boolean", must:[
+                       {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
+                       {type: "prefix", field: "user", value: "a"},
+                       {type: "geo_distance",
+                        field: "place",
+                        latitude: 40.393035,
+                        longitude: -3.732859,
+                        max_distance: "10km",
+                        min_distance: "100m"} ] },
+        query  : {type: "phrase", field: "body", value: "big data gives organizations", slop: 1},
+        sort   : {fields: [ {field: "time", reverse:true} ] }
     }') limit 100;
 
 Finally, if you want to restrict the search to a certain token range:
@@ -268,18 +268,18 @@ Finally, if you want to restrict the search to a certain token range:
 .. code-block:: sql
 
     SELECT * FROM tweets WHERE expr(tweets_index,'{
-        filter : {type:"boolean", must:[
-                       {type:"range", field:"time", lower:"2014/04/25", upper:"2014/05/01"},
-                       {type:"prefix", field:"user", value:"a"} ,
-                       {type:"geo_distance",
-                        field:"place",
-                        latitude:40.393035,
-                        longitude:-3.732859,
-                        max_distance:"10km",
-                        min_distance:"100m"} ] },
-        query  : {type:"phrase", field:"body", value:"big data gives organizations", slop:1]}
+        filter : {type: "boolean", must:[
+                       {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
+                       {type: "prefix", field: "user", value: "a"} ,
+                       {type: "geo_distance",
+                        field: "place",
+                        latitude: 40.393035,
+                        longitude: -3.732859,
+                        max_distance: "10km",
+                        min_distance: "100m"} ] },
+        query  : {type: "phrase", field: "body", value: "big data gives organizations", slop: 1]}
     }') AND token(id) >= token(0) AND token(id) < token(10000000) limit 100;
 
-This last is the basis for Hadoop, Spark and other MapReduce frameworks support.
+This last is the basis for `Hadoop, Spark and other MapReduce frameworks support <doc/documentation.rst#spark-and-hadoop>`__.
 
 Please, refer to the comprehensive `Stratio’s Cassandra Lucene Index documentation <doc/documentation.rst>`__.

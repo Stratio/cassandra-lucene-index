@@ -47,8 +47,6 @@ public class BitemporalMapperTest extends AbstractMapperTest {
     public void testConstructorWithDefaultArgs() {
         BitemporalMapper mapper = bitemporalMapper("vtFrom", "vtTo", "ttFrom", "ttTo").build("field");
         assertEquals("Field is not set", "field", mapper.field);
-        assertTrue("Indexed is not set", mapper.indexed);
-        assertFalse("Sorted is not set", mapper.sorted);
         assertEquals("vtFrom is not set", "vtFrom", mapper.vtFrom);
         assertEquals("vtTo is not set", "vtTo", mapper.vtTo);
         assertEquals("ttFrom is not set", "ttFrom", mapper.ttFrom);
@@ -59,12 +57,11 @@ public class BitemporalMapperTest extends AbstractMapperTest {
 
     @Test
     public void testConstructorWithAllArgs() {
-        BitemporalMapper mapper = bitemporalMapper("vtFrom", "vtTo", "ttFrom", "ttTo").pattern("yyyy/MM/dd")
+        BitemporalMapper mapper = bitemporalMapper("vtFrom", "vtTo", "ttFrom", "ttTo").validated(true)
+                                                                                      .pattern("yyyy/MM/dd")
                                                                                       .nowValue("2021/03/11")
                                                                                       .build("field");
         assertEquals("Field is not set", "field", mapper.field);
-        assertTrue("Indexed is not set", mapper.indexed);
-        assertFalse("Sorted is not set", mapper.sorted);
         assertEquals("vtFrom is not set", "vtFrom", mapper.vtFrom);
         assertEquals("vtTo is not set", "vtTo", mapper.vtTo);
         assertEquals("ttFrom is not set", "ttFrom", mapper.ttFrom);

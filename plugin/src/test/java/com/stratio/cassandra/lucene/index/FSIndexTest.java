@@ -18,10 +18,7 @@ package com.stratio.cassandra.lucene.index;
 import com.google.common.collect.Sets;
 import com.stratio.cassandra.lucene.IndexOptions;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
-import org.apache.lucene.document.SortedDocValuesField;
-import org.apache.lucene.document.StringField;
+import org.apache.lucene.document.*;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.*;
 import org.apache.lucene.util.BytesRef;
@@ -61,7 +58,7 @@ public class FSIndexTest {
                                     IndexOptions.DEFAULT_RAM_BUFFER_MB,
                                     IndexOptions.DEFAULT_MAX_MERGE_MB,
                                     IndexOptions.DEFAULT_MAX_CACHED_MB);
-        Sort sort = new Sort(new SortField("field", SortField.Type.STRING));
+        Sort sort = new Sort(new SortedSetSortField("field", false));
         Set<String> fields = Sets.newHashSet("field");
         index.init(sort, fields);
 
@@ -70,13 +67,14 @@ public class FSIndexTest {
         Term term1 = new Term("field", "value1");
         Document document1 = new Document();
         document1.add(new StringField("field", "value1", Field.Store.NO));
-        document1.add(new SortedDocValuesField("field", new BytesRef("value1")));
+        document1.add(new SortedSetDocValuesField("field", new BytesRef("value1")));
         index.upsert(term1, document1);
 
         Term term2 = new Term("field", "value2");
         Document document2 = new Document();
         document2.add(new StringField("field", "value2", Field.Store.NO));
-        document2.add(new SortedDocValuesField("field", new BytesRef("value2")));
+        document2.add(new SortedSetDocValuesField("field", new BytesRef("value2")));
+        document2.add(new SortedSetDocValuesField("field", new BytesRef("value3")));
         index.upsert(term2, document2);
 
         index.commit();

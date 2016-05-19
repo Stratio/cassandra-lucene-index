@@ -34,6 +34,7 @@ import org.apache.lucene.spatial.prefix.tree.GeohashPrefixTree;
 import org.apache.lucene.spatial.prefix.tree.SpatialPrefixTree;
 
 import java.util.Arrays;
+
 import static com.stratio.cassandra.lucene.util.GeospatialUtils.CONTEXT;
 
 /**
@@ -62,23 +63,18 @@ public class GeoPointMapper extends Mapper {
      * Builds a new {@link GeoPointMapper}.
      *
      * @param field the name of the field
-     * @param indexed if the field supports searching
-     * @param sorted if the field supports sorting
      * @param validated if the field must be validated
      * @param latitude the name of the column containing the latitude
      * @param longitude the name of the column containing the longitude
      * @param maxLevels the maximum number of levels in the tree
      */
     public GeoPointMapper(String field,
-                          Boolean indexed,
-                          Boolean sorted,
                           Boolean validated,
                           String latitude,
                           String longitude,
                           Integer maxLevels) {
         super(field,
-              indexed,
-              sorted,
+              false,
               validated,
               null,
               Arrays.asList(latitude, longitude),
@@ -89,8 +85,7 @@ public class GeoPointMapper extends Mapper {
               IntegerType.instance,
               Int32Type.instance,
               LongType.instance,
-              ShortType.instance,
-              UTF8Type.instance);
+              ShortType.instance, UTF8Type.instance);
 
         if (StringUtils.isBlank(latitude)) {
             throw new IndexException("latitude column name is required");
@@ -125,18 +120,15 @@ public class GeoPointMapper extends Mapper {
         }
 
         Point point = CONTEXT.makePoint(lon, lat);
-        if (indexed) {
-            for (IndexableField indexableField : distanceStrategy.createIndexableFields(point)) {
-                document.add(indexableField);
-            }
-            for (IndexableField indexableField : bboxStrategy.createIndexableFields(point)) {
-                document.add(indexableField);
-            }
+
+        for (IndexableField indexableField : distanceStrategy.createIndexableFields(point)) {
+            document.add(indexableField);
+        }
+        for (IndexableField indexableField : bboxStrategy.createIndexableFields(point)) {
+            document.add(indexableField);
         }
 
-        if (sorted) {
-            document.add(new StoredField(distanceStrategy.getFieldName(), point.getX() + " " + point.getY()));
-        }
+        document.add(new StoredField(distanceStrategy.getFieldName(), point.getX() + " " + point.getY()));
     }
 
     /** {@inheritDoc} */

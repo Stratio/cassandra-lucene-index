@@ -19,7 +19,7 @@ import com.stratio.cassandra.lucene.IndexException;
 import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.db.DecoratedKey;
 import org.apache.cassandra.db.PartitionPosition;
-import org.apache.cassandra.db.marshal.LongType;
+import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.dht.Murmur3Partitioner;
 import org.apache.cassandra.dht.Token;
 import org.apache.lucene.document.Document;
@@ -29,14 +29,12 @@ import org.apache.lucene.document.LongField;
 import org.apache.lucene.index.DocValuesType;
 import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.search.DocValuesRangeQuery;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.SortField;
-import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.*;
 import org.apache.lucene.util.BytesRef;
 import org.apache.lucene.util.BytesRefBuilder;
 import org.apache.lucene.util.NumericUtils;
 
+import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.Optional;
 
@@ -95,16 +93,6 @@ public final class TokenMapper {
     }
 
     /**
-     * Returns the {code ByteBuffer} value of the specified Murmur3 partitioning {@link Token}.
-     *
-     * @param token a Murmur3 token
-     * @return the {@code token}'s {code ByteBuffer} value
-     */
-    static ByteBuffer byteBuffer(Token token) {
-        return LongType.instance.decompose(value(token));
-    }
-
-    /**
      * Returns the {@link BytesRef} indexing value of the specified Murmur3 partitioning {@link Token}.
      *
      * @param token a Murmur3 token
@@ -147,6 +135,20 @@ public final class TokenMapper {
     }
 
     /**
+     * Returns if doc values should be used for retrieving token ranges between the specified values.
+     *
+     * @param start the lower accepted token
+     * @param stop the upper accepted token
+     * @return {@code true} if doc values should be used, {@code false} other wise
+     */
+    private static boolean docValues(Long start, Long stop) {
+        final long threshold = 1222337203685480000L; // Empirical
+        long min = (start == null ? Long.MIN_VALUE : start) / 10;
+        long max = (stop == null ? Long.MAX_VALUE : stop) / 10;
+        return max - min > threshold;
+    }
+
+    /**
      * Returns a Lucene {@link Query} to find the {@link Document}s containing a {@link Token} inside the specified
      * token range.
      *
@@ -168,7 +170,9 @@ public final class TokenMapper {
         Long stop = upper.isMinimum() ? null : value(upper);
 
         // Do query
-        Query query = DocValuesRangeQuery.newLongRange(FIELD_NAME, start, stop, includeLower, includeUpper);
+        Query query = docValues(start, stop)
+                      ? DocValuesRangeQuery.newLongRange(FIELD_NAME, start, stop, includeLower, includeUpper)
+                      : NumericRangeQuery.newLongRange(FIELD_NAME, start, stop, includeLower, includeUpper);
         return Optional.of(query);
     }
 
@@ -192,5 +196,33 @@ public final class TokenMapper {
      */
     public Query query(Token token) {
         return new TermQuery(new Term(FIELD_NAME, bytesRef(token)));
+    }
+
+    private static final BigInteger OFFSET = BigInteger.valueOf(Long.MIN_VALUE).negate();
+
+    /**
+     * Returns a lexicographically sortable representation of the specified token.
+     *
+     * @param token the token
+     * @return a UTF-8 string serialized as a byte buffer
+     */
+    static ByteBuffer toCollated(Token token) {
+        long value = value(token);
+        BigInteger afterOffset = BigInteger.valueOf(value).add(OFFSET);
+        String text = String.format("%016x", afterOffset);
+        return UTF8Type.instance.decompose(text);
+    }
+
+    /**
+     * Returns the token represented by the specified output of {@link #toCollated(Token)}.
+     *
+     * @param bb a byte buffer generated with {@link #toCollated(Token)}
+     * @return the token represented by {@code bb}
+     */
+    static Token fromCollated(ByteBuffer bb) {
+        String text = UTF8Type.instance.compose(bb);
+        BigInteger beforeOffset = new BigInteger(text, 16);
+        long value = beforeOffset.subtract(OFFSET).longValue();
+        return new Murmur3Partitioner.LongToken(value);
     }
 }

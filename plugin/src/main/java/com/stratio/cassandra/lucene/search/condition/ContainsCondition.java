@@ -32,11 +32,17 @@ import java.util.Arrays;
  */
 public class ContainsCondition extends SingleColumnCondition {
 
+    /** The default use doc values option. */
+    public static final boolean DEFAULT_DOC_VALUES = false;
+
     /** The name of the field to be matched. */
     public final String field;
 
     /** The value of the field to be matched. */
     public final Object[] values;
+
+    /** If the generated query should use doc values. */
+    public final boolean docValues;
 
     /**
      * Constructor using the field name and the value to be matched.
@@ -45,8 +51,9 @@ public class ContainsCondition extends SingleColumnCondition {
      * weightings) have their score multiplied by {@code boost}.
      * @param field the name of the field to be matched
      * @param values the value of the field to be matched
+     * @param docValues if the generated query should use doc values
      */
-    public ContainsCondition(Float boost, String field, Object... values) {
+    public ContainsCondition(Float boost, String field, Boolean docValues, Object... values) {
         super(boost, field);
 
         if (values == null || values.length == 0) {
@@ -55,6 +62,7 @@ public class ContainsCondition extends SingleColumnCondition {
 
         this.field = field;
         this.values = values;
+        this.docValues = docValues == null ? DEFAULT_DOC_VALUES : docValues;
     }
 
     /** {@inheritDoc} */
@@ -62,7 +70,7 @@ public class ContainsCondition extends SingleColumnCondition {
     public Query doQuery(SingleColumnMapper<?> mapper, Analyzer analyzer) {
         BooleanQuery.Builder builder = new BooleanQuery.Builder();
         for (Object value : values) {
-            MatchCondition condition = new MatchCondition(null, field, value);
+            MatchCondition condition = new MatchCondition(null, field, value, docValues);
             builder.add(condition.doQuery(mapper, analyzer), BooleanClause.Occur.SHOULD);
         }
         return builder.build();
@@ -71,6 +79,6 @@ public class ContainsCondition extends SingleColumnCondition {
     /** {@inheritDoc} */
     @Override
     public MoreObjects.ToStringHelper toStringHelper() {
-        return toStringHelper(this).add("values", Arrays.toString(values));
+        return toStringHelper(this).add("values", Arrays.toString(values)).add("docValues", docValues);
     }
 }

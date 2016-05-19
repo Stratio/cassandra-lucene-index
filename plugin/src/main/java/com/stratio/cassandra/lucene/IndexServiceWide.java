@@ -103,9 +103,9 @@ class IndexServiceWide extends IndexService {
 
     /** {@inheritDoc} */
     @Override
-    public Optional<Document> document(DecoratedKey key, Row row) {
+    public Optional<Document> document(DecoratedKey key, Row row, int nowInSec) {
         Document document = new Document();
-        Columns columns = columns(key, row);
+        Columns columns = columns(key, row).cleanDeleted(nowInSec);
         schema.addFields(document, columns);
         if (document.getFields().isEmpty()) {
             return Optional.empty();
@@ -145,40 +145,60 @@ class IndexServiceWide extends IndexService {
     /** {@inheritDoc} */
     @Override
     public Query query(DecoratedKey key, ClusteringIndexFilter filter) {
-        return keyMapper.query(key, filter);
+        return filter.selectsAllPartition() ? partitionMapper.query(key) : keyMapper.query(key, filter);
+    }
+
+    private Query query(PartitionPosition position) {
+        return position instanceof DecoratedKey
+               ? partitionMapper.query((DecoratedKey) position)
+               : tokenMapper.query(position.getToken());
     }
 
     /** {@inheritDoc} */
     @Override
     public Optional<Query> query(DataRange dataRange) {
 
+        // Check trivia
+        if (dataRange.isUnrestricted()) {
+            return Optional.empty();
+        }
+
         // Extract data range data
         PartitionPosition startPosition = dataRange.startKey();
         PartitionPosition stopPosition = dataRange.stopKey();
         Token startToken = startPosition.getToken();
         Token stopToken = stopPosition.getToken();
-        Optional<ClusteringPrefix> maybeStartClustering = KeyMapper.startClusteringPrefix(dataRange);
-        Optional<ClusteringPrefix> maybeStopClustering = KeyMapper.stopClusteringPrefix(dataRange);
+        ClusteringPrefix startClustering = KeyMapper.startClusteringPrefix(dataRange).orElse(null);
+        ClusteringPrefix stopClustering = KeyMapper.stopClusteringPrefix(dataRange).orElse(null);
+        boolean includeStartClustering = startClustering != null && startClustering.size() > 0;
+        boolean includeStopClustering = stopClustering != null && stopClustering.size() > 0;
+
+        // Try single partition
+        if (startToken.compareTo(stopToken) == 0) {
+            if (!includeStartClustering && !includeStopClustering) {
+                return Optional.of(query(startPosition));
+            }
+            return Optional.of(keyMapper.query(startPosition, startClustering, stopClustering));
+        }
 
         // Prepare query builder
         BooleanQuery.Builder builder = new BooleanQuery.Builder();
 
         // Add first partition filter
-        maybeStartClustering.ifPresent(startClustering -> {
-            DecoratedKey startKey = (DecoratedKey) startPosition;
-            builder.add(keyMapper.query(startKey, startClustering, null, false, true), SHOULD);
-        });
+        if (includeStartClustering) {
+            builder.add(keyMapper.query(startPosition, startClustering, null), SHOULD);
+        }
 
         // Add token range filter
-        boolean includeStart = startPosition.kind() == MIN_BOUND && !maybeStartClustering.isPresent();
-        boolean includeStop = stopPosition.kind() == MAX_BOUND && !maybeStopClustering.isPresent();
-        tokenMapper.query(startToken, stopToken, includeStart, includeStop).ifPresent(x -> builder.add(x, SHOULD));
+        boolean includeStartToken = startPosition.kind() == MIN_BOUND && !includeStartClustering;
+        boolean includeStopToken = stopPosition.kind() == MAX_BOUND && !includeStopClustering;
+        tokenMapper.query(startToken, stopToken, includeStartToken, includeStopToken)
+                   .ifPresent(x -> builder.add(x, SHOULD));
 
         // Add last partition filter
-        maybeStopClustering.ifPresent(stopClustering -> {
-            DecoratedKey stopKey = (DecoratedKey) stopPosition;
-            builder.add(keyMapper.query(stopKey, null, stopClustering, true, false), SHOULD);
-        });
+        if (includeStopClustering) {
+            builder.add(keyMapper.query(stopPosition, null, stopClustering), SHOULD);
+        }
 
         // Return query, or empty if there are no restrictions
         BooleanQuery query = builder.build();

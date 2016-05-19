@@ -31,6 +31,8 @@ import com.stratio.cassandra.lucene.util.TaskQueue;
 import com.stratio.cassandra.lucene.util.TimeCounter;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
+import org.apache.cassandra.cql3.Operator;
+import org.apache.cassandra.cql3.statements.IndexTarget;
 import org.apache.cassandra.db.*;
 import org.apache.cassandra.db.filter.ClusteringIndexFilter;
 import org.apache.cassandra.db.filter.ClusteringIndexNamesFilter;
@@ -41,14 +43,13 @@ import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.db.partitions.PartitionIterator;
 import org.apache.cassandra.db.partitions.PartitionUpdate;
 import org.apache.cassandra.db.partitions.UnfilteredPartitionIterator;
-import org.apache.cassandra.db.rows.Row;
-import org.apache.cassandra.db.rows.RowIterator;
-import org.apache.cassandra.db.rows.UnfilteredRowIterator;
+import org.apache.cassandra.db.rows.*;
 import org.apache.cassandra.index.Index;
 import org.apache.cassandra.index.transactions.IndexTransaction;
 import org.apache.cassandra.schema.IndexMetadata;
 import org.apache.cassandra.utils.Pair;
 import org.apache.cassandra.utils.concurrent.OpOrder;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.*;
@@ -80,6 +81,8 @@ abstract class IndexService {
     protected final Schema schema;
     private final FSIndex lucene;
     private final String name;
+    private final String column;
+    private final ColumnDefinition columnDefinition;
     private final TaskQueue queue;
     private final boolean mapsMultiCells;
 
@@ -94,6 +97,8 @@ abstract class IndexService {
         table = indexedTable;
         metadata = table.metadata;
         name = indexMetadata.name;
+        column = column(indexMetadata);
+        columnDefinition = columnDefinition(metadata, column);
         qualifiedName = String.format("%s.%s.%s", metadata.ksName, metadata.cfName, indexMetadata.name);
         String mbeanName = String.format("com.stratio.cassandra.lucene:type=Lucene,keyspace=%s,table=%s,index=%s",
                                          metadata.ksName,
@@ -123,6 +128,22 @@ abstract class IndexService {
                              options.ramBufferMB,
                              options.maxMergeMB,
                              options.maxCachedMB);
+    }
+
+    private static String column(IndexMetadata indexMetadata) {
+        String column = indexMetadata.options.get(IndexTarget.TARGET_OPTION_NAME);
+        return StringUtils.isBlank(column) ? null : column;
+    }
+
+    private static ColumnDefinition columnDefinition(CFMetaData metadata, String name) {
+        if (StringUtils.isNotBlank(name)) {
+            for (ColumnDefinition def : metadata.allColumns()) {
+                if (def.name.toString().equals(name)) {
+                    return def;
+                }
+            }
+        }
+        return null;
     }
 
     void init() {
@@ -156,11 +177,53 @@ abstract class IndexService {
     /**
      * Returns if the specified column definition is mapped by this index.
      *
-     * @param column a column definition
+     * @param columnDef a column definition
      * @return {@code true} if the column is mapped, {@code false} otherwise
      */
-    boolean maps(ColumnDefinition column) {
-        return schema.maps(column);
+    boolean dependsOn(ColumnDefinition columnDef) {
+        return schema.maps(columnDef);
+    }
+
+    /**
+     * Returns if the specified {@link Expression} is targeted to this index
+     *
+     * @param expression a CQL query expression
+     * @return {@code true} if {@code expression} is targeted to this index, {@code false} otherwise
+     */
+    boolean supportsExpression(Expression expression) {
+        return supportsExpression(expression.column(), expression.operator());
+    }
+
+    /**
+     * Returns if a CQL expression with the specified {@link ColumnDefinition} and {@link Operator} is targeted to this
+     * index
+     *
+     * @param columnDef the expression column definition
+     * @param operator the expression operator
+     * @return {@code true} if the expression is targeted to this index, {@code false} otherwise
+     */
+    boolean supportsExpression(ColumnDefinition columnDef, Operator operator) {
+        return column != null &&
+               operator == Operator.EQ &&
+               column.equals(columnDef.name.toString()) &&
+               columnDef.cellValueType() instanceof UTF8Type;
+    }
+
+    /**
+     * Returns a copy of the specified {@link RowFilter} without any Lucene {@link Expression}s.
+     *
+     * @param filter a row filter
+     * @return a copy of {@code filter} without Lucene {@link Expression}s
+     */
+    RowFilter getPostIndexQueryFilter(RowFilter filter) {
+        if (column != null) {
+            for (Expression expression : filter) {
+                if (supportsExpression(expression)) {
+                    filter = filter.without(expression);
+                }
+            }
+        }
+        return filter;
     }
 
     /**
@@ -169,8 +232,11 @@ abstract class IndexService {
      * @param expression a custom CQL expression
      * @return the validated expression
      */
-    Search validate(RowFilter.CustomExpression expression) {
-        String json = UTF8Type.instance.compose(expression.getValue());
+    Search validate(RowFilter.Expression expression) {
+        ByteBuffer value = expression instanceof RowFilter.CustomExpression
+                           ? ((RowFilter.CustomExpression) expression).getValue()
+                           : expression.getIndexValue();
+        String json = UTF8Type.instance.compose(value);
         Search search = SearchBuilder.fromJson(json).build();
         search.validate(schema);
         return search;
@@ -205,9 +271,10 @@ abstract class IndexService {
      *
      * @param key the partition key
      * @param row the {@link Row}
+     * @param nowInSec now in seconds
      * @return maybe a document
      */
-    abstract Optional<Document> document(DecoratedKey key, Row row);
+    abstract Optional<Document> document(DecoratedKey key, Row row, int nowInSec);
 
     /**
      * Returns a Lucene {@link Term} uniquely identifying the specified {@link Row}.
@@ -316,9 +383,10 @@ abstract class IndexService {
      *
      * @param key the partition key
      * @param row the row to be upserted
+     * @param nowInSec now in seconds
      */
-    void upsert(DecoratedKey key, Row row) {
-        queue.submitAsynchronous(key, () -> document(key, row).ifPresent(document -> {
+    void upsert(DecoratedKey key, Row row, int nowInSec) {
+        queue.submitAsynchronous(key, () -> document(key, row, nowInSec).ifPresent(document -> {
             Term term = term(key, row);
             lucene.upsert(term, document);
         }));
@@ -396,6 +464,10 @@ abstract class IndexService {
                     ByteBuffer bb = customExpression.getValue();
                     return UTF8Type.instance.compose(bb);
                 }
+            }
+            if (supportsExpression(expression)) {
+                ByteBuffer bb = expression.getIndexValue();
+                return UTF8Type.instance.compose(bb);
             }
         }
         throw new IndexException("Lucene search expression not found in command expressions");
@@ -564,13 +636,12 @@ abstract class IndexService {
 
             List<Pair<DecoratedKey, SimpleRowIterator>> collectedRows = collect(partitions);
 
-            Query query = search.query(schema).orElseGet(MatchAllDocsQuery::new);
-            Sort sort = sort(search);
             int limit = command.limits().count();
+            int nowInSec = command.nowInSec();
 
-            // Skip if search is not top-k TODO: Skip if only one partitioner range is involved
+            // Skip if search is not top-k
             if (search.isTopK()) {
-                return process(query, sort, limit, collectedRows);
+                return process(search, limit, nowInSec, collectedRows);
             }
         }
         return partitions;
@@ -595,9 +666,9 @@ abstract class IndexService {
         return rows;
     }
 
-    private SimplePartitionIterator process(Query query,
-                                            Sort sort,
+    private SimplePartitionIterator process(Search search,
                                             int limit,
+                                            int nowInSec,
                                             List<Pair<DecoratedKey, SimpleRowIterator>> collectedRows) {
         TimeCounter sortTime = TimeCounter.create().start();
         List<SimpleRowIterator> processedRows = new LinkedList<>();
@@ -611,20 +682,25 @@ abstract class IndexService {
                 SimpleRowIterator rowIterator = pair.right;
                 Row row = rowIterator.getRow();
                 Term term = term(key, row);
-                document(key, row).ifPresent(doc -> {
+                document(key, row, nowInSec).ifPresent(doc -> {
                     rowsByTerm.put(term, rowIterator);
                     index.add(doc);
                 });
             }
 
             // Repeat search to sort partial results
-            List<Document> documents = index.search(query, sort, limit, fieldsToLoad());
+            Query query = search.query(schema).orElseGet(MatchAllDocsQuery::new);
+            Sort sort = sort(search);
+            List<Pair<Document, ScoreDoc>> documents = index.search(query, sort, limit, fieldsToLoad());
             index.close();
 
             // Collect post processed results
-            for (Document document : documents) {
+            for (Pair<Document, ScoreDoc> pair : documents) {
+                Document document = pair.left;
+                Float score = pair.right.score;
                 Term term = term(document);
                 SimpleRowIterator rowIterator = rowsByTerm.get(term);
+                rowIterator.setDecorator(row -> decorate(row, score, nowInSec));
                 processedRows.add(rowIterator);
             }
 
@@ -635,6 +711,21 @@ abstract class IndexService {
                          sortTime.stop());
         }
         return new SimplePartitionIterator(processedRows);
+    }
+
+    private Row decorate(Row row, Float score, int nowInSec) {
+        if (column == null || score == null) {
+            return row;
+        }
+        long timestamp = row.primaryKeyLivenessInfo().timestamp();
+        Row.Builder builder = BTreeRow.unsortedBuilder(nowInSec);
+        builder.newRow(row.clustering());
+        builder.addRowDeletion(row.deletion());
+        builder.addPrimaryKeyLivenessInfo(row.primaryKeyLivenessInfo());
+        row.cells().forEach(builder::addCell);
+        ByteBuffer value = UTF8Type.instance.decompose(Float.toString(score));
+        builder.addCell(BufferCell.live(metadata, columnDefinition, timestamp, value));
+        return builder.build();
     }
 
     /**

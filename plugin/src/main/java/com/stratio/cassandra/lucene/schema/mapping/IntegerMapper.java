@@ -19,9 +19,12 @@ import com.stratio.cassandra.lucene.IndexException;
 import org.apache.cassandra.db.marshal.*;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.IntField;
-import org.apache.lucene.document.NumericDocValuesField;
+import org.apache.lucene.document.SortedNumericDocValuesField;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.SortField.Type;
+import org.apache.lucene.search.SortedNumericSortField;
+
+import java.util.Optional;
 
 /**
  * A {@link Mapper} to map an integer field.
@@ -38,19 +41,15 @@ public class IntegerMapper extends SingleColumnMapper.SingleFieldMapper<Integer>
 
     /**
      * Builds a new {@link IntegerMapper} using the specified boost.
-     *
-     * @param field the name of the field
+     *  @param field the name of the field
      * @param column the name of the column to be mapped
-     * @param indexed if the field supports searching
-     * @param sorted if the field supports sorting
      * @param validated if the field must be validated
      * @param boost the boost
      */
-    public IntegerMapper(String field, String column, Boolean indexed, Boolean sorted, Boolean validated, Float boost) {
+    public IntegerMapper(String field, String column, Boolean validated, Float boost) {
         super(field,
               column,
-              indexed,
-              sorted,
+              true,
               validated,
               null,
               Integer.class,
@@ -84,22 +83,22 @@ public class IntegerMapper extends SingleColumnMapper.SingleFieldMapper<Integer>
 
     /** {@inheritDoc} */
     @Override
-    public Field indexedField(String name, Integer value) {
+    public Optional<Field> indexedField(String name, Integer value) {
         IntField intField = new IntField(name, value, STORE);
         intField.setBoost(boost);
-        return intField;
+        return Optional.of(intField);
     }
 
     /** {@inheritDoc} */
     @Override
-    public Field sortedField(String name, Integer value) {
-        return new NumericDocValuesField(name, value);
+    public Optional<Field> sortedField(String name, Integer value) {
+        return Optional.of(new SortedNumericDocValuesField(name, value));
     }
 
     /** {@inheritDoc} */
     @Override
     public SortField sortField(String name, boolean reverse) {
-        return new SortField(name, Type.INT, reverse);
+        return new SortedNumericSortField(name, Type.INT, reverse);
     }
 
     /** {@inheritDoc} */

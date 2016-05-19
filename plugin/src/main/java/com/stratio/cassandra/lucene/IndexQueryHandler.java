@@ -27,7 +27,6 @@ import org.apache.cassandra.db.ConsistencyLevel;
 import org.apache.cassandra.db.Keyspace;
 import org.apache.cassandra.db.ReadQuery;
 import org.apache.cassandra.db.filter.RowFilter;
-import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.exceptions.InvalidRequestException;
 import org.apache.cassandra.service.ClientState;
 import org.apache.cassandra.service.QueryState;
@@ -39,10 +38,12 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import static org.apache.cassandra.cql3.statements.RequestValidations.checkNotNull;
+import static org.apache.cassandra.db.filter.RowFilter.Expression;
 
 /**
  * {@link QueryHandler} to be used with Lucene searches.
@@ -120,21 +121,15 @@ class IndexQueryHandler implements QueryHandler {
         // Intercept Lucene index searches
         if (statement instanceof SelectStatement) {
             SelectStatement select = (SelectStatement) statement;
-            List<RowFilter.Expression> expressions = select.getRowFilter(options).getExpressions();
-            for (RowFilter.Expression expression : expressions) {
-                if (expression.isCustom()) {
-                    RowFilter.CustomExpression customExpression = (RowFilter.CustomExpression) expression;
-                    String clazz = customExpression.getTargetIndex().options.get(IndexTarget.CUSTOM_INDEX_OPTION_NAME);
-                    if (clazz.equals(Index.class.getCanonicalName())) {
-                        TimeCounter time = TimeCounter.create().start();
-                        try {
-                            return process(select, state, options, customExpression);
-                        } catch (ReflectiveOperationException e) {
-                            throw new IndexException(e);
-                        } finally {
-                            logger.debug("Lucene search total time: {}\n", time.stop());
-                        }
-                    }
+            Map<Expression, Index> map = expressions(select, options);
+            if (!map.isEmpty()) {
+                TimeCounter time = TimeCounter.create().start();
+                try {
+                    return process(select, state, options, map);
+                } catch (ReflectiveOperationException e) {
+                    throw new IndexException(e);
+                } finally {
+                    logger.debug("Lucene search total time: {}\n", time.stop());
                 }
             }
         }
@@ -142,14 +137,40 @@ class IndexQueryHandler implements QueryHandler {
         return execute(statement, state, options);
     }
 
+    private Map<Expression, Index> expressions(SelectStatement select, QueryOptions options) {
+        Map<Expression, Index> map = new LinkedHashMap<>();
+        List<RowFilter.Expression> expressions = select.getRowFilter(options).getExpressions();
+        ColumnFamilyStore cfs = Keyspace.open(select.keyspace()).getColumnFamilyStore(select.columnFamily());
+        for (Expression expression : expressions) {
+            if (expression.isCustom()) {
+                RowFilter.CustomExpression customExpression = (RowFilter.CustomExpression) expression;
+                String clazz = customExpression.getTargetIndex().options.get(IndexTarget.CUSTOM_INDEX_OPTION_NAME);
+                if (clazz.equals(Index.class.getCanonicalName())) {
+                    Index index = (Index) cfs.indexManager.getIndex(customExpression.getTargetIndex());
+                    map.put(expression, index);
+                }
+            }
+            cfs.indexManager.listIndexes().forEach(index -> {
+                if (index instanceof Index && index.supportsExpression(expression.column(), expression.operator())) {
+                    map.put(expression, (Index) index);
+                }
+            });
+        }
+        return map;
+    }
+
     private ResultMessage process(SelectStatement select,
                                   QueryState state,
                                   QueryOptions options,
-                                  RowFilter.CustomExpression expression) throws ReflectiveOperationException {
+                                  Map<Expression, Index> expressions) throws ReflectiveOperationException {
+
+        if (expressions.size() > 1) {
+            throw new InvalidRequestException("Lucene index only supports one search expression per query.");
+        }
 
         // Validate expression
-        ColumnFamilyStore cfs = Keyspace.open(select.keyspace()).getColumnFamilyStore(select.columnFamily());
-        Index index = (Index) cfs.indexManager.getIndex(expression.getTargetIndex());
+        Expression expression = expressions.keySet().iterator().next();
+        Index index = expressions.get(expression);
         Search search = index.validate(expression);
 
         // Check paging
@@ -159,10 +180,8 @@ class IndexQueryHandler implements QueryHandler {
         if (search.isTopK()) {
 
             // Avoid IN operator
-            if (select.getRestrictions().getPartitionKeys(options).size() > 1) {
-                throw new InvalidRequestException(
-                        "Top-k searches can't be directed to more than one partition, you should either " +
-                        "direct them to one single partition or don't use any partition restrictions.");
+            if (select.getRestrictions().keyIsInRelation()) {
+                throw new InvalidRequestException("Top-k searches with IN clause for the PRIMARY KEY are not supported");
             }
 
             // Avoid unlimited
@@ -171,11 +190,10 @@ class IndexQueryHandler implements QueryHandler {
                         "Top-k searches don't support paging, so a cautious LIMIT clause should be provided " +
                         "to prevent excessive memory consumption.");
             } else if (page < limit) {
-                String json = UTF8Type.instance.compose(expression.getValue());
                 logger.warn("Disabling paging of {} rows per page for top-k search requesting {} rows: {}",
                             page,
                             limit,
-                            json);
+                            search);
                 return executeWithoutPaging(select, state, options);
             }
         }

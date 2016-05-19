@@ -34,7 +34,7 @@ public class Issue94AT extends BaseAT {
     @Test
     public void testInsertExplicitlyNullColumns() {
         CassandraUtils utils = builder("issue_94").withTable("test")
-                                                  .withIndex("test")
+                                                  .withIndexName("test")
                                                   .withPartitionKey("a")
                                                   .withColumn("a", "int", integerMapper())
                                                   .withColumn("b", "text", stringMapper())

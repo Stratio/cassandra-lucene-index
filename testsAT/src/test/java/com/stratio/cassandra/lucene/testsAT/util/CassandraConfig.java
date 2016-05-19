@@ -33,7 +33,13 @@ class CassandraConfig {
     static final int WAIT_FOR_INDEXING = getInt("wait_for_indexing", 2);
     static final String TABLE = getString("table", "test_table");
     static final String INDEX = getString("index", "test_table_idx");
+    static final String COLUMN = getString("column", null);
+    static final boolean USE_NEW_QUERY_SYNTAX = getBool("use_new_query_syntax", true);
     static final int LIMIT = getInt("limit", 10000); // Top-k
+
+    static {
+        assert COLUMN != null || USE_NEW_QUERY_SYNTAX ;
+    }
 
     private static String getString(String key, String def) {
         return System.getProperty("it." + key, def);
@@ -41,5 +47,9 @@ class CassandraConfig {
 
     private static int getInt(String key, Integer def) {
         return Integer.parseInt(getString(key, def.toString()));
+    }
+
+    private static Boolean getBool(String key, Boolean def) {
+        return Boolean.parseBoolean(getString(key, def.toString()));
     }
 }

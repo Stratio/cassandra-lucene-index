@@ -36,10 +36,9 @@ public class MultiMappingAT extends BaseAT {
         cassandraUtils = CassandraUtils.builder("sort_alias")
                                        .withPartitionKey("key")
                                        .withColumn("key", "int")
-                                       .withColumn("text", "text", stringMapper().sorted(true))
+                                       .withColumn("text", "text", stringMapper())
                                        .withColumn("map", "map<text, text>", null)
-                                       .withMapper("alias_text",
-                                                   dateMapper().pattern("dd-MM-yyyy").sorted(true).column("text"))
+                                       .withMapper("alias_text", dateMapper().pattern("dd-MM-yyyy").column("text"))
                                        .build()
                                        .createKeyspace()
                                        .createTable()

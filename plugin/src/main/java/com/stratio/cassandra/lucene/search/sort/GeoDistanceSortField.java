@@ -37,7 +37,7 @@ import static com.stratio.cassandra.lucene.util.GeospatialUtils.CONTEXT;
 public class GeoDistanceSortField extends SortField {
 
     /** The name of mapper to use to calculate distance. */
-    public final String mapper;
+    public final String field;
 
     /** The longitude of the center point to sort by min distance to it. */
     public final double longitude;
@@ -48,17 +48,17 @@ public class GeoDistanceSortField extends SortField {
     /**
      * Returns a new {@link SortField}.
      *
-     * @param mapper the name of mapper to use to calculate distance
+     * @param field the name of mapper to use to calculate distance
      * @param reverse {@code true} if natural order should be reversed
      * @param longitude the longitude
      * @param latitude the latitude
      */
-    public GeoDistanceSortField(String mapper, Boolean reverse, double longitude, double latitude) {
+    public GeoDistanceSortField(String field, Boolean reverse, double longitude, double latitude) {
         super(reverse);
-        if (mapper == null || StringUtils.isBlank(mapper)) {
-            throw new IndexException("Mapper name required");
+        if (field == null || StringUtils.isBlank(field)) {
+            throw new IndexException("Field name required");
         }
-        this.mapper = mapper;
+        this.field = field;
         this.longitude = GeospatialUtils.checkLongitude("longitude", longitude);
         this.latitude = GeospatialUtils.checkLatitude("latitude", latitude);
     }
@@ -66,13 +66,11 @@ public class GeoDistanceSortField extends SortField {
     /** {@inheritDoc} */
     @Override
     public org.apache.lucene.search.SortField sortField(Schema schema) {
-        final Mapper mapper = schema.getMapper(this.mapper);
+        final Mapper mapper = schema.getMapper(field);
         if (mapper == null) {
-            throw new IndexException("No mapper found for sortFields mapper '%s'", this.mapper);
-        } else if (!mapper.sorted) {
-            throw new IndexException("Mapper '%s' is not sorted", mapper.field);
+            throw new IndexException("Field '%s' is not found", field);
         } else if (!(mapper instanceof GeoPointMapper)) {
-            throw new IndexException("Only Geo Point Mapper is allowed but Mapper '%s' is not", mapper.field);
+            throw new IndexException("Field '%s' type is not geo_point", field);
         }
         GeoPointMapper geoPointMapper = (GeoPointMapper) mapper;
 
@@ -88,7 +86,7 @@ public class GeoDistanceSortField extends SortField {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-                          .add("mapper", this.mapper)
+                          .add("field", field)
                           .add("reverse", reverse)
                           .add("longitude", longitude)
                           .add("latitude", latitude)
@@ -106,7 +104,7 @@ public class GeoDistanceSortField extends SortField {
         }
         GeoDistanceSortField other = (GeoDistanceSortField) o;
         return reverse == other.reverse &&
-               mapper.equals(other.mapper) &&
+               field.equals(other.field) &&
                longitude == other.longitude &&
                latitude == other.latitude;
     }
@@ -114,7 +112,7 @@ public class GeoDistanceSortField extends SortField {
     /** {@inheritDoc} */
     @Override
     public int hashCode() {
-        int result = mapper.hashCode();
+        int result = field.hashCode();
         result = 31 * result + (reverse ? 1 : 0);
         result = 31 * result + new Double(latitude).hashCode();
         result = 31 * result + new Double(longitude).hashCode();

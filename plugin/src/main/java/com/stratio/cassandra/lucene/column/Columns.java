@@ -156,6 +156,22 @@ public class Columns implements Iterable<Column<?>> {
         return columns.isEmpty() ? null : columns.get(0);
     }
 
+    /**
+     * Returns the non expired columns from this list using now value.
+     *
+     * @param nowInSec the max allowed time in seconds
+     * @return a copy of this without the columns expired before {@code now}
+     */
+    public Columns cleanDeleted(int nowInSec) {
+        Columns clean = new Columns();
+        columns.forEach(column -> {
+            if (column.isLive(nowInSec)) {
+                clean.add(column);
+            }
+        });
+        return clean;
+    }
+
     /** {@inheritDoc} */
     @Override
     public String toString() {

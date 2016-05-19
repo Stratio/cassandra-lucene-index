@@ -128,9 +128,9 @@ public class ColumnTest {
         LongType type = LongType.instance;
         Long composedValue = 5L;
         ByteBuffer decomposedValue = type.decompose(composedValue);
-        Column<Long> column = Column.builder("my_column").buildWithDecomposed(decomposedValue, type);
+        Column<Long> column = Column.builder("my_column", 10).buildWithDecomposed(decomposedValue, type);
         assertEquals("Method #toString is wrong",
-                     "Column{fullName=my_column, buildWithComposed=5, type=LongType}",
+                     "Column{fullName=my_column, buildWithComposed=5, type=LongType, deletionTime=10}",
                      column.toString());
     }
 
@@ -139,12 +139,12 @@ public class ColumnTest {
         LongType type = LongType.instance;
         Long composedValue = 5L;
         ByteBuffer decomposedValue = type.decompose(composedValue);
-        Column<Long> column = Column.builder("my")
+        Column<Long> column = Column.builder("my", 10)
                                     .withUDTName("1")
                                     .withMapName("2")
                                     .buildWithDecomposed(decomposedValue, type);
         assertEquals("Method #toString is wrong",
-                     "Column{fullName=my.1$2, buildWithComposed=5, type=LongType}",
+                     "Column{fullName=my.1$2, buildWithComposed=5, type=LongType, deletionTime=10}",
                      column.toString());
     }
 }

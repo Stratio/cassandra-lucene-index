@@ -61,7 +61,7 @@ public class SimpleSortFieldTest {
     @Test
     public void testSortFieldDefaults() {
 
-        Schema schema = schema().mapper("field", stringMapper().sorted(true)).build();
+        Schema schema = schema().mapper("field", stringMapper()).build();
 
         SimpleSortField sortField = new SimpleSortField("field", null);
         org.apache.lucene.search.SortField luceneSortField = sortField.sortField(schema);
@@ -74,7 +74,7 @@ public class SimpleSortFieldTest {
     @Test
     public void testSimpleSortField() {
 
-        Schema schema = schema().mapper("field", stringMapper().sorted(true)).build();
+        Schema schema = schema().mapper("field", stringMapper()).build();
 
         SimpleSortField sortField = new SimpleSortField("field", false);
         org.apache.lucene.search.SortField luceneSortField = sortField.sortField(schema);
@@ -87,7 +87,7 @@ public class SimpleSortFieldTest {
     @Test
     public void testSortFieldReverse() {
 
-        Schema schema = schema().mapper("field", stringMapper().sorted(true)).build();
+        Schema schema = schema().mapper("field", stringMapper()).build();
 
         SimpleSortField sortField = new SimpleSortField("field", true);
         org.apache.lucene.search.SortField luceneSortField = sortField.sortField(schema);
@@ -97,17 +97,10 @@ public class SimpleSortFieldTest {
         assertTrue("sortField reverse is wrong", luceneSortField.getReverse());
     }
 
-    @Test(expected = IndexException.class)
-    public void testSortFieldUnsorted() {
-        Schema schema = schema().mapper("field", stringMapper().sorted(false)).build();
-        SimpleSortField sortField = new SimpleSortField("field", false);
-        sortField.sortField(schema);
-    }
-
     @Test
     public void testSortFieldScoreDefaults() {
 
-        Schema schema = schema().mapper("field", stringMapper().sorted(true)).build();
+        Schema schema = schema().mapper("field", stringMapper()).build();
 
         SimpleSortField sortField = new SimpleSortField("score", null);
         org.apache.lucene.search.SortField luceneSortField = sortField.sortField(schema);
@@ -120,7 +113,7 @@ public class SimpleSortFieldTest {
     @Test
     public void testSortFieldScore() {
 
-        Schema schema = schema().mapper("field", stringMapper().sorted(true)).build();
+        Schema schema = schema().mapper("field", stringMapper()).build();
 
         SimpleSortField sortField = new SimpleSortField("score", false);
         org.apache.lucene.search.SortField luceneSortField = sortField.sortField(schema);
@@ -133,7 +126,7 @@ public class SimpleSortFieldTest {
     @Test
     public void testSortFieldScoreReverse() {
 
-        Schema schema = schema().mapper("field", stringMapper().sorted(true)).build();
+        Schema schema = schema().mapper("field", stringMapper()).build();
 
         SimpleSortField sortField = new SimpleSortField("score", true);
         org.apache.lucene.search.SortField luceneSortField = sortField.sortField(schema);

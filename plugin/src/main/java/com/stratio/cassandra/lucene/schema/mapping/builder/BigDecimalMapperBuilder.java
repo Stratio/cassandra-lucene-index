@@ -61,6 +61,6 @@ public class BigDecimalMapperBuilder extends SingleColumnMapperBuilder<BigDecima
      */
     @Override
     public BigDecimalMapper build(String field) {
-        return new BigDecimalMapper(field, column, indexed, sorted, validated, integerDigits, decimalDigits);
+        return new BigDecimalMapper(field, column, validated, integerDigits, decimalDigits);
     }
 }

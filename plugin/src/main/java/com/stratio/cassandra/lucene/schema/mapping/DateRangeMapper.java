@@ -68,7 +68,6 @@ public class DateRangeMapper extends Mapper {
      */
     public DateRangeMapper(String field, Boolean validated, String from, String to, String pattern) {
         super(field,
-              true,
               false,
               validated,
               null,
@@ -79,8 +78,7 @@ public class DateRangeMapper extends Mapper {
               LongType.instance,
               IntegerType.instance,
               SimpleDateType.instance,
-              TimestampType.instance,
-              TimeUUIDType.instance);
+              TimestampType.instance, TimeUUIDType.instance);
 
         if (StringUtils.isBlank(from)) {
             throw new IndexException("from column name is required");

@@ -78,15 +78,6 @@ public class PrefixConditionTest extends AbstractConditionTest {
         assertEquals("Query prefix is wrong", "tr", luceneQuery.getPrefix().text());
     }
 
-    @Test(expected = IndexException.class)
-    public void testIntegerValue() {
-
-        Schema schema = schema().mapper("name", integerMapper().indexed(false)).build();
-
-        PrefixCondition prefixCondition = new PrefixCondition(0.5f, "name", "2*");
-        prefixCondition.query(schema);
-    }
-
     @Test
     public void testInetV4Value() {
 

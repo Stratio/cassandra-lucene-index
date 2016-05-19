@@ -17,7 +17,11 @@ package com.stratio.cassandra.lucene.search.condition;
 
 import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.schema.Schema;
+import com.stratio.cassandra.lucene.util.ByteBufferUtils;
+import org.apache.lucene.search.BoostQuery;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.util.BytesRef;
+import org.apache.lucene.util.NumericUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,10 +60,7 @@ public abstract class Condition {
      */
     public final Query query(Schema schema) {
         Query query = doQuery(schema);
-        if (boost != null) {
-            query.setBoost(boost);
-        }
-        return query;
+        return boost == null ? query : new BoostQuery(query, boost);
     }
 
     /**
@@ -69,6 +70,26 @@ public abstract class Condition {
      * @return The Lucene query
      */
     protected abstract Query doQuery(Schema schema);
+
+    static BytesRef docValue(String value) {
+        return value == null ? null : new BytesRef(value);
+    }
+
+    static Long docValue(Long value) {
+        return value == null ? null : value;
+    }
+
+    static Long docValue(Integer value) {
+        return value == null ? null : value.longValue();
+    }
+
+    static Long docValue(Float value) {
+        return value == null ? null : docValue(NumericUtils.floatToSortableInt(value));
+    }
+
+    static Long docValue(Double value) {
+        return value == null ? null : NumericUtils.doubleToSortableLong(value);
+    }
 
     protected MoreObjects.ToStringHelper toStringHelper(Object o) {
         return MoreObjects.toStringHelper(o).add("boost", boost);

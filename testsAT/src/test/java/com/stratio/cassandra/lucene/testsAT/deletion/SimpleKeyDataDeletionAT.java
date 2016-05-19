@@ -75,7 +75,7 @@ public class SimpleKeyDataDeletionAT extends BaseAT {
 
         List<Row> rows = cassandraUtils.delete("bigint_1")
                                        .where("integer_1", 1)
-                                       .refresh()
+                                       .waitForIndexing()
                                        .query(wildcard("ascii_1", "*"))
                                        .get();
 
@@ -95,7 +95,7 @@ public class SimpleKeyDataDeletionAT extends BaseAT {
 
         List<Row> rows = cassandraUtils.delete("map_1['k1']")
                                        .where("integer_1", 1)
-                                       .refresh()
+                                       .waitForIndexing()
                                        .query(wildcard("ascii_1", "*"))
                                        .get();
 
@@ -119,7 +119,7 @@ public class SimpleKeyDataDeletionAT extends BaseAT {
 
         List<Row> rows = cassandraUtils.delete("list_1[0]")
                                        .where("integer_1", 1)
-                                       .refresh()
+                                       .waitForIndexing()
                                        .query(wildcard("ascii_1", "*"))
                                        .get();
 
@@ -140,9 +140,6 @@ public class SimpleKeyDataDeletionAT extends BaseAT {
 
     @Test
     public void totalPartitionDeletion() {
-
-        List<Row> rows = cassandraUtils.delete().where("integer_1", 1).refresh().query(wildcard("ascii_1", "*")).get();
-
-        assertEquals("Expected 4 results!", 4, rows.size());
+        cassandraUtils.delete().where("integer_1", 1).waitForIndexing().query(wildcard("ascii_1", "*")).check(4);
     }
 }

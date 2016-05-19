@@ -23,7 +23,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class GeoBBoxCondition extends Condition {
+public class GeoBBoxCondition extends Condition<GeoBBoxCondition> {
 
     /** The name of the field to be matched. */
     @JsonProperty("field")

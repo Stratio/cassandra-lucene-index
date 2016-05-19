@@ -32,6 +32,6 @@ public class BlobMapperBuilder extends SingleColumnMapperBuilder<BlobMapper, Blo
      */
     @Override
     public BlobMapper build(String field) {
-        return new BlobMapper(field, column, indexed, sorted, validated);
+        return new BlobMapper(field, column, validated);
     }
 }

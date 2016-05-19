@@ -35,6 +35,7 @@ import org.junit.runners.Suite.SuiteClasses;
                PhraseSearchAT.class,
                RegexpSearchAT.class,
                RangeSearchAT.class,
+               RangeSearchWithDocValuesAT.class,
                SortedSearchAT.class,
                WildcardSearchAT.class})
 public class SearchSuite {

@@ -39,6 +39,7 @@ public class BuilderTest {
     @Test
     public void testIndexFull() {
         String actual = index("ks", "table", "idx").keyspace("keyspace")
+                                                   .column("lucene")
                                                    .directoryPath("path")
                                                    .refreshSeconds(10D)
                                                    .maxCachedMb(32)
@@ -53,7 +54,7 @@ public class BuilderTest {
                                                    .mapper("uuid", uuidMapper().validated(true))
                                                    .mapper("string", stringMapper())
                                                    .build();
-        String expected = "CREATE CUSTOM INDEX idx ON keyspace.table() " +
+        String expected = "CREATE CUSTOM INDEX idx ON keyspace.table(lucene) " +
                           "USING 'com.stratio.cassandra.lucene.Index' " +
                           "WITH OPTIONS = {" +
                           "'refresh_seconds':'10.0'," +
@@ -84,15 +85,9 @@ public class BuilderTest {
 
     @Test
     public void testBigDecimalMapperFull() {
-        String actual = bigDecimalMapper().indexed(false)
-                                          .sorted(true)
-                                          .validated(true)
-                                          .column("column")
-                                          .integerDigits(2)
-                                          .decimalDigits(1)
-                                          .build();
-        String expected = "{\"type\":\"bigdec\",\"validated\":true,\"indexed\":false,\"sorted\":true," +
-                          "\"column\":\"column\",\"integer_digits\":2,\"decimal_digits\":1}";
+        String actual = bigDecimalMapper().validated(true).column("column").integerDigits(2).decimalDigits(1).build();
+        String expected = "{\"type\":\"bigdec\",\"validated\":true,\"column\":\"column\"," +
+                          "\"integer_digits\":2,\"decimal_digits\":1}";
         assertEquals("big decimal mapper serialization is wrong", expected, actual);
     }
 
@@ -105,14 +100,8 @@ public class BuilderTest {
 
     @Test
     public void testBigIntegerMapperFull() {
-        String actual = bigIntegerMapper().indexed(false)
-                                          .sorted(true)
-                                          .validated(true)
-                                          .digits(1)
-                                          .column("column")
-                                          .build();
-        String expected = "{\"type\":\"bigint\",\"validated\":true,\"indexed\":false,\"sorted\":true," +
-                          "\"column\":\"column\",\"digits\":1}";
+        String actual = bigIntegerMapper().validated(true).digits(1).column("column").build();
+        String expected = "{\"type\":\"bigint\",\"validated\":true,\"column\":\"column\",\"digits\":1}";
         assertEquals("big integer mapper serialization is wrong", expected, actual);
     }
 
@@ -145,9 +134,8 @@ public class BuilderTest {
 
     @Test
     public void testBlobMapperFull() {
-        String actual = blobMapper().indexed(true).sorted(true).validated(true).column("column").build();
-        String expected = "{\"type\":\"bytes\",\"validated\":true,\"indexed\":true,\"sorted\":true," +
-                          "\"column\":\"column\"}";
+        String actual = blobMapper().validated(true).column("column").build();
+        String expected = "{\"type\":\"bytes\",\"validated\":true,\"column\":\"column\"}";
         assertEquals("blob mapper serialization is wrong", expected, actual);
     }
 
@@ -160,9 +148,8 @@ public class BuilderTest {
 
     @Test
     public void testBooleanMapperFull() {
-        String actual = booleanMapper().indexed(true).sorted(true).validated(true).column("column").build();
-        String expected = "{\"type\":\"boolean\",\"validated\":true,\"indexed\":true,\"sorted\":true," +
-                          "\"column\":\"column\"}";
+        String actual = booleanMapper().validated(true).column("column").build();
+        String expected = "{\"type\":\"boolean\",\"validated\":true,\"column\":\"column\"}";
         assertEquals("boolean mapper serialization is wrong", expected, actual);
     }
 
@@ -175,14 +162,8 @@ public class BuilderTest {
 
     @Test
     public void testDateMapperFull() {
-        String actual = dateMapper().pattern("yyyyMMdd")
-                                    .indexed(true)
-                                    .sorted(true)
-                                    .validated(true)
-                                    .column("column")
-                                    .build();
-        String expected = "{\"type\":\"date\",\"validated\":true,\"indexed\":true,\"sorted\":true," +
-                          "\"column\":\"column\",\"pattern\":\"yyyyMMdd\"}";
+        String actual = dateMapper().pattern("yyyyMMdd").validated(true).column("column").build();
+        String expected = "{\"type\":\"date\",\"validated\":true,\"column\":\"column\",\"pattern\":\"yyyyMMdd\"}";
         assertEquals("date mapper serialization is wrong", expected, actual);
     }
 
@@ -209,8 +190,8 @@ public class BuilderTest {
 
     @Test
     public void testDoubleMapperFull() {
-        String actual = doubleMapper().boost(2.1f).indexed(true).sorted(true).column("column").build();
-        String expected = "{\"type\":\"double\",\"indexed\":true,\"sorted\":true,\"column\":\"column\",\"boost\":2.1}";
+        String actual = doubleMapper().validated(true).boost(2.1f).column("column").build();
+        String expected = "{\"type\":\"double\",\"validated\":true,\"column\":\"column\",\"boost\":2.1}";
         assertEquals("double mapper serialization is wrong", expected, actual);
     }
 
@@ -223,8 +204,8 @@ public class BuilderTest {
 
     @Test
     public void testFloatMapperFull() {
-        String actual = floatMapper().boost(2.1f).indexed(true).sorted(true).column("column").build();
-        String expected = "{\"type\":\"float\",\"indexed\":true,\"sorted\":true,\"column\":\"column\",\"boost\":2.1}";
+        String actual = floatMapper().validated(true).boost(2.1f).column("column").build();
+        String expected = "{\"type\":\"float\",\"validated\":true,\"column\":\"column\",\"boost\":2.1}";
         assertEquals("float mapper serialization is wrong", expected, actual);
     }
 
@@ -280,8 +261,8 @@ public class BuilderTest {
 
     @Test
     public void testInetMapperFull() {
-        String actual = inetMapper().indexed(true).sorted(true).build();
-        String expected = "{\"type\":\"inet\",\"indexed\":true,\"sorted\":true}";
+        String actual = inetMapper().validated(true).build();
+        String expected = "{\"type\":\"inet\",\"validated\":true}";
         assertEquals("inet mapper serialization is wrong", expected, actual);
     }
 
@@ -294,8 +275,8 @@ public class BuilderTest {
 
     @Test
     public void testIntegerMapperFull() {
-        String actual = integerMapper().boost(2.1f).indexed(true).sorted(true).build();
-        String expected = "{\"type\":\"integer\",\"indexed\":true,\"sorted\":true,\"boost\":2.1}";
+        String actual = integerMapper().validated(true).boost(2.1f).build();
+        String expected = "{\"type\":\"integer\",\"validated\":true,\"boost\":2.1}";
         assertEquals("integer mapper serialization is wrong", expected, actual);
     }
 
@@ -308,8 +289,8 @@ public class BuilderTest {
 
     @Test
     public void testLongMapperFull() {
-        String actual = longMapper().boost(2.1f).indexed(true).sorted(true).build();
-        String expected = "{\"type\":\"long\",\"indexed\":true,\"sorted\":true,\"boost\":2.1}";
+        String actual = longMapper().validated(true).boost(2.1f).build();
+        String expected = "{\"type\":\"long\",\"validated\":true,\"boost\":2.1}";
         assertEquals("long mapper serialization is wrong", expected, actual);
     }
 
@@ -322,8 +303,8 @@ public class BuilderTest {
 
     @Test
     public void testStringMapperFull() {
-        String actual = stringMapper().caseSensitive(true).indexed(true).sorted(true).build();
-        String expected = "{\"type\":\"string\",\"indexed\":true,\"sorted\":true,\"case_sensitive\":true}";
+        String actual = stringMapper().validated(true).caseSensitive(true).build();
+        String expected = "{\"type\":\"string\",\"validated\":true,\"case_sensitive\":true}";
         assertEquals("string mapper serialization is wrong", expected, actual);
     }
 
@@ -336,8 +317,8 @@ public class BuilderTest {
 
     @Test
     public void testTextMapperFull() {
-        String actual = textMapper().analyzer("analyzer").indexed(true).sorted(true).build();
-        String expected = "{\"type\":\"text\",\"indexed\":true,\"sorted\":true,\"analyzer\":\"analyzer\"}";
+        String actual = textMapper().validated(true).analyzer("analyzer").build();
+        String expected = "{\"type\":\"text\",\"validated\":true,\"analyzer\":\"analyzer\"}";
         assertEquals("text mapper serialization is wrong", expected, actual);
     }
 
@@ -350,8 +331,8 @@ public class BuilderTest {
 
     @Test
     public void testUUIDMapperFull() {
-        String actual = uuidMapper().indexed(true).sorted(true).build();
-        String expected = "{\"type\":\"uuid\",\"indexed\":true,\"sorted\":true}";
+        String actual = uuidMapper().validated(true).build();
+        String expected = "{\"type\":\"uuid\",\"validated\":true}";
         assertEquals("UUID mapper serialization is wrong", expected, actual);
     }
 
@@ -429,8 +410,9 @@ public class BuilderTest {
 
     @Test
     public void testContainsConditionFull() {
-        String actual = contains("field", "v1", "v2").boost(2).build();
-        String expected = "{\"type\":\"contains\",\"field\":\"field\",\"values\":[\"v1\",\"v2\"],\"boost\":2.0}";
+        String actual = contains("field", "v1", "v2").boost(2).docValues(true).build();
+        String expected = "{\"type\":\"contains\",\"field\":\"field\",\"values\":[\"v1\",\"v2\"]," +
+                          "\"boost\":2.0,\"doc_values\":true}";
         assertEquals("contains condition serialization is wrong", expected, actual);
     }
 
@@ -493,8 +475,9 @@ public class BuilderTest {
 
     @Test
     public void testMatchConditionFull() {
-        String actual = match("field", "value").boost(2).build();
-        String expected = "{\"type\":\"match\",\"field\":\"field\",\"value\":\"value\",\"boost\":2.0}";
+        String actual = match("field", "value").docValues(true).boost(2).build();
+        String expected = "{\"type\":\"match\",\"field\":\"field\",\"value\":\"value\"," +
+                          "\"boost\":2.0,\"doc_values\":true}";
         assertEquals("match condition serialization is wrong", expected, actual);
     }
 
@@ -549,9 +532,15 @@ public class BuilderTest {
 
     @Test
     public void testRangeConditionFull() {
-        String actual = range("field").lower(1).upper(2).includeLower(true).includeUpper(false).boost(0.3).build();
-        String expected = "{\"type\":\"range\",\"field\":\"field\"," +
-                          "\"boost\":0.3,\"lower\":1,\"upper\":2,\"include_lower\":true,\"include_upper\":false}";
+        String actual = range("field").lower(1)
+                                      .upper(2)
+                                      .includeLower(true)
+                                      .includeUpper(false)
+                                      .docValues(true)
+                                      .boost(0.3)
+                                      .build();
+        String expected = "{\"type\":\"range\",\"field\":\"field\",\"boost\":0.3,\"lower\":1,\"upper\":2," +
+                          "\"include_lower\":true,\"include_upper\":false,\"doc_values\":true}";
         assertEquals("range condition serialization is wrong", expected, actual);
     }
 
@@ -661,16 +650,15 @@ public class BuilderTest {
     @Test
     public void testGeoDistanceSortFieldDefaults() {
         String actual = geoDistanceField("field1", 0.0, 0.0).build();
-        String expected = "{\"type\":\"geo_distance\",\"mapper\":\"field1\",\"longitude\":0.0,\"latitude\":0.0}";
+        String expected = "{\"type\":\"geo_distance\",\"field\":\"field1\",\"longitude\":0.0,\"latitude\":0.0}";
         assertEquals("sort field condition serialization is wrong", expected, actual);
     }
 
     @Test
     public void testGeoDistanceSortFieldFull() {
         String actual = geoDistanceField("field1", 0.0, 0.0).reverse(true).build();
-        String
-                expected
-                = "{\"type\":\"geo_distance\",\"mapper\":\"field1\",\"longitude\":0.0,\"latitude\":0.0,\"reverse\":true}";
+        String expected = "{\"type\":\"geo_distance\",\"field\":\"field1\",\"longitude\":0.0,\"latitude\":0.0," +
+                          "\"reverse\":true}";
         assertEquals("sort field condition serialization is wrong", expected, actual);
     }
 
@@ -686,9 +674,10 @@ public class BuilderTest {
         String actual = search().sort(field("field1"),
                                       field("field2"),
                                       geoDistanceField("field1", 0.0, 0.0).reverse(true)).build();
-        String
-                expected
-                = "{\"sort\":{\"fields\":[{\"type\":\"simple\",\"field\":\"field1\"},{\"type\":\"simple\",\"field\":\"field2\"},{\"type\":\"geo_distance\",\"mapper\":\"field1\",\"longitude\":0.0,\"latitude\":0.0,\"reverse\":true}]}}";
+        String expected = "{\"sort\":{\"fields\":[{\"type\":\"simple\",\"field\":\"field1\"}," +
+                          "{\"type\":\"simple\",\"field\":\"field2\"}," +
+                          "{\"type\":\"geo_distance\",\"field\":\"field1\"," +
+                          "\"longitude\":0.0,\"latitude\":0.0,\"reverse\":true}]}}";
         assertEquals("sort condition serialization is wrong", expected, actual);
     }
 

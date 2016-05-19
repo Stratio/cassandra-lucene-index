@@ -47,11 +47,18 @@ public class CassandraUtilsSelect {
     private boolean refresh = true;
     private boolean allowFiltering = false;
     private ConsistencyLevel consistency;
+    private boolean useNewQuerySyntax;
 
     public CassandraUtilsSelect(CassandraUtils parent) {
         this.parent = parent;
         clauses = new LinkedList<>();
         extras = new LinkedList<>();
+        useNewQuerySyntax = parent.useNewQuerySyntax();
+    }
+
+    public CassandraUtilsSelect withUseNewQuerySyntax(boolean useNewQuerySyntax) {
+        this.useNewQuerySyntax = useNewQuerySyntax;
+        return this;
     }
 
     public CassandraUtilsSelect andEq(String name, Object value) {
@@ -150,7 +157,12 @@ public class CassandraUtilsSelect {
         StringBuilder sb = new StringBuilder(query);
         if (search != null) {
             sb.append(clauses.isEmpty() ? " WHERE " : " AND ");
-            sb.append(String.format("expr(%s,'%s')", parent.getIndex(), search.refresh(refresh).build()));
+            String json = search.refresh(refresh).build();
+            if (useNewQuerySyntax) {
+                sb.append(String.format("expr(%s,'%s')", parent.getIndexName(), json));
+            } else {
+                sb.append(String.format("%s = '%s'", parent.getIndexColumn(), json));
+            }
         }
         for (String extra : extras) {
             sb.append(" ");

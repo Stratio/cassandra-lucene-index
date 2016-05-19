@@ -47,6 +47,6 @@ public class DoubleMapperBuilder extends SingleColumnMapperBuilder<DoubleMapper,
      */
     @Override
     public DoubleMapper build(String field) {
-        return new DoubleMapper(field, column, indexed, sorted, validated, boost);
+        return new DoubleMapper(field, column, validated, boost);
     }
 }

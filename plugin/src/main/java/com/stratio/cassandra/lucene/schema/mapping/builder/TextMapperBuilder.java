@@ -47,6 +47,6 @@ public class TextMapperBuilder extends SingleColumnMapperBuilder<TextMapper, Tex
      */
     @Override
     public TextMapper build(String field) {
-        return new TextMapper(field, column, indexed, sorted, validated, analyzer);
+        return new TextMapper(field, column, validated, analyzer);
     }
 }

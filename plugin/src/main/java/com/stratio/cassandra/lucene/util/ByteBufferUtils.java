@@ -111,6 +111,16 @@ public final class ByteBufferUtils {
     }
 
     /**
+     * Returns the hexadecimal {@code String} representation of the specified {@link BytesRef}.
+     *
+     * @param bytesRef a {@link BytesRef}
+     * @return the hexadecimal {@code String} representation of {@code bytesRef}
+     */
+    public static String toHex(BytesRef bytesRef) {
+        return ByteBufferUtil.bytesToHex(byteBuffer(bytesRef));
+    }
+
+    /**
      * Returns the hexadecimal {@code String} representation of the specified {@code byte} array.
      *
      * @param bytes the {@code byte} array

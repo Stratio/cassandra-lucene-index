@@ -32,9 +32,7 @@ import static com.stratio.cassandra.lucene.builder.Builder.*;
 @RunWith(JUnit4.class)
 public class InOperatorWithWideRowsAT extends BaseAT {
 
-    private static String TOPK_ERROR = "Top-k searches can't be directed to more than one partition, " +
-                                       "you should either direct them to one single partition or " +
-                                       "don't use any partition restrictions.";
+    private static String TOPK_ERROR = "Top-k searches with IN clause for the PRIMARY KEY are not supported";
 
     private static final int NUM_PARTITIONS = 10;
     private static final int PARTITION_SIZE = 10;
@@ -43,9 +41,11 @@ public class InOperatorWithWideRowsAT extends BaseAT {
     @BeforeClass
     public static void before() {
         utils = CassandraUtils.builder("in_operator_with_wide_rows")
+                              .withIndexColumn(null)
+                              .withUseNewQuerySyntax(true)
                               .withPartitionKey("pk")
                               .withClusteringKey("ck")
-                              .withColumn("pk", "int", integerMapper().sorted(true))
+                              .withColumn("pk", "int", integerMapper())
                               .withColumn("ck", "int", integerMapper())
                               .withColumn("rc", "int", integerMapper())
                               .build()

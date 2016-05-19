@@ -26,6 +26,7 @@ import org.apache.lucene.document.Field;
 
 import javax.validation.constraints.NotNull;
 import java.util.Collections;
+import java.util.Optional;
 
 /**
  * Class for mapping between Cassandra's columns and Lucene documents.
@@ -46,8 +47,7 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
      *
      * @param field the name of the field
      * @param column the name of the column to be mapped
-     * @param indexed if the field supports searching
-     * @param sorted if the field supports sorting
+     * @param docValues if the mapper supports doc values
      * @param validated if the field must be validated
      * @param analyzer the name of the analyzer to be used
      * @param base the Lucene type for this mapper
@@ -55,19 +55,15 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
      */
     public SingleColumnMapper(String field,
                               String column,
-                              Boolean indexed,
-                              Boolean sorted,
+                              Boolean docValues,
                               Boolean validated,
                               String analyzer,
                               Class<T> base,
                               AbstractType<?>... supportedTypes) {
-        super(field,
-              indexed,
-              sorted,
+        super(field, docValues,
               validated,
               analyzer,
-              Collections.singletonList(column == null ? field : column),
-              supportedTypes);
+              Collections.singletonList(column == null ? field : column), supportedTypes);
 
         if (StringUtils.isWhitespace(column)) {
             throw new IndexException("Column must not be whitespace, but found '%s'", column);
@@ -101,12 +97,8 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
     private void addFields(Document document, String name, Object value) {
         if (value != null) {
             T b = base(name, value);
-            if (indexed) {
-                addIndexedFields(document, name, b);
-            }
-            if (sorted) {
-                addSortedFields(document, name, b);
-            }
+            addIndexedFields(document, name, b);
+            addSortedFields(document, name, b);
         }
     }
 
@@ -165,8 +157,7 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
          *
          * @param field the name of the field
          * @param column the name of the column to be mapped
-         * @param indexed if the field supports searching
-         * @param sorted if the field supports sorting
+         * @param docValues if the mapper supports doc values
          * @param validated if the field must be validated
          * @param analyzer the name of the analyzer to be used
          * @param base the Lucene type for this mapper
@@ -174,25 +165,24 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
          */
         public SingleFieldMapper(String field,
                                  String column,
-                                 Boolean indexed,
-                                 Boolean sorted,
+                                 Boolean docValues,
                                  Boolean validated,
                                  String analyzer,
                                  Class<T> base,
                                  AbstractType<?>... supportedTypes) {
-            super(field, column, indexed, sorted, validated, analyzer, base, supportedTypes);
+            super(field, column, docValues, validated, analyzer, base, supportedTypes);
         }
 
         /** {@inheritDoc} */
         @Override
         public void addIndexedFields(Document document, String name, T value) {
-            document.add(indexedField(name, value));
+            indexedField(name, value).ifPresent(document::add);
         }
 
         /** {@inheritDoc} */
         @Override
         public void addSortedFields(Document document, String name, T value) {
-            document.add(sortedField(name, value));
+            sortedField(name, value).ifPresent(document::add);
         }
 
         /**
@@ -202,7 +192,7 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
          * @param value the value of the column
          * @return the field to sort by the mapped column
          */
-        public abstract Field indexedField(String name, T value);
+        public abstract Optional<Field> indexedField(String name, T value);
 
         /**
          * Returns the {@link Field} to sort by the mapped column.
@@ -211,7 +201,7 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
          * @param value the value of the column
          * @return the field to sort by the mapped column
          */
-        public abstract Field sortedField(String name, T value);
+        public abstract Optional<Field> sortedField(String name, T value);
     }
 
 }

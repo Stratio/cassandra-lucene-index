@@ -23,7 +23,6 @@ import com.stratio.cassandra.lucene.schema.analysis.StandardAnalyzers;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
 import org.apache.cassandra.db.marshal.*;
-import org.apache.cassandra.db.marshal.CollectionType.Kind;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field.Store;
@@ -31,9 +30,6 @@ import org.apache.lucene.search.SortField;
 
 import java.nio.ByteBuffer;
 import java.util.List;
-
-import static org.apache.cassandra.db.marshal.CollectionType.Kind.LIST;
-import static org.apache.cassandra.db.marshal.CollectionType.Kind.SET;
 
 /**
  * Class for mapping between Cassandra's columns and Lucene documents.
@@ -48,23 +44,14 @@ public abstract class Mapper {
     /** The store field in Lucene default option. */
     public static final Store STORE = Store.NO;
 
-    /** If the field must be indexed when no specified. */
-    public static final boolean DEFAULT_INDEXED = true;
-
-    /** If the field must be sorted when no specified. */
-    public static final boolean DEFAULT_SORTED = false;
-
     /** If the field must be validated when no specified. */
     public static final boolean DEFAULT_VALIDATED = false;
 
     /** The name of the Lucene field. */
     public final String field;
 
-    /** If the field must be indexed. */
-    public final Boolean indexed;
-
-    /** If the field must be sorted. */
-    public final Boolean sorted;
+    /** If the field produces doc values. */
+    public final Boolean docValues;
 
     /** If the field must be validated. */
     public final Boolean validated;
@@ -82,16 +69,14 @@ public abstract class Mapper {
      * Builds a new {@link Mapper} supporting the specified types for indexing.
      *
      * @param field the name of the field
-     * @param indexed if the field supports searching
-     * @param sorted if the field supports sorting
+     * @param docValues if the mapper supports doc values
      * @param validated if the field must be validated
      * @param analyzer the name of the analyzer to be used
      * @param mappedColumns the names of the columns to be mapped
      * @param supportedTypes the supported Cassandra types for indexing
      */
     protected Mapper(String field,
-                     Boolean indexed,
-                     Boolean sorted,
+                     Boolean docValues,
                      Boolean validated,
                      String analyzer,
                      List<String> mappedColumns,
@@ -100,8 +85,7 @@ public abstract class Mapper {
             throw new IndexException("Field name is required");
         }
         this.field = field;
-        this.indexed = indexed == null ? DEFAULT_INDEXED : indexed;
-        this.sorted = sorted == null ? DEFAULT_SORTED : sorted;
+        this.docValues = docValues;
         this.validated = validated == null ? DEFAULT_VALIDATED : validated;
         this.analyzer = analyzer;
         this.mappedColumns = mappedColumns;
@@ -279,20 +263,9 @@ public abstract class Mapper {
     }
 
     private void validate(AbstractType<?> type, String column) {
-
         // Check type
         if (!supports(type)) {
-            throw new IndexException("'%s' is not supported by mapper '%s'", type, field);
-        }
-
-        // Avoid sorting in lists and sets
-        if (type.isCollection() && sorted) {
-            Kind kind = ((CollectionType<?>) type).kind;
-            if (kind == SET) {
-                throw new IndexException("'%s' can't be sorted because it's a set", column);
-            } else if (kind == LIST) {
-                throw new IndexException("'%s' can't be sorted because it's a list", column);
-            }
+            throw new IndexException("Type '%s' in column '%s' is not supported by mapper '%s'", type, column, field);
         }
     }
 
@@ -308,11 +281,7 @@ public abstract class Mapper {
     }
 
     protected MoreObjects.ToStringHelper toStringHelper(Object self) {
-        return MoreObjects.toStringHelper(self)
-                          .add("field", field)
-                          .add("indexed", indexed)
-                          .add("sorted", sorted)
-                          .add("validated", validated);
+        return MoreObjects.toStringHelper(self).add("field", field).add("validated", validated);
     }
 
     /** {@inheritDoc} */

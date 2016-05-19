@@ -23,7 +23,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class ContainsCondition extends Condition {
+public class ContainsCondition extends Condition<ContainsCondition> {
 
     /** The name of the field to be matched. */
     @JsonProperty("field")
@@ -32,6 +32,10 @@ public class ContainsCondition extends Condition {
     /** The value of the field to be matched. */
     @JsonProperty("values")
     final Object[] values;
+
+    /** If the generated query should use doc values. */
+    @JsonProperty("doc_values")
+    Boolean docValues;
 
     /**
      * Creates a new {@link ContainsCondition} for the specified field and value.
@@ -43,5 +47,17 @@ public class ContainsCondition extends Condition {
     public ContainsCondition(@JsonProperty("field") String field, @JsonProperty("values") Object... values) {
         this.field = field;
         this.values = values;
+    }
+
+    /**
+     * Sets if the generated query should use doc values. Doc values queries are typically slower, but they can be
+     * faster in the dense case where most rows match the search.
+     *
+     * @param docValues if the generated query should use doc values
+     * @return this builder with the specified use doc values option
+     */
+    public ContainsCondition docValues(Boolean docValues) {
+        this.docValues = docValues;
+        return this;
     }
 }

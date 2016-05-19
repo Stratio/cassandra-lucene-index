@@ -47,6 +47,6 @@ public class BigIntegerMapperBuilder extends SingleColumnMapperBuilder<BigIntege
      */
     @Override
     public BigIntegerMapper build(String field) {
-        return new BigIntegerMapper(field, column, indexed, sorted, validated, digits);
+        return new BigIntegerMapper(field, column, validated, digits);
     }
 }

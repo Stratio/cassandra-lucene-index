@@ -27,7 +27,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class WildcardCondition extends Condition {
+public class WildcardCondition extends Condition<WildcardCondition> {
 
     /** The name of the field to be matched. */
     @JsonProperty("field")

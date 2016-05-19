@@ -68,8 +68,8 @@ public class SimpleSortField extends SortField {
         Mapper mapper = schema.getMapper(field);
         if (mapper == null) {
             throw new IndexException("No mapper found for sortFields field '%s'", field);
-        } else if (!mapper.sorted) {
-            throw new IndexException("Mapper '%s' is not sorted", mapper.field);
+        } else if (!mapper.docValues) {
+            throw new IndexException("Field '%s' does not support sorting", field);
         } else {
             return mapper.sortField(field, reverse);
         }

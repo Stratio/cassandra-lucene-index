@@ -34,6 +34,10 @@ public class ContainsConditionBuilder extends ConditionBuilder<ContainsCondition
     @JsonProperty("values")
     private final Object[] values;
 
+    /** If the generated query should use doc values. */
+    @JsonProperty("doc_values")
+    private Boolean docValues;
+
     /**
      * Creates a new {@link ContainsConditionBuilder} for the specified field and value.
      *
@@ -47,12 +51,24 @@ public class ContainsConditionBuilder extends ConditionBuilder<ContainsCondition
     }
 
     /**
+     * Sets if the generated query should use doc values. Doc values queries are typically slower, but they can be
+     * faster in the dense case where most rows match the search.
+     *
+     * @param docValues if the generated query should use doc values
+     * @return this builder with the specified use doc values option.
+     */
+    public ContainsConditionBuilder docValues(Boolean docValues) {
+        this.docValues = docValues;
+        return this;
+    }
+
+    /**
      * Returns the {@link ContainsCondition} represented by this builder.
      *
      * @return a new contains condition
      */
     @Override
     public ContainsCondition build() {
-        return new ContainsCondition(boost, field, values);
+        return new ContainsCondition(boost, field, docValues, values);
     }
 }

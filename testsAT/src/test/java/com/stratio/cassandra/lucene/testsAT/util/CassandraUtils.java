@@ -45,13 +45,15 @@ public class CassandraUtils {
 
     private final String keyspace;
     private final String table;
-    private final String index;
+    private final String indexName;
+    private final String indexColumn;
     private final String qualifiedTable;
     private final Map<String, String> columns;
     private final Map<String, Mapper> mappers;
     private final List<String> partitionKey;
     private final List<String> clusteringKey;
     private final Map<String, Map<String, String>> udts;
+    private final boolean useNewQuerySyntax;
 
     public static CassandraUtilsBuilder builder(String name) {
         return new CassandraUtilsBuilder(name);
@@ -59,7 +61,9 @@ public class CassandraUtils {
 
     public CassandraUtils(String keyspace,
                           String table,
-                          String index,
+                          String indexName,
+                          String indexColumn,
+                          boolean useNewQuerySyntax,
                           Map<String, String> columns,
                           Map<String, Mapper> mappers,
                           List<String> partitionKey,
@@ -68,13 +72,19 @@ public class CassandraUtils {
 
         this.keyspace = keyspace;
         this.table = table;
-        this.index = index;
+        this.indexName = indexName;
+        this.indexColumn = indexColumn;
+        this.useNewQuerySyntax = useNewQuerySyntax;
         this.columns = columns;
         this.mappers = mappers;
         this.partitionKey = partitionKey;
         this.clusteringKey = clusteringKey;
         this.udts = udts;
         qualifiedTable = keyspace + "." + table;
+
+        if (indexColumn != null && !columns.containsKey(indexColumn)) {
+            columns.put(indexColumn, "text");
+        }
     }
 
     public String getKeyspace() {
@@ -89,27 +99,35 @@ public class CassandraUtils {
         return qualifiedTable;
     }
 
-    public String getIndex() {
-        return index;
+    public String getIndexName() {
+        return indexName;
     }
 
-    public Statement statement(String query, Object... args) {
-        return new SimpleStatement(String.format(query, args));
+    public String getIndexColumn() {
+        return indexColumn;
+    }
+
+    public boolean useNewQuerySyntax() {
+        return useNewQuerySyntax;
     }
 
     public ResultSet execute(Statement statement) {
         return CassandraConnection.execute(statement);
     }
 
-    public ResultSet execute(String query) {
+    public ResultSet execute(int fetchSize, String query) {
         if (!query.endsWith(";")) {
             query += ";";
         }
-        return execute(new SimpleStatement(query));
+        return execute(new SimpleStatement(query).setFetchSize(fetchSize));
     }
 
     public ResultSet execute(String query, Object... args) {
-        return execute(String.format(query, args));
+        return execute(FETCH, query, args);
+    }
+
+    public ResultSet execute(int fetchSize, String query, Object... args) {
+        return execute(fetchSize, String.format(query, args));
     }
 
     ResultSet execute(StringBuilder query) {
@@ -200,7 +218,9 @@ public class CassandraUtils {
     }
 
     public CassandraUtils createIndex() {
-        Index index = index(keyspace, table, this.index).refreshSeconds(REFRESH).indexingThreads(THREADS);
+        Index index = index(keyspace, table, indexName).column(indexColumn)
+                                                        .refreshSeconds(REFRESH)
+                                                        .indexingThreads(THREADS);
         for (Map.Entry<String, Mapper> entry : mappers.entrySet()) {
             index.mapper(entry.getKey(), entry.getValue());
         }
@@ -209,7 +229,7 @@ public class CassandraUtils {
     }
 
     public CassandraUtils dropIndex() {
-        execute(new StringBuilder().append("DROP INDEX ").append(keyspace).append(".").append(index).append(";"));
+        execute(new StringBuilder().append("DROP INDEX ").append(keyspace).append(".").append(indexName).append(";"));
         return this;
     }
 
@@ -274,7 +294,9 @@ public class CassandraUtils {
     }
 
     public List<Row> searchWithPreparedStatement(Search search) {
-        String query = String.format("SELECT * FROM %s WHERE expr(%s,?) LIMIT %d", qualifiedTable, index, LIMIT);
+        String query = useNewQuerySyntax
+                       ? String.format("SELECT * FROM %s WHERE expr(%s,?) LIMIT %d", qualifiedTable, indexName, LIMIT)
+                       : String.format("SELECT * FROM %s WHERE %s = ? LIMIT %d", qualifiedTable, indexColumn, LIMIT);
         final PreparedStatement stmt = CassandraConnection.prepare(query);
         BoundStatement b = stmt.bind();
         b.setString(0, search.build());

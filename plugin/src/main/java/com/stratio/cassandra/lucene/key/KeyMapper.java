@@ -27,7 +27,8 @@ import org.apache.cassandra.db.filter.ClusteringIndexNamesFilter;
 import org.apache.cassandra.db.filter.ClusteringIndexSliceFilter;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.cassandra.db.marshal.CompositeType;
-import org.apache.cassandra.db.marshal.LongType;
+import org.apache.cassandra.db.marshal.UTF8Type;
+import org.apache.cassandra.dht.Token;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldType;
@@ -43,6 +44,7 @@ import org.apache.lucene.util.BytesRef;
 import java.nio.ByteBuffer;
 import java.util.Optional;
 
+import static org.apache.cassandra.utils.ByteBufferUtil.EMPTY_BYTE_BUFFER;
 import static org.apache.lucene.search.BooleanClause.Occur.SHOULD;
 
 /**
@@ -88,7 +90,7 @@ public final class KeyMapper {
         this.metadata = metadata;
         clusteringComparator = metadata.comparator;
         clusteringType = CompositeType.getInstance(clusteringComparator.subtypes());
-        type = CompositeType.getInstance(LongType.instance, metadata.getKeyValidator(), clusteringType);
+        type = CompositeType.getInstance(UTF8Type.instance, metadata.getKeyValidator(), clusteringType);
     }
 
     /**
@@ -157,7 +159,7 @@ public final class KeyMapper {
      */
     private ByteBuffer byteBuffer(DecoratedKey key, Clustering clustering) {
         return type.builder()
-                   .add(TokenMapper.byteBuffer(key.getToken()))
+                   .add(TokenMapper.toCollated(key.getToken()))
                    .add(key.getKey())
                    .add(byteBuffer(clustering))
                    .build();
@@ -211,9 +213,14 @@ public final class KeyMapper {
      * @param clustering the clustering key
      * @return the Lucene field binary value
      */
-    BytesRef bytesRef(DecoratedKey key, Clustering clustering) {
+    private BytesRef bytesRef(DecoratedKey key, Clustering clustering) {
         ByteBuffer bb = byteBuffer(key, clustering);
         return ByteBufferUtils.bytesRef(bb);
+    }
+
+    BytesRef seek(PartitionPosition position) {
+        ByteBuffer token = TokenMapper.toCollated(position.getToken());
+        return ByteBufferUtils.bytesRef(type.builder().add(token).add(EMPTY_BYTE_BUFFER).build());
     }
 
     /**
@@ -235,13 +242,25 @@ public final class KeyMapper {
      */
     public static Optional<ClusteringPrefix> startClusteringPrefix(DataRange dataRange) {
         PartitionPosition startPosition = dataRange.startKey();
+        Token token = startPosition.getToken();
+
+        ClusteringIndexFilter filter;
         if (startPosition instanceof DecoratedKey) {
             DecoratedKey startKey = (DecoratedKey) startPosition;
-            ClusteringIndexFilter filter = dataRange.clusteringIndexFilter(startKey);
-            if (filter instanceof ClusteringIndexSliceFilter) {
-                ClusteringIndexSliceFilter sliceFilter = (ClusteringIndexSliceFilter) filter;
-                Slices slices = sliceFilter.requestedSlices();
-                return Optional.of(slices.get(0).start());
+            filter = dataRange.clusteringIndexFilter(startKey);
+        } else {
+            filter = dataRange.clusteringIndexFilter(new BufferDecoratedKey(token, EMPTY_BYTE_BUFFER));
+        }
+
+        if (filter instanceof ClusteringIndexSliceFilter) {
+            ClusteringIndexSliceFilter sliceFilter = (ClusteringIndexSliceFilter) filter;
+            Slices slices = sliceFilter.requestedSlices();
+            return Optional.of(slices.get(0).start());
+        } else if (filter instanceof ClusteringIndexNamesFilter) {
+            ClusteringIndexNamesFilter namesFilter = (ClusteringIndexNamesFilter) filter;
+            Clustering clustering = namesFilter.requestedRows().first();
+            if (clustering != null) {
+                return Optional.of(clustering);
             }
         }
         return Optional.empty();
@@ -255,15 +274,28 @@ public final class KeyMapper {
      */
     public static Optional<ClusteringPrefix> stopClusteringPrefix(DataRange dataRange) {
         PartitionPosition stopPosition = dataRange.stopKey();
+        Token token = stopPosition.getToken();
+
+        ClusteringIndexFilter filter;
         if (stopPosition instanceof DecoratedKey) {
             DecoratedKey stopKey = (DecoratedKey) stopPosition;
-            ClusteringIndexFilter filter = dataRange.clusteringIndexFilter(stopKey);
-            if (filter instanceof ClusteringIndexSliceFilter) {
-                ClusteringIndexSliceFilter sliceFilter = (ClusteringIndexSliceFilter) filter;
-                Slices slices = sliceFilter.requestedSlices();
-                return Optional.of(slices.get(slices.size() - 1).end());
+            filter = dataRange.clusteringIndexFilter(stopKey);
+        } else {
+            filter = dataRange.clusteringIndexFilter(new BufferDecoratedKey(token, EMPTY_BYTE_BUFFER));
+        }
+
+        if (filter instanceof ClusteringIndexSliceFilter) {
+            ClusteringIndexSliceFilter sliceFilter = (ClusteringIndexSliceFilter) filter;
+            Slices slices = sliceFilter.requestedSlices();
+            return Optional.of(slices.get(slices.size() - 1).end());
+        } else if (filter instanceof ClusteringIndexNamesFilter) {
+            ClusteringIndexNamesFilter namesFilter = (ClusteringIndexNamesFilter) filter;
+            Clustering clustering = namesFilter.requestedRows().last();
+            if (clustering != null) {
+                return Optional.of(clustering);
             }
         }
+
         return Optional.empty();
     }
 
@@ -290,19 +322,13 @@ public final class KeyMapper {
     /**
      * Returns a Lucene {@link Query} to retrieve all the rows in the specified partition slice.
      *
-     * @param key the partition key
+     * @param position the partition position
      * @param start the start clustering prefix
      * @param stop the stop clustering prefix
-     * @param acceptLowerConflicts if rows with the same token before key should be accepted
-     * @param acceptUpperConflicts if rows with the same token after key should be accepted
      * @return the Lucene query
      */
-    public Query query(DecoratedKey key,
-                       ClusteringPrefix start,
-                       ClusteringPrefix stop,
-                       boolean acceptLowerConflicts,
-                       boolean acceptUpperConflicts) {
-        return new KeyQuery(this, key, start, stop, acceptLowerConflicts, acceptUpperConflicts);
+    public Query query(PartitionPosition position, ClusteringPrefix start, ClusteringPrefix stop) {
+        return new KeyQuery(this, position, start, stop);
     }
 
     /**
@@ -313,7 +339,7 @@ public final class KeyMapper {
      * @return the Lucene query
      */
     public Query query(DecoratedKey key, Slice slice) {
-        return query(key, slice.start(), slice.end(), false, false);
+        return query(key, slice.start(), slice.end());
     }
 
     /**

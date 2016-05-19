@@ -47,6 +47,6 @@ public class FloatMapperBuilder extends SingleColumnMapperBuilder<FloatMapper, F
      */
     @Override
     public FloatMapper build(String field) {
-        return new FloatMapper(field, column, indexed, sorted, validated, boost);
+        return new FloatMapper(field, column, validated, boost);
     }
 }

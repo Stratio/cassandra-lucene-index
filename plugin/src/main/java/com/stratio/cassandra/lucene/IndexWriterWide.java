@@ -90,7 +90,7 @@ class IndexWriterWide extends IndexWriter {
         // Write rows
         rows.forEach((clustering, optional) -> optional.ifPresent(row -> {
             if (row.hasLiveData(nowInSec)) {
-                service.upsert(key, row);
+                service.upsert(key, row, nowInSec);
             } else {
                 service.delete(key, row);
             }
