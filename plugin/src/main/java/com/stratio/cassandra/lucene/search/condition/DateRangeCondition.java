@@ -88,9 +88,7 @@ public class DateRangeCondition extends SingleMapperCondition<DateRangeMapper> {
         SpatialOperation spatialOperation = parseSpatialOperation(operation);
 
         SpatialArgs args = new SpatialArgs(spatialOperation, shape);
-        Query query = strategy.makeQuery(args);
-        query.setBoost(boost);
-        return query;
+        return strategy.makeQuery(args);
     }
 
     /**

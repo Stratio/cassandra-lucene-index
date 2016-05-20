@@ -66,9 +66,7 @@ public class ContainsCondition extends SingleColumnCondition {
             MatchCondition condition = new MatchCondition(boost, field, value);
             builder.add(condition.query(mapper, analyzer), BooleanClause.Occur.SHOULD);
         }
-        Query query = builder.build();
-        query.setBoost(boost);
-        return query;
+        return builder.build();
     }
 
     /** {@inheritDoc} */

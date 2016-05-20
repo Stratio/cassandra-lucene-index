@@ -15,6 +15,7 @@
  */
 package com.stratio.cassandra.lucene.search.condition;
 
+import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.schema.Schema;
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.MatchAllDocsQuery;
@@ -30,10 +31,24 @@ import static org.junit.Assert.assertNotNull;
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class ConditionTest {
+    private static class MockCondition extends Condition {
 
+        MockCondition(Float boost) {
+            super(boost);
+        }
+
+        @Override
+        public Query doQuery(Schema schema) {
+            return new MatchAllDocsQuery();
+        }
+
+        public Objects.ToStringHelper toStringHelper() {
+            return toStringHelper(this);
+        }
+    }
     @Test
     public void testConstructorWithBoost() {
-        Condition condition = new Condition(0.7f) {
+        Condition condition = new MockCondition(0.7f) {
             @Override
             public Query query(Schema schema) {
                 return null;
@@ -44,7 +59,7 @@ public class ConditionTest {
 
     @Test
     public void testConstructor() {
-        Condition condition = new Condition(null) {
+        Condition condition = new MockCondition(null) {
             @Override
             public Query query(Schema schema) {
                 return null;
@@ -56,7 +71,7 @@ public class ConditionTest {
     @Test
     public void testFilter() {
         Schema schema = schema().build();
-        Condition condition = new Condition(null) {
+        Condition condition = new MockCondition(null) {
             @Override
             public Query query(Schema schema) {
                 return new MatchAllDocsQuery();

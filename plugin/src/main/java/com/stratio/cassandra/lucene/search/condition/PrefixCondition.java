@@ -55,9 +55,7 @@ public class PrefixCondition extends SingleColumnCondition {
     public Query query(SingleColumnMapper<?> mapper, Analyzer analyzer) {
         if (mapper.base == String.class) {
             Term term = new Term(field, value);
-            Query query = new PrefixQuery(term);
-            query.setBoost(boost);
-            return query;
+            return new PrefixQuery(term);
         } else {
             throw new IndexException("Prefix queries are not supported by mapper '%s'", mapper);
         }

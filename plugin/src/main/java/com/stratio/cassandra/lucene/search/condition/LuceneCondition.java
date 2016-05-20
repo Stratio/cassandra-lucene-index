@@ -60,15 +60,13 @@ public class LuceneCondition extends Condition {
 
     /** {@inheritDoc} */
     @Override
-    public Query query(Schema schema) {
+    public Query doQuery(Schema schema) {
         try {
             Analyzer analyzer = schema.getAnalyzer();
             QueryParser queryParser = new QueryParser(defaultField, analyzer);
             queryParser.setAllowLeadingWildcard(true);
             queryParser.setLowercaseExpandedTerms(false);
-            Query luceneQuery = queryParser.parse(query);
-            luceneQuery.setBoost(boost);
-            return luceneQuery;
+            return queryParser.parse(query);
         } catch (ParseException e) {
             throw new IndexException("Error while parsing lucene syntax query: %s", e.getMessage());
         }

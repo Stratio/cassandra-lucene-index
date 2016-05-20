@@ -67,7 +67,7 @@ public class BooleanCondition extends Condition {
 
     /** {@inheritDoc} */
     @Override
-    public Query query(Schema schema) {
+    public Query doQuery(Schema schema) {
         BooleanQuery.Builder builder = new BooleanQuery.Builder();
         for (Condition condition : must) {
             builder.add(condition.query(schema), MUST);
@@ -82,9 +82,7 @@ public class BooleanCondition extends Condition {
             logger.warn("Performing resource-intensive pure negation search");
             builder.add(new MatchAllDocsQuery(), FILTER);
         }
-        Query query = builder.build();
-        query.setBoost(boost);
-        return query;
+        return builder.build();
     }
 
     /** {@inheritDoc} */

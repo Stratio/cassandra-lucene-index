@@ -40,10 +40,8 @@ public class NoneCondition extends Condition {
 
     /** {@inheritDoc} */
     @Override
-    public Query query(Schema schema) {
-        Query query = new BooleanQuery.Builder().build();
-        query.setBoost(boost);
-        return query;
+    public Query doQuery(Schema schema) {
+        return new BooleanQuery.Builder().build();
     }
 
     /** {@inheritDoc} */

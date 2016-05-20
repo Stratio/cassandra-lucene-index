@@ -59,8 +59,19 @@ public abstract class Condition {
      * @param schema the schema to be used
      * @return The Lucene query
      */
-    public abstract Query query(Schema schema);
+    public Query query(Schema schema) {
+        Query query=doQuery(schema);
+        query.setBoost(boost);
+        return query;
+    }
 
+    /**
+     * Returns the Lucene {@link Query} representation of this condition.
+     *
+     * @param schema the schema to be used
+     * @return The Lucene query
+     */
+    public abstract Query doQuery(Schema schema);
     /**
      * Returns the Lucene {@link Filter} representation of this condition.
      *

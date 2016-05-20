@@ -71,7 +71,6 @@ public class PhraseCondition extends SingleColumnCondition {
             if (query == null) {
                 query = new BooleanQuery.Builder().build();
             }
-            query.setBoost(boost);
             return query;
         } else {
             throw new IndexException("Phrase queries are not supported by mapper '%s'", mapper);

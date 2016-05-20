@@ -40,10 +40,8 @@ public class AllCondition extends Condition {
 
     /** {@inheritDoc} */
     @Override
-    public Query query(Schema schema) {
-        Query query = new MatchAllDocsQuery();
-        query.setBoost(boost);
-        return query;
+    public Query doQuery(Schema schema) {
+        return new MatchAllDocsQuery();
     }
 
     /** {@inheritDoc} */

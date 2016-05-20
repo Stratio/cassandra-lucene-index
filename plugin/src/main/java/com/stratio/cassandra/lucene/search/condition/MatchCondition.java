@@ -84,7 +84,6 @@ public class MatchCondition extends SingleColumnCondition {
         } else {
             throw new IndexException("Match queries are not supported by mapper '%s'", mapper);
         }
-        query.setBoost(boost);
         return query;
     }
 
