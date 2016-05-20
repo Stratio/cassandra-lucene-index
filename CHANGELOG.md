@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.0.6.0 (upcoming)
+
+* Upgrade to Apache Cassandra 3.0.6
+
 ## 3.0.5.1 (19 May 2016)
 
 * Upgrade to Apache Lucene 5.5.1
