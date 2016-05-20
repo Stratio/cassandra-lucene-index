@@ -17,6 +17,7 @@ package com.stratio.cassandra.lucene.search.condition;
 
 import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.schema.Schema;
+import org.apache.lucene.search.BoostQuery;
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.QueryWrapperFilter;
@@ -37,11 +38,8 @@ public abstract class Condition {
 
     protected static final Logger logger = LoggerFactory.getLogger(Condition.class);
 
-    /** The default boost to be used. */
-    public static final float DEFAULT_BOOST = 1.0f;
-
     /** The boost to be used. */
-    public final float boost;
+    public final Float boost;
 
     /**
      * Abstract {@link Condition} builder receiving the boost to be used.
@@ -50,7 +48,7 @@ public abstract class Condition {
      * weightings) have their score multiplied by {@code boost}.
      */
     public Condition(Float boost) {
-        this.boost = boost == null ? DEFAULT_BOOST : boost;
+        this.boost = boost;
     }
 
     /**
@@ -61,8 +59,7 @@ public abstract class Condition {
      */
     public Query query(Schema schema) {
         Query query=doQuery(schema);
-        query.setBoost(boost);
-        return query;
+        return boost == null ? query : new BoostQuery(query, boost);
     }
 
     /**

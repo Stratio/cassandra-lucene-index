@@ -18,11 +18,8 @@ package com.stratio.cassandra.lucene.search.condition;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.common.GeoDistance;
 import com.stratio.cassandra.lucene.schema.Schema;
-import org.apache.lucene.search.BooleanClause;
-import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.ConstantScoreQuery;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.spatial.prefix.IntersectsPrefixTreeFilter;
+import org.apache.lucene.search.*;
+import org.apache.lucene.spatial.prefix.IntersectsPrefixTreeQuery;
 import org.junit.Test;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
@@ -58,7 +55,7 @@ public class GeoDistanceConditionTest extends AbstractConditionTest {
                                                                   -180D,
                                                                   null,
                                                                   GeoDistance.parse("1yd"));
-        assertEquals("Boost is not to default", Condition.DEFAULT_BOOST, condition.boost, 0);
+        assertNull("Boost is not to default", condition.boost);
         assertEquals("Field is not set", "name", condition.field);
         assertEquals("Longitude is not set", -180, condition.longitude, 0);
         assertEquals("Latitude is not set", 90, condition.latitude, 0);
@@ -132,19 +129,19 @@ public class GeoDistanceConditionTest extends AbstractConditionTest {
                                                                   GeoDistance.parse("10hm"));
         Query query = condition.query(schema);
         assertNotNull("Query is not built", query);
+        assertEquals("Query is wrong", BoostQuery.class, query.getClass());
+        query=((BoostQuery)query).getQuery();
         BooleanQuery booleanQuery = (BooleanQuery) query;
         assertEquals("Query num clauses is wrong", 1, booleanQuery.clauses().size());
         BooleanClause maxClause = booleanQuery.clauses().get(0);
         assertEquals("Query occur is wrong", BooleanClause.Occur.FILTER, maxClause.getOccur());
         query = maxClause.getQuery();
-        assertTrue("Query type is wrong", query instanceof ConstantScoreQuery);
-        query = ((ConstantScoreQuery) query).getQuery();
-        assertTrue("Query type is wrong", query instanceof IntersectsPrefixTreeFilter);
-        IntersectsPrefixTreeFilter filter = (IntersectsPrefixTreeFilter) query;
+        assertTrue("Query type is wrong", query instanceof IntersectsPrefixTreeQuery);
+        IntersectsPrefixTreeQuery intersectsPrefixTreeQuery = (IntersectsPrefixTreeQuery) query;
         assertEquals("Query is wrong",
-                     "IntersectsPrefixTreeFilter(fieldName=name.dist,queryShape=Circle(Pt(x=-180.0,y=90.0), " +
+                     "IntersectsPrefixTreeQuery(fieldName=name.dist,queryShape=Circle(Pt(x=-180.0,y=90.0), " +
                      "d=0.0° 1.00km),detailLevel=8,prefixGridScanLevel=4)",
-                     filter.toString());
+                intersectsPrefixTreeQuery.toString());
     }
 
     @Test(expected = IndexException.class)
@@ -161,35 +158,31 @@ public class GeoDistanceConditionTest extends AbstractConditionTest {
                                                                   -180D,
                                                                   GeoDistance.parse("1km"),
                                                                   GeoDistance.parse("3km"));
-        Query query = condition.query(schema);
-        assertNotNull("Query is not built", query);
-        assertTrue("Query type is wrong", query instanceof BooleanQuery);
-        BooleanQuery booleanQuery = (BooleanQuery) query;
+
+        BoostQuery boostQuery = (BoostQuery) condition.query(schema);
+        assertTrue("Query with boost must be BoostQuery",(boostQuery.getQuery() instanceof BooleanQuery));
+        BooleanQuery booleanQuery=(BooleanQuery) boostQuery.getQuery();
         assertEquals("Query num clauses is wrong", 2, booleanQuery.clauses().size());
 
         BooleanClause minClause = booleanQuery.clauses().get(1);
         assertEquals("Query is wrong", BooleanClause.Occur.MUST_NOT, minClause.getOccur());
-        query = minClause.getQuery();
-        assertTrue("Query is wrong", query instanceof ConstantScoreQuery);
-        query = ((ConstantScoreQuery) query).getQuery();
-        assertTrue("Query is wrong", query instanceof IntersectsPrefixTreeFilter);
-        IntersectsPrefixTreeFilter minFilter = (IntersectsPrefixTreeFilter) query;
+        Query query = minClause.getQuery();
+        assertEquals("Query is wrong",IntersectsPrefixTreeQuery.class, query.getClass());
+        IntersectsPrefixTreeQuery minQuery = (IntersectsPrefixTreeQuery) query;
         assertEquals("Query is wrong",
-                     "IntersectsPrefixTreeFilter(fieldName=name.dist,queryShape=Circle(Pt(x=-180.0,y=90.0), " +
+                     "IntersectsPrefixTreeQuery(fieldName=name.dist,queryShape=Circle(Pt(x=-180.0,y=90.0), " +
                      "d=0.0° 1.00km),detailLevel=8,prefixGridScanLevel=4)",
-                     minFilter.toString());
+                     minQuery.toString());
 
         BooleanClause maxClause = booleanQuery.clauses().get(0);
         assertEquals("Query is wrong", BooleanClause.Occur.FILTER, maxClause.getOccur());
         query = maxClause.getQuery();
-        assertTrue("Query type is wrong", query instanceof ConstantScoreQuery);
-        query = ((ConstantScoreQuery) query).getQuery();
-        assertTrue("Query type is wrong", query instanceof IntersectsPrefixTreeFilter);
-        IntersectsPrefixTreeFilter maxFilter = (IntersectsPrefixTreeFilter) query;
+        assertTrue("Query type is wrong", query instanceof IntersectsPrefixTreeQuery);
+        IntersectsPrefixTreeQuery maxQuery = (IntersectsPrefixTreeQuery) query;
         assertEquals("Query is wrong",
-                     "IntersectsPrefixTreeFilter(fieldName=name.dist,queryShape=Circle(Pt(x=-180.0,y=90.0), " +
+                     "IntersectsPrefixTreeQuery(fieldName=name.dist,queryShape=Circle(Pt(x=-180.0,y=90.0), " +
                      "d=0.0° 3.00km),detailLevel=8,prefixGridScanLevel=4)",
-                     maxFilter.toString());
+                     maxQuery.toString());
     }
 
     @Test(expected = IndexException.class)

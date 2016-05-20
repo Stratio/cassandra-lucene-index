@@ -20,12 +20,12 @@ import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.builder.MapperBuilder;
 import com.stratio.cassandra.lucene.search.condition.builder.BitemporalConditionBuilder;
 import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.BoostQuery;
 import org.apache.lucene.search.Query;
 import org.junit.Test;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
 import static com.stratio.cassandra.lucene.search.SearchBuilders.bitemporalSearch;
-import static com.stratio.cassandra.lucene.search.condition.Condition.DEFAULT_BOOST;
 import static org.junit.Assert.*;
 
 /**
@@ -73,7 +73,7 @@ public class BitemporalConditionTest extends AbstractConditionTest {
     public void testBuildDefaults() {
         BitemporalCondition condition = new BitemporalConditionBuilder("field").build();
         assertNotNull("Condition is not built", condition);
-        assertEquals("Boost is not set to default", DEFAULT_BOOST, condition.boost, 0);
+        assertNull("Boost is not set to default", condition.boost);
         assertEquals("Field is not set", "field", condition.field);
         assertNull("tt_from is not set to default", condition.ttFrom);
         assertNull("tt_to is not set to default", condition.ttTo);
@@ -101,7 +101,9 @@ public class BitemporalConditionTest extends AbstractConditionTest {
         Schema schema = schema().mapper("name", mapperBuilder).build();
         BitemporalCondition condition = new BitemporalCondition(0.5f, "name", 1, 2, 3, 4);
 
-        Query query = condition.query(schema);
+        BoostQuery boostQuery = (BoostQuery) condition.query(schema);
+        assertTrue("Query with boost must be BooleanQuery",(boostQuery.getQuery() instanceof BooleanQuery));
+        BooleanQuery query=(BooleanQuery) boostQuery.getQuery();
         assertNotNull("Query is not built", query);
         assertTrue("Query type is wrong", query instanceof BooleanQuery);
     }

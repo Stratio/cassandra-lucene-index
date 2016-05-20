@@ -18,6 +18,7 @@ package com.stratio.cassandra.lucene.search.condition;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.search.condition.builder.PrefixConditionBuilder;
+import org.apache.lucene.search.BoostQuery;
 import org.apache.lucene.search.PrefixQuery;
 import org.apache.lucene.search.Query;
 import org.junit.Test;
@@ -25,6 +26,7 @@ import org.junit.Test;
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
@@ -46,7 +48,7 @@ public class PrefixConditionTest extends AbstractConditionTest {
         PrefixConditionBuilder builder = new PrefixConditionBuilder("field", "value");
         PrefixCondition condition = builder.build();
         assertNotNull("Condition is not built", condition);
-        assertEquals("Boost is not set", Condition.DEFAULT_BOOST, condition.boost, 0);
+        assertNull("Boost is not set", condition.boost);
         assertEquals("Field is not set", "field", condition.field);
         assertEquals("Value is not set", "value", condition.value);
     }
@@ -72,12 +74,15 @@ public class PrefixConditionTest extends AbstractConditionTest {
         Query query = prefixCondition.query(schema);
 
         assertNotNull("Query is not built", query);
+        assertEquals("Query type is wrong", BoostQuery.class, query.getClass());
+        BoostQuery boostQuery=(BoostQuery)query;
+        query=boostQuery.getQuery();
         assertEquals("Query type is wrong", PrefixQuery.class, query.getClass());
 
         PrefixQuery luceneQuery = (PrefixQuery) query;
         assertEquals("Query field is wrong", "name", luceneQuery.getField());
         assertEquals("Query prefix is wrong", "tr", luceneQuery.getPrefix().text());
-        assertEquals("Query boost is wrong", 0.5f, query.getBoost(), 0);
+        assertEquals("Query boost is wrong", 0.5f, boostQuery.getBoost(), 0);
     }
 
     @Test(expected = IndexException.class)
@@ -98,12 +103,15 @@ public class PrefixConditionTest extends AbstractConditionTest {
         Query query = wildcardCondition.query(schema);
 
         assertNotNull("Query is not built", query);
+        assertEquals("Query type is wrong", BoostQuery.class, query.getClass());
+        BoostQuery boostQuery=(BoostQuery)query;
+        query=boostQuery.getQuery();
         assertEquals("Query type is wrong", PrefixQuery.class, query.getClass());
 
         PrefixQuery luceneQuery = (PrefixQuery) query;
         assertEquals("Query field is wrong", "name", luceneQuery.getField());
         assertEquals("Query prefix is wrong", "192.168.", luceneQuery.getPrefix().text());
-        assertEquals("Query boost is wrong", 0.5f, query.getBoost(), 0);
+        assertEquals("Query boost is wrong", 0.5f, boostQuery.getBoost(), 0);
     }
 
     @Test
@@ -115,12 +123,15 @@ public class PrefixConditionTest extends AbstractConditionTest {
         Query query = wildcardCondition.query(schema);
 
         assertNotNull("Query is not built", query);
+        assertEquals("Query type is wrong", BoostQuery.class, query.getClass());
+        BoostQuery boostQuery=(BoostQuery)query;
+        query=boostQuery.getQuery();
         assertEquals("Query type is wrong", PrefixQuery.class, query.getClass());
 
         PrefixQuery luceneQuery = (PrefixQuery) query;
         assertEquals("Query field is wrong", "name", luceneQuery.getField());
         assertEquals("Query prefix is wrong", "2001:db8:2de:0:0:0:0:e", luceneQuery.getPrefix().text());
-        assertEquals("Query boost is wrong", 0.5f, query.getBoost(), 0);
+        assertEquals("Query boost is wrong", 0.5f, boostQuery.getBoost(), 0);
     }
 
     @Test

@@ -19,6 +19,7 @@ import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.search.SearchBuilders;
 import com.stratio.cassandra.lucene.search.condition.builder.WildcardConditionBuilder;
+import org.apache.lucene.search.BoostQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.WildcardQuery;
 import org.junit.Test;
@@ -26,6 +27,7 @@ import org.junit.Test;
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
@@ -47,7 +49,7 @@ public class WildcardConditionTest extends AbstractConditionTest {
         WildcardConditionBuilder builder = new WildcardConditionBuilder("field", "value");
         WildcardCondition condition = builder.build();
         assertNotNull("Condition is not built", condition);
-        assertEquals("Boost is not set", Condition.DEFAULT_BOOST, condition.boost, 0);
+        assertNull("Boost is not set", condition.boost);
         assertEquals("Field is not set", "field", condition.field);
         assertEquals("Value is not set", "value", condition.value);
     }
@@ -78,6 +80,9 @@ public class WildcardConditionTest extends AbstractConditionTest {
         Query query = wildcardCondition.query(schema);
 
         assertNotNull("Query is not built", query);
+        assertEquals("Query type is wrong", BoostQuery.class, query.getClass());
+        BoostQuery boostQuery=(BoostQuery)query;
+        query=boostQuery.getQuery();
         assertEquals("Expected wildcard query", WildcardQuery.class, query.getClass());
         WildcardQuery wildcardQuery = (WildcardQuery) query;
         assertEquals("Field name is not properly set", "name", wildcardQuery.getField());
@@ -94,6 +99,9 @@ public class WildcardConditionTest extends AbstractConditionTest {
         Query query = wildcardCondition.query(schema);
 
         assertNotNull("Query is not built", query);
+        assertEquals("Query type is wrong", BoostQuery.class, query.getClass());
+        BoostQuery boostQuery=(BoostQuery)query;
+        query=boostQuery.getQuery();
         assertEquals("Expected wildcard query", WildcardQuery.class, query.getClass());
         WildcardQuery wildcardQuery = (WildcardQuery) query;
         assertEquals("Field name is not properly set", "name", wildcardQuery.getField());
@@ -119,6 +127,9 @@ public class WildcardConditionTest extends AbstractConditionTest {
         Query query = wildcardCondition.query(schema);
 
         assertNotNull("Query is not built", query);
+        assertEquals("Query type is wrong", BoostQuery.class, query.getClass());
+        BoostQuery boostQuery=(BoostQuery)query;
+        query=boostQuery.getQuery();
         assertEquals("Expected wildcard query", WildcardQuery.class, query.getClass());
         WildcardQuery wildcardQuery = (WildcardQuery) query;
         assertEquals("Field name is not properly set", "name", wildcardQuery.getField());
@@ -135,6 +146,9 @@ public class WildcardConditionTest extends AbstractConditionTest {
         Query query = condition.query(schema);
 
         assertNotNull("Query is not built", query);
+        assertEquals("Query type is wrong", BoostQuery.class, query.getClass());
+        BoostQuery boostQuery=(BoostQuery)query;
+        query=boostQuery.getQuery();
         assertEquals("Expected wildcard query", WildcardQuery.class, query.getClass());
         WildcardQuery wildcardQuery = (WildcardQuery) query;
         assertEquals("Field name is not properly set", "name", wildcardQuery.getField());

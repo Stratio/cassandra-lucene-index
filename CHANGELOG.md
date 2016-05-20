@@ -2,11 +2,15 @@
 
 ## 2.2.5.4 (upcoming)
 
+* Upgrade to Apache Lucene 5.5.1
 * Add sorting merge policy (dramatically improves filter performance)
 * Add transformation for getting the convex hull of a geographical shape
 * Fix invalid WKT shapes by zero-buffering them
 * Remove support for other partitioners than Murmur3
 * Improve clustering key filtering with better token prefix collation
+* Fix memory consumption issues with high fetch sizes
+* Fix clustering key filtering with better token prefix collation
+* Fix deletion of unique component of a collection (#132)
 
 ## 2.2.5.3 (31 March 2016)
 
