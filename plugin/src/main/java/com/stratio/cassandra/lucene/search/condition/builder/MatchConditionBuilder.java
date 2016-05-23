@@ -34,6 +34,10 @@ public class MatchConditionBuilder extends ConditionBuilder<MatchCondition, Matc
     @JsonProperty("value")
     private final Object value;
 
+    /** If the generated query should use doc values. */
+    @JsonProperty("doc_values")
+    private Boolean docValues;
+
     /**
      * Creates a new {@link MatchConditionBuilder} for the specified field and value.
      *
@@ -47,12 +51,24 @@ public class MatchConditionBuilder extends ConditionBuilder<MatchCondition, Matc
     }
 
     /**
+     * Sets if the generated query should use doc values. Doc values queries are typically slower, but they can be
+     * faster in the dense case where most rows match the search.
+     *
+     * @param docValues if the generated query should use doc values
+     * @return this builder with the specified use doc values option.
+     */
+    public MatchConditionBuilder docValues(Boolean docValues) {
+        this.docValues = docValues;
+        return this;
+    }
+
+    /**
      * Returns the {@link MatchCondition} represented by this builder.
      *
      * @return a new match condition
      */
     @Override
     public MatchCondition build() {
-        return new MatchCondition(boost, field, value);
+        return new MatchCondition(boost, field, value, docValues);
     }
 }

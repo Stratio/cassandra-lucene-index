@@ -30,11 +30,13 @@ import org.junit.runners.Suite.SuiteClasses;
                GeoShapeSearchOverIndexedGeoPointsAT.class,
                GeoShapesSearchAT.class,
                MatchSearchAT.class,
+               MatchSearchWithDocValuesAT.class,
                NoneSearchAT.class,
                PrefixSearchAT.class,
                PhraseSearchAT.class,
                RegexpSearchAT.class,
                RangeSearchAT.class,
+               RangeSearchWithDocValuesAT.class,
                SortedSearchAT.class,
                WildcardSearchAT.class})
 public class SearchSuite {

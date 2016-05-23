@@ -15,6 +15,7 @@
  */
 package com.stratio.cassandra.lucene.testsAT.search;
 
+import com.datastax.driver.core.exceptions.InvalidQueryException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -31,7 +32,7 @@ public class FuzzySearchAT extends AbstractSearchAT {
 
     @Test
     public void fuzzyFilterEmptyAsciiFieldTest() {
-        filter(fuzzy("ascii_1", "")).check(Exception.class);
+        filter(fuzzy("ascii_1", "")).check(InvalidQueryException.class);
     }
 
     @Test
@@ -81,7 +82,7 @@ public class FuzzySearchAT extends AbstractSearchAT {
 
     @Test
     public void fuzzyFilterEmptyInetFieldTest() {
-        filter(fuzzy("inet_1", "")).check(Exception.class);
+        filter(fuzzy("inet_1", "")).check(InvalidQueryException.class);
     }
 
     @Test
@@ -131,7 +132,7 @@ public class FuzzySearchAT extends AbstractSearchAT {
 
     @Test
     public void fuzzyFilterEmptyTextFieldTest() {
-        filter(fuzzy("text_1", "")).check(Exception.class);
+        filter(fuzzy("text_1", "")).check(InvalidQueryException.class);
     }
 
     @Test
@@ -182,7 +183,7 @@ public class FuzzySearchAT extends AbstractSearchAT {
 
     @Test
     public void fuzzyFilterEmptyVarcharFieldTest() {
-        filter(fuzzy("varchar_1", "")).check(Exception.class);
+        filter(fuzzy("varchar_1", "")).check(InvalidQueryException.class);
     }
 
     @Test
@@ -232,7 +233,7 @@ public class FuzzySearchAT extends AbstractSearchAT {
 
     @Test
     public void fuzzyFilterListFieldTest1() {
-        filter(fuzzy("list_1", "")).check(Exception.class);
+        filter(fuzzy("list_1", "")).check(InvalidQueryException.class);
     }
 
     @Test
@@ -252,7 +253,7 @@ public class FuzzySearchAT extends AbstractSearchAT {
 
     @Test
     public void fuzzyFilterSetFieldTest1() {
-        filter(fuzzy("set_1", "")).check(Exception.class);
+        filter(fuzzy("set_1", "")).check(InvalidQueryException.class);
     }
 
     @Test
@@ -272,7 +273,7 @@ public class FuzzySearchAT extends AbstractSearchAT {
 
     @Test
     public void fuzzyFilterMapFieldTest1() {
-        filter(fuzzy("map_1$k1", "")).check(Exception.class);
+        filter(fuzzy("map_1$k1", "")).check(InvalidQueryException.class);
     }
 
     @Test
@@ -297,7 +298,7 @@ public class FuzzySearchAT extends AbstractSearchAT {
 
     @Test
     public void fuzzyQueryEmptyAsciiFieldTest() {
-        query(fuzzy("ascii_1", "")).check(Exception.class);
+        query(fuzzy("ascii_1", "")).check(InvalidQueryException.class);
     }
 
     @Test
@@ -347,7 +348,7 @@ public class FuzzySearchAT extends AbstractSearchAT {
 
     @Test
     public void fuzzyQueryEmptyInetFieldTest() {
-        query(fuzzy("inet_1", "")).check(Exception.class);
+        query(fuzzy("inet_1", "")).check(InvalidQueryException.class);
     }
 
     @Test
@@ -397,7 +398,7 @@ public class FuzzySearchAT extends AbstractSearchAT {
 
     @Test
     public void fuzzyQueryEmptyTextFieldTest() {
-        query(fuzzy("text_1", "")).check(Exception.class);
+        query(fuzzy("text_1", "")).check(InvalidQueryException.class);
     }
 
     @Test
@@ -448,7 +449,7 @@ public class FuzzySearchAT extends AbstractSearchAT {
 
     @Test
     public void fuzzyQueryEmptyVarcharFieldTest() {
-        query(fuzzy("varchar_1", "")).check(Exception.class);
+        query(fuzzy("varchar_1", "")).check(InvalidQueryException.class);
     }
 
     @Test
@@ -498,7 +499,7 @@ public class FuzzySearchAT extends AbstractSearchAT {
 
     @Test
     public void fuzzyQueryListFieldTest1() {
-        query(fuzzy("list_1", "")).check(Exception.class);
+        query(fuzzy("list_1", "")).check(InvalidQueryException.class);
     }
 
     @Test
@@ -518,7 +519,7 @@ public class FuzzySearchAT extends AbstractSearchAT {
 
     @Test
     public void fuzzyQuerySetFieldTest1() {
-        query(fuzzy("set_1", "")).check(Exception.class);
+        query(fuzzy("set_1", "")).check(InvalidQueryException.class);
     }
 
     @Test
@@ -538,7 +539,7 @@ public class FuzzySearchAT extends AbstractSearchAT {
 
     @Test
     public void fuzzyQueryMapFieldTest1() {
-        query(fuzzy("map_1$k1", "")).check(Exception.class);
+        query(fuzzy("map_1$k1", "")).check(InvalidQueryException.class);
     }
 
     @Test

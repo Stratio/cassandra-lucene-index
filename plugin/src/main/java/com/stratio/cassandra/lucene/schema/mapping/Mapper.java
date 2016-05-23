@@ -23,7 +23,6 @@ import com.stratio.cassandra.lucene.schema.column.Columns;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
 import org.apache.cassandra.db.marshal.*;
-import org.apache.cassandra.db.marshal.CollectionType.Kind;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field.Store;
@@ -31,9 +30,6 @@ import org.apache.lucene.search.SortField;
 
 import java.nio.ByteBuffer;
 import java.util.List;
-
-import static org.apache.cassandra.db.marshal.CollectionType.Kind.LIST;
-import static org.apache.cassandra.db.marshal.CollectionType.Kind.SET;
 
 /**
  * Class for mapping between Cassandra's columns and Lucene documents.

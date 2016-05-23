@@ -168,12 +168,19 @@ public class CassandraUtilsSelect {
         return parent;
     }
 
-    public <T extends Exception> CassandraUtils check(Class<T> expected) {
+    public <T extends Exception> CassandraUtils check(Class<T> expectedClass) {
+        return check(expectedClass, null);
+    }
+
+    public <T extends Exception> CassandraUtils check(Class<T> expectedClass, String expectedMessage) {
         try {
             get();
             fail("Search should have been invalid!");
         } catch (Exception e) {
-            assertTrue("Exception should be " + expected.getSimpleName(), expected.isAssignableFrom(e.getClass()));
+            assertEquals("Expected exception type is wrong", expectedClass, e.getClass());
+            if (expectedMessage != null) {
+                assertEquals("Expected exception message is wrong", expectedMessage, e.getMessage());
+            }
         }
         return parent;
     }

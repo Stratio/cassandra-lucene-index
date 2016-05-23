@@ -27,7 +27,7 @@ import java.util.List;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class GeoShapeCondition extends Condition {
+public class GeoShapeCondition extends Condition<GeoShapeCondition> {
 
     /** The name of the field to be matched. */
     @JsonProperty("field")

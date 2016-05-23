@@ -78,6 +78,8 @@ Stratio's Cassandra Lucene Index
     - `Use a low refresh rate <#use-a-low-refresh-rate>`__
     - `Prefer filters over queries <#prefer-filters-over-queries>`__
     - `Use a large page size <#use-a-large-page-size>`__
+    - `Try doc values <#try-doc-values>`__
+    - `Force segments merge <#force-segments-merge>`__
 
 Overview
 ********
@@ -1457,6 +1459,8 @@ a “\ **boost**\ ” option that acts as a weight on the resulting score.
 | `Contains <#contains-search>`__         | field           | string          |                                | Yes       |
 |                                         +-----------------+-----------------+--------------------------------+-----------+
 |                                         | values          | array           |                                | Yes       |
+|                                         +-----------------+-----------------+--------------------------------+-----------+
+|                                         | doc_values      | boolean         | false                          | No        |
 +-----------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 | `Date range <#date-range-search>`__     | field           | string          |                                | Yes       |
 |                                         +-----------------+-----------------+--------------------------------+-----------+
@@ -1509,6 +1513,8 @@ a “\ **boost**\ ” option that acts as a weight on the resulting score.
 | `Match <#match-search>`__               | field           | string          |                                | Yes       |
 |                                         +-----------------+-----------------+--------------------------------+-----------+
 |                                         | value           | any             |                                | Yes       |
+|                                         +-----------------+-----------------+--------------------------------+-----------+
+|                                         | doc_values      | boolean         | false                          | No        |
 +-----------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 | `None <#none-search>`__                 |                 |                 |                                |           |
 +-----------------------------------------+-----------------+-----------------+--------------------------------+-----------+
@@ -1531,6 +1537,8 @@ a “\ **boost**\ ” option that acts as a weight on the resulting score.
 |                                         | include_lower   | boolean         | false                          | No        |
 |                                         +-----------------+-----------------+--------------------------------+-----------+
 |                                         | include_upper   | boolean         | false                          | No        |
+|                                         +-----------------+-----------------+--------------------------------+-----------+
+|                                         | doc_values      | boolean         | false                          | No        |
 +-----------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 | `Regexp <#regexp-search>`__             | field           | string          |                                | Yes       |
 |                                         +-----------------+-----------------+--------------------------------+-----------+
@@ -1971,7 +1979,14 @@ Searches for rows matching one or more of the specified terms.
     WHERE <magic_column> = '{ (filter | query) : {
                                 type   : "contains",
                                 field  : <fieldname> ,
-                                values : <value_list> }}';
+                                values : <value_list>
+                                (, doc_values : <doc_values> )? }
+                            }';
+
+where:
+
+-  **doc\_values** (default = false): if the generated Lucene query should use doc values instead of inverted index.
+   Doc values searches are typically slower, but they can be faster in the dense case where most rows match the search.
 
 **Example 1:** search for rows where name matches “Alicia” or “mancha”:
 
@@ -2531,7 +2546,13 @@ Searches for rows with columns containing the specified term. The matching depen
     WHERE <magic_column> = '{ (filter | query) : {
                                   type  : "match",
                                   field : <fieldname> ,
-                                  value : <value> }}';
+                                  value : <value>
+                                  (, doc_values : <doc_values> )? } }';
+
+where:
+
+-  **doc\_values** (default = false): if the generated Lucene query should use doc values instead of inverted index.
+   Doc values searches are typically slower, but they can be faster in the dense case where most rows match the search.
 
 **Example 1:** search for rows where name matches “Alicia”:
 
@@ -2581,11 +2602,14 @@ Using `query builder <#query-builder>`__:
 
 .. code-block:: sql
 
-    SELECT * FROM test.users
-    WHERE stratio_col = '{filter : {
-                           type  : "match",
-                           field : "date",
-                           value : "2014/01/01" }}';
+    SELECT * FROM test.users WHERE stratio_col = '{
+        filter : {
+            type       : "match",
+            field      : "date",
+            value      : "2014/01/01",
+            doc_values : true
+        }
+    }';
 
 Using `query builder <#query-builder>`__:
 
@@ -2594,7 +2618,7 @@ Using `query builder <#query-builder>`__:
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     String indexColumn = "stratio_col";
-    Search search = search().filter(match("date","2014/01/01"));
+    Search search = search().filter(match("date","2014/01/01").docValues(true));
     ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users")
                                     .where(eq(indexColumn, search.build()));
 
@@ -2752,6 +2776,7 @@ Searches for rows with columns with terms within the specified term range.
                             field    : <fieldname>
                             (, lower : <min> , include_lower : <min_included> )?
                             (, upper : <max> , include_upper : <max_included> )?
+                            (, doc_values : <doc_values> )?
                          }}';
 
 where:
@@ -2762,6 +2787,8 @@ where:
 -  **upper**: upper bound of the range.
 -  **include\_upper** (default = false): if the upper bound is included
    (right-closed range).
+-  **doc\_values** (default = false): if the generated Lucene query should use doc values instead of inverted index.
+   Doc values searches are typically slower, but they can be faster in the dense case where most rows match the search.
 
 Lower and upper will default to :math:`-/+\\infty` for number. In the
 case of byte and string like data (bytes, inet, string, text), all
@@ -2797,12 +2824,15 @@ Using `query builder <#query-builder>`__:
 
 .. code-block:: sql
 
-    SELECT * FROM test.users
-    WHERE stratio_col = '{filter : {
-                            type          : "range",
-                            field         : "age",
-                            upper         : 0,
-                            include_upper : true }}';
+    SELECT * FROM test.users WHERE stratio_col = '{
+        filter : {
+            type          : "range",
+            field         : "age",
+            upper         : 0,
+            include_upper : true,
+            doc_values    : true
+         }
+    }';
 
 Using `query builder <#query-builder>`__:
 
@@ -2811,7 +2841,7 @@ Using `query builder <#query-builder>`__:
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     String indexColumn = "stratio_col";
-    Search search = search().filter(range("age").upper(0).includeUpper(true));
+    Search search = search().filter(range("age").upper(0).includeUpper(true).docValues(true));
     ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users")
                                     .where(eq(indexColumn, search.build()));
 
@@ -2819,14 +2849,17 @@ Using `query builder <#query-builder>`__:
 
 .. code-block:: sql
 
-    SELECT * FROM test.users
-    WHERE stratio_col = '{filter : {
-                            type          : "range",
-                            field         : "age",
-                            lower         : -1,
-                            upper         : 1,
-                            include_lower : true,
-                            include_upper : true }}';
+    SELECT * FROM test.users WHERE stratio_col = '{
+        filter : {
+            type          : "range",
+            field         : "age",
+            lower         : -1,
+            upper         : 1,
+            include_lower : true,
+            include_upper : true,
+            doc_values    : true
+        }
+    }';
 
 Using `query builder <#query-builder>`__:
 
@@ -2835,8 +2868,11 @@ Using `query builder <#query-builder>`__:
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
     String indexColumn = "stratio_col";
-    Search search = search().filter(range("age").lower(-1).upper(1)
-                                    .includeLower(true).includeUpper(true));
+    Search search = search().filter(range("age").lower(-1)
+                                                .upper(1)
+                                                .includeLower(true)
+                                                .includeUpper(true)
+                                                .docValues(true));
     ResultSet rs = session.execute(QueryBuilder.select().all().from("test","users")
                                     .where(eq(indexColumn, search.build()));
 
@@ -2844,14 +2880,16 @@ Using `query builder <#query-builder>`__:
 
 .. code-block:: sql
 
-    SELECT * FROM test.users
-    WHERE stratio_col = '{filter : {
-                            type          : "range",
-                            field         : "date",
-                            lower         : "2014/01/01",
-                            upper         : "2014/01/02",
-                            include_lower : true,
-                            include_upper : true }}';
+    SELECT * FROM test.users WHERE stratio_col = '{
+        filter : {
+            type          : "range",
+            field         : "date",
+            lower         : "2014/01/01",
+            upper         : "2014/01/02",
+            include_lower : true,
+            include_upper : true
+        }
+    }';
 
 Using `query builder <#query-builder>`__:
 
@@ -3643,3 +3681,21 @@ On the other hand, if you want to retrieve thousands or millions of rows,
 then you should use a high page size, maybe 1000 rows per page.
 Page size can be set in cqlsh in a per-session basis using the command `PAGING``
 and in Java driver its set in a per-query basis using the attribute `pageSize``.
+
+Try doc values
+==============
+
+`Match <#match-search>`__, `range <#range-search>`__ and `contains <#contains-search>`__ searches have a property named
+`doc_values` that can be used with single-column not-analyzed fields. When enabled, these Lucene will use doc values
+instead of the inverted index. Doc values searches are typically slower, but they can be faster in the dense case where
+most rows match the search. So, if you suspect that your search is going to match most rows in the table, try to enable
+`doc_values`, because it could dramatically improve performance in some cases.
+
+Force segments merge
+====================
+
+`JMX interface <#jmx-interface>`__ allows you to force a complete index segments merge. This is a very heavy operation
+similar to C* compaction that can significantly improve search performance.
+Although this operation is not mandatory at all,
+you should consider using it if your system has off-peak hours that can be used for optimization tasks.
+The ideal scenario is to have all the index in a single segment.

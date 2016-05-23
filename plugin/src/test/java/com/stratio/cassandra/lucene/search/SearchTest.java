@@ -118,8 +118,8 @@ public class SearchTest {
                                 .sort(field("field"))
                                 .build();
         assertEquals("Method #toString is wrong",
-                     "Search{queryCondition=MatchCondition{boost=null, field=field, value=value}, " +
-                     "filterCondition=MatchCondition{boost=null, field=field, value=value}, " +
+                     "Search{queryCondition=MatchCondition{boost=null, field=field, value=value, docValues=false}, " +
+                     "filterCondition=MatchCondition{boost=null, field=field, value=value, docValues=false}, " +
                      "sort=Sort{sortFields=[SimpleSortField{field=field, reverse=false}]}}",
                      search.toString());
     }

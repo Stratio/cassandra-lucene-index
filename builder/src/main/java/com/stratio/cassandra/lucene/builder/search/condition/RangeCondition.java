@@ -23,7 +23,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class RangeCondition extends Condition {
+public class RangeCondition extends Condition<RangeCondition> {
 
     /** The name of the field to be matched. */
     @JsonProperty("field")
@@ -44,6 +44,10 @@ public class RangeCondition extends Condition {
     /** If the upper value must be included if not {@code null}. */
     @JsonProperty("include_upper")
     Boolean includeUpper;
+
+    /** If the generated query should use doc values. */
+    @JsonProperty("doc_values")
+    Boolean docValues;
 
     /**
      * Creates a new {@link RangeCondition} for the specified field.
@@ -96,6 +100,18 @@ public class RangeCondition extends Condition {
      */
     public RangeCondition includeUpper(Boolean includeUpper) {
         this.includeUpper = includeUpper;
+        return this;
+    }
+
+    /**
+     * Sets if the generated query should use doc values. Doc values queries are typically slower, but they can be
+     * faster in the dense case where most rows match the search.
+     *
+     * @param docValues if the generated query should use doc values
+     * @return this builder with the specified use doc values option.
+     */
+    public RangeCondition docValues(Boolean docValues) {
+        this.docValues = docValues;
         return this;
     }
 }

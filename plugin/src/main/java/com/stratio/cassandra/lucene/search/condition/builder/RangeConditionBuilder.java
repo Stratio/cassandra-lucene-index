@@ -46,6 +46,10 @@ public class RangeConditionBuilder extends ConditionBuilder<RangeCondition, Rang
     @JsonProperty("include_upper")
     private Boolean includeUpper;
 
+    /** If the generated query should use doc values. */
+    @JsonProperty("doc_values")
+    private Boolean docValues;
+
     /**
      * Creates a new {@link RangeConditionBuilder} for the specified field.
      *
@@ -101,12 +105,24 @@ public class RangeConditionBuilder extends ConditionBuilder<RangeCondition, Rang
     }
 
     /**
+     * Sets if the generated query should use doc values. Doc values queries are typically slower, but they can be
+     * faster in the dense case where most rows match the search.
+     *
+     * @param docValues if the generated query should use doc values
+     * @return this builder with the specified use doc values option.
+     */
+    public RangeConditionBuilder docValues(Boolean docValues) {
+        this.docValues = docValues;
+        return this;
+    }
+
+    /**
      * Returns the {@link RangeCondition} represented by this builder.
      *
      * @return a new range condition
      */
     @Override
     public RangeCondition build() {
-        return new RangeCondition(boost, field, lower, upper, includeLower, includeUpper);
+        return new RangeCondition(boost, field, lower, upper, includeLower, includeUpper, docValues);
     }
 }

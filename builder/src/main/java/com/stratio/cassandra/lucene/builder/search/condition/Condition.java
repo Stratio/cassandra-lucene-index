@@ -48,7 +48,7 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
                @JsonSubTypes.Type(value = RangeCondition.class, name = "range"),
                @JsonSubTypes.Type(value = RegexpCondition.class, name = "regexp"),
                @JsonSubTypes.Type(value = WildcardCondition.class, name = "wildcard")})
-public abstract class Condition extends Builder {
+public abstract class Condition<T extends Condition> extends Builder {
 
     /** The boost for the {@code Condition} to be built. */
     @JsonProperty("boost")
@@ -62,9 +62,9 @@ public abstract class Condition extends Builder {
      * @return this with the specified boost
      */
     @SuppressWarnings("unchecked")
-    public Condition boost(float boost) {
+    public T boost(float boost) {
         this.boost = boost;
-        return this;
+        return (T) this;
     }
 
     /**
@@ -75,8 +75,8 @@ public abstract class Condition extends Builder {
      * @return this with the specified boost
      */
     @SuppressWarnings("unchecked")
-    public Condition boost(Number boost) {
+    public T boost(Number boost) {
         this.boost = boost == null ? null : boost.floatValue();
-        return this;
+        return (T) this;
     }
 }

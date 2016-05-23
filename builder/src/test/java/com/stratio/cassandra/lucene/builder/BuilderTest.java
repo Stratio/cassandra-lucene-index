@@ -417,8 +417,9 @@ public class BuilderTest {
 
     @Test
     public void testContainsConditionFull() {
-        String actual = contains("field", "v1", "v2").boost(2).build();
-        String expected = "{\"type\":\"contains\",\"field\":\"field\",\"values\":[\"v1\",\"v2\"],\"boost\":2.0}";
+        String actual = contains("field", "v1", "v2").boost(2).docValues(true).build();
+        String expected = "{\"type\":\"contains\",\"field\":\"field\",\"values\":[\"v1\",\"v2\"]," +
+                          "\"boost\":2.0,\"doc_values\":true}";
         assertEquals("contains condition serialization is wrong", expected, actual);
     }
 
@@ -481,8 +482,9 @@ public class BuilderTest {
 
     @Test
     public void testMatchConditionFull() {
-        String actual = match("field", "value").boost(2).build();
-        String expected = "{\"type\":\"match\",\"field\":\"field\",\"value\":\"value\",\"boost\":2.0}";
+        String actual = match("field", "value").docValues(true).boost(2).build();
+        String expected = "{\"type\":\"match\",\"field\":\"field\",\"value\":\"value\"," +
+                          "\"boost\":2.0,\"doc_values\":true}";
         assertEquals("match condition serialization is wrong", expected, actual);
     }
 
@@ -537,9 +539,15 @@ public class BuilderTest {
 
     @Test
     public void testRangeConditionFull() {
-        String actual = range("field").lower(1).upper(2).includeLower(true).includeUpper(false).boost(0.3).build();
-        String expected = "{\"type\":\"range\",\"field\":\"field\"," +
-                          "\"boost\":0.3,\"lower\":1,\"upper\":2,\"include_lower\":true,\"include_upper\":false}";
+        String actual = range("field").lower(1)
+                                      .upper(2)
+                                      .includeLower(true)
+                                      .includeUpper(false)
+                                      .docValues(true)
+                                      .boost(0.3)
+                                      .build();
+        String expected = "{\"type\":\"range\",\"field\":\"field\",\"boost\":0.3,\"lower\":1,\"upper\":2," +
+                          "\"include_lower\":true,\"include_upper\":false,\"doc_values\":true}";
         assertEquals("range condition serialization is wrong", expected, actual);
     }
 

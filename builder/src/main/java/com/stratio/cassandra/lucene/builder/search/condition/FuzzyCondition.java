@@ -25,7 +25,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class FuzzyCondition extends Condition {
+public class FuzzyCondition extends Condition<FuzzyCondition> {
 
     /** The name of the field to be matched. */
     @JsonProperty("field")

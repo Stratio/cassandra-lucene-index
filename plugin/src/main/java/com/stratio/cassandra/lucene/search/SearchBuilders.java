@@ -121,6 +121,17 @@ public final class SearchBuilders {
     }
 
     /**
+     * Returns a new {@link ContainsConditionBuilder} for the specified field and value.
+     *
+     * @param field the name of the field to be matched
+     * @param values the values of the field to be matched
+     * @return a new match condition builder
+     */
+    public static ContainsConditionBuilder contains(String field, Object... values) {
+        return new ContainsConditionBuilder(field, values);
+    }
+
+    /**
      * Returns a new {@link NoneConditionBuilder} for the specified field and value.
      *
      * @return a new none condition builder

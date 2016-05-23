@@ -15,7 +15,6 @@
  */
 package com.stratio.cassandra.lucene.testsAT.search;
 
-import com.stratio.cassandra.lucene.builder.index.schema.mapping.GeoPointMapper;
 import com.stratio.cassandra.lucene.builder.search.condition.Condition;
 import com.stratio.cassandra.lucene.builder.search.sort.SortField;
 import com.stratio.cassandra.lucene.testsAT.BaseAT;
@@ -24,9 +23,13 @@ import com.stratio.cassandra.lucene.testsAT.util.CassandraUtilsSelect;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
+import static com.stratio.cassandra.lucene.builder.Builder.geoPointMapper;
+import static com.stratio.cassandra.lucene.builder.Builder.stringMapper;
 import static com.stratio.cassandra.lucene.testsAT.search.DataHelper.*;
 
 public abstract class AbstractSearchAT extends BaseAT {
+
+    protected static final String UNSUPPORTED_DOC_VALUES = "Field 'text_1' does not support doc_values";
 
     protected static CassandraUtils utils;
 
@@ -55,7 +58,10 @@ public abstract class AbstractSearchAT extends BaseAT {
                               .withColumn("lat", "float")
                               .withColumn("long", "float")
                               .withColumn("lucene", "text")
-                              .withMapper("geo_point", new GeoPointMapper("lat", "long"))
+                              .withMapper("geo_point", geoPointMapper("lat", "long"))
+                              .withMapper("string_list", stringMapper().column("list_1"))
+                              .withMapper("string_set", stringMapper().column("set_1"))
+                              .withMapper("string_map", stringMapper().column("map_1"))
                               .build()
                               .createKeyspace()
                               .createTable()

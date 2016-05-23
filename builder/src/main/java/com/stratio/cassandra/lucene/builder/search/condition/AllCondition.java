@@ -22,7 +22,7 @@ import org.codehaus.jackson.annotate.JsonCreator;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class AllCondition extends Condition {
+public class AllCondition extends Condition<AllCondition> {
 
     /**
      * Creates a new {@link AllCondition}.

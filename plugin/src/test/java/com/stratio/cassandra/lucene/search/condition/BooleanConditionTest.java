@@ -121,11 +121,11 @@ public class BooleanConditionTest extends AbstractConditionTest {
                                            .boost(0.5f)
                                            .build();
         assertEquals("Method #toString is wrong",
-                     "BooleanCondition{boost=0.5, " +
-                     "must=[MatchCondition{boost=null, field=name, value=jonathan}, " +
-                     "MatchCondition{boost=null, field=age, value=18}], " +
-                     "should=[MatchCondition{boost=null, field=color, value=green}], " +
-                     "not=[MatchCondition{boost=null, field=country, value=england}]}",
+                     "BooleanCondition{boost=0.5, must=[" +
+                     "MatchCondition{boost=null, field=name, value=jonathan, docValues=false}, " +
+                     "MatchCondition{boost=null, field=age, value=18, docValues=false}], " +
+                     "should=[MatchCondition{boost=null, field=color, value=green, docValues=false}], " +
+                     "not=[MatchCondition{boost=null, field=country, value=england, docValues=false}]}",
                      condition.toString());
     }
 

@@ -4,6 +4,7 @@
 
 * Upgrade to Apache Lucene 5.5.1
 * Add sorting merge policy (dramatically improves filter performance)
+* Add option to use doc values in match, contains and range searches
 * Add heuristic to build token range queries according to their selectivity
 * Add transformation for getting the convex hull of a geographical shape
 * Remove indexed/sorted mapping options, all mappers store doc values when possible

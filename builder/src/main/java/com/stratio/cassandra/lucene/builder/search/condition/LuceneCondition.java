@@ -23,7 +23,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class LuceneCondition extends Condition {
+public class LuceneCondition extends Condition<LuceneCondition> {
 
     /** The Lucene query syntax expression. */
     @JsonProperty("query")
