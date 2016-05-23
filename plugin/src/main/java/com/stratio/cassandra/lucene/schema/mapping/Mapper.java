@@ -267,20 +267,9 @@ public abstract class Mapper {
     }
 
     private void validate(AbstractType<?> type, String column) {
-
         // Check type
         if (!supports(type)) {
-            throw new IndexException("'%s' is not supported by mapper '%s'", type, field);
-        }
-
-        // Avoid sorting in lists and sets
-        if (type.isCollection() && docValues) {
-            Kind kind = ((CollectionType<?>) type).kind;
-            if (kind == SET) {
-                throw new IndexException("'%s' can't be docValues because it's a set", column);
-            } else if (kind == LIST) {
-                throw new IndexException("'%s' can't be docValues because it's a list", column);
-            }
+            throw new IndexException("Type '%s' in column '%s' is not supported by mapper '%s'", type, column, field);
         }
     }
 

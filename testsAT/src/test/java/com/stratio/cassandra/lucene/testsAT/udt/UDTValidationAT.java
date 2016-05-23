@@ -102,7 +102,7 @@ public class UDTValidationAT extends BaseAT {
     }
 
     @Test
-    public void testInValidCreateIndex() {
+    public void testInvalidCreateIndex() {
         String createIndexQuery = "CREATE CUSTOM INDEX " +
                                   cassandraUtils.getIndexName() +
                                   " ON " +
@@ -132,7 +132,7 @@ public class UDTValidationAT extends BaseAT {
     }
 
     @Test
-    public void testInValidCreateIndex2() {
+    public void testInvalidCreateIndex2() {
         String createIndexQuery = "CREATE CUSTOM INDEX " +
                                   cassandraUtils.getIndexName() +
                                   " ON " +
@@ -163,7 +163,7 @@ public class UDTValidationAT extends BaseAT {
     }
 
     @Test
-    public void testInValidCreateIndex3() {
+    public void testInvalidCreateIndex3() {
         String createIndexQuery = "CREATE CUSTOM INDEX " +
                                   cassandraUtils.getIndexName() +
                                   " ON " +
@@ -188,10 +188,10 @@ public class UDTValidationAT extends BaseAT {
             cassandraUtils.execute(new SimpleStatement(createIndexQuery));
             assertFalse("Creating invalid index must throw an Exception but does not ", true);
         } catch (InvalidConfigurationInQueryException e) {
-            String
-                    expectedMessage
-                    = "'schema' is invalid : 'org.apache.cassandra.db.marshal.FloatType' is not supported by mapper 'address.point.longitude'";
-            assertEquals("Cretaing invalid index must return InvalidConfigurationInQueryException(" +
+            String expectedMessage = "'schema' is invalid : Type 'org.apache.cassandra.db.marshal.FloatType' " +
+                                     "in column 'address.point.longitude' " +
+                                     "is not supported by mapper 'address.point.longitude'";
+            assertEquals("Creating invalid index must return InvalidConfigurationInQueryException(" +
                          expectedMessage +
                          ") but returns InvalidConfigurationInQueryException(" +
                          e.getMessage() +
@@ -201,7 +201,7 @@ public class UDTValidationAT extends BaseAT {
     }
 
     @Test
-    public void testInValidCreateIndex4() {
+    public void testInvalidCreateIndex4() {
         String createIndexQuery = "CREATE CUSTOM INDEX " +
                                   cassandraUtils.getIndexName() +
                                   " ON " +
