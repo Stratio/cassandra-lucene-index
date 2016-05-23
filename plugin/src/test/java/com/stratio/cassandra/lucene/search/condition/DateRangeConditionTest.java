@@ -156,7 +156,7 @@ public class DateRangeConditionTest extends AbstractConditionTest {
         Schema schema = schema().mapper("name", dateRangeMapper("to", "from").pattern(TIMESTAMP_PATTERN)).build();
 
         DateRangeCondition condition = new DateRangeCondition(null, "name", 1L, 2L, null);
-        Query query = condition.query(schema);
+        Query query = condition.doQuery(schema);
         assertNotNull("Query is not built", query);
         assertTrue("Query type is wrong", query instanceof IntersectsPrefixTreeQuery);
         IntersectsPrefixTreeQuery intersectsPrefixTreeQuery = (IntersectsPrefixTreeQuery) query;
@@ -170,7 +170,7 @@ public class DateRangeConditionTest extends AbstractConditionTest {
     public void testQueryWithoutValidMapper() {
         Schema schema = schema().mapper("name", uuidMapper()).build();
         DateRangeCondition condition = new DateRangeCondition(null, "name", 1, 2, null);
-        condition.query(schema);
+        condition.doQuery(schema);
     }
 
     @Test

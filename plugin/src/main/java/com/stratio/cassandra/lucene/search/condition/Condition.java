@@ -18,9 +18,7 @@ package com.stratio.cassandra.lucene.search.condition;
 import com.google.common.base.Objects;
 import com.stratio.cassandra.lucene.schema.Schema;
 import org.apache.lucene.search.BoostQuery;
-import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.search.QueryWrapperFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +55,7 @@ public abstract class Condition {
      * @param schema the schema to be used
      * @return The Lucene query
      */
-    public Query query(Schema schema) {
+    public final Query query(Schema schema) {
         Query query = doQuery(schema);
         return boost == null ? query : new BoostQuery(query, boost);
     }
@@ -69,16 +67,6 @@ public abstract class Condition {
      * @return The Lucene query
      */
     public abstract Query doQuery(Schema schema);
-
-    /**
-     * Returns the Lucene {@link Filter} representation of this condition.
-     *
-     * @param schema the schema to be used
-     * @return the Lucene filter
-     */
-    public Filter filter(Schema schema) {
-        return new QueryWrapperFilter(query(schema));
-    }
 
     protected Objects.ToStringHelper toStringHelper(Object o) {
         return Objects.toStringHelper(o).add("boost", boost);

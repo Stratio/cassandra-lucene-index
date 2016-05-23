@@ -19,7 +19,6 @@ import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.search.condition.builder.GeoBBoxConditionBuilder;
 import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.BoostQuery;
 import org.apache.lucene.search.ConstantScoreQuery;
 import org.apache.lucene.search.Query;
 import org.junit.Test;
@@ -146,11 +145,11 @@ public class GeoBBoxConditionTest extends AbstractConditionTest {
     public void testQuery() {
         Schema schema = schema().mapper("name", geoPointMapper("lat", "lon").maxLevels(8)).build();
         GeoBBoxCondition condition = new GeoBBoxCondition(0.5f, "name", -90D, 90D, -180D, 180D);
-        Query query = condition.query(schema);
+
+        Query query = condition.doQuery(schema);
         assertNotNull("Query is wrong is not built", query);
-        assertEquals("Query type is wrong", BoostQuery.class, query.getClass());
-        query = ((BoostQuery) query).getQuery();
         assertEquals("Query type is wrong", ConstantScoreQuery.class, query.getClass());
+
         query = ((ConstantScoreQuery) query).getQuery();
         assertTrue("Query type is wrong", query instanceof BooleanQuery);
     }
@@ -159,7 +158,7 @@ public class GeoBBoxConditionTest extends AbstractConditionTest {
     public void testQueryoutValidMapper() {
         Schema schema = schema().mapper("name", uuidMapper()).build();
         GeoBBoxCondition condition = new GeoBBoxCondition(0.5f, "name", -90D, 90D, -180D, 180D);
-        condition.query(schema);
+        condition.doQuery(schema);
     }
 
     @Test

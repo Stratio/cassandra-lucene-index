@@ -18,7 +18,6 @@ package com.stratio.cassandra.lucene.search.condition;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.search.condition.builder.NoneConditionBuilder;
 import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.BoostQuery;
 import org.apache.lucene.search.Query;
 import org.junit.Test;
 
@@ -62,13 +61,9 @@ public class NoneConditionTest extends AbstractConditionTest {
     public void testQuery() {
         Schema schema = schema().build();
         NoneCondition condition = new NoneCondition(0.7f);
-        Query query = condition.query(schema);
-        assertEquals("Query type is wrong", BoostQuery.class, query.getClass());
-        BoostQuery boostQuery = (BoostQuery) query;
-        query = boostQuery.getQuery();
+        Query query = condition.doQuery(schema);
         assertNotNull("Query is not built", query);
         assertEquals("Query type is wrong", BooleanQuery.class, query.getClass());
-        assertEquals("Query boost is wrong", 0.7f, boostQuery.getBoost(), 0);
     }
 
     @Test

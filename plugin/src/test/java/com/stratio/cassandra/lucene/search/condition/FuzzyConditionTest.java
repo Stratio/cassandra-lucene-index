@@ -18,7 +18,6 @@ package com.stratio.cassandra.lucene.search.condition;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.search.condition.builder.FuzzyConditionBuilder;
-import org.apache.lucene.search.BoostQuery;
 import org.apache.lucene.search.FuzzyQuery;
 import org.apache.lucene.search.Query;
 import org.junit.Test;
@@ -118,20 +117,16 @@ public class FuzzyConditionTest extends AbstractConditionTest {
         Schema schema = schema().mapper("name", stringMapper()).build();
 
         FuzzyCondition condition = new FuzzyCondition(0.5f, "name", "tr", 1, 2, 49, true);
-        Query query = condition.query(schema);
+        Query query = condition.doQuery(schema);
 
         assertNotNull("Query is not built", query);
-        assertEquals("Query type is wrong", BoostQuery.class, query.getClass());
-
-        BoostQuery boostQuery = (BoostQuery) query;
-        query = boostQuery.getQuery();
         assertEquals("Query type is wrong", FuzzyQuery.class, query.getClass());
+
         FuzzyQuery fuzzyQuery = (FuzzyQuery) query;
         assertEquals("Query field is wrong", "name", fuzzyQuery.getField());
         assertEquals("Query term is wrong", "tr", fuzzyQuery.getTerm().text());
         assertEquals("Query max edits is wrong", 1, fuzzyQuery.getMaxEdits());
         assertEquals("Query prefix length is wrong", 2, fuzzyQuery.getPrefixLength());
-        assertEquals("Query boost is wrong", 0.5f, boostQuery.getBoost(), 0);
     }
 
     @Test(expected = IndexException.class)
@@ -140,7 +135,7 @@ public class FuzzyConditionTest extends AbstractConditionTest {
         Schema schema = schema().mapper("name", integerMapper()).build();
 
         FuzzyCondition condition = new FuzzyCondition(0.5f, "name", "tr", 1, 2, 49, true);
-        condition.query(schema);
+        condition.doQuery(schema);
     }
 
     @Test

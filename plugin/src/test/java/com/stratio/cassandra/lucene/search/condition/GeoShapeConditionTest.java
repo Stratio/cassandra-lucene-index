@@ -21,7 +21,6 @@ import com.stratio.cassandra.lucene.common.GeoDistance;
 import com.stratio.cassandra.lucene.common.GeoOperation;
 import com.stratio.cassandra.lucene.common.GeoTransformation;
 import com.stratio.cassandra.lucene.schema.Schema;
-import org.apache.lucene.search.BoostQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.spatial.prefix.ContainsPrefixTreeQuery;
 import org.apache.lucene.spatial.prefix.IntersectsPrefixTreeQuery;
@@ -115,11 +114,8 @@ public class GeoShapeConditionTest extends AbstractConditionTest {
 
         Condition condition = new GeoShapeCondition(0.1f, "geo_point", WKT, GeoOperation.IS_WITHIN, transformations);
 
-        Query query = condition.query(schema);
+        Query query = condition.doQuery(schema);
         assertNotNull("Query is not built", query);
-        assertEquals("Query type is wrong", BoostQuery.class, query.getClass());
-        BoostQuery boostQuery = (BoostQuery) query;
-        query = boostQuery.getQuery();
         assertEquals("Query type is wrong", WithinPrefixTreeQuery.class, query.getClass());
         WithinPrefixTreeQuery withinPrefixTreeQuery = (WithinPrefixTreeQuery) query;
         assertEquals("Query is wrong",
@@ -163,11 +159,8 @@ public class GeoShapeConditionTest extends AbstractConditionTest {
 
         Condition condition = new GeoShapeCondition(0.1f, "geo_point", WKT, GeoOperation.INTERSECTS, transformations);
 
-        Query query = condition.query(schema);
+        Query query = condition.doQuery(schema);
         assertNotNull("Query is not built", query);
-        assertEquals("Query type is wrong", BoostQuery.class, query.getClass());
-        BoostQuery boostQuery = (BoostQuery) query;
-        query = boostQuery.getQuery();
         assertTrue("Query type is wrong", query instanceof IntersectsPrefixTreeQuery);
         IntersectsPrefixTreeQuery intersectsPrefixTreeQuery = (IntersectsPrefixTreeQuery) query;
         assertEquals("Query is wrong",
@@ -210,10 +203,8 @@ public class GeoShapeConditionTest extends AbstractConditionTest {
 
         Condition condition = new GeoShapeCondition(0.1f, "geo_point", WKT, GeoOperation.CONTAINS, transformations);
 
-        Query query = condition.query(schema);
+        Query query = condition.doQuery(schema);
         assertNotNull("Query is not built", query);
-        assertEquals("Query is wrong", BoostQuery.class, query.getClass());
-        query = ((BoostQuery) query).getQuery();
         assertTrue("Query type is wrong", query instanceof ContainsPrefixTreeQuery);
         ContainsPrefixTreeQuery containsPrefixTreeQuery = (ContainsPrefixTreeQuery) query;
         assertEquals("Query is wrong",
@@ -252,7 +243,7 @@ public class GeoShapeConditionTest extends AbstractConditionTest {
         Schema schema = schema().mapper("name", uuidMapper()).build();
         String wkt = "POLYGON((1 1,5 1,5 5,1 5,1 1),(2 2, 3 2, 3 3, 2 3,2 2))";
         GeoShapeCondition condition = new GeoShapeCondition(0.1f, "geo_point", wkt, GeoOperation.CONTAINS, null);
-        condition.query(schema);
+        condition.doQuery(schema);
     }
 
     @Test

@@ -20,7 +20,7 @@ import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.builder.MapperBuilder;
 import com.stratio.cassandra.lucene.search.condition.builder.BitemporalConditionBuilder;
 import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.BoostQuery;
+import org.apache.lucene.search.Query;
 import org.junit.Test;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
@@ -100,9 +100,7 @@ public class BitemporalConditionTest extends AbstractConditionTest {
         Schema schema = schema().mapper("name", mapperBuilder).build();
         BitemporalCondition condition = new BitemporalCondition(0.5f, "name", 1, 2, 3, 4);
 
-        BoostQuery boostQuery = (BoostQuery) condition.query(schema);
-        assertTrue("Query with boost must be BooleanQuery", (boostQuery.getQuery() instanceof BooleanQuery));
-        BooleanQuery query = (BooleanQuery) boostQuery.getQuery();
+        Query query = condition.doQuery(schema);
         assertNotNull("Query is not built", query);
         assertTrue("Query type is wrong", query instanceof BooleanQuery);
     }
@@ -111,7 +109,7 @@ public class BitemporalConditionTest extends AbstractConditionTest {
     public void testQueryWithoutValidMapper() {
         Schema schema = schema().mapper("name", uuidMapper()).build();
         BitemporalCondition condition = new BitemporalCondition(null, "name", 1, 2, 3, 4);
-        condition.query(schema);
+        condition.doQuery(schema);
     }
 
     @Test

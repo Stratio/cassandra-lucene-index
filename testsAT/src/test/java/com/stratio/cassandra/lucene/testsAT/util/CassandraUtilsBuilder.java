@@ -30,8 +30,8 @@ public class CassandraUtilsBuilder {
 
     private final String name;
     private String table = TABLE;
-    private String index = INDEX;
-    private String column = COLUMN;
+    private String indexName = INDEX;
+    private String indexColumn = COLUMN;
     private Map<String, String> columns;
     private Map<String, Mapper> mappers;
     private List<String> partitionKey;
@@ -51,13 +51,13 @@ public class CassandraUtilsBuilder {
         return this;
     }
 
-    public CassandraUtilsBuilder withIndex(String index) {
-        this.index = index;
+    public CassandraUtilsBuilder withIndexName(String indexName) {
+        this.indexName = indexName;
         return this;
     }
 
     public CassandraUtilsBuilder withIndexColumn(String indexColumn) {
-        this.column = indexColumn;
+        this.indexColumn = indexColumn;
         return this;
     }
 
@@ -156,6 +156,8 @@ public class CassandraUtilsBuilder {
 
     public CassandraUtils build() {
         String keyspace = name + "_" + Math.abs(new Random().nextLong());
-        return new CassandraUtils(keyspace, table, index, columns, mappers, partitionKey, clusteringKey, column);
+        return new CassandraUtils(keyspace, table, indexName,
+                                  indexColumn,
+                                  columns, mappers, partitionKey, clusteringKey);
     }
 }

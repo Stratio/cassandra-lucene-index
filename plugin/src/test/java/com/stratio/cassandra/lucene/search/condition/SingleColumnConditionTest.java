@@ -84,7 +84,7 @@ public class SingleColumnConditionTest {
                 return new MatchAllDocsQuery();
             }
         };
-        Query query = condition.query(schema);
+        Query query = condition.doQuery(schema);
         assertNotNull("Query is not built", query);
         assertEquals("Query type is wrong", MatchAllDocsQuery.class, query.getClass());
 
@@ -99,7 +99,7 @@ public class SingleColumnConditionTest {
                 return new MatchAllDocsQuery();
             }
         };
-        condition.query(schema);
+        condition.doQuery(schema);
     }
 
 }

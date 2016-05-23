@@ -18,7 +18,6 @@ package com.stratio.cassandra.lucene.search.condition;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.search.condition.builder.PrefixConditionBuilder;
-import org.apache.lucene.search.BoostQuery;
 import org.apache.lucene.search.PrefixQuery;
 import org.apache.lucene.search.Query;
 import org.junit.Test;
@@ -69,18 +68,14 @@ public class PrefixConditionTest extends AbstractConditionTest {
         Schema schema = schema().mapper("name", stringMapper()).build();
 
         PrefixCondition prefixCondition = new PrefixCondition(0.5f, "name", "tr");
-        Query query = prefixCondition.query(schema);
+        Query query = prefixCondition.doQuery(schema);
 
         assertNotNull("Query is not built", query);
-        assertEquals("Query type is wrong", BoostQuery.class, query.getClass());
-        BoostQuery boostQuery = (BoostQuery) query;
-        query = boostQuery.getQuery();
         assertEquals("Query type is wrong", PrefixQuery.class, query.getClass());
 
         PrefixQuery luceneQuery = (PrefixQuery) query;
         assertEquals("Query field is wrong", "name", luceneQuery.getField());
         assertEquals("Query prefix is wrong", "tr", luceneQuery.getPrefix().text());
-        assertEquals("Query boost is wrong", 0.5f, boostQuery.getBoost(), 0);
     }
 
     @Test(expected = IndexException.class)
@@ -89,7 +84,7 @@ public class PrefixConditionTest extends AbstractConditionTest {
         Schema schema = schema().mapper("name", integerMapper().indexed(false)).build();
 
         PrefixCondition prefixCondition = new PrefixCondition(0.5f, "name", "2*");
-        prefixCondition.query(schema);
+        prefixCondition.doQuery(schema);
     }
 
     @Test
@@ -98,18 +93,14 @@ public class PrefixConditionTest extends AbstractConditionTest {
         Schema schema = schema().mapper("name", inetMapper()).build();
 
         PrefixCondition wildcardCondition = new PrefixCondition(0.5f, "name", "192.168.");
-        Query query = wildcardCondition.query(schema);
+        Query query = wildcardCondition.doQuery(schema);
 
         assertNotNull("Query is not built", query);
-        assertEquals("Query type is wrong", BoostQuery.class, query.getClass());
-        BoostQuery boostQuery = (BoostQuery) query;
-        query = boostQuery.getQuery();
         assertEquals("Query type is wrong", PrefixQuery.class, query.getClass());
 
         PrefixQuery luceneQuery = (PrefixQuery) query;
         assertEquals("Query field is wrong", "name", luceneQuery.getField());
         assertEquals("Query prefix is wrong", "192.168.", luceneQuery.getPrefix().text());
-        assertEquals("Query boost is wrong", 0.5f, boostQuery.getBoost(), 0);
     }
 
     @Test
@@ -118,18 +109,14 @@ public class PrefixConditionTest extends AbstractConditionTest {
         Schema schema = schema().mapper("name", inetMapper()).build();
 
         PrefixCondition wildcardCondition = new PrefixCondition(0.5f, "name", "2001:db8:2de:0:0:0:0:e");
-        Query query = wildcardCondition.query(schema);
+        Query query = wildcardCondition.doQuery(schema);
 
         assertNotNull("Query is not built", query);
-        assertEquals("Query type is wrong", BoostQuery.class, query.getClass());
-        BoostQuery boostQuery = (BoostQuery) query;
-        query = boostQuery.getQuery();
         assertEquals("Query type is wrong", PrefixQuery.class, query.getClass());
 
         PrefixQuery luceneQuery = (PrefixQuery) query;
         assertEquals("Query field is wrong", "name", luceneQuery.getField());
         assertEquals("Query prefix is wrong", "2001:db8:2de:0:0:0:0:e", luceneQuery.getPrefix().text());
-        assertEquals("Query boost is wrong", 0.5f, boostQuery.getBoost(), 0);
     }
 
     @Test

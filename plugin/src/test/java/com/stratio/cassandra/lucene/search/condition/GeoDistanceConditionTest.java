@@ -20,7 +20,6 @@ import com.stratio.cassandra.lucene.common.GeoDistance;
 import com.stratio.cassandra.lucene.schema.Schema;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.BoostQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.spatial.prefix.IntersectsPrefixTreeQuery;
 import org.junit.Test;
@@ -130,10 +129,9 @@ public class GeoDistanceConditionTest extends AbstractConditionTest {
                                                                   -180D,
                                                                   null,
                                                                   GeoDistance.parse("10hm"));
-        Query query = condition.query(schema);
+        Query query = condition.doQuery(schema);
         assertNotNull("Query is not built", query);
-        assertEquals("Query is wrong", BoostQuery.class, query.getClass());
-        query = ((BoostQuery) query).getQuery();
+        assertEquals("Query is wrong", BooleanQuery.class, query.getClass());
         BooleanQuery booleanQuery = (BooleanQuery) query;
         assertEquals("Query num clauses is wrong", 1, booleanQuery.clauses().size());
         BooleanClause maxClause = booleanQuery.clauses().get(0);
@@ -162,9 +160,7 @@ public class GeoDistanceConditionTest extends AbstractConditionTest {
                                                                   GeoDistance.parse("1km"),
                                                                   GeoDistance.parse("3km"));
 
-        BoostQuery boostQuery = (BoostQuery) condition.query(schema);
-        assertTrue("Query with boost must be BoostQuery", (boostQuery.getQuery() instanceof BooleanQuery));
-        BooleanQuery booleanQuery = (BooleanQuery) boostQuery.getQuery();
+        BooleanQuery booleanQuery = (BooleanQuery) condition.doQuery(schema);
         assertEquals("Query num clauses is wrong", 2, booleanQuery.clauses().size());
 
         BooleanClause minClause = booleanQuery.clauses().get(1);
@@ -192,7 +188,7 @@ public class GeoDistanceConditionTest extends AbstractConditionTest {
     public void testQueryWithoutValidMapper() {
         Schema schema = schema().mapper("name", uuidMapper()).build();
         Condition condition = new GeoDistanceCondition(0.5f, "name", 90D, -180D, null, GeoDistance.parse("3km"));
-        condition.query(schema);
+        condition.doQuery(schema);
     }
 
     @Test

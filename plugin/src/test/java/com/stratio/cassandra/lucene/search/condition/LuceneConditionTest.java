@@ -18,7 +18,6 @@ package com.stratio.cassandra.lucene.search.condition;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.search.condition.builder.LuceneConditionBuilder;
-import org.apache.lucene.search.BoostQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.junit.Test;
@@ -75,23 +74,19 @@ public class LuceneConditionTest extends AbstractConditionTest {
         Schema schema = schema().defaultAnalyzer("english").build();
         LuceneCondition condition = new LuceneCondition(0.7f, "field_1", "field_2:houses");
 
-        Query query = condition.query(schema);
+        Query query = condition.doQuery(schema);
         assertNotNull("Query is not built", query);
-        assertEquals("Query is wrong", BoostQuery.class, query.getClass());
-        BoostQuery boostQuery = (BoostQuery) query;
-        query = boostQuery.getQuery();
         assertEquals("Query type is wrong", TermQuery.class, query.getClass());
 
         TermQuery termQuery = (TermQuery) query;
         assertEquals("Query term is wrong", "hous", termQuery.getTerm().bytes().utf8ToString());
-        assertEquals("Query boost is wrong", 0.7f, boostQuery.getBoost(), 0);
     }
 
     @Test(expected = IndexException.class)
     public void testQueryInvalid() {
         Schema schema = schema().defaultAnalyzer("english").build();
         LuceneCondition condition = new LuceneCondition(0.7f, "field_1", ":");
-        condition.query(schema);
+        condition.doQuery(schema);
     }
 
     @Test

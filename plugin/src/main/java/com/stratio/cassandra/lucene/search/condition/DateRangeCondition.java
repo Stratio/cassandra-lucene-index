@@ -58,8 +58,7 @@ public class DateRangeCondition extends SingleMapperCondition<DateRangeMapper> {
      * exclusive (you can't select all but the first or last term without explicitly specifying the term to exclude.)
      *
      * @param boost The boost for this query clause. Documents matching this clause will (in addition to the normal
-     * weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link #DEFAULT_BOOST} is used as
-     * default.
+     * weightings) have their score multiplied by {@code boost}.
      * @param field the name of the field to be matched
      * @param from the lower accepted {@link Date}. Maybe {@code null} meaning no lower limit
      * @param to the upper accepted {@link Date}. Maybe {@code null} meaning no upper limit

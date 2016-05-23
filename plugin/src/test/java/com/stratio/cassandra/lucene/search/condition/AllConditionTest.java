@@ -17,12 +17,12 @@ package com.stratio.cassandra.lucene.search.condition;
 
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.search.condition.builder.AllConditionBuilder;
-import org.apache.lucene.search.BoostQuery;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
 import org.junit.Test;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.schema;
+import static com.stratio.cassandra.lucene.search.SearchBuilders.all;
 import static org.junit.Assert.*;
 
 /**
@@ -32,47 +32,42 @@ public class AllConditionTest extends AbstractConditionTest {
 
     @Test
     public void testBuild() {
-        AllConditionBuilder builder = new AllConditionBuilder().boost(0.7f);
-        AllCondition condition = builder.build();
+        AllCondition condition = all().boost(0.7f).build();
         assertNotNull("Condition is not built", condition);
         assertEquals("Boost is not set", 0.7f, condition.boost, 0);
     }
 
     @Test
     public void testBuildDefaults() {
-        AllConditionBuilder builder = new AllConditionBuilder();
-        AllCondition condition = builder.build();
+        AllCondition condition = all().build();
         assertNotNull("Condition is not built", condition);
         assertNull("Boost is not set to default", condition.boost);
     }
 
     @Test
     public void testJsonSerialization() {
-        AllConditionBuilder builder = new AllConditionBuilder().boost(0.7);
+        AllConditionBuilder builder = all().boost(0.7);
         testJsonSerialization(builder, "{type:\"all\",boost:0.7}");
     }
 
     @Test
     public void testJsonSerializationDefaults() {
-        AllConditionBuilder builder = new AllConditionBuilder();
+        AllConditionBuilder builder = all();
         testJsonSerialization(builder, "{type:\"all\"}");
     }
 
     @Test
     public void testQuery() {
-        AllCondition condition = new AllCondition(0.7f);
+        AllCondition condition = all().build();
         Schema schema = schema().build();
-        BoostQuery boostQuery = (BoostQuery) condition.query(schema);
-        assertTrue("Query with boost must be BooleanQuery", (boostQuery.getQuery() instanceof MatchAllDocsQuery));
-        Query query = boostQuery.getQuery();
+        Query query = condition.doQuery(schema);
         assertNotNull("Query is not built", query);
-        assertEquals("Query type is wrong", MatchAllDocsQuery.class, query.getClass());
-        assertEquals("Query boost is wrong", 0.7f, boostQuery.getBoost(), 0);
+        assertTrue("Query type is wrong", query instanceof MatchAllDocsQuery);
     }
 
     @Test
     public void testToString() {
-        AllCondition condition = new AllCondition(0.7f);
+        AllCondition condition = all().boost(0.7f).build();
         assertEquals("Method #toString is wrong", "AllCondition{boost=0.7}", condition.toString());
     }
 

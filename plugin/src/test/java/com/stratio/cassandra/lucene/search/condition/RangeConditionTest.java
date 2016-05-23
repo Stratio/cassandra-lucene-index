@@ -18,7 +18,6 @@ package com.stratio.cassandra.lucene.search.condition;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.search.condition.builder.PrefixConditionBuilder;
 import com.stratio.cassandra.lucene.search.condition.builder.RangeConditionBuilder;
-import org.apache.lucene.search.BoostQuery;
 import org.apache.lucene.search.NumericRangeQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermRangeQuery;
@@ -35,11 +34,11 @@ public class RangeConditionTest extends AbstractConditionTest {
 
     @Test
     public void testBuildString() {
-        RangeConditionBuilder builder = new RangeConditionBuilder("field").boost(0.4)
-                                                                          .lower("lower")
-                                                                          .upper("upper")
-                                                                          .includeLower(false)
-                                                                          .includeUpper(true);
+        RangeConditionBuilder builder = range("field").boost(0.4)
+                                                      .lower("lower")
+                                                      .upper("upper")
+                                                      .includeLower(false)
+                                                      .includeUpper(true);
         RangeCondition condition = builder.build();
         assertNotNull("Condition is not built", condition);
         assertEquals("Field is not set", "field", condition.field);
@@ -52,11 +51,11 @@ public class RangeConditionTest extends AbstractConditionTest {
 
     @Test
     public void testBuildNumber() {
-        RangeConditionBuilder builder = new RangeConditionBuilder("field").boost(0.4)
-                                                                          .lower(1)
-                                                                          .upper(2)
-                                                                          .includeLower(false)
-                                                                          .includeUpper(true);
+        RangeConditionBuilder builder = range("field").boost(0.4)
+                                                      .lower(1)
+                                                      .upper(2)
+                                                      .includeLower(false)
+                                                      .includeUpper(true);
         RangeCondition condition = builder.build();
         assertNotNull("Condition is not built", condition);
         assertEquals("Field is not set", "field", condition.field);
@@ -69,8 +68,7 @@ public class RangeConditionTest extends AbstractConditionTest {
 
     @Test
     public void testBuildDefaults() {
-        RangeConditionBuilder builder = new RangeConditionBuilder("field");
-        RangeCondition condition = builder.build();
+        RangeCondition condition = range("field").build();
         assertNotNull("Condition is not built", condition);
         assertEquals("Field is not set", "field", condition.field);
         assertNull("Boost is not set to default", condition.boost);
@@ -86,11 +84,11 @@ public class RangeConditionTest extends AbstractConditionTest {
 
     @Test
     public void testJsonSerializationString() {
-        RangeConditionBuilder builder = new RangeConditionBuilder("field").boost(0.4)
-                                                                          .lower("lower")
-                                                                          .upper("upper")
-                                                                          .includeLower(false)
-                                                                          .includeUpper(true);
+        RangeConditionBuilder builder = range("field").boost(0.4)
+                                                      .lower("lower")
+                                                      .upper("upper")
+                                                      .includeLower(false)
+                                                      .includeUpper(true);
         testJsonSerialization(builder,
                               "{type:\"range\",field:\"field\",boost:0.4,lower:\"lower\",upper:\"upper\"," +
                               "include_lower:false,include_upper:true}");
@@ -98,11 +96,11 @@ public class RangeConditionTest extends AbstractConditionTest {
 
     @Test
     public void testJsonSerializationNumber() {
-        RangeConditionBuilder builder = new RangeConditionBuilder("field").boost(0.4)
-                                                                          .lower(1)
-                                                                          .upper(2)
-                                                                          .includeLower(false)
-                                                                          .includeUpper(true);
+        RangeConditionBuilder builder = range("field").boost(0.4)
+                                                      .lower(1)
+                                                      .upper(2)
+                                                      .includeLower(false)
+                                                      .includeUpper(true);
         testJsonSerialization(builder,
                               "{type:\"range\",field:\"field\",boost:0.4,lower:1,upper:2," +
                               "include_lower:false,include_upper:true}");
@@ -120,12 +118,9 @@ public class RangeConditionTest extends AbstractConditionTest {
         Schema schema = schema().mapper("name", stringMapper()).build();
 
         RangeCondition rangeCondition = new RangeCondition(0.5f, "name", "alpha", "beta", true, true);
-        Query query = rangeCondition.query(schema);
+        Query query = rangeCondition.doQuery(schema);
 
         assertNotNull("Query is not built", query);
-        assertEquals("Query type is wrong", BoostQuery.class, query.getClass());
-        BoostQuery boostQuery = (BoostQuery) query;
-        query = boostQuery.getQuery();
         assertEquals("Query type is wrong", TermRangeQuery.class, query.getClass());
 
         TermRangeQuery termRangeQuery = (TermRangeQuery) query;
@@ -134,7 +129,6 @@ public class RangeConditionTest extends AbstractConditionTest {
         assertEquals("Query upper is wrong", "beta", termRangeQuery.getUpperTerm().utf8ToString());
         assertEquals("Query include lower is wrong", true, termRangeQuery.includesLower());
         assertEquals("Query include upper is wrong", true, termRangeQuery.includesUpper());
-        assertEquals("Query boost is wrong", 0.5f, boostQuery.getBoost(), 0);
     }
 
     @Test
@@ -143,12 +137,9 @@ public class RangeConditionTest extends AbstractConditionTest {
         Schema schema = schema().mapper("name", stringMapper()).build();
 
         RangeCondition rangeCondition = new RangeCondition(0.5f, "name", "alpha", null, true, false);
-        Query query = rangeCondition.query(schema);
+        Query query = rangeCondition.doQuery(schema);
 
         assertNotNull("Query is not built", query);
-        assertEquals("Query type is wrong", BoostQuery.class, query.getClass());
-        BoostQuery boostQuery = (BoostQuery) query;
-        query = boostQuery.getQuery();
         assertEquals("Query type is wrong", TermRangeQuery.class, query.getClass());
 
         TermRangeQuery termRangeQuery = (TermRangeQuery) query;
@@ -157,7 +148,6 @@ public class RangeConditionTest extends AbstractConditionTest {
         assertEquals("Query upper is wrong", null, termRangeQuery.getUpperTerm());
         assertEquals("Query include lower is wrong", true, termRangeQuery.includesLower());
         assertEquals("Query include upper is wrong", false, termRangeQuery.includesUpper());
-        assertEquals("Query boost is wrong", 0.5f, boostQuery.getBoost(), 0);
     }
 
     @Test
@@ -166,12 +156,9 @@ public class RangeConditionTest extends AbstractConditionTest {
         Schema schema = schema().mapper("name", integerMapper().boost(1f)).build();
 
         RangeCondition rangeCondition = new RangeCondition(0.5f, "name", 42, 43, false, false);
-        Query query = rangeCondition.query(schema);
+        Query query = rangeCondition.doQuery(schema);
 
         assertNotNull("Query is not built", query);
-        assertEquals("Query type is wrong", BoostQuery.class, query.getClass());
-        BoostQuery boostQuery = (BoostQuery) query;
-        query = boostQuery.getQuery();
         assertEquals("Query type is wrong", NumericRangeQuery.class, query.getClass());
 
         NumericRangeQuery<?> numericRangeQuery = (NumericRangeQuery<?>) query;
@@ -180,7 +167,6 @@ public class RangeConditionTest extends AbstractConditionTest {
         assertEquals("Query upper is wrong", 43, numericRangeQuery.getMax());
         assertEquals("Query include lower is wrong", false, numericRangeQuery.includesMin());
         assertEquals("Query include upper is wrong", false, numericRangeQuery.includesMax());
-        assertEquals("Query boost is wrong", 0.5f, boostQuery.getBoost(), 0);
     }
 
     @Test
@@ -189,12 +175,9 @@ public class RangeConditionTest extends AbstractConditionTest {
         Schema schema = schema().mapper("name", integerMapper().boost(1f)).build();
 
         RangeCondition rangeCondition = new RangeCondition(0.5f, "name", 42, null, true, false);
-        Query query = rangeCondition.query(schema);
+        Query query = rangeCondition.doQuery(schema);
 
         assertNotNull("Query is not built", query);
-        assertEquals("Query type is wrong", BoostQuery.class, query.getClass());
-        BoostQuery boostQuery = (BoostQuery) query;
-        query = boostQuery.getQuery();
         assertEquals("Query type is wrong", NumericRangeQuery.class, query.getClass());
 
         NumericRangeQuery<?> numericRangeQuery = (NumericRangeQuery<?>) query;
@@ -203,7 +186,6 @@ public class RangeConditionTest extends AbstractConditionTest {
         assertEquals("Query upper is wrong", null, numericRangeQuery.getMax());
         assertEquals("Query include lower is wrong", true, numericRangeQuery.includesMin());
         assertEquals("Query include upper is wrong", false, numericRangeQuery.includesMax());
-        assertEquals("Query boost is wrong", 0.5f, boostQuery.getBoost(), 0);
     }
 
     @Test
@@ -212,12 +194,9 @@ public class RangeConditionTest extends AbstractConditionTest {
         Schema schema = schema().mapper("name", longMapper().boost(1f)).build();
 
         RangeCondition rangeCondition = new RangeCondition(0.5f, "name", 42L, 43, false, false);
-        Query query = rangeCondition.query(schema);
+        Query query = rangeCondition.doQuery(schema);
 
         assertNotNull("Query is not built", query);
-        assertEquals("Query type is wrong", BoostQuery.class, query.getClass());
-        BoostQuery boostQuery = (BoostQuery) query;
-        query = boostQuery.getQuery();
         assertEquals("Query type is wrong", NumericRangeQuery.class, query.getClass());
 
         NumericRangeQuery<?> numericRangeQuery = (NumericRangeQuery<?>) query;
@@ -226,7 +205,6 @@ public class RangeConditionTest extends AbstractConditionTest {
         assertEquals("Query upper is wrong", 43L, numericRangeQuery.getMax());
         assertEquals("Query include lower is wrong", false, numericRangeQuery.includesMin());
         assertEquals("Query include upper is wrong", false, numericRangeQuery.includesMax());
-        assertEquals("Query boost is wrong", 0.5f, boostQuery.getBoost(), 0);
     }
 
     @Test
@@ -235,12 +213,9 @@ public class RangeConditionTest extends AbstractConditionTest {
         Schema schema = schema().mapper("name", longMapper().boost(1f)).build();
 
         RangeCondition rangeCondition = new RangeCondition(0.5f, "name", 42f, null, true, false);
-        Query query = rangeCondition.query(schema);
+        Query query = rangeCondition.doQuery(schema);
 
         assertNotNull("Query is not built", query);
-        assertEquals("Query type is wrong", BoostQuery.class, query.getClass());
-        BoostQuery boostQuery = (BoostQuery) query;
-        query = boostQuery.getQuery();
         assertEquals("Query type is wrong", NumericRangeQuery.class, query.getClass());
 
         NumericRangeQuery<?> numericRangeQuery = (NumericRangeQuery<?>) query;
@@ -249,7 +224,6 @@ public class RangeConditionTest extends AbstractConditionTest {
         assertEquals("Query upper is wrong", null, numericRangeQuery.getMax());
         assertEquals("Query include lower is wrong", true, numericRangeQuery.includesMin());
         assertEquals("Query include upper is wrong", false, numericRangeQuery.includesMax());
-        assertEquals("Query boost is wrong", 0.5f, boostQuery.getBoost(), 0);
     }
 
     @Test
@@ -258,12 +232,9 @@ public class RangeConditionTest extends AbstractConditionTest {
         Schema schema = schema().mapper("name", floatMapper().boost(1f)).build();
 
         RangeCondition rangeCondition = new RangeCondition(0.5f, "name", 42.42D, 43.42F, false, false);
-        Query query = rangeCondition.query(schema);
+        Query query = rangeCondition.doQuery(schema);
 
         assertNotNull("Query is not built", query);
-        assertEquals("Query type is wrong", BoostQuery.class, query.getClass());
-        BoostQuery boostQuery = (BoostQuery) query;
-        query = boostQuery.getQuery();
         assertEquals("Query type is wrong", NumericRangeQuery.class, query.getClass());
 
         NumericRangeQuery<?> numericRangeQuery = (NumericRangeQuery<?>) query;
@@ -272,7 +243,6 @@ public class RangeConditionTest extends AbstractConditionTest {
         assertEquals("Query upper is wrong", 43.42f, numericRangeQuery.getMax());
         assertEquals("Query include lower is wrong", false, numericRangeQuery.includesMin());
         assertEquals("Query include upper is wrong", false, numericRangeQuery.includesMax());
-        assertEquals("Query boost is wrong", 0.5f, boostQuery.getBoost(), 0);
     }
 
     @Test
@@ -281,12 +251,9 @@ public class RangeConditionTest extends AbstractConditionTest {
         Schema schema = schema().mapper("name", floatMapper().boost(1f)).build();
 
         RangeCondition rangeCondition = new RangeCondition(0.5f, "name", 42.42f, null, true, false);
-        Query query = rangeCondition.query(schema);
+        Query query = rangeCondition.doQuery(schema);
 
         assertNotNull("Query is not built", query);
-        assertEquals("Query type is wrong", BoostQuery.class, query.getClass());
-        BoostQuery boostQuery = (BoostQuery) query;
-        query = boostQuery.getQuery();
         assertEquals("Query type is wrong", NumericRangeQuery.class, query.getClass());
 
         NumericRangeQuery<?> numericRangeQuery = (NumericRangeQuery<?>) query;
@@ -295,7 +262,6 @@ public class RangeConditionTest extends AbstractConditionTest {
         assertEquals("Query upper is wrong", null, numericRangeQuery.getMax());
         assertEquals("Query include lower is wrong", true, numericRangeQuery.includesMin());
         assertEquals("Query include upper is wrong", false, numericRangeQuery.includesMax());
-        assertEquals("Query boost is wrong", 0.5f, boostQuery.getBoost(), 0);
     }
 
     @Test
@@ -304,13 +270,9 @@ public class RangeConditionTest extends AbstractConditionTest {
         Schema schema = schema().mapper("name", doubleMapper().boost(1f)).build();
 
         RangeCondition rangeCondition = new RangeCondition(0.5f, "name", 42.42D, 43.42D, false, false);
-        Query query = rangeCondition.query(schema);
+        Query query = rangeCondition.doQuery(schema);
 
         assertNotNull("Query is not built", query);
-        assertEquals("Query type is wrong", BoostQuery.class, query.getClass());
-        BoostQuery boostQuery = (BoostQuery) query;
-        query = boostQuery.getQuery();
-        assertEquals("Query type is wrong", NumericRangeQuery.class, query.getClass());
 
         NumericRangeQuery<?> numericRangeQuery = (NumericRangeQuery<?>) query;
         assertEquals("Query field is wrong", "name", numericRangeQuery.getField());
@@ -318,7 +280,6 @@ public class RangeConditionTest extends AbstractConditionTest {
         assertEquals("Query upper is wrong", 43.42D, numericRangeQuery.getMax());
         assertEquals("Query include lower is wrong", false, numericRangeQuery.includesMin());
         assertEquals("Query include upper is wrong", false, numericRangeQuery.includesMax());
-        assertEquals("Query boost is wrong", 0.5f, boostQuery.getBoost(), 0);
     }
 
     @Test
@@ -327,12 +288,9 @@ public class RangeConditionTest extends AbstractConditionTest {
         Schema schema = schema().mapper("name", doubleMapper().boost(1f)).build();
 
         RangeCondition rangeCondition = new RangeCondition(0.5f, "name", 42.42D, null, true, false);
-        Query query = rangeCondition.query(schema);
+        Query query = rangeCondition.doQuery(schema);
 
         assertNotNull("Query is not built", query);
-        assertEquals("Query type is wrong", BoostQuery.class, query.getClass());
-        BoostQuery boostQuery = (BoostQuery) query;
-        query = boostQuery.getQuery();
         assertEquals("Query type is wrong", NumericRangeQuery.class, query.getClass());
 
         NumericRangeQuery<?> numericRangeQuery = (NumericRangeQuery<?>) query;
@@ -341,7 +299,6 @@ public class RangeConditionTest extends AbstractConditionTest {
         assertEquals("Query upper is wrong", null, numericRangeQuery.getMax());
         assertEquals("Query include lower is wrong", true, numericRangeQuery.includesMin());
         assertEquals("Query include upper is wrong", false, numericRangeQuery.includesMax());
-        assertEquals("Query boost is wrong", 0.5f, boostQuery.getBoost(), 0);
     }
 
     @Test
@@ -350,12 +307,9 @@ public class RangeConditionTest extends AbstractConditionTest {
         Schema schema = schema().mapper("name", inetMapper()).build();
 
         RangeCondition rangeCondition = new RangeCondition(0.5f, "name", "192.168.0.01", "192.168.0.045", true, true);
-        Query query = rangeCondition.query(schema);
+        Query query = rangeCondition.doQuery(schema);
 
         assertNotNull("Query is not built", query);
-        assertEquals("Query type is wrong", BoostQuery.class, query.getClass());
-        BoostQuery boostQuery = (BoostQuery) query;
-        query = boostQuery.getQuery();
         assertEquals("Query type is wrong", TermRangeQuery.class, query.getClass());
 
         TermRangeQuery termRangeQuery = (TermRangeQuery) query;
@@ -364,7 +318,6 @@ public class RangeConditionTest extends AbstractConditionTest {
         assertEquals("Query upper is wrong", "192.168.0.45", termRangeQuery.getUpperTerm().utf8ToString());
         assertEquals("Query include lower is wrong", true, termRangeQuery.includesLower());
         assertEquals("Query include upper is wrong", true, termRangeQuery.includesUpper());
-        assertEquals("Query boost is wrong", 0.5f, boostQuery.getBoost(), 0);
     }
 
     @Test
@@ -378,12 +331,9 @@ public class RangeConditionTest extends AbstractConditionTest {
                                                      .includeLower(true)
                                                      .includeUpper(true)
                                                      .build();
-        Query query = rangeCondition.query(schema);
+        Query query = rangeCondition.doQuery(schema);
 
         assertNotNull("Query is not built", query);
-        assertEquals("Query type is wrong", BoostQuery.class, query.getClass());
-        BoostQuery boostQuery = (BoostQuery) query;
-        query = boostQuery.getQuery();
         assertEquals("Query type is wrong", TermRangeQuery.class, query.getClass());
 
         TermRangeQuery termRangeQuery = (TermRangeQuery) query;
@@ -392,7 +342,6 @@ public class RangeConditionTest extends AbstractConditionTest {
         assertEquals("Query upper is wrong", "2001:db8:2de:0:0:0:0:e23", termRangeQuery.getUpperTerm().utf8ToString());
         assertEquals("Query include lower is wrong", true, termRangeQuery.includesLower());
         assertEquals("Query include upper is wrong", true, termRangeQuery.includesUpper());
-        assertEquals("Query boost is wrong", 0.5f, boostQuery.getBoost(), 0);
     }
 
     @Test

@@ -15,7 +15,6 @@
  */
 package com.stratio.cassandra.lucene.service;
 
-import junit.framework.Assert;
 import org.apache.cassandra.cql3.ColumnIdentifier;
 import org.apache.cassandra.db.BufferDecoratedKey;
 import org.apache.cassandra.db.DecoratedKey;
@@ -40,7 +39,7 @@ public class SearchResultTest {
         ScoreDoc scoreDoc = new ScoreDoc(1, 2.0f);
         SearchResult searchResult = new SearchResult(decoratedKey, clusteringKey, scoreDoc);
 
-        Assert.assertNotNull("SearchResult constructor must not return a null object", searchResult);
+        assertNotNull("SearchResult constructor must not return a null object", searchResult);
 
     }
 
@@ -51,9 +50,9 @@ public class SearchResultTest {
         ScoreDoc scoreDoc = new ScoreDoc(1, 2.0f);
         SearchResult searchResult = new SearchResult(decoratedKey, clusteringKey, scoreDoc);
 
-        Assert.assertEquals("SearchResult getPartitionKey must return the same object passed as parameter",
-                            decoratedKey,
-                            searchResult.getPartitionKey());
+        assertEquals("SearchResult getPartitionKey must return the same object passed as parameter",
+                     decoratedKey,
+                     searchResult.getPartitionKey());
 
     }
 
@@ -64,9 +63,9 @@ public class SearchResultTest {
         ScoreDoc scoreDoc = new ScoreDoc(1, 2.0f);
         SearchResult searchResult = new SearchResult(decoratedKey, clusteringKey, scoreDoc);
 
-        Assert.assertEquals("SearchResult getClusteringKey must return the same object passed as parameter",
-                            clusteringKey,
-                            searchResult.getClusteringKey());
+        assertEquals("SearchResult getClusteringKey must return the same object passed as parameter",
+                     clusteringKey,
+                     searchResult.getClusteringKey());
 
     }
 
@@ -77,9 +76,9 @@ public class SearchResultTest {
         ScoreDoc scoreDoc = new ScoreDoc(1, 2.0f);
         SearchResult searchResult = new SearchResult(decoratedKey, clusteringKey, scoreDoc);
 
-        Assert.assertEquals("SearchResult getScoreDoc must not return a null object",
-                            scoreDoc,
-                            searchResult.getScoreDoc());
+        assertEquals("SearchResult getScoreDoc must not return a null object",
+                     scoreDoc,
+                     searchResult.getScoreDoc());
     }
 
     @Test
@@ -151,7 +150,6 @@ public class SearchResultTest {
         ScoreDoc scoreDoc = new ScoreDoc(1, 2.0f);
         SearchResult searchResult = new SearchResult(decoratedKey, clusteringKey, scoreDoc);
         assertEquals("SearchResult hashCode must be equals to scoreDoc.doc", scoreDoc.doc, searchResult.hashCode());
-
     }
 
 }

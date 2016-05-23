@@ -47,7 +47,7 @@ public class CassandraUtils {
 
     private final String keyspace;
     private final String table;
-    private final String index;
+    private final String indexName;
     private final String qualifiedTable;
     private final Map<String, String> columns;
     private final Map<String, Mapper> mappers;
@@ -61,18 +61,18 @@ public class CassandraUtils {
 
     public CassandraUtils(String keyspace,
                           String table,
-                          String index,
+                          String indexName,
+                          String indexColumn,
                           Map<String, String> columns,
                           Map<String, Mapper> mappers,
                           List<String> partitionKey,
-                          List<String> clusteringKey,
-                          String indexColumn) {
+                          List<String> clusteringKey) {
 
         session = CassandraConnection.session;
 
         this.keyspace = keyspace;
         this.table = table;
-        this.index = index;
+        this.indexName = indexName;
         this.columns = columns;
         this.mappers = mappers;
         this.partitionKey = partitionKey;
@@ -93,12 +93,12 @@ public class CassandraUtils {
         return qualifiedTable;
     }
 
-    public String getIndexColumn() {
-        return indexColumn;
+    public String getIndexName() {
+        return indexName;
     }
 
-    public String getIndexName() {
-        return index;
+    public String getIndexColumn() {
+        return indexColumn;
     }
 
     public ResultSet execute(Statement statement) {
@@ -193,7 +193,7 @@ public class CassandraUtils {
         if (!columns.containsKey(COLUMN)) {
             execute("ALTER TABLE %s ADD %s text;", qualifiedTable, COLUMN);
         }
-        Index index = index(keyspace, table, indexColumn).name(this.index)
+        Index index = index(keyspace, table, indexColumn).name(indexName)
                                                          .refreshSeconds(REFRESH)
                                                          .indexingThreads(THREADS);
         for (Map.Entry<String, Mapper> entry : mappers.entrySet()) {
@@ -209,7 +209,7 @@ public class CassandraUtils {
     }
 
     public CassandraUtils dropIndex() {
-        execute(new StringBuilder().append("DROP INDEX ").append(keyspace).append(".").append(index).append(";"));
+        execute(new StringBuilder().append("DROP INDEX ").append(keyspace).append(".").append(indexName).append(";"));
         return this;
     }
 

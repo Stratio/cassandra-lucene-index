@@ -66,8 +66,7 @@ public class GeoShapeCondition extends SingleFieldCondition {
      * Constructor receiving the shape, the spatial operation to be done and the transformations to be applied.
      *
      * @param boost The boost for this query clause. Documents matching this clause will (in addition to the normal
-     * weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link #DEFAULT_BOOST} is used as
-     * default.
+     * weightings) have their score multiplied by {@code boost}.
      * @param field the field name
      * @param shape the shape in <a href="http://en.wikipedia.org/wiki/Well-known_text"> WKT</a> format
      * @param operation The spatial operation to be done. Defaults to {@link #DEFAULT_OPERATION}.

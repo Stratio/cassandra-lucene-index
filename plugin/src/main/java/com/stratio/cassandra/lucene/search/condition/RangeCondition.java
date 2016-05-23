@@ -55,8 +55,7 @@ public class RangeCondition extends SingleColumnCondition {
      * exclusive (you can't select all but the first or last term without explicitly specifying the term to exclude.)
      *
      * @param boost The boost for this query clause. Documents matching this clause will (in addition to the normal
-     * weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link #DEFAULT_BOOST} is used as
-     * default.
+     * weightings) have their score multiplied by {@code boost}.
      * @param field the name of the field to be matched.
      * @param lowerValue the lower accepted value. Maybe {@code null} meaning no lower limit
      * @param upperValue the upper accepted value. Maybe {@code null} meaning no upper limit

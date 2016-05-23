@@ -18,7 +18,6 @@ package com.stratio.cassandra.lucene.search.condition;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.search.condition.builder.PhraseConditionBuilder;
-import org.apache.lucene.search.BoostQuery;
 import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.Query;
 import org.junit.Test;
@@ -83,18 +82,14 @@ public class PhraseConditionTest extends AbstractConditionTest {
 
         String value = "hola adios  the    a";
         PhraseCondition condition = new PhraseCondition(0.5f, "name", value, 2);
-        Query query = condition.query(schema);
+        Query query = condition.doQuery(schema);
 
         assertNotNull("Query is not built", query);
-        assertEquals("Query type is wrong", BoostQuery.class, query.getClass());
-        BoostQuery boostQuery = (BoostQuery) query;
-        query = boostQuery.getQuery();
         assertEquals("Query type is wrong", PhraseQuery.class, query.getClass());
 
         PhraseQuery luceneQuery = (PhraseQuery) query;
         assertEquals("Query terms are wrong", 3, luceneQuery.getTerms().length);
         assertEquals("Query slop is wrong", 2, luceneQuery.getSlop());
-        assertEquals("Query boost is wrong", 0.5f, boostQuery.getBoost(), 0);
     }
 
     @Test
