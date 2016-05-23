@@ -26,6 +26,11 @@ import com.stratio.cassandra.lucene.builder.search.sort.SortField;
 import com.stratio.cassandra.lucene.testsAT.BaseAT;
 import org.slf4j.Logger;
 
+import javax.management.InstanceNotFoundException;
+import javax.management.MBeanException;
+import javax.management.MalformedObjectNameException;
+import javax.management.ReflectionException;
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -219,8 +224,8 @@ public class CassandraUtils {
 
     public CassandraUtils createIndex() {
         Index index = index(keyspace, table, indexName).column(indexColumn)
-                                                        .refreshSeconds(REFRESH)
-                                                        .indexingThreads(THREADS);
+                                                       .refreshSeconds(REFRESH)
+                                                       .indexingThreads(THREADS);
         for (Map.Entry<String, Mapper> entry : mappers.entrySet()) {
             index.mapper(entry.getKey(), entry.getValue());
         }
@@ -265,6 +270,11 @@ public class CassandraUtils {
         return this;
     }
 
+    public CassandraUtils insert(String[] names, Object[] values, Integer ttl) {
+        execute(QueryBuilder.insertInto(keyspace, table).values(names, values).using(QueryBuilder.ttl(ttl)));
+        return this;
+    }
+
     public CassandraUtilsDelete delete(String... names) {
         return new CassandraUtilsDelete(this, names);
     }
@@ -301,6 +311,60 @@ public class CassandraUtils {
         BoundStatement b = stmt.bind();
         b.setString(0, search.build());
         return execute(b).all();
+    }
+
+    public void flush() {
+
+        for (int i = 0; i < JMX_SERVICES.length; i++) {
+            CassandraJMXClient client = new CassandraJMXClient(JMX_SERVICES[i]);
+
+            client.connect();
+
+            try {
+                client.invoke("org.apache.cassandra.db:type=StorageService",
+                              "forceKeyspaceFlush",
+                              new Object[]{keyspace, new String[]{table}},
+                              new String[]{String.class.getName(), String[].class.getName()});
+            } catch (MalformedObjectNameException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (MBeanException e) {
+                e.printStackTrace();
+            } catch (InstanceNotFoundException e) {
+                e.printStackTrace();
+            } catch (ReflectionException e) {
+                e.printStackTrace();
+            }
+            client.disconnect();
+        }
+    }
+
+    public void compact(boolean splitOutput) {
+
+        for (int i = 0; i < JMX_SERVICES.length; i++) {
+            CassandraJMXClient client = new CassandraJMXClient(JMX_SERVICES[i]);
+
+            client.connect();
+
+            try {
+                client.invoke("org.apache.cassandra.db:type=StorageService",
+                              "forceKeyspaceCompaction",
+                              new Object[]{splitOutput, keyspace, new String[]{table}},
+                              new String[]{boolean.class.getName(), String.class.getName(), String[].class.getName()});
+            } catch (MalformedObjectNameException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (MBeanException e) {
+                e.printStackTrace();
+            } catch (InstanceNotFoundException e) {
+                e.printStackTrace();
+            } catch (ReflectionException e) {
+                e.printStackTrace();
+            }
+            client.disconnect();
+        }
     }
 
 }

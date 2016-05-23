@@ -55,7 +55,9 @@ class IndexWriterWide extends IndexWriter {
         rows = new LinkedHashMap<>();
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void delete() {
         service.delete(key);
@@ -63,7 +65,9 @@ class IndexWriterWide extends IndexWriter {
         rows.clear();
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void index(Row row) {
         if (!row.isStatic()) {
@@ -77,23 +81,26 @@ class IndexWriterWide extends IndexWriter {
         }
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void finish() {
+        if (transactionType != IndexTransaction.Type.CLEANUP) {
+            // Read required rows from storage engine
+            service.read(key, rowsToRead, nowInSec, opGroup).forEachRemaining(unfiltered -> {
+                Row row = (Row) unfiltered;
+                rows.put(row.clustering(), Optional.of(row));
+            });
 
-        // Read required rows from storage engine
-        service.read(key, rowsToRead, nowInSec, opGroup).forEachRemaining(unfiltered -> {
-            Row row = (Row) unfiltered;
-            rows.put(row.clustering(), Optional.of(row));
-        });
-
-        // Write rows
-        rows.forEach((clustering, optional) -> optional.ifPresent(row -> {
-            if (row.hasLiveData(nowInSec)) {
-                service.upsert(key, row, nowInSec);
-            } else {
-                service.delete(key, row);
-            }
-        }));
+            // Write rows
+            rows.forEach((clustering, optional) -> optional.ifPresent(row -> {
+                if (row.hasLiveData(nowInSec)) {
+                    service.upsert(key, row, nowInSec);
+                } else {
+                    service.delete(key, row);
+                }
+            }));
+        }
     }
 }

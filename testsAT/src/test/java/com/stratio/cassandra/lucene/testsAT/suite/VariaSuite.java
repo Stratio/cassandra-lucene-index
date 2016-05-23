@@ -33,6 +33,10 @@ import org.junit.runners.Suite.SuiteClasses;
                UDFsAT.class,
                BoundStatementWitTopKQuery.class,
                StatelessSearchWithSkinnyRowsAT.class,
-               StatelessSearchWithWideRowsAT.class})
+               StatelessSearchWithWideRowsAT.class,
+               SelectPartialExpiredTTLSkinnyRows.class,
+               SelectTotalExpiredTTLSkinnyRows.class,
+               SelectPartialExpiredTTLWideRows.class,
+               SelectTotalExpiredTTLWideRows.class})
 public class VariaSuite {
 }

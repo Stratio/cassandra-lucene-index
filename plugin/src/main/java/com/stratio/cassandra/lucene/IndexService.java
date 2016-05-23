@@ -359,17 +359,23 @@ abstract class IndexService {
                                      OpOrder.Group opGroup,
                                      IndexTransaction.Type transactionType);
 
-    /** Commits the pending changes. */
+    /**
+     * Commits the pending changes.
+     */
     final void commit() {
         queue.submitSynchronous(lucene::commit);
     }
 
-    /** Deletes all the index contents. */
+    /**
+     * Deletes all the index contents.
+     */
     final void truncate() {
         queue.submitSynchronous(lucene::truncate);
     }
 
-    /** Closes and removes all the index files. */
+    /**
+     * Closes and removes all the index files.
+     */
     final void delete() {
         try {
             queue.shutdown();

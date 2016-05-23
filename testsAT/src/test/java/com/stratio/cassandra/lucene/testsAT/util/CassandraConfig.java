@@ -25,6 +25,8 @@ import com.datastax.driver.core.ConsistencyLevel;
 class CassandraConfig {
 
     static final String HOST = getString("host", "127.0.0.1");
+    static final String JMX_PORT = getString("jmx_port", "7199");
+    static final String[] JMX_SERVICES = getStringArray("jmx_services", HOST + ":" + JMX_PORT);
     static final int REPLICATION = getInt("replication", 1);
     static final ConsistencyLevel CONSISTENCY = ConsistencyLevel.valueOf(getString("consistency", "QUORUM"));
     static final int FETCH = getInt("fetch", 100);
@@ -38,11 +40,16 @@ class CassandraConfig {
     static final int LIMIT = getInt("limit", 10000); // Top-k
 
     static {
-        assert COLUMN != null || USE_NEW_QUERY_SYNTAX ;
+        assert COLUMN != null || USE_NEW_QUERY_SYNTAX;
     }
 
     private static String getString(String key, String def) {
         return System.getProperty("it." + key, def);
+    }
+
+    private static String[] getStringArray(String key, String def) {
+        String property = System.getProperty("it." + key, def);
+        return property.split(",");
     }
 
     private static int getInt(String key, Integer def) {
