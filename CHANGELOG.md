@@ -4,11 +4,11 @@
 
 * Upgrade to Apache Lucene 5.5.1
 * Add sorting merge policy (dramatically improves filter performance)
+* Add heuristic to build token range queries according to their selectivity
 * Add transformation for getting the convex hull of a geographical shape
-* Fix invalid WKT shapes by zero-buffering them
 * Remove indexed/sorted mapping options, all mappers store doc values when possible
 * Remove support for other partitioners than Murmur3
-* Improve clustering key filtering with better token prefix collation
+* Fix invalid WKT shapes by zero-buffering them
 * Fix memory consumption issues with high fetch sizes
 * Fix clustering key filtering with better token prefix collation
 * Fix deletion of unique component of a collection (#132)

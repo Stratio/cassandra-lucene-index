@@ -29,10 +29,11 @@ import org.apache.lucene.document.FieldType;
 import org.apache.lucene.document.LongField;
 import org.apache.lucene.index.DocValuesType;
 import org.apache.lucene.index.IndexOptions;
-import org.apache.lucene.search.DocValuesRangeQuery;
-import org.apache.lucene.search.NumericRangeQuery;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.SortField;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.search.*;
+import org.apache.lucene.util.BytesRef;
+import org.apache.lucene.util.BytesRefBuilder;
+import org.apache.lucene.util.NumericUtils;
 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
@@ -120,14 +121,40 @@ public final class TokenMapper {
     }
 
     /**
+     * Returns the {@link BytesRef} indexing value of the specified Murmur3 partitioning {@link Token}.
+     *
+     * @param token a Murmur3 token
+     * @return the {@code token}'s indexing value
+     */
+    private static BytesRef bytesRef(Token token) {
+        Long value = value(token);
+        BytesRefBuilder bytesRef = new BytesRefBuilder();
+        NumericUtils.longToPrefixCoded(value, 0, bytesRef);
+        return bytesRef.get();
+    }
+
+    /**
      * Returns a Lucene {@link Query} for retrieving the documents with the specified {@link Token}.
      *
      * @param token A {@link Token}.
      * @return A Lucene {@link Query} for retrieving the documents with the specified {@link Token}.
      */
     public Query query(Token token) {
-        Long value = value(token);
-        return NumericRangeQuery.newLongRange(FIELD_NAME, value, value, true, true);
+        return new TermQuery(new Term(FIELD_NAME, bytesRef(token)));
+    }
+
+    /**
+     * Returns if doc values should be used for retrieving token ranges between the specified values.
+     *
+     * @param start the lower accepted token
+     * @param stop the upper accepted token
+     * @return {@code true} if doc values should be used, {@code false} other wise
+     */
+    private static boolean docValues(Long start, Long stop) {
+        final long threshold = 1222337203685480000L; // Empirical
+        long min = (start == null ? Long.MIN_VALUE : start) / 10;
+        long max = (stop == null ? Long.MAX_VALUE : stop) / 10;
+        return max - min > threshold;
     }
 
     /**
@@ -142,7 +169,9 @@ public final class TokenMapper {
     private Query doQuery(Token lower, Token upper, boolean includeLower, boolean includeUpper) {
         Long start = lower == null || lower.isMinimum() ? null : value(lower);
         Long stop = upper == null || upper.isMinimum() ? null : value(upper);
-        return DocValuesRangeQuery.newLongRange(FIELD_NAME, start, stop, includeLower, includeUpper);
+        return docValues(start, stop)
+               ? DocValuesRangeQuery.newLongRange(FIELD_NAME, start, stop, includeLower, includeUpper)
+               : NumericRangeQuery.newLongRange(FIELD_NAME, start, stop, includeLower, includeUpper);
     }
 
     /**

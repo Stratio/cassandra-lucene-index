@@ -27,9 +27,7 @@ import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.dht.*;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexableField;
-import org.apache.lucene.search.DocValuesRangeQuery;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.SortField;
+import org.apache.lucene.search.*;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -172,7 +170,7 @@ public class TokenMapperTest {
         Token token2 = partitioner.getMinimumToken();
         Query query = mapper.query(token1, token2, false, true);
         assertNotNull("Query should be not null", query);
-        assertEquals("Hash value is wrong", DocValuesRangeQuery.class, query.getClass());
+        assertTrue("Query type is wrong", query instanceof NumericRangeQuery);
     }
 
     @Test
@@ -259,9 +257,7 @@ public class TokenMapperTest {
         Token token = token("key");
         Query query = mapper.query(token);
         assertNotNull("Query should be not null", query);
-        assertEquals("Hash value is wrong",
-                     "_token:[-6847573755651342660 TO -6847573755651342660]",
-                     query.toString());
+        assertTrue("Query should be TermQuery", query instanceof TermQuery);
     }
 
     @Test
