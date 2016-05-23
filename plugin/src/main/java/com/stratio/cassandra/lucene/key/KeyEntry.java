@@ -19,8 +19,7 @@ import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.db.DecoratedKey;
 import org.apache.cassandra.db.composites.CBuilder;
 import org.apache.cassandra.db.composites.Composite;
-import org.apache.cassandra.dht.Murmur3Partitioner;
-import org.apache.cassandra.dht.Token;
+import org.apache.cassandra.db.marshal.UTF8Type;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -48,12 +47,12 @@ class KeyEntry implements Comparable<KeyEntry> {
     }
 
     /**
-     * Returns the partitioning token.
+     * Returns the partitioning token as sortable string.
      *
      * @return the token
      */
-    Token getToken() {
-        return Murmur3Partitioner.instance.getTokenFactory().fromByteArray(components[0]);
+    ByteBuffer getCollatedToken() {
+        return components[0];
     }
 
     /**
@@ -91,7 +90,7 @@ class KeyEntry implements Comparable<KeyEntry> {
     /** {@inheritDoc} */
     @Override
     public int compareTo(KeyEntry other) {
-        int comp = getToken().compareTo(other.getToken());
+        int comp = UTF8Type.instance.compare(getCollatedToken(), other.getCollatedToken());
         if (comp == 0) {
             comp = getDecoratedKey().compareTo(other.getDecoratedKey());
         }

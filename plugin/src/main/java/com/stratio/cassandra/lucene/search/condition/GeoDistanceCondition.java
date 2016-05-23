@@ -97,9 +97,7 @@ public class GeoDistanceCondition extends SingleMapperCondition<GeoPointMapper> 
         if (minGeoDistance != null) {
             builder.add(query(minGeoDistance, spatialStrategy), MUST_NOT);
         }
-        Query query = builder.build();
-        query.setBoost(boost);
-        return query;
+        return builder.build();
     }
 
     private Query query(GeoDistance geoDistance, SpatialStrategy spatialStrategy) {

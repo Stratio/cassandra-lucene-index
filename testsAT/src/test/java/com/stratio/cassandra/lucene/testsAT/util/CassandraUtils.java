@@ -101,23 +101,23 @@ public class CassandraUtils {
         return index;
     }
 
-    public Statement statement(String query, Object... args) {
-        return new SimpleStatement(String.format(query, args));
-    }
-
     public ResultSet execute(Statement statement) {
         return CassandraConnection.execute(statement);
     }
 
-    public ResultSet execute(String query) {
+    public ResultSet execute(int fetchSize, String query) {
         if (!query.endsWith(";")) {
             query += ";";
         }
-        return execute(new SimpleStatement(query));
+        return execute(new SimpleStatement(query).setFetchSize(fetchSize));
     }
 
     public ResultSet execute(String query, Object... args) {
-        return execute(String.format(query, args));
+        return execute(FETCH, String.format(query, args));
+    }
+
+    public ResultSet execute(int fetchSize, String query, Object... args) {
+        return execute(fetchSize, String.format(query, args));
     }
 
     ResultSet execute(StringBuilder query) {

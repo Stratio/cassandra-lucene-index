@@ -18,12 +18,12 @@ package com.stratio.cassandra.lucene.search.condition;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.search.condition.builder.BooleanConditionBuilder;
 import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.BoostQuery;
 import org.junit.Test;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
 import static com.stratio.cassandra.lucene.search.SearchBuilders.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
@@ -52,7 +52,7 @@ public class BooleanConditionTest extends AbstractConditionTest {
         BooleanConditionBuilder builder = new BooleanConditionBuilder();
         BooleanCondition condition = builder.build();
         assertNotNull("Condition is not built", condition);
-        assertEquals("Boost is not set to default", Condition.DEFAULT_BOOST, condition.boost, 0);
+        assertNull("Boost is not set to default", condition.boost);
         assertEquals("Must is not set", 0, condition.must.size());
         assertEquals("Should is not set", 0, condition.should.size());
         assertEquals("Not is not set", 0, condition.not.size());
@@ -84,27 +84,33 @@ public class BooleanConditionTest extends AbstractConditionTest {
                                            .not(match("country", "england"))
                                            .boost(0.4f)
                                            .build();
-        BooleanQuery query = (BooleanQuery) condition.query(schema);
+        BoostQuery boostQuery = (BoostQuery) condition.query(schema);
+        assertTrue("Query with boost must be BoostQuery",(boostQuery.getQuery() instanceof BooleanQuery));
+        BooleanQuery query=(BooleanQuery) boostQuery.getQuery();
         assertEquals("Query count clauses is wrong", 5, query.clauses().size());
-        assertEquals("Query boost is wrong", 0.4f, query.getBoost(), 0f);
+        assertEquals("Query boost is wrong", 0.4f, boostQuery.getBoost(), 0f);
     }
 
     @Test
     public void testQueryEmpty() {
         Schema schema = schema().build();
         BooleanCondition condition = bool().boost(0.4).build();
-        BooleanQuery query = (BooleanQuery) condition.query(schema);
+        BoostQuery boostQuery = (BoostQuery) condition.query(schema);
+        assertTrue("Query with boost must be BoostQuery",(boostQuery.getQuery() instanceof BooleanQuery));
+        BooleanQuery query=(BooleanQuery) boostQuery.getQuery();
         assertEquals("Query count clauses is wrong", 0, query.clauses().size());
-        assertEquals("Query boost is wrong", 0.4f, query.getBoost(), 0f);
+        assertEquals("Query boost is wrong", 0.4f, boostQuery.getBoost(), 0f);
     }
 
     @Test
     public void testQueryPureNot() {
         Schema schema = schema().mapper("name", stringMapper()).build();
         BooleanCondition condition = bool().not(match("name", "jonathan")).boost(0.4).build();
-        BooleanQuery query = (BooleanQuery) condition.query(schema);
+        BoostQuery boostQuery = (BoostQuery) condition.query(schema);
+        assertTrue("Query with boost must be BooleanQuery",(boostQuery.getQuery() instanceof BooleanQuery));
+        BooleanQuery query=(BooleanQuery) boostQuery.getQuery();
         assertEquals("Query count clauses is wrong", 2, query.clauses().size());
-        assertEquals("Query boost is wrong", 0.4f, query.getBoost(), 0f);
+        assertEquals("Query boost is wrong", 0.4f, boostQuery.getBoost(), 0f);
     }
 
     @Test
@@ -116,10 +122,10 @@ public class BooleanConditionTest extends AbstractConditionTest {
                                            .build();
         assertEquals("Method #toString is wrong",
                      "BooleanCondition{boost=0.5, " +
-                     "must=[MatchCondition{boost=1.0, field=name, value=jonathan}, " +
-                     "MatchCondition{boost=1.0, field=age, value=18}], " +
-                     "should=[MatchCondition{boost=1.0, field=color, value=green}], " +
-                     "not=[MatchCondition{boost=1.0, field=country, value=england}]}",
+                     "must=[MatchCondition{boost=null, field=name, value=jonathan}, " +
+                     "MatchCondition{boost=null, field=age, value=18}], " +
+                     "should=[MatchCondition{boost=null, field=color, value=green}], " +
+                     "not=[MatchCondition{boost=null, field=country, value=england}]}",
                      condition.toString());
     }
 

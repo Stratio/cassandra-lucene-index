@@ -77,7 +77,7 @@ public class MultipleKeyDataDeletionAT extends BaseAT {
         List<Row> rows = cassandraUtils.delete("bigint_1")
                                        .where("integer_1", 1)
                                        .and("ascii_1", "ascii")
-                                       .refresh()
+                                       .waitForIndexing()
                                        .query(wildcard("ascii_1", "*"))
                                        .get();
 
@@ -102,7 +102,7 @@ public class MultipleKeyDataDeletionAT extends BaseAT {
         List<Row> rows = cassandraUtils.delete("map_1['k1']")
                                        .where("integer_1", 1)
                                        .and("ascii_1", "ascii")
-                                       .refresh()
+                                       .waitForIndexing()
                                        .filter(wildcard("ascii_1", "*"))
                                        .get();
 
@@ -131,7 +131,7 @@ public class MultipleKeyDataDeletionAT extends BaseAT {
         List<Row> rows = cassandraUtils.delete("list_1[0]")
                                        .where("integer_1", 1)
                                        .and("ascii_1", "ascii")
-                                       .refresh()
+                                       .waitForIndexing()
                                        .filter(wildcard("ascii_1", "*"))
                                        .get();
 
@@ -156,23 +156,20 @@ public class MultipleKeyDataDeletionAT extends BaseAT {
 
     @Test
     public void totalPartitionDeletion() {
-
-        int n = cassandraUtils.delete()
-                              .where("integer_1", 1)
-                              .and("ascii_1", "ascii")
-                              .refresh()
-                              .filter(wildcard("ascii_1", "*"))
-                              .count();
-
-        assertEquals("Expected 9 results!", 9, n);
-
+        cassandraUtils.delete()
+                      .where("integer_1", 1)
+                      .and("ascii_1", "ascii")
+                      .waitForIndexing()
+                      .filter(wildcard("ascii_1", "*"))
+                      .check(9);
     }
 
     @Test
     public void partialPartitionDeletion() {
-
-        int n = cassandraUtils.delete().where("integer_1", 1).refresh().filter(wildcard("ascii_1", "*")).count();
-
-        assertEquals("Expected 8 results!", 8, n);
+        cassandraUtils.delete()
+                      .where("integer_1", 1)
+                      .waitForIndexing()
+                      .filter(wildcard("ascii_1", "*"))
+                      .check(8);
     }
 }

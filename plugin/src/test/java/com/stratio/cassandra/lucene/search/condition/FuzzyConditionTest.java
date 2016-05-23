@@ -18,6 +18,7 @@ package com.stratio.cassandra.lucene.search.condition;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.search.condition.builder.FuzzyConditionBuilder;
+import org.apache.lucene.search.BoostQuery;
 import org.apache.lucene.search.FuzzyQuery;
 import org.apache.lucene.search.Query;
 import org.junit.Test;
@@ -26,6 +27,7 @@ import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
 import static com.stratio.cassandra.lucene.search.condition.FuzzyCondition.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
@@ -55,7 +57,7 @@ public class FuzzyConditionTest extends AbstractConditionTest {
         FuzzyConditionBuilder builder = new FuzzyConditionBuilder("field", "value");
         FuzzyCondition condition = builder.build();
         assertNotNull("Condition is not built", condition);
-        assertEquals("Boost is not set to default", DEFAULT_BOOST, condition.boost, 0);
+        assertNull("Boost is not set to default", condition.boost);
         assertEquals("Field is not set", "field", condition.field);
         assertEquals("Value is not set", "value", condition.value);
         assertEquals("Max edits is not set to default", DEFAULT_MAX_EDITS, condition.maxEdits);
@@ -121,14 +123,17 @@ public class FuzzyConditionTest extends AbstractConditionTest {
         Query query = condition.query(schema);
 
         assertNotNull("Query is not built", query);
-        assertEquals("Query type is wrong", FuzzyQuery.class, query.getClass());
+        assertEquals("Query type is wrong", BoostQuery.class, query.getClass());
 
+        BoostQuery boostQuery=(BoostQuery) query;
+        query=boostQuery.getQuery();
+        assertEquals("Query type is wrong", FuzzyQuery.class, query.getClass());
         FuzzyQuery fuzzyQuery = (FuzzyQuery) query;
         assertEquals("Query field is wrong", "name", fuzzyQuery.getField());
         assertEquals("Query term is wrong", "tr", fuzzyQuery.getTerm().text());
         assertEquals("Query max edits is wrong", 1, fuzzyQuery.getMaxEdits());
         assertEquals("Query prefix length is wrong", 2, fuzzyQuery.getPrefixLength());
-        assertEquals("Query boost is wrong", 0.5f, query.getBoost(), 0);
+        assertEquals("Query boost is wrong", 0.5f, boostQuery.getBoost(), 0);
     }
 
     @Test(expected = IndexException.class)

@@ -46,7 +46,7 @@ public abstract class SingleColumnCondition extends SingleFieldCondition {
     /** {@inheritDoc} */
     @Override
     @SuppressWarnings("unchecked")
-    public final Query query(Schema schema) {
+    public final Query doQuery(Schema schema) {
         Mapper mapper = schema.getMapper(field);
         if (mapper == null) {
             throw new IndexException("No mapper found for field '%s'", field);

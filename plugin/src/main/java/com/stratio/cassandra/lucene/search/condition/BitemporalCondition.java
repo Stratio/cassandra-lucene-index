@@ -141,10 +141,7 @@ public class BitemporalCondition extends SingleMapperCondition<BitemporalMapper>
             transactionBuilder.add(containsTransactionBuilder.build(), SHOULD);
             builder.add(transactionBuilder.build(), MUST);
         }
-
-        Query query = builder.build();
-        query.setBoost(boost);
-        return query;
+        return builder.build();
     }
 
     private static Long parseTime(BitemporalMapper mapper, Long defaultTime, Object value) {

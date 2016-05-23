@@ -27,6 +27,7 @@ import static com.stratio.cassandra.lucene.schema.SchemaBuilders.schema;
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.stringMapper;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
@@ -53,7 +54,7 @@ public class SingleColumnConditionTest {
                 return null;
             }
         };
-        assertEquals("Boost is not set to default value", Condition.DEFAULT_BOOST, condition.boost, 0);
+        assertNull("Boost is not set to default value", condition.boost);
     }
 
     @Test(expected = IndexException.class)

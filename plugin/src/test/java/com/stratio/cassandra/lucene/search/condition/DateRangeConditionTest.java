@@ -18,9 +18,10 @@ package com.stratio.cassandra.lucene.search.condition;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.search.condition.builder.DateRangeConditionBuilder;
+import org.apache.lucene.search.BoostQuery;
 import org.apache.lucene.search.ConstantScoreQuery;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.spatial.prefix.IntersectsPrefixTreeFilter;
+import org.apache.lucene.spatial.prefix.IntersectsPrefixTreeQuery;
 import org.junit.Test;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
@@ -71,7 +72,7 @@ public class DateRangeConditionTest extends AbstractConditionTest {
         DateRangeConditionBuilder builder = new DateRangeConditionBuilder("field");
         DateRangeCondition condition = builder.build();
         assertNotNull("Condition is not built", condition);
-        assertEquals("Boost is not set to default", DEFAULT_BOOST, condition.boost, 0);
+        assertNull("Boost is not set to default", condition.boost);
         assertEquals("Field is not set", "field", condition.field);
         assertEquals("From is not set to default", DEFAULT_FROM, condition.from);
         assertEquals("To is not set to default", DEFAULT_TO, condition.to);
@@ -159,14 +160,12 @@ public class DateRangeConditionTest extends AbstractConditionTest {
         DateRangeCondition condition = new DateRangeCondition(null, "name", 1L, 2L, null);
         Query query = condition.query(schema);
         assertNotNull("Query is not built", query);
-        assertTrue("Query type is wrong", query instanceof ConstantScoreQuery);
-        query = ((ConstantScoreQuery) query).getQuery();
-        assertTrue("Query type is wrong", query instanceof IntersectsPrefixTreeFilter);
-        IntersectsPrefixTreeFilter filter = (IntersectsPrefixTreeFilter) query;
+        assertTrue("Query type is wrong", query instanceof IntersectsPrefixTreeQuery);
+        IntersectsPrefixTreeQuery intersectsPrefixTreeQuery = (IntersectsPrefixTreeQuery) query;
         assertEquals("Query is wrong",
-                     "IntersectsPrefixTreeFilter(fieldName=name,queryShape=" +
+                     "IntersectsPrefixTreeQuery(fieldName=name,queryShape=" +
                      "[1970-01-01T00:00:00.001 TO 1970-01-01T00:00:00.002],detailLevel=9,prefixGridScanLevel=7)",
-                     filter.toString());
+                     intersectsPrefixTreeQuery.toString());
     }
 
     @Test(expected = IndexException.class)

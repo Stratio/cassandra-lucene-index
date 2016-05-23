@@ -18,6 +18,7 @@ package com.stratio.cassandra.lucene.search.condition;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.search.condition.builder.PhraseConditionBuilder;
+import org.apache.lucene.search.BoostQuery;
 import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.Query;
 import org.junit.Test;
@@ -26,6 +27,7 @@ import static com.stratio.cassandra.lucene.schema.SchemaBuilders.schema;
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.textMapper;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
@@ -48,7 +50,7 @@ public class PhraseConditionTest extends AbstractConditionTest {
         PhraseConditionBuilder builder = new PhraseConditionBuilder("field", "value1 value2");
         PhraseCondition condition = builder.build();
         assertNotNull("Condition is not built", condition);
-        assertEquals("Boost is not set to default", Condition.DEFAULT_BOOST, condition.boost, 0);
+        assertNull("Boost is not set to default", condition.boost);
         assertEquals("Field is not set", "field", condition.field);
         assertEquals("Value is not set", "value1 value2", condition.value);
         assertEquals("Slop is not set to default", PhraseCondition.DEFAULT_SLOP, condition.slop);
@@ -86,12 +88,15 @@ public class PhraseConditionTest extends AbstractConditionTest {
         Query query = condition.query(schema);
 
         assertNotNull("Query is not built", query);
+        assertEquals("Query type is wrong", BoostQuery.class, query.getClass());
+        BoostQuery boostQuery=(BoostQuery)query;
+        query=boostQuery.getQuery();
         assertEquals("Query type is wrong", PhraseQuery.class, query.getClass());
 
         PhraseQuery luceneQuery = (PhraseQuery) query;
         assertEquals("Query terms are wrong", 3, luceneQuery.getTerms().length);
         assertEquals("Query slop is wrong", 2, luceneQuery.getSlop());
-        assertEquals("Query boost is wrong", 0.5f, query.getBoost(), 0);
+        assertEquals("Query boost is wrong", 0.5f, boostQuery.getBoost(), 0);
     }
 
     @Test

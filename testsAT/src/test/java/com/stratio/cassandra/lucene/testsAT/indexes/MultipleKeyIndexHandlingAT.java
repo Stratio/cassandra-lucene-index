@@ -109,9 +109,9 @@ public class MultipleKeyIndexHandlingAT extends BaseAT {
 
     @Test
     public void recreateIndexAfterInsertionsTest() {
-        cassandraUtils.createIndex()
+        cassandraUtils.insert(data1, data2, data3, data4, data5, data6, data7, data8, data9, data10)
+                      .createIndex()
                       .waitForIndexing()
-                      .insert(data1, data2, data3, data4, data5, data6, data7, data8, data9, data10)
                       .refresh()
                       .filter(wildcard("ascii_1", "*"))
                       .check(10)

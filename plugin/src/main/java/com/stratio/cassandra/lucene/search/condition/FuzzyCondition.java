@@ -142,9 +142,7 @@ public class FuzzyCondition extends SingleColumnCondition {
     public Query query(SingleColumnMapper<?> mapper, Analyzer analyzer) {
         if (mapper.base == String.class) {
             Term term = new Term(field, value);
-            Query query = new FuzzyQuery(term, maxEdits, prefixLength, maxExpansions, transpositions);
-            query.setBoost(boost);
-            return query;
+            return new FuzzyQuery(term, maxEdits, prefixLength, maxExpansions, transpositions);
         } else {
             throw new IndexException("Fuzzy queries are not supported by mapper %s", mapper);
         }

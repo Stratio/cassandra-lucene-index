@@ -19,6 +19,7 @@ import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.search.condition.builder.GeoBBoxConditionBuilder;
 import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.BoostQuery;
 import org.apache.lucene.search.ConstantScoreQuery;
 import org.apache.lucene.search.Query;
 import org.junit.Test;
@@ -48,7 +49,7 @@ public class GeoBBoxConditionTest extends AbstractConditionTest {
     public void testBuildDefaults() {
         GeoBBoxConditionBuilder builder = new GeoBBoxConditionBuilder("name", 2D, 3D, 0D, 1D);
         GeoBBoxCondition condition = builder.build();
-        assertEquals("Boost is not to default", GeoBBoxCondition.DEFAULT_BOOST, condition.boost, 0);
+        assertNull("Boost is not to default", condition.boost);
         assertEquals("Field is not set", "name", condition.field);
         assertEquals("Min longitude is not set", 0, condition.minLongitude, 0);
         assertEquals("Max longitude is not set", 1, condition.maxLongitude, 0);
@@ -147,7 +148,9 @@ public class GeoBBoxConditionTest extends AbstractConditionTest {
         GeoBBoxCondition condition = new GeoBBoxCondition(0.5f, "name", -90D, 90D, -180D, 180D);
         Query query = condition.query(schema);
         assertNotNull("Query is wrong is not built", query);
-        assertTrue("Query type is wrong", query instanceof ConstantScoreQuery);
+        assertEquals("Query type is wrong", BoostQuery.class,query.getClass());
+        query=((BoostQuery) query).getQuery();
+        assertEquals("Query type is wrong", ConstantScoreQuery.class,query.getClass());
         query = ((ConstantScoreQuery) query).getQuery();
         assertTrue("Query type is wrong", query instanceof BooleanQuery);
     }

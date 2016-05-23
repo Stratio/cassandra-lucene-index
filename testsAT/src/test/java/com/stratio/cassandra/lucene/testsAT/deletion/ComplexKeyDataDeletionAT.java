@@ -82,7 +82,8 @@ public class ComplexKeyDataDeletionAT extends BaseAT {
                                                data17,
                                                data18,
                                                data19,
-                                               data20);
+                                               data20)
+                                       .waitForIndexing();
     }
 
     @After
@@ -97,7 +98,7 @@ public class ComplexKeyDataDeletionAT extends BaseAT {
                                        .where("integer_1", 1)
                                        .and("ascii_1", "ascii")
                                        .and("double_1", 1)
-                                       .refresh()
+                                       .waitForIndexing()
                                        .filter(wildcard("ascii_1", "*"))
                                        .get();
 
@@ -123,7 +124,7 @@ public class ComplexKeyDataDeletionAT extends BaseAT {
                                        .where("integer_1", 1)
                                        .and("ascii_1", "ascii")
                                        .and("double_1", 1)
-                                       .refresh()
+                                       .waitForIndexing()
                                        .filter(wildcard("ascii_1", "*"))
                                        .get();
 
@@ -153,7 +154,7 @@ public class ComplexKeyDataDeletionAT extends BaseAT {
                                        .where("integer_1", 1)
                                        .and("ascii_1", "ascii")
                                        .and("double_1", 1)
-                                       .refresh()
+                                       .waitForIndexing()
                                        .select()
                                        .filter(wildcard("ascii_1", "*"))
                                        .get();
@@ -179,27 +180,24 @@ public class ComplexKeyDataDeletionAT extends BaseAT {
 
     @Test
     public void totalPartitionDeletion() {
-        int n = cassandraUtils.delete()
-                              .where("integer_1", 1)
-                              .where("ascii_1", "ascii")
-                              .where("double_1", 1)
-                              .refresh()
-                              .select()
-                              .filter(wildcard("ascii_1", "*"))
-                              .count();
-        assertEquals("Expected 19 results!", 19, n);
-
+        cassandraUtils.delete()
+                      .where("integer_1", 1)
+                      .where("ascii_1", "ascii")
+                      .where("double_1", 1)
+                      .waitForIndexing()
+                      .select()
+                      .filter(wildcard("ascii_1", "*"))
+                      .check(19);
     }
 
     @Test
     public void partialPartitionDeletion() {
-        int n = cassandraUtils.delete()
-                              .where("integer_1", 1)
-                              .and("ascii_1", "ascii")
-                              .refresh()
-                              .select()
-                              .filter(wildcard("ascii_1", "*"))
-                              .count();
-        assertEquals("Expected 18 results!", 18, n);
+        cassandraUtils.delete()
+                      .where("integer_1", 1)
+                      .and("ascii_1", "ascii")
+                      .waitForIndexing()
+                      .select()
+                      .filter(wildcard("ascii_1", "*"))
+                      .check(18);
     }
 }

@@ -18,15 +18,16 @@ package com.stratio.cassandra.lucene.search.condition;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.search.condition.builder.LuceneConditionBuilder;
+import org.apache.lucene.search.BoostQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.junit.Test;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.schema;
-import static com.stratio.cassandra.lucene.search.condition.LuceneCondition.DEFAULT_BOOST;
 import static com.stratio.cassandra.lucene.search.condition.LuceneCondition.DEFAULT_FIELD;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
@@ -48,7 +49,7 @@ public class LuceneConditionTest extends AbstractConditionTest {
         LuceneConditionBuilder builder = new LuceneConditionBuilder("field:value");
         LuceneCondition condition = builder.build();
         assertNotNull("Condition is not built", condition);
-        assertEquals("Boost is not set to default", DEFAULT_BOOST, condition.boost, 0);
+        assertNull("Boost is not set to default", condition.boost);
         assertEquals("Field is not set to default", DEFAULT_FIELD, condition.defaultField);
         assertEquals("Query is not set", "field:value", condition.query);
     }
@@ -78,11 +79,14 @@ public class LuceneConditionTest extends AbstractConditionTest {
 
         Query query = condition.query(schema);
         assertNotNull("Query is not built", query);
+        assertEquals("Query is wrong", BoostQuery.class, query.getClass());
+        BoostQuery boostQuery=(BoostQuery)query;
+        query=boostQuery.getQuery();
         assertEquals("Query type is wrong", TermQuery.class, query.getClass());
 
         TermQuery termQuery = (TermQuery) query;
         assertEquals("Query term is wrong", "hous", termQuery.getTerm().bytes().utf8ToString());
-        assertEquals("Query boost is wrong", 0.7f, query.getBoost(), 0);
+        assertEquals("Query boost is wrong", 0.7f, boostQuery.getBoost(), 0);
     }
 
     @Test(expected = IndexException.class)

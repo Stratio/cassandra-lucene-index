@@ -64,7 +64,7 @@ public class ComposedKeyDataDeletionAT extends BaseAT {
                                        .createTable()
                                        .createIndex()
                                        .insert(data1, data2, data3, data4, data5, data6, data7, data8, data9, data10)
-                                       .refresh();
+                                       .waitForIndexing();
     }
 
     @After
@@ -78,7 +78,7 @@ public class ComposedKeyDataDeletionAT extends BaseAT {
         List<Row> rows = cassandraUtils.delete("bigint_1")
                                        .where("integer_1", 1)
                                        .and("ascii_1", "ascii")
-                                       .refresh()
+                                       .waitForIndexing()
                                        .filter(wildcard("ascii_1", "*"))
                                        .get();
 
@@ -103,7 +103,7 @@ public class ComposedKeyDataDeletionAT extends BaseAT {
         List<Row> rows = cassandraUtils.delete("map_1['k1']")
                                        .where("integer_1", 1)
                                        .and("ascii_1", "ascii")
-                                       .refresh()
+                                        .waitForIndexing()
                                        .filter(wildcard("ascii_1", "*"))
                                        .get();
 
@@ -132,7 +132,7 @@ public class ComposedKeyDataDeletionAT extends BaseAT {
         List<Row> rows = cassandraUtils.delete("list_1[0]")
                                        .where("integer_1", 1)
                                        .and("ascii_1", "ascii")
-                                       .refresh()
+                                       .waitForIndexing()
                                        .filter(wildcard("ascii_1", "*"))
                                        .get();
 
@@ -155,15 +155,11 @@ public class ComposedKeyDataDeletionAT extends BaseAT {
 
     @Test
     public void totalPartitionDeletion() {
-
-        List<Row> rows = cassandraUtils.delete()
-                                       .where("integer_1", 1)
-                                       .and("ascii_1", "ascii")
-                                       .refresh()
-                                       .filter(wildcard("ascii_1", "*"))
-                                       .get();
-
-        assertEquals("Expected 9 results!", 9, rows.size());
-
+        cassandraUtils.delete()
+                      .where("integer_1", 1)
+                      .and("ascii_1", "ascii")
+                      .waitForIndexing()
+                      .filter(wildcard("ascii_1", "*"))
+                      .check(9);
     }
 }

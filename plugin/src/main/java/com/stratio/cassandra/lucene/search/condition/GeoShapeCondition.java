@@ -86,7 +86,7 @@ public class GeoShapeCondition extends SingleFieldCondition {
 
     /** {@inheritDoc} */
     @Override
-    public Query query(Schema schema) {
+    public Query doQuery(Schema schema) {
 
         // Get the spatial strategy from the mapper
         SpatialStrategy strategy;
@@ -113,9 +113,7 @@ public class GeoShapeCondition extends SingleFieldCondition {
         // Build query
         SpatialArgs args = new SpatialArgs(operation.getSpatialOperation(), transformedGeometry);
         args.setDistErr(0.0);
-        Query query = strategy.makeQuery(args);
-        query.setBoost(boost);
-        return query;
+        return strategy.makeQuery(args);
     }
 
     /** {@inheritDoc} */

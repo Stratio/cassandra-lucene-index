@@ -52,7 +52,7 @@ public abstract class SingleMapperCondition<T extends Mapper> extends SingleFiel
     /** {@inheritDoc} */
     @Override
     @SuppressWarnings("unchecked")
-    public Query query(Schema schema) {
+    public Query doQuery(Schema schema) {
         Mapper mapper = schema.getMapper(field);
         if (mapper == null) {
             throw new IndexException("No mapper found for field '%s'", field);

@@ -18,7 +18,7 @@ package com.stratio.cassandra.lucene.key;
 import org.apache.cassandra.db.DecoratedKey;
 import org.apache.cassandra.db.composites.CellNameType;
 import org.apache.cassandra.db.composites.Composite;
-import org.apache.cassandra.dht.Token;
+import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.lucene.index.FilteredTermsEnum;
 import org.apache.lucene.index.Terms;
@@ -43,10 +43,11 @@ class KeyQuery extends MultiTermQuery {
     private static final Logger logger = LoggerFactory.getLogger(KeyQuery.class);
     private final KeyMapper mapper;
     private final DecoratedKey key;
-    private final Token token;
+    private final ByteBuffer collatedToken;
     private final Composite start, stop;
     private final CellNameType clusteringComparator;
     private final boolean acceptLowerConflicts, acceptUpperConflicts;
+    private final BytesRef seek;
 
     /**
      * Returns a new clustering key query for the specified clustering key range using the specified mapper.
@@ -67,12 +68,13 @@ class KeyQuery extends MultiTermQuery {
         super(KeyMapper.FIELD_NAME);
         this.mapper = mapper;
         this.key = key;
-        this.token = key.getToken();
+        this.collatedToken = TokenMapper.toCollated(key.getToken());
         this.start = start;
         this.stop = stop;
         this.acceptLowerConflicts = acceptLowerConflicts;
         this.acceptUpperConflicts = acceptUpperConflicts;
         clusteringComparator = mapper.clusteringComparator();
+        seek = mapper.seek(key);
     }
 
     /** {@inheritDoc} */
@@ -98,7 +100,7 @@ class KeyQuery extends MultiTermQuery {
             super(tenum);
             if (start != null) {
                 List<ByteBuffer> list = Arrays.asList(mapper.clusteringType().split(mapper.clusteringKey(start)));
-                setInitialSeekTerm(mapper.bytesRef(key, mapper.clusteringComparator().builder().buildWith(list)));
+                setInitialSeekTerm(seek);
             }
         }
 
@@ -109,7 +111,7 @@ class KeyQuery extends MultiTermQuery {
             KeyEntry entry = mapper.entry(term);
 
             // Check token
-            int tokenComparison = entry.getToken().compareTo(token);
+            int tokenComparison = UTF8Type.instance.compare(entry.getCollatedToken(), collatedToken);
             if (tokenComparison < 0) {
                 return AcceptStatus.NO;
             }

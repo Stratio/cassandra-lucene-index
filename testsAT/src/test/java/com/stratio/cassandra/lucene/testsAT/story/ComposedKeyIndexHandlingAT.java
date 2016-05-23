@@ -105,7 +105,7 @@ public class ComposedKeyIndexHandlingAT extends BaseAT {
                       .createIndex()
                       .waitForIndexing()
                       .insert(data1, data10)
-                      .refresh()
+                      .waitForIndexing()
                       .filter(wildcard("ascii_1", "*"))
                       .check(10);
     }

@@ -88,9 +88,7 @@ public class GeoBBoxCondition extends SingleMapperCondition<GeoPointMapper> {
         Rectangle rectangle = CONTEXT.makeRectangle(minLongitude, maxLongitude, minLatitude, maxLatitude);
 
         SpatialArgs args = new SpatialArgs(SpatialOperation.BBoxIntersects, rectangle);
-        Query query = spatialStrategy.makeQuery(args);
-        query.setBoost(boost);
-        return query;
+        return spatialStrategy.makeQuery(args);
     }
 
     /** {@inheritDoc} */

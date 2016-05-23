@@ -36,7 +36,7 @@ public class ContainsConditionTest extends AbstractConditionTest {
         Object[] values = new Object[]{"a", "b"};
         ContainsCondition condition = new ContainsConditionBuilder("field", values).build();
         assertNotNull("Condition is not built", condition);
-        assertEquals("Boost is not set to default", Condition.DEFAULT_BOOST, condition.boost, 0);
+        assertNull("Boost is not set to default", condition.boost);
         assertEquals("Field is not set", "field", condition.field);
         assertArrayEquals("Values is not set", values, condition.values);
     }
@@ -102,12 +102,11 @@ public class ContainsConditionTest extends AbstractConditionTest {
         Schema schema = schema().mapper("name", integerMapper()).build();
 
         ContainsCondition condition = new ContainsCondition(boost, "name", values);
-        Query query = condition.query(schema);
-        assertNotNull("Query is not built", query);
-        assertEquals("Query type is wrong", BooleanQuery.class, query.getClass());
-
-        BooleanQuery booleanQuery = (BooleanQuery) query;
-        assertEquals("Boost is not set", 0.7f, query.getBoost(), 0);
+        Query boostQuery = condition.query(schema);
+        assertNotNull("Query is not built", boostQuery);
+        assertTrue("Query with boost must be BoostQuery",(boostQuery instanceof BoostQuery));
+        BooleanQuery booleanQuery=(BooleanQuery) ((BoostQuery) boostQuery).getQuery();
+        assertEquals("Boost is not set", 0.7f, boostQuery.getBoost(), 0);
         List<BooleanClause> clauses = booleanQuery.clauses();
         assertEquals("Query is wrong", values.length, clauses.size());
         for (int i = 0; i < values.length; i++) {
@@ -126,12 +125,13 @@ public class ContainsConditionTest extends AbstractConditionTest {
         Schema schema = schema().mapper("name", stringMapper()).build();
 
         ContainsCondition condition = new ContainsCondition(boost, "name", values);
-        Query query = condition.query(schema);
-        assertNotNull("Query is not built", query);
+        Query boostQuery = condition.query(schema);
+        assertNotNull("Query is not built", boostQuery);
+        assertTrue("Query with boost must be BoostQuery",(boostQuery instanceof BoostQuery));
+        BooleanQuery query=(BooleanQuery) ((BoostQuery) boostQuery).getQuery();
         assertEquals("Query type is wrong", BooleanQuery.class, query.getClass());
-
         BooleanQuery booleanQuery = (BooleanQuery) query;
-        assertEquals("Query boost is wrong", 0.7f, query.getBoost(), 0);
+        assertEquals("Query boost is wrong", 0.7f, ((BoostQuery) boostQuery).getBoost(), 0);
         List<BooleanClause> clauses = booleanQuery.clauses();
         TermQuery termQuery1 = (TermQuery) clauses.get(0).getQuery();
         TermQuery termQuery2 = (TermQuery) clauses.get(1).getQuery();
@@ -150,10 +150,14 @@ public class ContainsConditionTest extends AbstractConditionTest {
         ContainsCondition condition = new ContainsCondition(boost, "name", values);
         Query query = condition.query(schema);
         assertNotNull("Query is not built", query);
-        assertEquals("Query type is wrong", BooleanQuery.class, query.getClass());
+        assertEquals("Query type is wrong", BoostQuery.class, query.getClass());
+        BoostQuery boostQuery = (BoostQuery) query;
 
-        BooleanQuery booleanQuery = (BooleanQuery) query;
-        assertEquals("Query boost is wrong", 0.7f, query.getBoost(), 0);
+        BooleanQuery booleanQuery = (BooleanQuery) boostQuery.getQuery();
+
+
+
+        assertEquals("Query boost is wrong", 0.7f, boostQuery.getBoost(), 0);
         List<BooleanClause> clauses = booleanQuery.clauses();
         TermQuery termQuery1 = (TermQuery) clauses.get(0).getQuery();
         TermQuery termQuery2 = (TermQuery) clauses.get(1).getQuery();

@@ -106,7 +106,6 @@ public class RangeCondition extends SingleColumnCondition {
         } else {
             throw new IndexException("Range queries are not supported by mapper '%s'", mapper);
         }
-        query.setBoost(boost);
         return query;
     }
 

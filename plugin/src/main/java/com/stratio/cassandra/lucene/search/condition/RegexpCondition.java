@@ -58,9 +58,7 @@ public class RegexpCondition extends SingleColumnCondition {
     public Query query(SingleColumnMapper<?> mapper, Analyzer analyzer) {
         if (mapper.base == String.class) {
             Term term = new Term(field, value);
-            Query query = new RegexpQuery(term);
-            query.setBoost(boost);
-            return query;
+            return new RegexpQuery(term);
         } else {
             throw new IndexException("Regexp queries are not supported by mapper '%s'", mapper);
         }
