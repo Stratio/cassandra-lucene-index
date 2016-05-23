@@ -43,8 +43,7 @@ public class GeoShapeMapperTest extends AbstractMapperTest {
     public void testConstructorWithDefaultArgs() {
         GeoShapeMapper mapper = geoShapeMapper().build("field");
         assertEquals("Field name is not properly set", "field", mapper.field);
-        assertTrue("Indexed is not properly set", mapper.indexed);
-        assertFalse("Sorted is not properly set", mapper.sorted);
+        assertFalse("Sorted is not properly set", mapper.docValues);
         assertEquals("Column is not properly set", "field", mapper.column);
         assertEquals("Mapped columns are not properly set", 1, mapper.mappedColumns.size());
         assertTrue("Mapped columns are not properly set", mapper.mappedColumns.contains("field"));
@@ -62,8 +61,7 @@ public class GeoShapeMapperTest extends AbstractMapperTest {
                                                 .transformations(new Centroid(), new Difference("POINT (10 10)"))
                                                 .build("field");
         assertEquals("Field name is not properly set", "field", mapper.field);
-        assertTrue("Indexed is not properly set", mapper.indexed);
-        assertFalse("Sorted is not properly set", mapper.sorted);
+        assertFalse("Sorted is not properly set", mapper.docValues);
         assertTrue("Validated is not properly set", mapper.validated);
         assertEquals("Column is not properly set", "column", mapper.column);
         assertEquals("Mapped columns are not properly set", 1, mapper.mappedColumns.size());

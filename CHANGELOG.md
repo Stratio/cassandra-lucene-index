@@ -6,6 +6,7 @@
 * Add sorting merge policy (dramatically improves filter performance)
 * Add transformation for getting the convex hull of a geographical shape
 * Fix invalid WKT shapes by zero-buffering them
+* Remove indexed/sorted mapping options, all mappers store doc values when possible
 * Remove support for other partitioners than Murmur3
 * Improve clustering key filtering with better token prefix collation
 * Fix memory consumption issues with high fetch sizes

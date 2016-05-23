@@ -62,13 +62,15 @@ public class LuceneIndex implements LuceneIndexMBean {
     /**
      * Builds a new {@link LuceneIndex} using the specified {@link IndexConfig}.
      *
-     * @param config The {@link IndexConfig}.
-     * @throws IOException If Lucene throws IO errors.
+     * @param config the {@link IndexConfig}
+     * @param mergeSort the merge policy sort
+     * @throws IOException if Lucene throws IO errors
      */
     public LuceneIndex(IndexConfig config, Sort mergeSort) throws IOException {
         this.path = config.getPath();
         this.name = config.getName();
         this.mergeSort = mergeSort;
+
         // Open or create directory
         FSDirectory fsDirectory = FSDirectory.open(path);
         directory = new NRTCachingDirectory(fsDirectory, config.getMaxMergeMB(), config.getMaxCachedMB());
@@ -231,7 +233,7 @@ public class LuceneIndex implements LuceneIndexMBean {
      * @param after The starting {@link ScoreDoc}.
      * @param count The max number of results to be collected.
      * @param fields The names of the fields to be loaded.
-     * @return The found documents, sorted according to the supplied {@link Sort} instance.
+     * @return The found documents, docValues according to the supplied {@link Sort} instance.
      * @throws IOException If Lucene throws IO errors.
      */
     public Map<Document, ScoreDoc> search(IndexSearcher searcher,

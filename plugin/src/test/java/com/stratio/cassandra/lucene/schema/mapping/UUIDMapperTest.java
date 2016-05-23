@@ -42,25 +42,22 @@ public class UUIDMapperTest extends AbstractMapperTest {
         assertEquals("Column is not set to default value", "field", mapper.column);
         assertEquals("Mapped columns are not properly set", 1, mapper.mappedColumns.size());
         assertTrue("Mapped columns are not properly set", mapper.mappedColumns.contains("field"));
-        assertEquals("Indexed must be default", Mapper.DEFAULT_INDEXED, mapper.indexed);
-        assertEquals("Sorted must be default", Mapper.DEFAULT_SORTED, mapper.sorted);
     }
 
     @Test
     public void testConstructorWithAllArgs() {
-        UUIDMapper mapper = uuidMapper().indexed(false).sorted(true).column("column").build("field");
+        UUIDMapper mapper = uuidMapper().column("column").build("field");
         assertEquals("Field is not properly set", "field", mapper.field);
         assertEquals("Column is not properly set", "column", mapper.column);
         assertEquals("Mapped columns are not properly set", 1, mapper.mappedColumns.size());
         assertTrue("Mapped columns are not properly set", mapper.mappedColumns.contains("column"));
-        assertFalse("Must be not indexed", mapper.indexed);
-        assertTrue("Must be sorted", mapper.sorted);
+        assertTrue("Must be docValues", mapper.docValues);
     }
 
     @Test
     public void testJsonSerialization() {
-        UUIDMapperBuilder builder = uuidMapper().indexed(false).sorted(true).column("column");
-        testJson(builder, "{type:\"uuid\",indexed:false,sorted:true,column:\"column\"}");
+        UUIDMapperBuilder builder = uuidMapper().column("column");
+        testJson(builder, "{type:\"uuid\",column:\"column\"}");
     }
 
     @Test
@@ -154,7 +151,7 @@ public class UUIDMapperTest extends AbstractMapperTest {
         String base = mapper.base("name", "550e8400-e29b-41d4-a716-446655440000");
         Field field = mapper.sortedField("name", base);
         assertNotNull("Field must not be null", field);
-        assertEquals("Doc values has wrong type", DocValuesType.SORTED, field.fieldType().docValuesType());
+        assertEquals("Doc values has wrong type", DocValuesType.SORTED_SET, field.fieldType().docValuesType());
     }
 
     @Test
@@ -349,9 +346,9 @@ public class UUIDMapperTest extends AbstractMapperTest {
 
     @Test
     public void testToString() {
-        UUIDMapper mapper = uuidMapper().indexed(false).sorted(true).validated(true).build("field");
+        UUIDMapper mapper = uuidMapper().validated(true).build("field");
         assertEquals("Method toString is wrong",
-                     "UUIDMapper{field=field, indexed=false, sorted=true, validated=true, column=field}",
+                     "UUIDMapper{field=field, docValues=true, validated=true, column=field}",
                      mapper.toString());
     }
 }

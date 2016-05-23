@@ -34,8 +34,6 @@ public class InetMapperTest extends AbstractMapperTest {
     public void testConstructorWithoutArgs() {
         InetMapper mapper = inetMapper().build("field");
         assertEquals("Field is not properly set", "field", mapper.field);
-        assertEquals("Indexed is not set to default value", Mapper.DEFAULT_INDEXED, mapper.indexed);
-        assertEquals("Sorted is not set to default value", Mapper.DEFAULT_SORTED, mapper.sorted);
         assertEquals("Column is not set to default value", "field", mapper.column);
         assertEquals("Mapped columns are not properly set", 1, mapper.mappedColumns.size());
         assertTrue("Mapped columns are not properly set", mapper.mappedColumns.contains("field"));
@@ -43,10 +41,9 @@ public class InetMapperTest extends AbstractMapperTest {
 
     @Test
     public void testConstructorWithAllArgs() {
-        InetMapper mapper = inetMapper().indexed(false).sorted(true).column("column").build("field");
+        InetMapper mapper = inetMapper().column("column").build("field");
         assertEquals("Field is not properly set", "field", mapper.field);
-        assertFalse("Indexed is not properly set", mapper.indexed);
-        assertTrue("Sorted is not properly set", mapper.sorted);
+        assertTrue("Sorted is not properly set", mapper.docValues);
         assertEquals("Column is not properly set", "column", mapper.column);
         assertEquals("Mapped columns are not properly set", 1, mapper.mappedColumns.size());
         assertTrue("Mapped columns are not properly set", mapper.mappedColumns.contains("column"));
@@ -54,8 +51,8 @@ public class InetMapperTest extends AbstractMapperTest {
 
     @Test
     public void testJsonSerialization() {
-        InetMapperBuilder builder = inetMapper().indexed(false).sorted(true).column("column");
-        testJson(builder, "{type:\"inet\",indexed:false,sorted:true,column:\"column\"}");
+        InetMapperBuilder builder = inetMapper().column("column");
+        testJson(builder, "{type:\"inet\",column:\"column\"}");
     }
 
     @Test
@@ -159,7 +156,7 @@ public class InetMapperTest extends AbstractMapperTest {
 
     @Test
     public void testIndexedField() {
-        InetMapper mapper = inetMapper().indexed(true).build("field");
+        InetMapper mapper = inetMapper().build("field");
         Field field = mapper.indexedField("name", "192.168.0.13");
         assertNotNull("Indexed field is not created", field);
         assertEquals("Indexed field value is wrong", "192.168.0.13", field.stringValue());
@@ -169,10 +166,10 @@ public class InetMapperTest extends AbstractMapperTest {
 
     @Test
     public void testSortedField() {
-        InetMapper mapper = inetMapper().sorted(true).build("field");
+        InetMapper mapper = inetMapper().build("field");
         Field field = mapper.sortedField("name", "192.168.0.13");
         assertNotNull("Sorted field is not created", field);
-        assertEquals("Sorted field type is wrong", DocValuesType.SORTED, field.fieldType().docValuesType());
+        assertEquals("Sorted field type is wrong", DocValuesType.SORTED_SET, field.fieldType().docValuesType());
     }
 
     @Test
@@ -184,9 +181,9 @@ public class InetMapperTest extends AbstractMapperTest {
 
     @Test
     public void testToString() {
-        InetMapper mapper = inetMapper().indexed(false).sorted(true).validated(true).build("field");
+        InetMapper mapper = inetMapper().validated(true).build("field");
         assertEquals("Method #toString is wrong",
-                     "InetMapper{field=field, indexed=false, sorted=true, validated=true, column=field}",
+                     "InetMapper{field=field, docValues=true, validated=true, column=field}",
                      mapper.toString());
     }
 }

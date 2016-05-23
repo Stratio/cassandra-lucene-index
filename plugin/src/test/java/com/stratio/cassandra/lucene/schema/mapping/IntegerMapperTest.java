@@ -31,8 +31,6 @@ public class IntegerMapperTest extends AbstractMapperTest {
     public void testConstructorWithoutArgs() {
         IntegerMapper mapper = integerMapper().build("field");
         assertEquals("Field is not properly set", "field", mapper.field);
-        assertEquals("Indexed is not set to default value", Mapper.DEFAULT_INDEXED, mapper.indexed);
-        assertEquals("Sorted is not set to default value", Mapper.DEFAULT_SORTED, mapper.sorted);
         assertEquals("Column is not set to default value", "field", mapper.column);
         assertEquals("Mapped columns are not properly set", 1, mapper.mappedColumns.size());
         assertTrue("Mapped columns are not properly set", mapper.mappedColumns.contains("field"));
@@ -41,10 +39,9 @@ public class IntegerMapperTest extends AbstractMapperTest {
 
     @Test
     public void testConstructorWithAllArgs() {
-        IntegerMapper mapper = integerMapper().indexed(false).sorted(true).column("column").boost(2.3f).build("field");
+        IntegerMapper mapper = integerMapper().column("column").boost(2.3f).build("field");
         assertEquals("Field is not properly set", "field", mapper.field);
-        assertFalse("Indexed is not properly set", mapper.indexed);
-        assertTrue("Sorted is not properly set", mapper.sorted);
+        assertTrue("Sorted is not properly set", mapper.docValues);
         assertEquals("Column is not properly set", "column", mapper.column);
         assertEquals("Mapped columns are not properly set", 1, mapper.mappedColumns.size());
         assertTrue("Mapped columns are not properly set", mapper.mappedColumns.contains("column"));
@@ -53,8 +50,8 @@ public class IntegerMapperTest extends AbstractMapperTest {
 
     @Test
     public void testJsonSerialization() {
-        IntegerMapperBuilder builder = integerMapper().indexed(false).sorted(true).column("column").boost(0.3f);
-        testJson(builder, "{type:\"integer\",indexed:false,sorted:true,column:\"column\",boost:0.3}");
+        IntegerMapperBuilder builder = integerMapper().column("column").boost(0.3f);
+        testJson(builder, "{type:\"integer\",column:\"column\",boost:0.3}");
     }
 
     @Test
@@ -189,7 +186,7 @@ public class IntegerMapperTest extends AbstractMapperTest {
 
     @Test
     public void testIndexedField() {
-        IntegerMapper mapper = integerMapper().indexed(true).boost(1f).build("field");
+        IntegerMapper mapper = integerMapper().boost(1f).build("field");
         Field field = mapper.indexedField("name", 3);
         assertNotNull("Indexed field is not created", field);
         assertEquals("Indexed field value is wrong", 3, field.numericValue());
@@ -199,10 +196,10 @@ public class IntegerMapperTest extends AbstractMapperTest {
 
     @Test
     public void testSortedField() {
-        IntegerMapper mapper = integerMapper().sorted(true).boost(1f).build("field");
+        IntegerMapper mapper = integerMapper().boost(1f).build("field");
         Field field = mapper.sortedField("name", 3);
         assertNotNull("Sorted field is not created", field);
-        assertEquals("Sorted field type is wrong", DocValuesType.NUMERIC, field.fieldType().docValuesType());
+        assertEquals("Sorted field type is wrong", DocValuesType.SORTED_NUMERIC, field.fieldType().docValuesType());
     }
 
     @Test
@@ -213,9 +210,9 @@ public class IntegerMapperTest extends AbstractMapperTest {
 
     @Test
     public void testToString() {
-        IntegerMapper mapper = integerMapper().indexed(false).sorted(true).validated(true).boost(1f).build("field");
+        IntegerMapper mapper = integerMapper().validated(true).boost(1f).build("field");
         assertEquals("Method #toString is wrong",
-                     "IntegerMapper{field=field, indexed=false, sorted=true, validated=true, column=field, boost=1.0}",
+                     "IntegerMapper{field=field, docValues=true, validated=true, column=field, boost=1.0}",
                      mapper.toString());
     }
 }

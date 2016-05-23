@@ -19,9 +19,10 @@ import com.stratio.cassandra.lucene.IndexException;
 import org.apache.cassandra.db.marshal.*;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FloatField;
-import org.apache.lucene.document.NumericDocValuesField;
+import org.apache.lucene.document.SortedNumericDocValuesField;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.SortField.Type;
+import org.apache.lucene.search.SortedNumericSortField;
 import org.apache.lucene.util.NumericUtils;
 import org.codehaus.jackson.annotate.JsonCreator;
 
@@ -43,17 +44,14 @@ public class FloatMapper extends SingleColumnMapper.SingleFieldMapper<Float> {
      *
      * @param field the name of the field
      * @param column the name of the column to be mapped
-     * @param indexed if the field supports searching
-     * @param sorted if the field supports sorting
      * @param validated if the field must be validated
      * @param boost the boost
      */
     @JsonCreator
-    public FloatMapper(String field, String column, Boolean indexed, Boolean sorted, Boolean validated, Float boost) {
+    public FloatMapper(String field, String column, Boolean validated, Float boost) {
         super(field,
               column,
-              indexed,
-              sorted,
+              true,
               validated,
               null,
               Float.class,
@@ -97,13 +95,13 @@ public class FloatMapper extends SingleColumnMapper.SingleFieldMapper<Float> {
     @Override
     public Field sortedField(String name, Float value) {
         int sortable = NumericUtils.floatToSortableInt(value);
-        return new NumericDocValuesField(name, sortable);
+        return new SortedNumericDocValuesField(name, sortable);
     }
 
     /** {@inheritDoc} */
     @Override
     public SortField sortField(String name, boolean reverse) {
-        return new SortField(name, Type.FLOAT, reverse);
+        return new SortedNumericSortField(name, Type.FLOAT, reverse);
     }
 
     /** {@inheritDoc} */

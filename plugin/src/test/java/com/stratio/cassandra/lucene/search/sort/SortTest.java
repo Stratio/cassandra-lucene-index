@@ -99,9 +99,9 @@ public class SortTest {
         sortFields.add(sortField3);
         Sort sort = new Sort(sortFields);
 
-        Schema schema = schema().mapper("field_1", stringMapper().sorted(true))
-                                .mapper("field_2", stringMapper().sorted(true))
-                                .mapper("field_3", stringMapper().sorted(true))
+        Schema schema = schema().mapper("field_1", stringMapper())
+                                .mapper("field_2", stringMapper())
+                                .mapper("field_3", stringMapper())
                                 .build();
         Comparator<Columns> comparator = sort.comparator(schema);
 

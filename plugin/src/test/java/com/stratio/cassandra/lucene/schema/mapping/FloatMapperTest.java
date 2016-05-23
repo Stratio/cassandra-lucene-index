@@ -31,8 +31,6 @@ public class FloatMapperTest extends AbstractMapperTest {
     public void testConstructorWithoutArgs() {
         FloatMapper mapper = floatMapper().build("field");
         assertEquals("Field is not properly set", "field", mapper.field);
-        assertEquals("Indexed is not set to default value", Mapper.DEFAULT_INDEXED, mapper.indexed);
-        assertEquals("Sorted is not set to default value", Mapper.DEFAULT_SORTED, mapper.sorted);
         assertEquals("Column is not set to default value", "field", mapper.column);
         assertEquals("Mapped columns are not properly set", 1, mapper.mappedColumns.size());
         assertTrue("Mapped columns are not properly set", mapper.mappedColumns.contains("field"));
@@ -41,10 +39,9 @@ public class FloatMapperTest extends AbstractMapperTest {
 
     @Test
     public void testConstructorWithAllArgs() {
-        FloatMapper mapper = floatMapper().indexed(false).sorted(true).column("column").boost(0.3f).build("field");
+        FloatMapper mapper = floatMapper().column("column").boost(0.3f).build("field");
         assertEquals("Field is not properly set", "field", mapper.field);
-        assertFalse("Indexed is not properly set", mapper.indexed);
-        assertTrue("Sorted is not properly set", mapper.sorted);
+        assertTrue("Sorted is not properly set", mapper.docValues);
         assertEquals("Column is not properly set", "column", mapper.column);
         assertEquals("Mapped columns are not properly set", 1, mapper.mappedColumns.size());
         assertTrue("Mapped columns are not properly set", mapper.mappedColumns.contains("column"));
@@ -53,8 +50,8 @@ public class FloatMapperTest extends AbstractMapperTest {
 
     @Test
     public void testJsonSerialization() {
-        FloatMapperBuilder builder = floatMapper().indexed(false).sorted(true).column("column").boost(0.3f);
-        testJson(builder, "{type:\"float\",indexed:false,sorted:true,column:\"column\",boost:0.3}");
+        FloatMapperBuilder builder = floatMapper().column("column").boost(0.3f);
+        testJson(builder, "{type:\"float\",column:\"column\",boost:0.3}");
     }
 
     @Test
@@ -190,7 +187,7 @@ public class FloatMapperTest extends AbstractMapperTest {
 
     @Test
     public void testIndexedField() {
-        FloatMapper mapper = floatMapper().indexed(true).boost(1f).build("field");
+        FloatMapper mapper = floatMapper().boost(1f).build("field");
         Field field = mapper.indexedField("name", 3.2f);
         assertNotNull("Indexed field is not created", field);
         assertEquals("Indexed field value is wrong", 3.2f, field.numericValue());
@@ -200,10 +197,10 @@ public class FloatMapperTest extends AbstractMapperTest {
 
     @Test
     public void testSortedField() {
-        FloatMapper mapper = floatMapper().sorted(true).boost(1f).build("field");
+        FloatMapper mapper = floatMapper().boost(1f).build("field");
         Field field = mapper.sortedField("name", 3.2f);
         assertNotNull("Sorted field is not created", field);
-        assertEquals("Sorted field type is wrong", DocValuesType.NUMERIC, field.fieldType().docValuesType());
+        assertEquals("Sorted field type is wrong", DocValuesType.SORTED_NUMERIC, field.fieldType().docValuesType());
     }
 
     @Test
@@ -214,9 +211,9 @@ public class FloatMapperTest extends AbstractMapperTest {
 
     @Test
     public void testToString() {
-        FloatMapper mapper = floatMapper().indexed(false).sorted(true).validated(true).boost(0.3f).build("field");
+        FloatMapper mapper = floatMapper().validated(true).boost(0.3f).build("field");
         assertEquals("Method #toString is wrong",
-                     "FloatMapper{field=field, indexed=false, sorted=true, validated=true, column=field, boost=0.3}",
+                     "FloatMapper{field=field, docValues=true, validated=true, column=field, boost=0.3}",
                      mapper.toString());
     }
 }

@@ -96,14 +96,14 @@ public class SearchTest {
 
     @Test
     public void testSort() {
-        Schema schema = schema().mapper("field", stringMapper().sorted(true)).build();
+        Schema schema = schema().mapper("field", stringMapper()).build();
         assertNotNull("Sort fields is wrong", search().sort(field("field")).build().sortFields(schema));
         assertNull("Sort fields is wrong", search().query(match("field", "value")).build().sortFields(schema));
     }
 
     @Test
     public void testValidate() {
-        Schema schema = schema().mapper("field", stringMapper().sorted(true)).build();
+        Schema schema = schema().mapper("field", stringMapper()).build();
         search().query(match("field", "value"))
                 .filter(match("field", "value"))
                 .sort(field("field"))

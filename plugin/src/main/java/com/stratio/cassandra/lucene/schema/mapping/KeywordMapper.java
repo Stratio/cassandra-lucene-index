@@ -18,10 +18,11 @@ package com.stratio.cassandra.lucene.schema.mapping;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldType;
-import org.apache.lucene.document.SortedDocValuesField;
+import org.apache.lucene.document.SortedSetDocValuesField;
 import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.SortField.Type;
+import org.apache.lucene.search.SortedSetSortField;
 import org.apache.lucene.util.BytesRef;
 
 /**
@@ -45,18 +46,11 @@ public abstract class KeywordMapper extends SingleColumnMapper.SingleFieldMapper
      *
      * @param field the name of the field
      * @param column the name of the column to be mapped
-     * @param indexed if the field supports searching
-     * @param sorted if the field supports sorting
      * @param validated if the field must be validated
      * @param supportedTypes the supported Cassandra types
      */
-    KeywordMapper(String field,
-                  String column,
-                  Boolean indexed,
-                  Boolean sorted,
-                  Boolean validated,
-                  AbstractType<?>... supportedTypes) {
-        super(field, column, indexed, sorted, validated, KEYWORD_ANALYZER, String.class, supportedTypes);
+    KeywordMapper(String field, String column, Boolean validated, AbstractType<?>... supportedTypes) {
+        super(field, column, true, validated, KEYWORD_ANALYZER, String.class, supportedTypes);
     }
 
     /** {@inheritDoc} */
@@ -68,12 +62,12 @@ public abstract class KeywordMapper extends SingleColumnMapper.SingleFieldMapper
     /** {@inheritDoc} */
     @Override
     public Field sortedField(String name, String value) {
-        return new SortedDocValuesField(name, new BytesRef(value));
+        return new SortedSetDocValuesField(name, new BytesRef(value));
     }
 
     /** {@inheritDoc} */
     @Override
     public final SortField sortField(String name, boolean reverse) {
-        return new SortField(name, Type.STRING_VAL, reverse);
+        return new SortedSetSortField(name, reverse);
     }
 }

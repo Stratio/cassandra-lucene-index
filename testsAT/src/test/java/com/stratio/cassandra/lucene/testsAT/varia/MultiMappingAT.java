@@ -37,10 +37,9 @@ public class MultiMappingAT extends BaseAT {
                                        .withPartitionKey("key")
                                        .withColumn("key", "int")
                                        .withColumn("lucene", "text")
-                                       .withColumn("text", "text", stringMapper().sorted(true))
+                                       .withColumn("text", "text", stringMapper())
                                        .withColumn("map", "map<text, text>", null)
-                                       .withMapper("alias_text",
-                                                   dateMapper().pattern("dd-MM-yyyy").sorted(true).column("text"))
+                                       .withMapper("alias_text", dateMapper().pattern("dd-MM-yyyy").column("text"))
                                        .build()
                                        .createKeyspace()
                                        .createTable()

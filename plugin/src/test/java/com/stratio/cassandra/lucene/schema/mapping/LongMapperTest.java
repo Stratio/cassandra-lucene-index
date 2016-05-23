@@ -31,8 +31,6 @@ public class LongMapperTest extends AbstractMapperTest {
     public void testConstructorWithoutArgs() {
         LongMapper mapper = longMapper().build("field");
         assertEquals("Field is not set", "field", mapper.field);
-        assertEquals("Indexed is not set to default value", Mapper.DEFAULT_INDEXED, mapper.indexed);
-        assertEquals("Sorted is not set to default value", Mapper.DEFAULT_SORTED, mapper.sorted);
         assertEquals("Column is not set to default value", "field", mapper.column);
         assertEquals("Mapped columns are not set", 1, mapper.mappedColumns.size());
         assertTrue("Mapped columns are not set", mapper.mappedColumns.contains("field"));
@@ -41,10 +39,9 @@ public class LongMapperTest extends AbstractMapperTest {
 
     @Test
     public void testConstructorWithAllArgs() {
-        LongMapper mapper = longMapper().indexed(false).sorted(true).column("column").boost(2.3f).build("field");
+        LongMapper mapper = longMapper().column("column").boost(2.3f).build("field");
         assertEquals("Field is not set", "field", mapper.field);
-        assertFalse("Indexed is not set", mapper.indexed);
-        assertTrue("Sorted is not set", mapper.sorted);
+        assertTrue("Sorted is not set", mapper.docValues);
         assertEquals("Column is not set", "column", mapper.column);
         assertEquals("Mapped columns are not set", 1, mapper.mappedColumns.size());
         assertTrue("Mapped columns are not set", mapper.mappedColumns.contains("column"));
@@ -53,8 +50,8 @@ public class LongMapperTest extends AbstractMapperTest {
 
     @Test
     public void testJsonSerialization() {
-        LongMapperBuilder builder = longMapper().indexed(false).sorted(true).validated(true).column("column").boost(2f);
-        testJson(builder, "{type:\"long\",validated:true,indexed:false,sorted:true,column:\"column\",boost:2.0}");
+        LongMapperBuilder builder = longMapper().validated(true).column("column").boost(2f);
+        testJson(builder, "{type:\"long\",validated:true,column:\"column\",boost:2.0}");
     }
 
     @Test
@@ -188,7 +185,7 @@ public class LongMapperTest extends AbstractMapperTest {
 
     @Test
     public void testIndexedField() {
-        LongMapper mapper = longMapper().indexed(true).boost(1f).build("field");
+        LongMapper mapper = longMapper().boost(1f).build("field");
         Field field = mapper.indexedField("name", 3L);
         assertNotNull("Indexed field is not created", field);
         assertEquals("Indexed field value is wrong", 3L, field.numericValue());
@@ -198,10 +195,10 @@ public class LongMapperTest extends AbstractMapperTest {
 
     @Test
     public void testSortedField() {
-        LongMapper mapper = longMapper().sorted(true).boost(1f).build("field");
+        LongMapper mapper = longMapper().boost(1f).build("field");
         Field field = mapper.sortedField("name", 3L);
         assertNotNull("Sorted field is not created", field);
-        assertEquals("Sorted field type is wrong", DocValuesType.NUMERIC, field.fieldType().docValuesType());
+        assertEquals("Sorted field type is wrong", DocValuesType.SORTED_NUMERIC, field.fieldType().docValuesType());
     }
 
     @Test
@@ -212,9 +209,9 @@ public class LongMapperTest extends AbstractMapperTest {
 
     @Test
     public void testToString() {
-        LongMapper mapper = longMapper().boost(1f).indexed(false).sorted(true).validated(true).build("field");
+        LongMapper mapper = longMapper().boost(1f).validated(true).build("field");
         assertEquals("Method #toString is wrong",
-                     "LongMapper{field=field, indexed=false, sorted=true, validated=true, column=field, boost=1.0}",
+                     "LongMapper{field=field, docValues=true, validated=true, column=field, boost=1.0}",
                      mapper.toString());
     }
 }

@@ -39,61 +39,34 @@ public class GeoDistanceSortField extends SortField {
     /**
      * The name of mapper to use to calculate distance.
      */
-    private final String mapper;
+    public final String field;
 
     /**
      * The longitude of the center point to sort by min distance to it.
      */
-    private final double longitude;
+    public final double longitude;
 
     /**
      * The latitude of the center point to sort by min distance to it.
      */
-    private final double latitude;
+    public final double latitude;
 
     /**
      * Returns a new {@link SortField}.
      *
-     * @param mapper {@code true} if natural order should be reversed.
-     * @param reverse {@code true} if natural order should be reversed.
-     * @param longitude the longitude of the center point to sort by min distance to it.
-     * @param latitude the latitude of the center point to sort by min distance to it.
+     * @param field the name of mapper to use to calculate distance
+     * @param reverse {@code true} if natural order should be reversed
+     * @param longitude the longitude
+     * @param latitude the latitude
      */
-    public GeoDistanceSortField(String mapper, Boolean reverse, double longitude, double latitude) {
+    public GeoDistanceSortField(String field, Boolean reverse, double longitude, double latitude) {
         super(reverse);
-        if (mapper == null || StringUtils.isBlank(mapper)) {
+        if (field == null || StringUtils.isBlank(field)) {
             throw new IndexException("Mapper name required");
         }
-        this.mapper = mapper;
+        this.field = field;
         this.longitude = GeoPointMapper.checkLongitude("longitude", longitude);
         this.latitude = GeoPointMapper.checkLatitude("latitude", latitude);
-    }
-
-    /**
-     * Returns the name of mapper to be used to calculate distance.
-     *
-     * @return the name of mapper
-     */
-    public String getMapper() {
-        return mapper;
-    }
-
-    /**
-     * Returns the longitude of the reference point to sort by min distance to it.
-     *
-     * @return the longitude of the reference point
-     */
-    public double getLongitude() {
-        return longitude;
-    }
-
-    /**
-     * Returns the latitude of the reference point to sort by min distance to it.
-     *
-     * @return the latitude of the reference point
-     */
-    public double getLatitude() {
-        return latitude;
     }
 
     /**
@@ -101,13 +74,11 @@ public class GeoDistanceSortField extends SortField {
      */
     @Override
     public org.apache.lucene.search.SortField sortField(Schema schema) {
-        final Mapper mapper = schema.getMapper(this.mapper);
+        final Mapper mapper = schema.getMapper(field);
         if (mapper == null) {
-            throw new IndexException("No mapper found for sortFields mapper '%s'", mapper);
-        } else if (!mapper.sorted) {
-            throw new IndexException("Mapper '%s' is not sorted", mapper.field);
+            throw new IndexException("Field '%s' is not found", field);
         } else if (!(mapper instanceof GeoPointMapper)) {
-            throw new IndexException("Only Geo Point Mapper is allowed but Mapper '%s' is not", mapper.field);
+            throw new IndexException("Field '%s' type is not geo_point", field);
         }
         GeoPointMapper geoPointMapper = (GeoPointMapper) mapper;
 
@@ -123,7 +94,7 @@ public class GeoDistanceSortField extends SortField {
      */
     @Override
     public Comparator<Columns> comparator(Schema schema) {
-        final Mapper mapper = schema.getMapper(this.mapper);
+        final Mapper mapper = schema.getMapper(field);
         return new Comparator<Columns>() {
             public int compare(Columns o1, Columns o2) {
                 return GeoDistanceSortField.this.compare((GeoPointMapper) mapper, o1, o2);
@@ -157,7 +128,7 @@ public class GeoDistanceSortField extends SortField {
     @Override
     public String toString() {
         return Objects.toStringHelper(this)
-                      .add("field", mapper)
+                      .add("field", field)
                       .add("reverse", reverse)
                       .add("longitude", longitude)
                       .add("latitude", latitude)
@@ -177,7 +148,7 @@ public class GeoDistanceSortField extends SortField {
         }
         GeoDistanceSortField other = (GeoDistanceSortField) o;
         return reverse == other.reverse &&
-               mapper.equals(other.mapper) &&
+               field.equals(other.field) &&
                longitude == other.longitude &&
                latitude == other.latitude;
     }
@@ -187,7 +158,7 @@ public class GeoDistanceSortField extends SortField {
      */
     @Override
     public int hashCode() {
-        int result = mapper.hashCode();
+        int result = field.hashCode();
         result = 31 * result + (reverse ? 1 : 0);
         result = 31 * result + new Double(latitude).hashCode();
         result = 31 * result + new Double(longitude).hashCode();

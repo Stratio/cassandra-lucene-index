@@ -81,7 +81,7 @@ public class PrefixConditionTest extends AbstractConditionTest {
     @Test(expected = IndexException.class)
     public void testIntegerValue() {
 
-        Schema schema = schema().mapper("name", integerMapper().indexed(false)).build();
+        Schema schema = schema().mapper("name", integerMapper()).build();
 
         PrefixCondition prefixCondition = new PrefixCondition(0.5f, "name", "2*");
         prefixCondition.doQuery(schema);

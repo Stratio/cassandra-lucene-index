@@ -317,7 +317,7 @@ a custom Lucene index on it with the following statement:
                 id    : {type : "integer"},
                 user  : {type : "string"},
                 body  : {type : "text", analyzer : "english"},
-                time  : {type : "date", pattern : "yyyy/MM/dd", sorted : true},
+                time  : {type : "date", pattern : "yyyy/MM/dd"},
                 place : {type : "geo_point", latitude:"latitude", longitude:"longitude"}
             }
         }'
@@ -575,10 +575,6 @@ Details and default values are listed in the table below.
 +=====================================+=================+=================+================================+===========+
 | `bigdec <#big-decimal-mapper>`__    | column          | string          | mapper_name of the schema      | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
-|                                     | indexed         | boolean         | true                           | No        |
-|                                     +-----------------+-----------------+--------------------------------+-----------+
-|                                     | sorted          | boolean         | false                          | No        |
-|                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | validated       | boolean         | false                          | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | integer_digits  | integer         | 32                             | No        |
@@ -586,10 +582,6 @@ Details and default values are listed in the table below.
 |                                     | decimal_digits  | integer         | 32                             | No        |
 +-------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 | `bigint <#big-integer-mapper>`__    | column          | string          | mapper_name of the schema      | No        |
-|                                     +-----------------+-----------------+--------------------------------+-----------+
-|                                     | indexed         | boolean         | true                           | No        |
-|                                     +-----------------+-----------------+--------------------------------+-----------+
-|                                     | sorted          | boolean         | false                          | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | validated       | boolean         | false                          | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
@@ -611,25 +603,13 @@ Details and default values are listed in the table below.
 +-------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 | `blob <#blob-mapper>`__             | column          | string          | mapper_name of the schema      | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
-|                                     | indexed         | boolean         | true                           | No        |
-|                                     +-----------------+-----------------+--------------------------------+-----------+
-|                                     | sorted          | boolean         | false                          | No        |
-|                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | validated       | boolean         | false                          | No        |
 +-------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 | `boolean <#boolean-mapper>`__       | column          | string          | mapper_name of the schema      | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
-|                                     | indexed         | boolean         | true                           | No        |
-|                                     +-----------------+-----------------+--------------------------------+-----------+
-|                                     | sorted          | boolean         | false                          | No        |
-|                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | validated       | boolean         | false                          | No        |
 +-------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 | `date <#date-mapper>`__             | column          | string          | mapper_name of the schema      | No        |
-|                                     +-----------------+-----------------+--------------------------------+-----------+
-|                                     | indexed         | boolean         | true                           | No        |
-|                                     +-----------------+-----------------+--------------------------------+-----------+
-|                                     | sorted          | boolean         | false                          | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | validated       | boolean         | false                          | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
@@ -645,19 +625,11 @@ Details and default values are listed in the table below.
 +-------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 | `double <#double-mapper>`__         | column          | string          | mapper_name of the schema      | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
-|                                     | indexed         | boolean         | true                           | No        |
-|                                     +-----------------+-----------------+--------------------------------+-----------+
-|                                     | sorted          | boolean         | false                          | No        |
-|                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | validated       | boolean         | false                          | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | boost           | integer         | 0.1f                           | No        |
 +-------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 | `float <#float-mapper>`__           | column          | string          | mapper_name of the schema      | No        |
-|                                     +-----------------+-----------------+--------------------------------+-----------+
-|                                     | indexed         | boolean         | true                           | No        |
-|                                     +-----------------+-----------------+--------------------------------+-----------+
-|                                     | sorted          | boolean         | false                          | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | validated       | boolean         | false                          | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
@@ -679,17 +651,9 @@ Details and default values are listed in the table below.
 +-------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 | `inet <#inet-mapper>`__             | column          | string          | mapper_name of the schema      | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
-|                                     | indexed         | boolean         | true                           | No        |
-|                                     +-----------------+-----------------+--------------------------------+-----------+
-|                                     | sorted          | boolean         | false                          | No        |
-|                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | validated       | boolean         | false                          | No        |
 +-------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 | `integer <#integer-mapper>`__       | column          | string          | mapper_name of the schema      | No        |
-|                                     +-----------------+-----------------+--------------------------------+-----------+
-|                                     | indexed         | boolean         | true                           | No        |
-|                                     +-----------------+-----------------+--------------------------------+-----------+
-|                                     | sorted          | boolean         | false                          | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | validated       | boolean         | false                          | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
@@ -697,27 +661,13 @@ Details and default values are listed in the table below.
 +-------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 | `long <#long-mapper>`__             | column          | string          | mapper_name of the schema      | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
-|                                     | indexed         | boolean         | true                           | No        |
-|                                     +-----------------+-----------------+--------------------------------+-----------+
-|                                     | sorted          | boolean         | false                          | No        |
-|                                     +-----------------+-----------------+--------------------------------+-----------+
-|                                     | validated       | boolean         | false                          | No        |
-|                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | boost           | integer         | 0.1f                           | No        |
 +-------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 | `string <#string-mapper>`__         | column          | string          | mapper_name of the schema      | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
-|                                     | indexed         | boolean         | true                           | No        |
-|                                     +-----------------+-----------------+--------------------------------+-----------+
-|                                     | sorted          | boolean         | false                          | No        |
-|                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | validated       | boolean         | false                          | No        |
 +-------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 | `text <#text-mapper>`__             | column          | string          | mapper_name of the schema      | No        |
-|                                     +-----------------+-----------------+--------------------------------+-----------+
-|                                     | indexed         | boolean         | true                           | No        |
-|                                     +-----------------+-----------------+--------------------------------+-----------+
-|                                     | sorted          | boolean         | false                          | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | validated       | boolean         | false                          | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
@@ -725,17 +675,8 @@ Details and default values are listed in the table below.
 +-------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 | `uuid <#uuid-mapper>`__             | column          | string          | mapper_name of the schema      | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
-|                                     | indexed         | boolean         | true                           | No        |
-|                                     +-----------------+-----------------+--------------------------------+-----------+
-|                                     | sorted          | boolean         | false                          | No        |
-|                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | validated       | boolean         | false                          | No        |
 +-------------------------------------+-----------------+-----------------+--------------------------------+-----------+
-
-Most mappers have an ``indexed`` option indicating if the field is searchable, it is true by default.
-There is also a ``sorted`` option specifying if it's possible to sort rows by the corresponding field, false by default.
-List and set columns can't be sorted because they produce multivalued fields.
-These options should be set to false when no needed in order to have a smaller and faster index.
 
 All mappers have a ``validated`` option indicating if the mapped column values must be validated at CQL level
 before performing the distributed write operation.
@@ -772,8 +713,6 @@ Maps arbitrary precision decimal values.
                     type           : "bigdec",
                     integer_digits : 2,
                     decimal_digits : 2,
-                    indexed        : true,
-                    sorted         : false,
                     validated      : true,
                     column         : "column_name"
                 }
@@ -802,8 +741,6 @@ Maps arbitrary precision integer values.
                 biginteger : {
                     type      : "bigint",
                     digits    : 10,
-                    indexed   : true,
-                    sorted    : false,
                     validated : true,
                     column    : "column_name"
                 }
@@ -863,8 +800,6 @@ Maps a blob value.
             fields : {
                 blob : {
                     type    : "bytes",
-                    indexed : true,
-                    sorted  : false,
                     column  : "column_name"
                 }
             }
@@ -891,8 +826,6 @@ Maps a boolean value.
             fields : {
                 bool : {
                     type      : "boolean",
-                    indexed   : true,
-                    sorted    : false,
                     validated : true,
                     column    : "column_name"
                 }
@@ -922,8 +855,6 @@ Maps dates using a either a pattern, an UNIX timestamp or a time UUID.
                     type      : "date",
                     validated : true,
                     pattern   : "yyyy/MM/dd HH:mm:ss.SSS",
-                    indexed   : true,
-                    sorted    : false,
                     column    : "column_name"
                 }
             }
@@ -980,8 +911,6 @@ Maps a 64-bit decimal number.
                 double : {
                     type      : "double",
                     boost     : 2.0,
-                    indexed   : true,
-                    sorted    : false,
                     validated : true,
                     column    : "column_name"
                 }
@@ -1010,8 +939,6 @@ Maps a 32-bit decimal number.
                 float : {
                     type      : "float",
                     boost     : 2.0,
-                    indexed   : true,
-                    sorted    : false,
                     validated : true,
                     column    : "column_name"
                 }
@@ -1221,8 +1148,6 @@ Maps an IP address. Either IPv4 and IPv6 are supported.
             fields : {
                 inet : {
                     type      : "inet",
-                    indexed   : true,
-                    sorted    : false,
                     validated : true,
                     column    : "column_name"
                 }
@@ -1250,8 +1175,6 @@ Maps a 32-bit integer number.
             fields : {
                 integer : {
                     type      : "integer",
-                    indexed   : true,
-                    sorted    : false,
                     validated : true,
                     column    : "column_name"
                     boost     : 2.0,
@@ -1280,8 +1203,6 @@ Maps a 64-bit integer number.
             fields : {
                 long : {
                     type      : "long",
-                    indexed   : true,
-                    sorted    : false,
                     validated : true,
                     column    : "column_name"
                     boost     : 2.0,
@@ -1310,8 +1231,6 @@ Maps a not-analyzed text value.
             fields : {
                 string : {
                     type           : "string",
-                    indexed        : true,
-                    sorted         : false,
                     validated      : true,
                     column         : "column_name"
                     case_sensitive : false,
@@ -1347,8 +1266,6 @@ Maps a language-aware text value analyzed according to the specified analyzer.
             fields : {
                 text : {
                     type      : "text",
-                    indexed   : true,
-                    sorted    : false,
                     validated : true,
                     column    : "column_name"
                     analyzer  : "my_custom_analyzer",
@@ -1377,8 +1294,6 @@ Maps an UUID value.
             fields : {
                 id : {
                     type      : "uuid",
-                    indexed   : true,
-                    sorted    : false,
                     validated : true,
                     column    : "column_name"
                 }
@@ -1424,12 +1339,12 @@ Cassandra shell:
                 animal   : {type : "string"},
                 age      : {type : "integer"},
                 food     : {type : "string"},
-                number   : {type : "integer", indexed : false, sorted : true},
+                number   : {type : "integer"},
                 bool     : {type : "boolean"},
-                date     : {type : "date", sorted : true, validated : true, pattern : "yyyy/MM/dd"},
+                date     : {type : "date", validated : true, pattern : "yyyy/MM/dd"},
                 duration : {type : "date_range", from : "start_date", to : "stop_date", pattern : "yyyy/MM/dd"},
                 place    : {type : "geo_point", latitude : "latitude", longitude : "longitude"},
-                mapz     : {type : "string", sorted : true},
+                mapz     : {type : "string"},
                 setz     : {type : "string"},
                 listz    : {type : "string"},
                 phrase   : {type : "text", analyzer : "my_custom_analyzer"}
@@ -3688,8 +3603,6 @@ Index only what you need
 
 The more fields you index, the more resources will be consumed.
 So you should carefully study which kind of queries are you going to use before creating the schema.
-You should also be careful choosing the ``indexed`` and ``sorted`` options of the mappers,
-because each of them creates at least on field per Cassandra column, doing your index larger and slower.
 
 Use a low refresh rate
 ======================

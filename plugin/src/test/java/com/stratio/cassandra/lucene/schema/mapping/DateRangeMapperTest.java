@@ -52,8 +52,7 @@ public class DateRangeMapperTest extends AbstractMapperTest {
     public void testConstructorWithDefaultArgs() {
         DateRangeMapper mapper = dateRangeMapper("from", "to").build("field");
         assertEquals("Name is not properly set", "field", mapper.field);
-        assertTrue("Indexed is not set to default value", mapper.indexed);
-        assertFalse("Sorted is not set to default value", mapper.sorted);
+        assertFalse("Sorted is not set to default value", mapper.docValues);
         assertEquals("From is not properly set", "from", mapper.from);
         assertEquals("To is not properly set", "to", mapper.to);
         assertEquals("Mapped columns are not properly set", 2, mapper.mappedColumns.size());
@@ -67,8 +66,7 @@ public class DateRangeMapperTest extends AbstractMapperTest {
     public void testConstructorWithAllArgs() {
         DateRangeMapper mapper = dateRangeMapper("from", "to").pattern("yyyy-MM-dd").build("field");
         assertEquals("Name is not properly set", "field", mapper.field);
-        assertTrue("Indexed is not properly set", mapper.indexed);
-        assertFalse("Sorted is not properly set", mapper.sorted);
+        assertFalse("Sorted is not properly set", mapper.docValues);
         assertEquals("From is not properly set", "from", mapper.from);
         assertEquals("To is not properly set", "to", mapper.to);
         assertEquals("Pattern is not properly set", "yyyy-MM-dd", mapper.pattern);

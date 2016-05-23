@@ -78,7 +78,7 @@ public class GeoShapeMapper extends SingleColumnMapper<String> {
                           Boolean validated,
                           Integer maxLevels,
                           List<GeoTransformation> transformations) {
-        super(field, column, true, false, validated, null, String.class, AsciiType.instance, UTF8Type.instance);
+        super(field, column, false, validated, null, String.class, AsciiType.instance, UTF8Type.instance);
 
         this.column = column == null ? field : column;
 

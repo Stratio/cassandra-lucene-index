@@ -19,9 +19,10 @@ import com.stratio.cassandra.lucene.util.DateParser;
 import org.apache.cassandra.db.marshal.*;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.LongField;
-import org.apache.lucene.document.NumericDocValuesField;
+import org.apache.lucene.document.SortedNumericDocValuesField;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.SortField.Type;
+import org.apache.lucene.search.SortedNumericSortField;
 
 import java.util.Date;
 
@@ -43,16 +44,13 @@ public class DateMapper extends SingleColumnMapper.SingleFieldMapper<Long> {
      *
      * @param field the name of the field
      * @param column the name of the column to be mapped
-     * @param indexed if the field supports searching
-     * @param sorted if the field supports sorting
      * @param validated if the field must be validated
      * @param pattern the date format pattern to be used
      */
-    public DateMapper(String field, String column, Boolean indexed, Boolean sorted, Boolean validated, String pattern) {
+    public DateMapper(String field, String column, Boolean validated, String pattern) {
         super(field,
               column,
-              indexed,
-              sorted,
+              true,
               validated,
               null,
               Long.class,
@@ -88,13 +86,13 @@ public class DateMapper extends SingleColumnMapper.SingleFieldMapper<Long> {
     /** {@inheritDoc} */
     @Override
     public Field sortedField(String name, Long value) {
-        return new NumericDocValuesField(name, value);
+        return new SortedNumericDocValuesField(name, value);
     }
 
     /** {@inheritDoc} */
     @Override
     public SortField sortField(String name, boolean reverse) {
-        return new SortField(name, Type.LONG, reverse);
+        return new SortedNumericSortField(name, Type.LONG, reverse);
     }
 
     /** {@inheritDoc} */

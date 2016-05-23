@@ -15,13 +15,11 @@
  */
 package com.stratio.cassandra.lucene.schema.mapping;
 
+import com.stratio.cassandra.lucene.IndexException;
 import org.apache.cassandra.db.marshal.*;
 import org.apache.lucene.document.Field;
-import org.apache.lucene.document.SortedDocValuesField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.search.SortField;
-import org.apache.lucene.search.SortField.Type;
-import org.apache.lucene.util.BytesRef;
 
 /**
  * A {@link Mapper} to map a string, tokenized field.
@@ -35,21 +33,13 @@ public class TextMapper extends SingleColumnMapper.SingleFieldMapper<String> {
      *
      * @param field the name of the field
      * @param column the name of the column to be mapped
-     * @param indexed if the field supports searching
-     * @param sorted if the field supports sorting
      * @param validated if the field must be validated
      * @param analyzer the name of the Lucene {@link org.apache.lucene.analysis.Analyzer} to be used
      */
-    public TextMapper(String field,
-                      String column,
-                      Boolean indexed,
-                      Boolean sorted,
-                      Boolean validated,
-                      String analyzer) {
+    public TextMapper(String field, String column, Boolean validated, String analyzer) {
         super(field,
               column,
-              indexed,
-              sorted,
+              false,
               validated,
               analyzer,
               String.class,
@@ -85,14 +75,13 @@ public class TextMapper extends SingleColumnMapper.SingleFieldMapper<String> {
     /** {@inheritDoc} */
     @Override
     public Field sortedField(String name, String value) {
-        BytesRef bytes = new BytesRef(value);
-        return new SortedDocValuesField(name, bytes);
+        return null;
     }
 
     /** {@inheritDoc} */
     @Override
     public SortField sortField(String name, boolean reverse) {
-        return new SortField(name, Type.STRING, reverse);
+        throw new IndexException("Text mapper '%s' does not support sorting because it is analyzed", name);
     }
 
     /** {@inheritDoc} */

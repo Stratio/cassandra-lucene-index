@@ -70,7 +70,7 @@ public class RegexpConditionTest extends AbstractConditionTest {
     @Test
     public void testBlankValue() {
 
-        Schema schema = schema().mapper("name", stringMapper().indexed(true).sorted(true)).build();
+        Schema schema = schema().mapper("name", stringMapper()).build();
 
         RegexpCondition condition = new RegexpCondition(0.5f, "name", " ");
         Query query = condition.doQuery(schema);
@@ -85,7 +85,7 @@ public class RegexpConditionTest extends AbstractConditionTest {
     @Test
     public void testString() {
 
-        Schema schema = schema().mapper("name", stringMapper().indexed(true).sorted(true)).build();
+        Schema schema = schema().mapper("name", stringMapper()).build();
 
         RegexpCondition condition = new RegexpCondition(0.5f, "name", "tr*");
         Query query = condition.doQuery(schema);

@@ -21,7 +21,7 @@ import com.stratio.cassandra.lucene.schema.mapping.builder.StringMapperBuilder;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
-import org.apache.lucene.document.SortedDocValuesField;
+import org.apache.lucene.document.SortedSetDocValuesField;
 import org.apache.lucene.index.DocValuesType;
 import org.apache.lucene.index.IndexableField;
 import org.junit.Test;
@@ -41,8 +41,6 @@ public class StringMapperTest extends AbstractMapperTest {
     public void testConstructorWithoutArgs() {
         StringMapper mapper = stringMapper().build("field");
         assertEquals("Field is not properly set", "field", mapper.field);
-        assertEquals("Indexed is not set to default value", Mapper.DEFAULT_INDEXED, mapper.indexed);
-        assertEquals("Sorted is not set to default value", Mapper.DEFAULT_SORTED, mapper.sorted);
         assertEquals("Column is not set to default value", "field", mapper.column);
         assertEquals("Mapped columns are not set", 1, mapper.mappedColumns.size());
         assertTrue("Mapped columns are not set", mapper.mappedColumns.contains("field"));
@@ -53,14 +51,9 @@ public class StringMapperTest extends AbstractMapperTest {
 
     @Test
     public void testConstructorWithAllArgs() {
-        StringMapper mapper = stringMapper().indexed(false)
-                                            .sorted(true)
-                                            .column("column")
-                                            .caseSensitive(false)
-                                            .build("field");
+        StringMapper mapper = stringMapper().column("column").caseSensitive(false).build("field");
         assertEquals("Field is not set", "field", mapper.field);
-        assertFalse("Indexed is not set", mapper.indexed);
-        assertTrue("Sorted is not set", mapper.sorted);
+        assertTrue("Sorted is not set", mapper.docValues);
         assertEquals("Column is not set", "column", mapper.column);
         assertEquals("Mapped columns are not set", 1, mapper.mappedColumns.size());
         assertTrue("Mapped columns are not set", mapper.mappedColumns.contains("column"));
@@ -69,8 +62,8 @@ public class StringMapperTest extends AbstractMapperTest {
 
     @Test
     public void testJsonSerialization() {
-        StringMapperBuilder builder = stringMapper().indexed(false).sorted(true).column("column").caseSensitive(false);
-        testJson(builder, "{type:\"string\",indexed:false,sorted:true,column:\"column\",case_sensitive:false}");
+        StringMapperBuilder builder = stringMapper().column("column").caseSensitive(false);
+        testJson(builder, "{type:\"string\",column:\"column\",case_sensitive:false}");
     }
 
     @Test
@@ -202,7 +195,7 @@ public class StringMapperTest extends AbstractMapperTest {
         StringMapper mapper = stringMapper().caseSensitive(true).build("field");
         Field field = mapper.sortedField("name", "hello");
         assertNotNull("Sorted field name is not created", field);
-        assertEquals("Sorted field type is wrong", DocValuesType.SORTED, field.fieldType().docValuesType());
+        assertEquals("Sorted field type is wrong", DocValuesType.SORTED_SET, field.fieldType().docValuesType());
     }
 
     @Test
@@ -228,7 +221,7 @@ public class StringMapperTest extends AbstractMapperTest {
 
     @Test
     public void testAddFields() {
-        StringMapper mapper = stringMapper().sorted(true).caseSensitive(true).build("field");
+        StringMapper mapper = stringMapper().caseSensitive(true).build("field");
         Document document = new Document();
         Column<?> column = Column.builder("field").composedValue("value", UTF8Type.instance);
         Columns columns = new Columns(column);
@@ -237,7 +230,7 @@ public class StringMapperTest extends AbstractMapperTest {
         assertEquals("Number of created fields is wrong", 2, indexableFields.length);
         assertTrue("Indexed field is not properly created", indexableFields[0] instanceof Field);
         assertEquals("Indexed field type is wrong", KeywordMapper.FIELD_TYPE, indexableFields[0].fieldType());
-        assertTrue("Sorted field is not properly created", indexableFields[1] instanceof SortedDocValuesField);
+        assertTrue("Sorted field is not properly created", indexableFields[1] instanceof SortedSetDocValuesField);
     }
 
     @Test
@@ -249,13 +242,9 @@ public class StringMapperTest extends AbstractMapperTest {
 
     @Test
     public void testToString() {
-        StringMapper mapper = stringMapper().indexed(false)
-                                            .sorted(true)
-                                            .validated(true)
-                                            .caseSensitive(true)
-                                            .build("field");
+        StringMapper mapper = stringMapper().validated(true).caseSensitive(true).build("field");
         assertEquals("Method #toString is wrong",
-                     "StringMapper{field=field, indexed=false, sorted=true, validated=true, column=field, " +
+                     "StringMapper{field=field, docValues=true, validated=true, column=field, " +
                      "caseSensitive=true}",
                      mapper.toString());
     }

@@ -24,41 +24,9 @@ import org.codehaus.jackson.annotate.JsonProperty;
  */
 public abstract class SingleColumnMapper<K extends SingleColumnMapper<K>> extends Mapper<K> {
 
-    /** If the field must be indexed. */
-    @JsonProperty("indexed")
-    protected Boolean indexed;
-
-    /** If the field must be sorted. */
-    @JsonProperty("sorted")
-    protected Boolean sorted;
-
     /** The name of the column to be mapped. */
     @JsonProperty("column")
     protected String column;
-
-    /**
-     * Sets if the field supports searching.
-     *
-     * @param indexed if the field supports searching
-     * @return this with the specified {@code indexed} option
-     */
-    @SuppressWarnings("unchecked")
-    public final K indexed(Boolean indexed) {
-        this.indexed = indexed;
-        return (K) this;
-    }
-
-    /**
-     * Sets if the field supports sorting.
-     *
-     * @param sorted if the field supports sorting
-     * @return this with the specified {@code sorted} option
-     */
-    @SuppressWarnings("unchecked")
-    public final K sorted(Boolean sorted) {
-        this.sorted = sorted;
-        return (K) this;
-    }
 
     /**
      * Sets the name of the Cassandra column to be mapped.

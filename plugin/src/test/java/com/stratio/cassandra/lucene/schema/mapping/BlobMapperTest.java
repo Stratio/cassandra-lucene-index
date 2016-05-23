@@ -35,8 +35,6 @@ public class BlobMapperTest extends AbstractMapperTest {
     public void testConstructorWithoutArgs() {
         BlobMapper mapper = new BlobMapperBuilder().build("field");
         assertEquals("Field is not properly set", "field", mapper.field);
-        assertEquals("Indexed is not set to default value", Mapper.DEFAULT_INDEXED, mapper.indexed);
-        assertEquals("Sorted is not set to default value", Mapper.DEFAULT_SORTED, mapper.sorted);
         assertEquals("Column is not set to default value", "field", mapper.column);
         assertEquals("Mapped columns are not properly set", 1, mapper.mappedColumns.size());
         assertTrue("Mapped columns are not properly set", mapper.mappedColumns.contains("field"));
@@ -44,22 +42,17 @@ public class BlobMapperTest extends AbstractMapperTest {
 
     @Test
     public void testConstructorWithAllArgs() {
-        BlobMapper mapper = new BlobMapperBuilder().indexed(false)
-                                                   .sorted(true)
-                                                   .validated(true)
-                                                   .column("column")
-                                                   .build("field");
+        BlobMapper mapper = new BlobMapperBuilder().validated(true).column("column").build("field");
         assertEquals("Field is not properly set", "field", mapper.field);
-        assertFalse("Indexed is not properly set", mapper.indexed);
-        assertTrue("Sorted is not properly set", mapper.sorted);
+        assertTrue("Sorted is not properly set", mapper.docValues);
         assertTrue("Validated is not properly set", mapper.validated);
         assertEquals("Column is not properly set", "column", mapper.column);
     }
 
     @Test
     public void testJsonSerialization() {
-        BlobMapperBuilder builder = new BlobMapperBuilder().indexed(false).sorted(true).column("column");
-        testJson(builder, "{type:\"bytes\",indexed:false,sorted:true,column:\"column\"}");
+        BlobMapperBuilder builder = new BlobMapperBuilder().column("column");
+        testJson(builder, "{type:\"bytes\",column:\"column\"}");
     }
 
     @Test
@@ -176,7 +169,7 @@ public class BlobMapperTest extends AbstractMapperTest {
 
     @Test
     public void testIndexedField() {
-        BlobMapper mapper = blobMapper().indexed(true).build("field");
+        BlobMapper mapper = blobMapper().build("field");
         String base = mapper.base("name", "f1B2");
         Field field = mapper.indexedField("name", base);
         assertNotNull("Indexed field is not created", field);
@@ -187,11 +180,11 @@ public class BlobMapperTest extends AbstractMapperTest {
 
     @Test
     public void testSortedField() {
-        BlobMapper mapper = blobMapper().sorted(true).build("field");
+        BlobMapper mapper = blobMapper().build("field");
         String base = mapper.base("name", "f1B2");
         Field field = mapper.sortedField("name", base);
         assertNotNull("Sorted field is not created", field);
-        assertEquals("Sorted field type is wrong", DocValuesType.SORTED, field.fieldType().docValuesType());
+        assertEquals("Sorted field type is wrong", DocValuesType.SORTED_SET, field.fieldType().docValuesType());
     }
 
     @Test
@@ -202,9 +195,9 @@ public class BlobMapperTest extends AbstractMapperTest {
 
     @Test
     public void testToString() {
-        BlobMapper mapper = blobMapper().indexed(false).sorted(true).validated(true).build("field");
+        BlobMapper mapper = blobMapper().validated(true).build("field");
         assertEquals("Method #toString is wrong",
-                     "BlobMapper{field=field, indexed=false, sorted=true, validated=true, column=field}",
+                     "BlobMapper{field=field, docValues=true, validated=true, column=field}",
                      mapper.toString());
     }
 }

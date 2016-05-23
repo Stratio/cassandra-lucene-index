@@ -41,8 +41,7 @@ public class GeoPointMapperTest extends AbstractMapperTest {
     public void testConstructorWithDefaultArgs() {
         GeoPointMapper mapper = geoPointMapper("lat", "lon").build("field");
         assertEquals("Field name is not properly set", "field", mapper.field);
-        assertTrue("Indexed is not properly set", mapper.indexed);
-        assertFalse("Sorted is not properly set", mapper.sorted);
+        assertFalse("Sorted is not properly set", mapper.docValues);
         assertEquals("Latitude is not properly set", "lat", mapper.latitude);
         assertEquals("Longitude is not properly set", "lon", mapper.longitude);
         assertEquals("Mapped columns are not properly set", 2, mapper.mappedColumns.size());
@@ -57,8 +56,7 @@ public class GeoPointMapperTest extends AbstractMapperTest {
     public void testConstructorWithAllArgs() {
         GeoPointMapper mapper = geoPointMapper("lat", "lon").maxLevels(5).build("field");
         assertEquals("Field name is not properly set", "field", mapper.field);
-        assertTrue("Indexed is not properly set", mapper.indexed);
-        assertFalse("Sorted is not properly set", mapper.sorted);
+        assertFalse("Sorted is not properly set", mapper.docValues);
         assertEquals("Latitude is not properly set", "lat", mapper.latitude);
         assertEquals("Longitude is not properly set", "lon", mapper.longitude);
         assertEquals("Max levels is not properly set", 5, mapper.maxLevels);
@@ -382,8 +380,8 @@ public class GeoPointMapperTest extends AbstractMapperTest {
 
         Document document = new Document();
         mapper.addFields(document, columns);
-        assertEquals("Fields are not properly created", 1, document.getFields("field.dist").length);
-        assertEquals("Fields are not properly created", 6, document.getFields().size());
+        assertEquals("Fields are not properly created", 2, document.getFields("field.dist").length);
+        assertEquals("Fields are not properly created", 7, document.getFields().size());
     }
 
     @Test

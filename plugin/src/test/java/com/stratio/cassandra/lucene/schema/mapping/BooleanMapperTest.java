@@ -33,8 +33,6 @@ public class BooleanMapperTest extends AbstractMapperTest {
     public void testConstructorWithoutArgs() {
         BooleanMapper mapper = booleanMapper().build("field");
         assertEquals("Field is not properly set", "field", mapper.field);
-        assertEquals("Indexed is not set to default value", Mapper.DEFAULT_INDEXED, mapper.indexed);
-        assertEquals("Sorted is not set to default value", Mapper.DEFAULT_SORTED, mapper.sorted);
         assertEquals("Column is not set to default value", "field", mapper.column);
         assertEquals("Mapped columns are not properly set", 1, mapper.mappedColumns.size());
         assertTrue("Mapped columns are not properly set", mapper.mappedColumns.contains("field"));
@@ -42,10 +40,9 @@ public class BooleanMapperTest extends AbstractMapperTest {
 
     @Test
     public void testConstructorWithAllArgs() {
-        BooleanMapper mapper = booleanMapper().indexed(false).sorted(true).column("column").build("field");
+        BooleanMapper mapper = booleanMapper().column("column").build("field");
         assertEquals("Field is not properly set", "field", mapper.field);
-        assertFalse("Indexed is not properly set", mapper.indexed);
-        assertTrue("Sorted is not properly set", mapper.sorted);
+        assertTrue("Sorted is not properly set", mapper.docValues);
         assertEquals("Column is not properly set", "column", mapper.column);
         assertEquals("Mapped columns are not properly set", 1, mapper.mappedColumns.size());
         assertTrue("Mapped columns are not properly set", mapper.mappedColumns.contains("column"));
@@ -53,8 +50,8 @@ public class BooleanMapperTest extends AbstractMapperTest {
 
     @Test
     public void testJsonSerialization() {
-        BooleanMapperBuilder builder = booleanMapper().indexed(false).sorted(true).column("column");
-        testJson(builder, "{type:\"boolean\",indexed:false,sorted:true,column:\"column\"}");
+        BooleanMapperBuilder builder = booleanMapper().column("column");
+        testJson(builder, "{type:\"boolean\",column:\"column\"}");
     }
 
     @Test
@@ -169,7 +166,7 @@ public class BooleanMapperTest extends AbstractMapperTest {
 
     @Test
     public void testIndexedField() {
-        BooleanMapper mapper = booleanMapper().indexed(true).build("field");
+        BooleanMapper mapper = booleanMapper().build("field");
         Field field = mapper.indexedField("name", "true");
         assertNotNull("Indexed field is not created", field);
         assertEquals("Indexed field value is wrong", "true", field.stringValue());
@@ -179,10 +176,10 @@ public class BooleanMapperTest extends AbstractMapperTest {
 
     @Test
     public void testSortedField() {
-        BooleanMapper mapper = booleanMapper().sorted(true).build("field");
+        BooleanMapper mapper = booleanMapper().build("field");
         Field field = mapper.sortedField("name", "true");
         assertNotNull("Sorted field is not created", field);
-        assertEquals("Sorted field type is wrong", DocValuesType.SORTED, field.fieldType().docValuesType());
+        assertEquals("Sorted field type is wrong", DocValuesType.SORTED_SET, field.fieldType().docValuesType());
     }
 
     @Test
@@ -193,9 +190,9 @@ public class BooleanMapperTest extends AbstractMapperTest {
 
     @Test
     public void testToString() {
-        BooleanMapper mapper = booleanMapper().indexed(false).sorted(true).validated(true).build("field");
+        BooleanMapper mapper = booleanMapper().validated(true).build("field");
         assertEquals("Method #toString is wrong",
-                     "BooleanMapper{field=field, indexed=false, sorted=true, validated=true, column=field}",
+                     "BooleanMapper{field=field, docValues=true, validated=true, column=field}",
                      mapper.toString());
     }
 }

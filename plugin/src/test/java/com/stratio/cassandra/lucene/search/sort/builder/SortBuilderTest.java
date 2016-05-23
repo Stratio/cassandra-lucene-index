@@ -77,9 +77,10 @@ public class SortBuilderTest {
         SimpleSortFieldBuilder sortFieldBuilder3 = new SimpleSortFieldBuilder("field3");
         SortBuilder sortBuilder = new SortBuilder(sortFieldBuilder1, sortFieldBuilder2, sortFieldBuilder3);
         String json = JsonSerializer.toString(sortBuilder);
-        assertEquals("Method #toString is wrong", "{fields:[{type:\"simple\",field:\"field1\",reverse:true}," +
-                                                  "{type:\"geo_distance\",mapper:\"mapper2\",longitude:0.0,latitude:0.0,reverse:true}," +
-                                                  "{type:\"simple\",field:\"field3\",reverse:false}]}", json);
+        String expected = "{fields:[{type:\"simple\",field:\"field1\",reverse:true}," +
+                          "{type:\"geo_distance\",field:\"mapper2\",longitude:0.0,latitude:0.0,reverse:true}," +
+                          "{type:\"simple\",field:\"field3\",reverse:false}]}";
+        assertEquals("Method #toString is wrong", expected, json);
 
     }
 
@@ -87,7 +88,7 @@ public class SortBuilderTest {
     public void testDeserializeDefaultSort() {
         String json1 = "{field:\"field1\",reverse:true}";
 
-        SortFieldBuilder sortFieldBuilder = null;
+        SortFieldBuilder sortFieldBuilder;
         try {
             sortFieldBuilder = JsonSerializer.fromString(json1, SortFieldBuilder.class);
             assertEquals("JSON serialization is wrong", sortFieldBuilder.getClass(), SimpleSortFieldBuilder.class);

@@ -22,7 +22,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * A sorted list of {@link RowKey}s.
+ * A docValues list of {@link RowKey}s.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */

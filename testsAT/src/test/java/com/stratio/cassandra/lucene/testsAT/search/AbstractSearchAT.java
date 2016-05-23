@@ -55,7 +55,7 @@ public abstract class AbstractSearchAT extends BaseAT {
                               .withColumn("lat", "float")
                               .withColumn("long", "float")
                               .withColumn("lucene", "text")
-                              .withMapper("geo_point", new GeoPointMapper("lat", "long").indexed(true).sorted(true))
+                              .withMapper("geo_point", new GeoPointMapper("lat", "long"))
                               .build()
                               .createKeyspace()
                               .createTable()

@@ -34,8 +34,6 @@ public class BigIntegerMapperTest extends AbstractMapperTest {
     public void testConstructorWithoutArgs() {
         BigIntegerMapper mapper = bigIntegerMapper().build("field");
         assertEquals("Field is not properly set", "field", mapper.field);
-        assertEquals("Indexed is not set to default value", Mapper.DEFAULT_INDEXED, mapper.indexed);
-        assertEquals("Sorted is not set to default value", Mapper.DEFAULT_SORTED, mapper.sorted);
         assertEquals("Column is not set to default value", "field", mapper.column);
         assertEquals("Mapped columns are not properly set", 1, mapper.mappedColumns.size());
         assertTrue("Mapped columns are not properly set", mapper.mappedColumns.contains("field"));
@@ -44,22 +42,17 @@ public class BigIntegerMapperTest extends AbstractMapperTest {
 
     @Test
     public void testConstructorWithAllArgs() {
-        BigIntegerMapper mapper = bigIntegerMapper().indexed(false)
-                                                    .sorted(true)
-                                                    .column("column")
-                                                    .digits(6)
-                                                    .build("field");
+        BigIntegerMapper mapper = bigIntegerMapper().column("column").digits(6).build("field");
         assertEquals("Field is not properly set", "field", mapper.field);
-        assertFalse("Indexed is not properly set", mapper.indexed);
-        assertTrue("Sorted is not properly set", mapper.sorted);
+        assertTrue("Sorted is not properly set", mapper.docValues);
         assertEquals("Column is not properly set", "column", mapper.column);
         assertEquals("Digits is not properly set", 6, mapper.digits);
     }
 
     @Test
     public void testJsonSerialization() {
-        BigIntegerMapperBuilder builder = bigIntegerMapper().indexed(false).sorted(true).column("column").digits(6);
-        testJson(builder, "{type:\"bigint\",indexed:false,sorted:true,column:\"column\",digits:6}");
+        BigIntegerMapperBuilder builder = bigIntegerMapper().column("column").digits(6);
+        testJson(builder, "{type:\"bigint\",column:\"column\",digits:6}");
     }
 
     @Test
@@ -663,7 +656,7 @@ public class BigIntegerMapperTest extends AbstractMapperTest {
 
     @Test
     public void testIndexedField() {
-        BigIntegerMapper mapper = bigIntegerMapper().indexed(true).digits(10).build("field");
+        BigIntegerMapper mapper = bigIntegerMapper().digits(10).build("field");
         String base = mapper.base("name", "4243");
         Field field = mapper.indexedField("name", base);
         assertNotNull("Indexed field is not created", field);
@@ -674,11 +667,11 @@ public class BigIntegerMapperTest extends AbstractMapperTest {
 
     @Test
     public void testSortedField() {
-        BigIntegerMapper mapper = bigIntegerMapper().sorted(true).digits(10).build("field");
+        BigIntegerMapper mapper = bigIntegerMapper().digits(10).build("field");
         String base = mapper.base("name", "4243");
         Field field = mapper.sortedField("name", base);
         assertNotNull("Sorted field is not created", field);
-        assertEquals("Sorted field type is wrong", DocValuesType.SORTED, field.fieldType().docValuesType());
+        assertEquals("Sorted field type is wrong", DocValuesType.SORTED_SET, field.fieldType().docValuesType());
     }
 
     @Test
@@ -689,13 +682,9 @@ public class BigIntegerMapperTest extends AbstractMapperTest {
 
     @Test
     public void testToString() {
-        BigIntegerMapper mapper = bigIntegerMapper().digits(8)
-                                                    .indexed(false)
-                                                    .sorted(false)
-                                                    .validated(false)
-                                                    .build("field");
+        BigIntegerMapper mapper = bigIntegerMapper().digits(8).validated(false).build("field");
         assertEquals("Method #toString is wrong",
-                     "BigIntegerMapper{field=field, indexed=false, sorted=false, validated=false, column=field, " +
+                     "BigIntegerMapper{field=field, docValues=true, validated=false, column=field, " +
                      "digits=8}",
                      mapper.toString());
     }

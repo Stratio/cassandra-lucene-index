@@ -37,14 +37,6 @@ public class GeoPointMapper extends Mapper<GeoPointMapper> {
     @JsonProperty("max_levels")
     Integer maxLevels;
 
-    /** The name of the column containing the longitude. */
-    @JsonProperty("indexed")
-    Boolean indexed;
-
-    /** The maximum number of levels in the tree. */
-    @JsonProperty("sorted")
-    Boolean sorted;
-
     /**
      * Builds a new {@code GeoPointMapper}.
      *
@@ -65,28 +57,6 @@ public class GeoPointMapper extends Mapper<GeoPointMapper> {
      */
     public GeoPointMapper maxLevels(Integer maxLevels) {
         this.maxLevels = maxLevels;
-        return this;
-    }
-
-    /**
-     * Sets if the field must be indexed to support searching.
-     *
-     * @param indexed {@code true} if the field supports searching, {@code false} otherwise
-     * @return this with the specified {@code indexes} option
-     */
-    public final GeoPointMapper indexed(Boolean indexed) {
-        this.indexed = indexed;
-        return this;
-    }
-
-    /**
-     * Sets if the field must be indexed to support sorting.
-     *
-     * @param sorted {@code true} if the field supports sorting, {@code false} otherwise
-     * @return this with the specified {@code sorted} option
-     */
-    public final GeoPointMapper sorted(Boolean sorted) {
-        this.sorted = sorted;
         return this;
     }
 }

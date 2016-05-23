@@ -46,8 +46,7 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
      *
      * @param field the name of the field
      * @param column the name of the column to be mapped
-     * @param indexed if the field supports searching
-     * @param sorted if the field supports sorting
+     * @param docValues if the mapper supports doc values
      * @param validated if the field must be validated
      * @param analyzer the name of the analyzer to be used
      * @param base the Lucene type for this mapper
@@ -55,15 +54,13 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
      */
     public SingleColumnMapper(String field,
                               String column,
-                              Boolean indexed,
-                              Boolean sorted,
+                              Boolean docValues,
                               Boolean validated,
                               String analyzer,
                               Class<T> base,
                               AbstractType<?>... supportedTypes) {
         super(field,
-              indexed,
-              sorted,
+              docValues,
               validated,
               analyzer,
               Collections.singletonList(column == null ? field : column),
@@ -100,13 +97,9 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
      */
     private void addFields(Document document, String name, Object value) {
         if (value != null) {
-            T b = base(name, value);
-            if (indexed) {
-                addIndexedFields(document, name, b);
-            }
-            if (sorted) {
-                addSortedFields(document, name, b);
-            }
+            T base = base(name, value);
+            addIndexedFields(document, name, base);
+            addSortedFields(document, name, base);
         }
     }
 
@@ -165,8 +158,7 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
          *
          * @param field the name of the field
          * @param column the name of the column to be mapped
-         * @param indexed if the field supports searching
-         * @param sorted if the field supports sorting
+         * @param docValues if the mapper supports doc values
          * @param validated if the field must be validated
          * @param analyzer the name of the analyzer to be used
          * @param base the Lucene type for this mapper
@@ -174,25 +166,30 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
          */
         public SingleFieldMapper(String field,
                                  String column,
-                                 Boolean indexed,
-                                 Boolean sorted,
+                                 Boolean docValues,
                                  Boolean validated,
                                  String analyzer,
                                  Class<T> base,
                                  AbstractType<?>... supportedTypes) {
-            super(field, column, indexed, sorted, validated, analyzer, base, supportedTypes);
+            super(field, column, docValues, validated, analyzer, base, supportedTypes);
         }
 
         /** {@inheritDoc} */
         @Override
         public void addIndexedFields(Document document, String name, T value) {
-            document.add(indexedField(name, value));
+            Field field = indexedField(name, value);
+            if (field != null) {
+                document.add(field);
+            }
         }
 
         /** {@inheritDoc} */
         @Override
         public void addSortedFields(Document document, String name, T value) {
-            document.add(sortedField(name, value));
+            Field field = sortedField(name, value);
+            if (field != null) {
+                document.add(field);
+            }
         }
 
         /**

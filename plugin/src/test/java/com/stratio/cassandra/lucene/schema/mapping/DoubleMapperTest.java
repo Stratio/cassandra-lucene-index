@@ -31,8 +31,6 @@ public class DoubleMapperTest extends AbstractMapperTest {
     public void testConstructorWithoutArgs() {
         DoubleMapper mapper = doubleMapper().build("field");
         assertEquals("Field is not properly set", "field", mapper.field);
-        assertEquals("Indexed is not set to default value", Mapper.DEFAULT_INDEXED, mapper.indexed);
-        assertEquals("Sorted is not set to default value", Mapper.DEFAULT_SORTED, mapper.sorted);
         assertEquals("Column is not set to default value", "field", mapper.column);
         assertEquals("Mapped columns are not properly set", 1, mapper.mappedColumns.size());
         assertTrue("Mapped columns are not properly set", mapper.mappedColumns.contains("field"));
@@ -41,10 +39,9 @@ public class DoubleMapperTest extends AbstractMapperTest {
 
     @Test
     public void testConstructorWithAllArgs() {
-        DoubleMapper mapper = doubleMapper().indexed(false).sorted(true).column("column").boost(0.3f).build("field");
+        DoubleMapper mapper = doubleMapper().column("column").boost(0.3f).build("field");
         assertEquals("Field is not properly set", "field", mapper.field);
-        assertFalse("Indexed is not properly set", mapper.indexed);
-        assertTrue("Sorted is not properly set", mapper.sorted);
+        assertTrue("Sorted is not properly set", mapper.docValues);
         assertEquals("Column is not properly set", "column", mapper.column);
         assertEquals("Mapped columns are not properly set", 1, mapper.mappedColumns.size());
         assertTrue("Mapped columns are not properly set", mapper.mappedColumns.contains("column"));
@@ -53,8 +50,8 @@ public class DoubleMapperTest extends AbstractMapperTest {
 
     @Test
     public void testJsonSerialization() {
-        DoubleMapperBuilder builder = doubleMapper().indexed(false).sorted(true).column("column").boost(0.3f);
-        testJson(builder, "{type:\"double\",indexed:false,sorted:true,column:\"column\",boost:0.3}");
+        DoubleMapperBuilder builder = doubleMapper().column("column").boost(0.3f);
+        testJson(builder, "{type:\"double\",column:\"column\",boost:0.3}");
     }
 
     @Test
@@ -188,7 +185,7 @@ public class DoubleMapperTest extends AbstractMapperTest {
 
     @Test
     public void testIndexedField() {
-        DoubleMapper mapper = doubleMapper().indexed(true).boost(1f).build("field");
+        DoubleMapper mapper = doubleMapper().boost(1f).build("field");
         Field field = mapper.indexedField("name", 3.2d);
         assertNotNull("Indexed field is not created", field);
         assertEquals("Indexed field value is wrong", 3.2d, field.numericValue());
@@ -198,10 +195,10 @@ public class DoubleMapperTest extends AbstractMapperTest {
 
     @Test
     public void testSortedField() {
-        DoubleMapper mapper = doubleMapper().sorted(true).boost(1f).build("field");
+        DoubleMapper mapper = doubleMapper().boost(1f).build("field");
         Field field = mapper.sortedField("name", 3.2d);
         assertNotNull("Sorted field is not created", field);
-        assertEquals("Sorted field type is wrong", DocValuesType.NUMERIC, field.fieldType().docValuesType());
+        assertEquals("Sorted field type is wrong", DocValuesType.SORTED_NUMERIC, field.fieldType().docValuesType());
     }
 
     @Test
@@ -212,9 +209,9 @@ public class DoubleMapperTest extends AbstractMapperTest {
 
     @Test
     public void testToString() {
-        DoubleMapper mapper = doubleMapper().indexed(false).sorted(true).validated(true).boost(1f).build("field");
+        DoubleMapper mapper = doubleMapper().validated(true).boost(1f).build("field");
         assertEquals("Method #toString is wrong",
-                     "DoubleMapper{field=field, indexed=false, sorted=true, validated=true, column=field, boost=1.0}",
+                     "DoubleMapper{field=field, docValues=true, validated=true, column=field, boost=1.0}",
                      mapper.toString());
     }
 }

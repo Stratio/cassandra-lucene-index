@@ -250,7 +250,7 @@ public class MatchConditionTest extends AbstractConditionTest {
     private class MockedMapper extends SingleColumnMapper.SingleFieldMapper<UUID> {
 
         MockedMapper() {
-            super("field", null, null, null, true, null, UUID.class, UUIDType.instance);
+            super("field", null, null, true, null, UUID.class, UUIDType.instance);
         }
 
         @Override

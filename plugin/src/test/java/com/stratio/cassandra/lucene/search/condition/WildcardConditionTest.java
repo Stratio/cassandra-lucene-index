@@ -71,7 +71,7 @@ public class WildcardConditionTest extends AbstractConditionTest {
     @Test
     public void testBlankValue() {
 
-        Schema schema = schema().mapper("name", stringMapper().indexed(true).sorted(true)).build();
+        Schema schema = schema().mapper("name", stringMapper()).build();
 
         WildcardCondition wildcardCondition = new WildcardCondition(0.5f, "name", " ");
         Query query = wildcardCondition.doQuery(schema);
@@ -87,7 +87,7 @@ public class WildcardConditionTest extends AbstractConditionTest {
     @Test
     public void testStringValue() {
 
-        Schema schema = schema().mapper("name", stringMapper().indexed(true).sorted(true)).build();
+        Schema schema = schema().mapper("name", stringMapper()).build();
 
         WildcardCondition wildcardCondition = new WildcardCondition(0.5f, "name", "tr*");
         Query query = wildcardCondition.doQuery(schema);

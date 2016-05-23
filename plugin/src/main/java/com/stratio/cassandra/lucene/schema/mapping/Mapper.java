@@ -48,23 +48,14 @@ public abstract class Mapper {
     /** The store field in Lucene default option. */
     public static final Store STORE = Store.NO;
 
-    /** If the field must be indexed when no specified. */
-    public static final boolean DEFAULT_INDEXED = true;
-
-    /** If the field must be sorted when no specified. */
-    public static final boolean DEFAULT_SORTED = false;
-
     /** If the field must be validated when no specified. */
     public static final boolean DEFAULT_VALIDATED = false;
 
     /** The name of the Lucene field. */
     public final String field;
 
-    /** If the field must be indexed. */
-    public final Boolean indexed;
-
-    /** If the field must be sorted. */
-    public final Boolean sorted;
+    /** If the field must be docValues. */
+    public final Boolean docValues;
 
     /** If the field must be validated. */
     public final Boolean validated;
@@ -82,16 +73,14 @@ public abstract class Mapper {
      * Builds a new {@link Mapper} supporting the specified types for indexing.
      *
      * @param field the name of the field
-     * @param indexed if the field supports searching
-     * @param sorted if the field supports sorting
+     * @param docValues if the mapper supports doc values
      * @param validated if the field must be validated
      * @param analyzer the name of the analyzer to be used
      * @param mappedColumns the names of the columns to be mapped
      * @param supportedTypes the supported Cassandra types for indexing
      */
     protected Mapper(String field,
-                     Boolean indexed,
-                     Boolean sorted,
+                     Boolean docValues,
                      Boolean validated,
                      String analyzer,
                      List<String> mappedColumns,
@@ -100,8 +89,7 @@ public abstract class Mapper {
             throw new IndexException("Field name is required");
         }
         this.field = field;
-        this.indexed = indexed == null ? DEFAULT_INDEXED : indexed;
-        this.sorted = sorted == null ? DEFAULT_SORTED : sorted;
+        this.docValues = docValues;
         this.validated = validated == null ? DEFAULT_VALIDATED : validated;
         this.analyzer = analyzer;
         this.mappedColumns = mappedColumns;
@@ -286,12 +274,12 @@ public abstract class Mapper {
         }
 
         // Avoid sorting in lists and sets
-        if (type.isCollection() && sorted) {
+        if (type.isCollection() && docValues) {
             Kind kind = ((CollectionType<?>) type).kind;
             if (kind == SET) {
-                throw new IndexException("'%s' can't be sorted because it's a set", column);
+                throw new IndexException("'%s' can't be docValues because it's a set", column);
             } else if (kind == LIST) {
-                throw new IndexException("'%s' can't be sorted because it's a list", column);
+                throw new IndexException("'%s' can't be docValues because it's a list", column);
             }
         }
     }
@@ -320,8 +308,7 @@ public abstract class Mapper {
     protected Objects.ToStringHelper toStringHelper(Object self) {
         return Objects.toStringHelper(self)
                       .add("field", field)
-                      .add("indexed", indexed)
-                      .add("sorted", sorted)
+                      .add("docValues", docValues)
                       .add("validated", validated);
     }
 

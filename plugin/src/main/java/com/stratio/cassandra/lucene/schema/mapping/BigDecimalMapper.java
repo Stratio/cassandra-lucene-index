@@ -52,23 +52,17 @@ public class BigDecimalMapper extends KeywordMapper {
      *
      * @param field the name of the field
      * @param column the name of the column to be mapped
-     * @param indexed if the field supports searching
-     * @param sorted if the field supports sorting
      * @param validated if the field must be validated
      * @param integerDigits the max number of digits for the integer part, defaults to {@link #DEFAULT_INTEGER_DIGITS}
      * @param decimalDigits The max number of digits for the decimal part, defaults to {@link #DEFAULT_DECIMAL_DIGITS}
      */
     public BigDecimalMapper(String field,
                             String column,
-                            Boolean indexed,
-                            Boolean sorted,
                             Boolean validated,
                             Integer integerDigits,
                             Integer decimalDigits) {
         super(field,
               column,
-              indexed,
-              sorted,
               validated,
               ByteType.instance,
               DecimalType.instance,

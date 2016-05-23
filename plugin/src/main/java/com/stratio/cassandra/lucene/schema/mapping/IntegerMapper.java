@@ -19,9 +19,10 @@ import com.stratio.cassandra.lucene.IndexException;
 import org.apache.cassandra.db.marshal.*;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.IntField;
-import org.apache.lucene.document.NumericDocValuesField;
+import org.apache.lucene.document.SortedNumericDocValuesField;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.SortField.Type;
+import org.apache.lucene.search.SortedNumericSortField;
 
 /**
  * A {@link Mapper} to map an integer field.
@@ -41,16 +42,13 @@ public class IntegerMapper extends SingleColumnMapper.SingleFieldMapper<Integer>
      *
      * @param field the name of the field
      * @param column the name of the column to be mapped
-     * @param indexed if the field supports searching
-     * @param sorted if the field supports sorting
      * @param validated if the field must be validated
      * @param boost the boost
      */
-    public IntegerMapper(String field, String column, Boolean indexed, Boolean sorted, Boolean validated, Float boost) {
+    public IntegerMapper(String field, String column, Boolean validated, Float boost) {
         super(field,
               column,
-              indexed,
-              sorted,
+              true,
               validated,
               null,
               Integer.class,
@@ -93,13 +91,13 @@ public class IntegerMapper extends SingleColumnMapper.SingleFieldMapper<Integer>
     /** {@inheritDoc} */
     @Override
     public Field sortedField(String name, Integer value) {
-        return new NumericDocValuesField(name, value);
+        return new SortedNumericDocValuesField(name, value);
     }
 
     /** {@inheritDoc} */
     @Override
     public SortField sortField(String name, boolean reverse) {
-        return new SortField(name, Type.INT, reverse);
+        return new SortedNumericSortField(name, Type.INT, reverse);
     }
 
     /** {@inheritDoc} */

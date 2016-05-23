@@ -32,6 +32,6 @@ public class BooleanMapperBuilder extends SingleColumnMapperBuilder<BooleanMappe
      */
     @Override
     public BooleanMapper build(String field) {
-        return new BooleanMapper(field, column, indexed, sorted, validated);
+        return new BooleanMapper(field, column, validated);
     }
 }

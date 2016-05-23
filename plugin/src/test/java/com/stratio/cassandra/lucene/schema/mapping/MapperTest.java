@@ -102,7 +102,7 @@ public class MapperTest {
 
     private void testSupports(boolean expected, AbstractType<?> candidateType, AbstractType<?>... types) {
 
-        Mapper mapper = new Mapper("field", null, null, null, null, Collections.singletonList("field"), types) {
+        Mapper mapper = new Mapper("field", null, null, null, Collections.singletonList("field"), types) {
 
             @Override
             public void addFields(Document document, Columns columns) {

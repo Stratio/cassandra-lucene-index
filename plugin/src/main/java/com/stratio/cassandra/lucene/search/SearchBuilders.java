@@ -243,7 +243,7 @@ public final class SearchBuilders {
     /**
      * Returns a new {@link SortFieldBuilder} for the specified field.
      *
-     * @param field the name of the field to be sorted by
+     * @param field the name of the field to be docValues by
      * @return a new simple sort field condition builder
      */
     public static SimpleSortFieldBuilder field(String field) {
@@ -265,7 +265,7 @@ public final class SearchBuilders {
     /**
      * Returns a new {@link BitemporalConditionBuilder} for the specified field.
      *
-     * @param field the name of the field to be sorted
+     * @param field the name of the field to be docValues
      * @return a new bitemporal condition builder for the specified field.
      */
     public static BitemporalConditionBuilder bitemporalSearch(String field) {

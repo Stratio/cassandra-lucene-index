@@ -354,9 +354,9 @@ public final class KeyMapper {
 
     /**
      * Returns the specified clustering keys as an array of {@link ColumnSlice}s. It is assumed that the clustering keys
-     * are sorted.
+     * are docValues.
      *
-     * @param clusteringKeys A sorted list of clustering keys.
+     * @param clusteringKeys A docValues list of clustering keys.
      * @return The specified clustering keys as an array of {@link ColumnSlice}s.
      */
     public ColumnSlice[] columnSlices(List<CellName> clusteringKeys) {
@@ -373,10 +373,10 @@ public final class KeyMapper {
     }
 
     /**
-     * Returns the specified list of clustering keys sorted according to the table cell name comparator.
+     * Returns the specified list of clustering keys docValues according to the table cell name comparator.
      *
-     * @param clusteringKeys The list of clustering keys to be sorted.
-     * @return The specified list of clustering keys sorted according to the table cell name comparator.
+     * @param clusteringKeys The list of clustering keys to be docValues.
+     * @return The specified list of clustering keys docValues according to the table cell name comparator.
      */
     private List<CellName> sort(List<CellName> clusteringKeys) {
         List<CellName> result = new ArrayList<>(clusteringKeys);

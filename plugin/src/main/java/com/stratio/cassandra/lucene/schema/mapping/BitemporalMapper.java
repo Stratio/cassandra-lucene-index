@@ -91,7 +91,6 @@ public class BitemporalMapper extends Mapper {
                             Object nowValue) {
 
         super(field,
-              true,
               false,
               validated,
               null,

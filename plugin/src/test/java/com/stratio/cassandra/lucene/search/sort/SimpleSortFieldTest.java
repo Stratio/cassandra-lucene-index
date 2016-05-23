@@ -25,8 +25,7 @@ import org.junit.Test;
 
 import java.util.Comparator;
 
-import static com.stratio.cassandra.lucene.schema.SchemaBuilders.schema;
-import static com.stratio.cassandra.lucene.schema.SchemaBuilders.stringMapper;
+import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
 import static org.apache.lucene.search.SortField.FIELD_SCORE;
 import static org.junit.Assert.*;
 
@@ -67,7 +66,7 @@ public class SimpleSortFieldTest {
     @Test
     public void testSortFieldDefaults() {
 
-        Schema schema = schema().mapper("field", stringMapper().sorted(true)).build();
+        Schema schema = schema().mapper("field", stringMapper()).build();
 
         SimpleSortField sortField = new SimpleSortField("field", null);
         org.apache.lucene.search.SortField luceneSortField = sortField.sortField(schema);
@@ -80,7 +79,7 @@ public class SimpleSortFieldTest {
     @Test
     public void testSimpleSortField() {
 
-        Schema schema = schema().mapper("field", stringMapper().sorted(true)).build();
+        Schema schema = schema().mapper("field", stringMapper()).build();
 
         SimpleSortField sortField = new SimpleSortField("field", false);
         org.apache.lucene.search.SortField luceneSortField = sortField.sortField(schema);
@@ -93,7 +92,7 @@ public class SimpleSortFieldTest {
     @Test
     public void testSortFieldReverse() {
 
-        Schema schema = schema().mapper("field", stringMapper().sorted(true)).build();
+        Schema schema = schema().mapper("field", stringMapper()).build();
 
         SimpleSortField sortField = new SimpleSortField("field", true);
         org.apache.lucene.search.SortField luceneSortField = sortField.sortField(schema);
@@ -105,7 +104,7 @@ public class SimpleSortFieldTest {
 
     @Test(expected = IndexException.class)
     public void testSortFieldUnsorted() {
-        Schema schema = schema().mapper("field", stringMapper().sorted(false)).build();
+        Schema schema = schema().mapper("field", geoPointMapper("lat", "lon")).build();
         SimpleSortField sortField = new SimpleSortField("field", false);
         sortField.sortField(schema);
     }
@@ -113,7 +112,7 @@ public class SimpleSortFieldTest {
     @Test
     public void testSortFieldScoreDefaults() {
 
-        Schema schema = schema().mapper("field", stringMapper().sorted(true)).build();
+        Schema schema = schema().mapper("field", stringMapper()).build();
 
         SimpleSortField sortField = new SimpleSortField("score", null);
         org.apache.lucene.search.SortField luceneSortField = sortField.sortField(schema);
@@ -126,7 +125,7 @@ public class SimpleSortFieldTest {
     @Test
     public void testSortFieldScore() {
 
-        Schema schema = schema().mapper("field", stringMapper().sorted(true)).build();
+        Schema schema = schema().mapper("field", stringMapper()).build();
 
         SimpleSortField sortField = new SimpleSortField("score", false);
         org.apache.lucene.search.SortField luceneSortField = sortField.sortField(schema);
@@ -139,7 +138,7 @@ public class SimpleSortFieldTest {
     @Test
     public void testSortFieldScoreReverse() {
 
-        Schema schema = schema().mapper("field", stringMapper().sorted(true)).build();
+        Schema schema = schema().mapper("field", stringMapper()).build();
 
         SimpleSortField sortField = new SimpleSortField("score", true);
         org.apache.lucene.search.SortField luceneSortField = sortField.sortField(schema);
@@ -159,7 +158,7 @@ public class SimpleSortFieldTest {
     @Test
     public void testComparatorNatural() {
 
-        Schema schema = schema().mapper("field", stringMapper().sorted(true)).build();
+        Schema schema = schema().mapper("field", stringMapper()).build();
 
         SimpleSortField sortField = new SimpleSortField("field", false);
         Comparator<Columns> comparator = sortField.comparator(schema);
@@ -176,7 +175,7 @@ public class SimpleSortFieldTest {
     @Test
     public void testComparatorReverse() {
 
-        Schema schema = schema().mapper("field", stringMapper().sorted(true)).build();
+        Schema schema = schema().mapper("field", stringMapper()).build();
 
         SimpleSortField sortField = new SimpleSortField("field", true);
         Comparator<Columns> comparator = sortField.comparator(schema);
@@ -193,7 +192,7 @@ public class SimpleSortFieldTest {
     @Test
     public void testComparatorNullColumns() {
 
-        Schema schema = schema().mapper("field", stringMapper().sorted(true)).build();
+        Schema schema = schema().mapper("field", stringMapper()).build();
 
         SimpleSortField sortField = new SimpleSortField("field", true);
         Comparator<Columns> comparator = sortField.comparator(schema);
@@ -209,7 +208,7 @@ public class SimpleSortFieldTest {
     @Test
     public void testComparatorNullColumn() {
 
-        Schema schema = schema().mapper("field", stringMapper().sorted(true)).build();
+        Schema schema = schema().mapper("field", stringMapper()).build();
 
         SimpleSortField sortField = new SimpleSortField("field", true);
         Comparator<Columns> comparator = sortField.comparator(schema);

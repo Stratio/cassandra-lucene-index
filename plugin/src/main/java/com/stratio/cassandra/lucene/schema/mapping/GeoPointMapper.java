@@ -67,23 +67,18 @@ public class GeoPointMapper extends Mapper {
      * Builds a new {@link GeoPointMapper}.
      *
      * @param field the name of the field
-     * @param indexed if the field supports searching
-     * @param sorted if the field supports sorting
      * @param validated if the field must be validated
      * @param latitude the name of the column containing the latitude
      * @param longitude the name of the column containing the longitude
      * @param maxLevels the maximum number of levels in the tree
      */
     public GeoPointMapper(String field,
-                          Boolean indexed,
-                          Boolean sorted,
                           Boolean validated,
                           String latitude,
                           String longitude,
                           Integer maxLevels) {
         super(field,
-              indexed,
-              sorted,
+              false,
               validated,
               null,
               Arrays.asList(latitude, longitude),
@@ -170,17 +165,14 @@ public class GeoPointMapper extends Mapper {
         }
 
         Point point = CONTEXT.makePoint(lon, lat);
-        if (indexed) {
-            for (IndexableField field : distanceStrategy.createIndexableFields(point)) {
-                document.add(field);
-            }
-            for (IndexableField field : bboxStrategy.createIndexableFields(point)) {
-                document.add(field);
-            }
+        for (IndexableField field : distanceStrategy.createIndexableFields(point)) {
+            document.add(field);
         }
-        if (sorted) {
-            document.add(new StoredField(distanceStrategy.getFieldName(), point.getX() + " " + point.getY()));
+        for (IndexableField field : bboxStrategy.createIndexableFields(point)) {
+            document.add(field);
         }
+
+        document.add(new StoredField(distanceStrategy.getFieldName(), point.getX() + " " + point.getY()));
     }
 
     /** {@inheritDoc} */

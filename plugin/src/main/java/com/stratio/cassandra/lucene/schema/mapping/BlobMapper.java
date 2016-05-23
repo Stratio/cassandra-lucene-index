@@ -35,12 +35,10 @@ public class BlobMapper extends KeywordMapper {
      *
      * @param field the name of the field
      * @param column the name of the column to be mapped
-     * @param indexed if the field supports searching
-     * @param sorted if the field supports sorting
      * @param validated if the field must be validated
      */
-    public BlobMapper(String field, String column, Boolean indexed, Boolean sorted, Boolean validated) {
-        super(field, column, indexed, sorted, validated, UTF8Type.instance, BytesType.instance);
+    public BlobMapper(String field, String column, Boolean validated) {
+        super(field, column, validated, UTF8Type.instance, BytesType.instance);
     }
 
     /** {@inheritDoc} */

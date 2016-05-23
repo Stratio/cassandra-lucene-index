@@ -45,14 +45,10 @@ import java.util.Comparator;
  */
 public final class TokenMapper {
 
-    /**
-     * The Lucene field name
-     */
+    /** The Lucene field name. */
     public static final String FIELD_NAME = "_token";
 
-    /**
-     * The Lucene field type
-     */
+    /** The Lucene field type. */
     private static final FieldType FIELD_TYPE = new FieldType();
 
     static {
@@ -64,9 +60,7 @@ public final class TokenMapper {
         FIELD_TYPE.freeze();
     }
 
-    /**
-     * Constructor taking the cache size.
-     */
+    /** Default constructor. */
     public TokenMapper() {
         if (!(DatabaseDescriptor.getPartitioner() instanceof Murmur3Partitioner)) {
             throw new IndexException("Only Murmur3 partitioner is supported");

@@ -68,7 +68,6 @@ public class DateRangeMapper extends Mapper {
      */
     public DateRangeMapper(String field, Boolean validated, String from, String to, String pattern) {
         super(field,
-              true,
               false,
               validated,
               null,

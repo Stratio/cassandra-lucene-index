@@ -26,8 +26,8 @@ import org.codehaus.jackson.annotate.JsonProperty;
 public class GeoDistanceSortField extends SortField {
 
     /** The name of mapper to use to calculate distance. */
-    @JsonProperty("mapper")
-    private final String mapper;
+    @JsonProperty("field")
+    private final String field;
 
     /** The longitude of the center point to sort by distance to it. */
     @JsonProperty("longitude")
@@ -40,15 +40,15 @@ public class GeoDistanceSortField extends SortField {
     /**
      * Creates a new {@link GeoDistanceSortField} for the specified field and reverse option.
      *
-     * @param mapper the name of the field to be used for sort
+     * @param field the name of the field to be used for sort
      * @param longitude the longitude in degrees of the reference point
      * @param latitude the latitude in degrees of the reference point
      */
     @JsonCreator
-    public GeoDistanceSortField(@JsonProperty("mapper") String mapper,
+    public GeoDistanceSortField(@JsonProperty("field") String field,
                                 @JsonProperty("longitude") double longitude,
                                 @JsonProperty("latitude") double latitude) {
-        this.mapper = mapper;
+        this.field = field;
         this.longitude = longitude;
         this.latitude = latitude;
     }

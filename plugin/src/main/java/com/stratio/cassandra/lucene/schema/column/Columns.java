@@ -23,7 +23,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * A sorted list of CQL3 logic {@link Column}s.
+ * A docValues list of CQL3 logic {@link Column}s.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
