@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.cassandra.lucene.testsAT.varia;
+package com.stratio.cassandra.lucene.testsAT.ttl;
 
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
 import org.junit.AfterClass;
@@ -29,7 +29,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
-public class SelectTotalExpiredTTLWideRows {
+public class SelectTotalExpiredTTLWideRowsAT {
     private static CassandraUtils utils;
 
     @BeforeClass

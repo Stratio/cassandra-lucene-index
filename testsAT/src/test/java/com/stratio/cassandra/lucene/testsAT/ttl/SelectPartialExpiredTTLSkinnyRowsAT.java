@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.cassandra.lucene.testsAT.varia;
+package com.stratio.cassandra.lucene.testsAT.ttl;
 
 import com.stratio.cassandra.lucene.testsAT.BaseAT;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
@@ -30,7 +30,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
-public class SelectPartialExpiredTTLWideRows extends BaseAT {
+public class SelectPartialExpiredTTLSkinnyRowsAT extends BaseAT {
     private static CassandraUtils utils;
 
     @BeforeClass
@@ -38,9 +38,7 @@ public class SelectPartialExpiredTTLWideRows extends BaseAT {
 
         utils = CassandraUtils.builder("test_ttl_parcial_skiny")
                               .withPartitionKey("a")
-                              .withClusteringKey("a2")
                               .withColumn("a", "int")
-                              .withColumn("a2", "int")
                               .withColumn("b", "text", stringMapper())
                               .withColumn("c", "text", stringMapper())
                               .build()
@@ -51,28 +49,28 @@ public class SelectPartialExpiredTTLWideRows extends BaseAT {
 
     @Test
     public void testSkinyRowsParcialExpiredRows() throws InterruptedException {
-        utils.insert(new String[]{"a", "a2", "b"}, new Object[]{1, 1, "a"}, 5);
-        utils.insert(new String[]{"a", "a2", "c"}, new Object[]{1, 1, "b"});
-        utils.insert(new String[]{"a", "a2", "c"}, new Object[]{2, 2, "b"}, 10);
-        utils.insert(new String[]{"a", "a2", "b"}, new Object[]{2, 2, "a"});
-        utils.insert(new String[]{"a", "a2", "b"}, new Object[]{3, 3, "a"}, 12);
-        utils.insert(new String[]{"a", "a2", "c"}, new Object[]{3, 3, "c"});
-        utils.insert(new String[]{"a", "a2", "b", "c"}, new Object[]{4, 4, "a", "c"});
-        utils.insert(new String[]{"a", "a2", "b", "c"}, new Object[]{5, 5, "a", "c"});
-        utils.insert(new String[]{"a", "a2", "b", "c"}, new Object[]{6, 6, "a", "c"});
+        utils.insert(new String[]{"a", "b"}, new Object[]{1, "a"}, 5);
+        utils.insert(new String[]{"a", "c"}, new Object[]{1, "b"});
+        utils.insert(new String[]{"a", "c"}, new Object[]{2, "b"}, 10);
+        utils.insert(new String[]{"a", "b"}, new Object[]{2, "a"});
+        utils.insert(new String[]{"a", "b"}, new Object[]{3, "a"}, 12);
+        utils.insert(new String[]{"a", "c"}, new Object[]{3, "c"});
+        utils.insert(new String[]{"a", "b", "c"}, new Object[]{4, "a", "c"});
+        utils.insert(new String[]{"a", "b", "c"}, new Object[]{5, "a", "c"});
+        utils.insert(new String[]{"a", "b", "c"}, new Object[]{6, "a", "c"});
 
         utils.flush();
 
-        utils.insert(new String[]{"a", "a2", "b"}, new Object[]{11, 11, "a"}, 5);
-        utils.insert(new String[]{"a", "a2", "c"}, new Object[]{11, 11, "b"});
-        utils.insert(new String[]{"a", "a2", "b"}, new Object[]{12, 12, "a"}, 10);
-        utils.insert(new String[]{"a", "a2", "c"}, new Object[]{12, 12, "b"});
-        utils.insert(new String[]{"a", "a2", "b"}, new Object[]{13, 13, "a"}, 12);
-        utils.insert(new String[]{"a", "a2", "c"}, new Object[]{13, 13, "c"});
-        utils.insert(new String[]{"a", "a2", "b", "c"}, new Object[]{14, 14, "a", "c"});
-        utils.insert(new String[]{"a", "a2", "b", "c"}, new Object[]{15, 15, "a", "c"});
-        utils.insert(new String[]{"a", "a2", "b", "c"}, new Object[]{16, 16, "a", "c"});
-        utils.insert(new String[]{"a", "a2", "b", "c"}, new Object[]{17, 17, "a", "c"});
+        utils.insert(new String[]{"a", "b"}, new Object[]{11, "a"}, 5);
+        utils.insert(new String[]{"a", "c"}, new Object[]{11, "b"});
+        utils.insert(new String[]{"a", "b"}, new Object[]{12, "a"}, 10);
+        utils.insert(new String[]{"a", "c"}, new Object[]{12, "b"});
+        utils.insert(new String[]{"a", "b"}, new Object[]{13, "a"}, 12);
+        utils.insert(new String[]{"a", "c"}, new Object[]{13, "c"});
+        utils.insert(new String[]{"a", "b", "c"}, new Object[]{14, "a", "c"});
+        utils.insert(new String[]{"a", "b", "c"}, new Object[]{15, "a", "c"});
+        utils.insert(new String[]{"a", "b", "c"}, new Object[]{16, "a", "c"});
+        utils.insert(new String[]{"a", "b", "c"}, new Object[]{17, "a", "c"});
 
         utils.flush();
         TimeUnit.SECONDS.sleep(15);

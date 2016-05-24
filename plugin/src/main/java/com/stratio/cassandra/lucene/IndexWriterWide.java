@@ -55,9 +55,7 @@ class IndexWriterWide extends IndexWriter {
         rows = new LinkedHashMap<>();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected void delete() {
         service.delete(key);
@@ -65,9 +63,7 @@ class IndexWriterWide extends IndexWriter {
         rows.clear();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected void index(Row row) {
         if (!row.isStatic()) {
@@ -81,9 +77,7 @@ class IndexWriterWide extends IndexWriter {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void finish() {
         if (transactionType != IndexTransaction.Type.CLEANUP) {

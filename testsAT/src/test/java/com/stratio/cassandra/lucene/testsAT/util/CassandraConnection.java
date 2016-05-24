@@ -19,11 +19,6 @@ import com.datastax.driver.core.*;
 import com.stratio.cassandra.lucene.testsAT.BaseAT;
 import org.slf4j.Logger;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.Set;
-
 import static com.stratio.cassandra.lucene.testsAT.util.CassandraConfig.*;
 
 /**

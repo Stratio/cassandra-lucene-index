@@ -310,8 +310,8 @@ public class CassandraUtils {
 
     public void flush() {
 
-        for (int i = 0; i < JMX_SERVICES.length; i++) {
-            CassandraJMXClient client = new CassandraJMXClient(JMX_SERVICES[i]);
+        for (String JMX_SERVICE : JMX_SERVICES) {
+            CassandraJMXClient client = new CassandraJMXClient(JMX_SERVICE);
 
             client.connect();
 
@@ -321,6 +321,7 @@ public class CassandraUtils {
                               new Object[]{keyspace, new String[]{table}},
                               new String[]{String.class.getName(), String[].class.getName()});
             } catch (Exception e) {
+                logger.error("Exception occurred while calling JMX forceKeyspaceFlush");
                 e.printStackTrace();
             }
             client.disconnect();
@@ -329,8 +330,8 @@ public class CassandraUtils {
 
     public void compact(boolean splitOutput) {
 
-        for (int i = 0; i < JMX_SERVICES.length; i++) {
-            CassandraJMXClient client = new CassandraJMXClient(JMX_SERVICES[i]);
+        for (String JMX_SERVICE : JMX_SERVICES) {
+            CassandraJMXClient client = new CassandraJMXClient(JMX_SERVICE);
 
             client.connect();
 
@@ -348,41 +349,43 @@ public class CassandraUtils {
     }
 
     public int getIndexNumDeletedDocs() {
-        int totalNumDeletedDocs = 0;
-        for (int i = 0; i < JMX_SERVICES.length; i++) {
-            CassandraJMXClient client = new CassandraJMXClient(JMX_SERVICES[i]);
-            Integer numDeleted = 0;
-            client.connect();
-            try {
-                numDeleted = client.getIntegerAttribute("com.stratio.cassandra.lucene:type=Lucene,keyspace=" +
-                                                        keyspace + ",table=" + table + ",index=" + indexName,
-                                                        "NumDeletedDocs");
-            } catch (Exception e) {
-                logger.error("Exception occurred while reading JMX NumDeletedDocs attribute");
-            }
-            totalNumDeletedDocs += numDeleted;
-            client.disconnect();
+        int totalNumDocs = 0;
+        String jmxObjectName = String.format(
+                "com.stratio.cassandra.lucene:type=Lucene,keyspace=%s,table=%s,index=%s",
+                keyspace,
+                table,
+                indexName);
+        for (String JMX_SERVICE : JMX_SERVICES) {
+            totalNumDocs += (Integer) readWithJmx(JMX_SERVICE, jmxObjectName, "NumDeletedDocs");
         }
-        return totalNumDeletedDocs / REPLICATION;
+        return totalNumDocs / REPLICATION;
     }
 
     public int getIndexNumDocs() {
         int totalNumDocs = 0;
-        for (int i = 0; i < JMX_SERVICES.length; i++) {
-            CassandraJMXClient client = new CassandraJMXClient(JMX_SERVICES[i]);
-            Integer numDocs = 0;
-            client.connect();
-            try {
-                numDocs = client.getIntegerAttribute("com.stratio.cassandra.lucene:type=Lucene,keyspace=" +
-                                                     keyspace + ",table=" + table + ",index=" + indexName,
-                                                     "NumDocs");
-            } catch (Exception e) {
-                logger.error("Exception occurred while reading JMX NumDocs attribute");
-            }
-            totalNumDocs += numDocs;
-            client.disconnect();
+        String jmxObjectName = String.format(
+                "com.stratio.cassandra.lucene:type=Lucene,keyspace=%s,table=%s,index=%s",
+                keyspace,
+                table,
+                indexName);
+        for (String JMX_SERVICE : JMX_SERVICES) {
+            totalNumDocs += (Integer) readWithJmx(JMX_SERVICE, jmxObjectName, "NumDocs");
         }
         return totalNumDocs / REPLICATION;
+    }
+
+    private <T> T readWithJmx(String jmxServicePath, String o_name, String atributte) {
+        CassandraJMXClient client = new CassandraJMXClient(jmxServicePath);
+        client.connect();
+        T out = null;
+        try {
+            out = (T) client.getAttribute(o_name, atributte);
+        } catch (Exception e) {
+            logger.error(String.format("Exception occurred while reading JMX %s attribute", atributte));
+            e.printStackTrace();
+        }
+        client.disconnect();
+        return out;
     }
 
 }

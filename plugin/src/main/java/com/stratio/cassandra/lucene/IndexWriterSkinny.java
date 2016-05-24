@@ -50,26 +50,20 @@ class IndexWriterSkinny extends IndexWriter {
         optionalRow = Optional.empty();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected void delete() {
         service.delete(key);
         optionalRow = Optional.empty();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected void index(Row row) {
         this.optionalRow = Optional.of(row);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public void finish() {
         if (transactionType != IndexTransaction.Type.CLEANUP) {
