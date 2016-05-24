@@ -36,7 +36,7 @@ public class Issue123AT extends BaseAT {
     @BeforeClass
     public static void before() {
 
-        cassandraUtils = CassandraUtils.builder("search_with_long_wide_rows")
+        cassandraUtils = CassandraUtils.builder("issue_123")
                                        .withPartitionKey("partition")
                                        .withClusteringKey("id")
                                        .withColumn("partition", "int")
@@ -44,20 +44,6 @@ public class Issue123AT extends BaseAT {
                                        .withColumn("ascii_1", "ascii")
                                        .withColumn("bigint_1", "bigint")
                                        .withColumn("blob_1", "blob")
-                                       .withColumn("boolean_1", "boolean")
-                                       .withColumn("decimal_1", "decimal")
-                                       .withColumn("date_1", "timestamp")
-                                       .withColumn("double_1", "double")
-                                       .withColumn("float_1", "float")
-                                       .withColumn("integer_1", "int")
-                                       .withColumn("inet_1", "inet")
-                                       .withColumn("text_1", "text")
-                                       .withColumn("varchar_1", "varchar")
-                                       .withColumn("uuid_1", "uuid")
-                                       .withColumn("timeuuid_1", "timeuuid")
-                                       .withColumn("list_1", "list<text>")
-                                       .withColumn("set_1", "set<text>")
-                                       .withColumn("map_1", "map<text,text>")
                                        .build()
                                        .createKeyspace()
                                        .createTable()
@@ -70,20 +56,6 @@ public class Issue123AT extends BaseAT {
                 data.put("ascii_1", "'ascii_bis'");
                 data.put("bigint_1", "3000000000000000");
                 data.put("blob_1", "0x3E0A15");
-                data.put("boolean_1", "true");
-                data.put("decimal_1", "3000000000.0");
-                data.put("date_1", String.valueOf(System.currentTimeMillis()));
-                data.put("double_1", "2.0");
-                data.put("float_1", "3.0");
-                data.put("integer_1", "3");
-                data.put("inet_1", "'127.1.1.1'");
-                data.put("text_1", "'text'");
-                data.put("varchar_1", "'varchar'");
-                data.put("uuid_1", "60297440-b4fa-11e3-8b5a-0002a5d5c51d");
-                data.put("timeuuid_1", "a4a70900-24e1-11df-8924-001ff3591713");
-                data.put("list_1", "['l2','l3']");
-                data.put("set_1", "{'s2','s3'}");
-                data.put("map_1", "{'k2':'v2','k3':'v3'}");
                 cassandraUtils.insert(data);
             }
         }

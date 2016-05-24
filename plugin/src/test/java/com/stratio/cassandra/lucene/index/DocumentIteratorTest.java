@@ -149,10 +149,10 @@ public class DocumentIteratorTest {
                                                             new QueryMock(),
                                                             new Sort(),
                                                             new Sort(),
-                                                            10000,
+                                                            DocumentIterator.MAX_PAGE_SIZE,
                                                             new HashSet<>());
 
-        assertEquals("document Iterator page is invalid", 10001, docIterator.page);
+        assertEquals("document Iterator page is invalid", DocumentIterator.MAX_PAGE_SIZE + 1, docIterator.page);
     }
 
     @Test
@@ -168,6 +168,6 @@ public class DocumentIteratorTest {
                                                             10000000,
                                                             new HashSet<>());
 
-        assertEquals("document Iterator page is invalid", 10001, docIterator.page);
+        assertEquals("document Iterator page is invalid", DocumentIterator.MAX_PAGE_SIZE + 1, docIterator.page);
     }
 }

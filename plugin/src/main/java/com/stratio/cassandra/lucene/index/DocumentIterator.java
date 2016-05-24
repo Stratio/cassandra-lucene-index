@@ -37,7 +37,7 @@ public class DocumentIterator implements CloseableIterator<Pair<Document, ScoreD
     private static final Logger logger = LoggerFactory.getLogger(DocumentIterator.class);
 
     /** The max number of rows to be read per iteration. */
-    private static final int MAX_PAGE_SIZE = 10000;
+    static final int MAX_PAGE_SIZE = 10000;
 
     private final SearcherManager manager;
     private final Query query;
