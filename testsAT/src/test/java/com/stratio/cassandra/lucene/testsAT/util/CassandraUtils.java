@@ -26,11 +26,6 @@ import com.stratio.cassandra.lucene.builder.search.sort.SortField;
 import com.stratio.cassandra.lucene.testsAT.BaseAT;
 import org.slf4j.Logger;
 
-import javax.management.InstanceNotFoundException;
-import javax.management.MBeanException;
-import javax.management.MalformedObjectNameException;
-import javax.management.ReflectionException;
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -325,15 +320,7 @@ public class CassandraUtils {
                               "forceKeyspaceFlush",
                               new Object[]{keyspace, new String[]{table}},
                               new String[]{String.class.getName(), String[].class.getName()});
-            } catch (MalformedObjectNameException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (MBeanException e) {
-                e.printStackTrace();
-            } catch (InstanceNotFoundException e) {
-                e.printStackTrace();
-            } catch (ReflectionException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             client.disconnect();
@@ -352,19 +339,50 @@ public class CassandraUtils {
                               "forceKeyspaceCompaction",
                               new Object[]{splitOutput, keyspace, new String[]{table}},
                               new String[]{boolean.class.getName(), String.class.getName(), String[].class.getName()});
-            } catch (MalformedObjectNameException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (MBeanException e) {
-                e.printStackTrace();
-            } catch (InstanceNotFoundException e) {
-                e.printStackTrace();
-            } catch (ReflectionException e) {
+            } catch (Exception e) {
+                logger.error("Exception occurred while calling JMX forceKeyspaceCompaction");
                 e.printStackTrace();
             }
             client.disconnect();
         }
+    }
+
+    public int getIndexNumDeletedDocs() {
+        int totalNumDeletedDocs = 0;
+        for (int i = 0; i < JMX_SERVICES.length; i++) {
+            CassandraJMXClient client = new CassandraJMXClient(JMX_SERVICES[i]);
+            Integer numDeleted = 0;
+            client.connect();
+            try {
+                numDeleted = client.getIntegerAttribute("com.stratio.cassandra.lucene:type=Lucene,keyspace=" +
+                                                        keyspace + ",table=" + table + ",index=" + indexName,
+                                                        "NumDeletedDocs");
+            } catch (Exception e) {
+                logger.error("Exception occurred while reading JMX NumDeletedDocs attribute");
+            }
+            totalNumDeletedDocs += numDeleted;
+            client.disconnect();
+        }
+        return totalNumDeletedDocs / REPLICATION;
+    }
+
+    public int getIndexNumDocs() {
+        int totalNumDocs = 0;
+        for (int i = 0; i < JMX_SERVICES.length; i++) {
+            CassandraJMXClient client = new CassandraJMXClient(JMX_SERVICES[i]);
+            Integer numDocs = 0;
+            client.connect();
+            try {
+                numDocs = client.getIntegerAttribute("com.stratio.cassandra.lucene:type=Lucene,keyspace=" +
+                                                     keyspace + ",table=" + table + ",index=" + indexName,
+                                                     "NumDocs");
+            } catch (Exception e) {
+                logger.error("Exception occurred while reading JMX NumDocs attribute");
+            }
+            totalNumDocs += numDocs;
+            client.disconnect();
+        }
+        return totalNumDocs / REPLICATION;
     }
 
 }

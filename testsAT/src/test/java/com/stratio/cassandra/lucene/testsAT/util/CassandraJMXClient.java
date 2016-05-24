@@ -59,12 +59,18 @@ class CassandraJMXClient {
 
     }
 
-    public String getStringAtribute(String s_name, String atribute)
+    private Object getAttribute(String s_name, String atribute)
     throws IOException, MalformedObjectNameException, AttributeNotFoundException, MBeanException, ReflectionException,
            InstanceNotFoundException {
 
         ObjectName name = new ObjectName(s_name);
-        return (String) jmxc.getMBeanServerConnection().getAttribute(name, atribute);
+        return jmxc.getMBeanServerConnection().getAttribute(name, atribute);
+    }
 
+    Integer getIntegerAttribute(String s_name, String atribute)
+    throws IOException, MalformedObjectNameException, AttributeNotFoundException, MBeanException, ReflectionException,
+           InstanceNotFoundException {
+
+        return (Integer) getAttribute(s_name, atribute);
     }
 }
