@@ -132,6 +132,7 @@ public class RowMapperWide extends RowMapper {
     /** {@inheritDoc} */
     @Override
     public Query query(DataRange dataRange) {
+
         RowPosition startPosition = dataRange.startKey();
         RowPosition stopPosition = dataRange.stopKey();
         Token startToken = startPosition.getToken();
@@ -153,21 +154,21 @@ public class RowMapperWide extends RowMapper {
         Composite stopName = sqf.finish();
 
         if ((isSameToken) && (startPosition instanceof DecoratedKey)) {
-            return keyMapper.query((DecoratedKey) startPosition, startName, stopName, includeStart, includeStop);
+            return keyMapper.query((DecoratedKey) startPosition, startName, stopName);
         }
 
         BooleanQuery.Builder builder = new BooleanQuery.Builder();
 
         if (!startName.isEmpty()) {
             DecoratedKey startKey = (DecoratedKey) startPosition;
-            Query query = keyMapper.query(startKey, startName, null, false, true);
+            Query query = keyMapper.query(startKey, startName, null);
             builder.add(query, occur);
             includeStart = false;
         }
 
         if (!stopName.isEmpty()) {
             DecoratedKey stopKey = (DecoratedKey) stopPosition;
-            Query query = keyMapper.query(stopKey, null, stopName, true, false);
+            Query query = keyMapper.query(stopKey, null, stopName);
             builder.add(query, occur);
             includeStop = false;
         }
@@ -204,7 +205,7 @@ public class RowMapperWide extends RowMapper {
      * RangeTombstone}.
      */
     public Query query(DecoratedKey partitionKey, RangeTombstone rangeTombstone) {
-        return keyMapper.query(partitionKey, rangeTombstone.min, rangeTombstone.max, false, false);
+        return keyMapper.query(partitionKey, rangeTombstone.min, rangeTombstone.max);
     }
 
     /**

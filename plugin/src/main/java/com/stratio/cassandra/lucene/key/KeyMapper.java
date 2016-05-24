@@ -283,16 +283,10 @@ public final class KeyMapper {
      * @param key the partition key
      * @param start the start clustering prefix
      * @param stop the stop clustering prefix
-     * @param acceptLowerConflicts if rows with the same token before key should be accepted
-     * @param acceptUpperConflicts if rows with the same token after key should be accepted
      * @return the Lucene query
      */
-    public Query query(DecoratedKey key,
-                       Composite start,
-                       Composite stop,
-                       boolean acceptLowerConflicts,
-                       boolean acceptUpperConflicts) {
-        return new KeyQuery(this, key, start, stop, acceptLowerConflicts, acceptUpperConflicts);
+    public Query query(DecoratedKey key, Composite start, Composite stop) {
+        return new KeyQuery(this, key, start, stop);
     }
 
     /**

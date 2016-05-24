@@ -15,11 +15,11 @@
  */
 package com.stratio.cassandra.lucene.key;
 
+import com.google.common.base.Objects;
 import org.apache.cassandra.db.DecoratedKey;
 import org.apache.cassandra.db.composites.CellNameType;
 import org.apache.cassandra.db.composites.Composite;
 import org.apache.cassandra.db.marshal.UTF8Type;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.lucene.index.FilteredTermsEnum;
 import org.apache.lucene.index.Terms;
 import org.apache.lucene.index.TermsEnum;
@@ -31,8 +31,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * {@link MultiTermQuery} to get a range of clustering keys.
@@ -46,7 +44,6 @@ class KeyQuery extends MultiTermQuery {
     private final ByteBuffer collatedToken;
     private final Composite start, stop;
     private final CellNameType clusteringComparator;
-    private final boolean acceptLowerConflicts, acceptUpperConflicts;
     private final BytesRef seek;
 
     /**
@@ -56,23 +53,17 @@ class KeyQuery extends MultiTermQuery {
      * @param key the partition key
      * @param start the start clustering
      * @param stop the stop clustering
-     * @param acceptLowerConflicts if accept lower token conflicts
-     * @param acceptUpperConflicts if accept upper token conflicts
      */
     KeyQuery(KeyMapper mapper,
              DecoratedKey key,
              Composite start,
-             Composite stop,
-             boolean acceptLowerConflicts,
-             boolean acceptUpperConflicts) {
+             Composite stop) {
         super(KeyMapper.FIELD_NAME);
         this.mapper = mapper;
         this.key = key;
         this.collatedToken = TokenMapper.toCollated(key.getToken());
         this.start = start;
         this.stop = stop;
-        this.acceptLowerConflicts = acceptLowerConflicts;
-        this.acceptUpperConflicts = acceptUpperConflicts;
         clusteringComparator = mapper.clusteringComparator();
         seek = mapper.seek(key);
     }
@@ -86,22 +77,19 @@ class KeyQuery extends MultiTermQuery {
     /** {@inheritDoc} */
     @Override
     public String toString(String field) {
-        return new ToStringBuilder(this).append("field", field)
-                                        .append("key", key)
-                                        .append("start", start == null ? null : mapper.toString(start))
-                                        .append("stop", stop == null ? null : mapper.toString(stop))
-
-                                        .toString();
+        return Objects.toStringHelper(this)
+                      .add("field", field)
+                      .add("key", key)
+                      .add("start", start == null ? null : mapper.toString(start))
+                      .add("stop", stop == null ? null : mapper.toString(stop))
+                      .toString();
     }
 
     private class FullKeyDataRangeFilteredTermsEnum extends FilteredTermsEnum {
 
         FullKeyDataRangeFilteredTermsEnum(TermsEnum tenum) {
             super(tenum);
-            if (start != null) {
-                List<ByteBuffer> list = Arrays.asList(mapper.clusteringType().split(mapper.clusteringKey(start)));
-                setInitialSeekTerm(seek);
-            }
+            setInitialSeekTerm(seek);
         }
 
         /** {@inheritDoc} */
@@ -121,16 +109,15 @@ class KeyQuery extends MultiTermQuery {
 
             // Check partition key
             Integer keyComparison = entry.getDecoratedKey().compareTo(key);
-            if (keyComparison < 0 && !acceptLowerConflicts) {
+            if (keyComparison < 0) {
                 return AcceptStatus.NO;
             }
-            if (keyComparison > 0 && !acceptUpperConflicts) {
+            if (keyComparison > 0) {
                 return AcceptStatus.NO;
             }
 
             // Check clustering key range
             Composite clustering = entry.getComposite();
-
             if (start != null && !start.isEmpty() && clusteringComparator.compare(start, clustering) > 0) {
                 return AcceptStatus.NO;
             }
