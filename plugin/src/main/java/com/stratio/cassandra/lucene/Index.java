@@ -233,7 +233,6 @@ public class Index extends PerRowSecondaryIndex {
         logger.info("Flushing Lucene index {}", name);
         try {
             service.commit();
-            logger.info("Flushed Lucene index {}", name);
         } catch (Exception e) {
             logger.error("Error flushing Lucene index " + name, e);
         }

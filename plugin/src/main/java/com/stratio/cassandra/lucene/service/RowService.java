@@ -354,6 +354,7 @@ public abstract class RowService {
         Collections.sort(rows, comparator);
 
         logger.debug("Search     : {}", search);
+        logger.debug("After      : {}", after);
         logger.debug("Query      : {}", query);
         logger.debug("Sort       : {}", sort);
         logger.debug("After time : {}", afterTime);
