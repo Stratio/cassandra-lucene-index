@@ -41,7 +41,7 @@ public class DocumentIterator implements CloseableIterator<Pair<Document, ScoreD
 
     private final SearcherManager manager;
     private final Query query;
-    private final int page;
+    final int page;
     private final Deque<Pair<Document, ScoreDoc>> documents = new LinkedList<>();
     private final Sort sort, mergeSort;
     private final Set<String> fields;
