@@ -368,6 +368,11 @@ the old fake column approach:
 
 This offers a good balance between the advantages of both syntaxes.
 
+Cassandra only allows one per-row index per table,
+whereas there is no limit for the number of per-column indexes that a table can have.
+So, an additional benefit of creating indexes over dummy columns is that you can have multiple Lucene indexes per table,
+as long as they are considered per-column indexes.
+
 All the examples in this document use the new syntax, but all of them can be written in the old way.
 
 Example
@@ -774,8 +779,11 @@ Note that mappers affecting several columns at a time, such as ``date_range``,``
 need to have all the involved columns to perform validation,
 so no partial columns update will be allowed when validation is active.
 
-Cassandra allows only one custom per-row index per table, and it does not allow a modify operation on indexes.
+Cassandra allows only one custom per-row index per table, and it does not allow any modify operation on indexes.
 So, to modify an index it needs to be deleted first and created again.
+Alternatively, if you are using the `classic dummy-column syntax <#alternative-syntaxes>`__,
+the index will be considered per-column, so you would be able to create a second index with the new schema,
+wait until the new index is completely built, and then delete the old index.
 
 Big decimal mapper
 __________________
