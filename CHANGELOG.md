@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.2.5.4 (upcoming)
+## 2.2.5.4 (24 May 2016)
 
 * Upgrade to Apache Lucene 5.5.1
 * Add sorting merge policy (dramatically improves filter performance)
