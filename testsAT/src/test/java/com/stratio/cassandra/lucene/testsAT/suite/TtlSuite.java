@@ -15,32 +15,17 @@
  */
 package com.stratio.cassandra.lucene.testsAT.suite;
 
-import com.stratio.cassandra.lucene.testsAT.util.CassandraConnection;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import com.stratio.cassandra.lucene.testsAT.ttl.SelectPartialExpiredTTLSkinnyRowsAT;
+import com.stratio.cassandra.lucene.testsAT.ttl.SelectPartialExpiredTTLWideRowsAT;
+import com.stratio.cassandra.lucene.testsAT.ttl.SelectTotalExpiredTTLSkinnyRowsAT;
+import com.stratio.cassandra.lucene.testsAT.ttl.SelectTotalExpiredTTLWideRowsAT;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses({SearchSuite.class,
-               DeletionSuite.class,
-               IndexesSuite.class,
-               VariaSuite.class,
-               StoriesSuite.class,
-               IssuesSuite.class,
-               UDTSuite.class,
-               TtlSuite.class})
-public class AllSuite {
-
-    @BeforeClass
-    public static void before() {
-        CassandraConnection.connect();
-    }
-
-    @AfterClass
-    public static void after() {
-        CassandraConnection.disconnect();
-    }
-
+@Suite.SuiteClasses({SelectPartialExpiredTTLSkinnyRowsAT.class,
+                     SelectPartialExpiredTTLWideRowsAT.class,
+                     SelectTotalExpiredTTLSkinnyRowsAT.class,
+                     SelectTotalExpiredTTLWideRowsAT.class})
+public class TtlSuite {
 }

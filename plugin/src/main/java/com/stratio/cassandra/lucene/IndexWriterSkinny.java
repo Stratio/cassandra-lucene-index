@@ -66,18 +66,20 @@ class IndexWriterSkinny extends IndexWriter {
     /** {@inheritDoc} */
     @Override
     public void finish() {
-        optionalRow.ifPresent(row -> {
-            if (service.needsReadBeforeWrite(key, row)) {
-                UnfilteredRowIterator iterator = service.read(key, nowInSec, opGroup);
-                if (iterator.hasNext()) {
-                    row = (Row) iterator.next();
+        if (transactionType != IndexTransaction.Type.CLEANUP) {
+            optionalRow.ifPresent(row -> {
+                if (service.needsReadBeforeWrite(key, row) || (transactionType == IndexTransaction.Type.COMPACTION)) {
+                    UnfilteredRowIterator iterator = service.read(key, nowInSec, opGroup);
+                    if (iterator.hasNext()) {
+                        row = (Row) iterator.next();
+                    }
                 }
-            }
-            if (row.hasLiveData(nowInSec)) {
-                service.upsert(key, row, nowInSec);
-            } else {
-                service.delete(key);
-            }
-        });
+                if (row.hasLiveData(nowInSec)) {
+                    service.upsert(key, row, nowInSec);
+                } else {
+                    service.delete(key);
+                }
+            });
+        }
     }
 }

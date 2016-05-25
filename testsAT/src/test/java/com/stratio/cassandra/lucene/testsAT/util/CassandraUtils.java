@@ -26,10 +26,7 @@ import com.stratio.cassandra.lucene.builder.search.sort.SortField;
 import com.stratio.cassandra.lucene.testsAT.BaseAT;
 import org.slf4j.Logger;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static com.stratio.cassandra.lucene.builder.Builder.all;
@@ -219,8 +216,8 @@ public class CassandraUtils {
 
     public CassandraUtils createIndex() {
         Index index = index(keyspace, table, indexName).column(indexColumn)
-                                                        .refreshSeconds(REFRESH)
-                                                        .indexingThreads(THREADS);
+                                                       .refreshSeconds(REFRESH)
+                                                       .indexingThreads(THREADS);
         for (Map.Entry<String, Mapper> entry : mappers.entrySet()) {
             index.mapper(entry.getKey(), entry.getValue());
         }
@@ -265,6 +262,11 @@ public class CassandraUtils {
         return this;
     }
 
+    public CassandraUtils insert(String[] names, Object[] values, Integer ttl) {
+        execute(QueryBuilder.insertInto(keyspace, table).values(names, values).using(QueryBuilder.ttl(ttl)));
+        return this;
+    }
+
     public CassandraUtilsDelete delete(String... names) {
         return new CassandraUtilsDelete(this, names);
     }
@@ -303,4 +305,92 @@ public class CassandraUtils {
         return execute(b).all();
     }
 
+    public void flush() {
+
+        for (String JMX_SERVICE : JMX_SERVICES) {
+            CassandraJMXClient client = new CassandraJMXClient(JMX_SERVICE);
+
+            client.connect();
+
+            try {
+                client.invoke("org.apache.cassandra.db:type=StorageService",
+                              "forceKeyspaceFlush",
+                              new Object[]{keyspace, new String[]{table}},
+                              new String[]{String.class.getName(), String[].class.getName()});
+            } catch (Exception e) {
+                logger.error("Exception occurred while calling JMX forceKeyspaceFlush");
+                e.printStackTrace();
+            }
+            client.disconnect();
+        }
+    }
+
+    public void compact(boolean splitOutput) {
+
+        for (String JMX_SERVICE : JMX_SERVICES) {
+            CassandraJMXClient client = new CassandraJMXClient(JMX_SERVICE);
+
+            client.connect();
+
+            try {
+                client.invoke("org.apache.cassandra.db:type=StorageService",
+                              "forceKeyspaceCompaction",
+                              new Object[]{splitOutput, keyspace, new String[]{table}},
+                              new String[]{boolean.class.getName(), String.class.getName(), String[].class.getName()});
+            } catch (Exception e) {
+                logger.error("Exception occurred while calling JMX forceKeyspaceCompaction");
+                e.printStackTrace();
+            }
+            client.disconnect();
+        }
+    }
+
+    public int getIndexNumDeletedDocs() {
+        String jmxObjectName = String.format(
+                "com.stratio.cassandra.lucene:type=Lucene,keyspace=%s,table=%s,index=%s",
+                keyspace, table, indexName);
+        int totalNumDocs = doWithEachJmxService(object -> (Integer) object, jmxObjectName, "NumDeletedDocs")
+                .stream()
+                .reduce(0,
+                        (a, b) ->
+                                a +
+                                b);
+        return totalNumDocs / REPLICATION;
+    }
+
+    public int getIndexNumDocs() {
+        String jmxObjectName = String.format(
+                "com.stratio.cassandra.lucene:type=Lucene,keyspace=%s,table=%s,index=%s",
+                keyspace, table, indexName);
+        int totalNumDocs = doWithEachJmxService(object -> (Integer) object, jmxObjectName, "NumDocs")
+                .stream()
+                .reduce(0,
+                        (a, b) -> a +
+                                  b);
+        return totalNumDocs / REPLICATION;
+    }
+
+    private <T> ArrayList<T> doWithEachJmxService(CheckedFunction<Object, T> castFunction,
+                                                  String objectName,
+                                                  String attribute) {
+        ArrayList<T> out = new ArrayList<>();
+        for (String JMX_SERVICE : JMX_SERVICES) {
+            CassandraJMXClient client = new CassandraJMXClient(JMX_SERVICE);
+            client.connect();
+
+            try {
+                out.add(castFunction.apply(client.getAttribute(objectName, attribute)));
+            } catch (Exception e) {
+                logger.error(String.format("Exception occurred while reading JMX %s attribute", attribute));
+                e.printStackTrace();
+            }
+            client.disconnect();
+        }
+        return out;
+    }
+
+    @FunctionalInterface
+    private interface CheckedFunction<T, R> {
+        R apply(T t);
+    }
 }

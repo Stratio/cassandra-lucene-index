@@ -63,4 +63,5 @@ public class CassandraConnection {
     static PreparedStatement prepare(String query) {
         return session.prepare(query);
     }
+
 }

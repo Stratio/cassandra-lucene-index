@@ -192,7 +192,7 @@ public class CassandraUtilsSelect {
 
     public Row getLast() {
         List<Row> rows = get();
-        return rows.isEmpty() ? null : rows.get(rows.size()-1);
+        return rows.isEmpty() ? null : rows.get(rows.size() - 1);
     }
 
     public int count() {
@@ -244,6 +244,22 @@ public class CassandraUtilsSelect {
         for (int i = 0; i < expected.length; i++) {
             actual[i] = rows.get(i).getInt(name);
         }
+        assertArrayEquals(String.format("Expected %s but found %s", Arrays.toString(expected), Arrays.toString(actual)),
+                          expected,
+                          actual);
+        return parent;
+    }
+
+    public CassandraUtils checkIntColumnWithoutOrder(String name, int... expected) {
+        List<Row> rows = get();
+        assertEquals(String.format("Expected %d results!", expected.length), expected.length, rows.size());
+
+        int[] actual = new int[expected.length];
+        for (int i = 0; i < expected.length; i++) {
+            actual[i] = rows.get(i).getInt(name);
+        }
+        Arrays.sort(expected);
+        Arrays.sort(actual);
         assertArrayEquals(String.format("Expected %s but found %s", Arrays.toString(expected), Arrays.toString(actual)),
                           expected,
                           actual);

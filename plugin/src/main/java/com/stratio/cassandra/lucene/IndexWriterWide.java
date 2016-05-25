@@ -80,20 +80,21 @@ class IndexWriterWide extends IndexWriter {
     /** {@inheritDoc} */
     @Override
     public void finish() {
+        if (transactionType != IndexTransaction.Type.CLEANUP) {
+            // Read required rows from storage engine
+            service.read(key, rowsToRead, nowInSec, opGroup).forEachRemaining(unfiltered -> {
+                Row row = (Row) unfiltered;
+                rows.put(row.clustering(), Optional.of(row));
+            });
 
-        // Read required rows from storage engine
-        service.read(key, rowsToRead, nowInSec, opGroup).forEachRemaining(unfiltered -> {
-            Row row = (Row) unfiltered;
-            rows.put(row.clustering(), Optional.of(row));
-        });
-
-        // Write rows
-        rows.forEach((clustering, optional) -> optional.ifPresent(row -> {
-            if (row.hasLiveData(nowInSec)) {
-                service.upsert(key, row, nowInSec);
-            } else {
-                service.delete(key, row);
-            }
-        }));
+            // Write rows
+            rows.forEach((clustering, optional) -> optional.ifPresent(row -> {
+                if (row.hasLiveData(nowInSec)) {
+                    service.upsert(key, row, nowInSec);
+                } else {
+                    service.delete(key, row);
+                }
+            }));
+        }
     }
 }

@@ -45,7 +45,6 @@ public class ColumnsMapper {
      * @param row A {@link Row}.
      */
     public void addColumns(Columns columns, Row row) {
-
         for (ColumnDefinition columnDefinition : row.columns()) {
             if (columnDefinition.isComplex()) {
                 addColumns(columns, row.getComplexColumnData(columnDefinition));
