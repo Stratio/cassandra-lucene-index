@@ -30,7 +30,7 @@ import org.junit.runners.Suite.SuiteClasses;
                StoriesSuite.class,
                IssuesSuite.class,
                UDTSuite.class,
-               TtlSuite.class})
+               TTLSuite.class})
 public class AllSuite {
 
     @BeforeClass

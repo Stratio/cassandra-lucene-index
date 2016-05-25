@@ -27,5 +27,5 @@ import org.junit.runners.Suite;
                      SelectPartialExpiredTTLWideRowsAT.class,
                      SelectTotalExpiredTTLSkinnyRowsAT.class,
                      SelectTotalExpiredTTLWideRowsAT.class})
-public class TtlSuite {
+public class TTLSuite {
 }

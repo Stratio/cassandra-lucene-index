@@ -74,6 +74,7 @@ Stratio’s Cassandra Lucene Index and its integration with Lucene search techno
 -  Third-party CQL-based drivers compatibility
 -  Spark and Hadoop compatibility
 -  Paging over filters
+-  Columns with TTL
 
 Not yet supported:
 

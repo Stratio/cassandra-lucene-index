@@ -26,6 +26,8 @@ import com.stratio.cassandra.lucene.builder.search.sort.SortField;
 import com.stratio.cassandra.lucene.testsAT.BaseAT;
 import org.slf4j.Logger;
 
+import javax.management.JMException;
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -51,6 +53,7 @@ public class CassandraUtils {
     private final List<String> clusteringKey;
     private final Map<String, Map<String, String>> udts;
     private final boolean useNewQuerySyntax;
+    private final String beanName;
 
     public static CassandraUtilsBuilder builder(String name) {
         return new CassandraUtilsBuilder(name);
@@ -82,6 +85,9 @@ public class CassandraUtils {
         if (indexColumn != null && !columns.containsKey(indexColumn)) {
             columns.put(indexColumn, "text");
         }
+
+        beanName = String.format("com.stratio.cassandra.lucene:type=Lucene,keyspace=%s,table=%s,index=%s",
+                                 keyspace, table, indexName);
     }
 
     public String getKeyspace() {
@@ -306,91 +312,53 @@ public class CassandraUtils {
     }
 
     public void flush() {
-
-        for (String JMX_SERVICE : JMX_SERVICES) {
-            CassandraJMXClient client = new CassandraJMXClient(JMX_SERVICE);
-
-            client.connect();
-
-            try {
-                client.invoke("org.apache.cassandra.db:type=StorageService",
-                              "forceKeyspaceFlush",
-                              new Object[]{keyspace, new String[]{table}},
-                              new String[]{String.class.getName(), String[].class.getName()});
-            } catch (Exception e) {
-                logger.error("Exception occurred while calling JMX forceKeyspaceFlush");
-                e.printStackTrace();
-            }
-            client.disconnect();
-        }
+        logger.debug("JMX: Flush");
+        invokeJMXMethod("org.apache.cassandra.db:type=StorageService",
+                        "forceKeyspaceFlush",
+                        new Object[]{keyspace, new String[]{table}},
+                        new String[]{String.class.getName(), String[].class.getName()});
     }
 
     public void compact(boolean splitOutput) {
-
-        for (String JMX_SERVICE : JMX_SERVICES) {
-            CassandraJMXClient client = new CassandraJMXClient(JMX_SERVICE);
-
-            client.connect();
-
-            try {
-                client.invoke("org.apache.cassandra.db:type=StorageService",
-                              "forceKeyspaceCompaction",
-                              new Object[]{splitOutput, keyspace, new String[]{table}},
-                              new String[]{boolean.class.getName(), String.class.getName(), String[].class.getName()});
-            } catch (Exception e) {
-                logger.error("Exception occurred while calling JMX forceKeyspaceCompaction");
-                e.printStackTrace();
-            }
-            client.disconnect();
-        }
+        logger.debug("JMX: Compact");
+        invokeJMXMethod("org.apache.cassandra.db:type=StorageService",
+                        "forceKeyspaceCompaction",
+                        new Object[]{splitOutput, keyspace, new String[]{table}},
+                        new String[]{boolean.class.getName(), String.class.getName(), String[].class.getName()});
     }
 
     public int getIndexNumDeletedDocs() {
-        String jmxObjectName = String.format(
-                "com.stratio.cassandra.lucene:type=Lucene,keyspace=%s,table=%s,index=%s",
-                keyspace, table, indexName);
-        int totalNumDocs = doWithEachJmxService(object -> (Integer) object, jmxObjectName, "NumDeletedDocs")
-                .stream()
-                .reduce(0,
-                        (a, b) ->
-                                a +
-                                b);
-        return totalNumDocs / REPLICATION;
+        return getJMXAttribute(beanName, "NumDeletedDocs").stream().mapToInt(o -> (int) o).sum() / REPLICATION;
     }
 
     public int getIndexNumDocs() {
-        String jmxObjectName = String.format(
-                "com.stratio.cassandra.lucene:type=Lucene,keyspace=%s,table=%s,index=%s",
-                keyspace, table, indexName);
-        int totalNumDocs = doWithEachJmxService(object -> (Integer) object, jmxObjectName, "NumDocs")
-                .stream()
-                .reduce(0,
-                        (a, b) -> a +
-                                  b);
-        return totalNumDocs / REPLICATION;
+        return getJMXAttribute(beanName, "NumDocs").stream().mapToInt(o -> (int) o).sum() / REPLICATION;
     }
 
-    private <T> ArrayList<T> doWithEachJmxService(CheckedFunction<Object, T> castFunction,
-                                                  String objectName,
-                                                  String attribute) {
-        ArrayList<T> out = new ArrayList<>();
-        for (String JMX_SERVICE : JMX_SERVICES) {
-            CassandraJMXClient client = new CassandraJMXClient(JMX_SERVICE);
-            client.connect();
-
-            try {
-                out.add(castFunction.apply(client.getAttribute(objectName, attribute)));
-            } catch (Exception e) {
-                logger.error(String.format("Exception occurred while reading JMX %s attribute", attribute));
-                e.printStackTrace();
+    private List<Object> getJMXAttribute(String objectName, String attribute) {
+        try {
+            List<Object> out = new ArrayList<>(JMX_SERVICES.length);
+            for (String service : JMX_SERVICES) {
+                CassandraJMXClient client = new CassandraJMXClient(service);
+                client.connect();
+                out.add(client.getAttribute(objectName, attribute));
+                client.disconnect();
             }
-            client.disconnect();
+            return out;
+        } catch (JMException | IOException e) {
+            throw new RuntimeException(String.format("Error while reading JMX attribute %s", attribute), e);
         }
-        return out;
     }
 
-    @FunctionalInterface
-    private interface CheckedFunction<T, R> {
-        R apply(T t);
+    private void invokeJMXMethod(String beanName, String operation, Object[] params, String[] signature) {
+        try {
+            for (String service : JMX_SERVICES) {
+                CassandraJMXClient client = new CassandraJMXClient(service).connect();
+                client.invoke(beanName, operation, params, signature);
+                client.disconnect();
+            }
+        } catch (JMException | IOException e) {
+            throw new RuntimeException(String.format("Error while invoking JMX method %s", operation), e);
+        }
     }
 }
