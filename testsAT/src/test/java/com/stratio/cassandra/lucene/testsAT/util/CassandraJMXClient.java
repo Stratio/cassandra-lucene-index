@@ -37,17 +37,19 @@ class CassandraJMXClient {
         }
     }
 
-    void connect() {
+    CassandraJMXClient connect() {
         try {
             jmxc = JMXConnectorFactory.connect(url, null);
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return this;
     }
 
     void disconnect() {
         try {
             jmxc.close();
+            jmxc = null;
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -59,11 +61,12 @@ class CassandraJMXClient {
 
     }
 
-    public Object getAttribute(String s_name, String atribute)
+    Object getAttribute(String s_name, String atribute)
     throws IOException, MalformedObjectNameException, AttributeNotFoundException, MBeanException, ReflectionException,
            InstanceNotFoundException {
 
         ObjectName name = new ObjectName(s_name);
         return jmxc.getMBeanServerConnection().getAttribute(name, atribute);
     }
+
 }

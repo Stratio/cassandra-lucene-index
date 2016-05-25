@@ -26,10 +26,7 @@ import com.stratio.cassandra.lucene.builder.search.sort.SortField;
 import com.stratio.cassandra.lucene.testsAT.BaseAT;
 import org.slf4j.Logger;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static com.stratio.cassandra.lucene.builder.Builder.all;
@@ -349,43 +346,51 @@ public class CassandraUtils {
     }
 
     public int getIndexNumDeletedDocs() {
-        int totalNumDocs = 0;
         String jmxObjectName = String.format(
                 "com.stratio.cassandra.lucene:type=Lucene,keyspace=%s,table=%s,index=%s",
-                keyspace,
-                table,
-                indexName);
-        for (String JMX_SERVICE : JMX_SERVICES) {
-            totalNumDocs += (Integer) readWithJmx(JMX_SERVICE, jmxObjectName, "NumDeletedDocs");
-        }
+                keyspace, table, indexName);
+        int totalNumDocs = doWithEachJmxService(object -> (Integer) object, jmxObjectName, "NumDeletedDocs")
+                .stream()
+                .reduce(0,
+                        (a, b) ->
+                                a +
+                                b);
         return totalNumDocs / REPLICATION;
     }
 
     public int getIndexNumDocs() {
-        int totalNumDocs = 0;
         String jmxObjectName = String.format(
                 "com.stratio.cassandra.lucene:type=Lucene,keyspace=%s,table=%s,index=%s",
-                keyspace,
-                table,
-                indexName);
-        for (String JMX_SERVICE : JMX_SERVICES) {
-            totalNumDocs += (Integer) readWithJmx(JMX_SERVICE, jmxObjectName, "NumDocs");
-        }
+                keyspace, table, indexName);
+        int totalNumDocs = doWithEachJmxService(object -> (Integer) object, jmxObjectName, "NumDocs")
+                .stream()
+                .reduce(0,
+                        (a, b) -> a +
+                                  b);
         return totalNumDocs / REPLICATION;
     }
 
-    private <T> T readWithJmx(String jmxServicePath, String o_name, String atributte) {
-        CassandraJMXClient client = new CassandraJMXClient(jmxServicePath);
-        client.connect();
-        T out = null;
-        try {
-            out = (T) client.getAttribute(o_name, atributte);
-        } catch (Exception e) {
-            logger.error(String.format("Exception occurred while reading JMX %s attribute", atributte));
-            e.printStackTrace();
+    private <T> ArrayList<T> doWithEachJmxService(CheckedFunction<Object, T> castFunction,
+                                                  String objectName,
+                                                  String attribute) {
+        ArrayList<T> out = new ArrayList<>();
+        for (String JMX_SERVICE : JMX_SERVICES) {
+            CassandraJMXClient client = new CassandraJMXClient(JMX_SERVICE);
+            client.connect();
+
+            try {
+                out.add(castFunction.apply(client.getAttribute(objectName, attribute)));
+            } catch (Exception e) {
+                logger.error(String.format("Exception occurred while reading JMX %s attribute", attribute));
+                e.printStackTrace();
+            }
+            client.disconnect();
         }
-        client.disconnect();
         return out;
     }
 
+    @FunctionalInterface
+    private interface CheckedFunction<T, R> {
+        R apply(T t);
+    }
 }
