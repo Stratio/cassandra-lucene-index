@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.cassandra.lucene.testsAT.search;
+package com.stratio.cassandra.lucene.testsAT.geospatial;
 
 import com.stratio.cassandra.lucene.testsAT.BaseAT;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
@@ -54,7 +54,7 @@ public class GeoBBoxSearchAT extends BaseAT {
 
     @BeforeClass
     public static void setUpSuite() {
-        cassandraUtils = CassandraUtils.builder("search")
+        cassandraUtils = CassandraUtils.builder("bbox_search")
                                        .withPartitionKey("place")
                                        .withClusteringKey()
                                        .withColumn("place", "text", null)
