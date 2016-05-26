@@ -15,33 +15,18 @@
  */
 package com.stratio.cassandra.lucene.testsAT.suite;
 
-import com.stratio.cassandra.lucene.testsAT.util.CassandraConnection;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import com.stratio.cassandra.lucene.testsAT.geospatial.GeoBBoxSearchAT;
+import com.stratio.cassandra.lucene.testsAT.geospatial.GeoShapeSearchOverGeoPointsAT;
+import com.stratio.cassandra.lucene.testsAT.geospatial.GeoShapeSearchOverGeoShapesAT;
+import com.stratio.cassandra.lucene.testsAT.geospatial.GeoShapeSearchSpatialOperationsAT;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses({SearchSuite.class,
-               GeospatialSuite.class,
-               DeletionSuite.class,
-               IndexesSuite.class,
-               VariaSuite.class,
-               StoriesSuite.class,
-               IssuesSuite.class,
-               UDTSuite.class,
-               TTLSuite.class})
-public class AllSuite {
-
-    @BeforeClass
-    public static void before() {
-        CassandraConnection.connect();
-    }
-
-    @AfterClass
-    public static void after() {
-        CassandraConnection.disconnect();
-    }
-
+@SuiteClasses({GeoBBoxSearchAT.class,
+               GeoShapeSearchOverGeoShapesAT.class,
+               GeoShapeSearchOverGeoPointsAT.class,
+               GeoShapeSearchSpatialOperationsAT.class})
+public class GeospatialSuite {
 }

@@ -4,6 +4,7 @@
 
 * Upgrade to Apache Cassandra 3.0.6
 * Add support for indexing columns with TTL 
+* Add transformation for getting the bounding box of a geographical shape
 
 ## 3.0.5.1 (19 May 2016)
 
