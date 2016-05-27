@@ -2,11 +2,13 @@
 
 ## 3.5.2 (27 May 2016)
 
+Merged from 3.0.5.2:
 * Add transformation for getting the bounding box of a geographical shape
 * Fix complex clustering keys building (#143)
 
 ## 3.5.1 (19 May 2016)
 
+Merged from 3.0.5.1:
 * Upgrade to Apache Lucene 5.5.1
 * Add support for old dummy column syntax (Spark compatibility and score retrieval)
 * Add option to use doc values in match, contains and range searches
@@ -18,7 +20,6 @@
 * Fix memory consumption issues with high fetch sizes
 * Fix clustering key filtering with better token prefix collation
 * Fix deletion of unique component of a collection (#132)
-
 
 ## 3.5.0 (3 May 2016)
 
