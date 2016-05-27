@@ -26,7 +26,7 @@
     <parent>
         <groupId>com.stratio.cassandra</groupId>
         <artifactId>cassandra-lucene-index-parent</artifactId>
-        <version>2.2.5.5-RC1-SNAPSHOT</version>
+        <version>2.2.6.0-SNAPSHOT</version>
     </parent>
 
     <packaging>jar</packaging>
@@ -137,12 +137,16 @@
                             <contactEmail>cassandra@stratio.com</contactEmail>
                             <deb>
                                 <section>devel</section>
-                                <preDepends>stratio-cassandra (=${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}), python2.7
+                                <preDepends>stratio-cassandra
+                                    (=${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}),
+                                    python2.7
                                 </preDepends>
                             </deb>
                             <rpm>
                                 <group>stratio</group>
-                                <requires>stratio-cassandra = ${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}, python
+                                <requires>stratio-cassandra =
+                                    ${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion},
+                                    python
                                 </requires>
                             </rpm>
                             <name>Stratio Cassandra Lucene index</name>
