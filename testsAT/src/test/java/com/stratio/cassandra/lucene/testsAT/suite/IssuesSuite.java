@@ -21,6 +21,6 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses({Issue18AT.class, Issue64AT.class, Issue69AT.class, Issue94AT.class, Issue132AT.class})
+@SuiteClasses({Issue18AT.class, Issue64AT.class, Issue69AT.class, Issue94AT.class, Issue132AT.class, Issue143AT.class})
 public class IssuesSuite {
 }
