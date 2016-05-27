@@ -16,6 +16,7 @@
 package com.stratio.cassandra.lucene.common;
 
 import com.google.common.base.Objects;
+import com.spatial4j.core.shape.Rectangle;
 import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.vividsolutions.jts.geom.Geometry;
 import org.codehaus.jackson.annotate.JsonCreator;
@@ -32,7 +33,8 @@ import static com.stratio.cassandra.lucene.util.GeospatialUtilsJTS.geometry;
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
-@JsonSubTypes({@JsonSubTypes.Type(value = GeoTransformation.Buffer.class, name = "buffer"),
+@JsonSubTypes({@JsonSubTypes.Type(value = GeoTransformation.BBox.class, name = "bbox"),
+               @JsonSubTypes.Type(value = GeoTransformation.Buffer.class, name = "buffer"),
                @JsonSubTypes.Type(value = GeoTransformation.Centroid.class, name = "centroid"),
                @JsonSubTypes.Type(value = GeoTransformation.ConvexHull.class, name = "convex_hull"),
                @JsonSubTypes.Type(value = GeoTransformation.Difference.class, name = "difference"),
@@ -47,6 +49,32 @@ public interface GeoTransformation {
      * @return the transformed JTS shape
      */
     JtsGeometry apply(JtsGeometry shape);
+
+    /**
+     * {@link GeoTransformation} that returns the bounding box of a JTS geographical shape. The bounding box of shape is
+     * the minimal rectangle containing the shape.
+     */
+    class BBox implements GeoTransformation {
+
+        /**
+         * Returns the bounding box of the specified {@link JtsGeometry}.
+         *
+         * @param shape the JTS shape to be transformed
+         * @return the convex hull
+         */
+        @Override
+        public JtsGeometry apply(JtsGeometry shape) {
+            Rectangle rectangle = shape.getBoundingBox();
+            Geometry geometry = CONTEXT.getGeometryFrom(rectangle);
+            return CONTEXT.makeShape(geometry);
+        }
+
+        /** {@inheritDoc} */
+        @Override
+        public String toString() {
+            return Objects.toStringHelper(this).toString();
+        }
+    }
 
     /**
      * {@link GeoTransformation} that returns the bounding shape of a JTS geographical shape.

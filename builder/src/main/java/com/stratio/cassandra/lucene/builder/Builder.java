@@ -477,6 +477,15 @@ public abstract class Builder {
     }
 
     /**
+     * Returns a new {@link GeoTransformation.BBox}.
+     *
+     * @return a new bbox transformation
+     */
+    public static GeoTransformation.BBox bboxGeoTransformation() {
+        return new GeoTransformation.BBox();
+    }
+
+    /**
      * Returns a new {@link GeoTransformation.Buffer}.
      *
      * @return a new buffer transformation

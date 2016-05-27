@@ -24,13 +24,22 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
-@JsonSubTypes({@JsonSubTypes.Type(value = GeoTransformation.Buffer.class, name = "buffer"),
+@JsonSubTypes({@JsonSubTypes.Type(value = GeoTransformation.BBox.class, name = "bbox"),
+               @JsonSubTypes.Type(value = GeoTransformation.Buffer.class, name = "buffer"),
                @JsonSubTypes.Type(value = GeoTransformation.Centroid.class, name = "centroid"),
                @JsonSubTypes.Type(value = GeoTransformation.ConvexHull.class, name = "convex_hull"),
                @JsonSubTypes.Type(value = GeoTransformation.Difference.class, name = "difference"),
                @JsonSubTypes.Type(value = GeoTransformation.Intersection.class, name = "intersection"),
                @JsonSubTypes.Type(value = GeoTransformation.Union.class, name = "union")})
 public abstract class GeoTransformation extends Builder {
+
+    /**
+     * {@link GeoTransformation} that gets the bounding box of a JTS geographical shape. The bounding box of shape is
+     * the minimal rectangle containing the shape.
+     */
+    public static class BBox extends GeoTransformation {
+
+    }
 
     /**
      * {@link GeoTransformation} for getting the bounding shape of a JTS geographical shape.
