@@ -172,7 +172,7 @@ public final class KeyMapper {
      * @return the byte buffer representing {@code clustering}
      */
     private ByteBuffer byteBuffer(Clustering clustering) {
-        CompositeType.Builder builder = type.builder();
+        CompositeType.Builder builder = clusteringType.builder();
         for (ByteBuffer component : clustering.getRawValues()) {
             builder.add(component);
         }
