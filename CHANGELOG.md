@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.0.6.0 (upcoming)
+## 3.0.6.0 (22 May 2016)
 
 * Upgrade to Apache Cassandra 3.0.6
 * Add support for indexing columns with TTL 
