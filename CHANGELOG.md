@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.0.5.2 (22 May 2016)
+## 3.0.5.2 (27 May 2016)
 
 * Add transformation for getting the bounding box of a geographical shape
 * Fix complex clustering keys building (#143)
