@@ -64,8 +64,7 @@ public class FuzzyCondition extends SingleColumnCondition {
      * Returns a new {@link FuzzyCondition}.
      *
      * @param boost The boost for this query clause. Documents matching this clause will (in addition to the normal
-     * weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link #DEFAULT_BOOST} is used as
-     * default.
+     * weightings) have their score multiplied by {@code boost}.
      * @param field the field name
      * @param value the field fuzzy value
      * @param maxEdits must be {@literal >=} 0 and {@literal <=} {@link LevenshteinAutomata#MAXIMUM_SUPPORTED_DISTANCE}.

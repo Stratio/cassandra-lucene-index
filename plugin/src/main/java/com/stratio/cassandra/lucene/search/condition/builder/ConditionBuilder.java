@@ -54,8 +54,7 @@ public abstract class ConditionBuilder<T extends Condition, K extends ConditionB
 
     /**
      * Sets the boost for the {@link Condition} to be built. Documents matching this condition will (in addition to the
-     * normal weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link
-     * Condition#DEFAULT_BOOST}
+     * normal weightings) have their score multiplied by {@code boost}.
      *
      * @param boost the boost
      * @return this with the specified boost
@@ -68,8 +67,7 @@ public abstract class ConditionBuilder<T extends Condition, K extends ConditionB
 
     /**
      * Sets the boost for the {@link Condition} to be built. Documents matching this condition will (in addition to the
-     * normal weightings) have their score multiplied by {@code boost}. If {@code null}, then {@link
-     * Condition#DEFAULT_BOOST}
+     * normal weightings) have their score multiplied by {@code boost}.
      *
      * @param boost the boost
      * @return this with the specified boost

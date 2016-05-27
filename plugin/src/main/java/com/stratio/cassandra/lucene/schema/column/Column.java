@@ -154,6 +154,7 @@ public final class Column<T> {
     /**
      * Returns if the column isLive now.
      *
+     * @param now The now timestamp value.
      * @return If the column isLive now.
      */
     public boolean isLive(long now) {
