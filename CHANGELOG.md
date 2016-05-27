@@ -3,6 +3,7 @@
 ## 3.5.2 (upcoming)
 
 * Add transformation for getting the bounding box of a geographical shape
+* Fix complex clustering keys building (#143)
 
 ## 3.5.1 (19 May 2016)
 
