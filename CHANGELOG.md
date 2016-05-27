@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.0.5.2 (upcoming)
+
+* Fix complex clustering keys building (#143)
+
 ## 3.0.5.1 (19 May 2016)
 
 * Upgrade to Apache Lucene 5.5.1
