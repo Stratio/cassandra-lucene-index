@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.2.6.0 (upcoming)
+## 2.2.6.0 (30 May 2016)
 
 * Upgrade to Apache Cassandra 2.2.6
 * Add transformation for getting the bounding box of a geographical shape
