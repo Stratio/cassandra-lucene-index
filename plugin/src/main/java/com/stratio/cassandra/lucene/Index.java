@@ -415,6 +415,7 @@ public class Index implements org.apache.cassandra.index.Index {
      */
     @Override
     public Searcher searcherFor(ReadCommand command) {
+        System.out.println("*** SEARCHING " + command.getClass());
         logger.trace("Getting searcher for {}", command);
         try {
             return service.searcher(command);

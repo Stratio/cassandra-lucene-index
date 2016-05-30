@@ -15,7 +15,6 @@
  */
 package com.stratio.cassandra.lucene.testsAT.varia;
 
-import com.datastax.driver.core.exceptions.InvalidQueryException;
 import com.stratio.cassandra.lucene.testsAT.BaseAT;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
 import org.junit.AfterClass;
@@ -31,8 +30,6 @@ import static com.stratio.cassandra.lucene.builder.Builder.*;
  */
 @RunWith(JUnit4.class)
 public class InOperatorWithWideRowsAT extends BaseAT {
-
-    private static String TOPK_ERROR = "Top-k searches with IN clause for the PRIMARY KEY are not supported";
 
     private static final int NUM_PARTITIONS = 10;
     private static final int PARTITION_SIZE = 10;
@@ -91,21 +88,25 @@ public class InOperatorWithWideRowsAT extends BaseAT {
 
     @Test
     public void queryWithInTest() {
-        utils.query(all()).and("AND pk IN (9, 0)").check(InvalidQueryException.class, TOPK_ERROR);
+        utils.query(all())
+             .and("AND pk IN (9, 0)")
+             .checkIntColumn("rc", 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99);
     }
 
     @Test
     public void queryWithInBothTest() {
-        utils.query(all()).and("AND pk IN (9, 0) AND ck IN (9, 0)").check(InvalidQueryException.class, TOPK_ERROR);
+        utils.query(all()).and("AND pk IN (9, 0) AND ck IN (9, 0)").checkIntColumn("rc", 0, 9, 90, 99);
     }
 
     @Test
     public void sortWithInTest() {
-        utils.sort(field("pk")).and("AND pk IN (9, 0)").check(InvalidQueryException.class, TOPK_ERROR);
+        utils.sort(field("pk"))
+             .and("AND pk IN (9, 0)")
+             .checkIntColumn("rc", 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99);
     }
 
     @Test
     public void sortWithInBothTest() {
-        utils.sort(field("pk")).and("AND pk IN (9, 0) AND ck IN (9, 0)").check(InvalidQueryException.class, TOPK_ERROR);
+        utils.sort(field("pk")).and("AND pk IN (9, 0) AND ck IN (9, 0)").checkIntColumn("rc", 0, 9, 90, 99);
     }
 }

@@ -15,7 +15,6 @@
  */
 package com.stratio.cassandra.lucene.testsAT.varia;
 
-import com.datastax.driver.core.exceptions.InvalidQueryException;
 import com.stratio.cassandra.lucene.testsAT.BaseAT;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
 import org.junit.AfterClass;
@@ -31,8 +30,6 @@ import static com.stratio.cassandra.lucene.builder.Builder.*;
  */
 @RunWith(JUnit4.class)
 public class InOperatorWithSkinnyRowsAT extends BaseAT {
-
-    private static String TOPK_ERROR = "Top-k searches with IN clause for the PRIMARY KEY are not supported";
 
     private static final int NUM_PARTITIONS = 10;
     private static CassandraUtils utils;
@@ -71,11 +68,11 @@ public class InOperatorWithSkinnyRowsAT extends BaseAT {
 
     @Test
     public void queryWithInTest() {
-        utils.query(all()).and("AND pk IN (9, 5, 0)").check(InvalidQueryException.class, TOPK_ERROR);
+        utils.query(all()).and("AND pk IN (9, 5, 0)").checkIntColumn("rc", 5, 0, 9);
     }
 
     @Test
     public void sortWithInTest() {
-        utils.sort(field("pk")).and("AND pk IN (9, 5, 0)").check(InvalidQueryException.class, TOPK_ERROR);
+        utils.sort(field("pk")).and("AND pk IN (9, 5, 0)").checkIntColumn("rc", 0, 5, 9);
     }
 }

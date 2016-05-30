@@ -22,13 +22,12 @@ import org.apache.cassandra.cql3.statements.BatchStatement;
 import org.apache.cassandra.cql3.statements.IndexTarget;
 import org.apache.cassandra.cql3.statements.ParsedStatement;
 import org.apache.cassandra.cql3.statements.SelectStatement;
-import org.apache.cassandra.db.ColumnFamilyStore;
-import org.apache.cassandra.db.ConsistencyLevel;
-import org.apache.cassandra.db.Keyspace;
-import org.apache.cassandra.db.ReadQuery;
+import org.apache.cassandra.db.*;
 import org.apache.cassandra.db.filter.RowFilter;
+import org.apache.cassandra.db.partitions.PartitionIterator;
 import org.apache.cassandra.exceptions.InvalidRequestException;
 import org.apache.cassandra.service.ClientState;
+import org.apache.cassandra.service.LuceneStorageProxy;
 import org.apache.cassandra.service.QueryState;
 import org.apache.cassandra.transport.messages.ResultMessage;
 import org.apache.cassandra.utils.FBUtilities;
@@ -179,23 +178,22 @@ class IndexQueryHandler implements QueryHandler {
 
         if (search.isTopK()) {
 
-            // Avoid IN operator
-            if (select.getRestrictions().keyIsInRelation()) {
-                throw new InvalidRequestException("Top-k searches with IN clause for the PRIMARY KEY are not supported");
-            }
-
             // Avoid unlimited
             if (limit == Integer.MAX_VALUE) {
                 throw new InvalidRequestException(
                         "Top-k searches don't support paging, so a cautious LIMIT clause should be provided " +
                         "to prevent excessive memory consumption.");
-            } else if (page < limit) {
+            }
+
+            // Warn about paging disabling
+            if (page < limit) {
                 logger.warn("Disabling paging of {} rows per page for top-k search requesting {} rows: {}",
                             page,
                             limit,
                             search);
-                return executeWithoutPaging(select, state, options);
             }
+
+            return executeWithoutPaging(select, state, options);
         }
 
         // Process
@@ -213,6 +211,21 @@ class IndexQueryHandler implements QueryHandler {
         return (int) method.invoke(select, options);
     }
 
+    private ResultMessage.Rows processResults(SelectStatement select,
+                                              PartitionIterator partitions,
+                                              QueryOptions options,
+                                              int nowInSec,
+                                              int userLimit) throws ReflectiveOperationException {
+        Method method = select.getClass()
+                              .getDeclaredMethod("processResults",
+                                                 PartitionIterator.class,
+                                                 QueryOptions.class,
+                                                 int.class,
+                                                 int.class);
+        method.setAccessible(true);
+        return (ResultMessage.Rows) method.invoke(select, partitions, options, nowInSec, userLimit);
+    }
+
     private ResultMessage.Rows executeWithoutPaging(SelectStatement select, QueryState state, QueryOptions options)
     throws ReflectiveOperationException {
 
@@ -225,15 +238,18 @@ class IndexQueryHandler implements QueryHandler {
         int userLimit = select.getLimit(options);
         ReadQuery query = select.getQuery(options, nowInSec, userLimit);
 
-        Method method = select.getClass()
-                              .getDeclaredMethod("execute",
-                                                 ReadQuery.class,
-                                                 QueryOptions.class,
-                                                 QueryState.class,
-                                                 int.class,
-                                                 int.class);
-        method.setAccessible(true);
-        return (ResultMessage.Rows) method.invoke(select, query, options, state, nowInSec, userLimit);
+        if (query instanceof SinglePartitionReadCommand.Group) {
+            SinglePartitionReadCommand.Group group = (SinglePartitionReadCommand.Group) query;
+            if (group.commands.size() > 1) {
+                try (PartitionIterator data = LuceneStorageProxy.read(group, cl)) {
+                    return processResults(select, data, options, nowInSec, userLimit);
+                }
+            }
+        }
+
+        try (PartitionIterator data = query.execute(options.getConsistency(), state.getClientState())) {
+            return processResults(select, data, options, nowInSec, userLimit);
+        }
     }
 
 }

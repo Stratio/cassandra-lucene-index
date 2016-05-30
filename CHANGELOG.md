@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.0.6.1 (upcoming)
+
+* Add support for top-k searches using IN operator
+
 ## 3.0.6.0 (27 May 2016)
 
 * Upgrade to Apache Cassandra 3.0.6
