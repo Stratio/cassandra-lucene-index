@@ -82,7 +82,7 @@ public class FSIndexTest {
         assertEquals("Expected 2 documents", 2, index.getNumDocs());
 
         Query query = new WildcardQuery(new Term("field", "value*"));
-        DocumentIterator documentIterator = index.search(query, sort, null, 1);
+        DocumentIterator documentIterator = index.search(null, query, sort, 1);
         List<Document> documents = new ArrayList<>();
         while (documentIterator.hasNext()) {
             documents.add(documentIterator.next().left);

@@ -19,9 +19,11 @@ import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.search.condition.Condition;
 import com.stratio.cassandra.lucene.search.sort.Sort;
+import com.stratio.cassandra.lucene.util.ByteBufferUtils;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.SortField;
 
+import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Optional;
 
@@ -50,6 +52,12 @@ public class Search {
     /** If this search must refresh the index before reading it. */
     private final Boolean refresh;
 
+    /** The starting partition key. */
+    private final ByteBuffer afterKey;
+
+    /** The starting clustering key. */
+    private final ByteBuffer afterClustering;
+
     /**
      * Constructor using the specified querying, filtering, sorting and refresh options.
      *
@@ -58,12 +66,21 @@ public class Search {
      * @param sort the sort for the query. Note that is the order in which the data will be read before querying, not
      * the order of the results after querying
      * @param refresh if this search must refresh the index before reading it
+     * @param afterKey the starting partition key
+     * @param afterClustering the starting clustering key
      */
-    public Search(Condition query, Condition filter, Sort sort, Boolean refresh) {
+    public Search(Condition query,
+                  Condition filter,
+                  Sort sort,
+                  Boolean refresh,
+                  ByteBuffer afterKey,
+                  ByteBuffer afterClustering) {
         this.query = query;
         this.filter = filter;
         this.sort = sort;
         this.refresh = refresh == null ? DEFAULT_FORCE_REFRESH : refresh;
+        this.afterKey = afterKey;
+        this.afterClustering = afterClustering;
     }
 
     public boolean isTopK() {
@@ -155,6 +172,14 @@ public class Search {
         return query == null ? Optional.empty() : Optional.of(query.query(schema));
     }
 
+    public ByteBuffer afterKey() {
+        return afterKey;
+    }
+
+    public ByteBuffer afterClustering() {
+        return afterClustering;
+    }
+
     /**
      * Validates this {@link Search} against the specified {@link Schema}.
      *
@@ -180,6 +205,8 @@ public class Search {
                           .add("filter", filter)
                           .add("sort", sort)
                           .add("refresh", refresh)
+                          .add("afterKey", ByteBufferUtils.toHex(afterKey))
+                          .add("afterClustering", ByteBufferUtils.toHex(afterClustering))
                           .toString();
     }
 }

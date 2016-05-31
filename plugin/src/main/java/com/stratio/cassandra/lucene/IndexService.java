@@ -190,7 +190,7 @@ abstract class IndexService {
      * @param expression a CQL query expression
      * @return {@code true} if {@code expression} is targeted to this index, {@code false} otherwise
      */
-    boolean supportsExpression(Expression expression) {
+    private boolean supportsExpression(Expression expression) {
         return supportsExpression(expression.column(), expression.operator());
     }
 
@@ -239,6 +239,7 @@ abstract class IndexService {
         String json = UTF8Type.instance.compose(value);
         Search search = SearchBuilder.fromJson(json).build();
         search.validate(schema);
+        after(search);
         return search;
     }
 
@@ -428,6 +429,8 @@ abstract class IndexService {
         // Parse search
         String expression = expression(command);
         Search search = SearchBuilder.fromJson(expression).build();
+        Query after = after(search);
+        Query query = query(search, command);
         Sort sort = sort(search);
 
         // Refresh if required
@@ -436,8 +439,7 @@ abstract class IndexService {
         }
 
         // Search
-        Query query = query(search, command);
-        return (ReadOrderGroup orderGroup) -> read(query, sort, null, command, orderGroup);
+        return (ReadOrderGroup orderGroup) -> read(after, query, sort, command, orderGroup);
     }
 
     /**
@@ -531,11 +533,28 @@ abstract class IndexService {
      *
      * @param start the lower accepted partition position, {@code null} means no lower limit
      * @param stop the upper accepted partition position, {@code null} means no upper limit
-     * @return the query, or {@code null} if it doesn't filter anything
+     * @return the query to retrieve all the rows in the specified range
      */
     Optional<Query> query(PartitionPosition start, PartitionPosition stop) {
         return tokenMapper.query(start, stop);
     }
+
+    private Query after(Search search) {
+        try {
+            return after(search.afterKey(), search.afterClustering()).orElse(null);
+        } catch (RuntimeException e) {
+            throw new IndexException(e, "Invalid search after arguments");
+        }
+    }
+
+    /**
+     * Returns a Lucene {@link Query} to retrieve the row identified by the specified primary key.
+     *
+     * @param key the partition key
+     * @param clustering the clustering key
+     * @return the query to retrieve the row
+     */
+    abstract Optional<Query> after(ByteBuffer key, ByteBuffer clustering);
 
     /**
      * Returns the Lucene {@link Sort} with the specified {@link Search} sorting requirements followed by the
@@ -590,20 +609,20 @@ abstract class IndexService {
     /**
      * Reads from the local SSTables the rows identified by the specified search.
      *
+     * @param after a Lucene query indicating where the search should start
      * @param query the Lucene query
      * @param sort the Lucene sort
-     * @param after the last Lucene doc
      * @param command the Cassandra command
      * @param orderGroup the Cassandra read order group
      * @return the local {@link Row}s satisfying the search
      */
-    private UnfilteredPartitionIterator read(Query query,
+    private UnfilteredPartitionIterator read(Query after,
+                                             Query query,
                                              Sort sort,
-                                             ScoreDoc after,
                                              ReadCommand command,
                                              ReadOrderGroup orderGroup) {
         int limit = command.limits().count();
-        DocumentIterator documents = lucene.search(query, sort, after, limit);
+        DocumentIterator documents = lucene.search(after, query, sort, limit);
         return indexReader(documents, command, orderGroup);
     }
 

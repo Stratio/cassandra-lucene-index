@@ -107,7 +107,7 @@ public final class ByteBufferUtils {
      * @return the hexadecimal {@code String} representation of {@code byteBuffer}
      */
     public static String toHex(ByteBuffer byteBuffer) {
-        return ByteBufferUtil.bytesToHex(byteBuffer);
+        return byteBuffer == null ? null : ByteBufferUtil.bytesToHex(byteBuffer);
     }
 
     /**
@@ -155,11 +155,20 @@ public final class ByteBufferUtils {
      * Returns the {@link ByteBuffer} representation of the specified {@link BytesRef}.
      *
      * @param bytesRef the {@link BytesRef}
-     * @return the {@link ByteBuffer} representation of  {@code bytesRef}
+     * @return the {@link ByteBuffer} representation of {@code bytesRef}
      */
     public static ByteBuffer byteBuffer(BytesRef bytesRef) {
         byte[] bytes = bytesRef.bytes;
         return ByteBuffer.wrap(bytes, bytesRef.offset, bytesRef.offset + bytesRef.length);
     }
 
+    /**
+     * Returns the {@link ByteBuffer} representation of the specified hex {@link String}.
+     *
+     * @param hex an hexadecimal representation of a byte array
+     * @return the {@link ByteBuffer} representation of {@code hex}
+     */
+    public static ByteBuffer byteBuffer(String hex) {
+        return hex == null ? null : ByteBufferUtil.hexToBytes(hex);
+    }
 }

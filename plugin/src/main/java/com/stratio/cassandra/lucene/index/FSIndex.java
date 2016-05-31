@@ -268,13 +268,13 @@ public class FSIndex implements FSIndexMBean {
      * @param count the max number of results to be collected
      * @return the found documents, sorted according to the supplied {@link Sort} instance
      */
-    public DocumentIterator search(Query query, Sort sort, ScoreDoc after, int count) {
+    public DocumentIterator search(Query after, Query query, Sort sort, int count) {
         logger.debug("Searching in {}\n" +
-                     "count: {}\n" +
                      "after: {}\n" +
                      "query: {}\n" +
-                     " sort: {}", name, count, after, query, sort);
-        return new DocumentIterator(searcherManager, query, sort, mergeSort, count, fields);
+                     " sort: {}\n" +
+                     "count: {}", name, after, query, sort, count);
+        return new DocumentIterator(searcherManager, mergeSort, after, query, sort, count, fields);
     }
 
     /**

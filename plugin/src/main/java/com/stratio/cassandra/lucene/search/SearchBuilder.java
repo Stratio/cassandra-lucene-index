@@ -22,10 +22,15 @@ import com.stratio.cassandra.lucene.search.sort.Sort;
 import com.stratio.cassandra.lucene.search.sort.builder.SortBuilder;
 import com.stratio.cassandra.lucene.search.sort.builder.SortFieldBuilder;
 import com.stratio.cassandra.lucene.util.Builder;
+import com.stratio.cassandra.lucene.util.ByteBufferUtils;
 import com.stratio.cassandra.lucene.util.JsonSerializer;
+import org.apache.cassandra.db.Clustering;
+import org.apache.cassandra.db.DecoratedKey;
+import org.apache.cassandra.db.marshal.CompositeType;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 /**
  * Class for building a new {@link Search}.
@@ -49,6 +54,12 @@ public class SearchBuilder implements Builder<Search> {
     /** If this search must force the refresh the index before reading it. */
     @JsonProperty("refresh")
     private boolean refresh;
+
+    @JsonProperty("after_key")
+    private String afterKey;
+
+    @JsonProperty("after_clustering")
+    private String afterClustering;
 
     /** Default constructor. */
     SearchBuilder() {
@@ -112,15 +123,79 @@ public class SearchBuilder implements Builder<Search> {
     }
 
     /**
+     * Sets the specified starting partition key.
+     *
+     * @param hex a partition key formatted as a hex string
+     * @returnthis builder with the specified partition key
+     */
+    public SearchBuilder afterKey(String hex) {
+        this.afterKey = hex;
+        return this;
+    }
+
+    /**
+     * Sets the specified starting partition key.
+     *
+     * @param key a partition key
+     * @returnthis builder with the specified partition key
+     */
+    public SearchBuilder afterKey(ByteBuffer key) {
+        return afterKey(ByteBufferUtils.toHex(key));
+    }
+
+    /**
+     * Sets the specified starting partition key.
+     *
+     * @param key a partition key
+     * @returnthis builder with the specified partition key
+     */
+    public SearchBuilder afterKey(DecoratedKey key) {
+        return afterKey(key.getKey());
+    }
+
+    /**
+     * Sets the specified starting clustering key.
+     *
+     * @param hex a clustering key formatted as a hex string
+     * @return this builder with the specified clustering key
+     */
+    public SearchBuilder afterClustering(String hex) {
+        this.afterClustering = hex;
+        return this;
+    }
+
+    /**
+     * Sets the specified starting clustering key.
+     *
+     * @param clustering a clustering key
+     * @return this builder with the specified clustering key
+     */
+    public SearchBuilder afterClustering(ByteBuffer clustering) {
+        return afterClustering(ByteBufferUtils.toHex(clustering));
+    }
+
+    /**
+     * Sets the specified starting clustering key.
+     *
+     * @param clustering a clustering key
+     * @return this builder with the specified clustering key
+     */
+    public SearchBuilder afterClustering(Clustering clustering) {
+        return afterClustering(CompositeType.build(clustering.getRawValues()));
+    }
+
+    /**
      * Returns the {@link Search} represented by this builder.
      *
      * @return the search represented by this builder
      */
     public Search build() {
-        Condition query = queryBuilder == null ? null : queryBuilder.build();
-        Condition filter = filterBuilder == null ? null : filterBuilder.build();
-        Sort sort = sortBuilder == null ? null : sortBuilder.build();
-        return new Search(query, filter, sort, refresh);
+        return new Search(queryBuilder == null ? null : queryBuilder.build(),
+                          filterBuilder == null ? null : filterBuilder.build(),
+                          sortBuilder == null ? null : sortBuilder.build(),
+                          refresh,
+                          ByteBufferUtils.byteBuffer(afterKey),
+                          ByteBufferUtils.byteBuffer(afterClustering));
     }
 
     /**

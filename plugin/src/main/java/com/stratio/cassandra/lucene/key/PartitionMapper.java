@@ -122,10 +122,19 @@ public final class PartitionMapper {
      * @param partitionKey the raw partition key to be converted
      * @return a Lucene {@link Term}
      */
-    public Term term(DecoratedKey partitionKey) {
-        ByteBuffer bb = partitionKey.getKey();
-        BytesRef bytesRef = ByteBufferUtils.bytesRef(bb);
+    public Term term(ByteBuffer partitionKey) {
+        BytesRef bytesRef = ByteBufferUtils.bytesRef(partitionKey);
         return new Term(FIELD_NAME, bytesRef);
+    }
+
+    /**
+     * Returns the specified raw partition key as a Lucene {@link Term}.
+     *
+     * @param partitionKey the raw partition key to be converted
+     * @return a Lucene {@link Term}
+     */
+    public Term term(DecoratedKey partitionKey) {
+        return term(partitionKey.getKey());
     }
 
     /**
@@ -146,6 +155,16 @@ public final class PartitionMapper {
      * @return the specified raw partition key as a Lucene {@link Query}
      */
     public Query query(DecoratedKey partitionKey) {
+        return new TermQuery(term(partitionKey));
+    }
+
+    /**
+     * Returns the specified raw partition key as a Lucene {@link Query}.
+     *
+     * @param partitionKey the raw partition key to be converted
+     * @return the specified raw partition key as a Lucene {@link Query}
+     */
+    public Query query(ByteBuffer partitionKey) {
         return new TermQuery(term(partitionKey));
     }
 

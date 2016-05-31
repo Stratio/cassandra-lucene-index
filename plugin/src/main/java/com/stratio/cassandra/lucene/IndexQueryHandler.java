@@ -16,6 +16,7 @@
 package com.stratio.cassandra.lucene;
 
 import com.stratio.cassandra.lucene.search.Search;
+import com.stratio.cassandra.lucene.search.SearchBuilder;
 import com.stratio.cassandra.lucene.util.TimeCounter;
 import org.apache.cassandra.cql3.*;
 import org.apache.cassandra.cql3.statements.BatchStatement;
@@ -24,6 +25,8 @@ import org.apache.cassandra.cql3.statements.ParsedStatement;
 import org.apache.cassandra.cql3.statements.SelectStatement;
 import org.apache.cassandra.db.*;
 import org.apache.cassandra.db.filter.RowFilter;
+import org.apache.cassandra.db.marshal.Int32Type;
+import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.db.partitions.PartitionIterator;
 import org.apache.cassandra.exceptions.InvalidRequestException;
 import org.apache.cassandra.service.ClientState;
@@ -35,6 +38,7 @@ import org.apache.cassandra.utils.MD5Digest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.util.LinkedHashMap;
@@ -43,6 +47,7 @@ import java.util.Map;
 
 import static org.apache.cassandra.cql3.statements.RequestValidations.checkNotNull;
 import static org.apache.cassandra.db.filter.RowFilter.Expression;
+import static org.apache.cassandra.db.filter.RowFilter.CustomExpression;
 
 /**
  * {@link QueryHandler} to be used with Lucene searches.
@@ -247,8 +252,29 @@ class IndexQueryHandler implements QueryHandler {
             }
         }
 
+//        if (query instanceof PartitionRangeReadCommand) {
+//            decorate((ReadCommand) query, null, null);
+//        }
+
         try (PartitionIterator data = query.execute(options.getConsistency(), state.getClientState())) {
             return processResults(select, data, options, nowInSec, userLimit);
+        }
+    }
+
+    private void decorate(ReadCommand command, DecoratedKey key, Clustering clustering) throws ReflectiveOperationException {
+        RowFilter rowFilter = command.rowFilter();
+        for (Expression expression : command.rowFilter().getExpressions()) {
+            if (expression.isCustom()) {
+                CustomExpression oldExpression = (CustomExpression) expression;
+                rowFilter = rowFilter.without(oldExpression);
+                ByteBuffer value = oldExpression.getValue();
+                SearchBuilder searchBuilder = SearchBuilder.fromJson(UTF8Type.instance.compose(value));
+                searchBuilder.afterKey(Int32Type.instance.decompose(2));
+                ByteBuffer newValue = UTF8Type.instance.decompose(searchBuilder.toJson());
+                Field field = Expression.class.getDeclaredField("value");
+                field.setAccessible(true);
+                field.set(oldExpression, newValue);
+            }
         }
     }
 
