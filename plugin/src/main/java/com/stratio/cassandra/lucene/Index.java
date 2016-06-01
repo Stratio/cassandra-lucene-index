@@ -404,6 +404,11 @@ public class Index implements org.apache.cassandra.index.Index {
         return (partitions, readCommand) -> service.postProcess(partitions, readCommand);
     }
 
+    public BiFunction<PartitionIterator, SinglePartitionReadCommand.Group, PartitionIterator> postProcessorFor(
+            SinglePartitionReadCommand.Group group) {
+        return (partitions, readCommand) -> service.postProcess(partitions, group);
+    }
+
     /**
      * Factory method for query time search helper. Custom index implementations should perform any validation of query
      * expressions here and throw a meaningful InvalidRequestException when any expression is invalid.

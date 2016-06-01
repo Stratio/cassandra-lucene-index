@@ -33,7 +33,7 @@ import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.db.*;
 import org.apache.cassandra.db.partitions.PartitionIterator;
 import org.apache.cassandra.exceptions.*;
-import org.apache.cassandra.index.Index;
+import com.stratio.cassandra.lucene.Index;
 import org.apache.cassandra.metrics.ClientRequestMetrics;
 
 import java.lang.reflect.Method;
@@ -93,8 +93,8 @@ public class LuceneStorageProxy {
                 ReadCommand command = group.commands.get(0);
                 CFMetaData metadata = group.metadata();
                 ColumnFamilyStore cfs = Keyspace.open(metadata.ksName).getColumnFamilyStore(metadata.cfName);
-                Index index = command.getIndex(cfs);
-                result = index.postProcessorFor(command).apply(result, command);
+                Index index = (Index) command.getIndex(cfs);
+                result = index.postProcessorFor(group).apply(result, group);
                 result = group.limits().filter(result, group.nowInSec());
             }
 
