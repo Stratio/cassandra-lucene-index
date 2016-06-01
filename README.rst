@@ -98,12 +98,30 @@ Build and install
 Stratio’s Cassandra Lucene Index is distributed as a plugin for Apache Cassandra. Thus, you just need to build a JAR
 containing the plugin and add it to the Cassandra’s classpath:
 
+-  Choose the plugin version
 -  Build the plugin with Maven: ``mvn clean package``
 -  Copy the generated JAR to the lib folder of your compatible Cassandra installation:
-
    ``cp plugin/target/cassandra-lucene-index-plugin-*.jar <CASSANDRA_HOME>/lib/``
+-  Start/restart Cassandra as usual.
 
--  Start/restart Cassandra as usual
+The cassandra-lucene-index versions are related to cassandra versions. For cassandra A.B.C, it must
+be used cassandra-lucene-index A.B.C.X (e.g. `cassandra-lucene-index:2.1.11.1 <http://www.github.com/Stratio/cassandra-lucene-index/tree/2.1.11.1>`__ for `cassandra:3.0.6 <http://www.github.com/apache/cassandra/tree/cassandra-2.1.11>`__)
+
+Please note that releases are version tags (e.g. 2.1.11.1), don't use branch-X nor master branches.
+
+Clone the project:
+
+.. code-block:: bash
+
+    git clone http://github.com/Stratio/cassandra-lucene-index
+
+
+Checkout the correct version:
+
+.. code-block:: bash
+
+    cd cassandra-lucene-index
+    git checkout A.B.C.X
 
 Alternatively, patching can also be done with this Maven profile, specifying the path of your Cassandra installation,
 this task also deletes previous plugin's JAR versions in CASSANDRA_HOME/lib/ directory:
@@ -126,7 +144,8 @@ Now you can run Cassandra and do some tests using the Cassandra Query Language:
     <CASSANDRA_HOME>/bin/cassandra -f
     <CASSANDRA_HOME>/bin/cqlsh
 
-The Lucene’s index files will be stored in the same directories where the Cassandra’s will be. The default data directory is ``/var/lib/cassandra/data``, and each index is placed next to the SSTables of its indexed column family.
+The Lucene’s index files will be stored in the same directories where the Cassandra’s will be. The default data
+directory is ``/var/lib/cassandra/data``, and each index is placed next to the SSTables of its indexed column family.
 
 For more details about Apache Cassandra please see its `documentation <http://cassandra.apache.org/>`__.
 

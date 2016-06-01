@@ -194,9 +194,9 @@ containing the plugin and add it to the Cassandra’s classpath:
 -  Start/restart Cassandra as usual.
 
 The cassandra-lucene-index versions are related to cassandra versions. For cassandra A.B.C, it must
-be used cassandra-lucene-index A.B.C.X (e.g. `cassandra-lucene-index:3.0.6.0 <http://www.github.com/Stratio/cassandra-lucene-index/tree/3.0.6.0>`__ for `cassandra:3.0.6 <http://www.github.com/apache/cassandra/tree/cassandra-3.0.6>`__)
+be used cassandra-lucene-index A.B.C.X (e.g. `cassandra-lucene-index:2.1.11.1 <http://www.github.com/Stratio/cassandra-lucene-index/tree/2.1.11.1>`__ for `cassandra:3.0.6 <http://www.github.com/apache/cassandra/tree/cassandra-2.1.11>`__)
 
-Please note that releases are version tags (e.g. 3.0.6.0), don't use branch-X nor master branches.
+Please note that releases are version tags (e.g. 2.1.11.1), don't use branch-X nor master branches.
 
 Clone the project:
 
