@@ -187,10 +187,27 @@ Installation
 Stratio’s Cassandra Lucene Index is distributed as a plugin for Apache Cassandra. Thus, you just need to build a JAR
 containing the plugin and add it to the Cassandra’s classpath:
 
+-  Choose the plugin version
 -  Build the plugin with Maven: ``mvn clean package``
 -  Copy the generated JAR to the lib folder of your compatible Cassandra installation:
    ``cp plugin/target/cassandra-lucene-index-plugin-*.jar <CASSANDRA_HOME>/lib/``
 -  Start/restart Cassandra as usual.
+
+The cassandra-lucene-index versions are related to cassandra versions. For cassandra A.B.C, it must
+be used cassandra-lucene-index A.B.C.X (e.g.`cassandra-lucene-index:3.0.6.0 <https://github.com/Stratio/cassandra-lucene-index/tree/3.0.6.0>`__ for `cassandra:3.0.6 <https://github.com/apache/cassandra/tree/cassandra-3.0.6>`__)
+
+Please note that releases are version tags (e.g. 3.0.6.0), don't use branch-X nor master branches.
+
+Clone the project:
+
+.. code-block:: bash
+    git clone http://github.com/Stratio/cassandra-lucene-index
+
+
+Checkout the correct version
+.. code-block:: bash
+    cd cassandra-lucene-index
+    git checkout A.B.C.X
 
 Alternatively, patching can also be done with this Maven profile, specifying the path of your Cassandra installation,
 this task also deletes previous plugin's JAR versions in CASSANDRA_HOME/lib/ directory:
@@ -3760,6 +3777,8 @@ Use the latest version
 Each new version might be as fast or faster than the previous one,
 so please try to use the latest version if possible.
 You can find the list of changes and performance improvements at `changelog file </CHANGELOG.md>`__.
+
+Also it is preferable to use last patch version of cassandra (e.g. 2.1.14 instead of 2.1.4) because it includes last known hotfixes
 
 Disable virtual nodes
 =====================
