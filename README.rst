@@ -144,8 +144,7 @@ Now you can run Cassandra and do some tests using the Cassandra Query Language:
     <CASSANDRA_HOME>/bin/cassandra -f
     <CASSANDRA_HOME>/bin/cqlsh
 
-The Lucene’s index files will be stored in the same directories where the Cassandra’s will be. The default data
-directory is ``/var/lib/cassandra/data``, and each index is placed next to the SSTables of its indexed column family.
+The Lucene’s index files will be stored in the same directories where the Cassandra’s will be. The default data directory is ``/var/lib/cassandra/data``, and each index is placed next to the SSTables of its indexed column family.
 
 For more details about Apache Cassandra please see its `documentation <http://cassandra.apache.org/>`__.
 
