@@ -204,7 +204,8 @@ Clone the project:
     git clone http://github.com/Stratio/cassandra-lucene-index
 
 
-Checkout the correct version
+Checkout the correct version:
+
 .. code-block:: bash
     cd cassandra-lucene-index
     git checkout A.B.C.X
