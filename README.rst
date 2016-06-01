@@ -10,11 +10,11 @@ based implementation of Cassandra secondary indexes, where each node of the clus
 Cassandra indexes are one of the core modules on which `Stratio’s BigData platform <http://www.stratio.com/>`__ is based.
 
 .. image:: /doc/resources/architecture.png
-   :width: 100%
+:width: 100%
    :alt: architecture
-   :align: center
+           :align: center
 
-Index `relevance searches <http://en.wikipedia.org/wiki/Relevance_(information_retrieval)>`__ allow you to retrieve the
+        Index `relevance searches <http://en.wikipedia.org/wiki/Relevance_(information_retrieval)>`__ allow you to retrieve the
 *n* more relevant results satisfying a search. The coordinator node sends the search to each node in the cluster, each node
 returns its *n* best results and then the coordinator combines these partial results and gives you the *n* best of them,
 avoiding full scan. You can also base the sorting in a combination of fields.
@@ -27,33 +27,33 @@ frameworks as `Apache Hadoop <http://hadoop.apache.org/>`__ or, even better, `Ap
 Adding Lucene filters in the jobs input can dramatically reduce the amount of data to be processed, avoiding full scan.
 
 .. image:: /doc/resources/spark_architecture.png
-   :width: 100%
+:width: 100%
    :alt: spark_architecture
-   :align: center
+           :align: center
 
-The following benchmark result can give you an idea about the expected performance when combining Lucene indexes with
-Spark. We do successive queries requesting from the 1% to 100% of the stored data. We can see a high performance for the
-index for the queries requesting strongly filtered data. However, the performance decays in less restrictive queries.
-As the number of records returned by the query increases, we reach a point where the index becomes slower than the full
-scan. So, the decision to use indexes in your Spark jobs depends on the query selectivity. The tradeoff between both
-approaches depends on the particular use case. Generally, combining Lucene indexes with Spark is recommended for jobs
-retrieving no more than the 25% of the stored data.
+        The following benchmark result can give you an idea about the expected performance when combining Lucene indexes with
+        Spark. We do successive queries requesting from the 1% to 100% of the stored data. We can see a high performance for the
+        index for the queries requesting strongly filtered data. However, the performance decays in less restrictive queries.
+        As the number of records returned by the query increases, we reach a point where the index becomes slower than the full
+        scan. So, the decision to use indexes in your Spark jobs depends on the query selectivity. The tradeoff between both
+        approaches depends on the particular use case. Generally, combining Lucene indexes with Spark is recommended for jobs
+        retrieving no more than the 25% of the stored data.
 
 .. image:: /doc/resources/spark_performance.png
-   :width: 100%
+:width: 100%
    :alt: spark_performance
-   :align: center
+           :align: center
 
-This project is not intended to replace Apache Cassandra denormalized tables, inverted indexes, and/or secondary
-indexes. It is just a tool to perform some kind of queries which are really hard to be addressed using Apache Cassandra
-out of the box features, filling the gap between real-time and analytics.
+        This project is not intended to replace Apache Cassandra denormalized tables, inverted indexes, and/or secondary
+        indexes. It is just a tool to perform some kind of queries which are really hard to be addressed using Apache Cassandra
+        out of the box features, filling the gap between real-time and analytics.
 
 .. image:: /doc/resources/oltp_olap.png
-   :width: 100%
+:width: 100%
    :alt: oltp_olap
-   :align: center
+           :align: center
 
-More detailed information is available at `Stratio’s Cassandra Lucene Index documentation <doc/documentation.rst>`__.
+        More detailed information is available at `Stratio’s Cassandra Lucene Index documentation <doc/documentation.rst>`__.
 
 Features
 --------
@@ -98,16 +98,15 @@ Build and install
 Stratio’s Cassandra Lucene Index is distributed as a plugin for Apache Cassandra. Thus, you just need to build a JAR
 containing the plugin and add it to the Cassandra’s classpath:
 
--  Choose the plugin version
+-  Choose an Stratio's Lucene index release suitable for your Apache Cassandra release.
 -  Build the plugin with Maven: ``mvn clean package``
 -  Copy the generated JAR to the lib folder of your compatible Cassandra installation:
    ``cp plugin/target/cassandra-lucene-index-plugin-*.jar <CASSANDRA_HOME>/lib/``
 -  Start/restart Cassandra as usual.
 
-The cassandra-lucene-index versions are related to cassandra versions. For cassandra A.B.C, it must
-be used cassandra-lucene-index A.B.C.X (e.g. `cassandra-lucene-index:2.1.11.1 <http://www.github.com/Stratio/cassandra-lucene-index/tree/2.1.11.1>`__ for `cassandra:3.0.6 <http://www.github.com/apache/cassandra/tree/cassandra-2.1.11>`__)
+Specific Cassandra Lucene index versions are targeted to specific Apache Cassandra versions. So,  cassandra-lucene-index A.B.C.X is aimed to be used with  Apache Cassandra A.B.C (e.g. `cassandra-lucene-index:2.1.11.1 <http://www.github.com/Stratio/cassandra-lucene-index/tree/2.1.11.1>`__ for `cassandra:3.0.6 <http://www.github.com/apache/cassandra/tree/cassandra-2.1.11>`__)
 
-Please note that releases are version tags (e.g. 2.1.11.1), don't use branch-X nor master branches.
+Please note that production-ready releases are version tags (e.g. 2.1.11.1), don't use branch-X nor master branches in production.
 
 Clone the project:
 
