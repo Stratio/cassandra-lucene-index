@@ -201,12 +201,14 @@ Please note that releases are version tags (e.g. 3.0.6.0), don't use branch-X no
 Clone the project:
 
 .. code-block:: bash
+
     git clone http://github.com/Stratio/cassandra-lucene-index
 
 
 Checkout the correct version:
 
 .. code-block:: bash
+
     cd cassandra-lucene-index
     git checkout A.B.C.X
 
