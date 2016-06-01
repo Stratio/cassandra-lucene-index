@@ -442,22 +442,14 @@ abstract class IndexService {
         return (ReadOrderGroup orderGroup) -> read(after, query, sort, command, orderGroup);
     }
 
-    /**
-     * Returns the the {@link Search} contained in the specified {@link ReadCommand}.
-     *
-     * @param command the read command containing the {@link Search}
-     * @return the {@link Search} contained in {@code command}
-     */
     private Search search(ReadCommand command) {
         return SearchBuilder.fromJson(expression(command)).build();
     }
 
-    /**
-     * Returns the the {@link Search} contained in the specified {@link ReadCommand}.
-     *
-     * @param command the read command containing the {@link Search}
-     * @return the {@link Search} contained in {@code command}
-     */
+    private Search search(SinglePartitionReadCommand.Group group) {
+        return SearchBuilder.fromJson(expression(group)).build();
+    }
+
     private String expression(ReadCommand command) {
         for (Expression expression : command.rowFilter().getExpressions()) {
             if (expression.isCustom()) {
@@ -473,6 +465,19 @@ abstract class IndexService {
             }
         }
         throw new IndexException("Lucene search expression not found in command expressions");
+    }
+
+    private String expression(SinglePartitionReadCommand.Group group) {
+        String result = null;
+        for (ReadCommand command : group.commands) {
+            String expression = expression(command);
+            if (result == null) {
+                result = expression;
+            } else if (!result.equals(expression)) {
+                throw new IndexException("Unable to process command group with different index clauses");
+            }
+        }
+        return result;
     }
 
     /**
@@ -641,20 +646,47 @@ abstract class IndexService {
      * all the k best node-local results.
      *
      * @param partitions the node results iterator
+     * @param group the read command group
+     * @return the k globally best results
+     */
+    PartitionIterator postProcess(PartitionIterator partitions, SinglePartitionReadCommand.Group group) {
+
+        // Skip unneeded post processing in there is only one command
+        if (group.commands.size() <= 1) {
+            return partitions;
+        }
+
+        Search search = search(group);
+        int limit = group.limits().count();
+        int nowInSec = group.nowInSec();
+        return postProcess(partitions, search, limit, nowInSec);
+    }
+
+    /**
+     * Post processes in the coordinator node the results of a distributed search. Gets the k globally best results from
+     * all the k best node-local results.
+     *
+     * @param partitions the node results iterator
      * @param command the read command
      * @return the k globally best results
      */
     PartitionIterator postProcess(PartitionIterator partitions, ReadCommand command) {
 
-        Search search = search(command);
+        // Skip unneeded post processing in single partition read commands
+        if (command instanceof SinglePartitionReadCommand) {
+            return partitions;
+        }
 
-        // Skip if search does not require full scan
+        Search search = search(command);
+        int limit = command.limits().count();
+        int nowInSec = command.nowInSec();
+        return postProcess(partitions, search, limit, nowInSec);
+    }
+
+    private PartitionIterator postProcess(PartitionIterator partitions, Search search, int limit, int nowInSec) {
         if (search.requiresFullScan()) {
 
             List<Pair<DecoratedKey, SimpleRowIterator>> collectedRows = collect(partitions);
-
-            int limit = command.limits().count();
-            int nowInSec = command.nowInSec();
 
             // Skip if search is not top-k
             if (search.isTopK()) {

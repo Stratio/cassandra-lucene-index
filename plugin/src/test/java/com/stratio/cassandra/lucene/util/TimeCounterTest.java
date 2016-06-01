@@ -34,7 +34,6 @@ public class TimeCounterTest {
         Thread.sleep(10);
         tc.stop();
         assertTrue("TimeCounter milliseconds should be greater or equal that 10", tc.getTime() >= 10);
-        assertTrue("TimeCounter milliseconds should be greater or equal that 10", tc.getNanoTime() >= 10000);
         assertNotNull(tc.toString());
     }
 

@@ -15,8 +15,6 @@
  */
 package com.stratio.cassandra.lucene.util;
 
-import org.apache.commons.lang3.time.StopWatch;
-
 /**
  * Class for measuring time durations.
  *
@@ -28,7 +26,7 @@ public final class TimeCounter {
         UNSTARTED, RUNNING, STOPPED
     }
 
-    private final StopWatch watch;
+    private long startTimeMillis, stopTimeMillis;
     private State state;
 
     /**
@@ -44,7 +42,6 @@ public final class TimeCounter {
      * Builds a new stopped {@link TimeCounter}.
      */
     private TimeCounter() {
-        this.watch = new StopWatch();
         this.state = State.UNSTARTED;
     }
 
@@ -56,12 +53,12 @@ public final class TimeCounter {
     public TimeCounter start() {
         switch (state) {
             case UNSTARTED:
-                watch.start();
+                startTimeMillis = System.currentTimeMillis();
                 break;
             case RUNNING:
                 throw new IllegalStateException("Already started");
             case STOPPED:
-                watch.resume();
+                startTimeMillis += System.currentTimeMillis() - stopTimeMillis;
                 break;
             default:
                 throw new IllegalStateException("Unrecognized state " + state);
@@ -82,7 +79,7 @@ public final class TimeCounter {
             case STOPPED:
                 throw new IllegalStateException("Already stopped. ");
             case RUNNING:
-                watch.suspend();
+                this.stopTimeMillis = System.currentTimeMillis();
             default:
                 state = State.STOPPED;
                 return this;
@@ -95,7 +92,7 @@ public final class TimeCounter {
      * @return a summary of the time that the stopwatch has recorded
      */
     public String toString() {
-        return watch.toString();
+        return String.valueOf(stopTimeMillis - startTimeMillis) + " ms";
     }
 
     /**
@@ -104,15 +101,6 @@ public final class TimeCounter {
      * @return the counted time in milliseconds
      */
     public long getTime() {
-        return watch.getTime();
-    }
-
-    /**
-     * Returns the counted time in nanoseconds.
-     *
-     * @return the counted time in nanoseconds
-     */
-    public long getNanoTime() {
-        return watch.getNanoTime();
+        return stopTimeMillis - startTimeMillis;
     }
 }
