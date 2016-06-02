@@ -89,7 +89,7 @@ public class DocumentIterator implements CloseableIterator<Pair<Document, ScoreD
         } catch (IOException e) {
             throw new IndexException(e, "Error while acquiring index searcher");
         } finally {
-            logger.debug("Index query initialized at position {} in {}", after, time.stop());
+            logger.debug("Index query initialized in {}", time.stop());
         }
     }
 
