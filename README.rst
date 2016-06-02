@@ -44,9 +44,9 @@ retrieving no more than the 25% of the stored data.
    :alt: spark_performance
    :align: center
 
-        This project is not intended to replace Apache Cassandra denormalized tables, inverted indexes, and/or secondary
-        indexes. It is just a tool to perform some kind of queries which are really hard to be addressed using Apache Cassandra
-        out of the box features, filling the gap between real-time and analytics.
+This project is not intended to replace Apache Cassandra denormalized tables, inverted indexes, and/or secondary
+indexes. It is just a tool to perform some kind of queries which are really hard to be addressed using Apache Cassandra
+out of the box features, filling the gap between real-time and analytics.
 
 .. image:: /doc/resources/oltp_olap.png
    :width: 100%
