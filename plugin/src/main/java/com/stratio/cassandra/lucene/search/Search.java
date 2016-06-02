@@ -16,6 +16,7 @@
 package com.stratio.cassandra.lucene.search;
 
 import com.google.common.base.MoreObjects;
+import com.stratio.cassandra.lucene.IndexPagingState;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.search.condition.Condition;
 import com.stratio.cassandra.lucene.search.sort.Sort;
@@ -50,23 +51,35 @@ public class Search {
     /** If this search must refresh the index before reading it. */
     private final Boolean refresh;
 
+    /** The paging state. */
+    private final IndexPagingState paging;
+
     /**
      * Constructor using the specified querying, filtering, sorting and refresh options.
      *
      * @param query the condition for querying, maybe {@code null} meaning no querying
      * @param filter the condition for filtering, maybe {@code null} meaning no filtering
-     * @param sort the sort for the query. Note that is the order in which the data will be read before querying, not
-     * the order of the results after querying
+     * @param sort the sort for the query, maybe {@code null} meaning no sorting
+     * @param paging the paging state
      * @param refresh if this search must refresh the index before reading it
      */
-    public Search(Condition query, Condition filter, Sort sort, Boolean refresh) {
+    public Search(Condition query,
+                  Condition filter,
+                  Sort sort,
+                  IndexPagingState paging, Boolean refresh) {
         this.query = query;
         this.filter = filter;
         this.sort = sort;
+        this.paging = paging;
         this.refresh = refresh == null ? DEFAULT_FORCE_REFRESH : refresh;
     }
 
-    public boolean isTopK() {
+    /**
+     * Returns if this search requires post reconciliation agreement processing to preserve the order of its results.
+     *
+     * @return {@code true} if it requires post processing, {@code false} otherwise
+     */
+    public boolean requiresPostProcessing() {
         return usesRelevance() || usesSorting();
     }
 
@@ -155,6 +168,10 @@ public class Search {
         return query == null ? Optional.empty() : Optional.of(query.query(schema));
     }
 
+    public IndexPagingState paging() {
+        return paging;
+    }
+
     /**
      * Validates this {@link Search} against the specified {@link Schema}.
      *
@@ -180,6 +197,7 @@ public class Search {
                           .add("filter", filter)
                           .add("sort", sort)
                           .add("refresh", refresh)
+                          .add("paging", paging)
                           .toString();
     }
 }

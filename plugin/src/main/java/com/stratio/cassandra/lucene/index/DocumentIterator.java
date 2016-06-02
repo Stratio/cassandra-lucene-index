@@ -43,12 +43,13 @@ public class DocumentIterator implements CloseableIterator<Pair<Document, ScoreD
     private final Query query;
     final int page;
     private final Deque<Pair<Document, ScoreDoc>> documents = new LinkedList<>();
-    private final Sort sort, mergeSort;
+    private final Sort sort, indexSort;
     private final Set<String> fields;
     private ScoreDoc after = null;
     private boolean finished = false;
     private IndexSearcher searcher;
     private int numRead = 0;
+    private final Query startQuery;
 
     /**
      * Builds a new iterator over the {@link Document}s satisfying the specified {@link Query}.
@@ -56,21 +57,39 @@ public class DocumentIterator implements CloseableIterator<Pair<Document, ScoreD
      * @param manager the Lucene index searcher manager
      * @param query the query to be satisfied by the documents
      * @param sort the sort in which the documents are going to be retrieved
-     * @param mergeSort the index natural sort
      * @param page the iteration page size
      * @param fields the names of the document fields to be loaded
      */
-    DocumentIterator(SearcherManager manager, Query query, Sort sort, Sort mergeSort, int page, Set<String> fields) {
+    DocumentIterator(SearcherManager manager,
+                     Sort indexSort,
+                     Query after,
+                     Query query,
+                     Sort sort,
+                     int page,
+                     Set<String> fields) {
         this.manager = manager;
         this.query = query;
-        this.sort = sort;
-        this.mergeSort = mergeSort;
+        this.indexSort = indexSort;
         this.fields = fields;
+        this.startQuery = after;
         this.page = Math.min(page, MAX_PAGE_SIZE) + 1;
+        TimeCounter time = TimeCounter.create().start();
         try {
             searcher = manager.acquire();
+            this.sort = sort.rewrite(searcher);
+            if (after != null) {
+                BooleanQuery.Builder builder = new BooleanQuery.Builder();
+                builder.add(after, BooleanClause.Occur.FILTER);
+                builder.add(query, BooleanClause.Occur.MUST);
+                ScoreDoc[] scoreDocs = searcher.search(builder.build(), 1, this.sort).scoreDocs;
+                if (scoreDocs.length > 0) {
+                    this.after = scoreDocs[0];
+                }
+            }
         } catch (IOException e) {
-            throw new IndexException("Error while acquiring index searcher");
+            throw new IndexException(e, "Error while acquiring index searcher");
+        } finally {
+            logger.debug("Index query initialized at position {} in {}", after, time.stop());
         }
     }
 
@@ -81,14 +100,14 @@ public class DocumentIterator implements CloseableIterator<Pair<Document, ScoreD
             TimeCounter time = TimeCounter.create().start();
 
             TopDocs topDocs;
-            if (EarlyTerminatingSortingCollector.canEarlyTerminate(sort, mergeSort)) {
+            if (startQuery == null && EarlyTerminatingSortingCollector.canEarlyTerminate(sort, indexSort)) {
                 FieldDoc fieldDoc = after == null ? null : (FieldDoc) after;
                 TopFieldCollector collector = TopFieldCollector.create(sort, page, fieldDoc, true, false, false);
                 int hits = numRead + page;
-                searcher.search(query, new EarlyTerminatingSortingCollector(collector, sort, hits, mergeSort));
+                searcher.search(query, new EarlyTerminatingSortingCollector(collector, sort, hits, indexSort));
                 topDocs = collector.topDocs();
             } else {
-                topDocs = searcher.searchAfter(after, query, page, sort.rewrite(searcher));
+                topDocs = searcher.searchAfter(after, query, page, sort);
             }
 
             ScoreDoc[] scoreDocs = topDocs.scoreDocs;

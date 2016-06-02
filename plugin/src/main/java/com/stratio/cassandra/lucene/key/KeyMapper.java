@@ -45,6 +45,7 @@ import java.nio.ByteBuffer;
 import java.util.Optional;
 
 import static org.apache.cassandra.utils.ByteBufferUtil.EMPTY_BYTE_BUFFER;
+import static org.apache.cassandra.utils.ByteBufferUtil.read;
 import static org.apache.lucene.search.BooleanClause.Occur.SHOULD;
 
 /**
@@ -204,6 +205,20 @@ public final class KeyMapper {
      */
     public Term term(DecoratedKey key, Clustering clustering) {
         return new Term(FIELD_NAME, bytesRef(key, clustering));
+    }
+
+    /**
+     * Returns the Lucene {@link Term} representing the primary key.
+     *
+     * @param key the partition key
+     * @return the Lucene {@link Term} representing the primary key
+     */
+    public Term term(ByteBuffer key) {
+        return new Term(FIELD_NAME, ByteBufferUtils.bytesRef(key));
+    }
+
+    public Clustering clustering(ByteBuffer clustering) {
+        return new Clustering(clusteringType.split(clustering));
     }
 
     /**

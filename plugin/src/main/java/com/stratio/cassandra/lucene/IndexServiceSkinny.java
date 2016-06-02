@@ -123,6 +123,12 @@ class IndexServiceSkinny extends IndexService {
 
     /** {@inheritDoc} */
     @Override
+    public Optional<Query> after(DecoratedKey key, Clustering clustering) {
+        return key == null ? Optional.empty() : Optional.of(partitionMapper.query(key));
+    }
+
+    /** {@inheritDoc} */
+    @Override
     public IndexReaderSkinny indexReader(DocumentIterator documents, ReadCommand command, ReadOrderGroup orderGroup) {
         return new IndexReaderSkinny(this, command, table, orderGroup, documents);
 

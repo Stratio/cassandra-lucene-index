@@ -25,42 +25,41 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static com.stratio.cassandra.lucene.builder.Builder.all;
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author Andres de la Pena <adelapena@stratio.com>
  */
 public class SearchWithLongSkinnyRowsAT extends BaseAT {
 
-    private static CassandraUtils cassandraUtils;
+    private static CassandraUtils utils;
 
     @BeforeClass
     public static void before() {
 
-        cassandraUtils = CassandraUtils.builder("search_with_long_skinny_rows")
-                                       .withPartitionKey("id")
-                                       .withColumn("id", "int")
-                                       .withColumn("ascii_1", "ascii")
-                                       .withColumn("bigint_1", "bigint")
-                                       .withColumn("blob_1", "blob")
-                                       .withColumn("boolean_1", "boolean")
-                                       .withColumn("decimal_1", "decimal")
-                                       .withColumn("date_1", "timestamp")
-                                       .withColumn("double_1", "double")
-                                       .withColumn("float_1", "float")
-                                       .withColumn("integer_1", "int")
-                                       .withColumn("inet_1", "inet")
-                                       .withColumn("text_1", "text")
-                                       .withColumn("varchar_1", "varchar")
-                                       .withColumn("uuid_1", "uuid")
-                                       .withColumn("timeuuid_1", "timeuuid")
-                                       .withColumn("list_1", "list<text>")
-                                       .withColumn("set_1", "set<text>")
-                                       .withColumn("map_1", "map<text,text>")
-                                       .build()
-                                       .createKeyspace()
-                                       .createTable()
-                                       .createIndex();
+        utils = CassandraUtils.builder("search_with_long_skinny_rows")
+                              .withPartitionKey("id")
+                              .withColumn("id", "int")
+                              .withColumn("ascii_1", "ascii")
+                              .withColumn("bigint_1", "bigint")
+                              .withColumn("blob_1", "blob")
+                              .withColumn("boolean_1", "boolean")
+                              .withColumn("decimal_1", "decimal")
+                              .withColumn("date_1", "timestamp")
+                              .withColumn("double_1", "double")
+                              .withColumn("float_1", "float")
+                              .withColumn("integer_1", "int")
+                              .withColumn("inet_1", "inet")
+                              .withColumn("text_1", "text")
+                              .withColumn("varchar_1", "varchar")
+                              .withColumn("uuid_1", "uuid")
+                              .withColumn("timeuuid_1", "timeuuid")
+                              .withColumn("list_1", "list<text>")
+                              .withColumn("set_1", "set<text>")
+                              .withColumn("map_1", "map<text,text>")
+                              .build()
+                              .createKeyspace()
+                              .createTable()
+                              .createIndex();
         for (Integer p = 0; p < 2; p++) {
             for (Integer i = 1; i <= 100; i++) {
                 Map<String, String> data = new LinkedHashMap<>();
@@ -82,74 +81,64 @@ public class SearchWithLongSkinnyRowsAT extends BaseAT {
                 data.put("list_1", "['l2','l3']");
                 data.put("set_1", "{'s2','s3'}");
                 data.put("map_1", "{'k2':'v2','k3':'v3'}");
-                cassandraUtils.insert(data);
+                utils.insert(data);
             }
         }
-        cassandraUtils.refresh();
+        utils.refresh();
     }
 
     @AfterClass
     public static void after() {
-        cassandraUtils.dropIndex().dropTable().dropKeyspace();
+        utils.dropIndex().dropTable().dropKeyspace();
     }
 
     @Test
     public void query1Test() {
-        int n = cassandraUtils.query(all()).fetchSize(10).limit(1).count();
-        assertEquals("Expected 1 results!", 1, n);
+        utils.query(all()).fetchSize(10).limit(1).check(1);
     }
 
     @Test
     public void query99Test() {
-        int n = cassandraUtils.query(all()).fetchSize(10).limit(99).count();
-        assertEquals("Expected 99 results!", 99, n);
+        utils.query(all()).fetchSize(10).limit(99).check(99);
     }
 
     @Test
     public void query100Test() {
-        int n = cassandraUtils.query(all()).fetchSize(10).limit(100).count();
-        assertEquals("Expected 100 results!", 100, n);
+        utils.query(all()).fetchSize(10).limit(100).check(100);
     }
 
     @Test
     public void query101Test() {
-        int n = cassandraUtils.query(all()).fetchSize(10).limit(101).count();
-        assertEquals("Expected 100 results!", 100, n);
+        utils.query(all()).fetchSize(10).limit(101).check(100);
     }
 
     @Test
     public void query1000Test() {
-        int n = cassandraUtils.query(all()).limit(1000).count();
-        assertEquals("Expected 100 results!", 100, n);
+        utils.query(all()).limit(1000).check(100);
     }
 
     @Test
     public void filter1Test() {
-        int n = cassandraUtils.filter(all()).fetchSize(10).limit(1).count();
-        assertEquals("Expected 1 results!", 1, n);
+        utils.filter(all()).fetchSize(10).limit(1).check(1);
     }
 
     @Test
     public void filter99Test() {
-        int n = cassandraUtils.filter(all()).fetchSize(10).limit(99).count();
-        assertEquals("Expected 99 results!", 99, n);
+        utils.filter(all()).fetchSize(10).limit(99).check(99);
     }
 
     @Test
     public void filter100Test() {
-        int n = cassandraUtils.filter(all()).fetchSize(10).limit(100).count();
-        assertEquals("Expected 100 results!", 100, n);
+        utils.filter(all()).fetchSize(10).limit(100).check(100);
     }
 
     @Test
     public void filter101Test() {
-        int n = cassandraUtils.filter(all()).fetchSize(10).limit(101).count();
-        assertEquals("Expected 100 results!", 100, n);
+        utils.filter(all()).fetchSize(10).limit(101).check(100);
     }
 
     @Test
     public void filter1000Test() {
-        int n = cassandraUtils.filter(all()).limit(1000).count();
-        assertEquals("Expected 100 results!", 100, n);
+        utils.filter(all()).limit(1000).check(100);
     }
 }

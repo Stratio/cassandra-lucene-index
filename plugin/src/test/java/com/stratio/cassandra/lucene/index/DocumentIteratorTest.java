@@ -114,8 +114,7 @@ public class DocumentIteratorTest {
                                                               true,
                                                               null);
         DocumentIterator docIterator = new DocumentIterator(searcherManager,
-                                                            new QueryMock(),
-                                                            new Sort(),
+                                                            new Sort(), null, new QueryMock(),
                                                             new Sort(),
                                                             0,
                                                             new HashSet<>());
@@ -130,8 +129,7 @@ public class DocumentIteratorTest {
                                                               true,
                                                               null);
         DocumentIterator docIterator = new DocumentIterator(searcherManager,
-                                                            new QueryMock(),
-                                                            new Sort(),
+                                                            new Sort(), null, new QueryMock(),
                                                             new Sort(),
                                                             1,
                                                             new HashSet<>());
@@ -146,8 +144,7 @@ public class DocumentIteratorTest {
                                                               true,
                                                               null);
         DocumentIterator docIterator = new DocumentIterator(searcherManager,
-                                                            new QueryMock(),
-                                                            new Sort(),
+                                                            new Sort(), null, new QueryMock(),
                                                             new Sort(),
                                                             DocumentIterator.MAX_PAGE_SIZE,
                                                             new HashSet<>());
@@ -162,8 +159,7 @@ public class DocumentIteratorTest {
                                                               true,
                                                               null);
         DocumentIterator docIterator = new DocumentIterator(searcherManager,
-                                                            new QueryMock(),
-                                                            new Sort(),
+                                                            new Sort(), null, new QueryMock(),
                                                             new Sort(),
                                                             10000000,
                                                             new HashSet<>());

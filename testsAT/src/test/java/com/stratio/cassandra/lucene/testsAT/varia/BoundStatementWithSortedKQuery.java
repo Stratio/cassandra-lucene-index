@@ -33,7 +33,7 @@ import static org.junit.Assert.assertArrayEquals;
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
 @RunWith(JUnit4.class)
-public class BoundStatementWitTopKQuery extends AbstractSearchAT {
+public class BoundStatementWithSortedKQuery extends AbstractSearchAT {
 
     private static Integer[] intColumn(List<Row> rows, String name) {
         Integer[] values = new Integer[rows.size()];

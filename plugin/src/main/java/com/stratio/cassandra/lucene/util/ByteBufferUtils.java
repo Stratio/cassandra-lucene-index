@@ -107,7 +107,7 @@ public final class ByteBufferUtils {
      * @return the hexadecimal {@code String} representation of {@code byteBuffer}
      */
     public static String toHex(ByteBuffer byteBuffer) {
-        return ByteBufferUtil.bytesToHex(byteBuffer);
+        return byteBuffer == null ? null : ByteBufferUtil.bytesToHex(byteBuffer);
     }
 
     /**
@@ -155,11 +155,61 @@ public final class ByteBufferUtils {
      * Returns the {@link ByteBuffer} representation of the specified {@link BytesRef}.
      *
      * @param bytesRef the {@link BytesRef}
-     * @return the {@link ByteBuffer} representation of  {@code bytesRef}
+     * @return the {@link ByteBuffer} representation of {@code bytesRef}
      */
     public static ByteBuffer byteBuffer(BytesRef bytesRef) {
         byte[] bytes = bytesRef.bytes;
         return ByteBuffer.wrap(bytes, bytesRef.offset, bytesRef.offset + bytesRef.length);
     }
 
+    /**
+     * Returns the {@link ByteBuffer} representation of the specified hex {@link String}.
+     *
+     * @param hex an hexadecimal representation of a byte array
+     * @return the {@link ByteBuffer} representation of {@code hex}
+     */
+    public static ByteBuffer byteBuffer(String hex) {
+        return hex == null ? null : ByteBufferUtil.hexToBytes(hex);
+    }
+
+    /**
+     * Returns a {@link ByteBuffer} representing the specified array of {@link ByteBuffer}s.
+     *
+     * @param bbs an array of byte buffers
+     * @return a {@link ByteBuffer} representing {@code bbs}
+     */
+    public static ByteBuffer compose(ByteBuffer... bbs) {
+        int totalLength = 2;
+        for (ByteBuffer bb : bbs) {
+            totalLength += 2 + bb.remaining();
+        }
+        ByteBuffer out = ByteBuffer.allocate(totalLength);
+
+        ByteBufferUtil.writeShortLength(out, bbs.length);
+        for (ByteBuffer bb : bbs) {
+            ByteBufferUtil.writeShortLength(out, bb.remaining());
+            out.put(bb.duplicate());
+        }
+        out.flip();
+        return out;
+    }
+
+    /**
+     * Returns the components of the specified {@link ByteBuffer} created with {@link #compose(ByteBuffer...)}.
+     *
+     * @param bb a byte buffer created with {@link #compose(ByteBuffer...)}
+     * @return the components of {@code bb}
+     */
+    public static ByteBuffer[] decompose(ByteBuffer bb) {
+
+        int countComponents = ByteBufferUtil.readShortLength(bb);
+        ByteBuffer[] components = new ByteBuffer[countComponents];
+
+        for (int i = 0; i < countComponents; i++) {
+            int length = ByteBufferUtil.readShortLength(bb);
+            components[i] = ByteBufferUtil.readBytes(bb, length);
+        }
+
+        return components;
+    }
 }

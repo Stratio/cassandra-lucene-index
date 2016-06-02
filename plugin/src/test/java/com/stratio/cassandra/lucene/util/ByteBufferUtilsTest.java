@@ -15,6 +15,7 @@
  */
 package com.stratio.cassandra.lucene.util;
 
+import org.apache.cassandra.db.marshal.BooleanType;
 import org.apache.cassandra.db.marshal.CompositeType;
 import org.apache.cassandra.db.marshal.Int32Type;
 import org.apache.cassandra.db.marshal.UTF8Type;
@@ -83,5 +84,22 @@ public class ByteBufferUtilsTest {
         ByteBuffer bb = type.decompose("monkey", 1);
         String string = ByteBufferUtils.toString(bb, type);
         assertEquals("Composite type string conversion is failing", "monkey:1", string);
+    }
+
+    @Test
+    public void testComposeDecompose() {
+        ByteBuffer[] bbs = ByteBufferUtils.decompose(ByteBufferUtils.compose(UTF8Type.instance.decompose("test"),
+                                                                             Int32Type.instance.decompose(999),
+                                                                             BooleanType.instance.decompose(true)));
+        assertEquals("Compose-decompose is wrong", 3, bbs.length);
+        assertEquals("Compose-decompose is wrong", "test", UTF8Type.instance.compose(bbs[0]));
+        assertEquals("Compose-decompose is wrong", 999, Int32Type.instance.compose(bbs[1]), 0);
+        assertEquals("Compose-decompose is wrong", true, BooleanType.instance.compose(bbs[2]));
+    }
+
+    @Test
+    public void testComposeDecomposeEmpty() {
+        ByteBuffer[] bbs = ByteBufferUtils.decompose(ByteBufferUtils.compose());
+        assertEquals("Compose-decompose with empty components is wrong", 0, bbs.length);
     }
 }

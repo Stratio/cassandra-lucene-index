@@ -30,7 +30,7 @@ public class SearchTest {
 
     @Test
     public void testBuilderEmpty() {
-        Search search = new Search(null, null, null, null);
+        Search search = search().build();
         assertFalse("Default refresh is not set", search.refresh());
     }
 
@@ -119,10 +119,11 @@ public class SearchTest {
                                 .refresh(true)
                                 .build();
         assertEquals("Method #toString is wrong",
-                     "Search{query=MatchCondition{boost=0.5, field=field, value=value, docValues=false}, " +
+                     "Search{" +
+                     "query=MatchCondition{boost=0.5, field=field, value=value, docValues=false}, " +
                      "filter=MatchCondition{boost=null, field=field, value=value, docValues=true}, " +
                      "sort=Sort{sortFields=[SimpleSortField{field=field, reverse=false}]}, " +
-                     "refresh=true}",
+                     "refresh=true, paging=null}",
                      search.toString());
     }
 

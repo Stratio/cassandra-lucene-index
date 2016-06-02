@@ -16,12 +16,14 @@
 package com.stratio.cassandra.lucene.search;
 
 import com.stratio.cassandra.lucene.IndexException;
+import com.stratio.cassandra.lucene.IndexPagingState;
 import com.stratio.cassandra.lucene.search.condition.Condition;
 import com.stratio.cassandra.lucene.search.condition.builder.ConditionBuilder;
 import com.stratio.cassandra.lucene.search.sort.Sort;
 import com.stratio.cassandra.lucene.search.sort.builder.SortBuilder;
 import com.stratio.cassandra.lucene.search.sort.builder.SortFieldBuilder;
 import com.stratio.cassandra.lucene.util.Builder;
+import com.stratio.cassandra.lucene.util.ByteBufferUtils;
 import com.stratio.cassandra.lucene.util.JsonSerializer;
 import org.codehaus.jackson.annotate.JsonProperty;
 
@@ -49,6 +51,9 @@ public class SearchBuilder implements Builder<Search> {
     /** If this search must force the refresh the index before reading it. */
     @JsonProperty("refresh")
     private boolean refresh;
+
+    @JsonProperty("paging")
+    private String paging;
 
     /** Default constructor. */
     SearchBuilder() {
@@ -112,15 +117,28 @@ public class SearchBuilder implements Builder<Search> {
     }
 
     /**
+     * Sets the specified starting partition key.
+     *
+     * @param pagingState a paging state
+     * @return this builder with the specified partition key
+     */
+    public SearchBuilder paging(IndexPagingState pagingState) {
+        this.paging = ByteBufferUtils.toHex(pagingState.toByteBuffer());
+        return this;
+    }
+
+    /**
      * Returns the {@link Search} represented by this builder.
      *
      * @return the search represented by this builder
      */
     public Search build() {
-        Condition query = queryBuilder == null ? null : queryBuilder.build();
-        Condition filter = filterBuilder == null ? null : filterBuilder.build();
-        Sort sort = sortBuilder == null ? null : sortBuilder.build();
-        return new Search(query, filter, sort, refresh);
+        return new Search(queryBuilder == null ? null : queryBuilder.build(),
+                          filterBuilder == null ? null : filterBuilder.build(),
+                          sortBuilder == null ? null : sortBuilder.build(),
+                          paging == null ? null : IndexPagingState.build(ByteBufferUtils.byteBuffer(paging)),
+                          refresh
+        );
     }
 
     /**

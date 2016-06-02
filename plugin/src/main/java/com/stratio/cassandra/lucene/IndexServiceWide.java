@@ -207,6 +207,18 @@ class IndexServiceWide extends IndexService {
 
     /** {@inheritDoc} */
     @Override
+    public Optional<Query> after(DecoratedKey key, Clustering clustering) {
+        if (key == null) {
+            return Optional.empty();
+        } else if (clustering == null) {
+            return Optional.of(partitionMapper.query(key));
+        } else {
+            return Optional.of(keyMapper.query(key, clustering));
+        }
+    }
+
+    /** {@inheritDoc} */
+    @Override
     public IndexReaderWide indexReader(DocumentIterator documents, ReadCommand command, ReadOrderGroup orderGroup) {
         return new IndexReaderWide(this, command, table, orderGroup, documents);
     }

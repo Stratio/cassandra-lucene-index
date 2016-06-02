@@ -31,7 +31,7 @@ import org.junit.runners.Suite.SuiteClasses;
                SearchWithLongWideRowsAT.class,
                ReadStaticColumnsAT.class,
                UDFsAT.class,
-               BoundStatementWitTopKQuery.class,
+               BoundStatementWithSortedKQuery.class,
                StatelessSearchWithSkinnyRowsAT.class,
                StatelessSearchWithWideRowsAT.class})
 public class VariaSuite {
