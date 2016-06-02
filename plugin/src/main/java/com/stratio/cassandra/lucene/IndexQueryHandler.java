@@ -16,7 +16,6 @@
 package com.stratio.cassandra.lucene;
 
 import com.stratio.cassandra.lucene.search.Search;
-import com.stratio.cassandra.lucene.search.SearchBuilder;
 import com.stratio.cassandra.lucene.util.TimeCounter;
 import org.apache.cassandra.cql3.*;
 import org.apache.cassandra.cql3.statements.BatchStatement;
@@ -25,8 +24,6 @@ import org.apache.cassandra.cql3.statements.ParsedStatement;
 import org.apache.cassandra.cql3.statements.SelectStatement;
 import org.apache.cassandra.db.*;
 import org.apache.cassandra.db.filter.RowFilter;
-import org.apache.cassandra.db.marshal.Int32Type;
-import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.db.partitions.PartitionIterator;
 import org.apache.cassandra.exceptions.InvalidRequestException;
 import org.apache.cassandra.service.ClientState;
@@ -38,7 +35,6 @@ import org.apache.cassandra.utils.MD5Digest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.util.LinkedHashMap;
@@ -47,7 +43,6 @@ import java.util.Map;
 
 import static org.apache.cassandra.cql3.statements.RequestValidations.checkNotNull;
 import static org.apache.cassandra.db.filter.RowFilter.Expression;
-import static org.apache.cassandra.db.filter.RowFilter.CustomExpression;
 
 /**
  * {@link QueryHandler} to be used with Lucene searches.
@@ -57,6 +52,24 @@ import static org.apache.cassandra.db.filter.RowFilter.CustomExpression;
 class IndexQueryHandler implements QueryHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(IndexQueryHandler.class);
+
+    private static Method getPageSize;
+    private static Method processResults;
+
+    static {
+        try {
+            getPageSize = SelectStatement.class.getDeclaredMethod("getPageSize", QueryOptions.class);
+            getPageSize.setAccessible(true);
+            processResults = SelectStatement.class.getDeclaredMethod("processResults",
+                                                                     PartitionIterator.class,
+                                                                     QueryOptions.class,
+                                                                     int.class,
+                                                                     int.class);
+            processResults.setAccessible(true);
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     /** {@inheritDoc} */
     @Override
@@ -129,7 +142,7 @@ class IndexQueryHandler implements QueryHandler {
             if (!map.isEmpty()) {
                 TimeCounter time = TimeCounter.create().start();
                 try {
-                    return process(select, state, options, map);
+                    return executeLuceneQuery(select, state, options, map);
                 } catch (ReflectiveOperationException e) {
                     throw new IndexException(e);
                 } finally {
@@ -163,10 +176,16 @@ class IndexQueryHandler implements QueryHandler {
         return map;
     }
 
-    private ResultMessage process(SelectStatement select,
-                                  QueryState state,
-                                  QueryOptions options,
-                                  Map<Expression, Index> expressions) throws ReflectiveOperationException {
+    private ResultMessage execute(CQLStatement statement, QueryState state, QueryOptions options) {
+        ResultMessage result = statement.execute(state, options);
+        return result == null ? new ResultMessage.Void() : result;
+    }
+
+    private ResultMessage executeLuceneQuery(SelectStatement select,
+                                             QueryState state,
+                                             QueryOptions options,
+                                             Map<Expression, Index> expressions)
+    throws ReflectiveOperationException {
 
         if (expressions.size() > 1) {
             throw new InvalidRequestException("Lucene index only supports one search expression per query.");
@@ -179,102 +198,52 @@ class IndexQueryHandler implements QueryHandler {
 
         // Check paging
         int limit = select.getLimit(options);
-        int page = getPageSize(select, options);
+        int page = (int) getPageSize.invoke(select, options);
 
-        if (search.isTopK()) {
-
-            // Avoid unlimited
-            if (limit == Integer.MAX_VALUE) {
-                throw new InvalidRequestException(
-                        "Top-k searches don't support paging, so a cautious LIMIT clause should be provided " +
-                        "to prevent excessive memory consumption.");
-            }
-
-            // Warn about paging disabling
-            if (page < limit) {
-                logger.warn("Disabling paging of {} rows per page for top-k search requesting {} rows: {}",
-                            page,
-                            limit,
-                            search);
-            }
-
-            return executeWithoutPaging(select, state, options);
+        if (search.requiresPostProcessing() && page > 0 && page < limit) {
+            return executeSortedLuceneQuery(select, state, options);
         }
 
         // Process
         return execute(select, state, options);
     }
 
-    private ResultMessage execute(CQLStatement statement, QueryState state, QueryOptions options) {
-        ResultMessage result = statement.execute(state, options);
-        return result == null ? new ResultMessage.Void() : result;
-    }
-
-    private int getPageSize(SelectStatement select, QueryOptions options) throws ReflectiveOperationException {
-        Method method = select.getClass().getDeclaredMethod("getPageSize", QueryOptions.class);
-        method.setAccessible(true);
-        return (int) method.invoke(select, options);
-    }
-
-    private ResultMessage.Rows processResults(SelectStatement select,
-                                              PartitionIterator partitions,
-                                              QueryOptions options,
-                                              int nowInSec,
-                                              int userLimit) throws ReflectiveOperationException {
-        Method method = select.getClass()
-                              .getDeclaredMethod("processResults",
-                                                 PartitionIterator.class,
-                                                 QueryOptions.class,
-                                                 int.class,
-                                                 int.class);
-        method.setAccessible(true);
-        return (ResultMessage.Rows) method.invoke(select, partitions, options, nowInSec, userLimit);
-    }
-
-    private ResultMessage.Rows executeWithoutPaging(SelectStatement select, QueryState state, QueryOptions options)
+    private ResultMessage.Rows executeSortedLuceneQuery(SelectStatement select, QueryState state, QueryOptions options)
     throws ReflectiveOperationException {
 
+        // Check consistency level
         ConsistencyLevel cl = options.getConsistency();
         checkNotNull(cl, "Invalid empty consistency level");
-
         cl.validateForRead(select.keyspace());
 
         int nowInSec = FBUtilities.nowInSeconds();
-        int userLimit = select.getLimit(options);
-        ReadQuery query = select.getQuery(options, nowInSec, userLimit);
+        int limit = select.getLimit(options);
+        int page = options.getPageSize();
 
+        // Read paging state and write it to query
+        IndexPagingState pagingState = IndexPagingState.build(options.getPagingState(), limit);
+        ReadQuery query = select.getQuery(options, nowInSec, Math.min(page, pagingState.remaining()));
+        pagingState.rewrite(query);
+
+        // Read data
+        PartitionIterator data = null;
         if (query instanceof SinglePartitionReadCommand.Group) {
             SinglePartitionReadCommand.Group group = (SinglePartitionReadCommand.Group) query;
             if (group.commands.size() > 1) {
-                try (PartitionIterator data = LuceneStorageProxy.read(group, cl)) {
-                    return processResults(select, data, options, nowInSec, userLimit);
-                }
+                data = LuceneStorageProxy.read(group, cl);
             }
+        } else {
+            data = query.execute(cl, state.getClientState());
         }
 
-//        if (query instanceof PartitionRangeReadCommand) {
-//            decorate((ReadCommand) query, null, null);
-//        }
-
-        try (PartitionIterator data = query.execute(options.getConsistency(), state.getClientState())) {
-            return processResults(select, data, options, nowInSec, userLimit);
-        }
-    }
-
-    private void decorate(ReadCommand command, DecoratedKey key, Clustering clustering) throws ReflectiveOperationException {
-        RowFilter rowFilter = command.rowFilter();
-        for (Expression expression : command.rowFilter().getExpressions()) {
-            if (expression.isCustom()) {
-                CustomExpression oldExpression = (CustomExpression) expression;
-                rowFilter = rowFilter.without(oldExpression);
-                ByteBuffer value = oldExpression.getValue();
-                SearchBuilder searchBuilder = SearchBuilder.fromJson(UTF8Type.instance.compose(value));
-                searchBuilder.afterKey(Int32Type.instance.decompose(2));
-                ByteBuffer newValue = UTF8Type.instance.decompose(searchBuilder.toJson());
-                Field field = Expression.class.getDeclaredField("value");
-                field.setAccessible(true);
-                field.set(oldExpression, newValue);
-            }
+        // Update paging state and make results
+        data = pagingState.update(query, data, options.getConsistency());
+        try {
+            ResultMessage.Rows rows = (ResultMessage.Rows) processResults.invoke(select, data, options, nowInSec, page);
+            rows.result.metadata.setHasMorePages(pagingState.toPagingState());
+            return rows;
+        } finally {
+            data.close();
         }
     }
 

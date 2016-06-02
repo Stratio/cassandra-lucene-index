@@ -30,7 +30,6 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.TermQuery;
 
-import java.nio.ByteBuffer;
 import java.util.*;
 
 /**
@@ -124,7 +123,7 @@ class IndexServiceSkinny extends IndexService {
 
     /** {@inheritDoc} */
     @Override
-    public Optional<Query> after(ByteBuffer key, ByteBuffer clustering) {
+    public Optional<Query> after(DecoratedKey key, Clustering clustering) {
         return key == null ? Optional.empty() : Optional.of(partitionMapper.query(key));
     }
 

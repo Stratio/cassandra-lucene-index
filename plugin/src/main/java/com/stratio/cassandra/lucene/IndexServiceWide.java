@@ -19,7 +19,6 @@ import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.index.DocumentIterator;
 import com.stratio.cassandra.lucene.key.KeyMapper;
 import com.stratio.cassandra.lucene.key.PartitionMapper;
-import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.db.*;
 import org.apache.cassandra.db.filter.ClusteringIndexFilter;
 import org.apache.cassandra.db.rows.Row;
@@ -33,7 +32,6 @@ import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.SortField;
 
-import java.nio.ByteBuffer;
 import java.util.*;
 
 import static org.apache.cassandra.db.PartitionPosition.Kind.MAX_BOUND;
@@ -209,15 +207,13 @@ class IndexServiceWide extends IndexService {
 
     /** {@inheritDoc} */
     @Override
-    public Optional<Query> after(ByteBuffer key, ByteBuffer clustering) {
+    public Optional<Query> after(DecoratedKey key, Clustering clustering) {
         if (key == null) {
             return Optional.empty();
         } else if (clustering == null) {
             return Optional.of(partitionMapper.query(key));
         } else {
-            DecoratedKey startDecoratedKey = DatabaseDescriptor.getPartitioner().decorateKey(key);
-            Clustering prefix = keyMapper.clustering(clustering);
-            return Optional.of(keyMapper.query(startDecoratedKey, prefix));
+            return Optional.of(keyMapper.query(key, clustering));
         }
     }
 

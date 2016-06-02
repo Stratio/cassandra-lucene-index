@@ -239,7 +239,6 @@ abstract class IndexService {
         String json = UTF8Type.instance.compose(value);
         Search search = SearchBuilder.fromJson(json).build();
         search.validate(schema);
-        after(search);
         return search;
     }
 
@@ -429,8 +428,8 @@ abstract class IndexService {
         // Parse search
         String expression = expression(command);
         Search search = SearchBuilder.fromJson(expression).build();
-        Query after = after(search);
         Query query = query(search, command);
+        Query after = after(search.paging(), command);
         Sort sort = sort(search);
 
         // Refresh if required
@@ -544,22 +543,26 @@ abstract class IndexService {
         return tokenMapper.query(start, stop);
     }
 
-    private Query after(Search search) {
+    private Query after(IndexPagingState pagingState, ReadCommand command) {
         try {
-            return after(search.afterKey(), search.afterClustering()).orElse(null);
+            if (pagingState != null) {
+                Pair<DecoratedKey, Clustering> position = pagingState.forCommand(command);
+                return position == null ? null : after(position.left, position.right).orElse(null);
+            }
+            return null;
         } catch (RuntimeException e) {
-            throw new IndexException(e, "Invalid search after arguments");
+            throw new IndexException(e, "Invalid paging state");
         }
     }
 
     /**
-     * Returns a Lucene {@link Query} to retrieve the row identified by the specified primary key.
+     * Returns a Lucene {@link Query} to retrieve the row identified by the specified paging state.
      *
      * @param key the partition key
      * @param clustering the clustering key
      * @return the query to retrieve the row
      */
-    abstract Optional<Query> after(ByteBuffer key, ByteBuffer clustering);
+    abstract Optional<Query> after(DecoratedKey key, Clustering clustering);
 
     /**
      * Returns the Lucene {@link Sort} with the specified {@link Search} sorting requirements followed by the
@@ -688,8 +691,8 @@ abstract class IndexService {
 
             List<Pair<DecoratedKey, SimpleRowIterator>> collectedRows = collect(partitions);
 
-            // Skip if search is not top-k
-            if (search.isTopK()) {
+            // Skip if it doesn't use any kind of sorting
+            if (search.requiresPostProcessing()) {
                 return process(search, limit, nowInSec, collectedRows);
             }
         }

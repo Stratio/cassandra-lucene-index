@@ -16,8 +16,6 @@
 package com.stratio.cassandra.lucene.search;
 
 import com.stratio.cassandra.lucene.schema.Schema;
-import com.stratio.cassandra.lucene.util.ByteBufferUtils;
-import org.apache.cassandra.db.marshal.UTF8Type;
 import org.junit.Test;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.schema;
@@ -32,7 +30,7 @@ public class SearchTest {
 
     @Test
     public void testBuilderEmpty() {
-        Search search = new Search(null, null, null, null, null, null);
+        Search search = search().build();
         assertFalse("Default refresh is not set", search.refresh());
     }
 
@@ -41,13 +39,9 @@ public class SearchTest {
         Search search = search().query(match("field", "value"))
                                 .filter(match("field", "value"))
                                 .sort(field("field"))
-                                .afterKey("00000002")
-                                .afterClustering("00040000000300")
                                 .refresh(true)
                                 .build();
         assertTrue("Refresh is not set", search.refresh());
-        assertEquals("Key is not set", "00000002", ByteBufferUtils.toHex(search.afterKey()));
-        assertEquals("Clustering is not set", "00040000000300", ByteBufferUtils.toHex(search.afterClustering()));
     }
 
     @Test
@@ -123,15 +117,13 @@ public class SearchTest {
                                 .filter(match("field", "value").docValues(true))
                                 .sort(field("field"))
                                 .refresh(true)
-                                .afterKey(UTF8Type.instance.decompose("hello"))
-                                .afterClustering(UTF8Type.instance.decompose("bye"))
                                 .build();
         assertEquals("Method #toString is wrong",
                      "Search{" +
                      "query=MatchCondition{boost=0.5, field=field, value=value, docValues=false}, " +
                      "filter=MatchCondition{boost=null, field=field, value=value, docValues=true}, " +
                      "sort=Sort{sortFields=[SimpleSortField{field=field, reverse=false}]}, " +
-                     "refresh=true, afterKey=68656c6c6f, afterClustering=627965}",
+                     "refresh=true, paging=null}",
                      search.toString());
     }
 

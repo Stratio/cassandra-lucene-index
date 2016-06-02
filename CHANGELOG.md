@@ -2,7 +2,8 @@
 
 ## 3.0.6.1 (upcoming)
 
-* Add support for top-k searches using IN operator
+* Add support for CQL paging over sorted searches
+* Add support for sorted searches using IN operator
 
 ## 3.0.6.0 (27 May 2016)
 

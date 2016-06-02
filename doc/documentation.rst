@@ -80,7 +80,6 @@ Stratio's Cassandra Lucene Index
     - `Index only what you need <#index-only-what-you-need>`__
     - `Use a low refresh rate <#use-a-low-refresh-rate>`__
     - `Prefer filters over queries <#prefer-filters-over-queries>`__
-    - `Limit top-k searches <#limit-top-k-searches>`__
     - `Try doc values <#try-doc-values>`__
     - `Force segments merge <#force-segments-merge>`__
 
@@ -134,16 +133,16 @@ Stratio’s Cassandra Lucene Index and its integration with Lucene search techno
 
 -  Full text search (language-aware analysis, wildcard, fuzzy, regexp)
 -  Boolean search (and, or, not)
--  Top-k queries (relevance scoring, sort by value, sort by distance)
+-  Sorting by relevance, column value, and distance)
 -  Geospatial indexing (points, lines, polygons and their multiparts)
 -  Geospatial transformations (bounding box, buffer, centroid, convex hull, union, difference, intersection)
 -  Geospatial operations (intersects, contains, is within)
 -  Bitemporal search (valid and transaction time durations)
 -  CQL complex types (list, set, map, tuple and UDT)
 -  CQL user defined functions (UDF)
--  Third-party CQL-based drivers compatibility
--  Paging over filters
+-  CQL paging, even with sorted searches
 -  Columns with TTL
+-  Third-party CQL-based drivers compatibility
 -  Spark and Hadoop compatibility
 
 Not yet supported:
@@ -151,9 +150,8 @@ Not yet supported:
 -  Thrift API
 -  Legacy compact storage option
 -  Indexing ``counter`` columns
--  Static columns
+-  Indexing static columns
 -  Other partitioners than Murmur3
--  Paging over top-k searches
 
 Architecture
 ============
@@ -164,7 +162,7 @@ meaning that each node of the cluster indexes it's own data.
 As usual in Cassandra, each node can act as search coordinator.
 The coordinator node sends the searches to all the involved nodes,
 and then it post-processes the returned rows to return the required ones.
-This post-processing is particularly important in top-k queries.
+This post-processing is particularly important in sorted searches.
 
 Regarding to the Cassandra-Lucene mapping, each node has a single Lucene index per indexed table,
 and each logic CQL row is mapped to a Lucene document.
@@ -3823,17 +3821,6 @@ Query searches involve relevance so they should be sent to all nodes in the
 cluster in order to find the globally best results.
 However, filters have a chance to find the results in a subset of the nodes.
 So if you are not interested in relevance sorting then you should prefer filters over queries.
-
-Limit top-k searches
-====================
-
-Top-k searches are those containing a `query` or a `sort` condition.
-These searches return results sorted in a different order than the provided by Cassandra.
-They are meant to retrieve the k best results according to a certain criterion,
-not to sort all the contents in the database. For this reason, the search engine disables
-paging and forces to specify a `LIMIT` clause limiting the number of results to be collected.
-High `LIMIT` clauses (more than a few thousands) are risky because they can produce a memory
-issues in the coordinator node.
 
 Try doc values
 ==============

@@ -101,7 +101,6 @@ public class RAMIndex {
             IndexSearcher searcher = new IndexSearcher(reader);
             sort = sort.rewrite(searcher);
             TopDocs topDocs = searcher.search(query, count, sort, true, true);
-            float maxScore = topDocs.getMaxScore();
             ScoreDoc[] scoreDocs = topDocs.scoreDocs;
             List<Pair<Document, ScoreDoc>> documents = new LinkedList<>();
             for (ScoreDoc scoreDoc : scoreDocs) {

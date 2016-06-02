@@ -16,14 +16,13 @@
 package com.stratio.cassandra.lucene.search;
 
 import com.google.common.base.MoreObjects;
+import com.stratio.cassandra.lucene.IndexPagingState;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.search.condition.Condition;
 import com.stratio.cassandra.lucene.search.sort.Sort;
-import com.stratio.cassandra.lucene.util.ByteBufferUtils;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.SortField;
 
-import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Optional;
 
@@ -52,38 +51,35 @@ public class Search {
     /** If this search must refresh the index before reading it. */
     private final Boolean refresh;
 
-    /** The starting partition key. */
-    private final ByteBuffer afterKey;
-
-    /** The starting clustering key. */
-    private final ByteBuffer afterClustering;
+    /** The paging state. */
+    private final IndexPagingState paging;
 
     /**
      * Constructor using the specified querying, filtering, sorting and refresh options.
      *
      * @param query the condition for querying, maybe {@code null} meaning no querying
      * @param filter the condition for filtering, maybe {@code null} meaning no filtering
-     * @param sort the sort for the query. Note that is the order in which the data will be read before querying, not
-     * the order of the results after querying
+     * @param sort the sort for the query, maybe {@code null} meaning no sorting
+     * @param paging the paging state
      * @param refresh if this search must refresh the index before reading it
-     * @param afterKey the starting partition key
-     * @param afterClustering the starting clustering key
      */
     public Search(Condition query,
                   Condition filter,
                   Sort sort,
-                  Boolean refresh,
-                  ByteBuffer afterKey,
-                  ByteBuffer afterClustering) {
+                  IndexPagingState paging, Boolean refresh) {
         this.query = query;
         this.filter = filter;
         this.sort = sort;
+        this.paging = paging;
         this.refresh = refresh == null ? DEFAULT_FORCE_REFRESH : refresh;
-        this.afterKey = afterKey;
-        this.afterClustering = afterClustering;
     }
 
-    public boolean isTopK() {
+    /**
+     * Returns if this search requires post reconciliation agreement processing to preserve the order of its results.
+     *
+     * @return {@code true} if it requires post processing, {@code false} otherwise
+     */
+    public boolean requiresPostProcessing() {
         return usesRelevance() || usesSorting();
     }
 
@@ -172,12 +168,8 @@ public class Search {
         return query == null ? Optional.empty() : Optional.of(query.query(schema));
     }
 
-    public ByteBuffer afterKey() {
-        return afterKey;
-    }
-
-    public ByteBuffer afterClustering() {
-        return afterClustering;
+    public IndexPagingState paging() {
+        return paging;
     }
 
     /**
@@ -205,8 +197,7 @@ public class Search {
                           .add("filter", filter)
                           .add("sort", sort)
                           .add("refresh", refresh)
-                          .add("afterKey", ByteBufferUtils.toHex(afterKey))
-                          .add("afterClustering", ByteBufferUtils.toHex(afterClustering))
+                          .add("paging", paging)
                           .toString();
     }
 }

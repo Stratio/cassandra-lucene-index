@@ -64,16 +64,16 @@ Stratio’s Cassandra Lucene Index and its integration with Lucene search techno
 
 -  Full text search (language-aware analysis, wildcard, fuzzy, regexp)
 -  Boolean search (and, or, not)
--  Top-k queries (relevance scoring, sort by value, sort by distance)
+-  Sorting by relevance, column value, and distance)
 -  Geospatial indexing (points, lines, polygons and their multiparts)
 -  Geospatial transformations (bounding box, buffer, centroid, convex hull, union, difference, intersection)
 -  Geospatial operations (intersects, contains, is within)
 -  Bitemporal search (valid and transaction time durations)
 -  CQL complex types (list, set, map, tuple and UDT)
 -  CQL user defined functions (UDF)
--  Third-party CQL-based drivers compatibility
--  Paging over filters
+-  CQL paging, even with sorted searches
 -  Columns with TTL
+-  Third-party CQL-based drivers compatibility
 -  Spark and Hadoop compatibility
 
 Not yet supported:
@@ -81,9 +81,8 @@ Not yet supported:
 -  Thrift API
 -  Legacy compact storage option
 -  Indexing ``counter`` columns
--  Static columns
+-  Indexing static columns
 -  Other partitioners than Murmur3
--  Paging over top-k searches
 
 Requirements
 ------------

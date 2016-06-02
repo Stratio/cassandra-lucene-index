@@ -81,7 +81,7 @@ public class DocumentIterator implements CloseableIterator<Pair<Document, ScoreD
                 BooleanQuery.Builder builder = new BooleanQuery.Builder();
                 builder.add(after, BooleanClause.Occur.FILTER);
                 builder.add(query, BooleanClause.Occur.MUST);
-                ScoreDoc[] scoreDocs = searcher.search(builder.build(), 1, sort).scoreDocs;
+                ScoreDoc[] scoreDocs = searcher.search(builder.build(), 1, this.sort).scoreDocs;
                 if (scoreDocs.length > 0) {
                     this.after = scoreDocs[0];
                 }

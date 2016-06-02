@@ -171,4 +171,45 @@ public final class ByteBufferUtils {
     public static ByteBuffer byteBuffer(String hex) {
         return hex == null ? null : ByteBufferUtil.hexToBytes(hex);
     }
+
+    /**
+     * Returns a {@link ByteBuffer} representing the specified array of {@link ByteBuffer}s.
+     *
+     * @param bbs an array of byte buffers
+     * @return a {@link ByteBuffer} representing {@code bbs}
+     */
+    public static ByteBuffer compose(ByteBuffer... bbs) {
+        int totalLength = 2;
+        for (ByteBuffer bb : bbs) {
+            totalLength += 2 + bb.remaining();
+        }
+        ByteBuffer out = ByteBuffer.allocate(totalLength);
+
+        ByteBufferUtil.writeShortLength(out, bbs.length);
+        for (ByteBuffer bb : bbs) {
+            ByteBufferUtil.writeShortLength(out, bb.remaining());
+            out.put(bb.duplicate());
+        }
+        out.flip();
+        return out;
+    }
+
+    /**
+     * Returns the components of the specified {@link ByteBuffer} created with {@link #compose(ByteBuffer...)}.
+     *
+     * @param bb a byte buffer created with {@link #compose(ByteBuffer...)}
+     * @return the components of {@code bb}
+     */
+    public static ByteBuffer[] decompose(ByteBuffer bb) {
+
+        int countComponents = ByteBufferUtil.readShortLength(bb);
+        ByteBuffer[] components = new ByteBuffer[countComponents];
+
+        for (int i = 0; i < countComponents; i++) {
+            int length = ByteBufferUtil.readShortLength(bb);
+            components[i] = ByteBufferUtil.readBytes(bb, length);
+        }
+
+        return components;
+    }
 }
