@@ -21,7 +21,6 @@ import com.stratio.cassandra.lucene.util.SimplePartitionIterator;
 import com.stratio.cassandra.lucene.util.SimpleRowIterator;
 import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.db.*;
-import org.apache.cassandra.db.filter.RowFilter;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.db.partitions.PartitionIterator;
 import org.apache.cassandra.db.rows.RowIterator;
@@ -39,6 +38,7 @@ import static com.stratio.cassandra.lucene.util.ByteBufferUtils.compose;
 import static com.stratio.cassandra.lucene.util.ByteBufferUtils.decompose;
 import static java.util.stream.Collectors.toList;
 import static org.apache.cassandra.db.SinglePartitionReadCommand.Group;
+import static org.apache.cassandra.db.filter.RowFilter.Expression;
 import static org.apache.cassandra.service.LuceneStorageProxy.RangeMerger;
 import static org.apache.cassandra.utils.ByteBufferUtil.readShortLength;
 import static org.apache.cassandra.utils.ByteBufferUtil.writeShortLength;
@@ -145,20 +145,40 @@ public class IndexPagingState {
     }
 
     private void rewrite(ReadCommand command) throws ReflectiveOperationException {
-        RowFilter rowFilter = command.rowFilter();
-        for (RowFilter.Expression expression : command.rowFilter().getExpressions()) {
+
+        Field field = Expression.class.getDeclaredField("value");
+        field.setAccessible(true);
+
+        Expression expression = expression(command);
+
+        ByteBuffer value = (ByteBuffer) field.get(expression);
+        SearchBuilder searchBuilder = SearchBuilder.fromJson(UTF8Type.instance.compose(value));
+        searchBuilder.paging(this);
+        ByteBuffer newValue = UTF8Type.instance.decompose(searchBuilder.toJson());
+        field.set(expression, newValue);
+    }
+
+    private Expression expression(ReadCommand command) throws ReflectiveOperationException {
+
+        // Try with custom expressions
+        for (Expression expression : command.rowFilter().getExpressions()) {
             if (expression.isCustom()) {
-                RowFilter.CustomExpression oldExpression = (RowFilter.CustomExpression) expression;
-                rowFilter = rowFilter.without(oldExpression);
-                ByteBuffer value = oldExpression.getValue();
-                SearchBuilder searchBuilder = SearchBuilder.fromJson(UTF8Type.instance.compose(value));
-                searchBuilder.paging(this);
-                ByteBuffer newValue = UTF8Type.instance.decompose(searchBuilder.toJson());
-                Field field = RowFilter.Expression.class.getDeclaredField("value");
-                field.setAccessible(true);
-                field.set(oldExpression, newValue);
+                return expression;
             }
         }
+
+        // Try with dummy column
+        ColumnFamilyStore cfs = Keyspace.open(command.metadata().ksName)
+                                        .getColumnFamilyStore(command.metadata().cfName);
+        for (Expression expression : command.rowFilter().getExpressions()) {
+            for (org.apache.cassandra.index.Index index : cfs.indexManager.listIndexes()) {
+                if (index instanceof Index && index.supportsExpression(expression.column(), expression.operator())) {
+                    return expression;
+                }
+            }
+        }
+
+        return null;
     }
 
     private void rewrite(Group group) throws ReflectiveOperationException {
