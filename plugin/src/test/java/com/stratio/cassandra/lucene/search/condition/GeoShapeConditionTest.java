@@ -21,7 +21,6 @@ import com.stratio.cassandra.lucene.common.GeoDistance;
 import com.stratio.cassandra.lucene.common.GeoOperation;
 import com.stratio.cassandra.lucene.common.GeoTransformation;
 import com.stratio.cassandra.lucene.schema.Schema;
-import org.apache.lucene.search.ConstantScoreQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.spatial.prefix.ContainsPrefixTreeQuery;
 import org.apache.lucene.spatial.prefix.IntersectsPrefixTreeQuery;

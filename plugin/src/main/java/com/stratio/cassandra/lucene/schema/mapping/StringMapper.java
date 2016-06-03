@@ -32,7 +32,8 @@ public class StringMapper extends KeywordMapper {
 
     /**
      * Builds a new {@link StringMapper}.
-     *  @param field the name of the field
+     *
+     * @param field the name of the field
      * @param column the name of the column to be mapped
      * @param validated if the field must be validated
      * @param caseSensitive if the analyzer must be case sensitive

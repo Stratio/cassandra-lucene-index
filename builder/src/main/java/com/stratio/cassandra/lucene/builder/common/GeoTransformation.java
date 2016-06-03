@@ -34,8 +34,8 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
 public abstract class GeoTransformation extends Builder {
 
     /**
-     * {@link GeoTransformation} that gets the bounding box of a JTS geographical shape.
-     * The bounding box of shape is the minimal rectangle containing the shape.
+     * {@link GeoTransformation} that gets the bounding box of a JTS geographical shape. The bounding box of shape is
+     * the minimal rectangle containing the shape.
      */
     public static class BBox extends GeoTransformation {
 

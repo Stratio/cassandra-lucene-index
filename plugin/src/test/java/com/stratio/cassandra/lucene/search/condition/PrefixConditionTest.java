@@ -15,7 +15,6 @@
  */
 package com.stratio.cassandra.lucene.search.condition;
 
-import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.search.condition.builder.PrefixConditionBuilder;
 import org.apache.lucene.search.PrefixQuery;

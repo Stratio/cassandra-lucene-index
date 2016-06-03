@@ -27,7 +27,7 @@ import static com.stratio.cassandra.lucene.testsAT.util.CassandraUtils.builder;
 
 /**
  * Test deletion of collection elements.
- * 
+ *
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}.
  */
 @RunWith(JUnit4.class)
@@ -58,7 +58,7 @@ public class Issue132AT extends BaseAT {
         utils.waitForIndexing().refresh();
         utils.filter(wildcard("myset", "hom*")).check(0);
         utils.query(wildcard("myset", "hom*")).check(0);
-        
+
         utils.dropKeyspace();
     }
 
@@ -87,7 +87,7 @@ public class Issue132AT extends BaseAT {
         utils.waitForIndexing().refresh();
         utils.filter(wildcard("mylist", "hom*")).check(0);
         utils.query(wildcard("mylist", "hom*")).check(0);
-        
+
         utils.dropKeyspace();
     }
 
@@ -116,7 +116,7 @@ public class Issue132AT extends BaseAT {
         utils.waitForIndexing().refresh();
         utils.filter(wildcard("mymap$home", "hom*")).check(0);
         utils.query(wildcard("mymap$home", "hom*")).check(0);
-        
+
         utils.dropKeyspace();
     }
 
@@ -143,7 +143,7 @@ public class Issue132AT extends BaseAT {
         utils.waitForIndexing().refresh();
         utils.filter(wildcard("myset", "hom*")).check(0);
         utils.query(wildcard("myset", "hom*")).check(0);
-        
+
         utils.dropKeyspace();
     }
 
@@ -170,7 +170,7 @@ public class Issue132AT extends BaseAT {
         utils.waitForIndexing().refresh();
         utils.filter(wildcard("mylist", "hom*")).check(0);
         utils.query(wildcard("mylist", "hom*")).check(0);
-        
+
         utils.dropKeyspace();
     }
 
@@ -197,7 +197,7 @@ public class Issue132AT extends BaseAT {
         utils.waitForIndexing().refresh();
         utils.filter(wildcard("mymap", "hom*")).check(0);
         utils.query(wildcard("mymap", "hom*")).check(0);
-        
+
         utils.dropKeyspace();
     }
 }

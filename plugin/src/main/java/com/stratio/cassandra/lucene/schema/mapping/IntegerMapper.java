@@ -41,7 +41,8 @@ public class IntegerMapper extends SingleColumnMapper.SingleFieldMapper<Integer>
 
     /**
      * Builds a new {@link IntegerMapper} using the specified boost.
-     *  @param field the name of the field
+     *
+     * @param field the name of the field
      * @param column the name of the column to be mapped
      * @param validated if the field must be validated
      * @param boost the boost

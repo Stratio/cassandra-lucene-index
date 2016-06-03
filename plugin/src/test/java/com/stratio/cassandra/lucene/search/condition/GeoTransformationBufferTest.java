@@ -24,12 +24,13 @@ import org.junit.Test;
 
 import java.io.IOException;
 
+import static com.stratio.cassandra.lucene.common.GeoDistanceUnit.KILOMETRES;
+import static com.stratio.cassandra.lucene.common.GeoDistanceUnit.METRES;
 import static com.stratio.cassandra.lucene.common.GeoTransformation.Buffer;
 import static com.stratio.cassandra.lucene.util.GeospatialUtilsJTS.CONTEXT;
 import static com.stratio.cassandra.lucene.util.GeospatialUtilsJTS.geometry;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static com.stratio.cassandra.lucene.common.GeoDistanceUnit.*;
 
 /**
  * Unit tests for {@link GeoTransformation.Buffer}.

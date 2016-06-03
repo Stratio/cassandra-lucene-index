@@ -26,7 +26,6 @@ import java.util.Map;
 
 import static com.stratio.cassandra.lucene.builder.Builder.all;
 import static com.stratio.cassandra.lucene.builder.Builder.match;
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author Andres de la Pena <adelapena@stratio.com>

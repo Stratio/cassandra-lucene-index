@@ -51,8 +51,8 @@ public interface GeoTransformation {
     JtsGeometry apply(JtsGeometry shape);
 
     /**
-     * {@link GeoTransformation} that returns the bounding box of a JTS geographical shape.
-     * The bounding box of shape is the minimal rectangle containing the shape.
+     * {@link GeoTransformation} that returns the bounding box of a JTS geographical shape. The bounding box of shape is
+     * the minimal rectangle containing the shape.
      */
     class BBox implements GeoTransformation {
 

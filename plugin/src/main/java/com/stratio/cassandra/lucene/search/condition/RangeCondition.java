@@ -127,7 +127,11 @@ public class RangeCondition extends SingleColumnCondition {
 
     private Query query(String start, String stop) {
         return docValues
-               ? DocValuesRangeQuery.newBytesRefRange(field, docValue(start), docValue(stop), includeLower, includeUpper)
+               ? DocValuesRangeQuery.newBytesRefRange(field,
+                                                      docValue(start),
+                                                      docValue(stop),
+                                                      includeLower,
+                                                      includeUpper)
                : TermRangeQuery.newStringRange(field, start, stop, includeLower, includeUpper);
     }
 

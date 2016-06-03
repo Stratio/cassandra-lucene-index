@@ -217,7 +217,8 @@ public class DateMapperTest extends AbstractMapperTest {
     public void testSortedField() throws ParseException {
         long time = sdf.parse("2014-03-19").getTime();
         DateMapper mapper = dateMapper().pattern(PATTERN).build("name");
-        Field field = mapper.sortedField("name", time).orElseThrow(() -> new AssertionError("Sorted field is not created"));
+        Field field = mapper.sortedField("name", time)
+                            .orElseThrow(() -> new AssertionError("Sorted field is not created"));
         assertEquals("Sorted field type is wrong", DocValuesType.SORTED_NUMERIC, field.fieldType().docValuesType());
     }
 

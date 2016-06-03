@@ -31,7 +31,7 @@ public class FloatMapperBuilder extends SingleColumnMapperBuilder<FloatMapper, F
     /**
      * Sets the boost to be used.
      *
-     * @param boost The boost to be used.
+     * @param boost the boost to be used
      * @return this
      */
     public FloatMapperBuilder boost(Float boost) {

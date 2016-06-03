@@ -34,7 +34,8 @@ public class UUIDMapper extends KeywordMapper {
 
     /**
      * Builds a new {@link UUIDMapper}.
-     *  @param field the name of the field
+     *
+     * @param field the name of the field
      * @param column the name of the column to be mapped
      * @param validated if the field must be validated
      */

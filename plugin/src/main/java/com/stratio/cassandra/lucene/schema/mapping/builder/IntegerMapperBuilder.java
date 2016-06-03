@@ -31,8 +31,8 @@ public class IntegerMapperBuilder extends SingleColumnMapperBuilder<IntegerMappe
     /**
      * Sets the boost to be used.
      *
-     * @param boost The boost to be used.
-     * @return This.
+     * @param boost the boost to be used
+     * @return this
      */
     public IntegerMapperBuilder boost(Float boost) {
         this.boost = boost;

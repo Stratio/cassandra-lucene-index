@@ -42,7 +42,8 @@ public class DateMapper extends SingleColumnMapper.SingleFieldMapper<Long> {
 
     /**
      * Builds a new {@link DateMapper} using the specified pattern.
-     *  @param field the name of the field
+     *
+     * @param field the name of the field
      * @param column the name of the column to be mapped
      * @param validated if the field must be validated
      * @param pattern the date format pattern to be used

@@ -25,6 +25,7 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.spatial.SpatialStrategy;
 import org.apache.lucene.spatial.query.SpatialArgs;
 import org.apache.lucene.spatial.query.SpatialOperation;
+
 import static com.stratio.cassandra.lucene.util.GeospatialUtils.CONTEXT;
 
 /**

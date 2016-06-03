@@ -16,7 +16,6 @@
 package com.stratio.cassandra.lucene.search.sort;
 
 import com.google.common.base.MoreObjects;
-import com.google.common.collect.Sets;
 import com.stratio.cassandra.lucene.schema.Schema;
 
 import java.util.Iterator;

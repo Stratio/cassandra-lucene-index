@@ -45,7 +45,6 @@ import java.nio.ByteBuffer;
 import java.util.Optional;
 
 import static org.apache.cassandra.utils.ByteBufferUtil.EMPTY_BYTE_BUFFER;
-import static org.apache.cassandra.utils.ByteBufferUtil.read;
 import static org.apache.lucene.search.BooleanClause.Occur.SHOULD;
 
 /**

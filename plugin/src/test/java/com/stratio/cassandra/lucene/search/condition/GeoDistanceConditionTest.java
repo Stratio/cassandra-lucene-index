@@ -20,7 +20,6 @@ import com.stratio.cassandra.lucene.common.GeoDistance;
 import com.stratio.cassandra.lucene.schema.Schema;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.ConstantScoreQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.spatial.prefix.IntersectsPrefixTreeQuery;
 import org.junit.Test;

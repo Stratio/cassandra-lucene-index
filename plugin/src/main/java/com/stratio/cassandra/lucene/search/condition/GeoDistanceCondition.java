@@ -30,9 +30,9 @@ import org.apache.lucene.spatial.SpatialStrategy;
 import org.apache.lucene.spatial.query.SpatialArgs;
 import org.apache.lucene.spatial.query.SpatialOperation;
 
+import static com.stratio.cassandra.lucene.util.GeospatialUtils.CONTEXT;
 import static org.apache.lucene.search.BooleanClause.Occur.FILTER;
 import static org.apache.lucene.search.BooleanClause.Occur.MUST_NOT;
-import static com.stratio.cassandra.lucene.util.GeospatialUtils.CONTEXT;
 
 /**
  * A {@link Condition} that matches documents containing a shape contained between two certain circles.

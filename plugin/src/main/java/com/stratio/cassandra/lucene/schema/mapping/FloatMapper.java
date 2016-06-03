@@ -43,7 +43,8 @@ public class FloatMapper extends SingleColumnMapper.SingleFieldMapper<Float> {
 
     /**
      * Builds a new {@link FloatMapper} using the specified boost.
-     *  @param field the name of the field
+     *
+     * @param field the name of the field
      * @param column the name of the column to be mapped
      * @param validated if the field must be validated
      * @param boost the boost

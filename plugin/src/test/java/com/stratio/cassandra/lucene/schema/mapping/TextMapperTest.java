@@ -18,8 +18,6 @@ package com.stratio.cassandra.lucene.schema.mapping;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.mapping.builder.TextMapperBuilder;
 import org.apache.lucene.document.Field;
-import org.apache.lucene.index.DocValuesType;
-import org.apache.lucene.search.SortField;
 import org.junit.Test;
 
 import java.util.UUID;

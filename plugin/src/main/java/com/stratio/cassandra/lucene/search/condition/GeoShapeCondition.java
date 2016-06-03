@@ -30,7 +30,8 @@ import org.apache.lucene.spatial.query.SpatialArgs;
 
 import java.util.Collections;
 import java.util.List;
-import static com.stratio.cassandra.lucene.util.GeospatialUtilsJTS.*;
+
+import static com.stratio.cassandra.lucene.util.GeospatialUtilsJTS.geometry;
 
 /**
  * {@link Condition} that matches documents related to a JTS geographical shape. It is possible to apply a sequence of

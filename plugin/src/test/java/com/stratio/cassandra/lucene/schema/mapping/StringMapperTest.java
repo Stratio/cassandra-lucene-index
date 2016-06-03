@@ -21,11 +21,9 @@ import com.stratio.cassandra.lucene.schema.mapping.builder.StringMapperBuilder;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
-import org.apache.lucene.document.SortedDocValuesField;
 import org.apache.lucene.document.SortedSetDocValuesField;
 import org.apache.lucene.index.DocValuesType;
 import org.apache.lucene.index.IndexableField;
-import org.apache.lucene.index.SortedSetDocValues;
 import org.junit.Test;
 
 import java.util.UUID;

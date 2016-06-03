@@ -26,9 +26,7 @@ import java.util.Collections;
 import java.util.Set;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.schema;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}

@@ -34,7 +34,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
-import static com.stratio.cassandra.lucene.search.SearchBuilders.*;
+import static com.stratio.cassandra.lucene.search.SearchBuilders.match;
 import static org.junit.Assert.*;
 
 /**
