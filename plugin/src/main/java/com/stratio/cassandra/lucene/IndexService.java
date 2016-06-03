@@ -274,7 +274,37 @@ abstract class IndexService {
      * @param nowInSec now in seconds
      * @return maybe a document
      */
-    abstract Optional<Document> document(DecoratedKey key, Row row, int nowInSec);
+    Optional<Document> document(DecoratedKey key, Row row, int nowInSec) {
+        Document document = new Document();
+        Columns columns = columns(key, row).cleanDeleted(nowInSec);
+        schema.addFields(document, columns);
+        if (document.getFields().isEmpty()) {
+            return Optional.empty();
+        } else {
+            addKeyFields(document, key, row);
+            return Optional.of(document);
+        }
+    }
+
+    /**
+     * Returns the Lucene {@link Document} representing the specified {@link Row}.
+     *
+     * Only the fields required by the post processing phase of the specified {@link Search} will be added.
+     *
+     * @param key the partition key
+     * @param row the {@link Row}
+     * @param search a search
+     * @return a document
+     */
+    Document document(DecoratedKey key, Row row, Search search) {
+        Document document = new Document();
+        Columns columns = columns(key, row);
+        addKeyFields(document, key, row);
+        schema.addPostProcessingFields(document, columns, search);
+        return document;
+    }
+
+    protected abstract void addKeyFields(Document document, DecoratedKey key, Row row);
 
     /**
      * Returns a Lucene {@link Term} uniquely identifying the specified {@link Row}.
@@ -692,7 +722,7 @@ abstract class IndexService {
             List<Pair<DecoratedKey, SimpleRowIterator>> collectedRows = collect(partitions);
 
             // Skip if it doesn't use any kind of sorting
-            if (search.requiresPostProcessing()) {
+            if (search.requiresPostProcessing() && !collectedRows.isEmpty()) {
                 return process(search, limit, nowInSec, collectedRows);
             }
         }
@@ -722,7 +752,7 @@ abstract class IndexService {
                                             int limit,
                                             int nowInSec,
                                             List<Pair<DecoratedKey, SimpleRowIterator>> collectedRows) {
-        TimeCounter sortTime = TimeCounter.create().start();
+        TimeCounter time = TimeCounter.create().start();
         List<SimpleRowIterator> processedRows = new LinkedList<>();
         try {
 
@@ -734,10 +764,9 @@ abstract class IndexService {
                 SimpleRowIterator rowIterator = pair.right;
                 Row row = rowIterator.getRow();
                 Term term = term(key, row);
-                document(key, row, nowInSec).ifPresent(doc -> {
-                    rowsByTerm.put(term, rowIterator);
-                    index.add(doc);
-                });
+                rowsByTerm.put(term, rowIterator);
+                Document document = document(key, row, search);
+                index.add(document);
             }
 
             // Repeat search to sort partial results
@@ -760,7 +789,7 @@ abstract class IndexService {
             logger.debug("Post-processed {} collected rows to {} rows in {}",
                          collectedRows.size(),
                          processedRows.size(),
-                         sortTime.stop());
+                         time.stop());
         }
         return new SimplePartitionIterator(processedRows);
     }

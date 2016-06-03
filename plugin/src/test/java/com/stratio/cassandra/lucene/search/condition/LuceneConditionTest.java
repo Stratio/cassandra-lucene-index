@@ -15,6 +15,7 @@
  */
 package com.stratio.cassandra.lucene.search.condition;
 
+import com.google.common.collect.Sets;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.search.condition.builder.LuceneConditionBuilder;
@@ -23,6 +24,7 @@ import org.apache.lucene.search.TermQuery;
 import org.junit.Test;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.schema;
+import static com.stratio.cassandra.lucene.search.SearchBuilders.lucene;
 import static com.stratio.cassandra.lucene.search.condition.LuceneCondition.DEFAULT_FIELD;
 import static org.junit.Assert.*;
 
@@ -87,6 +89,19 @@ public class LuceneConditionTest extends AbstractConditionTest {
         Schema schema = schema().defaultAnalyzer("english").build();
         LuceneCondition condition = new LuceneCondition(0.7f, "field_1", ":");
         condition.query(schema);
+    }
+
+    @Test
+    public void testInvolvedFields() {
+        assertEquals("Involved fields is wrong",
+                     Sets.newHashSet("f0", "f1", "f2"),
+                     lucene("f1:3 \t AND f2:").defaultField("f0").build().involvedFields());
+        assertEquals("Involved fields is wrong with default field",
+                     Sets.newHashSet(LuceneCondition.DEFAULT_FIELD),
+                     lucene("f1 f2").build().involvedFields());
+        assertEquals("Involved fields is wrong with complex expressions",
+                     Sets.newHashSet(LuceneCondition.DEFAULT_FIELD, "date"),
+                     lucene("\"jakarta apache\"^4 date:[20020101 TO 20030101]").build().involvedFields());
     }
 
     @Test

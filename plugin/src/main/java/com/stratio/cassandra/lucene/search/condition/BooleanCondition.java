@@ -23,8 +23,10 @@ import org.apache.lucene.search.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import static org.apache.lucene.search.BooleanClause.Occur.*;
 
@@ -82,6 +84,15 @@ public class BooleanCondition extends Condition {
             builder.add(new MatchAllDocsQuery(), FILTER);
         }
         return builder.build();
+    }
+
+    /** {@inheritDoc} */
+    public Set<String> involvedFields() {
+        Set<String> fields = new LinkedHashSet<>();
+        must.stream().forEach(condition -> fields.addAll(condition.involvedFields()));
+        should.stream().forEach(condition -> fields.addAll(condition.involvedFields()));
+        not.stream().forEach(condition -> fields.addAll(condition.involvedFields()));
+        return fields;
     }
 
     /** {@inheritDoc} */

@@ -16,10 +16,12 @@
 package com.stratio.cassandra.lucene.search.sort;
 
 import com.google.common.base.MoreObjects;
+import com.google.common.collect.Sets;
 import com.stratio.cassandra.lucene.schema.Schema;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -64,6 +66,15 @@ public class Sort implements Iterable<SortField> {
      */
     public List<org.apache.lucene.search.SortField> sortFields(Schema schema) {
         return sortFields.stream().map(s -> s.sortField(schema)).collect(Collectors.toList());
+    }
+
+    /**
+     * Returns the names of the involved fields.
+     *
+     * @return the names of the involved fields
+     */
+    public Set<String> involvedFields() {
+        return sortFields.stream().flatMap(field -> field.involvedFields().stream()).collect(Collectors.toSet());
     }
 
     /** {@inheritDoc} */

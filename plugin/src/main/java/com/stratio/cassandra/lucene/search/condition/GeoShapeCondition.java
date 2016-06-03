@@ -24,7 +24,6 @@ import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.GeoPointMapper;
 import com.stratio.cassandra.lucene.schema.mapping.GeoShapeMapper;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
-import com.stratio.cassandra.lucene.util.GeospatialUtilsJTS;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.spatial.SpatialStrategy;
 import org.apache.lucene.spatial.query.SpatialArgs;
@@ -66,7 +65,7 @@ public class GeoShapeCondition extends SingleFieldCondition {
     /**
      * Constructor receiving the shape, the spatial operation to be done and the transformations to be applied.
      *
-     * @param boost The boost for this query clause. Documents matching this clause will (in addition to the normal
+     * @param boost the boost for this query clause. Documents matching this clause will (in addition to the normal
      * weightings) have their score multiplied by {@code boost}.
      * @param field the field name
      * @param shape the shape in <a href="http://en.wikipedia.org/wiki/Well-known_text"> WKT</a> format

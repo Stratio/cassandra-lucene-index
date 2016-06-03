@@ -20,6 +20,9 @@ import com.stratio.cassandra.lucene.schema.Schema;
 import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
 
+import java.util.Collections;
+import java.util.Set;
+
 /**
  * A {@link Condition} implementation that matches all documents.
  *
@@ -41,6 +44,11 @@ public class AllCondition extends Condition {
     @Override
     public Query doQuery(Schema schema) {
         return new MatchAllDocsQuery();
+    }
+
+    /** {@inheritDoc} */
+    public Set<String> involvedFields() {
+        return Collections.emptySet();
     }
 
     /** {@inheritDoc} */

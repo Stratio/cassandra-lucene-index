@@ -119,7 +119,7 @@ public class DocumentIterator implements CloseableIterator<Pair<Document, ScoreD
                 documents.add(Pair.create(document, scoreDoc));
             }
 
-            logger.debug("Get page with {} documents in {}", scoreDocs.length, time.stop());
+            logger.debug("Index query page fetched with {} documents in {}", scoreDocs.length, time.stop());
 
         } catch (Exception e) {
             close();

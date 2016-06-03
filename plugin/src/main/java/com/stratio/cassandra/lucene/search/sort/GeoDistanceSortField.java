@@ -27,6 +27,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.queries.function.ValueSource;
 import org.apache.lucene.spatial.SpatialStrategy;
 
+import java.util.Collections;
+import java.util.Set;
+
 import static com.stratio.cassandra.lucene.util.GeospatialUtils.CONTEXT;
 
 /**
@@ -80,6 +83,11 @@ public class GeoDistanceSortField extends SortField {
         // The distance (in km)
         ValueSource valueSource = strategy.makeDistanceValueSource(pt, DistanceUtils.DEG_TO_KM);
         return valueSource.getSortField(this.reverse);
+    }
+
+    /** {@inheritDoc} */
+    public Set<String> involvedFields() {
+        return Collections.singleton(field);
     }
 
     /** {@inheritDoc} */

@@ -21,6 +21,7 @@ import com.stratio.cassandra.lucene.column.Column;
 import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
+import com.stratio.cassandra.lucene.search.Search;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
 import org.apache.lucene.analysis.Analyzer;
@@ -157,6 +158,23 @@ public class Schema implements Closeable {
                              "caused by     : {}", columns, mapper, e.getMessage());
             }
         }
+    }
+
+    /**
+     * Adds to the specified {@link Document} the Lucene fields representing the specified {@link Columns} only if they
+     * are required by the post processing phase of the specified {@link Search}.
+     *
+     * @param document the Lucene {@link Document} where the fields are going to be added
+     * @param columns the {@link Columns} to be added
+     * @param search a search
+     */
+    public void addPostProcessingFields(Document document, Columns columns, Search search) {
+        search.postProcessingFields().stream().forEach(field -> {
+            Mapper mapper = getMapper(field);
+            if (mapper != null) {
+                mapper.addFields(document, columns);
+            }
+        });
     }
 
     /**

@@ -17,6 +17,8 @@ package com.stratio.cassandra.lucene.search.sort;
 
 import com.stratio.cassandra.lucene.schema.Schema;
 
+import java.util.Set;
+
 /**
  * A sorting for a field of a search.
  *
@@ -47,6 +49,13 @@ public abstract class SortField {
      * @return the Lucene's sort field
      */
     public abstract org.apache.lucene.search.SortField sortField(Schema schema);
+
+    /**
+     * Returns the names of the involved fields.
+     *
+     * @return the names of the involved fields
+     */
+    public abstract Set<String> involvedFields();
 
     /** {@inheritDoc} */
     @Override

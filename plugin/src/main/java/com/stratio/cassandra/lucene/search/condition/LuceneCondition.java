@@ -18,11 +18,20 @@ package com.stratio.cassandra.lucene.search.condition;
 import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.Schema;
+import com.stratio.cassandra.lucene.schema.analysis.StandardAnalyzers;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.Query;
+
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * A {@link Condition} implementation that matches documents satisfying a Lucene Query Syntax.
@@ -55,6 +64,20 @@ public class LuceneCondition extends Condition {
         }
         this.query = query;
         this.defaultField = defaultField == null ? DEFAULT_FIELD : defaultField;
+    }
+
+    /** {@inheritDoc} */
+    public Set<String> involvedFields() {
+        Set<String> fields = new LinkedHashSet<>();
+        if (!StringUtils.isBlank(defaultField)) {
+            fields.add(defaultField);
+        }
+        for (String term : query.split("[ ]")) {
+            if (term.contains(":")) {
+                fields.add(term.split(":")[0]);
+            }
+        }
+        return fields;
     }
 
     /** {@inheritDoc} */

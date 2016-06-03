@@ -22,6 +22,9 @@ import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
 import org.junit.Test;
 
+import java.util.Collections;
+import java.util.Set;
+
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.schema;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -41,6 +44,10 @@ public class ConditionTest {
         @Override
         public Query doQuery(Schema schema) {
             return new MatchAllDocsQuery();
+        }
+
+        public Set<String> involvedFields() {
+            return Collections.emptySet();
         }
 
         @Override

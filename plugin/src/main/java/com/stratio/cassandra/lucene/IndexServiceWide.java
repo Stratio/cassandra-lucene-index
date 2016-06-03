@@ -103,19 +103,11 @@ class IndexServiceWide extends IndexService {
 
     /** {@inheritDoc} */
     @Override
-    public Optional<Document> document(DecoratedKey key, Row row, int nowInSec) {
-        Document document = new Document();
-        Columns columns = columns(key, row).cleanDeleted(nowInSec);
-        schema.addFields(document, columns);
-        if (document.getFields().isEmpty()) {
-            return Optional.empty();
-        } else {
-            Clustering clustering = row.clustering();
-            tokenMapper.addFields(document, key);
-            partitionMapper.addFields(document, key);
-            keyMapper.addFields(document, key, clustering);
-            return Optional.of(document);
-        }
+    protected void addKeyFields(Document document, DecoratedKey key, Row row) {
+        Clustering clustering = row.clustering();
+        tokenMapper.addFields(document, key);
+        partitionMapper.addFields(document, key);
+        keyMapper.addFields(document, key, clustering);
     }
 
     /** {@inheritDoc} */

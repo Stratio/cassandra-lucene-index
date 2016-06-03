@@ -23,8 +23,10 @@ import com.stratio.cassandra.lucene.search.sort.Sort;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.SortField;
 
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Class representing an Lucene index search. It is formed by an optional querying {@link Condition} and an optional
@@ -170,6 +172,22 @@ public class Search {
 
     public IndexPagingState paging() {
         return paging;
+    }
+
+    /**
+     * Returns the names of the involved fields.
+     *
+     * @return the names of the involved fields
+     */
+    public Set<String> postProcessingFields() {
+        Set<String> fields = new LinkedHashSet<>();
+        if (query != null) {
+            fields.addAll(query.involvedFields());
+        }
+        if (sort != null) {
+            fields.addAll(sort.involvedFields());
+        }
+        return fields;
     }
 
     /**

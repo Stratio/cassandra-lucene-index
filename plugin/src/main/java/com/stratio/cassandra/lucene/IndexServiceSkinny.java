@@ -82,17 +82,9 @@ class IndexServiceSkinny extends IndexService {
 
     /** {@inheritDoc} */
     @Override
-    public Optional<Document> document(DecoratedKey key, Row row, int nowInSec) {
-        Document document = new Document();
-        Columns columns = columns(key, row).cleanDeleted(nowInSec);
-        schema.addFields(document, columns);
-        if (document.getFields().isEmpty()) {
-            return Optional.empty();
-        } else {
-            tokenMapper.addFields(document, key);
-            partitionMapper.addFields(document, key);
-            return Optional.of(document);
-        }
+    protected void addKeyFields(Document document, DecoratedKey key, Row row) {
+        tokenMapper.addFields(document, key);
+        partitionMapper.addFields(document, key);
     }
 
     /** {@inheritDoc} */

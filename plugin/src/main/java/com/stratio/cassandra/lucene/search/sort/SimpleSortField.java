@@ -21,6 +21,9 @@ import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Collections;
+import java.util.Set;
+
 import static org.apache.lucene.search.SortField.FIELD_SCORE;
 
 /**
@@ -73,6 +76,11 @@ public class SimpleSortField extends SortField {
         } else {
             return mapper.sortField(field, reverse);
         }
+    }
+
+    /** {@inheritDoc} */
+    public Set<String> involvedFields() {
+        return Collections.singleton(field);
     }
 
     /** {@inheritDoc} */
