@@ -43,6 +43,7 @@ import java.util.Map;
 
 import static org.apache.cassandra.cql3.statements.RequestValidations.checkNotNull;
 import static org.apache.cassandra.db.filter.RowFilter.Expression;
+import static org.apache.cassandra.transport.messages.ResultMessage.Rows;
 
 /**
  * {@link QueryHandler} to be used with Lucene searches.
@@ -208,7 +209,7 @@ class IndexQueryHandler implements QueryHandler {
         return execute(select, state, options);
     }
 
-    private ResultMessage.Rows executeSortedLuceneQuery(SelectStatement select, QueryState state, QueryOptions options)
+    private Rows executeSortedLuceneQuery(SelectStatement select, QueryState state, QueryOptions options)
     throws ReflectiveOperationException {
 
         // Check consistency level
@@ -225,26 +226,23 @@ class IndexQueryHandler implements QueryHandler {
         ReadQuery query = select.getQuery(options, nowInSec, Math.min(page, pagingState.remaining()));
         pagingState.rewrite(query);
 
-        // Read data
-        PartitionIterator data = null;
+        try (PartitionIterator data = data(query, cl, state)) {
+            PartitionIterator processedData = pagingState.update(query, data, options.getConsistency());
+            Rows rows = (Rows) processResults.invoke(select, processedData, options, nowInSec, page);
+            rows.result.metadata.setHasMorePages(pagingState.toPagingState());
+            return rows;
+        }
+    }
+
+    private PartitionIterator data(ReadQuery query, ConsistencyLevel cl, QueryState state)
+    throws ReflectiveOperationException {
         if (query instanceof SinglePartitionReadCommand.Group) {
             SinglePartitionReadCommand.Group group = (SinglePartitionReadCommand.Group) query;
             if (group.commands.size() > 1) {
-                data = LuceneStorageProxy.read(group, cl);
+                return LuceneStorageProxy.read(group, cl);
             }
-        } else {
-            data = query.execute(cl, state.getClientState());
         }
-
-        // Update paging state and make results
-        data = pagingState.update(query, data, options.getConsistency());
-        try {
-            ResultMessage.Rows rows = (ResultMessage.Rows) processResults.invoke(select, data, options, nowInSec, page);
-            rows.result.metadata.setHasMorePages(pagingState.toPagingState());
-            return rows;
-        } finally {
-            data.close();
-        }
+        return query.execute(cl, state.getClientState());
     }
 
 }
