@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.0.6.1 (upcoming)
+## 3.0.6.1 (3 June 2016)
 
 * Add support for CQL paging over sorted searches
 * Add support for sorted searches using IN operator
