@@ -130,7 +130,7 @@ public class ColumnTest {
         ByteBuffer decomposedValue = type.decompose(composedValue);
         Column<Long> column = Column.builder("my_column", 10).buildWithDecomposed(decomposedValue, type);
         assertEquals("Method #toString is wrong",
-                     "Column{fullName=my_column, buildWithComposed=5, type=LongType, deletionTime=10}",
+                     "Column{cell=my_column, name=my_column, value=5, type=LongType, deletionTime=10}",
                      column.toString());
     }
 
@@ -144,7 +144,7 @@ public class ColumnTest {
                                     .withMapName("2")
                                     .buildWithDecomposed(decomposedValue, type);
         assertEquals("Method #toString is wrong",
-                     "Column{fullName=my.1$2, buildWithComposed=5, type=LongType, deletionTime=10}",
+                     "Column{cell=my, name=my.1$2, value=5, type=LongType, deletionTime=10}",
                      column.toString());
     }
 }

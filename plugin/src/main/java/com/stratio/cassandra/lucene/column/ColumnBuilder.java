@@ -72,6 +72,10 @@ public class ColumnBuilder {
         return new Column<>(cellName, udtNames, mapNames, decomposedValue, composedValue, type, deletionTime);
     }
 
+    public <T> Column<T> buildWithNull(AbstractType<T> type) {
+        return new Column<>(cellName, udtNames, mapNames, null, null, type, deletionTime);
+    }
+
     /**
      * Returns this builder with the specified UDT name component.
      *

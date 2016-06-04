@@ -266,27 +266,6 @@ abstract class IndexService {
     abstract Columns columns(DecoratedKey key, Row row);
 
     /**
-     * Returns a {@code Optional} with the Lucene {@link Document} representing the specified {@link Row}, or  an empty
-     * {@code Optional} instance if the {@link Row} doesn't contain any of the columns mapped by the  {@link Schema}.
-     *
-     * @param key the partition key
-     * @param row the {@link Row}
-     * @param nowInSec now in seconds
-     * @return maybe a document
-     */
-    Optional<Document> document(DecoratedKey key, Row row, int nowInSec) {
-        Document document = new Document();
-        Columns columns = columns(key, row).cleanDeleted(nowInSec);
-        schema.addFields(document, columns);
-        if (document.getFields().isEmpty()) {
-            return Optional.empty();
-        } else {
-            addKeyFields(document, key, row);
-            return Optional.of(document);
-        }
-    }
-
-    /**
      * Returns the Lucene {@link Document} representing the specified {@link Row}.
      *
      * Only the fields required by the post processing phase of the specified {@link Search} will be added.
@@ -296,7 +275,7 @@ abstract class IndexService {
      * @param search a search
      * @return a document
      */
-    Document document(DecoratedKey key, Row row, Search search) {
+    private Document document(DecoratedKey key, Row row, Search search) {
         Document document = new Document();
         Columns columns = columns(key, row);
         addKeyFields(document, key, row);
@@ -344,7 +323,7 @@ abstract class IndexService {
      */
     boolean needsReadBeforeWrite(DecoratedKey key, Row row) {
         if (mapsMultiCells) {
-            return true;
+            return true; // TODO: Unneeded if all collections are tombstones
         } else {
             Columns columns = columns(key, row);
             return schema.getMappedCells().stream().anyMatch(x -> columns.getColumnsByCellName(x).isEmpty());
@@ -416,10 +395,18 @@ abstract class IndexService {
      * @param nowInSec now in seconds
      */
     void upsert(DecoratedKey key, Row row, int nowInSec) {
-        queue.submitAsynchronous(key, () -> document(key, row, nowInSec).ifPresent(document -> {
+        queue.submitAsynchronous(key, () -> {
             Term term = term(key, row);
-            lucene.upsert(term, document);
-        }));
+            Columns columns = columns(key, row).cleanDeleted(nowInSec);
+            Document document = new Document();
+            schema.addFields(document, columns);
+            if (document.getFields().isEmpty()) {
+                lucene.delete(term);
+            } else {
+                addKeyFields(document, key, row);
+                lucene.upsert(term, document);
+            }
+        });
     }
 
     /**

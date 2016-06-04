@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.0.6.2 (upcoming)
+ 
+* Fix deletion of columns with frozen type (UDT, tuples and frozen collections)
+
 ## 3.0.6.1 (03 June 2016)
 
 * Add support for CQL paging over sorted searches

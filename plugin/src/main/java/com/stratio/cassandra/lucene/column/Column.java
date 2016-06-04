@@ -235,21 +235,23 @@ public final class Column<T> {
     }
 
     /**
-     * Returns if the column is live in the specified timestamp.
+     * Returns if the column is deleted. A column is considered deleted if its value is {@code null} or if its deletion
+     * time is before than the specified time.
      *
-     * @param now a timestamp
-     * @return {@code true} if the column is live in {@code now}, {@code false} otherwise
+     * @param nowInSec the max allowed time in seconds
+     * @return {@code true} if the column is a deletion, {@code false} otherwise
      */
-    public boolean isLive(long now) {
-        return now < deletionTime;
+    public boolean isDeleted(int nowInSec) {
+        return composedValue == null || decomposedValue == null || nowInSec < deletionTime;
     }
 
     /** {@inheritDoc} */
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-                          .add("fullName", getFullName())
-                          .add("buildWithComposed", getComposedValue())
+                          .add("cell", cellName)
+                          .add("name", getFullName())
+                          .add("value", getComposedValue())
                           .add("type", type.getClass().getSimpleName())
                           .add("deletionTime", deletionTime)
                           .toString();

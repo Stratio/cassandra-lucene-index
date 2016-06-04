@@ -165,7 +165,7 @@ public class Columns implements Iterable<Column<?>> {
     public Columns cleanDeleted(int nowInSec) {
         Columns clean = new Columns();
         columns.forEach(column -> {
-            if (column.isLive(nowInSec)) {
+            if (column.isDeleted(nowInSec)) {
                 clean.add(column);
             }
         });
