@@ -1,5 +1,7 @@
 # Changelog
 
+## 3.0.6.3 (upcoming)
+
 ## 3.0.6.2 (06 June 2016)
  
 * Fix deletion of columns with frozen type (UDT, tuples and frozen collections)
