@@ -49,7 +49,7 @@ public class BitemporalSearchAT extends BaseAT {
     private static final String TIMESTAMP_PATTERN = "timestamp";
     private static final String SIMPLE_DATE_PATTERN = "yyyy/MM/dd HH:mm:ss.SSS";
 
-    protected static CassandraUtils cassandraUtils;
+    protected static CassandraUtils utils;
 
     public static final Map<String, String> data1;
     public static final Map<String, String> data2;
@@ -176,25 +176,25 @@ public class BitemporalSearchAT extends BaseAT {
     @BeforeClass
     public static void setUpSuite() throws InterruptedException {
         Mapper mapper = bitemporalMapper("vt_from", "vt_to", "tt_from", "tt_to").pattern("yyyy/MM/dd HH:mm:ss.SSS");
-        cassandraUtils = CassandraUtils.builder("bitemporal")
-                                       .withPartitionKey("integer_1")
-                                       .withClusteringKey()
-                                       .withColumn("integer_1", "int")
-                                       .withColumn("vt_from", "text")
-                                       .withColumn("vt_to", "text")
-                                       .withColumn("tt_from", "text")
-                                       .withColumn("tt_to", "text")
-                                       .withMapper("bitemporal", mapper)
-                                       .build()
-                                       .createKeyspace()
-                                       .createTable()
-                                       .createIndex()
-                                       .insert(data1, data2, data3, data4, data5);
+        utils = CassandraUtils.builder("bitemporal")
+                              .withPartitionKey("integer_1")
+                              .withClusteringKey()
+                              .withColumn("integer_1", "int")
+                              .withColumn("vt_from", "text")
+                              .withColumn("vt_to", "text")
+                              .withColumn("tt_from", "text")
+                              .withColumn("tt_to", "text")
+                              .withMapper("bitemporal", mapper)
+                              .build()
+                              .createKeyspace()
+                              .createTable()
+                              .createIndex()
+                              .insert(data1, data2, data3, data4, data5);
     }
 
     @AfterClass
     public static void tearDownSuite() {
-        cassandraUtils.dropIndex().dropTable().dropKeyspace();
+        utils.dropIndex().dropTable().dropKeyspace();
     }
 
     private String fromInteger(Integer[] list) {
@@ -229,10 +229,10 @@ public class BitemporalSearchAT extends BaseAT {
 
     @Test
     public void biTemporalQueryIntersectsTimeStampFieldTest() {
-        CassandraUtilsSelect select = cassandraUtils.query(bitemporal("bitemporal").vtFrom("2015/01/01 00:00:00.000")
-                                                                                   .vtTo("2015/02/01 12:00:00.000")
-                                                                                   .ttFrom("2015/01/15 12:00:00.001")
-                                                                                   .ttTo("2015/02/15 12:00:00.000"));
+        CassandraUtilsSelect select = utils.query(bitemporal("bitemporal").vtFrom("2015/01/01 00:00:00.000")
+                                                                          .vtTo("2015/02/01 12:00:00.000")
+                                                                          .ttFrom("2015/01/15 12:00:00.001")
+                                                                          .ttTo("2015/02/15 12:00:00.000"));
 
         assertEquals("Expected 1 results!", 1, select.count());
         assertTrue("Unexpected results!! Expected: {1}, got: " + fromInteger(select.intColumn("integer_1")),
@@ -241,10 +241,10 @@ public class BitemporalSearchAT extends BaseAT {
 
     @Test
     public void biTemporalQueryIntersectsTimeStampFieldTest2() {
-        CassandraUtilsSelect select = cassandraUtils.query(bitemporal("bitemporal").vtFrom("2015/02/01 12:00:00.001")
-                                                                                   .vtTo("2015/03/01 12:00:00.000")
-                                                                                   .ttFrom("2015/02/15 12:00:00.001")
-                                                                                   .ttTo("2015/03/15 12:00:00.000"));
+        CassandraUtilsSelect select = utils.query(bitemporal("bitemporal").vtFrom("2015/02/01 12:00:00.001")
+                                                                          .vtTo("2015/03/01 12:00:00.000")
+                                                                          .ttFrom("2015/02/15 12:00:00.001")
+                                                                          .ttTo("2015/03/15 12:00:00.000"));
 
         assertEquals("Expected 1 results!", 1, select.count());
         assertTrue("Unexpected results!! Expected: {2}, got: " + fromInteger(select.intColumn("integer_1")),
@@ -253,10 +253,10 @@ public class BitemporalSearchAT extends BaseAT {
 
     @Test
     public void biTemporalQueryIntersectsTimeStampFieldTest3() {
-        CassandraUtilsSelect select = cassandraUtils.query(bitemporal("bitemporal").vtFrom("2015/03/01 12:00:00.001")
-                                                                                   .vtTo("2015/04/01 12:00:00.000")
-                                                                                   .ttFrom("2015/03/15 12:00:00.001")
-                                                                                   .ttTo("2015/04/15 12:00:00.000"));
+        CassandraUtilsSelect select = utils.query(bitemporal("bitemporal").vtFrom("2015/03/01 12:00:00.001")
+                                                                          .vtTo("2015/04/01 12:00:00.000")
+                                                                          .ttFrom("2015/03/15 12:00:00.001")
+                                                                          .ttTo("2015/04/15 12:00:00.000"));
 
         assertEquals("Expected 1 results!", 1, select.count());
         assertTrue("Unexpected results!! Expected: {3}, got: " + fromInteger(select.intColumn("integer_1")),
@@ -265,10 +265,10 @@ public class BitemporalSearchAT extends BaseAT {
 
     @Test
     public void biTemporalQueryIntersectsTimeStampFieldTest4() {
-        CassandraUtilsSelect select = cassandraUtils.query(bitemporal("bitemporal").vtFrom("2015/04/01 12:00:00.001")
-                                                                                   .vtTo("2015/05/01 12:00:00.000")
-                                                                                   .ttFrom("2015/04/15 12:00:00.001")
-                                                                                   .ttTo("2015/05/15 12:00:00.000"));
+        CassandraUtilsSelect select = utils.query(bitemporal("bitemporal").vtFrom("2015/04/01 12:00:00.001")
+                                                                          .vtTo("2015/05/01 12:00:00.000")
+                                                                          .ttFrom("2015/04/15 12:00:00.001")
+                                                                          .ttTo("2015/05/15 12:00:00.000"));
 
         assertEquals("Expected 1 results!", 1, select.count());
         assertTrue("Unexpected results!! Expected: {4}, got: " + fromInteger(select.intColumn("integer_1")),
@@ -277,10 +277,10 @@ public class BitemporalSearchAT extends BaseAT {
 
     @Test
     public void biTemporalQueryIntersectsTimeStampFieldTest5() {
-        CassandraUtilsSelect select = cassandraUtils.query(bitemporal("bitemporal").vtFrom("2015/05/01 12:00:00.001")
-                                                                                   .vtTo("2015/06/01 12:00:00.000")
-                                                                                   .ttFrom("2015/05/15 12:00:00.001")
-                                                                                   .ttTo("2015/06/15 12:00:00.000"));
+        CassandraUtilsSelect select = utils.query(bitemporal("bitemporal").vtFrom("2015/05/01 12:00:00.001")
+                                                                          .vtTo("2015/06/01 12:00:00.000")
+                                                                          .ttFrom("2015/05/15 12:00:00.001")
+                                                                          .ttTo("2015/06/15 12:00:00.000"));
         assertEquals("Expected 1 results!", 1, select.count());
         assertTrue("Unexpected results!! Expected: {5}, got: " + fromInteger(select.intColumn("integer_1")),
                    isThisAndOnlyThis(select.intColumn("integer_1"), new int[]{5}));
@@ -288,10 +288,10 @@ public class BitemporalSearchAT extends BaseAT {
 
     @Test
     public void biTemporalQueryIntersectsTimeStampFieldTest6() {
-        CassandraUtilsSelect select = cassandraUtils.query(bitemporal("bitemporal").vtFrom("2014/12/31 12:00:00.000")
-                                                                                   .vtTo("2015/03/02 00:00:00.000")
-                                                                                   .ttFrom("2015/01/14 00:00:00.000")
-                                                                                   .ttTo("2015/04/02 00:00:00.000"));
+        CassandraUtilsSelect select = utils.query(bitemporal("bitemporal").vtFrom("2014/12/31 12:00:00.000")
+                                                                          .vtTo("2015/03/02 00:00:00.000")
+                                                                          .ttFrom("2015/01/14 00:00:00.000")
+                                                                          .ttTo("2015/04/02 00:00:00.000"));
         assertEquals("Expected 3 results!", 3, select.count());
         assertTrue("Unexpected results!! Expected: {1,2,3}, got: " + fromInteger(select.intColumn("integer_1")),
                    isThisAndOnlyThis(select.intColumn("integer_1"), new int[]{1, 2, 3}));
@@ -299,10 +299,10 @@ public class BitemporalSearchAT extends BaseAT {
 
     @Test
     public void biTemporalQueryIntersectsTimeStampFieldTest7() {
-        CassandraUtilsSelect select = cassandraUtils.query(bitemporal("bitemporal").vtFrom("2014/12/01 12:00:00.000")
-                                                                                   .vtTo("2014/12/31 00:00:00.000")
-                                                                                   .ttFrom("2015/01/14 00:00:00.000")
-                                                                                   .ttTo("2015/04/02 00:00:00.000"));
+        CassandraUtilsSelect select = utils.query(bitemporal("bitemporal").vtFrom("2014/12/01 12:00:00.000")
+                                                                          .vtTo("2014/12/31 00:00:00.000")
+                                                                          .ttFrom("2015/01/14 00:00:00.000")
+                                                                          .ttTo("2015/04/02 00:00:00.000"));
 
         assertEquals("Expected 0 results!", 0, select.count());
         assertTrue("Unexpected results!! Expected: {}, got: " + fromInteger(select.intColumn("integer_1")),
@@ -311,10 +311,10 @@ public class BitemporalSearchAT extends BaseAT {
 
     @Test
     public void biTemporalQueryIntersectsTimeStampFieldTest8() {
-        CassandraUtilsSelect select = cassandraUtils.query(bitemporal("bitemporal").vtFrom("2015/01/01 00:00:00.000")
-                                                                                   .vtTo("2015/02/01 12:00:00.001")
-                                                                                   .ttFrom("2015/01/15 12:00:00.001")
-                                                                                   .ttTo("2015/02/15 12:00:00.001"));
+        CassandraUtilsSelect select = utils.query(bitemporal("bitemporal").vtFrom("2015/01/01 00:00:00.000")
+                                                                          .vtTo("2015/02/01 12:00:00.001")
+                                                                          .ttFrom("2015/01/15 12:00:00.001")
+                                                                          .ttTo("2015/02/15 12:00:00.001"));
         assertEquals("Expected 2 results!", 2, select.count());
         assertTrue("Unexpected results!! Expected: {1,2}, got: " + fromInteger(select.intColumn("integer_1")),
                    isThisAndOnlyThis(select.intColumn("integer_1"), new int[]{1, 2}));
@@ -322,10 +322,10 @@ public class BitemporalSearchAT extends BaseAT {
 
     @Test
     public void biTemporalQueryIntersectsTimeStampFieldTest9() {
-        CassandraUtilsSelect select = cassandraUtils.query(bitemporal("bitemporal").vtFrom("2015/02/01 12:00:00.000")
-                                                                                   .vtTo("2015/03/01 12:00:00.000")
-                                                                                   .ttFrom("2015/02/15 12:00:00.000")
-                                                                                   .ttTo("2015/03/15 12:00:00.000"));
+        CassandraUtilsSelect select = utils.query(bitemporal("bitemporal").vtFrom("2015/02/01 12:00:00.000")
+                                                                          .vtTo("2015/03/01 12:00:00.000")
+                                                                          .ttFrom("2015/02/15 12:00:00.000")
+                                                                          .ttTo("2015/03/15 12:00:00.000"));
         assertEquals("Expected 2 results!", 2, select.count());
         assertTrue("Unexpected results!! Expected: {1,2}, got: " + fromInteger(select.intColumn("integer_1")),
                    isThisAndOnlyThis(select.intColumn("integer_1"), new int[]{1, 2}));
@@ -398,7 +398,7 @@ public class BitemporalSearchAT extends BaseAT {
         data.put("vt_to", "9223372036854775807");
         data.put("tt_from", "9223372036854775807");
         data.put("tt_to", "0");
-        cassandraUtils.insert(data);
+        utils.insert(data);
     }
 
     //tt_to<tt_from
@@ -412,7 +412,7 @@ public class BitemporalSearchAT extends BaseAT {
         data.put("vt_to", "0");
         data.put("tt_from", "0");
         data.put("tt_to", "9223372036854775807");
-        cassandraUtils.insert(data);
+        utils.insert(data);
     }
 
     //valid String max value queries setting nowValue to max date in data3

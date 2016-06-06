@@ -34,50 +34,50 @@ import static org.junit.Assert.*;
 @RunWith(JUnit4.class)
 public class SimpleKeyDataDeletionAT extends BaseAT {
 
-    private CassandraUtils cassandraUtils;
+    private CassandraUtils utils;
 
     @Before
     public void before() {
-        cassandraUtils = CassandraUtils.builder("simple_key_data_deletion")
-                                       .withPartitionKey("integer_1")
-                                       .withClusteringKey()
-                                       .withColumn("ascii_1", "ascii")
-                                       .withColumn("bigint_1", "bigint")
-                                       .withColumn("blob_1", "blob")
-                                       .withColumn("boolean_1", "boolean")
-                                       .withColumn("decimal_1", "decimal")
-                                       .withColumn("date_1", "timestamp")
-                                       .withColumn("double_1", "double")
-                                       .withColumn("float_1", "float")
-                                       .withColumn("integer_1", "int")
-                                       .withColumn("inet_1", "inet")
-                                       .withColumn("text_1", "text")
-                                       .withColumn("varchar_1", "varchar")
-                                       .withColumn("uuid_1", "uuid")
-                                       .withColumn("timeuuid_1", "timeuuid")
-                                       .withColumn("list_1", "list<text>")
-                                       .withColumn("set_1", "set<text>")
-                                       .withColumn("map_1", "map<text,text>")
-                                       .build()
-                                       .createKeyspace()
-                                       .createTable()
-                                       .createIndex()
-                                       .insert(data1, data2, data3, data4, data5);
+        utils = CassandraUtils.builder("simple_key_data_deletion")
+                              .withPartitionKey("integer_1")
+                              .withClusteringKey()
+                              .withColumn("ascii_1", "ascii")
+                              .withColumn("bigint_1", "bigint")
+                              .withColumn("blob_1", "blob")
+                              .withColumn("boolean_1", "boolean")
+                              .withColumn("decimal_1", "decimal")
+                              .withColumn("date_1", "timestamp")
+                              .withColumn("double_1", "double")
+                              .withColumn("float_1", "float")
+                              .withColumn("integer_1", "int")
+                              .withColumn("inet_1", "inet")
+                              .withColumn("text_1", "text")
+                              .withColumn("varchar_1", "varchar")
+                              .withColumn("uuid_1", "uuid")
+                              .withColumn("timeuuid_1", "timeuuid")
+                              .withColumn("list_1", "list<text>")
+                              .withColumn("set_1", "set<text>")
+                              .withColumn("map_1", "map<text,text>")
+                              .build()
+                              .createKeyspace()
+                              .createTable()
+                              .createIndex()
+                              .insert(data1, data2, data3, data4, data5);
     }
 
     @After
     public void after() {
-        cassandraUtils.dropTable().dropKeyspace();
+        utils.dropTable().dropKeyspace();
     }
 
     @Test
     public void columnDeletion() {
 
-        List<Row> rows = cassandraUtils.delete("bigint_1")
-                                       .where("integer_1", 1)
-                                       .waitForIndexing()
-                                       .query(wildcard("ascii_1", "*"))
-                                       .get();
+        List<Row> rows = utils.delete("bigint_1")
+                              .where("integer_1", 1)
+                              .waitForIndexing()
+                              .query(wildcard("ascii_1", "*"))
+                              .get();
 
         assertEquals("Expected 5 results!", 5, rows.size());
 
@@ -93,11 +93,11 @@ public class SimpleKeyDataDeletionAT extends BaseAT {
     @Test
     public void mapElementDeletion() {
 
-        List<Row> rows = cassandraUtils.delete("map_1['k1']")
-                                       .where("integer_1", 1)
-                                       .waitForIndexing()
-                                       .query(wildcard("ascii_1", "*"))
-                                       .get();
+        List<Row> rows = utils.delete("map_1['k1']")
+                              .where("integer_1", 1)
+                              .waitForIndexing()
+                              .query(wildcard("ascii_1", "*"))
+                              .get();
 
         assertEquals("Expected 5 results!", 5, rows.size());
 
@@ -117,11 +117,11 @@ public class SimpleKeyDataDeletionAT extends BaseAT {
     @Test
     public void listElementDeletion() {
 
-        List<Row> rows = cassandraUtils.delete("list_1[0]")
-                                       .where("integer_1", 1)
-                                       .waitForIndexing()
-                                       .query(wildcard("ascii_1", "*"))
-                                       .get();
+        List<Row> rows = utils.delete("list_1[0]")
+                              .where("integer_1", 1)
+                              .waitForIndexing()
+                              .query(wildcard("ascii_1", "*"))
+                              .get();
 
         assertEquals("Expected 5 results!", 5, rows.size());
 
@@ -140,6 +140,6 @@ public class SimpleKeyDataDeletionAT extends BaseAT {
 
     @Test
     public void totalPartitionDeletion() {
-        cassandraUtils.delete().where("integer_1", 1).waitForIndexing().query(wildcard("ascii_1", "*")).check(4);
+        utils.delete().where("integer_1", 1).waitForIndexing().query(wildcard("ascii_1", "*")).check(4);
     }
 }

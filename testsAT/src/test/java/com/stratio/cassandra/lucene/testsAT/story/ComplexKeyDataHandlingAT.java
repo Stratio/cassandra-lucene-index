@@ -29,200 +29,200 @@ import static com.stratio.cassandra.lucene.testsAT.story.DataHelper.*;
 @RunWith(JUnit4.class)
 public class ComplexKeyDataHandlingAT extends BaseAT {
 
-    private CassandraUtils cassandraUtils;
+    private CassandraUtils utils;
 
     @Before
     public void before() {
-        cassandraUtils = CassandraUtils.builder("complex_key_data_handling")
-                                       .withPartitionKey("integer_1", "ascii_1")
-                                       .withClusteringKey("double_1")
-                                       .withColumn("ascii_1", "ascii")
-                                       .withColumn("bigint_1", "bigint")
-                                       .withColumn("blob_1", "blob")
-                                       .withColumn("boolean_1", "boolean")
-                                       .withColumn("decimal_1", "decimal")
-                                       .withColumn("date_1", "timestamp")
-                                       .withColumn("double_1", "double")
-                                       .withColumn("float_1", "float")
-                                       .withColumn("integer_1", "int")
-                                       .withColumn("inet_1", "inet")
-                                       .withColumn("text_1", "text")
-                                       .withColumn("varchar_1", "varchar")
-                                       .withColumn("uuid_1", "uuid")
-                                       .withColumn("timeuuid_1", "timeuuid")
-                                       .withColumn("list_1", "list<text>")
-                                       .withColumn("set_1", "set<text>")
-                                       .withColumn("map_1", "map<text,text>")
-                                       .build()
-                                       .createKeyspace()
-                                       .createTable()
-                                       .insert(data1,
-                                               data2,
-                                               data3,
-                                               data6,
-                                               data7,
-                                               data8,
-                                               data9,
-                                               data10,
-                                               data11,
-                                               data12,
-                                               data13,
-                                               data14,
-                                               data15,
-                                               data16,
-                                               data17,
-                                               data18,
-                                               data19,
-                                               data20)
-                                       .createIndex()
-                                       .waitForIndexing()
-                                       .waitForIndexing();
+        utils = CassandraUtils.builder("complex_key_data_handling")
+                              .withPartitionKey("integer_1", "ascii_1")
+                              .withClusteringKey("double_1")
+                              .withColumn("ascii_1", "ascii")
+                              .withColumn("bigint_1", "bigint")
+                              .withColumn("blob_1", "blob")
+                              .withColumn("boolean_1", "boolean")
+                              .withColumn("decimal_1", "decimal")
+                              .withColumn("date_1", "timestamp")
+                              .withColumn("double_1", "double")
+                              .withColumn("float_1", "float")
+                              .withColumn("integer_1", "int")
+                              .withColumn("inet_1", "inet")
+                              .withColumn("text_1", "text")
+                              .withColumn("varchar_1", "varchar")
+                              .withColumn("uuid_1", "uuid")
+                              .withColumn("timeuuid_1", "timeuuid")
+                              .withColumn("list_1", "list<text>")
+                              .withColumn("set_1", "set<text>")
+                              .withColumn("map_1", "map<text,text>")
+                              .build()
+                              .createKeyspace()
+                              .createTable()
+                              .insert(data1,
+                                      data2,
+                                      data3,
+                                      data6,
+                                      data7,
+                                      data8,
+                                      data9,
+                                      data10,
+                                      data11,
+                                      data12,
+                                      data13,
+                                      data14,
+                                      data15,
+                                      data16,
+                                      data17,
+                                      data18,
+                                      data19,
+                                      data20)
+                              .createIndex()
+                              .waitForIndexing()
+                              .waitForIndexing();
     }
 
     @After
     public void after() {
-        cassandraUtils.dropTable().dropKeyspace();
+        utils.dropTable().dropKeyspace();
     }
 
     @Test
     public void singleInsertion() {
-        cassandraUtils.insert(data4)
-                      .waitForIndexing()
-                      .filter(wildcard("ascii_1", "*"))
-                      .check(19)
-                      .insert(data5)
-                      .waitForIndexing()
-                      .filter(wildcard("ascii_1", "*"))
-                      .check(20)
-                      .delete()
-                      .where("integer_1", 4)
-                      .and("ascii_1", "ascii")
-                      .and("double_1", 1)
-                      .waitForIndexing()
-                      .filter(wildcard("ascii_1", "*"))
-                      .check(19)
-                      .delete()
-                      .where("integer_1", 5)
-                      .and("ascii_1", "ascii")
-                      .and("double_1", 1)
-                      .waitForIndexing()
-                      .filter(wildcard("ascii_1", "*"))
-                      .check(18)
-                      .delete()
-                      .where("integer_1", 2)
-                      .and("ascii_1", "ascii")
-                      .and("double_1", 1)
-                      .waitForIndexing()
-                      .filter(wildcard("ascii_1", "*"))
-                      .check(17)
-                      .delete()
-                      .where("integer_1", 3)
-                      .and("ascii_1", "ascii")
-                      .and("double_1", 1)
-                      .waitForIndexing()
-                      .filter(wildcard("ascii_1", "*"))
-                      .check(16)
-                      .delete()
-                      .where("integer_1", 1)
-                      .and("ascii_1", "ascii")
-                      .and("double_1", 1)
-                      .waitForIndexing()
-                      .filter(wildcard("ascii_1", "*"))
-                      .check(15);
+        utils.insert(data4)
+             .waitForIndexing()
+             .filter(wildcard("ascii_1", "*"))
+             .check(19)
+             .insert(data5)
+             .waitForIndexing()
+             .filter(wildcard("ascii_1", "*"))
+             .check(20)
+             .delete()
+             .where("integer_1", 4)
+             .and("ascii_1", "ascii")
+             .and("double_1", 1)
+             .waitForIndexing()
+             .filter(wildcard("ascii_1", "*"))
+             .check(19)
+             .delete()
+             .where("integer_1", 5)
+             .and("ascii_1", "ascii")
+             .and("double_1", 1)
+             .waitForIndexing()
+             .filter(wildcard("ascii_1", "*"))
+             .check(18)
+             .delete()
+             .where("integer_1", 2)
+             .and("ascii_1", "ascii")
+             .and("double_1", 1)
+             .waitForIndexing()
+             .filter(wildcard("ascii_1", "*"))
+             .check(17)
+             .delete()
+             .where("integer_1", 3)
+             .and("ascii_1", "ascii")
+             .and("double_1", 1)
+             .waitForIndexing()
+             .filter(wildcard("ascii_1", "*"))
+             .check(16)
+             .delete()
+             .where("integer_1", 1)
+             .and("ascii_1", "ascii")
+             .and("double_1", 1)
+             .waitForIndexing()
+             .filter(wildcard("ascii_1", "*"))
+             .check(15);
     }
 
     @Test
     public void multipleInsertion() {
-        cassandraUtils.insert(data4, data5)
-                      .waitForIndexing()
-                      .filter(wildcard("ascii_1", "*"))
-                      .check(20)
-                      .delete()
-                      .where("integer_1", 4)
-                      .and("ascii_1", "ascii")
-                      .and("double_1", 1)
-                      .waitForIndexing()
-                      .filter(wildcard("ascii_1", "*"))
-                      .check(19)
-                      .delete()
-                      .where("integer_1", 5)
-                      .and("ascii_1", "ascii")
-                      .and("double_1", 1)
-                      .waitForIndexing()
-                      .filter(wildcard("ascii_1", "*"))
-                      .check(18)
-                      .delete()
-                      .where("integer_1", 2)
-                      .and("ascii_1", "ascii")
-                      .and("double_1", 1)
-                      .waitForIndexing()
-                      .filter(wildcard("ascii_1", "*"))
-                      .check(17)
-                      .delete()
-                      .where("integer_1", 3)
-                      .and("ascii_1", "ascii")
-                      .and("double_1", 1)
-                      .waitForIndexing()
-                      .filter(wildcard("ascii_1", "*"))
-                      .check(16)
-                      .delete()
-                      .where("integer_1", 1)
-                      .and("ascii_1", "ascii")
-                      .and("double_1", 1)
-                      .waitForIndexing()
-                      .filter(wildcard("ascii_1", "*"))
-                      .check(15);
+        utils.insert(data4, data5)
+             .waitForIndexing()
+             .filter(wildcard("ascii_1", "*"))
+             .check(20)
+             .delete()
+             .where("integer_1", 4)
+             .and("ascii_1", "ascii")
+             .and("double_1", 1)
+             .waitForIndexing()
+             .filter(wildcard("ascii_1", "*"))
+             .check(19)
+             .delete()
+             .where("integer_1", 5)
+             .and("ascii_1", "ascii")
+             .and("double_1", 1)
+             .waitForIndexing()
+             .filter(wildcard("ascii_1", "*"))
+             .check(18)
+             .delete()
+             .where("integer_1", 2)
+             .and("ascii_1", "ascii")
+             .and("double_1", 1)
+             .waitForIndexing()
+             .filter(wildcard("ascii_1", "*"))
+             .check(17)
+             .delete()
+             .where("integer_1", 3)
+             .and("ascii_1", "ascii")
+             .and("double_1", 1)
+             .waitForIndexing()
+             .filter(wildcard("ascii_1", "*"))
+             .check(16)
+             .delete()
+             .where("integer_1", 1)
+             .and("ascii_1", "ascii")
+             .and("double_1", 1)
+             .waitForIndexing()
+             .filter(wildcard("ascii_1", "*"))
+             .check(15);
     }
 
     @Test
     public void multipleDeletion() {
-        cassandraUtils.delete()
-                      .where("integer_1", 2)
-                      .and("ascii_1", "ascii")
-                      .and("double_1", 1)
-                      .delete()
-                      .where("integer_1", 3)
-                      .and("ascii_1", "ascii")
-                      .and("double_1", 1)
-                      .waitForIndexing()
-                      .filter(wildcard("ascii_1", "*"))
-                      .check(16)
-                      .delete()
-                      .where("integer_1", 1)
-                      .and("ascii_1", "ascii")
-                      .and("double_1", 1)
-                      .waitForIndexing()
-                      .filter(wildcard("ascii_1", "*"))
-                      .check(15);
+        utils.delete()
+             .where("integer_1", 2)
+             .and("ascii_1", "ascii")
+             .and("double_1", 1)
+             .delete()
+             .where("integer_1", 3)
+             .and("ascii_1", "ascii")
+             .and("double_1", 1)
+             .waitForIndexing()
+             .filter(wildcard("ascii_1", "*"))
+             .check(16)
+             .delete()
+             .where("integer_1", 1)
+             .and("ascii_1", "ascii")
+             .and("double_1", 1)
+             .waitForIndexing()
+             .filter(wildcard("ascii_1", "*"))
+             .check(15);
     }
 
     @Test
     public void updateTest() {
-        cassandraUtils.query(wildcard("text_1", "text"))
-                      .check(18)
-                      .update()
-                      .set("text_1", "other")
-                      .where("integer_1", 4)
-                      .and("ascii_1", "ascii")
-                      .and("double_1", 1)
-                      .waitForIndexing()
-                      .filter(wildcard("text_1", "text"))
-                      .check(17)
-                      .filter(wildcard("text_1", "other"))
-                      .check(1);
+        utils.query(wildcard("text_1", "text"))
+             .check(18)
+             .update()
+             .set("text_1", "other")
+             .where("integer_1", 4)
+             .and("ascii_1", "ascii")
+             .and("double_1", 1)
+             .waitForIndexing()
+             .filter(wildcard("text_1", "text"))
+             .check(17)
+             .filter(wildcard("text_1", "other"))
+             .check(1);
     }
 
     @Test
     public void insertWithUpdateTest() {
-        cassandraUtils.query(wildcard("text_1", "text"))
-                      .check(18)
-                      .update()
-                      .set("text_1", "new")
-                      .where("integer_1", 1000)
-                      .and("ascii_1", "ascii")
-                      .and("double_1", 1)
-                      .waitForIndexing()
-                      .query(wildcard("text_1", "new"))
-                      .check(1);
+        utils.query(wildcard("text_1", "text"))
+             .check(18)
+             .update()
+             .set("text_1", "new")
+             .where("integer_1", 1000)
+             .and("ascii_1", "ascii")
+             .and("double_1", 1)
+             .waitForIndexing()
+             .query(wildcard("text_1", "new"))
+             .check(1);
     }
 }

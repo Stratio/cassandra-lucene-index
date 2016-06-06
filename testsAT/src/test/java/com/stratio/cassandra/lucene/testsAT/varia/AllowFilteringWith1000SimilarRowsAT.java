@@ -26,70 +26,70 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class AllowFilteringWith1000SimilarRowsAT extends BaseAT {
 
-    private static CassandraUtils cassandraUtils;
+    private static CassandraUtils utils;
 
     @BeforeClass
     public static void before() {
-        cassandraUtils = CassandraUtils.builder("filtering_1000_similar")
-                                       .withPartitionKey("integer_1")
-                                       .withClusteringKey()
-                                       .withColumn("ascii_1", "ascii")
-                                       .withColumn("bigint_1", "bigint")
-                                       .withColumn("blob_1", "blob")
-                                       .withColumn("boolean_1", "boolean")
-                                       .withColumn("decimal_1", "decimal")
-                                       .withColumn("date_1", "timestamp")
-                                       .withColumn("double_1", "double")
-                                       .withColumn("float_1", "float")
-                                       .withColumn("integer_1", "int")
-                                       .withColumn("inet_1", "inet")
-                                       .withColumn("text_1", "text")
-                                       .withColumn("varchar_1", "varchar")
-                                       .withColumn("uuid_1", "uuid")
-                                       .withColumn("timeuuid_1", "timeuuid")
-                                       .withColumn("list_1", "list<text>")
-                                       .withColumn("set_1", "set<text>")
-                                       .withColumn("map_1", "map<text,text>")
-                                       .build()
-                                       .createKeyspace()
-                                       .createTable()
-                                       .createIndex();
-        DataHelper.generateCustomInsertions(1000, cassandraUtils);
-        cassandraUtils.refresh();
+        utils = CassandraUtils.builder("filtering_1000_similar")
+                              .withPartitionKey("integer_1")
+                              .withClusteringKey()
+                              .withColumn("ascii_1", "ascii")
+                              .withColumn("bigint_1", "bigint")
+                              .withColumn("blob_1", "blob")
+                              .withColumn("boolean_1", "boolean")
+                              .withColumn("decimal_1", "decimal")
+                              .withColumn("date_1", "timestamp")
+                              .withColumn("double_1", "double")
+                              .withColumn("float_1", "float")
+                              .withColumn("integer_1", "int")
+                              .withColumn("inet_1", "inet")
+                              .withColumn("text_1", "text")
+                              .withColumn("varchar_1", "varchar")
+                              .withColumn("uuid_1", "uuid")
+                              .withColumn("timeuuid_1", "timeuuid")
+                              .withColumn("list_1", "list<text>")
+                              .withColumn("set_1", "set<text>")
+                              .withColumn("map_1", "map<text,text>")
+                              .build()
+                              .createKeyspace()
+                              .createTable()
+                              .createIndex();
+        DataHelper.generateCustomInsertions(1000, utils);
+        utils.refresh();
     }
 
     @AfterClass
     public static void after() {
-        cassandraUtils.dropKeyspace();
+        utils.dropKeyspace();
     }
 
     @Test
     public void allowFiltering1000rowsTest() {
-        cassandraUtils.selectAllFromIndexQueryWithFiltering(1000, "double_1", 1D).check(1000);
+        utils.selectAllFromIndexQueryWithFiltering(1000, "double_1", 1D).check(1000);
     }
 
     @Test
     public void allowFilteringAndLimit999Test() {
-        cassandraUtils.selectAllFromIndexQueryWithFiltering(999, "double_1", 1D).check(999);
+        utils.selectAllFromIndexQueryWithFiltering(999, "double_1", 1D).check(999);
     }
 
     @Test
     public void allowFilteringAndLimit1001Test() {
-        cassandraUtils.selectAllFromIndexQueryWithFiltering(1001, "double_1", 1D).check(1000);
+        utils.selectAllFromIndexQueryWithFiltering(1001, "double_1", 1D).check(1000);
     }
 
     @Test
     public void allowFilteringAndLimit99Test() {
-        cassandraUtils.selectAllFromIndexQueryWithFiltering(99, "double_1", 1D).check(99);
+        utils.selectAllFromIndexQueryWithFiltering(99, "double_1", 1D).check(99);
     }
 
     @Test
     public void allowFilteringAndLimit101Test() {
-        cassandraUtils.selectAllFromIndexQueryWithFiltering(101, "double_1", 1D).check(101);
+        utils.selectAllFromIndexQueryWithFiltering(101, "double_1", 1D).check(101);
     }
 
     @Test
     public void allowFilteringAndLimit100Test() {
-        cassandraUtils.selectAllFromIndexQueryWithFiltering(100, "double_1", 1D).check(100);
+        utils.selectAllFromIndexQueryWithFiltering(100, "double_1", 1D).check(100);
     }
 }

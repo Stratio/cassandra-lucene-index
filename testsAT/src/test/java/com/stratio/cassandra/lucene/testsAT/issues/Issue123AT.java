@@ -31,23 +31,23 @@ import static com.stratio.cassandra.lucene.builder.Builder.match;
  */
 public class Issue123AT extends BaseAT {
 
-    private static CassandraUtils cassandraUtils;
+    private static CassandraUtils utils;
 
     @BeforeClass
     public static void before() {
 
-        cassandraUtils = CassandraUtils.builder("issue_123")
-                                       .withPartitionKey("partition")
-                                       .withClusteringKey("id")
-                                       .withColumn("partition", "int")
-                                       .withColumn("id", "int")
-                                       .withColumn("ascii_1", "ascii")
-                                       .withColumn("bigint_1", "bigint")
-                                       .withColumn("blob_1", "blob")
-                                       .build()
-                                       .createKeyspace()
-                                       .createTable()
-                                       .createIndex();
+        utils = CassandraUtils.builder("issue_123")
+                              .withPartitionKey("partition")
+                              .withClusteringKey("id")
+                              .withColumn("partition", "int")
+                              .withColumn("id", "int")
+                              .withColumn("ascii_1", "ascii")
+                              .withColumn("bigint_1", "bigint")
+                              .withColumn("blob_1", "blob")
+                              .build()
+                              .createKeyspace()
+                              .createTable()
+                              .createIndex();
         for (Integer p = 0; p < 2; p++) {
             for (Integer i = 1; i <= 100; i++) {
                 Map<String, String> data = new LinkedHashMap<>();
@@ -56,20 +56,20 @@ public class Issue123AT extends BaseAT {
                 data.put("ascii_1", "'ascii_bis'");
                 data.put("bigint_1", "3000000000000000");
                 data.put("blob_1", "0x3E0A15");
-                cassandraUtils.insert(data);
+                utils.insert(data);
             }
         }
-        cassandraUtils.refresh();
+        utils.refresh();
     }
 
     @Test
     public void testQueryWithFetchSizeToIntegerMaxValue() {
-        cassandraUtils.query(match("partition", 0)).fetchSize(Integer.MAX_VALUE).check(100);
+        utils.query(match("partition", 0)).fetchSize(Integer.MAX_VALUE).check(100);
     }
 
     @AfterClass
     public static void after() {
-        cassandraUtils.dropIndex().dropTable().dropKeyspace();
+        utils.dropIndex().dropTable().dropKeyspace();
     }
 
 }

@@ -29,7 +29,7 @@ import static com.stratio.cassandra.lucene.testsAT.search.DataHelper.*;
 
 public abstract class AbstractSearchAT extends BaseAT {
 
-    protected static final String UNSUPPORTED_DOC_VALUES = "Field 'text_1' does not support doc_values";
+    static final String UNSUPPORTED_DOC_VALUES = "Field 'text_1' does not support doc_values";
 
     protected static CassandraUtils utils;
 

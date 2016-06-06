@@ -154,6 +154,5 @@ public class SortedSearchAT extends AbstractSearchAT {
         assertEquals("Expected 5 results!", 5, returnedValues.length);
         Integer[] expectedValues = new Integer[]{-5, -4, -3, -2, -1};
         assertArrayEquals("Wrong geoDistance sort!", expectedValues, returnedValues);
-
     }
 }

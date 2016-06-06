@@ -444,13 +444,13 @@ public final class DataHelper {
         data20.put("map_1", "{'k2':'v2','k3':'v3'}");
     }
 
-    protected static void generateCustomInsertions(int insertionsNumber, CassandraUtils cassandraUtils) {
-        generateCustomInsertionsWithModule(insertionsNumber, 1, cassandraUtils);
+    protected static void generateCustomInsertions(int insertionsNumber, CassandraUtils utils) {
+        generateCustomInsertionsWithModule(insertionsNumber, 1, utils);
     }
 
     protected static void generateCustomInsertionsWithModule(int insertionsNumber,
                                                              int module,
-                                                             CassandraUtils cassandraUtils) {
+                                                             CassandraUtils utils) {
 
         for (int i = 0; i < insertionsNumber; i++) {
             Map<String, String> dataAux = new LinkedHashMap<>();
@@ -459,7 +459,7 @@ public final class DataHelper {
             dataAux.put("integer_1", String.valueOf(i));
             dataAux.put("double_1", String.valueOf((i % module) + 1));
 
-            cassandraUtils.insert(dataAux);
+            utils.insert(dataAux);
         }
     }
 }

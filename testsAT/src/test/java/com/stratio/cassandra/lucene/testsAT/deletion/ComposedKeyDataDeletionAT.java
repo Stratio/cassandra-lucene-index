@@ -34,52 +34,52 @@ import static org.junit.Assert.*;
 @RunWith(JUnit4.class)
 public class ComposedKeyDataDeletionAT extends BaseAT {
 
-    private CassandraUtils cassandraUtils;
+    private CassandraUtils utils;
 
     @Before
     public void before() {
-        cassandraUtils = CassandraUtils.builder("composed_key_data_deletion")
-                                       .withPartitionKey("integer_1", "ascii_1")
-                                       .withClusteringKey()
-                                       .withColumn("ascii_1", "ascii")
-                                       .withColumn("bigint_1", "bigint")
-                                       .withColumn("blob_1", "blob")
-                                       .withColumn("boolean_1", "boolean")
-                                       .withColumn("decimal_1", "decimal")
-                                       .withColumn("date_1", "timestamp")
-                                       .withColumn("double_1", "double")
-                                       .withColumn("float_1", "float")
-                                       .withColumn("integer_1", "int")
-                                       .withColumn("inet_1", "inet")
-                                       .withColumn("text_1", "text")
-                                       .withColumn("varchar_1", "varchar")
-                                       .withColumn("uuid_1", "uuid")
-                                       .withColumn("timeuuid_1", "timeuuid")
-                                       .withColumn("list_1", "list<text>")
-                                       .withColumn("set_1", "set<text>")
-                                       .withColumn("map_1", "map<text,text>")
-                                       .build()
-                                       .createKeyspace()
-                                       .createTable()
-                                       .createIndex()
-                                       .insert(data1, data2, data3, data4, data5, data6, data7, data8, data9, data10)
-                                       .waitForIndexing();
+        utils = CassandraUtils.builder("composed_key_data_deletion")
+                              .withPartitionKey("integer_1", "ascii_1")
+                              .withClusteringKey()
+                              .withColumn("ascii_1", "ascii")
+                              .withColumn("bigint_1", "bigint")
+                              .withColumn("blob_1", "blob")
+                              .withColumn("boolean_1", "boolean")
+                              .withColumn("decimal_1", "decimal")
+                              .withColumn("date_1", "timestamp")
+                              .withColumn("double_1", "double")
+                              .withColumn("float_1", "float")
+                              .withColumn("integer_1", "int")
+                              .withColumn("inet_1", "inet")
+                              .withColumn("text_1", "text")
+                              .withColumn("varchar_1", "varchar")
+                              .withColumn("uuid_1", "uuid")
+                              .withColumn("timeuuid_1", "timeuuid")
+                              .withColumn("list_1", "list<text>")
+                              .withColumn("set_1", "set<text>")
+                              .withColumn("map_1", "map<text,text>")
+                              .build()
+                              .createKeyspace()
+                              .createTable()
+                              .createIndex()
+                              .insert(data1, data2, data3, data4, data5, data6, data7, data8, data9, data10)
+                              .waitForIndexing();
     }
 
     @After
     public void after() {
-        cassandraUtils.dropKeyspace();
+        utils.dropKeyspace();
     }
 
     @Test
     public void columnDeletion() {
 
-        List<Row> rows = cassandraUtils.delete("bigint_1")
-                                       .where("integer_1", 1)
-                                       .and("ascii_1", "ascii")
-                                       .waitForIndexing()
-                                       .filter(wildcard("ascii_1", "*"))
-                                       .get();
+        List<Row> rows = utils.delete("bigint_1")
+                              .where("integer_1", 1)
+                              .and("ascii_1", "ascii")
+                              .waitForIndexing()
+                              .filter(wildcard("ascii_1", "*"))
+                              .get();
 
         assertEquals("Expected 10 results!", 10, rows.size());
 
@@ -99,12 +99,12 @@ public class ComposedKeyDataDeletionAT extends BaseAT {
     @Test
     public void mapElementDeletion() {
 
-        List<Row> rows = cassandraUtils.delete("map_1['k1']")
-                                       .where("integer_1", 1)
-                                       .and("ascii_1", "ascii")
-                                       .waitForIndexing()
-                                       .filter(wildcard("ascii_1", "*"))
-                                       .get();
+        List<Row> rows = utils.delete("map_1['k1']")
+                              .where("integer_1", 1)
+                              .and("ascii_1", "ascii")
+                              .waitForIndexing()
+                              .filter(wildcard("ascii_1", "*"))
+                              .get();
 
         assertEquals("Expected 10 results!", 10, rows.size());
 
@@ -128,12 +128,12 @@ public class ComposedKeyDataDeletionAT extends BaseAT {
     @Test
     public void listElementDeletion() {
 
-        List<Row> rows = cassandraUtils.delete("list_1[0]")
-                                       .where("integer_1", 1)
-                                       .and("ascii_1", "ascii")
-                                       .waitForIndexing()
-                                       .filter(wildcard("ascii_1", "*"))
-                                       .get();
+        List<Row> rows = utils.delete("list_1[0]")
+                              .where("integer_1", 1)
+                              .and("ascii_1", "ascii")
+                              .waitForIndexing()
+                              .filter(wildcard("ascii_1", "*"))
+                              .get();
 
         assertEquals("Expected 10 results!", 10, rows.size());
 
@@ -154,11 +154,11 @@ public class ComposedKeyDataDeletionAT extends BaseAT {
 
     @Test
     public void totalPartitionDeletion() {
-        cassandraUtils.delete()
-                      .where("integer_1", 1)
-                      .and("ascii_1", "ascii")
-                      .waitForIndexing()
-                      .filter(wildcard("ascii_1", "*"))
-                      .check(9);
+        utils.delete()
+             .where("integer_1", 1)
+             .and("ascii_1", "ascii")
+             .waitForIndexing()
+             .filter(wildcard("ascii_1", "*"))
+             .check(9);
     }
 }

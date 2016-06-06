@@ -34,41 +34,41 @@ import static org.junit.Assert.assertTrue;
  */
 public class ReadStaticColumnsAT extends BaseAT {
 
-    private static CassandraUtils cassandraUtils;
+    private static CassandraUtils utils;
 
     @BeforeClass
     public static void before() {
-        cassandraUtils = CassandraUtils.builder("read_static_columns")
-                                       .withPartitionKey("key")
-                                       .withClusteringKey("cluster_key")
-                                       .withColumn("key", "bigint")
-                                       .withColumn("cluster_key", "int")
-                                       .withStaticColumn("name", "text", false)
-                                       .build()
-                                       .createKeyspace()
-                                       .createTable()
-                                       .createIndex()
-                                       .insert(new String[]{"key", "cluster_key", "name"},
-                                               new Object[]{12, 13, "Name12"})
-                                       .insert(new String[]{"key", "cluster_key", "name"},
-                                               new Object[]{12, 14, "Name12-2"})
-                                       .insert(new String[]{"key", "cluster_key", "name"},
-                                               new Object[]{15, 16, "Name15"})
-                                       .insert(new String[]{"key", "cluster_key", "name"},
-                                               new Object[]{15, 17, "Name15-2"})
-                                       .refresh();
+        utils = CassandraUtils.builder("read_static_columns")
+                              .withPartitionKey("key")
+                              .withClusteringKey("cluster_key")
+                              .withColumn("key", "bigint")
+                              .withColumn("cluster_key", "int")
+                              .withStaticColumn("name", "text", false)
+                              .build()
+                              .createKeyspace()
+                              .createTable()
+                              .createIndex()
+                              .insert(new String[]{"key", "cluster_key", "name"},
+                                      new Object[]{12, 13, "Name12"})
+                              .insert(new String[]{"key", "cluster_key", "name"},
+                                      new Object[]{12, 14, "Name12-2"})
+                              .insert(new String[]{"key", "cluster_key", "name"},
+                                      new Object[]{15, 16, "Name15"})
+                              .insert(new String[]{"key", "cluster_key", "name"},
+                                      new Object[]{15, 17, "Name15-2"})
+                              .refresh();
 
     }
 
     @AfterClass
     public static void after() {
-        cassandraUtils.dropKeyspace();
+        utils.dropKeyspace();
     }
 
     @Test
     public void tokenReadStaticColumnTest1() {
 
-        CassandraUtilsSelect select = cassandraUtils.filter(match("key", 12));
+        CassandraUtilsSelect select = utils.filter(match("key", 12));
 
         List<Row> rows = select.get();
 
@@ -87,7 +87,7 @@ public class ReadStaticColumnsAT extends BaseAT {
     @Test
     public void tokenReadStaticColumnTest2() {
 
-        List<Row> rows = cassandraUtils.filter(match("key", 15)).get();
+        List<Row> rows = utils.filter(match("key", 15)).get();
         assertEquals("Expected 2 rows", 2, rows.size());
         for (Row row : rows) {
             Long key = row.getLong("key");

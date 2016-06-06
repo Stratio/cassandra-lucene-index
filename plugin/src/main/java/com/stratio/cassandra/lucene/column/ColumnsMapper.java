@@ -27,10 +27,11 @@ import org.apache.cassandra.db.rows.Row;
 import org.apache.cassandra.serializers.CollectionSerializer;
 import org.apache.cassandra.serializers.ListSerializer;
 import org.apache.cassandra.serializers.MapSerializer;
-import org.apache.cassandra.transport.Server;
 import org.apache.cassandra.utils.ByteBufferUtil;
 
 import java.nio.ByteBuffer;
+
+import static org.apache.cassandra.transport.Server.CURRENT_VERSION;
 
 /**
  * Class for several regular column mappings between Cassandra and Lucene.
@@ -117,9 +118,9 @@ public class ColumnsMapper {
                     if (isTombstone) {
                         columns.add(builder.buildWithNull(nameType));
                     } else {
-                        int colSize = CollectionSerializer.readCollectionSize(value, Server.CURRENT_VERSION);
+                        int colSize = CollectionSerializer.readCollectionSize(value, CURRENT_VERSION);
                         for (int j = 0; j < colSize; j++) {
-                            ByteBuffer itemValue = CollectionSerializer.readValue(value, Server.CURRENT_VERSION);
+                            ByteBuffer itemValue = CollectionSerializer.readValue(value, CURRENT_VERSION);
                             addColumns(false, columns, builder, nameType, itemValue);
                         }
                     }
@@ -130,9 +131,9 @@ public class ColumnsMapper {
                     if (isTombstone) {
                         columns.add(builder.buildWithNull(valueType));
                     } else {
-                        int colSize = ListSerializer.readCollectionSize(value, Server.CURRENT_VERSION);
+                        int colSize = ListSerializer.readCollectionSize(value, CURRENT_VERSION);
                         for (int j = 0; j < colSize; j++) {
-                            ByteBuffer itemValue = CollectionSerializer.readValue(value, Server.CURRENT_VERSION);
+                            ByteBuffer itemValue = CollectionSerializer.readValue(value, CURRENT_VERSION);
                             addColumns(false, columns, builder, valueType, itemValue);
                         }
                     }
@@ -144,10 +145,10 @@ public class ColumnsMapper {
                     if (isTombstone) {
                         columns.add(builder.buildWithNull(valueType));
                     } else {
-                        int colSize = MapSerializer.readCollectionSize(value, Server.CURRENT_VERSION);
+                        int colSize = MapSerializer.readCollectionSize(value, CURRENT_VERSION);
                         for (int j = 0; j < colSize; j++) {
-                            ByteBuffer mapKey = MapSerializer.readValue(value, Server.CURRENT_VERSION);
-                            ByteBuffer mapValue = MapSerializer.readValue(value, Server.CURRENT_VERSION);
+                            ByteBuffer mapKey = MapSerializer.readValue(value, CURRENT_VERSION);
+                            ByteBuffer mapValue = MapSerializer.readValue(value, CURRENT_VERSION);
                             String itemName = keyType.compose(mapKey).toString();
                             collectionType.nameComparator();
                             addColumns(false, columns, builder.withMapName(itemName), valueType, mapValue);

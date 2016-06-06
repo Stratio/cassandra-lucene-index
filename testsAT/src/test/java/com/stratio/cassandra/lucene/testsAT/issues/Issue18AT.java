@@ -57,19 +57,19 @@ public class Issue18AT extends BaseAT {
         data4.put("testtextcol", "'row4'");
         data4.put("testmapcol", "{'attb2': 'row3attb2Val', 'attb3': 'row3attb3Val'}");
 
-        CassandraUtils cassandraUtils = CassandraUtils.builder("issue_18")
-                                                      .withPartitionKey("idcol")
-                                                      .withColumn("idcol", "int")
-                                                      .withColumn("testtextcol", "text", stringMapper())
-                                                      .withColumn("testmapcol", "map<text,text>", stringMapper())
-                                                      .build()
-                                                      .createKeyspace()
-                                                      .createTable()
-                                                      .createIndex()
-                                                      .insert(data1, data2, data3, data4)
-                                                      .refresh();
-        int idcol = cassandraUtils.filter(match("testmapcol$attb1", "row1attb1Val")).getFirst().getInt("idcol");
+        CassandraUtils utils = CassandraUtils.builder("issue_18")
+                                             .withPartitionKey("idcol")
+                                             .withColumn("idcol", "int")
+                                             .withColumn("testtextcol", "text", stringMapper())
+                                             .withColumn("testmapcol", "map<text,text>", stringMapper())
+                                             .build()
+                                             .createKeyspace()
+                                             .createTable()
+                                             .createIndex()
+                                             .insert(data1, data2, data3, data4)
+                                             .refresh();
+        int idcol = utils.filter(match("testmapcol$attb1", "row1attb1Val")).getFirst().getInt("idcol");
         assertEquals("Expected row 1", 1, idcol);
-        cassandraUtils.dropTable().dropKeyspace();
+        utils.dropTable().dropKeyspace();
     }
 }

@@ -323,7 +323,7 @@ abstract class IndexService {
      */
     boolean needsReadBeforeWrite(DecoratedKey key, Row row) {
         if (mapsMultiCells) {
-            return true; // TODO: Unneeded if all collections are tombstones
+            return true;
         } else {
             Columns columns = columns(key, row);
             return schema.getMappedCells().stream().anyMatch(x -> columns.getColumnsByCellName(x).isEmpty());

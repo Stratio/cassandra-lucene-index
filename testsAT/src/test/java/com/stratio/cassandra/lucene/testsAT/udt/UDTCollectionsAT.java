@@ -40,7 +40,7 @@ import static org.junit.Assert.assertTrue;
 @RunWith(JUnit4.class)
 public class UDTCollectionsAT extends BaseAT {
 
-    private static CassandraUtils cassandraUtils;
+    private static CassandraUtils utils;
 
     static final String KEYSPACE_NAME = "udt_collections";
 
@@ -49,37 +49,37 @@ public class UDTCollectionsAT extends BaseAT {
         Mapper stringMapper = stringMapper();
         Mapper integerMapper = integerMapper();
 
-        cassandraUtils = CassandraUtils.builder(KEYSPACE_NAME)
-                                       .withUDT("address_udt", "city", "text")
-                                       .withUDT("address_udt", "postcode", "int")
-                                       .withColumn("login", "text")
-                                       .withColumn("numbers", "list<int>", integerMapper)
-                                       .withColumn("number_set", "set<int>", integerMapper)
-                                       .withColumn("number_map", "map<text,int>", integerMapper)
-                                       .withColumn("address", "list<frozen<address_udt>>")
-                                       .withColumn("address_set", "set<frozen<address_udt>>")
-                                       .withColumn("address_map", "map<text,frozen<address_udt>>")
-                                       .withColumn("address_list_list", "list<frozen<list<address_udt>>>")
-                                       .withColumn("address_list_set", "list<frozen<set<address_udt>>>")
-                                       .withColumn("address_list_map", "list<frozen<map<text,address_udt>>>")
-                                       .withColumn("address_set_list", "set<frozen<list<address_udt>>>")
-                                       .withColumn("address_set_set", "set<frozen<set<address_udt>>>")
-                                       .withColumn("address_set_map", "set<frozen<map<text,address_udt>>>")
-                                       .withPartitionKey("login")
-                                       .withMapper("address.city", stringMapper)
-                                       .withMapper("address_set.city", stringMapper)
-                                       .withMapper("address_map.city", stringMapper)
-                                       .withMapper("address_list_list.city", stringMapper)
-                                       .withMapper("address_list_set.city", stringMapper)
-                                       .withMapper("address_list_map.city", stringMapper)
-                                       .withMapper("address_set_list.city", stringMapper)
-                                       .withMapper("address_set_set.city", stringMapper)
-                                       .withMapper("address_set_map.city", stringMapper)
-                                       .build()
-                                       .createKeyspace()
-                                       .createUDTs()
-                                       .createTable()
-                                       .createIndex();
+        utils = CassandraUtils.builder(KEYSPACE_NAME)
+                              .withUDT("address_udt", "city", "text")
+                              .withUDT("address_udt", "postcode", "int")
+                              .withColumn("login", "text")
+                              .withColumn("numbers", "list<int>", integerMapper)
+                              .withColumn("number_set", "set<int>", integerMapper)
+                              .withColumn("number_map", "map<text,int>", integerMapper)
+                              .withColumn("address", "list<frozen<address_udt>>")
+                              .withColumn("address_set", "set<frozen<address_udt>>")
+                              .withColumn("address_map", "map<text,frozen<address_udt>>")
+                              .withColumn("address_list_list", "list<frozen<list<address_udt>>>")
+                              .withColumn("address_list_set", "list<frozen<set<address_udt>>>")
+                              .withColumn("address_list_map", "list<frozen<map<text,address_udt>>>")
+                              .withColumn("address_set_list", "set<frozen<list<address_udt>>>")
+                              .withColumn("address_set_set", "set<frozen<set<address_udt>>>")
+                              .withColumn("address_set_map", "set<frozen<map<text,address_udt>>>")
+                              .withPartitionKey("login")
+                              .withMapper("address.city", stringMapper)
+                              .withMapper("address_set.city", stringMapper)
+                              .withMapper("address_map.city", stringMapper)
+                              .withMapper("address_list_list.city", stringMapper)
+                              .withMapper("address_list_set.city", stringMapper)
+                              .withMapper("address_list_map.city", stringMapper)
+                              .withMapper("address_set_list.city", stringMapper)
+                              .withMapper("address_set_set.city", stringMapper)
+                              .withMapper("address_set_map.city", stringMapper)
+                              .build()
+                              .createKeyspace()
+                              .createUDTs()
+                              .createTable()
+                              .createIndex();
 
         Map<String, String> data = new HashMap<>();
         data.put("login", "'USER1'");
@@ -320,14 +320,14 @@ public class UDTCollectionsAT extends BaseAT {
                                      " {'g': {city:'Salamanca',postcode:28059 },'h': {city:'Madrid',postcode:29506 },'i': {city:'Toledo',postcode: 85964 }}" +
                                      "}");
 
-        cassandraUtils.insert(data, data2, data3, data4, data5, data6);
-        cassandraUtils.refresh();
+        utils.insert(data, data2, data3, data4, data5, data6);
+        utils.refresh();
 
     }
 
     @AfterClass
     public static void after() {
-        cassandraUtils.dropTable().dropKeyspace();
+        utils.dropTable().dropKeyspace();
     }
 
     private boolean isThisAndOnlyThis(String[] received, String[] expected) {
@@ -362,98 +362,98 @@ public class UDTCollectionsAT extends BaseAT {
     @Test
     public void testIntegerList() {
 
-        CassandraUtilsSelect select = cassandraUtils.filter(match("numbers", 1));
+        CassandraUtilsSelect select = utils.filter(match("numbers", 1));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1"});
 
-        select = cassandraUtils.filter(match("numbers", 2));
+        select = utils.filter(match("numbers", 2));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1"});
 
-        select = cassandraUtils.filter(match("numbers", 3));
+        select = utils.filter(match("numbers", 3));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1", "USER4"});
 
-        select = cassandraUtils.filter(match("numbers", 4));
+        select = utils.filter(match("numbers", 4));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER6"});
 
-        select = cassandraUtils.filter(match("numbers", 6));
+        select = utils.filter(match("numbers", 6));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER2"});
 
-        select = cassandraUtils.filter(match("numbers", 7));
+        select = utils.filter(match("numbers", 7));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER5"});
 
-        select = cassandraUtils.filter(match("numbers", 10));
+        select = utils.filter(match("numbers", 10));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER2", "USER4", "USER6"});
 
-        select = cassandraUtils.filter(match("numbers", 11));
+        select = utils.filter(match("numbers", 11));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER5"});
 
-        select = cassandraUtils.filter(match("numbers", 12));
+        select = utils.filter(match("numbers", 12));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER2"});
 
-        select = cassandraUtils.filter(match("numbers", 14));
+        select = utils.filter(match("numbers", 14));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER3"});
 
-        select = cassandraUtils.filter(match("numbers", 15));
+        select = utils.filter(match("numbers", 15));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER5", "USER6"});
 
-        select = cassandraUtils.filter(match("numbers", 16));
+        select = utils.filter(match("numbers", 16));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{});
 
-        select = cassandraUtils.filter(match("numbers", 17));
+        select = utils.filter(match("numbers", 17));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{});
 
-        select = cassandraUtils.filter(match("numbers", 18));
+        select = utils.filter(match("numbers", 18));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER3"});
 
-        select = cassandraUtils.filter(match("numbers", 20));
+        select = utils.filter(match("numbers", 20));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER3", "USER4"});
 
     }
 
     @Test
     public void testIntegerSet() {
-        CassandraUtilsSelect select = cassandraUtils.filter(match("number_set", 1));
+        CassandraUtilsSelect select = utils.filter(match("number_set", 1));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1"});
 
-        select = cassandraUtils.filter(match("number_set", 2));
+        select = utils.filter(match("number_set", 2));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1"});
 
-        select = cassandraUtils.filter(match("number_set", 3));
+        select = utils.filter(match("number_set", 3));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1", "USER4"});
 
-        select = cassandraUtils.filter(match("number_set", 4));
+        select = utils.filter(match("number_set", 4));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER6"});
 
-        select = cassandraUtils.filter(match("number_set", 6));
+        select = utils.filter(match("number_set", 6));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER2"});
 
-        select = cassandraUtils.filter(match("number_set", 7));
+        select = utils.filter(match("number_set", 7));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER5"});
 
-        select = cassandraUtils.filter(match("number_set", 10));
+        select = utils.filter(match("number_set", 10));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER2", "USER4", "USER6"});
 
-        select = cassandraUtils.filter(match("number_set", 11));
+        select = utils.filter(match("number_set", 11));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER5"});
 
-        select = cassandraUtils.filter(match("number_set", 12));
+        select = utils.filter(match("number_set", 12));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER2"});
 
-        select = cassandraUtils.filter(match("number_set", 14));
+        select = utils.filter(match("number_set", 14));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER3"});
 
-        select = cassandraUtils.filter(match("number_set", 15));
+        select = utils.filter(match("number_set", 15));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER5", "USER6"});
 
-        select = cassandraUtils.filter(match("number_set", 16));
+        select = utils.filter(match("number_set", 16));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{});
 
-        select = cassandraUtils.filter(match("number_set", 17));
+        select = utils.filter(match("number_set", 17));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{});
 
-        select = cassandraUtils.filter(match("number_set", 18));
+        select = utils.filter(match("number_set", 18));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER3"});
 
-        select = cassandraUtils.filter(match("number_set", 20));
+        select = utils.filter(match("number_set", 20));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER3", "USER4"});
 
     }
@@ -461,34 +461,34 @@ public class UDTCollectionsAT extends BaseAT {
     @Test
     public void testTextIntegerMap() {
 
-        CassandraUtilsSelect select = cassandraUtils.filter(match("number_map$a", 1));
+        CassandraUtilsSelect select = utils.filter(match("number_map$a", 1));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1"});
 
-        select = cassandraUtils.filter(match("number_map$b", 2));
+        select = utils.filter(match("number_map$b", 2));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1"});
 
-        select = cassandraUtils.filter(match("number_map$c", 1));
+        select = utils.filter(match("number_map$c", 1));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER2", "USER4"});
 
-        select = cassandraUtils.filter(match("number_map$d", 2));
+        select = utils.filter(match("number_map$d", 2));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER2", "USER6"});
 
-        select = cassandraUtils.filter(match("number_map$e", 1));
+        select = utils.filter(match("number_map$e", 1));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER3"});
 
-        select = cassandraUtils.filter(match("number_map$f", 2));
+        select = utils.filter(match("number_map$f", 2));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER3"});
 
-        select = cassandraUtils.filter(match("number_map$h", 2));
+        select = utils.filter(match("number_map$h", 2));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER4"});
 
-        select = cassandraUtils.filter(match("number_map$i", 1));
+        select = utils.filter(match("number_map$i", 1));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER5"});
 
-        select = cassandraUtils.filter(match("number_map$j", 2));
+        select = utils.filter(match("number_map$j", 2));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER5"});
 
-        select = cassandraUtils.filter(match("number_map$k", 1));
+        select = utils.filter(match("number_map$k", 1));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER6"});
 
     }
@@ -496,133 +496,133 @@ public class UDTCollectionsAT extends BaseAT {
     @Test
     public void testSimpleUDTList() {
 
-        CassandraUtilsSelect select = cassandraUtils.filter(match("address.city", "Barcelona"));
+        CassandraUtilsSelect select = utils.filter(match("address.city", "Barcelona"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1", "USER2", "USER6"});
 
-        select = cassandraUtils.filter(match("address.city", "Roma"));
+        select = utils.filter(match("address.city", "Roma"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1"});
 
-        select = cassandraUtils.filter(match("address.city", "Valencia"));
+        select = utils.filter(match("address.city", "Valencia"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1"});
 
-        select = cassandraUtils.filter(match("address.city", "Bilbao"));
+        select = utils.filter(match("address.city", "Bilbao"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER2", "USER5", "USER6"});
 
-        select = cassandraUtils.filter(match("address.city", "Venecia"));
+        select = utils.filter(match("address.city", "Venecia"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER2", "USER4", "USER6"});
 
-        select = cassandraUtils.filter(match("address.city", "Lisboa"));
+        select = utils.filter(match("address.city", "Lisboa"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER3", "USER4"});
 
-        select = cassandraUtils.filter(match("address.city", "Sevilla"));
+        select = utils.filter(match("address.city", "Sevilla"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER3", "USER5"});
 
-        select = cassandraUtils.filter(match("address.city", "Granada"));
+        select = utils.filter(match("address.city", "Granada"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER3", "USER4", "USER5"});
 
     }
 
     @Test
     public void testSimpleUDTSet() {
-        CassandraUtilsSelect select = cassandraUtils.filter(match("address_set.city", "Barcelona"));
+        CassandraUtilsSelect select = utils.filter(match("address_set.city", "Barcelona"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1", "USER2", "USER6"});
 
-        select = cassandraUtils.filter(match("address_set.city", "Roma"));
+        select = utils.filter(match("address_set.city", "Roma"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1"});
 
-        select = cassandraUtils.filter(match("address_set.city", "Valencia"));
+        select = utils.filter(match("address_set.city", "Valencia"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1"});
 
-        select = cassandraUtils.filter(match("address_set.city", "Bilbao"));
+        select = utils.filter(match("address_set.city", "Bilbao"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER2", "USER5", "USER6"});
 
-        select = cassandraUtils.filter(match("address_set.city", "Venecia"));
+        select = utils.filter(match("address_set.city", "Venecia"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER2", "USER4", "USER6"});
 
-        select = cassandraUtils.filter(match("address_set.city", "Lisboa"));
+        select = utils.filter(match("address_set.city", "Lisboa"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER3", "USER4"});
 
-        select = cassandraUtils.filter(match("address_set.city", "Sevilla"));
+        select = utils.filter(match("address_set.city", "Sevilla"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER3", "USER5"});
 
-        select = cassandraUtils.filter(match("address_set.city", "Granada"));
+        select = utils.filter(match("address_set.city", "Granada"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER3", "USER4", "USER5"});
 
     }
 
     @Test
     public void testSimpleUDTTextMap() {
-        CassandraUtilsSelect select = cassandraUtils.filter(match("address_map.city$a", "Barcelona"));
+        CassandraUtilsSelect select = utils.filter(match("address_map.city$a", "Barcelona"));
 
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1"});
 
-        select = cassandraUtils.filter(match("address_map.city$b", "Barcelona"));
+        select = utils.filter(match("address_map.city$b", "Barcelona"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER2"});
 
-        select = cassandraUtils.filter(match("address_map.city$c", "Barcelona"));
+        select = utils.filter(match("address_map.city$c", "Barcelona"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER6"});
 
-        select = cassandraUtils.filter(match("address_map.city$a", "Roma"));
+        select = utils.filter(match("address_map.city$a", "Roma"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{});
 
-        select = cassandraUtils.filter(match("address_map.city$b", "Roma"));
+        select = utils.filter(match("address_map.city$b", "Roma"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1"});
 
-        select = cassandraUtils.filter(match("address_map.city$c", "Roma"));
+        select = utils.filter(match("address_map.city$c", "Roma"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{});
 
-        select = cassandraUtils.filter(match("address_map.city$a", "Valencia"));
+        select = utils.filter(match("address_map.city$a", "Valencia"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{});
 
-        select = cassandraUtils.filter(match("address_map.city$b", "Valencia"));
+        select = utils.filter(match("address_map.city$b", "Valencia"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{});
 
-        select = cassandraUtils.filter(match("address_map.city$c", "Valencia"));
+        select = utils.filter(match("address_map.city$c", "Valencia"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1"});
 
-        select = cassandraUtils.filter(match("address_map.city$a", "Bilbao"));
+        select = utils.filter(match("address_map.city$a", "Bilbao"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER2", "USER6"});
 
-        select = cassandraUtils.filter(match("address_map.city$b", "Bilbao"));
+        select = utils.filter(match("address_map.city$b", "Bilbao"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER5"});
 
-        select = cassandraUtils.filter(match("address_map.city$c", "Bilbao"));
+        select = utils.filter(match("address_map.city$c", "Bilbao"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{});
 
-        select = cassandraUtils.filter(match("address_map.city$a", "Venecia"));
+        select = utils.filter(match("address_map.city$a", "Venecia"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{});
 
-        select = cassandraUtils.filter(match("address_map.city$b", "Venecia"));
+        select = utils.filter(match("address_map.city$b", "Venecia"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER4", "USER6"});
 
-        select = cassandraUtils.filter(match("address_map.city$c", "Venecia"));
+        select = utils.filter(match("address_map.city$c", "Venecia"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER2"});
 
-        select = cassandraUtils.filter(match("address_map.city$a", "Lisboa"));
+        select = utils.filter(match("address_map.city$a", "Lisboa"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER3",});
 
-        select = cassandraUtils.filter(match("address_map.city$b", "Lisboa"));
+        select = utils.filter(match("address_map.city$b", "Lisboa"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{});
 
-        select = cassandraUtils.filter(match("address_map.city$c", "Lisboa"));
+        select = utils.filter(match("address_map.city$c", "Lisboa"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER4"});
 
-        select = cassandraUtils.filter(match("address_map.city$a", "Sevilla"));
+        select = utils.filter(match("address_map.city$a", "Sevilla"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{});
 
-        select = cassandraUtils.filter(match("address_map.city$b", "Sevilla"));
+        select = utils.filter(match("address_map.city$b", "Sevilla"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER3"});
 
-        select = cassandraUtils.filter(match("address_map.city$c", "Sevilla"));
+        select = utils.filter(match("address_map.city$c", "Sevilla"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER5"});
 
-        select = cassandraUtils.filter(match("address_map.city$a", "Granada"));
+        select = utils.filter(match("address_map.city$a", "Granada"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER4", "USER5"});
 
-        select = cassandraUtils.filter(match("address_map.city$b", "Granada"));
+        select = utils.filter(match("address_map.city$b", "Granada"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{});
 
-        select = cassandraUtils.filter(match("address_map.city$c", "Granada"));
+        select = utils.filter(match("address_map.city$c", "Granada"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER3"});
 
     }
@@ -630,64 +630,64 @@ public class UDTCollectionsAT extends BaseAT {
     @Test
     public void testSimpleUDTListOfList() {
 
-        CassandraUtilsSelect select = cassandraUtils.filter(match("address_list_list.city", "Barcelona"));
+        CassandraUtilsSelect select = utils.filter(match("address_list_list.city", "Barcelona"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"),
                                       new String[]{"USER1", "USER2", "USER3", "USER5", "USER6"});
 
-        select = cassandraUtils.filter(match("address_list_list.city", "Roma"));
+        select = utils.filter(match("address_list_list.city", "Roma"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"),
                                       new String[]{"USER1", "USER2", "USER3", "USER4", "USER5"});
 
-        select = cassandraUtils.filter(match("address_list_list.city", "Valencia"));
+        select = utils.filter(match("address_list_list.city", "Valencia"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"),
                                       new String[]{"USER1", "USER2", "USER3", "USER5", "USER6"});
 
-        select = cassandraUtils.filter(match("address_list_list.city", "Bilbao"));
+        select = utils.filter(match("address_list_list.city", "Bilbao"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{});
 
-        select = cassandraUtils.filter(match("address_list_list.city", "Venecia"));
+        select = utils.filter(match("address_list_list.city", "Venecia"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{});
 
-        select = cassandraUtils.filter(match("address_list_list.city", "Lisboa"));
+        select = utils.filter(match("address_list_list.city", "Lisboa"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{});
 
-        select = cassandraUtils.filter(match("address_list_list.city", "Sevilla"));
+        select = utils.filter(match("address_list_list.city", "Sevilla"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{});
 
-        select = cassandraUtils.filter(match("address_list_list.city", "Granada"));
+        select = utils.filter(match("address_list_list.city", "Granada"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{});
 
-        select = cassandraUtils.filter(match("address_list_list.city", "Oviedo"));
+        select = utils.filter(match("address_list_list.city", "Oviedo"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"),
                                       new String[]{"USER1", "USER2", "USER3", "USER5", "USER6"});
 
-        select = cassandraUtils.filter(match("address_list_list.city", "Jaen"));
+        select = utils.filter(match("address_list_list.city", "Jaen"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER2", "USER3", "USER4", "USER5"});
 
-        select = cassandraUtils.filter(match("address_list_list.city", "Aviles"));
+        select = utils.filter(match("address_list_list.city", "Aviles"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1", "USER2", "USER5", "USER6"});
 
-        select = cassandraUtils.filter(match("address_list_list.city", "Madrid"));
+        select = utils.filter(match("address_list_list.city", "Madrid"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"),
                                       new String[]{"USER1", "USER2", "USER3", "USER4", "USER6"});
 
-        select = cassandraUtils.filter(match("address_list_list.city", "Malaga"));
+        select = utils.filter(match("address_list_list.city", "Malaga"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{});
 
-        select = cassandraUtils.filter(match("address_list_list.city", "Castellon"));
+        select = utils.filter(match("address_list_list.city", "Castellon"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{});
 
-        select = cassandraUtils.filter(match("address_list_list.city", "Tarragona"));
+        select = utils.filter(match("address_list_list.city", "Tarragona"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"),
                                       new String[]{"USER1", "USER2", "USER3", "USER4", "USER5", "USER6"});
 
-        select = cassandraUtils.filter(match("address_list_list.city", "San Sebastian"));
+        select = utils.filter(match("address_list_list.city", "San Sebastian"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER4", "USER6"});
 
-        select = cassandraUtils.filter(match("address_list_list.city", "Salamanca"));
+        select = utils.filter(match("address_list_list.city", "Salamanca"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER3", "USER4", "USER5", "USER6"});
 
-        select = cassandraUtils.filter(match("address_list_list.city", "Valladolid"));
+        select = utils.filter(match("address_list_list.city", "Valladolid"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1", "USER4"});
 
     }
@@ -695,198 +695,198 @@ public class UDTCollectionsAT extends BaseAT {
     @Test
     public void testSimpleUDTListOfSet() {
 
-        CassandraUtilsSelect select = cassandraUtils.filter(match("address_list_set.city", "Barcelona"));
+        CassandraUtilsSelect select = utils.filter(match("address_list_set.city", "Barcelona"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1", "USER2", "USER3", "USER4"});
 
-        select = cassandraUtils.filter(match("address_list_set.city", "Roma"));
+        select = utils.filter(match("address_list_set.city", "Roma"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"),
                                       new String[]{"USER1", "USER2", "USER3", "USER4", "USER5"});
 
-        select = cassandraUtils.filter(match("address_list_set.city", "Valencia"));
+        select = utils.filter(match("address_list_set.city", "Valencia"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"),
                                       new String[]{"USER1", "USER2", "USER3", "USER4", "USER5", "USER6"});
 
-        select = cassandraUtils.filter(match("address_list_set.city", "Bilbao"));
+        select = utils.filter(match("address_list_set.city", "Bilbao"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{});
 
-        select = cassandraUtils.filter(match("address_list_set.city", "Venecia"));
+        select = utils.filter(match("address_list_set.city", "Venecia"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1"});
 
-        select = cassandraUtils.filter(match("address_list_set.city", "Lisboa"));
+        select = utils.filter(match("address_list_set.city", "Lisboa"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{});
 
-        select = cassandraUtils.filter(match("address_list_set.city", "Sevilla"));
+        select = utils.filter(match("address_list_set.city", "Sevilla"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{});
 
-        select = cassandraUtils.filter(match("address_list_set.city", "Oviedo"));
+        select = utils.filter(match("address_list_set.city", "Oviedo"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1", "USER4", "USER6"});
 
-        select = cassandraUtils.filter(match("address_list_set.city", "Jaen"));
+        select = utils.filter(match("address_list_set.city", "Jaen"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"),
                                       new String[]{"USER1", "USER2", "USER3", "USER4", "USER5", "USER6"});
 
-        select = cassandraUtils.filter(match("address_list_set.city", "Aviles"));
+        select = utils.filter(match("address_list_set.city", "Aviles"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1", "USER3", "USER5"});
 
-        select = cassandraUtils.filter(match("address_list_set.city", "Madrid"));
+        select = utils.filter(match("address_list_set.city", "Madrid"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"),
                                       new String[]{"USER1", "USER2", "USER3", "USER4", "USER5", "USER6"});
 
-        select = cassandraUtils.filter(match("address_list_set.city", "Malaga"));
+        select = utils.filter(match("address_list_set.city", "Malaga"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{});
 
-        select = cassandraUtils.filter(match("address_list_set.city", "Castellon"));
+        select = utils.filter(match("address_list_set.city", "Castellon"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{});
 
-        select = cassandraUtils.filter(match("address_list_set.city", "Tarragona"));
+        select = utils.filter(match("address_list_set.city", "Tarragona"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{});
 
-        select = cassandraUtils.filter(match("address_list_set.city", "Burgos"));
+        select = utils.filter(match("address_list_set.city", "Burgos"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{});
 
-        select = cassandraUtils.filter(match("address_list_set.city", "San Sebastian"));
+        select = utils.filter(match("address_list_set.city", "San Sebastian"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER2", "USER4", "USER6"});
 
-        select = cassandraUtils.filter(match("address_list_set.city", "Salamanca"));
+        select = utils.filter(match("address_list_set.city", "Salamanca"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER2", "USER3", "USER5", "USER6"});
 
-        select = cassandraUtils.filter(match("address_list_set.city", "Valladolid"));
+        select = utils.filter(match("address_list_set.city", "Valladolid"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER2", "USER3", "USER5", "USER6"});
     }
 
     @Test
     public void testSimpleUDTListOfMapMap() {
-        CassandraUtilsSelect select = cassandraUtils.filter(match("address_list_map.city$a", "Barcelona"));
+        CassandraUtilsSelect select = utils.filter(match("address_list_map.city$a", "Barcelona"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"),
                                       new String[]{"USER1", "USER2", "USER3", "USER4", "USER5", "USER6"});
 
-        select = cassandraUtils.filter(match("address_list_map.city$b", "Roma"));
+        select = utils.filter(match("address_list_map.city$b", "Roma"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"),
                                       new String[]{"USER1", "USER2", "USER3", "USER4", "USER6"});
 
-        select = cassandraUtils.filter(match("address_list_map.city$f", "Jaen"));
+        select = utils.filter(match("address_list_map.city$f", "Jaen"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER2", "USER3", "USER4"});
 
-        select = cassandraUtils.filter(match("address_list_map.city$g", "Aviles"));
+        select = utils.filter(match("address_list_map.city$g", "Aviles"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER2", "USER3", "USER4", "USER5"});
 
-        select = cassandraUtils.filter(match("address_list_map.city$c", "Valencia"));
+        select = utils.filter(match("address_list_map.city$c", "Valencia"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER3", "USER5", "USER6"});
 
-        select = cassandraUtils.filter(match("address_list_map.city$d", "Oviedo"));
+        select = utils.filter(match("address_list_map.city$d", "Oviedo"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER2", "USER4", "USER5"});
 
-        select = cassandraUtils.filter(match("address_list_map.city$e", "Madrid"));
+        select = utils.filter(match("address_list_map.city$e", "Madrid"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER2", "USER4", "USER5", "USER6"});
 
-        select = cassandraUtils.filter(match("address_list_map.city$h", "Madrid"));
+        select = utils.filter(match("address_list_map.city$h", "Madrid"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"),
                                       new String[]{"USER1", "USER2", "USER3", "USER5", "USER6"});
 
-        select = cassandraUtils.filter(match("address_list_map.city$i", "Toledo"));
+        select = utils.filter(match("address_list_map.city$i", "Toledo"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1", "USER2", "USER5", "USER6"});
 
-        select = cassandraUtils.filter(match("address_list_map.city$c", "Salamanca"));
+        select = utils.filter(match("address_list_map.city$c", "Salamanca"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1"});
 
-        select = cassandraUtils.filter(match("address_list_map.city$e", "Salamanca"));
+        select = utils.filter(match("address_list_map.city$e", "Salamanca"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1", "USER3"});
 
-        select = cassandraUtils.filter(match("address_list_map.city$f", "Salamanca"));
+        select = utils.filter(match("address_list_map.city$f", "Salamanca"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1", "USER5"});
 
-        select = cassandraUtils.filter(match("address_list_map.city$g", "Salamanca"));
+        select = utils.filter(match("address_list_map.city$g", "Salamanca"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1", "USER6"});
 
-        select = cassandraUtils.filter(match("address_list_map.city$i", "Salamanca"));
+        select = utils.filter(match("address_list_map.city$i", "Salamanca"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER3"});
 
-        select = cassandraUtils.filter(match("address_list_map.city$b", "San Sebastian"));
+        select = utils.filter(match("address_list_map.city$b", "San Sebastian"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER5"});
 
-        select = cassandraUtils.filter(match("address_list_map.city$c", "San Sebastian"));
+        select = utils.filter(match("address_list_map.city$c", "San Sebastian"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER2"});
 
-        select = cassandraUtils.filter(match("address_list_map.city$d", "San Sebastian"));
+        select = utils.filter(match("address_list_map.city$d", "San Sebastian"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER3"});
 
-        select = cassandraUtils.filter(match("address_list_map.city$f", "San Sebastian"));
+        select = utils.filter(match("address_list_map.city$f", "San Sebastian"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER6"});
 
-        select = cassandraUtils.filter(match("address_list_map.city$h", "San Sebastian"));
+        select = utils.filter(match("address_list_map.city$h", "San Sebastian"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER4"});
 
-        select = cassandraUtils.filter(match("address_list_map.city$c", "Valladolid"));
+        select = utils.filter(match("address_list_map.city$c", "Valladolid"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER4"});
 
-        select = cassandraUtils.filter(match("address_list_map.city$d", "Valladolid"));
+        select = utils.filter(match("address_list_map.city$d", "Valladolid"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1", "USER6"});
 
-        select = cassandraUtils.filter(match("address_list_map.city$i", "Valladolid"));
+        select = utils.filter(match("address_list_map.city$i", "Valladolid"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER4"});
     }
 
     @Test
     public void testSimpleUDTSetOfList() {
 
-        CassandraUtilsSelect select = cassandraUtils.filter(match("address_set_list.city", "Barcelona"));
+        CassandraUtilsSelect select = utils.filter(match("address_set_list.city", "Barcelona"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"),
                                       new String[]{"USER1", "USER2", "USER3", "USER5", "USER6"});
 
-        select = cassandraUtils.filter(match("address_set_list.city", "Roma"));
+        select = utils.filter(match("address_set_list.city", "Roma"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"),
                                       new String[]{"USER1", "USER2", "USER3", "USER4", "USER5"});
 
-        select = cassandraUtils.filter(match("address_set_list.city", "Valencia"));
+        select = utils.filter(match("address_set_list.city", "Valencia"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"),
                                       new String[]{"USER1", "USER2", "USER3", "USER5", "USER6"});
 
-        select = cassandraUtils.filter(match("address_set_list.city", "Bilbao"));
+        select = utils.filter(match("address_set_list.city", "Bilbao"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{});
 
-        select = cassandraUtils.filter(match("address_set_list.city", "Venecia"));
+        select = utils.filter(match("address_set_list.city", "Venecia"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{});
 
-        select = cassandraUtils.filter(match("address_set_list.city", "Lisboa"));
+        select = utils.filter(match("address_set_list.city", "Lisboa"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{});
 
-        select = cassandraUtils.filter(match("address_set_list.city", "Sevilla"));
+        select = utils.filter(match("address_set_list.city", "Sevilla"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{});
 
-        select = cassandraUtils.filter(match("address_set_list.city", "Granada"));
+        select = utils.filter(match("address_set_list.city", "Granada"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{});
 
-        select = cassandraUtils.filter(match("address_set_list.city", "Oviedo"));
+        select = utils.filter(match("address_set_list.city", "Oviedo"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"),
                                       new String[]{"USER1", "USER2", "USER3", "USER5", "USER6"});
 
-        select = cassandraUtils.filter(match("address_set_list.city", "Jaen"));
+        select = utils.filter(match("address_set_list.city", "Jaen"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER2", "USER3", "USER4", "USER5"});
 
-        select = cassandraUtils.filter(match("address_set_list.city", "Aviles"));
+        select = utils.filter(match("address_set_list.city", "Aviles"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1", "USER2", "USER5", "USER6"});
 
-        select = cassandraUtils.filter(match("address_set_list.city", "Madrid"));
+        select = utils.filter(match("address_set_list.city", "Madrid"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"),
                                       new String[]{"USER1", "USER2", "USER3", "USER4", "USER6"});
 
-        select = cassandraUtils.filter(match("address_set_list.city", "Malaga"));
+        select = utils.filter(match("address_set_list.city", "Malaga"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{});
 
-        select = cassandraUtils.filter(match("address_set_list.city", "Castellon"));
+        select = utils.filter(match("address_set_list.city", "Castellon"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{});
 
-        select = cassandraUtils.filter(match("address_set_list.city", "Tarragona"));
+        select = utils.filter(match("address_set_list.city", "Tarragona"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"),
                                       new String[]{"USER1", "USER2", "USER3", "USER4", "USER5", "USER6"});
 
-        select = cassandraUtils.filter(match("address_set_list.city", "San Sebastian"));
+        select = utils.filter(match("address_set_list.city", "San Sebastian"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER4", "USER6"});
 
-        select = cassandraUtils.filter(match("address_set_list.city", "Salamanca"));
+        select = utils.filter(match("address_set_list.city", "Salamanca"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER3", "USER4", "USER5", "USER6"});
 
-        select = cassandraUtils.filter(match("address_set_list.city", "Valladolid"));
+        select = utils.filter(match("address_set_list.city", "Valladolid"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1", "USER4"});
 
     }
@@ -894,134 +894,134 @@ public class UDTCollectionsAT extends BaseAT {
     @Test
     public void testSimpleUDTSetOfSet() {
 
-        CassandraUtilsSelect select = cassandraUtils.filter(match("address_set_set.city", "Barcelona"));
+        CassandraUtilsSelect select = utils.filter(match("address_set_set.city", "Barcelona"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1", "USER2", "USER3", "USER4"});
 
-        select = cassandraUtils.filter(match("address_set_set.city", "Roma"));
+        select = utils.filter(match("address_set_set.city", "Roma"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"),
                                       new String[]{"USER1", "USER2", "USER3", "USER4", "USER5"});
 
-        select = cassandraUtils.filter(match("address_set_set.city", "Valencia"));
+        select = utils.filter(match("address_set_set.city", "Valencia"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"),
                                       new String[]{"USER1", "USER2", "USER3", "USER4", "USER5", "USER6"});
 
-        select = cassandraUtils.filter(match("address_set_set.city", "Bilbao"));
+        select = utils.filter(match("address_set_set.city", "Bilbao"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{});
 
-        select = cassandraUtils.filter(match("address_set_set.city", "Venecia"));
+        select = utils.filter(match("address_set_set.city", "Venecia"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1"});
 
-        select = cassandraUtils.filter(match("address_set_set.city", "Lisboa"));
+        select = utils.filter(match("address_set_set.city", "Lisboa"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{});
 
-        select = cassandraUtils.filter(match("address_set_set.city", "Sevilla"));
+        select = utils.filter(match("address_set_set.city", "Sevilla"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{});
 
-        select = cassandraUtils.filter(match("address_set_set.city", "Oviedo"));
+        select = utils.filter(match("address_set_set.city", "Oviedo"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1", "USER4", "USER6"});
 
-        select = cassandraUtils.filter(match("address_set_set.city", "Jaen"));
+        select = utils.filter(match("address_set_set.city", "Jaen"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"),
                                       new String[]{"USER1", "USER2", "USER3", "USER4", "USER5", "USER6"});
 
-        select = cassandraUtils.filter(match("address_set_set.city", "Aviles"));
+        select = utils.filter(match("address_set_set.city", "Aviles"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1", "USER3", "USER5"});
 
-        select = cassandraUtils.filter(match("address_set_set.city", "Madrid"));
+        select = utils.filter(match("address_set_set.city", "Madrid"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"),
                                       new String[]{"USER1", "USER2", "USER3", "USER4", "USER5", "USER6"});
 
-        select = cassandraUtils.filter(match("address_set_set.city", "Malaga"));
+        select = utils.filter(match("address_set_set.city", "Malaga"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{});
 
-        select = cassandraUtils.filter(match("address_set_set.city", "Castellon"));
+        select = utils.filter(match("address_set_set.city", "Castellon"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{});
 
-        select = cassandraUtils.filter(match("address_set_set.city", "Tarragona"));
+        select = utils.filter(match("address_set_set.city", "Tarragona"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{});
 
-        select = cassandraUtils.filter(match("address_set_set.city", "Burgos"));
+        select = utils.filter(match("address_set_set.city", "Burgos"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{});
 
-        select = cassandraUtils.filter(match("address_set_set.city", "San Sebastian"));
+        select = utils.filter(match("address_set_set.city", "San Sebastian"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER2", "USER4", "USER6"});
 
-        select = cassandraUtils.filter(match("address_set_set.city", "Salamanca"));
+        select = utils.filter(match("address_set_set.city", "Salamanca"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER2", "USER3", "USER5", "USER6"});
 
-        select = cassandraUtils.filter(match("address_set_set.city", "Valladolid"));
+        select = utils.filter(match("address_set_set.city", "Valladolid"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER2", "USER3", "USER5", "USER6"});
     }
 
     @Test
     public void testSimpleUDTSetOfMapMap() {
-        CassandraUtilsSelect select = cassandraUtils.filter(match("address_set_map.city$a", "Barcelona"));
+        CassandraUtilsSelect select = utils.filter(match("address_set_map.city$a", "Barcelona"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"),
                                       new String[]{"USER1", "USER2", "USER3", "USER4", "USER5", "USER6"});
 
-        select = cassandraUtils.filter(match("address_set_map.city$b", "Roma"));
+        select = utils.filter(match("address_set_map.city$b", "Roma"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"),
                                       new String[]{"USER1", "USER2", "USER3", "USER4", "USER6"});
 
-        select = cassandraUtils.filter(match("address_set_map.city$f", "Jaen"));
+        select = utils.filter(match("address_set_map.city$f", "Jaen"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER2", "USER3", "USER4"});
 
-        select = cassandraUtils.filter(match("address_set_map.city$g", "Aviles"));
+        select = utils.filter(match("address_set_map.city$g", "Aviles"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER2", "USER3", "USER4", "USER5"});
 
-        select = cassandraUtils.filter(match("address_set_map.city$c", "Valencia"));
+        select = utils.filter(match("address_set_map.city$c", "Valencia"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER3", "USER5", "USER6"});
 
-        select = cassandraUtils.filter(match("address_set_map.city$d", "Oviedo"));
+        select = utils.filter(match("address_set_map.city$d", "Oviedo"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER2", "USER4", "USER5"});
 
-        select = cassandraUtils.filter(match("address_set_map.city$e", "Madrid"));
+        select = utils.filter(match("address_set_map.city$e", "Madrid"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER2", "USER4", "USER5", "USER6"});
 
-        select = cassandraUtils.filter(match("address_set_map.city$h", "Madrid"));
+        select = utils.filter(match("address_set_map.city$h", "Madrid"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"),
                                       new String[]{"USER1", "USER2", "USER3", "USER5", "USER6"});
 
-        select = cassandraUtils.filter(match("address_set_map.city$i", "Toledo"));
+        select = utils.filter(match("address_set_map.city$i", "Toledo"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1", "USER2", "USER5", "USER6"});
 
-        select = cassandraUtils.filter(match("address_set_map.city$c", "Salamanca"));
+        select = utils.filter(match("address_set_map.city$c", "Salamanca"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1"});
 
-        select = cassandraUtils.filter(match("address_set_map.city$e", "Salamanca"));
+        select = utils.filter(match("address_set_map.city$e", "Salamanca"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1", "USER3"});
 
-        select = cassandraUtils.filter(match("address_set_map.city$f", "Salamanca"));
+        select = utils.filter(match("address_set_map.city$f", "Salamanca"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1", "USER5"});
 
-        select = cassandraUtils.filter(match("address_set_map.city$g", "Salamanca"));
+        select = utils.filter(match("address_set_map.city$g", "Salamanca"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1", "USER6"});
 
-        select = cassandraUtils.filter(match("address_set_map.city$i", "Salamanca"));
+        select = utils.filter(match("address_set_map.city$i", "Salamanca"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER3"});
 
-        select = cassandraUtils.filter(match("address_set_map.city$b", "San Sebastian"));
+        select = utils.filter(match("address_set_map.city$b", "San Sebastian"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER5"});
 
-        select = cassandraUtils.filter(match("address_set_map.city$c", "San Sebastian"));
+        select = utils.filter(match("address_set_map.city$c", "San Sebastian"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER2"});
 
-        select = cassandraUtils.filter(match("address_set_map.city$d", "San Sebastian"));
+        select = utils.filter(match("address_set_map.city$d", "San Sebastian"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER3"});
 
-        select = cassandraUtils.filter(match("address_set_map.city$f", "San Sebastian"));
+        select = utils.filter(match("address_set_map.city$f", "San Sebastian"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER6"});
 
-        select = cassandraUtils.filter(match("address_set_map.city$h", "San Sebastian"));
+        select = utils.filter(match("address_set_map.city$h", "San Sebastian"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER4"});
 
-        select = cassandraUtils.filter(match("address_set_map.city$c", "Valladolid"));
+        select = utils.filter(match("address_set_map.city$c", "Valladolid"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER4"});
 
-        select = cassandraUtils.filter(match("address_set_map.city$d", "Valladolid"));
+        select = utils.filter(match("address_set_map.city$d", "Valladolid"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1", "USER6"});
 
-        select = cassandraUtils.filter(match("address_set_map.city$i", "Valladolid"));
+        select = utils.filter(match("address_set_map.city$i", "Valladolid"));
         assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER4"});
     }
 }
