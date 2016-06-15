@@ -103,9 +103,13 @@ containing the plugin and add it to the Cassandra’s classpath:
    ``cp plugin/target/cassandra-lucene-index-plugin-*.jar <CASSANDRA_HOME>/lib/``
 -  Start/restart Cassandra as usual.
 
-Specific Cassandra Lucene index versions are targeted to specific Apache Cassandra versions. So,  cassandra-lucene-index A.B.C.X is aimed to be used with  Apache Cassandra A.B.C (e.g. `cassandra-lucene-index:2.1.11.1 <http://www.github.com/Stratio/cassandra-lucene-index/tree/2.1.11.1>`__ for `cassandra:3.0.6 <http://www.github.com/apache/cassandra/tree/cassandra-2.1.11>`__)
+Specific Cassandra Lucene index versions are targeted to specific Apache Cassandra versions. So,  cassandra-lucene-index
+A.B.C.X is aimed to be used with  Apache Cassandra A.B.C
+(e.g. `cassandra-lucene-index:3.0.6.2 <http://www.github.com/Stratio/cassandra-lucene-index/tree/3.0.6.2>`__ for
+`cassandra:3.0.6 <http://www.github.com/apache/cassandra/tree/cassandra-3.0.6>`__)
 
-Please note that production-ready releases are version tags (e.g. 2.1.11.1), don't use branch-X nor master branches in production.
+Please note that production-ready releases are version tags (e.g. 3.0.6.2), don't use branch-X nor master branches in
+production.
 
 Clone the project:
 

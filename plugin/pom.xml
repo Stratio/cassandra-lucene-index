@@ -26,7 +26,7 @@
     <parent>
         <groupId>com.stratio.cassandra</groupId>
         <artifactId>cassandra-lucene-index-parent</artifactId>
-        <version>3.0.6.3-RC1-SNAPSHOT</version>
+        <version>3.0.7.0-SNAPSHOT</version>
     </parent>
 
     <packaging>jar</packaging>
@@ -35,7 +35,7 @@
     <description>Cassandra Lucene Index plugin</description>
 
     <properties>
-        <cassandra.version>3.0.6</cassandra.version>
+        <cassandra.version>3.0.7</cassandra.version>
         <lucene.version>5.5.1</lucene.version>
         <jts.version>1.14.0</jts.version>
         <mockito.version>1.10.19</mockito.version>
