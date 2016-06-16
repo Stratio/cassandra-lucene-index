@@ -36,6 +36,7 @@ public class CassandraUtilsBuilder {
     private Map<String, Mapper> mappers;
     private List<String> partitionKey;
     private List<String> clusteringKey;
+    private final Map<String, Map<String, String>> udts;
 
     CassandraUtilsBuilder(String name) {
         super();
@@ -44,6 +45,7 @@ public class CassandraUtilsBuilder {
         this.mappers = new HashMap<>();
         this.partitionKey = new ArrayList<>();
         this.clusteringKey = new ArrayList<>();
+        this.udts = new LinkedHashMap<>();
     }
 
     public CassandraUtilsBuilder withTable(String table) {
@@ -86,6 +88,16 @@ public class CassandraUtilsBuilder {
             SingleColumnMapper<?> mapper = defaultMapper(baseType);
             mappers.put(name, mapper);
         }
+        return this;
+    }
+
+    public CassandraUtilsBuilder withUDT(String column, String field, String type) {
+        Map<String, String> udt = udts.get(column);
+        if (udt == null) {
+            udt = new HashMap<>();
+            udts.put(column, udt);
+        }
+        udt.put(field, type);
         return this;
     }
 
@@ -149,8 +161,14 @@ public class CassandraUtilsBuilder {
 
     public CassandraUtils build() {
         String keyspace = name + "_" + Math.abs(new Random().nextLong());
-        return new CassandraUtils(keyspace, table, indexName,
+        return new CassandraUtils(keyspace,
+                                  table,
+                                  indexName,
                                   indexColumn,
-                                  columns, mappers, partitionKey, clusteringKey);
+                                  columns,
+                                  mappers,
+                                  partitionKey,
+                                  clusteringKey,
+                                  udts);
     }
 }

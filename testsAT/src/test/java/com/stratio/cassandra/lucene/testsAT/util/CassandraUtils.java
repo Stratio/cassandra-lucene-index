@@ -27,8 +27,10 @@ import com.stratio.cassandra.lucene.builder.search.sort.SortField;
 import com.stratio.cassandra.lucene.testsAT.BaseAT;
 import org.slf4j.Logger;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import static com.datastax.driver.core.querybuilder.QueryBuilder.eq;
@@ -53,6 +55,7 @@ public class CassandraUtils {
     private final Map<String, Mapper> mappers;
     private final List<String> partitionKey;
     private final List<String> clusteringKey;
+    private final Map<String, Map<String, String>> udts;
     private final String indexColumn;
 
     public static CassandraUtilsBuilder builder(String name) {
@@ -66,7 +69,8 @@ public class CassandraUtils {
                           Map<String, String> columns,
                           Map<String, Mapper> mappers,
                           List<String> partitionKey,
-                          List<String> clusteringKey) {
+                          List<String> clusteringKey,
+                          Map<String, Map<String, String>> udts) {
 
         session = CassandraConnection.session;
 
@@ -77,8 +81,13 @@ public class CassandraUtils {
         this.mappers = mappers;
         this.partitionKey = partitionKey;
         this.clusteringKey = clusteringKey;
+        this.udts = udts;
         this.indexColumn = indexColumn;
         qualifiedTable = keyspace + "." + table;
+
+        if (indexColumn != null && !columns.containsKey(indexColumn)) {
+            columns.put(indexColumn, "text");
+        }
     }
 
     public String getKeyspace() {
@@ -184,15 +193,33 @@ public class CassandraUtils {
         return this;
     }
 
+    public CassandraUtils createUDTs() {
+        for (Map.Entry<String, Map<String, String>> entry : udts.entrySet()) {
+            String name = entry.getKey();
+            Map<String, String> map = entry.getValue();
+            StringBuilder sb = new StringBuilder();
+            sb.append("CREATE TYPE ").append(keyspace).append(".").append(name).append(" ( ");
+            Set<String> set = map.keySet();
+            Iterator<String> iterator = set.iterator();
+            for (int i = 0; i < set.size(); i++) {
+                String key = iterator.next();
+                sb.append(key).append(" ").append(map.get(key));
+                if (i < (set.size() - 1)) {
+                    sb.append(", ");
+                }
+            }
+            sb.append(");");
+            execute(sb);
+        }
+        return this;
+    }
+
     public CassandraUtils truncateTable() {
         execute(new StringBuilder().append("TRUNCATE ").append(qualifiedTable));
         return this;
     }
 
     public CassandraUtils createIndex() {
-        if (!columns.containsKey(COLUMN)) {
-            execute("ALTER TABLE %s ADD %s text;", qualifiedTable, COLUMN);
-        }
         Index index = index(keyspace, table, indexColumn).name(indexName)
                                                          .refreshSeconds(REFRESH)
                                                          .indexingThreads(THREADS);

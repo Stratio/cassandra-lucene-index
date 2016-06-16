@@ -80,10 +80,12 @@ public class RowMapperWide extends RowMapper {
      */
     public Document document(DecoratedKey partitionKey, CellName clusteringKey, Columns columns) {
         Document document = new Document();
-        tokenMapper.addFields(document, partitionKey);
-        partitionMapper.addFields(document, partitionKey);
-        keyMapper.addFields(document, partitionKey, clusteringKey);
         schema.addFields(document, columns);
+        if (!document.getFields().isEmpty()) {
+            tokenMapper.addFields(document, partitionKey);
+            partitionMapper.addFields(document, partitionKey);
+            keyMapper.addFields(document, partitionKey, clusteringKey);
+        }
         return document;
     }
 
