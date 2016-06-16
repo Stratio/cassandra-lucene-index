@@ -75,7 +75,7 @@ public class SimpleKeyDataDeletionAT extends BaseAT {
 
         List<Row> rows = utils.delete("bigint_1")
                               .where("integer_1", 1)
-                              .waitForIndexing()
+                              .prepareForSearch()
                               .query(wildcard("ascii_1", "*"))
                               .get();
 
@@ -95,7 +95,7 @@ public class SimpleKeyDataDeletionAT extends BaseAT {
 
         List<Row> rows = utils.delete("map_1['k1']")
                               .where("integer_1", 1)
-                              .waitForIndexing()
+                              .prepareForSearch()
                               .query(wildcard("ascii_1", "*"))
                               .get();
 
@@ -119,7 +119,7 @@ public class SimpleKeyDataDeletionAT extends BaseAT {
 
         List<Row> rows = utils.delete("list_1[0]")
                               .where("integer_1", 1)
-                              .waitForIndexing()
+                              .prepareForSearch()
                               .query(wildcard("ascii_1", "*"))
                               .get();
 
@@ -140,6 +140,6 @@ public class SimpleKeyDataDeletionAT extends BaseAT {
 
     @Test
     public void totalPartitionDeletion() {
-        utils.delete().where("integer_1", 1).waitForIndexing().query(wildcard("ascii_1", "*")).check(4);
+        utils.delete().where("integer_1", 1).prepareForSearch().query(wildcard("ascii_1", "*")).check(4);
     }
 }

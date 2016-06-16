@@ -60,7 +60,8 @@ public class TupleIndexingAT extends BaseAT {
                               .createIndex()
                               .insert(new String[]{"k", "v"}, new Object[]{0, tuple.newValue(1, "foo", 2.1f)})
                               .insert(new String[]{"k", "v"}, new Object[]{1, tuple.newValue(2, "bar", 2.2f)})
-                              .insert(new String[]{"k", "v"}, new Object[]{2, tuple.newValue(3, "zas", 1.2f)});
+                              .insert(new String[]{"k", "v"}, new Object[]{2, tuple.newValue(3, "zas", 1.2f)})
+                              .refresh();
     }
 
     @AfterClass
@@ -125,18 +126,16 @@ public class TupleIndexingAT extends BaseAT {
                                              .insert(new String[]{"k", "v"},
                                                      new Object[]{5, tuple.newValue(55.337231f, 61.578869f)})
                                              .insert(new String[]{"k", "v"},
-                                                     new Object[]{6, tuple.newValue(41.453383f, 126.442151f)});
+                                                     new Object[]{6, tuple.newValue(41.453383f, 126.442151f)})
+                                             .refresh();
 
-        Integer[] returnedValues = utils.filter(geoDistance("geo_point", -3.784519, 40.442163, "10000km"))
-                                        .refresh(true)
-                                        .sort(geoDistanceField("geo_point",
-                                                               -3.784519,
-                                                               40.442163).reverse(false))
-                                        .intColumn("k");
+        Integer[] actualValues = utils.filter(geoDistance("geo_point", -3.784519, 40.442163, "10000km"))
+                                      .sort(geoDistanceField("geo_point", -3.784519, 40.442163).reverse(false))
+                                      .intColumn("k");
 
-        assertEquals("Expected 7 results!", 7, returnedValues.length);
+        assertEquals("Expected 7 results!", 7, actualValues.length);
         Integer[] expectedValues = new Integer[]{0, 1, 2, 3, 4, 5, 6};
-        assertArrayEquals("Wrong geoDistance sort!", expectedValues, returnedValues);
+        assertArrayEquals("Wrong geoDistance sort!", expectedValues, actualValues);
 
         utils.dropKeyspace();
     }

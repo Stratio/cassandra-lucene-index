@@ -70,7 +70,7 @@ public class UDFsAT extends BaseAT {
                       "LANGUAGE java AS\n" +
                       "'return input * 2L;';", utils.getKeyspace());
 
-        List<Row> rows = utils.waitForIndexing()
+        List<Row> rows = utils.refresh()
                               .execute(2, "SELECT key, double(value) FROM %s WHERE expr(%s,'{}');",
                                        utils.getQualifiedTable(), utils.getIndexName()).all();
 
@@ -118,7 +118,7 @@ public class UDFsAT extends BaseAT {
                       "  FINALFUNC averageFinal\n" +
                       "  INITCOND (0, 0);", utils.getKeyspace());
 
-        List<Row> rows = utils.waitForIndexing()
+        List<Row> rows = utils.refresh()
                               .execute(2, "SELECT average(value) FROM %s WHERE expr(%s,'{}');",
                                        utils.getQualifiedTable(), utils.getIndexName()).all();
 

@@ -53,10 +53,6 @@ public class CassandraUtilsUpdate {
         return parent;
     }
 
-    public CassandraUtils refresh() {
-        return execute().refresh();
-    }
-
     public CassandraUtilsSelect query(Condition query) {
         return execute().query(query);
     }
@@ -69,7 +65,7 @@ public class CassandraUtilsUpdate {
         return execute().sort(sort);
     }
 
-    public CassandraUtils waitForIndexing() {
-        return execute().waitForIndexing();
+    public CassandraUtils prepareForRead() {
+        return execute().refresh();
     }
 }

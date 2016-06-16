@@ -48,7 +48,7 @@ public class InOperatorWithSkinnyRowsAT extends BaseAT {
         for (int i = 0; i < NUM_PARTITIONS; i++) {
             utils.insert(new String[]{"pk", "rc"}, new Object[]{i, i});
         }
-        utils.waitForIndexing().refresh();
+        utils.refresh();
     }
 
     @AfterClass

@@ -56,6 +56,9 @@ import org.apache.lucene.search.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.management.JMException;
+import javax.management.ObjectName;
+import java.lang.management.ManagementFactory;
 import java.nio.ByteBuffer;
 import java.util.*;
 
@@ -68,7 +71,7 @@ import static org.apache.lucene.search.SortField.FIELD_SCORE;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-abstract class IndexService {
+abstract class IndexService implements IndexServiceMBean {
 
     protected static final Logger logger = LoggerFactory.getLogger(IndexService.class);
 
@@ -85,6 +88,8 @@ abstract class IndexService {
     private final ColumnDefinition columnDefinition;
     private final TaskQueue queue;
     private final boolean mapsMultiCells;
+    private String mbeanName;
+    private ObjectName mbean;
 
     /**
      * Constructor using the specified indexed table and index metadata.
@@ -100,10 +105,10 @@ abstract class IndexService {
         column = column(indexMetadata);
         columnDefinition = columnDefinition(metadata, column);
         qualifiedName = String.format("%s.%s.%s", metadata.ksName, metadata.cfName, indexMetadata.name);
-        String mbeanName = String.format("com.stratio.cassandra.lucene:type=Lucene,keyspace=%s,table=%s,index=%s",
-                                         metadata.ksName,
-                                         metadata.cfName,
-                                         name);
+        mbeanName = String.format("com.stratio.cassandra.lucene:type=Lucene,keyspace=%s,table=%s,index=%s",
+                                  metadata.ksName,
+                                  metadata.cfName,
+                                  name);
 
         // Parse options
         IndexOptions options = new IndexOptions(metadata, indexMetadata);
@@ -121,7 +126,6 @@ abstract class IndexService {
         // Setup FS index and write queue
         queue = new TaskQueue(options.indexingThreads, options.indexingQueuesSize);
         lucene = new FSIndex(name,
-                             mbeanName,
                              options.path,
                              options.schema.getAnalyzer(),
                              options.refreshSeconds,
@@ -147,6 +151,8 @@ abstract class IndexService {
     }
 
     void init() {
+
+        // Initialize index
         List<SortField> keySortFields = keySortFields();
         Sort keySort = new Sort(keySortFields.toArray(new SortField[keySortFields.size()]));
         try {
@@ -158,6 +164,14 @@ abstract class IndexService {
                     "or by an upgrade to an incompatible version, " +
                     "try to drop the failing index and create it again:",
                     name), e);
+        }
+
+        // Register JMX MBean
+        try {
+            mbean = new ObjectName(mbeanName);
+            ManagementFactory.getPlatformMBeanServer().registerMBean(this, this.mbean);
+        } catch (JMException e) {
+            logger.error("Error while registering Lucene index JMX MBean", e);
         }
     }
 
@@ -368,11 +382,6 @@ abstract class IndexService {
                                      OpOrder.Group opGroup,
                                      IndexTransaction.Type transactionType);
 
-    /** Commits the pending changes. */
-    final void commit() {
-        queue.submitSynchronous(lucene::commit);
-    }
-
     /** Deletes all the index contents. */
     final void truncate() {
         queue.submitSynchronous(lucene::truncate);
@@ -382,6 +391,9 @@ abstract class IndexService {
     final void delete() {
         try {
             queue.shutdown();
+            ManagementFactory.getPlatformMBeanServer().unregisterMBean(mbean);
+        } catch(JMException e) {
+            logger.error("Error while unregistering Lucene index MBean", e);
         } finally {
             lucene.delete();
         }
@@ -451,7 +463,7 @@ abstract class IndexService {
 
         // Refresh if required
         if (search.refresh()) {
-            lucene.refresh();
+            refresh();
         }
 
         // Search
@@ -806,5 +818,41 @@ abstract class IndexService {
         for (Row row : update) {
             schema.validate(columns(key, row));
         }
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public final void commit() {
+        queue.submitSynchronous(lucene::commit);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public int getNumDocs() {
+        return lucene.getNumDocs();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public int getNumDeletedDocs() {
+        return lucene.getNumDeletedDocs();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void forceMerge(int maxNumSegments, boolean doWait) {
+        queue.submitSynchronous(() -> lucene.forceMerge(maxNumSegments, doWait));
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void forceMergeDeletes(boolean doWait) {
+        queue.submitSynchronous(() -> lucene.forceMergeDeletes(doWait));
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void refresh() {
+        queue.submitSynchronous(lucene::refresh);
     }
 }

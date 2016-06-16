@@ -62,8 +62,7 @@ public class ComposedKeyDataDeletionAT extends BaseAT {
                               .createKeyspace()
                               .createTable()
                               .createIndex()
-                              .insert(data1, data2, data3, data4, data5, data6, data7, data8, data9, data10)
-                              .waitForIndexing();
+                              .insert(data1, data2, data3, data4, data5, data6, data7, data8, data9, data10);
     }
 
     @After
@@ -77,7 +76,7 @@ public class ComposedKeyDataDeletionAT extends BaseAT {
         List<Row> rows = utils.delete("bigint_1")
                               .where("integer_1", 1)
                               .and("ascii_1", "ascii")
-                              .waitForIndexing()
+                              .prepareForSearch()
                               .filter(wildcard("ascii_1", "*"))
                               .get();
 
@@ -102,7 +101,7 @@ public class ComposedKeyDataDeletionAT extends BaseAT {
         List<Row> rows = utils.delete("map_1['k1']")
                               .where("integer_1", 1)
                               .and("ascii_1", "ascii")
-                              .waitForIndexing()
+                              .prepareForSearch()
                               .filter(wildcard("ascii_1", "*"))
                               .get();
 
@@ -131,7 +130,7 @@ public class ComposedKeyDataDeletionAT extends BaseAT {
         List<Row> rows = utils.delete("list_1[0]")
                               .where("integer_1", 1)
                               .and("ascii_1", "ascii")
-                              .waitForIndexing()
+                              .prepareForSearch()
                               .filter(wildcard("ascii_1", "*"))
                               .get();
 
@@ -157,7 +156,7 @@ public class ComposedKeyDataDeletionAT extends BaseAT {
         utils.delete()
              .where("integer_1", 1)
              .and("ascii_1", "ascii")
-             .waitForIndexing()
+             .prepareForSearch()
              .filter(wildcard("ascii_1", "*"))
              .check(9);
     }

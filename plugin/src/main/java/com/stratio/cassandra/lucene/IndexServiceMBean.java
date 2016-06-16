@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.cassandra.lucene.index;
+package com.stratio.cassandra.lucene;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public interface FSIndexMBean {
+public interface IndexServiceMBean {
 
     /**
      * Commits the pending changes.

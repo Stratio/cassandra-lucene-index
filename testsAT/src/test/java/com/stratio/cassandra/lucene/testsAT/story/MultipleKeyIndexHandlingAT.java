@@ -67,7 +67,6 @@ public class MultipleKeyIndexHandlingAT extends BaseAT {
     public void createIndexAfterInsertionsTest() {
         utils.insert(data1, data2, data3, data4, data5, data6, data7, data8, data9, data10)
              .createIndex()
-             .waitForIndexing()
              .refresh()
              .query(wildcard("ascii_1", "*"))
              .check(10);
@@ -77,7 +76,7 @@ public class MultipleKeyIndexHandlingAT extends BaseAT {
     public void createIndexDuringInsertionsTest1() {
         utils.insert(data1, data2, data3, data4, data5, data6, data7, data8)
              .createIndex()
-             .waitForIndexing()
+             .refresh()
              .insert(data9, data10)
              .refresh()
              .query(wildcard("ascii_1", "*"))
@@ -88,7 +87,7 @@ public class MultipleKeyIndexHandlingAT extends BaseAT {
     public void createIndexDuringInsertionsTest2() {
         utils.insert(data1, data2, data3, data4, data6, data7, data8, data9)
              .createIndex()
-             .waitForIndexing()
+             .refresh()
              .insert(data5, data10)
              .refresh()
              .query(wildcard("ascii_1", "*"))
@@ -99,7 +98,7 @@ public class MultipleKeyIndexHandlingAT extends BaseAT {
     public void createIndexDuringInsertionsTest3() {
         utils.insert(data2, data3, data4, data5, data6, data7, data8, data9)
              .createIndex()
-             .waitForIndexing()
+             .refresh()
              .insert(data1, data10)
              .refresh()
              .query(wildcard("ascii_1", "*"))
@@ -110,13 +109,11 @@ public class MultipleKeyIndexHandlingAT extends BaseAT {
     public void recreateIndexAfterInsertionsTest() {
         utils.insert(data1, data2, data3, data4, data5, data6, data7, data8, data9, data10)
              .createIndex()
-             .waitForIndexing()
              .refresh()
              .query(wildcard("ascii_1", "*"))
              .check(10)
              .dropIndex()
              .createIndex()
-             .waitForIndexing()
              .refresh()
              .query(wildcard("ascii_1", "*"))
              .check(10);

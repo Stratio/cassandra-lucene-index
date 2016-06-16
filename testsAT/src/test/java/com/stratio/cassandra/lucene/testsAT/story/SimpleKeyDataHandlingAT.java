@@ -62,7 +62,7 @@ public class SimpleKeyDataHandlingAT extends BaseAT {
                               .createTable()
                               .createIndex()
                               .insert(data1, data2, data3)
-                              .waitForIndexing();
+                              .refresh();
     }
 
     @After
@@ -74,21 +74,21 @@ public class SimpleKeyDataHandlingAT extends BaseAT {
     public void singleInsertion() {
 
         // Data4 insertion
-        utils.insert(data4).waitForIndexing();
+        utils.insert(data4).refresh();
 
         List<Row> rows = utils.query(wildcard("ascii_1", "*")).get();
 
         assertEquals("Expected 4 results!", 4, rows.size());
 
         // Data5 insertion
-        utils.insert(data5).waitForIndexing();
+        utils.insert(data5).refresh();
 
         rows = utils.query(wildcard("ascii_1", "*")).get();
 
         assertEquals("Expected 5 results!", 5, rows.size());
 
         // Data4 removal
-        utils.delete().where("integer_1", 4).waitForIndexing();
+        utils.delete().where("integer_1", 4).prepareForSearch();
 
         rows = utils.query(wildcard("ascii_1", "*")).get();
 
@@ -96,7 +96,7 @@ public class SimpleKeyDataHandlingAT extends BaseAT {
         assertFalse("Element not expected!", containsElementByIntegerKey(rows, 4));
 
         // Data5 removal
-        utils.delete().where("integer_1", 5).waitForIndexing();
+        utils.delete().where("integer_1", 5).prepareForSearch();
 
         rows = utils.query(wildcard("ascii_1", "*")).get();
 
@@ -104,7 +104,7 @@ public class SimpleKeyDataHandlingAT extends BaseAT {
         assertFalse("Element not expected!", containsElementByIntegerKey(rows, 5));
 
         // Data2 removal
-        utils.delete().where("integer_1", 2).waitForIndexing();
+        utils.delete().where("integer_1", 2).prepareForSearch();
 
         rows = utils.query(wildcard("ascii_1", "*")).get();
 
@@ -112,7 +112,7 @@ public class SimpleKeyDataHandlingAT extends BaseAT {
         assertFalse("Element not expected!", containsElementByIntegerKey(rows, 2));
 
         // Data3 removal
-        utils.delete().where("integer_1", 3).waitForIndexing();
+        utils.delete().where("integer_1", 3).prepareForSearch();
 
         rows = utils.query(wildcard("ascii_1", "*")).get();
 
@@ -120,7 +120,7 @@ public class SimpleKeyDataHandlingAT extends BaseAT {
         assertFalse("Element not expected!", containsElementByIntegerKey(rows, 3));
 
         // Data1 removal
-        utils.delete().where("integer_1", 1).waitForIndexing();
+        utils.delete().where("integer_1", 1).prepareForSearch();
 
         rows = utils.query(wildcard("ascii_1", "*")).get();
 
@@ -132,31 +132,31 @@ public class SimpleKeyDataHandlingAT extends BaseAT {
     public void multipleInsertion() {
 
         // Data4 and data5 insertion
-        List<Row> rows = utils.insert(data4, data5).waitForIndexing().query(wildcard("ascii_1", "*")).get();
+        List<Row> rows = utils.insert(data4, data5).refresh().query(wildcard("ascii_1", "*")).get();
         assertEquals("Expected 5 results!", 5, rows.size());
 
         // Data4 removal
-        rows = utils.delete().where("integer_1", 4).waitForIndexing().query(wildcard("ascii_1", "*")).get();
+        rows = utils.delete().where("integer_1", 4).prepareForSearch().query(wildcard("ascii_1", "*")).get();
         assertEquals("Expected 4 results!", 4, rows.size());
         assertFalse("Element not expected!", containsElementByIntegerKey(rows, 4));
 
         // Data5 removal
-        rows = utils.delete().where("integer_1", 5).waitForIndexing().query(wildcard("ascii_1", "*")).get();
+        rows = utils.delete().where("integer_1", 5).prepareForSearch().query(wildcard("ascii_1", "*")).get();
         assertEquals("Expected 3 results!", 3, rows.size());
         assertFalse("Element not expected!", containsElementByIntegerKey(rows, 5));
 
         // Data2 removal
-        rows = utils.delete().where("integer_1", 2).waitForIndexing().query(wildcard("ascii_1", "*")).get();
+        rows = utils.delete().where("integer_1", 2).prepareForSearch().query(wildcard("ascii_1", "*")).get();
         assertEquals("Expected 2 results!", 2, rows.size());
         assertFalse("Element not expected!", containsElementByIntegerKey(rows, 2));
 
         // Data3 removal
-        rows = utils.delete().where("integer_1", 3).waitForIndexing().query(wildcard("ascii_1", "*")).get();
+        rows = utils.delete().where("integer_1", 3).prepareForSearch().query(wildcard("ascii_1", "*")).get();
         assertEquals("Expected 1 result!", 1, rows.size());
         assertFalse("Element not expected!", containsElementByIntegerKey(rows, 3));
 
         // Data1 removal
-        rows = utils.delete().where("integer_1", 1).waitForIndexing().query(wildcard("ascii_1", "*")).get();
+        rows = utils.delete().where("integer_1", 1).prepareForSearch().query(wildcard("ascii_1", "*")).get();
         assertEquals("Expected 0 results!", 0, rows.size());
         assertFalse("Element not expected!", containsElementByIntegerKey(rows, 1));
     }
@@ -167,13 +167,13 @@ public class SimpleKeyDataHandlingAT extends BaseAT {
                               .where("integer_1", 2)
                               .delete()
                               .where("integer_1", 3)
-                              .waitForIndexing()
+                              .prepareForSearch()
                               .query(wildcard("ascii_1", "*"))
                               .get();
         assertEquals("Expected 1 result!", 1, rows.size());
         assertFalse("Element not expected!", containsElementByIntegerKey(rows, 3));
 
-        rows = utils.delete().where("integer_1", 1).waitForIndexing().query(wildcard("ascii_1", "*")).get();
+        rows = utils.delete().where("integer_1", 1).prepareForSearch().query(wildcard("ascii_1", "*")).get();
         assertEquals("Expected 0 results!", 0, rows.size());
         assertFalse("Element not expected!", containsElementByIntegerKey(rows, 1));
     }
@@ -185,7 +185,7 @@ public class SimpleKeyDataHandlingAT extends BaseAT {
              .update()
              .set("text_1", "other")
              .where("integer_1", 2)
-             .waitForIndexing()
+             .prepareForRead()
              .query(wildcard("text_1", "text"))
              .check(2)
              .query(wildcard("text_1", "other"))
@@ -199,7 +199,7 @@ public class SimpleKeyDataHandlingAT extends BaseAT {
              .update()
              .set("text_1", "new")
              .where("integer_1", 1000)
-             .waitForIndexing()
+             .prepareForRead()
              .query(wildcard("text_1", "new"))
              .check(1);
     }

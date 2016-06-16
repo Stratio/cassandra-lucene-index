@@ -44,7 +44,7 @@ public class CassandraUtilsSelect {
     private Search search;
     private Integer limit;
     private Integer fetchSize;
-    private boolean refresh = true;
+    private boolean refresh = false;
     private boolean allowFiltering = false;
     private ConsistencyLevel consistency;
     private boolean useNewQuerySyntax;

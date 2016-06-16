@@ -32,7 +32,6 @@ class CassandraConfig {
     static final int FETCH = getInt("fetch", 100);
     static final int THREADS = getInt("threads", 0);
     static final int REFRESH = getInt("refresh", 1);
-    static final int WAIT_FOR_INDEXING = getInt("wait_for_indexing", 2);
     static final String TABLE = getString("table", "test_table");
     static final String INDEX = getString("index", "test_table_idx");
     static final String COLUMN = getString("column", null);

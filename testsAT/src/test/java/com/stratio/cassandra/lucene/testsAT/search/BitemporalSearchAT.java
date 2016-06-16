@@ -189,7 +189,8 @@ public class BitemporalSearchAT extends BaseAT {
                               .createKeyspace()
                               .createTable()
                               .createIndex()
-                              .insert(data1, data2, data3, data4, data5);
+                              .insert(data1, data2, data3, data4, data5)
+                              .refresh();
     }
 
     @AfterClass
@@ -366,8 +367,8 @@ public class BitemporalSearchAT extends BaseAT {
                              .createKeyspace()
                              .createTable()
                              .createIndex()
-                             .insert(data12, data13, data14);
-
+                             .insert(data12, data13, data14)
+                             .refresh();
     }
 
     private void tearDown(CassandraUtils cu) {
@@ -421,7 +422,7 @@ public class BitemporalSearchAT extends BaseAT {
         //testing with string value
         String nowValue = "2015/04/15 12:00:00.000";
 
-        CassandraUtils cu = setUpSuite2(nowValue, SIMPLE_DATE_PATTERN).insert(data1, data2, data3);
+        CassandraUtils cu = setUpSuite2(nowValue, SIMPLE_DATE_PATTERN).insert(data1, data2, data3).refresh();
 
         //testing if inserting data translate it to Long.max
         CassandraUtilsSelect select = cu.query(bitemporal("bitemporal").vtFrom("2014/12/31 12:00:00.000")
@@ -440,7 +441,7 @@ public class BitemporalSearchAT extends BaseAT {
         //testing with string value
         String nowValue = "2015/04/15 12:00:00.000";
 
-        CassandraUtils cu = setUpSuite2(nowValue, SIMPLE_DATE_PATTERN).insert(data1, data2, data3);
+        CassandraUtils cu = setUpSuite2(nowValue, SIMPLE_DATE_PATTERN).insert(data1, data2, data3).refresh();
 
         //testing if inserting data translate it to Long.max
         CassandraUtilsSelect select = cu.query(bitemporal("bitemporal").ttFrom("2015/01/14 00:00:00.000")
@@ -457,7 +458,7 @@ public class BitemporalSearchAT extends BaseAT {
         //testing with string value
         String nowValue = "2015/04/15 12:00:00.000";
 
-        CassandraUtils cu = setUpSuite2(nowValue, SIMPLE_DATE_PATTERN).insert(data1, data2, data3);
+        CassandraUtils cu = setUpSuite2(nowValue, SIMPLE_DATE_PATTERN).insert(data1, data2, data3).refresh();
 
         //testing if inserting data translate it to Long.max
         CassandraUtilsSelect select = cu.query(bitemporal("bitemporal").vtFrom("2014/12/31 12:00:00.000")
@@ -486,7 +487,8 @@ public class BitemporalSearchAT extends BaseAT {
                                           .createKeyspace()
                                           .createTable()
                                           .createIndex()
-                                          .insert(data7, data8, data9, data10, data11);
+                                          .insert(data7, data8, data9, data10, data11)
+                                          .refresh();
 
         CassandraUtilsSelect select = cu.searchAll();
 
@@ -515,6 +517,7 @@ public class BitemporalSearchAT extends BaseAT {
 
         batch.add(insert);
         ResultSet result = cu.execute(batch);
+        cu.refresh();
 
         assertTrue("batch execution didn't work", result.wasApplied());
 

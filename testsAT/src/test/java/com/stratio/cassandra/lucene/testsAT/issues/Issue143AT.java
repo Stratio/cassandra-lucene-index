@@ -72,6 +72,6 @@ public class Issue143AT extends BaseAT {
 
     @Test
     public void test() {
-        utils.createIndex().waitForIndexing().refresh().filter(range("speed").upper(10)).check(1);
+        utils.createIndex().refresh().filter(range("speed").upper(10)).check(1);
     }
 }

@@ -76,7 +76,7 @@ public class MultipleKeyDataDeletionAT extends BaseAT {
         List<Row> rows = utils.delete("bigint_1")
                               .where("integer_1", 1)
                               .and("ascii_1", "ascii")
-                              .waitForIndexing()
+                              .prepareForSearch()
                               .query(wildcard("ascii_1", "*"))
                               .get();
 
@@ -101,7 +101,7 @@ public class MultipleKeyDataDeletionAT extends BaseAT {
         List<Row> rows = utils.delete("map_1['k1']")
                               .where("integer_1", 1)
                               .and("ascii_1", "ascii")
-                              .waitForIndexing()
+                              .prepareForSearch()
                               .filter(wildcard("ascii_1", "*"))
                               .get();
 
@@ -130,7 +130,7 @@ public class MultipleKeyDataDeletionAT extends BaseAT {
         List<Row> rows = utils.delete("list_1[0]")
                               .where("integer_1", 1)
                               .and("ascii_1", "ascii")
-                              .waitForIndexing()
+                              .prepareForSearch()
                               .filter(wildcard("ascii_1", "*"))
                               .get();
 
@@ -158,7 +158,7 @@ public class MultipleKeyDataDeletionAT extends BaseAT {
         utils.delete()
              .where("integer_1", 1)
              .and("ascii_1", "ascii")
-             .waitForIndexing()
+             .prepareForSearch()
              .filter(wildcard("ascii_1", "*"))
              .check(9);
 
@@ -168,7 +168,7 @@ public class MultipleKeyDataDeletionAT extends BaseAT {
     public void partialPartitionDeletion() {
         utils.delete()
              .where("integer_1", 1)
-             .waitForIndexing()
+             .prepareForSearch()
              .filter(wildcard("ascii_1", "*"))
              .check(8);
     }

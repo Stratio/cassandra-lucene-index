@@ -79,13 +79,10 @@ public class SelectTotalExpiredTTLWideRowsAT {
         TimeUnit.SECONDS.sleep(13);
         utils.compact(false);
 
-        utils.filter(match("c", "b")).refresh(true).checkIntColumnWithoutOrder("a");
-        utils.filter(match("c", "c"))
-             .refresh(true)
-             .checkIntColumnWithoutOrder("a", 4, 5, 6, 7, 8, 9, 10, 14, 15, 16, 17, 18, 19, 20);
-        utils.filter(match("b", "a"))
-             .refresh(true)
-             .checkIntColumnWithoutOrder("a", 4, 5, 6, 7, 8, 9, 10, 14, 15, 16, 17, 18, 19, 20);
+        utils.refresh()
+             .filter(match("c", "b")).checkIntColumnWithoutOrder("a")
+             .filter(match("c", "c")).checkIntColumnWithoutOrder("a", 4, 5, 6, 7, 8, 9, 10, 14, 15, 16, 17, 18, 19, 20)
+             .filter(match("b", "a")).checkIntColumnWithoutOrder("a", 4, 5, 6, 7, 8, 9, 10, 14, 15, 16, 17, 18, 19, 20);
         assertEquals("NumDocs in index is not correct", 14, utils.getIndexNumDocs());
     }
 

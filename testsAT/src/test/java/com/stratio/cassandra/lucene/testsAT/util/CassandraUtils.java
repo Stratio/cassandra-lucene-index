@@ -53,7 +53,7 @@ public class CassandraUtils {
     private final List<String> clusteringKey;
     private final Map<String, Map<String, String>> udts;
     private final boolean useNewQuerySyntax;
-    private final String beanName;
+    private final String indexBean;
 
     public static CassandraUtilsBuilder builder(String name) {
         return new CassandraUtilsBuilder(name);
@@ -86,8 +86,8 @@ public class CassandraUtils {
             columns.put(indexColumn, "text");
         }
 
-        beanName = String.format("com.stratio.cassandra.lucene:type=Lucene,keyspace=%s,table=%s,index=%s",
-                                 keyspace, table, indexName);
+        indexBean = String.format("com.stratio.cassandra.lucene:type=Lucene,keyspace=%s,table=%s,index=%s",
+                                  keyspace, table, indexName);
     }
 
     public String getKeyspace() {
@@ -137,22 +137,16 @@ public class CassandraUtils {
         return execute(query.toString());
     }
 
-    public CassandraUtils waitForIndexing() {
-
-        // Waiting for the custom index to be refreshed
+    private CassandraUtils waitForIndexBuilt() {
         logger.debug("Waiting for the index to be created...");
-        try {
-            TimeUnit.SECONDS.sleep(WAIT_FOR_INDEXING);
-        } catch (InterruptedException e) {
-            logger.error("Interruption caught during a Thread.sleep; index might be unstable");
+        while (!isIndexBuilt()) {
+            try {
+                TimeUnit.MILLISECONDS.sleep(100);
+            } catch (InterruptedException e) {
+                throw new RuntimeException("Interrupted while waiting for index building", e);
+            }
         }
         logger.debug("Index ready to rock!");
-
-        return this;
-    }
-
-    public CassandraUtils refresh() {
-        select().query(Search.none()).refresh(true).consistency(ConsistencyLevel.ALL).limit(1).getFirst();
         return this;
     }
 
@@ -228,7 +222,8 @@ public class CassandraUtils {
             index.mapper(entry.getKey(), entry.getValue());
         }
         execute(index.build());
-        return this;
+
+        return waitForIndexBuilt();
     }
 
     public CassandraUtils dropIndex() {
@@ -311,50 +306,73 @@ public class CassandraUtils {
         return execute(b).all();
     }
 
-    public void flush() {
+    public CassandraUtils flush() {
         logger.debug("JMX: Flush");
         invokeJMXMethod("org.apache.cassandra.db:type=StorageService",
                         "forceKeyspaceFlush",
                         new Object[]{keyspace, new String[]{table}},
                         new String[]{String.class.getName(), String[].class.getName()});
+        return this;
     }
 
-    public void compact(boolean splitOutput) {
+    public CassandraUtils refresh() {
+        logger.debug("JMX: Refresh");
+        invokeJMXMethod(indexBean, "refresh", new Object[]{}, new String[]{});
+        return this;
+    }
+
+    public CassandraUtils commit() {
+        logger.debug("JMX: Commit");
+        invokeJMXMethod(indexBean, "commit", new Object[]{}, new String[]{});
+        return this;
+    }
+
+    public CassandraUtils compact(boolean splitOutput) {
         logger.debug("JMX: Compact");
         invokeJMXMethod("org.apache.cassandra.db:type=StorageService",
                         "forceKeyspaceCompaction",
                         new Object[]{splitOutput, keyspace, new String[]{table}},
                         new String[]{boolean.class.getName(), String.class.getName(), String[].class.getName()});
+        return this;
     }
 
     public int getIndexNumDeletedDocs() {
-        return getJMXAttribute(beanName, "NumDeletedDocs").stream().mapToInt(o -> (int) o).sum() / REPLICATION;
+        return getJMXAttribute(indexBean, "NumDeletedDocs").stream().mapToInt(o -> (int) o).sum() / REPLICATION;
     }
 
     public int getIndexNumDocs() {
-        return getJMXAttribute(beanName, "NumDocs").stream().mapToInt(o -> (int) o).sum() / REPLICATION;
+        return getJMXAttribute(indexBean, "NumDocs").stream().mapToInt(o -> (int) o).sum() / REPLICATION;
     }
 
-    private List<Object> getJMXAttribute(String objectName, String attribute) {
+    @SuppressWarnings("unchecked")
+    private boolean isIndexBuilt() {
+        String bean = String.format("org.apache.cassandra.db:type=%s,keyspace=%s,table=%s",
+                                    "Tables", keyspace, table);
+        return getJMXAttribute(bean, "BuiltIndexes").stream()
+                                                    .map(o -> (List<String>) o)
+                                                    .allMatch(l -> l.contains(indexName));
+    }
+
+    private List<Object> getJMXAttribute(String bean, String attribute) {
         try {
             List<Object> out = new ArrayList<>(JMX_SERVICES.length);
             for (String service : JMX_SERVICES) {
                 CassandraJMXClient client = new CassandraJMXClient(service);
                 client.connect();
-                out.add(client.getAttribute(objectName, attribute));
+                out.add(client.getAttribute(bean, attribute));
                 client.disconnect();
             }
             return out;
         } catch (JMException | IOException e) {
-            throw new RuntimeException(String.format("Error while reading JMX attribute %s", attribute), e);
+            throw new RuntimeException(String.format("Error while reading JMX attribute %s.%s", bean, attribute), e);
         }
     }
 
-    private void invokeJMXMethod(String beanName, String operation, Object[] params, String[] signature) {
+    private void invokeJMXMethod(String bean, String operation, Object[] params, String[] signature) {
         try {
             for (String service : JMX_SERVICES) {
                 CassandraJMXClient client = new CassandraJMXClient(service).connect();
-                client.invoke(beanName, operation, params, signature);
+                client.invoke(bean, operation, params, signature);
                 client.disconnect();
             }
         } catch (JMException | IOException e) {

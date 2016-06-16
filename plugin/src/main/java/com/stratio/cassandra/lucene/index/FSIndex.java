@@ -27,9 +27,7 @@ import org.apache.lucene.store.NRTCachingDirectory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.management.ObjectName;
 import java.io.IOException;
-import java.lang.management.ManagementFactory;
 import java.nio.file.Path;
 import java.util.Set;
 
@@ -38,12 +36,11 @@ import java.util.Set;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class FSIndex implements FSIndexMBean {
+public class FSIndex {
 
     private static final Logger logger = LoggerFactory.getLogger(FSIndex.class);
 
     private final String name;
-    private final String mbeanName;
     private final Path path;
     private final Analyzer analyzer;
     private final double refresh;
@@ -58,8 +55,6 @@ public class FSIndex implements FSIndexMBean {
     private SearcherManager searcherManager;
     private ControlledRealTimeReopenThread<IndexSearcher> searcherReopener;
 
-    private ObjectName mbean;
-
     // Disable max boolean query clauses limit
     static {
         BooleanQuery.setMaxClauseCount(Integer.MAX_VALUE);
@@ -69,7 +64,6 @@ public class FSIndex implements FSIndexMBean {
      * Builds a new {@link FSIndex}.
      *
      * @param name the index name
-     * @param mbeanName the JMX MBean object name
      * @param path the directory path
      * @param analyzer the index writer analyzer
      * @param refresh the index reader refresh frequency in seconds
@@ -78,7 +72,6 @@ public class FSIndex implements FSIndexMBean {
      * @param maxCachedMB the directory max cache size in MB
      */
     public FSIndex(String name,
-                   String mbeanName,
                    Path path,
                    Analyzer analyzer,
                    double refresh,
@@ -86,7 +79,6 @@ public class FSIndex implements FSIndexMBean {
                    int maxMergeMB,
                    int maxCachedMB) {
         this.name = name;
-        this.mbeanName = mbeanName;
         this.path = path;
         this.analyzer = analyzer;
         this.refresh = refresh;
@@ -134,10 +126,6 @@ public class FSIndex implements FSIndexMBean {
             searcherManager = new SearcherManager(indexWriter, true, searcherFactory);
             searcherReopener = new ControlledRealTimeReopenThread<>(trackingWriter, searcherManager, refresh, refresh);
             searcherReopener.start();
-
-            // Register JMX MBean
-            mbean = new ObjectName(mbeanName);
-            ManagementFactory.getPlatformMBeanServer().registerMBean(this, this.mbean);
 
         } catch (Exception e) {
             throw new IndexException(logger, e, "Error while creating index %s", name);
@@ -219,7 +207,6 @@ public class FSIndex implements FSIndexMBean {
     /**
      * Commits the pending changes.
      */
-    @Override
     public void commit() {
         try {
             indexWriter.commit();
@@ -238,7 +225,6 @@ public class FSIndex implements FSIndexMBean {
             searcherManager.close();
             indexWriter.close();
             directory.close();
-            ManagementFactory.getPlatformMBeanServer().unregisterMBean(mbean);
         } catch (Exception e) {
             throw new IndexException(logger, e, "Error closing %s", name);
         }
@@ -282,7 +268,6 @@ public class FSIndex implements FSIndexMBean {
      *
      * @return the number of {@link Document}s
      */
-    @Override
     public int getNumDocs() {
         logger.debug("Getting {} num docs", name);
         try {
@@ -297,7 +282,6 @@ public class FSIndex implements FSIndexMBean {
      *
      * @return the number of deleted {@link Document}s
      */
-    @Override
     public int getNumDeletedDocs() {
         logger.debug("Getting %s num deleted docs", name);
         try {
@@ -314,7 +298,6 @@ public class FSIndex implements FSIndexMBean {
      * @param maxNumSegments the maximum number of segments left in the index after merging finishes
      * @param doWait {@code true} if the call should block until the operation completes
      */
-    @Override
     public void forceMerge(int maxNumSegments, boolean doWait) {
         logger.info("Merging {} segments to {}", name, maxNumSegments);
         try {
@@ -332,7 +315,6 @@ public class FSIndex implements FSIndexMBean {
      *
      * @param doWait {@code true} if the call should block until the operation completes
      */
-    @Override
     public void forceMergeDeletes(boolean doWait) {
         logger.info("Merging {} segments with deletions", name);
         try {
@@ -347,11 +329,9 @@ public class FSIndex implements FSIndexMBean {
     /**
      * Refreshes the index readers.
      */
-    @Override
     public void refresh() {
         logger.debug("Refreshing {} readers", name);
         try {
-            commit();
             searcherManager.maybeRefreshBlocking();
         } catch (Exception e) {
             throw new IndexException(logger, e, "Error refreshing %s readers", name);

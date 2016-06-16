@@ -42,8 +42,7 @@ public class Issue94AT extends BaseAT {
                                                   .build()
                                                   .createKeyspace()
                                                   .createTable()
-                                                  .createIndex()
-                                                  .refresh();
+                                                  .createIndex();
         utils.insert(new String[]{"a", "b", "c"}, new Object[]{1, null, null});
         utils.execute("INSERT INTO %s(a , b , c ) VALUES (1, null, null);", utils.getQualifiedTable());
         utils.dropTable().dropKeyspace();

@@ -54,7 +54,7 @@ public class InOperatorWithWideRowsAT extends BaseAT {
                 utils.insert(new String[]{"pk", "ck", "rc"}, new Object[]{i, j, i * NUM_PARTITIONS + j});
             }
         }
-        utils.waitForIndexing().refresh();
+        utils.refresh();
     }
 
     @AfterClass

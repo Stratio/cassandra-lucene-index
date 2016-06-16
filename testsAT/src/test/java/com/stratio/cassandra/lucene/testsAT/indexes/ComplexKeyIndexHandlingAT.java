@@ -68,7 +68,6 @@ public class ComplexKeyIndexHandlingAT extends BaseAT {
         utils.insert(data1, data2, data3, data4, data6, data7, data8, data9, data10)
              .insert(data11, data12, data13, data14, data15, data16, data17, data18, data19, data20)
              .createIndex()
-             .waitForIndexing()
              .refresh()
              .filter(wildcard("ascii_1", "*"))
              .check(19);
@@ -79,7 +78,6 @@ public class ComplexKeyIndexHandlingAT extends BaseAT {
         utils.insert(data1, data2, data3, data4, data6, data7, data8, data9, data10)
              .insert(data11, data12, data13, data14, data15)
              .createIndex()
-             .waitForIndexing()
              .insert(data16, data17, data18, data19, data20)
              .refresh()
              .filter(wildcard("ascii_1", "*"))
@@ -91,8 +89,6 @@ public class ComplexKeyIndexHandlingAT extends BaseAT {
         utils.insert(data1, data2, data3, data4, data6, data7, data8, data9)
              .insert(data11, data12, data13, data14, data16, data17, data18, data19)
              .createIndex()
-             .waitForIndexing()
-             .refresh()
              .insert(data5, data10, data15, data20)
              .refresh()
              .filter(wildcard("ascii_1", "*"))
@@ -104,7 +100,6 @@ public class ComplexKeyIndexHandlingAT extends BaseAT {
         utils.insert(data2, data3, data4, data5, data6, data8, data9, data10)
              .insert(data11, data12, data14, data15, data16, data17, data18, data20)
              .createIndex()
-             .waitForIndexing()
              .insert(data1, data7, data13, data19)
              .refresh()
              .filter(wildcard("ascii_1", "*"))
@@ -114,7 +109,6 @@ public class ComplexKeyIndexHandlingAT extends BaseAT {
     @Test
     public void recreateIndexAfterInsertionsTest() {
         utils.createIndex()
-             .waitForIndexing()
              .insert(data1, data2, data3, data4, data5, data6, data7, data8, data9, data10)
              .insert(data11, data12, data13, data14, data15, data16, data17, data18, data19, data20)
              .refresh()
@@ -122,7 +116,6 @@ public class ComplexKeyIndexHandlingAT extends BaseAT {
              .check(20)
              .dropIndex()
              .createIndex()
-             .waitForIndexing()
              .refresh()
              .query(wildcard("ascii_1", "*"))
              .check(20);

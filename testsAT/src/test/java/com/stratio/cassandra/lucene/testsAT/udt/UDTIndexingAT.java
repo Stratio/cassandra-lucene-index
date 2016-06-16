@@ -505,9 +505,7 @@ public class UDTIndexingAT extends BaseAT {
     public void testNonCompleteUDT() {
 
         String insert = "INSERT INTO " +
-                        utils.getKeyspace() +
-                        "." +
-                        utils.getTable() +
+                        utils.getQualifiedTable() +
                         "(login, first_name, last_name, address) VALUES (" +
                         "'USER10'," +
                         "'Tom'," +
