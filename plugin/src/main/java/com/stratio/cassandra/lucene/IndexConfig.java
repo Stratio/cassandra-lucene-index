@@ -25,8 +25,11 @@ import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
 import org.apache.cassandra.db.Directories;
 import org.apache.lucene.analysis.Analyzer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -40,6 +43,8 @@ import java.util.Map;
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class IndexConfig {
+
+    private static final Logger logger = LoggerFactory.getLogger(IndexConfig.class);
 
     public static final String SCHEMA_OPTION = "schema";
 
@@ -100,6 +105,7 @@ public class IndexConfig {
         parseIndexingThreads();
         parseIndexingQueuesSize();
         parseExcludedDataCenters();
+        validate();
     }
 
     /**
@@ -319,7 +325,6 @@ public class IndexConfig {
         if (schemaOption != null && !schemaOption.trim().isEmpty()) {
             try {
                 schema = SchemaBuilder.fromJson(schemaOption).build();
-                schema.validate(metadata);
             } catch (Exception e) {
                 throw new IndexException(e, "'%s' is invalid : %s", SCHEMA_OPTION, e.getMessage());
             }
@@ -369,6 +374,21 @@ public class IndexConfig {
         if (excludedDataCentersOption != null) {
             String[] array = excludedDataCentersOption.trim().split(",");
             excludedDataCenters = Arrays.asList(array);
+        }
+    }
+
+    private void validate() {
+        try {
+            schema.validate(metadata);
+        } catch (IndexException e) {
+            if (Files.exists(path)) {
+                logger.error(String.format(
+                        "Lucene index '%s' has an invalid schema probably due to schema changes in the indexed table: %s",
+                        columnDefinition.getIndexName(),
+                        e.getMessage()));
+            } else {
+                throw e;
+            }
         }
     }
 

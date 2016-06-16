@@ -2,6 +2,8 @@
 
 ## 2.2.3.3 (upcoming)
 
+* Skip schema validation in already created indexes (#108)
+
 ## 2.2.3.2 (9 December 2015)
 
 * Add support for CQL DISTINCT operator (#69)
