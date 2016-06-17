@@ -19,6 +19,11 @@ import com.datastax.driver.core.*;
 import com.stratio.cassandra.lucene.testsAT.BaseAT;
 import org.slf4j.Logger;
 
+import javax.management.JMException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import static com.stratio.cassandra.lucene.testsAT.util.CassandraConfig.*;
 
 /**
@@ -30,6 +35,7 @@ public class CassandraConnection {
 
     private static Cluster cluster;
     private static Session session;
+    private static List<CassandraJMXClient> jmxClients;
 
     public static void connect() {
         if (cluster == null) {
@@ -44,6 +50,12 @@ public class CassandraConnection {
                        .setConnectTimeoutMillis(100000);
 
                 session = cluster.connect();
+
+                jmxClients = new ArrayList<>(JMX_SERVICES.length);
+                for (String service : JMX_SERVICES) {
+                    jmxClients.add(new CassandraJMXClient(service).connect());
+                }
+
             } catch (Exception e) {
                 throw new RuntimeException("Error while connecting to Cassandra server", e);
             }
@@ -53,6 +65,7 @@ public class CassandraConnection {
     public static void disconnect() {
         session.close();
         cluster.close();
+        jmxClients.forEach(CassandraJMXClient::disconnect);
     }
 
     public static synchronized ResultSet execute(Statement statement) {
@@ -62,6 +75,28 @@ public class CassandraConnection {
 
     static PreparedStatement prepare(String query) {
         return session.prepare(query);
+    }
+
+    static List<Object> getJMXAttribute(String bean, String attribute) {
+        try {
+            List<Object> out = new ArrayList<>(jmxClients.size());
+            for (CassandraJMXClient client : jmxClients) {
+                out.add(client.getAttribute(bean, attribute));
+            }
+            return out;
+        } catch (JMException | IOException e) {
+            throw new RuntimeException(String.format("Error while reading JMX attribute %s.%s", bean, attribute), e);
+        }
+    }
+
+    static void invokeJMXMethod(String bean, String operation, Object[] params, String[] signature) {
+        try {
+            for (CassandraJMXClient client : jmxClients) {
+                client.invoke(bean, operation, params, signature);
+            }
+        } catch (JMException | IOException e) {
+            throw new RuntimeException(String.format("Error while invoking JMX method %s", operation), e);
+        }
     }
 
 }

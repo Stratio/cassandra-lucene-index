@@ -26,14 +26,16 @@ import com.stratio.cassandra.lucene.builder.search.sort.SortField;
 import com.stratio.cassandra.lucene.testsAT.BaseAT;
 import org.slf4j.Logger;
 
-import javax.management.JMException;
-import java.io.IOException;
-import java.util.*;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import static com.stratio.cassandra.lucene.builder.Builder.all;
 import static com.stratio.cassandra.lucene.builder.Builder.index;
 import static com.stratio.cassandra.lucene.testsAT.util.CassandraConfig.*;
+import static com.stratio.cassandra.lucene.testsAT.util.CassandraConnection.*;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
@@ -137,11 +139,11 @@ public class CassandraUtils {
         return execute(query.toString());
     }
 
-    private CassandraUtils waitForIndexBuilt() {
+    public CassandraUtils waitForIndexBuilt() {
         logger.debug("Waiting for the index to be created...");
         while (!isIndexBuilt()) {
             try {
-                TimeUnit.MILLISECONDS.sleep(100);
+                TimeUnit.MILLISECONDS.sleep(50);
             } catch (InterruptedException e) {
                 throw new RuntimeException("Interrupted while waiting for index building", e);
             }
@@ -300,7 +302,7 @@ public class CassandraUtils {
         String query = useNewQuerySyntax
                        ? String.format("SELECT * FROM %s WHERE expr(%s,?) LIMIT %d", qualifiedTable, indexName, LIMIT)
                        : String.format("SELECT * FROM %s WHERE %s = ? LIMIT %d", qualifiedTable, indexColumn, LIMIT);
-        final PreparedStatement stmt = CassandraConnection.prepare(query);
+        final PreparedStatement stmt = prepare(query);
         BoundStatement b = stmt.bind();
         b.setString(0, search.build());
         return execute(b).all();
@@ -332,7 +334,9 @@ public class CassandraUtils {
         invokeJMXMethod("org.apache.cassandra.db:type=StorageService",
                         "forceKeyspaceCompaction",
                         new Object[]{splitOutput, keyspace, new String[]{table}},
-                        new String[]{boolean.class.getName(), String.class.getName(), String[].class.getName()});
+                        new String[]{boolean.class.getName(),
+                                     String.class.getName(),
+                                     String[].class.getName()});
         return this;
     }
 
@@ -346,37 +350,9 @@ public class CassandraUtils {
 
     @SuppressWarnings("unchecked")
     private boolean isIndexBuilt() {
-        String bean = String.format("org.apache.cassandra.db:type=%s,keyspace=%s,table=%s",
-                                    "Tables", keyspace, table);
+        String bean = String.format("org.apache.cassandra.db:type=%s,keyspace=%s,table=%s", "Tables", keyspace, table);
         return getJMXAttribute(bean, "BuiltIndexes").stream()
                                                     .map(o -> (List<String>) o)
                                                     .allMatch(l -> l.contains(indexName));
-    }
-
-    private List<Object> getJMXAttribute(String bean, String attribute) {
-        try {
-            List<Object> out = new ArrayList<>(JMX_SERVICES.length);
-            for (String service : JMX_SERVICES) {
-                CassandraJMXClient client = new CassandraJMXClient(service);
-                client.connect();
-                out.add(client.getAttribute(bean, attribute));
-                client.disconnect();
-            }
-            return out;
-        } catch (JMException | IOException e) {
-            throw new RuntimeException(String.format("Error while reading JMX attribute %s.%s", bean, attribute), e);
-        }
-    }
-
-    private void invokeJMXMethod(String bean, String operation, Object[] params, String[] signature) {
-        try {
-            for (String service : JMX_SERVICES) {
-                CassandraJMXClient client = new CassandraJMXClient(service).connect();
-                client.invoke(bean, operation, params, signature);
-                client.disconnect();
-            }
-        } catch (JMException | IOException e) {
-            throw new RuntimeException(String.format("Error while invoking JMX method %s", operation), e);
-        }
     }
 }

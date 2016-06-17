@@ -47,8 +47,7 @@ class CassandraConfig {
     }
 
     private static String[] getStringArray(String key, String def) {
-        String property = System.getProperty("it." + key, def);
-        return property.split(",");
+        return getString(key, def).split(",");
     }
 
     private static int getInt(String key, Integer def) {

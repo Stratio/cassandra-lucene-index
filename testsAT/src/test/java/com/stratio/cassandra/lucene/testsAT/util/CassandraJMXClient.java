@@ -26,6 +26,7 @@ import java.net.MalformedURLException;
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
 class CassandraJMXClient {
+
     private JMXConnector jmxc;
     private JMXServiceURL url;
 
@@ -58,15 +59,13 @@ class CassandraJMXClient {
     void invoke(String beanName, String operation, Object[] params, String[] signature)
     throws MalformedObjectNameException, IOException, MBeanException, InstanceNotFoundException, ReflectionException {
         jmxc.getMBeanServerConnection().invoke(new ObjectName(beanName), operation, params, signature);
-
     }
 
-    Object getAttribute(String s_name, String atribute)
+    Object getAttribute(String s_name, String attribute)
     throws IOException, MalformedObjectNameException, AttributeNotFoundException, MBeanException, ReflectionException,
            InstanceNotFoundException {
-
         ObjectName name = new ObjectName(s_name);
-        return jmxc.getMBeanServerConnection().getAttribute(name, atribute);
+        return jmxc.getMBeanServerConnection().getAttribute(name, attribute);
     }
 
 }

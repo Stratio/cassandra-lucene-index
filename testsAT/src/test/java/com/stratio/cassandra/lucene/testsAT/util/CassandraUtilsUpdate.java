@@ -65,7 +65,7 @@ public class CassandraUtilsUpdate {
         return execute().sort(sort);
     }
 
-    public CassandraUtils prepareForRead() {
-        return execute().refresh();
+    public CassandraUtils refresh() {
+        return execute().commit().refresh();
     }
 }

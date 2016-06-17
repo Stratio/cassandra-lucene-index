@@ -72,7 +72,7 @@ public class CassandraUtilsDelete {
         return execute().sort(sort);
     }
 
-    public CassandraUtils prepareForSearch() {
-        return execute().refresh();
+    public CassandraUtils refresh() {
+        return execute().commit().refresh();
     }
 }
