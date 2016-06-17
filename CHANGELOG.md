@@ -2,11 +2,11 @@
 
 ## 3.0.7.1 (upcoming)
 
+* Fix clustering query collisions in Lucene's query cache
+
 ## 3.0.7.0 (17 June 2016)
 
 * Upgrade to Apache Cassandra 3.0.7
-
-* Fix clustering query collisions in Lucene's query cache
 
 ## 3.0.6.2 (06 June 2016)
  
