@@ -3,25 +3,22 @@
 ## 3.6.0 (upcoming)
 
 * Upgrade to Apache Cassandra 3.6
-Merged from 3.0.6.3:
+Merged from 3.0.6:
 * Fix clustering query collisions in Lucene's query cache
-Merged from 3.0.6.2:
 * Fix deletion of columns with frozen type (UDT, tuples and frozen collections)
-Merged from 3.0.6.1:
 * Add support for CQL paging over sorted searches
 * Add support for sorted searches using IN operator
-Merged from 3.0.6.0:
 * Add support for indexing columns with TTL 
 
 ## 3.5.2 (27 May 2016)
 
-Merged from 3.0.5.2:
+Merged from 3.0.5:
 * Add transformation for getting the bounding box of a geographical shape
 * Fix complex clustering keys building (#143)
 
 ## 3.5.1 (19 May 2016)
 
-Merged from 3.0.5.1:
+Merged from 3.0.5:
 * Upgrade to Apache Lucene 5.5.1
 * Add support for old dummy column syntax (Spark compatibility and score retrieval)
 * Add option to use doc values in match, contains and range searches
@@ -59,7 +56,7 @@ Merged from 3.0.5.1:
 ## 3.0.3.1 (4 March 2016)
 
 * Fix performance issues with ClusteringIndexNamesFilter
-Merged from 2.2.5.2:
+Merged from 2.2.5:
 * Add indexing of WKT geographical shapes (point, linestring, polygon and their multipart)
 * Add search by WKT geographical shapes (point, linestring, polygon and their multipart)
 * Add API for search-time transformation of WKT geographical shapes
@@ -82,7 +79,7 @@ Merged from 2.2.5.2:
 
 ## 2.2.5.1 (19 February 2016)
 
-Merged from 2.2.4.3:
+Merged from 2.2.4:
 * Fixed explicit null values insertion (#94)
 
 ## 2.2.5.0 (9 February 2016)
