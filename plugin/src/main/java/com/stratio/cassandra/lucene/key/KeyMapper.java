@@ -146,7 +146,7 @@ public final class KeyMapper {
      * @return a {@code String} representing {@code prefix}
      */
     public String toString(ClusteringPrefix prefix) {
-        return prefix.toString(metadata);
+        return prefix == null ? null : prefix.toString(metadata);
     }
 
     /**

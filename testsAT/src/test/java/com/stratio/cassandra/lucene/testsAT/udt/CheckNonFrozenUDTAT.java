@@ -35,6 +35,18 @@ import static org.junit.Assert.assertTrue;
 @RunWith(JUnit4.class)
 public class CheckNonFrozenUDTAT extends BaseAT {
 
+    private static void test(CassandraUtils utils, String expectedMessage) {
+        try {
+            utils.createTable();
+            assertTrue("This must return InvalidQueryException but does not", false);
+        } catch (InvalidQueryException e) {
+            assertEquals("Raised exception with non expected message", expectedMessage, e.getMessage());
+
+        } finally {
+            utils.dropKeyspace();
+        }
+    }
+
     @Test
     public void testNotFrozenUDT() {
         CassandraUtils utils = CassandraUtils.builder("testNotFrozenUDT")
@@ -46,15 +58,7 @@ public class CheckNonFrozenUDTAT extends BaseAT {
                                              .build()
                                              .createKeyspace()
                                              .createUDTs();
-        try {
-            utils.createTable();
-            assertTrue("This must return InvalidQueryException but does not", false);
-        } catch (InvalidQueryException e) {
-            String expectedMessage = "Non-frozen User-Defined types are not supported, please use frozen<>";
-            assertEquals("Raised exception with non expected message", expectedMessage, e.getMessage());
-
-        }
-        utils.dropKeyspace();
+        test(utils, "Non-frozen User-Defined types are not supported, please use frozen<>");
     }
 
     @Test
@@ -68,15 +72,7 @@ public class CheckNonFrozenUDTAT extends BaseAT {
                                              .build()
                                              .createKeyspace()
                                              .createUDTs();
-        try {
-            utils.createTable();
-            assertTrue("This must return InvalidQueryException but does not", false);
-        } catch (InvalidQueryException e) {
-            String expectedMessage = "Non-frozen collections are not allowed inside collections: list<address_udt>";
-            assertEquals("Raised exception with non expected message", expectedMessage, e.getMessage());
-
-        }
-        utils.dropKeyspace();
+        test(utils, "Non-frozen collections are not allowed inside collections: list<address_udt>");
     }
 
     @Test
@@ -90,15 +86,7 @@ public class CheckNonFrozenUDTAT extends BaseAT {
                                              .build()
                                              .createKeyspace()
                                              .createUDTs();
-        try {
-            utils.createTable();
-            assertTrue("This must return InvalidQueryException but does not", false);
-        } catch (InvalidQueryException e) {
-            String expectedMessage = "Non-frozen collections are not allowed inside collections: set<address_udt>";
-            assertEquals("Raised exception with non expected message", expectedMessage, e.getMessage());
-
-        }
-        utils.dropKeyspace();
+        test(utils, "Non-frozen collections are not allowed inside collections: set<address_udt>");
     }
 
     @Test
@@ -112,15 +100,7 @@ public class CheckNonFrozenUDTAT extends BaseAT {
                                              .build()
                                              .createKeyspace()
                                              .createUDTs();
-        try {
-            utils.createTable();
-            assertTrue("This must return InvalidQueryException but does not", false);
-        } catch (InvalidQueryException e) {
-            String expectedMessage = "Non-frozen collections are not allowed inside collections: map<address_udt, int>";
-            assertEquals("Raised exception with non expected message", expectedMessage, e.getMessage());
-
-        }
-        utils.dropKeyspace();
+        test(utils, "Non-frozen collections are not allowed inside collections: map<address_udt, int>");
     }
 
     @Test
@@ -134,14 +114,6 @@ public class CheckNonFrozenUDTAT extends BaseAT {
                                              .build()
                                              .createKeyspace()
                                              .createUDTs();
-        try {
-            utils.createTable();
-            assertTrue("This must return InvalidQueryException but does not", false);
-        } catch (InvalidQueryException e) {
-            String expectedMessage = "Non-frozen collections are not allowed inside collections: map<int, address_udt>";
-            assertEquals("Raised exception with non expected message", expectedMessage, e.getMessage());
-
-        }
-        utils.dropKeyspace();
+        test(utils, "Non-frozen collections are not allowed inside collections: map<int, address_udt>");
     }
 }
