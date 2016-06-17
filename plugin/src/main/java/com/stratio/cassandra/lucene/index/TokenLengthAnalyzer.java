@@ -88,9 +88,9 @@ public class TokenLengthAnalyzer extends AnalyzerWrapper {
             int maxSize = IndexWriter.MAX_TERM_LENGTH;
             int size = tm.length();
             if (size > maxSize) {
-                logger.error("Discarding immense term in field='{}', " +
-                             "Lucene only allows terms with at most " +
-                             "{} bytes in length; got {}", fieldName, maxSize, size);
+                logger.warn("Discarding immense term in field='{}', " +
+                            "Lucene only allows terms with at most " +
+                            "{} bytes in length; got {}", fieldName, maxSize, size);
                 return false;
             }
             return true;

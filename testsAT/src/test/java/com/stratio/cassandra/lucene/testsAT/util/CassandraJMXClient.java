@@ -34,7 +34,7 @@ class CassandraJMXClient {
         try {
             url = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://" + service + "/jmxrmi");
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Error while creating JMX client", e);
         }
     }
 
@@ -42,7 +42,7 @@ class CassandraJMXClient {
         try {
             jmxc = JMXConnectorFactory.connect(url, null);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Error while connecting JMX client", e);
         }
         return this;
     }
@@ -52,7 +52,7 @@ class CassandraJMXClient {
             jmxc.close();
             jmxc = null;
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Error while disconnecting JMX client", e);
         }
     }
 
