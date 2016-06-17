@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.6.0 (17 June 2016)
+## 3.6.0 (18 June 2016)
 
 * Upgrade to Apache Cassandra 3.6
 Merged from 3.0.6:
