@@ -36,7 +36,7 @@ public class CassandraUtilsBuilder {
     private Map<String, Mapper> mappers;
     private List<String> partitionKey;
     private List<String> clusteringKey;
-    private final Map<String, Map<String, String>> udts;
+    private Map<String, Map<String, String>> udts;
 
     CassandraUtilsBuilder(String name) {
         super();
@@ -116,7 +116,7 @@ public class CassandraUtilsBuilder {
         return this;
     }
 
-    public SingleColumnMapper<?> defaultMapper(String name) {
+    private SingleColumnMapper<?> defaultMapper(String name) {
         switch (name) {
             case "ascii":
                 return stringMapper();
@@ -170,5 +170,35 @@ public class CassandraUtilsBuilder {
                                   partitionKey,
                                   clusteringKey,
                                   udts);
+    }
+
+    @Override
+    public CassandraUtilsBuilder clone() {
+        CassandraUtilsBuilder clone = new CassandraUtilsBuilder(name);
+
+        clone.table = table;
+        clone.indexName = INDEX;
+        clone.indexColumn = COLUMN;
+        for (String key : columns.keySet()) {
+            clone.columns.put(key, columns.get(key));
+        }
+        for (String key : mappers.keySet()) {
+            clone.mappers.put(key, mappers.get(key));
+        }
+        for (String value : partitionKey) {
+            clone.partitionKey.add(value);
+        }
+        for (String value : clusteringKey) {
+            clone.clusteringKey.add(value);
+        }
+        for (String key : udts.keySet()) {
+            Map<String, String> internalMap = new HashMap<>();
+            for (String key2 : udts.get(key).keySet()) {
+                internalMap.put(key2, udts.get(key).get(key2));
+            }
+            clone.udts.put(key, internalMap);
+        }
+
+        return clone;
     }
 }
