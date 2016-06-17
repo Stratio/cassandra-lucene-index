@@ -72,31 +72,41 @@ public class ColumnsMapper {
             AbstractType<?> type = cell.column().type;
             ByteBuffer value = cell.value();
             ColumnBuilder builder = Column.builder(name, cell.localDeletionTime());
-            if (type.isCollection() && !type.isFrozenCollection()) {
-                CollectionType<?> collectionType = (CollectionType<?>) type;
-                switch (collectionType.kind) {
-                    case SET: {
-                        type = collectionType.nameComparator();
-                        value = cell.path().get(0);
-                        addColumns(isTombstone, columns, builder, type, value);
-                        break;
+            if (type.isMultiCell()) {
+                if (type.isCollection()) {
+                    CollectionType<?> collectionType = (CollectionType<?>) type;
+                    switch (collectionType.kind) {
+                        case SET: {
+                            type = collectionType.nameComparator();
+                            value = cell.path().get(0);
+                            addColumns(isTombstone, columns, builder, type, value);
+                            break;
+                        }
+                        case LIST: {
+                            type = collectionType.valueComparator();
+                            addColumns(isTombstone, columns, builder, type, value);
+                            break;
+                        }
+                        case MAP: {
+                            type = collectionType.valueComparator();
+                            ByteBuffer keyValue = cell.path().get(0);
+                            AbstractType<?> keyType = collectionType.nameComparator();
+                            String nameSuffix = keyType.compose(keyValue).toString();
+                            addColumns(isTombstone, columns, builder.withMapName(nameSuffix), type, value);
+                            break;
+                        }
+                        default: {
+                            throw new IndexException("Unknown collection type %s", collectionType.kind);
+                        }
                     }
-                    case LIST: {
-                        type = collectionType.valueComparator();
-                        addColumns(isTombstone, columns, builder, type, value);
-                        break;
-                    }
-                    case MAP: {
-                        type = collectionType.valueComparator();
-                        ByteBuffer keyValue = cell.path().get(0);
-                        AbstractType<?> keyType = collectionType.nameComparator();
-                        String nameSuffix = keyType.compose(keyValue).toString();
-                        addColumns(isTombstone, columns, builder.withMapName(nameSuffix), type, value);
-                        break;
-                    }
-                    default: {
-                        throw new IndexException("Unknown collection type %s", collectionType.kind);
-                    }
+                } else if (type.isUDT()) {
+                    UserType userType = (UserType) type;
+                    short position = ByteBufferUtil.toShort(cell.path().get(0));
+                    name = userType.fieldNameAsString(position);
+                    type = userType.type(position);
+                    addColumns(isTombstone, columns, builder.withUDTName(name), type, value);
+                } else {
+                    throw new IndexException("Unknown multi cell type %s", type.getClass().getCanonicalName());
                 }
             } else {
                 addColumns(isTombstone, columns, builder, type, value);
@@ -160,7 +170,7 @@ public class ColumnsMapper {
                     throw new IndexException("Unknown collection type %s", collectionType.kind);
                 }
             }
-        } else if (type instanceof UserType) {
+        } else if (type.isUDT()) {
             UserType userType = (UserType) type;
             ByteBuffer[] values = userType.split(value);
             for (int i = 0; i < userType.fieldNames().size(); i++) {

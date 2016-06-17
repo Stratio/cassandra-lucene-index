@@ -81,6 +81,7 @@ class IndexWriterWide extends IndexWriter {
     @Override
     public void finish() {
         if (transactionType != IndexTransaction.Type.CLEANUP) {
+
             // Read required rows from storage engine
             service.read(key, rowsToRead, nowInSec, opGroup).forEachRemaining(unfiltered -> {
                 Row row = (Row) unfiltered;

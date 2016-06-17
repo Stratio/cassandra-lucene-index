@@ -350,6 +350,7 @@ public class Index implements org.apache.cassandra.index.Index {
         try {
             service.validate(update);
         } catch (Exception e) {
+            logger.error("Invalid partition update", e);
             throw new InvalidRequestException(e.getMessage());
         }
     }

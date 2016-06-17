@@ -335,7 +335,7 @@ public class IndexPagingState {
               .forEach(bbe -> {
                   ByteBuffer[] values = decompose(bbe);
                   DecoratedKey key = DatabaseDescriptor.getPartitioner().decorateKey(values[0]);
-                  Clustering clustering = new Clustering(Arrays.copyOfRange(values, 1, values.length));
+                  Clustering clustering = Clustering.make(Arrays.copyOfRange(values, 1, values.length));
                   state.entries.put(key, clustering);
               });
         return state;

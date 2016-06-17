@@ -68,7 +68,7 @@ class IndexWriterSkinny extends IndexWriter {
     public void finish() {
         if (transactionType != IndexTransaction.Type.CLEANUP) {
             optionalRow.ifPresent(row -> {
-                if (service.needsReadBeforeWrite(key, row) || (transactionType == IndexTransaction.Type.COMPACTION)) {
+                if (transactionType == IndexTransaction.Type.COMPACTION || service.needsReadBeforeWrite(key, row)) {
                     UnfilteredRowIterator iterator = service.read(key, nowInSec, opGroup);
                     if (iterator.hasNext()) {
                         row = (Row) iterator.next();

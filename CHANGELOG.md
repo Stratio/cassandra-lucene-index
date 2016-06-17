@@ -1,32 +1,25 @@
 # Changelog
 
-## 3.0.7.1 (upcoming)
+## 3.6.0 (upcoming)
 
-## 3.0.7.0 (17 June 2016)
-
-* Upgrade to Apache Cassandra 3.0.7
-
-## 3.0.6.2 (06 June 2016)
- 
+* Upgrade to Apache Cassandra 3.6
+Merged from 3.0.6.2:
 * Fix deletion of columns with frozen type (UDT, tuples and frozen collections)
-
-## 3.0.6.1 (3 June 2016)
-
+Merged from 3.0.6.1:
 * Add support for CQL paging over sorted searches
 * Add support for sorted searches using IN operator
-
-## 3.0.6.0 (27 May 2016)
-
-* Upgrade to Apache Cassandra 3.0.6
+Merged from 3.0.6.0:
 * Add support for indexing columns with TTL 
 
-## 3.0.5.2 (22 May 2016)
+## 3.5.2 (27 May 2016)
 
+Merged from 3.0.5.2:
 * Add transformation for getting the bounding box of a geographical shape
 * Fix complex clustering keys building (#143)
 
-## 3.0.5.1 (19 May 2016)
+## 3.5.1 (19 May 2016)
 
+Merged from 3.0.5.1:
 * Upgrade to Apache Lucene 5.5.1
 * Add support for old dummy column syntax (Spark compatibility and score retrieval)
 * Add option to use doc values in match, contains and range searches
@@ -38,6 +31,10 @@
 * Fix memory consumption issues with high fetch sizes
 * Fix clustering key filtering with better token prefix collation
 * Fix deletion of unique component of a collection (#132)
+
+## 3.5.0 (3 May 2016)
+
+* Upgrade to Apache Cassandra 3.5
 
 ## 3.0.5.0 (22 April 2016)
 

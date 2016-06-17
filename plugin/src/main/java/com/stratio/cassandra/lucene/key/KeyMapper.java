@@ -217,7 +217,7 @@ public final class KeyMapper {
     }
 
     public Clustering clustering(ByteBuffer clustering) {
-        return new Clustering(clusteringType.split(clustering));
+        return Clustering.make(clusteringType.split(clustering));
     }
 
     /**

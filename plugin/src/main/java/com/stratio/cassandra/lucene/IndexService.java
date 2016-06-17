@@ -392,7 +392,7 @@ abstract class IndexService implements IndexServiceMBean {
         try {
             queue.shutdown();
             ManagementFactory.getPlatformMBeanServer().unregisterMBean(mbean);
-        } catch(JMException e) {
+        } catch (JMException e) {
             logger.error("Error while unregistering Lucene index MBean", e);
         } finally {
             lucene.delete();
@@ -467,7 +467,7 @@ abstract class IndexService implements IndexServiceMBean {
         }
 
         // Search
-        return (ReadOrderGroup orderGroup) -> read(after, query, sort, command, orderGroup);
+        return (ReadExecutionController executionController) -> read(after, query, sort, command, executionController);
     }
 
     private Search search(ReadCommand command) {
@@ -573,6 +573,8 @@ abstract class IndexService implements IndexServiceMBean {
     }
 
     private Query after(IndexPagingState pagingState, ReadCommand command) {
+
+        System.out.println("*** SERVICE PAGING STATE IS " + pagingState);
         try {
             if (pagingState != null) {
                 Pair<DecoratedKey, Clustering> position = pagingState.forCommand(command);
@@ -650,17 +652,17 @@ abstract class IndexService implements IndexServiceMBean {
      * @param query the Lucene query
      * @param sort the Lucene sort
      * @param command the Cassandra command
-     * @param orderGroup the Cassandra read order group
+     * @param controller the Cassandra read execution controller
      * @return the local {@link Row}s satisfying the search
      */
     private UnfilteredPartitionIterator read(Query after,
                                              Query query,
                                              Sort sort,
                                              ReadCommand command,
-                                             ReadOrderGroup orderGroup) {
+                                             ReadExecutionController controller) {
         int limit = command.limits().count();
         DocumentIterator documents = lucene.search(after, query, sort, limit);
-        return indexReader(documents, command, orderGroup);
+        return indexReader(documents, command, controller);
     }
 
     /**
@@ -668,10 +670,12 @@ abstract class IndexService implements IndexServiceMBean {
      *
      * @param documents the Lucene documents
      * @param command the Cassandra command
-     * @param orderGroup the Cassandra read order group
+     * @param controller the Cassandra execution controller
      * @return the local {@link Row}s satisfying the search
      */
-    abstract IndexReader indexReader(DocumentIterator documents, ReadCommand command, ReadOrderGroup orderGroup);
+    abstract IndexReader indexReader(DocumentIterator documents,
+                                     ReadCommand command,
+                                     ReadExecutionController controller);
 
     /**
      * Post processes in the coordinator node the results of a distributed search. Gets the k globally best results from
@@ -804,7 +808,7 @@ abstract class IndexService implements IndexServiceMBean {
         builder.addPrimaryKeyLivenessInfo(row.primaryKeyLivenessInfo());
         row.cells().forEach(builder::addCell);
         ByteBuffer value = UTF8Type.instance.decompose(Float.toString(score));
-        builder.addCell(BufferCell.live(metadata, columnDefinition, timestamp, value));
+        builder.addCell(BufferCell.live(columnDefinition, timestamp, value));
         return builder.build();
     }
 

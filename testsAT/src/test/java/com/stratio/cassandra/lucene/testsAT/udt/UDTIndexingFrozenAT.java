@@ -39,14 +39,14 @@ import static org.junit.Assert.assertTrue;
  */
 
 @RunWith(JUnit4.class)
-public class UDTIndexingAT extends BaseAT {
+public class UDTIndexingFrozenAT extends BaseAT {
 
     private static CassandraUtils utils;
 
     @BeforeClass
     public static void before() {
 
-        utils = CassandraUtils.builder("udt_indexing")
+        utils = CassandraUtils.builder("udt_indexing_frozen")
                               .withUDT("geo_point", "latitude", "float")
                               .withUDT("geo_point", "longitude", "float")
                               .withUDT("address", "street", "text")
@@ -297,9 +297,7 @@ public class UDTIndexingAT extends BaseAT {
 
     @Test(expected = DriverException.class)
     public void testUDTInternalThatFails() {
-
-        CassandraUtilsSelect select = utils.filter(match("address.point", "Paris"));
-        select.count();
+        utils.filter(match("address.point", "Paris")).count();
         assertTrue("Selecting a type that is no matched must return an Exception", true);
     }
 

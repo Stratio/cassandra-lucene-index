@@ -31,7 +31,7 @@ abstract class IndexReader implements UnfilteredPartitionIterator {
 
     protected final ReadCommand command;
     protected final ColumnFamilyStore table;
-    protected final ReadOrderGroup orderGroup;
+    protected final ReadExecutionController executionController;
     protected final DocumentIterator documents;
     protected UnfilteredRowIterator next;
 
@@ -40,13 +40,16 @@ abstract class IndexReader implements UnfilteredPartitionIterator {
      *
      * @param command the read command
      * @param table the base table
-     * @param orderGroup the order group of the read operation
+     * @param executionController the read execution controller
      * @param documents the documents iterator
      */
-    IndexReader(ReadCommand command, ColumnFamilyStore table, ReadOrderGroup orderGroup, DocumentIterator documents) {
+    IndexReader(ReadCommand command,
+                ColumnFamilyStore table,
+                ReadExecutionController executionController,
+                DocumentIterator documents) {
         this.command = command;
         this.table = table;
-        this.orderGroup = orderGroup;
+        this.executionController = executionController;
         this.documents = documents;
     }
 
@@ -107,6 +110,6 @@ abstract class IndexReader implements UnfilteredPartitionIterator {
                                                  command.rowFilter(),
                                                  command.limits(),
                                                  key,
-                                                 filter).queryMemtableAndDisk(table, orderGroup.baseReadOpOrderGroup());
+                                                 filter).queryMemtableAndDisk(table, executionController);
     }
 }

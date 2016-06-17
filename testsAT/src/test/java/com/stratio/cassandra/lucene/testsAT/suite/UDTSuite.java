@@ -24,7 +24,8 @@ import org.junit.runners.Suite;
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({UDTValidationAT.class,
-                     UDTIndexingAT.class,
+                     UDTIndexingFrozenAT.class,
+                     UDTIndexingNonFrozenAT.class,
                      UDTCollectionsAT.class,
                      CheckNonFrozenUDTAT.class,
                      TupleIndexingAT.class})
