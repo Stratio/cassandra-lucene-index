@@ -201,9 +201,6 @@ class IndexQueryHandler implements QueryHandler {
         int limit = select.getLimit(options);
         int page = (int) getPageSize.invoke(select, options);
 
-        System.out.println("*** REQUIRES POST PROCESSING " + search.requiresPostProcessing());
-        System.out.println("*** PAGE " + page);
-        System.out.println("*** LIMIT " + limit);
         if (search.requiresPostProcessing() && page > 0 && page < limit) {
             return executeSortedLuceneQuery(select, state, options);
         }
@@ -227,15 +224,12 @@ class IndexQueryHandler implements QueryHandler {
 
         // Read paging state and write it to query
         IndexPagingState pagingState = IndexPagingState.build(options.getPagingState(), userLimit);
-        System.out.println("*** READ PAGING STATE IS " + pagingState);
         int remaining = Math.min(page, pagingState.remaining());
         ReadQuery query = select.getQuery(options, nowInSec, remaining, userPerPartitionLimit);
         pagingState.rewrite(query);
-        System.out.println("*** REWRITTEN QUERY IS " + query);
 
         try (PartitionIterator data = data(query, cl, state)) {
             PartitionIterator processedData = pagingState.update(query, data, options.getConsistency());
-            System.out.println("*** NEW PAGING STATE IS " + pagingState);
             Rows rows = (Rows) processResults.invoke(select, processedData, options, nowInSec, page);
             rows.result.metadata.setHasMorePages(pagingState.toPagingState());
             return rows;

@@ -573,8 +573,6 @@ abstract class IndexService implements IndexServiceMBean {
     }
 
     private Query after(IndexPagingState pagingState, ReadCommand command) {
-
-        System.out.println("*** SERVICE PAGING STATE IS " + pagingState);
         try {
             if (pagingState != null) {
                 Pair<DecoratedKey, Clustering> position = pagingState.forCommand(command);
