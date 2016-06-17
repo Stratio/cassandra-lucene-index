@@ -3,6 +3,8 @@
 ## 3.6.0 (upcoming)
 
 * Upgrade to Apache Cassandra 3.6
+Merged from 3.0.6.3:
+* Fix clustering query collisions in Lucene's query cache
 Merged from 3.0.6.2:
 * Fix deletion of columns with frozen type (UDT, tuples and frozen collections)
 Merged from 3.0.6.1:
