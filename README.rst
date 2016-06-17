@@ -109,7 +109,7 @@ Specific Cassandra Lucene index versions are targeted to specific Apache Cassand
 A.B.C.X is aimed to be used with Apache Cassandra A.B.C, e.g.
 `cassandra-lucene-index:3.0.7.1 <http://www.github.com/Stratio/cassandra-lucene-index/tree/3.0.7.1>`__ for
 `cassandra:3.0.7 <http://www.github.com/apache/cassandra/tree/cassandra-3.0.7>`__. Please note that production-ready
-releases are version tags (e.g. 3.0.6.3), don't use branch-X nor master branches in production.
+releases are version tags (e.g. 3.0.7.1), don't use branch-X nor master branches in production.
 
 Alternatively, patching can also be done with this Maven profile, specifying the path of your Cassandra installation,
 this task also deletes previous plugin's JAR versions in CASSANDRA_HOME/lib/ directory:

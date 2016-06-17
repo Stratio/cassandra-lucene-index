@@ -60,7 +60,7 @@ class IndexWriterSkinny extends IndexWriter {
     /** {@inheritDoc} */
     @Override
     protected void index(Row row) {
-        this.optionalRow = Optional.of(row);
+        optionalRow = Optional.of(row);
     }
 
     /** {@inheritDoc} */

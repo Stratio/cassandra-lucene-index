@@ -15,6 +15,8 @@
  */
 package com.stratio.cassandra.lucene.key;
 
+import com.google.common.base.MoreObjects;
+import com.stratio.cassandra.lucene.util.ByteBufferUtils;
 import org.apache.cassandra.config.DatabaseDescriptor;
 import org.apache.cassandra.db.Clustering;
 import org.apache.cassandra.db.DecoratedKey;
@@ -92,6 +94,16 @@ class KeyEntry implements Comparable<KeyEntry> {
             comp = mapper.clusteringComparator().compare(getClustering(), other.getClustering());
         }
         return comp;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                          .add("collated", ByteBufferUtils.toHex(getCollatedToken()))
+                          .add("key", getDecoratedKey())
+                          .add("clustering", mapper.toString(getClustering()))
+                          .toString();
     }
 
 }
