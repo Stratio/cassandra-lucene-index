@@ -185,19 +185,19 @@ Installation
 Stratio’s Cassandra Lucene Index is distributed as a plugin for Apache Cassandra. Thus, you just need to build a JAR
 containing the plugin and add it to the Cassandra’s classpath:
 
--  Choose an Stratio's Lucene index release suitable for your Apache Cassandra release. Specific Cassandra Lucene index
-   versions are targeted to specific Apache Cassandra versions. So, cassandra-lucene-index A.B.C.X is aimed to be used
-   with  Apache Cassandra A.B.C, e.g.
-   `cassandra-lucene-index:3.0.6.3 <http://www.github.com/Stratio/cassandra-lucene-index/tree/3.0.6.3>`__ for
-   `cassandra:3.0.6 <http://www.github.com/apache/cassandra/tree/cassandra-3.0.6>`__. Please note that production-ready
-   releases are version tags (e.g. 3.0.6.3), don't use branch-X nor master branches in production.
 -  Clone the project: ``git clone http://github.com/Stratio/cassandra-lucene-index``
 -  Change to the downloaded directory: ``cd cassandra-lucene-index``
--  Checkout the correct version: ``git checkout A.B.C.X``
+-  Checkout a plugin version suitable for your Apache Cassandra version: ``git checkout A.B.C.X``
 -  Build the plugin with Maven: ``mvn clean package``
 -  Copy the generated JAR to the lib folder of your compatible Cassandra installation:
    ``cp plugin/target/cassandra-lucene-index-plugin-*.jar <CASSANDRA_HOME>/lib/``
 -  Start/restart Cassandra as usual.
+
+Specific Cassandra Lucene index versions are targeted to specific Apache Cassandra versions. So, cassandra-lucene-index
+A.B.C.X is aimed to be used with Apache Cassandra A.B.C, e.g.
+`cassandra-lucene-index:3.0.6.3 <http://www.github.com/Stratio/cassandra-lucene-index/tree/3.0.6.3>`__ for
+`cassandra:3.0.6 <http://www.github.com/apache/cassandra/tree/cassandra-3.0.6>`__. Please note that production-ready
+releases are version tags (e.g. 3.0.6.3), don't use branch-X nor master branches in production.
 
 Alternatively, patching can also be done with this Maven profile, specifying the path of your Cassandra installation,
 this task also deletes previous plugin's JAR versions in CASSANDRA_HOME/lib/ directory:
