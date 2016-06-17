@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.0.6.3 (upcoming)
+## 3.0.6.3 (17 June 2016)
 
 * Fix clustering query collisions in Lucene's query cache
 
