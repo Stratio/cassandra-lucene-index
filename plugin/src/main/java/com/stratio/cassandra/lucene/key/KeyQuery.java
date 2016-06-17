@@ -36,8 +36,8 @@ import java.nio.ByteBuffer;
 class KeyQuery extends MultiTermQuery {
 
     private final KeyMapper mapper;
-    private final ClusteringPrefix start, stop;
     private final DecoratedKey key;
+    private final ClusteringPrefix start, stop;
     private final ByteBuffer collatedToken;
     private final ClusteringComparator clusteringComparator;
     private final BytesRef seek;
@@ -79,6 +79,49 @@ class KeyQuery extends MultiTermQuery {
                           .add("start", start == null ? null : mapper.toString(start))
                           .add("stop", stop == null ? null : mapper.toString(stop))
                           .toString();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Important to avoid collisions in Lucene's query cache.
+     */
+    @Override
+    public boolean equals(Object o) {
+
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+
+        KeyQuery keyQuery = (KeyQuery) o;
+
+        if (!key.equals(keyQuery.key)) {
+            return false;
+        }
+        if (start != null ? !start.equals(keyQuery.start) : keyQuery.start != null) {
+            return false;
+        }
+        return stop != null ? stop.equals(keyQuery.stop) : keyQuery.stop == null;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Important to avoid collisions in Lucene's query cache.
+     */
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + key.hashCode();
+        result = 31 * result + (start != null ? start.hashCode() : 0);
+        result = 31 * result + (stop != null ? stop.hashCode() : 0);
+        return result;
     }
 
     private class FullKeyDataRangeFilteredTermsEnum extends FilteredTermsEnum {

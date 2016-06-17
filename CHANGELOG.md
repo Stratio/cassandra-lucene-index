@@ -2,6 +2,8 @@
 
 ## 3.0.6.3 (upcoming)
 
+* Fix clustering query collisions in Lucene's query cache
+
 ## 3.0.6.2 (06 June 2016)
  
 * Fix deletion of columns with frozen type (UDT, tuples and frozen collections)
