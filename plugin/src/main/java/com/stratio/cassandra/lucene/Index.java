@@ -105,7 +105,7 @@ public class Index implements org.apache.cassandra.index.Index {
         try {
             IndexOptions.validateOptions(options, metadata);
         } catch (IndexException e) {
-            logger.error("Lucene index options are invalid", e);
+            logger.error("Invalid index options: " + options, e);
             throw new ConfigurationException(e.getMessage());
         }
         logger.debug("Lucene index options are valid");
@@ -350,6 +350,7 @@ public class Index implements org.apache.cassandra.index.Index {
         try {
             service.validate(update);
         } catch (Exception e) {
+            logger.error("Invalid partition update: " + update, e);
             throw new InvalidRequestException(e.getMessage());
         }
     }
@@ -424,7 +425,7 @@ public class Index implements org.apache.cassandra.index.Index {
         try {
             return service.searcher(command);
         } catch (Exception e) {
-            logger.error("Error while searching", e);
+            logger.error("Error getting searcher for command: " + command, e);
             throw new InvalidRequestException(e.getMessage());
         }
     }
@@ -440,6 +441,7 @@ public class Index implements org.apache.cassandra.index.Index {
         try {
             return service.validate(expression);
         } catch (Exception e) {
+            logger.error("Invalid index expression: " + expression, e);
             throw new InvalidRequestException(e.getMessage());
         }
     }

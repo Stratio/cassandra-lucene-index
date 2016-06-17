@@ -25,7 +25,6 @@ import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.db.partitions.PartitionIterator;
 import org.apache.cassandra.db.rows.RowIterator;
 import org.apache.cassandra.dht.AbstractBounds;
-import org.apache.cassandra.exceptions.InvalidRequestException;
 import org.apache.cassandra.service.LuceneStorageProxy;
 import org.apache.cassandra.service.pager.PagingState;
 import org.apache.cassandra.utils.Pair;
@@ -140,7 +139,7 @@ public class IndexPagingState {
         } else if (query instanceof ReadCommand) {
             rewrite((ReadCommand) query);
         } else {
-            throw new InvalidRequestException("Unsupported query type " + query.getClass());
+            throw new IndexException("Unsupported query type %s", query.getClass());
         }
     }
 
@@ -222,7 +221,7 @@ public class IndexPagingState {
         } else if (query instanceof PartitionRangeReadCommand) {
             return update((PartitionRangeReadCommand) query, data, consistency);
         } else {
-            throw new InvalidRequestException("Unsupported query type " + query.getClass());
+            throw new IndexException("Unsupported query type %s", query.getClass());
         }
     }
 

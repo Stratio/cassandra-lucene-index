@@ -26,6 +26,7 @@ import java.net.MalformedURLException;
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
 class CassandraJMXClient {
+
     private JMXConnector jmxc;
     private JMXServiceURL url;
 
@@ -33,7 +34,7 @@ class CassandraJMXClient {
         try {
             url = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://" + service + "/jmxrmi");
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Error while creating JMX client", e);
         }
     }
 
@@ -41,7 +42,7 @@ class CassandraJMXClient {
         try {
             jmxc = JMXConnectorFactory.connect(url, null);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Error while connecting JMX client", e);
         }
         return this;
     }
@@ -51,20 +52,18 @@ class CassandraJMXClient {
             jmxc.close();
             jmxc = null;
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Error while disconnecting JMX client", e);
         }
     }
 
     void invoke(String beanName, String operation, Object[] params, String[] signature)
     throws MalformedObjectNameException, IOException, MBeanException, InstanceNotFoundException, ReflectionException {
         jmxc.getMBeanServerConnection().invoke(new ObjectName(beanName), operation, params, signature);
-
     }
 
     Object getAttribute(String s_name, String atribute)
     throws IOException, MalformedObjectNameException, AttributeNotFoundException, MBeanException, ReflectionException,
            InstanceNotFoundException {
-
         ObjectName name = new ObjectName(s_name);
         return jmxc.getMBeanServerConnection().getAttribute(name, atribute);
     }
