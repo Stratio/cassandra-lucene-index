@@ -2427,7 +2427,7 @@ between 0.0 and 10.0, and a longitude between -180.0 and
         sort : {
             fields: [ {
                 type      : "geo_distance",
-                mapper    : "geo_point",
+                field     : "geo_point",
                 reverse   : false,
                 latitude  : 0.0,
                 longitude : 0.0 }]
@@ -2515,7 +2515,7 @@ yards from the geo point (40.225479, -3.999278) sorted by min distance to point 
         sort   : {
             fields: [ {
                 type      : "geo_distance",
-                mapper    : "geo_point",
+                field     : "geo_point",
                 reverse   : false,
                 latitude  : 40.225479,
                 longitude : -3.999278} ] }
