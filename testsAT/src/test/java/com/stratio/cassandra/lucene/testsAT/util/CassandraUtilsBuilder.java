@@ -171,34 +171,4 @@ public class CassandraUtilsBuilder {
                                   clusteringKey,
                                   udts);
     }
-
-    @Override
-    public CassandraUtilsBuilder clone() {
-        CassandraUtilsBuilder clone = new CassandraUtilsBuilder(name);
-
-        clone.table = table;
-        clone.indexName = INDEX;
-        clone.indexColumn = COLUMN;
-        for (String key : columns.keySet()) {
-            clone.columns.put(key, columns.get(key));
-        }
-        for (String key : mappers.keySet()) {
-            clone.mappers.put(key, mappers.get(key));
-        }
-        for (String value : partitionKey) {
-            clone.partitionKey.add(value);
-        }
-        for (String value : clusteringKey) {
-            clone.clusteringKey.add(value);
-        }
-        for (String key : udts.keySet()) {
-            Map<String, String> internalMap = new HashMap<>();
-            for (String key2 : udts.get(key).keySet()) {
-                internalMap.put(key2, udts.get(key).get(key2));
-            }
-            clone.udts.put(key, internalMap);
-        }
-
-        return clone;
-    }
 }
