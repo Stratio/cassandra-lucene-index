@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.7.0 (upcoming)
+## 3.7.0 (20 June 2016)
 
 * Upgrade to Apache Cassandra 3.7
 
