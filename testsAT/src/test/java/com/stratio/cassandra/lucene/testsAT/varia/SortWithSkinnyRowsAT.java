@@ -87,6 +87,6 @@ public class SortWithSkinnyRowsAT extends BaseAT {
 
     @Test
     public void sortNotExistingColumn() {
-        utils.sort(field("missing").reverse(true)).check(InvalidQueryException.class);
+        utils.sort(field("missing").reverse(true)).check(InvalidQueryException.class, "");
     }
 }

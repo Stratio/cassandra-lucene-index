@@ -27,11 +27,15 @@ import com.stratio.cassandra.lucene.builder.search.condition.Condition;
 import com.stratio.cassandra.lucene.builder.search.sort.SortField;
 
 import java.lang.reflect.Array;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 import static com.stratio.cassandra.lucene.testsAT.util.CassandraConfig.FETCH;
 import static com.stratio.cassandra.lucene.testsAT.util.CassandraConfig.LIMIT;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
@@ -218,23 +222,8 @@ public class CassandraUtilsSelect {
         return parent;
     }
 
-    public <T extends Exception> CassandraUtils check(Class<T> expectedClass) {
-        return check(expectedClass, Optional.empty());
-    }
-
     public <T extends Exception> CassandraUtils check(Class<T> expectedClass, String expectedMessage) {
-        return check(expectedClass, Optional.of(expectedMessage));
-    }
-
-    private <T extends Exception> CassandraUtils check(Class<T> expectedClass, Optional<String> expectedMessage) {
-        try {
-            get();
-            fail("Search should have been invalid!");
-        } catch (Exception e) {
-            assertEquals("Expected exception type is wrong", expectedClass, e.getClass());
-            expectedMessage.ifPresent(msg -> assertEquals("Expected exception message is wrong", msg, e.getMessage()));
-        }
-        return parent;
+        return parent.check(this::get, expectedClass, expectedMessage);
     }
 
     public CassandraUtils checkIntColumn(String name, int... expected) {

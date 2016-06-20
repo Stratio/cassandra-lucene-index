@@ -36,6 +36,8 @@ import static com.stratio.cassandra.lucene.builder.Builder.all;
 import static com.stratio.cassandra.lucene.builder.Builder.index;
 import static com.stratio.cassandra.lucene.testsAT.util.CassandraConfig.*;
 import static com.stratio.cassandra.lucene.testsAT.util.CassandraConnection.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
@@ -139,7 +141,20 @@ public class CassandraUtils {
         return execute(query.toString());
     }
 
-    public CassandraUtils waitForIndexBuilt() {
+    <T extends Exception> CassandraUtils check(Runnable runnable, Class<T> expectedClass, String expectedMessage) {
+        try {
+            runnable.run();
+            fail(String.format("Should have produced %s with message '%s'",
+                               expectedClass.getSimpleName(),
+                               expectedMessage));
+        } catch (Exception e) {
+            assertEquals("Expected exception type is wrong", expectedClass, e.getClass());
+            assertEquals("Expected exception message is wrong", expectedMessage, e.getMessage());
+        }
+        return this;
+    }
+
+    private CassandraUtils waitForIndexBuilt() {
         logger.debug("Waiting for the index to be created...");
         while (!isIndexBuilt()) {
             try {
@@ -190,6 +205,10 @@ public class CassandraUtils {
         return this;
     }
 
+    public <T extends Exception> CassandraUtils createTable(Class<T> expectedClass, String expectedMessage) {
+        return check(this::createTable, expectedClass, expectedMessage);
+    }
+
     public CassandraUtils createUDTs() {
         for (Map.Entry<String, Map<String, String>> entry : udts.entrySet()) {
             String name = entry.getKey();
@@ -226,6 +245,10 @@ public class CassandraUtils {
         execute(index.build());
 
         return waitForIndexBuilt();
+    }
+
+    public <T extends Exception> CassandraUtils createIndex(Class<T> expectedClass, String expectedMessage) {
+        return check(this::createIndex, expectedClass, expectedMessage);
     }
 
     public CassandraUtils dropIndex() {

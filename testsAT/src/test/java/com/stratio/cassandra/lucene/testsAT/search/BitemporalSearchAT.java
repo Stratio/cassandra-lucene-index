@@ -170,7 +170,6 @@ public class BitemporalSearchAT extends BaseAT {
         data14.put("vt_to", "'2200/01/01 00:00:00.000'");
         data14.put("tt_from", "'2015/01/10 12:00:00.001'");
         data14.put("tt_to", "'2200/01/01 00:00:00.000'");
-
     }
 
     @BeforeClass
@@ -404,7 +403,7 @@ public class BitemporalSearchAT extends BaseAT {
 
     //tt_to<tt_from
     @Test(expected = InvalidQueryException.class)
-    public void biTemporalQueryWithVtToSmallerhanVTFrom() {
+    public void biTemporalQueryWithVtToSmallerThanVTFrom() {
         // testing with long value 1456876800 == 2016/03/02 00:00:00
         Map<String, String> data = new LinkedHashMap<>();
         data.put("id", "5");
