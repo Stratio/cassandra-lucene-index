@@ -49,7 +49,7 @@ public class DocumentIterator implements CloseableIterator<Pair<Document, ScoreD
     private ScoreDoc after = null;
     private boolean finished = false;
     private IndexSearcher searcher;
-    private int numRead = 0;
+    private int numReadDocuments = 0;
     private final Query startQuery;
 
     /**
@@ -95,7 +95,7 @@ public class DocumentIterator implements CloseableIterator<Pair<Document, ScoreD
     }
 
     private synchronized void fetch() {
-        
+
         try {
 
             TimeCounter time = TimeCounter.create().start();
@@ -104,7 +104,7 @@ public class DocumentIterator implements CloseableIterator<Pair<Document, ScoreD
             if (startQuery == null && EarlyTerminatingSortingCollector.canEarlyTerminate(sort, indexSort)) {
                 FieldDoc fieldDoc = after == null ? null : (FieldDoc) after;
                 TopFieldCollector collector = TopFieldCollector.create(sort, page, fieldDoc, true, false, false);
-                int hits = numRead + page;
+                int hits = numReadDocuments + page;
                 searcher.search(query, new EarlyTerminatingSortingCollector(collector, sort, hits, indexSort));
                 topDocs = collector.topDocs();
             } else {
@@ -112,7 +112,7 @@ public class DocumentIterator implements CloseableIterator<Pair<Document, ScoreD
             }
 
             ScoreDoc[] scoreDocs = topDocs.scoreDocs;
-            numRead += scoreDocs.length;
+            numReadDocuments += scoreDocs.length;
             finished = scoreDocs.length < page;
             for (ScoreDoc scoreDoc : scoreDocs) {
                 after = scoreDoc;
@@ -120,7 +120,11 @@ public class DocumentIterator implements CloseableIterator<Pair<Document, ScoreD
                 documents.add(Pair.create(document, scoreDoc));
             }
 
-            Tracing.trace("Lucene index read page with {} documents", scoreDocs.length);
+            try {
+                Tracing.trace("Lucene reads {} documents", scoreDocs.length);
+            } catch (ExceptionInInitializerError | NoClassDefFoundError e) {
+                logger.warn("Unable to trace document iterator: " + e.getMessage());
+            }
             logger.debug("Index query page fetched with {} documents in {}", scoreDocs.length, time.stop());
 
         } catch (Exception e) {

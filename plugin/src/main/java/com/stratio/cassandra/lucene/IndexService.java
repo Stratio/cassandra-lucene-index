@@ -660,6 +660,7 @@ abstract class IndexService implements IndexServiceMBean {
                                              ReadCommand command,
                                              ReadOrderGroup orderGroup) {
         int limit = command.limits().count();
+        Tracing.trace("Lucene index searching for {} documents", limit);
         DocumentIterator documents = lucene.search(after, query, sort, limit);
         return indexReader(documents, command, orderGroup);
     }
@@ -752,7 +753,6 @@ abstract class IndexService implements IndexServiceMBean {
                                             int limit,
                                             int nowInSec,
                                             List<Pair<DecoratedKey, SimpleRowIterator>> collectedRows) {
-        Tracing.trace("Lucene index post-processing {} collected rows", collectedRows.size());
         TimeCounter time = TimeCounter.create().start();
         List<SimpleRowIterator> processedRows = new LinkedList<>();
         try {
@@ -787,7 +787,9 @@ abstract class IndexService implements IndexServiceMBean {
             }
 
         } finally {
-            Tracing.trace("Lucene index post-processed {} result rows", processedRows.size());
+            Tracing.trace("Lucene post-process {} collected rows to {} result rows",
+                          collectedRows.size(),
+                          processedRows.size());
             logger.debug("Post-processed {} collected rows to {} result rows in {}",
                          collectedRows.size(),
                          processedRows.size(),
