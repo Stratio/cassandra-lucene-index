@@ -26,7 +26,7 @@ import org.junit.runners.JUnit4;
 
 import static com.stratio.cassandra.lucene.builder.Builder.*;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
 
 /**
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
@@ -81,7 +81,7 @@ public class UDTValidationAT extends BaseAT {
 
         try {
             cassandraUtils.createIndex();
-            assertFalse("Creating invalid index must throw an Exception but does not ", true);
+            fail("Creating invalid index must throw an Exception but does not ");
         } catch (InvalidConfigurationInQueryException e) {
             String expectedMessage = "'schema' is invalid : No column definition 'address.non-existent' " +
                                      "for mapper 'address.non-existent.latitude'";
@@ -108,7 +108,7 @@ public class UDTValidationAT extends BaseAT {
 
         try {
             cassandraUtils.createIndex();
-            assertFalse("Creating invalid index must throw an Exception but does not ", true);
+            fail("Creating invalid index must throw an Exception but does not ");
         } catch (InvalidConfigurationInQueryException e) {
             String expectedMessage = "'schema' is invalid : No column definition 'address.non-existent' " +
                                      "for mapper 'address.non-existent'";
@@ -139,7 +139,7 @@ public class UDTValidationAT extends BaseAT {
 
         try {
             cassandraUtils.createIndex();
-            assertFalse("Creating invalid index must throw an Exception but does not ", true);
+            fail("Creating invalid index must throw an Exception but does not ");
         } catch (InvalidConfigurationInQueryException e) {
             String expectedMessage = "'schema' is invalid : Type 'org.apache.cassandra.db.marshal.FloatType' " +
                                      "in column 'address.point.longitude' " +
@@ -172,7 +172,7 @@ public class UDTValidationAT extends BaseAT {
 
         try {
             cassandraUtils.createIndex();
-            assertFalse("Creating invalid index must throw an Exception but does not ", true);
+            fail("Creating invalid index must throw an Exception but does not ");
         } catch (InvalidConfigurationInQueryException e) {
             String
                     expectedMessage

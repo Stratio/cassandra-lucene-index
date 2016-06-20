@@ -29,7 +29,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.stratio.cassandra.lucene.builder.Builder.*;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
@@ -265,7 +265,7 @@ public class UDTIndexingAT extends BaseAT {
     @Test(expected = InvalidQueryException.class)
     public void testUDTInternalThatFails() {
         cassandraUtils.filter(match("address.point", "Paris")).count();
-        assertTrue("Selecting a type that is no matched must return an Exception", true);
+        fail("Selecting a type that is no matched must return an Exception");
     }
 
     @Test
@@ -404,7 +404,7 @@ public class UDTIndexingAT extends BaseAT {
     @Test(expected = InvalidQueryException.class)
     public void testUDTOverUDTThatFails() {
         cassandraUtils.filter(range("address.point.non-existent").lower(-1.0).upper(-3.0)).get();
-        assertTrue("Selecting a non-existent type inside udt inside udt must return an Exception", true);
+        fail("Selecting a non-existent type inside udt inside udt must return an Exception");
     }
 
     @Test
