@@ -47,6 +47,7 @@ import org.apache.cassandra.db.rows.*;
 import org.apache.cassandra.index.Index;
 import org.apache.cassandra.index.transactions.IndexTransaction;
 import org.apache.cassandra.schema.IndexMetadata;
+import org.apache.cassandra.tracing.Tracing;
 import org.apache.cassandra.utils.Pair;
 import org.apache.cassandra.utils.concurrent.OpOrder;
 import org.apache.commons.lang3.StringUtils;
@@ -392,7 +393,7 @@ abstract class IndexService implements IndexServiceMBean {
         try {
             queue.shutdown();
             ManagementFactory.getPlatformMBeanServer().unregisterMBean(mbean);
-        } catch(JMException e) {
+        } catch (JMException e) {
             logger.error("Error while unregistering Lucene index MBean", e);
         } finally {
             lucene.delete();
@@ -751,6 +752,7 @@ abstract class IndexService implements IndexServiceMBean {
                                             int limit,
                                             int nowInSec,
                                             List<Pair<DecoratedKey, SimpleRowIterator>> collectedRows) {
+        Tracing.trace("Lucene index post-processing {} collected rows", collectedRows.size());
         TimeCounter time = TimeCounter.create().start();
         List<SimpleRowIterator> processedRows = new LinkedList<>();
         try {
@@ -785,7 +787,8 @@ abstract class IndexService implements IndexServiceMBean {
             }
 
         } finally {
-            logger.debug("Post-processed {} collected rows to {} rows in {}",
+            Tracing.trace("Lucene index post-processed {} result rows", processedRows.size());
+            logger.debug("Post-processed {} collected rows to {} result rows in {}",
                          collectedRows.size(),
                          processedRows.size(),
                          time.stop());

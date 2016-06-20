@@ -17,6 +17,7 @@ package com.stratio.cassandra.lucene.index;
 
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.util.TimeCounter;
+import org.apache.cassandra.tracing.Tracing;
 import org.apache.cassandra.utils.CloseableIterator;
 import org.apache.cassandra.utils.Pair;
 import org.apache.lucene.document.Document;
@@ -94,7 +95,7 @@ public class DocumentIterator implements CloseableIterator<Pair<Document, ScoreD
     }
 
     private synchronized void fetch() {
-
+        
         try {
 
             TimeCounter time = TimeCounter.create().start();
@@ -119,6 +120,7 @@ public class DocumentIterator implements CloseableIterator<Pair<Document, ScoreD
                 documents.add(Pair.create(document, scoreDoc));
             }
 
+            Tracing.trace("Lucene index read page with {} documents", scoreDocs.length);
             logger.debug("Index query page fetched with {} documents in {}", scoreDocs.length, time.stop());
 
         } catch (Exception e) {

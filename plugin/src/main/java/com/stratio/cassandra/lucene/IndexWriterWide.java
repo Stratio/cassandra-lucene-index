@@ -19,6 +19,7 @@ import org.apache.cassandra.db.Clustering;
 import org.apache.cassandra.db.DecoratedKey;
 import org.apache.cassandra.db.rows.Row;
 import org.apache.cassandra.index.transactions.IndexTransaction;
+import org.apache.cassandra.tracing.Tracing;
 import org.apache.cassandra.utils.concurrent.OpOrder;
 
 import java.util.LinkedHashMap;
@@ -69,6 +70,7 @@ class IndexWriterWide extends IndexWriter {
         if (!row.isStatic()) {
             Clustering clustering = row.clustering();
             if (service.needsReadBeforeWrite(key, row)) {
+                Tracing.trace("Lucene index reading before write");
                 rowsToRead.add(clustering);
                 rows.put(clustering, Optional.empty());
             } else {
@@ -91,8 +93,10 @@ class IndexWriterWide extends IndexWriter {
             // Write rows
             rows.forEach((clustering, optional) -> optional.ifPresent(row -> {
                 if (row.hasLiveData(nowInSec)) {
+                    Tracing.trace("Lucene index writing document");
                     service.upsert(key, row, nowInSec);
                 } else {
+                    Tracing.trace("Lucene index deleting document");
                     service.delete(key, row);
                 }
             }));

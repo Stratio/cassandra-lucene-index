@@ -1,8 +1,12 @@
 # Changelog
 
+## 3.0.7.2 (upcoming)
+
+* Add Lucene-specific CQL tracing
+
 ## 3.0.7.1 (17 June 2016)
 
-Merged from 3.0.6.3:
+Merged from 3.0.6:
 * Fix clustering query collisions in Lucene's query cache
 
 ## 3.0.7.0 (17 June 2016)
@@ -63,7 +67,7 @@ Merged from 3.0.6.3:
 ## 3.0.3.1 (4 March 2016)
 
 * Fix performance issues with ClusteringIndexNamesFilter
-Merged from 2.2.5.2:
+Merged from 2.2.5:
 * Add indexing of WKT geographical shapes (point, linestring, polygon and their multipart)
 * Add search by WKT geographical shapes (point, linestring, polygon and their multipart)
 * Add API for search-time transformation of WKT geographical shapes
@@ -86,7 +90,7 @@ Merged from 2.2.5.2:
 
 ## 2.2.5.1 (19 February 2016)
 
-Merged from 2.2.4.3:
+Merged from 2.2.4:
 * Fixed explicit null values insertion (#94)
 
 ## 2.2.5.0 (9 February 2016)
