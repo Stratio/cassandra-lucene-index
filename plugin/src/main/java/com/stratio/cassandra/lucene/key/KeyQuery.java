@@ -85,6 +85,49 @@ class KeyQuery extends MultiTermQuery {
                       .toString();
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * Important to avoid collisions in Lucene's query cache.
+     */
+    @Override
+    public boolean equals(Object o) {
+
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+
+        KeyQuery keyQuery = (KeyQuery) o;
+
+        if (!key.equals(keyQuery.key)) {
+            return false;
+        }
+        if (start != null ? !start.equals(keyQuery.start) : keyQuery.start != null) {
+            return false;
+        }
+        return stop != null ? stop.equals(keyQuery.stop) : keyQuery.stop == null;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Important to avoid collisions in Lucene's query cache.
+     */
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + key.hashCode();
+        result = 31 * result + (start != null ? start.hashCode() : 0);
+        result = 31 * result + (stop != null ? stop.hashCode() : 0);
+        return result;
+    }
+
     private class FullKeyDataRangeFilteredTermsEnum extends FilteredTermsEnum {
 
         FullKeyDataRangeFilteredTermsEnum(TermsEnum tenum) {
