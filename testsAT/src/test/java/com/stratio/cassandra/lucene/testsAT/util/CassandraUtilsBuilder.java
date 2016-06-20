@@ -36,7 +36,7 @@ public class CassandraUtilsBuilder {
     private Map<String, Mapper> mappers;
     private List<String> partitionKey;
     private List<String> clusteringKey;
-    private final Map<String, Map<String, String>> udts;
+    private Map<String, Map<String, String>> udts;
 
     CassandraUtilsBuilder(String name) {
         super();
@@ -116,7 +116,7 @@ public class CassandraUtilsBuilder {
         return this;
     }
 
-    public SingleColumnMapper<?> defaultMapper(String name) {
+    private SingleColumnMapper<?> defaultMapper(String name) {
         switch (name) {
             case "ascii":
                 return stringMapper();

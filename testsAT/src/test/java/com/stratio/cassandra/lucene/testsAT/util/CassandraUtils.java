@@ -37,6 +37,8 @@ import static com.datastax.driver.core.querybuilder.QueryBuilder.eq;
 import static com.stratio.cassandra.lucene.builder.Builder.all;
 import static com.stratio.cassandra.lucene.builder.Builder.index;
 import static com.stratio.cassandra.lucene.testsAT.util.CassandraConfig.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
@@ -227,6 +229,18 @@ public class CassandraUtils {
             index.mapper(entry.getKey(), entry.getValue());
         }
         execute(index.build());
+        return this;
+    }
+
+    public <T extends Exception> CassandraUtils checkInvalidCreateIndex(Class<T> expectedClass,
+                                                                        String expectedMessage) {
+        try {
+            createIndex();
+            fail("Search should have been invalid!");
+        } catch (Exception e) {
+            assertEquals("Expected exception type is wrong", expectedClass, e.getClass());
+            assertEquals("Expected exception message is wrong", expectedMessage, e.getMessage());
+        }
         return this;
     }
 
