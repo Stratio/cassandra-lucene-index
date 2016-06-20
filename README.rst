@@ -96,6 +96,7 @@ Build and install
 Stratio’s Cassandra Lucene Index is distributed as a plugin for Apache Cassandra. Thus, you just need to build a JAR
 containing the plugin and add it to the Cassandra’s classpath:
 
+
 -  Clone the project: ``git clone http://github.com/Stratio/cassandra-lucene-index``
 -  Change to the downloaded directory: ``cd cassandra-lucene-index``
 -  Checkout a plugin version suitable for your Apache Cassandra version: ``git checkout A.B.C.X``

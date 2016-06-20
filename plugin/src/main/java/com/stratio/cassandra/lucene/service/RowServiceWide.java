@@ -135,7 +135,9 @@ public class RowServiceWide extends RowService {
                 columns = columns.cleanExpired(timestamp);
                 Term term = mapper.term(partitionKey, clusteringKey);
                 Document document = mapper.document(partitionKey, clusteringKey, columns);
-                documents.put(term, document);
+                if (!document.getFields().isEmpty()) {
+                    documents.put(term, document);
+                }
             } else {
                 incompleteRows.add(clusteringKey);
             }
@@ -149,7 +151,9 @@ public class RowServiceWide extends RowService {
                 Columns columns = mapper.columns(partitionKey, rowColumnFamily);
                 Term term = mapper.term(partitionKey, clusteringKey);
                 Document document = mapper.document(partitionKey, clusteringKey, columns);
-                documents.put(term, document);
+                if (!document.getFields().isEmpty()) {
+                    documents.put(term, document);
+                }
             }
         }
         return documents;

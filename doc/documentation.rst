@@ -198,6 +198,7 @@ A.B.C.X is aimed to be used with Apache Cassandra A.B.C, e.g.
 `cassandra:3.0.7 <http://www.github.com/apache/cassandra/tree/cassandra-3.0.7>`__. Please note that production-ready
 releases are version tags (e.g. 3.0.6.3), don't use branch-X nor master branches in production.
 
+
 Alternatively, patching can also be done with this Maven profile, specifying the path of your Cassandra installation,
 this task also deletes previous plugin's JAR versions in CASSANDRA_HOME/lib/ directory:
 
@@ -219,8 +220,7 @@ Now you can run Cassandra and do some tests using the Cassandra Query Language:
     <CASSANDRA_HOME>/bin/cassandra -f
     <CASSANDRA_HOME>/bin/cqlsh
 
-The Lucene’s index files will be stored in the same directories where the Cassandra’s will be. The default data
-directory is ``/var/lib/cassandra/data``, and each index is placed next to the SSTables of its indexed column family.
+The Lucene’s index files will be stored in the same directories where the Cassandra’s will be. The default data directory is ``/var/lib/cassandra/data``, and each index is placed next to the SSTables of its indexed column family.
 
 For more details about Apache Cassandra please see its `documentation <http://cassandra.apache.org/>`__.
 
@@ -3724,6 +3724,9 @@ Use the latest version
 Each new version might be as fast or faster than the previous one,
 so please try to use the latest version if possible.
 You can find the list of changes and performance improvements at `changelog file </CHANGELOG.md>`__.
+
+It is also preferable to use last patch version of Cassandra (e.g. 2.1.14 instead of 2.1.4) because it includes the most recent bug fixes.
+
 
 Disable virtual nodes
 =====================

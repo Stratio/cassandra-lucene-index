@@ -70,9 +70,11 @@ public class RowMapperSkinny extends RowMapper {
      */
     public Document document(DecoratedKey partitionKey, Columns columns) {
         Document document = new Document();
-        tokenMapper.addFields(document, partitionKey);
-        partitionMapper.addFields(document, partitionKey);
         schema.addFields(document, columns);
+        if (!document.getFields().isEmpty()) {
+            tokenMapper.addFields(document, partitionKey);
+            partitionMapper.addFields(document, partitionKey);
+        }
         return document;
     }
 

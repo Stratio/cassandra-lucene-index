@@ -108,8 +108,12 @@ public class RowServiceSkinny extends RowService {
         }
         columns = columns.cleanExpired(timestamp);
         Document document = mapper.document(partitionKey, columns);
-        Term term = mapper.term(partitionKey);
-        return Collections.singletonMap(term, document);
+        if (document.getFields().isEmpty()) {
+            return Collections.emptyMap();
+        } else {
+            Term term = mapper.term(partitionKey);
+            return Collections.singletonMap(term, document);
+        }
     }
 
     /** {@inheritDoc} */
