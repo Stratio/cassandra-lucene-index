@@ -237,7 +237,7 @@ public class UDTIndexingAT extends BaseAT {
                                        .withMapper("address.city", stringMapper())
                                        .withMapper("address.point.latitude", floatMapper())
                                        .withMapper("address.point.longitude", floatMapper())
-                                       .withPartitionKey("")
+                                       .withPartitionKey("login")
                                        .build()
                                        .createKeyspace()
                                        .createUDTs()
@@ -264,7 +264,7 @@ public class UDTIndexingAT extends BaseAT {
 
     @Test(expected = InvalidQueryException.class)
     public void testUDTInternalThatFails() {
-        cassandraUtils.filter(match("address.point", "Paris"));
+        cassandraUtils.filter(match("address.point", "Paris")).count();
         assertTrue("Selecting a type that is no matched must return an Exception", true);
     }
 
