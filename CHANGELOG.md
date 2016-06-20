@@ -3,6 +3,7 @@
 ## 2.2.6.1 (20 Jun 2016)
 
 * Fix clustering query collisions in Lucene's query cache
+* Fix empty document insertion
 
 ## 2.2.6.0 (30 May 2016)
 
