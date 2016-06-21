@@ -334,349 +334,349 @@ public class UDTCollectionsAT extends BaseAT {
 
     @Test
     public void testIntegerList() {
-        cassandraUtils.filter(match("numbers", 1)).checkStringColumnWithoutOrder("login", "USER1");
-        cassandraUtils.filter(match("numbers", 2)).checkStringColumnWithoutOrder("login", "USER1");
-        cassandraUtils.filter(match("numbers", 3)).checkStringColumnWithoutOrder("login", "USER1", "USER4");
-        cassandraUtils.filter(match("numbers", 4)).checkStringColumnWithoutOrder("login", "USER6");
-        cassandraUtils.filter(match("numbers", 6)).checkStringColumnWithoutOrder("login", "USER2");
-        cassandraUtils.filter(match("numbers", 7)).checkStringColumnWithoutOrder("login", "USER5");
-        cassandraUtils.filter(match("numbers", 10)).checkStringColumnWithoutOrder("login", "USER2", "USER4", "USER6");
-        cassandraUtils.filter(match("numbers", 11)).checkStringColumnWithoutOrder("login", "USER5");
-        cassandraUtils.filter(match("numbers", 12)).checkStringColumnWithoutOrder("login", "USER2");
-        cassandraUtils.filter(match("numbers", 14)).checkStringColumnWithoutOrder("login", "USER3");
-        cassandraUtils.filter(match("numbers", 15)).checkStringColumnWithoutOrder("login", "USER5", "USER6");
-        cassandraUtils.filter(match("numbers", 16)).checkStringColumnWithoutOrder("login");
-        cassandraUtils.filter(match("numbers", 17)).checkStringColumnWithoutOrder("login");
-        cassandraUtils.filter(match("numbers", 18)).checkStringColumnWithoutOrder("login", "USER3");
-        cassandraUtils.filter(match("numbers", 20)).checkStringColumnWithoutOrder("login", "USER3", "USER4");
+        cassandraUtils.filter(match("numbers", 1)).checkStringColumn("login", false, "USER1");
+        cassandraUtils.filter(match("numbers", 2)).checkStringColumn("login", false, "USER1");
+        cassandraUtils.filter(match("numbers", 3)).checkStringColumn("login", false, "USER1", "USER4");
+        cassandraUtils.filter(match("numbers", 4)).checkStringColumn("login", false, "USER6");
+        cassandraUtils.filter(match("numbers", 6)).checkStringColumn("login", false, "USER2");
+        cassandraUtils.filter(match("numbers", 7)).checkStringColumn("login", false, "USER5");
+        cassandraUtils.filter(match("numbers", 10)).checkStringColumn("login", false, "USER2", "USER4", "USER6");
+        cassandraUtils.filter(match("numbers", 11)).checkStringColumn("login", false, "USER5");
+        cassandraUtils.filter(match("numbers", 12)).checkStringColumn("login", false, "USER2");
+        cassandraUtils.filter(match("numbers", 14)).checkStringColumn("login", false, "USER3");
+        cassandraUtils.filter(match("numbers", 15)).checkStringColumn("login", false, "USER5", "USER6");
+        cassandraUtils.filter(match("numbers", 16)).checkStringColumn("login", false);
+        cassandraUtils.filter(match("numbers", 17)).checkStringColumn("login", false);
+        cassandraUtils.filter(match("numbers", 18)).checkStringColumn("login", false, "USER3");
+        cassandraUtils.filter(match("numbers", 20)).checkStringColumn("login", false, "USER3", "USER4");
     }
 
     @Test
     public void testIntegerSet() {
-        cassandraUtils.filter(match("number_set", 1)).checkStringColumnWithoutOrder("login", "USER1");
-        cassandraUtils.filter(match("number_set", 2)).checkStringColumnWithoutOrder("login", "USER1");
-        cassandraUtils.filter(match("number_set", 3)).checkStringColumnWithoutOrder("login", "USER1", "USER4");
-        cassandraUtils.filter(match("number_set", 4)).checkStringColumnWithoutOrder("login", "USER6");
-        cassandraUtils.filter(match("number_set", 6)).checkStringColumnWithoutOrder("login", "USER2");
-        cassandraUtils.filter(match("number_set", 7)).checkStringColumnWithoutOrder("login", "USER5");
+        cassandraUtils.filter(match("number_set", 1)).checkStringColumn("login", false, "USER1");
+        cassandraUtils.filter(match("number_set", 2)).checkStringColumn("login", false, "USER1");
+        cassandraUtils.filter(match("number_set", 3)).checkStringColumn("login", false, "USER1", "USER4");
+        cassandraUtils.filter(match("number_set", 4)).checkStringColumn("login", false, "USER6");
+        cassandraUtils.filter(match("number_set", 6)).checkStringColumn("login", false, "USER2");
+        cassandraUtils.filter(match("number_set", 7)).checkStringColumn("login", false, "USER5");
         cassandraUtils.filter(match("number_set", 10))
-                      .checkStringColumnWithoutOrder("login", "USER2", "USER4", "USER6");
-        cassandraUtils.filter(match("number_set", 11)).checkStringColumnWithoutOrder("login", "USER5");
-        cassandraUtils.filter(match("number_set", 12)).checkStringColumnWithoutOrder("login", "USER2");
-        cassandraUtils.filter(match("number_set", 14)).checkStringColumnWithoutOrder("login", "USER3");
-        cassandraUtils.filter(match("number_set", 15)).checkStringColumnWithoutOrder("login", "USER5", "USER6");
-        cassandraUtils.filter(match("number_set", 16)).checkStringColumnWithoutOrder("login");
-        cassandraUtils.filter(match("number_set", 17)).checkStringColumnWithoutOrder("login");
-        cassandraUtils.filter(match("number_set", 18)).checkStringColumnWithoutOrder("login", "USER3");
-        cassandraUtils.filter(match("number_set", 20)).checkStringColumnWithoutOrder("login", "USER3", "USER4");
+                      .checkStringColumn("login", false, "USER2", "USER4", "USER6");
+        cassandraUtils.filter(match("number_set", 11)).checkStringColumn("login", false, "USER5");
+        cassandraUtils.filter(match("number_set", 12)).checkStringColumn("login", false, "USER2");
+        cassandraUtils.filter(match("number_set", 14)).checkStringColumn("login", false, "USER3");
+        cassandraUtils.filter(match("number_set", 15)).checkStringColumn("login", false, "USER5", "USER6");
+        cassandraUtils.filter(match("number_set", 16)).checkStringColumn("login", false);
+        cassandraUtils.filter(match("number_set", 17)).checkStringColumn("login", false);
+        cassandraUtils.filter(match("number_set", 18)).checkStringColumn("login", false, "USER3");
+        cassandraUtils.filter(match("number_set", 20)).checkStringColumn("login", false, "USER3", "USER4");
     }
 
     @Test
     public void testTextIntegerMap() {
-        cassandraUtils.filter(match("number_map$a", 1)).checkStringColumnWithoutOrder("login", "USER1");
-        cassandraUtils.filter(match("number_map$b", 2)).checkStringColumnWithoutOrder("login", "USER1");
-        cassandraUtils.filter(match("number_map$c", 1)).checkStringColumnWithoutOrder("login", "USER2", "USER4");
-        cassandraUtils.filter(match("number_map$d", 2)).checkStringColumnWithoutOrder("login", "USER2", "USER6");
-        cassandraUtils.filter(match("number_map$e", 1)).checkStringColumnWithoutOrder("login", "USER3");
-        cassandraUtils.filter(match("number_map$f", 2)).checkStringColumnWithoutOrder("login", "USER3");
-        cassandraUtils.filter(match("number_map$h", 2)).checkStringColumnWithoutOrder("login", "USER4");
-        cassandraUtils.filter(match("number_map$i", 1)).checkStringColumnWithoutOrder("login", "USER5");
-        cassandraUtils.filter(match("number_map$j", 2)).checkStringColumnWithoutOrder("login", "USER5");
-        cassandraUtils.filter(match("number_map$k", 1)).checkStringColumnWithoutOrder("login", "USER6");
+        cassandraUtils.filter(match("number_map$a", 1)).checkStringColumn("login", false, "USER1");
+        cassandraUtils.filter(match("number_map$b", 2)).checkStringColumn("login", false, "USER1");
+        cassandraUtils.filter(match("number_map$c", 1)).checkStringColumn("login", false, "USER2", "USER4");
+        cassandraUtils.filter(match("number_map$d", 2)).checkStringColumn("login", false, "USER2", "USER6");
+        cassandraUtils.filter(match("number_map$e", 1)).checkStringColumn("login", false, "USER3");
+        cassandraUtils.filter(match("number_map$f", 2)).checkStringColumn("login", false, "USER3");
+        cassandraUtils.filter(match("number_map$h", 2)).checkStringColumn("login", false, "USER4");
+        cassandraUtils.filter(match("number_map$i", 1)).checkStringColumn("login", false, "USER5");
+        cassandraUtils.filter(match("number_map$j", 2)).checkStringColumn("login", false, "USER5");
+        cassandraUtils.filter(match("number_map$k", 1)).checkStringColumn("login", false, "USER6");
     }
 
     @Test
     public void testSimpleUDTList() {
         cassandraUtils.filter(match("address.city", "Barcelona"))
-                      .checkStringColumnWithoutOrder("login", "USER1", "USER2", "USER6");
-        cassandraUtils.filter(match("address.city", "Roma")).checkStringColumnWithoutOrder("login", "USER1");
-        cassandraUtils.filter(match("address.city", "Valencia")).checkStringColumnWithoutOrder("login", "USER1");
+                      .checkStringColumn("login", false, "USER1", "USER2", "USER6");
+        cassandraUtils.filter(match("address.city", "Roma")).checkStringColumn("login", false, "USER1");
+        cassandraUtils.filter(match("address.city", "Valencia")).checkStringColumn("login", false, "USER1");
         cassandraUtils.filter(match("address.city", "Bilbao"))
-                      .checkStringColumnWithoutOrder("login", "USER2", "USER5", "USER6");
+                      .checkStringColumn("login", false, "USER2", "USER5", "USER6");
         cassandraUtils.filter(match("address.city", "Venecia"))
-                      .checkStringColumnWithoutOrder("login", "USER2", "USER4", "USER6");
-        cassandraUtils.filter(match("address.city", "Lisboa")).checkStringColumnWithoutOrder("login", "USER3", "USER4");
+                      .checkStringColumn("login", false, "USER2", "USER4", "USER6");
+        cassandraUtils.filter(match("address.city", "Lisboa")).checkStringColumn("login", false, "USER3", "USER4");
         cassandraUtils.filter(match("address.city", "Sevilla"))
-                      .checkStringColumnWithoutOrder("login", "USER3", "USER5");
+                      .checkStringColumn("login", false, "USER3", "USER5");
         cassandraUtils.filter(match("address.city", "Granada"))
-                      .checkStringColumnWithoutOrder("login", "USER3", "USER4", "USER5");
+                      .checkStringColumn("login", false, "USER3", "USER4", "USER5");
     }
 
     @Test
     public void testSimpleUDTSet() {
         cassandraUtils.filter(match("address_set.city", "Barcelona"))
-                      .checkStringColumnWithoutOrder("login", "USER1", "USER2", "USER6");
-        cassandraUtils.filter(match("address_set.city", "Roma")).checkStringColumnWithoutOrder("login", "USER1");
-        cassandraUtils.filter(match("address_set.city", "Valencia")).checkStringColumnWithoutOrder("login", "USER1");
+                      .checkStringColumn("login", false, "USER1", "USER2", "USER6");
+        cassandraUtils.filter(match("address_set.city", "Roma")).checkStringColumn("login", false, "USER1");
+        cassandraUtils.filter(match("address_set.city", "Valencia")).checkStringColumn("login", false, "USER1");
         cassandraUtils.filter(match("address_set.city", "Bilbao"))
-                      .checkStringColumnWithoutOrder("login", "USER2", "USER5", "USER6");
+                      .checkStringColumn("login", false, "USER2", "USER5", "USER6");
         cassandraUtils.filter(match("address_set.city", "Venecia"))
-                      .checkStringColumnWithoutOrder("login", "USER2", "USER4", "USER6");
+                      .checkStringColumn("login", false, "USER2", "USER4", "USER6");
         cassandraUtils.filter(match("address_set.city", "Lisboa"))
-                      .checkStringColumnWithoutOrder("login", "USER3", "USER4");
+                      .checkStringColumn("login", false, "USER3", "USER4");
         cassandraUtils.filter(match("address_set.city", "Sevilla"))
-                      .checkStringColumnWithoutOrder("login", "USER3", "USER5");
+                      .checkStringColumn("login", false, "USER3", "USER5");
         cassandraUtils.filter(match("address_set.city", "Granada"))
-                      .checkStringColumnWithoutOrder("login", "USER3", "USER4", "USER5");
+                      .checkStringColumn("login", false, "USER3", "USER4", "USER5");
     }
 
     @Test
     public void testSimpleUDTTextMap() {
-        cassandraUtils.filter(match("address_map.city$a", "Barcelona")).checkStringColumnWithoutOrder("login", "USER1");
-        cassandraUtils.filter(match("address_map.city$b", "Barcelona")).checkStringColumnWithoutOrder("login", "USER2");
-        cassandraUtils.filter(match("address_map.city$c", "Barcelona")).checkStringColumnWithoutOrder("login", "USER6");
-        cassandraUtils.filter(match("address_map.city$a", "Roma")).checkStringColumnWithoutOrder("login");
-        cassandraUtils.filter(match("address_map.city$b", "Roma")).checkStringColumnWithoutOrder("login", "USER1");
-        cassandraUtils.filter(match("address_map.city$c", "Roma")).checkStringColumnWithoutOrder("login");
-        cassandraUtils.filter(match("address_map.city$a", "Valencia")).checkStringColumnWithoutOrder("login");
-        cassandraUtils.filter(match("address_map.city$b", "Valencia")).checkStringColumnWithoutOrder("login");
-        cassandraUtils.filter(match("address_map.city$c", "Valencia")).checkStringColumnWithoutOrder("login", "USER1");
+        cassandraUtils.filter(match("address_map.city$a", "Barcelona")).checkStringColumn("login", false, "USER1");
+        cassandraUtils.filter(match("address_map.city$b", "Barcelona")).checkStringColumn("login", false, "USER2");
+        cassandraUtils.filter(match("address_map.city$c", "Barcelona")).checkStringColumn("login", false, "USER6");
+        cassandraUtils.filter(match("address_map.city$a", "Roma")).checkStringColumn("login");
+        cassandraUtils.filter(match("address_map.city$b", "Roma")).checkStringColumn("login", false, "USER1");
+        cassandraUtils.filter(match("address_map.city$c", "Roma")).checkStringColumn("login");
+        cassandraUtils.filter(match("address_map.city$a", "Valencia")).checkStringColumn("login");
+        cassandraUtils.filter(match("address_map.city$b", "Valencia")).checkStringColumn("login");
+        cassandraUtils.filter(match("address_map.city$c", "Valencia")).checkStringColumn("login", false, "USER1");
         cassandraUtils.filter(match("address_map.city$a", "Bilbao"))
-                      .checkStringColumnWithoutOrder("login", "USER2", "USER6");
-        cassandraUtils.filter(match("address_map.city$b", "Bilbao")).checkStringColumnWithoutOrder("login", "USER5");
-        cassandraUtils.filter(match("address_map.city$c", "Bilbao")).checkStringColumnWithoutOrder("login");
-        cassandraUtils.filter(match("address_map.city$a", "Venecia")).checkStringColumnWithoutOrder("login");
+                      .checkStringColumn("login", false, "USER2", "USER6");
+        cassandraUtils.filter(match("address_map.city$b", "Bilbao")).checkStringColumn("login", false, "USER5");
+        cassandraUtils.filter(match("address_map.city$c", "Bilbao")).checkStringColumn("login");
+        cassandraUtils.filter(match("address_map.city$a", "Venecia")).checkStringColumn("login");
         cassandraUtils.filter(match("address_map.city$b", "Venecia"))
-                      .checkStringColumnWithoutOrder("login", "USER4", "USER6");
-        cassandraUtils.filter(match("address_map.city$c", "Venecia")).checkStringColumnWithoutOrder("login", "USER2");
-        cassandraUtils.filter(match("address_map.city$a", "Lisboa")).checkStringColumnWithoutOrder("login", "USER3");
-        cassandraUtils.filter(match("address_map.city$b", "Lisboa")).checkStringColumnWithoutOrder("login");
-        cassandraUtils.filter(match("address_map.city$c", "Lisboa")).checkStringColumnWithoutOrder("login", "USER4");
-        cassandraUtils.filter(match("address_map.city$a", "Sevilla")).checkStringColumnWithoutOrder("login");
-        cassandraUtils.filter(match("address_map.city$b", "Sevilla")).checkStringColumnWithoutOrder("login", "USER3");
-        cassandraUtils.filter(match("address_map.city$c", "Sevilla")).checkStringColumnWithoutOrder("login", "USER5");
+                      .checkStringColumn("login", false, "USER4", "USER6");
+        cassandraUtils.filter(match("address_map.city$c", "Venecia")).checkStringColumn("login", false, "USER2");
+        cassandraUtils.filter(match("address_map.city$a", "Lisboa")).checkStringColumn("login", false, "USER3");
+        cassandraUtils.filter(match("address_map.city$b", "Lisboa")).checkStringColumn("login");
+        cassandraUtils.filter(match("address_map.city$c", "Lisboa")).checkStringColumn("login", false, "USER4");
+        cassandraUtils.filter(match("address_map.city$a", "Sevilla")).checkStringColumn("login");
+        cassandraUtils.filter(match("address_map.city$b", "Sevilla")).checkStringColumn("login", false, "USER3");
+        cassandraUtils.filter(match("address_map.city$c", "Sevilla")).checkStringColumn("login", false, "USER5");
         cassandraUtils.filter(match("address_map.city$a", "Granada"))
-                      .checkStringColumnWithoutOrder("login", "USER4", "USER5");
-        cassandraUtils.filter(match("address_map.city$b", "Granada")).checkStringColumnWithoutOrder("login");
-        cassandraUtils.filter(match("address_map.city$c", "Granada")).checkStringColumnWithoutOrder("login", "USER3");
+                      .checkStringColumn("login", false, "USER4", "USER5");
+        cassandraUtils.filter(match("address_map.city$b", "Granada")).checkStringColumn("login");
+        cassandraUtils.filter(match("address_map.city$c", "Granada")).checkStringColumn("login", false, "USER3");
     }
 
     @Test
     public void testSimpleUDTListOfList() {
         cassandraUtils.filter(match("address_list_list.city", "Barcelona"))
-                      .checkStringColumnWithoutOrder("login", "USER1", "USER2", "USER3", "USER5", "USER6");
+                      .checkStringColumn("login", false, "USER1", "USER2", "USER3", "USER5", "USER6");
         cassandraUtils.filter(match("address_list_list.city", "Roma"))
-                      .checkStringColumnWithoutOrder("login", "USER1", "USER2", "USER3", "USER4", "USER5");
+                      .checkStringColumn("login", false, "USER1", "USER2", "USER3", "USER4", "USER5");
         cassandraUtils.filter(match("address_list_list.city", "Valencia"))
-                      .checkStringColumnWithoutOrder("login", "USER1", "USER2", "USER3", "USER5", "USER6");
-        cassandraUtils.filter(match("address_list_list.city", "Bilbao")).checkStringColumnWithoutOrder("login");
-        cassandraUtils.filter(match("address_list_list.city", "Venecia")).checkStringColumnWithoutOrder("login");
-        cassandraUtils.filter(match("address_list_list.city", "Lisboa")).checkStringColumnWithoutOrder("login");
-        cassandraUtils.filter(match("address_list_list.city", "Sevilla")).checkStringColumnWithoutOrder("login");
-        cassandraUtils.filter(match("address_list_list.city", "Granada")).checkStringColumnWithoutOrder("login");
+                      .checkStringColumn("login", false, "USER1", "USER2", "USER3", "USER5", "USER6");
+        cassandraUtils.filter(match("address_list_list.city", "Bilbao")).checkStringColumn("login");
+        cassandraUtils.filter(match("address_list_list.city", "Venecia")).checkStringColumn("login");
+        cassandraUtils.filter(match("address_list_list.city", "Lisboa")).checkStringColumn("login");
+        cassandraUtils.filter(match("address_list_list.city", "Sevilla")).checkStringColumn("login");
+        cassandraUtils.filter(match("address_list_list.city", "Granada")).checkStringColumn("login");
         cassandraUtils.filter(match("address_list_list.city", "Oviedo"))
-                      .checkStringColumnWithoutOrder("login", "USER1", "USER2", "USER3", "USER5", "USER6");
+                      .checkStringColumn("login", false, "USER1", "USER2", "USER3", "USER5", "USER6");
         cassandraUtils.filter(match("address_list_list.city", "Jaen"))
-                      .checkStringColumnWithoutOrder("login", "USER2", "USER3", "USER4", "USER5");
+                      .checkStringColumn("login", false, "USER2", "USER3", "USER4", "USER5");
         cassandraUtils.filter(match("address_list_list.city", "Aviles"))
-                      .checkStringColumnWithoutOrder("login", "USER1", "USER2", "USER5", "USER6");
+                      .checkStringColumn("login", false, "USER1", "USER2", "USER5", "USER6");
         cassandraUtils.filter(match("address_list_list.city", "Madrid"))
-                      .checkStringColumnWithoutOrder("login", "USER1", "USER2", "USER3", "USER4", "USER6");
-        cassandraUtils.filter(match("address_list_list.city", "Malaga")).checkStringColumnWithoutOrder("login");
-        cassandraUtils.filter(match("address_list_list.city", "Castellon")).checkStringColumnWithoutOrder("login");
+                      .checkStringColumn("login", false, "USER1", "USER2", "USER3", "USER4", "USER6");
+        cassandraUtils.filter(match("address_list_list.city", "Malaga")).checkStringColumn("login");
+        cassandraUtils.filter(match("address_list_list.city", "Castellon")).checkStringColumn("login");
         cassandraUtils.filter(match("address_list_list.city", "Tarragona"))
-                      .checkStringColumnWithoutOrder("login", "USER1", "USER2", "USER3", "USER4", "USER5", "USER6");
+                      .checkStringColumn("login", false, "USER1", "USER2", "USER3", "USER4", "USER5", "USER6");
         cassandraUtils.filter(match("address_list_list.city", "San Sebastian"))
-                      .checkStringColumnWithoutOrder("login", "USER4", "USER6");
+                      .checkStringColumn("login", false, "USER4", "USER6");
         cassandraUtils.filter(match("address_list_list.city", "Salamanca"))
-                      .checkStringColumnWithoutOrder("login", "USER3", "USER4", "USER5", "USER6");
+                      .checkStringColumn("login", false, "USER3", "USER4", "USER5", "USER6");
         cassandraUtils.filter(match("address_list_list.city", "Valladolid"))
-                      .checkStringColumnWithoutOrder("login", "USER1", "USER4");
+                      .checkStringColumn("login", false, "USER1", "USER4");
     }
 
     @Test
     public void testSimpleUDTListOfSet() {
         cassandraUtils.filter(match("address_list_set.city", "Barcelona"))
-                      .checkStringColumnWithoutOrder("login", "USER1", "USER2", "USER3", "USER4");
+                      .checkStringColumn("login", false, "USER1", "USER2", "USER3", "USER4");
         cassandraUtils.filter(match("address_list_set.city", "Roma"))
-                      .checkStringColumnWithoutOrder("login", "USER1", "USER2", "USER3", "USER4", "USER5");
+                      .checkStringColumn("login", false, "USER1", "USER2", "USER3", "USER4", "USER5");
         cassandraUtils.filter(match("address_list_set.city", "Valencia"))
-                      .checkStringColumnWithoutOrder("login", "USER1", "USER2", "USER3", "USER4", "USER5", "USER6");
-        cassandraUtils.filter(match("address_list_set.city", "Bilbao")).checkStringColumnWithoutOrder("login");
+                      .checkStringColumn("login", false, "USER1", "USER2", "USER3", "USER4", "USER5", "USER6");
+        cassandraUtils.filter(match("address_list_set.city", "Bilbao")).checkStringColumn("login");
         cassandraUtils.filter(match("address_list_set.city", "Venecia"))
-                      .checkStringColumnWithoutOrder("login", "USER1");
-        cassandraUtils.filter(match("address_list_set.city", "Lisboa")).checkStringColumnWithoutOrder("login");
-        cassandraUtils.filter(match("address_list_set.city", "Sevilla")).checkStringColumnWithoutOrder("login");
+                      .checkStringColumn("login", false, "USER1");
+        cassandraUtils.filter(match("address_list_set.city", "Lisboa")).checkStringColumn("login");
+        cassandraUtils.filter(match("address_list_set.city", "Sevilla")).checkStringColumn("login");
         cassandraUtils.filter(match("address_list_set.city", "Oviedo"))
-                      .checkStringColumnWithoutOrder("login", "USER1", "USER4", "USER6");
+                      .checkStringColumn("login", false, "USER1", "USER4", "USER6");
         cassandraUtils.filter(match("address_list_set.city", "Jaen"))
-                      .checkStringColumnWithoutOrder("login", "USER1", "USER2", "USER3", "USER4", "USER5", "USER6");
+                      .checkStringColumn("login", false, "USER1", "USER2", "USER3", "USER4", "USER5", "USER6");
         cassandraUtils.filter(match("address_list_set.city", "Aviles"))
-                      .checkStringColumnWithoutOrder("login", "USER1", "USER3", "USER5");
+                      .checkStringColumn("login", false, "USER1", "USER3", "USER5");
         cassandraUtils.filter(match("address_list_set.city", "Madrid"))
-                      .checkStringColumnWithoutOrder("login", "USER1", "USER2", "USER3", "USER4", "USER5", "USER6");
-        cassandraUtils.filter(match("address_list_set.city", "Malaga")).checkStringColumnWithoutOrder("login");
+                      .checkStringColumn("login", false, "USER1", "USER2", "USER3", "USER4", "USER5", "USER6");
+        cassandraUtils.filter(match("address_list_set.city", "Malaga")).checkStringColumn("login");
         cassandraUtils.filter(match("address_list_set.city", "Castellon"))
-                      .checkStringColumnWithoutOrder("login");
+                      .checkStringColumn("login");
         cassandraUtils.filter(match("address_list_set.city", "Tarragona"))
-                      .checkStringColumnWithoutOrder("login");
-        cassandraUtils.filter(match("address_list_set.city", "Burgos")).checkStringColumnWithoutOrder("login");
+                      .checkStringColumn("login");
+        cassandraUtils.filter(match("address_list_set.city", "Burgos")).checkStringColumn("login");
         cassandraUtils.filter(match("address_list_set.city", "San Sebastian"))
-                      .checkStringColumnWithoutOrder("login", "USER2", "USER4", "USER6");
+                      .checkStringColumn("login", false, "USER2", "USER4", "USER6");
         cassandraUtils.filter(match("address_list_set.city", "Salamanca"))
-                      .checkStringColumnWithoutOrder("login", "USER2", "USER3", "USER5", "USER6");
+                      .checkStringColumn("login", false, "USER2", "USER3", "USER5", "USER6");
         cassandraUtils.filter(match("address_list_set.city", "Valladolid"))
-                      .checkStringColumnWithoutOrder("login", "USER2", "USER3", "USER5", "USER6");
+                      .checkStringColumn("login", false, "USER2", "USER3", "USER5", "USER6");
     }
 
     @Test
     public void testSimpleUDTListOfMapMap() {
         cassandraUtils.filter(match("address_list_map.city$a", "Barcelona"))
-                      .checkStringColumnWithoutOrder("login", "USER1", "USER2", "USER3", "USER4", "USER5", "USER6");
+                      .checkStringColumn("login", false, "USER1", "USER2", "USER3", "USER4", "USER5", "USER6");
         cassandraUtils.filter(match("address_list_map.city$b", "Roma"))
-                      .checkStringColumnWithoutOrder("login", "USER1", "USER2", "USER3", "USER4", "USER6");
+                      .checkStringColumn("login", false, "USER1", "USER2", "USER3", "USER4", "USER6");
         cassandraUtils.filter(match("address_list_map.city$f", "Jaen"))
-                      .checkStringColumnWithoutOrder("login", "USER2", "USER3", "USER4");
+                      .checkStringColumn("login", false, "USER2", "USER3", "USER4");
         cassandraUtils.filter(match("address_list_map.city$g", "Aviles"))
-                      .checkStringColumnWithoutOrder("login", "USER2", "USER3", "USER4", "USER5");
+                      .checkStringColumn("login", false, "USER2", "USER3", "USER4", "USER5");
         cassandraUtils.filter(match("address_list_map.city$c", "Valencia"))
-                      .checkStringColumnWithoutOrder("login", "USER3", "USER5", "USER6");
+                      .checkStringColumn("login", false, "USER3", "USER5", "USER6");
         cassandraUtils.filter(match("address_list_map.city$d", "Oviedo"))
-                      .checkStringColumnWithoutOrder("login", "USER2", "USER4", "USER5");
+                      .checkStringColumn("login", false, "USER2", "USER4", "USER5");
         cassandraUtils.filter(match("address_list_map.city$e", "Madrid"))
-                      .checkStringColumnWithoutOrder("login", "USER2", "USER4", "USER5", "USER6");
+                      .checkStringColumn("login", false, "USER2", "USER4", "USER5", "USER6");
         cassandraUtils.filter(match("address_list_map.city$h", "Madrid"))
-                      .checkStringColumnWithoutOrder("login", "USER1", "USER2", "USER3", "USER5", "USER6");
+                      .checkStringColumn("login", false, "USER1", "USER2", "USER3", "USER5", "USER6");
         cassandraUtils.filter(match("address_list_map.city$i", "Toledo"))
-                      .checkStringColumnWithoutOrder("login", "USER1", "USER2", "USER5", "USER6");
+                      .checkStringColumn("login", false, "USER1", "USER2", "USER5", "USER6");
         cassandraUtils.filter(match("address_list_map.city$c", "Salamanca"))
-                      .checkStringColumnWithoutOrder("login", "USER1");
+                      .checkStringColumn("login", false, "USER1");
         cassandraUtils.filter(match("address_list_map.city$e", "Salamanca"))
-                      .checkStringColumnWithoutOrder("login", "USER1", "USER3");
+                      .checkStringColumn("login", false, "USER1", "USER3");
         cassandraUtils.filter(match("address_list_map.city$f", "Salamanca"))
-                      .checkStringColumnWithoutOrder("login", "USER1", "USER5");
+                      .checkStringColumn("login", false, "USER1", "USER5");
         cassandraUtils.filter(match("address_list_map.city$g", "Salamanca"))
-                      .checkStringColumnWithoutOrder("login", "USER1", "USER6");
+                      .checkStringColumn("login", false, "USER1", "USER6");
         cassandraUtils.filter(match("address_list_map.city$i", "Salamanca"))
-                      .checkStringColumnWithoutOrder("login", "USER3");
+                      .checkStringColumn("login", false, "USER3");
         cassandraUtils.filter(match("address_list_map.city$b", "San Sebastian"))
-                      .checkStringColumnWithoutOrder("login", "USER5");
+                      .checkStringColumn("login", false, "USER5");
         cassandraUtils.filter(match("address_list_map.city$c", "San Sebastian"))
-                      .checkStringColumnWithoutOrder("login", "USER2");
+                      .checkStringColumn("login", false, "USER2");
         cassandraUtils.filter(match("address_list_map.city$d", "San Sebastian"))
-                      .checkStringColumnWithoutOrder("login", "USER3");
+                      .checkStringColumn("login", false, "USER3");
         cassandraUtils.filter(match("address_list_map.city$f", "San Sebastian"))
-                      .checkStringColumnWithoutOrder("login", "USER6");
+                      .checkStringColumn("login", false, "USER6");
         cassandraUtils.filter(match("address_list_map.city$h", "San Sebastian"))
-                      .checkStringColumnWithoutOrder("login", "USER4");
+                      .checkStringColumn("login", false, "USER4");
         cassandraUtils.filter(match("address_list_map.city$c", "Valladolid"))
-                      .checkStringColumnWithoutOrder("login", "USER4");
+                      .checkStringColumn("login", false, "USER4");
         cassandraUtils.filter(match("address_list_map.city$d", "Valladolid"))
-                      .checkStringColumnWithoutOrder("login", "USER1", "USER6");
+                      .checkStringColumn("login", false, "USER1", "USER6");
         cassandraUtils.filter(match("address_list_map.city$i", "Valladolid"))
-                      .checkStringColumnWithoutOrder("login", "USER4");
+                      .checkStringColumn("login", false, "USER4");
     }
 
     @Test
     public void testSimpleUDTSetOfList() {
         cassandraUtils.filter(match("address_set_list.city", "Barcelona"))
-                      .checkStringColumnWithoutOrder("login", "USER1", "USER2", "USER3", "USER5", "USER6");
+                      .checkStringColumn("login", false, "USER1", "USER2", "USER3", "USER5", "USER6");
         cassandraUtils.filter(match("address_set_list.city", "Roma"))
-                      .checkStringColumnWithoutOrder("login", "USER1", "USER2", "USER3", "USER4", "USER5");
+                      .checkStringColumn("login", false, "USER1", "USER2", "USER3", "USER4", "USER5");
         cassandraUtils.filter(match("address_set_list.city", "Valencia"))
-                      .checkStringColumnWithoutOrder("login", "USER1", "USER2", "USER3", "USER5", "USER6");
-        cassandraUtils.filter(match("address_set_list.city", "Bilbao")).checkStringColumnWithoutOrder("login");
-        cassandraUtils.filter(match("address_set_list.city", "Venecia")).checkStringColumnWithoutOrder("login");
-        cassandraUtils.filter(match("address_set_list.city", "Lisboa")).checkStringColumnWithoutOrder("login");
-        cassandraUtils.filter(match("address_set_list.city", "Sevilla")).checkStringColumnWithoutOrder("login");
-        cassandraUtils.filter(match("address_set_list.city", "Granada")).checkStringColumnWithoutOrder("login");
+                      .checkStringColumn("login", false, "USER1", "USER2", "USER3", "USER5", "USER6");
+        cassandraUtils.filter(match("address_set_list.city", "Bilbao")).checkStringColumn("login");
+        cassandraUtils.filter(match("address_set_list.city", "Venecia")).checkStringColumn("login");
+        cassandraUtils.filter(match("address_set_list.city", "Lisboa")).checkStringColumn("login");
+        cassandraUtils.filter(match("address_set_list.city", "Sevilla")).checkStringColumn("login");
+        cassandraUtils.filter(match("address_set_list.city", "Granada")).checkStringColumn("login");
         cassandraUtils.filter(match("address_set_list.city", "Oviedo"))
-                      .checkStringColumnWithoutOrder("login", "USER1", "USER2", "USER3", "USER5", "USER6");
+                      .checkStringColumn("login", false, "USER1", "USER2", "USER3", "USER5", "USER6");
         cassandraUtils.filter(match("address_set_list.city", "Jaen"))
-                      .checkStringColumnWithoutOrder("login", "USER2", "USER3", "USER4", "USER5");
+                      .checkStringColumn("login", false, "USER2", "USER3", "USER4", "USER5");
         cassandraUtils.filter(match("address_set_list.city", "Aviles"))
-                      .checkStringColumnWithoutOrder("login", "USER1", "USER2", "USER5", "USER6");
+                      .checkStringColumn("login", false, "USER1", "USER2", "USER5", "USER6");
         cassandraUtils.filter(match("address_set_list.city", "Madrid"))
-                      .checkStringColumnWithoutOrder("login", "USER1", "USER2", "USER3", "USER4", "USER6");
-        cassandraUtils.filter(match("address_set_list.city", "Malaga")).checkStringColumnWithoutOrder("login");
-        cassandraUtils.filter(match("address_set_list.city", "Castellon")).checkStringColumnWithoutOrder("login");
+                      .checkStringColumn("login", false, "USER1", "USER2", "USER3", "USER4", "USER6");
+        cassandraUtils.filter(match("address_set_list.city", "Malaga")).checkStringColumn("login");
+        cassandraUtils.filter(match("address_set_list.city", "Castellon")).checkStringColumn("login");
         cassandraUtils.filter(match("address_set_list.city", "Tarragona"))
-                      .checkStringColumnWithoutOrder("login", "USER1", "USER2", "USER3", "USER4", "USER5", "USER6");
+                      .checkStringColumn("login", false, "USER1", "USER2", "USER3", "USER4", "USER5", "USER6");
         cassandraUtils.filter(match("address_set_list.city", "San Sebastian"))
-                      .checkStringColumnWithoutOrder("login", "USER4", "USER6");
+                      .checkStringColumn("login", false, "USER4", "USER6");
         cassandraUtils.filter(match("address_set_list.city", "Salamanca"))
-                      .checkStringColumnWithoutOrder("login", "USER3", "USER4", "USER5", "USER6");
+                      .checkStringColumn("login", false, "USER3", "USER4", "USER5", "USER6");
         cassandraUtils.filter(match("address_set_list.city", "Valladolid"))
-                      .checkStringColumnWithoutOrder("login", "USER1", "USER4");
+                      .checkStringColumn("login", false, "USER1", "USER4");
     }
 
     @Test
     public void testSimpleUDTSetOfSet() {
         cassandraUtils.filter(match("address_set_set.city", "Barcelona"))
-                      .checkStringColumnWithoutOrder("login", "USER1", "USER2", "USER3", "USER4");
+                      .checkStringColumn("login", false, "USER1", "USER2", "USER3", "USER4");
         cassandraUtils.filter(match("address_set_set.city", "Roma"))
-                      .checkStringColumnWithoutOrder("login", "USER1", "USER2", "USER3", "USER4", "USER5");
+                      .checkStringColumn("login", false, "USER1", "USER2", "USER3", "USER4", "USER5");
         cassandraUtils.filter(match("address_set_set.city", "Valencia"))
-                      .checkStringColumnWithoutOrder("login", "USER1", "USER2", "USER3", "USER4", "USER5", "USER6");
-        cassandraUtils.filter(match("address_set_set.city", "Bilbao")).checkStringColumnWithoutOrder("login");
-        cassandraUtils.filter(match("address_set_set.city", "Venecia")).checkStringColumnWithoutOrder("login", "USER1");
-        cassandraUtils.filter(match("address_set_set.city", "Lisboa")).checkStringColumnWithoutOrder("login");
-        cassandraUtils.filter(match("address_set_set.city", "Sevilla")).checkStringColumnWithoutOrder("login");
+                      .checkStringColumn("login", false, "USER1", "USER2", "USER3", "USER4", "USER5", "USER6");
+        cassandraUtils.filter(match("address_set_set.city", "Bilbao")).checkStringColumn("login");
+        cassandraUtils.filter(match("address_set_set.city", "Venecia")).checkStringColumn("login", false, "USER1");
+        cassandraUtils.filter(match("address_set_set.city", "Lisboa")).checkStringColumn("login");
+        cassandraUtils.filter(match("address_set_set.city", "Sevilla")).checkStringColumn("login");
         cassandraUtils.filter(match("address_set_set.city", "Oviedo"))
-                      .checkStringColumnWithoutOrder("login", "USER1", "USER4", "USER6");
+                      .checkStringColumn("login", false, "USER1", "USER4", "USER6");
         cassandraUtils.filter(match("address_set_set.city", "Jaen"))
-                      .checkStringColumnWithoutOrder("login", "USER1", "USER2", "USER3", "USER4", "USER5", "USER6");
+                      .checkStringColumn("login", false, "USER1", "USER2", "USER3", "USER4", "USER5", "USER6");
         cassandraUtils.filter(match("address_set_set.city", "Aviles"))
-                      .checkStringColumnWithoutOrder("login", "USER1", "USER3", "USER5");
+                      .checkStringColumn("login", false, "USER1", "USER3", "USER5");
         cassandraUtils.filter(match("address_set_set.city", "Madrid"))
-                      .checkStringColumnWithoutOrder("login", "USER1", "USER2", "USER3", "USER4", "USER5", "USER6");
-        cassandraUtils.filter(match("address_set_set.city", "Malaga")).checkStringColumnWithoutOrder("login");
-        cassandraUtils.filter(match("address_set_set.city", "Castellon")).checkStringColumnWithoutOrder("login");
-        cassandraUtils.filter(match("address_set_set.city", "Tarragona")).checkStringColumnWithoutOrder("login");
-        cassandraUtils.filter(match("address_set_set.city", "Burgos")).checkStringColumnWithoutOrder("login");
+                      .checkStringColumn("login", false, "USER1", "USER2", "USER3", "USER4", "USER5", "USER6");
+        cassandraUtils.filter(match("address_set_set.city", "Malaga")).checkStringColumn("login");
+        cassandraUtils.filter(match("address_set_set.city", "Castellon")).checkStringColumn("login");
+        cassandraUtils.filter(match("address_set_set.city", "Tarragona")).checkStringColumn("login");
+        cassandraUtils.filter(match("address_set_set.city", "Burgos")).checkStringColumn("login");
         cassandraUtils.filter(match("address_set_set.city", "San Sebastian"))
-                      .checkStringColumnWithoutOrder("login", "USER2", "USER4", "USER6");
+                      .checkStringColumn("login", false, "USER2", "USER4", "USER6");
         cassandraUtils.filter(match("address_set_set.city", "Salamanca"))
-                      .checkStringColumnWithoutOrder("login", "USER2", "USER3", "USER5", "USER6");
+                      .checkStringColumn("login", false, "USER2", "USER3", "USER5", "USER6");
         cassandraUtils.filter(match("address_set_set.city", "Valladolid"))
-                      .checkStringColumnWithoutOrder("login", "USER2", "USER3", "USER5", "USER6");
+                      .checkStringColumn("login", false, "USER2", "USER3", "USER5", "USER6");
     }
 
     @Test
     public void testSimpleUDTSetOfMapMap() {
         cassandraUtils.filter(match("address_set_map.city$a", "Barcelona"))
-                      .checkStringColumnWithoutOrder("login", "USER1", "USER2", "USER3", "USER4", "USER5", "USER6");
+                      .checkStringColumn("login", false, "USER1", "USER2", "USER3", "USER4", "USER5", "USER6");
         cassandraUtils.filter(match("address_set_map.city$b", "Roma"))
-                      .checkStringColumnWithoutOrder("login", "USER1", "USER2", "USER3", "USER4", "USER6");
+                      .checkStringColumn("login", false, "USER1", "USER2", "USER3", "USER4", "USER6");
         cassandraUtils.filter(match("address_set_map.city$f", "Jaen"))
-                      .checkStringColumnWithoutOrder("login", "USER2", "USER3", "USER4");
+                      .checkStringColumn("login", false, "USER2", "USER3", "USER4");
         cassandraUtils.filter(match("address_set_map.city$g", "Aviles"))
-                      .checkStringColumnWithoutOrder("login", "USER2", "USER3", "USER4", "USER5");
+                      .checkStringColumn("login", false, "USER2", "USER3", "USER4", "USER5");
         cassandraUtils.filter(match("address_set_map.city$c", "Valencia"))
-                      .checkStringColumnWithoutOrder("login", "USER3", "USER5", "USER6");
+                      .checkStringColumn("login", false, "USER3", "USER5", "USER6");
         cassandraUtils.filter(match("address_set_map.city$d", "Oviedo"))
-                      .checkStringColumnWithoutOrder("login", "USER2", "USER4", "USER5");
+                      .checkStringColumn("login", false, "USER2", "USER4", "USER5");
         cassandraUtils.filter(match("address_set_map.city$e", "Madrid"))
-                      .checkStringColumnWithoutOrder("login", "USER2", "USER4", "USER5", "USER6");
+                      .checkStringColumn("login", false, "USER2", "USER4", "USER5", "USER6");
         cassandraUtils.filter(match("address_set_map.city$h", "Madrid"))
-                      .checkStringColumnWithoutOrder("login", "USER1", "USER2", "USER3", "USER5", "USER6");
+                      .checkStringColumn("login", false, "USER1", "USER2", "USER3", "USER5", "USER6");
         cassandraUtils.filter(match("address_set_map.city$i", "Toledo"))
-                      .checkStringColumnWithoutOrder("login", "USER1", "USER2", "USER5", "USER6");
+                      .checkStringColumn("login", false, "USER1", "USER2", "USER5", "USER6");
         cassandraUtils.filter(match("address_set_map.city$c", "Salamanca"))
-                      .checkStringColumnWithoutOrder("login", "USER1");
+                      .checkStringColumn("login", false, "USER1");
         cassandraUtils.filter(match("address_set_map.city$e", "Salamanca"))
-                      .checkStringColumnWithoutOrder("login", "USER1", "USER3");
+                      .checkStringColumn("login", false, "USER1", "USER3");
         cassandraUtils.filter(match("address_set_map.city$f", "Salamanca"))
-                      .checkStringColumnWithoutOrder("login", "USER1", "USER5");
+                      .checkStringColumn("login", false, "USER1", "USER5");
         cassandraUtils.filter(match("address_set_map.city$g", "Salamanca"))
-                      .checkStringColumnWithoutOrder("login", "USER1", "USER6");
+                      .checkStringColumn("login", false, "USER1", "USER6");
         cassandraUtils.filter(match("address_set_map.city$i", "Salamanca"))
-                      .checkStringColumnWithoutOrder("login", "USER3");
+                      .checkStringColumn("login", false, "USER3");
         cassandraUtils.filter(match("address_set_map.city$b", "San Sebastian"))
-                      .checkStringColumnWithoutOrder("login", "USER5");
+                      .checkStringColumn("login", false, "USER5");
         cassandraUtils.filter(match("address_set_map.city$c", "San Sebastian"))
-                      .checkStringColumnWithoutOrder("login", "USER2");
+                      .checkStringColumn("login", false, "USER2");
         cassandraUtils.filter(match("address_set_map.city$d", "San Sebastian"))
-                      .checkStringColumnWithoutOrder("login", "USER3");
+                      .checkStringColumn("login", false, "USER3");
         cassandraUtils.filter(match("address_set_map.city$f", "San Sebastian"))
-                      .checkStringColumnWithoutOrder("login", "USER6");
+                      .checkStringColumn("login", false, "USER6");
         cassandraUtils.filter(match("address_set_map.city$h", "San Sebastian"))
-                      .checkStringColumnWithoutOrder("login", "USER4");
+                      .checkStringColumn("login", false, "USER4");
         cassandraUtils.filter(match("address_set_map.city$c", "Valladolid"))
-                      .checkStringColumnWithoutOrder("login", "USER4");
+                      .checkStringColumn("login", false, "USER4");
         cassandraUtils.filter(match("address_set_map.city$d", "Valladolid"))
-                      .checkStringColumnWithoutOrder("login", "USER1", "USER6");
+                      .checkStringColumn("login", false, "USER1", "USER6");
         cassandraUtils.filter(match("address_set_map.city$i", "Valladolid"))
-                      .checkStringColumnWithoutOrder("login", "USER4");
+                      .checkStringColumn("login", false, "USER4");
     }
 }

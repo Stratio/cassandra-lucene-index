@@ -17,10 +17,6 @@ package com.stratio.cassandra.lucene.testsAT.udt;
 
 import com.datastax.driver.core.exceptions.InvalidConfigurationInQueryException;
 import com.stratio.cassandra.lucene.testsAT.BaseAT;
-import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
-import com.stratio.cassandra.lucene.testsAT.util.CassandraUtilsBuilder;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -34,12 +30,9 @@ import static com.stratio.cassandra.lucene.testsAT.util.CassandraUtils.builder;
 @RunWith(JUnit4.class)
 public class UDTValidationAT extends BaseAT {
 
-    private static CassandraUtilsBuilder cassandraUtilsBuilder;
-    private static CassandraUtils cassandraUtils;
-
-    @Before
-    public void before() {
-        cassandraUtilsBuilder = builder("udt_validation")
+    @Test
+    public void testValidCreateIndex() {
+        builder("udt_validation")
                 .withTable("udt_validation_table")
                 .withUDT("geo_point", "latitude", "float")
                 .withUDT("geo_point", "longitude", "float")
@@ -54,32 +47,39 @@ public class UDTValidationAT extends BaseAT {
                 .withColumn("last_name", "text")
                 .withColumn("address", "frozen<address>")
                 .withIndexColumn("lucene")
-                .withPartitionKey("login");
-
-    }
-
-    @After
-    public void after() {
-        cassandraUtils.dropKeyspace();
-    }
-
-    @Test
-    public void testValidCreateIndex() {
-        cassandraUtils = cassandraUtilsBuilder
+                .withPartitionKey("login")
                 .withMapper("address.city", stringMapper())
                 .withMapper("address.zip", integerMapper())
                 .withMapper("address.bool", booleanMapper())
                 .withMapper("address.height", floatMapper())
                 .withMapper("first_name", stringMapper())
+                .withIndexName("valid_index")
                 .build()
                 .createKeyspace()
                 .createUDTs()
-                .createTable().createIndex().dropIndex();
+                .createTable()
+                .createIndex()
+                .dropAll();
     }
 
     @Test
     public void testInvalidCreateIndex() {
-        cassandraUtils = cassandraUtilsBuilder
+        builder("udt_validation")
+                .withTable("udt_validation_table")
+                .withUDT("geo_point", "latitude", "float")
+                .withUDT("geo_point", "longitude", "float")
+                .withUDT("address", "street", "text")
+                .withUDT("address", "city", "text")
+                .withUDT("address", "zip", "int")
+                .withUDT("address", "bool", "boolean")
+                .withUDT("address", "height", "float")
+                .withUDT("address", "point", "frozen<geo_point>")
+                .withColumn("login", "text")
+                .withColumn("first_name", "text")
+                .withColumn("last_name", "text")
+                .withColumn("address", "frozen<address>")
+                .withIndexColumn("lucene")
+                .withPartitionKey("login")
                 .withMapper("address.non-existent.latitude", stringMapper())
                 .build()
                 .createKeyspace()
@@ -87,12 +87,29 @@ public class UDTValidationAT extends BaseAT {
                 .createTable()
                 .checkInvalidCreateIndex(InvalidConfigurationInQueryException.class,
                                          "'schema' is invalid : No column definition 'address.non-existent' " +
-                                         "for mapper 'address.non-existent.latitude'");
+                                         "for mapper 'address.non-existent.latitude'")
+                .dropTable()
+                .dropKeyspace();
     }
 
     @Test
     public void testInvalidCreateIndex2() {
-        cassandraUtils = cassandraUtilsBuilder
+        builder("udt_validation")
+                .withTable("udt_validation_table")
+                .withUDT("geo_point", "latitude", "float")
+                .withUDT("geo_point", "longitude", "float")
+                .withUDT("address", "street", "text")
+                .withUDT("address", "city", "text")
+                .withUDT("address", "zip", "int")
+                .withUDT("address", "bool", "boolean")
+                .withUDT("address", "height", "float")
+                .withUDT("address", "point", "frozen<geo_point>")
+                .withColumn("login", "text")
+                .withColumn("first_name", "text")
+                .withColumn("last_name", "text")
+                .withColumn("address", "frozen<address>")
+                .withIndexColumn("lucene")
+                .withPartitionKey("login")
                 .withMapper("address.non-existent", stringMapper())
                 .build()
                 .createKeyspace()
@@ -100,12 +117,29 @@ public class UDTValidationAT extends BaseAT {
                 .createTable()
                 .checkInvalidCreateIndex(InvalidConfigurationInQueryException.class,
                                          "'schema' is invalid : No column definition 'address.non-existent' " +
-                                         "for mapper 'address.non-existent'");
+                                         "for mapper 'address.non-existent'")
+                .dropTable()
+                .dropKeyspace();
     }
 
     @Test
     public void testInvalidCreateIndex3() {
-        cassandraUtils = cassandraUtilsBuilder
+        builder("udt_validation")
+                .withTable("udt_validation_table")
+                .withUDT("geo_point", "latitude", "float")
+                .withUDT("geo_point", "longitude", "float")
+                .withUDT("address", "street", "text")
+                .withUDT("address", "city", "text")
+                .withUDT("address", "zip", "int")
+                .withUDT("address", "bool", "boolean")
+                .withUDT("address", "height", "float")
+                .withUDT("address", "point", "frozen<geo_point>")
+                .withColumn("login", "text")
+                .withColumn("first_name", "text")
+                .withColumn("last_name", "text")
+                .withColumn("address", "frozen<address>")
+                .withIndexColumn("lucene")
+                .withPartitionKey("login")
                 .withMapper("address.city", stringMapper())
                 .withMapper("address.zip", integerMapper())
                 .withMapper("address.bool", booleanMapper())
@@ -119,12 +153,29 @@ public class UDTValidationAT extends BaseAT {
                 .createTable()
                 .checkInvalidCreateIndex(InvalidConfigurationInQueryException.class,
                                          "'schema' is invalid : Type 'org.apache.cassandra.db.marshal.FloatType' " +
-                                         "in column 'address.point.longitude' is not supported by mapper 'address.point.longitude'");
+                                         "in column 'address.point.longitude' is not supported by mapper 'address.point.longitude'")
+                .dropTable()
+                .dropKeyspace();
     }
 
     @Test
     public void testInvalidCreateIndex4() {
-        cassandraUtils = cassandraUtilsBuilder
+        builder("udt_validation")
+                .withTable("udt_validation_table")
+                .withUDT("geo_point", "latitude", "float")
+                .withUDT("geo_point", "longitude", "float")
+                .withUDT("address", "street", "text")
+                .withUDT("address", "city", "text")
+                .withUDT("address", "zip", "int")
+                .withUDT("address", "bool", "boolean")
+                .withUDT("address", "height", "float")
+                .withUDT("address", "point", "frozen<geo_point>")
+                .withColumn("login", "text")
+                .withColumn("first_name", "text")
+                .withColumn("last_name", "text")
+                .withColumn("address", "frozen<address>")
+                .withIndexColumn("lucene")
+                .withPartitionKey("login")
                 .withMapper("address.city", stringMapper())
                 .withMapper("address.zip", integerMapper())
                 .withMapper("address.bool", booleanMapper())
@@ -138,7 +189,9 @@ public class UDTValidationAT extends BaseAT {
                 .createTable()
                 .checkInvalidCreateIndex(InvalidConfigurationInQueryException.class,
                                          "'schema' is invalid : No column definition " +
-                                         "'address.point.longitude.non-existent' for mapper 'address.point.longitude.non-existent'");
+                                         "'address.point.longitude.non-existent' for mapper 'address.point.longitude.non-existent'")
+                .dropTable()
+                .dropKeyspace();
 
     }
 

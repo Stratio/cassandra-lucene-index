@@ -133,11 +133,11 @@ public class GeoShapesSearchAT extends BaseAT {
                           String[] resultsForIntersects,
                           String[] resultsForWithin) {
         cassandraUtils.filter(bool().must(geoShapeCondition.operation("contains"), match("search_case", search_case)))
-                      .checkStringColumnWithoutOrder("identity", resultsForContains);
+                      .checkStringColumn("identity", false, resultsForContains);
         cassandraUtils.filter(bool().must(geoShapeCondition.operation("intersects"), match("search_case", search_case)))
-                      .checkStringColumnWithoutOrder("identity", resultsForIntersects);
+                      .checkStringColumn("identity", false, resultsForIntersects);
         cassandraUtils.filter(bool().must(geoShapeCondition.operation("is_within"), match("search_case", search_case)))
-                      .checkStringColumnWithoutOrder("identity", resultsForWithin);
+                      .checkStringColumn("identity", false, resultsForWithin);
     }
 
     @Test
