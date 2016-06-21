@@ -123,14 +123,14 @@ public class DateRangeMapper extends Mapper {
             throw new IndexException("To column required");
         }
         if (from.after(to)) {
-            throw new IndexException("From:'%s' is after To:'%s'", dateParser.toString(to), dateParser.toString(from));
+            throw new IndexException("From:'{}' is after To:'{}'", dateParser.toString(to), dateParser.toString(from));
         }
     }
 
     /** {@inheritDoc} */
     @Override
     public SortField sortField(String name, boolean reverse) {
-        throw new IndexException("Date range mapper '%s' does not support sorting", name);
+        throw new IndexException("Date range mapper '{}' does not support sorting", name);
     }
 
     /**

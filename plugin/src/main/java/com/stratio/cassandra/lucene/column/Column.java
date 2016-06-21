@@ -125,7 +125,7 @@ public final class Column<T> {
      */
     public static void check(String name) {
         if (!NAME_PATTERN.matcher(name).matches()) {
-            throw new IndexException("Name %s doesn't satisfy the mandatory pattern %s", name, NAME_PATTERN.pattern());
+            throw new IndexException("Name {} doesn't satisfy the mandatory pattern {}", name, NAME_PATTERN.pattern());
         }
     }
 

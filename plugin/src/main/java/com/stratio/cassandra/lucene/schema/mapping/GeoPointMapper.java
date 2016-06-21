@@ -134,7 +134,7 @@ public class GeoPointMapper extends Mapper {
     /** {@inheritDoc} */
     @Override
     public SortField sortField(String name, boolean reverse) {
-        throw new IndexException("GeoPoint mapper '%s' does not support simple sorting", name);
+        throw new IndexException("GeoPoint mapper '{}' does not support simple sorting", name);
     }
 
     /**
@@ -178,7 +178,7 @@ public class GeoPointMapper extends Mapper {
             try {
                 value = Double.valueOf(o.toString());
             } catch (NumberFormatException e) {
-                throw new IndexException("Unparseable latitude: %s", o);
+                throw new IndexException("Unparseable latitude: {}", o);
             }
         }
         return GeospatialUtils.checkLatitude("latitude", value);
@@ -202,7 +202,7 @@ public class GeoPointMapper extends Mapper {
             try {
                 value = Double.valueOf(o.toString());
             } catch (NumberFormatException e) {
-                throw new IndexException("Unparseable longitude: %s", o);
+                throw new IndexException("Unparseable longitude: {}", o);
             }
         }
         return GeospatialUtils.checkLongitude("longitude", value);

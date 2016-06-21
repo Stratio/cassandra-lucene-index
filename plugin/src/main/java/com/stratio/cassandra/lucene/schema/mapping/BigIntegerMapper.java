@@ -89,12 +89,12 @@ public class BigIntegerMapper extends KeywordMapper {
         try {
             bi = new BigInteger(svalue);
         } catch (NumberFormatException e) {
-            throw new IndexException("Field '%s' requires a base 10 integer, but found '%s'", name, svalue);
+            throw new IndexException("Field '{}' requires a base 10 integer, but found '{}'", name, svalue);
         }
 
         // Check size
         if (bi.abs().toString().length() > digits) {
-            throw new IndexException("Field '%s' with value '%s' has more than %d digits", name, value, digits);
+            throw new IndexException("Field '{}' with value '{}' has more than %d digits", name, value, digits);
         }
 
         // Map

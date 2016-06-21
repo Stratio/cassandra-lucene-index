@@ -216,11 +216,11 @@ public abstract class Mapper {
         ByteBuffer parentColName = UTF8Type.instance.decompose(names[0]);
         ColumnDefinition parentCD = metadata.getColumnDefinition(parentColName);
         if (parentCD == null) {
-            throw new IndexException("No column definition '%s' for mapper '%s'", names[0], field);
+            throw new IndexException("No column definition '{}' for mapper '{}'", names[0], field);
         }
 
         if (parentCD.isStatic()) {
-            throw new IndexException("Lucene indexes are not allowed on static columns as '%s'", column);
+            throw new IndexException("Lucene indexes are not allowed on static columns as '{}'", column);
         }
         AbstractType<?> actualType = parentCD.type;
         String columnIterator = names[0];
@@ -228,7 +228,7 @@ public abstract class Mapper {
             columnIterator += Column.UDT_SEPARATOR + names[i];
             actualType = findChildType(actualType, names[i]);
             if (actualType == null) {
-                throw new IndexException("No column definition '%s' for mapper '%s'", columnIterator, field);
+                throw new IndexException("No column definition '{}' for mapper '{}'", columnIterator, field);
             }
             if (i == (numMatches - 1)) {
                 validate(actualType, columnIterator);
@@ -249,7 +249,7 @@ public abstract class Mapper {
             ByteBuffer columnName = UTF8Type.instance.decompose(column);
             ColumnDefinition columnDefinition = metadata.getColumnDefinition(columnName);
             if (columnDefinition == null) {
-                throw new IndexException("No column definition '%s' for mapper '%s'", column, field);
+                throw new IndexException("No column definition '{}' for mapper '{}'", column, field);
             }
             validate(columnDefinition, column);
         }
@@ -257,7 +257,7 @@ public abstract class Mapper {
 
     private void validate(ColumnDefinition columnDefinition, String column) {
         if (columnDefinition.isStatic()) {
-            throw new IndexException("Lucene indexes are not allowed on static columns as '%s'", column);
+            throw new IndexException("Lucene indexes are not allowed on static columns as '{}'", column);
         }
         validate(columnDefinition.type, column);
     }
@@ -265,7 +265,7 @@ public abstract class Mapper {
     private void validate(AbstractType<?> type, String column) {
         // Check type
         if (!supports(type)) {
-            throw new IndexException("Type '%s' in column '%s' is not supported by mapper '%s'", type, column, field);
+            throw new IndexException("Type '{}' in column '{}' is not supported by mapper '{}'", type, column, field);
         }
     }
 

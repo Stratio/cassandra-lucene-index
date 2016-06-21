@@ -57,7 +57,7 @@ public class InetMapper extends KeywordMapper {
         } else if (value instanceof String) {
             return doBase(name, (String) value);
         } else {
-            throw new IndexException("Field '%s' requires an inet address, but found '%s'", name, value);
+            throw new IndexException("Field '{}' requires an inet address, but found '{}'", name, value);
         }
     }
 
@@ -68,9 +68,9 @@ public class InetMapper extends KeywordMapper {
             try {
                 return InetAddress.getByName(value).getHostAddress();
             } catch (UnknownHostException e) {
-                throw new IndexException(e, "Unknown host exception for field '%s' with value '%s'", name, value);
+                throw new IndexException(e, "Unknown host exception for field '{}' with value '{}'", name, value);
             }
         }
-        throw new IndexException("Field '%s' with value '%s' can not be parsed as an inet address", name, value);
+        throw new IndexException("Field '{}' with value '{}' can not be parsed as an inet address", name, value);
     }
 }

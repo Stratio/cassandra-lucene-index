@@ -101,7 +101,7 @@ public class BigDecimalMapper extends KeywordMapper {
         try {
             bd = new BigDecimal(value.toString());
         } catch (NumberFormatException e) {
-            throw new IndexException("Field '%s' requires a base 10 decimal, but found '%s'", name, value);
+            throw new IndexException("Field '{}' requires a base 10 decimal, but found '{}'", name, value);
         }
 
         // Split integer and decimal part
@@ -121,7 +121,7 @@ public class BigDecimalMapper extends KeywordMapper {
     private void validateIntegerPart(String name, Object value, String[] parts) {
         String integerPart = parts[0];
         if (integerPart.replaceFirst("-", "").length() > integerDigits) {
-            throw new IndexException("Field '%s' with value '%s' has more than %d integer digits",
+            throw new IndexException("Field '{}' with value '{}' has more than %d integer digits",
                                      name,
                                      value,
                                      integerDigits);
@@ -131,7 +131,7 @@ public class BigDecimalMapper extends KeywordMapper {
     private void validateDecimalPart(String name, Object value, String[] parts) {
         String decimalPart = parts.length == 1 ? "0" : parts[1];
         if (decimalPart.length() > decimalDigits) {
-            throw new IndexException("Field '%s' with value '%s' has more than %d decimal digits",
+            throw new IndexException("Field '{}' with value '{}' has more than %d decimal digits",
                                      name,
                                      value,
                                      decimalDigits);

@@ -169,12 +169,12 @@ public class BitemporalMapper extends Mapper {
             throw new IndexException("tt_to column required");
         }
         if (vtFrom.after(vtTo)) {
-            throw new IndexException("vt_from:'%s' is after vt_to:'%s'",
+            throw new IndexException("vt_from:'{}' is after vt_to:'{}'",
                                      vtTo.toString(dateParser),
                                      vtFrom.toString(dateParser));
         }
         if (ttFrom.after(ttTo)) {
-            throw new IndexException("tt_from:'%s' is after tt_to:'%s'",
+            throw new IndexException("tt_from:'{}' is after tt_to:'{}'",
                                      ttTo.toString(dateParser),
                                      ttFrom.toString(dateParser));
         }
@@ -197,7 +197,7 @@ public class BitemporalMapper extends Mapper {
 
     private BitemporalDateTime checkIfNow(Long in) {
         if (in > nowValue) {
-            throw new IndexException("BitemporalDateTime value '%s' exceeds Max Value: '%s'", in, nowValue);
+            throw new IndexException("BitemporalDateTime value '{}' exceeds Max Value: '{}'", in, nowValue);
         } else if (in < nowValue) {
             return new BitemporalDateTime(in);
         } else {
@@ -224,7 +224,7 @@ public class BitemporalMapper extends Mapper {
     /** {@inheritDoc} */
     @Override
     public SortField sortField(String name, boolean reverse) {
-        throw new IndexException(String.format("Bitemporal mapper '%s' does not support sorting", name));
+        throw new IndexException(String.format("Bitemporal mapper '{}' does not support sorting", name));
     }
 
     /** {@inheritDoc} */

@@ -151,7 +151,7 @@ public class SearchBuilder implements Builder<Search> {
         try {
             return JsonSerializer.toString(this);
         } catch (IOException e) {
-            throw new IndexException(e, "Unformateable JSON search: %s", e.getMessage());
+            throw new IndexException(e, "Unformateable JSON search: {}", e.getMessage());
         }
     }
 
@@ -165,7 +165,7 @@ public class SearchBuilder implements Builder<Search> {
         try {
             return JsonSerializer.fromString(json, SearchBuilder.class);
         } catch (IOException e) {
-            throw new IndexException(e, "Unparseable JSON search: %s", e.getMessage());
+            throw new IndexException(e, "Unparseable JSON search: {}", e.getMessage());
         }
     }
 

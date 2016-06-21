@@ -395,7 +395,7 @@ public final class KeyMapper {
         } else if (filter instanceof ClusteringIndexSliceFilter) {
             return query(key, (ClusteringIndexSliceFilter) filter);
         } else {
-            throw new IndexException("Unknown filter type %s", filter);
+            throw new IndexException("Unknown filter type {}", filter);
         }
     }
 

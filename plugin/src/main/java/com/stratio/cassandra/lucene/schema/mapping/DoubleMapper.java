@@ -78,10 +78,10 @@ public class DoubleMapper extends SingleColumnMapper.SingleFieldMapper<Double> {
             try {
                 return Double.valueOf((String) value);
             } catch (NumberFormatException e) {
-                throw new IndexException("Field '%s' with value '%s' can not be parsed as double", name, value);
+                throw new IndexException("Field '{}' with value '{}' can not be parsed as double", name, value);
             }
         }
-        throw new IndexException("Field '%s' requires a double, but found '%s'", name, value);
+        throw new IndexException("Field '{}' requires a double, but found '{}'", name, value);
     }
 
     /** {@inheritDoc} */

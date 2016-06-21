@@ -92,14 +92,14 @@ public class GeoShapeCondition extends SingleFieldCondition {
         SpatialStrategy strategy;
         Mapper mapper = schema.getMapper(field);
         if (mapper == null) {
-            throw new IndexException("No mapper found for field '%s'", field);
+            throw new IndexException("No mapper found for field '{}'", field);
         } else if (mapper instanceof GeoShapeMapper) {
             strategy = ((GeoShapeMapper) mapper).strategy;
         } else if (mapper instanceof GeoPointMapper) {
             strategy = ((GeoPointMapper) mapper).distanceStrategy;
         } else {
             throw new IndexException("'geo_shape' search requires a mapper of type 'geo_point' or 'geo_shape' " +
-                                     "but found %s:%s", field, mapper);
+                                     "but found {}:{}", field, mapper);
         }
 
         // Apply transformations

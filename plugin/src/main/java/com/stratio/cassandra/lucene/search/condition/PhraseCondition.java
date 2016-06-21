@@ -73,7 +73,7 @@ public class PhraseCondition extends SingleColumnCondition {
             }
             return query;
         } else {
-            throw new IndexException("Phrase queries are not supported by mapper '%s'", mapper);
+            throw new IndexException("Phrase queries are not supported by mapper '{}'", mapper);
         }
     }
 

@@ -542,7 +542,7 @@ abstract class IndexService implements IndexServiceMBean {
             DataRange dataRange = ((PartitionRangeReadCommand) command).dataRange();
             return query(dataRange);
         } else {
-            throw new IndexException("Unsupported read command %s", command.getClass());
+            throw new IndexException("Unsupported read command {}", command.getClass());
         }
     }
 

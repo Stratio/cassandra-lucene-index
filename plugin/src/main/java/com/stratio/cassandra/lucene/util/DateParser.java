@@ -83,13 +83,13 @@ public class DateParser {
             return (Date) value;
         } else if (value instanceof Integer) {
             if ((Integer) value < 0) {
-                throw new IndexException("Required positive Integer for dates but found '%s'", value);
+                throw new IndexException("Required positive Integer for dates but found '{}'", value);
             } else {
                 return new Date(DAYS_TO_MILLIS * (Integer) value);
             }
         } else if (value instanceof Long) {
             if ((Long) value < 0L) {
-                throw new IndexException("Required positive Long for dates but found '%s'", value);
+                throw new IndexException("Required positive Long for dates but found '{}'", value);
             } else {
                 return new Date((Long) value);
             }
@@ -97,7 +97,7 @@ public class DateParser {
             try {
                 return new Date(UUIDGen.unixTimestamp((UUID) value));
             } catch (UnsupportedOperationException e) {
-                throw new IndexException("Required a version 1 UUID but found '%s'", value);
+                throw new IndexException("Required a version 1 UUID but found '{}'", value);
             }
         } else {
             if (pattern.equals(TIMESTAMP_PATTERN_FIELD)) {
@@ -122,7 +122,7 @@ public class DateParser {
         if (valueLong != null) {
             return new Date(valueLong);
         } else {
-            throw new IndexException("Valid timestamp required but found '%s'", value);
+            throw new IndexException("Valid timestamp required but found '{}'", value);
         }
     }
 
@@ -130,7 +130,7 @@ public class DateParser {
         try {
             return concurrentDateFormat.get().parse(value.toString());
         } catch (ParseException e) {
-            throw new IndexException("Required date with pattern '%s' but found '%s'", pattern, value);
+            throw new IndexException("Required date with pattern '{}' but found '{}'", pattern, value);
         }
     }
 

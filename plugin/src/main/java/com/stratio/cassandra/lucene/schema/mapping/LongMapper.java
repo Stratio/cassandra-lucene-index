@@ -76,10 +76,10 @@ public class LongMapper extends SingleColumnMapper.SingleFieldMapper<Long> {
             try {
                 return Double.valueOf((String) value).longValue();
             } catch (NumberFormatException e) {
-                throw new IndexException("Field '%s' with value '%s' can not be parsed as long", name, value);
+                throw new IndexException("Field '{}' with value '{}' can not be parsed as long", name, value);
             }
         }
-        throw new IndexException("Field '%s' requires a long, but found '%s'", name, value);
+        throw new IndexException("Field '{}' requires a long, but found '{}'", name, value);
     }
 
     /** {@inheritDoc} */

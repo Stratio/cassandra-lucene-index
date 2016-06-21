@@ -71,9 +71,9 @@ public class GeoDistanceSortField extends SortField {
     public org.apache.lucene.search.SortField sortField(Schema schema) {
         final Mapper mapper = schema.getMapper(field);
         if (mapper == null) {
-            throw new IndexException("Field '%s' is not found", field);
+            throw new IndexException("Field '{}' is not found", field);
         } else if (!(mapper instanceof GeoPointMapper)) {
-            throw new IndexException("Field '%s' type is not geo_point", field);
+            throw new IndexException("Field '{}' type is not geo_point", field);
         }
         GeoPointMapper geoPointMapper = (GeoPointMapper) mapper;
 

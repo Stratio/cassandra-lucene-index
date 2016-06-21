@@ -83,7 +83,7 @@ public class GeoShapeMapper extends SingleColumnMapper<String> {
         this.column = column == null ? field : column;
 
         if (StringUtils.isWhitespace(column)) {
-            throw new IndexException("Column must not be whitespace, but found '%s'", column);
+            throw new IndexException("Column must not be whitespace, but found '{}'", column);
         }
 
         this.maxLevels = GeospatialUtils.validateGeohashMaxLevels(maxLevels);
@@ -122,7 +122,7 @@ public class GeoShapeMapper extends SingleColumnMapper<String> {
     /** {@inheritDoc} */
     @Override
     public SortField sortField(String name, boolean reverse) {
-        throw new IndexException("GeoShape mapper '%s' does not support simple sorting", name);
+        throw new IndexException("GeoShape mapper '{}' does not support simple sorting", name);
     }
 
     protected String doBase(String field, @NotNull Object value) {

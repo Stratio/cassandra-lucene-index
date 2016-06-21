@@ -49,9 +49,9 @@ public abstract class SingleColumnCondition extends SingleFieldCondition {
     public final Query doQuery(Schema schema) {
         Mapper mapper = schema.getMapper(field);
         if (mapper == null) {
-            throw new IndexException("No mapper found for field '%s'", field);
+            throw new IndexException("No mapper found for field '{}'", field);
         } else if (!SingleColumnMapper.class.isAssignableFrom(mapper.getClass())) {
-            throw new IndexException("Field '%s' requires a mapper of type '%s' but found '%s'",
+            throw new IndexException("Field '{}' requires a mapper of type '{}' but found '{}'",
                                      field,
                                      SingleColumnMapper.class.getSimpleName(),
                                      mapper);

@@ -54,9 +54,9 @@ public abstract class SingleMapperCondition<T extends Mapper> extends SingleFiel
     public final Query doQuery(Schema schema) {
         Mapper mapper = schema.getMapper(field);
         if (mapper == null) {
-            throw new IndexException("No mapper found for field '%s'", field);
+            throw new IndexException("No mapper found for field '{}'", field);
         } else if (!type.isAssignableFrom(mapper.getClass())) {
-            throw new IndexException("Field '%s' requires a mapper of type '%s' but found '%s'", field, type, mapper);
+            throw new IndexException("Field '{}' requires a mapper of type '{}' but found '{}'", field, type, mapper);
         }
         return doQuery((T) mapper, schema.getAnalyzer());
     }

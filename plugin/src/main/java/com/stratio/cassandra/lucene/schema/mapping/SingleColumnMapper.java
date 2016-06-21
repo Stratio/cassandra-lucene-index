@@ -66,7 +66,7 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
               Collections.singletonList(column == null ? field : column), supportedTypes);
 
         if (StringUtils.isWhitespace(column)) {
-            throw new IndexException("Column must not be whitespace, but found '%s'", column);
+            throw new IndexException("Column must not be whitespace, but found '{}'", column);
         }
 
         this.column = column == null ? field : column;

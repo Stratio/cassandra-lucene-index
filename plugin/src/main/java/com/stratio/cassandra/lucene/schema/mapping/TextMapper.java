@@ -83,7 +83,7 @@ public class TextMapper extends SingleColumnMapper.SingleFieldMapper<String> {
     /** {@inheritDoc} */
     @Override
     public SortField sortField(String name, boolean reverse) {
-        throw new IndexException("Text mapper '%s' does not support sorting because it is analyzed", name);
+        throw new IndexException("Text mapper '{}' does not support sorting because it is analyzed", name);
     }
 
     /** {@inheritDoc} */

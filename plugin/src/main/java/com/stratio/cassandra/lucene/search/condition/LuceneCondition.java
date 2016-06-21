@@ -84,7 +84,7 @@ public class LuceneCondition extends Condition {
             queryParser.setLowercaseExpandedTerms(false);
             return queryParser.parse(query);
         } catch (ParseException e) {
-            throw new IndexException("Error while parsing lucene syntax query: %s", e.getMessage());
+            throw new IndexException("Error while parsing lucene syntax query: {}", e.getMessage());
         }
     }
 

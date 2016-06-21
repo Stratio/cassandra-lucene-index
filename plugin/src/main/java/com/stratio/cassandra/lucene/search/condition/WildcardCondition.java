@@ -60,7 +60,7 @@ public class WildcardCondition extends SingleColumnCondition {
             Term term = new Term(field, value);
             return new WildcardQuery(term);
         } else {
-            throw new IndexException("Wildcard queries are not supported by mapper '%s'", mapper);
+            throw new IndexException("Wildcard queries are not supported by mapper '{}'", mapper);
         }
     }
 

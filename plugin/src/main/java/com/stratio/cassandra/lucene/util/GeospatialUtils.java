@@ -54,7 +54,7 @@ public class GeospatialUtils {
         if (maxLevels == null) {
             return DEFAULT_GEOHASH_MAX_LEVELS;
         } else if (maxLevels < 1 || maxLevels > GeohashPrefixTree.getMaxLevelsPossible()) {
-            throw new IndexException("max_levels must be in range [1, %s], but found %s",
+            throw new IndexException("max_levels must be in range [1, {}], but found {}",
                                      GeohashPrefixTree.getMaxLevelsPossible(),
                                      maxLevels);
         }
@@ -70,9 +70,9 @@ public class GeospatialUtils {
      */
     public static Double checkLatitude(String name, Double latitude) {
         if (latitude == null) {
-            throw new IndexException("%s required", name);
+            throw new IndexException("{} required", name);
         } else if (latitude < MIN_LATITUDE || latitude > MAX_LATITUDE) {
-            throw new IndexException("%s must be in range [%s, %s], but found %s",
+            throw new IndexException("{} must be in range [{}, {}], but found {}",
                                      name,
                                      MIN_LATITUDE,
                                      MAX_LATITUDE,
@@ -90,9 +90,9 @@ public class GeospatialUtils {
      */
     public static Double checkLongitude(String name, Double longitude) {
         if (longitude == null) {
-            throw new IndexException("%s required", name);
+            throw new IndexException("{} required", name);
         } else if (longitude < MIN_LONGITUDE || longitude > MAX_LONGITUDE) {
-            throw new IndexException("%s must be in range [%s, %s], but found %s",
+            throw new IndexException("{} must be in range [{}, {}], but found {}",
                                      name,
                                      MIN_LONGITUDE,
                                      MAX_LONGITUDE,

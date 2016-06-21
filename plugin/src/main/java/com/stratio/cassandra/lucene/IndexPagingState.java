@@ -102,7 +102,7 @@ public class IndexPagingState {
         } else if (command instanceof PartitionRangeReadCommand) {
             return forCommand((PartitionRangeReadCommand) command);
         } else {
-            throw new IndexException("Unsupported read command type: %s", command.getClass());
+            throw new IndexException("Unsupported read command type: {}", command.getClass());
         }
     }
 
@@ -139,7 +139,7 @@ public class IndexPagingState {
         } else if (query instanceof ReadCommand) {
             rewrite((ReadCommand) query);
         } else {
-            throw new IndexException("Unsupported query type %s", query.getClass());
+            throw new IndexException("Unsupported query type {}", query.getClass());
         }
     }
 
@@ -221,7 +221,7 @@ public class IndexPagingState {
         } else if (query instanceof PartitionRangeReadCommand) {
             return update((PartitionRangeReadCommand) query, data, consistency);
         } else {
-            throw new IndexException("Unsupported query type %s", query.getClass());
+            throw new IndexException("Unsupported query type {}", query.getClass());
         }
     }
 

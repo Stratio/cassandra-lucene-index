@@ -51,7 +51,7 @@ public class BooleanMapper extends KeywordMapper {
         } else if (value instanceof String) {
             return base(name, (String) value);
         }
-        throw new IndexException("Field '%s' requires a boolean, but found '%s'", name, value);
+        throw new IndexException("Field '{}' requires a boolean, but found '{}'", name, value);
     }
 
     private String base(String name, String value) {
@@ -60,7 +60,7 @@ public class BooleanMapper extends KeywordMapper {
         } else if (value.equalsIgnoreCase(FALSE)) {
             return FALSE;
         } else {
-            throw new IndexException("Boolean field '%s' requires either '%s' or '%s', but found '%s'",
+            throw new IndexException("Boolean field '{}' requires either '{}' or '{}', but found '{}'",
                                      name, TRUE, FALSE, value);
         }
     }

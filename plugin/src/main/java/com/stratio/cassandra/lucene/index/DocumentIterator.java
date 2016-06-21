@@ -126,7 +126,7 @@ public class DocumentIterator implements CloseableIterator<Pair<Document, ScoreD
 
         } catch (Exception e) {
             close();
-            throw new IndexException(logger, e, "Error searching in with %s and %s", query, sort);
+            throw new IndexException(logger, e, "Error searching in with {} and {}", query, sort);
         }
 
         if (finished) {

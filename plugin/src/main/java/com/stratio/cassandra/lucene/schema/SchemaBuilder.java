@@ -123,7 +123,7 @@ public class SchemaBuilder {
                     try {
                         defaultAnalyzer = (new ClasspathAnalyzerBuilder(defaultAnalyzerName)).analyzer();
                     } catch (Exception e) {
-                        throw new IndexException(e, "Not found analyzer: '%s'", defaultAnalyzerName);
+                        throw new IndexException(e, "Not found analyzer: '{}'", defaultAnalyzerName);
                     }
                 }
                 analyzers.put(defaultAnalyzerName, defaultAnalyzer);
@@ -141,7 +141,7 @@ public class SchemaBuilder {
         try {
             return JsonSerializer.toString(this);
         } catch (IOException e) {
-            throw new IndexException(e, "Unformateable JSON schema: %s", e.getMessage());
+            throw new IndexException(e, "Unformateable JSON schema: {}", e.getMessage());
         }
     }
 
@@ -155,7 +155,7 @@ public class SchemaBuilder {
         try {
             return JsonSerializer.fromString(json, SchemaBuilder.class);
         } catch (IOException e) {
-            throw new IndexException(e, "Unparseable JSON schema: %s", e.getMessage());
+            throw new IndexException(e, "Unparseable JSON schema: {}", e.getMessage());
         }
     }
 

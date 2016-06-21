@@ -79,10 +79,10 @@ public class FloatMapper extends SingleColumnMapper.SingleFieldMapper<Float> {
             try {
                 return Double.valueOf((String) value).floatValue();
             } catch (NumberFormatException e) {
-                throw new IndexException("Field '%s' with value '%s' can not be parsed as float", name, value);
+                throw new IndexException("Field '{}' with value '{}' can not be parsed as float", name, value);
             }
         }
-        throw new IndexException("Field '%s' requires a float, but found '%s'", name, value);
+        throw new IndexException("Field '{}' requires a float, but found '{}'", name, value);
     }
 
     /** {@inheritDoc} */

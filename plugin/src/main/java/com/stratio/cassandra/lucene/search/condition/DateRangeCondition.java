@@ -107,7 +107,7 @@ public class DateRangeCondition extends SingleMapperCondition<DateRangeMapper> {
         } else if (operation.equalsIgnoreCase("intersects")) {
             return SpatialOperation.Intersects;
         } else {
-            throw new IndexException("Operation is invalid: " + operation);
+            throw new IndexException("Operation is invalid: {}", operation);
         }
     }
 

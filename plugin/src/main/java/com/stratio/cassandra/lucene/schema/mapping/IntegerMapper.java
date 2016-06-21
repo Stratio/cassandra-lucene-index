@@ -76,10 +76,10 @@ public class IntegerMapper extends SingleColumnMapper.SingleFieldMapper<Integer>
             try {
                 return Double.valueOf((String) value).intValue();
             } catch (NumberFormatException e) {
-                throw new IndexException("Field '%s' with value '%s' can not be parsed as integer", name, value);
+                throw new IndexException("Field '{}' with value '{}' can not be parsed as integer", name, value);
             }
         }
-        throw new IndexException("Field '%s' requires an integer, but found '%s'", name, value);
+        throw new IndexException("Field '{}' requires an integer, but found '{}'", name, value);
     }
 
     /** {@inheritDoc} */

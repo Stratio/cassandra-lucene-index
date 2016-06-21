@@ -95,7 +95,7 @@ public class ColumnsMapper {
                         break;
                     }
                     default: {
-                        throw new IndexException("Unknown collection type %s", collectionType.kind);
+                        throw new IndexException("Unknown collection type {}", collectionType.kind);
                     }
                 }
             } else {
@@ -157,7 +157,7 @@ public class ColumnsMapper {
                     break;
                 }
                 default: {
-                    throw new IndexException("Unknown collection type %s", collectionType.kind);
+                    throw new IndexException("Unknown collection type {}", collectionType.kind);
                 }
             }
         } else if (type instanceof UserType) {
