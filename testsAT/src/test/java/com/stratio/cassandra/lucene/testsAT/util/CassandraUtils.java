@@ -17,6 +17,7 @@ package com.stratio.cassandra.lucene.testsAT.util;
 
 import com.datastax.driver.core.*;
 import com.datastax.driver.core.querybuilder.Batch;
+import com.datastax.driver.core.querybuilder.Insert;
 import com.datastax.driver.core.querybuilder.QueryBuilder;
 import com.stratio.cassandra.lucene.builder.Builder;
 import com.stratio.cassandra.lucene.builder.index.Index;
@@ -177,6 +178,10 @@ public class CassandraUtils {
         return this;
     }
 
+    public CassandraUtils dropAll() {
+        return this.dropIndex().dropTable().dropKeyspace();
+    }
+
     public CassandraUtils createTable() {
         StringBuilder sb = new StringBuilder().append("CREATE TABLE ").append(qualifiedTable).append(" (");
         for (String s : columns.keySet()) {
@@ -296,6 +301,10 @@ public class CassandraUtils {
     public CassandraUtils insert(String[] names, Object[] values) {
         execute(QueryBuilder.insertInto(keyspace, table).values(names, values));
         return this;
+    }
+
+    public Insert asInsert(String[] names, Object[] values) {
+        return QueryBuilder.insertInto(keyspace, table).values(names, values);
     }
 
     public CassandraUtilsDelete delete(String... names) {

@@ -198,6 +198,19 @@ public class CassandraUtilsSelect {
         return parent;
     }
 
+    public CassandraUtils checkLongColumn(String name, long... expected) {
+        List<Row> rows = get();
+        assertEquals(String.format("Expected %d results!", expected.length), expected.length, rows.size());
+        long[] actual = new long[expected.length];
+        for (int i = 0; i < expected.length; i++) {
+            actual[i] = rows.get(i).getLong(name);
+        }
+        assertArrayEquals(String.format("Expected %s but found %s", Arrays.toString(expected), Arrays.toString(actual)),
+                          expected,
+                          actual);
+        return parent;
+    }
+
     public CassandraUtils checkStringColumn(String name, String... expected) {
         List<Row> rows = get();
         assertEquals(String.format("Expected %d results!", expected.length), expected.length, rows.size());
