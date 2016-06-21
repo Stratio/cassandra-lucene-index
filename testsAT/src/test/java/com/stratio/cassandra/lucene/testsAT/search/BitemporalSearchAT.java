@@ -46,7 +46,7 @@ public class BitemporalSearchAT extends BaseAT {
     private static final String TIMESTAMP_PATTERN = "timestamp";
     private static final String SIMPLE_DATE_PATTERN = "yyyy/MM/dd HH:mm:ss.SSS";
 
-    protected static CassandraUtils cassandraUtils;
+    protected static CassandraUtils cassandraUtils, cassandraUtils2;
 
     public static final Map<String, String> data1;
     public static final Map<String, String> data2;
@@ -192,6 +192,7 @@ public class BitemporalSearchAT extends BaseAT {
     @AfterClass
     public static void afterClass() {
         cassandraUtils.dropIndex().dropTable().dropKeyspace();
+        cassandraUtils2.dropIndex().dropTable().dropKeyspace();
     }
 
     @Test
@@ -280,7 +281,7 @@ public class BitemporalSearchAT extends BaseAT {
     public void biTemporalQueryWithNowValueTooLongTest() {
         // testing with long value 1456876800 == 2016/03/02 00:00:00
         String nowValue = "2016/03/02 00:00:00.000";
-        builder("bitemporal2")
+        cassandraUtils2 = builder("bitemporal2")
                 .withPartitionKey("integer_1")
                 .withClusteringKey()
                 .withColumn("integer_1", "int")
@@ -296,9 +297,9 @@ public class BitemporalSearchAT extends BaseAT {
                 .build()
                 .createKeyspace()
                 .createTable()
-                .createIndex()
-                .insert(data6)
-                .dropAll();
+                .createIndex();
+
+        cassandraUtils2.insert(data6);
     }
 
     //vt_to>vt_from
@@ -359,7 +360,7 @@ public class BitemporalSearchAT extends BaseAT {
                                                .ttFrom("2015/01/14 00:00:00.000")
                                                .ttTo("2015/04/02 00:00:00.000"))
                 .checkIntColumn("integer_1", false, 1, 2, 3)
-                .dropAll();
+                .dropIndex().dropTable().dropKeyspace();
     }
 
     //querying without limits to vt
@@ -390,7 +391,7 @@ public class BitemporalSearchAT extends BaseAT {
                         "2015/01/14 00:00:00.000")
                                                .ttTo("2015/04/02 00:00:00.000"))
                 .checkIntColumn("integer_1", false, 1, 2, 3)
-                .dropAll();
+                .dropIndex().dropTable().dropKeyspace();
     }
 
     //querying without limits to tt
@@ -420,7 +421,7 @@ public class BitemporalSearchAT extends BaseAT {
                 .query(bitemporal("bitemporal").vtFrom("2014/12/31 12:00:00.000")
                                                .vtTo("2015/03/02 00:00:00.000"))
                 .checkIntColumn("integer_1", false, 1, 2, 3)
-                .dropAll();
+                .dropIndex().dropTable().dropKeyspace();
     }
 
     @Test
@@ -485,7 +486,7 @@ public class BitemporalSearchAT extends BaseAT {
         select.checkLongColumn("vt_to", 9223372036854775807L);
         select.checkLongColumn("tt_from", 20150102L);
         select.checkLongColumn("tt_to", 9223372036854775807L);
-        cassandraUtils.dropAll();
+        cassandraUtils.dropIndex().dropTable().dropKeyspace();
     }
 
     @Test
@@ -510,7 +511,7 @@ public class BitemporalSearchAT extends BaseAT {
                                                           .ttTo("2015/01/02 12:00:00.001"))
                 .refresh(true)
                 .checkIntColumn("integer_1", false, 1)
-                .dropAll();
+                .dropIndex().dropTable().dropKeyspace();
 
     }
 
@@ -536,7 +537,7 @@ public class BitemporalSearchAT extends BaseAT {
                                                           .ttTo("2015/01/06 12:00:00.001"))
                 .refresh(true)
                 .checkIntColumn("integer_1", false, 2)
-                .dropAll();
+                .dropIndex().dropTable().dropKeyspace();
     }
 
     @Test
@@ -561,7 +562,7 @@ public class BitemporalSearchAT extends BaseAT {
                                                           .ttTo("2015/01/15 12:00:00.001"))
                 .refresh(true)
                 .checkIntColumn("integer_1", false, 3)
-                .dropAll();
+                .dropIndex().dropTable().dropKeyspace();
     }
 
     @Test
@@ -586,7 +587,7 @@ public class BitemporalSearchAT extends BaseAT {
                                                           .vtTo("2016/01/15 12:00:00.001"))
                 .refresh(true)
                 .checkIntColumn("integer_1", false, 1, 3)
-                .dropAll();
+                .dropIndex().dropTable().dropKeyspace();
     }
 
     @Test
@@ -614,7 +615,7 @@ public class BitemporalSearchAT extends BaseAT {
                                                 .ttTo("2015/01/02 12:00:00.001"))
                 .refresh(true)
                 .checkIntColumn("integer_1", false, 1)
-                .dropAll();
+                .dropIndex().dropTable().dropKeyspace();
     }
 
     @Test
@@ -639,6 +640,6 @@ public class BitemporalSearchAT extends BaseAT {
                 .filter(bitemporal("bitemporal").ttFrom("2200/01/01 00:00:00.000")
                                                 .ttTo("2200/01/01 00:00:00.000")).refresh(true)
                 .checkIntColumn("integer_1", false, 3)
-                .dropAll();
+                .dropIndex().dropTable().dropKeyspace();
     }
 }

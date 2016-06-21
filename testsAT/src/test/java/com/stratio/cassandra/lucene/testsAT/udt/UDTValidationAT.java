@@ -59,7 +59,7 @@ public class UDTValidationAT extends BaseAT {
                 .createUDTs()
                 .createTable()
                 .createIndex()
-                .dropAll();
+                .dropIndex().dropTable().dropKeyspace();
     }
 
     @Test

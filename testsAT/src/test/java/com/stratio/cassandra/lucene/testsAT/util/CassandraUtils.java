@@ -178,10 +178,6 @@ public class CassandraUtils {
         return this;
     }
 
-    public CassandraUtils dropAll() {
-        return this.dropIndex().dropTable().dropKeyspace();
-    }
-
     public CassandraUtils createTable() {
         StringBuilder sb = new StringBuilder().append("CREATE TABLE ").append(qualifiedTable).append(" (");
         for (String s : columns.keySet()) {
