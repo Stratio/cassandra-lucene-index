@@ -25,10 +25,8 @@ import com.stratio.cassandra.lucene.key.TokenMapper;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.search.Search;
 import com.stratio.cassandra.lucene.search.SearchBuilder;
-import com.stratio.cassandra.lucene.util.SimplePartitionIterator;
-import com.stratio.cassandra.lucene.util.SimpleRowIterator;
+import com.stratio.cassandra.lucene.util.*;
 import com.stratio.cassandra.lucene.util.TaskQueue;
-import com.stratio.cassandra.lucene.util.TimeCounter;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
 import org.apache.cassandra.cql3.Operator;
@@ -47,7 +45,6 @@ import org.apache.cassandra.db.rows.*;
 import org.apache.cassandra.index.Index;
 import org.apache.cassandra.index.transactions.IndexTransaction;
 import org.apache.cassandra.schema.IndexMetadata;
-import org.apache.cassandra.tracing.Tracing;
 import org.apache.cassandra.utils.Pair;
 import org.apache.cassandra.utils.concurrent.OpOrder;
 import org.apache.commons.lang3.StringUtils;
@@ -456,19 +453,24 @@ abstract class IndexService implements IndexServiceMBean {
     Index.Searcher searcher(ReadCommand command) {
 
         // Parse search
+        Tracer.trace("Building Lucene search");
         String expression = expression(command);
         Search search = SearchBuilder.fromJson(expression).build();
         Query query = query(search, command);
         Query after = after(search.paging(), command);
         Sort sort = sort(search);
+        int count = command.limits().count();
 
         // Refresh if required
         if (search.refresh()) {
+            Tracer.trace("Refreshing Lucene index searcher");
             refresh();
         }
 
         // Search
-        return (ReadOrderGroup orderGroup) -> read(after, query, sort, command, orderGroup);
+        Tracer.trace("Lucene index searching for {} rows", count);
+        DocumentIterator documents = lucene.search(after, query, sort, count);
+        return (ReadOrderGroup orderGroup) -> indexReader(documents, command, orderGroup);
     }
 
     private Search search(ReadCommand command) {
@@ -647,27 +649,6 @@ abstract class IndexService implements IndexServiceMBean {
     /**
      * Reads from the local SSTables the rows identified by the specified search.
      *
-     * @param after a Lucene query indicating where the search should start
-     * @param query the Lucene query
-     * @param sort the Lucene sort
-     * @param command the Cassandra command
-     * @param orderGroup the Cassandra read order group
-     * @return the local {@link Row}s satisfying the search
-     */
-    private UnfilteredPartitionIterator read(Query after,
-                                             Query query,
-                                             Sort sort,
-                                             ReadCommand command,
-                                             ReadOrderGroup orderGroup) {
-        int limit = command.limits().count();
-        Tracing.trace("Lucene index searching for {} documents", limit);
-        DocumentIterator documents = lucene.search(after, query, sort, limit);
-        return indexReader(documents, command, orderGroup);
-    }
-
-    /**
-     * Reads from the local SSTables the rows identified by the specified search.
-     *
      * @param documents the Lucene documents
      * @param command the Cassandra command
      * @param orderGroup the Cassandra read order group
@@ -787,9 +768,9 @@ abstract class IndexService implements IndexServiceMBean {
             }
 
         } finally {
-            Tracing.trace("Lucene post-process {} collected rows to {} result rows",
-                          collectedRows.size(),
-                          processedRows.size());
+            Tracer.trace("Lucene post-process {} collected rows to {} result rows",
+                         collectedRows.size(),
+                         processedRows.size());
             logger.debug("Post-processed {} collected rows to {} result rows in {}",
                          collectedRows.size(),
                          processedRows.size(),

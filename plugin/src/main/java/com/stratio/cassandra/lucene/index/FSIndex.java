@@ -16,6 +16,7 @@
 package com.stratio.cassandra.lucene.index;
 
 import com.stratio.cassandra.lucene.IndexException;
+import com.stratio.cassandra.lucene.util.Tracer;
 import org.apache.cassandra.io.util.FileUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
@@ -255,11 +256,6 @@ public class FSIndex {
      * @return the found documents, sorted according to the supplied {@link Sort} instance
      */
     public DocumentIterator search(Query after, Query query, Sort sort, int count) {
-        logger.debug("Searching in {}\n" +
-                     "after: {}\n" +
-                     "query: {}\n" +
-                     " sort: {}\n" +
-                     "count: {}", name, after, query, sort, count);
         return new DocumentIterator(searcherManager, mergeSort, after, query, sort, count, fields);
     }
 

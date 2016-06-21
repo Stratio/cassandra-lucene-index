@@ -17,7 +17,7 @@ package com.stratio.cassandra.lucene.index;
 
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.util.TimeCounter;
-import org.apache.cassandra.tracing.Tracing;
+import com.stratio.cassandra.lucene.util.Tracer;
 import org.apache.cassandra.utils.CloseableIterator;
 import org.apache.cassandra.utils.Pair;
 import org.apache.lucene.document.Document;
@@ -79,6 +79,7 @@ public class DocumentIterator implements CloseableIterator<Pair<Document, ScoreD
             searcher = manager.acquire();
             this.sort = sort.rewrite(searcher);
             if (after != null) {
+                Tracer.trace("Searching for last Lucene index position");
                 BooleanQuery.Builder builder = new BooleanQuery.Builder();
                 builder.add(after, BooleanClause.Occur.FILTER);
                 builder.add(query, BooleanClause.Occur.MUST);
@@ -120,11 +121,7 @@ public class DocumentIterator implements CloseableIterator<Pair<Document, ScoreD
                 documents.add(Pair.create(document, scoreDoc));
             }
 
-            try {
-                Tracing.trace("Lucene reads {} documents", scoreDocs.length);
-            } catch (ExceptionInInitializerError | NoClassDefFoundError e) {
-                logger.warn("Unable to trace document iterator: " + e.getMessage());
-            }
+            Tracer.trace("Lucene index fetches {} documents", scoreDocs.length);
             logger.debug("Index query page fetched with {} documents in {}", scoreDocs.length, time.stop());
 
         } catch (Exception e) {
