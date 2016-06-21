@@ -15,6 +15,7 @@
  */
 package com.stratio.cassandra.lucene.testsAT.udt;
 
+import com.datastax.driver.core.exceptions.InvalidQueryException;
 import com.stratio.cassandra.lucene.testsAT.BaseAT;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
 import org.junit.AfterClass;
@@ -241,7 +242,7 @@ public class UDTIndexingAT extends BaseAT {
                                        .createKeyspace()
                                        .createUDTs()
                                        .createTable()
-                                       .createIndex().insert(data1, data2, data3, data4, data5, data6, data7);
+                                       .createIndex().insert(data1, data2, data3, data4, data5, data6, data7).refresh();
     }
 
     @AfterClass
@@ -261,7 +262,7 @@ public class UDTIndexingAT extends BaseAT {
                       .checkStringColumnWithoutOrder("login", "USER2", "USER4", "USER6");
     }
 
-    @Test
+    @Test(expected = InvalidQueryException.class)
     public void testUDTInternalThatFails() {
         cassandraUtils.filter(match("address.point", "Paris")).count();
         fail("Selecting a type that is no matched must return an Exception");
@@ -409,7 +410,7 @@ public class UDTIndexingAT extends BaseAT {
                       .checkStringColumnWithoutOrder("login", "USER2", "USER3", "USER4", "USER5", "USER6");
     }
 
-    @Test
+    @Test(expected = InvalidQueryException.class)
     public void testUDTOverUDTThatFails() {
         cassandraUtils.filter(range("address.point.non-existent").lower(-1.0).upper(-3.0)).get();
         fail("Selecting a non-existent type inside udt inside udt must return an Exception");

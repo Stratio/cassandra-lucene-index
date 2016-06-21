@@ -17,6 +17,7 @@ package com.stratio.cassandra.lucene.testsAT.udt;
 
 import com.stratio.cassandra.lucene.testsAT.BaseAT;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -145,7 +146,7 @@ public class UDTPartialInsertsAT extends BaseAT {
                 .createIndex();
     }
 
-    //@AfterClass
+    @AfterClass
     public static void afterClass() {
         cassandraUtils.dropTable().dropKeyspace();
     }
