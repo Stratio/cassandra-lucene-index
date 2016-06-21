@@ -139,7 +139,5 @@ public class UDTValidationAT extends BaseAT {
                 .createIndex(InvalidConfigurationInQueryException.class,
                              "'schema' is invalid : No column definition " +
                              "'address.point.longitude.non-existent' for mapper 'address.point.longitude.non-existent'");
-
     }
-
 }

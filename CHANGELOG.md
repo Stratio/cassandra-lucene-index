@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.2.6.2 (Upcoming)
+
+## 2.2.6.1 (20 June 2016)
+
+* Fix clustering query collisions in Lucene's query cache
+* Fix empty document insertion
+
 ## 2.2.6.0 (30 May 2016)
 
 * Upgrade to Apache Cassandra 2.2.6
