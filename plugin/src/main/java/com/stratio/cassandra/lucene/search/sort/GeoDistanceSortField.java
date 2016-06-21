@@ -86,7 +86,7 @@ public class GeoDistanceSortField extends SortField {
     }
 
     /** {@inheritDoc} */
-    public Set<String> involvedFields() {
+    public Set<String> postProcessingFields() {
         return Collections.singleton(field);
     }
 

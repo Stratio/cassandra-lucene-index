@@ -47,7 +47,7 @@ public class AllCondition extends Condition {
     }
 
     /** {@inheritDoc} */
-    public Set<String> involvedFields() {
+    public Set<String> postProcessingFields() {
         return Collections.emptySet();
     }
 

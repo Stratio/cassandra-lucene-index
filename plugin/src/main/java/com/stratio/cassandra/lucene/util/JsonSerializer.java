@@ -41,7 +41,8 @@ public final class JsonSerializer {
         jsonMapper.configure(JsonGenerator.Feature.QUOTE_FIELD_NAMES, false);
         jsonMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
         jsonMapper.configure(SerializationConfig.Feature.AUTO_DETECT_IS_GETTERS, false);
-        jsonMapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        jsonMapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, true);
+        jsonMapper.configure(DeserializationConfig.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
         jsonMapper.setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
     }
 

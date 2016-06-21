@@ -60,18 +60,17 @@ public class BooleanConditionTest extends AbstractConditionTest {
     @Test
     public void testJsonSerialization() {
         BooleanConditionBuilder builder = new BooleanConditionBuilder().boost(0.7f).must(all());
-        testJsonSerialization(builder, "{type:\"boolean\",boost:0.7,must:[{type:\"all\"}],should:[],not:[]}");
+        testJsonSerialization(builder, "{type:\"boolean\",boost:0.7,filter:[],must:[{type:\"all\"}],should:[],not:[]}");
     }
 
     @Test
     public void testJsonSerializationDefaults() {
         BooleanConditionBuilder builder = new BooleanConditionBuilder();
-        testJsonSerialization(builder, "{type:\"boolean\",must:[],should:[],not:[]}");
+        testJsonSerialization(builder, "{type:\"boolean\",filter:[],must:[],should:[],not:[]}");
     }
 
     @Test
     public void testQuery() {
-
         Schema schema = schema().mapper("name", stringMapper())
                                 .mapper("color", stringMapper())
                                 .mapper("country", stringMapper())
@@ -105,21 +104,19 @@ public class BooleanConditionTest extends AbstractConditionTest {
 
     @Test
     public void testToString() {
-        BooleanCondition condition = bool().must(match("name", "jonathan"), match("age", 18))
+        BooleanCondition condition = bool().filter(match("f1","v1"))
+                                           .must(match("name", "jonathan"), match("age", 18))
                                            .should(match("color", "green"))
                                            .not(match("country", "england").boost(0.7))
                                            .boost(0.5f)
                                            .build();
         assertEquals("Method #toString is wrong",
                      "BooleanCondition{boost=0.5, " +
-                     "must=[" +
-                     "MatchCondition{boost=null, field=name, value=jonathan, docValues=false}, " +
-                     "MatchCondition{boost=null, field=age, value=18, docValues=false}" +
-                     "], should=[" +
-                     "MatchCondition{boost=null, field=color, value=green, docValues=false}" +
-                     "], not=[" +
-                     "MatchCondition{boost=0.7, field=country, value=england, docValues=false}" +
-                     "]}",
+                     "filter=[MatchCondition{boost=null, field=f1, value=v1, docValues=false}], " +
+                     "must=[MatchCondition{boost=null, field=name, value=jonathan, docValues=false}, " +
+                     "MatchCondition{boost=null, field=age, value=18, docValues=false}], " +
+                     "should=[MatchCondition{boost=null, field=color, value=green, docValues=false}], " +
+                     "not=[MatchCondition{boost=0.7, field=country, value=england, docValues=false}]}",
                      condition.toString());
     }
 

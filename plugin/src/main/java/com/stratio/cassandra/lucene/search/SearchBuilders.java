@@ -41,23 +41,47 @@ public final class SearchBuilders {
     }
 
     /**
-     * Returns a new {@link SearchBuilder} using the specified {@link ConditionBuilder} as query.
+     * Returns a new {@link SearchBuilder} using the specified {@link ConditionBuilder}s as mandatory query to not be
+     * used in scoring.
      *
-     * @param query the condition builder to be used as query
-     * @return a new {@link SearchBuilder} with the specified query
+     * @param filters the condition builders to be used as filter
+     * @return a new {@link SearchBuilder}
      */
-    public static SearchBuilder query(ConditionBuilder<?, ?> query) {
-        return search().query(query);
+    public static SearchBuilder filter(ConditionBuilder<?, ?>... filters) {
+        return search().filter(filters);
     }
 
     /**
-     * Returns a new {@link SearchBuilder} using the specified {@link ConditionBuilder} as filter.
+     * Returns a new {@link SearchBuilder} using the specified {@link ConditionBuilder}s as mandatory query to be used
+     * in scoring.
      *
-     * @param filter the condition builder to be used as filter
-     * @return a new {@link SearchBuilder} with the specified filter
+     * @param queries the condition builders to be used as query
+     * @return a new {@link SearchBuilder
      */
-    public static SearchBuilder filter(ConditionBuilder<?, ?> filter) {
-        return search().filter(filter);
+    public static SearchBuilder must(ConditionBuilder<?, ?>... queries) {
+        return search().must(queries);
+    }
+
+    /**
+     * Returns a new {@link SearchBuilder} using the specified {@link ConditionBuilder}s as optional query to be used in
+     * scoring.
+     *
+     * @param queries the condition builders to be used as query
+     * @return a new {@link SearchBuilder
+     */
+    public static SearchBuilder should(ConditionBuilder<?, ?>... queries) {
+        return search().should(queries);
+    }
+
+    /**
+     * Returns a new {@link SearchBuilder} using the specified {@link ConditionBuilder}s as mandatory-not query to not
+     * be used in scoring.
+     *
+     * @param filters the condition builders to be used as filter
+     * @return a new {@link SearchBuilder}
+     */
+    public static SearchBuilder not(ConditionBuilder<?, ?>... filters) {
+        return search().not(filters);
     }
 
     /**
@@ -68,6 +92,16 @@ public final class SearchBuilders {
      */
     public static SearchBuilder sort(SortFieldBuilder... sortFields) {
         return search().sort(sortFields);
+    }
+
+    /**
+     * Returns a new {@link SearchBuilder} using the specified index refresh option.
+     *
+     * @param refresh if the search to be built should refresh the index
+     * @return a new {@link SearchBuilder} with the specified sort
+     */
+    public static SearchBuilder refresh(boolean refresh) {
+        return search().refresh(refresh);
     }
 
     /**

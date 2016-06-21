@@ -55,7 +55,7 @@ public abstract class SingleFieldCondition extends Condition {
     }
 
     /** {@inheritDoc} */
-    public Set<String> involvedFields() {
+    public Set<String> postProcessingFields() {
         return Collections.singleton(field);
     }
 

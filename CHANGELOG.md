@@ -2,6 +2,7 @@
 
 ## 3.0.7.2 (upcoming)
 
+* Modernize search syntax keeping backward compatibility
 * Add Lucene-specific CQL tracing
 
 ## 3.0.7.1 (17 June 2016)
