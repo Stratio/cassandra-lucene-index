@@ -85,9 +85,9 @@ public class UDTValidationAT extends BaseAT {
                 .createKeyspace()
                 .createUDTs()
                 .createTable()
-                .checkInvalidCreateIndex(InvalidConfigurationInQueryException.class,
-                                         "'schema' is invalid : No column definition 'address.non-existent' " +
-                                         "for mapper 'address.non-existent.latitude'");
+                .createIndex(InvalidConfigurationInQueryException.class,
+                             "'schema' is invalid : No column definition 'address.non-existent' " +
+                             "for mapper 'address.non-existent.latitude'");
     }
 
     @Test
@@ -98,9 +98,9 @@ public class UDTValidationAT extends BaseAT {
                 .createKeyspace()
                 .createUDTs()
                 .createTable()
-                .checkInvalidCreateIndex(InvalidConfigurationInQueryException.class,
-                                         "'schema' is invalid : No column definition 'address.non-existent' " +
-                                         "for mapper 'address.non-existent'");
+                .createIndex(InvalidConfigurationInQueryException.class,
+                             "'schema' is invalid : No column definition 'address.non-existent' " +
+                             "for mapper 'address.non-existent'");
     }
 
     @Test
@@ -117,9 +117,9 @@ public class UDTValidationAT extends BaseAT {
                 .createKeyspace()
                 .createUDTs()
                 .createTable()
-                .checkInvalidCreateIndex(InvalidConfigurationInQueryException.class,
-                                         "'schema' is invalid : Type 'org.apache.cassandra.db.marshal.FloatType' " +
-                                         "in column 'address.point.longitude' is not supported by mapper 'address.point.longitude'");
+                .createIndex(InvalidConfigurationInQueryException.class,
+                             "'schema' is invalid : Type 'org.apache.cassandra.db.marshal.FloatType' " +
+                             "in column 'address.point.longitude' is not supported by mapper 'address.point.longitude'");
     }
 
     @Test
@@ -136,9 +136,9 @@ public class UDTValidationAT extends BaseAT {
                 .createKeyspace()
                 .createUDTs()
                 .createTable()
-                .checkInvalidCreateIndex(InvalidConfigurationInQueryException.class,
-                                         "'schema' is invalid : No column definition " +
-                                         "'address.point.longitude.non-existent' for mapper 'address.point.longitude.non-existent'");
+                .createIndex(InvalidConfigurationInQueryException.class,
+                             "'schema' is invalid : No column definition " +
+                             "'address.point.longitude.non-existent' for mapper 'address.point.longitude.non-existent'");
 
     }
 

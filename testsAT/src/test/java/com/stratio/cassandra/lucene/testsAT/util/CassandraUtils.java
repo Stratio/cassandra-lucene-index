@@ -135,6 +135,19 @@ public class CassandraUtils {
         return execute(query.toString());
     }
 
+    <T extends Exception> CassandraUtils check(Runnable runnable, Class<T> expectedClass, String expectedMessage) {
+        try {
+            runnable.run();
+            fail(String.format("Should have produced %s with message '%s'",
+                               expectedClass.getSimpleName(),
+                               expectedMessage));
+        } catch (Exception e) {
+            assertEquals("Expected exception type is wrong", expectedClass, e.getClass());
+            assertEquals("Expected exception message is wrong", expectedMessage, e.getMessage());
+        }
+        return this;
+    }
+
     public CassandraUtils waitForIndexing() {
 
         // Waiting for the custom index to be refreshed
@@ -195,6 +208,15 @@ public class CassandraUtils {
         return this;
     }
 
+    public <T extends Exception> CassandraUtils createTable(Class<T> expectedClass, String expectedMessage) {
+        return check(new Runnable() {
+            @Override
+            public void run() {
+                CassandraUtils.this.createTable();
+            }
+        }, expectedClass, expectedMessage);
+    }
+
     public CassandraUtils createUDTs() {
         for (Map.Entry<String, Map<String, String>> entry : udts.entrySet()) {
             String name = entry.getKey();
@@ -232,16 +254,13 @@ public class CassandraUtils {
         return this;
     }
 
-    public <T extends Exception> CassandraUtils checkInvalidCreateIndex(Class<T> expectedClass,
-                                                                        String expectedMessage) {
-        try {
-            createIndex();
-            fail("Search should have been invalid!");
-        } catch (Exception e) {
-            assertEquals("Expected exception type is wrong", expectedClass, e.getClass());
-            assertEquals("Expected exception message is wrong", expectedMessage, e.getMessage());
-        }
-        return this;
+    public <T extends Exception> CassandraUtils createIndex(Class<T> expectedClass, String expectedMessage) {
+        return check(new Runnable() {
+            @Override
+            public void run() {
+                CassandraUtils.this.createIndex();
+            }
+        }, expectedClass, expectedMessage);
     }
 
     public CassandraUtils createUDT(UDT udt) {
