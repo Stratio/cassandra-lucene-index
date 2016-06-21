@@ -325,7 +325,8 @@ public class UDTCollectionsAT extends BaseAT {
                                        .createUDTs()
                                        .createTable()
                                        .createIndex()
-                                       .insert(data1, data2, data3, data4, data5, data6);
+                                       .insert(data1, data2, data3, data4, data5, data6)
+                                       .refresh();
     }
 
     @AfterClass

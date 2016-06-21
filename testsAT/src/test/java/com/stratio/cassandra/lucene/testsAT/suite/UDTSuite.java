@@ -23,12 +23,12 @@ import org.junit.runners.Suite;
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
 @RunWith(Suite.class)
-@Suite.SuiteClasses({UDTValidationAT.class,
+@Suite.SuiteClasses({CheckNonFrozenUDTAT.class,
+                     TupleIndexingAT.class,
+                     UDTCollectionsAT.class,
                      UDTIndexingFrozenAT.class,
                      UDTIndexingNonFrozenAT.class,
-                     UDTCollectionsAT.class,
-                     CheckNonFrozenUDTAT.class,
-                     TupleIndexingAT.class})
+                     UDTPartialInsertsAT.class,
+                     UDTValidationAT.class,})
 public class UDTSuite {
-
 }
