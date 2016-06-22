@@ -122,7 +122,7 @@ public class CassandraUtilsBuilder {
         return this;
     }
 
-    public SingleColumnMapper<?> defaultMapper(String name) {
+    private SingleColumnMapper<?> defaultMapper(String name) {
         switch (name) {
             case "ascii":
                 return stringMapper();

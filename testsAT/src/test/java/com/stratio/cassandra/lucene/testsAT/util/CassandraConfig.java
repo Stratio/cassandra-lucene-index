@@ -25,7 +25,7 @@ import com.datastax.driver.core.ConsistencyLevel;
 class CassandraConfig {
 
     static final String HOST = getString("host", "127.0.0.1");
-    static final String JMX_PORT = getString("jmx_port", "7199");
+    static final String JMX_PORT = getString("jmx_port", "7100");
     static final String[] JMX_SERVICES = getStringArray("jmx_services", HOST + ":" + JMX_PORT);
     static final int REPLICATION = getInt("replication", 1);
     static final ConsistencyLevel CONSISTENCY = ConsistencyLevel.valueOf(getString("consistency", "QUORUM"));
