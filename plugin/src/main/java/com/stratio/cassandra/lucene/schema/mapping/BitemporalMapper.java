@@ -192,7 +192,7 @@ public class BitemporalMapper extends Mapper {
         if (column == null) {
             return null;
         }
-        return parseBitemporalDate(column.getComposedValue());
+        return parseBitemporalDate(column);
     }
 
     private BitemporalDateTime checkIfNow(Long in) {
@@ -221,10 +221,15 @@ public class BitemporalMapper extends Mapper {
         }
     }
 
+    private <T> BitemporalDateTime parseBitemporalDate(Column<T> column) {
+        Date date = dateParser.parse(column);
+        return date == null ? null : checkIfNow(date.getTime());
+    }
+
     /** {@inheritDoc} */
     @Override
     public SortField sortField(String name, boolean reverse) {
-        throw new IndexException(String.format("Bitemporal mapper '%s' does not support sorting", name));
+        throw new IndexException("Bitemporal mapper '{}' does not support sorting", name);
     }
 
     /** {@inheritDoc} */

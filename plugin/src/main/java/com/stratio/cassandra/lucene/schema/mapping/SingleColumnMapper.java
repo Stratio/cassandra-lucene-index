@@ -25,6 +25,7 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 
 import javax.validation.constraints.NotNull;
+import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -80,25 +81,16 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
     /** {@inheritDoc} */
     @Override
     public void addFields(Document document, Columns columns) {
-        for (Column<?> c : columns.getColumnsByMapperName(column)) {
-            String name = column.equals(field) ? c.getFullName() : c.getFieldName(field);
-            Object value = c.getComposedValue();
-            addFields(document, name, value);
-        }
+        columns.getColumnsByMapperName(column).forEach(c -> addFields(document, c));
     }
 
-    /**
-     * Adds the specified column name and value to the specified {@link Document}.
-     *
-     * @param document a {@link Document}
-     * @param name the name of the column to be mapped
-     * @param value the value of the column to be mapped
-     */
-    private void addFields(Document document, String name, Object value) {
+    private <K> void addFields(Document document, Column<K> c) {
+        String name = column.equals(field) ? c.getFullName() : c.getFieldName(field);
+        K value = c.getComposedValue();
         if (value != null) {
-            T b = base(name, value);
-            addIndexedFields(document, name, b);
-            addSortedFields(document, name, b);
+            T base = base(c);
+            addIndexedFields(document, name, base);
+            addSortedFields(document, name, base);
         }
     }
 
@@ -131,7 +123,21 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
         return value == null ? null : doBase(field, value);
     }
 
-    protected abstract T doBase(String field, @NotNull Object value);
+    /**
+     * Returns the {@link Column} query value resulting from the mapping of the specified object.
+     *
+     * @param column the column
+     * @return the {@link Column} index value resulting from the mapping of the specified object
+     */
+    public final <K> T base(Column<K> column) {
+        return column.getComposedValue() == null ? null : doBase(column);
+    }
+
+    protected abstract T doBase(@NotNull String field, @NotNull Object value);
+
+    protected <K> T doBase(Column<K> column) {
+        return doBase(column.getFieldName(field), column.getComposedValue());
+    }
 
     /** {@inheritDoc} */
     @Override
