@@ -36,7 +36,7 @@ public class CassandraUtilsBuilder {
     private Map<String, Mapper> mappers;
     private List<String> partitionKey;
     private List<String> clusteringKey;
-    private Map<String, Map<String, String>> udts;
+    private final Map<String, Map<String, String>> udts;
 
     CassandraUtilsBuilder(String name) {
         super();

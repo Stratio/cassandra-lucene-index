@@ -324,12 +324,13 @@ public class UDTCollectionsAT extends BaseAT {
                                        .createUDTs()
                                        .createTable()
                                        .createIndex()
-                                       .insert(data1, data2, data3, data4, data5, data6);
+                                       .insert(data1, data2, data3, data4, data5, data6)
+                                       .refresh();
     }
 
     @AfterClass
     public static void after() {
-        cassandraUtils.dropTable().dropKeyspace();
+        cassandraUtils.dropIndex().dropTable().dropKeyspace();
     }
 
     @Test
