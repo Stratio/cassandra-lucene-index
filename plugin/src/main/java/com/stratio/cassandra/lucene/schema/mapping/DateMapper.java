@@ -15,6 +15,7 @@
  */
 package com.stratio.cassandra.lucene.schema.mapping;
 
+import com.stratio.cassandra.lucene.column.Column;
 import com.stratio.cassandra.lucene.util.DateParser;
 import org.apache.cassandra.db.marshal.*;
 import org.apache.lucene.document.Field;
@@ -69,12 +70,15 @@ public class DateMapper extends SingleColumnMapper.SingleFieldMapper<Long> {
     /** {@inheritDoc} */
     @Override
     protected Long doBase(String name, Object value) {
-        Date opt = dateParser.parse(value);
-        if (opt == null) {
-            return null;
-        } else {
-            return opt.getTime();
-        }
+        Date date = dateParser.parse(value);
+        return date == null ? null : date.getTime();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    protected <K> Long doBase(Column<K> column) {
+        Date date = dateParser.parse(column);
+        return date == null ? null : date.getTime();
     }
 
     /** {@inheritDoc} */

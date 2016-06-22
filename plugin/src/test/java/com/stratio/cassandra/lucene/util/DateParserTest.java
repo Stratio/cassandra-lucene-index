@@ -16,8 +16,12 @@
 package com.stratio.cassandra.lucene.util;
 
 import com.stratio.cassandra.lucene.IndexException;
+import com.stratio.cassandra.lucene.column.Column;
+import org.apache.cassandra.db.marshal.Int32Type;
+import org.apache.cassandra.db.marshal.SimpleDateType;
 import org.junit.Test;
 
+import java.nio.ByteBuffer;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -158,6 +162,39 @@ public class DateParserTest {
         fail(String.format("DateParser(%s).parse(%s) Must generate IndexException and does not do it",
                            pattern,
                            dateString));
+    }
+
+    @Test
+    public void testParseColumnSimpleDateSamePattern() {
+        String pattern = "yyyy-MM-dd";
+        DateParser parser = new DateParser(pattern);
+        ByteBuffer bb = SimpleDateType.instance.fromString("2015-10-10");
+        Column<Integer> column = Column.builder("date").buildWithDecomposed(bb, SimpleDateType.instance);
+        Date actualDate = parser.parse(column);
+        Date expectedDate = parser.parse("2015-10-10");
+        assertEquals("Date parser fails with SimpleDateType and default pattern", expectedDate, actualDate);
+    }
+
+    @Test
+    public void testParseColumnSimpleDateDifferentPattern() {
+        String pattern = "yyyy/MM/dd";
+        DateParser parser = new DateParser(pattern);
+        ByteBuffer bb = SimpleDateType.instance.fromString("2015-10-10");
+        Column<Integer> column = Column.builder("date").buildWithDecomposed(bb, SimpleDateType.instance);
+        Date actualDate = parser.parse(column);
+        Date expectedDate = parser.parse("2015/10/10");
+        assertEquals("Date parser fails with SimpleDateType and different pattern", expectedDate, actualDate);
+    }
+
+    @Test
+    public void testParseColumnSimpleDateTimestampPattern() {
+        String pattern = "timestamp";
+        DateParser parser = new DateParser(pattern);
+        ByteBuffer bb = SimpleDateType.instance.fromString("2015-10-10");
+        Column<Integer> column = Column.builder("date").buildWithDecomposed(bb, SimpleDateType.instance);
+        Date actualDate = parser.parse(column);
+        Date expectedDate = parser.parse(1444435200000L);
+        assertEquals("Date parser fails with SimpleDateType and timestamp pattern", expectedDate, actualDate);
     }
 
 }

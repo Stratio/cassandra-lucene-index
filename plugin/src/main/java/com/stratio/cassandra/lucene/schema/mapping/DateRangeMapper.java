@@ -30,6 +30,7 @@ import org.apache.lucene.spatial.prefix.tree.DateRangePrefixTree;
 import org.apache.lucene.spatial.prefix.tree.NumberRangePrefixTree.NRShape;
 import org.apache.lucene.spatial.prefix.tree.NumberRangePrefixTree.UnitNRShape;
 
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Date;
 
@@ -158,7 +159,7 @@ public class DateRangeMapper extends Mapper {
         if (column == null) {
             return null;
         }
-        Date fromDate = base(column.getComposedValue());
+        Date fromDate = base(column);
         if (to == null) {
             throw new IndexException("From date required");
         }
@@ -176,7 +177,7 @@ public class DateRangeMapper extends Mapper {
         if (column == null) {
             return null;
         }
-        Date toDate = base(column.getComposedValue());
+        Date toDate = base(column);
         if (toDate == null) {
             throw new IndexException("To date required");
         }
@@ -192,6 +193,10 @@ public class DateRangeMapper extends Mapper {
      */
     public Date base(Object value) {
         return dateParser.parse(value);
+    }
+
+    private  <T> Date base(Column<T> column) {
+        return dateParser.parse(column);
     }
 
     /** {@inheritDoc} */

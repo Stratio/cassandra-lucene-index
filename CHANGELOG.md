@@ -2,8 +2,11 @@
 
 ## 2.2.6.2 (Upcoming)
 
+* Fix parsing of data with CQL "date" type (#158)
+
 ## 2.2.6.1 (20 June 2016)
 
+* Add Lucene-specific CQL tracing
 * Fix clustering query collisions in Lucene's query cache
 * Fix empty document insertion
 

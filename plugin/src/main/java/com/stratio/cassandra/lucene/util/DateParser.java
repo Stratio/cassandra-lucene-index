@@ -16,6 +16,9 @@
 package com.stratio.cassandra.lucene.util;
 
 import com.stratio.cassandra.lucene.IndexException;
+import com.stratio.cassandra.lucene.column.Column;
+import org.apache.cassandra.db.marshal.SimpleDateType;
+import org.apache.cassandra.serializers.SimpleDateSerializer;
 import org.apache.cassandra.utils.UUIDGen;
 
 import java.text.DateFormat;
@@ -65,6 +68,27 @@ public class DateParser {
             this.concurrentDateFormat.get().setLenient(false);
         } else {
             this.concurrentDateFormat = null;
+        }
+    }
+
+    /**
+     * Returns the {@link Date} represented by the specified {@link Column}, or {@code null} if the value of the
+     * specified {@link Column} is {@code null}.
+     *
+     * @param column the column to be parsed
+     * @return the parsed {@link Date}
+     */
+    public <K> Date parse(Column<K> column) {
+        if (column.getType() instanceof SimpleDateType) {
+            long timestamp = SimpleDateType.instance.toTimeInMillis(column.getDecomposedValue());
+            if (concurrentDateFormat == null) {
+                return new Date(timestamp);
+            } else {
+                int offset = concurrentDateFormat.get().getTimeZone().getOffset(timestamp);
+                return new Date(timestamp - offset);
+            }
+        } else {
+            return parse(column.getComposedValue());
         }
     }
 

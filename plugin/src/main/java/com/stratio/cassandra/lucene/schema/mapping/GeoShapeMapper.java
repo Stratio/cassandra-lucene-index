@@ -30,7 +30,6 @@ import org.apache.lucene.spatial.prefix.RecursivePrefixTreeStrategy;
 import org.apache.lucene.spatial.prefix.tree.GeohashPrefixTree;
 import org.apache.lucene.spatial.prefix.tree.SpatialPrefixTree;
 
-import javax.validation.constraints.NotNull;
 import java.util.Collections;
 import java.util.List;
 
@@ -124,7 +123,9 @@ public class GeoShapeMapper extends SingleColumnMapper<String> {
         throw new IndexException("GeoShape mapper '%s' does not support simple sorting", name);
     }
 
-    protected String doBase(String field, @NotNull Object value) {
+    /** {@inheritDoc} */
+    @Override
+    protected String doBase(String field, Object value) {
         return value.toString();
     }
 
