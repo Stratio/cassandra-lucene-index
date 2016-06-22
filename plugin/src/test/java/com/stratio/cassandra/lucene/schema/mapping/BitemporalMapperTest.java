@@ -31,6 +31,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -227,12 +228,10 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         BitemporalMapper mapper = bitemporalMapper("vtFrom", "vtTo", "ttFrom", "ttTo").pattern("timestamp")
                                                                                       .build("field");
         Columns columns = new Columns();
-        columns.add(Column.builder("vtFrom").buildWithComposed(5, SimpleDateType.instance));
-        columns.add(Column.builder("vtTo").buildWithComposed(0, SimpleDateType.instance));
-        columns.add(Column.builder("ttFrom").buildWithComposed(0, SimpleDateType.instance));
-        columns.add(Column.builder("ttTo").buildWithComposed(0, SimpleDateType.instance));
+        ByteBuffer bb = SimpleDateType.instance.fromString("2015-10-10");
+        columns.add(Column.builder("vtFrom").buildWithDecomposed(bb, SimpleDateType.instance));
         assertEquals("Date parsing is wrong",
-                     new BitemporalDateTime(5L * 24L * 60L * 60L * 1000L),
+                     new BitemporalDateTime(1444435200000L),
                      mapper.readBitemporalDate(columns, "vtFrom"));
     }
 
@@ -378,12 +377,10 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         BitemporalMapper mapper = bitemporalMapper("vtFrom", "vtTo", "ttFrom", "ttTo").pattern("timestamp")
                                                                                       .build("field");
         Columns columns = new Columns();
-        columns.add(Column.builder("vtFrom").buildWithComposed(0, SimpleDateType.instance));
-        columns.add(Column.builder("vtTo").buildWithComposed(5, SimpleDateType.instance));
-        columns.add(Column.builder("ttFrom").buildWithComposed(0, SimpleDateType.instance));
-        columns.add(Column.builder("ttTo").buildWithComposed(0, SimpleDateType.instance));
+        ByteBuffer bb = SimpleDateType.instance.fromString("2015-10-10");
+        columns.add(Column.builder("vtTo").buildWithDecomposed(bb, SimpleDateType.instance));
         assertEquals("Date parsing is wrong",
-                     new BitemporalDateTime(5L * 24L * 60L * 60L * 1000L),
+                     new BitemporalDateTime(1444435200000L),
                      mapper.readBitemporalDate(columns, "vtTo"));
     }
 
@@ -523,12 +520,10 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         BitemporalMapper mapper = bitemporalMapper("vtFrom", "vtTo", "ttFrom", "ttTo").pattern("timestamp")
                                                                                       .build("field");
         Columns columns = new Columns();
-        columns.add(Column.builder("vtFrom").buildWithComposed(0, SimpleDateType.instance));
-        columns.add(Column.builder("vtTo").buildWithComposed(0, SimpleDateType.instance));
-        columns.add(Column.builder("ttFrom").buildWithComposed(5, SimpleDateType.instance));
-        columns.add(Column.builder("ttTo").buildWithComposed(0, SimpleDateType.instance));
+        ByteBuffer bb = SimpleDateType.instance.fromString("2015-10-10");
+        columns.add(Column.builder("ttFrom").buildWithDecomposed(bb, SimpleDateType.instance));
         assertEquals("Date parsing is wrong",
-                     new BitemporalDateTime(5L * 24L * 60L * 60L * 1000L),
+                     new BitemporalDateTime(1444435200000L),
                      mapper.readBitemporalDate(columns, "ttFrom"));
     }
 
@@ -679,12 +674,10 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         BitemporalMapper mapper = bitemporalMapper("vtFrom", "vtTo", "ttFrom", "ttTo").pattern("timestamp")
                                                                                       .build("field");
         Columns columns = new Columns();
-        columns.add(Column.builder("vtFrom").buildWithComposed(0, SimpleDateType.instance));
-        columns.add(Column.builder("vtTo").buildWithComposed(0, SimpleDateType.instance));
-        columns.add(Column.builder("ttFrom").buildWithComposed(0, SimpleDateType.instance));
-        columns.add(Column.builder("ttTo").buildWithComposed(5, SimpleDateType.instance));
+        ByteBuffer bb = SimpleDateType.instance.fromString("2015-10-10");
+        columns.add(Column.builder("ttTo").buildWithDecomposed(bb, SimpleDateType.instance));
         assertEquals("Date parsing is wrong",
-                     new BitemporalDateTime(5L * 24L * 60L * 60L * 1000L),
+                     new BitemporalDateTime(1444435200000L),
                      mapper.readBitemporalDate(columns, "ttTo"));
     }
 
