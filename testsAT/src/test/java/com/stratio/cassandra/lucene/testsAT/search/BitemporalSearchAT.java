@@ -246,7 +246,7 @@ public class BitemporalSearchAT extends BaseAT {
                                                      .vtTo("2015/03/02 00:00:00.000")
                                                      .ttFrom("2015/01/14 00:00:00.000")
                                                      .ttTo("2015/04/02 00:00:00.000"))
-                      .checkIntColumn("integer_1", 1, 2, 3);
+                      .checkUnorderedIntColumns("integer_1", 1, 2, 3);
     }
 
     @Test
@@ -255,7 +255,7 @@ public class BitemporalSearchAT extends BaseAT {
                                                      .vtTo("2014/12/31 00:00:00.000")
                                                      .ttFrom("2015/01/14 00:00:00.000")
                                                      .ttTo("2015/04/02 00:00:00.000"))
-                      .checkIntColumn("integer_1");
+                      .check(0);
     }
 
     @Test
@@ -264,7 +264,7 @@ public class BitemporalSearchAT extends BaseAT {
                                                      .vtTo("2015/02/01 12:00:00.001")
                                                      .ttFrom("2015/01/15 12:00:00.001")
                                                      .ttTo("2015/02/15 12:00:00.001"))
-                      .checkIntColumn("integer_1", false, 1, 2);
+                      .checkUnorderedIntColumns("integer_1", 1, 2);
     }
 
     @Test
@@ -273,7 +273,7 @@ public class BitemporalSearchAT extends BaseAT {
                                                      .vtTo("2015/03/01 12:00:00.000")
                                                      .ttFrom("2015/02/15 12:00:00.000")
                                                      .ttTo("2015/03/15 12:00:00.000"))
-                      .checkIntColumn("integer_1", false, 1, 2);
+                      .checkUnorderedIntColumns("integer_1", 1, 2);
     }
 
     //inserting bigger to nowValue it
@@ -359,7 +359,7 @@ public class BitemporalSearchAT extends BaseAT {
                                                .vtTo("2015/03/02 00:00:00.000")
                                                .ttFrom("2015/01/14 00:00:00.000")
                                                .ttTo("2015/04/02 00:00:00.000"))
-                .checkIntColumn("integer_1", false, 1, 2, 3)
+                .checkUnorderedIntColumns("integer_1", 1, 2, 3)
                 .dropIndex().dropTable().dropKeyspace();
     }
 
@@ -390,7 +390,7 @@ public class BitemporalSearchAT extends BaseAT {
                 .query(bitemporal("bitemporal").ttFrom(
                         "2015/01/14 00:00:00.000")
                                                .ttTo("2015/04/02 00:00:00.000"))
-                .checkIntColumn("integer_1", false, 1, 2, 3)
+                .checkUnorderedIntColumns("integer_1", 1, 2, 3)
                 .dropIndex().dropTable().dropKeyspace();
     }
 
@@ -420,7 +420,7 @@ public class BitemporalSearchAT extends BaseAT {
                 .refresh()
                 .query(bitemporal("bitemporal").vtFrom("2014/12/31 12:00:00.000")
                                                .vtTo("2015/03/02 00:00:00.000"))
-                .checkIntColumn("integer_1", false, 1, 2, 3)
+                .checkUnorderedIntColumns("integer_1", 1, 2, 3)
                 .dropIndex().dropTable().dropKeyspace();
     }
 
@@ -446,7 +446,7 @@ public class BitemporalSearchAT extends BaseAT {
                 .insert(data7, data8, data9, data10, data11)
                 .refresh()
                 .searchAll()
-                .checkIntColumn("id", false, 1, 2, 3, 4, 5);
+                .checkUnorderedIntColumns("id", 1, 2, 3, 4, 5);
 
         CassandraUtilsUpdate cassandraUtilsUpdate = cassandraUtils.update()
                                                                   .where("id", 1)
@@ -472,7 +472,7 @@ public class BitemporalSearchAT extends BaseAT {
                                                       .ttFrom(9223372036854775807L)
                                                       .ttTo(9223372036854775807L))
                       .refresh(true)
-                      .checkIntColumn("id", false, 1, 2, 3, 4, 5);
+                      .checkUnorderedIntColumns("id", 1, 2, 3, 4, 5);
 
         CassandraUtilsSelect select = cassandraUtils.filter(bitemporal("bitemporal").vtFrom(0)
                                                                                     .vtTo(9223372036854775807L)
@@ -510,7 +510,7 @@ public class BitemporalSearchAT extends BaseAT {
                 .refresh().filter(bitemporal("bitemporal").ttFrom("2015/01/02 12:00:00.001")
                                                           .ttTo("2015/01/02 12:00:00.001"))
                 .refresh(true)
-                .checkIntColumn("integer_1", false, 1)
+                .checkIntColumn("integer_1", 1)
                 .dropIndex().dropTable().dropKeyspace();
 
     }
@@ -536,7 +536,7 @@ public class BitemporalSearchAT extends BaseAT {
                 .refresh().filter(bitemporal("bitemporal").ttFrom("2015/01/06 12:00:00.001")
                                                           .ttTo("2015/01/06 12:00:00.001"))
                 .refresh(true)
-                .checkIntColumn("integer_1", false, 2)
+                .checkIntColumn("integer_1", 2)
                 .dropIndex().dropTable().dropKeyspace();
     }
 
@@ -561,7 +561,7 @@ public class BitemporalSearchAT extends BaseAT {
                 .refresh().filter(bitemporal("bitemporal").ttFrom("2015/01/15 12:00:00.001")
                                                           .ttTo("2015/01/15 12:00:00.001"))
                 .refresh(true)
-                .checkIntColumn("integer_1", false, 3)
+                .checkIntColumn("integer_1", 3)
                 .dropIndex().dropTable().dropKeyspace();
     }
 
@@ -586,7 +586,7 @@ public class BitemporalSearchAT extends BaseAT {
                 .refresh().filter(bitemporal("bitemporal").vtFrom("2016/01/15 12:00:00.001")
                                                           .vtTo("2016/01/15 12:00:00.001"))
                 .refresh(true)
-                .checkIntColumn("integer_1", false, 1, 3)
+                .checkUnorderedIntColumns("integer_1", 1, 3)
                 .dropIndex().dropTable().dropKeyspace();
     }
 
@@ -614,7 +614,7 @@ public class BitemporalSearchAT extends BaseAT {
                                                 .ttFrom("2015/01/02 12:00:00.001")
                                                 .ttTo("2015/01/02 12:00:00.001"))
                 .refresh(true)
-                .checkIntColumn("integer_1", false, 1)
+                .checkIntColumn("integer_1", 1)
                 .dropIndex().dropTable().dropKeyspace();
     }
 
@@ -639,7 +639,7 @@ public class BitemporalSearchAT extends BaseAT {
                 .refresh()
                 .filter(bitemporal("bitemporal").ttFrom("2200/01/01 00:00:00.000")
                                                 .ttTo("2200/01/01 00:00:00.000")).refresh(true)
-                .checkIntColumn("integer_1", false, 3)
+                .checkIntColumn("integer_1", 3)
                 .dropIndex().dropTable().dropKeyspace();
     }
 }

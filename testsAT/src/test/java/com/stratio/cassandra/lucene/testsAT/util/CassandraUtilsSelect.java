@@ -185,11 +185,7 @@ public class CassandraUtilsSelect {
         return parent;
     }
 
-    public CassandraUtils checkIntColumn(String name, int... expected) {
-        return checkIntColumn(name, true, expected);
-    }
-
-    public CassandraUtils checkIntColumn(String name, boolean ordered, int... expected) {
+    private CassandraUtils checkIntColumns(String name, boolean ordered, int... expected) {
         List<Row> rows = get();
         assertEquals(String.format("Expected %d results!", expected.length), expected.length, rows.size());
         int[] actual = new int[expected.length];
@@ -206,11 +202,19 @@ public class CassandraUtilsSelect {
         return parent;
     }
 
-    public CassandraUtils checkLongColumn(String name, long... expected) {
-        return checkLongColumn(name, true, expected);
+    public CassandraUtils checkOrderedIntColumns(String name, int... expected) {
+        return checkIntColumns(name, true, expected);
     }
 
-    public CassandraUtils checkLongColumn(String name, boolean ordered, long... expected) {
+    public CassandraUtils checkUnorderedIntColumns(String name, int... expected) {
+        return checkIntColumns(name, false, expected);
+    }
+
+    public CassandraUtils checkIntColumn(String name, int expected) {
+        return checkIntColumns(name, false, expected);
+    }
+
+    private CassandraUtils checkLongColumns(String name, boolean ordered, long... expected) {
         List<Row> rows = get();
         assertEquals(String.format("Expected %d results!", expected.length), expected.length, rows.size());
         long[] actual = new long[expected.length];
@@ -227,11 +231,19 @@ public class CassandraUtilsSelect {
         return parent;
     }
 
-    public CassandraUtils checkStringColumn(String name, String... expected) {
-        return checkStringColumn(name, true, expected);
+    public CassandraUtils checkLongColumn(String name, long expected) {
+        return checkLongColumns(name, false, expected);
     }
 
-    public CassandraUtils checkStringColumn(String name, boolean ordered, String... expected) {
+    public CassandraUtils checkOrderedLongColumns(String name, long... expected) {
+        return checkLongColumns(name, true, expected);
+    }
+
+    public CassandraUtils checkUnrderedLongColumns(String name, long... expected) {
+        return checkLongColumns(name, false, expected);
+    }
+
+    private CassandraUtils checkStringColumns(String name, boolean ordered, String... expected) {
         List<Row> rows = get();
         assertEquals(String.format("Expected %d results!", expected.length), expected.length, rows.size());
         String[] actual = new String[expected.length];
@@ -246,6 +258,18 @@ public class CassandraUtilsSelect {
                           expected,
                           actual);
         return parent;
+    }
+
+    public CassandraUtils checkStringColumn(String name, String expected) {
+        return checkStringColumns(name, false, expected);
+    }
+
+    public CassandraUtils checkOrderedStringColumns(String name, String... expected) {
+        return checkStringColumns(name, true, expected);
+    }
+
+    public CassandraUtils checkUnorderedStringColumns(String name, String... expected) {
+        return checkStringColumns(name, false, expected);
     }
 
     public Integer[] intColumn(String name) {
