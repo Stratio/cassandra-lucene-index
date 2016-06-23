@@ -35,10 +35,10 @@ import java.util.Date;
 public class DateRangeCondition extends SingleMapperCondition<DateRangeMapper> {
 
     /** The default from value. */
-    public static final long DEFAULT_FROM = 0;
+    public static final Date DEFAULT_FROM = new Date(Long.MIN_VALUE);
 
     /** The default to value. */
-    public static final long DEFAULT_TO = Long.MAX_VALUE;
+    public static final Date DEFAULT_TO = new Date(Long.MAX_VALUE);
 
     /** The default operation. */
     public static final String DEFAULT_OPERATION = "intersects";
@@ -72,9 +72,7 @@ public class DateRangeCondition extends SingleMapperCondition<DateRangeMapper> {
         this.operation = operation == null ? DEFAULT_OPERATION : operation;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public Query doQuery(DateRangeMapper mapper, Analyzer analyzer) {
 

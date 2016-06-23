@@ -117,11 +117,14 @@ public class BuilderTest {
     public void testBitemporalMapperFull() {
         String actual = bitemporalMapper("vt_from", "vt_to", "tt_from", "tt_to").validated(true)
                                                                                 .pattern("yyyyMMdd")
+                                                                                .columnPattern("yyyy-MM-dd HH:mm:ss")
+                                                                                .lucenePattern("yyyy-MM-dd")
                                                                                 .nowValue("99999999")
                                                                                 .build();
-        String expected = "{\"type\":\"bitemporal\",\"vt_from\":\"vt_from\",\"vt_to\":\"vt_to\"," +
-                          "\"tt_from\":\"tt_from\",\"tt_to\":\"tt_to\",\"validated\":true," +
-                          "\"pattern\":\"yyyyMMdd\",\"now_value\":\"99999999\"}";
+        String expected = "{\"type\":\"bitemporal\"," +
+                          "\"vt_from\":\"vt_from\",\"vt_to\":\"vt_to\",\"tt_from\":\"tt_from\",\"tt_to\":\"tt_to\"," +
+                          "\"validated\":true,\"pattern\":\"yyyyMMdd\",\"column_pattern\":\"yyyy-MM-dd HH:mm:ss\"," +
+                          "\"lucene_pattern\":\"yyyy-MM-dd\",\"now_value\":\"99999999\"}";
         assertEquals("bitemporal mapper serialization is wrong", expected, actual);
     }
 
@@ -162,8 +165,14 @@ public class BuilderTest {
 
     @Test
     public void testDateMapperFull() {
-        String actual = dateMapper().pattern("yyyyMMdd").validated(true).column("column").build();
-        String expected = "{\"type\":\"date\",\"validated\":true,\"column\":\"column\",\"pattern\":\"yyyyMMdd\"}";
+        String actual = dateMapper().validated(true)
+                                    .column("column")
+                                    .pattern("yyyyMMdd")
+                                    .columnPattern("yyyy-MM-dd HH:mm:ss")
+                                    .lucenePattern("yyyy-MM-dd")
+                                    .build();
+        String expected = "{\"type\":\"date\",\"validated\":true,\"column\":\"column\",\"pattern\":\"yyyyMMdd\"," +
+                          "\"column_pattern\":\"yyyy-MM-dd HH:mm:ss\",\"lucene_pattern\":\"yyyy-MM-dd\"}";
         assertEquals("date mapper serialization is wrong", expected, actual);
     }
 
@@ -176,8 +185,12 @@ public class BuilderTest {
 
     @Test
     public void testDateRangeMapperFull() {
-        String actual = dateRangeMapper("start", "stop").pattern("yyyyMMdd").build();
-        String expected = "{\"type\":\"date_range\",\"from\":\"start\",\"to\":\"stop\",\"pattern\":\"yyyyMMdd\"}";
+        String actual = dateRangeMapper("start", "stop").pattern("yyyyMMdd")
+                                                        .columnPattern("yyyy-MM-dd HH:mm:ss")
+                                                        .lucenePattern("yyyy-MM-dd")
+                                                        .build();
+        String expected = "{\"type\":\"date_range\",\"from\":\"start\",\"to\":\"stop\",\"pattern\":\"yyyyMMdd\"," +
+                          "\"column_pattern\":\"yyyy-MM-dd HH:mm:ss\",\"lucene_pattern\":\"yyyy-MM-dd\"}";
         assertEquals("date range mapper serialization is wrong", expected, actual);
     }
 

@@ -127,10 +127,11 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
      * Returns the {@link Column} query value resulting from the mapping of the specified object.
      *
      * @param column the column
+     * @param <K> the base type of the column
      * @return the {@link Column} index value resulting from the mapping of the specified object
      */
     public final <K> T base(Column<K> column) {
-        return column.getComposedValue() == null ? null : doBase(column);
+        return column == null ? null : column.getComposedValue() == null ? null : doBase(column);
     }
 
     protected abstract T doBase(@NotNull String field, @NotNull Object value);

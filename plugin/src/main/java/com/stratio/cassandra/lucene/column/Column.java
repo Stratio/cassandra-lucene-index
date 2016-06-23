@@ -88,6 +88,19 @@ public final class Column<T> {
     }
 
     /**
+     * Builds a new {@link Column} with the specified name, value and type.
+     *
+     * @param name the column name
+     * @param value the composed value
+     * @param type the type
+     * @param <T> the base class
+     * @return a new column
+     */
+    public static <T> Column<T> build(String name, T value, AbstractType<T> type) {
+        return builder(name).buildWithComposed(value, type);
+    }
+
+    /**
      * Returns a new {@link ColumnBuilder} using the specified base cell name and deletion time.
      *
      * @param cellName the base cell name
