@@ -52,8 +52,8 @@ public class BitemporalMapperBuilder extends MapperBuilder<BitemporalMapper, Bit
     private String columnPattern;
 
     /** The date pattern for fields */
-    @JsonProperty("field_pattern")
-    private String fieldPattern;
+    @JsonProperty("lucene_pattern")
+    private String lucenePattern;
 
     /** The NOW Value. **/
     @JsonProperty("now_value")
@@ -106,8 +106,8 @@ public class BitemporalMapperBuilder extends MapperBuilder<BitemporalMapper, Bit
      * @param pattern a {@link java.text.SimpleDateFormat} date pattern
      * @return this
      */
-    public BitemporalMapperBuilder fieldPattern(String pattern) {
-        fieldPattern = pattern;
+    public BitemporalMapperBuilder lucenePattern(String pattern) {
+        lucenePattern = pattern;
         return this;
     }
 
@@ -130,7 +130,7 @@ public class BitemporalMapperBuilder extends MapperBuilder<BitemporalMapper, Bit
      */
     @Override
     public BitemporalMapper build(String field) {
-        DateParser dateParser = new DateParser(pattern, columnPattern, fieldPattern);
+        DateParser dateParser = new DateParser(pattern, columnPattern, lucenePattern);
         return new BitemporalMapper(field, validated, vtFrom, vtTo, ttFrom, ttTo, dateParser, nowValue);
     }
 }

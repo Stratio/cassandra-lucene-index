@@ -22,7 +22,6 @@ import org.apache.cassandra.db.marshal.SimpleDateType;
 import org.apache.cassandra.db.marshal.TimestampType;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -37,31 +36,31 @@ import static com.stratio.cassandra.lucene.util.DateParser.TIMESTAMP_PATTERN;
  */
 public class DateParserTest {
 
-    private void assertNull(String pattern, Object value) {
+    private static void assertNull(String pattern, Object value) {
         DateParser parser = new DateParser(pattern);
         Date date = parser.parse(value);
         Assert.assertNull(String.format("%s for %s should return null", parser, value), date);
     }
 
-    private void assertEquals(String pattern, Column<?> column, Date expected) {
+    private static void assertEquals(String pattern, Column<?> column, Date expected) {
         assertEquals(pattern, pattern, column, expected);
     }
 
-    private void assertEquals(String columnPattern, String fieldPattern, Column<?> column, Date expected) {
-        DateParser parser = new DateParser(columnPattern, fieldPattern);
+    private static void assertEquals(String columnPattern, String lucenePattern, Column<?> column, Date expected) {
+        DateParser parser = new DateParser(columnPattern, lucenePattern);
         Date date = parser.parse(column);
         Assert.assertEquals(String.format("%s for %s should generate %s but get %s", parser, column, expected, date),
                             expected, date);
     }
 
-    private void assertEquals(String pattern, Object value, Date expected) {
+    private static void assertEquals(String pattern, Object value, Date expected) {
         DateParser parser = new DateParser(pattern);
         Date date = parser.parse(value);
         Assert.assertEquals(String.format("%s for %s should generate %s but get %s", parser, value, expected, date),
                             expected, date);
     }
 
-    private void assertFail(String pattern, Object value) {
+    private static void assertFail(String pattern, Object value) {
         DateParser parser = new DateParser(pattern);
         try {
             Date date = parser.parse(value);
@@ -72,8 +71,7 @@ public class DateParserTest {
     }
 
     private static Date date(String format, String input) {
-        DateTimeFormatter formatter = DateTimeFormat.forPattern(format);
-        return new Date(formatter.parseDateTime(input).getMillis());
+        return DateTimeFormat.forPattern(format).parseDateTime(input).toDate();
     }
 
     @Test
@@ -84,6 +82,18 @@ public class DateParserTest {
     @Test
     public void testWithPatternDate() throws ParseException {
         Date date = date("yyyy/MM/dd", "2015/11/03");
+        assertEquals("yyyy/MM/dd", date, date);
+    }
+
+    @Test
+    public void testWithPatternMinDate() throws ParseException {
+        Date date = new Date(Long.MIN_VALUE);
+        assertEquals("yyyy/MM/dd", date, date);
+    }
+
+    @Test
+    public void testWithPatternMaxDate() throws ParseException {
+        Date date = new Date(Long.MAX_VALUE);
         assertEquals("yyyy/MM/dd", date, date);
     }
 
@@ -124,6 +134,18 @@ public class DateParserTest {
     @Test
     public void testWithTimestampNull() {
         assertNull(TIMESTAMP_PATTERN, null);
+    }
+
+    @Test
+    public void testWithTimestampMinDate() throws ParseException {
+        Date date = new Date(Long.MIN_VALUE);
+        assertEquals(TIMESTAMP_PATTERN, Long.MIN_VALUE, date);
+    }
+
+    @Test
+    public void testWithTimestampMaxDate() throws ParseException {
+        Date date = new Date(Long.MAX_VALUE);
+        assertEquals(TIMESTAMP_PATTERN, Long.MAX_VALUE, date);
     }
 
     @Test

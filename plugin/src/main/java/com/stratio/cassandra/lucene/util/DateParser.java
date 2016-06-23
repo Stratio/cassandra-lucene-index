@@ -44,13 +44,13 @@ public class DateParser {
     public final String columnPattern;
 
     /** The {@link SimpleDateFormat} pattern for fields. */
-    public final String fieldPattern;
+    public final String lucenePattern;
 
     /** The thread safe date format. */
     private final ThreadLocal<DateFormat> columnFormatter;
 
     /** The thread safe date format. */
-    private final ThreadLocal<DateFormat> fieldFormatter;
+    private final ThreadLocal<DateFormat> luceneFormatter;
 
     /**
      * Constructor with pattern.
@@ -65,18 +65,18 @@ public class DateParser {
      * Constructor with pattern.
      *
      * @param columnPattern the {@link SimpleDateFormat} pattern for columns
-     * @param fieldPattern the {@link SimpleDateFormat} pattern for fields
+     * @param lucenePattern the {@link SimpleDateFormat} pattern for Lucene fields
      */
-    public DateParser(String columnPattern, String fieldPattern) {
+    public DateParser(String columnPattern, String lucenePattern) {
         this.columnPattern = columnPattern == null ? DEFAULT_PATTERN : columnPattern;
-        this.fieldPattern = fieldPattern == null ? DEFAULT_PATTERN : fieldPattern;
+        this.lucenePattern = lucenePattern == null ? DEFAULT_PATTERN : lucenePattern;
         columnFormatter = formatter(this.columnPattern);
-        fieldFormatter = formatter(this.fieldPattern);
+        luceneFormatter = formatter(this.lucenePattern);
     }
 
-    public DateParser(String defaultPattern, String columnPattern, String fieldPattern) {
+    public DateParser(String defaultPattern, String columnPattern, String lucenePattern) {
         this(columnPattern == null ? defaultPattern : columnPattern,
-             fieldPattern == null ? defaultPattern : fieldPattern);
+             lucenePattern == null ? defaultPattern : lucenePattern);
     }
 
     private static ThreadLocal<DateFormat> formatter(final String pattern) {
@@ -99,9 +99,11 @@ public class DateParser {
      * specified {@link Column} is {@code null}.
      *
      * @param column the column to be parsed
+     * @param <K> the base type of the column
      * @return the parsed {@link Date}
      */
     public final <K> Date parse(Column<K> column) {
+
         if (column == null || column.getDecomposedValue() == null) {
             return null;
         }
@@ -129,8 +131,8 @@ public class DateParser {
             }
             return formatField(date);
         } catch (Exception e) {
-            throw new IndexException("Required date with pattern '{}' but found '{}' with value '{}'",
-                                     columnPattern, value.getClass().getSimpleName(), value);
+            throw new IndexException(e, "Error parsing {} with value '{}' in column {} using date pattern {}",
+                                     value.getClass().getSimpleName(), value, column.getFullName(), columnPattern);
         }
     }
 
@@ -139,6 +141,7 @@ public class DateParser {
      * Object} is {@code null}.
      *
      * @param value the {@link Object} to be parsed
+     * @param <K> the type of the value to be parsed
      * @return the parsed {@link Date}
      */
     public final <K> Date parse(K value) {
@@ -152,16 +155,16 @@ public class DateParser {
                 return formatField((Date) value);
             } else if (value instanceof UUID) {
                 return formatField(date((UUID) value));
-            } else if (fieldFormatter != null) {
-                return fieldFormatter.get().parse(value.toString());
+            } else if (luceneFormatter != null) {
+                return luceneFormatter.get().parse(value.toString());
             } else if (Number.class.isAssignableFrom(value.getClass())) {
                 return formatField(((Number) value).longValue());
             } else {
                 return new Date(Long.parseLong((value).toString()));
             }
         } catch (Exception e) {
-            throw new IndexException(e, "Required date with pattern '{}' but found '{}' with value '{}'",
-                                     fieldPattern, value.getClass().getSimpleName(), value);
+            throw new IndexException(e, "Error parsing {} with value '{}' using date pattern {}",
+                                     value.getClass().getSimpleName(), value, lucenePattern);
         }
     }
 
@@ -171,10 +174,10 @@ public class DateParser {
 
     private Date formatField(Date date) throws ParseException {
         Long timestamp = date.getTime();
-        if (fieldFormatter == null || timestamp == Long.MIN_VALUE || timestamp == Long.MAX_VALUE) {
+        if (luceneFormatter == null || timestamp == Long.MIN_VALUE || timestamp == Long.MAX_VALUE) {
             return date;
         }
-        return fieldFormatter.get().parse(fieldFormatter.get().format(date));
+        return luceneFormatter.get().parse(luceneFormatter.get().format(date));
     }
 
     private static Date date(@NotNull UUID uuid) {
@@ -194,18 +197,18 @@ public class DateParser {
     public String toString(Date date) {
         if (date == null) {
             return null;
-        } else if (fieldFormatter == null) {
+        } else if (luceneFormatter == null) {
             return ((Long) date.getTime()).toString();
         } else {
-            return fieldFormatter.get().format(date);
+            return luceneFormatter.get().format(date);
         }
     }
 
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return columnPattern.equals(fieldPattern)
+        return columnPattern.equals(lucenePattern)
                ? columnPattern
-               : String.format("{column=%s,field=%s}", columnPattern, fieldPattern);
+               : String.format("{column=%s,field=%s}", columnPattern, lucenePattern);
     }
 }

@@ -33,8 +33,8 @@ public class DateMapper extends SingleColumnMapper<DateMapper> {
     private String columnPattern;
 
     /** The date pattern for fields */
-    @JsonProperty("field_pattern")
-    private String fieldPattern;
+    @JsonProperty("lucene_pattern")
+    private String lucenePattern;
 
     /**
      * Sets the default date pattern.
@@ -64,8 +64,8 @@ public class DateMapper extends SingleColumnMapper<DateMapper> {
      * @param pattern a {@link java.text.SimpleDateFormat} date pattern, or "timestamp" for UNIX time milliseconds
      * @return this with the specified fields date pattern
      */
-    public DateMapper fieldPattern(String pattern) {
-        fieldPattern = pattern;
+    public DateMapper lucenePattern(String pattern) {
+        lucenePattern = pattern;
         return this;
     }
 

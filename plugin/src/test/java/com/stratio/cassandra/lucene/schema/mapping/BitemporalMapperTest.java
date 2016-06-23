@@ -56,7 +56,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         assertEquals("ttTo is not set", "ttTo", mapper.ttTo);
         assertEquals("Now value is not set to default", Long.MAX_VALUE, mapper.nowValue, 0);
         assertEquals("Column date pattern is not set to default value", DEFAULT_PATTERN, mapper.parser.columnPattern);
-        assertEquals("Field date pattern is not set to default value", DEFAULT_PATTERN, mapper.parser.fieldPattern);
+        assertEquals("Field date pattern is not set to default value", DEFAULT_PATTERN, mapper.parser.lucenePattern);
     }
 
     @Test
@@ -64,7 +64,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         BitemporalMapper mapper = bitemporalMapper("vtFrom", "vtTo", "ttFrom", "ttTo").validated(true)
                                                                                       .pattern(TIMESTAMP_PATTERN)
                                                                                       .columnPattern("yyyy-MM-dd")
-                                                                                      .fieldPattern("yyyy/MM/dd")
+                                                                                      .lucenePattern("yyyy/MM/dd")
                                                                                       .nowValue("2021/03/11")
                                                                                       .build("field");
         assertEquals("Field is not set", "field", mapper.field);
@@ -74,7 +74,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         assertEquals("ttTo is not set", "ttTo", mapper.ttTo);
         assertEquals("Date pattern is wrong", mapper.parseBitemporalDate("2021/03/11"), BitemporalDateTime.MAX);
         assertEquals("Column date pattern is not set to default value", "yyyy-MM-dd", mapper.parser.columnPattern);
-        assertEquals("Field date pattern is not set to default value", "yyyy/MM/dd", mapper.parser.fieldPattern);
+        assertEquals("Field date pattern is not set to default value", "yyyy/MM/dd", mapper.parser.lucenePattern);
     }
 
     @Test
@@ -82,7 +82,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         BitemporalMapper mapper = bitemporalMapper("vtFrom", "vtTo", "ttFrom", "ttTo").pattern(TIMESTAMP_PATTERN)
                                                                                       .build("field");
         assertEquals("Column date pattern is not set to default value", TIMESTAMP_PATTERN, mapper.parser.columnPattern);
-        assertEquals("Field date pattern is not set to default value", TIMESTAMP_PATTERN, mapper.parser.fieldPattern);
+        assertEquals("Field date pattern is not set to default value", TIMESTAMP_PATTERN, mapper.parser.lucenePattern);
     }
 
     @Test

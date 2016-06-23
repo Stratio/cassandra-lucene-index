@@ -127,6 +127,7 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
      * Returns the {@link Column} query value resulting from the mapping of the specified object.
      *
      * @param column the column
+     * @param <K> the base type of the column
      * @return the {@link Column} index value resulting from the mapping of the specified object
      */
     public final <K> T base(Column<K> column) {

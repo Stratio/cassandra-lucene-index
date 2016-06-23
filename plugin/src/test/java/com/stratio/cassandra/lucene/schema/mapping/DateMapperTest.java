@@ -50,7 +50,7 @@ public class DateMapperTest extends AbstractMapperTest {
         assertEquals("Mapped columns are not properly set", 1, mapper.mappedColumns.size());
         assertTrue("Mapped columns are not properly set", mapper.mappedColumns.contains("field"));
         assertEquals("Column date pattern is not set to default value", DEFAULT_PATTERN, mapper.parser.columnPattern);
-        assertEquals("Field date pattern is not set to default value", DEFAULT_PATTERN, mapper.parser.fieldPattern);
+        assertEquals("Field date pattern is not set to default value", DEFAULT_PATTERN, mapper.parser.lucenePattern);
     }
 
     @Test
@@ -59,7 +59,7 @@ public class DateMapperTest extends AbstractMapperTest {
                                         .column("column")
                                         .pattern(TIMESTAMP_PATTERN)
                                         .columnPattern("yyyy-MM-dd")
-                                        .fieldPattern("yyyy/MM/dd")
+                                        .lucenePattern("yyyy/MM/dd")
                                         .build("field");
         assertEquals("Name is not properly set", "field", mapper.field);
         assertTrue("Validated is not properly set", mapper.validated);
@@ -67,7 +67,7 @@ public class DateMapperTest extends AbstractMapperTest {
         assertEquals("Mapped columns are not properly set", 1, mapper.mappedColumns.size());
         assertTrue("Mapped columns are not properly set", mapper.mappedColumns.contains("column"));
         assertEquals("Column date pattern is not set to default value", "yyyy-MM-dd", mapper.parser.columnPattern);
-        assertEquals("Field date pattern is not set to default value", "yyyy/MM/dd", mapper.parser.fieldPattern);
+        assertEquals("Field date pattern is not set to default value", "yyyy/MM/dd", mapper.parser.lucenePattern);
     }
 
     @Test
@@ -259,14 +259,14 @@ public class DateMapperTest extends AbstractMapperTest {
 
     @Test
     public void testBaseValueStringWithBothPatterns() throws ParseException {
-        DateMapper mapper = dateMapper().columnPattern(LONG_PATTERN).fieldPattern(PATTERN).build("name");
+        DateMapper mapper = dateMapper().columnPattern(LONG_PATTERN).lucenePattern(PATTERN).build("name");
         long parsed = mapper.base("test", "2014-03-19 01:02:03");
         assertEquals("Base value is not properly parsed", sdf.parse("2014-03-19").getTime(), parsed);
     }
 
     @Test
     public void testBaseColumnStringWithBothPatterns() throws ParseException {
-        DateMapper mapper = dateMapper().columnPattern(LONG_PATTERN).fieldPattern(PATTERN).build("name");
+        DateMapper mapper = dateMapper().columnPattern(LONG_PATTERN).lucenePattern(PATTERN).build("name");
         Column<String> column = Column.builder("f").buildWithComposed("2014-03-19 01:02:03", UTF8Type.instance);
         assertEquals("Base column is not properly parsed", Long.valueOf(sdf.parse("2014-03-19").getTime()), mapper.base(column));
     }
@@ -343,7 +343,7 @@ public class DateMapperTest extends AbstractMapperTest {
 
     @Test
     public void testBaseValueTimeUUIDTruncating() throws ParseException {
-        DateMapper mapper = dateMapper().columnPattern(TIMESTAMP_PATTERN).fieldPattern(PATTERN).build("name");
+        DateMapper mapper = dateMapper().columnPattern(TIMESTAMP_PATTERN).lucenePattern(PATTERN).build("name");
         Date inputDate = new SimpleDateFormat(LONG_PATTERN).parse("2014-03-19 01:02:03");
         Date outputDate = new SimpleDateFormat(PATTERN).parse("2014-03-19");
         Long parsed = mapper.base("test", UUIDGen.getTimeUUID(inputDate.getTime()));
@@ -352,7 +352,7 @@ public class DateMapperTest extends AbstractMapperTest {
 
     @Test
     public void testBaseColumnTimeUUIDTruncating() throws ParseException {
-        DateMapper mapper = dateMapper().columnPattern(TIMESTAMP_PATTERN).fieldPattern(PATTERN).build("name");
+        DateMapper mapper = dateMapper().columnPattern(TIMESTAMP_PATTERN).lucenePattern(PATTERN).build("name");
         Date inputDate = new SimpleDateFormat(LONG_PATTERN).parse("2014-03-19 01:02:03");
         Date outputDate = new SimpleDateFormat(PATTERN).parse("2014-03-19");
         Long parsed = mapper.base(Column.build("n", UUIDGen.getTimeUUID(inputDate.getTime()), UUIDType.instance));

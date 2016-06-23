@@ -43,8 +43,8 @@ public class DateRangeMapperBuilder extends MapperBuilder<DateRangeMapper, DateR
     private String columnPattern;
 
     /** The date pattern for fields */
-    @JsonProperty("field_pattern")
-    private String fieldPattern;
+    @JsonProperty("lucene_pattern")
+    private String lucenePattern;
 
     /**
      * Returns a new {@link DateRangeMapperBuilder}.
@@ -85,8 +85,8 @@ public class DateRangeMapperBuilder extends MapperBuilder<DateRangeMapper, DateR
      * @param pattern a {@link java.text.SimpleDateFormat} date pattern, or "timestamp" for UNIX time milliseconds
      * @return this
      */
-    public DateRangeMapperBuilder fieldPattern(String pattern) {
-        fieldPattern = pattern;
+    public DateRangeMapperBuilder lucenePattern(String pattern) {
+        lucenePattern = pattern;
         return this;
     }
 
@@ -98,7 +98,7 @@ public class DateRangeMapperBuilder extends MapperBuilder<DateRangeMapper, DateR
      */
     @Override
     public DateRangeMapper build(String field) {
-        DateParser dateParser = new DateParser(pattern, columnPattern, fieldPattern);
+        DateParser dateParser = new DateParser(pattern, columnPattern, lucenePattern);
         return new DateRangeMapper(field, validated, from, to, dateParser);
     }
 }

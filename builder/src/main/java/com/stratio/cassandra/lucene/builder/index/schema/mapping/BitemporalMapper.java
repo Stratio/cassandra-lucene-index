@@ -50,8 +50,8 @@ public class BitemporalMapper extends Mapper<BitemporalMapper> {
     private String columnPattern;
 
     /** The date pattern for fields */
-    @JsonProperty("field_pattern")
-    private String fieldPattern;
+    @JsonProperty("lucene_pattern")
+    private String lucenePattern;
 
     /** The NOW Value. **/
     @JsonProperty("now_value")
@@ -104,8 +104,8 @@ public class BitemporalMapper extends Mapper<BitemporalMapper> {
      * @param pattern a {@link java.text.SimpleDateFormat} date pattern, or "timestamp" for UNIX time milliseconds
      * @return this with the specified fields date pattern
      */
-    public BitemporalMapper fieldPattern(String pattern) {
-        fieldPattern = pattern;
+    public BitemporalMapper lucenePattern(String pattern) {
+        lucenePattern = pattern;
         return this;
     }
 

@@ -41,8 +41,8 @@ public class DateRangeMapper extends Mapper<DateRangeMapper> {
     private String columnPattern;
 
     /** The date pattern for fields */
-    @JsonProperty("field_pattern")
-    private String fieldPattern;
+    @JsonProperty("lucene_pattern")
+    private String lucenePattern;
 
     /**
      * Returns a new {@link DateRangeMapper}.
@@ -83,8 +83,8 @@ public class DateRangeMapper extends Mapper<DateRangeMapper> {
      * @param pattern a {@link java.text.SimpleDateFormat} date pattern
      * @return this with the specified fields date pattern
      */
-    public DateRangeMapper fieldPattern(String pattern) {
-        fieldPattern = pattern;
+    public DateRangeMapper lucenePattern(String pattern) {
+        lucenePattern = pattern;
         return this;
     }
 }

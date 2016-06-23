@@ -52,7 +52,7 @@ public class DateRangeMapperTest extends AbstractMapperTest {
         assertTrue("Mapped columns are not properly set", mapper.mappedColumns.contains("to"));
         assertTrue("Mapped columns are not properly set", mapper.mappedColumns.contains("from"));
         assertEquals("Column date pattern is not set to default value", DEFAULT_PATTERN, mapper.parser.columnPattern);
-        assertEquals("Field date pattern is not set to default value", DEFAULT_PATTERN, mapper.parser.fieldPattern);
+        assertEquals("Field date pattern is not set to default value", DEFAULT_PATTERN, mapper.parser.lucenePattern);
         assertNotNull("Strategy is not set to default value", mapper.strategy);
     }
 
@@ -61,13 +61,13 @@ public class DateRangeMapperTest extends AbstractMapperTest {
         DateRangeMapper mapper = dateRangeMapper("from", "to").validated(true)
                                                               .pattern(TIMESTAMP_PATTERN)
                                                               .columnPattern("yyyy-MM-dd")
-                                                              .fieldPattern("yyyy/MM/dd")
+                                                              .lucenePattern("yyyy/MM/dd")
                                                               .build("field");
         assertEquals("Name is not properly set", "field", mapper.field);
         assertEquals("From is not properly set", "from", mapper.from);
         assertEquals("To is not properly set", "to", mapper.to);
         assertEquals("Column date pattern is not set to default value", "yyyy-MM-dd", mapper.parser.columnPattern);
-        assertEquals("Field date pattern is not set to default value", "yyyy/MM/dd", mapper.parser.fieldPattern);
+        assertEquals("Field date pattern is not set to default value", "yyyy/MM/dd", mapper.parser.lucenePattern);
         assertNotNull("Strategy is not properly set", mapper.strategy);
     }
 
@@ -75,7 +75,7 @@ public class DateRangeMapperTest extends AbstractMapperTest {
     public void testConstructorWithDefaultPattern() {
         DateRangeMapper mapper = dateRangeMapper("from", "to").pattern("timestamp").build("field");
         assertEquals("Column date pattern is not set to default value", TIMESTAMP_PATTERN, mapper.parser.columnPattern);
-        assertEquals("Field date pattern is not set to default value", TIMESTAMP_PATTERN, mapper.parser.fieldPattern);
+        assertEquals("Field date pattern is not set to default value", TIMESTAMP_PATTERN, mapper.parser.lucenePattern);
     }
 
     @Test

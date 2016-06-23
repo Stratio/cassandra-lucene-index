@@ -35,8 +35,8 @@ public class DateMapperBuilder extends SingleColumnMapperBuilder<DateMapper, Dat
     private String columnPattern;
 
     /** The date pattern for fields */
-    @JsonProperty("field_pattern")
-    private String fieldPattern;
+    @JsonProperty("lucene_pattern")
+    private String lucenePattern;
 
     /**
      * Sets the default date format pattern.
@@ -66,8 +66,8 @@ public class DateMapperBuilder extends SingleColumnMapperBuilder<DateMapper, Dat
      * @param pattern a {@link java.text.SimpleDateFormat} date pattern, or "timestamp" for UNIX time milliseconds
      * @return this
      */
-    public DateMapperBuilder fieldPattern(String pattern) {
-        fieldPattern = pattern;
+    public DateMapperBuilder lucenePattern(String pattern) {
+        lucenePattern = pattern;
         return this;
     }
 
@@ -79,7 +79,7 @@ public class DateMapperBuilder extends SingleColumnMapperBuilder<DateMapper, Dat
      */
     @Override
     public DateMapper build(String field) {
-        DateParser dateParser = new DateParser(pattern, columnPattern, fieldPattern);
+        DateParser dateParser = new DateParser(pattern, columnPattern, lucenePattern);
         return new DateMapper(field, column, validated, dateParser);
     }
 }

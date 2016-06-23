@@ -141,10 +141,10 @@ public class BitemporalMapper extends Mapper {
 
         validate(vtFromTime, vtToTime, ttFromTime, ttToTime);
 
-        document.add(new LongField(field + VT_FROM_FIELD_SUFFIX, vtFromTime.toDate().getTime(), STORE));
-        document.add(new LongField(field + VT_TO_FIELD_SUFFIX, vtToTime.toDate().getTime(), STORE));
-        document.add(new LongField(field + TT_FROM_FIELD_SUFFIX, ttFromTime.toDate().getTime(), STORE));
-        document.add(new LongField(field + TT_TO_FIELD_SUFFIX, ttToTime.toDate().getTime(), STORE));
+        document.add(new LongField(field + VT_FROM_FIELD_SUFFIX, vtFromTime.toTimestamp(), STORE));
+        document.add(new LongField(field + VT_TO_FIELD_SUFFIX, vtToTime.toTimestamp(), STORE));
+        document.add(new LongField(field + TT_FROM_FIELD_SUFFIX, ttFromTime.toTimestamp(), STORE));
+        document.add(new LongField(field + TT_TO_FIELD_SUFFIX, ttToTime.toTimestamp(), STORE));
     }
 
     private void validate(BitemporalDateTime vtFrom,
@@ -279,6 +279,10 @@ public class BitemporalMapper extends Mapper {
 
         public Date toDate() {
             return date;
+        }
+
+        public Long toTimestamp() {
+            return timestamp;
         }
 
         public boolean after(BitemporalDateTime time) {
