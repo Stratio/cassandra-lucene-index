@@ -15,7 +15,6 @@
  */
 package com.stratio.cassandra.lucene.testsAT.geospatial;
 
-import com.stratio.cassandra.lucene.builder.common.GeoTransformation;
 import com.stratio.cassandra.lucene.testsAT.BaseAT;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
 import org.junit.AfterClass;
@@ -32,7 +31,7 @@ import static com.stratio.cassandra.lucene.builder.Builder.*;
  */
 public class GeoShapeSearchOverGeoPointsAT extends BaseAT {
 
-    protected static CassandraUtils utils;
+    protected static CassandraUtils cassandraUtils;
 
     public static final Map<String, String> data1, data2, data3, data4, data5, data6, data7, data8, data9, data10,
             data11, data12;
@@ -101,160 +100,156 @@ public class GeoShapeSearchOverGeoPointsAT extends BaseAT {
 
     @BeforeClass
     public static void setUpSuite() {
-        utils = CassandraUtils.builder("shape_search_over_points")
-                              .withPartitionKey("place")
-                              .withClusteringKey()
-                              .withColumn("place", "text", null)
-                              .withColumn("latitude", "decimal", null)
-                              .withColumn("longitude", "decimal", null)
-                              .withMapper("location", geoPointMapper("latitude", "longitude"))
-                              .build()
-                              .createKeyspace()
-                              .createTable()
-                              .createIndex()
-                              .insert(data1,
-                                      data2,
-                                      data3,
-                                      data4,
-                                      data5,
-                                      data6,
-                                      data7,
-                                      data8,
-                                      data9,
-                                      data10,
-                                      data11,
-                                      data12)
-                              .refresh();
+        cassandraUtils = CassandraUtils.builder("search")
+                                       .withPartitionKey("place")
+                                       .withClusteringKey()
+                                       .withColumn("lucene", "text", null)
+                                       .withColumn("place", "text", null)
+                                       .withColumn("latitude", "decimal", null)
+                                       .withColumn("longitude", "decimal", null)
+                                       .withMapper("location", geoPointMapper("latitude", "longitude"))
+                                       .build()
+                                       .createKeyspace()
+                                       .createTable()
+                                       .createIndex()
+                                       .insert(data1,
+                                               data2,
+                                               data3,
+                                               data4,
+                                               data5,
+                                               data6,
+                                               data7,
+                                               data8,
+                                               data9,
+                                               data10,
+                                               data11,
+                                               data12)
+                                       .refresh();
     }
 
     @AfterClass
     public static void tearDownSuite() {
-        utils.dropIndex().dropTable().dropKeyspace();
-    }
-
-    private void test(String shape, String operation, String... expected) {
-        utils.filter(geoShape("location", shape).operation(operation)).checkStringColumnWithoutOrder("place", expected);
-    }
-
-    private void test(String shape, GeoTransformation transformation, String operation, String... expected) {
-        utils.filter(geoShape("location", shape).transform(transformation).operation(operation))
-             .checkStringColumnWithoutOrder("place", expected);
+        cassandraUtils.dropIndex().dropTable().dropKeyspace();
     }
 
     @Test
     public void testStarShapedIntersectsQuery() {
-        test("POLYGON((-3.79818 40.44456,-3.78908 40.44247,-3.796077 40.43783, -3.79320 40.44142,-3.79818 40.44456))",
-             "intersects",
-             "POINT_7",
-             "POINT_8",
-             "POINT_9");
+        //query star shaped shape
+        cassandraUtils.filter(geoShape("location",
+                                       "POLYGON((-3.798180 40.444563,-3.789082 40.442473,-3.796077 40.437835, " +
+                                       "-3.793201 40.441427,-3.798180 40.444563))").operation("intersects"))
+                      .checkUnorderedStringColumns("place", "POINT_7", "POINT_8", "POINT_9");
     }
 
     @Test
     public void testStarShapedIntersectsQuery2() {
-        test("POLYGON((-3.80122 40.43846, -3.78212 40.44178, -3.79371 40.44534, -3.79371 40.45305, -3.80122 40.43846))",
-             "intersects",
-             "POINT_7",
-             "POINT_8",
-             "POINT_9",
-             "POINT_10",
-             "POINT_11",
-             "POINT_12");
+        //query star shaped shape
+        cassandraUtils.filter(geoShape("location",
+                                       "POLYGON((-3.8012266 40.4384634, -3.7821293000000002 40.44178680000001, " +
+                                       "-3.7937164 40.4453468, -3.7937164 40.453054, -3.8012266 40.4384634))").operation(
+                "intersects"))
+                      .checkUnorderedStringColumns("place",
+                                                   "POINT_7",
+                                                   "POINT_8",
+                                                   "POINT_9",
+                                                   "POINT_10",
+                                                   "POINT_11",
+                                                   "POINT_12");
     }
 
     @Test
     public void testConcaveShapesIntersectsQuery() {
-        test("POLYGON((-3.80332 40.43496,-3.79869 40.44511,-3.78569 40.44502,-3.78174 40.43427,-3.77779 40.44978,-3.80942 40.448,-3.80332 40.43496))",
-             "intersects",
-             "POINT_3",
-             "POINT_4",
-             "POINT_5",
-             "POINT_6");
+        cassandraUtils.filter(geoShape("location",
+                                       "POLYGON((-3.8033294999999994 40.4349602,-3.7986946 40.44511810000001," +
+                                       "-3.785691299999999 40.445020199999995,-3.781742999999999 40.43427419999999," +
+                                       "-3.7777947999999997 40.4497883,-3.8094234 40.44858,-3.8033294999999994 40.4349602))")
+                                      .operation("intersects"))
+                      .checkUnorderedStringColumns("place", "POINT_3", "POINT_4", "POINT_5", "POINT_6");
+
     }
 
     @Test
     public void testStarShapedContainsQuery() {
-        test("POLYGON((-3.79818 40.44456,-3.78908 40.44247,-3.79607 40.43783, -3.79320 40.44142,-3.79818 40.44456))",
-             "contains");
+        //query star shaped shape
+        cassandraUtils.filter(geoShape("location",
+                                       "POLYGON((-3.798180 40.444563,-3.789082 40.442473,-3.796077 40.437835, " +
+                                       "-3.793201 40.441427,-3.798180 40.444563))").operation("contains"))
+                      .check(0);
     }
 
     @Test
     public void testStarShapedContainsQuery2() {
-        test("POLYGON((-3.80122 40.43846, -3.78212 40.44178, -3.79371 40.44534, -3.79371 40.45305, -3.80122 40.43846))",
-             "contains");
+        //query star shaped shape
+        cassandraUtils.filter(geoShape("location",
+                                       "POLYGON((-3.8012266 40.4384634, -3.7821293000000002 40.44178680000001, " +
+                                       "-3.7937164 40.4453468, -3.7937164 40.453054, -3.8012266 40.4384634))").operation(
+                "contains")).check(0);
     }
 
     @Test
     public void testConcaveShapesContainsQuery() {
-        test("POLYGON((-3.80332 40.43496,-3.79869 40.44511,-3.78569 40.44502,-3.78174 40.43427,-3.77779 40.44978,-3.80942 40.448,-3.80332 40.43496))",
-             "contains");
+        cassandraUtils.filter(geoShape("location",
+                                       "POLYGON((-3.8033294999999994 40.4349602,-3.7986946 40.44511810000001," +
+                                       "-3.785691299999999 40.445020199999995,-3.781742999999999 40.43427419999999," +
+                                       "-3.7777947999999997 40.4497883,-3.8094234 40.44858,-3.8033294999999994 40.4349602))")
+                                      .operation("contains")).check(0);
 
     }
 
     @Test
     public void testStarShapedIsWithinQuery() {
-        test("POLYGON((-3.798180 40.444563,-3.789082 40.442473,-3.796077 40.437835, -3.793201 40.441427,-3.798180 40.444563))",
-             "is_within",
-             "POINT_7",
-             "POINT_8",
-             "POINT_9");
+        //query star shaped shape
+        cassandraUtils.filter(geoShape("location",
+                                       "POLYGON((-3.798180 40.444563,-3.789082 40.442473,-3.796077 40.437835, " +
+                                       "-3.793201 40.441427,-3.798180 40.444563))").operation("is_within"))
+                      .checkUnorderedStringColumns("place", "POINT_7", "POINT_8", "POINT_9");
     }
 
     @Test
     public void testStarShapedIsWithinQuery2() {
-        test("POLYGON((-3.80122 40.43846, -3.78212 40.44178, -3.79371 40.44534, -3.79371 40.45305, -3.80122 40.43846))",
-             "is_within",
-             "POINT_7",
-             "POINT_8",
-             "POINT_9",
-             "POINT_10",
-             "POINT_11",
-             "POINT_12");
+        //query star shaped shape
+        cassandraUtils.filter(geoShape("location",
+                                       "POLYGON((-3.8012266 40.4384634, -3.7821293000000002 40.44178680000001, " +
+                                       "-3.7937164 40.4453468, -3.7937164 40.453054, -3.8012266 40.4384634))").operation(
+                "is_within"))
+                      .checkUnorderedStringColumns("place",
+                                                   "POINT_7",
+                                                   "POINT_8",
+                                                   "POINT_9",
+                                                   "POINT_10",
+                                                   "POINT_11",
+                                                   "POINT_12");
     }
 
     @Test
     public void testConcaveShapesIsWithinQuery() {
-        test("POLYGON((-3.80332 40.43496,-3.79869 40.44511,-3.78569 40.44502,-3.78174 40.43427,-3.77779 40.44978,-3.80942 40.448,-3.80332 40.43496))",
-             "is_within",
-             "POINT_3",
-             "POINT_4",
-             "POINT_5",
-             "POINT_6");
+        cassandraUtils.filter(geoShape("location",
+                                       "POLYGON((-3.8033294999999994 40.4349602,-3.7986946 40.44511810000001," +
+                                       "-3.785691299999999 40.445020199999995,-3.781742999999999 40.43427419999999," +
+                                       "-3.7777947999999997 40.4497883,-3.8094234 40.44858,-3.8033294999999994 40.4349602))")
+                                      .operation("is_within"))
+                      .checkUnorderedStringColumns("place", "POINT_3", "POINT_4", "POINT_5", "POINT_6");
+
     }
 
     @Test
     public void testBufferShape() {
-        test("LINESTRING(-3.8033294 40.4349602,-3.7986946 40.4451181, -3.7856912 40.4450201)",
-             bufferGeoTransformation().maxDistance("500m"),
-             "intersects",
-             "POINT_3",
-             "POINT_4",
-             "POINT_6",
-             "POINT_7",
-             "POINT_8",
-             "POINT_9",
-             "POINT_10",
-             "POINT_11",
-             "POINT_12");
-    }
+        cassandraUtils.filter(geoShape("location",
+                                       "LINESTRING(-3.8033294999999994 40.4349602,-3.7986946 40.44511810000001," +
+                                       "-3.785691299999999 40.445020199999995)").operation("intersects")
+                                                                                .transform(bufferGeoTransformation().maxDistance(
+                                                                                        "500m")))
+                      .checkUnorderedStringColumns("place",
+                                                   "POINT_3",
+                                                   "POINT_4",
+                                                   "POINT_6",
+                                                   "POINT_7",
+                                                   "POINT_8",
+                                                   "POINT_9",
+                                                   "POINT_10",
+                                                   "POINT_11",
+                                                   "POINT_12");
 
-    @Test
-    public void testBBoxPoint() {
-        test("POINT(-3.793030 40.435450)", bboxGeoTransformation(), "intersects", "POINT_1");
-    }
-
-    @Test
-    public void testBBoxLine() {
-        test("LINESTRING(-3.80 40.43,-3.78 40.44)", bboxGeoTransformation(), "intersects", "POINT_1", "POINT_2");
-    }
-
-    @Test
-    public void testBBoxPolygon() {
-        test("POLYGON((-3.80 40.43, -3.78 40.43, -3.78 40.44, -3.80 40.43))",
-             bboxGeoTransformation(),
-             "intersects",
-             "POINT_1",
-             "POINT_2");
     }
 
 }

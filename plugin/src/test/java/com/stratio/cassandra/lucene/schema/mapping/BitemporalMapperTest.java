@@ -578,7 +578,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
     }
 
     @Test
-    public void testReadTtFromFieldFromAsciiColumn() {
+    public void testReadTtFromFieldFromAsciiColumn() throws ParseException {
         BitemporalMapper mapper = bitemporalMapper("vtFrom", "vtTo", "ttFrom", "ttTo").pattern("yyyy/MM/dd HH:mm:ss")
                                                                                       .nowValue("2025/12/23 00:00:00")
                                                                                       .build("field");
@@ -588,12 +588,7 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         columns.add(Column.build("ttFrom", "2015/03/24 11:15:14", AsciiType.instance));
         columns.add(Column.build("ttTo", "2015/03/24 11:15:14", AsciiType.instance));
         SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-        Date date = null;
-        try {
-            date = format.parse("2015/03/24 11:15:14");
-        } catch (ParseException e) {
-            logger.error(e.getMessage(), e);
-        }
+        Date date = format.parse("2015/03/24 11:15:14");
         assertEquals("Date parsing is wrong",
                      new BitemporalDateTime(date),
                      mapper.readBitemporalDate(columns, "ttFrom"));
@@ -778,52 +773,42 @@ public class BitemporalMapperTest extends AbstractMapperTest {
 
     @Test
     public void testGetVtFromStringColumnWithDefaultPattern() throws ParseException {
-
         String pattern = DateParser.DEFAULT_PATTERN;
         SimpleDateFormat sdf = new SimpleDateFormat(pattern);
         Date expectedDate = sdf.parse("2015/02/28 01:02:03.004 GMT");
-
         BitemporalMapper mapper = bitemporalMapper("vt_from", "vt_to", "tt_from", "tt_to").build("field");
-
         Columns columns = new Columns();
         columns.add(Column.build("vt_from", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance));
         columns.add(Column.build("vt_to", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance));
         columns.add(Column.build("tt_from", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance));
         columns.add(Column.build("tt_to", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance));
-
         assertEquals("Date parsing is wrong", expectedDate, mapper.readBitemporalDate(columns, "vt_from").toDate());
     }
 
     @Test
     public void testGetVtFromStringColumnWithCustomPattern() throws ParseException {
-
         String pattern = "yyyy-MM-dd";
         SimpleDateFormat sdf = new SimpleDateFormat(pattern);
         Date expectedDate = sdf.parse("2015-02-28");
-
         BitemporalMapper mapper = bitemporalMapper("vtFrom", "vtTo", "ttFrom", "ttTo").pattern("yyyy-MM-dd")
                                                                                       .nowValue("2025-12-23 00:00:00")
                                                                                       .build("field");
-
         Columns columns = new Columns();
         columns.add(Column.build("vtFrom", "2015-02-28", UTF8Type.instance));
         columns.add(Column.build("vtTo", "2015-02-28", UTF8Type.instance));
         columns.add(Column.build("ttFrom", "2015-02-28", UTF8Type.instance));
         columns.add(Column.build("ttTo", "2015-02-28", UTF8Type.instance));
-
         assertEquals("Date parsing is wrong", expectedDate, mapper.readBitemporalDate(columns, "vtFrom").toDate());
     }
 
     @Test(expected = IndexException.class)
     public void testGetVtFromFromUnparseableStringColumn() {
         BitemporalMapper mapper = bitemporalMapper("vt_from", "vt_to", "tt_from", "tt_to").build("field");
-
         Columns columns = new Columns();
         columns.add(Column.build("vt_from", "abc", UTF8Type.instance));
         columns.add(Column.build("vt_to", "0673679", UTF8Type.instance));
         columns.add(Column.build("tt_from", "abc", UTF8Type.instance));
         columns.add(Column.build("tt_to", "8947597", UTF8Type.instance));
-
         mapper.readBitemporalDate(columns, "vt_from");
     }
 
@@ -840,25 +825,20 @@ public class BitemporalMapperTest extends AbstractMapperTest {
     @Test(expected = IndexException.class)
     public void testGetVtFromWithNegativeColumn() {
         BitemporalMapper mapper = bitemporalMapper("vt_from", "vt_to", "tt_from", "tt_to").build("field");
-
         Columns columns = new Columns();
         columns.add(Column.build("vt_from", -1, Int32Type.instance));
         columns.add(Column.build("vt_to", -1, Int32Type.instance));
         columns.add(Column.build("tt_from", -1, Int32Type.instance));
         columns.add(Column.build("tt_to", -1, Int32Type.instance));
-
         mapper.readBitemporalDate(columns, "vt_from");
     }
 
     @Test
     public void testGetVtToStringColumnWithDefaultPattern() throws ParseException {
-
         String pattern = DateParser.DEFAULT_PATTERN;
         SimpleDateFormat sdf = new SimpleDateFormat(pattern);
         Date expectedDate = sdf.parse("2015/02/28 01:02:03.004 GMT");
-
         BitemporalMapper mapper = bitemporalMapper("vt_from", "vt_to", "tt_from", "tt_to").build("field");
-
         Columns columns = new Columns();
         columns.add(Column.build("vt_from", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance));
         columns.add(Column.build("vt_to", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance));
@@ -870,15 +850,12 @@ public class BitemporalMapperTest extends AbstractMapperTest {
 
     @Test
     public void testGetVtToStringColumnWithCustomPattern() throws ParseException {
-
         String pattern = "yyyy-MM-dd";
         SimpleDateFormat sdf = new SimpleDateFormat(pattern);
         Date expectedDate = sdf.parse("2015-02-28");
-
         BitemporalMapper mapper = bitemporalMapper("vt_from", "vt_to", "tt_from", "tt_to").pattern("yyyy-MM-dd")
                                                                                           .nowValue("2025-12-23")
                                                                                           .build("field");
-
         Columns columns = new Columns();
         columns.add(Column.build("vt_from", "2015-02-28", UTF8Type.instance));
         columns.add(Column.build("vt_to", "2015-02-28", UTF8Type.instance));
@@ -891,7 +868,6 @@ public class BitemporalMapperTest extends AbstractMapperTest {
     @Test(expected = IndexException.class)
     public void testGetVtToFromUnparseableStringColumn() {
         BitemporalMapper mapper = bitemporalMapper("vt_from", "vt_to", "tt_from", "tt_to").build("field");
-
         Columns columns = new Columns();
         columns.add(Column.build("vt_from", "abc", UTF8Type.instance));
         columns.add(Column.build("vt_to", "0673679", UTF8Type.instance));
@@ -913,13 +889,10 @@ public class BitemporalMapperTest extends AbstractMapperTest {
 
     @Test
     public void testGetTtFromStringColumnWithDefaultPattern() throws ParseException {
-
         String pattern = DateParser.DEFAULT_PATTERN;
         SimpleDateFormat sdf = new SimpleDateFormat(pattern);
         Date expectedDate = sdf.parse("2015/02/28 01:02:03.004 GMT");
-
         BitemporalMapper mapper = bitemporalMapper("vt_from", "vt_to", "tt_from", "tt_to").build("field");
-
         Columns columns = new Columns();
         columns.add(Column.build("vt_from", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance));
         columns.add(Column.build("vt_to", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance));
@@ -931,15 +904,12 @@ public class BitemporalMapperTest extends AbstractMapperTest {
 
     @Test
     public void testGetTtFromStringColumnWithCustomPattern() throws ParseException {
-
         String pattern = "yyyy-MM-dd";
         SimpleDateFormat sdf = new SimpleDateFormat(pattern);
         Date expectedDate = sdf.parse("2015-02-28");
-
         BitemporalMapper mapper = bitemporalMapper("vt_from", "vt_to", "tt_from", "tt_to").pattern("yyyy-MM-dd")
                                                                                           .nowValue("2025-12-23")
                                                                                           .build("field");
-
         Columns columns = new Columns();
         columns.add(Column.build("vt_from", "2015-02-28", UTF8Type.instance));
         columns.add(Column.build("vt_to", "2015-02-28", UTF8Type.instance));
@@ -952,7 +922,6 @@ public class BitemporalMapperTest extends AbstractMapperTest {
     @Test(expected = IndexException.class)
     public void testGetTtFromFromUnparseableStringColumn() {
         BitemporalMapper mapper = bitemporalMapper("vt_from", "vt_to", "tt_from", "tt_to").build("field");
-
         Columns columns = new Columns();
         columns.add(Column.build("vt_from", "abc", UTF8Type.instance));
         columns.add(Column.build("vt_to", "0673679", UTF8Type.instance));
@@ -974,13 +943,10 @@ public class BitemporalMapperTest extends AbstractMapperTest {
 
     @Test
     public void testGetTtToStringColumnWithDefaultPattern() throws ParseException {
-
         String pattern = DateParser.DEFAULT_PATTERN;
         SimpleDateFormat sdf = new SimpleDateFormat(pattern);
         Date expectedDate = sdf.parse("2015/02/28 01:02:03.004 GMT");
-
         BitemporalMapper mapper = bitemporalMapper("vt_from", "vt_to", "tt_from", "tt_to").build("field");
-
         Columns columns = new Columns();
         columns.add(Column.build("vt_from", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance));
         columns.add(Column.build("vt_to", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance));
@@ -992,15 +958,12 @@ public class BitemporalMapperTest extends AbstractMapperTest {
 
     @Test
     public void testGetTtToStringColumnWithCustomPattern() throws ParseException {
-
         String pattern = "yyyy-MM-dd";
         SimpleDateFormat sdf = new SimpleDateFormat(pattern);
         Date expectedDate = sdf.parse("2015-02-28");
-
         BitemporalMapper mapper = bitemporalMapper("vt_from", "vt_to", "tt_from", "tt_to").pattern("yyyy-MM-dd")
                                                                                           .nowValue("2025-12-23")
                                                                                           .build("field");
-
         Columns columns = new Columns();
         columns.add(Column.build("vt_from", "2015-02-28", UTF8Type.instance));
         columns.add(Column.build("vt_to", "2015-02-28", UTF8Type.instance));
@@ -1013,7 +976,6 @@ public class BitemporalMapperTest extends AbstractMapperTest {
     @Test(expected = IndexException.class)
     public void testGetTtToFromUnparseableStringColumn() {
         BitemporalMapper mapper = bitemporalMapper("vt_from", "vt_to", "tt_from", "tt_to").build("field");
-
         Columns columns = new Columns();
         columns.add(Column.build("vt_from", "abc", UTF8Type.instance));
         columns.add(Column.build("vt_to", "0673679", UTF8Type.instance));
@@ -1075,7 +1037,6 @@ public class BitemporalMapperTest extends AbstractMapperTest {
             assertTrue("Add fields is wrong", indexableFields[0] instanceof Field);
             assertEquals("Add fields is wrong", wishedIndexedFieldName, indexableFields[0].name());
         }
-
         for (String nonWishedIndexedFieldName : nonWishedIndexedFieldNames) {
             IndexableField[] indexableFields = doc.getFields(nonWishedIndexedFieldName);
             assertEquals("Add fields is wrong", 0, indexableFields.length);
@@ -1087,7 +1048,6 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         String nowValue = "2100/01/01 00:00:00.001 GMT";
         BitemporalMapper mapper = bitemporalMapper("vtFrom", "vtTo", "ttFrom", "ttTo").nowValue(nowValue)
                                                                                       .build("field");
-
         Columns columns = new Columns();
         columns.add(Column.build("vtFrom", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance));
         columns.add(Column.build("vtTo", nowValue, UTF8Type.instance));
@@ -1105,7 +1065,6 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         String nowValue = "2100/01/01 00:00:00.000 GMT";
         BitemporalMapper mapper = bitemporalMapper("vtFrom", "vtTo", "ttFrom", "ttTo").nowValue(nowValue)
                                                                                       .build("field");
-
         Columns columns = new Columns();
         columns.add(Column.build("vtFrom", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance));
         columns.add(Column.build("vtTo", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance));
@@ -1123,7 +1082,6 @@ public class BitemporalMapperTest extends AbstractMapperTest {
         String nowValue = "2100/01/01 00:00:00.000 GMT";
         BitemporalMapper mapper = bitemporalMapper("vtFrom", "vtTo", "ttFrom", "ttTo").nowValue(nowValue)
                                                                                       .build("field");
-
         Columns columns = new Columns();
         columns.add(Column.build("vtFrom", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance));
         columns.add(Column.build("vtTo", nowValue, UTF8Type.instance));
@@ -1139,7 +1097,6 @@ public class BitemporalMapperTest extends AbstractMapperTest {
     @Test
     public void testAddFieldsT4() {
         BitemporalMapper mapper = bitemporalMapper("vtFrom", "vtTo", "ttFrom", "ttTo").build("field");
-
         Columns columns = new Columns();
         columns.add(Column.build("vtFrom", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance));
         columns.add(Column.build("vtTo", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance));
@@ -1164,7 +1121,6 @@ public class BitemporalMapperTest extends AbstractMapperTest {
     @Test(expected = IndexException.class)
     public void testAddFieldsVtFromNull() {
         BitemporalMapper mapper = bitemporalMapper("vtFrom", "vtTo", "ttFrom", "ttTo").build("field");
-
         Columns columns = new Columns();
         columns.add(Column.build("vtTo", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance));
         columns.add(Column.build("ttFrom", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance));
@@ -1176,7 +1132,6 @@ public class BitemporalMapperTest extends AbstractMapperTest {
     @Test(expected = IndexException.class)
     public void testAddFieldsVtToNull() {
         BitemporalMapper mapper = bitemporalMapper("vtFrom", "vtTo", "ttFrom", "ttTo").build("field");
-
         Columns columns = new Columns();
         columns.add(Column.build("vtFrom", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance));
         columns.add(Column.build("ttFrom", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance));
@@ -1188,7 +1143,6 @@ public class BitemporalMapperTest extends AbstractMapperTest {
     @Test(expected = IndexException.class)
     public void testAddFieldsTtFromNull() {
         BitemporalMapper mapper = bitemporalMapper("vtFrom", "vtTo", "ttFrom", "ttTo").build("field");
-
         Columns columns = new Columns();
         columns.add(Column.build("vtFrom", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance));
         columns.add(Column.build("vtTo", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance));
@@ -1200,7 +1154,6 @@ public class BitemporalMapperTest extends AbstractMapperTest {
     @Test(expected = IndexException.class)
     public void testAddFieldsTtToNull() {
         BitemporalMapper mapper = bitemporalMapper("vtFrom", "vtTo", "ttFrom", "ttTo").build("field");
-
         Columns columns = new Columns();
         columns.add(Column.build("vtFrom", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance));
         columns.add(Column.build("vtTo", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance));
@@ -1212,7 +1165,6 @@ public class BitemporalMapperTest extends AbstractMapperTest {
     @Test(expected = IndexException.class)
     public void testAddFieldsVtFromAfterVtToNull() {
         BitemporalMapper mapper = bitemporalMapper("vtFrom", "vtTo", "ttFrom", "ttTo").build("field");
-
         Columns columns = new Columns();
         columns.add(Column.build("vtFrom", "2015/02/28 01:02:03.005 GMT", UTF8Type.instance));
         columns.add(Column.build("vtTo", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance));
@@ -1225,7 +1177,6 @@ public class BitemporalMapperTest extends AbstractMapperTest {
     @Test(expected = IndexException.class)
     public void testAddFieldsTtFromAfterTtToNull() {
         BitemporalMapper mapper = bitemporalMapper("vtFrom", "vtTo", "ttFrom", "ttTo").build("field");
-
         Columns columns = new Columns();
         columns.add(Column.build("vtFrom", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance));
         columns.add(Column.build("vtTo", "2015/02/28 01:02:03.004 GMT", UTF8Type.instance));
