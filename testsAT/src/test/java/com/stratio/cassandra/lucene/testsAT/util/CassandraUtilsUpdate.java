@@ -15,6 +15,7 @@
  */
 package com.stratio.cassandra.lucene.testsAT.util;
 
+import com.datastax.driver.core.querybuilder.Clause;
 import com.datastax.driver.core.querybuilder.QueryBuilder;
 import com.datastax.driver.core.querybuilder.Update;
 import com.stratio.cassandra.lucene.builder.search.condition.Condition;
@@ -48,9 +49,17 @@ public class CassandraUtilsUpdate {
         return this;
     }
 
+    public Update.Conditions onlyIf(Clause condition) {
+        return update.onlyIf(condition);
+    }
+
     private CassandraUtils execute() {
         parent.execute(update);
         return parent;
+    }
+
+    public Update asUpdate() {
+        return update;
     }
 
     public CassandraUtils refresh() {

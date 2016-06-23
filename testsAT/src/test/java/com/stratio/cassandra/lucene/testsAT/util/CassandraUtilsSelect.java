@@ -185,25 +185,16 @@ public class CassandraUtilsSelect {
         return parent;
     }
 
-    public CassandraUtils checkIntColumn(String name, int... expected) {
+    private CassandraUtils checkIntColumns(String name, boolean ordered, int... expected) {
         List<Row> rows = get();
         assertEquals(String.format("Expected %d results!", expected.length), expected.length, rows.size());
         int[] actual = new int[expected.length];
         for (int i = 0; i < expected.length; i++) {
             actual[i] = rows.get(i).getInt(name);
         }
-        assertArrayEquals(String.format("Expected %s but found %s", Arrays.toString(expected), Arrays.toString(actual)),
-                          expected,
-                          actual);
-        return parent;
-    }
-
-    public CassandraUtils checkStringColumn(String name, String... expected) {
-        List<Row> rows = get();
-        assertEquals(String.format("Expected %d results!", expected.length), expected.length, rows.size());
-        String[] actual = new String[expected.length];
-        for (int i = 0; i < expected.length; i++) {
-            actual[i] = rows.get(i).getString(name);
+        if (!ordered) {
+            Arrays.sort(expected);
+            Arrays.sort(actual);
         }
         assertArrayEquals(String.format("Expected %s but found %s", Arrays.toString(expected), Arrays.toString(actual)),
                           expected,
@@ -211,19 +202,74 @@ public class CassandraUtilsSelect {
         return parent;
     }
 
-    public CassandraUtils checkStringColumnWithoutOrder(String name, String... expected) {
+    public CassandraUtils checkOrderedIntColumns(String name, int... expected) {
+        return checkIntColumns(name, true, expected);
+    }
+
+    public CassandraUtils checkUnorderedIntColumns(String name, int... expected) {
+        return checkIntColumns(name, false, expected);
+    }
+
+    public CassandraUtils checkIntColumn(String name, int expected) {
+        return checkIntColumns(name, false, expected);
+    }
+
+    private CassandraUtils checkLongColumns(String name, boolean ordered, long... expected) {
+        List<Row> rows = get();
+        assertEquals(String.format("Expected %d results!", expected.length), expected.length, rows.size());
+        long[] actual = new long[expected.length];
+        for (int i = 0; i < expected.length; i++) {
+            actual[i] = rows.get(i).getLong(name);
+        }
+        if (!ordered) {
+            Arrays.sort(expected);
+            Arrays.sort(actual);
+        }
+        assertArrayEquals(String.format("Expected %s but found %s", Arrays.toString(expected), Arrays.toString(actual)),
+                          expected,
+                          actual);
+        return parent;
+    }
+
+    public CassandraUtils checkLongColumn(String name, long expected) {
+        return checkLongColumns(name, false, expected);
+    }
+
+    public CassandraUtils checkOrderedLongColumns(String name, long... expected) {
+        return checkLongColumns(name, true, expected);
+    }
+
+    public CassandraUtils checkUnrderedLongColumns(String name, long... expected) {
+        return checkLongColumns(name, false, expected);
+    }
+
+    private CassandraUtils checkStringColumns(String name, boolean ordered, String... expected) {
         List<Row> rows = get();
         assertEquals(String.format("Expected %d results!", expected.length), expected.length, rows.size());
         String[] actual = new String[expected.length];
         for (int i = 0; i < expected.length; i++) {
             actual[i] = rows.get(i).getString(name);
         }
-        Arrays.sort(expected);
-        Arrays.sort(actual);
+        if (!ordered) {
+            Arrays.sort(expected);
+            Arrays.sort(actual);
+        }
         assertArrayEquals(String.format("Expected %s but found %s", Arrays.toString(expected), Arrays.toString(actual)),
                           expected,
                           actual);
         return parent;
+    }
+
+    public CassandraUtils checkStringColumn(String name, String expected) {
+        return checkStringColumns(name, false, expected);
+    }
+
+    public CassandraUtils checkOrderedStringColumns(String name, String... expected) {
+        return checkStringColumns(name, true, expected);
+    }
+
+    public CassandraUtils checkUnorderedStringColumns(String name, String... expected) {
+        return checkStringColumns(name, false, expected);
     }
 
     public Integer[] intColumn(String name) {

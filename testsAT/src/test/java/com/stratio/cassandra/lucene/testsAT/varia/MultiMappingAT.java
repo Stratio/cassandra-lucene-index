@@ -80,13 +80,13 @@ public class MultiMappingAT extends BaseAT {
     public void testSimpleSort() {
         cassandraUtils.select()
                       .sort(field("text"))
-                      .checkStringColumn("text", "01-01-2014", "02-01-2013", "03-01-2012", "04-01-2011");
+                      .checkOrderedStringColumns("text", "01-01-2014", "02-01-2013", "03-01-2012", "04-01-2011");
     }
 
     @Test
     public void testAliasSort() {
         cassandraUtils.select()
                       .sort(field("alias_text"))
-                      .checkStringColumn("text", "04-01-2011", "03-01-2012", "02-01-2013", "01-01-2014");
+                      .checkOrderedStringColumns("text", "04-01-2011", "03-01-2012", "02-01-2013", "01-01-2014");
     }
 }

@@ -32,17 +32,16 @@ import static com.stratio.cassandra.lucene.builder.Builder.*;
  */
 public class GeoShapesSearchAT extends BaseAT {
 
-    static String shape_1 = "POLYGON((0 0,1 0, 1 1,0 1,0 0))";
-    static String shape_2 = "POLYGON((-0.1 -0.1,1.1 -0.1, 1.1 1.1,-0.1 1.1,-0.1 -0.1))";
-    static String shape_3 = "POLYGON((1 0,2 0,2 1,1 1,1 0))";
-    static String shape_4 = "POLYGON((1 1,2 1,2 2,1 2,1 1))";
-    static String shape_5 = "POLYGON((2 2,3 2,3 3,2 3,2 2))";
-
-    static String shape_6 = "POLYGON((0 0,2 0,2 1,0 1,0 0))";
-    static String shape_7 = "POLYGON((0 1,1 1,1 2,0 2,0 1))";
-    static String shape_8 = "POLYGON((0 0,1 0,1 2,0 2,0 0))";
-    static String shape_9 = "POLYGON((1 0,2 0,1 2,1 2,1 0))";
-    static String shape_10 = "POLYGON((0 1,2 1,2 2,0 2,0 1))";
+    private static String shape_1 = "POLYGON((0 0,1 0, 1 1,0 1,0 0))";
+    private static String shape_2 = "POLYGON((-0.1 -0.1,1.1 -0.1, 1.1 1.1,-0.1 1.1,-0.1 -0.1))";
+    private static String shape_3 = "POLYGON((1 0,2 0,2 1,1 1,1 0))";
+    private static String shape_4 = "POLYGON((1 1,2 1,2 2,1 2,1 1))";
+    private static String shape_5 = "POLYGON((2 2,3 2,3 3,2 3,2 2))";
+    private static String shape_6 = "POLYGON((0 0,2 0,2 1,0 1,0 0))";
+    private static String shape_7 = "POLYGON((0 1,1 1,1 2,0 2,0 1))";
+    private static String shape_8 = "POLYGON((0 0,1 0,1 2,0 2,0 0))";
+    private static String shape_9 = "POLYGON((1 0,2 0,1 2,1 2,1 0))";
+    private static String shape_10 = "POLYGON((0 1,2 1,2 2,0 2,0 1))";
 
     public static final Map<String, String> data1, data2, data3, data4, data5, data6, data7, data8, data9;
     protected static CassandraUtils cassandraUtils;
@@ -127,312 +126,444 @@ public class GeoShapesSearchAT extends BaseAT {
         cassandraUtils.dropIndex().dropTable().dropKeyspace();
     }
 
-    private void testCase(GeoShapeCondition geoShapeCondition,
-                          int search_case,
-                          String[] resultsForContains,
-                          String[] resultsForIntersects,
-                          String[] resultsForWithin) {
-        cassandraUtils.filter(bool().must(geoShapeCondition.operation("contains"), match("search_case", search_case)))
-                      .checkStringColumnWithoutOrder("identity", resultsForContains);
-        cassandraUtils.filter(bool().must(geoShapeCondition.operation("intersects"), match("search_case", search_case)))
-                      .checkStringColumnWithoutOrder("identity", resultsForIntersects);
-        cassandraUtils.filter(bool().must(geoShapeCondition.operation("is_within"), match("search_case", search_case)))
-                      .checkStringColumnWithoutOrder("identity", resultsForWithin);
-    }
-
     @Test
     public void testCase1() {
-        testCase(geoShape("shape", shape_1), 1, new String[]{"1"}, new String[]{"1"}, new String[]{});
+        GeoShapeCondition geoShape = geoShape("shape", shape_1);
+        Integer search_case = 1;
+        cassandraUtils
+                .filter(bool().must(geoShape.operation("contains"), match("search_case", search_case)))
+                .checkStringColumn("identity", "1")
+                .filter(bool().must(geoShape.operation("intersects"), match("search_case", search_case)))
+                .checkStringColumn("identity", "1")
+                .filter(bool().must(geoShape.operation("is_within"), match("search_case", search_case)))
+                .check(0);
         // index A, search A must return intersecs and Contains but no is_within
     }
 
     @Test
     public void testCase2() {
         //shape_1 is within shape_3 so must return
-        testCase(geoShape("shape", shape_1), 2, new String[]{"1", "2"}, new String[]{"1", "2"}, new String[]{});
-        testCase(geoShape("shape", shape_2), 2, new String[]{"2"}, new String[]{"1", "2"}, new String[]{"1"});
+        GeoShapeCondition geoShape = geoShape("shape", shape_1);
+        GeoShapeCondition geoShape2 = geoShape("shape", shape_2);
+        Integer search_case = 2;
+        cassandraUtils.filter(bool().must(geoShape.operation("contains"), match("search_case", search_case)))
+                      .checkUnorderedStringColumns("identity", "1", "2")
+                      .filter(bool().must(geoShape.operation("intersects"), match("search_case", search_case)))
+                      .checkUnorderedStringColumns("identity", "1", "2")
+                      .filter(bool().must(geoShape.operation("is_within"), match("search_case", search_case)))
+                      .check(0)
+                      .filter(bool().must(geoShape2.operation("contains"), match("search_case", search_case)))
+                      .checkStringColumn("identity", "2")
+                      .filter(bool().must(geoShape2.operation("intersects"), match("search_case", search_case)))
+                      .checkUnorderedStringColumns("identity", "1", "2")
+                      .filter(bool().must(geoShape2.operation("is_within"), match("search_case", search_case)))
+                      .checkStringColumn("identity", "1");
     }
 
     @Test
     public void testCase3() {
         //shape_1 shares with shape_3 just one exterior border so must intersects in the two ways and no more
-        testCase(geoShape("shape", shape_1), 3, new String[]{"1"}, new String[]{"1", "3"}, new String[]{});
-        testCase(geoShape("shape", shape_3), 3, new String[]{"3"}, new String[]{"1", "3"}, new String[]{});
+        GeoShapeCondition geoShape = geoShape("shape", shape_1);
+        GeoShapeCondition geoShape3 = geoShape("shape", shape_3);
+        Integer search_case = 3;
+        cassandraUtils.filter(bool().must(geoShape.operation("contains"), match("search_case", search_case)))
+                      .checkStringColumn("identity", "1")
+                      .filter(bool().must(geoShape.operation("intersects"), match("search_case", search_case)))
+                      .checkUnorderedStringColumns("identity", "1", "3")
+                      .filter(bool().must(geoShape.operation("is_within"), match("search_case", search_case)))
+                      .check(0)
+                      .filter(bool().must(geoShape3.operation("contains"), match("search_case", search_case)))
+                      .checkStringColumn("identity", "3")
+                      .filter(bool().must(geoShape3.operation("intersects"), match("search_case", search_case)))
+                      .checkUnorderedStringColumns("identity", "1", "3")
+                      .filter(bool().must(geoShape3.operation("is_within"), match("search_case", search_case)))
+                      .check(0);
     }
 
     @Test
     public void testCase4() {
         //shape_1 is within shape_3
-        testCase(geoShape("shape", shape_1), 4, new String[]{"1"}, new String[]{"1", "4"}, new String[]{});
-        testCase(geoShape("shape", shape_4), 4, new String[]{"4"}, new String[]{"1", "4"}, new String[]{});
+        GeoShapeCondition geoShape1 = geoShape("shape", shape_1);
+        GeoShapeCondition geoShape4 = geoShape("shape", shape_4);
+        Integer search_case = 4;
+        cassandraUtils.filter(bool().must(geoShape1.operation("contains"), match("search_case", search_case)))
+                      .checkStringColumn("identity", "1")
+                      .filter(bool().must(geoShape1.operation("intersects"), match("search_case", search_case)))
+                      .checkUnorderedStringColumns("identity", "1", "4")
+                      .filter(bool().must(geoShape1.operation("is_within"), match("search_case", search_case)))
+                      .check(0)
+                      .filter(bool().must(geoShape4.operation("contains"), match("search_case", search_case)))
+                      .checkStringColumn("identity", "4")
+                      .filter(bool().must(geoShape4.operation("intersects"), match("search_case", search_case)))
+                      .checkUnorderedStringColumns("identity", "1", "4")
+                      .filter(bool().must(geoShape4.operation("is_within"), match("search_case", search_case)))
+                      .check(0);
     }
 
     @Test
     public void testCase5() {
         //shape_1 disjoint shape5
-        testCase(geoShape("shape", shape_1), 5, new String[]{"1"}, new String[]{"1"}, new String[]{});
-        testCase(geoShape("shape", shape_5), 5, new String[]{"5"}, new String[]{"5"}, new String[]{});
+        GeoShapeCondition geoShape1 = geoShape("shape", shape_1);
+        GeoShapeCondition geoShape5 = geoShape("shape", shape_5);
+        Integer search_case = 5;
+        cassandraUtils.filter(bool().must(geoShape1.operation("contains"), match("search_case", search_case)))
+                      .checkStringColumn("identity", "1")
+                      .filter(bool().must(geoShape1.operation("intersects"), match("search_case", search_case)))
+                      .checkStringColumn("identity", "1")
+                      .filter(bool().must(geoShape1.operation("is_within"), match("search_case", search_case)))
+                      .check(0)
+                      .filter(bool().must(geoShape5.operation("contains"), match("search_case", search_case)))
+                      .checkStringColumn("identity", "5")
+                      .filter(bool().must(geoShape5.operation("intersects"), match("search_case", search_case)))
+                      .checkStringColumn("identity", "5")
+                      .filter(bool().must(geoShape5.operation("is_within"), match("search_case", search_case)))
+                      .check(0);
     }
 
     @Test
     public void testCase1WithDifference() {
-        testCase(geoShape("shape", shape_6).transform(differenceGeoTransformation(shape_3)),
-                 1,
-                 new String[]{"1"},
-                 new String[]{"1"},
-                 new String[]{});
+        GeoShapeCondition geoShape6 = geoShape("shape", shape_6).transform(differenceGeoTransformation(shape_3));
+        Integer search_case = 1;
+        cassandraUtils.filter(bool().must(geoShape6.operation("contains"), match("search_case", search_case)))
+                      .checkStringColumn("identity", "1")
+                      .filter(bool().must(geoShape6.operation("intersects"), match("search_case", search_case)))
+                      .checkStringColumn("identity", "1")
+                      .filter(bool().must(geoShape6.operation("is_within"), match("search_case", search_case)))
+                      .check(0);
     }
 
     @Test
     public void testCase2WithDifference() {
         //shape_1 (2) is within shape_3 so must return
-        testCase(geoShape("shape", shape_6).transform(differenceGeoTransformation(shape_3)),
-                 2,
-                 new String[]{"1", "2"},
-                 new String[]{"1", "2"},
-                 new String[]{});
+        GeoShapeCondition geoShape6 = geoShape("shape", shape_6).transform(differenceGeoTransformation(shape_3));
+        Integer search_case = 2;
+        cassandraUtils.filter(bool().must(geoShape6.operation("contains"), match("search_case", search_case)))
+                      .checkUnorderedStringColumns("identity", "1", "2")
+                      .filter(bool().must(geoShape6.operation("intersects"), match("search_case", search_case)))
+                      .checkUnorderedStringColumns("identity", "1", "2")
+                      .filter(bool().must(geoShape6.operation("is_within"), match("search_case", search_case)))
+                      .check(0);
     }
 
     @Test
     public void testCase3WithDifference() {
         //shape_1 shares with shape_3 just one exterior border so must intersects in the two ways and no more
-        testCase(geoShape("shape", shape_6).transform(differenceGeoTransformation(shape_3)),
-                 3,
-                 new String[]{"1"},
-                 new String[]{"1", "3"},
-                 new String[]{});
-        testCase(geoShape("shape", shape_6).transform(differenceGeoTransformation(shape_1)),
-                 3,
-                 new String[]{"3"},
-                 new String[]{"1", "3"},
-                 new String[]{});
+        GeoShapeCondition geoShape6_3 = geoShape("shape", shape_6).transform(differenceGeoTransformation(shape_3));
+        GeoShapeCondition geoShape6_1 = geoShape("shape", shape_6).transform(differenceGeoTransformation(shape_1));
+        Integer search_case = 3;
+        cassandraUtils.filter(bool().must(geoShape6_3.operation("contains"), match("search_case", search_case)))
+                      .checkStringColumn("identity", "1")
+                      .filter(bool().must(geoShape6_3.operation("intersects"), match("search_case", search_case)))
+                      .checkUnorderedStringColumns("identity", "1", "3")
+                      .filter(bool().must(geoShape6_3.operation("is_within"), match("search_case", search_case)))
+                      .check(0)
+                      .filter(bool().must(geoShape6_1.operation("contains"), match("search_case", search_case)))
+                      .checkStringColumn("identity", "3")
+                      .filter(bool().must(geoShape6_1.operation("intersects"), match("search_case", search_case)))
+                      .checkUnorderedStringColumns("identity", "1", "3")
+                      .filter(bool().must(geoShape6_1.operation("is_within"), match("search_case", search_case)))
+                      .check(0);
     }
 
     @Test
     public void testCase4WithDifference() {
         //shape_1 (2) is within shape_3
-        testCase(geoShape("shape", shape_6).transform(differenceGeoTransformation(shape_3)),
-                 4,
-                 new String[]{"1"},
-                 new String[]{"1", "4"},
-                 new String[]{});
-        testCase(geoShape("shape", shape_9).transform(differenceGeoTransformation(shape_3)),
-                 4,
-                 new String[]{"4"},
-                 new String[]{"1", "4"},
-                 new String[]{});
+        GeoShapeCondition geoShape6_3 = geoShape("shape", shape_6).transform(differenceGeoTransformation(shape_3));
+        GeoShapeCondition geoShape9_3 = geoShape("shape", shape_9).transform(differenceGeoTransformation(shape_3));
+        Integer search_case = 4;
+        cassandraUtils.filter(bool().must(geoShape6_3.operation("contains"), match("search_case", search_case)))
+                      .checkStringColumn("identity", "1")
+                      .filter(bool().must(geoShape6_3.operation("intersects"), match("search_case", search_case)))
+                      .checkUnorderedStringColumns("identity", "1", "4")
+                      .filter(bool().must(geoShape6_3.operation("is_within"), match("search_case", search_case)))
+                      .check(0)
+                      .filter(bool().must(geoShape9_3.operation("contains"), match("search_case", search_case)))
+                      .checkStringColumn("identity", "4")
+                      .filter(bool().must(geoShape9_3.operation("intersects"), match("search_case", search_case)))
+                      .checkUnorderedStringColumns("identity", "1", "4")
+                      .filter(bool().must(geoShape9_3.operation("is_within"), match("search_case", search_case)))
+                      .check(0);
     }
 
     @Test
     public void testCase5WithDifference() {
         //shape_1 disjoint shape5
-        testCase(geoShape("shape", shape_6).transform(differenceGeoTransformation(shape_3)),
-                 5,
-                 new String[]{"1"},
-                 new String[]{"1"},
-                 new String[]{});
+        GeoShapeCondition geoShape6_3 = geoShape("shape", shape_6).transform(differenceGeoTransformation(shape_3));
+        Integer search_case = 5;
+        cassandraUtils.filter(bool().must(geoShape6_3.operation("contains"), match("search_case", search_case)))
+                      .checkStringColumn("identity", "1")
+                      .filter(bool().must(geoShape6_3.operation("intersects"), match("search_case", search_case)))
+                      .checkStringColumn("identity", "1")
+                      .filter(bool().must(geoShape6_3.operation("is_within"), match("search_case", search_case)))
+                      .check(0);
     }
 
     //Intersection shape1= SHAPE_6 Intersectoion SHAPE_8, intersection is idempotent
     @Test
     public void testCase1WithIntersection() {
         // index A, search A must return intersecs and Contains but no is_within
-        testCase(geoShape("shape", shape_6).transform(intersectionGeoTransformation(shape_8)),
-                 1,
-                 new String[]{"1"},
-                 new String[]{"1"},
-                 new String[]{});
-        testCase(geoShape("shape", shape_8).transform(intersectionGeoTransformation(shape_6)),
-                 1,
-                 new String[]{"1"},
-                 new String[]{"1"},
-                 new String[]{});
+        GeoShapeCondition geoShape6_8 = geoShape("shape", shape_6).transform(intersectionGeoTransformation(shape_8));
+        GeoShapeCondition geoShape8_6 = geoShape("shape", shape_8).transform(intersectionGeoTransformation(shape_6));
+        Integer search_case = 1;
+        cassandraUtils.filter(bool().must(geoShape6_8.operation("contains"), match("search_case", search_case)))
+                      .checkStringColumn("identity", "1")
+                      .filter(bool().must(geoShape6_8.operation("intersects"), match("search_case", search_case)))
+                      .checkStringColumn("identity", "1")
+                      .filter(bool().must(geoShape6_8.operation("is_within"), match("search_case", search_case)))
+                      .check(0)
+                      .filter(bool().must(geoShape8_6.operation("contains"), match("search_case", search_case)))
+                      .checkStringColumn("identity", "1")
+                      .filter(bool().must(geoShape8_6.operation("intersects"), match("search_case", search_case)))
+                      .checkStringColumn("identity", "1")
+                      .filter(bool().must(geoShape8_6.operation("is_within"), match("search_case", search_case)))
+                      .check(0);
     }
 
     @Test
     public void testCase2WithIntersection() {
         //shape_1 (2) is within shape_3 so must return
-        testCase(geoShape("shape", shape_6).transform(intersectionGeoTransformation(shape_8)),
-                 2,
-                 new String[]{"1", "2"},
-                 new String[]{"1", "2"},
-                 new String[]{});
-        testCase(geoShape("shape", shape_8).transform(intersectionGeoTransformation(shape_6)),
-                 2,
-                 new String[]{"1", "2"},
-                 new String[]{"1", "2"},
-                 new String[]{});
+        GeoShapeCondition geoShape6_8 = geoShape("shape", shape_6).transform(intersectionGeoTransformation(shape_8));
+        GeoShapeCondition geoShape8_6 = geoShape("shape", shape_8).transform(intersectionGeoTransformation(shape_6));
+        Integer search_case = 2;
+        cassandraUtils.filter(bool().must(geoShape6_8.operation("contains"), match("search_case", search_case)))
+                      .checkUnorderedStringColumns("identity", "1", "2")
+                      .filter(bool().must(geoShape6_8.operation("intersects"), match("search_case", search_case)))
+                      .checkUnorderedStringColumns("identity", "1", "2")
+                      .filter(bool().must(geoShape6_8.operation("is_within"), match("search_case", search_case)))
+                      .check(0)
+                      .filter(bool().must(geoShape8_6.operation("contains"), match("search_case", search_case)))
+                      .checkUnorderedStringColumns("identity", "1", "2")
+                      .filter(bool().must(geoShape8_6.operation("intersects"), match("search_case", search_case)))
+                      .checkUnorderedStringColumns("identity", "1", "2")
+                      .filter(bool().must(geoShape8_6.operation("is_within"), match("search_case", search_case)))
+                      .check(0);
     }
 
     @Test
     public void testCase3WithIntersection() {
         //shape_1 shares with shape_3 just one exterior border so must intersects in the two ways and no more
-        testCase(geoShape("shape", shape_6).transform(intersectionGeoTransformation(shape_8)),
-                 3,
-                 new String[]{"1"},
-                 new String[]{"1", "3"},
-                 new String[]{});
-        testCase(geoShape("shape", shape_8).transform(intersectionGeoTransformation(shape_6)),
-                 3,
-                 new String[]{"1"},
-                 new String[]{"1", "3"},
-                 new String[]{});
-        testCase(geoShape("shape", shape_6).transform(intersectionGeoTransformation(shape_9)),
-                 3,
-                 new String[]{"3"},
-                 new String[]{"1", "3"},
-                 new String[]{});
-        testCase(geoShape("shape", shape_9).transform(intersectionGeoTransformation(shape_6)),
-                 3,
-                 new String[]{"3"},
-                 new String[]{"1", "3"},
-                 new String[]{});
+        GeoShapeCondition geoShape6_8 = geoShape("shape", shape_6).transform(intersectionGeoTransformation(shape_8));
+        GeoShapeCondition geoShape8_6 = geoShape("shape", shape_8).transform(intersectionGeoTransformation(shape_6));
+        GeoShapeCondition geoShape6_9 = geoShape("shape", shape_6).transform(intersectionGeoTransformation(shape_9));
+        GeoShapeCondition geoShape9_6 = geoShape("shape", shape_9).transform(intersectionGeoTransformation(shape_6));
+        Integer search_case = 3;
+        cassandraUtils.filter(bool().must(geoShape6_8.operation("contains"), match("search_case", search_case)))
+                      .checkStringColumn("identity", "1")
+                      .filter(bool().must(geoShape6_8.operation("intersects"), match("search_case", search_case)))
+                      .checkUnorderedStringColumns("identity", "1", "3")
+                      .filter(bool().must(geoShape6_8.operation("is_within"), match("search_case", search_case)))
+                      .check(0)
+                      .filter(bool().must(geoShape8_6.operation("contains"), match("search_case", search_case)))
+                      .checkStringColumn("identity", "1")
+                      .filter(bool().must(geoShape8_6.operation("intersects"), match("search_case", search_case)))
+                      .checkUnorderedStringColumns("identity", "1", "3")
+                      .filter(bool().must(geoShape8_6.operation("is_within"), match("search_case", search_case)))
+                      .check(0)
+                      .filter(bool().must(geoShape6_9.operation("contains"), match("search_case", search_case)))
+                      .checkStringColumn("identity", "3")
+                      .filter(bool().must(geoShape6_9.operation("intersects"), match("search_case", search_case)))
+                      .checkUnorderedStringColumns("identity", "1", "3")
+                      .filter(bool().must(geoShape6_9.operation("is_within"), match("search_case", search_case)))
+                      .check(0)
+                      .filter(bool().must(geoShape9_6.operation("contains"), match("search_case", search_case)))
+                      .checkStringColumn("identity", "3")
+                      .filter(bool().must(geoShape9_6.operation("intersects"), match("search_case", search_case)))
+                      .checkUnorderedStringColumns("identity", "1", "3")
+                      .filter(bool().must(geoShape9_6.operation("is_within"), match("search_case", search_case)))
+                      .check(0);
     }
 
     @Test
     public void testCase4WithIntersection() {
         //shape_1 (2) is within shape_3
-        testCase(geoShape("shape", shape_6).transform(intersectionGeoTransformation(shape_8)),
-                 4,
-                 new String[]{"1"},
-                 new String[]{"1", "4"},
-                 new String[]{});
-        testCase(geoShape("shape", shape_8).transform(intersectionGeoTransformation(shape_6)),
-                 4,
-                 new String[]{"1"},
-                 new String[]{"1", "4"},
-                 new String[]{});
-        testCase(geoShape("shape", shape_9).transform(intersectionGeoTransformation(shape_10)),
-                 4,
-                 new String[]{"4"},
-                 new String[]{"1", "4"},
-                 new String[]{});
-        testCase(geoShape("shape", shape_10).transform(intersectionGeoTransformation(shape_9)),
-                 4,
-                 new String[]{"4"},
-                 new String[]{"1", "4"},
-                 new String[]{});
+        GeoShapeCondition geoShape6_8 = geoShape("shape", shape_6).transform(intersectionGeoTransformation(shape_8));
+        GeoShapeCondition geoShape8_6 = geoShape("shape", shape_8).transform(intersectionGeoTransformation(shape_6));
+        GeoShapeCondition geoShape9_10 = geoShape("shape", shape_9).transform(intersectionGeoTransformation(shape_10));
+        GeoShapeCondition geoShape10_9 = geoShape("shape", shape_10).transform(intersectionGeoTransformation(shape_9));
+        Integer search_case = 4;
+        cassandraUtils.filter(bool().must(geoShape6_8.operation("contains"), match("search_case", search_case)))
+                      .checkStringColumn("identity", "1")
+                      .filter(bool().must(geoShape6_8.operation("intersects"), match("search_case", search_case)))
+                      .checkUnorderedStringColumns("identity", "1", "4")
+                      .filter(bool().must(geoShape6_8.operation("is_within"), match("search_case", search_case)))
+                      .check(0)
+                      .filter(bool().must(geoShape8_6.operation("contains"), match("search_case", search_case)))
+                      .checkStringColumn("identity", "1")
+                      .filter(bool().must(geoShape8_6.operation("intersects"), match("search_case", search_case)))
+                      .checkUnorderedStringColumns("identity", "1", "4")
+                      .filter(bool().must(geoShape8_6.operation("is_within"), match("search_case", search_case)))
+                      .check(0)
+                      .filter(bool().must(geoShape9_10.operation("contains"), match("search_case", search_case)))
+                      .checkStringColumn("identity", "4")
+                      .filter(bool().must(geoShape9_10.operation("intersects"), match("search_case", search_case)))
+                      .checkUnorderedStringColumns("identity", "1", "4")
+                      .filter(bool().must(geoShape9_10.operation("is_within"), match("search_case", search_case)))
+                      .check(0)
+                      .filter(bool().must(geoShape10_9.operation("contains"), match("search_case", search_case)))
+                      .checkStringColumn("identity", "4")
+                      .filter(bool().must(geoShape10_9.operation("intersects"), match("search_case", search_case)))
+                      .checkUnorderedStringColumns("identity", "1", "4")
+                      .filter(bool().must(geoShape10_9.operation("is_within"), match("search_case", search_case)))
+                      .check(0);
     }
 
     @Test
     public void testCase5WithIntersection() {
         //shape_1 disjoint shape5
-        testCase(geoShape("shape", shape_6).transform(intersectionGeoTransformation(shape_8)),
-                 5,
-                 new String[]{"1"},
-                 new String[]{"1"},
-                 new String[]{});
-        testCase(geoShape("shape", shape_8).transform(intersectionGeoTransformation(shape_6)),
-                 5,
-                 new String[]{"1"},
-                 new String[]{"1"},
-                 new String[]{});
+        GeoShapeCondition geoShape6_8 = geoShape("shape", shape_6).transform(intersectionGeoTransformation(shape_8));
+        GeoShapeCondition geoShape8_6 = geoShape("shape", shape_8).transform(intersectionGeoTransformation(shape_6));
+        Integer search_case = 5;
+        cassandraUtils.filter(bool().must(geoShape6_8.operation("contains"), match("search_case", search_case)))
+                      .checkStringColumn("identity", "1")
+                      .filter(bool().must(geoShape6_8.operation("intersects"), match("search_case", search_case)))
+                      .checkStringColumn("identity", "1")
+                      .filter(bool().must(geoShape6_8.operation("is_within"), match("search_case", search_case)))
+                      .check(0)
+                      .filter(bool().must(geoShape8_6.operation("contains"), match("search_case", search_case)))
+                      .checkStringColumn("identity", "1")
+                      .filter(bool().must(geoShape8_6.operation("intersects"), match("search_case", search_case)))
+                      .checkStringColumn("identity", "1")
+                      .filter(bool().must(geoShape8_6.operation("is_within"), match("search_case", search_case)))
+                      .check(0);
     }
 
     @Test
     public void testCase1WithUnion() {
         // index A, search A must return intersecs and Contains but no is_within
-        testCase(geoShape("shape", shape_1).transform(unionGeoTransformation(shape_3),
-                                                      intersectionGeoTransformation(shape_8)),
-                 1,
-                 new String[]{"1"},
-                 new String[]{"1"},
-                 new String[]{});
-        testCase(geoShape("shape", shape_1).transform(unionGeoTransformation(shape_7),
-                                                      intersectionGeoTransformation(shape_6)),
-                 1,
-                 new String[]{"1"},
-                 new String[]{"1"},
-                 new String[]{});
+        GeoShapeCondition geoShape1_3_8 = geoShape("shape", shape_1).transform(unionGeoTransformation(shape_3),
+                                                                               intersectionGeoTransformation(shape_8));
+        GeoShapeCondition geoShape1_7_6 = geoShape("shape", shape_1).transform(unionGeoTransformation(shape_7),
+                                                                               intersectionGeoTransformation(shape_6));
+        Integer search_case = 1;
+        cassandraUtils.filter(bool().must(geoShape1_3_8.operation("contains"), match("search_case", search_case)))
+                      .checkStringColumn("identity", "1")
+                      .filter(bool().must(geoShape1_3_8.operation("intersects"), match("search_case", search_case)))
+                      .checkStringColumn("identity", "1")
+                      .filter(bool().must(geoShape1_3_8.operation("is_within"), match("search_case", search_case)))
+                      .check(0)
+                      .filter(bool().must(geoShape1_7_6.operation("contains"), match("search_case", search_case)))
+                      .checkStringColumn("identity", "1")
+                      .filter(bool().must(geoShape1_7_6.operation("intersects"), match("search_case", search_case)))
+                      .checkStringColumn("identity", "1")
+                      .filter(bool().must(geoShape1_7_6.operation("is_within"), match("search_case", search_case)))
+                      .check(0);
     }
 
     @Test
     public void testCase2WithUnion() {
         //shape_1 (2) is within shape_3 so must return
-        testCase(geoShape("shape", shape_1).transform(unionGeoTransformation(shape_3),
-                                                      intersectionGeoTransformation(shape_8)),
-                 2,
-                 new String[]{"1", "2"},
-                 new String[]{"1", "2"},
-                 new String[]{});
-        testCase(geoShape("shape", shape_1).transform(unionGeoTransformation(shape_7),
-                                                      intersectionGeoTransformation(shape_6)),
-                 2,
-                 new String[]{"1", "2"},
-                 new String[]{"1", "2"},
-                 new String[]{});
+        GeoShapeCondition geoShape1_3_8 = geoShape("shape", shape_1).transform(unionGeoTransformation(shape_3),
+                                                                               intersectionGeoTransformation(shape_8));
+        GeoShapeCondition geoShape1_7_6 = geoShape("shape", shape_1).transform(unionGeoTransformation(shape_7),
+                                                                               intersectionGeoTransformation(shape_6));
+        Integer search_case = 2;
+        cassandraUtils.filter(bool().must(geoShape1_3_8.operation("contains"), match("search_case", search_case)))
+                      .checkUnorderedStringColumns("identity", "1", "2")
+                      .filter(bool().must(geoShape1_3_8.operation("intersects"), match("search_case", search_case)))
+                      .checkUnorderedStringColumns("identity", "1", "2")
+                      .filter(bool().must(geoShape1_3_8.operation("is_within"), match("search_case", search_case)))
+                      .check(0)
+                      .filter(bool().must(geoShape1_7_6.operation("contains"), match("search_case", search_case)))
+                      .checkUnorderedStringColumns("identity", "1", "2")
+                      .filter(bool().must(geoShape1_7_6.operation("intersects"), match("search_case", search_case)))
+                      .checkUnorderedStringColumns("identity", "1", "2")
+                      .filter(bool().must(geoShape1_7_6.operation("is_within"), match("search_case", search_case)))
+                      .check(0);
     }
 
     @Test
     public void testCase3WithUnion() {
         //shape_1 shares with shape_3 just one exterior border so must intersects in the two ways and no more
-        testCase(geoShape("shape", shape_1).transform(unionGeoTransformation(shape_3),
-                                                      intersectionGeoTransformation(shape_8)),
-                 3,
-                 new String[]{"1"},
-                 new String[]{"1", "3"},
-                 new String[]{});
-        testCase(geoShape("shape", shape_1).transform(unionGeoTransformation(shape_7),
-                                                      intersectionGeoTransformation(shape_6)),
-                 3,
-                 new String[]{"1"},
-                 new String[]{"1", "3"},
-                 new String[]{});
-        testCase(geoShape("shape", shape_1).transform(unionGeoTransformation(shape_3),
-                                                      intersectionGeoTransformation(shape_9)),
-                 3,
-                 new String[]{"3"},
-                 new String[]{"1", "3"},
-                 new String[]{});
-        testCase(geoShape("shape", shape_9).transform(intersectionGeoTransformation(shape_6)),
-                 3,
-                 new String[]{"3"},
-                 new String[]{"1", "3"},
-                 new String[]{});
+        GeoShapeCondition geoShape1_3_8 = geoShape("shape", shape_1).transform(unionGeoTransformation(shape_3),
+                                                                               intersectionGeoTransformation(shape_8));
+        GeoShapeCondition geoShape1_7_6 = geoShape("shape", shape_1).transform(unionGeoTransformation(shape_7),
+                                                                               intersectionGeoTransformation(shape_6));
+        GeoShapeCondition geoShape1_3_9 = geoShape("shape", shape_1).transform(unionGeoTransformation(shape_3),
+                                                                               intersectionGeoTransformation(shape_9));
+        GeoShapeCondition geoShape9_6 = geoShape("shape", shape_9).transform(intersectionGeoTransformation(shape_6));
+        Integer search_case = 3;
+        cassandraUtils.filter(bool().must(geoShape1_3_8.operation("contains"), match("search_case", search_case)))
+                      .checkStringColumn("identity", "1")
+                      .filter(bool().must(geoShape1_3_8.operation("intersects"), match("search_case", search_case)))
+                      .checkUnorderedStringColumns("identity", "1", "3")
+                      .filter(bool().must(geoShape1_3_8.operation("is_within"), match("search_case", search_case)))
+                      .check(0)
+                      .filter(bool().must(geoShape1_7_6.operation("contains"), match("search_case", search_case)))
+                      .checkStringColumn("identity", "1")
+                      .filter(bool().must(geoShape1_7_6.operation("intersects"), match("search_case", search_case)))
+                      .checkUnorderedStringColumns("identity", "1", "3")
+                      .filter(bool().must(geoShape1_7_6.operation("is_within"), match("search_case", search_case)))
+                      .check(0)
+                      .filter(bool().must(geoShape1_3_9.operation("contains"), match("search_case", search_case)))
+                      .checkStringColumn("identity", "3")
+                      .filter(bool().must(geoShape1_3_9.operation("intersects"), match("search_case", search_case)))
+                      .checkUnorderedStringColumns("identity", "1", "3")
+                      .filter(bool().must(geoShape1_3_9.operation("is_within"), match("search_case", search_case)))
+                      .check(0)
+                      .filter(bool().must(geoShape9_6.operation("contains"), match("search_case", search_case)))
+                      .checkStringColumn("identity", "3")
+                      .filter(bool().must(geoShape9_6.operation("intersects"), match("search_case", search_case)))
+                      .checkUnorderedStringColumns("identity", "1", "3")
+                      .filter(bool().must(geoShape9_6.operation("is_within"), match("search_case", search_case)))
+                      .check(0);
     }
 
     @Test
     public void testCase4WithUnion() {
         //shape_1 (2) is within shape_3
-        testCase(geoShape("shape", shape_1).transform(unionGeoTransformation(shape_3),
-                                                      intersectionGeoTransformation(shape_8)),
-                 4,
-                 new String[]{"1"},
-                 new String[]{"1", "4"},
-                 new String[]{});
-        testCase(geoShape("shape", shape_1).transform(unionGeoTransformation(shape_7),
-                                                      intersectionGeoTransformation(shape_6)),
-                 4,
-                 new String[]{"1"},
-                 new String[]{"1", "4"},
-                 new String[]{});
-        testCase(geoShape("shape", shape_9).transform(intersectionGeoTransformation(shape_10)),
-                 4,
-                 new String[]{"4"},
-                 new String[]{"1", "4"},
-                 new String[]{});
-        testCase(geoShape("shape", shape_4).transform(unionGeoTransformation(shape_7),
-                                                      intersectionGeoTransformation(shape_9)),
-                 4,
-                 new String[]{"4"},
-                 new String[]{"1", "4"},
-                 new String[]{});
+        GeoShapeCondition geoShape1_3_8 = geoShape("shape", shape_1).transform(unionGeoTransformation(shape_3),
+                                                                               intersectionGeoTransformation(shape_8));
+        GeoShapeCondition geoShape1_7_6 = geoShape("shape", shape_1).transform(unionGeoTransformation(shape_7),
+                                                                               intersectionGeoTransformation(shape_6));
+        GeoShapeCondition geoShape9_10 = geoShape("shape", shape_9).transform(intersectionGeoTransformation(shape_10));
+        GeoShapeCondition geoShape4_7_9 = geoShape("shape", shape_4).transform(unionGeoTransformation(shape_7),
+                                                                               intersectionGeoTransformation(shape_9));
+        Integer search_case = 4;
+        cassandraUtils.filter(bool().must(geoShape1_3_8.operation("contains"), match("search_case", search_case)))
+                      .checkStringColumn("identity", "1")
+                      .filter(bool().must(geoShape1_3_8.operation("intersects"), match("search_case", search_case)))
+                      .checkUnorderedStringColumns("identity", "1", "4")
+                      .filter(bool().must(geoShape1_3_8.operation("is_within"), match("search_case", search_case)))
+                      .check(0)
+                      .filter(bool().must(geoShape1_7_6.operation("contains"), match("search_case", search_case)))
+                      .checkStringColumn("identity", "1")
+                      .filter(bool().must(geoShape1_7_6.operation("intersects"), match("search_case", search_case)))
+                      .checkUnorderedStringColumns("identity", "1", "4")
+                      .filter(bool().must(geoShape1_7_6.operation("is_within"), match("search_case", search_case)))
+                      .check(0)
+                      .filter(bool().must(geoShape9_10.operation("contains"), match("search_case", search_case)))
+                      .checkStringColumn("identity", "4")
+                      .filter(bool().must(geoShape9_10.operation("intersects"), match("search_case", search_case)))
+                      .checkUnorderedStringColumns("identity", "1", "4")
+                      .filter(bool().must(geoShape9_10.operation("is_within"), match("search_case", search_case)))
+                      .check(0)
+                      .filter(bool().must(geoShape4_7_9.operation("contains"), match("search_case", search_case)))
+                      .checkStringColumn("identity", "4")
+                      .filter(bool().must(geoShape4_7_9.operation("intersects"), match("search_case", search_case)))
+                      .checkUnorderedStringColumns("identity", "1", "4")
+                      .filter(bool().must(geoShape4_7_9.operation("is_within"), match("search_case", search_case)))
+                      .check(0);
     }
 
     @Test
     public void testCase5WithUnion() {
         //shape_1 disjoint shape5
-        testCase(geoShape("shape", shape_1).transform(unionGeoTransformation(shape_3),
-                                                      intersectionGeoTransformation(shape_8)),
-                 5,
-                 new String[]{"1"},
-                 new String[]{"1"},
-                 new String[]{});
-        testCase(geoShape("shape", shape_1).transform(unionGeoTransformation(shape_7),
-                                                      intersectionGeoTransformation(shape_6)),
-                 5,
-                 new String[]{"1"},
-                 new String[]{"1"},
-                 new String[]{});
+        GeoShapeCondition geoShape1_3_8 = geoShape("shape", shape_1).transform(unionGeoTransformation(shape_3),
+                                                                               intersectionGeoTransformation(shape_8));
+        GeoShapeCondition geoShape1_7_6 = geoShape("shape", shape_1).transform(unionGeoTransformation(shape_7),
+                                                                               intersectionGeoTransformation(shape_6));
+        Integer search_case = 5;
+        cassandraUtils.filter(bool().must(geoShape1_3_8.operation("contains"), match("search_case", search_case)))
+                      .checkStringColumn("identity", "1")
+                      .filter(bool().must(geoShape1_3_8.operation("intersects"), match("search_case", search_case)))
+                      .checkStringColumn("identity", "1")
+                      .filter(bool().must(geoShape1_3_8.operation("is_within"), match("search_case", search_case)))
+                      .check(0)
+                      .filter(bool().must(geoShape1_7_6.operation("contains"), match("search_case", search_case)))
+                      .checkStringColumn("identity", "1")
+                      .filter(bool().must(geoShape1_7_6.operation("intersects"), match("search_case", search_case)))
+                      .checkStringColumn("identity", "1")
+                      .filter(bool().must(geoShape1_7_6.operation("is_within"), match("search_case", search_case)))
+                      .check(0);
     }
 }
