@@ -149,7 +149,7 @@ public class CassandraUtilsBuilder {
             case "text":
                 return textMapper();
             case "timestamp":
-                return dateMapper().pattern("yyyy/MM/dd");
+                return dateMapper().pattern("yyyy/MM/dd HH:mm:ss.SSS");
             case "timeuuid":
                 return uuidMapper();
             case "tinyint":

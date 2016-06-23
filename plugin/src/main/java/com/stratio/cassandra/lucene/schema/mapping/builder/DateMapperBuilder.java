@@ -16,6 +16,7 @@
 package com.stratio.cassandra.lucene.schema.mapping.builder;
 
 import com.stratio.cassandra.lucene.schema.mapping.DateMapper;
+import com.stratio.cassandra.lucene.util.DateParser;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
@@ -25,17 +26,48 @@ import org.codehaus.jackson.annotate.JsonProperty;
  */
 public class DateMapperBuilder extends SingleColumnMapperBuilder<DateMapper, DateMapperBuilder> {
 
+    /** The default date pattern */
     @JsonProperty("pattern")
     private String pattern;
 
+    /** The date pattern for columns */
+    @JsonProperty("column_pattern")
+    private String columnPattern;
+
+    /** The date pattern for fields */
+    @JsonProperty("field_pattern")
+    private String fieldPattern;
+
     /**
-     * Sets the date format pattern to be used.
+     * Sets the default date format pattern.
      *
-     * @param pattern The date format pattern to be used.
+     * @param pattern a {@link java.text.SimpleDateFormat} date pattern, or "timestamp" for UNIX time milliseconds
      * @return This.
      */
     public DateMapperBuilder pattern(String pattern) {
         this.pattern = pattern;
+        return this;
+    }
+
+    /**
+     * Sets the date pattern for columns.
+     *
+     * @param pattern a {@link java.text.SimpleDateFormat} date pattern, or "timestamp" for UNIX time milliseconds
+     * @return this
+     */
+    public DateMapperBuilder columnPattern(String pattern) {
+        columnPattern = pattern;
+        return this;
+    }
+
+    /**
+     * Sets the date pattern for fields.
+     *
+     * @param pattern a {@link java.text.SimpleDateFormat} date pattern, or "timestamp" for UNIX time milliseconds
+     * @return this
+     */
+    public DateMapperBuilder fieldPattern(String pattern) {
+        fieldPattern = pattern;
         return this;
     }
 
@@ -47,6 +79,7 @@ public class DateMapperBuilder extends SingleColumnMapperBuilder<DateMapper, Dat
      */
     @Override
     public DateMapper build(String field) {
-        return new DateMapper(field, column, validated, pattern);
+        DateParser dateParser = new DateParser(pattern, columnPattern, fieldPattern);
+        return new DateMapper(field, column, validated, dateParser);
     }
 }

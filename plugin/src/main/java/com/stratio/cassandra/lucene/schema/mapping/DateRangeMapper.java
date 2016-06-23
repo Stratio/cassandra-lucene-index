@@ -30,7 +30,6 @@ import org.apache.lucene.spatial.prefix.tree.DateRangePrefixTree;
 import org.apache.lucene.spatial.prefix.tree.NumberRangePrefixTree.NRShape;
 import org.apache.lucene.spatial.prefix.tree.NumberRangePrefixTree.UnitNRShape;
 
-import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Date;
 
@@ -47,11 +46,8 @@ public class DateRangeMapper extends Mapper {
     /** The name of the column containing the to date. */
     public final String to;
 
-    /** The date format pattern. */
-    public final String pattern;
-
     /** The {@link DateParser}. */
-    private final DateParser dateParser;
+    public final DateParser parser;
 
     private final DateRangePrefixTree tree;
 
@@ -65,9 +61,9 @@ public class DateRangeMapper extends Mapper {
      * @param validated if the field must be validated
      * @param from the name of the column containing the from date
      * @param to the name of the column containing the to date
-     * @param pattern the date format pattern
+     * @param parser a date parser
      */
-    public DateRangeMapper(String field, Boolean validated, String from, String to, String pattern) {
+    public DateRangeMapper(String field, Boolean validated, String from, String to, DateParser parser) {
         super(field,
               false,
               validated,
@@ -91,10 +87,9 @@ public class DateRangeMapper extends Mapper {
 
         this.from = from;
         this.to = to;
-        this.tree = DateRangePrefixTree.INSTANCE;
-        this.strategy = new NumberRangePrefixTreeStrategy(tree, field);
-        this.pattern = pattern == null ? DateParser.DEFAULT_PATTERN : pattern;
-        this.dateParser = new DateParser(this.pattern);
+        this.parser = parser;
+        tree = DateRangePrefixTree.INSTANCE;
+        strategy = new NumberRangePrefixTreeStrategy(tree, field);
     }
 
     /** {@inheritDoc} */
@@ -124,7 +119,7 @@ public class DateRangeMapper extends Mapper {
             throw new IndexException("To column required");
         }
         if (from.after(to)) {
-            throw new IndexException("From:'{}' is after To:'{}'", dateParser.toString(to), dateParser.toString(from));
+            throw new IndexException("From:'{}' is after To:'{}'", parser.toString(to), parser.toString(from));
         }
     }
 
@@ -158,7 +153,7 @@ public class DateRangeMapper extends Mapper {
         if (column == null) {
             return null;
         }
-        Date fromDate = base(column);
+        Date fromDate = parser.parse(column);
         if (to == null) {
             throw new IndexException("From date required");
         }
@@ -176,7 +171,7 @@ public class DateRangeMapper extends Mapper {
         if (column == null) {
             return null;
         }
-        Date toDate = base(column);
+        Date toDate = parser.parse(column);
         if (toDate == null) {
             throw new IndexException("To date required");
         }
@@ -191,11 +186,7 @@ public class DateRangeMapper extends Mapper {
      * @return the date represented by the specified object, or {@code null} if there is no one
      */
     public Date base(Object value) {
-        return dateParser.parse(value);
-    }
-
-    private  <T> Date base(Column<T> column) {
-        return dateParser.parse(column);
+        return parser.parse(value);
     }
 
     /** {@inheritDoc} */
@@ -206,7 +197,7 @@ public class DateRangeMapper extends Mapper {
                           .add("validated", validated)
                           .add("from", from)
                           .add("to", to)
-                          .add("pattern", pattern)
+                          .add("pattern", parser)
                           .toString();
     }
 }

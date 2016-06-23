@@ -16,6 +16,7 @@
 package com.stratio.cassandra.lucene.schema.mapping.builder;
 
 import com.stratio.cassandra.lucene.schema.mapping.BitemporalMapper;
+import com.stratio.cassandra.lucene.util.DateParser;
 import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
 
@@ -42,9 +43,17 @@ public class BitemporalMapperBuilder extends MapperBuilder<BitemporalMapper, Bit
     @JsonProperty("tt_to")
     private final String ttTo;
 
-    /** The date pattern. **/
+    /** The default date pattern */
     @JsonProperty("pattern")
     private String pattern;
+
+    /** The date pattern for columns */
+    @JsonProperty("column_pattern")
+    private String columnPattern;
+
+    /** The date pattern for fields */
+    @JsonProperty("field_pattern")
+    private String fieldPattern;
 
     /** The NOW Value. **/
     @JsonProperty("now_value")
@@ -70,13 +79,35 @@ public class BitemporalMapperBuilder extends MapperBuilder<BitemporalMapper, Bit
     }
 
     /**
-     * Sets the date format pattern to be used.
+     * Sets the default date format pattern to be used.
      *
-     * @param pattern the date format pattern to be used
+     * @param pattern a {@link java.text.SimpleDateFormat} date pattern
      * @return this
      */
     public BitemporalMapperBuilder pattern(String pattern) {
         this.pattern = pattern;
+        return this;
+    }
+
+    /**
+     * Sets the date pattern for columns.
+     *
+     * @param pattern a {@link java.text.SimpleDateFormat} date pattern
+     * @return this
+     */
+    public BitemporalMapperBuilder columnPattern(String pattern) {
+        columnPattern = pattern;
+        return this;
+    }
+
+    /**
+     * Sets the date pattern for fields.
+     *
+     * @param pattern a {@link java.text.SimpleDateFormat} date pattern
+     * @return this
+     */
+    public BitemporalMapperBuilder fieldPattern(String pattern) {
+        fieldPattern = pattern;
         return this;
     }
 
@@ -99,6 +130,7 @@ public class BitemporalMapperBuilder extends MapperBuilder<BitemporalMapper, Bit
      */
     @Override
     public BitemporalMapper build(String field) {
-        return new BitemporalMapper(field, validated, vtFrom, vtTo, ttFrom, ttTo, pattern, nowValue);
+        DateParser dateParser = new DateParser(pattern, columnPattern, fieldPattern);
+        return new BitemporalMapper(field, validated, vtFrom, vtTo, ttFrom, ttTo, dateParser, nowValue);
     }
 }

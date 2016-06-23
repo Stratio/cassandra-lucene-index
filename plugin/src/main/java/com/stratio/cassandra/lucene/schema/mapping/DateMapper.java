@@ -35,11 +35,8 @@ import java.util.Optional;
  */
 public class DateMapper extends SingleColumnMapper.SingleFieldMapper<Long> {
 
-    /** The date format pattern. */
-    public final String pattern;
-
-    /** The {@link DateParser}. */
-    private final DateParser dateParser;
+    /** The date format for parsing columns. */
+    public final DateParser parser;
 
     /**
      * Builds a new {@link DateMapper} using the specified pattern.
@@ -47,9 +44,9 @@ public class DateMapper extends SingleColumnMapper.SingleFieldMapper<Long> {
      * @param field the name of the field
      * @param column the name of the column to be mapped
      * @param validated if the field must be validated
-     * @param pattern the date format pattern to be used
+     * @param parser a date parser
      */
-    public DateMapper(String field, String column, Boolean validated, String pattern) {
+    public DateMapper(String field, String column, Boolean validated, DateParser parser) {
         super(field,
               column,
               true,
@@ -64,21 +61,20 @@ public class DateMapper extends SingleColumnMapper.SingleFieldMapper<Long> {
               SimpleDateType.instance,
               TimestampType.instance,
               TimeUUIDType.instance);
-        this.pattern = pattern == null ? DateParser.DEFAULT_PATTERN : pattern;
-        this.dateParser = new DateParser(this.pattern);
+        this.parser = parser;
     }
 
     /** {@inheritDoc} */
     @Override
     protected Long doBase(String name, Object value) {
-        Date date = dateParser.parse(value);
+        Date date = parser.parse(value);
         return date == null ? null : date.getTime();
     }
 
     /** {@inheritDoc} */
     @Override
     protected <K> Long doBase(Column<K> column) {
-        Date date = dateParser.parse(column);
+        Date date = parser.parse(column);
         return date == null ? null : date.getTime();
     }
 
@@ -103,6 +99,6 @@ public class DateMapper extends SingleColumnMapper.SingleFieldMapper<Long> {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return toStringHelper(this).add("pattern", pattern).toString();
+        return toStringHelper(this).add("pattern", parser).toString();
     }
 }
