@@ -253,13 +253,13 @@ public class UDTIndexingFrozenAT extends BaseAT {
     @Test
     public void testUDTInternal() {
         cassandraUtils.filter(match("address.city", "Paris"))
-                      .checkStringColumnWithoutOrder("login", "USER4", "USER5", "USER6", "USER7");
+                      .checkUnorderedStringColumns("login", "USER4", "USER5", "USER6", "USER7");
         cassandraUtils.filter(match("address.city", "San Francisco"))
-                      .checkStringColumnWithoutOrder("login", "USER1", "USER2", "USER3");
+                      .checkUnorderedStringColumns("login", "USER1", "USER2", "USER3");
         cassandraUtils.filter(match("address.bool", true))
-                      .checkStringColumnWithoutOrder("login", "USER1", "USER3", "USER5", "USER7");
+                      .checkUnorderedStringColumns("login", "USER1", "USER3", "USER5", "USER7");
         cassandraUtils.filter(match("address.bool", false))
-                      .checkStringColumnWithoutOrder("login", "USER2", "USER4", "USER6");
+                      .checkUnorderedStringColumns("login", "USER2", "USER4", "USER6");
     }
 
     @Test(expected = DriverException.class)
@@ -271,143 +271,151 @@ public class UDTIndexingFrozenAT extends BaseAT {
     @Test
     public void testUDTList() {
         cassandraUtils.filter(match("address.zips", 10))
-                      .checkStringColumnWithoutOrder("login", "USER3", "USER4", "USER5");
+                      .checkUnorderedStringColumns("login", "USER3", "USER4", "USER5");
         cassandraUtils.filter(match("address.zips", 12))
-                      .checkStringColumnWithoutOrder("login", "USER4", "USER5", "USER6");
+                      .checkUnorderedStringColumns("login", "USER4", "USER5", "USER6");
         cassandraUtils.filter(match("address.zips", 14))
-                      .checkStringColumnWithoutOrder("login", "USER5", "USER6", "USER7");
-        cassandraUtils.filter(match("address.zips", 15)).checkStringColumnWithoutOrder("login");
-        cassandraUtils.filter(match("address.zips", 16)).checkStringColumnWithoutOrder("login", "USER6", "USER7");
-        cassandraUtils.filter(match("address.zips", 18)).checkStringColumnWithoutOrder("login", "USER7");
+                      .checkUnorderedStringColumns("login", "USER5", "USER6", "USER7");
+        cassandraUtils.filter(match("address.zips", 15)).check(0);
+        cassandraUtils.filter(match("address.zips", 16))
+                      .checkUnorderedStringColumns("login", "USER6", "USER7");
+        cassandraUtils.filter(match("address.zips", 18)).checkStringColumn("login", "USER7");
     }
 
     @Test
     public void testUDTMap() {
         cassandraUtils.filter(match("address.zips_map$1", "1A")).refresh(true)
-                      .checkStringColumnWithoutOrder("login",
-                                                     "USER1",
-                                                     "USER3",
-                                                     "USER5",
-                                                     "USER7");
+                      .checkUnorderedStringColumns("login",
+                                                   "USER1",
+                                                   "USER3",
+                                                   "USER5",
+                                                   "USER7");
         cassandraUtils.filter(match("address.zips_map$1", "1B"))
-                      .checkStringColumnWithoutOrder("login", "USER2", "USER4", "USER6");
+                      .checkUnorderedStringColumns("login", "USER2", "USER4", "USER6");
         cassandraUtils.filter(match("address.zips_map$2", "2A"))
-                      .checkStringColumnWithoutOrder("login", "USER1", "USER3", "USER5", "USER7");
+                      .checkUnorderedStringColumns("login", "USER1", "USER3", "USER5", "USER7");
         cassandraUtils.filter(match("address.zips_map$2", "2B"))
-                      .checkStringColumnWithoutOrder("login", "USER2", "USER4", "USER6");
+                      .checkUnorderedStringColumns("login", "USER2", "USER4", "USER6");
         cassandraUtils.filter(match("address.zips_map$3", "3A"))
-                      .checkStringColumnWithoutOrder("login", "USER1", "USER3", "USER5", "USER7");
+                      .checkUnorderedStringColumns("login", "USER1", "USER3", "USER5", "USER7");
         cassandraUtils.filter(match("address.zips_map$3", "3B"))
-                      .checkStringColumnWithoutOrder("login", "USER2", "USER4", "USER6");
+                      .checkUnorderedStringColumns("login", "USER2", "USER4", "USER6");
     }
 
     @Test
     public void testUDTMapThatFails() {
-        cassandraUtils.filter(match("address.zips_map", 1)).checkStringColumnWithoutOrder("login");
+        cassandraUtils.filter(match("address.zips_map", 1)).check(0);
     }
 
     @Test
     public void testUDTSet() {
-        cassandraUtils.filter(match("address.zips_set", 5)).checkStringColumnWithoutOrder("login", "USER1");
+        cassandraUtils.filter(match("address.zips_set", 5)).checkStringColumn("login", "USER1");
         cassandraUtils.filter(match("address.zips_set", 7))
-                      .checkStringColumnWithoutOrder("login", "USER1", "USER2");
+                      .checkUnorderedStringColumns("login", "USER1", "USER2");
         cassandraUtils.filter(match("address.zips_set", 9))
-                      .checkStringColumnWithoutOrder("login", "USER1", "USER2", "USER3");
+                      .checkUnorderedStringColumns("login", "USER1", "USER2", "USER3");
         cassandraUtils.filter(match("address.zips_set", 11))
-                      .checkStringColumnWithoutOrder("login", "USER2", "USER3", "USER4");
-        cassandraUtils.filter(match("address.zips_set", 12)).checkStringColumnWithoutOrder("login");
+                      .checkUnorderedStringColumns("login", "USER2", "USER3", "USER4");
+        cassandraUtils.filter(match("address.zips_set", 12)).check(0);
         cassandraUtils.filter(match("address.zips_set", 13))
-                      .checkStringColumnWithoutOrder("login", "USER3", "USER4", "USER5");
-        cassandraUtils.filter(match("address.zips_set", 14)).checkStringColumnWithoutOrder("login");
+                      .checkUnorderedStringColumns("login", "USER3", "USER4", "USER5");
+        cassandraUtils.filter(match("address.zips_set", 14)).check(0);
         cassandraUtils.filter(match("address.zips_set", 15))
-                      .checkStringColumnWithoutOrder("login", "USER4", "USER5", "USER6");
+                      .checkUnorderedStringColumns("login", "USER4", "USER5", "USER6");
         cassandraUtils.filter(match("address.zips_set", 17))
-                      .checkStringColumnWithoutOrder("login", "USER5", "USER6", "USER7");
+                      .checkUnorderedStringColumns("login", "USER5", "USER6", "USER7");
         cassandraUtils.filter(match("address.zips_set", 19))
-                      .checkStringColumnWithoutOrder("login", "USER6", "USER7");
-        cassandraUtils.filter(match("address.zips_set", 20)).checkStringColumnWithoutOrder("login");
-        cassandraUtils.filter(match("address.zips_set", 21)).checkStringColumnWithoutOrder("login", "USER7");
+                      .checkUnorderedStringColumns("login", "USER6", "USER7");
+        cassandraUtils.filter(match("address.zips_set", 20)).check(0);
+        cassandraUtils.filter(match("address.zips_set", 21)).checkStringColumn("login", "USER7");
     }
 
     @Test
     public void testUDTOverUDT() {
-        cassandraUtils.filter(match("address.point.latitude", 1.0)).checkStringColumnWithoutOrder("login", "USER1");
-        cassandraUtils.filter(match("address.point.latitude", 2.0)).checkStringColumnWithoutOrder("login", "USER2");
-        cassandraUtils.filter(match("address.point.latitude", 3.0)).checkStringColumnWithoutOrder("login", "USER3");
-        cassandraUtils.filter(match("address.point.latitude", 4.0)).checkStringColumnWithoutOrder("login", "USER4");
-        cassandraUtils.filter(match("address.point.latitude", 5.0)).checkStringColumnWithoutOrder("login", "USER5");
-        cassandraUtils.filter(match("address.point.latitude", 6.0)).checkStringColumnWithoutOrder("login", "USER6");
-        cassandraUtils.filter(match("address.point.latitude", 7.0)).checkStringColumnWithoutOrder("login", "USER7");
+        cassandraUtils.filter(match("address.point.latitude", 1.0))
+                      .checkStringColumn("login", "USER1");
+        cassandraUtils.filter(match("address.point.latitude", 2.0))
+                      .checkStringColumn("login", "USER2");
+        cassandraUtils.filter(match("address.point.latitude", 3.0))
+                      .checkStringColumn("login", "USER3");
+        cassandraUtils.filter(match("address.point.latitude", 4.0))
+                      .checkStringColumn("login", "USER4");
+        cassandraUtils.filter(match("address.point.latitude", 5.0))
+                      .checkStringColumn("login", "USER5");
+        cassandraUtils.filter(match("address.point.latitude", 6.0))
+                      .checkStringColumn("login", "USER6");
+        cassandraUtils.filter(match("address.point.latitude", 7.0))
+                      .checkStringColumn("login", "USER7");
         cassandraUtils.filter(match("address.point.longitude", -1.0))
-                      .checkStringColumnWithoutOrder("login", "USER1");
+                      .checkStringColumn("login", "USER1");
         cassandraUtils.filter(match("address.point.longitude", -2.0))
-                      .checkStringColumnWithoutOrder("login", "USER2");
+                      .checkStringColumn("login", "USER2");
         cassandraUtils.filter(match("address.point.longitude", -3.0))
-                      .checkStringColumnWithoutOrder("login", "USER3");
+                      .checkStringColumn("login", "USER3");
         cassandraUtils.filter(match("address.point.longitude", -4.0))
-                      .checkStringColumnWithoutOrder("login", "USER4");
+                      .checkStringColumn("login", "USER4");
         cassandraUtils.filter(match("address.point.longitude", -5.0))
-                      .checkStringColumnWithoutOrder("login", "USER5");
+                      .checkStringColumn("login", "USER5");
         cassandraUtils.filter(match("address.point.longitude", -6.0))
-                      .checkStringColumnWithoutOrder("login", "USER6");
+                      .checkStringColumn("login", "USER6");
         cassandraUtils.filter(match("address.point.longitude", -7.0))
-                      .checkStringColumnWithoutOrder("login", "USER7");
+                      .checkStringColumn("login", "USER7");
         cassandraUtils.filter(range("address.point.latitude").lower(1.0)
                                                              .upper(3.0)
                                                              .includeLower(true)
                                                              .includeUpper(true))
-                      .checkStringColumnWithoutOrder("login", "USER1", "USER2", "USER3");
+                      .checkUnorderedStringColumns("login", "USER1", "USER2", "USER3");
         cassandraUtils.filter(range("address.point.latitude").lower(2.0)
                                                              .upper(5.0)
                                                              .includeLower(true)
                                                              .includeUpper(true))
-                      .checkStringColumnWithoutOrder("login", "USER2", "USER3", "USER4", "USER5");
+                      .checkUnorderedStringColumns("login", "USER2", "USER3", "USER4", "USER5");
         cassandraUtils.filter(range("address.point.latitude").lower(1.0)
                                                              .upper(7.0)
                                                              .includeLower(true)
                                                              .includeUpper(true))
-                      .checkStringColumnWithoutOrder("login",
-                                                     "USER1",
-                                                     "USER2",
-                                                     "USER3",
-                                                     "USER4",
-                                                     "USER5",
-                                                     "USER6",
-                                                     "USER7");
+                      .checkUnorderedStringColumns("login",
+                                                   "USER1",
+                                                   "USER2",
+                                                   "USER3",
+                                                   "USER4",
+                                                   "USER5",
+                                                   "USER6",
+                                                   "USER7");
         cassandraUtils.filter(range("address.point.longitude").lower(-3.0).upper(-1.0))
-                      .checkStringColumnWithoutOrder("login", "USER2");
+                      .checkStringColumn("login", "USER2");
         cassandraUtils.filter(range("address.point.longitude").lower(-5.0).upper(-2.0))
-                      .checkStringColumnWithoutOrder("login", "USER3", "USER4");
+                      .checkUnorderedStringColumns("login", "USER3", "USER4");
         cassandraUtils.filter(range("address.point.longitude").lower(-7.0).upper(-1.0))
-                      .checkStringColumnWithoutOrder("login", "USER2", "USER3", "USER4", "USER5", "USER6");
+                      .checkUnorderedStringColumns("login", "USER2", "USER3", "USER4", "USER5", "USER6");
         cassandraUtils.filter(range("address.point.latitude").lower(1.0)
                                                              .upper(3.0)
                                                              .includeLower(true)
                                                              .includeUpper(true))
-                      .checkStringColumnWithoutOrder("login", "USER1", "USER2", "USER3");
+                      .checkUnorderedStringColumns("login", "USER1", "USER2", "USER3");
         cassandraUtils.filter(range("address.point.latitude").lower(2.0)
                                                              .upper(5.0)
                                                              .includeLower(true)
                                                              .includeUpper(true))
-                      .checkStringColumnWithoutOrder("login", "USER2", "USER3", "USER4", "USER5");
+                      .checkUnorderedStringColumns("login", "USER2", "USER3", "USER4", "USER5");
         cassandraUtils.filter(range("address.point.latitude").lower(1.0)
                                                              .upper(7.0)
                                                              .includeLower(true)
                                                              .includeUpper(true))
-                      .checkStringColumnWithoutOrder("login",
-                                                     "USER1",
-                                                     "USER2",
-                                                     "USER3",
-                                                     "USER4",
-                                                     "USER5",
-                                                     "USER6",
-                                                     "USER7");
+                      .checkUnorderedStringColumns("login",
+                                                   "USER1",
+                                                   "USER2",
+                                                   "USER3",
+                                                   "USER4",
+                                                   "USER5",
+                                                   "USER6",
+                                                   "USER7");
         cassandraUtils.filter(range("address.point.longitude").lower(-3.0).upper(-1.0))
-                      .checkStringColumnWithoutOrder("login", "USER2");
+                      .checkStringColumn("login", "USER2");
         cassandraUtils.filter(range("address.point.longitude").lower(-5.0).upper(-2.0))
-                      .checkStringColumnWithoutOrder("login", "USER3", "USER4");
+                      .checkUnorderedStringColumns("login", "USER3", "USER4");
         cassandraUtils.filter(range("address.point.longitude").lower(-7.0).upper(-1.0))
-                      .checkStringColumnWithoutOrder("login", "USER2", "USER3", "USER4", "USER5", "USER6");
+                      .checkUnorderedStringColumns("login", "USER2", "USER3", "USER4", "USER5", "USER6");
     }
 
     @Test(expected = DriverException.class)
@@ -421,6 +429,6 @@ public class UDTIndexingFrozenAT extends BaseAT {
         cassandraUtils.insert(data8)
                       .refresh()
                       .filter(match("address.city", "Madrid"))
-                      .checkStringColumnWithoutOrder("login", "USER8");
+                      .checkStringColumn("login", "USER8");
     }
 }
