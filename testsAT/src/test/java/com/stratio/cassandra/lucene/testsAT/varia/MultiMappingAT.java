@@ -28,65 +28,65 @@ import static com.stratio.cassandra.lucene.builder.Builder.*;
  */
 public class MultiMappingAT extends BaseAT {
 
-    private static CassandraUtils cassandraUtils;
+    private static CassandraUtils utils;
 
     @BeforeClass
     public static void before() {
 
-        cassandraUtils = CassandraUtils.builder("sort_alias")
-                                       .withPartitionKey("key")
-                                       .withColumn("key", "int")
-                                       .withColumn("lucene", "text")
-                                       .withColumn("text", "text", stringMapper())
-                                       .withColumn("map", "map<text, text>", null)
-                                       .withMapper("alias_text", dateMapper().pattern("dd-MM-yyyy").column("text"))
-                                       .build()
-                                       .createKeyspace()
-                                       .createTable()
-                                       .createIndex()
-                                       .insert(new String[]{"key", "text"}, new Object[]{1, "01-01-2014"})
-                                       .insert(new String[]{"key", "text"}, new Object[]{2, "02-01-2013"})
-                                       .insert(new String[]{"key", "text"}, new Object[]{3, "03-01-2012"})
-                                       .insert(new String[]{"key", "text"}, new Object[]{4, "04-01-2011"})
-                                       .refresh();
+        utils = CassandraUtils.builder("sort_alias")
+                              .withPartitionKey("key")
+                              .withColumn("key", "int")
+                              .withColumn("lucene", "text")
+                              .withColumn("text", "text", stringMapper())
+                              .withColumn("map", "map<text, text>", null)
+                              .withMapper("alias_text", dateMapper().pattern("dd-MM-yyyy").column("text"))
+                              .build()
+                              .createKeyspace()
+                              .createTable()
+                              .createIndex()
+                              .insert(new String[]{"key", "text"}, new Object[]{1, "01-01-2014"})
+                              .insert(new String[]{"key", "text"}, new Object[]{2, "02-01-2013"})
+                              .insert(new String[]{"key", "text"}, new Object[]{3, "03-01-2012"})
+                              .insert(new String[]{"key", "text"}, new Object[]{4, "04-01-2011"})
+                              .refresh();
     }
 
     @AfterClass
     public static void after() {
-        cassandraUtils.dropKeyspace();
+        utils.dropKeyspace();
     }
 
     @Test
     public void testSimpleQuery() {
-        cassandraUtils.query(match("text", "02-01-2013")).check(1);
+        utils.query(match("text", "02-01-2013")).check(1);
     }
 
     @Test
     public void testAliasQuery() {
-        cassandraUtils.query(match("alias_text", "02-01-2013")).check(1);
+        utils.query(match("alias_text", "02-01-2013")).check(1);
     }
 
     @Test
     public void testSimpleFilter() {
-        cassandraUtils.filter(match("text", "02-01-2013")).check(1);
+        utils.filter(match("text", "02-01-2013")).check(1);
     }
 
     @Test
     public void testAliasFilter() {
-        cassandraUtils.filter(match("alias_text", "02-01-2013")).check(1);
+        utils.filter(match("alias_text", "02-01-2013")).check(1);
     }
 
     @Test
     public void testSimpleSort() {
-        cassandraUtils.select()
-                      .sort(field("text"))
-                      .checkOrderedStringColumns("text", "01-01-2014", "02-01-2013", "03-01-2012", "04-01-2011");
+        utils.select()
+             .sort(field("text"))
+             .checkOrderedStringColumns("text", "01-01-2014", "02-01-2013", "03-01-2012", "04-01-2011");
     }
 
     @Test
     public void testAliasSort() {
-        cassandraUtils.select()
-                      .sort(field("alias_text"))
-                      .checkOrderedStringColumns("text", "04-01-2011", "03-01-2012", "02-01-2013", "01-01-2014");
+        utils.select()
+             .sort(field("alias_text"))
+             .checkOrderedStringColumns("text", "04-01-2011", "03-01-2012", "02-01-2013", "01-01-2014");
     }
 }

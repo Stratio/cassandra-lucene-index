@@ -34,47 +34,47 @@ import static org.junit.Assert.assertEquals;
  */
 public class UDFsAT extends BaseAT {
 
-    private static CassandraUtils cassandraUtils;
+    private static CassandraUtils utils;
 
     @BeforeClass
     public static void before() {
 
-        cassandraUtils = CassandraUtils.builder("udfs")
-                                       .withPartitionKey("key")
-                                       .withColumn("key", "uuid")
-                                       .withColumn("value", "int")
-                                       .withColumn("lucene", "text")
-                                       .build()
-                                       .createKeyspace()
-                                       .createTable()
-                                       .createIndex()
-                                       .insert(new String[]{"key", "value"}, new Object[]{UUID.randomUUID(), 1})
-                                       .insert(new String[]{"key", "value"}, new Object[]{UUID.randomUUID(), 2})
-                                       .insert(new String[]{"key", "value"}, new Object[]{UUID.randomUUID(), 3})
-                                       .insert(new String[]{"key", "value"}, new Object[]{UUID.randomUUID(), 4})
-                                       .insert(new String[]{"key", "value"}, new Object[]{UUID.randomUUID(), 5})
-                                       .insert(new String[]{"key", "value"}, new Object[]{UUID.randomUUID(), 6})
-                                       .refresh();
+        utils = CassandraUtils.builder("udfs")
+                              .withPartitionKey("key")
+                              .withColumn("key", "uuid")
+                              .withColumn("value", "int")
+                              .withColumn("lucene", "text")
+                              .build()
+                              .createKeyspace()
+                              .createTable()
+                              .createIndex()
+                              .insert(new String[]{"key", "value"}, new Object[]{UUID.randomUUID(), 1})
+                              .insert(new String[]{"key", "value"}, new Object[]{UUID.randomUUID(), 2})
+                              .insert(new String[]{"key", "value"}, new Object[]{UUID.randomUUID(), 3})
+                              .insert(new String[]{"key", "value"}, new Object[]{UUID.randomUUID(), 4})
+                              .insert(new String[]{"key", "value"}, new Object[]{UUID.randomUUID(), 5})
+                              .insert(new String[]{"key", "value"}, new Object[]{UUID.randomUUID(), 6})
+                              .refresh();
     }
 
     @AfterClass
     public static void after() {
-        cassandraUtils.dropKeyspace();
+        utils.dropKeyspace();
     }
 
     @Test
     public void udfTest() {
 
-        cassandraUtils.execute("CREATE OR REPLACE FUNCTION %s.double (input int)\n" +
-                               "RETURNS NULL ON NULL INPUT\n" +
-                               "RETURNS bigint\n" +
-                               "LANGUAGE java AS\n" +
-                               "'return input * 2L;';", cassandraUtils.getKeyspace());
+        utils.execute("CREATE OR REPLACE FUNCTION %s.double (input int)\n" +
+                      "RETURNS NULL ON NULL INPUT\n" +
+                      "RETURNS bigint\n" +
+                      "LANGUAGE java AS\n" +
+                      "'return input * 2L;';", utils.getKeyspace());
 
-        List<Row> rows = cassandraUtils.waitForIndexing()
-                                       .execute(2, "SELECT key, double(value) FROM %s WHERE %s='{}';",
-                                                cassandraUtils.getQualifiedTable(), cassandraUtils.getIndexColumn())
-                                       .all();
+        List<Row> rows = utils.waitForIndexing()
+                              .execute(2, "SELECT key, double(value) FROM %s WHERE %s='{}';",
+                                       utils.getQualifiedTable(), utils.getIndexColumn())
+                              .all();
         long[] expected = new long[]{2, 4, 6, 8, 10, 12};
         long[] actual = new long[rows.size()];
         for (int i = 0; i < rows.size(); i++) {
@@ -89,39 +89,39 @@ public class UDFsAT extends BaseAT {
     @Test
     public void udafTest() {
 
-        cassandraUtils.execute("CREATE FUNCTION %s.averageState ( state tuple<int,bigint>, val int )\n" +
-                               "  CALLED ON NULL INPUT\n" +
-                               "  RETURNS tuple<int,bigint>\n" +
-                               "  LANGUAGE java\n" +
-                               "  AS '\n" +
-                               "    if (val != null) {\n" +
-                               "      state.setInt(0, state.getInt(0)+1);\n" +
-                               "      state.setLong(1, state.getLong(1)+val.intValue());\n" +
-                               "    }\n" +
-                               "    return state;\n" +
-                               "  ';", cassandraUtils.getKeyspace());
+        utils.execute("CREATE FUNCTION %s.averageState ( state tuple<int,bigint>, val int )\n" +
+                      "  CALLED ON NULL INPUT\n" +
+                      "  RETURNS tuple<int,bigint>\n" +
+                      "  LANGUAGE java\n" +
+                      "  AS '\n" +
+                      "    if (val != null) {\n" +
+                      "      state.setInt(0, state.getInt(0)+1);\n" +
+                      "      state.setLong(1, state.getLong(1)+val.intValue());\n" +
+                      "    }\n" +
+                      "    return state;\n" +
+                      "  ';", utils.getKeyspace());
 
-        cassandraUtils.execute("CREATE FUNCTION %s.averageFinal ( state tuple<int,bigint> )\n" +
-                               "  CALLED ON NULL INPUT\n" +
-                               "  RETURNS double\n" +
-                               "  LANGUAGE java\n" +
-                               "  AS '\n" +
-                               "    double r = 0;\n" +
-                               "    if (state.getInt(0) == 0) return null;\n" +
-                               "    r = state.getLong(1);\n" +
-                               "    r /= state.getInt(0);\n" +
-                               "    return Double.valueOf(r);\n" +
-                               "  ';", cassandraUtils.getKeyspace());
+        utils.execute("CREATE FUNCTION %s.averageFinal ( state tuple<int,bigint> )\n" +
+                      "  CALLED ON NULL INPUT\n" +
+                      "  RETURNS double\n" +
+                      "  LANGUAGE java\n" +
+                      "  AS '\n" +
+                      "    double r = 0;\n" +
+                      "    if (state.getInt(0) == 0) return null;\n" +
+                      "    r = state.getLong(1);\n" +
+                      "    r /= state.getInt(0);\n" +
+                      "    return Double.valueOf(r);\n" +
+                      "  ';", utils.getKeyspace());
 
-        cassandraUtils.execute("CREATE AGGREGATE %s.average ( int )\n" +
-                               "  SFUNC averageState\n" +
-                               "  STYPE tuple<int,bigint>\n" +
-                               "  FINALFUNC averageFinal\n" +
-                               "  INITCOND (0, 0);", cassandraUtils.getKeyspace());
+        utils.execute("CREATE AGGREGATE %s.average ( int )\n" +
+                      "  SFUNC averageState\n" +
+                      "  STYPE tuple<int,bigint>\n" +
+                      "  FINALFUNC averageFinal\n" +
+                      "  INITCOND (0, 0);", utils.getKeyspace());
 
-        List<Row> rows = cassandraUtils.execute(2, "SELECT average(value) FROM %s WHERE %s='{}';",
-                                                cassandraUtils.getQualifiedTable(), cassandraUtils.getIndexColumn())
-                                       .all();
+        List<Row> rows = utils.execute(2, "SELECT average(value) FROM %s WHERE %s='{}';",
+                                       utils.getQualifiedTable(), utils.getIndexColumn())
+                              .all();
         assertEquals("Expected one row!", 1, rows.size());
         assertEquals("Expected 4!", 3.5D, rows.get(0).getDouble(0), 0);
     }

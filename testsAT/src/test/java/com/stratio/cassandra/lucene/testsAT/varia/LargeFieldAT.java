@@ -32,29 +32,28 @@ public class LargeFieldAT {
 
     @Test
     public void testLargeField() throws IOException {
-
-        CassandraUtils cassandraUtils = CassandraUtils.builder("large_field")
-                                                      .withPartitionKey("id")
-                                                      .withClusteringKey("name", "age")
-                                                      .withColumn("id", "varchar")
-                                                      .withColumn("name", "varchar")
-                                                      .withColumn("age", "varchar")
-                                                      .withColumn("data", "varchar")
-                                                      .withColumn("lucene", "varchar")
-                                                      .build()
-                                                      .createKeyspace()
-                                                      .createTable()
-                                                      .createIndex();
-
         int numNumbers = 5000;
         UUID[] numbers = new UUID[numNumbers];
         for (int i = 0; i < numNumbers; i++) {
             numbers[i] = UUID.randomUUID();
         }
         String largeString = Arrays.toString(numbers);
-
-        cassandraUtils.insert(new String[]{"id", "name", "age", "data"}, new Object[]{"2", "b", "2", "good_dat"})
-                      .insert(new String[]{"id", "name", "age", "data"}, new Object[]{"1", "a", "1", largeString})
+        CassandraUtils.builder("large_field")
+                      .withPartitionKey("id")
+                      .withClusteringKey("name", "age")
+                      .withColumn("id", "varchar")
+                      .withColumn("name", "varchar")
+                      .withColumn("age", "varchar")
+                      .withColumn("data", "varchar")
+                      .withColumn("lucene", "varchar")
+                      .build()
+                      .createKeyspace()
+                      .createTable()
+                      .createIndex()
+                      .insert(new String[]{"id", "name", "age", "data"},
+                              new Object[]{"2", "b", "2", "good_dat"})
+                      .insert(new String[]{"id", "name", "age", "data"},
+                              new Object[]{"1", "a", "1", largeString})
                       .refresh()
                       .query(bool().must(match("id", "2")).must(match("name", "b")))
                       .check(1)

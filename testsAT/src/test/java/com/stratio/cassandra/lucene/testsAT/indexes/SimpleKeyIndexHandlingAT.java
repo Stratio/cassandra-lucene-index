@@ -29,75 +29,75 @@ import static com.stratio.cassandra.lucene.testsAT.indexes.DataHelper.*;
 @RunWith(JUnit4.class)
 public class SimpleKeyIndexHandlingAT extends BaseAT {
 
-    private CassandraUtils cassandraUtils;
+    private CassandraUtils utils;
 
     @Before
     public void setUpTest() {
-        cassandraUtils = CassandraUtils.builder("simple_key_index_handling")
-                                       .withPartitionKey("integer_1")
-                                       .withClusteringKey()
-                                       .withColumn("ascii_1", "ascii")
-                                       .withColumn("bigint_1", "bigint")
-                                       .withColumn("blob_1", "blob")
-                                       .withColumn("boolean_1", "boolean")
-                                       .withColumn("decimal_1", "decimal")
-                                       .withColumn("date_1", "timestamp")
-                                       .withColumn("double_1", "double")
-                                       .withColumn("float_1", "float")
-                                       .withColumn("integer_1", "int")
-                                       .withColumn("inet_1", "inet")
-                                       .withColumn("text_1", "text")
-                                       .withColumn("varchar_1", "varchar")
-                                       .withColumn("uuid_1", "uuid")
-                                       .withColumn("timeuuid_1", "timeuuid")
-                                       .withColumn("list_1", "list<text>")
-                                       .withColumn("set_1", "set<text>")
-                                       .withColumn("map_1", "map<text,text>")
-                                       .withColumn("lucene", "text")
-                                       .build()
-                                       .createKeyspace()
-                                       .createTable();
+        utils = CassandraUtils.builder("simple_key_index_handling")
+                              .withPartitionKey("integer_1")
+                              .withClusteringKey()
+                              .withColumn("ascii_1", "ascii")
+                              .withColumn("bigint_1", "bigint")
+                              .withColumn("blob_1", "blob")
+                              .withColumn("boolean_1", "boolean")
+                              .withColumn("decimal_1", "decimal")
+                              .withColumn("date_1", "timestamp")
+                              .withColumn("double_1", "double")
+                              .withColumn("float_1", "float")
+                              .withColumn("integer_1", "int")
+                              .withColumn("inet_1", "inet")
+                              .withColumn("text_1", "text")
+                              .withColumn("varchar_1", "varchar")
+                              .withColumn("uuid_1", "uuid")
+                              .withColumn("timeuuid_1", "timeuuid")
+                              .withColumn("list_1", "list<text>")
+                              .withColumn("set_1", "set<text>")
+                              .withColumn("map_1", "map<text,text>")
+                              .withColumn("lucene", "text")
+                              .build()
+                              .createKeyspace()
+                              .createTable();
     }
 
     @After
     public void tearDown() {
-        cassandraUtils.dropTable().dropKeyspace();
+        utils.dropTable().dropKeyspace();
     }
 
     @Test
     public void createIndexAfterInsertionsTest() {
-        cassandraUtils.insert(data1, data2, data3, data4, data5)
-                      .createIndex()
-                      .waitForIndexing()
-                      .refresh()
-                      .query(wildcard("ascii_1", "*"))
-                      .check(5);
+        utils.insert(data1, data2, data3, data4, data5)
+             .createIndex()
+             .waitForIndexing()
+             .refresh()
+             .query(wildcard("ascii_1", "*"))
+             .check(5);
     }
 
     @Test
     public void createIndexDuringInsertionsTest() {
-        cassandraUtils.insert(data1, data2, data3)
-                      .createIndex()
-                      .waitForIndexing()
-                      .insert(data4, data5)
-                      .refresh()
-                      .query(wildcard("ascii_1", "*"))
-                      .check(5);
+        utils.insert(data1, data2, data3)
+             .createIndex()
+             .waitForIndexing()
+             .insert(data4, data5)
+             .refresh()
+             .query(wildcard("ascii_1", "*"))
+             .check(5);
     }
 
     @Test
     public void recreateIndexAfterInsertionsTest() {
-        cassandraUtils.createIndex()
-                      .waitForIndexing()
-                      .insert(data1, data2, data3, data4, data5)
-                      .refresh()
-                      .query(wildcard("ascii_1", "*"))
-                      .check(5)
-                      .dropIndex()
-                      .createIndex()
-                      .waitForIndexing()
-                      .refresh()
-                      .query(wildcard("ascii_1", "*"))
-                      .check(5);
+        utils.createIndex()
+             .waitForIndexing()
+             .insert(data1, data2, data3, data4, data5)
+             .refresh()
+             .query(wildcard("ascii_1", "*"))
+             .check(5)
+             .dropIndex()
+             .createIndex()
+             .waitForIndexing()
+             .refresh()
+             .query(wildcard("ascii_1", "*"))
+             .check(5);
     }
 }

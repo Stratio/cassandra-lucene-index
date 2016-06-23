@@ -29,97 +29,97 @@ import static com.stratio.cassandra.lucene.testsAT.indexes.DataHelper.*;
 @RunWith(JUnit4.class)
 public class MultipleKeyIndexHandlingAT extends BaseAT {
 
-    private CassandraUtils cassandraUtils;
+    private CassandraUtils utils;
 
     @Before
     public void before() {
-        cassandraUtils = CassandraUtils.builder("multiple_key_index_handling")
-                                       .withPartitionKey("integer_1")
-                                       .withClusteringKey("ascii_1")
-                                       .withColumn("ascii_1", "ascii")
-                                       .withColumn("bigint_1", "bigint")
-                                       .withColumn("blob_1", "blob")
-                                       .withColumn("boolean_1", "boolean")
-                                       .withColumn("decimal_1", "decimal")
-                                       .withColumn("date_1", "timestamp")
-                                       .withColumn("double_1", "double")
-                                       .withColumn("float_1", "float")
-                                       .withColumn("integer_1", "int")
-                                       .withColumn("inet_1", "inet")
-                                       .withColumn("text_1", "text")
-                                       .withColumn("varchar_1", "varchar")
-                                       .withColumn("uuid_1", "uuid")
-                                       .withColumn("timeuuid_1", "timeuuid")
-                                       .withColumn("list_1", "list<text>")
-                                       .withColumn("set_1", "set<text>")
-                                       .withColumn("map_1", "map<text,text>")
-                                       .withColumn("lucene", "text")
-                                       .build()
-                                       .createKeyspace()
-                                       .createTable();
+        utils = CassandraUtils.builder("multiple_key_index_handling")
+                              .withPartitionKey("integer_1")
+                              .withClusteringKey("ascii_1")
+                              .withColumn("ascii_1", "ascii")
+                              .withColumn("bigint_1", "bigint")
+                              .withColumn("blob_1", "blob")
+                              .withColumn("boolean_1", "boolean")
+                              .withColumn("decimal_1", "decimal")
+                              .withColumn("date_1", "timestamp")
+                              .withColumn("double_1", "double")
+                              .withColumn("float_1", "float")
+                              .withColumn("integer_1", "int")
+                              .withColumn("inet_1", "inet")
+                              .withColumn("text_1", "text")
+                              .withColumn("varchar_1", "varchar")
+                              .withColumn("uuid_1", "uuid")
+                              .withColumn("timeuuid_1", "timeuuid")
+                              .withColumn("list_1", "list<text>")
+                              .withColumn("set_1", "set<text>")
+                              .withColumn("map_1", "map<text,text>")
+                              .withColumn("lucene", "text")
+                              .build()
+                              .createKeyspace()
+                              .createTable();
     }
 
     @After
     public void after() {
-        cassandraUtils.dropTable().dropKeyspace();
+        utils.dropTable().dropKeyspace();
     }
 
     @Test
     public void createIndexAfterInsertionsTest() {
-        cassandraUtils.insert(data1, data2, data3, data4, data5, data6, data7, data8, data9, data10)
-                      .createIndex()
-                      .waitForIndexing()
-                      .refresh()
-                      .filter(wildcard("ascii_1", "*"))
-                      .check(10);
+        utils.insert(data1, data2, data3, data4, data5, data6, data7, data8, data9, data10)
+             .createIndex()
+             .waitForIndexing()
+             .refresh()
+             .filter(wildcard("ascii_1", "*"))
+             .check(10);
     }
 
     @Test
     public void createIndexDuringInsertionsTest1() {
-        cassandraUtils.insert(data1, data2, data3, data4, data5, data6, data7, data8)
-                      .createIndex()
-                      .waitForIndexing()
-                      .insert(data9, data10)
-                      .refresh()
-                      .filter(wildcard("ascii_1", "*"))
-                      .check(10);
+        utils.insert(data1, data2, data3, data4, data5, data6, data7, data8)
+             .createIndex()
+             .waitForIndexing()
+             .insert(data9, data10)
+             .refresh()
+             .filter(wildcard("ascii_1", "*"))
+             .check(10);
     }
 
     @Test
     public void createIndexDuringInsertionsTest2() {
-        cassandraUtils.insert(data1, data2, data3, data4, data6, data7, data8, data9)
-                      .createIndex()
-                      .waitForIndexing()
-                      .insert(data5, data10)
-                      .refresh()
-                      .filter(wildcard("ascii_1", "*"))
-                      .check(10);
+        utils.insert(data1, data2, data3, data4, data6, data7, data8, data9)
+             .createIndex()
+             .waitForIndexing()
+             .insert(data5, data10)
+             .refresh()
+             .filter(wildcard("ascii_1", "*"))
+             .check(10);
     }
 
     @Test
     public void createIndexDuringInsertionsTest3() {
-        cassandraUtils.insert(data2, data3, data4, data5, data6, data7, data8, data9)
-                      .createIndex()
-                      .waitForIndexing()
-                      .insert(data1, data10)
-                      .refresh()
-                      .filter(wildcard("ascii_1", "*"))
-                      .check(10);
+        utils.insert(data2, data3, data4, data5, data6, data7, data8, data9)
+             .createIndex()
+             .waitForIndexing()
+             .insert(data1, data10)
+             .refresh()
+             .filter(wildcard("ascii_1", "*"))
+             .check(10);
     }
 
     @Test
     public void recreateIndexAfterInsertionsTest() {
-        cassandraUtils.insert(data1, data2, data3, data4, data5, data6, data7, data8, data9, data10)
-                      .createIndex()
-                      .waitForIndexing()
-                      .refresh()
-                      .filter(wildcard("ascii_1", "*"))
-                      .check(10)
-                      .dropIndex()
-                      .createIndex()
-                      .waitForIndexing()
-                      .refresh()
-                      .query(wildcard("ascii_1", "*"))
-                      .check(10);
+        utils.insert(data1, data2, data3, data4, data5, data6, data7, data8, data9, data10)
+             .createIndex()
+             .waitForIndexing()
+             .refresh()
+             .filter(wildcard("ascii_1", "*"))
+             .check(10)
+             .dropIndex()
+             .createIndex()
+             .waitForIndexing()
+             .refresh()
+             .query(wildcard("ascii_1", "*"))
+             .check(10);
     }
 }

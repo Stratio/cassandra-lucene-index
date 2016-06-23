@@ -32,7 +32,7 @@ import static com.stratio.cassandra.lucene.builder.Builder.geoPointMapper;
 @RunWith(JUnit4.class)
 public class GeoBBoxSearchAT extends BaseAT {
 
-    protected static CassandraUtils cassandraUtils;
+    protected static CassandraUtils utils;
 
     public static final Map<String, String> data1;
 
@@ -54,38 +54,38 @@ public class GeoBBoxSearchAT extends BaseAT {
 
     @BeforeClass
     public static void setUpSuite() {
-        cassandraUtils = CassandraUtils.builder("search")
-                                       .withPartitionKey("place")
-                                       .withClusteringKey()
-                                       .withColumn("lucene", "text", null)
-                                       .withColumn("place", "text", null)
-                                       .withColumn("latitude", "decimal", null)
-                                       .withColumn("longitude", "decimal", null)
-                                       .withMapper("location", geoPointMapper("latitude", "longitude"))
-                                       .build()
-                                       .createKeyspace()
-                                       .createTable()
-                                       .createIndex()
-                                       .insert(data1)
-                                       .insert(data2)
-                                       .refresh();
+        utils = CassandraUtils.builder("search")
+                              .withPartitionKey("place")
+                              .withClusteringKey()
+                              .withColumn("lucene", "text", null)
+                              .withColumn("place", "text", null)
+                              .withColumn("latitude", "decimal", null)
+                              .withColumn("longitude", "decimal", null)
+                              .withMapper("location", geoPointMapper("latitude", "longitude"))
+                              .build()
+                              .createKeyspace()
+                              .createTable()
+                              .createIndex()
+                              .insert(data1)
+                              .insert(data2)
+                              .refresh();
     }
 
     @AfterClass
     public static void tearDownSuite() {
-        cassandraUtils.dropIndex().dropTable().dropKeyspace();
+        utils.dropIndex().dropTable().dropKeyspace();
     }
 
     @Test
     public void geoBboxSearchBasicSuccess() {
-        cassandraUtils.query(geoBBox("location", 0.0, 0.0, 0.0, 0.0)).check(1);
-        cassandraUtils.query(geoBBox("location", 0.0, 1.0, 0.0, 1.0)).check(1);
-        cassandraUtils.query(geoBBox("location", -1.0, 1.0, 0.0, 0.0)).check(1);
-        cassandraUtils.query(geoBBox("location", 1.0, 2.0, 0.0, 0.0)).check(0);
-        cassandraUtils.query(geoBBox("location", 0.0, 0.0, 1.0, 2.0)).check(0);
-        cassandraUtils.query(geoBBox("location", 1.0, 2.0, 0.0, 0.0)).check(0);
-        cassandraUtils.query(geoBBox("location", -0000.1, 0.0001, -0.0001, 0.0001)).check(1);
-        cassandraUtils.query(geoBBox("location", 50.000001, 50.000003, 50.000001, 50.000003)).check(1);
+        utils.query(geoBBox("location", 0.0, 0.0, 0.0, 0.0)).check(1);
+        utils.query(geoBBox("location", 0.0, 1.0, 0.0, 1.0)).check(1);
+        utils.query(geoBBox("location", -1.0, 1.0, 0.0, 0.0)).check(1);
+        utils.query(geoBBox("location", 1.0, 2.0, 0.0, 0.0)).check(0);
+        utils.query(geoBBox("location", 0.0, 0.0, 1.0, 2.0)).check(0);
+        utils.query(geoBBox("location", 1.0, 2.0, 0.0, 0.0)).check(0);
+        utils.query(geoBBox("location", -0000.1, 0.0001, -0.0001, 0.0001)).check(1);
+        utils.query(geoBBox("location", 50.000001, 50.000003, 50.000001, 50.000003)).check(1);
     }
 
 }
