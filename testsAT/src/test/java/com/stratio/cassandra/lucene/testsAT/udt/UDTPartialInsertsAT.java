@@ -36,7 +36,7 @@ import static com.stratio.cassandra.lucene.testsAT.util.CassandraUtils.builder;
 @RunWith(JUnit4.class)
 public class UDTPartialInsertsAT extends BaseAT {
 
-    private static CassandraUtils cassandraUtils;
+    private static CassandraUtils utils;
     private static Map<String, String> partialNull = Collections.unmodifiableMap(
             new HashMap<String, String>() {
                 {
@@ -116,7 +116,7 @@ public class UDTPartialInsertsAT extends BaseAT {
 
     @BeforeClass
     public static void beforeClass() {
-        cassandraUtils = builder("udt_partial_inserts")
+        utils = builder("udt_partial_inserts")
                 .withTable("partial_inserts_table")
                 .withUDT("geo_point_t", "latitude", "float")
                 .withUDT("geo_point_t", "longitude", "float")
@@ -148,12 +148,12 @@ public class UDTPartialInsertsAT extends BaseAT {
 
     @AfterClass
     public static void afterClass() {
-        cassandraUtils.dropTable().dropKeyspace();
+        utils.dropTable().dropKeyspace();
     }
 
     @Test
     public void testPartialInserts() {
-        cassandraUtils
+        utils
                 .filter(all())
                 .check(0)
                 .insert(partialNull)
@@ -281,7 +281,7 @@ public class UDTPartialInsertsAT extends BaseAT {
 
     @Test
     public void testPartialUpdates() {
-        cassandraUtils
+        utils
                 .filter(all())
                 .check(0)
                 .insert(partialUpdateData)
@@ -298,10 +298,10 @@ public class UDTPartialInsertsAT extends BaseAT {
                 .check(1);
 
         String updateStatement = "UPDATE " +
-                                 cassandraUtils.getQualifiedTable() +
+                                 utils.getQualifiedTable() +
                                  " SET address={point:null} WHERE login='USER5'";
-        cassandraUtils.execute(updateStatement);
-        cassandraUtils
+        utils.execute(updateStatement);
+        utils
                 .refresh()
                 .filter(match("address.city", "London")).check(0)
                 .filter(match("address.zip", 12051)).check(0)
