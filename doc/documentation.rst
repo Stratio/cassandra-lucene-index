@@ -837,11 +837,11 @@ Maps four columns containing the four dates defining a bitemporal fact.
 -  **tt\_to** (mandatory): the name of the column storing the end of the transaction date range.
 -  **now\_value** (default = Long.MAX_VALUE): a date representing now.
 -  **pattern** (default = yyyy/MM/dd HH:mm:ss.SSS Z): the default date pattern for parsing Cassandra columns and
-creating Lucene fields if *column_pattern* and/or *lucene_pattern* are not defined.
+   creating Lucene fields if *column_pattern* and/or *lucene_pattern* are not defined.
 -  **column_pattern** (default = yyyy/MM/dd HH:mm:ss.SSS Z): the date pattern for parsing dates from Cassandra columns
-that are not considered as dates by Cassandra, such as *text* or *bigint*.
+   that are not considered as dates by Cassandra, such as *text* or *bigint*.
 -  **lucene_pattern** (default = yyyy/MM/dd HH:mm:ss.SSS Z): the date pattern for generated Lucene fields. This allows to
-reduce the precision of the indexed dates, making the index smaller and faster. It is also the format to be used in searches.
+   reduce the precision of the indexed dates, making the index smaller and faster. It is also the format to be used in searches.
 
 **Example:**
 
@@ -933,11 +933,11 @@ Maps dates using a either a pattern, an UNIX timestamp or a time UUID.
 -  **validated** (default = false): if mapping errors should make CQL writes fail, instead of just logging the error.
 -  **column** (optional): the name of the column storing date to be indexed.
 -  **pattern** (default = yyyy/MM/dd HH:mm:ss.SSS Z): the default date pattern for parsing Cassandra columns and
-creating Lucene fields if *column_pattern* and/or *lucene_pattern* are not defined.
+   creating Lucene fields if *column_pattern* and/or *lucene_pattern* are not defined.
 -  **column_pattern** (default = yyyy/MM/dd HH:mm:ss.SSS Z): the date pattern for parsing dates from Cassandra columns
-that are not considered as dates by Cassandra, such as *text* or *bigint*.
+   that are not considered as dates by Cassandra, such as *text* or *bigint*.
 -  **lucene_pattern** (default = yyyy/MM/dd HH:mm:ss.SSS Z): the date pattern for generated Lucene fields. This allows to
-reduce the precision of the indexed dates, making the index smaller and faster. It is also the format to be used in searches.
+   reduce the precision of the indexed dates, making the index smaller and faster. It is also the format to be used in searches.
 
 **Example:**
 
@@ -974,11 +974,11 @@ Maps a time duration/period defined by a start date and a stop date.
 -  **from** (mandatory): the name of the column storing the start date of the time duration to be indexed.
 -  **to** (mandatory): the name of the column storing the stop date of the time duration to be indexed.
 -  **pattern** (default = yyyy/MM/dd HH:mm:ss.SSS Z): the default date pattern for parsing Cassandra columns and
-creating Lucene fields if *column_pattern* and/or *lucene_pattern* are not defined.
+   creating Lucene fields if *column_pattern* and/or *lucene_pattern* are not defined.
 -  **column_pattern** (default = yyyy/MM/dd HH:mm:ss.SSS Z): the date pattern for parsing dates from Cassandra columns
-that are not considered as dates by Cassandra, such as *text* or *bigint*.
+   that are not considered as dates by Cassandra, such as *text* or *bigint*.
 -  **lucene_pattern** (default = yyyy/MM/dd HH:mm:ss.SSS Z): the date pattern for generated Lucene fields. This allows to
-reduce the precision of the indexed dates, making the index smaller and faster. It is also the format to be used in searches.
+   reduce the precision of the indexed dates, making the index smaller and faster. It is also the format to be used in searches.
 
 **Example:**
 
