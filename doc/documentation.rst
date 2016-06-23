@@ -941,7 +941,7 @@ Maps dates using a either a pattern, an UNIX timestamp or a time UUID.
    reduce the precision of the indexed dates, making the index smaller and faster. It is also the date format to be used
    in searches.
 
-**Example:**
+**Example 1:** Index the column *creation* using the date format pattern *yyyy/MM/dd HH:mm:ss*:
 
 .. code-block:: sql
 
@@ -951,12 +951,30 @@ Maps dates using a either a pattern, an UNIX timestamp or a time UUID.
         'refresh_seconds' : '1',
         'schema' : '{
             fields : {
-                date : {
+                creation : {
+                    type    : "date",
+                    pattern : "yyyy/MM/dd HH:mm:ss",
+                }
+            }
+        }'
+    };
+
+**Example 2:** Index the column *creation_date* as *creation*, validating values, and using a reduced precision of days:
+
+.. code-block:: sql
+
+    CREATE CUSTOM INDEX test_index on test()
+    USING 'com.stratio.cassandra.lucene.Index'
+    WITH OPTIONS = {
+        'refresh_seconds' : '1',
+        'schema' : '{
+            fields : {
+                creation : {
                     type           : "date",
                     validated      : true,
                     column_pattern : "yyyy/MM/dd HH:mm:ss.SSS",
-                    lucene_pattern : "yyyy/MM/dd HH:mm",
-                    column         : "column_name"
+                    lucene_pattern : "yyyy/MM/dd",
+                    column         : "creation_date"
                 }
             }
         }'
@@ -983,7 +1001,7 @@ Maps a time duration/period defined by a start date and a stop date.
    reduce the precision of the indexed dates, making the index smaller and faster. It is also the date format to be used
    in searches.
 
-**Example:**
+**Example 1:** Index the column time period defined by the columns *start* and *stop*, using the default date pattern:
 
 .. code-block:: sql
 
@@ -993,11 +1011,31 @@ Maps a time duration/period defined by a start date and a stop date.
         'refresh_seconds' : '1',
         'schema' : '{
             fields : {
-                date_range : {
-                    type      : "date_range",
-                    validated : false,
-                    from      : "start",
-                    to        : "stop",
+                duration : {
+                    type    : "date_range",
+                    from    : "start",
+                    to      : "stop"
+                }
+            }
+        }'
+    };
+
+**Example 2:** Index the column time period defined by the columns *start* and *stop*, validating values, and using a
+precision of minutes:
+
+.. code-block:: sql
+
+    CREATE CUSTOM INDEX test_index on test()
+    USING 'com.stratio.cassandra.lucene.Index'
+    WITH OPTIONS = {
+        'refresh_seconds' : '1',
+        'schema' : '{
+            fields : {
+                duration : {
+                    type           : "date_range",
+                    validated      : true,
+                    from           : "start",
+                    to             : "stop",
                     column_pattern : "yyyy/MM/dd HH:mm:ss.SSS",
                     lucene_pattern : "yyyy/MM/dd HH:mm"
                 }
