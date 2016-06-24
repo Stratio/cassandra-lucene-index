@@ -15,7 +15,7 @@
  */
 package com.stratio.cassandra.lucene.builder.common;
 
-import com.stratio.cassandra.lucene.builder.Builder;
+import com.stratio.cassandra.lucene.builder.JSONBuilder;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.annotate.JsonSubTypes;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
@@ -31,7 +31,7 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
                @JsonSubTypes.Type(value = GeoTransformation.Difference.class, name = "difference"),
                @JsonSubTypes.Type(value = GeoTransformation.Intersection.class, name = "intersection"),
                @JsonSubTypes.Type(value = GeoTransformation.Union.class, name = "union")})
-public abstract class GeoTransformation extends Builder {
+public abstract class GeoTransformation extends JSONBuilder {
 
     /**
      * {@link GeoTransformation} that gets the bounding box of a JTS geographical shape. The bounding box of shape is

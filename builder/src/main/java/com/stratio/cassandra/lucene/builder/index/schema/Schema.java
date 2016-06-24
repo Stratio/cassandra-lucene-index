@@ -15,7 +15,7 @@
  */
 package com.stratio.cassandra.lucene.builder.index.schema;
 
-import com.stratio.cassandra.lucene.builder.Builder;
+import com.stratio.cassandra.lucene.builder.JSONBuilder;
 import com.stratio.cassandra.lucene.builder.index.schema.analysis.Analyzer;
 import com.stratio.cassandra.lucene.builder.index.schema.mapping.Mapper;
 import org.codehaus.jackson.annotate.JsonProperty;
@@ -28,7 +28,7 @@ import java.util.Map;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class Schema extends Builder {
+public class Schema extends JSONBuilder {
 
     /** The default analyzer. */
     @JsonProperty("default_analyzer")

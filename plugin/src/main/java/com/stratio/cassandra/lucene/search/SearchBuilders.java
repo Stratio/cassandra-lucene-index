@@ -56,7 +56,7 @@ public final class SearchBuilders {
      * in scoring.
      *
      * @param queries the condition builders to be used as query
-     * @return a new {@link SearchBuilder
+     * @return a new {@link SearchBuilder}
      */
     public static SearchBuilder must(ConditionBuilder<?, ?>... queries) {
         return search().must(queries);
@@ -67,7 +67,7 @@ public final class SearchBuilders {
      * scoring.
      *
      * @param queries the condition builders to be used as query
-     * @return a new {@link SearchBuilder
+     * @return a new {@link SearchBuilder}
      */
     public static SearchBuilder should(ConditionBuilder<?, ?>... queries) {
         return search().should(queries);

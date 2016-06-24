@@ -25,53 +25,14 @@ import com.stratio.cassandra.lucene.builder.search.Search;
 import com.stratio.cassandra.lucene.builder.search.condition.*;
 import com.stratio.cassandra.lucene.builder.search.sort.GeoDistanceSortField;
 import com.stratio.cassandra.lucene.builder.search.sort.SimpleSortField;
-import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.JsonParser;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.SerializationConfig;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
-
-import java.io.IOException;
+import com.stratio.cassandra.lucene.builder.search.sort.SortField;
 
 /**
- * Abstract builder.
+ * Utility class for creating Lucene index statements.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public abstract class Builder {
-
-    /** The embedded JSON serializer. */
-    private static final ObjectMapper jsonMapper = new ObjectMapper();
-
-    static {
-        jsonMapper.configure(JsonGenerator.Feature.QUOTE_FIELD_NAMES, true);
-        jsonMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
-        jsonMapper.configure(SerializationConfig.Feature.AUTO_DETECT_IS_GETTERS, false);
-        jsonMapper.setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
-    }
-
-    /**
-     * Returns the JSON {@code String} representation of the specified object.
-     *
-     * @return the JSON {@code String}
-     */
-    @Override
-    public String toString() {
-        return build();
-    }
-
-    /**
-     * Returns the JSON representation of this {@link Builder}.
-     *
-     * @return a JSON representing this
-     */
-    public String build() {
-        try {
-            return jsonMapper.writeValueAsString(this);
-        } catch (IOException e) {
-            throw new BuilderException(e, "Error formatting JSON");
-        }
-    }
 
     /**
      * Returns a new index creation statement using the session's keyspace.
@@ -295,6 +256,60 @@ public abstract class Builder {
      */
     public static Search search() {
         return new Search();
+    }
+
+    /**
+     * Returns a new {@link Search} with the specified mandatory conditions not participating in scoring.
+     *
+     * @param conditions the filtering conditions to be added
+     * @return a new search with the specified filtering conditions
+     */
+    public static Search filter(Condition<?>... conditions) {
+        return search().filter(conditions);
+    }
+
+    /**
+     * Returns a new {@link Search} with the specified mandatory conditions participating in scoring.
+     *
+     * Please note that a {@link Search} containing {@code must} conditions should hit all the involved nodes and
+     * preform some post processing operations in the coordinator node, so you should prefer {@link
+     * #filter(Condition[])} over this if you are not interested in relevance scoring.
+     *
+     * @param conditions the mandatory conditions
+     * @return a new search with the specified mandatory conditions
+     */
+    public static Search must(Condition<?>... conditions) {
+        return search().must(conditions);
+    }
+
+    /**
+     * Returns a new {@link Search} with the specified optional conditions participating in scoring.
+     *
+     * @param conditions the optional conditions
+     * @return a new search with the specified optional conditions
+     */
+    public static Search should(Condition<?>... conditions) {
+        return search().should(conditions);
+    }
+
+    /**
+     * Returns a new {@link Search} with the specified mandatory not conditions not participating in scoring.
+     *
+     * @param conditions the mandatory not conditions
+     * @return a new search with the specified mandatory not conditions
+     */
+    public static Search not(Condition<?>... conditions) {
+        return search().not(conditions);
+    }
+
+    /**
+     * Returns a new {@link Search} to get rows sorted by the specified {@link SortField}s.
+     *
+     * @param fields the sorting fields
+     * @return this with the specified sorting fields
+     */
+    public static Search sort(SortField... fields) {
+        return search().sort(fields);
     }
 
     /**

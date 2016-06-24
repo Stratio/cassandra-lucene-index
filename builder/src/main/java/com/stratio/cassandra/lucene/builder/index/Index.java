@@ -15,7 +15,7 @@
  */
 package com.stratio.cassandra.lucene.builder.index;
 
-import com.stratio.cassandra.lucene.builder.Builder;
+import com.stratio.cassandra.lucene.builder.JSONBuilder;
 import com.stratio.cassandra.lucene.builder.index.schema.Schema;
 import com.stratio.cassandra.lucene.builder.index.schema.analysis.Analyzer;
 import com.stratio.cassandra.lucene.builder.index.schema.mapping.Mapper;
@@ -25,7 +25,7 @@ import com.stratio.cassandra.lucene.builder.index.schema.mapping.Mapper;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class Index extends Builder {
+public class Index extends JSONBuilder {
 
     private Schema schema;
     private String keyspace;

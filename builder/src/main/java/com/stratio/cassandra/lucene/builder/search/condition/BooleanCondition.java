@@ -27,50 +27,66 @@ import java.util.List;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
+@SuppressWarnings("unused")
 public class BooleanCondition extends Condition<BooleanCondition> {
 
-    /** The mandatory conditions. */
+    /** The mandatory conditions not participating in scoring. */
+    @JsonProperty("filter")
+    private List<Condition> filter;
+
+    /** The mandatory conditions participating in scoring. */
     @JsonProperty("must")
-    final List<Condition> must = new ArrayList<>();
+    private List<Condition> must;
 
-    /** The optional conditions. */
+    /** The optional conditions participating in scoring. */
     @JsonProperty("should")
-    final List<Condition> should = new ArrayList<>();
+    private List<Condition> should;
 
-    /** The mandatory not conditions. */
+    /** The mandatory not conditions not participating in scoring. */
     @JsonProperty("not")
-    final List<Condition> not = new ArrayList<>();
+    private List<Condition> not;
 
     /**
-     * Sets the specified mandatory conditions.
+     * Returns this with the specified mandatory conditions not participating in scoring.
+     *
+     * @param conditions the filtering conditions to be added
+     * @return this with the specified filtering conditions
+     */
+    public BooleanCondition filter(Condition... conditions) {
+        filter = add(filter, conditions);
+        return this;
+    }
+
+    /**
+     * Returns this with the specified mandatory conditions participating in scoring.
      *
      * @param conditions the mandatory conditions to be added
      * @return this with the specified mandatory conditions
      */
     public BooleanCondition must(Condition... conditions) {
-        must.addAll(Arrays.asList(conditions));
+        must = add(must, conditions);
         return this;
     }
 
     /**
-     * Sets the specified optional conditions.
+     * Returns this with the specified optional conditions participating in scoring.
      *
      * @param conditions the optional conditions to be added
      * @return this with the specified optional conditions
      */
     public BooleanCondition should(Condition... conditions) {
-        should.addAll(Arrays.asList(conditions));
+        should = add(should, conditions);
         return this;
     }
 
     /**
-     * Sets the specified mandatory not conditions.
+     * Returns this with the specified mandatory not conditions not participating in scoring.
      *
      * @param conditions the mandatory not conditions to be added
      * @return this with the specified mandatory not conditions
      */
     public BooleanCondition not(Condition... conditions) {
-        not.addAll(Arrays.asList(conditions));
+        not = add(not, conditions);
         return this;
     }
 }
