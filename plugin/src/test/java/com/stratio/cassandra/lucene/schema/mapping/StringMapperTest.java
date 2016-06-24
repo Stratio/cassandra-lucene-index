@@ -15,7 +15,6 @@
  */
 package com.stratio.cassandra.lucene.schema.mapping;
 
-import com.stratio.cassandra.lucene.column.Column;
 import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.schema.mapping.builder.StringMapperBuilder;
 import org.apache.cassandra.db.marshal.UTF8Type;
@@ -224,8 +223,7 @@ public class StringMapperTest extends AbstractMapperTest {
     public void testAddFields() {
         StringMapper mapper = stringMapper().caseSensitive(true).build("field");
         Document document = new Document();
-        Column<?> column = Column.builder("field").buildWithComposed("value", UTF8Type.instance);
-        Columns columns = new Columns(column);
+        Columns columns = new Columns().addComposed("field", "value", UTF8Type.instance);
         mapper.addFields(document, columns);
         IndexableField[] indexableFields = document.getFields("field");
         assertEquals("Number of created fields is wrong", 2, indexableFields.length);

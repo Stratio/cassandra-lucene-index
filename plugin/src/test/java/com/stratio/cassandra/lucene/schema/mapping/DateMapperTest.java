@@ -32,7 +32,8 @@ import java.util.Date;
 import java.util.UUID;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.dateMapper;
-import static com.stratio.cassandra.lucene.util.DateParser.*;
+import static com.stratio.cassandra.lucene.util.DateParser.DEFAULT_PATTERN;
+import static com.stratio.cassandra.lucene.util.DateParser.TIMESTAMP_PATTERN;
 import static org.junit.Assert.*;
 
 public class DateMapperTest extends AbstractMapperTest {
@@ -126,7 +127,7 @@ public class DateMapperTest extends AbstractMapperTest {
     public void testBaseColumnDate() throws ParseException {
         DateMapper mapper = dateMapper().pattern(PATTERN).build("name");
         Date date = new Date();
-        Column<Date> column = Column.builder("f").buildWithComposed(date, TimestampType.instance);
+        Column<Date> column = Column.buildComposed("f", date, TimestampType.instance);
         Long expected = sdf.parse(sdf.format(date)).getTime();
         assertEquals("Base column is not properly parsed", expected, mapper.base(column));
     }
@@ -141,21 +142,21 @@ public class DateMapperTest extends AbstractMapperTest {
     @Test
     public void testBaseColumnInteger() {
         DateMapper mapper = dateMapper().pattern(TIMESTAMP_PATTERN).build("name");
-        Column<Integer> column = Column.builder("f").buildWithComposed(3, Int32Type.instance);
+        Column<Integer> column = Column.buildComposed("f", 3, Int32Type.instance);
         assertEquals("Base column is not properly parsed", Long.valueOf(3), mapper.base(column));
     }
 
     @Test
     public void testBaseValueLong() {
         DateMapper mapper = dateMapper().pattern(TIMESTAMP_PATTERN).build("name");
-        Long parsed = mapper.base("test", 3l);
+        Long parsed = mapper.base("test", 3L);
         assertEquals("Base value is not properly parsed", Long.valueOf(3), parsed);
     }
 
     @Test
     public void testBaseColumnLong() {
         DateMapper mapper = dateMapper().pattern(TIMESTAMP_PATTERN).build("name");
-        Column<Long> column = Column.builder("f").buildWithComposed(3L, LongType.instance);
+        Column<Long> column = Column.buildComposed("f", 3L, LongType.instance);
         assertEquals("Base column is not properly parsed", Long.valueOf(3), mapper.base(column));
     }
 
@@ -169,7 +170,7 @@ public class DateMapperTest extends AbstractMapperTest {
     @Test
     public void testBaseColumnFloatWithoutDecimal() {
         DateMapper mapper = dateMapper().pattern(TIMESTAMP_PATTERN).build("name");
-        Column<Float> column = Column.builder("f").buildWithComposed(3f, FloatType.instance);
+        Column<Float> column = Column.buildComposed("f", 3f, FloatType.instance);
         assertEquals("Base column is not properly parsed", Long.valueOf(3), mapper.base(column));
     }
 
@@ -183,7 +184,7 @@ public class DateMapperTest extends AbstractMapperTest {
     @Test
     public void testBaseColumnFloatWithDecimalFloor() {
         DateMapper mapper = dateMapper().pattern(TIMESTAMP_PATTERN).build("name");
-        Column<Float> column = Column.builder("f").buildWithComposed(3.5f, FloatType.instance);
+        Column<Float> column = Column.buildComposed("f", 3.5f, FloatType.instance);
         assertEquals("Base column is not properly parsed", Long.valueOf(3), mapper.base(column));
     }
 
@@ -197,7 +198,7 @@ public class DateMapperTest extends AbstractMapperTest {
     @Test
     public void testBaseColumnFloatWithDecimalCeil() {
         DateMapper mapper = dateMapper().pattern(TIMESTAMP_PATTERN).build("name");
-        Column<Float> column = Column.builder("f").buildWithComposed(3.6f, FloatType.instance);
+        Column<Float> column = Column.buildComposed("f", 3.6f, FloatType.instance);
         assertEquals("Base column is not properly parsed", Long.valueOf(3), mapper.base(column));
     }
 
@@ -211,7 +212,7 @@ public class DateMapperTest extends AbstractMapperTest {
     @Test
     public void testBaseColumnDoubleWithoutDecimal() {
         DateMapper mapper = dateMapper().pattern(TIMESTAMP_PATTERN).build("name");
-        Column<Double> column = Column.builder("f").buildWithComposed(3d, DoubleType.instance);
+        Column<Double> column = Column.buildComposed("f", 3d, DoubleType.instance);
         assertEquals("Base column is not properly parsed", Long.valueOf(3), mapper.base(column));
     }
 
@@ -225,7 +226,7 @@ public class DateMapperTest extends AbstractMapperTest {
     @Test
     public void testBaseColumnDoubleWithDecimalFloor() {
         DateMapper mapper = dateMapper().pattern(TIMESTAMP_PATTERN).build("name");
-        Column<Double> column = Column.builder("f").buildWithComposed(3.5d, DoubleType.instance);
+        Column<Double> column = Column.buildComposed("f", 3.5d, DoubleType.instance);
         assertEquals("Base column is not properly parsed", Long.valueOf(3), mapper.base(column));
     }
 
@@ -239,7 +240,7 @@ public class DateMapperTest extends AbstractMapperTest {
     @Test
     public void testBaseColumnDoubleWithDecimalCeil() {
         DateMapper mapper = dateMapper().pattern(TIMESTAMP_PATTERN).build("name");
-        Column<Double> column = Column.builder("f").buildWithComposed(3.6d, DoubleType.instance);
+        Column<Double> column = Column.buildComposed("f", 3.6d, DoubleType.instance);
         assertEquals("Base column is not properly parsed", Long.valueOf(3), mapper.base(column));
     }
 
@@ -253,8 +254,10 @@ public class DateMapperTest extends AbstractMapperTest {
     @Test
     public void testBaseColumnStringWithPattern() throws ParseException {
         DateMapper mapper = dateMapper().pattern(PATTERN).build("name");
-        Column<String> column = Column.builder("f").buildWithComposed("2014-03-19", UTF8Type.instance);
-        assertEquals("Base column is not properly parsed", Long.valueOf(sdf.parse("2014-03-19").getTime()), mapper.base(column));
+        Column<String> column = Column.buildComposed("f", "2014-03-19", UTF8Type.instance);
+        assertEquals("Base column is not properly parsed",
+                     Long.valueOf(sdf.parse("2014-03-19").getTime()),
+                     mapper.base(column));
     }
 
     @Test
@@ -267,8 +270,10 @@ public class DateMapperTest extends AbstractMapperTest {
     @Test
     public void testBaseColumnStringWithBothPatterns() throws ParseException {
         DateMapper mapper = dateMapper().columnPattern(LONG_PATTERN).lucenePattern(PATTERN).build("name");
-        Column<String> column = Column.builder("f").buildWithComposed("2014-03-19 01:02:03", UTF8Type.instance);
-        assertEquals("Base column is not properly parsed", Long.valueOf(sdf.parse("2014-03-19").getTime()), mapper.base(column));
+        Column<String> column = Column.buildComposed("f", "2014-03-19 01:02:03", UTF8Type.instance);
+        assertEquals("Base column is not properly parsed",
+                     Long.valueOf(sdf.parse("2014-03-19").getTime()),
+                     mapper.base(column));
     }
 
     @Test(expected = IndexException.class)
@@ -278,7 +283,7 @@ public class DateMapperTest extends AbstractMapperTest {
 
     @Test(expected = IndexException.class)
     public void testBaseColumnStringWithPatternInvalid() {
-        dateMapper().pattern(PATTERN).build("name").base(Column.build("n","2014/03/19", UTF8Type.instance));
+        dateMapper().pattern(PATTERN).build("name").base(Column.buildComposed("n", "2014/03/19", UTF8Type.instance));
     }
 
     @Test(expected = IndexException.class)
@@ -288,7 +293,9 @@ public class DateMapperTest extends AbstractMapperTest {
 
     @Test(expected = IndexException.class)
     public void testBaseColumnStringWithColumnPatternInvalid() {
-        dateMapper().columnPattern(PATTERN).build("name").base(Column.build("n","2014/03/19", UTF8Type.instance));
+        dateMapper().columnPattern(PATTERN)
+                    .build("name")
+                    .base(Column.buildComposed("n", "2014/03/19", UTF8Type.instance));
     }
 
     @Test
@@ -305,7 +312,7 @@ public class DateMapperTest extends AbstractMapperTest {
         DateMapper mapper = dateMapper().build("name");
         assertEquals("Base value is not properly parsed",
                      Long.valueOf(new DateParser(null).parse("2014/03/19 00:00:00.000 GMT").getTime()),
-                     mapper.base(Column.build("n", "2014/03/19 00:00:00.000 GMT", UTF8Type.instance)));
+                     mapper.base(Column.buildComposed("n", "2014/03/19 00:00:00.000 GMT", UTF8Type.instance)));
     }
 
     @Test(expected = IndexException.class)
@@ -317,7 +324,7 @@ public class DateMapperTest extends AbstractMapperTest {
     @Test(expected = IndexException.class)
     public void testBaseColumnStringWithoutPatternInvalid() throws ParseException {
         DateMapper mapper = dateMapper().build("name");
-        mapper.base("test", Column.build("n","2014-03-19",UTF8Type.instance));
+        mapper.base("test", Column.buildComposed("n", "2014-03-19", UTF8Type.instance));
     }
 
     @Test
@@ -330,14 +337,14 @@ public class DateMapperTest extends AbstractMapperTest {
     @Test
     public void testBaseColumnTimeUUID() {
         DateMapper mapper = dateMapper().pattern(TIMESTAMP_PATTERN).build("name");
-        Column<UUID> column = Column.build("n", UUIDGen.getTimeUUID(1000), TimeUUIDType.instance);
+        Column<UUID> column = Column.buildComposed("n", UUIDGen.getTimeUUID(1000), TimeUUIDType.instance);
         assertEquals("Base value is not properly parsed", Long.valueOf(1000), mapper.base(column));
     }
 
     @Test
     public void testBaseColumnTimeUUIDGeneric() {
         DateMapper mapper = dateMapper().pattern(TIMESTAMP_PATTERN).build("name");
-        Column<UUID> column = Column.build("n", UUIDGen.getTimeUUID(1000), UUIDType.instance);
+        Column<UUID> column = Column.buildComposed("n", UUIDGen.getTimeUUID(1000), UUIDType.instance);
         assertEquals("Base value is not properly parsed", Long.valueOf(1000), mapper.base(column));
     }
 
@@ -355,20 +362,22 @@ public class DateMapperTest extends AbstractMapperTest {
         DateMapper mapper = dateMapper().columnPattern(TIMESTAMP_PATTERN).lucenePattern(PATTERN).build("name");
         Date inputDate = new SimpleDateFormat(LONG_PATTERN).parse("2014-03-19 01:02:03");
         Date outputDate = new SimpleDateFormat(PATTERN).parse("2014-03-19");
-        Long parsed = mapper.base(Column.build("n", UUIDGen.getTimeUUID(inputDate.getTime()), UUIDType.instance));
+        Long parsed = mapper.base(Column.buildComposed("name",
+                                                       UUIDGen.getTimeUUID(inputDate.getTime()),
+                                                       UUIDType.instance));
         assertEquals("Base value is not properly parsed", Long.valueOf(outputDate.getTime()), parsed);
     }
 
     @Test(expected = IndexException.class)
     public void testBaseValueNotTimeUUID() {
         DateMapper mapper = dateMapper().pattern(TIMESTAMP_PATTERN).build("name");
-        mapper.base("test", UUID.randomUUID());
+        mapper.base("name", UUID.randomUUID());
     }
 
     @Test(expected = IndexException.class)
     public void testBaseColumnNotTimeUUID() {
         DateMapper mapper = dateMapper().pattern(TIMESTAMP_PATTERN).build("name");
-        mapper.base(Column.build("n", UUID.randomUUID(), UUIDType.instance));
+        mapper.base(Column.buildComposed("name", UUID.randomUUID(), UUIDType.instance));
     }
 
     @Test

@@ -186,7 +186,7 @@ public class DateParserTest {
     @Test
     public void testColumnSimpleDateWithPattern() throws ParseException {
         ByteBuffer bb = SimpleDateType.instance.fromString("2015-10-10");
-        Column<Integer> column = Column.builder("date").buildWithDecomposed(bb, SimpleDateType.instance);
+        Column<Integer> column = Column.buildDecomposed("date", bb, SimpleDateType.instance);
         Date expectedDate = date("yyyy-MM-dd", "2015-10-10");
         assertEquals("yyyy-MM-dd", column, expectedDate);
     }
@@ -194,7 +194,7 @@ public class DateParserTest {
     @Test
     public void testColumnSimpleDateWithPatternTruncating() throws ParseException {
         ByteBuffer bb = SimpleDateType.instance.fromString("2015-10-10");
-        Column<Integer> column = Column.builder("date").buildWithDecomposed(bb, SimpleDateType.instance);
+        Column<Integer> column = Column.buildDecomposed("date", bb, SimpleDateType.instance);
         Date expectedDate = date("yyyy/MM", "2015/10");
         assertEquals("yyyy-MM", column, expectedDate);
     }
@@ -202,7 +202,7 @@ public class DateParserTest {
     @Test
     public void testColumnSimpleDateWithTimestamp() {
         ByteBuffer bb = SimpleDateType.instance.fromString("2015-10-10");
-        Column<Integer> column = Column.builder("date").buildWithDecomposed(bb, SimpleDateType.instance);
+        Column<Integer> column = Column.buildDecomposed("date", bb, SimpleDateType.instance);
         Date expectedDate = new Date(1444435200000L);
         assertEquals(TIMESTAMP_PATTERN, column, expectedDate);
     }
@@ -210,7 +210,7 @@ public class DateParserTest {
     @Test
     public void testColumnDateWithPattern() throws ParseException {
         ByteBuffer bb = TimestampType.instance.fromString("2015-10-10");
-        Column<Date> column = Column.builder("date").buildWithDecomposed(bb, TimestampType.instance);
+        Column<Date> column = Column.buildDecomposed("date", bb, TimestampType.instance);
         Date expectedDate = date("yyyy-MM-dd", "2015-10-10");
         assertEquals("yyyy-MM-dd", column, expectedDate);
     }
@@ -218,21 +218,21 @@ public class DateParserTest {
     @Test
     public void testColumnDateWithPatternTruncating() throws ParseException {
         ByteBuffer bb = TimestampType.instance.fromString("2015-10-10 01:02:03");
-        Column<Date> column = Column.builder("date").buildWithDecomposed(bb, TimestampType.instance);
+        Column<Date> column = Column.buildDecomposed("date", bb, TimestampType.instance);
         Date expectedDate = date("yyyy-MM-dd", "2015-10-10");
         assertEquals("yyyy-MM-dd", column, expectedDate);
     }
 
     @Test
     public void testColumnLongWithDifferentPatterns() throws ParseException {
-        Column<Long> column = Column.builder("date").buildWithComposed(20151127010203L, LongType.instance);
+        Column<Long> column = Column.buildComposed("date", 20151127010203L, LongType.instance);
         Date expectedDate = date("yyyy-MM-dd", "2015-11-27");
         assertEquals("yyyyMMddHHmmss", "yyyy-MM-dd", column, expectedDate);
     }
 
     @Test
     public void testColumnUTF8WithDifferentPatterns() throws ParseException {
-        Column<String> column = Column.builder("date").buildWithComposed("20151127010203", UTF8Type.instance);
+        Column<String> column = Column.buildComposed("date", "20151127010203", UTF8Type.instance);
         Date expectedDate = date("yyyy-MM-dd", "2015-11-27");
         assertEquals("yyyyMMddHHmmss", "yyyy-MM-dd", column, expectedDate);
     }

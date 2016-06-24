@@ -33,14 +33,14 @@ public class ColumnTest {
         AbstractType<Long> type = LongType.instance;
         Long composedValue = 5L;
         ByteBuffer decomposedValue = type.decompose(composedValue);
-        Column<Long> column = Column.builder("my_column").buildWithDecomposed(decomposedValue, type);
+        Column<Long> column = Column.builder("my_column").buildDecomposed(decomposedValue, type);
         assertEquals("Column full name is wrong", "my_column", column.getFullName());
         assertEquals("Column cell name is wrong", "my_column", column.getCellName());
         assertEquals("Column mapper name is wrong", "my_column", column.getMapperName());
         assertEquals("Column field name is wrong", "field", column.getFieldName("field"));
         assertEquals("Column type is wrong", type, column.getType());
-        assertEquals("Column buildWithComposed is wrong", composedValue, column.getComposedValue());
-        assertEquals("Column buildWithDecomposed is wrong", decomposedValue, column.getDecomposedValue());
+        assertEquals("Column composed value is wrong", composedValue, column.getComposedValue());
+        assertEquals("Column decomposed value is wrong", decomposedValue, column.getDecomposedValue());
     }
 
     @Test
@@ -48,14 +48,14 @@ public class ColumnTest {
         AbstractType<Long> type = LongType.instance;
         Long composedValue = 5L;
         ByteBuffer decomposedValue = type.decompose(composedValue);
-        Column<Long> column = Column.builder("my").withMapName("column").buildWithDecomposed(decomposedValue, type);
+        Column<Long> column = Column.builder("my").withMapName("column").buildDecomposed(decomposedValue, type);
         assertEquals("Column full name is wrong", "my$column", column.getFullName());
         assertEquals("Column cell name is wrong", "my", column.getCellName());
         assertEquals("Column mapper name is wrong", "my", column.getMapperName());
         assertEquals("Column field name is wrong", "field$column", column.getFieldName("field"));
         assertEquals("Column type is wrong", type, column.getType());
-        assertEquals("Column buildWithComposed is wrong", composedValue, column.getComposedValue());
-        assertEquals("Column buildWithDecomposed is wrong", decomposedValue, column.getDecomposedValue());
+        assertEquals("Column composed value is wrong", composedValue, column.getComposedValue());
+        assertEquals("Column decomposed value is wrong", decomposedValue, column.getDecomposedValue());
     }
 
     @Test
@@ -63,14 +63,14 @@ public class ColumnTest {
         AbstractType<Long> type = LongType.instance;
         Long composedValue = 5L;
         ByteBuffer decomposedValue = type.decompose(composedValue);
-        Column<Long> column = Column.builder("my").withUDTName("column").buildWithDecomposed(decomposedValue, type);
+        Column<Long> column = Column.builder("my").withUDTName("column").buildDecomposed(decomposedValue, type);
         assertEquals("Column full name is wrong", "my.column", column.getFullName());
         assertEquals("Column cell name is wrong", "my", column.getCellName());
         assertEquals("Column mapper name is wrong", "my.column", column.getMapperName());
         assertEquals("Column field name is wrong", "field", column.getFieldName("field"));
         assertEquals("Column type is wrong", type, column.getType());
-        assertEquals("Column buildWithComposed is wrong", composedValue, column.getComposedValue());
-        assertEquals("Column buildWithDecomposed is wrong", decomposedValue, column.getDecomposedValue());
+        assertEquals("Column composed value is wrong", composedValue, column.getComposedValue());
+        assertEquals("Column decomposed value is wrong", decomposedValue, column.getDecomposedValue());
     }
 
     @Test
@@ -85,14 +85,14 @@ public class ColumnTest {
                                     .withMapName("4")
                                     .withMapName("5")
                                     .withMapName("6")
-                                    .buildWithDecomposed(decomposedValue, type);
+                                    .buildDecomposed(decomposedValue, type);
         assertEquals("Column full name is wrong", "my.1.2.3$4$5$6", column.getFullName());
         assertEquals("Column cell name is wrong", "my", column.getCellName());
         assertEquals("Column mapper name is wrong", "my.1.2.3", column.getMapperName());
         assertEquals("Column field name is wrong", "field$4$5$6", column.getFieldName("field"));
         assertEquals("Column type is wrong", type, column.getType());
-        assertEquals("Column buildWithComposed is wrong", composedValue, column.getComposedValue());
-        assertEquals("Column buildWithDecomposed is wrong", decomposedValue, column.getDecomposedValue());
+        assertEquals("Column composed value is wrong", composedValue, column.getComposedValue());
+        assertEquals("Column decomposed value is wrong", decomposedValue, column.getDecomposedValue());
     }
 
     @Test
@@ -100,13 +100,13 @@ public class ColumnTest {
         AbstractType<Long> type = LongType.instance;
         Long composedValue = 5L;
         ByteBuffer decomposedValue = type.decompose(composedValue);
-        Column<Long> column = Column.builder("my_column").buildWithDecomposed(decomposedValue, type);
+        Column<Long> column = Column.builder("my_column").buildDecomposed(decomposedValue, type);
         assertEquals("Column full name is wrong", "my_column", column.getFullName());
         assertEquals("Column cell name is wrong", "my_column", column.getCellName());
         assertEquals("Column mapper name is wrong", "my_column", column.getMapperName());
         assertEquals("Column field name is wrong", "field", column.getFieldName("field"));
-        assertEquals("Column buildWithComposed is wrong", composedValue, column.getComposedValue());
-        assertEquals("Column buildWithDecomposed is wrong", decomposedValue, column.getDecomposedValue());
+        assertEquals("Column composed value is wrong", composedValue, column.getComposedValue());
+        assertEquals("Column decomposed value is wrong", decomposedValue, column.getDecomposedValue());
     }
 
     @Test
@@ -114,13 +114,13 @@ public class ColumnTest {
         AbstractType<Long> type = LongType.instance;
         Long composedValue = 5L;
         ByteBuffer decomposedValue = type.decompose(composedValue);
-        Column<Long> column = Column.builder("my").withUDTName("column").buildWithDecomposed(decomposedValue, type);
+        Column<Long> column = Column.builder("my").withUDTName("column").buildDecomposed(decomposedValue, type);
         assertEquals("Column full name is wrong", "my.column", column.getFullName());
         assertEquals("Column cell name is wrong", "my", column.getCellName());
         assertEquals("Column mapper name is wrong", "my.column", column.getMapperName());
         assertEquals("Column field name is wrong", "field", column.getFieldName("field"));
-        assertEquals("Column buildWithComposed is wrong", composedValue, column.getComposedValue());
-        assertEquals("Column buildWithDecomposed is wrong", decomposedValue, column.getDecomposedValue());
+        assertEquals("Column composed value is wrong", composedValue, column.getComposedValue());
+        assertEquals("Column decomposed value is wrong", decomposedValue, column.getDecomposedValue());
     }
 
     @Test
@@ -128,7 +128,7 @@ public class ColumnTest {
         LongType type = LongType.instance;
         Long composedValue = 5L;
         ByteBuffer decomposedValue = type.decompose(composedValue);
-        Column<Long> column = Column.builder("my_column", 10).buildWithDecomposed(decomposedValue, type);
+        Column<Long> column = Column.builder("my_column", 10).buildDecomposed(decomposedValue, type);
         assertEquals("Method #toString is wrong",
                      "Column{cell=my_column, name=my_column, value=5, type=LongType, deletionTime=10}",
                      column.toString());
@@ -142,7 +142,7 @@ public class ColumnTest {
         Column<Long> column = Column.builder("my", 10)
                                     .withUDTName("1")
                                     .withMapName("2")
-                                    .buildWithDecomposed(decomposedValue, type);
+                                    .buildDecomposed(decomposedValue, type);
         assertEquals("Method #toString is wrong",
                      "Column{cell=my, name=my.1$2, value=5, type=LongType, deletionTime=10}",
                      column.toString());

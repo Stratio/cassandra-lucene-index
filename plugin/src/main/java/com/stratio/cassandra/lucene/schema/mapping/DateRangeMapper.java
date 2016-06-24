@@ -149,7 +149,7 @@ public class DateRangeMapper extends Mapper {
      * @return the start date
      */
     Date readFrom(Columns columns) {
-        Column<?> column = columns.getColumnsByFullName(from).getFirst();
+        Column<?> column = columns.getByFullName(from).getFirst();
         if (column == null) {
             return null;
         }
@@ -167,7 +167,7 @@ public class DateRangeMapper extends Mapper {
      * @return the end date
      */
     Date readTo(Columns columns) {
-        Column<?> column = columns.getColumnsByFullName(to).getFirst();
+        Column<?> column = columns.getByFullName(to).getFirst();
         if (column == null) {
             return null;
         }

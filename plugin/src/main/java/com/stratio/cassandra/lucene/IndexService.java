@@ -40,7 +40,6 @@ import org.apache.cassandra.db.filter.RowFilter.Expression;
 import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.db.partitions.PartitionIterator;
 import org.apache.cassandra.db.partitions.PartitionUpdate;
-import org.apache.cassandra.db.partitions.UnfilteredPartitionIterator;
 import org.apache.cassandra.db.rows.*;
 import org.apache.cassandra.index.Index;
 import org.apache.cassandra.index.transactions.IndexTransaction;
@@ -338,7 +337,7 @@ abstract class IndexService implements IndexServiceMBean {
             return true;
         } else {
             Columns columns = columns(key, row);
-            return schema.getMappedCells().stream().anyMatch(x -> columns.getColumnsByCellName(x).isEmpty());
+            return schema.getMappedCells().stream().anyMatch(x -> columns.getByCellName(x).isEmpty());
         }
     }
 
