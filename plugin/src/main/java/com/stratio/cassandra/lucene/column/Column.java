@@ -88,6 +88,32 @@ public final class Column<T> {
     }
 
     /**
+     * Builds a new {@link Column} with the specified name, composed value and type.
+     *
+     * @param name the column name
+     * @param value the composed value
+     * @param type the type
+     * @param <T> the base class
+     * @return a new column
+     */
+    public static <T> Column<T> buildComposed(String name, T value, AbstractType<T> type) {
+        return builder(name).buildComposed(value, type);
+    }
+
+    /**
+     * Builds a new {@link Column} with the specified name, composed value and type.
+     *
+     * @param name the column name
+     * @param value the decomposed value
+     * @param type the type
+     * @param <T> the base class
+     * @return a new column
+     */
+    public static <T> Column<T> buildDecomposed(String name, ByteBuffer value, AbstractType<T> type) {
+        return builder(name).buildDecomposed(value, type);
+    }
+
+    /**
      * Returns a new {@link ColumnBuilder} using the specified base cell name and deletion time.
      *
      * @param cellName the base cell name
@@ -154,9 +180,9 @@ public final class Column<T> {
     }
 
     /**
-     * Returns the column name.
+     * Returns the cell name.
      *
-     * @return the column name.
+     * @return the cell name
      */
     public String getCellName() {
         return cellName;
@@ -165,7 +191,7 @@ public final class Column<T> {
     /**
      * Returns the full name, which is formed by the column name and the suffix.
      *
-     * @return The full name, which is formed by the column name and the suffix.
+     * @return the full name
      */
     public String getFullName() {
         return cellName + getUDTSuffix() + getMapSuffix();
@@ -201,7 +227,7 @@ public final class Column<T> {
      * Returns the field column name appending the suffix.
      *
      * @param field A base field name.
-     * @return The full column name appending the suffix.
+     * @return the field name
      */
     public String getFieldName(String field) {
         return field + getMapSuffix();
@@ -210,7 +236,7 @@ public final class Column<T> {
     /**
      * Returns the {@link ByteBuffer} serialized value.
      *
-     * @return the {@link ByteBuffer} serialized value.
+     * @return the serialized value
      */
     public ByteBuffer getDecomposedValue() {
         return decomposedValue;
@@ -219,7 +245,7 @@ public final class Column<T> {
     /**
      * Returns the Java column value.
      *
-     * @return The Java column value.
+     * @return the composed value
      */
     public T getComposedValue() {
         return composedValue;
@@ -228,7 +254,7 @@ public final class Column<T> {
     /**
      * Returns the Cassandra column type.
      *
-     * @return The Cassandra column type.
+     * @return the type
      */
     public AbstractType<T> getType() {
         return type;

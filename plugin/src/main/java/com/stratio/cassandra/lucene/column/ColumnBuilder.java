@@ -22,11 +22,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A cell of a CQL3 logic {@link ColumnBuilder}, which in most cases is different from a storage engine column.
+ * Class for building a new {@link Column}.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public class ColumnBuilder {
+class ColumnBuilder {
 
     private final String cellName;
     private final List<String> udtNames;
@@ -54,7 +54,7 @@ public class ColumnBuilder {
      * @param <T> the marshaller's base type
      * @return the built column
      */
-    public <T> Column<T> buildWithComposed(T composedValue, AbstractType<T> type) {
+    <T> Column<T> buildComposed(T composedValue, AbstractType<T> type) {
         ByteBuffer decomposedValue = type.decompose(composedValue);
         return new Column<>(cellName, udtNames, mapNames, decomposedValue, composedValue, type, deletionTime);
     }
@@ -67,12 +67,19 @@ public class ColumnBuilder {
      * @param <T> the marshaller's base type
      * @return the built column
      */
-    public <T> Column<T> buildWithDecomposed(ByteBuffer decomposedValue, AbstractType<T> type) {
+    <T> Column<T> buildDecomposed(ByteBuffer decomposedValue, AbstractType<T> type) {
         T composedValue = type.compose(decomposedValue);
         return new Column<>(cellName, udtNames, mapNames, decomposedValue, composedValue, type, deletionTime);
     }
 
-    public <T> Column<T> buildWithNull(AbstractType<T> type) {
+    /**
+     * Returns a new {@link Column} with {@code null} value and the specified type .
+     *
+     * @param type the value type
+     * @param <T> the marshaller's base type
+     * @return the built column
+     */
+    <T> Column<T> buildNull(AbstractType<T> type) {
         return new Column<>(cellName, udtNames, mapNames, null, null, type, deletionTime);
     }
 

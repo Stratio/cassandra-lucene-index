@@ -16,8 +16,12 @@
 package com.stratio.cassandra.lucene.column;
 
 import com.google.common.base.MoreObjects;
+import org.apache.cassandra.db.marshal.AbstractType;
 
+import java.nio.ByteBuffer;
 import java.util.*;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * A sorted list of CQL3 logic {@link Column}s.
@@ -56,33 +60,76 @@ public class Columns implements Iterable<Column<?>> {
      * Adds the specified {@link Column} to the existing ones.
      *
      * @param column the {@link Column} to be added.
-     * @return this
+     * @return this with the specified {@link Column}
      */
-    public Columns add(Column<?> column) {
+    Columns add(Column<?> column) {
         columns.add(column);
         return this;
     }
 
     /**
-     * Adds the specified {@link Column}s to the existing ones.
+     * Returns a {@link ColumnAdder} for adding a {@link Column} with the specified cell name.
      *
-     * @param columns The {@link Column}s to be added.
-     * @return this {@link Columns} with the specified {@link Column}s.
+     * @param cellName the cell name of the {@link Column} to be added
+     * @return a column adder
      */
-    public Columns add(Columns columns) {
-        for (Column<?> column : columns) {
-            add(column);
-        }
-        return this;
+    public ColumnAdder adder(String cellName) {
+        return new ColumnAdder(this, Column.builder(cellName));
     }
 
     /**
-     * Returns an iterator over the {@link Column}s in insert order.
+     * Returns a {@link ColumnAdder} for adding a {@link Column} with the specified cell name and deletion time.
      *
-     * @return An iterator over the {@link Column}s in insert order.
+     * @param cellName the cell name of the {@link Column} to be added
+     * @param deletionTime the deletion time  of the {@link Column} to be added, in seconds
+     * @return a column adder
+     */
+    public ColumnAdder adder(String cellName, int deletionTime) {
+        return new ColumnAdder(this, Column.builder(cellName, deletionTime));
+    }
+
+    /**
+     * Adds a new {@link Column} with the specified name, composed value and type.
+     *
+     * @param name the column name
+     * @param value the composed value
+     * @param type the type
+     * @param <T> the base class
+     * @return this with the specified {@link Column}
+     */
+    public <T> Columns addComposed(String name, T value, AbstractType<T> type) {
+        return add(Column.buildComposed(name, value, type));
+    }
+
+    /**
+     * Adds a new {@link Column} with the specified name, decomposed value and type.
+     *
+     * @param name the column name
+     * @param value the decomposed value
+     * @param type the type
+     * @param <T> the base class
+     * @return this with the specified {@link Column}
+     */
+    public <T> Columns addDecomposed(String name, ByteBuffer value, AbstractType<T> type) {
+        return add(Column.buildDecomposed(name, value, type));
+    }
+
+    /**
+     * Returns an {@link Iterator} over the {@link Column}s in insert order.
+     *
+     * @return an iterator in insert order
      */
     public Iterator<Column<?>> iterator() {
         return columns.iterator();
+    }
+
+    /**
+     * Returns a {@link Stream} over the {@link Column}s in insert order.
+     *
+     * @return a stream in insert order
+     */
+    public Stream<Column<?>> stream() {
+        return StreamSupport.stream(spliterator(), false);
     }
 
     /**
@@ -105,7 +152,7 @@ public class Columns implements Iterable<Column<?>> {
      * @param name The full name of the {@link Column} to be returned.
      * @return The {@link Column} identified by the specified full name, or {@code null} if not found.
      */
-    public Columns getColumnsByFullName(String name) {
+    public Columns getByFullName(String name) {
         Column.check(name);
         Columns result = new Columns();
         columns.forEach(column -> {
@@ -122,7 +169,7 @@ public class Columns implements Iterable<Column<?>> {
      * @param name The CQL cell name of the{@link Column} to be returned.
      * @return The {@link Column} identified by the specified CQL cell name, or {@code null} if not found.
      */
-    public Columns getColumnsByCellName(String name) {
+    public Columns getByCellName(String name) {
         Column.check(name);
         String cellName = Column.getCellName(name);
         Columns result = new Columns();
@@ -140,7 +187,7 @@ public class Columns implements Iterable<Column<?>> {
      * @param name The mapper name of the {@link Column} to be returned.
      * @return The {@link Column} identified by the specified mapper name, or {@code null} if not found.
      */
-    public Columns getColumnsByMapperName(String name) {
+    public Columns getByMapperName(String name) {
         Column.check(name);
         String mapperName = Column.getMapperName(name);
         Columns result = new Columns();

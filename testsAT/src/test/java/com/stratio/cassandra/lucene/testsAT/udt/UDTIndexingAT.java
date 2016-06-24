@@ -15,24 +15,21 @@
  */
 package com.stratio.cassandra.lucene.testsAT.udt;
 
-import com.datastax.driver.core.SimpleStatement;
 import com.datastax.driver.core.exceptions.InvalidQueryException;
 import com.stratio.cassandra.lucene.testsAT.BaseAT;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
-import com.stratio.cassandra.lucene.testsAT.util.CassandraUtilsSelect;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import static com.stratio.cassandra.lucene.builder.Builder.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
@@ -41,479 +38,397 @@ import static org.junit.Assert.assertTrue;
 @RunWith(JUnit4.class)
 public class UDTIndexingAT extends BaseAT {
 
-    private static CassandraUtils utils;
+    private static CassandraUtils cassandraUtils;
+    private static Map<String, String> data1 = Collections.unmodifiableMap(
+            new HashMap<String, String>() {{
+                put("login", "'USER1'");
+                put("first_name", "'Tom'");
+                put("last_name", "'Smith'");
+                put("address", "{ street: '1021 West 4th St. #202'," +
+                               "city: 'San Francisco'," +
+                               "zip: 94110 ," +
+                               "bool: true," +
+                               "height:5.4 ," +
+                               "zips:[ 2,4,6 ]," +
+                               "zips_map : " +
+                               "{ 1 : '1A'," +
+                               "2 : '2A'," +
+                               "3 : '3A'}," +
+                               "zips_set : {5,7,9}," +
+                               "point : {" +
+                               "latitude : 1.0," +
+                               "longitude : -1.0" +
+                               "}  " +
+                               "}");
+
+            }});
+    private static Map<String, String> data2 = Collections.unmodifiableMap(
+            new HashMap<String, String>() {{
+                put("login", "'USER2'");
+                put("first_name", "'Tom'");
+                put("last_name", "'Smith'");
+                put("address", "{ street: '1021 West 4th St. #202'," +
+                               "city: 'San Francisco'," +
+                               "zip: 94110 ," +
+                               "bool: false," +
+                               "height:5.4 ," +
+                               "zips:[ 4,6,8 ]," +
+                               "zips_map : " +
+                               "{ 1 : '1B'," +
+                               "2 : '2B'," +
+                               "3 : '3B'}," +
+                               "zips_set : {7,9,11}," +
+                               "point : {" +
+                               "latitude : 2.0," +
+                               "longitude : -2.0" +
+                               "}  " +
+                               "}");
+
+            }});
+    private static Map<String, String> data3 = Collections.unmodifiableMap(
+            new HashMap<String, String>() {{
+                put("login", "'USER3'");
+                put("first_name", "'Tom'");
+                put("last_name", "'Smith'");
+                put("address", "{  street: '1021 West 4th St. #202'," +
+                               "city: 'San Francisco'," +
+                               "zip: 94110 ," +
+                               "bool: true," +
+                               "height:5.4 ," +
+                               "zips:[ 6,8,10 ]," +
+                               "zips_map : " +
+                               "{ 1 : '1A'," +
+                               "2 : '2A'," +
+                               "3 : '3A'}," +
+                               "zips_set : {9,11,13}," +
+                               "point : {" +
+                               "latitude : 3.0," +
+                               "longitude : -3.0" +
+                               "}  " +
+                               "}");
+
+            }});
+    private static Map<String, String> data4 = Collections.unmodifiableMap(
+            new HashMap<String, String>() {{
+                put("login", "'USER4'");
+                put("first_name", "'Tom'");
+                put("last_name", "'Smith'");
+                put("address", "{ street: '1021 West 4th St. #202'," +
+                               "city: 'Paris'," +
+                               "zip: 94110 ," +
+                               "bool: false," +
+                               "height:5.4 ," +
+                               "zips:[ 8,10,12 ]," +
+                               "zips_map : " +
+                               "{ 1 : '1B'," +
+                               "2 : '2B'," +
+                               "3 : '3B'}," +
+                               "zips_set : {11,13,15}," +
+                               "point : {" +
+                               "latitude : 4.0," +
+                               "longitude : -4.0" +
+                               "}  " +
+                               "}");
+
+            }});
+    private static Map<String, String> data5 = Collections.unmodifiableMap(
+            new HashMap<String, String>() {{
+                put("login", "'USER5'");
+                put("first_name", "'Tom'");
+                put("last_name", "'Smith'");
+                put("address", "{ " +
+                               "street: '1021 West 4th St. #202'," +
+                               "city: 'Paris'," +
+                               "zip: 94110 ," +
+                               "bool: true," +
+                               "height:5.4 ," +
+                               "zips:[ 10,12,14]," +
+                               "zips_map : " +
+                               "{ 1 : '1A'," +
+                               "2 : '2A'," +
+                               "3 : '3A'}," +
+                               "zips_set : {13,15,17}," +
+                               "point : {" +
+                               "latitude : 5.0," +
+                               "longitude : -5.0" +
+                               "}  " +
+                               "}");
+
+            }});
+    private static Map<String, String> data6 = Collections.unmodifiableMap(
+            new HashMap<String, String>() {{
+                put("login", "'USER6'");
+                put("first_name", "'Tom'");
+                put("last_name", "'Smith'");
+                put("address", "{  street: '1021 West 4th St. #202'," +
+                               "city: 'Paris'," +
+                               "zip: 94110 ," +
+                               "bool: false," +
+                               "height:5.4 ," +
+                               "zips:[ 12,14,16 ]," +
+                               "zips_map : " +
+                               "{ 1 : '1B'," +
+                               "2 : '2B'," +
+                               "3 : '3B'}," +
+                               "zips_set : {15,17,19}," +
+                               "point : {" +
+                               "latitude : 6.0," +
+                               "longitude : -6.0" +
+                               "}  " +
+                               "}");
+
+            }});
+    private static Map<String, String> data7 = Collections.unmodifiableMap(
+            new HashMap<String, String>() {{
+                put("login", "'USER7'");
+                put("first_name", "'Tom'");
+                put("last_name", "'Smith'");
+                put("address", "{ street: '1021 West 4th St. #202'," +
+                               "city: 'Paris'," +
+                               "zip: 94110 ," +
+                               "bool: true," +
+                               "height:5.4 ," +
+                               "zips:[ 14,16,18 ]," +
+                               "zips_map : " +
+                               "{ 1 : '1A'," +
+                               "2 : '2A'," +
+                               "3 : '3A'}," +
+                               "zips_set : {17,19,21}," +
+                               "point : {" +
+                               "latitude : 7.0," +
+                               "longitude : -7.0" +
+                               "}  " +
+                               "}");
+
+            }});
+    private static Map<String, String> data8 = Collections.unmodifiableMap(
+            new HashMap<String, String>() {{
+                put("login", "'USER8'");
+                put("first_name", "'Tom'");
+                put("last_name", "'Smith'");
+                put("address", "{ city: 'Madrid' }");
+
+            }});
 
     @BeforeClass
     public static void before() {
-
-        utils = CassandraUtils.builder("udt_indexing")
-                              .withUDT("geo_point", "latitude", "float")
-                              .withUDT("geo_point", "longitude", "float")
-                              .withUDT("address", "street", "text")
-                              .withUDT("address", "city", "text")
-                              .withUDT("address", "zip", "int")
-                              .withUDT("address", "bool", "boolean")
-                              .withUDT("address", "height", "float")
-                              .withUDT("address", "point", "frozen<geo_point>")
-                              .withUDT("address", "zips", "list<int>")
-                              .withUDT("address", "zips_map", "map<int,text>")
-                              .withUDT("address", "zips_set", "set<int>")
-                              .withColumn("login", "text")
-                              .withColumn("first_name", "text")
-                              .withColumn("last_name", "text")
-                              .withColumn("address", "frozen<address>")
-                              .withPartitionKey("login")
-                              .withMapper("address.zips", integerMapper())
-                              .withMapper("address.zips_map", stringMapper())
-                              .withMapper("address.zips_set", integerMapper())
-                              .withMapper("address.bool", booleanMapper())
-                              .withMapper("address.city", stringMapper())
-                              .withMapper("address.point.latitude", floatMapper())
-                              .withMapper("address.point.longitude", floatMapper())
-                              .build()
-                              .createKeyspace()
-                              .createUDTs()
-                              .createTable()
-                              .createIndex();
-
-        Map<String, String> data = new HashMap<>();
-        data.put("login", "'USER1'");
-        data.put("first_name", "'Tom'");
-        data.put("last_name", "'Smith'");
-        data.put("address", "{" +
-                            "  street: '1021 West 4th St. #202'," +
-                            "  city: 'San Francisco'," +
-                            "  zip: 94110 ," +
-                            "  bool: true," +
-                            "  height:5.4 ," +
-                            "  zips:[ 2,4,6 ]," +
-                            "  zips_map : {" +
-                            "    1 : '1A'," +
-                            "    2 : '2A'," +
-                            "    3 : '3A'" +
-                            "  }," +
-                            "  zips_set : {5,7,9}," +
-                            "  point : {" +
-                            "    latitude : 1.0," +
-                            "    longitude : -1.0" +
-                            "  }" +
-                            "}");
-
-        Map<String, String> data2 = new HashMap<>();
-        data2.put("login", "'USER2'");
-        data2.put("first_name", "'Tom'");
-        data2.put("last_name", "'Smith'");
-        data2.put("address", "{ " +
-                             "  street: '1021 West 4th St. #202'," +
-                             "  city: 'San Francisco'," +
-                             "  zip: 94110 ," +
-                             "  bool: false," +
-                             "  height:5.4 ," +
-                             "  zips:[ 4,6,8 ]," +
-                             "  zips_map : { " +
-                             "    1 : '1B'," +
-                             "    2 : '2B'," +
-                             "    3 : '3B'" +
-                             "  }," +
-                             "  zips_set : {7,9,11}," +
-                             "  point : {" +
-                             "    latitude : 2.0," +
-                             "    longitude : -2.0" +
-                             "  }  " +
-                             "}");
-
-        Map<String, String> data3 = new HashMap<>();
-        data3.put("login", "'USER3'");
-        data3.put("first_name", "'Tom'");
-        data3.put("last_name", "'Smith'");
-        data3.put("address", "{ " +
-                             "  street: '1021 West 4th St. #202'," +
-                             "  city: 'San Francisco'," +
-                             "  zip: 94110 ," +
-                             "  bool: true," +
-                             "  height:5.4 ," +
-                             "  zips:[ 6,8,10 ]," +
-                             "  zips_map : {" +
-                             "    1 : '1A'," +
-                             "    2 : '2A'," +
-                             "    3 : '3A'" +
-                             "  }," +
-                             "  zips_set : {9,11,13}," +
-                             "  point : {" +
-                             "    latitude : 3.0," +
-                             "    longitude : -3.0" +
-                             "  }  " +
-                             "}");
-
-        Map<String, String> data4 = new HashMap<>();
-        data4.put("login", "'USER4'");
-        data4.put("first_name", "'Tom'");
-        data4.put("last_name", "'Smith'");
-        data4.put("address", "{ " +
-                             "  street: '1021 West 4th St. #202'," +
-                             "  city: 'Paris'," +
-                             "  zip: 94110 ," +
-                             "  bool: false," +
-                             "  height:5.4 ," +
-                             "  zips:[ 8,10,12 ]," +
-                             "  zips_map : {" +
-                             "    1 : '1B'," +
-                             "    2 : '2B'," +
-                             "    3 : '3B'" +
-                             "  }," +
-                             "  zips_set : {11,13,15}," +
-                             "  point : {" +
-                             "    latitude : 4.0," +
-                             "    longitude : -4.0" +
-                             "  }  " +
-                             "}");
-
-        Map<String, String> data5 = new HashMap<>();
-        data5.put("login", "'USER5'");
-        data5.put("first_name", "'Tom'");
-        data5.put("last_name", "'Smith'");
-        data5.put("address", "{ " +
-                             "  street: '1021 West 4th St. #202'," +
-                             "  city: 'Paris'," +
-                             "  zip: 94110 ," +
-                             "  bool: true," +
-                             "  height:5.4 ," +
-                             "  zips:[ 10,12,14]," +
-                             "  zips_map : {" +
-                             "    1 : '1A'," +
-                             "    2 : '2A'," +
-                             "    3 : '3A'" +
-                             "  }," +
-                             "  zips_set : {13,15,17}," +
-                             "  point : {" +
-                             "    latitude : 5.0," +
-                             "    longitude : -5.0" +
-                             "  }  " +
-                             "}");
-
-        Map<String, String> data6 = new HashMap<>();
-        data6.put("login", "'USER6'");
-        data6.put("first_name", "'Tom'");
-        data6.put("last_name", "'Smith'");
-        data6.put("address", "{ " +
-                             "  street: '1021 West 4th St. #202'," +
-                             "  city: 'Paris'," +
-                             "  zip: 94110 ," +
-                             "  bool: false," +
-                             "  height:5.4 ," +
-                             "  zips:[ 12,14,16 ]," +
-                             "  zips_map : {" +
-                             "    1 : '1B'," +
-                             "    2 : '2B'," +
-                             "    3 : '3B'" +
-                             "  }," +
-                             "  zips_set : {15,17,19}," +
-                             "  point : {" +
-                             "    latitude : 6.0," +
-                             "    longitude : -6.0" +
-                             "  }  " +
-                             "}");
-
-        Map<String, String> data7 = new HashMap<>();
-        data7.put("login", "'USER7'");
-        data7.put("first_name", "'Tom'");
-        data7.put("last_name", "'Smith'");
-        data7.put("address", "{ " +
-                             "  street: '1021 West 4th St. #202'," +
-                             "  city: 'Paris'," +
-                             "  zip: 94110 ," +
-                             "  bool: true," +
-                             "  height:5.4 ," +
-                             "  zips:[ 14,16,18 ]," +
-                             "  zips_map : {" +
-                             "    1 : '1A'," +
-                             "    2 : '2A'," +
-                             "    3 : '3A'" +
-                             "  }," +
-                             "  zips_set : {17,19,21}," +
-                             "  point : {" +
-                             "    latitude : 7.0," +
-                             "    longitude : -7.0" +
-                             "  }  " +
-                             "}");
-
-        utils.insert(data, data2, data3, data4, data5, data6, data7);
-        utils.refresh();
-
+        cassandraUtils = CassandraUtils.builder("udt_indexing")
+                                       .withTable("udt_indexing")
+                                       .withIndexColumn("lucene")
+                                       .withUDT("geo_point", "latitude", "float")
+                                       .withUDT("geo_point", "longitude", "float")
+                                       .withUDT("address", "street", "text")
+                                       .withUDT("address", "city", "text")
+                                       .withUDT("address", "zip", "int")
+                                       .withUDT("address", "bool", "boolean")
+                                       .withUDT("address", "height", "float")
+                                       .withUDT("address", "point", "frozen<geo_point>")
+                                       .withUDT("address", "zips", "list<int>")
+                                       .withUDT("address", "zips_map", "map<int,text>")
+                                       .withUDT("address", "zips_set", "set<int>")
+                                       .withColumn("login", "text")
+                                       .withColumn("first_name", "text")
+                                       .withColumn("last_name", "text")
+                                       .withColumn("address", "frozen<address>")
+                                       .withMapper("address.zips", integerMapper())
+                                       .withMapper("address.zips_map", stringMapper())
+                                       .withMapper("address.zips_set", integerMapper())
+                                       .withMapper("address.bool", booleanMapper())
+                                       .withMapper("address.city", stringMapper())
+                                       .withMapper("address.point.latitude", floatMapper())
+                                       .withMapper("address.point.longitude", floatMapper())
+                                       .withPartitionKey("login")
+                                       .build()
+                                       .createKeyspace()
+                                       .createUDTs()
+                                       .createTable()
+                                       .createIndex().insert(data1, data2, data3, data4, data5, data6, data7).refresh();
     }
 
     @AfterClass
     public static void after() {
-        utils.dropTable().dropKeyspace();
-    }
-
-    private boolean isThisAndOnlyThis(String[] received, String[] expected) {
-        if (received.length != expected.length) {
-            return false;
-        } else {
-
-            for (String i : received) {
-                boolean found = false;
-                for (String j : expected) {
-                    if (i.equals(j)) {
-                        found = true;
-                    }
-                }
-                if (!found) {
-                    return false;
-                }
-            }
-            return true;
-        }
-    }
-
-    private void assertEqualsAndOnlyThisString(String[] received, String[] expected) {
-        assertEquals("Expected " + expected.length + " results but received: " + received.length,
-                     expected.length,
-                     received.length);
-        assertTrue("Unexpected results!! Expected: " +
-                   Arrays.toString(expected) +
-                   ", but got: " +
-                   Arrays.toString(received), isThisAndOnlyThis(received, expected));
-
+        cassandraUtils.dropTable().dropKeyspace();
     }
 
     @Test
     public void testUDTInternal() {
-
-        CassandraUtilsSelect select = utils.filter(match("address.city", "Paris"));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER4", "USER5", "USER6", "USER7"});
-
-        select = utils.filter(match("address.city", "San Francisco"));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1", "USER2", "USER3"});
-
-        select = utils.filter(match("address.bool", true));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1", "USER3", "USER5", "USER7"});
-
-        select = utils.filter(match("address.bool", false));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER2", "USER4", "USER6"});
-
+        cassandraUtils.filter(match("address.city", "Paris"))
+                      .checkUnorderedStringColumns("login", "USER4", "USER5", "USER6", "USER7");
+        cassandraUtils.filter(match("address.city", "San Francisco"))
+                      .checkUnorderedStringColumns("login", "USER1", "USER2", "USER3");
+        cassandraUtils.filter(match("address.bool", true))
+                      .checkUnorderedStringColumns("login", "USER1", "USER3", "USER5", "USER7");
+        cassandraUtils.filter(match("address.bool", false))
+                      .checkUnorderedStringColumns("login", "USER2", "USER4", "USER6");
     }
 
-    @Test
+    @Test(expected = InvalidQueryException.class)
     public void testUDTInternalThatFails() {
-        utils.filter(match("address.point", "Paris"))
-             .check(InvalidQueryException.class, "No mapper found for field 'address.point'");
+        cassandraUtils.filter(match("address.point", "Paris")).count();
+        fail("Selecting a type that is no matched must return an Exception");
     }
 
     @Test
     public void testUDTList() {
-
-        CassandraUtilsSelect select = utils.filter(match("address.zips", 10));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER3", "USER4", "USER5"});
-
-        select = utils.filter(match("address.zips", 12));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER4", "USER5", "USER6"});
-
-        select = utils.filter(match("address.zips", 14));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER5", "USER6", "USER7"});
-
-        select = utils.filter(match("address.zips", 15));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{});
-
-        select = utils.filter(match("address.zips", 16));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER6", "USER7"});
-
-        select = utils.filter(match("address.zips", 18));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER7"});
+        cassandraUtils.filter(match("address.zips", 10))
+                      .checkUnorderedStringColumns("login", "USER3", "USER4", "USER5");
+        cassandraUtils.filter(match("address.zips", 12))
+                      .checkUnorderedStringColumns("login", "USER4", "USER5", "USER6");
+        cassandraUtils.filter(match("address.zips", 14))
+                      .checkUnorderedStringColumns("login", "USER5", "USER6", "USER7");
+        cassandraUtils.filter(match("address.zips", 15)).check(0);
+        cassandraUtils.filter(match("address.zips", 16))
+                      .checkUnorderedStringColumns("login", "USER6", "USER7");
+        cassandraUtils.filter(match("address.zips", 18)).checkStringColumn("login", "USER7");
     }
 
     @Test
     public void testUDTMap() {
-        CassandraUtilsSelect select = utils.filter(match("address.zips_map$1", "1A")).refresh(true);
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1", "USER3", "USER5", "USER7"});
-
-        select = utils.filter(match("address.zips_map$1", "1B"));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER2", "USER4", "USER6"});
-
-        select = utils.filter(match("address.zips_map$2", "2A"));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1", "USER3", "USER5", "USER7"});
-
-        select = utils.filter(match("address.zips_map$2", "2B"));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER2", "USER4", "USER6"});
-
-        select = utils.filter(match("address.zips_map$3", "3A"));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1", "USER3", "USER5", "USER7"});
-
-        select = utils.filter(match("address.zips_map$3", "3B"));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER2", "USER4", "USER6"});
+        cassandraUtils.filter(match("address.zips_map$1", "1A")).refresh(true)
+                      .checkUnorderedStringColumns("login",
+                                                   "USER1",
+                                                   "USER3",
+                                                   "USER5",
+                                                   "USER7");
+        cassandraUtils.filter(match("address.zips_map$1", "1B"))
+                      .checkUnorderedStringColumns("login", "USER2", "USER4", "USER6");
+        cassandraUtils.filter(match("address.zips_map$2", "2A"))
+                      .checkUnorderedStringColumns("login", "USER1", "USER3", "USER5", "USER7");
+        cassandraUtils.filter(match("address.zips_map$2", "2B"))
+                      .checkUnorderedStringColumns("login", "USER2", "USER4", "USER6");
+        cassandraUtils.filter(match("address.zips_map$3", "3A"))
+                      .checkUnorderedStringColumns("login", "USER1", "USER3", "USER5", "USER7");
+        cassandraUtils.filter(match("address.zips_map$3", "3B"))
+                      .checkUnorderedStringColumns("login", "USER2", "USER4", "USER6");
     }
 
     @Test
     public void testUDTMapThatFails() {
-
-        CassandraUtilsSelect select = utils.filter(match("address.zips_map", 1));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{});
+        cassandraUtils.filter(match("address.zips_map", 1)).check(0);
     }
 
     @Test
     public void testUDTSet() {
-        CassandraUtilsSelect select = utils.filter(match("address.zips_set", 5));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1"});
-
-        select = utils.filter(match("address.zips_set", 7));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1", "USER2"});
-
-        select = utils.filter(match("address.zips_set", 9));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1", "USER2", "USER3"});
-
-        select = utils.filter(match("address.zips_set", 11));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER2", "USER3", "USER4"});
-
-        select = utils.filter(match("address.zips_set", 12));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{});
-
-        select = utils.filter(match("address.zips_set", 13));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER3", "USER4", "USER5"});
-
-        select = utils.filter(match("address.zips_set", 14));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{});
-
-        select = utils.filter(match("address.zips_set", 15));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER4", "USER5", "USER6"});
-
-        select = utils.filter(match("address.zips_set", 17));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER5", "USER6", "USER7"});
-
-        select = utils.filter(match("address.zips_set", 19));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER6", "USER7"});
-
-        select = utils.filter(match("address.zips_set", 20));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{});
-
-        select = utils.filter(match("address.zips_set", 21));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER7"});
+        cassandraUtils.filter(match("address.zips_set", 5)).checkStringColumn("login", "USER1");
+        cassandraUtils.filter(match("address.zips_set", 7))
+                      .checkUnorderedStringColumns("login", "USER1", "USER2");
+        cassandraUtils.filter(match("address.zips_set", 9))
+                      .checkUnorderedStringColumns("login", "USER1", "USER2", "USER3");
+        cassandraUtils.filter(match("address.zips_set", 11))
+                      .checkUnorderedStringColumns("login", "USER2", "USER3", "USER4");
+        cassandraUtils.filter(match("address.zips_set", 12)).check(0);
+        cassandraUtils.filter(match("address.zips_set", 13))
+                      .checkUnorderedStringColumns("login", "USER3", "USER4", "USER5");
+        cassandraUtils.filter(match("address.zips_set", 14)).check(0);
+        cassandraUtils.filter(match("address.zips_set", 15))
+                      .checkUnorderedStringColumns("login", "USER4", "USER5", "USER6");
+        cassandraUtils.filter(match("address.zips_set", 17))
+                      .checkUnorderedStringColumns("login", "USER5", "USER6", "USER7");
+        cassandraUtils.filter(match("address.zips_set", 19))
+                      .checkUnorderedStringColumns("login", "USER6", "USER7");
+        cassandraUtils.filter(match("address.zips_set", 20)).check(0);
+        cassandraUtils.filter(match("address.zips_set", 21)).checkStringColumn("login", "USER7");
     }
 
     @Test
     public void testUDTOverUDT() {
-        CassandraUtilsSelect select = utils.filter(match("address.point.latitude", 1.0));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1"});
-
-        select = utils.filter(match("address.point.latitude", 2.0));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER2"});
-
-        select = utils.filter(match("address.point.latitude", 3.0));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER3"});
-
-        select = utils.filter(match("address.point.latitude", 4.0));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER4"});
-
-        select = utils.filter(match("address.point.latitude", 5.0));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER5"});
-
-        select = utils.filter(match("address.point.latitude", 6.0));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER6"});
-
-        select = utils.filter(match("address.point.latitude", 7.0));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER7"});
-
-        select = utils.filter(match("address.point.longitude", -1.0));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1"});
-
-        select = utils.filter(match("address.point.longitude", -2.0));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER2"});
-
-        select = utils.filter(match("address.point.longitude", -3.0));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER3"});
-
-        select = utils.filter(match("address.point.longitude", -4.0));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER4"});
-
-        select = utils.filter(match("address.point.longitude", -5.0));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER5"});
-
-        select = utils.filter(match("address.point.longitude", -6.0));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER6"});
-
-        select = utils.filter(match("address.point.longitude", -7.0));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER7"});
-
-        select = utils.filter(range("address.point.latitude").lower(1.0)
+        cassandraUtils.filter(match("address.point.latitude", 1.0))
+                      .checkStringColumn("login", "USER1");
+        cassandraUtils.filter(match("address.point.latitude", 2.0))
+                      .checkStringColumn("login", "USER2");
+        cassandraUtils.filter(match("address.point.latitude", 3.0))
+                      .checkStringColumn("login", "USER3");
+        cassandraUtils.filter(match("address.point.latitude", 4.0))
+                      .checkStringColumn("login", "USER4");
+        cassandraUtils.filter(match("address.point.latitude", 5.0))
+                      .checkStringColumn("login", "USER5");
+        cassandraUtils.filter(match("address.point.latitude", 6.0))
+                      .checkStringColumn("login", "USER6");
+        cassandraUtils.filter(match("address.point.latitude", 7.0))
+                      .checkStringColumn("login", "USER7");
+        cassandraUtils.filter(match("address.point.longitude", -1.0))
+                      .checkStringColumn("login", "USER1");
+        cassandraUtils.filter(match("address.point.longitude", -2.0))
+                      .checkStringColumn("login", "USER2");
+        cassandraUtils.filter(match("address.point.longitude", -3.0))
+                      .checkStringColumn("login", "USER3");
+        cassandraUtils.filter(match("address.point.longitude", -4.0))
+                      .checkStringColumn("login", "USER4");
+        cassandraUtils.filter(match("address.point.longitude", -5.0))
+                      .checkStringColumn("login", "USER5");
+        cassandraUtils.filter(match("address.point.longitude", -6.0))
+                      .checkStringColumn("login", "USER6");
+        cassandraUtils.filter(match("address.point.longitude", -7.0))
+                      .checkStringColumn("login", "USER7");
+        cassandraUtils.filter(range("address.point.latitude").lower(1.0)
                                                              .upper(3.0)
                                                              .includeLower(true)
-                                                             .includeUpper(true));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1", "USER2", "USER3"});
-
-        select = utils.filter(range("address.point.latitude").lower(2.0)
+                                                             .includeUpper(true))
+                      .checkUnorderedStringColumns("login", "USER1", "USER2", "USER3");
+        cassandraUtils.filter(range("address.point.latitude").lower(2.0)
                                                              .upper(5.0)
                                                              .includeLower(true)
-                                                             .includeUpper(true));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER2", "USER3", "USER4", "USER5"});
-
-        select = utils.filter(range("address.point.latitude").lower(1.0)
+                                                             .includeUpper(true))
+                      .checkUnorderedStringColumns("login", "USER2", "USER3", "USER4", "USER5");
+        cassandraUtils.filter(range("address.point.latitude").lower(1.0)
                                                              .upper(7.0)
                                                              .includeLower(true)
-                                                             .includeUpper(true));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"),
-                                      new String[]{"USER1", "USER2", "USER3", "USER4", "USER5", "USER6", "USER7"});
-
-        select = utils.filter(range("address.point.longitude").lower(-3.0).upper(-1.0));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER2"});
-
-        select = utils.filter(range("address.point.longitude").lower(-5.0).upper(-2.0));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER3", "USER4"});
-
-        select = utils.filter(range("address.point.longitude").lower(-7.0).upper(-1.0));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"),
-                                      new String[]{"USER2", "USER3", "USER4", "USER5", "USER6"});
-
-        select = utils.filter(range("address.point.latitude").lower(1.0)
+                                                             .includeUpper(true))
+                      .checkUnorderedStringColumns("login",
+                                                   "USER1",
+                                                   "USER2",
+                                                   "USER3",
+                                                   "USER4",
+                                                   "USER5",
+                                                   "USER6",
+                                                   "USER7");
+        cassandraUtils.filter(range("address.point.longitude").lower(-3.0).upper(-1.0))
+                      .checkStringColumn("login", "USER2");
+        cassandraUtils.filter(range("address.point.longitude").lower(-5.0).upper(-2.0))
+                      .checkUnorderedStringColumns("login", "USER3", "USER4");
+        cassandraUtils.filter(range("address.point.longitude").lower(-7.0).upper(-1.0))
+                      .checkUnorderedStringColumns("login", "USER2", "USER3", "USER4", "USER5", "USER6");
+        cassandraUtils.filter(range("address.point.latitude").lower(1.0)
                                                              .upper(3.0)
                                                              .includeLower(true)
-                                                             .includeUpper(true));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1", "USER2", "USER3"});
-
-        select = utils.filter(range("address.point.latitude").lower(2.0)
+                                                             .includeUpper(true))
+                      .checkUnorderedStringColumns("login", "USER1", "USER2", "USER3");
+        cassandraUtils.filter(range("address.point.latitude").lower(2.0)
                                                              .upper(5.0)
                                                              .includeLower(true)
-                                                             .includeUpper(true));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER2", "USER3", "USER4", "USER5"});
-
-        select = utils.filter(range("address.point.latitude").lower(1.0)
+                                                             .includeUpper(true))
+                      .checkUnorderedStringColumns("login", "USER2", "USER3", "USER4", "USER5");
+        cassandraUtils.filter(range("address.point.latitude").lower(1.0)
                                                              .upper(7.0)
                                                              .includeLower(true)
-                                                             .includeUpper(true));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"),
-                                      new String[]{"USER1", "USER2", "USER3", "USER4", "USER5", "USER6", "USER7"});
-
-        select = utils.filter(range("address.point.longitude").lower(-3.0).upper(-1.0));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER2"});
-
-        select = utils.filter(range("address.point.longitude").lower(-5.0).upper(-2.0));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER3", "USER4"});
-
-        select = utils.filter(range("address.point.longitude").lower(-7.0).upper(-1.0));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"),
-                                      new String[]{"USER2", "USER3", "USER4", "USER5", "USER6"});
+                                                             .includeUpper(true))
+                      .checkUnorderedStringColumns("login",
+                                                   "USER1",
+                                                   "USER2",
+                                                   "USER3",
+                                                   "USER4",
+                                                   "USER5",
+                                                   "USER6",
+                                                   "USER7");
+        cassandraUtils.filter(range("address.point.longitude").lower(-3.0).upper(-1.0))
+                      .checkStringColumn("login", "USER2");
+        cassandraUtils.filter(range("address.point.longitude").lower(-5.0).upper(-2.0))
+                      .checkUnorderedStringColumns("login", "USER3", "USER4");
+        cassandraUtils.filter(range("address.point.longitude").lower(-7.0).upper(-1.0))
+                      .checkUnorderedStringColumns("login", "USER2", "USER3", "USER4", "USER5", "USER6");
     }
 
-    @Test
+    @Test(expected = InvalidQueryException.class)
     public void testUDTOverUDTThatFails() {
-        utils.filter(range("address.point.non-existent").lower(-1.0).upper(-3.0))
-             .check(InvalidQueryException.class, "No mapper found for field 'address.point.non-existent'");
+        cassandraUtils.filter(range("address.point.non-existent").lower(-1.0).upper(-3.0)).get();
+        fail("Selecting a non-existent type inside udt inside udt must return an Exception");
     }
 
     @Test
     public void testNonCompleteUDT() {
-
-        String insert = "INSERT INTO " +
-                        utils.getQualifiedTable() +
-                        "(login, first_name, last_name, address) VALUES (" +
-                        "'USER10'," +
-                        "'Tom'," +
-                        "'Smith',{" +
-                        "city: 'Madrid'});";
-
-        utils.execute(new SimpleStatement(insert));
-        utils.refresh();
-
-        CassandraUtilsSelect select = utils.filter(match("address.city", "Madrid"));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER10"});
+        cassandraUtils.insert(data8)
+                      .refresh()
+                      .filter(match("address.city", "Madrid"))
+                      .checkStringColumn("login", "USER8");
     }
 }

@@ -16,7 +16,6 @@
 package com.stratio.cassandra.lucene.index;
 
 import com.stratio.cassandra.lucene.IndexException;
-import com.stratio.cassandra.lucene.util.Tracer;
 import org.apache.cassandra.io.util.FileUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
@@ -239,7 +238,7 @@ public class FSIndex {
         try {
             close();
         } catch (Exception e) {
-            logger.error(String.format("Error deleting {}", name), e);
+            logger.error(String.format("Error deleting %s", name), e);
         } finally {
             FileUtils.deleteRecursive(path.toFile());
         }

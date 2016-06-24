@@ -16,6 +16,7 @@
 package com.stratio.cassandra.lucene.schema.mapping.builder;
 
 import com.stratio.cassandra.lucene.schema.mapping.DateRangeMapper;
+import com.stratio.cassandra.lucene.util.DateParser;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
@@ -25,20 +26,31 @@ import org.codehaus.jackson.annotate.JsonProperty;
  */
 public class DateRangeMapperBuilder extends MapperBuilder<DateRangeMapper, DateRangeMapperBuilder> {
 
+    /** The column containing the start date. */
     @JsonProperty("from")
     private final String from;
 
+    /** The column containing the stop date. */
     @JsonProperty("to")
     private final String to;
 
+    /** The default date pattern */
     @JsonProperty("pattern")
     private String pattern;
+
+    /** The date pattern for columns */
+    @JsonProperty("column_pattern")
+    private String columnPattern;
+
+    /** The date pattern for fields */
+    @JsonProperty("lucene_pattern")
+    private String lucenePattern;
 
     /**
      * Returns a new {@link DateRangeMapperBuilder}.
      *
-     * @param from he column containing the from date
-     * @param to the column containing the to date
+     * @param from the column containing the start date
+     * @param to the column containing the stop date
      */
     public DateRangeMapperBuilder(@JsonProperty("from") String from, @JsonProperty("to") String to) {
         this.from = from;
@@ -46,13 +58,35 @@ public class DateRangeMapperBuilder extends MapperBuilder<DateRangeMapper, DateR
     }
 
     /**
-     * Sets the date pattern to be used.
+     * Sets the default date pattern to be used both for columns and fields.
      *
-     * @param pattern the date pattern to be used
+     * @param pattern a {@link java.text.SimpleDateFormat} date pattern, or "timestamp" for UNIX time milliseconds
      * @return this
      */
     public DateRangeMapperBuilder pattern(String pattern) {
         this.pattern = pattern;
+        return this;
+    }
+
+    /**
+     * Sets the date pattern for columns.
+     *
+     * @param pattern a {@link java.text.SimpleDateFormat} date pattern, or "timestamp" for UNIX time milliseconds
+     * @return this
+     */
+    public DateRangeMapperBuilder columnPattern(String pattern) {
+        columnPattern = pattern;
+        return this;
+    }
+
+    /**
+     * Sets the date pattern for fields.
+     *
+     * @param pattern a {@link java.text.SimpleDateFormat} date pattern, or "timestamp" for UNIX time milliseconds
+     * @return this
+     */
+    public DateRangeMapperBuilder lucenePattern(String pattern) {
+        lucenePattern = pattern;
         return this;
     }
 
@@ -64,6 +98,7 @@ public class DateRangeMapperBuilder extends MapperBuilder<DateRangeMapper, DateR
      */
     @Override
     public DateRangeMapper build(String field) {
-        return new DateRangeMapper(field, validated, from, to, pattern);
+        DateParser dateParser = new DateParser(pattern, columnPattern, lucenePattern);
+        return new DateRangeMapper(field, validated, from, to, dateParser);
     }
 }

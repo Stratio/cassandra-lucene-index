@@ -100,7 +100,7 @@ public final class PartitionMapper {
             String name = columnDefinition.name.toString();
             ByteBuffer value = components[columnDefinition.position()];
             AbstractType<?> valueType = columnDefinition.cellValueType();
-            columns.add(Column.builder(name).buildWithDecomposed(value, valueType));
+            columns.addDecomposed(name, value, valueType);
         }
     }
 

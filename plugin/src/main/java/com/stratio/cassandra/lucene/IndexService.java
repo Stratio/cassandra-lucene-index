@@ -338,7 +338,7 @@ abstract class IndexService implements IndexServiceMBean {
             return true;
         } else {
             Columns columns = columns(key, row);
-            return schema.getMappedCells().stream().anyMatch(x -> columns.getColumnsByCellName(x).isEmpty());
+            return schema.getMappedCells().stream().anyMatch(x -> columns.getByCellName(x).isEmpty());
         }
     }
 

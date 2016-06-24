@@ -4,6 +4,8 @@
 
 * Modernize search syntax keeping backward compatibility
 * Add Lucene-specific CQL tracing
+* Fix parsing of data with CQL "date" type (#158)
+* Add separate date format patterns for parsing and indexing
 
 ## 3.0.7.1 (17 June 2016)
 
