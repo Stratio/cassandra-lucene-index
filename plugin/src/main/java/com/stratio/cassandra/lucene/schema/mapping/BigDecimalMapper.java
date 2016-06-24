@@ -54,7 +54,7 @@ public class BigDecimalMapper extends KeywordMapper {
      * @param column the name of the column to be mapped
      * @param validated if the field must be validated
      * @param integerDigits the max number of digits for the integer part, defaults to {@link #DEFAULT_INTEGER_DIGITS}
-     * @param decimalDigits The max number of digits for the decimal part, defaults to {@link #DEFAULT_DECIMAL_DIGITS}
+     * @param decimalDigits the max number of digits for the decimal part, defaults to {@link #DEFAULT_DECIMAL_DIGITS}
      */
     public BigDecimalMapper(String field,
                             String column,
