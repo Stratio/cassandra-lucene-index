@@ -150,7 +150,7 @@ public class BoundStatementWithSortedKQuery extends AbstractSearchAT {
     @Test
     public void sortWithGeoDistanceFilterNotReversed() {
         Search search = new Search().filter(geoDistance("geo_point", -3.784519, 40.442163, "10000km"))
-                                    .sort(geoDistanceField("geo_point", -3.784519, 40.442163).reverse(false));
+                                    .sort(geoDistanceField("geo_point", 40.442163, -3.784519).reverse(false));
         Integer[] returnedValues = intColumn(utils.searchWithPreparedStatement(search), "integer_1");
         Assert.assertEquals("Expected 5 results!", 5, returnedValues.length);
         Integer[] expectedValues = new Integer[]{-1, -2, -3, -4, -5};
@@ -160,7 +160,7 @@ public class BoundStatementWithSortedKQuery extends AbstractSearchAT {
     @Test
     public void sortWithGeoDistanceQueryNotReversed() {
         Search search = new Search().query(geoDistance("geo_point", -3.784519, 40.442163, "10000km"))
-                                    .sort(geoDistanceField("geo_point", -3.784519, 40.442163).reverse(false));
+                                    .sort(geoDistanceField("geo_point", 40.442163, -3.784519).reverse(false));
         Integer[] returnedValues = intColumn(utils.searchWithPreparedStatement(search), "integer_1");
         Assert.assertEquals("Expected 5 results!", 5, returnedValues.length);
         Integer[] expectedValues = new Integer[]{-1, -2, -3, -4, -5};
@@ -170,7 +170,7 @@ public class BoundStatementWithSortedKQuery extends AbstractSearchAT {
     @Test
     public void sortWithGeoDistanceFilterReversed() {
         Search search = new Search().filter(geoDistance("geo_point", -3.784519, 40.442163, "10000km"))
-                                    .sort(geoDistanceField("geo_point", -3.784519, 40.442163).reverse(true));
+                                    .sort(geoDistanceField("geo_point", 40.442163, -3.784519).reverse(true));
         Integer[] returnedValues = intColumn(utils.searchWithPreparedStatement(search), "integer_1");
         Assert.assertEquals("Expected 5 results!", 5, returnedValues.length);
         Integer[] expectedValues = new Integer[]{-5, -4, -3, -2, -1};
@@ -180,7 +180,7 @@ public class BoundStatementWithSortedKQuery extends AbstractSearchAT {
     @Test
     public void sortWithGeoDistanceQueryReversed() {
         Search search = new Search().query(geoDistance("geo_point", -3.784519, 40.442163, "10000km"))
-                                    .sort(geoDistanceField("geo_point", -3.784519, 40.442163).reverse(true));
+                                    .sort(geoDistanceField("geo_point", 40.442163, -3.784519).reverse(true));
         Integer[] returnedValues = intColumn(utils.searchWithPreparedStatement(search), "integer_1");
         Assert.assertEquals("Expected 5 results!", 5, returnedValues.length);
         Integer[] expectedValues = new Integer[]{-5, -4, -3, -2, -1};

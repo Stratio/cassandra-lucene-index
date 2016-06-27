@@ -42,28 +42,27 @@ public class GeoDistanceSortField extends SortField {
     /** The name of mapper to use to calculate distance. */
     public final String field;
 
-    /** The longitude of the center point to sort by min distance to it. */
-    public final double longitude;
-
     /** The latitude of the center point to sort by min distance to it. */
     public final double latitude;
 
+    /** The longitude of the center point to sort by min distance to it. */
+    public final double longitude;
+
     /**
      * Returns a new {@link SortField}.
-     *
-     * @param field the name of mapper to use to calculate distance
+     *  @param field the name of the geo point field mapper to use to calculate distance
      * @param reverse {@code true} if natural order should be reversed
-     * @param longitude the longitude
      * @param latitude the latitude
+     * @param longitude the longitude
      */
-    public GeoDistanceSortField(String field, Boolean reverse, double longitude, double latitude) {
+    public GeoDistanceSortField(String field, Boolean reverse, double latitude, double longitude) {
         super(reverse);
         if (field == null || StringUtils.isBlank(field)) {
             throw new IndexException("Field name required");
         }
         this.field = field;
-        this.longitude = GeospatialUtils.checkLongitude("longitude", longitude);
         this.latitude = GeospatialUtils.checkLatitude("latitude", latitude);
+        this.longitude = GeospatialUtils.checkLongitude("longitude", longitude);
     }
 
     /** {@inheritDoc} */
@@ -96,8 +95,8 @@ public class GeoDistanceSortField extends SortField {
         return MoreObjects.toStringHelper(this)
                           .add("field", field)
                           .add("reverse", reverse)
-                          .add("longitude", longitude)
                           .add("latitude", latitude)
+                          .add("longitude", longitude)
                           .toString();
     }
 
@@ -113,8 +112,8 @@ public class GeoDistanceSortField extends SortField {
         GeoDistanceSortField other = (GeoDistanceSortField) o;
         return reverse == other.reverse &&
                field.equals(other.field) &&
-               longitude == other.longitude &&
-               latitude == other.latitude;
+               latitude == other.latitude &&
+               longitude == other.longitude;
     }
 
     /** {@inheritDoc} */

@@ -281,7 +281,7 @@ public final class SearchBuilders {
      * @return a new geo distance sort field builder
      */
     public static GeoDistanceSortFieldBuilder geoDistance(String mapper, double longitude, double latitude) {
-        return new GeoDistanceSortFieldBuilder(mapper, longitude, latitude);
+        return new GeoDistanceSortFieldBuilder(mapper, latitude, longitude);
     }
 
     /**

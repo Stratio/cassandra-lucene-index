@@ -118,7 +118,7 @@ public class SortedSearchAT extends AbstractSearchAT {
     public void testSortWithGeoDistanceFilterNotReversed() {
 
         Integer[] returnedValues = search().filter(geoDistance("geo_point", -3.784519, 40.442163, "10000km"))
-                                           .sort(geoDistanceField("geo_point", -3.784519, 40.442163).reverse(false))
+                                           .sort(geoDistanceField("geo_point", 40.442163, -3.784519).reverse(false))
                                            .intColumn("integer_1");
 
         assertEquals("Expected 5 results!", 5, returnedValues.length);
@@ -130,7 +130,7 @@ public class SortedSearchAT extends AbstractSearchAT {
     @Test
     public void testSortWithGeoDistanceQueryNotReversed() {
         Integer[] returnedValues = search().query(geoDistance("geo_point", -3.784519, 40.442163, "10000km"))
-                                           .sort(geoDistanceField("geo_point", -3.784519, 40.442163).reverse(false))
+                                           .sort(geoDistanceField("geo_point", 40.442163, -3.784519).reverse(false))
                                            .intColumn("integer_1");
 
         assertEquals("Expected 5 results!", 5, returnedValues.length);
@@ -142,7 +142,7 @@ public class SortedSearchAT extends AbstractSearchAT {
     public void testSortWithGeoDistanceFilterReversed() {
 
         Integer[] returnedValues = search().filter(geoDistance("geo_point", -3.784519, 40.442163, "10000km"))
-                                           .sort(geoDistanceField("geo_point", -3.784519, 40.442163).reverse(true))
+                                           .sort(geoDistanceField("geo_point", 40.442163, -3.784519).reverse(true))
                                            .intColumn("integer_1");
 
         assertEquals("Expected 5 results!", 5, returnedValues.length);
@@ -154,7 +154,7 @@ public class SortedSearchAT extends AbstractSearchAT {
     public void testSortWithGeoDistanceQueryReversed() {
 
         Integer[] returnedValues = search().query(geoDistance("geo_point", -3.784519, 40.442163, "10000km"))
-                                           .sort(geoDistanceField("geo_point", -3.784519, 40.442163).reverse(true))
+                                           .sort(geoDistanceField("geo_point", 40.442163, -3.784519).reverse(true))
                                            .intColumn("integer_1");
 
         assertEquals("Expected 5 results!", 5, returnedValues.length);

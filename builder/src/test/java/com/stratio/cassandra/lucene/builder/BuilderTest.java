@@ -737,18 +737,18 @@ public class BuilderTest {
 
     @Test
     public void testGeoDistanceSortFieldDefaults() {
-        String actual = geoDistanceField("field1", 0.0, 0.0).build();
-        String expected = "{\"type\":\"geo_distance\",\"field\":\"field1\",\"longitude\":0.0,\"latitude\":0.0}";
+        String actual = geoDistanceField("field1", 1.2, 3.4).build();
+        String expected = "{\"type\":\"geo_distance\",\"field\":\"field1\",\"latitude\":1.2,\"longitude\":3.4}";
         assertEquals("sort field condition serialization is wrong", expected, actual);
     }
 
     @Test
     public void testGeoDistanceSortFieldFull() {
-        String actual = geoDistanceField("field1", 0.0, 0.0).reverse(true).build();
+        String actual = geoDistanceField("field1", 1.2, -3.4).reverse(true).build();
         String expected = "{\"type\":\"geo_distance\"," +
                           "\"field\":\"field1\"," +
-                          "\"longitude\":0.0," +
-                          "\"latitude\":0.0," +
+                          "\"latitude\":1.2," +
+                          "\"longitude\":-3.4," +
                           "\"reverse\":true}";
         assertEquals("sort field condition serialization is wrong", expected, actual);
     }
@@ -764,12 +764,12 @@ public class BuilderTest {
     public void testSortFull() {
         String actual = search().sort(field("field1"),
                                       field("field2"),
-                                      geoDistanceField("field1", 0.0, 0.0).reverse(true)).build();
+                                      geoDistanceField("field1", 1.0, -3.2).reverse(true)).build();
         String expected = "{\"sort\":[{" +
                           "\"type\":\"simple\",\"field\":\"field1\"}," +
                           "{\"type\":\"simple\",\"field\":\"field2\"}," +
                           "{\"type\":\"geo_distance\",\"field\":\"field1\"," +
-                          "\"longitude\":0.0,\"latitude\":0.0,\"reverse\":true}]}";
+                          "\"latitude\":1.0,\"longitude\":-3.2,\"reverse\":true}]}";
         assertEquals("sort condition serialization is wrong", expected, actual);
     }
 

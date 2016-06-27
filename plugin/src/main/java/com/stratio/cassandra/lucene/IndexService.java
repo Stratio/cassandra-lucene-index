@@ -650,7 +650,7 @@ abstract class IndexService implements IndexServiceMBean {
      */
     PartitionIterator postProcess(PartitionIterator partitions, SinglePartitionReadCommand.Group group) {
 
-        // Skip unneeded post processing in there is only one command
+        // Skip unneeded post processing if only one partition is involved
         if (group.commands.size() <= 1) {
             return partitions;
         }
@@ -671,7 +671,7 @@ abstract class IndexService implements IndexServiceMBean {
      */
     PartitionIterator postProcess(PartitionIterator partitions, ReadCommand command) {
 
-        // Skip unneeded post processing in single partition read commands
+        // Skip unneeded post processing if only one partition is involved
         if (command instanceof SinglePartitionReadCommand) {
             return partitions;
         }
@@ -687,7 +687,7 @@ abstract class IndexService implements IndexServiceMBean {
 
             List<Pair<DecoratedKey, SimpleRowIterator>> collectedRows = collect(partitions);
 
-            // Skip if it doesn't use any kind of sorting
+            // Skip if the search doesn't require any kind of sorting
             if (search.requiresPostProcessing() && !collectedRows.isEmpty()) {
                 return process(search, limit, nowInSec, collectedRows);
             }

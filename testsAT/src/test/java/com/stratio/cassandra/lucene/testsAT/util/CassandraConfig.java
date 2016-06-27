@@ -26,8 +26,9 @@ class CassandraConfig {
 
     static final String HOST = getString("host", "127.0.0.1");
     static final String JMX_PORT = getString("jmx_port", "7199");
-    static final String[] JMX_SERVICES = getStringArray("jmx_services", HOST + ":" + JMX_PORT);
-    static final int REPLICATION = getInt("replication", 1);
+//    static final String[] JMX_SERVICES = getStringArray("jmx_services", HOST + ":" + JMX_PORT);
+    static final String[] JMX_SERVICES = getStringArray("jmx_services", "127.0.0.1:7100,127.0.0.1:7200,127.0.0.1:7300");
+    static final int REPLICATION = getInt("replication", 2);
     static final ConsistencyLevel CONSISTENCY = ConsistencyLevel.valueOf(getString("consistency", "QUORUM"));
     static final int FETCH = getInt("fetch", 100);
     static final int THREADS = getInt("threads", 0);
