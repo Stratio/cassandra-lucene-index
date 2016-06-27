@@ -88,14 +88,14 @@ public class InOperatorWithWideRowsAT extends BaseAT {
 
     @Test
     public void queryWithInTest() {
-        utils.query(all())
+        utils.must(all())
              .and("AND pk IN (9, 0)")
              .checkIntColumn("rc", 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99);
     }
 
     @Test
     public void queryWithInBothTest() {
-        utils.query(all()).and("AND pk IN (9, 0) AND ck IN (9, 0)").checkIntColumn("rc", 0, 9, 90, 99);
+        utils.must(all()).and("AND pk IN (9, 0) AND ck IN (9, 0)").checkIntColumn("rc", 0, 9, 90, 99);
     }
 
     @Test

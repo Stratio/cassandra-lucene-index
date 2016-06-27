@@ -257,7 +257,7 @@ public class CassandraUtils {
         return this;
     }
 
-    public CassandraUtilsSelect selectAllFromIndexQueryWithFiltering(int limit, String name, Object value) {
+    public CassandraUtilsSelect searchAllWithFiltering(int limit, String name, Object value) {
         return searchAll().andEq(name, value).limit(limit).allowFiltering(true);
     }
 
@@ -310,20 +310,32 @@ public class CassandraUtils {
         return new CassandraUtilsSelect(this);
     }
 
+    public CassandraUtilsSelect search() {
+        return select().search();
+    }
+
     public CassandraUtilsSelect searchAll() {
         return select().search().filter(all());
     }
 
-    public CassandraUtilsSelect query(Condition query) {
-        return select().query(query);
+    public CassandraUtilsSelect filter(Condition... conditions) {
+        return select().filter(conditions);
     }
 
-    public CassandraUtilsSelect filter(Condition filter) {
-        return select().filter(filter);
+    public CassandraUtilsSelect must(Condition... conditions) {
+        return select().must(conditions);
     }
 
-    public CassandraUtilsSelect sort(SortField... sort) {
-        return select().sort(sort);
+    public CassandraUtilsSelect should(Condition... conditions) {
+        return select().should(conditions);
+    }
+
+    public CassandraUtilsSelect not(Condition... conditions) {
+        return select().not(conditions);
+    }
+
+    public CassandraUtilsSelect sort(SortField... fields) {
+        return select().sort(fields);
     }
 
     public List<Row> searchWithPreparedStatement(Search search) {

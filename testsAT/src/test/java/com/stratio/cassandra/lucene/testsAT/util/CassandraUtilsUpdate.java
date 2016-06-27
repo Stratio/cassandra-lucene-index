@@ -63,7 +63,7 @@ public class CassandraUtilsUpdate {
     }
 
     public CassandraUtilsSelect query(Condition query) {
-        return execute().query(query);
+        return execute().must(query);
     }
 
     public CassandraUtilsSelect filter(Condition filter) {

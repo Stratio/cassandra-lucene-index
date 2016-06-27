@@ -100,29 +100,47 @@ public class CassandraUtilsSelect {
         return this;
     }
 
-    public CassandraUtilsSelect query(Condition condition) {
+    public CassandraUtilsSelect filter(Condition... conditions) {
         if (search == null) {
-            search = Builder.search().query(condition);
+            search = Builder.search().filter(conditions);
         } else {
-            search.query(condition);
+            search.filter(conditions);
         }
         return this;
     }
 
-    public CassandraUtilsSelect filter(Condition condition) {
+    public CassandraUtilsSelect must(Condition... conditions) {
         if (search == null) {
-            search = Builder.search().filter(condition);
+            search = Builder.search().must(conditions);
         } else {
-            search.filter(condition);
+            search.must(conditions);
         }
         return this;
     }
 
-    public CassandraUtilsSelect sort(SortField... sort) {
+    public CassandraUtilsSelect should(Condition... conditions) {
         if (search == null) {
-            search = Builder.search().sort(sort);
+            search = Builder.search().should(conditions);
         } else {
-            search.sort(sort);
+            search.should(conditions);
+        }
+        return this;
+    }
+
+    public CassandraUtilsSelect not(Condition... conditions) {
+        if (search == null) {
+            search = Builder.search().not(conditions);
+        } else {
+            search.not(conditions);
+        }
+        return this;
+    }
+
+    public CassandraUtilsSelect sort(SortField... fields) {
+        if (search == null) {
+            search = Builder.search().sort(fields);
+        } else {
+            search.sort(fields);
         }
         return this;
     }

@@ -68,7 +68,7 @@ public class SimpleKeyIndexHandlingAT extends BaseAT {
         utils.insert(data1, data2, data3, data4, data5)
              .createIndex()
              .refresh()
-             .query(wildcard("ascii_1", "*"))
+             .must(wildcard("ascii_1", "*"))
              .check(5);
     }
 
@@ -78,7 +78,7 @@ public class SimpleKeyIndexHandlingAT extends BaseAT {
              .createIndex()
              .insert(data4, data5)
              .refresh()
-             .query(wildcard("ascii_1", "*"))
+             .must(wildcard("ascii_1", "*"))
              .check(5);
     }
 
@@ -87,12 +87,12 @@ public class SimpleKeyIndexHandlingAT extends BaseAT {
         utils.createIndex()
              .insert(data1, data2, data3, data4, data5)
              .refresh()
-             .query(wildcard("ascii_1", "*"))
+             .must(wildcard("ascii_1", "*"))
              .check(5)
              .dropIndex()
              .createIndex()
              .refresh()
-             .query(wildcard("ascii_1", "*"))
+             .must(wildcard("ascii_1", "*"))
              .check(5);
     }
 }

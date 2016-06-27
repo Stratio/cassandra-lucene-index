@@ -15,6 +15,7 @@
  */
 package com.stratio.cassandra.lucene.testsAT.search;
 
+import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -27,7 +28,7 @@ import static org.junit.Assert.assertEquals;
 public class SortedSearchAT extends AbstractSearchAT {
 
     @Test
-    public void sortIntegerAsc() {
+    public void testSortIntegerAsc() {
         Integer[] returnedValues = sort(field("integer_1").reverse(false)).intColumn("integer_1");
         assertEquals("Expected 5 results!", 5, returnedValues.length);
         Integer[] expectedValues = new Integer[]{-5, -4, -3, -2, -1};
@@ -35,7 +36,7 @@ public class SortedSearchAT extends AbstractSearchAT {
     }
 
     @Test
-    public void sortIntegerDesc() {
+    public void testSortIntegerDesc() {
         Integer[] returnedValues = sort(field("integer_1").reverse(true)).intColumn("integer_1");
         assertEquals("Expected 5 results!", 5, returnedValues.length);
         Integer[] expectedValues = new Integer[]{-1, -2, -3, -4, -5};
@@ -43,7 +44,7 @@ public class SortedSearchAT extends AbstractSearchAT {
     }
 
     @Test
-    public void sortIntegerDefault() {
+    public void testSortIntegerDefault() {
         Integer[] returnedValues = sort(field("integer_1")).intColumn("integer_1");
         assertEquals("Expected 5 results!", 5, returnedValues.length);
         Integer[] expectedValues = new Integer[]{-5, -4, -3, -2, -1};
@@ -51,7 +52,7 @@ public class SortedSearchAT extends AbstractSearchAT {
     }
 
     @Test
-    public void sortDoubleAsc() {
+    public void testSortDoubleAsc() {
         Double[] returnedValues = sort(field("double_1").reverse(false)).doubleColumn("double_1");
         assertEquals("Expected 5 results!", 5, returnedValues.length);
         Double[] expectedValues = new Double[]{1D, 2D, 3D, 3D, 3D};
@@ -59,7 +60,7 @@ public class SortedSearchAT extends AbstractSearchAT {
     }
 
     @Test
-    public void sortDoubleDesc() {
+    public void testSortDoubleDesc() {
         Double[] returnedValues = sort(field("double_1").reverse(true)).doubleColumn("double_1");
         assertEquals("Expected 5 results!", 5, returnedValues.length);
         Double[] expectedValues = new Double[]{3D, 3D, 3D, 2D, 1D};
@@ -67,7 +68,7 @@ public class SortedSearchAT extends AbstractSearchAT {
     }
 
     @Test
-    public void sortDoubleDefault() {
+    public void testSortDoubleDefault() {
         Double[] returnedValues = sort(field("double_1")).doubleColumn("double_1");
         assertEquals("Expected 5 results!", 5, returnedValues.length);
         Double[] expectedValues = new Double[]{1D, 2D, 3D, 3D, 3D};
@@ -75,7 +76,7 @@ public class SortedSearchAT extends AbstractSearchAT {
     }
 
     @Test
-    public void sortCombined() {
+    public void testSortCombined() {
         Double[] returnedDoubleValues = sort(field("double_1"), field("integer_1")).doubleColumn("double_1");
         assertEquals("Expected 5 results!", 5, returnedDoubleValues.length);
         Integer[] returnedIntValues = sort(field("double_1"), field("integer_1")).intColumn("integer_1");
@@ -87,7 +88,7 @@ public class SortedSearchAT extends AbstractSearchAT {
     }
 
     @Test
-    public void sortWithFilter() {
+    public void testSortWithFilter() {
         Integer[] returnedValues = filter(all()).sort(field("integer_1").reverse(false)).intColumn("integer_1");
         assertEquals("Expected 5 results!", 5, returnedValues.length);
         Integer[] expectedValues = new Integer[]{-5, -4, -3, -2, -1};
@@ -95,28 +96,40 @@ public class SortedSearchAT extends AbstractSearchAT {
     }
 
     @Test
-    public void sortWithQuery() {
-        Integer[] returnedValues = query(all()).sort(field("integer_1").reverse(false)).intColumn("integer_1");
+    public void testSortWithMust() {
+        Integer[] returnedValues = must(all()).sort(field("integer_1").reverse(false)).intColumn("integer_1");
         assertEquals("Expected 5 results!", 5, returnedValues.length);
         Integer[] expectedValues = new Integer[]{-5, -4, -3, -2, -1};
         assertArrayEquals("Wrong sort!", expectedValues, returnedValues);
     }
 
     @Test
-    public void sortWithFilterAndQuery() {
-        Integer[] returnedValues = filter(all()).query(all())
-                                                .sort(field("integer_1").reverse(false))
-                                                .intColumn("integer_1");
+    public void testSortWithNot() {
+        Integer[] returnedValues = not(none()).sort(field("integer_1").reverse(false)).intColumn("integer_1");
         assertEquals("Expected 5 results!", 5, returnedValues.length);
         Integer[] expectedValues = new Integer[]{-5, -4, -3, -2, -1};
         assertArrayEquals("Wrong sort!", expectedValues, returnedValues);
     }
 
     @Test
-    public void sortWithGeoDistanceFilterNotReversed() {
+    public void testSortWithFilterMustShouldAndNot() {
+        Integer[] returnedValues = search().filter(all())
+                                           .must(all())
+                                           .should(all())
+                                           .not(none())
+                                           .sort(field("integer_1").reverse(false))
+                                           .intColumn("integer_1");
+        assertEquals("Expected 5 results!", 5, returnedValues.length);
+        Integer[] expectedValues = new Integer[]{-5, -4, -3, -2, -1};
+        assertArrayEquals("Wrong sort!", expectedValues, returnedValues);
+    }
 
-        Integer[] returnedValues = filter(geoDistance("geo_point", -3.784519, 40.442163, "10000km")).sort(
-                geoDistanceField("geo_point", -3.784519, 40.442163).reverse(false)).intColumn("integer_1");
+    @Test
+    public void testSortWithGeoDistanceFilterNotReversed() {
+
+        Integer[] returnedValues = search().filter(geoDistance("geo_point", -3.784519, 40.442163, "10000km"))
+                                           .sort(geoDistanceField("geo_point", -3.784519, 40.442163).reverse(false))
+                                           .intColumn("integer_1");
 
         assertEquals("Expected 5 results!", 5, returnedValues.length);
         Integer[] expectedValues = new Integer[]{-1, -2, -3, -4, -5};
@@ -125,9 +138,10 @@ public class SortedSearchAT extends AbstractSearchAT {
     }
 
     @Test
-    public void sortWithGeoDistanceQueryNotReversed() {
-        Integer[] returnedValues = query(geoDistance("geo_point", -3.784519, 40.442163, "10000km")).sort(
-                geoDistanceField("geo_point", -3.784519, 40.442163).reverse(false)).intColumn("integer_1");
+    public void testSortWithGeoDistanceMustNotReversed() {
+        Integer[] returnedValues = search().must(geoDistance("geo_point", -3.784519, 40.442163, "10000km"))
+                                           .sort(geoDistanceField("geo_point", -3.784519, 40.442163).reverse(false))
+                                           .intColumn("integer_1");
 
         assertEquals("Expected 5 results!", 5, returnedValues.length);
         Integer[] expectedValues = new Integer[]{-1, -2, -3, -4, -5};
@@ -135,10 +149,11 @@ public class SortedSearchAT extends AbstractSearchAT {
     }
 
     @Test
-    public void sortWithGeoDistanceFilterReversed() {
+    public void testSortWithGeoDistanceFilterReversed() {
 
-        Integer[] returnedValues = filter(geoDistance("geo_point", -3.784519, 40.442163, "10000km")).sort(
-                geoDistanceField("geo_point", -3.784519, 40.442163).reverse(true)).intColumn("integer_1");
+        Integer[] returnedValues = search().filter(geoDistance("geo_point", -3.784519, 40.442163, "10000km"))
+                                           .sort(geoDistanceField("geo_point", -3.784519, 40.442163).reverse(true))
+                                           .intColumn("integer_1");
 
         assertEquals("Expected 5 results!", 5, returnedValues.length);
         Integer[] expectedValues = new Integer[]{-5, -4, -3, -2, -1};
@@ -146,13 +161,39 @@ public class SortedSearchAT extends AbstractSearchAT {
     }
 
     @Test
-    public void sortWithGeoDistanceQueryReversed() {
+    public void testSortWithGeoDistanceMustReversed() {
 
-        Integer[] returnedValues = query(geoDistance("geo_point", -3.784519, 40.442163, "10000km")).sort(
-                geoDistanceField("geo_point", -3.784519, 40.442163).reverse(true)).intColumn("integer_1");
+        Integer[] returnedValues = search().must(geoDistance("geo_point", -3.784519, 40.442163, "10000km"))
+                                           .sort(geoDistanceField("geo_point", -3.784519, 40.442163).reverse(true))
+                                           .intColumn("integer_1");
 
         assertEquals("Expected 5 results!", 5, returnedValues.length);
         Integer[] expectedValues = new Integer[]{-5, -4, -3, -2, -1};
         assertArrayEquals("Wrong geoDistance sort!", expectedValues, returnedValues);
+    }
+
+    @Test
+    public void testSortByRelevance() {
+        CassandraUtils.builder("issue_123")
+                      .withPartitionKey("id")
+                      .withColumn("id", "int")
+                      .withColumn("field", "text")
+                      .build()
+                      .createKeyspace()
+                      .createTable()
+                      .createIndex()
+                      .insert(new String[]{"id", "field"}, new Object[]{1, "word"})
+                      .insert(new String[]{"id", "field"}, new Object[]{2, "word word"})
+                      .insert(new String[]{"id", "field"}, new Object[]{3, "word cat"})
+                      .insert(new String[]{"id", "field"}, new Object[]{4, "word cat dog"})
+                      .insert(new String[]{"id", "field"}, new Object[]{5, "dog"})
+                      .refresh()
+                      .must(match("field", "word"))
+                      .checkOrderedIntColumns("id", 1, 2, 3, 4)
+                      .filter(match("field", "word"))
+                      .checkOrderedIntColumns("id", 1, 2, 4, 3)
+                      .filter(match("field", "word"))
+                      .sort(field("id").reverse(true))
+                      .checkOrderedIntColumns("id", 4, 3, 2, 1);
     }
 }

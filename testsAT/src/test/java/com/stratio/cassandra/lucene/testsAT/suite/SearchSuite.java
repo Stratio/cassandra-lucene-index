@@ -24,6 +24,7 @@ import org.junit.runners.Suite.SuiteClasses;
 @SuiteClasses({AllSearchAT.class,
                BitemporalSearchAT.class,
                BooleanSearchAT.class,
+               BooleanSearchEmbeddedAT.class,
                FuzzySearchAT.class,
                MatchSearchAT.class,
                NoneSearchAT.class,

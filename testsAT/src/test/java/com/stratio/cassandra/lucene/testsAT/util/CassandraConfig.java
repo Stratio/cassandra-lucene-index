@@ -34,7 +34,7 @@ class CassandraConfig {
     static final int REFRESH = getInt("refresh", 1);
     static final String TABLE = getString("table", "test_table");
     static final String INDEX = getString("index", "test_table_idx");
-    static final String COLUMN = getString("column", null);
+    static final String COLUMN = getString("column", "lucene");
     static final boolean USE_NEW_QUERY_SYNTAX = getBool("use_new_query_syntax", true);
     static final int LIMIT = getInt("limit", 10000);
 

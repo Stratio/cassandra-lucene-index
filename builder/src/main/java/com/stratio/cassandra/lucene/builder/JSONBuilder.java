@@ -46,20 +46,16 @@ public abstract class JSONBuilder {
         mapper.setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
     }
 
-    /**
-     * Returns the JSON {@code String} representation of the specified object.
-     *
-     * @return the JSON {@code String}
-     */
+    /** {@inheritDoc} */
     @Override
     public String toString() {
         return build();
     }
 
     /**
-     * Returns the JSON representation of this {@link JSONBuilder}.
+     * Returns the JSON {@code String} representation of the specified object.
      *
-     * @return a JSON representing this
+     * @return a JSON {@code String}
      */
     public String build() {
         try {

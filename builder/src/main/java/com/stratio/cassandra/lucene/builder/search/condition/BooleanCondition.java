@@ -17,8 +17,6 @@ package com.stratio.cassandra.lucene.builder.search.condition;
 
 import org.codehaus.jackson.annotate.JsonProperty;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -27,7 +25,6 @@ import java.util.List;
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-@SuppressWarnings("unused")
 public class BooleanCondition extends Condition<BooleanCondition> {
 
     /** The mandatory conditions not participating in scoring. */

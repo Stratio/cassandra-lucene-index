@@ -181,22 +181,22 @@ Alternatively, you can explicitly refresh all the index shards with an empty sea
 .. code-block:: sql
 
     CONSISTENCY ALL
-    SELECT * FROM tweets WHERE expr(tweets_index,'{refresh:true}');
+    SELECT * FROM tweets WHERE expr(tweets_index, '{refresh:true}');
     CONSISTENCY QUORUM
 
 Now, to search for tweets within a certain date range:
 
 .. code-block:: sql
 
-    SELECT * FROM tweets WHERE expr(tweets_index,'{
+    SELECT * FROM tweets WHERE expr(tweets_index, '{
         filter : {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"}
-    }') limit 100;
+    }');
 
 The same search can be performed forcing an explicit refresh of the involved index shards:
 
 .. code-block:: sql
 
-    SELECT * FROM tweets WHERE expr(tweets_index,'{
+    SELECT * FROM tweets WHERE expr(tweets_index, '{
         filter : {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
         refresh : true
     }') limit 100;
@@ -206,86 +206,70 @@ within the aforementioned date range:
 
 .. code-block:: sql
 
-    SELECT * FROM tweets WHERE expr(tweets_index,'{
+    SELECT * FROM tweets WHERE expr(tweets_index, '{
         filter : {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
-        query  : {type: "phrase", field: "body", value: "big data gives organizations", slop: 1}
-    }') limit 100;
+        must : {type: "phrase", field: "body", value: "big data gives organizations", slop: 1}
+    }') LIMIT 100;
 
-To refine the search to get only the tweets written by users whose name starts with "a":
+To refine the search to get only the tweets written by users whose names start with "a":
 
 .. code-block:: sql
 
-    SELECT * FROM tweets WHERE expr(tweets_index,'{
-        filter : {type: "boolean", must:[
-                       {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
-                       {type: "prefix", field: "user", value: "a"} ] },
-        query  : {type: "phrase", field: "body", value: "big data gives organizations", slop: 1}
-    }') limit 100;
+    SELECT * FROM tweets WHERE expr(tweets_index, '{
+        filter : [ {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
+                   {type: "prefix", field: "user", value: "a"} ],
+        must : {type: "phrase", field: "body", value: "big data gives organizations", slop: 1}
+    }') LIMIT 100;
 
 To get the 100 more recent filtered results you can use the *sort* option:
 
 .. code-block:: sql
 
-    SELECT * FROM tweets WHERE expr(tweets_index,'{
-        filter : {type: "boolean", must:[
-                       {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
-                       {type: "prefix", field: "user", value: "a"} ] },
-        query  : {type: "phrase", field: "body", value: "big data gives organizations", slop: 1},
-        sort   : {fields: [ {field: "time", reverse:true} ] }
+    SELECT * FROM tweets WHERE expr(tweets_index, '{
+        filter : [ {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
+                   {type: "prefix", field: "user", value: "a"} ],
+        must : {type: "phrase", field: "body", value: "big data gives organizations", slop: 1},
+        sort : {field: "time", reverse: true}
     }') limit 100;
 
-The previous search can be restricted to a geographical bounding box:
+The previous search can be restricted to tweets created close to a geographical position:
 
 .. code-block:: sql
 
-    SELECT * FROM tweets WHERE expr(tweets_index,'{
-        filter : {type: "boolean", must:[
-                       {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
-                       {type: "prefix", field: "user", value: "a"},
-                       {type: "geo_bbox",
-                        field: "place",
-                        min_latitude: 40.225479,
-                        max_latitude: 40.560174,
-                        min_longitude: -3.999278,
-                        max_longitude: -3.378550} ] },
-        query  : {type: "phrase", field: "body", value: "big data gives organizations", slop: 1},
-        sort   : {fields: [ {field: "time", reverse:true} ] }
+    SELECT * FROM tweets WHERE expr(tweets_index, '{
+        filter : [ {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
+                   {type: "prefix", field: "user", value: "a"},
+                   {type: "geo_distance", field: "place", latitude: 40.3930, longitude: -3.7328, max_distance: "10km"} ],
+        must : {type: "phrase", field: "body", value: "big data gives organizations", slop: 1},
+        sort : {field: "time", reverse: true}
     }') limit 100;
 
-Alternatively, you can restrict the search to retrieve tweets that are within a specific distance from a geographical position:
+It is also possible to sort the results by distance to a geographical position:
 
 .. code-block:: sql
 
-    SELECT * FROM tweets WHERE expr(tweets_index,'{
-        filter : {type: "boolean", must:[
-                       {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
-                       {type: "prefix", field: "user", value: "a"},
-                       {type: "geo_distance",
-                        field: "place",
-                        latitude: 40.393035,
-                        longitude: -3.732859,
-                        max_distance: "10km",
-                        min_distance: "100m"} ] },
-        query  : {type: "phrase", field: "body", value: "big data gives organizations", slop: 1},
-        sort   : {fields: [ {field: "time", reverse:true} ] }
+    SELECT * FROM tweets WHERE expr(tweets_index, '{
+        filter : [ {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
+                   {type: "prefix", field: "user", value: "a"},
+                   {type: "geo_distance", field: "place", latitude: 40.3930, longitude: -3.7328, max_distance: "10km"} ],
+        must : {type: "phrase", field: "body", value: "big data gives organizations", slop: 1},
+        sort : [ {field: "time", reverse: true},
+                 {field: "place", type: "geo_distance", latitude: 40.3930, longitude: -3.7328}]
     }') limit 100;
 
-Finally, if you want to restrict the search to a certain token range:
+Last but not least, you can route any search to a certain token range or partition, in such a way that only a
+subset of the cluster nodes will be hit, saving precious resources:
 
 .. code-block:: sql
 
-    SELECT * FROM tweets WHERE expr(tweets_index,'{
-        filter : {type: "boolean", must:[
-                       {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
-                       {type: "prefix", field: "user", value: "a"} ,
-                       {type: "geo_distance",
-                        field: "place",
-                        latitude: 40.393035,
-                        longitude: -3.732859,
-                        max_distance: "10km",
-                        min_distance: "100m"} ] },
-        query  : {type: "phrase", field: "body", value: "big data gives organizations", slop: 1]}
-    }') AND token(id) >= token(0) AND token(id) < token(10000000) limit 100;
+    SELECT * FROM tweets WHERE expr(tweets_index, '{
+        filter : [ {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
+                   {type: "prefix", field: "user", value: "a"},
+                   {type: "geo_distance", field: "place", latitude: 40.3930, longitude: -3.7328, max_distance: "10km"} ],
+        must : {type: "phrase", field: "body", value: "big data gives organizations", slop: 1},
+        sort : [ {field: "time", reverse: true},
+                 {field: "place", type: "geo_distance", latitude: 40.3930, longitude: -3.7328}]
+    }') AND TOKEN(id) >= TOKEN(0) AND TOKEN(id) < TOKEN(10000000) limit 100;
 
 This last is the basis for `Hadoop, Spark and other MapReduce frameworks support <doc/documentation.rst#spark-and-hadoop>`__.
 

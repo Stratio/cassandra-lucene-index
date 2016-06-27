@@ -77,7 +77,7 @@ public class MultipleKeyDataDeletionAT extends BaseAT {
                               .where("integer_1", 1)
                               .and("ascii_1", "ascii")
                               .refresh()
-                              .query(wildcard("ascii_1", "*"))
+                              .must(wildcard("ascii_1", "*"))
                               .get();
 
         assertEquals("Expected 10 results!", 10, rows.size());

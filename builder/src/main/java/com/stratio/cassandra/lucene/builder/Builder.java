@@ -25,7 +25,6 @@ import com.stratio.cassandra.lucene.builder.search.Search;
 import com.stratio.cassandra.lucene.builder.search.condition.*;
 import com.stratio.cassandra.lucene.builder.search.sort.GeoDistanceSortField;
 import com.stratio.cassandra.lucene.builder.search.sort.SimpleSortField;
-import com.stratio.cassandra.lucene.builder.search.sort.SortField;
 
 /**
  * Utility class for creating Lucene index statements.
@@ -264,8 +263,8 @@ public abstract class Builder {
      * @param conditions the filtering conditions to be added
      * @return a new search with the specified filtering conditions
      */
-    public static Search filter(Condition<?>... conditions) {
-        return search().filter(conditions);
+    public static BooleanCondition filter(Condition<?>... conditions) {
+        return bool().filter(conditions);
     }
 
     /**
@@ -278,8 +277,8 @@ public abstract class Builder {
      * @param conditions the mandatory conditions
      * @return a new search with the specified mandatory conditions
      */
-    public static Search must(Condition<?>... conditions) {
-        return search().must(conditions);
+    public static BooleanCondition must(Condition<?>... conditions) {
+        return bool().must(conditions);
     }
 
     /**
@@ -288,8 +287,8 @@ public abstract class Builder {
      * @param conditions the optional conditions
      * @return a new search with the specified optional conditions
      */
-    public static Search should(Condition<?>... conditions) {
-        return search().should(conditions);
+    public static BooleanCondition should(Condition<?>... conditions) {
+        return bool().should(conditions);
     }
 
     /**
@@ -298,18 +297,8 @@ public abstract class Builder {
      * @param conditions the mandatory not conditions
      * @return a new search with the specified mandatory not conditions
      */
-    public static Search not(Condition<?>... conditions) {
-        return search().not(conditions);
-    }
-
-    /**
-     * Returns a new {@link Search} to get rows sorted by the specified {@link SortField}s.
-     *
-     * @param fields the sorting fields
-     * @return this with the specified sorting fields
-     */
-    public static Search sort(SortField... fields) {
-        return search().sort(fields);
+    public static BooleanCondition not(Condition<?>... conditions) {
+        return bool().not(conditions);
     }
 
     /**

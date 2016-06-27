@@ -68,8 +68,8 @@ public class StatelessSearchWithSkinnyRowsAT extends BaseAT {
 
     @Test
     public void queryTest() throws Exception {
-        assertPure("Search with query is not a pure function",
-                   () -> utils.query(all()).fetchSize(10).limit(40).getLast().get("rc", int.class));
+        assertPure("Search with must is not a pure function",
+                   () -> utils.must(all()).fetchSize(10).limit(40).getLast().get("rc", int.class));
 
     }
 

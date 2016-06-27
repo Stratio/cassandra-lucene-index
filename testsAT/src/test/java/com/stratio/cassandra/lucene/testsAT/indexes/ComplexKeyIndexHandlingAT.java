@@ -117,7 +117,7 @@ public class ComplexKeyIndexHandlingAT extends BaseAT {
              .dropIndex()
              .createIndex()
              .refresh()
-             .query(wildcard("ascii_1", "*"))
+             .must(wildcard("ascii_1", "*"))
              .check(20);
     }
 }

@@ -94,27 +94,27 @@ public class SearchWithLongSkinnyRowsAT extends BaseAT {
 
     @Test
     public void query1Test() {
-        utils.query(all()).fetchSize(10).limit(1).check(1);
+        utils.must(all()).fetchSize(10).limit(1).check(1);
     }
 
     @Test
     public void query99Test() {
-        utils.query(all()).fetchSize(10).limit(99).check(99);
+        utils.must(all()).fetchSize(10).limit(99).check(99);
     }
 
     @Test
     public void query100Test() {
-        utils.query(all()).fetchSize(10).limit(100).check(100);
+        utils.must(all()).fetchSize(10).limit(100).check(100);
     }
 
     @Test
     public void query101Test() {
-        utils.query(all()).fetchSize(10).limit(101).check(100);
+        utils.must(all()).fetchSize(10).limit(101).check(100);
     }
 
     @Test
     public void query1000Test() {
-        utils.query(all()).limit(1000).check(100);
+        utils.must(all()).limit(1000).check(100);
     }
 
     @Test

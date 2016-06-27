@@ -377,7 +377,7 @@ Now you can create a custom Lucene index on it with the following statement:
                 user  : {type : "string"},
                 body  : {type : "text", analyzer : "english"},
                 time  : {type : "date", pattern : "yyyy/MM/dd"},
-                place : {type : "geo_point", latitude:"latitude", longitude:"longitude"}
+                place : {type : "geo_point", latitude: "latitude", longitude: "longitude"}
             }
         }'
     };
@@ -388,94 +388,95 @@ Alternatively, you can explicitly refresh all the index shards with an empty sea
 .. code-block:: sql
 
     CONSISTENCY ALL
-    SELECT * FROM tweets WHERE expr(tweets_index,'{refresh:true}');
+    SELECT * FROM tweets WHERE expr(tweets_index, '{refresh:true}');
     CONSISTENCY QUORUM
 
 Now, to search for tweets within a certain date range:
 
 .. code-block:: sql
 
-    SELECT * FROM tweets WHERE expr(tweets_index,'{
-        filter : {type:"range", field:"time", lower:"2014/04/25", upper:"2014/05/01"}
-    }') LIMIT 100;
+    SELECT * FROM tweets WHERE expr(tweets_index, '{
+        filter : {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"}
+    }');
 
 The same search can be performed forcing an explicit refresh of the involved index shards:
 
 .. code-block:: sql
 
-    SELECT * FROM tweets WHERE expr(tweets_index,'{
-        filter : {type:"range", field:"time", lower:"2014/04/25", upper:"2014/05/01"},
+    SELECT * FROM tweets WHERE expr(tweets_index, '{
+        filter : {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
         refresh : true
-    }') LIMIT 100;
+    }') limit 100;
 
 Now, to search the top 100 more relevant tweets where *body* field contains the phrase “big data gives organizations”
 within the aforementioned date range:
 
 .. code-block:: sql
 
-    SELECT * FROM tweets WHERE expr(tweets_index,'{
-        filter : {type:"range", field:"time", lower:"2014/04/25", upper:"2014/05/01"},
-        query  : {type:"phrase", field:"body", value:"big data gives organizations", slop:1}
+    SELECT * FROM tweets WHERE expr(tweets_index, '{
+        filter : {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
+        must : {type: "phrase", field: "body", value: "big data gives organizations", slop: 1}
     }') LIMIT 100;
 
-To refine the search to get only the tweets written by users whose name starts with "a":
+To refine the search to get only the tweets written by users whose names start with "a":
 
 .. code-block:: sql
 
-    SELECT * FROM tweets WHERE expr(tweets_index,'{
-        filter : {type:"boolean", must:[
-                       {type:"range", field:"time", lower:"2014/04/25", upper:"2014/05/01"},
-                       {type:"prefix", field:"user", value:"a"} ] },
-        query  : {type:"phrase", field:"body", value:"big data gives organizations", slop:1}
+    SELECT * FROM tweets WHERE expr(tweets_index, '{
+        filter : [ {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
+                   {type: "prefix", field: "user", value: "a"} ],
+        must : {type: "phrase", field: "body", value: "big data gives organizations", slop: 1}
     }') LIMIT 100;
 
 To get the 100 more recent filtered results you can use the *sort* option:
 
 .. code-block:: sql
 
-    SELECT * FROM tweets WHERE expr(tweets_index,'{
-        filter : {type:"boolean", must:[
-                       {type:"range", field:"time", lower:"2014/04/25", upper:"2014/05/01"},
-                       {type:"prefix", field:"user", value:"a"} ] },
-        query  : {type:"phrase", field:"body", value:"big data gives organizations", slop:1},
-        sort   : {fields: [ {field:"time", reverse:true} ] }
-    }') LIMIT 100;
+    SELECT * FROM tweets WHERE expr(tweets_index, '{
+        filter : [ {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
+                   {type: "prefix", field: "user", value: "a"} ],
+        must : {type: "phrase", field: "body", value: "big data gives organizations", slop: 1},
+        sort : {field: "time", reverse: true}
+    }') limit 100;
 
-The previous search can be restricted to a geographical bounding box:
-
-.. code-block:: sql
-
-    SELECT * FROM tweets WHERE expr(tweets_index,'{
-        filter : {type:"boolean", must:[
-                       {type:"range", field:"time", lower:"2014/04/25", upper:"2014/05/01"},
-                       {type:"prefix", field:"user", value:"a"},
-                       {type:"geo_bbox",
-                        field:"place",
-                        min_latitude:40.225479,
-                        max_latitude:40.560174,
-                        min_longitude:-3.999278,
-                        max_longitude:-3.378550} ] },
-        query  : {type:"phrase", field:"body", value:"big data gives organizations", slop:1},
-        sort   : {fields: [ {field:"time", reverse:true} ] }
-    }') LIMIT 100;
-
-Alternatively, you can restrict the search to retrieve tweets that are within a specific distance from a geographical position:
+The previous search can be restricted to tweets created close to a geographical position:
 
 .. code-block:: sql
 
-    SELECT * FROM tweets WHERE expr(tweets_index,'{
-        filter : {type:"boolean", must:[
-                       {type:"range", field:"time", lower:"2014/04/25", upper:"2014/05/01"},
-                       {type:"prefix", field:"user", value:"a"},
-                       {type:"geo_distance",
-                        field:"place",
-                        latitude:40.393035,
-                        longitude:-3.732859,
-                        max_distance:"10km",
-                        min_distance:"100m"} ] },
-        query  : {type:"phrase", field:"body", value:"big data gives organizations", slop:1},
-        sort   : {fields: [ {field:"time", reverse:true} ] }
-    }') LIMIT 100;
+    SELECT * FROM tweets WHERE expr(tweets_index, '{
+        filter : [ {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
+                   {type: "prefix", field: "user", value: "a"},
+                   {type: "geo_distance", field: "place", latitude: 40.3930, longitude: -3.7328, max_distance: "10km"} ],
+        must : {type: "phrase", field: "body", value: "big data gives organizations", slop: 1},
+        sort : {field: "time", reverse: true}
+    }') limit 100;
+
+It is also possible to sort the results by distance to a geographical position:
+
+.. code-block:: sql
+
+    SELECT * FROM tweets WHERE expr(tweets_index, '{
+        filter : [ {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
+                   {type: "prefix", field: "user", value: "a"},
+                   {type: "geo_distance", field: "place", latitude: 40.3930, longitude: -3.7328, max_distance: "10km"} ],
+        must : {type: "phrase", field: "body", value: "big data gives organizations", slop: 1},
+        sort : [ {field: "time", reverse: true},
+                 {field: "place", type: "geo_distance", latitude: 40.3930, longitude: -3.7328}]
+    }') limit 100;
+
+Last but not least, you can route any search to a certain token range or partition, in such a way that only a
+subset of the cluster nodes will be hit, saving precious resources:
+
+.. code-block:: sql
+
+    SELECT * FROM tweets WHERE expr(tweets_index, '{
+        filter : [ {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
+                   {type: "prefix", field: "user", value: "a"},
+                   {type: "geo_distance", field: "place", latitude: 40.3930, longitude: -3.7328, max_distance: "10km"} ],
+        must : {type: "phrase", field: "body", value: "big data gives organizations", slop: 1},
+        sort : [ {field: "time", reverse: true},
+                 {field: "place", type: "geo_distance", latitude: 40.3930, longitude: -3.7328}]
+    }') AND TOKEN(id) >= TOKEN(0) AND TOKEN(id) < TOKEN(10000000) limit 100;
 
 Indexing
 ********
@@ -1694,24 +1695,27 @@ Lucene indexes are queried using a custom JSON syntax defining the kind of searc
 .. code-block:: sql
 
     SELECT ( <fields> | * ) FROM <table_name> WHERE expr(<index_name>, '{
-        (   filter  : <filter>  )?
-        ( , query   : <query>   )?
-        ( , sort    : <sort>    )?
+        (   filter  : (<query>)*       )?
+        ( , must    : (<query>)*       )?
+        ( , should  : (<query>)*       )?
+        ( , not     : (<query>)*       )?
+        ( , sort    : (<sort_field>)*  )?
         ( , refresh : ( true | false ) )?
     }');
 
-where <filter> and <query> are a JSON object:
+where <filter>, <must>, <should> and <not> are a JSON object:
 
 .. code-block:: sql
 
-    <filter> := { type : <type> (, <option> : ( <value> | <value_list> ) )+ }
-    <query>  := { type : <type> (, <option> : ( <value> | <value_list> ) )+ }
+    <filter> := { type : <type> (, <option> : ( <value> | <value_list> ) )* }
+    <must>   := { type : <type> (, <option> : ( <value> | <value_list> ) )* }
+    <should> := { type : <type> (, <option> : ( <value> | <value_list> ) )* }
+    <not>    := { type : <type> (, <option> : ( <value> | <value_list> ) )* }
 
 and <sort> is another JSON object:
 
 .. code-block:: sql
 
-        <sort> := { fields : <sort_field> (, <sort_field> )* }
         <sort_field> := <simple_sort_field> | <geo_distance_sort_field>
         <simple_sort_field> := {(type: "simple",)? field : <field> (, reverse : <reverse> )? }
         <geo_distance_sort_field> := {  type: "geo_distance",
@@ -1720,19 +1724,17 @@ and <sort> is another JSON object:
                                         longitude: <Double>
                                         (, reverse : <reverse> )? }
 
-When searching by ``filter``, without any ``query`` or ``sort`` defined,
-then the results are returned in the Cassandra’s natural order, which is
-defined by the partitioner and the column name comparator. When searching
-by ``query``, results are returned sorted by descending relevance. Sort option is used
-to specify the order in which the indexed rows will be traversed. When
-simple_sort_field sorting is used, the query scoring is delayed.
+When searching by ``filter``, ``should`` and/or ``not`` clauses, without any ``must`` or ``sort`` defined,
+the results are returned in Cassandra’s natural order, which is defined by the partitioner and the primary key.
+However, when there is a ``must`` clause, results are returned sorted by descending relevance.
+Relevance searches must touch all the nodes in the ring and made some processing in the coordinator node in order to
+find the globally best results, so you should prefer ``filter`` over ``must`` when no relevance sorting is needed.
 
-Geo_distance_sort_field is use to sort Rows by min distance to point
-indicating the GeoPointMapper to use by mapper field
+Sort option is used to specify the order in which the indexed rows will be traversed.
+When sorting with a ``sort`` clause is used, relevance sorting is delayed.
 
-Relevance queries must touch all the nodes in the ring in order to find
-the globally best results, so you should prefer filters over queries
-when no relevance nor sorting are needed.
+``geo_distance_sort_field`` is used to sort rows by min distance to a geographical point,
+using the `geo point mapper <#geo-point-mapper>`__ indicated by the parameter named ``field``.
 
 The ``refresh`` boolean option indicates if the search must commit pending
 writes and refresh the Lucene IndexSearcher before being performed. This

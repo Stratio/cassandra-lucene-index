@@ -57,12 +57,12 @@ public class MultiMappingAT extends BaseAT {
 
     @Test
     public void testSimpleQuery() {
-        utils.query(match("text", "02-01-2013")).check(1);
+        utils.must(match("text", "02-01-2013")).check(1);
     }
 
     @Test
     public void testAliasQuery() {
-        utils.query(match("alias_text", "02-01-2013")).check(1);
+        utils.must(match("alias_text", "02-01-2013")).check(1);
     }
 
     @Test

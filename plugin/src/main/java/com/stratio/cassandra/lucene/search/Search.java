@@ -114,7 +114,7 @@ public class Search {
      * @return {@code true} if this search uses Lucene relevance formula, {@code false} otherwise
      */
     public boolean usesRelevance() {
-        return !must.isEmpty() || !should.isEmpty();
+        return !must.isEmpty();
     }
 
     /**

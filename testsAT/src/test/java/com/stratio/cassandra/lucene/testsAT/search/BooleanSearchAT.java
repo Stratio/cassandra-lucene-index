@@ -30,40 +30,45 @@ import static org.junit.Assert.assertTrue;
 public class BooleanSearchAT extends AbstractSearchAT {
 
     @Test
-    public void booleanFilterEmptyTest() {
+    public void testBooleanFilterEmpty() {
         filter(bool()).check(0);
     }
 
     @Test
-    public void booleanFilterNotTest() {
+    public void testBooleanFilterNot() {
         filter(bool().not(match("uuid_1", "60297440-b4fa-11e3-8b5a-0002a5d5c51c"))).check(4);
     }
 
     @Test
-    public void booleanFilterMustTest() {
+    public void testBooleanFilterFilter() {
+        filter(bool().must(wildcard("ascii_1", "frase*")).filter(wildcard("inet_1", "127.0.*"))).check(2);
+    }
+
+    @Test
+    public void testBooleanFilterMust() {
         filter(bool().must(wildcard("ascii_1", "frase*")).must(wildcard("inet_1", "127.0.*"))).check(2);
     }
 
     @Test
-    public void booleanFilterShouldTest() {
+    public void testBooleanFilterShould() {
         filter(bool().should(wildcard("ascii_1", "frase*")).should(wildcard("inet_1", "127.0.*"))).check(4);
     }
 
     @Test
-    public void booleanFilterMustAndNotTest() {
+    public void testBooleanFilterMustAndNot() {
         filter(bool().must(wildcard("ascii_1", "frase*"))
                      .must(wildcard("inet_1", "127.0.*"))
                      .not(match("inet_1", "127.0.0.1"))).check(1);
     }
 
     @Test
-    public void booleanFilterShouldAndNotTest() {
+    public void testBooleanFilterShouldAndNot() {
         filter(bool().should(wildcard("ascii_1", "frase*"), wildcard("inet_1", "127.0.*"))
                      .not(match("inet_1", "127.0.0.1"))).check(3);
     }
 
     @Test
-    public void booleanFilterWithBoostTest() {
+    public void testBooleanFilterWithBoost() {
 
         List<Row> firstRows = filter(bool().must(fuzzy("inet_1", "127.1.1.1").boost(0.9))
                                            .must(fuzzy("inet_1", "127.1.0.1").boost(0.1))
@@ -86,36 +91,41 @@ public class BooleanSearchAT extends AbstractSearchAT {
     }
 
     @Test
-    public void booleanQueryEmptyTest() {
-        query(bool()).check(0);
+    public void testBooleanQueryEmpty() {
+        filter(bool()).check(0);
     }
 
     @Test
-    public void booleanQueryNotTest() {
-        query(bool().not(match("uuid_1", "60297440-b4fa-11e3-8b5a-0002a5d5c51c"))).check(4);
+    public void testBooleanQueryNot() {
+        filter(bool().not(match("uuid_1", "60297440-b4fa-11e3-8b5a-0002a5d5c51c"))).check(4);
     }
 
     @Test
-    public void booleanQueryMustTest() {
-        query(bool().must(wildcard("ascii_1", "frase*")).must(wildcard("inet_1", "127.0.*"))).check(2);
+    public void testBooleanQueryFilter() {
+        filter(bool().must(wildcard("ascii_1", "frase*")).filter(wildcard("inet_1", "127.0.*"))).check(2);
     }
 
     @Test
-    public void booleanQueryShouldTest() {
-        query(bool().should(wildcard("ascii_1", "frase*")).should(wildcard("inet_1", "127.0.*"))).check(4);
+    public void testBooleanQueryMust() {
+        filter(bool().must(wildcard("ascii_1", "frase*")).must(wildcard("inet_1", "127.0.*"))).check(2);
     }
 
     @Test
-    public void booleanQueryMustAndNotTest() {
-        query(bool().must(wildcard("ascii_1", "frase*"))
-                    .must(wildcard("inet_1", "127.0.*"))
-                    .not(match("inet_1", "127.0.0.1"))).check(1);
+    public void testBooleanQueryShould() {
+        filter(bool().should(wildcard("ascii_1", "frase*")).should(wildcard("inet_1", "127.0.*"))).check(4);
     }
 
     @Test
-    public void booleanQueryShouldAndNotTest() {
-        query(bool().should(wildcard("ascii_1", "frase*"), wildcard("inet_1", "127.0.*"))
-                    .not(match("inet_1", "127.0.0.1"))).check(3);
+    public void testBooleanQueryMustAndNot() {
+        filter(bool().must(wildcard("ascii_1", "frase*"))
+                   .must(wildcard("inet_1", "127.0.*"))
+                   .not(match("inet_1", "127.0.0.1"))).check(1);
+    }
+
+    @Test
+    public void testBooleanQueryShouldAndNot() {
+        filter(bool().should(wildcard("ascii_1", "frase*"), wildcard("inet_1", "127.0.*"))
+                   .not(match("inet_1", "127.0.0.1"))).check(3);
     }
 
 }

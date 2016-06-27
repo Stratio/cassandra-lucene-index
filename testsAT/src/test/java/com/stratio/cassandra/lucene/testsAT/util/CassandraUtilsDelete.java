@@ -61,7 +61,7 @@ public class CassandraUtilsDelete {
     }
 
     public CassandraUtilsSelect query(Condition query) {
-        return execute().query(query);
+        return execute().must(query);
     }
 
     public CassandraUtilsSelect filter(Condition filter) {

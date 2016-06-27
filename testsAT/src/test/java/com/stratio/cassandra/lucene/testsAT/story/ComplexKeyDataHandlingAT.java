@@ -85,7 +85,7 @@ public class ComplexKeyDataHandlingAT extends BaseAT {
     }
 
     @Test
-    public void singleInsertion() {
+    public void testSingleInsertion() {
         utils.insert(data4)
              .refresh()
              .filter(wildcard("ascii_1", "*"))
@@ -132,7 +132,7 @@ public class ComplexKeyDataHandlingAT extends BaseAT {
     }
 
     @Test
-    public void multipleInsertion() {
+    public void testMultipleInsertion() {
         utils.insert(data4, data5)
              .refresh()
              .filter(wildcard("ascii_1", "*"))
@@ -175,7 +175,7 @@ public class ComplexKeyDataHandlingAT extends BaseAT {
     }
 
     @Test
-    public void multipleDeletion() {
+    public void testMultipleDeletion() {
         utils.delete()
              .where("integer_1", 2)
              .and("ascii_1", "ascii")
@@ -197,8 +197,8 @@ public class ComplexKeyDataHandlingAT extends BaseAT {
     }
 
     @Test
-    public void updateTest() {
-        utils.query(wildcard("text_1", "text"))
+    public void testUpdate() {
+        utils.must(wildcard("text_1", "text"))
              .check(18)
              .update()
              .set("text_1", "other")
@@ -213,8 +213,8 @@ public class ComplexKeyDataHandlingAT extends BaseAT {
     }
 
     @Test
-    public void insertWithUpdateTest() {
-        utils.query(wildcard("text_1", "text"))
+    public void testInsertWithUpdate() {
+        utils.must(wildcard("text_1", "text"))
              .check(18)
              .update()
              .set("text_1", "new")
@@ -222,7 +222,7 @@ public class ComplexKeyDataHandlingAT extends BaseAT {
              .and("ascii_1", "ascii")
              .and("double_1", 1)
              .refresh()
-             .query(wildcard("text_1", "new"))
+             .must(wildcard("text_1", "new"))
              .check(1);
     }
 }
