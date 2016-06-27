@@ -22,10 +22,6 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.spatial.prefix.IntersectsPrefixTreeQuery;
 import org.junit.Test;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
 import static com.stratio.cassandra.lucene.search.SearchBuilders.dateRange;
 import static com.stratio.cassandra.lucene.search.condition.DateRangeCondition.*;
@@ -222,7 +218,7 @@ public class DateRangeConditionTest extends AbstractConditionTest {
     @Test(expected = IndexException.class)
     public void testQueryWithoutValidMapper() {
         Schema schema = schema().mapper("name", uuidMapper()).build();
-        DateRangeCondition condition = dateRange("name").from(1L).to(2L).build();;
+        DateRangeCondition condition = dateRange("name").from(1L).to(2L).build();
         condition.query(schema);
     }
 
