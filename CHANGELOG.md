@@ -2,6 +2,7 @@
 
 ## 3.0.7.2 (upcoming)
 
+* Upgrade to Apache Lucene 5.5.2
 * Modernize search syntax keeping backward compatibility
 * Add separate date format patterns for parsing and indexing
 * Add Lucene-specific CQL tracing
