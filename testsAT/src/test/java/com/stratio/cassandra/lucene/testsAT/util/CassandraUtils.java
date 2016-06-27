@@ -322,16 +322,8 @@ public class CassandraUtils {
         return select().filter(conditions);
     }
 
-    public CassandraUtilsSelect must(Condition... conditions) {
-        return select().must(conditions);
-    }
-
-    public CassandraUtilsSelect should(Condition... conditions) {
-        return select().should(conditions);
-    }
-
-    public CassandraUtilsSelect not(Condition... conditions) {
-        return select().not(conditions);
+    public CassandraUtilsSelect query(Condition... conditions) {
+        return select().query(conditions);
     }
 
     public CassandraUtilsSelect sort(SortField... fields) {

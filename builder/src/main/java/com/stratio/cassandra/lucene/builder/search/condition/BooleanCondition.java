@@ -27,35 +27,20 @@ import java.util.List;
  */
 public class BooleanCondition extends Condition<BooleanCondition> {
 
-    /** The mandatory conditions not participating in scoring. */
-    @JsonProperty("filter")
-    private List<Condition> filter;
-
-    /** The mandatory conditions participating in scoring. */
+    /** The mandatory conditions. */
     @JsonProperty("must")
     private List<Condition> must;
 
-    /** The optional conditions participating in scoring. */
+    /** The optional conditions. */
     @JsonProperty("should")
     private List<Condition> should;
 
-    /** The mandatory not conditions not participating in scoring. */
+    /** The mandatory not conditions. */
     @JsonProperty("not")
     private List<Condition> not;
 
     /**
-     * Returns this with the specified mandatory conditions not participating in scoring.
-     *
-     * @param conditions the filtering conditions to be added
-     * @return this with the specified filtering conditions
-     */
-    public BooleanCondition filter(Condition... conditions) {
-        filter = add(filter, conditions);
-        return this;
-    }
-
-    /**
-     * Returns this with the specified mandatory conditions participating in scoring.
+     * Returns this with the specified mandatory conditions.
      *
      * @param conditions the mandatory conditions to be added
      * @return this with the specified mandatory conditions
@@ -66,7 +51,7 @@ public class BooleanCondition extends Condition<BooleanCondition> {
     }
 
     /**
-     * Returns this with the specified optional conditions participating in scoring.
+     * Returns this with the specified optional conditions.
      *
      * @param conditions the optional conditions to be added
      * @return this with the specified optional conditions
@@ -77,7 +62,7 @@ public class BooleanCondition extends Condition<BooleanCondition> {
     }
 
     /**
-     * Returns this with the specified mandatory not conditions not participating in scoring.
+     * Returns this with the specified mandatory not conditions.
      *
      * @param conditions the mandatory not conditions to be added
      * @return this with the specified mandatory not conditions

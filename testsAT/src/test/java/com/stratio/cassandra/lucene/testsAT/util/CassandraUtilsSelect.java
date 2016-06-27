@@ -109,29 +109,11 @@ public class CassandraUtilsSelect {
         return this;
     }
 
-    public CassandraUtilsSelect must(Condition... conditions) {
+    public CassandraUtilsSelect query(Condition... conditions) {
         if (search == null) {
-            search = Builder.search().must(conditions);
+            search = Builder.search().query(conditions);
         } else {
-            search.must(conditions);
-        }
-        return this;
-    }
-
-    public CassandraUtilsSelect should(Condition... conditions) {
-        if (search == null) {
-            search = Builder.search().should(conditions);
-        } else {
-            search.should(conditions);
-        }
-        return this;
-    }
-
-    public CassandraUtilsSelect not(Condition... conditions) {
-        if (search == null) {
-            search = Builder.search().not(conditions);
-        } else {
-            search.not(conditions);
+            search.query(conditions);
         }
         return this;
     }

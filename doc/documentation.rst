@@ -94,11 +94,11 @@ based implementation of Cassandra secondary indexes, where each node of the clus
 Cassandra indexes are one of the core modules on which `Stratio’s BigData platform <http://www.stratio.com/>`__ is based.
 
 .. image:: /doc/resources/architecture.png
-   :width: 100%
+:width: 100%
    :alt: architecture
-   :align: center
+       :align: center
 
-Index `relevance searches <http://en.wikipedia.org/wiki/Relevance_(information_retrieval)>`__ allow you to retrieve the
+    Index `relevance searches <http://en.wikipedia.org/wiki/Relevance_(information_retrieval)>`__ allow you to retrieve the
 *n* more relevant results satisfying a search. The coordinator node sends the search to each node in the cluster, each node
 returns its *n* best results and then the coordinator combines these partial results and gives you the *n* best of them,
 avoiding full scan. You can also base the sorting in a combination of fields.
@@ -111,18 +111,18 @@ frameworks as `Apache Hadoop <http://hadoop.apache.org/>`__ or, even better, `Ap
 Adding Lucene filters in the jobs input can dramatically reduce the amount of data to be processed, avoiding full scan.
 
 .. image:: /doc/resources/spark_architecture.png
-   :width: 100%
+:width: 100%
    :alt: spark_architecture
-   :align: center
+       :align: center
 
-This project is not intended to replace Apache Cassandra denormalized tables, inverted indexes, and/or secondary
-indexes. It is just a tool to perform some kind of queries which are really hard to be addressed using Apache Cassandra
-out of the box features, filling the gap between real-time and analytics.
+    This project is not intended to replace Apache Cassandra denormalized tables, inverted indexes, and/or secondary
+    indexes. It is just a tool to perform some kind of queries which are really hard to be addressed using Apache Cassandra
+    out of the box features, filling the gap between real-time and analytics.
 
 .. image:: /doc/resources/oltp_olap.png
-   :width: 100%
+:width: 100%
    :alt: oltp_olap
-   :align: center
+       :align: center
 
 Features
 ========
@@ -377,7 +377,7 @@ Now you can create a custom Lucene index on it with the following statement:
                 user  : {type : "string"},
                 body  : {type : "text", analyzer : "english"},
                 time  : {type : "date", pattern : "yyyy/MM/dd"},
-                place : {type : "geo_point", latitude: "latitude", longitude: "longitude"}
+                place : {type : "geo_point", latitude:"latitude", longitude:"longitude"}
             }
         }'
     };
@@ -415,7 +415,7 @@ within the aforementioned date range:
 
     SELECT * FROM tweets WHERE expr(tweets_index, '{
         filter : {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
-        must : {type: "phrase", field: "body", value: "big data gives organizations", slop: 1}
+        query : {type: "phrase", field: "body", value: "big data gives organizations", slop: 1}
     }') LIMIT 100;
 
 To refine the search to get only the tweets written by users whose names start with "a":
@@ -425,7 +425,7 @@ To refine the search to get only the tweets written by users whose names start w
     SELECT * FROM tweets WHERE expr(tweets_index, '{
         filter : [ {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
                    {type: "prefix", field: "user", value: "a"} ],
-        must : {type: "phrase", field: "body", value: "big data gives organizations", slop: 1}
+        query : {type: "phrase", field: "body", value: "big data gives organizations", slop: 1}
     }') LIMIT 100;
 
 To get the 100 more recent filtered results you can use the *sort* option:
@@ -435,7 +435,7 @@ To get the 100 more recent filtered results you can use the *sort* option:
     SELECT * FROM tweets WHERE expr(tweets_index, '{
         filter : [ {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
                    {type: "prefix", field: "user", value: "a"} ],
-        must : {type: "phrase", field: "body", value: "big data gives organizations", slop: 1},
+        query : {type: "phrase", field: "body", value: "big data gives organizations", slop: 1},
         sort : {field: "time", reverse: true}
     }') limit 100;
 
@@ -447,7 +447,7 @@ The previous search can be restricted to tweets created close to a geographical 
         filter : [ {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
                    {type: "prefix", field: "user", value: "a"},
                    {type: "geo_distance", field: "place", latitude: 40.3930, longitude: -3.7328, max_distance: "10km"} ],
-        must : {type: "phrase", field: "body", value: "big data gives organizations", slop: 1},
+        query : {type: "phrase", field: "body", value: "big data gives organizations", slop: 1},
         sort : {field: "time", reverse: true}
     }') limit 100;
 
@@ -459,7 +459,7 @@ It is also possible to sort the results by distance to a geographical position:
         filter : [ {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
                    {type: "prefix", field: "user", value: "a"},
                    {type: "geo_distance", field: "place", latitude: 40.3930, longitude: -3.7328, max_distance: "10km"} ],
-        must : {type: "phrase", field: "body", value: "big data gives organizations", slop: 1},
+        query : {type: "phrase", field: "body", value: "big data gives organizations", slop: 1},
         sort : [ {field: "time", reverse: true},
                  {field: "place", type: "geo_distance", latitude: 40.3930, longitude: -3.7328}]
     }') limit 100;
@@ -473,7 +473,7 @@ subset of the cluster nodes will be hit, saving precious resources:
         filter : [ {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
                    {type: "prefix", field: "user", value: "a"},
                    {type: "geo_distance", field: "place", latitude: 40.3930, longitude: -3.7328, max_distance: "10km"} ],
-        must : {type: "phrase", field: "body", value: "big data gives organizations", slop: 1},
+        query : {type: "phrase", field: "body", value: "big data gives organizations", slop: 1},
         sort : [ {field: "time", reverse: true},
                  {field: "place", type: "geo_distance", latitude: 40.3930, longitude: -3.7328}]
     }') AND TOKEN(id) >= TOKEN(0) AND TOKEN(id) < TOKEN(10000000) limit 100;
@@ -594,7 +594,8 @@ present in classpath.
 Snowball analyzer
 _________________
 
-Analyzer using a `http://snowball.tartarus.org/ <http://snowball.tartarus.org/>`__ snowball filter `SnowballFilter <https://lucene.apache.org/core/5_3_0/analyzers-common/org/apache/lucene/analysis/snowball/SnowballFilter.html>`__
+Analyzer using a `http://snowball.tartarus.org/ <http://snowball.tartarus.org/>`__ snowball filter
+`SnowballFilter <https://lucene.apache.org/core/5_3_0/analyzers-common/org/apache/lucene/analysis/snowball/SnowballFilter.html>`__
 
 **Example:**
 
@@ -782,7 +783,7 @@ Maps arbitrary precision signed decimal values.
 -  **integer\_digits** (default = 32): the max number of decimal digits for the integer part.
 -  **decimal\_digits** (mandatory): the max number of decimal digits for the decimal part.
 
-**Supported CQL types:** 
+**Supported CQL types:**
 
 -  ascii, bigint, decimal, double, float, int, smallint, text, tinyint, varchar, varint
 
@@ -818,7 +819,7 @@ Maps arbitrary precision signed integer values.
 -  **column** (default = name of the mapper): the name of the column storing the big integer to be indexed.
 -  **digits** (default = 32): the max number of decimal digits.
 
-**Supported CQL types:** 
+**Supported CQL types:**
 
 -  ascii, bigint, int, smallint, text, tinyint, varchar, varint
 
@@ -864,7 +865,7 @@ Maps four columns containing the four dates defining a bitemporal fact.
    reduce the precision of the indexed dates, making the index smaller and faster. It is also the date format to be used
    in searches.
 
-**Supported CQL types:** 
+**Supported CQL types:**
 
 -  ascii, bigint, date, int, text, timestamp, timeuuid, varchar, varint
 
@@ -903,7 +904,7 @@ Maps a blob value.
 -  **validated** (default = false): if mapping errors should make CQL writes fail, instead of just logging the error.
 -  **column** (default = name of the mapper): the name of the column storing blob to be indexed.
 
-**Supported CQL types:** 
+**Supported CQL types:**
 
 -  ascii, blob,  text, varchar
 
@@ -936,7 +937,7 @@ Maps a boolean value.
 -  **validated** (default = false): if mapping errors should make CQL writes fail, instead of just logging the error.
 -  **column** (default = name of the mapper): the name of the column storing boolean value to be indexed.
 
-**Supported CQL types:** 
+**Supported CQL types:**
 
 -  ascii, boolean , text, varchar
 
@@ -977,7 +978,7 @@ Maps dates using a either a pattern, an UNIX timestamp or a time UUID.
    reduce the precision of the indexed dates, making the index smaller and faster. It is also the date format to be used
    in searches.
 
-**Supported CQL types:** 
+**Supported CQL types:**
 
 -  ascii, bigint, date, int, text, timestamp, timeuuid, varchar, varint
 
@@ -1039,7 +1040,7 @@ Maps a time duration/period defined by a start date and a stop date.
    reduce the precision of the indexed dates, making the index smaller and faster. It is also the date format to be used
    in searches.
 
-**Supported CQL types:** 
+**Supported CQL types:**
 
 -  ascii, bigint, date, int, text, timestamp, timeuuid, varchar, varint
 
@@ -1097,7 +1098,7 @@ Maps a 64-bit decimal number.
 -  **column** (default = name of the mapper): the name of the column storing the double to be indexed.
 -  **boost** (default = 0.1f): the Lucene's index-time boosting factor.
 
-**Supported CQL types:** 
+**Supported CQL types:**
 
 -  ascii, bigint, decimal, double, float, int, smallint, text, timestamp,  tinyint, varchar, varint
 
@@ -1133,7 +1134,7 @@ Maps a 32-bit decimal number.
 -  **column** (default = name of the mapper): the name of the column storing the float to be indexed.
 -  **boost** (default = 0.1f): the Lucene's index-time boosting factor.
 
-**Supported CQL types:** 
+**Supported CQL types:**
 
 -  ascii, bigint, decimal, double, float, int, smallint, timestamp, tinyint, varchar, varint
 
@@ -1170,7 +1171,7 @@ Maps a geospatial location (point) defined by two columns containing a latitude 
 -  **longitude** (mandatory): the name of the column storing the longitude of the point to be indexed.
 -  **max_levels** (default = 11): the maximum number of levels in the underlying search tree.
 
-**Supported CQL types:** 
+**Supported CQL types:**
 
 -  ascii, bigint, decimal, double, float, int, smallint, text, timestamp, varchar, varint
 
@@ -1217,7 +1218,7 @@ into your Cassandra installation lib directory.
 -  **max_levels** (default = 11): the maximum number of levels in the underlying search tree.
 -  **transformations** (optional): sequence of `geometrical transformations <#transformations>`__ to be applied to each shape before indexing it.
 
-**Supported CQL types:** 
+**Supported CQL types:**
 
 -  ascii, text, varchar
 
@@ -1258,9 +1259,9 @@ into your Cassandra installation lib directory.
 **Example 2:** Index only the centroid of the WKT shape contained in the indexed column:
 
 .. image:: /doc/resources/geo_shape_mapper_example_2.png
-    :width: 100%
+:width: 100%
     :alt: search by shape
-    :align: center
+        :align: center
 
 .. code-block:: sql
 
@@ -1292,9 +1293,9 @@ into your Cassandra installation lib directory.
 **Example 3:** Index a buffer 50 kilometres around the area of a city:
 
 .. image:: /doc/resources/geo_shape_mapper_example_3.png
-    :width: 100%
+:width: 100%
     :alt: search by shape
-    :align: center
+        :align: center
 
 .. code-block:: sql
 
@@ -1326,9 +1327,9 @@ into your Cassandra installation lib directory.
 **Example 4:** Index a buffer 50 kilometres around the borders of a country:
 
 .. image:: /doc/resources/geo_shape_mapper_example_4.png
-    :width: 100%
+:width: 100%
     :alt: search by shape
-    :align: center
+        :align: center
 
 .. code-block:: sql
 
@@ -1359,9 +1360,9 @@ into your Cassandra installation lib directory.
 **Example 5:** Index the convex hull of the WKT shape contained in the indexed column:
 
 .. image:: /doc/resources/geo_shape_mapper_example_5.png
-    :width: 100%
+:width: 100%
     :alt: search by shape
-    :align: center
+        :align: center
 
 .. code-block:: sql
 
@@ -1390,9 +1391,9 @@ into your Cassandra installation lib directory.
 **Example 6:** Index the bounding box of the WKT shape contained in the indexed column:
 
 .. image:: /doc/resources/geo_shape_mapper_example_6.png
-    :width: 100%
+:width: 100%
     :alt: search by shape
-    :align: center
+        :align: center
 
 .. code-block:: sql
 
@@ -1429,7 +1430,7 @@ Maps an IP address. Either IPv4 and IPv6 are supported.
 -  **validated** (default = false): if mapping errors should make CQL writes fail, instead of just logging the error.
 -  **column** (default = name of the mapper): the name of the column storing the IP address to be indexed.
 
-**Supported CQL types:** 
+**Supported CQL types:**
 
 -  ascii, inet, text, varchar
 
@@ -1464,7 +1465,7 @@ Maps a 32-bit integer number.
 -  **column** (default = name of the mapper): the name of the column storing the integer to be indexed.
 -  **boost** (default = 0.1f): the Lucene's index-time boosting factor.
 
-**Supported CQL types:** 
+**Supported CQL types:**
 
 -  ascii, bigint, decimal, double, float, int, smallint, text, timestamp, tinyint, varchar, varint
 
@@ -1500,7 +1501,7 @@ Maps a 64-bit integer number.
 -  **column** (default = name of the mapper): the name of the column storing the double to be indexed.
 -  **boost** (default = 0.1f): the Lucene's index-time boosting factor.
 
-**Supported CQL types:** 
+**Supported CQL types:**
 
 -  ascii, bigint, decimal, double, float, int, smallint, text, timestamp, tinyint, varchar, varint
 
@@ -1536,7 +1537,7 @@ Maps a not-analyzed text value.
 -  **column** (default = name of the mapper): the name of the column storing the IP address to be indexed.
 -  **case_sensitive** (default = true): if the text will be indexed preserving its casing.
 
-**Supported CQL types:** 
+**Supported CQL types:**
 
 -  ascii, bigint, blob, boolean, double, float, inet, int, smallint, text, timestamp, timeuuid, tinyint, uuid, varchar, varint
 
@@ -1572,7 +1573,7 @@ Maps a language-aware text value analyzed according to the specified analyzer.
 -  **column** (default = name of the mapper): the name of the column storing the IP address to be indexed.
 -  **analyzer** (default = default_analyzer): the name of the `text analyzer <https://lucene.apache.org/core/5_5_1/core/org/apache/lucene/analysis/Analyzer.html>`__ to be used.
 
-**Supported CQL types:** 
+**Supported CQL types:**
 
 -  ascii, bigint, blob, boolean, double, float, inet, int, smallint, text, timestamp, timeuuid, tinyint, uuid, varchar, varint
 
@@ -1602,7 +1603,7 @@ Maps a language-aware text value analyzed according to the specified analyzer.
             }
         }'
     };
-    
+
 
 UUID mapper
 ___________
@@ -1614,7 +1615,7 @@ Maps an UUID value.
 -  **validated** (default = false): if mapping errors should make CQL writes fail, instead of just logging the error.
 -  **column** (default = name of the mapper): the name of the column storing the IP address to be indexed.
 
-**Supported CQL types:** 
+**Supported CQL types:**
 
 -  ascii, text, timeuuid, uuid, varchar
 
@@ -1695,28 +1696,24 @@ Lucene indexes are queried using a custom JSON syntax defining the kind of searc
 .. code-block:: sql
 
     SELECT ( <fields> | * ) FROM <table_name> WHERE expr(<index_name>, '{
-        (   filter  : (<query>)*       )?
-        ( , must    : (<query>)*       )?
-        ( , should  : (<query>)*       )?
-        ( , not     : (<query>)*       )?
-        ( , sort    : (<sort_field>)*  )?
+        (   filter  : ( <filter> )* )?
+        ( , query   : ( <query>  )* )?
+        ( , sort    : ( <sort>   )* )?
         ( , refresh : ( true | false ) )?
     }');
 
-where <filter>, <must>, <should> and <not> are a JSON object:
+where <filter> and <query> are a JSON object:
 
 .. code-block:: sql
 
     <filter> := { type : <type> (, <option> : ( <value> | <value_list> ) )* }
-    <must>   := { type : <type> (, <option> : ( <value> | <value_list> ) )* }
-    <should> := { type : <type> (, <option> : ( <value> | <value_list> ) )* }
-    <not>    := { type : <type> (, <option> : ( <value> | <value_list> ) )* }
+    <query>  := { type : <type> (, <option> : ( <value> | <value_list> ) )* }
 
 and <sort> is another JSON object:
 
 .. code-block:: sql
 
-        <sort_field> := <simple_sort_field> | <geo_distance_sort_field>
+        <sort> := <simple_sort_field> | <geo_distance_sort_field>
         <simple_sort_field> := {(type: "simple",)? field : <field> (, reverse : <reverse> )? }
         <geo_distance_sort_field> := {  type: "geo_distance",
                                         field : <field>,
@@ -1724,17 +1721,19 @@ and <sort> is another JSON object:
                                         longitude: <Double>
                                         (, reverse : <reverse> )? }
 
-When searching by ``filter``, ``should`` and/or ``not`` clauses, without any ``must`` or ``sort`` defined,
-the results are returned in Cassandra’s natural order, which is defined by the partitioner and the primary key.
-However, when there is a ``must`` clause, results are returned sorted by descending relevance.
-Relevance searches must touch all the nodes in the ring and made some processing in the coordinator node in order to
-find the globally best results, so you should prefer ``filter`` over ``must`` when no relevance sorting is needed.
+When searching by ``filter``, without any ``query`` or ``sort`` defined,
+then the results are returned in the Cassandra’s natural order, which is
+defined by the partitioner and the column name comparator. When searching
+by ``query``, results are returned sorted by descending relevance. Sort option is used
+to specify the order in which the indexed rows will be traversed. When
+simple_sort_field sorting is used, the query scoring is delayed.
 
-Sort option is used to specify the order in which the indexed rows will be traversed.
-When sorting with a ``sort`` clause is used, relevance sorting is delayed.
+Geo_distance_sort_field is use to sort Rows by min distance to point
+indicating the GeoPointMapper to use by mapper field
 
-``geo_distance_sort_field`` is used to sort rows by min distance to a geographical point,
-using the `geo point mapper <#geo-point-mapper>`__ indicated by the parameter named ``field``.
+Relevance queries must touch all the nodes in the ring in order to find
+the globally best results, so you should prefer filters over queries
+when no relevance nor sorting are needed.
 
 The ``refresh`` boolean option indicates if the search must commit pending
 writes and refresh the Lucene IndexSearcher before being performed. This
@@ -2173,8 +2172,6 @@ where:
 -  **not**: represents the negation of the disjunction of searches:
    NOT(search_1 OR search_2 OR … OR search_n)
 
-Since "not" will be applied to the results of a "must" or "should"
-condition, it can not be used in isolation.
 
 **Example 1:** search for rows where name ends with “a” AND food starts
 with “tu”:
@@ -2188,16 +2185,42 @@ with “tu”:
                      {type : "wildcard", field : "food", value : "tu*"} ]}
     }');
 
+You can also write this search without the ``type`` attribute:
+
+.. code-block:: sql
+
+    SELECT * FROM users WHERE expr(users_index, '{
+        filter : {
+            must : [ {type : "wildcard", field : "name", value : "*a"},
+                     {type : "wildcard", field : "food", value : "tu*"} ]}
+    }');
+
+Or inside the base filter path:
+
+.. code-block:: sql
+
+    SELECT * FROM users WHERE expr(users_index, '{
+        filter : [ {type : "wildcard", field : "name", value : "*a"},
+                   {type : "wildcard", field : "food", value : "tu*"} ]
+    }');
+
 Using `query builder <#query-builder>`__:
 
 .. code-block:: java
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
-    ResultSet rs = session.execute(
+    ResultSet rs1 = session.execute(
         "SELECT * FROM users WHERE expr(users_index, ?)",
         search().filter(bool().must(wildcard("name", "*a"), wildcard("food", "tu*"))).build());
 
+    ResultSet rs2 = session.execute(
+        "SELECT * FROM users WHERE expr(users_index, ?)",
+        search().filter(must(wildcard("name", "*a"), wildcard("food", "tu*"))).build());
+
+    ResultSet rs3 = session.execute(
+        "SELECT * FROM users WHERE expr(users_index, ?)",
+        search().filter(wildcard("name", "*a"), wildcard("food", "tu*")).build());
 
 
 **Example 2:** search for rows where food starts with “tu” but name does not end with “a”:
@@ -2211,15 +2234,42 @@ Using `query builder <#query-builder>`__:
             must : [ {type : "wildcard", field : "food", value : "tu*" } ] }
     }');
 
+You can also write this search without the ``type`` attribute:
+
+.. code-block:: sql
+
+    SELECT * FROM users WHERE expr(users_index, '{
+        filter : {
+            not  : [ {type : "wildcard", field : "name", value : "*a" } ],
+            must : [ {type : "wildcard", field : "food", value : "tu*" } ] }
+    }');
+
+It is also possible to write the search this way:
+
+.. code-block:: sql
+
+    SELECT * FROM users WHERE expr(users_index, '{
+        filter : [ {type : "wildcard", field : "food", value : "tu*" },
+                   { not  : {type : "wildcard", field : "name", value : "*a" } } ]
+    }');
+
 Using `query builder <#query-builder>`__:
 
 .. code-block:: java
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
-    ResultSet rs = session.execute(
+    ResultSet rs1 = session.execute(
         "SELECT * FROM users WHERE expr(users_index, ?)",
-        search().filter(bool().not(wildcard("name", "*a")).must(wildcard("food", "tu*"))).build());
+        search().filter(bool().must(wildcard("food", "tu*")).not(wildcard("name", "*a"))).build());
+
+    ResultSet rs2 = session.execute(
+        "SELECT * FROM users WHERE expr(users_index, ?)",
+        search().filter(must(wildcard("food", "tu*")).not(wildcard("name", "*a"))).build());
+
+    ResultSet rs3 = session.execute(
+        "SELECT * FROM users WHERE expr(users_index, ?)",
+        search().filter(wildcard("food", "tu*"), not(wildcard("name", "*a"))).build());
 
 
 **Example 3:** search for rows where name ends with “a” or food starts with
@@ -2234,15 +2284,29 @@ Using `query builder <#query-builder>`__:
                        { type : "wildcard", field : "food", value : "tu*" } ] }
     }');
 
+You can also write this search without the ``type`` attribute:
+
+.. code-block:: sql
+
+    SELECT * FROM users WHERE expr(users_index, '{
+        filter : {
+            should : [ { type : "wildcard", field : "name", value : "*a" },
+                       { type : "wildcard", field : "food", value : "tu*" } ] }
+    }');
+
 Using `query builder <#query-builder>`__:
 
 .. code-block:: java
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
-    ResultSet rs = session.execute(
+    ResultSet rs1 = session.execute(
         "SELECT * FROM users WHERE expr(users_index, ?)",
         search().filter(bool().should(wildcard("name", "*a"), wildcard("food", "tu*"))).build());
+
+    ResultSet rs2 = session.execute(
+        "SELECT * FROM users WHERE expr(users_index, ?)",
+        search().filter(should(wildcard("name", "*a"), wildcard("food", "tu*"))).build());
 
 
 **Example 4:** will return zero rows independently of the index contents:
@@ -2642,12 +2706,11 @@ between 0.0 and 10.0, and a longitude between -180.0 and
             min_longitude : -180.0,
             max_longitude : 180.0 },
         sort : {
-            fields: [ {
-                type      : "geo_distance",
-                field     : "geo_point",
-                reverse   : false,
-                latitude  : 0.0,
-                longitude : 0.0 }]
+            type      : "geo_distance",
+            field     : "geo_point",
+            reverse   : false,
+            latitude  : 0.0,
+            longitude : 0.0 }
     }');
 
 
@@ -2786,9 +2849,9 @@ where:
 **Example 1:** search for shapes within a polygon:
 
 .. image:: /doc/resources/geo_shape_condition_example_1.png
-    :width: 100%
+:width: 100%
     :alt: search by shape
-    :align: center
+        :align: center
 
 .. code-block:: sql
 
@@ -2813,9 +2876,9 @@ Using `query builder <#query-builder>`__:
 Florida's coastline:
 
 .. image:: /doc/resources/geo_shape_condition_example_2.png
-    :width: 100%
+:width: 100%
     :alt: buffer transformation
-    :align: center
+        :align: center
 
 .. code-block:: sql
 
@@ -3582,8 +3645,7 @@ You can index, search and sort tuples this way:
     }');
 
     SELECT * FROM collect_things WHERE expr(tweets_index, '{
-        sort : {
-            fields : [ {field : "v.2"} ] }
+        sort : {field : "v.2"}
     }');
 
 
@@ -3856,9 +3918,9 @@ approaches depends on the particular use case. Generally, combining Lucene index
 retrieving no more than the 25% of the stored data.
 
 .. image:: /doc/resources/spark_performance.png
-   :width: 100%
+:width: 100%
    :alt: spark_performance
-   :align: center
+       :align: center
 
 JMX Interface
 *************
@@ -3918,13 +3980,12 @@ However, this search could be a good use case for Lucene just because there is n
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(tweets_index, '{
-        filter : {
-            type : "boolean",
-            must : [
-                { type  : "regexp", field : "name", value : "[J][aeiou]{2}.*"},
-                { type  : "range", field : "birthday", lower : "2014/04/25"}]},
-         sort : {
-            fields: [ { field : "name" } ] }
+        filter : [
+            { type  : "regexp", field : "name", value : "[J][aeiou]{2}.*" },
+            { type  : "range", field : "birthday", lower : "2014/04/25" } ],
+        sort : [
+            { field : "birthday", reverse : true },
+            { field : "name" } ]
     }') LIMIT 20;
 
 Lucene indexes are intended to be used in those cases that can't be efficiently addressed

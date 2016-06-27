@@ -40,11 +40,6 @@ public class BooleanSearchAT extends AbstractSearchAT {
     }
 
     @Test
-    public void testBooleanFilterFilter() {
-        filter(bool().must(wildcard("ascii_1", "frase*")).filter(wildcard("inet_1", "127.0.*"))).check(2);
-    }
-
-    @Test
     public void testBooleanFilterMust() {
         filter(bool().must(wildcard("ascii_1", "frase*")).must(wildcard("inet_1", "127.0.*"))).check(2);
     }
@@ -98,11 +93,6 @@ public class BooleanSearchAT extends AbstractSearchAT {
     @Test
     public void testBooleanQueryNot() {
         filter(bool().not(match("uuid_1", "60297440-b4fa-11e3-8b5a-0002a5d5c51c"))).check(4);
-    }
-
-    @Test
-    public void testBooleanQueryFilter() {
-        filter(bool().must(wildcard("ascii_1", "frase*")).filter(wildcard("inet_1", "127.0.*"))).check(2);
     }
 
     @Test

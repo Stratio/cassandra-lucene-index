@@ -112,7 +112,7 @@ public class MultipleKeyIndexHandlingAT extends BaseAT {
              .dropIndex()
              .createIndex()
              .refresh()
-             .must(wildcard("ascii_1", "*"))
+             .filter(wildcard("ascii_1", "*"))
              .check(10);
     }
 }

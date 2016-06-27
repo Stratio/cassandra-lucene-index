@@ -98,37 +98,37 @@ public class SearchWithLongWideRowsAT extends BaseAT {
 
     @Test
     public void query99Test() {
-        utils.must(match("partition", 0)).fetchSize(10).limit(99).check(99);
+        utils.query(match("partition", 0)).fetchSize(10).limit(99).check(99);
     }
 
     @Test
     public void query100Test() {
-        utils.must(match("partition", 0)).fetchSize(10).limit(100).check(100);
+        utils.query(match("partition", 0)).fetchSize(10).limit(100).check(100);
     }
 
     @Test
     public void query101Test() {
-        utils.must(match("partition", 0)).fetchSize(10).limit(101).check(100);
+        utils.query(match("partition", 0)).fetchSize(10).limit(101).check(100);
     }
 
     @Test
     public void query1000Test() {
-        utils.must(match("partition", 0)).fetchSize(10).limit(1000).check(100);
+        utils.query(match("partition", 0)).fetchSize(10).limit(1000).check(100);
     }
 
     @Test
     public void queryAll200Test() {
-        utils.must(all()).limit(200).fetchSize(7).check(200);
+        utils.query(all()).limit(200).fetchSize(7).check(200);
     }
 
     @Test
     public void queryAll1200Test() {
-        utils.must(all()).limit(201).fetchSize(4).check(200);
+        utils.query(all()).limit(201).fetchSize(4).check(200);
     }
 
     @Test
     public void queryAll199Test() {
-        utils.must(all()).limit(199).fetchSize(13).check(199);
+        utils.query(all()).limit(199).fetchSize(13).check(199);
     }
 
     @Test

@@ -36,15 +36,11 @@ public class SearchBuilderTest {
     @Test
     public void testBuild() throws IOException {
         ConditionBuilder<?, ?> filter = match("field1", "value2");
-        ConditionBuilder<?, ?> must = match("field2", "value2");
-        ConditionBuilder<?, ?> should = match("field2", "value2");
-        ConditionBuilder<?, ?> not = match("field2", "value2");
+        ConditionBuilder<?, ?> query = match("field2", "value2");
         SimpleSortFieldBuilder sort1 = field("field3");
         SimpleSortFieldBuilder sort2 = field("field4");
         SearchBuilder builder = new SearchBuilder().filter(filter)
-                                                   .must(must)
-                                                   .should(should)
-                                                   .not(not)
+                                                   .query(query)
                                                    .sort(sort1, sort2);
         String json = builder.toJson();
         assertEquals("JSON serialization is wrong", json, JsonSerializer.toString(builder));
@@ -53,9 +49,7 @@ public class SearchBuilderTest {
     @Test
     public void testJson() {
         SearchBuilder searchBuilder = search().filter(match("field1", "value1"))
-                                              .must(match("field2", "value2"))
-                                              .should(match("field3", "value3"))
-                                              .not(match("field4", "value4"))
+                                              .query(match("field2", "value2"))
                                               .sort(field("field"));
         String json = searchBuilder.toJson();
         assertEquals("JSON serialization is wrong", json, SearchBuilder.fromJson(json).toJson());
@@ -69,26 +63,35 @@ public class SearchBuilderTest {
     @Test
     public void testFromLegacyJsonWithOnlyQuery() {
         assertEquals("Legacy syntax parsing fails",
-                     "Search{filter=[], " +
-                     "must=[MatchCondition{boost=null, field=f, value=1, docValues=false}], " +
-                     "should=[], not=[], sort=[], refresh=false, paging=null}",
+                     "Search{" +
+                     "filter=[], " +
+                     "query=[MatchCondition{boost=null, field=f, value=1, docValues=false}], sort=[], " +
+                     "refresh=false, " +
+                     "paging=null}",
                      SearchBuilder.fromJson("{query:{type: \"match\", field: \"f\", value:1}}").build().toString());
     }
 
     @Test
     public void testFromLegacyJsonWithOnlySort() {
         assertEquals("Legacy syntax parsing fails",
-                     "Search{filter=[], must=[], should=[], not=[], " +
-                     "sort=[SimpleSortField{field=f, reverse=false}], refresh=false, paging=null}",
+                     "Search{" +
+                     "filter=[], " +
+                     "query=[], " +
+                     "sort=[SimpleSortField{field=f, reverse=false}], " +
+                     "refresh=false, " +
+                     "paging=null}",
                      SearchBuilder.fromJson("{sort:{fields:[{field:\"f\"}]}}").build().toString());
     }
 
     @Test
     public void testFromLegacyJsonWithAll() {
         assertEquals("Legacy syntax parsing fails",
-                     "Search{filter=[MatchCondition{boost=null, field=f1, value=1, docValues=false}], " +
-                     "must=[MatchCondition{boost=null, field=f2, value=2, docValues=false}], " +
-                     "should=[], not=[], sort=[SimpleSortField{field=f, reverse=false}], refresh=true, paging=null}",
+                     "Search{" +
+                     "filter=[MatchCondition{boost=null, field=f1, value=1, docValues=false}], " +
+                     "query=[MatchCondition{boost=null, field=f2, value=2, docValues=false}], " +
+                     "sort=[SimpleSortField{field=f, reverse=false}], " +
+                     "refresh=true, " +
+                     "paging=null}",
                      SearchBuilder.fromJson("{filter:{type: \"match\", field: \"f1\", value:1}, " +
                                             "query:{type: \"match\", field: \"f2\", value:2}, " +
                                             "sort:{fields:[{field:\"f\"}]}, " +

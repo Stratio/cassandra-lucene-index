@@ -38,21 +38,13 @@ import static java.util.stream.Collectors.toList;
  */
 public class SearchBuilder implements Builder<Search> {
 
-    /** The mandatory conditions not participating in scoring. */
+    /** The filtering conditions not participating in scoring. */
     @JsonProperty("filter")
     protected final List<ConditionBuilder<?, ?>> filter = new LinkedList<>();
 
-    /** The mandatory conditions participating in scoring. */
-    @JsonProperty("must")
-    protected final List<ConditionBuilder<?, ?>> must = new LinkedList<>();
-
-    /** The optional conditions participating in scoring. */
-    @JsonProperty("should")
-    protected final List<ConditionBuilder<?, ?>> should = new LinkedList<>();
-
-    /** The mandatory not conditions not participating in scoring. */
-    @JsonProperty("not")
-    protected final List<ConditionBuilder<?, ?>> not = new LinkedList<>();
+    /** The querying conditions participating in scoring. */
+    @JsonProperty("query")
+    protected final List<ConditionBuilder<?, ?>> query = new LinkedList<>();
 
     /** The {@link SortFieldBuilder}s for the query. */
     @JsonProperty("sort")
@@ -70,7 +62,7 @@ public class SearchBuilder implements Builder<Search> {
     }
 
     /**
-     * Returns this builder with the specified mandatory conditions not participating in scoring.
+     * Returns this builder with the specified filtering conditions not participating in scoring.
      *
      * @param builders the conditions to be added
      * @return this builder with the specified conditions
@@ -81,35 +73,13 @@ public class SearchBuilder implements Builder<Search> {
     }
 
     /**
-     * Returns this builder with the specified mandatory conditions participating in scoring.
+     * Returns this builder with the specified querying conditions participating in scoring.
      *
      * @param builders the conditions to be added
      * @return this builder with the specified conditions
      */
-    public SearchBuilder must(ConditionBuilder<?, ?>... builders) {
-        must.addAll(Arrays.asList(builders));
-        return this;
-    }
-
-    /**
-     * Returns this builder with the specified optional conditions participating in scoring.
-     *
-     * @param builders the conditions to be added
-     * @return this builder with the specified conditions
-     */
-    public SearchBuilder should(ConditionBuilder<?, ?>... builders) {
-        should.addAll(Arrays.asList(builders));
-        return this;
-    }
-
-    /**
-     * Returns this builder with the specified mandatory not conditions not participating in scoring.
-     *
-     * @param builders the conditions to be added
-     * @return this builder with the specified conditions
-     */
-    public SearchBuilder not(ConditionBuilder<?, ?>... builders) {
-        not.addAll(Arrays.asList(builders));
+    public SearchBuilder query(ConditionBuilder<?, ?>... builders) {
+        query.addAll(Arrays.asList(builders));
         return this;
     }
 
@@ -156,9 +126,7 @@ public class SearchBuilder implements Builder<Search> {
     @Override
     public Search build() {
         return new Search(filter.stream().map(ConditionBuilder::build).collect(toList()),
-                          must.stream().map(ConditionBuilder::build).collect(toList()),
-                          should.stream().map(ConditionBuilder::build).collect(toList()),
-                          not.stream().map(ConditionBuilder::build).collect(toList()),
+                          query.stream().map(ConditionBuilder::build).collect(toList()),
                           sort.stream().map(SortFieldBuilder::build).collect(toList()),
                           paging == null ? null : IndexPagingState.build(ByteBufferUtils.byteBuffer(paging)),
                           refresh);

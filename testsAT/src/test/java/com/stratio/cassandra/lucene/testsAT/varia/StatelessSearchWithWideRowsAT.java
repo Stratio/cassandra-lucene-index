@@ -74,16 +74,16 @@ public class StatelessSearchWithWideRowsAT extends BaseAT {
     }
 
     @Test
-    public void queryTest() throws Exception {
-        assertPure("Search with must is not a pure function",
-                   () -> utils.must(all()).fetchSize(10).limit(40).getLast().get("rc", int.class));
-
-    }
-
-    @Test
     public void filterTest() throws Exception {
         assertPure("Search with filter is not a pure function",
                    () -> utils.filter(all()).fetchSize(1).limit(40).getLast().get("rc", int.class));
+    }
+
+    @Test
+    public void queryTest() throws Exception {
+        assertPure("Search with must is not a pure function",
+                   () -> utils.query(all()).fetchSize(10).limit(40).getLast().get("rc", int.class));
+
     }
 
     @Test

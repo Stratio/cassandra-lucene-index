@@ -64,7 +64,7 @@ public class Issue123AT extends BaseAT {
 
     @Test
     public void testQueryWithFetchSizeToIntegerMaxValue() {
-        utils.must(match("partition", 0)).fetchSize(Integer.MAX_VALUE).check(100);
+        utils.query(match("partition", 0)).fetchSize(Integer.MAX_VALUE).check(100);
     }
 
     @AfterClass

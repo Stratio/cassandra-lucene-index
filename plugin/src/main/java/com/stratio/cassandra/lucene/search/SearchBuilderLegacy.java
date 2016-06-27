@@ -53,7 +53,7 @@ class SearchBuilderLegacy {
      */
     @JsonProperty("query")
     void query(ConditionBuilder<?, ?> queryBuilder) {
-        builder.must(queryBuilder);
+        builder.query(queryBuilder);
     }
 
     /**

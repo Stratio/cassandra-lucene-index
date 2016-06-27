@@ -77,14 +77,14 @@ public class GeoBBoxSearchAT extends BaseAT {
 
     @Test
     public void geoBboxSearchBasicSuccess() {
-        utils.must(geoBBox("location", 0.0, 0.0, 0.0, 0.0)).check(1);
-        utils.must(geoBBox("location", 0.0, 1.0, 0.0, 1.0)).check(1);
-        utils.must(geoBBox("location", -1.0, 1.0, 0.0, 0.0)).check(1);
-        utils.must(geoBBox("location", 1.0, 2.0, 0.0, 0.0)).check(0);
-        utils.must(geoBBox("location", 0.0, 0.0, 1.0, 2.0)).check(0);
-        utils.must(geoBBox("location", 1.0, 2.0, 0.0, 0.0)).check(0);
-        utils.must(geoBBox("location", -0000.1, 0.0001, -0.0001, 0.0001)).check(1);
-        utils.must(geoBBox("location", 50.000001, 50.000003, 50.000001, 50.000003)).check(1);
+        utils.query(geoBBox("location", 0.0, 0.0, 0.0, 0.0)).check(1);
+        utils.query(geoBBox("location", 0.0, 1.0, 0.0, 1.0)).check(1);
+        utils.query(geoBBox("location", -1.0, 1.0, 0.0, 0.0)).check(1);
+        utils.query(geoBBox("location", 1.0, 2.0, 0.0, 0.0)).check(0);
+        utils.query(geoBBox("location", 0.0, 0.0, 1.0, 2.0)).check(0);
+        utils.query(geoBBox("location", 1.0, 2.0, 0.0, 0.0)).check(0);
+        utils.query(geoBBox("location", -0000.1, 0.0001, -0.0001, 0.0001)).check(1);
+        utils.query(geoBBox("location", 50.000001, 50.000003, 50.000001, 50.000003)).check(1);
     }
 
 }

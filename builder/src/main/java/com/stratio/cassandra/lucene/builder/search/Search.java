@@ -32,21 +32,13 @@ import java.util.List;
 @SuppressWarnings("unused")
 public class Search extends JSONBuilder {
 
-    /** The mandatory conditions not participating in scoring. */
+    /** The filtering conditions not participating in scoring. */
     @JsonProperty("filter")
     private List<Condition> filter;
 
-    /** The mandatory conditions participating in scoring. */
-    @JsonProperty("must")
-    private List<Condition> must;
-
-    /** The optional conditions participating in scoring. */
-    @JsonProperty("should")
-    private List<Condition> should;
-
-    /** The mandatory not conditions not participating in scoring. */
-    @JsonProperty("not")
-    private List<Condition> not;
+    /** The querying conditions participating in scoring. */
+    @JsonProperty("query")
+    private List<Condition> query;
 
     /** The {@link Sort} for the query, maybe {@code null} meaning no filtering. */
     @JsonProperty("sort")
@@ -61,7 +53,7 @@ public class Search extends JSONBuilder {
     }
 
     /**
-     * Returns this with the specified mandatory conditions not participating in scoring.
+     * Returns this with the specified filtering conditions not participating in scoring.
      *
      * @param conditions the filtering conditions to be added
      * @return this with the specified filtering conditions
@@ -72,35 +64,13 @@ public class Search extends JSONBuilder {
     }
 
     /**
-     * Returns this with the specified mandatory conditions participating in scoring.
+     * Returns this with the specified querying conditions participating in scoring.
      *
      * @param conditions the mandatory conditions to be added
      * @return this with the specified mandatory conditions
      */
-    public Search must(Condition... conditions) {
-        must = add(must, conditions);
-        return this;
-    }
-
-    /**
-     * Returns this with the specified optional conditions participating in scoring.
-     *
-     * @param conditions the optional conditions to be added
-     * @return this with the specified optional conditions
-     */
-    public Search should(Condition... conditions) {
-        should = add(should, conditions);
-        return this;
-    }
-
-    /**
-     * Returns this with the specified mandatory not conditions not participating in scoring.
-     *
-     * @param conditions the mandatory not conditions to be added
-     * @return this with the specified mandatory not conditions
-     */
-    public Search not(Condition... conditions) {
-        not = add(not, conditions);
+    public Search query(Condition... conditions) {
+        query = add(query, conditions);
         return this;
     }
 
@@ -112,19 +82,6 @@ public class Search extends JSONBuilder {
      */
     public Search sort(SortField... fields) {
         sort = add(sort, fields);
-        return this;
-    }
-
-    /**
-     * Returns this with the specified mandatory conditions participating in scoring.
-     *
-     * @param condition the mandatory condition to be added
-     * @return this with the specified mandatory conditions
-     */
-    @Deprecated
-    @JsonProperty("query")
-    public Search query(Condition condition) {
-        must(condition);
         return this;
     }
 

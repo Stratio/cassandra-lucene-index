@@ -31,35 +31,20 @@ import static java.util.stream.Collectors.toList;
  */
 public class BooleanConditionBuilder extends ConditionBuilder<BooleanCondition, BooleanConditionBuilder> {
 
-    /** The mandatory conditions not participating in scoring. */
-    @JsonProperty("filter")
-    protected final List<ConditionBuilder<?, ?>> filter = new LinkedList<>();
-
-    /** The mandatory conditions participating in scoring. */
+    /** The mandatory conditions. */
     @JsonProperty("must")
     protected final List<ConditionBuilder<?, ?>> must = new LinkedList<>();
 
-    /** The optional conditions participating in scoring. */
+    /** The optional conditions. */
     @JsonProperty("should")
     protected final List<ConditionBuilder<?, ?>> should = new LinkedList<>();
 
-    /** The mandatory not conditions not participating in scoring. */
+    /** The mandatory not conditions. */
     @JsonProperty("not")
     protected final List<ConditionBuilder<?, ?>> not = new LinkedList<>();
 
     /**
-     * Returns this builder with the specified mandatory conditions not participating in scoring.
-     *
-     * @param builders the conditions to be added
-     * @return this builder with the specified conditions
-     */
-    public BooleanConditionBuilder filter(ConditionBuilder<?, ?>... builders) {
-        filter.addAll(Arrays.asList(builders));
-        return this;
-    }
-
-    /**
-     * Returns this builder with the specified mandatory conditions participating in scoring.
+     * Returns this builder with the specified mandatory conditions.
      *
      * @param builders the conditions to be added
      * @return this builder with the specified conditions
@@ -70,7 +55,7 @@ public class BooleanConditionBuilder extends ConditionBuilder<BooleanCondition, 
     }
 
     /**
-     * Returns this builder with the specified optional conditions participating in scoring.
+     * Returns this builder with the specified optional conditions.
      *
      * @param builders the conditions to be added
      * @return this builder with the specified conditions
@@ -81,7 +66,7 @@ public class BooleanConditionBuilder extends ConditionBuilder<BooleanCondition, 
     }
 
     /**
-     * Returns this builder with the specified mandatory not conditions not participating in scoring.
+     * Returns this builder with the specified mandatory not conditions.
      *
      * @param builders the conditions to be added
      * @return this builder with the specified conditions
@@ -99,7 +84,6 @@ public class BooleanConditionBuilder extends ConditionBuilder<BooleanCondition, 
     @Override
     public BooleanCondition build() {
         return new BooleanCondition(boost,
-                                    filter.stream().map(ConditionBuilder::build).collect(toList()),
                                     must.stream().map(ConditionBuilder::build).collect(toList()),
                                     should.stream().map(ConditionBuilder::build).collect(toList()),
                                     not.stream().map(ConditionBuilder::build).collect(toList()));

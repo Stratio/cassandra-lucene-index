@@ -258,21 +258,7 @@ public abstract class Builder {
     }
 
     /**
-     * Returns a new {@link Search} with the specified mandatory conditions not participating in scoring.
-     *
-     * @param conditions the filtering conditions to be added
-     * @return a new search with the specified filtering conditions
-     */
-    public static BooleanCondition filter(Condition<?>... conditions) {
-        return bool().filter(conditions);
-    }
-
-    /**
      * Returns a new {@link Search} with the specified mandatory conditions participating in scoring.
-     *
-     * Please note that a {@link Search} containing {@code must} conditions should hit all the involved nodes and
-     * preform some post processing operations in the coordinator node, so you should prefer {@link
-     * #filter(Condition[])} over this if you are not interested in relevance scoring.
      *
      * @param conditions the mandatory conditions
      * @return a new search with the specified mandatory conditions

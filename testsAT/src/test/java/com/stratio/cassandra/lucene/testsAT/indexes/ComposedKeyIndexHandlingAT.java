@@ -68,7 +68,7 @@ public class ComposedKeyIndexHandlingAT extends BaseAT {
         utils.insert(data1, data2, data3, data4, data5, data6, data7, data8, data9, data10)
              .createIndex()
              .refresh()
-             .must(wildcard("ascii_1", "*"))
+             .filter(wildcard("ascii_1", "*"))
              .check(10);
     }
 
@@ -78,7 +78,7 @@ public class ComposedKeyIndexHandlingAT extends BaseAT {
              .createIndex()
              .insert(data9, data10)
              .refresh()
-             .must(wildcard("ascii_1", "*"))
+             .filter(wildcard("ascii_1", "*"))
              .check(10);
     }
 
@@ -98,7 +98,7 @@ public class ComposedKeyIndexHandlingAT extends BaseAT {
              .createIndex()
              .insert(data4, data1, data10)
              .refresh()
-             .must(wildcard("ascii_1", "*"))
+             .filter(wildcard("ascii_1", "*"))
              .check(10);
     }
 
@@ -112,7 +112,7 @@ public class ComposedKeyIndexHandlingAT extends BaseAT {
              .dropIndex()
              .createIndex()
              .refresh()
-             .must(wildcard("ascii_1", "*"))
+             .filter(wildcard("ascii_1", "*"))
              .check(10);
     }
 }

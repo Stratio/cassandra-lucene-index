@@ -41,8 +41,8 @@ public final class SearchBuilders {
     }
 
     /**
-     * Returns a new {@link SearchBuilder} using the specified {@link ConditionBuilder}s as mandatory query to not be
-     * used in scoring.
+     * Returns a new {@link SearchBuilder} using the specified filtering {@link ConditionBuilder}s to not be used in
+     * scoring.
      *
      * @param filters the condition builders to be used as filter
      * @return a new {@link SearchBuilder}
@@ -52,36 +52,13 @@ public final class SearchBuilders {
     }
 
     /**
-     * Returns a new {@link SearchBuilder} using the specified {@link ConditionBuilder}s as mandatory query to be used
-     * in scoring.
+     * Returns a new {@link SearchBuilder} using the specified querying {@link ConditionBuilder}s o be used in scoring.
      *
      * @param queries the condition builders to be used as query
      * @return a new {@link SearchBuilder}
      */
-    public static SearchBuilder must(ConditionBuilder<?, ?>... queries) {
-        return search().must(queries);
-    }
-
-    /**
-     * Returns a new {@link SearchBuilder} using the specified {@link ConditionBuilder}s as optional query to be used in
-     * scoring.
-     *
-     * @param queries the condition builders to be used as query
-     * @return a new {@link SearchBuilder}
-     */
-    public static SearchBuilder should(ConditionBuilder<?, ?>... queries) {
-        return search().should(queries);
-    }
-
-    /**
-     * Returns a new {@link SearchBuilder} using the specified {@link ConditionBuilder}s as mandatory-not query to not
-     * be used in scoring.
-     *
-     * @param filters the condition builders to be used as filter
-     * @return a new {@link SearchBuilder}
-     */
-    public static SearchBuilder not(ConditionBuilder<?, ?>... filters) {
-        return search().not(filters);
+    public static SearchBuilder query(ConditionBuilder<?, ?>... queries) {
+        return search().query(queries);
     }
 
     /**

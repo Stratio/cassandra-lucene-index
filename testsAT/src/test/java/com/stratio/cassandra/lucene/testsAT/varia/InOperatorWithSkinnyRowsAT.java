@@ -68,7 +68,7 @@ public class InOperatorWithSkinnyRowsAT extends BaseAT {
 
     @Test
     public void queryWithInTest() {
-        utils.must(all()).fetchSize(4).and("AND pk IN (9, 5, 0)").checkIntColumn("rc", 5, 0, 9);
+        utils.query(all()).fetchSize(4).and("AND pk IN (9, 5, 0)").checkIntColumn("rc", 5, 0, 9);
     }
 
     @Test

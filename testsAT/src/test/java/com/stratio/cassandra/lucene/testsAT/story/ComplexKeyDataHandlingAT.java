@@ -198,7 +198,7 @@ public class ComplexKeyDataHandlingAT extends BaseAT {
 
     @Test
     public void testUpdate() {
-        utils.must(wildcard("text_1", "text"))
+        utils.filter(wildcard("text_1", "text"))
              .check(18)
              .update()
              .set("text_1", "other")
@@ -214,7 +214,7 @@ public class ComplexKeyDataHandlingAT extends BaseAT {
 
     @Test
     public void testInsertWithUpdate() {
-        utils.must(wildcard("text_1", "text"))
+        utils.filter(wildcard("text_1", "text"))
              .check(18)
              .update()
              .set("text_1", "new")
@@ -222,7 +222,7 @@ public class ComplexKeyDataHandlingAT extends BaseAT {
              .and("ascii_1", "ascii")
              .and("double_1", 1)
              .refresh()
-             .must(wildcard("text_1", "new"))
+             .filter(wildcard("text_1", "new"))
              .check(1);
     }
 }

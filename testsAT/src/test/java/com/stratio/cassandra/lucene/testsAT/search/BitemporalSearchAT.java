@@ -197,7 +197,7 @@ public class BitemporalSearchAT extends BaseAT {
 
     @Test
     public void testBitemporalSearchIntersectsTimeStampField() {
-        utils.must(bitemporal("bitemporal").vtFrom("2015/01/01 00:00:00.000")
+        utils.query(bitemporal("bitemporal").vtFrom("2015/01/01 00:00:00.000")
                                            .vtTo("2015/02/01 12:00:00.000")
                                            .ttFrom("2015/01/15 12:00:00.001")
                                            .ttTo("2015/02/15 12:00:00.000"))
@@ -206,7 +206,7 @@ public class BitemporalSearchAT extends BaseAT {
 
     @Test
     public void testBitemporalSearchIntersectsTimeStampField2() {
-        utils.must(bitemporal("bitemporal").vtFrom("2015/02/01 12:00:00.001")
+        utils.query(bitemporal("bitemporal").vtFrom("2015/02/01 12:00:00.001")
                                            .vtTo("2015/03/01 12:00:00.000")
                                            .ttFrom("2015/02/15 12:00:00.001")
                                            .ttTo("2015/03/15 12:00:00.000"))
@@ -215,7 +215,7 @@ public class BitemporalSearchAT extends BaseAT {
 
     @Test
     public void testBitemporalQueryIntersectsTimeStampField3() {
-        utils.must(bitemporal("bitemporal").vtFrom("2015/03/01 12:00:00.001")
+        utils.query(bitemporal("bitemporal").vtFrom("2015/03/01 12:00:00.001")
                                            .vtTo("2015/04/01 12:00:00.000")
                                            .ttFrom("2015/03/15 12:00:00.001")
                                            .ttTo("2015/04/15 12:00:00.000"))
@@ -224,7 +224,7 @@ public class BitemporalSearchAT extends BaseAT {
 
     @Test
     public void testBitemporalQueryIntersectsTimeStampField4() {
-        utils.must(bitemporal("bitemporal").vtFrom("2015/04/01 12:00:00.001")
+        utils.query(bitemporal("bitemporal").vtFrom("2015/04/01 12:00:00.001")
                                            .vtTo("2015/05/01 12:00:00.000")
                                            .ttFrom("2015/04/15 12:00:00.001")
                                            .ttTo("2015/05/15 12:00:00.000"))
@@ -233,7 +233,7 @@ public class BitemporalSearchAT extends BaseAT {
 
     @Test
     public void testBitemporalQueryIntersectsTimeStampField5() {
-        utils.must(bitemporal("bitemporal").vtFrom("2015/05/01 12:00:00.001")
+        utils.query(bitemporal("bitemporal").vtFrom("2015/05/01 12:00:00.001")
                                            .vtTo("2015/06/01 12:00:00.000")
                                            .ttFrom("2015/05/15 12:00:00.001")
                                            .ttTo("2015/06/15 12:00:00.000"))
@@ -242,7 +242,7 @@ public class BitemporalSearchAT extends BaseAT {
 
     @Test
     public void tesBitemporalQueryIntersectsTimeStampField6() {
-        utils.must(bitemporal("bitemporal").vtFrom("2014/12/31 12:00:00.000")
+        utils.query(bitemporal("bitemporal").vtFrom("2014/12/31 12:00:00.000")
                                            .vtTo("2015/03/02 00:00:00.000")
                                            .ttFrom("2015/01/14 00:00:00.000")
                                            .ttTo("2015/04/02 00:00:00.000"))
@@ -251,7 +251,7 @@ public class BitemporalSearchAT extends BaseAT {
 
     @Test
     public void testBitemporalQueryIntersectsTimeStampField7() {
-        utils.must(bitemporal("bitemporal").vtFrom("2014/12/01 12:00:00.000")
+        utils.query(bitemporal("bitemporal").vtFrom("2014/12/01 12:00:00.000")
                                            .vtTo("2014/12/31 00:00:00.000")
                                            .ttFrom("2015/01/14 00:00:00.000")
                                            .ttTo("2015/04/02 00:00:00.000"))
@@ -260,7 +260,7 @@ public class BitemporalSearchAT extends BaseAT {
 
     @Test
     public void testBitemporalSearchIntersectsTimeStampField8() {
-        utils.must(bitemporal("bitemporal").vtFrom("2015/01/01 00:00:00.000")
+        utils.query(bitemporal("bitemporal").vtFrom("2015/01/01 00:00:00.000")
                                            .vtTo("2015/02/01 12:00:00.001")
                                            .ttFrom("2015/01/15 12:00:00.001")
                                            .ttTo("2015/02/15 12:00:00.001"))
@@ -269,7 +269,7 @@ public class BitemporalSearchAT extends BaseAT {
 
     @Test
     public void testBitemporalSearchIntersectsTimeStampField9() {
-        utils.must(bitemporal("bitemporal").vtFrom("2015/02/01 12:00:00.000")
+        utils.query(bitemporal("bitemporal").vtFrom("2015/02/01 12:00:00.000")
                                            .vtTo("2015/03/01 12:00:00.000")
                                            .ttFrom("2015/02/15 12:00:00.000")
                                            .ttTo("2015/03/15 12:00:00.000"))
@@ -355,7 +355,7 @@ public class BitemporalSearchAT extends BaseAT {
                 .createIndex()
                 .insert(data1, data2, data3)
                 .refresh()
-                .must(bitemporal("bitemporal").vtFrom("2014/12/31 12:00:00.000")
+                .query(bitemporal("bitemporal").vtFrom("2014/12/31 12:00:00.000")
                                               .vtTo("2015/03/02 00:00:00.000")
                                               .ttFrom("2015/01/14 00:00:00.000")
                                               .ttTo("2015/04/02 00:00:00.000"))
@@ -387,7 +387,7 @@ public class BitemporalSearchAT extends BaseAT {
                 .createIndex()
                 .insert(data1, data2, data3)
                 .refresh()
-                .must(bitemporal("bitemporal").ttFrom(
+                .query(bitemporal("bitemporal").ttFrom(
                         "2015/01/14 00:00:00.000")
                                               .ttTo("2015/04/02 00:00:00.000"))
                 .checkUnorderedIntColumns("integer_1", 1, 2, 3)
@@ -418,7 +418,7 @@ public class BitemporalSearchAT extends BaseAT {
                 .createIndex()
                 .insert(data1, data2, data3)
                 .refresh()
-                .must(bitemporal("bitemporal").vtFrom("2014/12/31 12:00:00.000")
+                .query(bitemporal("bitemporal").vtFrom("2014/12/31 12:00:00.000")
                                               .vtTo("2015/03/02 00:00:00.000"))
                 .checkUnorderedIntColumns("integer_1", 1, 2, 3)
                 .dropIndex().dropTable().dropKeyspace();

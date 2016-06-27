@@ -468,25 +468,21 @@ public class BuilderTest {
 
     @Test
     public void testBooleanConditionFull() {
-        String actual = bool().filter(match("f1", 1), match("f2", 2))
-                              .must(match("f3", 3), match("f4", 4))
-                              .should(match("f5", 5), match("f6", 6))
-                              .not(match("f7", 7), match("f8", 7))
+        String actual = bool().must(match("f1", 1), match("f2", 2))
+                              .should(match("f3", 3), match("f4", 4))
+                              .not(match("f5", 5), match("f6", 6))
                               .boost(2)
                               .build();
         String expected = "{\"type\":\"boolean\",\"boost\":2.0," +
-                          "\"filter\":[" +
+                          "\"must\":[" +
                           "{\"type\":\"match\",\"field\":\"f1\",\"value\":1}," +
                           "{\"type\":\"match\",\"field\":\"f2\",\"value\":2}" +
-                          "],\"must\":[" +
+                          "],\"should\":[" +
                           "{\"type\":\"match\",\"field\":\"f3\",\"value\":3}," +
                           "{\"type\":\"match\",\"field\":\"f4\",\"value\":4}" +
-                          "],\"should\":[" +
+                          "],\"not\":[" +
                           "{\"type\":\"match\",\"field\":\"f5\",\"value\":5}," +
                           "{\"type\":\"match\",\"field\":\"f6\",\"value\":6}" +
-                          "],\"not\":[" +
-                          "{\"type\":\"match\",\"field\":\"f7\",\"value\":7}," +
-                          "{\"type\":\"match\",\"field\":\"f8\",\"value\":7}" +
                           "]}";
         assertEquals("boolean is wrong", expected, actual);
     }
@@ -758,40 +754,6 @@ public class BuilderTest {
     }
 
     @Test
-    public void testBoolDefaults() {
-        String actual = bool().build();
-        String expected = "{\"type\":\"boolean\"}";
-        assertEquals("query condition serialization is wrong", expected, actual);
-    }
-
-    @Test
-    public void testBoolFull() {
-        String actual = bool().filter(match("f", 1), match("f", 2)).filter(match("f", 3))
-                              .must(match("f", 4), match("f", 5)).must(match("f", 6))
-                              .should(match("f", 7), match("f", 8)).should(match("f", 9))
-                              .not(match("f", 10), match("f", 11)).not(match("f", 12))
-                              .build();
-        String expected = "{\"type\":\"boolean\"," +
-                          "\"filter\":[" +
-                          "{\"type\":\"match\",\"field\":\"f\",\"value\":1}," +
-                          "{\"type\":\"match\",\"field\":\"f\",\"value\":2}," +
-                          "{\"type\":\"match\",\"field\":\"f\",\"value\":3}]," +
-                          "\"must\":[" +
-                          "{\"type\":\"match\",\"field\":\"f\",\"value\":4}," +
-                          "{\"type\":\"match\",\"field\":\"f\",\"value\":5}," +
-                          "{\"type\":\"match\",\"field\":\"f\",\"value\":6}]," +
-                          "\"should\":[" +
-                          "{\"type\":\"match\",\"field\":\"f\",\"value\":7}," +
-                          "{\"type\":\"match\",\"field\":\"f\",\"value\":8}," +
-                          "{\"type\":\"match\",\"field\":\"f\",\"value\":9}]" +
-                          ",\"not\":[" +
-                          "{\"type\":\"match\",\"field\":\"f\",\"value\":10}," +
-                          "{\"type\":\"match\",\"field\":\"f\",\"value\":11}," +
-                          "{\"type\":\"match\",\"field\":\"f\",\"value\":12}]}";
-        assertEquals("query condition serialization is wrong", expected, actual);
-    }
-
-    @Test
     public void testSortDefaults() {
         String actual = search().sort().build();
         String expected = "{\"sort\":[]}";
@@ -820,49 +782,42 @@ public class BuilderTest {
 
     @Test
     public void testSearchFull() {
-        String actual = search().filter(match("f", 1))
-                                .must(match("f", 2))
-                                .should(match("f", 3))
-                                .not(match("f", 4))
-                                .sort(field("field1"))
+        String actual = search().filter(match("f1", 1),match("f2", 2)).filter(match("f3", 3))
+                                .query(match("f3", 3),match("f4", 4)).query(match("f5", 5))
+                                .sort(field("f1"), field("f2")).sort(field("f3"))
                                 .refresh(true)
                                 .build();
-        String expected = "{\"filter\":[{\"type\":\"match\",\"field\":\"f\",\"value\":1}]," +
-                          "\"must\":[{\"type\":\"match\",\"field\":\"f\",\"value\":2}]," +
-                          "\"should\":[{\"type\":\"match\",\"field\":\"f\",\"value\":3}]," +
-                          "\"not\":[{\"type\":\"match\",\"field\":\"f\",\"value\":4}]," +
-                          "\"sort\":[{\"type\":\"simple\",\"field\":\"field1\"}]," +
-                          "\"refresh\":true}";
+        String expected = "{\"filter\":[" +
+                          "{\"type\":\"match\",\"field\":\"f1\",\"value\":1}," +
+                          "{\"type\":\"match\",\"field\":\"f2\",\"value\":2}," +
+                          "{\"type\":\"match\",\"field\":\"f3\",\"value\":3}" +
+                          "],\"query\":[" +
+                          "{\"type\":\"match\",\"field\":\"f3\",\"value\":3}," +
+                          "{\"type\":\"match\",\"field\":\"f4\",\"value\":4}," +
+                          "{\"type\":\"match\",\"field\":\"f5\",\"value\":5}" +
+                          "],\"sort\":[" +
+                          "{\"type\":\"simple\",\"field\":\"f1\"}," +
+                          "{\"type\":\"simple\",\"field\":\"f2\"}," +
+                          "{\"type\":\"simple\",\"field\":\"f3\"}" +
+                          "],\"refresh\":true}";
         assertEquals("search serialization is wrong", expected, actual);
     }
 
     @Test
     public void testSearchNestedBool() {
-        String actual = search().filter(must(match("f", 1)).should(match("f", 2)))
-                                .must(not(match("f", 3)).filter(match("f", 4)))
-                                .should(must(match("f", 5)).should(match("f", 6)))
-                                .not(not(match("f", 7)).filter(match("f", 8)))
+        String actual = search().filter(must(match("f1", 1)).should(match("f2", 2)).not(match("f3", 3)))
+                                .query(must(match("f4", 4)).should(match("f5", 5)).not(match("f6", 6)))
                                 .build();
-        String expected = "{\"filter\":[{\"type\":\"boolean\"," +
-                          "\"must\":[{\"type\":\"match\",\"field\":\"f\",\"value\":1}]," +
-                          "\"should\":[{\"type\":\"match\",\"field\":\"f\",\"value\":2}]}]," +
-                          "\"must\":[{\"type\":\"boolean\"," +
-                          "\"filter\":[{\"type\":\"match\",\"field\":\"f\",\"value\":4}]," +
-                          "\"not\":[{\"type\":\"match\",\"field\":\"f\",\"value\":3}]}]," +
-                          "\"should\":[{\"type\":\"boolean\"," +
-                          "\"must\":[{\"type\":\"match\",\"field\":\"f\",\"value\":5}]," +
-                          "\"should\":[{\"type\":\"match\",\"field\":\"f\",\"value\":6}]}]," +
-                          "\"not\":[{\"type\":\"boolean\"," +
-                          "\"filter\":[{\"type\":\"match\",\"field\":\"f\",\"value\":8}]," +
-                          "\"not\":[{\"type\":\"match\",\"field\":\"f\",\"value\":7}]}]}";
+        String expected = "{\"filter\":[" +
+                          "{\"type\":\"boolean\"," +
+                          "\"must\":[{\"type\":\"match\",\"field\":\"f1\",\"value\":1}]," +
+                          "\"should\":[{\"type\":\"match\",\"field\":\"f2\",\"value\":2}]," +
+                          "\"not\":[{\"type\":\"match\",\"field\":\"f3\",\"value\":3}]}]," +
+                          "\"query\":[{\"type\":\"boolean\"," +
+                          "\"must\":[{\"type\":\"match\",\"field\":\"f4\",\"value\":4}]," +
+                          "\"should\":[{\"type\":\"match\",\"field\":\"f5\",\"value\":5}]," +
+                          "\"not\":[{\"type\":\"match\",\"field\":\"f6\",\"value\":6}]}]}";
         assertEquals("search serialization is wrong", expected, actual);
-    }
-
-    @Test
-    public void testSearchQuery() {
-        String actual = search().query(all()).build();
-        String expected = "{\"must\":[{\"type\":\"all\"}]}";
-        assertEquals("query condition serialization is wrong", expected, actual);
     }
 
     @Test
@@ -905,12 +860,12 @@ public class BuilderTest {
     @Test
     public void testSearchExample() {
         String actual = search().filter(match("user", "adelapena"))
-                                .must(phrase("message", "cassandra rules"))
+                                .query(phrase("message", "cassandra rules"))
                                 .sort(field("date").reverse(true))
                                 .refresh(true)
                                 .build();
         String expected = "{\"filter\":[{\"type\":\"match\",\"field\":\"user\",\"value\":\"adelapena\"}]," +
-                          "\"must\":[{\"type\":\"phrase\",\"field\":\"message\",\"value\":\"cassandra rules\"}]," +
+                          "\"query\":[{\"type\":\"phrase\",\"field\":\"message\",\"value\":\"cassandra rules\"}]," +
                           "\"sort\":[{\"type\":\"simple\",\"field\":\"date\",\"reverse\":true}],\"refresh\":true}";
         assertEquals("search serialization is wrong", expected, actual);
     }

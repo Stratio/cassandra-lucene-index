@@ -39,16 +39,13 @@ public class BooleanCondition extends Condition {
 
     protected static final Logger logger = LoggerFactory.getLogger(BooleanCondition.class);
 
-    /** The mandatory conditions not participating in scoring. */
-    public final List<Condition> filter;
-
-    /** The mandatory conditions participating in scoring. */
+    /** The mandatory conditions. */
     public final List<Condition> must;
 
-    /** The optional conditions participating in scoring. */
+    /** The optional conditions. */
     public final List<Condition> should;
 
-    /** The mandatory not conditions not participating in scoring. */
+    /** The mandatory not conditions. */
     public final List<Condition> not;
 
     /**
@@ -56,18 +53,15 @@ public class BooleanCondition extends Condition {
      *
      * @param boost The boost for this query clause. Documents matching this clause will (in addition to the normal
      * weightings) have their score multiplied by {@code boost}.
-     * @param filter the mandatory conditions not participating in scoring
-     * @param must the mandatory conditions participating in scoring
-     * @param should the optional conditions participating in scoring
-     * @param not the mandatory not conditions not participating in scoring
+     * @param must the mandatory conditions
+     * @param should the optional conditions
+     * @param not the mandatory not conditions
      */
     public BooleanCondition(Float boost,
-                            List<Condition> filter,
                             List<Condition> must,
                             List<Condition> should,
                             List<Condition> not) {
         super(boost);
-        this.filter = filter == null ? Collections.EMPTY_LIST : filter;
         this.must = must == null ? Collections.EMPTY_LIST : must;
         this.should = should == null ? Collections.EMPTY_LIST : should;
         this.not = not == null ? Collections.EMPTY_LIST : not;
@@ -77,11 +71,10 @@ public class BooleanCondition extends Condition {
     @Override
     public BooleanQuery doQuery(Schema schema) {
         BooleanQuery.Builder builder = new BooleanQuery.Builder();
-        filter.forEach(condition -> builder.add(condition.query(schema), FILTER));
         must.forEach(condition -> builder.add(condition.query(schema), MUST));
         should.forEach(condition -> builder.add(condition.query(schema), SHOULD));
         not.forEach(condition -> builder.add(condition.query(schema), MUST_NOT));
-        if (filter.isEmpty() && must.isEmpty() && should.isEmpty() && !not.isEmpty()) {
+        if (must.isEmpty() && should.isEmpty() && !not.isEmpty()) {
             logger.warn("Performing resource-intensive pure negation query {}", this);
             builder.add(new MatchAllDocsQuery(), FILTER);
         }
@@ -99,6 +92,6 @@ public class BooleanCondition extends Condition {
     /** {@inheritDoc} */
     @Override
     public MoreObjects.ToStringHelper toStringHelper() {
-        return toStringHelper(this).add("filter", filter).add("must", must).add("should", should).add("not", not);
+        return toStringHelper(this).add("must", must).add("should", should).add("not", not);
     }
 }

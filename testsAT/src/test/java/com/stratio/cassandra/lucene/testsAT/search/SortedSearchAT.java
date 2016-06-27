@@ -96,16 +96,8 @@ public class SortedSearchAT extends AbstractSearchAT {
     }
 
     @Test
-    public void testSortWithMust() {
-        Integer[] returnedValues = must(all()).sort(field("integer_1").reverse(false)).intColumn("integer_1");
-        assertEquals("Expected 5 results!", 5, returnedValues.length);
-        Integer[] expectedValues = new Integer[]{-5, -4, -3, -2, -1};
-        assertArrayEquals("Wrong sort!", expectedValues, returnedValues);
-    }
-
-    @Test
-    public void testSortWithNot() {
-        Integer[] returnedValues = not(none()).sort(field("integer_1").reverse(false)).intColumn("integer_1");
+    public void testSortWithQuery() {
+        Integer[] returnedValues = query(all()).sort(field("integer_1").reverse(false)).intColumn("integer_1");
         assertEquals("Expected 5 results!", 5, returnedValues.length);
         Integer[] expectedValues = new Integer[]{-5, -4, -3, -2, -1};
         assertArrayEquals("Wrong sort!", expectedValues, returnedValues);
@@ -114,9 +106,7 @@ public class SortedSearchAT extends AbstractSearchAT {
     @Test
     public void testSortWithFilterMustShouldAndNot() {
         Integer[] returnedValues = search().filter(all())
-                                           .must(all())
-                                           .should(all())
-                                           .not(none())
+                                           .query(all())
                                            .sort(field("integer_1").reverse(false))
                                            .intColumn("integer_1");
         assertEquals("Expected 5 results!", 5, returnedValues.length);
@@ -138,8 +128,8 @@ public class SortedSearchAT extends AbstractSearchAT {
     }
 
     @Test
-    public void testSortWithGeoDistanceMustNotReversed() {
-        Integer[] returnedValues = search().must(geoDistance("geo_point", -3.784519, 40.442163, "10000km"))
+    public void testSortWithGeoDistanceQueryNotReversed() {
+        Integer[] returnedValues = search().query(geoDistance("geo_point", -3.784519, 40.442163, "10000km"))
                                            .sort(geoDistanceField("geo_point", -3.784519, 40.442163).reverse(false))
                                            .intColumn("integer_1");
 
@@ -161,9 +151,9 @@ public class SortedSearchAT extends AbstractSearchAT {
     }
 
     @Test
-    public void testSortWithGeoDistanceMustReversed() {
+    public void testSortWithGeoDistanceQueryReversed() {
 
-        Integer[] returnedValues = search().must(geoDistance("geo_point", -3.784519, 40.442163, "10000km"))
+        Integer[] returnedValues = search().query(geoDistance("geo_point", -3.784519, 40.442163, "10000km"))
                                            .sort(geoDistanceField("geo_point", -3.784519, 40.442163).reverse(true))
                                            .intColumn("integer_1");
 
@@ -188,7 +178,7 @@ public class SortedSearchAT extends AbstractSearchAT {
                       .insert(new String[]{"id", "field"}, new Object[]{4, "word cat dog"})
                       .insert(new String[]{"id", "field"}, new Object[]{5, "dog"})
                       .refresh()
-                      .must(match("field", "word"))
+                      .query(match("field", "word"))
                       .checkOrderedIntColumns("id", 1, 2, 3, 4)
                       .filter(match("field", "word"))
                       .checkOrderedIntColumns("id", 1, 2, 4, 3)

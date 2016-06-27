@@ -208,7 +208,7 @@ within the aforementioned date range:
 
     SELECT * FROM tweets WHERE expr(tweets_index, '{
         filter : {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
-        must : {type: "phrase", field: "body", value: "big data gives organizations", slop: 1}
+        query : {type: "phrase", field: "body", value: "big data gives organizations", slop: 1}
     }') LIMIT 100;
 
 To refine the search to get only the tweets written by users whose names start with "a":
@@ -218,7 +218,7 @@ To refine the search to get only the tweets written by users whose names start w
     SELECT * FROM tweets WHERE expr(tweets_index, '{
         filter : [ {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
                    {type: "prefix", field: "user", value: "a"} ],
-        must : {type: "phrase", field: "body", value: "big data gives organizations", slop: 1}
+        query : {type: "phrase", field: "body", value: "big data gives organizations", slop: 1}
     }') LIMIT 100;
 
 To get the 100 more recent filtered results you can use the *sort* option:
@@ -228,7 +228,7 @@ To get the 100 more recent filtered results you can use the *sort* option:
     SELECT * FROM tweets WHERE expr(tweets_index, '{
         filter : [ {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
                    {type: "prefix", field: "user", value: "a"} ],
-        must : {type: "phrase", field: "body", value: "big data gives organizations", slop: 1},
+        query : {type: "phrase", field: "body", value: "big data gives organizations", slop: 1},
         sort : {field: "time", reverse: true}
     }') limit 100;
 
@@ -240,7 +240,7 @@ The previous search can be restricted to tweets created close to a geographical 
         filter : [ {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
                    {type: "prefix", field: "user", value: "a"},
                    {type: "geo_distance", field: "place", latitude: 40.3930, longitude: -3.7328, max_distance: "10km"} ],
-        must : {type: "phrase", field: "body", value: "big data gives organizations", slop: 1},
+        query : {type: "phrase", field: "body", value: "big data gives organizations", slop: 1},
         sort : {field: "time", reverse: true}
     }') limit 100;
 
@@ -252,7 +252,7 @@ It is also possible to sort the results by distance to a geographical position:
         filter : [ {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
                    {type: "prefix", field: "user", value: "a"},
                    {type: "geo_distance", field: "place", latitude: 40.3930, longitude: -3.7328, max_distance: "10km"} ],
-        must : {type: "phrase", field: "body", value: "big data gives organizations", slop: 1},
+        query : {type: "phrase", field: "body", value: "big data gives organizations", slop: 1},
         sort : [ {field: "time", reverse: true},
                  {field: "place", type: "geo_distance", latitude: 40.3930, longitude: -3.7328}]
     }') limit 100;
@@ -266,7 +266,7 @@ subset of the cluster nodes will be hit, saving precious resources:
         filter : [ {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
                    {type: "prefix", field: "user", value: "a"},
                    {type: "geo_distance", field: "place", latitude: 40.3930, longitude: -3.7328, max_distance: "10km"} ],
-        must : {type: "phrase", field: "body", value: "big data gives organizations", slop: 1},
+        query : {type: "phrase", field: "body", value: "big data gives organizations", slop: 1},
         sort : [ {field: "time", reverse: true},
                  {field: "place", type: "geo_distance", latitude: 40.3930, longitude: -3.7328}]
     }') AND TOKEN(id) >= TOKEN(0) AND TOKEN(id) < TOKEN(10000000) limit 100;
