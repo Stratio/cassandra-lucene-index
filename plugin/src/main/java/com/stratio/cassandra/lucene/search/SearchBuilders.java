@@ -41,23 +41,24 @@ public final class SearchBuilders {
     }
 
     /**
-     * Returns a new {@link SearchBuilder} using the specified {@link ConditionBuilder} as query.
+     * Returns a new {@link SearchBuilder} using the specified filtering {@link ConditionBuilder}s to not be used in
+     * scoring.
      *
-     * @param query the condition builder to be used as query
-     * @return a new {@link SearchBuilder} with the specified query
+     * @param filters the condition builders to be used as filter
+     * @return a new {@link SearchBuilder}
      */
-    public static SearchBuilder query(ConditionBuilder<?, ?> query) {
-        return search().query(query);
+    public static SearchBuilder filter(ConditionBuilder<?, ?>... filters) {
+        return search().filter(filters);
     }
 
     /**
-     * Returns a new {@link SearchBuilder} using the specified {@link ConditionBuilder} as filter.
+     * Returns a new {@link SearchBuilder} using the specified querying {@link ConditionBuilder}s o be used in scoring.
      *
-     * @param filter the condition builder to be used as filter
-     * @return a new {@link SearchBuilder} with the specified filter
+     * @param queries the condition builders to be used as query
+     * @return a new {@link SearchBuilder}
      */
-    public static SearchBuilder filter(ConditionBuilder<?, ?> filter) {
-        return search().filter(filter);
+    public static SearchBuilder query(ConditionBuilder<?, ?>... queries) {
+        return search().query(queries);
     }
 
     /**
@@ -68,6 +69,16 @@ public final class SearchBuilders {
      */
     public static SearchBuilder sort(SortFieldBuilder... sortFields) {
         return search().sort(sortFields);
+    }
+
+    /**
+     * Returns a new {@link SearchBuilder} using the specified index refresh option.
+     *
+     * @param refresh if the search to be built should refresh the index
+     * @return a new {@link SearchBuilder} with the specified sort
+     */
+    public static SearchBuilder refresh(boolean refresh) {
+        return search().refresh(refresh);
     }
 
     /**
@@ -270,7 +281,7 @@ public final class SearchBuilders {
      * @return a new geo distance sort field builder
      */
     public static GeoDistanceSortFieldBuilder geoDistance(String mapper, double longitude, double latitude) {
-        return new GeoDistanceSortFieldBuilder(mapper, longitude, latitude);
+        return new GeoDistanceSortFieldBuilder(mapper, latitude, longitude);
     }
 
     /**

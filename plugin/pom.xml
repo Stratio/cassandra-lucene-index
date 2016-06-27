@@ -143,12 +143,16 @@
                             <contactEmail>cassandra@stratio.com</contactEmail>
                             <deb>
                                 <section>devel</section>
-                                <preDepends>stratio-cassandra (= ${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}), python2.7
+                                <preDepends>stratio-cassandra (=
+                                    ${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}),
+                                    python2.7
                                 </preDepends>
                             </deb>
                             <rpm>
                                 <group>stratio</group>
-                                <requires>stratio-cassandra = ${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}, python
+                                <requires>stratio-cassandra =
+                                    ${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion},
+                                    python
                                 </requires>
                             </rpm>
                             <name>Stratio Cassandra Lucene index</name>

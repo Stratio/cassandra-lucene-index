@@ -68,11 +68,7 @@ public class GeoPointMapper extends Mapper {
      * @param longitude the name of the column containing the longitude
      * @param maxLevels the maximum number of levels in the tree
      */
-    public GeoPointMapper(String field,
-                          Boolean validated,
-                          String latitude,
-                          String longitude,
-                          Integer maxLevels) {
+    public GeoPointMapper(String field, Boolean validated, String latitude, String longitude, Integer maxLevels) {
         super(field,
               false,
               validated,
@@ -143,7 +139,7 @@ public class GeoPointMapper extends Mapper {
      * @param columns the columns containing the latitude
      * @return the validated latitude
      */
-    public Double readLatitude(Columns columns) {
+    Double readLatitude(Columns columns) {
         Column<?> column = columns.getByFullName(latitude).getFirst();
         return column == null ? null : readLatitude(column.getComposedValue());
     }
@@ -155,7 +151,7 @@ public class GeoPointMapper extends Mapper {
      * @param columns the columns containing the longitude
      * @return the validated longitude
      */
-    public Double readLongitude(Columns columns) {
+    Double readLongitude(Columns columns) {
         Column<?> column = columns.getByFullName(longitude).getFirst();
         return column == null ? null : readLongitude(column.getComposedValue());
     }

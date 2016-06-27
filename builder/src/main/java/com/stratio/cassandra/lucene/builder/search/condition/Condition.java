@@ -15,7 +15,7 @@
  */
 package com.stratio.cassandra.lucene.builder.search.condition;
 
-import com.stratio.cassandra.lucene.builder.Builder;
+import com.stratio.cassandra.lucene.builder.JSONBuilder;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.annotate.JsonSubTypes;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
@@ -48,7 +48,7 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
                @JsonSubTypes.Type(value = RangeCondition.class, name = "range"),
                @JsonSubTypes.Type(value = RegexpCondition.class, name = "regexp"),
                @JsonSubTypes.Type(value = WildcardCondition.class, name = "wildcard")})
-public abstract class Condition<T extends Condition> extends Builder {
+public abstract class Condition<T extends Condition> extends JSONBuilder {
 
     /** The boost for the {@code Condition} to be built. */
     @JsonProperty("boost")

@@ -31,473 +31,121 @@ import static com.stratio.cassandra.lucene.builder.Builder.match;
 public class MatchSearchAT extends AbstractSearchAT {
 
     @Test
-    public void matchQueryAsciiFieldTest1() {
-        query(match("ascii_1", "frase tipo ascii")).check(1);
-    }
-
-    @Test
-    public void matchQueryAsciiFieldTest2() {
-        query(match("ascii_1", "frase")).check(0);
-    }
-
-    @Test
-    public void matchQueryAsciiFieldTest3() {
-        query(match("ascii_1", "frase tipo asciii")).check(0);
-    }
-
-    @Test
-    public void matchQueryAsciiFieldTest4() {
-        query(match("ascii_1", "")).check(0);
-    }
-
-    @Test
-    public void matchQueryAsciiFieldTest5() {
-        query(match("ascii_1", "frase tipo asci")).check(0);
-    }
-
-    @Test
-    public void matchQueryBigintTest2() {
-        query(match("bigint_1", "1000000000000000")).check(1);
-    }
-
-    @Test
-    public void matchQueryBigintTest3() {
-        query(match("bigint_1", "3000000000000000")).check(3);
-    }
-
-    @Test
-    public void matchQueryBigintTest4() {
-        query(match("bigint_1", "10000000000000000")).check(0);
-    }
-
-    @Test
-    public void matchQueryBigintTest5() {
-        query(match("bigint_1", "100000000000000")).check(0);
-    }
-
-    @Test
-    public void matchQueryBlobTest1() {
-        query(match("blob_1", "")).check(0);
-    }
-
-    @Test
-    public void matchQueryBlobTest2() {
-        query(match("blob_1", "3E0A16")).check(4);
-    }
-
-    @Test
-    public void matchQueryBlobTest3() {
-        String msg = "Field 'blob_1' requires an hex string, but found '3E0A161'";
-        query(match("blob_1", "3E0A161")).check(InvalidQueryException.class, msg);
-    }
-
-    @Test
-    public void matchQueryBlobTest4() {
-        String msg = "Field 'blob_1' requires an hex string, but found '3E0A1'";
-        query(match("blob_1", "3E0A1")).check(InvalidQueryException.class, msg);
-    }
-
-    @Test
-    public void matchQueryBlobTest5() {
-        query(match("blob_1", "3E0A15")).check(1);
-    }
-
-    @Test
-    public void matchQueryBooleanTest1() {
-        String msg = "Boolean field 'boolean_1' requires either 'true' or 'false', but found ''";
-        query(match("boolean_1", "")).check(InvalidQueryException.class, msg);
-    }
-
-    @Test
-    public void matchQueryBooleanTest3() {
-        query(match("boolean_1", "true")).check(4);
-    }
-
-    @Test
-    public void matchQueryBooleanTest4() {
-        query(match("boolean_1", "false")).check(1);
-    }
-
-    @Test
-    public void matchQueryBooleanTest5() {
-        String msg = "Boolean field 'boolean_1' requires either 'true' or 'false', but found 'else'";
-        query(match("boolean_1", "else")).check(InvalidQueryException.class, msg);
-    }
-
-    @Test
-    public void matchQueryDecimalTest2() {
-        query(match("decimal_1", "3000000000.0")).check(3);
-    }
-
-    @Test
-    public void matchQueryDecimalTest3() {
-        query(match("decimal_1", "300000000.0")).check(0);
-    }
-
-    @Test
-    public void matchQueryDecimalTest4() {
-        query(match("decimal_1", "3000000000.0")).check(3);
-    }
-
-    @Test
-    public void matchQueryDecimalTest5() {
-        query(match("decimal_1", "1000000000.0")).check(1);
-    }
-
-    @Test
-    public void matchQueryDateTest1() {
-        query(match("date_1", new SimpleDateFormat("yyyy/MM/dd HH:mm:ss.SSS").format(new Date()))).check(0);
-    }
-
-    @Test
-    public void matchQueryDateTest2() {
-
-        DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss.SSS");
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.DATE, -1);
-        Date date = calendar.getTime();
-
-        query(match("date_1", df.format(date))).check(0);
-    }
-
-    @Test
-    public void matchQueryDateTest3() {
-        query(match("date_1", "1970/01/01 00:00:00.000")).check(0);
-    }
-
-    @Test
-    public void matchQueryDateTest4() {
-
-        DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss.SSS");
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.DATE, -1);
-        Date date = calendar.getTime();
-
-        query(match("date_1", df.format(date))).check(0);
-    }
-
-    @Test
-    public void matchQueryDoubleTest1() {
-        query(match("double_1", "0")).check(0);
-    }
-
-    @Test
-    public void matchQueryDoubleTest2() {
-        query(match("double_1", "2.0")).check(1);
-    }
-
-    @Test
-    public void matchQueryDoubleTest3() {
-        query(match("double_1", "2")).check(1);
-    }
-
-    @Test
-    public void matchQueryDoubleTest4() {
-        query(match("double_1", "2.00")).check(1);
-    }
-
-    @Test
-    public void matchQueryFloatTest1() {
-        query(match("float_1", "0")).check(0);
-    }
-
-    @Test
-    public void matchQueryFloatTest2() {
-        query(match("float_1", "2.0")).check(1);
-    }
-
-    @Test
-    public void matchQueryFloatTest3() {
-        query(match("float_1", "2")).check(1);
-    }
-
-    @Test
-    public void matchQueryFloatTest4() {
-        query(match("float_1", "2.00")).check(1);
-    }
-
-    @Test
-    public void matchQueryIntegerTest1() {
-        query(match("integer_1", "-2")).check(1);
-    }
-
-    @Test
-    public void matchQueryIntegerTest2() {
-        query(match("integer_1", "2")).check(0);
-    }
-
-    @Test
-    public void matchQueryIntegerTest3() {
-        query(match("integer_1", "0")).check(0);
-    }
-
-    @Test
-    public void matchQueryIntegerTest4() {
-        query(match("integer_1", "-1")).check(1);
-    }
-
-    @Test
-    public void matchQueryUuidTest1() {
-        query(match("uuid_1", "0"));
-    }
-
-    @Test
-    public void matchQueryUuidTest2() {
-
-        query(match("uuid_1", "60297440-b4fa-11e3-8b5a-0002a5d5c51b")).check(1);
-    }
-
-    @Test
-    public void matchQueryUuidTest3() {
-        String msg = "Field 'uuid_1' with value '60297440-b4fa-11e3-0002a5d5c51b' can not be parsed as UUID";
-        query(match("uuid_1", "60297440-b4fa-11e3-0002a5d5c51b")).check(InvalidQueryException.class, msg);
-    }
-
-    @Test
-    public void matchQueryTimeuuidTest1() {
-        String msg = "Field 'timeuuid_1' with value '0' can not be parsed as UUID";
-        query(match("timeuuid_1", "0")).check(InvalidQueryException.class, msg);
-    }
-
-    @Test
-    public void matchQueryTimeuuidTest2() {
-        query(match("timeuuid_1", "a4a70900-24e1-11df-8924-001ff3591711")).check(1);
-    }
-
-    @Test
-    public void matchQueryTimeuuidTest3() {
-        String msg = "Field 'timeuuid_1' with value 'a4a70900-24e1-11df-001ff3591711' can not be parsed as UUID";
-        query(match("timeuuid_1", "a4a70900-24e1-11df-001ff3591711")).check(InvalidQueryException.class, msg);
-    }
-
-    @Test
-    public void matchQueryInetFieldTest1() {
-        query(match("inet_1", "127.1.1.1")).check(2);
-    }
-
-    @Test
-    public void matchQueryInetFieldTest2() {
-        query(match("inet_1", "127.0.1.1")).check(1);
-    }
-
-    @Test
-    public void matchQueryInetFieldTest3() {
-        String msg = "Field 'inet_1' with value '127.1.1.' can not be parsed as an inet address";
-        query(match("inet_1", "127.1.1.")).check(InvalidQueryException.class, msg);
-    }
-
-    @Test
-    public void matchQueryInetFieldTest4() {
-        String msg = "Field 'inet_1' with value '' can not be parsed as an inet address";
-        query(match("inet_1", "")).check(InvalidQueryException.class, msg);
-    }
-
-    @Test
-    public void matchQueryTextFieldTest1() {
-        query(match("text_1", "Frase")).check(1);
-    }
-
-    @Test
-    public void matchQueryTextFieldTest2() {
-        query(match("text_1", "Frase*")).check(1);
-    }
-
-    @Test
-    public void matchQueryTextFieldTest3() {
-        query(match("text_1", "Frasesinespaciosconarticulosylaspalabrassuficientesperomaslarga")).check(1);
-    }
-
-    @Test
-    public void matchQueryTextFieldTest4() {
-        query(match("text_1", "")).check(0);
-    }
-
-    @Test
-    public void matchQueryVarcharFieldTest1() {
-        query(match("varchar_1", "frasesencillasinespaciosperomaslarga")).check(2);
-    }
-
-    @Test
-    public void matchQueryVarcharFieldTest2() {
-        query(match("varchar_1", "frase*")).check(0);
-    }
-
-    @Test
-    public void matchQueryVarcharFieldTest3() {
-        query(match("varchar_1", "frasesencillasinespacios")).check(1);
-    }
-
-    @Test
-    public void matchQueryVarcharFieldTest4() {
-        query(match("varchar_1", "")).check(0);
-    }
-
-    @Test
-    public void matchQueryListFieldTest1() {
-        query(match("list_1", "")).check(0);
-    }
-
-    @Test
-    public void matchQueryListFieldTest2() {
-        query(match("list_1", "l1")).check(2);
-    }
-
-    @Test
-    public void matchQueryListFieldTest3() {
-        query(match("list_1", "s1")).check(0);
-    }
-
-    @Test
-    public void matchQuerySetFieldTest1() {
-        query(match("set_1", "")).check(0);
-    }
-
-    @Test
-    public void matchQuerySetFieldTest2() {
-        query(match("set_1", "l1")).check(0);
-    }
-
-    @Test
-    public void matchQuerySetFieldTest3() {
-        query(match("set_1", "s1")).check(2);
-    }
-
-    @Test
-    public void matchQueryMapFieldTest1() {
-        query(match("map_1$k1", "")).check(0);
-    }
-
-    @Test
-    public void matchQueryMapFieldTest2() {
-        query(match("map_1$k1", "l1")).check(0);
-    }
-
-    @Test
-    public void matchQueryMapFieldTest3() {
-        query(match("map_1$k1", "k1")).check(0);
-    }
-
-    @Test
-    public void matchQueryMapFieldTest4() {
-        query(match("map_1$k1", "v1")).check(2);
-    }
-
-    @Test
-    public void matchFilterAsciiFieldTest1() {
+    public void testMatchAsciiField1() {
         filter(match("ascii_1", "frase tipo ascii")).check(1);
     }
 
     @Test
-    public void matchFilterAsciiFieldTest2() {
+    public void testMatchAsciiField2() {
         filter(match("ascii_1", "frase")).check(0);
     }
 
     @Test
-    public void matchFilterAsciiFieldTest3() {
+    public void testMatchAsciiField3() {
         filter(match("ascii_1", "frase tipo asciii")).check(0);
     }
 
     @Test
-    public void matchFilterAsciiFieldTest4() {
+    public void testMatchAsciiField4() {
         filter(match("ascii_1", "")).check(0);
     }
 
     @Test
-    public void matchFilterAsciiFieldTest5() {
+    public void testMatchAsciiField5() {
         filter(match("ascii_1", "frase tipo asci")).check(0);
     }
 
     @Test
-    public void matchFilterBigintTest2() {
+    public void testMatchBigintField2() {
         filter(match("bigint_1", "1000000000000000")).check(1);
     }
 
     @Test
-    public void matchFilterBigintTest3() {
+    public void testMatchBigintField3() {
         filter(match("bigint_1", "3000000000000000")).check(3);
     }
 
     @Test
-    public void matchFilterBigintTest4() {
+    public void testMatchBigintField4() {
         filter(match("bigint_1", "10000000000000000")).check(0);
     }
 
     @Test
-    public void matchFilterBigintTest5() {
+    public void testMatchBigintField5() {
         filter(match("bigint_1", "100000000000000")).check(0);
     }
 
     @Test
-    public void matchFilterBlobTest1() {
+    public void testMatchBlobField1() {
         filter(match("blob_1", "")).check(0);
     }
 
     @Test
-    public void matchFilterBlobTest2() {
+    public void testMatchBlobField2() {
         filter(match("blob_1", "3E0A16")).check(4);
     }
 
     @Test
-    public void matchFilterBlobTest3() {
+    public void testMatchBlobField3() {
         String msg = "Field 'blob_1' requires an hex string, but found '3E0A161'";
         filter(match("blob_1", "3E0A161")).check(InvalidQueryException.class, msg);
     }
 
     @Test
-    public void matchFilterBlobTest4() {
+    public void testMatchBlobField4() {
         String msg = "Field 'blob_1' requires an hex string, but found '3E0A1'";
         filter(match("blob_1", "3E0A1")).check(InvalidQueryException.class, msg);
     }
 
     @Test
-    public void matchFilterBlobTest5() {
+    public void testMatchBlobField5() {
         filter(match("blob_1", "3E0A15")).check(1);
     }
 
     @Test
-    public void matchFilterBooleanTest1() {
+    public void testMatchBooleanField1() {
         String msg = "Boolean field 'boolean_1' requires either 'true' or 'false', but found ''";
         filter(match("boolean_1", "")).check(InvalidQueryException.class, msg);
     }
 
     @Test
-    public void matchFilterBooleanTest3() {
+    public void testMatchBooleanField3() {
         filter(match("boolean_1", "true")).check(4);
     }
 
     @Test
-    public void matchFilterBooleanTest4() {
+    public void testMatchBooleanField4() {
         filter(match("boolean_1", "false")).check(1);
     }
 
     @Test
-    public void matchFilterBooleanTest5() {
+    public void testMatchBooleanField5() {
         String msg = "Boolean field 'boolean_1' requires either 'true' or 'false', but found 'else'";
         filter(match("boolean_1", "else")).check(InvalidQueryException.class, msg);
     }
 
     @Test
-    public void matchFilterDecimalTest2() {
+    public void testMatchDecimalField2() {
         filter(match("decimal_1", "3000000000.0")).check(3);
     }
 
     @Test
-    public void matchFilterDecimalTest3() {
+    public void testMatchDecimalField3() {
         filter(match("decimal_1", "300000000.0")).check(0);
     }
 
     @Test
-    public void matchFilterDecimalTest4() {
+    public void testMatchDecimalField4() {
         filter(match("decimal_1", "3000000000.0")).check(3);
     }
 
     @Test
-    public void matchFilterDecimalTest5() {
+    public void testMatchDecimalField5() {
         filter(match("decimal_1", "1000000000.0")).check(1);
     }
 
     @Test
-    public void matchFilterDateTest1() {
+    public void testMatchDateField1() {
 
         DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss.SSS");
         Date date = new Date();
@@ -506,7 +154,7 @@ public class MatchSearchAT extends AbstractSearchAT {
     }
 
     @Test
-    public void matchFilterDateTest2() {
+    public void testMatchDateField2() {
 
         DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss.SSS");
         Calendar calendar = Calendar.getInstance();
@@ -517,12 +165,12 @@ public class MatchSearchAT extends AbstractSearchAT {
     }
 
     @Test
-    public void matchFilterDateTest3() {
+    public void testMatchDateField3() {
         filter(match("date_1", "1970/01/01 00:00:00.000")).check(0);
     }
 
     @Test
-    public void matchFilterDateTest4() {
+    public void testMatchDateField4() {
 
         DateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss.SSS");
         Calendar calendar = Calendar.getInstance();
@@ -533,208 +181,208 @@ public class MatchSearchAT extends AbstractSearchAT {
     }
 
     @Test
-    public void matchFilterDoubleTest1() {
+    public void matchDoubleTest1() {
         filter(match("double_1", "0")).check(0);
     }
 
     @Test
-    public void matchFilterDoubleTest2() {
+    public void matchDoubleTest2() {
         filter(match("double_1", "2.0")).check(1);
     }
 
     @Test
-    public void matchFilterDoubleTest3() {
+    public void matchDoubleTest3() {
         filter(match("double_1", "2")).check(1);
     }
 
     @Test
-    public void matchFilterDoubleTest4() {
+    public void matchDoubleTest4() {
         filter(match("double_1", "2.00")).check(1);
     }
 
     @Test
-    public void matchFilterFloatTest1() {
+    public void testMatchFloatField1() {
         filter(match("float_1", "0")).check(0);
     }
 
     @Test
-    public void matchFilterFloatTest2() {
+    public void testMatchFloatField2() {
         filter(match("float_1", "2.0")).check(1);
     }
 
     @Test
-    public void matchFilterFloatTest3() {
+    public void testMatchFloatField3() {
         filter(match("float_1", "2")).check(1);
     }
 
     @Test
-    public void matchFilterFloatTest4() {
+    public void testMatchFloatField4() {
         filter(match("float_1", "2.00")).check(1);
     }
 
     @Test
-    public void matchFilterIntegerTest1() {
+    public void testMatchIntegerField1() {
         filter(match("integer_1", "-2")).check(1);
     }
 
     @Test
-    public void matchFilterIntegerTest2() {
+    public void testMatchIntegerField2() {
         filter(match("integer_1", "2")).check(0);
     }
 
     @Test
-    public void matchFilterIntegerTest3() {
+    public void testMatchIntegerField3() {
         filter(match("integer_1", "0")).check(0);
     }
 
     @Test
-    public void matchFilterIntegerTest4() {
+    public void testMatchIntegerField4() {
         filter(match("integer_1", "-1")).check(1);
     }
 
     @Test
-    public void matchFilterUuidTest1() {
+    public void testMatchUUIDField1() {
         String msg = "Field 'uuid_1' with value '0' can not be parsed as UUID";
         filter(match("uuid_1", "0")).check(InvalidQueryException.class, msg);
     }
 
     @Test
-    public void matchFilterUuidTest2() {
+    public void testMatchUUIDField2() {
         filter(match("uuid_1", "60297440-b4fa-11e3-8b5a-0002a5d5c51b")).check(1);
     }
 
     @Test
-    public void matchFilterUuidTest3() {
+    public void testMatchUUIDField3() {
         String msg = "Field 'uuid_1' with value '60297440-b4fa-11e3-0002a5d5c51b' can not be parsed as UUID";
         filter(match("uuid_1", "60297440-b4fa-11e3-0002a5d5c51b")).check(InvalidQueryException.class, msg);
     }
 
     @Test
-    public void matchFilterTimeuuidTest1() {
+    public void testMatchTimeUUIDField1() {
         String msg = "Field 'timeuuid_1' with value '0' can not be parsed as UUID";
         filter(match("timeuuid_1", "0")).check(InvalidQueryException.class, msg);
     }
 
     @Test
-    public void matchFilterTimeuuidTest2() {
+    public void testMatchTimeUUIDField2() {
         filter(match("timeuuid_1", "a4a70900-24e1-11df-8924-001ff3591711")).check(1);
     }
 
     @Test
-    public void matchFilterTimeuuidTest3() {
+    public void testMatchTimeUUIDField3() {
         String msg = "Field 'timeuuid_1' with value 'a4a70900-24e1-11df-001ff3591711' can not be parsed as UUID";
         filter(match("timeuuid_1", "a4a70900-24e1-11df-001ff3591711")).check(InvalidQueryException.class, msg);
     }
 
     @Test
-    public void matchFilterInetFieldTest1() {
+    public void testMatchInetField1() {
         filter(match("inet_1", "127.1.1.1")).check(2);
     }
 
     @Test
-    public void matchFilterInetFieldTest2() {
+    public void testMatchInetField2() {
         filter(match("inet_1", "127.0.1.1")).check(1);
     }
 
     @Test
-    public void matchFilterInetFieldTest3() {
+    public void testMatchInetField3() {
         String msg = "Field 'inet_1' with value '127.1.1.' can not be parsed as an inet address";
         filter(match("inet_1", "127.1.1.")).check(InvalidQueryException.class, msg);
     }
 
     @Test
-    public void matchFilterInetFieldTest4() {
+    public void testMatchInetField4() {
         String msg = "Field 'inet_1' with value '' can not be parsed as an inet address";
         filter(match("inet_1", "")).check(InvalidQueryException.class, msg);
     }
 
     @Test
-    public void matchFilterTextFieldTest1() {
+    public void testMatchTextField1() {
         filter(match("text_1", "Frase")).check(1);
     }
 
     @Test
-    public void matchFilterTextFieldTest2() {
+    public void testMatchTextField2() {
         filter(match("text_1", "Frase*")).check(1);
     }
 
     @Test
-    public void matchFilterTextFieldTest3() {
+    public void testMatchTextField3() {
         filter(match("text_1", "Frasesinespaciosconarticulosylaspalabrassuficientesperomaslarga")).check(1);
     }
 
     @Test
-    public void matchFilterTextFieldTest4() {
+    public void testMatchTextField4() {
         filter(match("text_1", "")).check(0);
     }
 
     @Test
-    public void matchFilterVarcharFieldTest1() {
+    public void testMatchVarcharField1() {
         filter(match("varchar_1", "frasesencillasinespaciosperomaslarga")).check(2);
     }
 
     @Test
-    public void matchFilterVarcharFieldTest2() {
+    public void testMatchVarcharField2() {
         filter(match("varchar_1", "frase*")).check(0);
     }
 
     @Test
-    public void matchFilterVarcharFieldTest3() {
+    public void testMatchVarcharField3() {
         filter(match("varchar_1", "frasesencillasinespacios")).check(1);
     }
 
     @Test
-    public void matchFilterVarcharFieldTest4() {
+    public void testMatchVarcharField4() {
         filter(match("varchar_1", "")).check(0);
     }
 
     @Test
-    public void matchFilterListFieldTest1() {
+    public void testMatchListField1() {
         filter(match("list_1", "")).check(0);
     }
 
     @Test
-    public void matchFilterListFieldTest2() {
+    public void testMatchListField2() {
         filter(match("list_1", "l1")).check(2);
     }
 
     @Test
-    public void matchFilterListFieldTest3() {
+    public void testMatchListField3() {
         filter(match("list_1", "s1")).check(0);
     }
 
     @Test
-    public void matchFilterSetFieldTest1() {
+    public void testMatchSetField1() {
         filter(match("set_1", "")).check(0);
     }
 
     @Test
-    public void matchFilterSetFieldTest2() {
+    public void testMatchSetField2() {
         filter(match("set_1", "l1")).check(0);
     }
 
     @Test
-    public void matchFilterSetFieldTest3() {
+    public void testMatchSetField3() {
         filter(match("set_1", "s1")).check(2);
     }
 
     @Test
-    public void matchFilterMapFieldTest1() {
+    public void testMatchMapField1() {
         filter(match("map_1$k1", "")).check(0);
     }
 
     @Test
-    public void matchFilterMapFieldTest2() {
+    public void testMatchMapField2() {
         filter(match("map_1$k1", "l1")).check(0);
     }
 
     @Test
-    public void matchFilterMapFieldTest3() {
+    public void testMatchMapField3() {
         filter(match("map_1$k1", "k1")).check(0);
     }
 
     @Test
-    public void matchFilterMapFieldTest4() {
+    public void testMatchMapField4() {
         filter(match("map_1$k1", "v1")).check(2);
     }
 }

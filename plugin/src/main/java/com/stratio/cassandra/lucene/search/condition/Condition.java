@@ -77,7 +77,7 @@ public abstract class Condition {
      *
      * @return the names of the involved fields
      */
-    public abstract Set<String> involvedFields();
+    public abstract Set<String> postProcessingFields();
 
     static BytesRef docValue(String value) {
         return value == null ? null : new BytesRef(value);

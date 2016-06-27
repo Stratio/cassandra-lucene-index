@@ -49,7 +49,10 @@ import org.apache.cassandra.utils.concurrent.OpOrder;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.search.*;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.Sort;
+import org.apache.lucene.search.SortField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,8 +62,6 @@ import java.lang.management.ManagementFactory;
 import java.nio.ByteBuffer;
 import java.util.*;
 
-import static org.apache.lucene.search.BooleanClause.Occur.FILTER;
-import static org.apache.lucene.search.BooleanClause.Occur.MUST;
 import static org.apache.lucene.search.SortField.FIELD_SCORE;
 
 /**
@@ -455,7 +456,7 @@ abstract class IndexService implements IndexServiceMBean {
         Tracer.trace("Building Lucene search");
         String expression = expression(command);
         Search search = SearchBuilder.fromJson(expression).build();
-        Query query = query(search, command);
+        Query query = search.query(schema, query(command).orElse(null));
         Query after = after(search.paging(), command);
         Sort sort = sort(search);
         int count = command.limits().count();
@@ -508,22 +509,6 @@ abstract class IndexService implements IndexServiceMBean {
             }
         }
         return result;
-    }
-
-    /**
-     * Returns the Lucene {@link Query} represented by the specified {@link Search} and key filter.
-     *
-     * @param search the search
-     * @param command the command
-     * @return a Lucene {@link Query}
-     */
-    private Query query(Search search, ReadCommand command) {
-        BooleanQuery.Builder builder = new BooleanQuery.Builder();
-        query(command).ifPresent(query -> builder.add(query, FILTER));
-        search.filter(schema).ifPresent(query -> builder.add(query, FILTER));
-        search.query(schema).ifPresent(query -> builder.add(query, MUST));
-        BooleanQuery booleanQuery = builder.build();
-        return booleanQuery.clauses().isEmpty() ? new MatchAllDocsQuery() : booleanQuery;
     }
 
     /**
@@ -665,7 +650,7 @@ abstract class IndexService implements IndexServiceMBean {
      */
     PartitionIterator postProcess(PartitionIterator partitions, SinglePartitionReadCommand.Group group) {
 
-        // Skip unneeded post processing in there is only one command
+        // Skip unneeded post processing if only one partition is involved
         if (group.commands.size() <= 1) {
             return partitions;
         }
@@ -686,7 +671,7 @@ abstract class IndexService implements IndexServiceMBean {
      */
     PartitionIterator postProcess(PartitionIterator partitions, ReadCommand command) {
 
-        // Skip unneeded post processing in single partition read commands
+        // Skip unneeded post processing if only one partition is involved
         if (command instanceof SinglePartitionReadCommand) {
             return partitions;
         }
@@ -702,7 +687,7 @@ abstract class IndexService implements IndexServiceMBean {
 
             List<Pair<DecoratedKey, SimpleRowIterator>> collectedRows = collect(partitions);
 
-            // Skip if it doesn't use any kind of sorting
+            // Skip if the search doesn't require any kind of sorting
             if (search.requiresPostProcessing() && !collectedRows.isEmpty()) {
                 return process(search, limit, nowInSec, collectedRows);
             }
@@ -751,7 +736,7 @@ abstract class IndexService implements IndexServiceMBean {
             }
 
             // Repeat search to sort partial results
-            Query query = search.query(schema).orElseGet(MatchAllDocsQuery::new);
+            Query query = search.postProcessingQuery(schema);
             Sort sort = sort(search);
             List<Pair<Document, ScoreDoc>> documents = index.search(query, sort, limit, fieldsToLoad());
             index.close();

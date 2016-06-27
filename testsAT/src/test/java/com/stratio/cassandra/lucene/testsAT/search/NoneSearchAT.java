@@ -25,17 +25,8 @@ import static com.stratio.cassandra.lucene.builder.Builder.none;
 public class NoneSearchAT extends AbstractSearchAT {
 
     @Test
-    public void noneQueryTest() {
-        query(none()).check(0);
-    }
-
-    @Test
-    public void noneFilterTest() {
+    public void testNone() {
         filter(none()).check(0);
     }
 
-    @Test
-    public void noneFilteredQueryTest() {
-        filter(none()).query(none()).check(0);
-    }
 }
