@@ -171,7 +171,8 @@ public class BitemporalSearchAT extends BaseAT {
 
     @BeforeClass
     public static void beforeClass() throws InterruptedException {
-        Mapper mapper = bitemporalMapper("vt_from", "vt_to", "tt_from", "tt_to").pattern("yyyy/MM/dd HH:mm:ss.SSS");
+        Mapper mapper = bitemporalMapper("vt_from", "vt_to", "tt_from", "tt_to").pattern("yyyy/MM/dd HH:mm:ss.SSS")
+                                                                                .validated(true);
         utils = builder("bitemporal")
                 .withPartitionKey("integer_1")
                 .withClusteringKey()
@@ -186,6 +187,26 @@ public class BitemporalSearchAT extends BaseAT {
                 .createTable()
                 .createIndex()
                 .insert(data1, data2, data3, data4, data5)
+                .refresh();
+
+        String nowValue = "2016/03/02 00:00:00.000";
+        utils2 = builder("bitemporal2")
+                .withPartitionKey("integer_1")
+                .withClusteringKey()
+                .withColumn("integer_1", "int")
+                .withColumn("vt_from", "text")
+                .withColumn("vt_to", "text")
+                .withColumn("tt_from", "text")
+                .withColumn("tt_to", "text")
+                .withMapper("bitemporal",
+                            bitemporalMapper("vt_from", "vt_to", "tt_from", "tt_to")
+                                    .pattern(SIMPLE_DATE_PATTERN)
+                                    .nowValue(nowValue)
+                                    .validated(true))
+                .build()
+                .createKeyspace()
+                .createTable()
+                .createIndex()
                 .refresh();
     }
 
@@ -277,57 +298,73 @@ public class BitemporalSearchAT extends BaseAT {
     }
 
     //inserting bigger to nowValue it
-    @Test(expected = InvalidQueryException.class)
+    @SuppressWarnings("unchecked")
+    @Test
     public void biTemporalQueryWithNowValueTooLongTest() {
         // testing with long value 1456876800 == 2016/03/02 00:00:00
-        String nowValue = "2016/03/02 00:00:00.000";
-        utils2 = builder("bitemporal2")
-                .withPartitionKey("integer_1")
-                .withClusteringKey()
-                .withColumn("integer_1", "int")
-                .withColumn("vt_from", "text")
-                .withColumn("vt_to", "text")
-                .withColumn("tt_from", "text")
-                .withColumn("tt_to", "text")
-                .withMapper("bitemporal",
-                            bitemporalMapper("vt_from", "vt_to", "tt_from", "tt_to")
-                                    .pattern(SIMPLE_DATE_PATTERN)
-                                    .nowValue(nowValue)
-                                    .validated(true))
-                .build()
-                .createKeyspace()
-                .createTable()
-                .createIndex();
 
-        utils2.insert(data6);
+        utils2.insert(InvalidQueryException.class,
+                      "BitemporalDateTime value '1462096800001' exceeds Max Value: '1456873200000'",
+                      data6);
     }
 
     //vt_to>vt_from
-    @Test(expected = InvalidQueryException.class)
-    public void biTemporalQueryWithttToSmallerThanTTFrom() {
+    @SuppressWarnings("unchecked")
+    @Test
+    public void biTemporalQueryWithTtToSmallerThanTTFrom() {
         // testing with long value 1456876800 == 2016/03/02 00:00:00
         Map<String, String> data = new LinkedHashMap<>();
-        data.put("id", "5");
-        data.put("data", "'v1'");
+        data.put("integer_1", "5");
         data.put("vt_from", "0");
         data.put("vt_to", "9223372036854775807");
         data.put("tt_from", "9223372036854775807");
         data.put("tt_to", "0");
-        utils.insert(data);
+        Mapper mapper = bitemporalMapper("vt_from", "vt_to", "tt_from", "tt_to").pattern(TIMESTAMP_PATTERN)
+                                                                                .validated(true);
+        builder("bitemporal")
+                .withPartitionKey("integer_1")
+                .withClusteringKey()
+                .withColumn("integer_1", "int")
+                .withColumn("vt_from", "bigint")
+                .withColumn("vt_to", "bigint")
+                .withColumn("tt_from", "bigint")
+                .withColumn("tt_to", "bigint")
+                .withMapper("bitemporal", mapper)
+                .build()
+                .createKeyspace()
+                .createTable()
+                .createIndex()
+                .insert(InvalidQueryException.class, "tt_from:'0' is after tt_to:'9223372036854775807'", data)
+                .dropKeyspace();
     }
 
     //tt_to<tt_from
-    @Test(expected = InvalidQueryException.class)
+    @Test
     public void biTemporalQueryWithVtToSmallerThanVTFrom() {
         // testing with long value 1456876800 == 2016/03/02 00:00:00
         Map<String, String> data = new LinkedHashMap<>();
-        data.put("id", "5");
-        data.put("data", "'v1'");
+        data.put("integer_1", "5");
         data.put("vt_from", "9223372036854775807");
         data.put("vt_to", "0");
         data.put("tt_from", "0");
         data.put("tt_to", "9223372036854775807");
-        utils.insert(data);
+        Mapper mapper = bitemporalMapper("vt_from", "vt_to", "tt_from", "tt_to").pattern(TIMESTAMP_PATTERN)
+                                                                                .validated(true);
+        builder("bitemporal")
+                .withPartitionKey("integer_1")
+                .withClusteringKey()
+                .withColumn("integer_1", "int")
+                .withColumn("vt_from", "bigint")
+                .withColumn("vt_to", "bigint")
+                .withColumn("tt_from", "bigint")
+                .withColumn("tt_to", "bigint")
+                .withMapper("bitemporal", mapper)
+                .build()
+                .createKeyspace()
+                .createTable()
+                .createIndex()
+                .insert(InvalidQueryException.class, "vt_from:'0' is after vt_to:'9223372036854775807'", data)
+                .dropKeyspace();
     }
 
     //valid String max value queries setting nowValue to max date in data3

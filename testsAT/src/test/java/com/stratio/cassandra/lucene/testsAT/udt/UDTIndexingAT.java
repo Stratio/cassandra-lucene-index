@@ -29,7 +29,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.stratio.cassandra.lucene.builder.Builder.*;
-import static org.junit.Assert.fail;
 
 /**
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
@@ -262,10 +261,10 @@ public class UDTIndexingAT extends BaseAT {
              .checkUnorderedStringColumns("login", "USER2", "USER4", "USER6");
     }
 
-    @Test(expected = InvalidQueryException.class)
+    @Test
     public void testUDTInternalThatFails() {
-        utils.filter(match("address.point", "Paris")).count();
-        fail("Selecting a type that is no matched must return an Exception");
+        utils.filter(match("address.point", "Paris"))
+             .check(InvalidQueryException.class, "No mapper found for field 'address.point'");
     }
 
     @Test
@@ -286,10 +285,10 @@ public class UDTIndexingAT extends BaseAT {
     public void testUDTMap() {
         utils.filter(match("address.zips_map$1", "1A")).refresh(true)
              .checkUnorderedStringColumns("login",
-                                                   "USER1",
-                                                   "USER3",
-                                                   "USER5",
-                                                   "USER7");
+                                          "USER1",
+                                          "USER3",
+                                          "USER5",
+                                          "USER7");
         utils.filter(match("address.zips_map$1", "1B"))
              .checkUnorderedStringColumns("login", "USER2", "USER4", "USER6");
         utils.filter(match("address.zips_map$2", "2A"))
@@ -375,13 +374,13 @@ public class UDTIndexingAT extends BaseAT {
                                                     .includeLower(true)
                                                     .includeUpper(true))
              .checkUnorderedStringColumns("login",
-                                                   "USER1",
-                                                   "USER2",
-                                                   "USER3",
-                                                   "USER4",
-                                                   "USER5",
-                                                   "USER6",
-                                                   "USER7");
+                                          "USER1",
+                                          "USER2",
+                                          "USER3",
+                                          "USER4",
+                                          "USER5",
+                                          "USER6",
+                                          "USER7");
         utils.filter(range("address.point.longitude").lower(-3.0).upper(-1.0))
              .checkStringColumn("login", "USER2");
         utils.filter(range("address.point.longitude").lower(-5.0).upper(-2.0))
@@ -403,13 +402,13 @@ public class UDTIndexingAT extends BaseAT {
                                                     .includeLower(true)
                                                     .includeUpper(true))
              .checkUnorderedStringColumns("login",
-                                                   "USER1",
-                                                   "USER2",
-                                                   "USER3",
-                                                   "USER4",
-                                                   "USER5",
-                                                   "USER6",
-                                                   "USER7");
+                                          "USER1",
+                                          "USER2",
+                                          "USER3",
+                                          "USER4",
+                                          "USER5",
+                                          "USER6",
+                                          "USER7");
         utils.filter(range("address.point.longitude").lower(-3.0).upper(-1.0))
              .checkStringColumn("login", "USER2");
         utils.filter(range("address.point.longitude").lower(-5.0).upper(-2.0))
@@ -418,10 +417,10 @@ public class UDTIndexingAT extends BaseAT {
              .checkUnorderedStringColumns("login", "USER2", "USER3", "USER4", "USER5", "USER6");
     }
 
-    @Test(expected = InvalidQueryException.class)
+    @Test
     public void testUDTOverUDTThatFails() {
-        utils.filter(range("address.point.non-existent").lower(-1.0).upper(-3.0)).get();
-        fail("Selecting a non-existent type inside udt inside udt must return an Exception");
+        utils.filter(range("address.point.non-existent").lower(-1.0).upper(-3.0))
+             .check(InvalidQueryException.class, "No mapper found for field 'address.point.non-existent'");
     }
 
     @Test
