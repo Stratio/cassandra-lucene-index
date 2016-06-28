@@ -15,6 +15,7 @@
  */
 package com.stratio.cassandra.lucene.testsAT.varia;
 
+import com.stratio.cassandra.lucene.testsAT.BaseAT;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
 import org.junit.Test;
 
@@ -22,24 +23,21 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.UUID;
 
-import static com.stratio.cassandra.lucene.builder.Builder.bool;
-import static com.stratio.cassandra.lucene.builder.Builder.match;
+import static com.stratio.cassandra.lucene.builder.Builder.*;
 
 /**
  * @author Andres de la Pena <adelapena@stratio.com>
  */
-public class LargeFieldAT {
+public class LargeFieldAT extends BaseAT {
 
     @Test
     public void testLargeField() throws IOException {
 
         CassandraUtils utils = CassandraUtils.builder("large_field")
-                                             .withPartitionKey("id")
-                                             .withClusteringKey("name", "age")
-                                             .withColumn("id", "varchar")
-                                             .withColumn("name", "varchar")
-                                             .withColumn("age", "varchar")
-                                             .withColumn("data", "varchar")
+                                             .withPartitionKey("k")
+                                             .withColumn("k", "int", null)
+                                             .withColumn("t", "text", textMapper().analyzer("whitespace"))
+                                             .withColumn("s", "text", stringMapper())
                                              .build()
                                              .createKeyspace()
                                              .createTable()
@@ -52,13 +50,13 @@ public class LargeFieldAT {
         }
         String largeString = Arrays.toString(numbers);
 
-        utils.insert(new String[]{"id", "name", "age", "data"}, new Object[]{"2", "b", "2", "good_dat"})
-             .insert(new String[]{"id", "name", "age", "data"}, new Object[]{"1", "a", "1", largeString})
+        utils.insert(new String[]{"k", "t", "s"}, new Object[]{1, "a", "b"})
+             .insert(new String[]{"k", "t", "s"}, new Object[]{2, largeString, "b"})
+             .insert(new String[]{"k", "t", "s"}, new Object[]{3, "a", largeString})
              .refresh()
-             .query(bool().must(match("id", "2")).must(match("name", "b")))
-             .check(1)
-             .query(bool().must(match("id", "1")).must(match("name", "a")))
-             .check(1)
+             .searchAll().check(3)
+             .filter(wildcard("t", "*")).check(3)
+             .filter(wildcard("s", "*")).check(2)
              .dropKeyspace();
     }
 }
