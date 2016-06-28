@@ -284,6 +284,17 @@ public class CassandraUtils {
         return this;
     }
 
+    public <T extends Exception> CassandraUtils insert(Class<T> expectedClass,
+                                                       String expectedMessage,
+                                                       final Map<String, String>... paramss) {
+        return check(new Runnable() {
+            @Override
+            public void run() {
+                CassandraUtils.this.insert(paramss);
+            }
+        }, expectedClass, expectedMessage);
+    }
+
     public CassandraUtils insert(String[] names, Object[] values) {
         execute(QueryBuilder.insertInto(keyspace, table).values(names, values));
         return this;

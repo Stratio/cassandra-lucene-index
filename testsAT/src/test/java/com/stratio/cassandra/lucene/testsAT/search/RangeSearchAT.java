@@ -596,8 +596,8 @@ public class RangeSearchAT extends AbstractSearchAT {
 
     @Test
     public void rangeFilterTimeuuidTest2() {
-        String msg = "Field 'timeuuid_1' with value 'a' can not be parsed as UUID";
-        filter(range("timeuuid_1").lower("a").upper("z")).check(InvalidQueryException.class, msg);
+        filter(range("timeuuid_1").lower("a").upper("z")).check(InvalidQueryException.class,
+                                                                "Field 'timeuuid_1' with value 'a' can not be parsed as UUID");
     }
 
     @Test
