@@ -16,23 +16,19 @@
 package com.stratio.cassandra.lucene.testsAT.udt;
 
 import com.datastax.driver.core.SimpleStatement;
-import com.datastax.driver.core.exceptions.DriverException;
+import com.datastax.driver.core.exceptions.InvalidQueryException;
 import com.stratio.cassandra.lucene.testsAT.BaseAT;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
-import com.stratio.cassandra.lucene.testsAT.util.CassandraUtilsSelect;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 import static com.stratio.cassandra.lucene.builder.Builder.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
@@ -45,36 +41,6 @@ public class UDTIndexingNonFrozenAT extends BaseAT {
 
     @BeforeClass
     public static void before() {
-
-        utils = CassandraUtils.builder("udt_indexing_non_frozen")
-                              .withUDT("geo_point", "latitude", "float")
-                              .withUDT("geo_point", "longitude", "float")
-                              .withUDT("address", "street", "text")
-                              .withUDT("address", "city", "text")
-                              .withUDT("address", "zip", "int")
-                              .withUDT("address", "bool", "boolean")
-                              .withUDT("address", "height", "float")
-                              .withUDT("address", "point", "frozen<geo_point>")
-                              .withUDT("address", "zips", "frozen<list<int>>")
-                              .withUDT("address", "zips_map", "frozen<map<int,text>>")
-                              .withUDT("address", "zips_set", "frozen<set<int>>")
-                              .withColumn("login", "text")
-                              .withColumn("first_name", "text")
-                              .withColumn("last_name", "text")
-                              .withColumn("address", "address")
-                              .withPartitionKey("login")
-                              .withMapper("address.zips", integerMapper())
-                              .withMapper("address.zips_map", stringMapper())
-                              .withMapper("address.zips_set", integerMapper())
-                              .withMapper("address.bool", booleanMapper())
-                              .withMapper("address.city", stringMapper())
-                              .withMapper("address.point.latitude", floatMapper())
-                              .withMapper("address.point.longitude", floatMapper())
-                              .build()
-                              .createKeyspace()
-                              .createUDTs()
-                              .createTable()
-                              .createIndex();
 
         Map<String, String> data = new HashMap<>();
         data.put("login", "'USER1'");
@@ -237,8 +203,37 @@ public class UDTIndexingNonFrozenAT extends BaseAT {
                              "  }  " +
                              "}");
 
-        utils.insert(data, data2, data3, data4, data5, data6, data7);
-        utils.refresh();
+        utils = CassandraUtils.builder("udt_indexing_non_frozen")
+                              .withUDT("geo_point", "latitude", "float")
+                              .withUDT("geo_point", "longitude", "float")
+                              .withUDT("address", "street", "text")
+                              .withUDT("address", "city", "text")
+                              .withUDT("address", "zip", "int")
+                              .withUDT("address", "bool", "boolean")
+                              .withUDT("address", "height", "float")
+                              .withUDT("address", "point", "frozen<geo_point>")
+                              .withUDT("address", "zips", "frozen<list<int>>")
+                              .withUDT("address", "zips_map", "frozen<map<int,text>>")
+                              .withUDT("address", "zips_set", "frozen<set<int>>")
+                              .withColumn("login", "text")
+                              .withColumn("first_name", "text")
+                              .withColumn("last_name", "text")
+                              .withColumn("address", "address")
+                              .withPartitionKey("login")
+                              .withMapper("address.zips", integerMapper())
+                              .withMapper("address.zips_map", stringMapper())
+                              .withMapper("address.zips_set", integerMapper())
+                              .withMapper("address.bool", booleanMapper())
+                              .withMapper("address.city", stringMapper())
+                              .withMapper("address.point.latitude", floatMapper())
+                              .withMapper("address.point.longitude", floatMapper())
+                              .build()
+                              .createKeyspace()
+                              .createUDTs()
+                              .createTable()
+                              .createIndex()
+                              .insert(data, data2, data3, data4, data5, data6, data7)
+                              .refresh();
 
     }
 
@@ -247,256 +242,152 @@ public class UDTIndexingNonFrozenAT extends BaseAT {
         utils.dropTable().dropKeyspace();
     }
 
-    private boolean isThisAndOnlyThis(String[] received, String[] expected) {
-        if (received.length != expected.length) {
-            return false;
-        } else {
-
-            for (String i : received) {
-                boolean found = false;
-                for (String j : expected) {
-                    if (i.equals(j)) {
-                        found = true;
-                    }
-                }
-                if (!found) {
-                    return false;
-                }
-            }
-            return true;
-        }
-    }
-
-    private void assertEqualsAndOnlyThisString(String[] received, String[] expected) {
-        assertEquals("Expected " + expected.length + " results but received: " + received.length,
-                     expected.length,
-                     received.length);
-        assertTrue("Unexpected results!! Expected: " +
-                   Arrays.toString(expected) +
-                   ", but got: " +
-                   Arrays.toString(received), isThisAndOnlyThis(received, expected));
-
+    @Test
+    public void testUDTInternal() {
+        utils.filter(match("address.city", "Paris"))
+             .checkUnorderedStringColumns("login", "USER4", "USER5", "USER6", "USER7")
+             .filter(match("address.city", "San Francisco"))
+             .checkUnorderedStringColumns("login", "USER1", "USER2", "USER3")
+             .filter(match("address.bool", true))
+             .checkUnorderedStringColumns("login", "USER1", "USER3", "USER5", "USER7")
+             .filter(match("address.bool", false)).checkUnorderedStringColumns("login", "USER2", "USER4", "USER6");
     }
 
     @Test
-    public void testUDTInternal() {
-
-        CassandraUtilsSelect select = utils.filter(match("address.city", "Paris"));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER4", "USER5", "USER6", "USER7"});
-
-        select = utils.filter(match("address.city", "San Francisco"));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1", "USER2", "USER3"});
-
-        select = utils.filter(match("address.bool", true));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1", "USER3", "USER5", "USER7"});
-
-        select = utils.filter(match("address.bool", false));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER2", "USER4", "USER6"});
-
-    }
-
-    @Test(expected = DriverException.class)
     public void testUDTInternalThatFails() {
-        utils.filter(match("address.point", "Paris")).count();
-        assertTrue("Selecting a type that is no matched must return an Exception", true);
+        utils.filter(match("address.point", "Paris"))
+             .check(InvalidQueryException.class, "No mapper found for field 'address.point'");
     }
 
     @Test
     public void testUDTList() {
-
-        CassandraUtilsSelect select = utils.filter(match("address.zips", 10));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER3", "USER4", "USER5"});
-
-        select = utils.filter(match("address.zips", 12));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER4", "USER5", "USER6"});
-
-        select = utils.filter(match("address.zips", 14));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER5", "USER6", "USER7"});
-
-        select = utils.filter(match("address.zips", 15));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{});
-
-        select = utils.filter(match("address.zips", 16));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER6", "USER7"});
-
-        select = utils.filter(match("address.zips", 18));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER7"});
+        utils.filter(match("address.zips", 10)).checkUnorderedStringColumns("login", "USER3", "USER4", "USER5")
+             .filter(match("address.zips", 12)).checkUnorderedStringColumns("login", "USER4", "USER5", "USER6")
+             .filter(match("address.zips", 14)).checkUnorderedStringColumns("login", "USER5", "USER6", "USER7")
+             .filter(match("address.zips", 15)).check(0)
+             .filter(match("address.zips", 16)).checkUnorderedStringColumns("login", "USER6", "USER7")
+             .filter(match("address.zips", 18)).checkUnorderedStringColumns("login", "USER7");
     }
 
     @Test
     public void testUDTMap() {
-        CassandraUtilsSelect select = utils.filter(match("address.zips_map$1", "1A")).refresh(true);
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1", "USER3", "USER5", "USER7"});
-
-        select = utils.filter(match("address.zips_map$1", "1B"));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER2", "USER4", "USER6"});
-
-        select = utils.filter(match("address.zips_map$2", "2A"));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1", "USER3", "USER5", "USER7"});
-
-        select = utils.filter(match("address.zips_map$2", "2B"));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER2", "USER4", "USER6"});
-
-        select = utils.filter(match("address.zips_map$3", "3A"));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1", "USER3", "USER5", "USER7"});
-
-        select = utils.filter(match("address.zips_map$3", "3B"));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER2", "USER4", "USER6"});
+        utils.refresh()
+             .filter(match("address.zips_map$1", "1A"))
+             .checkUnorderedStringColumns("login", "USER1", "USER3", "USER5", "USER7")
+             .filter(match("address.zips_map$1", "1B"))
+             .checkUnorderedStringColumns("login", "USER2", "USER4", "USER6")
+             .filter(match("address.zips_map$2", "2A"))
+             .checkUnorderedStringColumns("login", "USER1", "USER3", "USER5", "USER7")
+             .filter(match("address.zips_map$2", "2B"))
+             .checkUnorderedStringColumns("login", "USER2", "USER4", "USER6")
+             .filter(match("address.zips_map$3", "3A"))
+             .checkUnorderedStringColumns("login", "USER1", "USER3", "USER5", "USER7")
+             .filter(match("address.zips_map$3", "3B"))
+             .checkUnorderedStringColumns("login", "USER2", "USER4", "USER6");
     }
 
     @Test
     public void testUDTMapThatFails() {
-
-        CassandraUtilsSelect select = utils.filter(match("address.zips_map", 1));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{});
+        utils.filter(match("address.zips_map", 1)).check(0);
     }
 
     @Test
     public void testUDTSet() {
-        CassandraUtilsSelect select = utils.filter(match("address.zips_set", 5));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1"});
-
-        select = utils.filter(match("address.zips_set", 7));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1", "USER2"});
-
-        select = utils.filter(match("address.zips_set", 9));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1", "USER2", "USER3"});
-
-        select = utils.filter(match("address.zips_set", 11));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER2", "USER3", "USER4"});
-
-        select = utils.filter(match("address.zips_set", 12));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{});
-
-        select = utils.filter(match("address.zips_set", 13));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER3", "USER4", "USER5"});
-
-        select = utils.filter(match("address.zips_set", 14));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{});
-
-        select = utils.filter(match("address.zips_set", 15));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER4", "USER5", "USER6"});
-
-        select = utils.filter(match("address.zips_set", 17));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER5", "USER6", "USER7"});
-
-        select = utils.filter(match("address.zips_set", 19));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER6", "USER7"});
-
-        select = utils.filter(match("address.zips_set", 20));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{});
-
-        select = utils.filter(match("address.zips_set", 21));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER7"});
+        utils.filter(match("address.zips_set", 5)).checkUnorderedStringColumns("login", "USER1")
+             .filter(match("address.zips_set", 7)).checkUnorderedStringColumns("login", "USER1", "USER2")
+             .filter(match("address.zips_set", 9)).checkUnorderedStringColumns("login", "USER1", "USER2", "USER3")
+             .filter(match("address.zips_set", 11)).checkUnorderedStringColumns("login", "USER2", "USER3", "USER4")
+             .filter(match("address.zips_set", 12)).check(0)
+             .filter(match("address.zips_set", 13)).checkUnorderedStringColumns("login", "USER3", "USER4", "USER5")
+             .filter(match("address.zips_set", 14)).check(0)
+             .filter(match("address.zips_set", 15)).checkUnorderedStringColumns("login", "USER4", "USER5", "USER6")
+             .filter(match("address.zips_set", 17)).checkUnorderedStringColumns("login", "USER5", "USER6", "USER7")
+             .filter(match("address.zips_set", 19)).checkUnorderedStringColumns("login", "USER6", "USER7")
+             .filter(match("address.zips_set", 20)).check(0)
+             .filter(match("address.zips_set", 21)).checkUnorderedStringColumns("login", "USER7");
     }
 
     @Test
     public void testUDTOverUDT() {
-        CassandraUtilsSelect select = utils.filter(match("address.point.latitude", 1.0));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1"});
-
-        select = utils.filter(match("address.point.latitude", 2.0));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER2"});
-
-        select = utils.filter(match("address.point.latitude", 3.0));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER3"});
-
-        select = utils.filter(match("address.point.latitude", 4.0));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER4"});
-
-        select = utils.filter(match("address.point.latitude", 5.0));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER5"});
-
-        select = utils.filter(match("address.point.latitude", 6.0));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER6"});
-
-        select = utils.filter(match("address.point.latitude", 7.0));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER7"});
-
-        select = utils.filter(match("address.point.longitude", -1.0));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1"});
-
-        select = utils.filter(match("address.point.longitude", -2.0));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER2"});
-
-        select = utils.filter(match("address.point.longitude", -3.0));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER3"});
-
-        select = utils.filter(match("address.point.longitude", -4.0));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER4"});
-
-        select = utils.filter(match("address.point.longitude", -5.0));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER5"});
-
-        select = utils.filter(match("address.point.longitude", -6.0));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER6"});
-
-        select = utils.filter(match("address.point.longitude", -7.0));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER7"});
-
-        select = utils.filter(range("address.point.latitude").lower(1.0)
-                                                             .upper(3.0)
-                                                             .includeLower(true)
-                                                             .includeUpper(true));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1", "USER2", "USER3"});
-
-        select = utils.filter(range("address.point.latitude").lower(2.0)
-                                                             .upper(5.0)
-                                                             .includeLower(true)
-                                                             .includeUpper(true));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER2", "USER3", "USER4", "USER5"});
-
-        select = utils.filter(range("address.point.latitude").lower(1.0)
-                                                             .upper(7.0)
-                                                             .includeLower(true)
-                                                             .includeUpper(true));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"),
-                                      new String[]{"USER1", "USER2", "USER3", "USER4", "USER5", "USER6", "USER7"});
-
-        select = utils.filter(range("address.point.longitude").lower(-3.0).upper(-1.0));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER2"});
-
-        select = utils.filter(range("address.point.longitude").lower(-5.0).upper(-2.0));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER3", "USER4"});
-
-        select = utils.filter(range("address.point.longitude").lower(-7.0).upper(-1.0));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"),
-                                      new String[]{"USER2", "USER3", "USER4", "USER5", "USER6"});
-
-        select = utils.filter(range("address.point.latitude").lower(1.0)
-                                                             .upper(3.0)
-                                                             .includeLower(true)
-                                                             .includeUpper(true));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER1", "USER2", "USER3"});
-
-        select = utils.filter(range("address.point.latitude").lower(2.0)
-                                                             .upper(5.0)
-                                                             .includeLower(true)
-                                                             .includeUpper(true));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER2", "USER3", "USER4", "USER5"});
-
-        select = utils.filter(range("address.point.latitude").lower(1.0)
-                                                             .upper(7.0)
-                                                             .includeLower(true)
-                                                             .includeUpper(true));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"),
-                                      new String[]{"USER1", "USER2", "USER3", "USER4", "USER5", "USER6", "USER7"});
-
-        select = utils.filter(range("address.point.longitude").lower(-3.0).upper(-1.0));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER2"});
-
-        select = utils.filter(range("address.point.longitude").lower(-5.0).upper(-2.0));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER3", "USER4"});
-
-        select = utils.filter(range("address.point.longitude").lower(-7.0).upper(-1.0));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"),
-                                      new String[]{"USER2", "USER3", "USER4", "USER5", "USER6"});
+        utils.filter(match("address.point.latitude", 1.0)).checkUnorderedStringColumns("login", "USER1")
+             .filter(match("address.point.latitude", 2.0)).checkUnorderedStringColumns("login", "USER2")
+             .filter(match("address.point.latitude", 3.0)).checkUnorderedStringColumns("login", "USER3")
+             .filter(match("address.point.latitude", 4.0)).checkUnorderedStringColumns("login", "USER4")
+             .filter(match("address.point.latitude", 5.0))
+             .checkUnorderedStringColumns("login", "USER5")
+             .filter(match("address.point.latitude", 6.0))
+             .checkUnorderedStringColumns("login", "USER6")
+             .filter(match("address.point.latitude", 7.0))
+             .checkUnorderedStringColumns("login", "USER7")
+             .filter(match("address.point.longitude", -1.0))
+             .checkUnorderedStringColumns("login", "USER1")
+             .filter(match("address.point.longitude", -2.0))
+             .checkUnorderedStringColumns("login", "USER2")
+             .filter(match("address.point.longitude", -3.0))
+             .checkUnorderedStringColumns("login", "USER3")
+             .filter(match("address.point.longitude", -4.0))
+             .checkUnorderedStringColumns("login", "USER4")
+             .filter(match("address.point.longitude", -5.0))
+             .checkUnorderedStringColumns("login", "USER5")
+             .filter(match("address.point.longitude", -6.0))
+             .checkUnorderedStringColumns("login", "USER6")
+             .filter(match("address.point.longitude", -7.0))
+             .checkUnorderedStringColumns("login", "USER7")
+             .filter(range("address.point.latitude").lower(1.0)
+                                                    .upper(3.0)
+                                                    .includeLower(true)
+                                                    .includeUpper(true))
+             .checkUnorderedStringColumns("login", "USER1", "USER2", "USER3")
+             .filter(range("address.point.latitude").lower(2.0)
+                                                    .upper(5.0)
+                                                    .includeLower(true)
+                                                    .includeUpper(true))
+             .checkUnorderedStringColumns("login", "USER2", "USER3", "USER4", "USER5")
+             .filter(range("address.point.latitude").lower(1.0)
+                                                    .upper(7.0)
+                                                    .includeLower(true)
+                                                    .includeUpper(true))
+             .checkUnorderedStringColumns("login",
+                                          "USER1",
+                                          "USER2",
+                                          "USER3",
+                                          "USER4",
+                                          "USER5",
+                                          "USER6",
+                                          "USER7")
+             .filter(range("address.point.longitude").lower(-3.0).upper(-1.0))
+             .checkUnorderedStringColumns("login", "USER2")
+             .filter(range("address.point.longitude").lower(-5.0).upper(-2.0))
+             .checkUnorderedStringColumns("login", "USER3", "USER4")
+             .filter(range("address.point.longitude").lower(-7.0).upper(-1.0))
+             .checkUnorderedStringColumns("login", "USER2", "USER3", "USER4", "USER5", "USER6")
+             .filter(range("address.point.latitude").lower(1.0)
+                                                    .upper(3.0)
+                                                    .includeLower(true)
+                                                    .includeUpper(true))
+             .checkUnorderedStringColumns("login", "USER1", "USER2", "USER3")
+             .filter(range("address.point.latitude").lower(2.0)
+                                                    .upper(5.0)
+                                                    .includeLower(true)
+                                                    .includeUpper(true))
+             .checkUnorderedStringColumns("login", "USER2", "USER3", "USER4", "USER5")
+             .filter(range("address.point.latitude").lower(1.0)
+                                                    .upper(7.0)
+                                                    .includeLower(true)
+                                                    .includeUpper(true))
+             .checkUnorderedStringColumns("login", "USER1", "USER2", "USER3", "USER4", "USER5", "USER6", "USER7")
+             .filter(range("address.point.longitude").lower(-3.0).upper(-1.0))
+             .checkUnorderedStringColumns("login", "USER2")
+             .filter(range("address.point.longitude").lower(-5.0).upper(-2.0))
+             .checkUnorderedStringColumns("login", "USER3", "USER4")
+             .filter(range("address.point.longitude").lower(-7.0).upper(-1.0))
+             .checkUnorderedStringColumns("login", "USER2", "USER3", "USER4", "USER5", "USER6");
     }
 
-    @Test(expected = DriverException.class)
+    @Test
     public void testUDTOverUDTThatFails() {
-        utils.filter(range("address.point.non-existent").lower(-1.0).upper(-3.0)).get();
-        assertTrue("Selecting a non-existent type inside udt inside udt must return an Exception", true);
+        utils.filter(range("address.point.non-existent").lower(-1.0).upper(-3.0))
+             .check(InvalidQueryException.class, "No mapper found for field 'address.point.non-existent'");
     }
 
     @Test
@@ -511,9 +402,7 @@ public class UDTIndexingNonFrozenAT extends BaseAT {
                         "city: 'Madrid'});";
 
         utils.execute(new SimpleStatement(insert));
-        utils.refresh();
 
-        CassandraUtilsSelect select = utils.filter(match("address.city", "Madrid"));
-        assertEqualsAndOnlyThisString(select.stringColumn("login"), new String[]{"USER10"});
+        utils.refresh().filter(match("address.city", "Madrid")).checkUnorderedStringColumns("login", "USER10");
     }
 }

@@ -87,14 +87,14 @@ public class MatchSearchAT extends AbstractSearchAT {
 
     @Test
     public void matchQueryBlobTest3() {
-        String msg = "Field 'blob_1' requires an hex string, but found '3E0A161'";
-        query(match("blob_1", "3E0A161")).check(InvalidQueryException.class, msg);
+        query(match("blob_1", "3E0A161")).check(InvalidQueryException.class,
+                                                "Field 'blob_1' requires an hex string, but found '3E0A161'");
     }
 
     @Test
     public void matchQueryBlobTest4() {
-        String msg = "Field 'blob_1' requires an hex string, but found '3E0A1'";
-        query(match("blob_1", "3E0A1")).check(InvalidQueryException.class, msg);
+        query(match("blob_1", "3E0A1")).check(InvalidQueryException.class,
+                                              "Field 'blob_1' requires an hex string, but found '3E0A1'");
     }
 
     @Test
@@ -104,8 +104,8 @@ public class MatchSearchAT extends AbstractSearchAT {
 
     @Test
     public void matchQueryBooleanTest1() {
-        String msg = "Boolean field 'boolean_1' requires either 'true' or 'false', but found ''";
-        query(match("boolean_1", "")).check(InvalidQueryException.class, msg);
+        query(match("boolean_1", "")).check(InvalidQueryException.class,
+                                            "Boolean field 'boolean_1' requires either 'true' or 'false', but found ''");
     }
 
     @Test
@@ -120,8 +120,8 @@ public class MatchSearchAT extends AbstractSearchAT {
 
     @Test
     public void matchQueryBooleanTest5() {
-        String msg = "Boolean field 'boolean_1' requires either 'true' or 'false', but found 'else'";
-        query(match("boolean_1", "else")).check(InvalidQueryException.class, msg);
+        query(match("boolean_1", "else")).check(InvalidQueryException.class,
+                                                "Boolean field 'boolean_1' requires either 'true' or 'false', but found 'else'");
     }
 
     @Test
@@ -439,14 +439,14 @@ public class MatchSearchAT extends AbstractSearchAT {
 
     @Test
     public void matchFilterBlobTest3() {
-        String msg = "Field 'blob_1' requires an hex string, but found '3E0A161'";
-        filter(match("blob_1", "3E0A161")).check(InvalidQueryException.class, msg);
+        filter(match("blob_1", "3E0A161")).check(InvalidQueryException.class,
+                                                 "Field 'blob_1' requires an hex string, but found '3E0A161'");
     }
 
     @Test
     public void matchFilterBlobTest4() {
-        String msg = "Field 'blob_1' requires an hex string, but found '3E0A1'";
-        filter(match("blob_1", "3E0A1")).check(InvalidQueryException.class, msg);
+        filter(match("blob_1", "3E0A1")).check(InvalidQueryException.class,
+                                               "Field 'blob_1' requires an hex string, but found '3E0A1'");
     }
 
     @Test
@@ -456,8 +456,8 @@ public class MatchSearchAT extends AbstractSearchAT {
 
     @Test
     public void matchFilterBooleanTest1() {
-        String msg = "Boolean field 'boolean_1' requires either 'true' or 'false', but found ''";
-        filter(match("boolean_1", "")).check(InvalidQueryException.class, msg);
+        filter(match("boolean_1", "")).check(InvalidQueryException.class,
+                                             "Boolean field 'boolean_1' requires either 'true' or 'false', but found ''");
     }
 
     @Test
@@ -472,8 +472,8 @@ public class MatchSearchAT extends AbstractSearchAT {
 
     @Test
     public void matchFilterBooleanTest5() {
-        String msg = "Boolean field 'boolean_1' requires either 'true' or 'false', but found 'else'";
-        filter(match("boolean_1", "else")).check(InvalidQueryException.class, msg);
+        filter(match("boolean_1", "else")).check(InvalidQueryException.class,
+                                                 "Boolean field 'boolean_1' requires either 'true' or 'false', but found 'else'");
     }
 
     @Test
@@ -594,8 +594,8 @@ public class MatchSearchAT extends AbstractSearchAT {
 
     @Test
     public void matchFilterUuidTest1() {
-        String msg = "Field 'uuid_1' with value '0' can not be parsed as UUID";
-        filter(match("uuid_1", "0")).check(InvalidQueryException.class, msg);
+        filter(match("uuid_1", "0")).check(InvalidQueryException.class,
+                                           "Field 'uuid_1' with value '0' can not be parsed as UUID");
     }
 
     @Test
@@ -638,14 +638,14 @@ public class MatchSearchAT extends AbstractSearchAT {
 
     @Test
     public void matchFilterInetFieldTest3() {
-        String msg = "Field 'inet_1' with value '127.1.1.' can not be parsed as an inet address";
-        filter(match("inet_1", "127.1.1.")).check(InvalidQueryException.class, msg);
+        filter(match("inet_1", "127.1.1.")).check(InvalidQueryException.class,
+                                                  "Field 'inet_1' with value '127.1.1.' can not be parsed as an inet address");
     }
 
     @Test
     public void matchFilterInetFieldTest4() {
-        String msg = "Field 'inet_1' with value '' can not be parsed as an inet address";
-        filter(match("inet_1", "")).check(InvalidQueryException.class, msg);
+        filter(match("inet_1", "")).check(InvalidQueryException.class,
+                                          "Field 'inet_1' with value '' can not be parsed as an inet address");
     }
 
     @Test

@@ -15,7 +15,7 @@
  */
 package com.stratio.cassandra.lucene.testsAT.udt;
 
-import com.datastax.driver.core.exceptions.DriverException;
+import com.datastax.driver.core.exceptions.InvalidQueryException;
 import com.stratio.cassandra.lucene.testsAT.BaseAT;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
 import org.junit.AfterClass;
@@ -29,7 +29,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.stratio.cassandra.lucene.builder.Builder.*;
-import static org.junit.Assert.fail;
 
 /**
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
@@ -262,10 +261,9 @@ public class UDTIndexingFrozenAT extends BaseAT {
              .checkUnorderedStringColumns("login", "USER2", "USER4", "USER6");
     }
 
-    @Test(expected = DriverException.class)
+    @Test
     public void testUDTInternalThatFails() {
-        utils.filter(match("address.point", "Paris")).count();
-        fail("Selecting a type that is no matched must return an Exception");
+        utils.filter(match("address.point", "Paris")).check(InvalidQueryException.class, "No mapper found for field 'address.point'");
     }
 
     @Test
@@ -418,10 +416,10 @@ public class UDTIndexingFrozenAT extends BaseAT {
              .checkUnorderedStringColumns("login", "USER2", "USER3", "USER4", "USER5", "USER6");
     }
 
-    @Test(expected = DriverException.class)
+    @Test
     public void testUDTOverUDTThatFails() {
-        utils.filter(range("address.point.non-existent").lower(-1.0).upper(-3.0)).get();
-        fail("Selecting a non-existent type inside udt inside udt must return an Exception");
+        utils.filter(range("address.point.non-existent").lower(-1.0).upper(-3.0))
+             .check(InvalidQueryException.class, "No mapper found for field 'address.point.non-existent'");
     }
 
     @Test

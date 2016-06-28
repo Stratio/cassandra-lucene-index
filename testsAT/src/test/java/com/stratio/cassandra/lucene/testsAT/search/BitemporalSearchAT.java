@@ -172,7 +172,8 @@ public class BitemporalSearchAT extends BaseAT {
 
     @BeforeClass
     public static void beforeClass() throws InterruptedException {
-        Mapper mapper = bitemporalMapper("vt_from", "vt_to", "tt_from", "tt_to").pattern("yyyy/MM/dd HH:mm:ss.SSS");
+        Mapper mapper = bitemporalMapper("vt_from", "vt_to", "tt_from", "tt_to").pattern("yyyy/MM/dd HH:mm:ss.SSS")
+                                                                                .validated(true);
         utils = builder("bitemporal")
                 .withPartitionKey("integer_1")
                 .withClusteringKey()
@@ -187,6 +188,26 @@ public class BitemporalSearchAT extends BaseAT {
                 .createTable()
                 .createIndex()
                 .insert(data1, data2, data3, data4, data5)
+                .refresh();
+
+        String nowValue = "2016/03/02 00:00:00.000";
+        utils2 = builder("bitemporal2")
+                .withPartitionKey("integer_1")
+                .withClusteringKey()
+                .withColumn("integer_1", "int")
+                .withColumn("vt_from", "text")
+                .withColumn("vt_to", "text")
+                .withColumn("tt_from", "text")
+                .withColumn("tt_to", "text")
+                .withMapper("bitemporal",
+                            bitemporalMapper("vt_from", "vt_to", "tt_from", "tt_to")
+                                    .pattern(SIMPLE_DATE_PATTERN)
+                                    .nowValue(nowValue)
+                                    .validated(true))
+                .build()
+                .createKeyspace()
+                .createTable()
+                .createIndex()
                 .refresh();
     }
 
@@ -278,57 +299,81 @@ public class BitemporalSearchAT extends BaseAT {
     }
 
     //inserting bigger to nowValue it
-    @Test(expected = InvalidQueryException.class)
+    @SuppressWarnings("unchecked")
+    @Test
     public void biTemporalQueryWithNowValueTooLongTest() {
         // testing with long value 1456876800 == 2016/03/02 00:00:00
-        String nowValue = "2016/03/02 00:00:00.000";
-        utils2 = builder("bitemporal2")
-                .withPartitionKey("integer_1")
-                .withClusteringKey()
-                .withColumn("integer_1", "int")
-                .withColumn("vt_from", "text")
-                .withColumn("vt_to", "text")
-                .withColumn("tt_from", "text")
-                .withColumn("tt_to", "text")
-                .withMapper("bitemporal",
-                            bitemporalMapper("vt_from", "vt_to", "tt_from", "tt_to")
-                                    .pattern(SIMPLE_DATE_PATTERN)
-                                    .nowValue(nowValue)
-                                    .validated(true))
-                .build()
-                .createKeyspace()
-                .createTable()
-                .createIndex();
-
-        utils2.insert(data6);
+        utils2.insert(InvalidQueryException.class,
+                      "BitemporalDateTime value '1462096800001' exceeds Max Value: '1456873200000'",
+                      data6);
     }
 
     //vt_to>vt_from
-    @Test(expected = InvalidQueryException.class)
-    public void biTemporalQueryWithttToSmallerThanTTFrom() {
+    @SuppressWarnings("unchecked")
+    @Test
+    public void biTemporalQueryWithTtToSmallerThanTTFrom() {
         // testing with long value 1456876800 == 2016/03/02 00:00:00
         Map<String, String> data = new LinkedHashMap<>();
-        data.put("id", "5");
-        data.put("data", "'v1'");
+        data.put("integer_1", "5");
         data.put("vt_from", "0");
         data.put("vt_to", "9223372036854775807");
         data.put("tt_from", "9223372036854775807");
         data.put("tt_to", "0");
-        utils.insert(data);
+
+        Mapper mapper = bitemporalMapper("vt_from", "vt_to", "tt_from", "tt_to")
+                .pattern(TIMESTAMP_PATTERN)
+                .validated(true);
+        builder("bitemporal")
+                .withPartitionKey("integer_1")
+                .withClusteringKey()
+                .withColumn("integer_1", "int")
+                .withColumn("vt_from", "bigint")
+                .withColumn("vt_to", "bigint")
+                .withColumn("tt_from", "bigint")
+                .withColumn("tt_to", "bigint")
+                .withMapper("bitemporal", mapper)
+                .build()
+                .createKeyspace()
+                .createTable()
+                .createIndex()
+                .insert(InvalidQueryException.class,
+                        "tt_from:'0' is after tt_to:'9223372036854775807'",
+                        data)
+                .dropKeyspace();
     }
 
     //tt_to<tt_from
-    @Test(expected = InvalidQueryException.class)
-    public void biTemporalQueryWithVtToSmallerhanVTFrom() {
+    @Test
+    public void biTemporalQueryWithVtToSmallerThanVTFrom() {
         // testing with long value 1456876800 == 2016/03/02 00:00:00
         Map<String, String> data = new LinkedHashMap<>();
-        data.put("id", "5");
-        data.put("data", "'v1'");
+        data.put("integer_1", "5");
         data.put("vt_from", "9223372036854775807");
         data.put("vt_to", "0");
         data.put("tt_from", "0");
         data.put("tt_to", "9223372036854775807");
-        utils.insert(data);
+
+        Mapper mapper = bitemporalMapper("vt_from", "vt_to", "tt_from", "tt_to")
+                .pattern(TIMESTAMP_PATTERN)
+                .validated(true);
+        builder("bitemporal")
+                .withPartitionKey("integer_1")
+                .withClusteringKey()
+                .withColumn("integer_1", "int")
+                .withColumn("vt_from", "bigint")
+                .withColumn("vt_to", "bigint")
+                .withColumn("tt_from", "bigint")
+                .withColumn("tt_to", "bigint")
+                .withMapper("bitemporal", mapper)
+                .build()
+                .createKeyspace()
+                .createTable()
+                .createIndex()
+                .insert(InvalidQueryException.class,
+                        "vt_from:'0' is after vt_to:'9223372036854775807'",
+                        data)
+                .dropKeyspace();
+
     }
 
     //valid String max value queries setting nowValue to max date in data3
@@ -429,7 +474,7 @@ public class BitemporalSearchAT extends BaseAT {
     public void biTemporalQueryOverBigIntsWithDefaultPattern() {
         Mapper mapper = bitemporalMapper("vt_from", "vt_to", "tt_from", "tt_to").pattern(TIMESTAMP_PATTERN);
         Batch batch = QueryBuilder.batch();
-        CassandraUtils cassandraUtils = builder("bitemporal3")
+        CassandraUtils utils = builder("bitemporal3")
                 .withPartitionKey("id")
                 .withClusteringKey("vt_from", "tt_from")
                 .withColumn("id", "int")
@@ -448,37 +493,37 @@ public class BitemporalSearchAT extends BaseAT {
                 .searchAll()
                 .checkUnorderedIntColumns("id", 1, 2, 3, 4, 5);
 
-        CassandraUtilsUpdate cassandraUtilsUpdate = cassandraUtils.update()
-                                                                  .where("id", 1)
-                                                                  .and("vt_from", 0)
-                                                                  .and("tt_from", 0);
+        CassandraUtilsUpdate utilsUpdate = utils.update()
+                                                .where("id", 1)
+                                                .and("vt_from", 0)
+                                                .and("tt_from", 0);
 
-        cassandraUtilsUpdate.onlyIf(QueryBuilder.eq("tt_to", 9223372036854775807L))
-                            .with(QueryBuilder.set("tt_to", 20150101));
+        utilsUpdate.onlyIf(QueryBuilder.eq("tt_to", 9223372036854775807L))
+                   .with(QueryBuilder.set("tt_to", 20150101));
 
-        batch.add(cassandraUtilsUpdate.asUpdate());
-        batch.add(cassandraUtils.asInsert(new String[]{"id", "data", "vt_from", "vt_to", "tt_from", "tt_to"},
-                                          new Object[]{1,
-                                                       "v2",
-                                                       0,
-                                                       9223372036854775807L,
-                                                       20150102,
-                                                       9223372036854775807L}));
+        batch.add(utilsUpdate.asUpdate());
+        batch.add(utils.asInsert(new String[]{"id", "data", "vt_from", "vt_to", "tt_from", "tt_to"},
+                                 new Object[]{1,
+                                              "v2",
+                                              0,
+                                              9223372036854775807L,
+                                              20150102,
+                                              9223372036854775807L}));
 
-        assertTrue("batch execution didn't work", cassandraUtils.execute(batch).wasApplied());
+        assertTrue("batch execution didn't work", utils.execute(batch).wasApplied());
 
-        cassandraUtils.filter(bitemporal("bitemporal").vtFrom(0)
-                                                      .vtTo(9223372036854775807L)
-                                                      .ttFrom(9223372036854775807L)
-                                                      .ttTo(9223372036854775807L))
-                      .refresh(true)
-                      .checkUnorderedIntColumns("id", 1, 2, 3, 4, 5);
+        utils.filter(bitemporal("bitemporal").vtFrom(0)
+                                             .vtTo(9223372036854775807L)
+                                             .ttFrom(9223372036854775807L)
+                                             .ttTo(9223372036854775807L))
+             .refresh(true)
+             .checkUnorderedIntColumns("id", 1, 2, 3, 4, 5);
 
-        CassandraUtilsSelect select = cassandraUtils.filter(bitemporal("bitemporal").vtFrom(0)
-                                                                                    .vtTo(9223372036854775807L)
-                                                                                    .ttFrom(9223372036854775807L)
-                                                                                    .ttTo(9223372036854775807L))
-                                                    .and("AND id = 1");
+        CassandraUtilsSelect select = utils.filter(bitemporal("bitemporal").vtFrom(0)
+                                                                           .vtTo(9223372036854775807L)
+                                                                           .ttFrom(9223372036854775807L)
+                                                                           .ttTo(9223372036854775807L))
+                                           .and("AND id = 1");
         select.check(1);
         select.checkIntColumn("id", 1);
         select.checkStringColumn("data", "v2");
@@ -486,7 +531,7 @@ public class BitemporalSearchAT extends BaseAT {
         select.checkLongColumn("vt_to", 9223372036854775807L);
         select.checkLongColumn("tt_from", 20150102L);
         select.checkLongColumn("tt_to", 9223372036854775807L);
-        cassandraUtils.dropIndex().dropTable().dropKeyspace();
+        utils.dropIndex().dropTable().dropKeyspace();
     }
 
     @Test
