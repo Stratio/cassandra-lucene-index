@@ -25,17 +25,7 @@ import static com.stratio.cassandra.lucene.builder.Builder.all;
 public class AllSearchAT extends AbstractSearchAT {
 
     @Test
-    public void allFilterTest() {
+    public void testAll() {
         filter(all()).check(5);
-    }
-
-    @Test
-    public void allQueryTest() {
-        query(all()).check(5);
-    }
-
-    @Test
-    public void allFilteredQueryTest() {
-        filter(all()).query(all()).check(5);
     }
 }

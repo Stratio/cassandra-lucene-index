@@ -61,7 +61,7 @@ public class LuceneCondition extends Condition {
     }
 
     /** {@inheritDoc} */
-    public Set<String> involvedFields() {
+    public Set<String> postProcessingFields() {
         Set<String> fields = new LinkedHashSet<>();
         if (!StringUtils.isBlank(defaultField)) {
             fields.add(defaultField);

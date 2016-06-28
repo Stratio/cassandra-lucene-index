@@ -25,53 +25,13 @@ import com.stratio.cassandra.lucene.builder.search.Search;
 import com.stratio.cassandra.lucene.builder.search.condition.*;
 import com.stratio.cassandra.lucene.builder.search.sort.GeoDistanceSortField;
 import com.stratio.cassandra.lucene.builder.search.sort.SimpleSortField;
-import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.JsonParser;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.SerializationConfig;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
-
-import java.io.IOException;
 
 /**
- * Abstract builder.
+ * Utility class for creating Lucene index statements.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public abstract class Builder {
-
-    /** The embedded JSON serializer. */
-    private static final ObjectMapper jsonMapper = new ObjectMapper();
-
-    static {
-        jsonMapper.configure(JsonGenerator.Feature.QUOTE_FIELD_NAMES, true);
-        jsonMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
-        jsonMapper.configure(SerializationConfig.Feature.AUTO_DETECT_IS_GETTERS, false);
-        jsonMapper.setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
-    }
-
-    /**
-     * Returns the JSON {@code String} representation of the specified object.
-     *
-     * @return the JSON {@code String}
-     */
-    @Override
-    public String toString() {
-        return build();
-    }
-
-    /**
-     * Returns the JSON representation of this {@link Builder}.
-     *
-     * @return a JSON representing this
-     */
-    public String build() {
-        try {
-            return jsonMapper.writeValueAsString(this);
-        } catch (IOException e) {
-            throw new BuilderException(e, "Error formatting JSON");
-        }
-    }
 
     /**
      * Returns a new index creation statement using the session's keyspace.
@@ -326,6 +286,36 @@ public abstract class Builder {
     }
 
     /**
+     * Returns a new {@link BooleanCondition} with the specified mandatory conditions participating in scoring.
+     *
+     * @param conditions the mandatory conditions
+     * @return a new boolean condition with the specified mandatory conditions
+     */
+    public static BooleanCondition must(Condition<?>... conditions) {
+        return bool().must(conditions);
+    }
+
+    /**
+     * Returns a new {@link BooleanCondition} with the specified optional conditions participating in scoring.
+     *
+     * @param conditions the optional conditions
+     * @return a new boolean condition with the specified optional conditions
+     */
+    public static BooleanCondition should(Condition<?>... conditions) {
+        return bool().should(conditions);
+    }
+
+    /**
+     * Returns a new {@link BooleanCondition} with the specified mandatory not conditions not participating in scoring.
+     *
+     * @param conditions the mandatory not conditions
+     * @return a new boolean condition with the specified mandatory not conditions
+     */
+    public static BooleanCondition not(Condition<?>... conditions) {
+        return bool().not(conditions);
+    }
+
+    /**
      * Returns a new {@link ContainsCondition}.
      *
      * @param field the name of the field to be matched
@@ -565,12 +555,12 @@ public abstract class Builder {
     /**
      * Returns a new {@link GeoDistanceSortField} for the specified field.
      *
-     * @param mapper the name of the field to be used for sort
-     * @param longitude the longitude in degrees of the point to min distance sort by
+     * @param field the name of the geo point field mapper to be used for sorting
      * @param latitude the latitude in degrees of the point to min distance sort by
+     * @param longitude the longitude in degrees of the point to min distance sort by
      * @return a new geo distance sort field
      */
-    public static GeoDistanceSortField geoDistanceField(String mapper, double longitude, double latitude) {
-        return new GeoDistanceSortField(mapper, longitude, latitude);
+    public static GeoDistanceSortField geoDistanceField(String field, double latitude, double longitude) {
+        return new GeoDistanceSortField(field, latitude, longitude);
     }
 }

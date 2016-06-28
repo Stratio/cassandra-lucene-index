@@ -130,7 +130,7 @@ public class TupleIndexingAT extends BaseAT {
                                              .refresh();
 
         Integer[] actualValues = utils.filter(geoDistance("geo_point", -3.784519, 40.442163, "10000km"))
-                                      .sort(geoDistanceField("geo_point", -3.784519, 40.442163).reverse(false))
+                                      .sort(geoDistanceField("geo_point", 40.442163, -3.784519).reverse(false))
                                       .intColumn("k");
 
         assertEquals("Expected 7 results!", 7, actualValues.length);

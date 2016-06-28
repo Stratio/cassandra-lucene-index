@@ -153,7 +153,7 @@ public class DateRangeConditionTest extends AbstractConditionTest {
     @Test
     public void testQuery() {
         Schema schema = schema().mapper("name", dateRangeMapper("from", "to").pattern(TIMESTAMP_PATTERN)).build();
-        DateRangeCondition condition = new DateRangeCondition(null, "name", 1L, 2L, null);
+        DateRangeCondition condition = dateRange("name").from(1L).to(2L).build();
         Query query = condition.query(schema);
         assertNotNull("Query is not built", query);
         assertEquals("Query type is wrong", IntersectsPrefixTreeQuery.class, query.getClass());
@@ -166,7 +166,7 @@ public class DateRangeConditionTest extends AbstractConditionTest {
     @Test
     public void testQueryOpenStartTimestamp() {
         Schema schema = schema().mapper("name", dateRangeMapper("from", "to").pattern(TIMESTAMP_PATTERN)).build();
-        DateRangeCondition condition = new DateRangeCondition(null, "name", null, 2L, null);
+        DateRangeCondition condition = dateRange("name").to(2L).build();
         Query query = condition.query(schema);
         assertNotNull("Query is not built", query);
         assertEquals("Query type is wrong", IntersectsPrefixTreeQuery.class, query.getClass());
@@ -179,7 +179,7 @@ public class DateRangeConditionTest extends AbstractConditionTest {
     @Test
     public void testQueryOpenStopTimestamp() {
         Schema schema = schema().mapper("name", dateRangeMapper("from", "to").pattern(TIMESTAMP_PATTERN)).build();
-        DateRangeCondition condition = new DateRangeCondition(null, "name", 1L, null, null);
+        DateRangeCondition condition = dateRange("name").from(1L).build();
         Query query = condition.query(schema);
         assertNotNull("Query is not built", query);
         assertEquals("Query type is wrong", IntersectsPrefixTreeQuery.class, query.getClass());
@@ -191,34 +191,34 @@ public class DateRangeConditionTest extends AbstractConditionTest {
 
     @Test
     public void testQueryOpenStartPattern() {
-        Schema schema = schema().mapper("name", dateRangeMapper("from", "to").pattern("yyyyMMdd")).build();
-        DateRangeCondition condition = new DateRangeCondition(null, "name", null, 20151127, null);
+        Schema schema = schema().mapper("name", dateRangeMapper("from", "to").pattern("yyyy-MM-dd Z")).build();
+        DateRangeCondition condition = dateRange("name").to("2015-11-27 -0200").build();
         Query query = condition.query(schema);
         assertNotNull("Query is not built", query);
         assertEquals("Query type is wrong", IntersectsPrefixTreeQuery.class, query.getClass());
         assertEquals("Query is wrong",
                      "IntersectsPrefixTreeQuery(fieldName=name,queryShape=" +
-                     "[-292269054-12-02T16:47:04.192 TO 2015-11-27T00:00:00.000],detailLevel=9,prefixGridScanLevel=7)",
+                     "[-292269054-12-02T16:47:04.192 TO 2015-11-27T02:00:00.000],detailLevel=9,prefixGridScanLevel=7)",
                      query.toString());
     }
 
     @Test
     public void testQueryOpenStopPattern() {
-        Schema schema = schema().mapper("name", dateRangeMapper("from", "to").pattern("yyyyMMdd")).build();
-        DateRangeCondition condition = new DateRangeCondition(null, "name", 20151127, null, null);
+        Schema schema = schema().mapper("name", dateRangeMapper("from", "to").pattern("yyyy-MM-dd Z")).build();
+        DateRangeCondition condition = dateRange("name").from("2015-11-27 -0200").build();
         Query query = condition.query(schema);
         assertNotNull("Query is not built", query);
         assertEquals("Query type is wrong", IntersectsPrefixTreeQuery.class, query.getClass());
         assertEquals("Query is wrong",
                      "IntersectsPrefixTreeQuery(fieldName=name,queryShape=" +
-                     "[2015-11-27 TO 292278994-08-17T07:12:55.807],detailLevel=9,prefixGridScanLevel=7)",
+                     "[2015-11-27T02 TO 292278994-08-17T07:12:55.807],detailLevel=9,prefixGridScanLevel=7)",
                      query.toString());
     }
 
     @Test(expected = IndexException.class)
     public void testQueryWithoutValidMapper() {
         Schema schema = schema().mapper("name", uuidMapper()).build();
-        DateRangeCondition condition = new DateRangeCondition(null, "name", 1, 2, null);
+        DateRangeCondition condition = dateRange("name").from(1L).to(2L).build();
         condition.query(schema);
     }
 

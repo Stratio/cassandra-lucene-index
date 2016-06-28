@@ -17,10 +17,7 @@ package com.stratio.cassandra.lucene.search;
 
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.IndexPagingState;
-import com.stratio.cassandra.lucene.search.condition.Condition;
 import com.stratio.cassandra.lucene.search.condition.builder.ConditionBuilder;
-import com.stratio.cassandra.lucene.search.sort.Sort;
-import com.stratio.cassandra.lucene.search.sort.builder.SortBuilder;
 import com.stratio.cassandra.lucene.search.sort.builder.SortFieldBuilder;
 import com.stratio.cassandra.lucene.util.Builder;
 import com.stratio.cassandra.lucene.util.ByteBufferUtils;
@@ -28,6 +25,11 @@ import com.stratio.cassandra.lucene.util.JsonSerializer;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * Class for building a new {@link Search}.
@@ -36,17 +38,17 @@ import java.io.IOException;
  */
 public class SearchBuilder implements Builder<Search> {
 
-    /** The {@link Condition} for querying, maybe {@code null} meaning no querying. */
-    @JsonProperty("query")
-    private ConditionBuilder<?, ?> queryBuilder;
-
-    /** The {@link Condition} for filtering, maybe {@code null} meaning no filtering. */
+    /** The filtering conditions not participating in scoring. */
     @JsonProperty("filter")
-    private ConditionBuilder<?, ?> filterBuilder;
+    protected final List<ConditionBuilder<?, ?>> filter = new LinkedList<>();
 
-    /** The {@link Sort} for the query, maybe {@code null} meaning no filtering. */
+    /** The querying conditions participating in scoring. */
+    @JsonProperty("query")
+    protected final List<ConditionBuilder<?, ?>> query = new LinkedList<>();
+
+    /** The {@link SortFieldBuilder}s for the query. */
     @JsonProperty("sort")
-    private SortBuilder sortBuilder;
+    private List<SortFieldBuilder> sort = new LinkedList<>();
 
     /** If this search must force the refresh the index before reading it. */
     @JsonProperty("refresh")
@@ -60,46 +62,35 @@ public class SearchBuilder implements Builder<Search> {
     }
 
     /**
-     * Sets the specified querying condition.
+     * Returns this builder with the specified filtering conditions not participating in scoring.
      *
-     * @param queryBuilder the querying condition to be set
-     * @return this builder with the specified querying condition
+     * @param builders the conditions to be added
+     * @return this builder with the specified conditions
      */
-    public SearchBuilder query(ConditionBuilder<?, ?> queryBuilder) {
-        this.queryBuilder = queryBuilder;
+    public SearchBuilder filter(ConditionBuilder<?, ?>... builders) {
+        filter.addAll(Arrays.asList(builders));
         return this;
     }
 
     /**
-     * Sets the specified filtering condition.
+     * Returns this builder with the specified querying conditions participating in scoring.
      *
-     * @param filterBuilder the filtering condition to be set
-     * @return this builder with the specified filtering condition
+     * @param builders the conditions to be added
+     * @return this builder with the specified conditions
      */
-    public SearchBuilder filter(ConditionBuilder<?, ?> filterBuilder) {
-        this.filterBuilder = filterBuilder;
+    public SearchBuilder query(ConditionBuilder<?, ?>... builders) {
+        query.addAll(Arrays.asList(builders));
         return this;
     }
 
     /**
-     * Sets the specified sorting.
+     * Adds the specified sorting fields.
      *
-     * @param sortBuilder The sorting fields to be set.
-     * @return this builder with the specified sort
+     * @param builders the sorting fields to be added
+     * @return this builder with the specified sorting fields
      */
-    public SearchBuilder sort(SortBuilder sortBuilder) {
-        this.sortBuilder = sortBuilder;
-        return this;
-    }
-
-    /**
-     * Sets the specified sorting.
-     *
-     * @param sortFieldBuilders The sorting fields to be set.
-     * @return this builder with the specified sorting
-     */
-    public SearchBuilder sort(SortFieldBuilder... sortFieldBuilders) {
-        this.sortBuilder = new SortBuilder(sortFieldBuilders);
+    public SearchBuilder sort(SortFieldBuilder... builders) {
+        sort.addAll(Arrays.asList(builders));
         return this;
     }
 
@@ -132,13 +123,13 @@ public class SearchBuilder implements Builder<Search> {
      *
      * @return the search represented by this builder
      */
+    @Override
     public Search build() {
-        return new Search(queryBuilder == null ? null : queryBuilder.build(),
-                          filterBuilder == null ? null : filterBuilder.build(),
-                          sortBuilder == null ? null : sortBuilder.build(),
+        return new Search(filter.stream().map(ConditionBuilder::build).collect(toList()),
+                          query.stream().map(ConditionBuilder::build).collect(toList()),
+                          sort.stream().map(SortFieldBuilder::build).collect(toList()),
                           paging == null ? null : IndexPagingState.build(ByteBufferUtils.byteBuffer(paging)),
-                          refresh
-        );
+                          refresh);
     }
 
     /**
@@ -165,7 +156,7 @@ public class SearchBuilder implements Builder<Search> {
         try {
             return JsonSerializer.fromString(json, SearchBuilder.class);
         } catch (IOException e) {
-            throw new IndexException(e, "Unparseable JSON search: {}", e.getMessage());
+            return SearchBuilderLegacy.fromJson(json);
         }
     }
 

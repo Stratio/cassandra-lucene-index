@@ -71,7 +71,6 @@ public class BooleanConditionTest extends AbstractConditionTest {
 
     @Test
     public void testQuery() {
-
         Schema schema = schema().mapper("name", stringMapper())
                                 .mapper("color", stringMapper())
                                 .mapper("country", stringMapper())
@@ -83,7 +82,7 @@ public class BooleanConditionTest extends AbstractConditionTest {
                                            .not(match("country", "england"))
                                            .boost(0.4f)
                                            .build();
-        BooleanQuery query = (BooleanQuery) condition.doQuery(schema);
+        BooleanQuery query = condition.doQuery(schema);
         assertEquals("Query count clauses is wrong", 5, query.clauses().size());
     }
 
@@ -91,7 +90,7 @@ public class BooleanConditionTest extends AbstractConditionTest {
     public void testQueryEmpty() {
         Schema schema = schema().build();
         BooleanCondition condition = bool().boost(0.4).build();
-        BooleanQuery query = (BooleanQuery) condition.doQuery(schema);
+        BooleanQuery query = condition.doQuery(schema);
         assertEquals("Query count clauses is wrong", 0, query.clauses().size());
     }
 
@@ -99,7 +98,7 @@ public class BooleanConditionTest extends AbstractConditionTest {
     public void testQueryPureNot() {
         Schema schema = schema().mapper("name", stringMapper()).build();
         BooleanCondition condition = bool().not(match("name", "jonathan")).boost(0.4).build();
-        BooleanQuery query = (BooleanQuery) condition.doQuery(schema);
+        BooleanQuery query = condition.doQuery(schema);
         assertEquals("Query count clauses is wrong", 2, query.clauses().size());
     }
 
@@ -112,14 +111,10 @@ public class BooleanConditionTest extends AbstractConditionTest {
                                            .build();
         assertEquals("Method #toString is wrong",
                      "BooleanCondition{boost=0.5, " +
-                     "must=[" +
-                     "MatchCondition{boost=null, field=name, value=jonathan, docValues=false}, " +
-                     "MatchCondition{boost=null, field=age, value=18, docValues=false}" +
-                     "], should=[" +
-                     "MatchCondition{boost=null, field=color, value=green, docValues=false}" +
-                     "], not=[" +
-                     "MatchCondition{boost=0.7, field=country, value=england, docValues=false}" +
-                     "]}",
+                     "must=[MatchCondition{boost=null, field=name, value=jonathan, docValues=false}, " +
+                     "MatchCondition{boost=null, field=age, value=18, docValues=false}], " +
+                     "should=[MatchCondition{boost=null, field=color, value=green, docValues=false}], " +
+                     "not=[MatchCondition{boost=0.7, field=country, value=england, docValues=false}]}",
                      condition.toString());
     }
 

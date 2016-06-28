@@ -65,31 +65,31 @@ public class AllowFilteringWith1000MixedRowsAT extends BaseAT {
 
     @Test
     public void allowFiltering1000rowsTest() {
-        utils.selectAllFromIndexQueryWithFiltering(1000, "double_1", 1D).check(250);
+        utils.searchAllWithFiltering(1000, "double_1", 1D).check(250);
     }
 
     @Test
     public void allowFilteringAndLimit999Test() {
-        utils.selectAllFromIndexQueryWithFiltering(999, "double_1", 1D).check(250);
+        utils.searchAllWithFiltering(999, "double_1", 1D).check(250);
     }
 
     @Test
     public void allowFilteringAndLimit1001Test() {
-        utils.selectAllFromIndexQueryWithFiltering(1001, "double_1", 1D).check(250);
+        utils.searchAllWithFiltering(1001, "double_1", 1D).check(250);
     }
 
     @Test
     public void allowFilteringAndLimit99Test() {
-        utils.selectAllFromIndexQueryWithFiltering(99, "double_1", 1D).check(99);
+        utils.searchAllWithFiltering(99, "double_1", 1D).check(99);
     }
 
     @Test
     public void allowFilteringAndLimit101Test() {
-        utils.selectAllFromIndexQueryWithFiltering(101, "double_1", 1D).check(101);
+        utils.searchAllWithFiltering(101, "double_1", 1D).check(101);
     }
 
     @Test
     public void allowFilteringAndLimit100Test() {
-        utils.selectAllFromIndexQueryWithFiltering(100, "double_1", 1D).check(100);
+        utils.searchAllWithFiltering(100, "double_1", 1D).check(100);
     }
 }

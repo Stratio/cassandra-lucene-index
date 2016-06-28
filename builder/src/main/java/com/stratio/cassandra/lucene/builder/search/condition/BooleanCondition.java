@@ -17,8 +17,6 @@ package com.stratio.cassandra.lucene.builder.search.condition;
 
 import org.codehaus.jackson.annotate.JsonProperty;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -31,46 +29,46 @@ public class BooleanCondition extends Condition<BooleanCondition> {
 
     /** The mandatory conditions. */
     @JsonProperty("must")
-    final List<Condition> must = new ArrayList<>();
+    private List<Condition> must;
 
     /** The optional conditions. */
     @JsonProperty("should")
-    final List<Condition> should = new ArrayList<>();
+    private List<Condition> should;
 
     /** The mandatory not conditions. */
     @JsonProperty("not")
-    final List<Condition> not = new ArrayList<>();
+    private List<Condition> not;
 
     /**
-     * Sets the specified mandatory conditions.
+     * Returns this with the specified mandatory conditions.
      *
      * @param conditions the mandatory conditions to be added
      * @return this with the specified mandatory conditions
      */
     public BooleanCondition must(Condition... conditions) {
-        must.addAll(Arrays.asList(conditions));
+        must = add(must, conditions);
         return this;
     }
 
     /**
-     * Sets the specified optional conditions.
+     * Returns this with the specified optional conditions.
      *
      * @param conditions the optional conditions to be added
      * @return this with the specified optional conditions
      */
     public BooleanCondition should(Condition... conditions) {
-        should.addAll(Arrays.asList(conditions));
+        should = add(should, conditions);
         return this;
     }
 
     /**
-     * Sets the specified mandatory not conditions.
+     * Returns this with the specified mandatory not conditions.
      *
      * @param conditions the mandatory not conditions to be added
      * @return this with the specified mandatory not conditions
      */
     public BooleanCondition not(Condition... conditions) {
-        not.addAll(Arrays.asList(conditions));
+        not = add(not, conditions);
         return this;
     }
 }

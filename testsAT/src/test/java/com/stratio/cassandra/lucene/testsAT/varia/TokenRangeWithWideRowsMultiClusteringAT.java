@@ -88,27 +88,27 @@ public class TokenRangeWithWideRowsMultiClusteringAT extends BaseAT {
     }
 
     @Test
-    public void tokenSearchTest1() {
+    public void testTokenSearch1() {
         utils.searchAll().and("AND TOKEN(integer_1) > TOKEN(1)").check(12);
     }
 
     @Test
-    public void tokenSearchTest2() {
+    public void testTokenSearch2() {
         utils.searchAll().and("AND TOKEN(integer_1) >= TOKEN(1)").check(16);
     }
 
     @Test
-    public void tokenSearchTest3() {
+    public void testTokenSearch3() {
         utils.searchAll().and("AND TOKEN(integer_1) < TOKEN(1)").check(4);
     }
 
     @Test
-    public void tokenSearchTest4() {
+    public void testTokenSearch4() {
         utils.searchAll().and("AND TOKEN(integer_1) <= TOKEN(1)").check(8);
     }
 
     @Test
-    public void tokenSearchTest5() {
+    public void testTokenSearch5() {
         utils.searchAll()
              .and("AND TOKEN(integer_1) > TOKEN(1)")
              .and("AND TOKEN(integer_1) < TOKEN(4)")
@@ -116,7 +116,7 @@ public class TokenRangeWithWideRowsMultiClusteringAT extends BaseAT {
     }
 
     @Test
-    public void tokenSearchTest6() {
+    public void testTokenSearch6() {
         utils.searchAll()
              .and("AND TOKEN(integer_1) >= TOKEN(1)")
              .and("AND TOKEN(integer_1) < TOKEN(4)")
@@ -124,7 +124,7 @@ public class TokenRangeWithWideRowsMultiClusteringAT extends BaseAT {
     }
 
     @Test
-    public void tokenSearchTest7() {
+    public void testTokenSearch7() {
         utils.searchAll()
              .and("AND TOKEN(integer_1) > TOKEN(1)")
              .and("AND TOKEN(integer_1) <= TOKEN(4)")
@@ -132,7 +132,7 @@ public class TokenRangeWithWideRowsMultiClusteringAT extends BaseAT {
     }
 
     @Test
-    public void tokenSearchTest8() {
+    public void testTokenSearch8() {
         utils.searchAll()
              .and("AND TOKEN(integer_1) >= TOKEN(1)")
              .and("AND TOKEN(integer_1) <= TOKEN(4)")
@@ -140,12 +140,12 @@ public class TokenRangeWithWideRowsMultiClusteringAT extends BaseAT {
     }
 
     @Test
-    public void tokenSearchTest9() {
+    public void testTokenSearch9() {
         utils.searchAll().and("AND TOKEN(integer_1) = TOKEN(1)").check(4);
     }
 
     @Test
-    public void tokenSearchTest10() {
+    public void testTokenSearch10() {
         utils.searchAll().check(20);
     }
 

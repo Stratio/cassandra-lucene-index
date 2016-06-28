@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.cassandra.lucene.util;
+package com.stratio.cassandra.lucene.builder;
 
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.JsonParser;
@@ -23,22 +23,22 @@ import org.codehaus.jackson.map.SerializationConfig;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
- * A JSON mapper based on Codehaus {@link ObjectMapper} annotations.
+ * Abstract builder for creating JSON documents.
  *
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
-public final class JsonSerializer {
-
-    private static final JsonSerializer INSTANCE = new JsonSerializer();
+public abstract class JSONBuilder {
 
     /** The embedded JSON serializer. */
-    private final ObjectMapper mapper = new ObjectMapper();
+    private static final ObjectMapper mapper = new ObjectMapper();
 
-    /** Private constructor to hide the implicit public one. */
-    private JsonSerializer() {
-        mapper.configure(JsonGenerator.Feature.QUOTE_FIELD_NAMES, false);
+    static {
+        mapper.configure(JsonGenerator.Feature.QUOTE_FIELD_NAMES, true);
         mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
         mapper.configure(SerializationConfig.Feature.AUTO_DETECT_IS_GETTERS, false);
         mapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, true);
@@ -46,27 +46,31 @@ public final class JsonSerializer {
         mapper.setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
     }
 
-    /**
-     * Returns the JSON {@code String} representation of the specified object.
-     *
-     * @param value the object to be serialized.
-     * @return the JSON {@code String} representation of {@code value}
-     * @throws IOException if there are serialization problems
-     */
-    public static String toString(Object value) throws IOException {
-        return INSTANCE.mapper.writeValueAsString(value);
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        return build();
     }
 
     /**
-     * Returns the object of the specified class represented by the specified JSON {@code String}.
+     * Returns the JSON {@code String} representation of the specified object.
      *
-     * @param value the JSON {@code String} to be parsed
-     * @param valueType the class of the object to be parsed
-     * @param <T> the type of the object to be parsed
-     * @return an object of the specified class represented by {@code value}
-     * @throws IOException if there are parsing problems
+     * @return a JSON {@code String}
      */
-    public static <T> T fromString(String value, Class<T> valueType) throws IOException {
-        return INSTANCE.mapper.readValue(value, valueType);
+    public String build() {
+        try {
+            return mapper.writeValueAsString(this);
+        } catch (IOException e) {
+            throw new BuilderException(e, "Error formatting JSON");
+        }
+    }
+
+    @SafeVarargs
+    protected static <T> List<T> add(List<T> l, T... a) {
+        if (l == null) {
+            l = new ArrayList<>(a.length);
+        }
+        l.addAll(Arrays.asList(a));
+        return l;
     }
 }

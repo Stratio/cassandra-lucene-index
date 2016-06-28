@@ -155,7 +155,7 @@ public class SchemaBuilder {
         try {
             return JsonSerializer.fromString(json, SchemaBuilder.class);
         } catch (IOException e) {
-            throw new IndexException(e, "Unparseable JSON schema: {}", e.getMessage());
+            throw new IndexException(e, "Unparseable JSON schema: {}: {}", e.getMessage(), json);
         }
     }
 

@@ -17,7 +17,6 @@ package com.stratio.cassandra.lucene.testsAT.varia;
 
 import com.datastax.driver.core.Row;
 import com.stratio.cassandra.lucene.builder.search.Search;
-import com.stratio.cassandra.lucene.builder.search.sort.SimpleSortField;
 import com.stratio.cassandra.lucene.testsAT.search.AbstractSearchAT;
 import org.junit.Assert;
 import org.junit.Test;
@@ -55,7 +54,7 @@ public class BoundStatementWithSortedKQuery extends AbstractSearchAT {
 
     @Test
     public void sortIntegerAsc() {
-        Search search = search().sort(new SimpleSortField("integer_1").reverse(false));
+        Search search = new Search().sort(field("integer_1").reverse(false));
         Integer[] returnedValues = intColumn(utils.searchWithPreparedStatement(search), "integer_1");
         Assert.assertEquals("Expected 5 results!", 5, returnedValues.length);
         Integer[] expectedValues = new Integer[]{-5, -4, -3, -2, -1};
@@ -64,7 +63,7 @@ public class BoundStatementWithSortedKQuery extends AbstractSearchAT {
 
     @Test
     public void sortIntegerDesc() {
-        Search search = search().sort(field("integer_1").reverse(true));
+        Search search = new Search().sort(field("integer_1").reverse(true));
         Integer[] returnedValues = intColumn(utils.searchWithPreparedStatement(search), "integer_1");
         Assert.assertEquals("Expected 5 results!", 5, returnedValues.length);
         Integer[] expectedValues = new Integer[]{-1, -2, -3, -4, -5};
@@ -73,7 +72,7 @@ public class BoundStatementWithSortedKQuery extends AbstractSearchAT {
 
     @Test
     public void sortIntegerDefault() {
-        Search search = search().sort(field("integer_1"));
+        Search search = new Search().sort(field("integer_1"));
         Integer[] returnedValues = intColumn(utils.searchWithPreparedStatement(search), "integer_1");
         Assert.assertEquals("Expected 5 results!", 5, returnedValues.length);
         Integer[] expectedValues = new Integer[]{-5, -4, -3, -2, -1};
@@ -82,7 +81,7 @@ public class BoundStatementWithSortedKQuery extends AbstractSearchAT {
 
     @Test
     public void sortDoubleAsc() {
-        Search search = search().sort(field("double_1").reverse(false));
+        Search search = new Search().sort(field("double_1").reverse(false));
         Double[] returnedValues = doubleColumn(utils.searchWithPreparedStatement(search), "double_1");
         Assert.assertEquals("Expected 5 results!", 5, returnedValues.length);
         Double[] expectedValues = new Double[]{1D, 2D, 3D, 3D, 3D};
@@ -91,7 +90,7 @@ public class BoundStatementWithSortedKQuery extends AbstractSearchAT {
 
     @Test
     public void sortDoubleDesc() {
-        Search search = search().sort(field("double_1").reverse(true));
+        Search search = new Search().sort(field("double_1").reverse(true));
         Double[] returnedValues = doubleColumn(utils.searchWithPreparedStatement(search), "double_1");
         Assert.assertEquals("Expected 5 results!", 5, returnedValues.length);
         Double[] expectedValues = new Double[]{3D, 3D, 3D, 2D, 1D};
@@ -100,7 +99,7 @@ public class BoundStatementWithSortedKQuery extends AbstractSearchAT {
 
     @Test
     public void sortDoubleDefault() {
-        Search search = search().sort(field("double_1"));
+        Search search = new Search().sort(field("double_1"));
         Double[] returnedValues = doubleColumn(utils.searchWithPreparedStatement(search), "double_1");
         Assert.assertEquals("Expected 5 results!", 5, returnedValues.length);
         Double[] expectedValues = new Double[]{1D, 2D, 3D, 3D, 3D};
@@ -109,7 +108,7 @@ public class BoundStatementWithSortedKQuery extends AbstractSearchAT {
 
     @Test
     public void sortCombined() {
-        Search search = search().sort(field("double_1"), field("integer_1"));
+        Search search = new Search().sort(field("double_1"), field("integer_1"));
         List<Row> rows = utils.searchWithPreparedStatement(search);
         Double[] returnedDoubleValues = doubleColumn(rows, "double_1");
         Assert.assertEquals("Expected 5 results!", 5, returnedDoubleValues.length);
@@ -123,7 +122,7 @@ public class BoundStatementWithSortedKQuery extends AbstractSearchAT {
 
     @Test
     public void sortWithFilter() {
-        Search search = search().filter(all()).sort(field("integer_1").reverse(false));
+        Search search = new Search().filter(all()).sort(field("integer_1").reverse(false));
         Integer[] returnedValues = intColumn(utils.searchWithPreparedStatement(search), "integer_1");
         Assert.assertEquals("Expected 5 results!", 5, returnedValues.length);
         Integer[] expectedValues = new Integer[]{-5, -4, -3, -2, -1};
@@ -132,7 +131,7 @@ public class BoundStatementWithSortedKQuery extends AbstractSearchAT {
 
     @Test
     public void sortWithQuery() {
-        Search search = search().query(all()).sort(field("integer_1").reverse(false));
+        Search search = new Search().query(all()).sort(field("integer_1").reverse(false));
         Integer[] returnedValues = intColumn(utils.searchWithPreparedStatement(search), "integer_1");
         Assert.assertEquals("Expected 5 results!", 5, returnedValues.length);
         Integer[] expectedValues = new Integer[]{-5, -4, -3, -2, -1};
@@ -141,7 +140,7 @@ public class BoundStatementWithSortedKQuery extends AbstractSearchAT {
 
     @Test
     public void sortWithFilterAndQuery() {
-        Search search = search().filter(all()).query(all()).sort(field("integer_1").reverse(false));
+        Search search = new Search().filter(all()).query(all()).sort(field("integer_1").reverse(false));
         Integer[] returnedValues = intColumn(utils.searchWithPreparedStatement(search), "integer_1");
         Assert.assertEquals("Expected 5 results!", 5, returnedValues.length);
         Integer[] expectedValues = new Integer[]{-5, -4, -3, -2, -1};
@@ -150,8 +149,8 @@ public class BoundStatementWithSortedKQuery extends AbstractSearchAT {
 
     @Test
     public void sortWithGeoDistanceFilterNotReversed() {
-        Search search = search().filter(geoDistance("geo_point", -3.784519, 40.442163, "10000km"))
-                                .sort(geoDistanceField("geo_point", -3.784519, 40.442163).reverse(false));
+        Search search = new Search().filter(geoDistance("geo_point", -3.784519, 40.442163, "10000km"))
+                                    .sort(geoDistanceField("geo_point", 40.442163, -3.784519).reverse(false));
         Integer[] returnedValues = intColumn(utils.searchWithPreparedStatement(search), "integer_1");
         Assert.assertEquals("Expected 5 results!", 5, returnedValues.length);
         Integer[] expectedValues = new Integer[]{-1, -2, -3, -4, -5};
@@ -160,8 +159,8 @@ public class BoundStatementWithSortedKQuery extends AbstractSearchAT {
 
     @Test
     public void sortWithGeoDistanceQueryNotReversed() {
-        Search search = search().query(geoDistance("geo_point", -3.784519, 40.442163, "10000km"))
-                                .sort(geoDistanceField("geo_point", -3.784519, 40.442163).reverse(false));
+        Search search = new Search().query(geoDistance("geo_point", -3.784519, 40.442163, "10000km"))
+                                    .sort(geoDistanceField("geo_point", 40.442163, -3.784519).reverse(false));
         Integer[] returnedValues = intColumn(utils.searchWithPreparedStatement(search), "integer_1");
         Assert.assertEquals("Expected 5 results!", 5, returnedValues.length);
         Integer[] expectedValues = new Integer[]{-1, -2, -3, -4, -5};
@@ -170,8 +169,8 @@ public class BoundStatementWithSortedKQuery extends AbstractSearchAT {
 
     @Test
     public void sortWithGeoDistanceFilterReversed() {
-        Search search = search().filter(geoDistance("geo_point", -3.784519, 40.442163, "10000km"))
-                                .sort(geoDistanceField("geo_point", -3.784519, 40.442163).reverse(true));
+        Search search = new Search().filter(geoDistance("geo_point", -3.784519, 40.442163, "10000km"))
+                                    .sort(geoDistanceField("geo_point", 40.442163, -3.784519).reverse(true));
         Integer[] returnedValues = intColumn(utils.searchWithPreparedStatement(search), "integer_1");
         Assert.assertEquals("Expected 5 results!", 5, returnedValues.length);
         Integer[] expectedValues = new Integer[]{-5, -4, -3, -2, -1};
@@ -180,8 +179,8 @@ public class BoundStatementWithSortedKQuery extends AbstractSearchAT {
 
     @Test
     public void sortWithGeoDistanceQueryReversed() {
-        Search search = search().query(geoDistance("geo_point", -3.784519, 40.442163, "10000km"))
-                                .sort(geoDistanceField("geo_point", -3.784519, 40.442163).reverse(true));
+        Search search = new Search().query(geoDistance("geo_point", -3.784519, 40.442163, "10000km"))
+                                    .sort(geoDistanceField("geo_point", 40.442163, -3.784519).reverse(true));
         Integer[] returnedValues = intColumn(utils.searchWithPreparedStatement(search), "integer_1");
         Assert.assertEquals("Expected 5 results!", 5, returnedValues.length);
         Integer[] expectedValues = new Integer[]{-5, -4, -3, -2, -1};

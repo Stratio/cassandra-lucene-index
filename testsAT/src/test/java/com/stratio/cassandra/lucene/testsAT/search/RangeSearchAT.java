@@ -26,425 +26,67 @@ import static com.stratio.cassandra.lucene.builder.Builder.range;
 public class RangeSearchAT extends AbstractSearchAT {
 
     @Test
-    public void rangeQueryAsciiFieldTest1() {
-        query(range("ascii_1")).check(5);
-    }
-
-    @Test
-    public void rangeQueryAsciiFieldTest2() {
-        query(range("ascii_1").lower("a").upper("g")).check(4);
-    }
-
-    @Test
-    public void rangeQueryAsciiFieldTest3() {
-        query(range("ascii_1").lower("a").upper("b")).check(0);
-    }
-
-    @Test
-    public void rangeQueryAsciiFieldTest4() {
-        query(range("ascii_1").lower("a").upper("f")).check(0);
-    }
-
-    @Test
-    public void rangeQueryAsciiFieldTest5() {
-        query(range("ascii_1").lower("a").upper("f").includeLower(true).includeUpper(true)).check(0);
-    }
-
-    @Test
-    public void rangeQueryIntegerTest1() {
-        query(range("integer_1").lower("-5").upper("5")).check(4);
-    }
-
-    @Test
-    public void rangeQueryIntegerTest2() {
-        query(range("integer_1").lower("-4").upper("4")).check(3);
-    }
-
-    @Test
-    public void rangeQueryIntegerTest3() {
-        query(range("integer_1").lower("-4").upper("-1").includeLower(true).includeUpper(true)).check(4);
-    }
-
-    @Test
-    public void rangeQueryIntegerTest4() {
-        query(range("integer_1")).check(5);
-    }
-
-    @Test
-    public void rangeQueryBigintTest1() {
-        query(range("bigint_1")).check(5);
-    }
-
-    @Test
-    public void rangeQueryBigintTest2() {
-        query(range("bigint_1").lower("999999999999999").upper("1000000000000001")).check(1);
-    }
-
-    @Test
-    public void rangeQueryBigintTest3() {
-        query(range("bigint_1").lower("1000000000000000").upper("2000000000000000")).check(0);
-    }
-
-    @Test
-    public void rangeQueryBigintTest4() {
-        query(range("bigint_1").lower("1000000000000000")
-                               .upper("2000000000000000")
-                               .includeLower(true)
-                               .includeUpper(true)).check(2);
-    }
-
-    @Test
-    public void rangeQueryBigintTest5() {
-        query(range("bigint_1").lower("1").upper("3").includeLower(true).includeUpper(true)).check(0);
-    }
-
-    @Test
-    public void rangeQueryBlobTest1() {
-        query(range("blob_1")).check(5);
-    }
-
-    @Test
-    public void rangeQueryBlobTest2() {
-        query(range("blob_1").lower("0x3E0A15").upper("0x3E0A17")).check(4);
-    }
-
-    @Test
-    public void rangeQueryBlobTest3() {
-        query(range("blob_1").lower("0x3E0A16").upper("0x3E0A17")).check(0);
-    }
-
-    @Test
-    public void rangeQueryBlobTest4() {
-        query(range("blob_1").lower("0x3E0A16").upper("0x3E0A17").includeLower(true).includeUpper(true)).check(4);
-    }
-
-    @Test
-    public void rangeQueryBlobTest5() {
-        query(range("blob_1").lower("0x3E0A17").upper("0x3E0A18").includeLower(true).includeUpper(true)).check(0);
-    }
-
-    @Test
-    public void rangeQueryBooleanTest1() {
-        query(range("boolean_1")).check(5);
-    }
-
-    @Test
-    public void rangeQueryDecimalTest1() {
-        query(range("decimal_1")).check(5);
-    }
-
-    @Test
-    public void rangeQueryDecimalTest2() {
-        query(range("decimal_1").lower("1999999999.9").upper("2000000000.1")).check(1);
-    }
-
-    @Test
-    public void rangeQueryDecimalTest3() {
-        query(range("decimal_1").lower("2000000000.0").upper("3000000000.0")).check(0);
-    }
-
-    @Test
-    public void rangeQueryDecimalTest4() {
-        query(range("decimal_1").lower("2000000000.0")
-                                .upper("3000000000.0")
-                                .includeLower(true)
-                                .includeUpper(true)).check(4);
-    }
-
-    @Test
-    public void rangeQueryDecimalTest5() {
-        query(range("decimal_1").lower("2000000000.000001").upper("2000000000.181235")).check(0);
-    }
-
-    @Test
-    public void rangeQueryDoubleTest1() {
-        query(range("double_1")).check(5);
-    }
-
-    @Test
-    public void rangeQueryDoubleTest2() {
-        query(range("double_1").lower("1.9").upper("2.1")).check(1);
-    }
-
-    @Test
-    public void rangeQueryDoubleTest3() {
-        query(range("double_1").lower("2.0").upper("3.0")).check(0);
-    }
-
-    @Test
-    public void rangeQueryDoubleTest4() {
-        query(range("double_1").lower("2.0").upper("3.0").includeLower(true).includeUpper(true)).check(4);
-    }
-
-    @Test
-    public void rangeQueryDoubleTest5() {
-        query(range("double_1").lower("7.0").upper("10.0").includeLower(true).includeUpper(true)).check(0);
-    }
-
-    @Test
-    public void rangeQueryFloatTest1() {
-        query(range("float_1")).check(5);
-    }
-
-    @Test
-    public void rangeQueryFloatTest2() {
-        query(range("float_1").lower("1.9").upper("2.1")).check(1);
-    }
-
-    @Test
-    public void rangeQueryFloatTest3() {
-        query(range("float_1").lower("1.0").upper("2.0")).check(0);
-    }
-
-    @Test
-    public void rangeQueryFloatTest4() {
-        query(range("float_1").lower("1.0").upper("2.0").includeLower(true).includeUpper(true)).check(2);
-    }
-
-    @Test
-    public void rangeQueryFloatTest5() {
-        query(range("float_1").lower("7.0").upper("9.0")).check(0);
-    }
-
-    @Test
-    public void rangeQueryUuidTest1() {
-        query(range("uuid_1")).check(5);
-    }
-
-    @Test
-    public void rangeQueryUuidTest2() {
-        String msg = "Field 'uuid_1' with value '1' can not be parsed as UUID";
-        query(range("uuid_1").lower("1").upper("9")).check(InvalidQueryException.class, msg);
-    }
-
-    @Test
-    public void rangeQueryUuidTest3() {
-        query(range("uuid_1").lower("60297440-b4fa-11e3-8b5a-0002a5d5c51c")
-                             .upper("60297440-b4fa-11e3-8b5a-0002a5d5c51d")).check(0);
-    }
-
-    @Test
-    public void rangeQueryUuidTest4() {
-        query(range("uuid_1").lower("60297440-b4fa-11e3-8b5a-0002a5d5c51c")
-                             .upper("60297440-b4fa-11e3-8b5a-0002a5d5c51d")
-                             .includeLower(true)
-                             .includeUpper(true)).check(4);
-    }
-
-    @Test
-    public void rangeQueryTimeuuidTest1() {
-        query(range("timeuuid_1")).check(5);
-    }
-
-    @Test
-    public void rangeQueryTimeuuidTest2() {
-        String msg = "Field 'timeuuid_1' with value 'a' can not be parsed as UUID";
-        query(range("timeuuid_1").lower("a").upper("z")).check(InvalidQueryException.class, msg);
-    }
-
-    @Test
-    public void rangeQueryTimeuuidTest3() {
-        query(range("timeuuid_1").lower("a4a70900-24e1-11df-8924-001ff3591712")
-                                 .upper("a4a70900-24e1-11df-8924-001ff3591713")).check(0);
-    }
-
-    @Test
-    public void rangeQueryTimeuuidTest4() {
-        query(range("timeuuid_1").lower("a4a70900-24e1-11df-8924-001ff3591712")
-                                 .upper("a4a70900-24e1-11df-8924-001ff3591713")
-                                 .includeLower(true)
-                                 .includeUpper(true)).check(4);
-    }
-
-    @Test
-    public void rangeQueryInetFieldTest1() {
-        query(range("inet_1")).check(5);
-    }
-
-    @Test
-    public void rangeQueryInetFieldTest2() {
-        query(range("inet_1").lower("127.0.0.0").upper("127.1.0.0")).check(2);
-    }
-
-    @Test
-    public void rangeQueryInetFieldTest3() {
-        query(range("inet_1").lower("127.0.0.0").upper("127.1.0.0").includeLower(true).includeUpper(true)).check(2);
-    }
-
-    @Test
-    public void rangeQueryInetFieldTest4() {
-        query(range("inet_1").lower("192.168.0.0").upper("192.168.0.1")).check(0);
-    }
-
-    @Test
-    public void rangeQueryTextFieldTest1() {
-        query(range("text_1")).check(5);
-    }
-
-    @Test
-    public void rangeQueryTextFieldTest2() {
-        query(range("text_1").lower("frase").upper("g")).check(3);
-    }
-
-    @Test
-    public void rangeQueryTextFieldTest3() {
-        query(range("text_1").lower("frasesinespaciosconarticulosylaspalabrassuficientesperomaslarga")
-                             .upper("g")).check(1);
-    }
-
-    @Test
-    public void rangeQueryTextFieldTest4() {
-        query(range("text_1").lower("frasesinespaciosconarticulosylaspalabrassuficientesperomaslarga")
-                             .upper("g")
-                             .includeLower(true)
-                             .includeUpper(true)).check(2);
-    }
-
-    @Test
-    public void rangeQueryTextFieldTest5() {
-        query(range("text_1").lower("G").upper("H").includeLower(true).includeUpper(true)).check(0);
-    }
-
-    @Test
-    public void rangeQueryVarcharFieldTest1() {
-        query(range("varchar_1")).check(5);
-    }
-
-    @Test
-    public void rangeQueryVarcharFieldTest2() {
-        query(range("varchar_1").lower("frase").upper("g")).check(4);
-    }
-
-    @Test
-    public void rangeQueryVarcharFieldTest3() {
-        query(range("varchar_1").lower("frasesencillasinespaciosperomaslarga").upper("g")).check(0);
-    }
-
-    @Test
-    public void rangeQueryVarcharFieldTest4() {
-        query(range("varchar_1").lower("frasesencillasinespaciosperomaslarga")
-                                .upper("gH")
-                                .includeLower(true)
-                                .includeUpper(true)).check(2);
-    }
-
-    @Test
-    public void rangeQueryVarcharFieldTest5() {
-        query(range("varchar_1").lower("g").upper("h")).check(0);
-    }
-
-    @Test
-    public void rangeQueryListFieldTest1() {
-        query(range("list_1").lower("a").upper("z")).check(5);
-    }
-
-    @Test
-    public void rangeQueryListFieldTest2() {
-        query(range("list_1").lower("a1").upper("z9")).check(5);
-    }
-
-    @Test
-    public void rangeQueryListFieldTest3() {
-        query(range("list_1").lower("a2").upper("l1")).check(0);
-    }
-
-    @Test
-    public void rangeQuerySetFieldTest1() {
-        query(range("set_1").lower("a").upper("z")).check(5);
-    }
-
-    @Test
-    public void rangeQuerySetFieldTest2() {
-        query(range("set_1").lower("a1").upper("z9")).check(5);
-    }
-
-    @Test
-    public void rangeQuerySetFieldTest3() {
-        query(range("set_1").lower("a1").upper("z1")).check(5);
-    }
-
-    @Test
-    public void rangeQueryMapFieldTest1() {
-        query(range("map_1$k1").lower("a").upper("z")).check(2);
-    }
-
-    @Test
-    public void rangeQueryMapFieldTest2() {
-        query(range("map_1$k1").lower("a1").upper("z9")).check(2);
-    }
-
-    @Test
-    public void rangeQueryMapFieldTest3() {
-        query(range("map_1$k1").lower("a1").upper("k9")).check(0);
-    }
-
-    @Test
-    public void rangeQueryMapFieldTest4() {
-        query(range("map_1$k1").lower("a1").upper("k1")).check(0);
-    }
-
-    @Test
-    public void rangeFilterAsciiFieldTest1() {
+    public void testRangeAsciiField1() {
         filter(range("ascii_1")).check(5);
     }
 
     @Test
-    public void rangeFilterAsciiFieldTest2() {
+    public void testRangeAsciiField2() {
         filter(range("ascii_1").lower("a").upper("g")).check(4);
     }
 
     @Test
-    public void rangeFilterAsciiFieldTest3() {
+    public void testRangeAsciiField3() {
         filter(range("ascii_1").lower("a").upper("b")).check(0);
     }
 
     @Test
-    public void rangeFilterAsciiFieldTest4() {
+    public void testRangeAsciiField4() {
         filter(range("ascii_1").lower("a").upper("f")).check(0);
     }
 
     @Test
-    public void rangeFilterAsciiFieldTest5() {
+    public void testRangeAsciiField5() {
         filter(range("ascii_1").lower("a").upper("f").includeLower(true).includeUpper(true)).check(0);
     }
 
     @Test
-    public void rangeFilterIntegerTest1() {
+    public void rangeIntegerTest1() {
         filter(range("integer_1").lower("-5").upper("5")).check(4);
     }
 
     @Test
-    public void rangeFilterIntegerTest2() {
+    public void rangeIntegerTest2() {
         filter(range("integer_1").lower("-4").upper("4")).check(3);
     }
 
     @Test
-    public void rangeFilterIntegerTest3() {
+    public void rangeIntegerTest3() {
         filter(range("integer_1").lower("-4").upper("-1").includeLower(true).includeUpper(true)).check(4);
     }
 
     @Test
-    public void rangeFilterIntegerTest4() {
+    public void rangeIntegerTest4() {
         filter(range("integer_1")).check(5);
     }
 
     @Test
-    public void rangeFilterBigintTest1() {
+    public void testRangeBigintField1() {
         filter(range("bigint_1")).check(5);
     }
 
     @Test
-    public void rangeFilterBigintTest2() {
+    public void testRangeBigintField2() {
         filter(range("bigint_1").lower("999999999999999").upper("1000000000000001")).check(1);
     }
 
     @Test
-    public void rangeFilterBigintTest3() {
+    public void testRangeBigintField3() {
         filter(range("bigint_1").lower("1000000000000000").upper("2000000000000000")).check(0);
     }
 
     @Test
-    public void rangeFilterBigintTest4() {
+    public void testRangeBigintField4() {
         filter(range("bigint_1").lower("1000000000000000")
                                 .upper("2000000000000000")
                                 .includeLower(true)
@@ -452,57 +94,57 @@ public class RangeSearchAT extends AbstractSearchAT {
     }
 
     @Test
-    public void rangeFilterBigintTest5() {
+    public void testRangeBigintField5() {
         filter(range("bigint_1").lower("1").upper("3").includeLower(true).includeUpper(true)).check(0);
     }
 
     @Test
-    public void rangeFilterBlobTest1() {
+    public void testRangeBlobField1() {
         filter(range("blob_1")).check(5);
     }
 
     @Test
-    public void rangeFilterBlobTest2() {
+    public void testRangeBlobField2() {
         filter(range("blob_1").lower("0x3E0A15").upper("0x3E0A17")).check(4);
     }
 
     @Test
-    public void rangeFilterBlobTest3() {
+    public void testRangeBlobField3() {
         filter(range("blob_1").lower("0x3E0A16").upper("0x3E0A17")).check(0);
     }
 
     @Test
-    public void rangeFilterBlobTest4() {
+    public void testRangeBlobField4() {
         filter(range("blob_1").lower("0x3E0A16").upper("0x3E0A17").includeLower(true).includeUpper(true)).check(4);
     }
 
     @Test
-    public void rangeFilterBlobTest5() {
+    public void testRangeBlobField5() {
         filter(range("blob_1").lower("0x3E0A17").upper("0x3E0A18").includeLower(true).includeUpper(true)).check(0);
     }
 
     @Test
-    public void rangeFilterBooleanTest1() {
+    public void testRangeBooleanField1() {
         filter(range("boolean_1")).check(5);
     }
 
     @Test
-    public void rangeFilterDecimalTest1() {
+    public void testRangeDecimalField1() {
         filter(range("decimal_1")).check(5);
     }
 
     @Test
-    public void rangeFilterDecimalTest2() {
+    public void testRangeDecimalField2() {
         filter(range("decimal_1").lower("1999999999.9").upper("2000000000.1")).check(1);
     }
 
     @Test
-    public void rangeFilterDecimalTest3() {
+    public void testRangeDecimalField3() {
         filter(range("decimal_1").lower("2000000000.0").upper("3000000000.0")).check(0);
     }
 
     @Test
-    public void rangeFilterDecimalTest4() {
+    public void testRangeDecimalField4() {
         filter(range("decimal_1").lower("2000000000.0")
                                  .upper("3000000000.0")
                                  .includeLower(true)
@@ -510,79 +152,79 @@ public class RangeSearchAT extends AbstractSearchAT {
     }
 
     @Test
-    public void rangeFilterDecimalTest5() {
+    public void testRangeDecimalField5() {
         filter(range("decimal_1").lower("2000000000.000001").upper("2000000000.181235")).check(0);
     }
 
     @Test
-    public void rangeFilterDoubleTest1() {
+    public void testRangeDoubleField1() {
         filter(range("double_1")).check(5);
     }
 
     @Test
-    public void rangeFilterDoubleTest2() {
+    public void testRangeDoubleField2() {
         filter(range("double_1").lower("1.9").upper("2.1")).check(1);
     }
 
     @Test
-    public void rangeFilterDoubleTest3() {
+    public void testRangeDoubleField3() {
         filter(range("double_1").lower("2.0").upper("3.0")).check(0);
     }
 
     @Test
-    public void rangeFilterDoubleTest4() {
+    public void testRangeDoubleField4() {
         filter(range("double_1").lower("2.0").upper("3.0").includeLower(true).includeUpper(true)).check(4);
     }
 
     @Test
-    public void rangeFilterDoubleTest5() {
+    public void testRangeDoubleField5() {
         filter(range("double_1").lower("7.0").upper("10.0").includeLower(true).includeUpper(true)).check(0);
     }
 
     @Test
-    public void rangeFilterFloatTest1() {
+    public void testRangeFloatField1() {
         filter(range("float_1")).check(5);
     }
 
     @Test
-    public void rangeFilterFloatTest2() {
+    public void testRangeFloatField2() {
         filter(range("float_1").lower("1.9").upper("2.1")).check(1);
     }
 
     @Test
-    public void rangeFilterFloatTest3() {
+    public void testRangeFloatField3() {
         filter(range("float_1").lower("1.0").upper("2.0")).check(0);
     }
 
     @Test
-    public void rangeFilterFloatTest4() {
+    public void testRangeFloatField4() {
         filter(range("float_1").lower("1.0").upper("2.0").includeLower(true).includeUpper(true)).check(2);
     }
 
     @Test
-    public void rangeFilterFloatTest5() {
+    public void testRangeFloatField5() {
         filter(range("float_1").lower("7.0").upper("9.0")).check(0);
     }
 
     @Test
-    public void rangeFilterUuidTest1() {
+    public void testRangeUUIDField1() {
         filter(range("uuid_1")).check(5);
     }
 
     @Test
-    public void rangeFilterUuidTest2() {
+    public void testRangeUUIDField2() {
         String msg = "Field 'uuid_1' with value '1' can not be parsed as UUID";
         filter(range("uuid_1").lower("1").upper("9")).check(InvalidQueryException.class, msg);
     }
 
     @Test
-    public void rangeFilterUuidTest3() {
+    public void testRangeUUIDField3() {
         filter(range("uuid_1").lower("60297440-b4fa-11e3-8b5a-0002a5d5c51c")
                               .upper("60297440-b4fa-11e3-8b5a-0002a5d5c51d")).check(0);
     }
 
     @Test
-    public void rangeFilterUuidTest4() {
+    public void testRangeUUIDField4() {
         filter(range("uuid_1").lower("60297440-b4fa-11e3-8b5a-0002a5d5c51c")
                               .upper("60297440-b4fa-11e3-8b5a-0002a5d5c51d")
                               .includeLower(true)
@@ -590,24 +232,24 @@ public class RangeSearchAT extends AbstractSearchAT {
     }
 
     @Test
-    public void rangeFilterTimeuuidTest1() {
+    public void testRangeTimeUUIDField1() {
         filter(range("timeuuid_1")).check(5);
     }
 
     @Test
-    public void rangeFilterTimeuuidTest2() {
+    public void testRangeTimeUUIDField2() {
         filter(range("timeuuid_1").lower("a").upper("z")).check(InvalidQueryException.class,
                                                                 "Field 'timeuuid_1' with value 'a' can not be parsed as UUID");
     }
 
     @Test
-    public void rangeFilterTimeuuidTest3() {
-        filter(range("timeuuid_1").lower("a4a70900-24e1-11df-8924-001ff3591712")
+    public void testRangeTimeUUIDField3() {
+        filter(range("timeuuid_1").lower("a4a70 900-24e1-11df-8924-001ff3591712")
                                   .upper("a4a70900-24e1-11df-8924-001ff3591713")).check(0);
     }
 
     @Test
-    public void rangeFilterTimeuuidTest4() {
+    public void testRangeTimeUUIDField4() {
         filter(range("timeuuid_1").lower("a4a70900-24e1-11df-8924-001ff3591712")
                                   .upper("a4a70900-24e1-11df-8924-001ff3591713")
                                   .includeLower(true)
@@ -615,43 +257,43 @@ public class RangeSearchAT extends AbstractSearchAT {
     }
 
     @Test
-    public void rangeFilterInetFieldTest1() {
+    public void testRangeInetField1() {
         filter(range("inet_1")).check(5);
     }
 
     @Test
-    public void rangeFilterInetFieldTest2() {
+    public void testRangeInetField2() {
         filter(range("inet_1").lower("127.0.0.0").upper("127.1.0.0")).check(2);
     }
 
     @Test
-    public void rangeFilterInetFieldTest3() {
+    public void testRangeInetField3() {
         filter(range("inet_1").lower("127.0.0.0").upper("127.1.0.0").includeLower(true).includeUpper(true)).check(2);
     }
 
     @Test
-    public void rangeFilterInetFieldTest4() {
+    public void testRangeInetField4() {
         filter(range("inet_1").lower("192.168.0.0").upper("192.168.0.1")).check(0);
     }
 
     @Test
-    public void rangeFilterTextFieldTest1() {
+    public void testRangeTextField1() {
         filter(range("text_1")).check(5);
     }
 
     @Test
-    public void rangeFilterTextFieldTest2() {
+    public void testRangeTextField2() {
         filter(range("text_1").lower("frase").upper("g")).check(3);
     }
 
     @Test
-    public void rangeFilterTextFieldTest3() {
+    public void testRangeTextField3() {
         filter(range("text_1").lower("frasesinespaciosconarticulosylaspalabrassuficientesperomaslarga")
                               .upper("g")).check(1);
     }
 
     @Test
-    public void rangeFilterTextFieldTest4() {
+    public void testRangeTextField4() {
         filter(range("text_1").lower("frasesinespaciosconarticulosylaspalabrassuficientesperomaslarga")
                               .upper("g")
                               .includeLower(true)
@@ -659,27 +301,27 @@ public class RangeSearchAT extends AbstractSearchAT {
     }
 
     @Test
-    public void rangeFilterTextFieldTest5() {
+    public void testRangeTextField5() {
         filter(range("text_1").lower("G").upper("H").includeLower(true).includeUpper(true)).check(0);
     }
 
     @Test
-    public void rangeFilterVarcharFieldTest1() {
+    public void testRangeVarcharField1() {
         filter(range("varchar_1")).check(5);
     }
 
     @Test
-    public void rangeFilterVarcharFieldTest2() {
+    public void testRangeVarcharField2() {
         filter(range("varchar_1").lower("frase").upper("g")).check(4);
     }
 
     @Test
-    public void rangeFilterVarcharFieldTest3() {
+    public void testRangeVarcharField3() {
         filter(range("varchar_1").lower("frasesencillasinespaciosperomaslarga").upper("g")).check(0);
     }
 
     @Test
-    public void rangeFilterVarcharFieldTest4() {
+    public void testRangeVarcharField4() {
         filter(range("varchar_1").lower("frasesencillasinespaciosperomaslarga")
                                  .upper("gH")
                                  .includeLower(true)
@@ -687,57 +329,57 @@ public class RangeSearchAT extends AbstractSearchAT {
     }
 
     @Test
-    public void rangeFilterVarcharFieldTest5() {
+    public void testRangeVarcharField5() {
         filter(range("varchar_1").lower("g").upper("h")).check(0);
     }
 
     @Test
-    public void rangeFilterListFieldTest1() {
+    public void testRangeListField1() {
         filter(range("list_1").lower("a").upper("z")).check(5);
     }
 
     @Test
-    public void rangeFilterListFieldTest2() {
+    public void testRangeListField2() {
         filter(range("list_1").lower("a1").upper("z9")).check(5);
     }
 
     @Test
-    public void rangeFilterListFieldTest3() {
+    public void testRangeListField3() {
         filter(range("list_1").lower("a2").upper("l1")).check(0);
     }
 
     @Test
-    public void rangeFilterSetFieldTest1() {
+    public void testRangeSetField1() {
         filter(range("set_1").lower("a").upper("z")).check(5);
     }
 
     @Test
-    public void rangeFilterSetFieldTest2() {
+    public void testRangeSetField2() {
         filter(range("set_1").lower("a1").upper("z9")).check(5);
     }
 
     @Test
-    public void rangeFilterSetFieldTest3() {
+    public void testRangeSetField3() {
         filter(range("set_1").lower("a1").upper("z1")).check(5);
     }
 
     @Test
-    public void rangeFilterMapFieldTest1() {
+    public void testRangeMapField1() {
         filter(range("map_1$k1").lower("a").upper("z")).check(2);
     }
 
     @Test
-    public void rangeFilterMapFieldTest2() {
+    public void testRangeMapField2() {
         filter(range("map_1$k1").lower("a1").upper("z9")).check(2);
     }
 
     @Test
-    public void rangeFilterMapFieldTest3() {
+    public void testRangeMapField3() {
         filter(range("map_1$k1").lower("a1").upper("k9")).check(0);
     }
 
     @Test
-    public void rangeFilterMapFieldTest4() {
+    public void testRangeMapField4() {
         filter(range("map_1$k1").lower("a1").upper("k1")).check(0);
     }
 }
