@@ -26,7 +26,9 @@ import org.apache.cassandra.db.marshal.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field.Store;
+import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.search.SortField;
+import org.apache.lucene.util.BytesRef;
 
 import java.nio.ByteBuffer;
 import java.util.List;
@@ -288,6 +290,17 @@ public abstract class Mapper {
             }
         }
         return true;
+    }
+
+    void validateTerm(String name, BytesRef term) {
+        int maxSize = IndexWriter.MAX_TERM_LENGTH;
+        int size = term.length;
+        if (size > maxSize) {
+            throw new IndexException("Discarding immense term in field='{}', " +
+                                     "Lucene only allows terms with at most " +
+                                     "{} bytes in length; got {} bytes: {}...",
+                                     name, maxSize, size, term.utf8ToString().substring(0, 10));
+        }
     }
 
     protected Objects.ToStringHelper toStringHelper(Object self) {

@@ -3,6 +3,7 @@
 ## 2.2.6.2 (Upcoming)
 
 * Fix parsing of data with CQL "date" type (#158)
+* Fix handling of immense term insertion mapping error
 
 ## 2.2.6.1 (20 June 2016)
 

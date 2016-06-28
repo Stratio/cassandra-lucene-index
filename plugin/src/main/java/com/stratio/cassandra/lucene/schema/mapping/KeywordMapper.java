@@ -55,12 +55,15 @@ public abstract class KeywordMapper extends SingleColumnMapper.SingleFieldMapper
     /** {@inheritDoc} */
     @Override
     public Field indexedField(String name, String value) {
+        validateTerm(name, new BytesRef(value));
         return new Field(name, value, FIELD_TYPE);
     }
 
     /** {@inheritDoc} */
     @Override
     public Field sortedField(String name, String value) {
+        BytesRef bytes = new BytesRef(value);
+        validateTerm(name, bytes);
         return new SortedSetDocValuesField(name, new BytesRef(value));
     }
 

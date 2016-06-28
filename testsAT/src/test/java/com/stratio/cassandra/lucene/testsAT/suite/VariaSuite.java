@@ -21,14 +21,17 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses({AllowFilteringWith1000SimilarRowsAT.class,
-               AllowFilteringWith1000MixedRowsAT.class,
-               TokenRangeWithSkinnyRowsAT.class,
-               TokenRangeWithWideRowsMultiPartitionAT.class,
-               TokenRangeWithWideRowsMultiClusteringAT.class,
-               SearchWithLongWideRowsAT.class,
+@SuiteClasses({AllowFilteringWith1000MixedRowsAT.class,
+               AllowFilteringWith1000SimilarRowsAT.class,
+               BoundStatementWitTopKQuery.class,
+               LargeFieldAT.class,
+               MultiMappingAT.class,
                ReadStaticColumnsAT.class,
-               UDFsAT.class,
-               BoundStatementWitTopKQuery.class})
+               SearchWithLongSkinnyRowsAT.class,
+               SearchWithLongWideRowsAT.class,
+               TokenRangeWithSkinnyRowsAT.class,
+               TokenRangeWithWideRowsMultiClusteringAT.class,
+               TokenRangeWithWideRowsMultiPartitionAT.class,
+               UDFsAT.class})
 public class VariaSuite {
 }
