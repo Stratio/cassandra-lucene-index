@@ -15,6 +15,7 @@
  */
 package com.stratio.cassandra.lucene.testsAT.varia;
 
+import com.stratio.cassandra.lucene.testsAT.BaseAT;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
 import org.junit.Test;
 
@@ -22,13 +23,12 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.UUID;
 
-import static com.stratio.cassandra.lucene.builder.Builder.bool;
 import static com.stratio.cassandra.lucene.builder.Builder.match;
 
 /**
  * @author Andres de la Pena <adelapena@stratio.com>
  */
-public class LargeFieldAT {
+public class LargeFieldAT extends BaseAT {
 
     @Test
     public void testLargeField() throws IOException {

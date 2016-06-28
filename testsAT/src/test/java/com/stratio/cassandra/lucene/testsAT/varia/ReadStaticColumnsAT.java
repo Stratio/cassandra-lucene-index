@@ -15,7 +15,6 @@
  */
 package com.stratio.cassandra.lucene.testsAT.varia;
 
-import com.datastax.driver.core.Row;
 import com.stratio.cassandra.lucene.testsAT.BaseAT;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtilsSelect;
@@ -23,11 +22,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.util.List;
-
 import static com.stratio.cassandra.lucene.builder.Builder.match;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
@@ -67,37 +62,18 @@ public class ReadStaticColumnsAT extends BaseAT {
 
     @Test
     public void tokenReadStaticColumnTest1() {
-
         CassandraUtilsSelect select = utils.filter(match("key", 12));
-
-        List<Row> rows = select.get();
-
-        assertEquals("Expected 2 rows", 2, rows.size());
-        for (Row row : rows) {
-            Long key = row.getLong("key");
-            Integer cluster_key = row.getInt("cluster_key");
-            String name = row.getString("name");
-            assertEquals("Unexpected result!", "12", key.toString());
-            assertEquals("Unexpected result!", "Name12-2", name);
-            assertTrue("Expected cluster_key 13 or 14 ", (cluster_key.equals(13) || (cluster_key.equals(14))));
-        }
-
+        select.checkUnorderedLongColumns("key", 12L, 12L);
+        select.checkUnorderedIntColumns("cluster_key", 13, 14);
+        select.checkUnorderedStringColumns("name", "Name12-2", "Name12-2");
     }
 
     @Test
     public void tokenReadStaticColumnTest2() {
-
-        List<Row> rows = utils.filter(match("key", 15)).get();
-        assertEquals("Expected 2 rows", 2, rows.size());
-        for (Row row : rows) {
-            Long key = row.getLong("key");
-            Integer cluster_key = row.getInt("cluster_key");
-            String name = row.getString("name");
-            assertEquals("Unexpected result!", "15", key.toString());
-            assertEquals("Unexpected result!", "Name15-2", name);
-            assertTrue("Expected cluster_key 16 or 17 ", (cluster_key.equals(16) || (cluster_key.equals(17))));
-        }
-
+        CassandraUtilsSelect select = utils.filter(match("key", 15));
+        select.checkUnorderedLongColumns("key", 15L, 15L);
+        select.checkUnorderedIntColumns("cluster_key", 16, 17);
+        select.checkUnorderedStringColumns("name", "Name15-2", "Name15-2");
     }
 
 }

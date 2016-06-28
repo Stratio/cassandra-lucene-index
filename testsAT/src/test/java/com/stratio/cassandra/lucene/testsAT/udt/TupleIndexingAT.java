@@ -28,8 +28,6 @@ import org.junit.runners.JUnit4;
 
 import static com.datastax.driver.core.DataType.*;
 import static com.stratio.cassandra.lucene.builder.Builder.*;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
@@ -104,40 +102,33 @@ public class TupleIndexingAT extends BaseAT {
                                        CodecRegistry.DEFAULT_INSTANCE,
                                        cfloat(),
                                        cfloat());
-        CassandraUtils utils = CassandraUtils.builder("tuple_indexing_geo_point")
-                                             .withColumn("k", "int")
-                                             .withColumn("v", "tuple<float, float>")
-                                             .withPartitionKey("k")
-                                             .withMapper("geo_point", geoPointMapper("v.0", "v.1"))
-                                             .build()
-                                             .createKeyspace()
-                                             .createTable()
-                                             .createIndex()
-                                             .insert(new String[]{"k", "v"},
-                                                     new Object[]{0, tuple.newValue(40.442163f, -3.784519f)})
-                                             .insert(new String[]{"k", "v"},
-                                                     new Object[]{1, tuple.newValue(40.575909f, -3.616095f)})
-                                             .insert(new String[]{"k", "v"},
-                                                     new Object[]{2, tuple.newValue(38.947994f, -3.800156f)})
-                                             .insert(new String[]{"k", "v"},
-                                                     new Object[]{3, tuple.newValue(42.546975f, 2.141841f)})
-                                             .insert(new String[]{"k", "v"},
-                                                     new Object[]{4, tuple.newValue(49.791995f, 11.208648f)})
-                                             .insert(new String[]{"k", "v"},
-                                                     new Object[]{5, tuple.newValue(55.337231f, 61.578869f)})
-                                             .insert(new String[]{"k", "v"},
-                                                     new Object[]{6, tuple.newValue(41.453383f, 126.442151f)})
-                                             .refresh();
-
-        Integer[] actualValues = utils.filter(geoDistance("geo_point", -3.784519, 40.442163, "10000km"))
-                                      .sort(geoDistanceField("geo_point", 40.442163, -3.784519).reverse(false))
-                                      .intColumn("k");
-
-        assertEquals("Expected 7 results!", 7, actualValues.length);
-        Integer[] expectedValues = new Integer[]{0, 1, 2, 3, 4, 5, 6};
-        assertArrayEquals("Wrong geoDistance sort!", expectedValues, actualValues);
-
-        utils.dropKeyspace();
+        CassandraUtils.builder("tuple_indexing_geo_point")
+                      .withColumn("k", "int")
+                      .withColumn("v", "tuple<float, float>")
+                      .withPartitionKey("k")
+                      .withMapper("geo_point", geoPointMapper("v.0", "v.1"))
+                      .build()
+                      .createKeyspace()
+                      .createTable()
+                      .createIndex()
+                      .insert(new String[]{"k", "v"},
+                              new Object[]{0, tuple.newValue(40.442163f, -3.784519f)})
+                      .insert(new String[]{"k", "v"},
+                              new Object[]{1, tuple.newValue(40.575909f, -3.616095f)})
+                      .insert(new String[]{"k", "v"},
+                              new Object[]{2, tuple.newValue(38.947994f, -3.800156f)})
+                      .insert(new String[]{"k", "v"},
+                              new Object[]{3, tuple.newValue(42.546975f, 2.141841f)})
+                      .insert(new String[]{"k", "v"},
+                              new Object[]{4, tuple.newValue(49.791995f, 11.208648f)})
+                      .insert(new String[]{"k", "v"},
+                              new Object[]{5, tuple.newValue(55.337231f, 61.578869f)})
+                      .insert(new String[]{"k", "v"},
+                              new Object[]{6, tuple.newValue(41.453383f, 126.442151f)})
+                      .refresh()
+                      .filter(geoDistance("geo_point", -3.784519, 40.442163, "10000km"))
+                      .sort(geoDistanceField("geo_point", 40.442163, -3.784519).reverse(false))
+                      .checkOrderedIntColumns("k", 0, 1, 2, 3, 4, 5, 6)
+                      .dropKeyspace();
     }
-
 }

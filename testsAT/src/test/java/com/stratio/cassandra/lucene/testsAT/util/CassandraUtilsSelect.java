@@ -209,8 +209,9 @@ public class CassandraUtilsSelect {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> CassandraUtils check(String column, Class<T> clazz, T... expecteds) {
+    private <T> CassandraUtils check(String column, Class<T> clazz, boolean ordered, T... expecteds) {
         List<Row> rows = get();
+        assertEquals(String.format("Expected %d results!", expecteds.length), expecteds.length, rows.size());
         List<T> values = new ArrayList<>();
         for (Row row : rows) {
             T value = row.get(column, clazz);
@@ -218,7 +219,13 @@ public class CassandraUtilsSelect {
         }
         T[] actuals = (T[]) Array.newInstance(clazz, values.size());
         values.toArray(actuals);
-        assertArrayEquals("Expected different values", expecteds, actuals);
+        if (!ordered) {
+            Arrays.sort(expecteds);
+            Arrays.sort(actuals);
+        }
+        assertArrayEquals(String.format("Expected %s but found %s",
+                                        Arrays.toString(expecteds),
+                                        Arrays.toString(actuals)), expecteds, actuals);
         return parent;
     }
 
@@ -226,154 +233,51 @@ public class CassandraUtilsSelect {
         return parent.check(this::get, expectedClass, expectedMessage);
     }
 
-    public CassandraUtils checkIntColumn(String name, int... expected) {
-        List<Row> rows = get();
-        assertEquals(String.format("Expected %d results!", expected.length), expected.length, rows.size());
-        int[] actual = new int[expected.length];
-        for (int i = 0; i < expected.length; i++) {
-            actual[i] = rows.get(i).getInt(name);
-        }
-        assertArrayEquals(String.format("Expected %s but found %s", Arrays.toString(expected), Arrays.toString(actual)),
-                          expected,
-                          actual);
-        return parent;
+    public CassandraUtils checkOrderedIntColumns(String name, Integer... expected) {
+        return check(name, Integer.class, true, expected);
     }
 
-    private CassandraUtils checkIntColumns(String name, boolean ordered, int... expected) {
-        List<Row> rows = get();
-        assertEquals(String.format("Expected %d results!", expected.length), expected.length, rows.size());
-
-        int[] actual = new int[expected.length];
-        for (int i = 0; i < expected.length; i++) {
-            actual[i] = rows.get(i).getInt(name);
-        }
-        if (!ordered) {
-            Arrays.sort(expected);
-            Arrays.sort(actual);
-        }
-        assertArrayEquals(String.format("Expected %s but found %s", Arrays.toString(expected), Arrays.toString(actual)),
-                          expected,
-                          actual);
-        return parent;
+    public CassandraUtils checkUnorderedIntColumns(String name, Integer... expected) {
+        return check(name, Integer.class, false, expected);
     }
 
-    public CassandraUtils checkOrderedIntColumns(String name, int... expected) {
-        return checkIntColumns(name, true, expected);
+    public CassandraUtils checkIntColumn(String name, Integer expected) {
+        return check(name, Integer.class, false, expected);
     }
 
-    public CassandraUtils checkUnorderedIntColumns(String name, int... expected) {
-        return checkIntColumns(name, false, expected);
+    public CassandraUtils checkOrderedDoubleColumns(String name, Double... expected) {
+        return check(name, Double.class, true, expected);
     }
 
-    public CassandraUtils checkIntColumn(String name, int expected) {
-        return checkIntColumns(name, false, expected);
+    public CassandraUtils checkUnorderedDoubleColumns(String name, Double... expected) {
+        return check(name, Double.class, false, expected);
     }
 
-    private CassandraUtils checkLongColumns(String name, boolean ordered, long... expected) {
-        List<Row> rows = get();
-        assertEquals(String.format("Expected %d results!", expected.length), expected.length, rows.size());
-        long[] actual = new long[expected.length];
-        for (int i = 0; i < expected.length; i++) {
-            actual[i] = rows.get(i).getLong(name);
-        }
-        if (!ordered) {
-            Arrays.sort(expected);
-            Arrays.sort(actual);
-        }
-        assertArrayEquals(String.format("Expected %s but found %s", Arrays.toString(expected), Arrays.toString(actual)),
-                          expected,
-                          actual);
-        return parent;
+    public CassandraUtils checkDoubleColumn(String name, Double expected) {
+        return check(name, Double.class, false, expected);
     }
 
-    public CassandraUtils checkLongColumn(String name, long expected) {
-        return checkLongColumns(name, false, expected);
+    public CassandraUtils checkLongColumn(String name, Long expected) {
+        return check(name, Long.class, false, expected);
     }
 
-    public CassandraUtils checkOrderedLongColumns(String name, long... expected) {
-        return checkLongColumns(name, true, expected);
+    public CassandraUtils checkOrderedLongColumns(String name, Long... expected) {
+        return check(name, Long.class, true, expected);
     }
 
-    public CassandraUtils checkUnrderedLongColumns(String name, long... expected) {
-        return checkLongColumns(name, false, expected);
-    }
-
-    private CassandraUtils checkStringColumns(String name, boolean ordered, String... expected) {
-        List<Row> rows = get();
-        assertEquals(String.format("Expected %d results!", expected.length), expected.length, rows.size());
-        String[] actual = new String[expected.length];
-        for (int i = 0; i < expected.length; i++) {
-            actual[i] = rows.get(i).getString(name);
-        }
-        if (!ordered) {
-            Arrays.sort(expected);
-            Arrays.sort(actual);
-        }
-        assertArrayEquals(String.format("Expected %s but found %s", Arrays.toString(expected), Arrays.toString(actual)),
-                          expected,
-                          actual);
-        return parent;
+    public CassandraUtils checkUnorderedLongColumns(String name, Long... expected) {
+        return check(name, Long.class, false, expected);
     }
 
     public CassandraUtils checkStringColumn(String name, String expected) {
-        return checkStringColumns(name, false, expected);
+        return check(name, String.class, false, expected);
     }
 
     public CassandraUtils checkOrderedStringColumns(String name, String... expected) {
-        return checkStringColumns(name, true, expected);
+        return check(name, String.class, true, expected);
     }
 
     public CassandraUtils checkUnorderedStringColumns(String name, String... expected) {
-        return checkStringColumns(name, false, expected);
-    }
-
-    public Integer[] intColumn(String name) {
-        List<Row> rows = get();
-        Integer[] values = new Integer[rows.size()];
-        int count = 0;
-        for (Row row : rows) {
-            values[count++] = row.getInt(name);
-        }
-        return values;
-    }
-
-    public Long[] longColumn(String name) {
-        List<Row> rows = get();
-        Long[] values = new Long[rows.size()];
-        int count = 0;
-        for (Row row : rows) {
-            values[count++] = row.getLong(name);
-        }
-        return values;
-    }
-
-    public Float[] floatColumn(String name) {
-        List<Row> rows = get();
-        Float[] values = new Float[rows.size()];
-        int count = 0;
-        for (Row row : rows) {
-            values[count++] = row.getFloat(name);
-        }
-        return values;
-    }
-
-    public String[] stringColumn(String name) {
-        List<Row> rows = get();
-        String[] values = new String[rows.size()];
-        int count = 0;
-        for (Row row : rows) {
-            values[count++] = row.getString(name);
-        }
-        return values;
-    }
-
-    public Double[] doubleColumn(String name) {
-        List<Row> rows = get();
-        Double[] values = new Double[rows.size()];
-        int count = 0;
-        for (Row row : rows) {
-            values[count++] = row.getDouble(name);
-        }
-        return values;
+        return check(name, String.class, false, expected);
     }
 }

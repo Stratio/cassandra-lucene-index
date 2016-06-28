@@ -17,7 +17,6 @@ package com.stratio.cassandra.lucene.testsAT.issues;
 
 import com.google.common.collect.Maps;
 import com.stratio.cassandra.lucene.testsAT.BaseAT;
-import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -26,7 +25,7 @@ import java.util.Map;
 
 import static com.stratio.cassandra.lucene.builder.Builder.match;
 import static com.stratio.cassandra.lucene.builder.Builder.stringMapper;
-import static org.junit.Assert.assertEquals;
+import static com.stratio.cassandra.lucene.testsAT.util.CassandraUtils.builder;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
@@ -57,19 +56,20 @@ public class Issue18AT extends BaseAT {
         data4.put("testtextcol", "'row4'");
         data4.put("testmapcol", "{'attb2': 'row3attb2Val', 'attb3': 'row3attb3Val'}");
 
-        CassandraUtils utils = CassandraUtils.builder("issue_18")
-                                             .withPartitionKey("idcol")
-                                             .withColumn("idcol", "int")
-                                             .withColumn("testtextcol", "text", stringMapper())
-                                             .withColumn("testmapcol", "map<text,text>", stringMapper())
-                                             .build()
-                                             .createKeyspace()
-                                             .createTable()
-                                             .createIndex()
-                                             .insert(data1, data2, data3, data4)
-                                             .refresh();
-        int idcol = utils.filter(match("testmapcol$attb1", "row1attb1Val")).getFirst().getInt("idcol");
-        assertEquals("Expected row 1", 1, idcol);
-        utils.dropTable().dropKeyspace();
+        builder("issue_18")
+                .withPartitionKey("idcol")
+                .withColumn("idcol", "int")
+                .withColumn("testtextcol", "text", stringMapper())
+                .withColumn("testmapcol", "map<text,text>", stringMapper())
+                .build()
+                .createKeyspace()
+                .createTable()
+                .createIndex()
+                .insert(data1, data2, data3, data4)
+                .refresh()
+                .filter(match("testmapcol$attb1", "row1attb1Val"))
+                .checkIntColumn("idcol", 1)
+                .dropTable()
+                .dropKeyspace();
     }
 }

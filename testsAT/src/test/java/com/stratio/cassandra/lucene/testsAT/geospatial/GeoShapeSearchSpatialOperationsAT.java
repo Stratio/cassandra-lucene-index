@@ -128,6 +128,7 @@ public class GeoShapeSearchSpatialOperationsAT extends BaseAT {
 
     @Test
     public void testCase1() {
+        // index A, search A must return intersecs and Contains but no is_within
         GeoShapeCondition geoShape = geoShape("shape", shape_1);
         Integer search_case = 1;
         cassandraUtils
@@ -137,7 +138,6 @@ public class GeoShapeSearchSpatialOperationsAT extends BaseAT {
                 .checkStringColumn("identity", "1")
                 .filter(geoShape.operation("is_within"), match("search_case", search_case))
                 .check(0);
-        // index A, search A must return intersecs and Contains but no is_within
     }
 
     @Test

@@ -58,21 +58,21 @@ public class InOperatorWithSkinnyRowsAT extends BaseAT {
 
     @Test
     public void partitionKeyInTest() {
-        utils.searchAll().fetchSize(4).and("AND pk IN (0, 5, 9)").checkIntColumn("rc", 0, 5, 9);
+        utils.searchAll().fetchSize(4).and("AND pk IN (0, 5, 9)").checkOrderedIntColumns("rc", 0, 5, 9);
     }
 
     @Test
     public void reversedPartitionKeyInTest() {
-        utils.searchAll().fetchSize(4).and("AND pk IN (9, 5, 0)").checkIntColumn("rc", 0, 5, 9);
+        utils.searchAll().fetchSize(4).and("AND pk IN (9, 5, 0)").checkOrderedIntColumns("rc", 0, 5, 9);
     }
 
     @Test
     public void queryWithInTest() {
-        utils.query(all()).fetchSize(4).and("AND pk IN (9, 5, 0)").checkIntColumn("rc", 5, 0, 9);
+        utils.query(all()).fetchSize(4).and("AND pk IN (9, 5, 0)").checkOrderedIntColumns("rc", 5, 0, 9);
     }
 
     @Test
     public void sortWithInTest() {
-        utils.sort(field("pk")).fetchSize(4).and("AND pk IN (9, 5, 0)").checkIntColumn("rc", 0, 5, 9);
+        utils.sort(field("pk")).fetchSize(4).and("AND pk IN (9, 5, 0)").checkOrderedIntColumns("rc", 0, 5, 9);
     }
 }
