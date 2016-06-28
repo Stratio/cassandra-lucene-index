@@ -33,6 +33,7 @@ import org.junit.runners.Suite.SuiteClasses;
                UDFsAT.class,
                BoundStatementWithSortedKQuery.class,
                StatelessSearchWithSkinnyRowsAT.class,
-               StatelessSearchWithWideRowsAT.class})
+               StatelessSearchWithWideRowsAT.class,
+               LargeFieldAT.class})
 public class VariaSuite {
 }

@@ -57,13 +57,16 @@ public abstract class KeywordMapper extends SingleColumnMapper.SingleFieldMapper
     /** {@inheritDoc} */
     @Override
     public Optional<Field> indexedField(String name, String value) {
+        validateTerm(name, new BytesRef(value));
         return Optional.of(new Field(name, value, FIELD_TYPE));
     }
 
     /** {@inheritDoc} */
     @Override
     public Optional<Field> sortedField(String name, String value) {
-        return Optional.of(new SortedSetDocValuesField(name, new BytesRef(value)));
+        BytesRef bytes = new BytesRef(value);
+        validateTerm(name, bytes);
+        return Optional.of(new SortedSetDocValuesField(name, bytes));
     }
 
     /** {@inheritDoc} */
