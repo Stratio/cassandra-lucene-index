@@ -244,7 +244,7 @@ public class RangeSearchAT extends AbstractSearchAT {
 
     @Test
     public void testRangeTimeUUIDField3() {
-        filter(range("timeuuid_1").lower("a4a70 900-24e1-11df-8924-001ff3591712")
+        filter(range("timeuuid_1").lower("a4a70900-24e1-11df-8924-001ff3591712")
                                   .upper("a4a70900-24e1-11df-8924-001ff3591713")).check(0);
     }
 
