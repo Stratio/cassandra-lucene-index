@@ -16,7 +16,6 @@
 package com.stratio.cassandra.lucene.testsAT.issues;
 
 import com.stratio.cassandra.lucene.testsAT.BaseAT;
-import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -33,34 +32,36 @@ public class Issue64AT extends BaseAT {
     @Test
     public void test() {
 
-        CassandraUtils utils = builder("issue_64").withTable("flights")
-                                                  .withIndexName("flights_index")
-                                                  .withPartitionKey("id")
-                                                  .withColumn("id", "uuid", null)
-                                                  .withColumn("arrival_aerodrome", "text", stringMapper())
-                                                  .withColumn("assigned_squawk", "text", stringMapper())
-                                                  .withColumn("departure_aerodrome", "text", stringMapper())
-                                                  .withColumn("departure_time",
-                                                              "timestamp",
-                                                              dateMapper().pattern("yyyy-MM-dd HH:mm:ss"))
-                                                  .withColumn("arrival_time",
-                                                              "timestamp",
-                                                              dateMapper().pattern("yyyy-MM-dd HH:mm:ss"))
-                                                  .withColumn("flight_status", "text", stringMapper())
-                                                  .withColumn("registration", "text", stringMapper())
-                                                  .withColumn("target_address", "text", stringMapper())
-                                                  .withColumn("target_identification", "text", stringMapper())
-                                                  .withMapper("operation_duration",
-                                                              dateRangeMapper("departure_time", "arrival_time")
-                                                                      .pattern("yyyy-MM-dd HH:mm:ss"))
-                                                  .build()
-                                                  .createKeyspace()
-                                                  .createTable()
-                                                  .createIndex()
-                                                  .refresh();
-        utils.filter(dateRange("operation_duration").from("2014-01-01 00:00:00")
-                                                    .to("2014-12-31 23:59:59")
-                                                    .operation("intersects")).get();
-        utils.dropTable().dropKeyspace();
+        builder("issue_64").withTable("flights")
+                           .withIndexName("flights_index")
+                           .withPartitionKey("id")
+                           .withColumn("id", "uuid", null)
+                           .withColumn("arrival_aerodrome", "text", stringMapper())
+                           .withColumn("assigned_squawk", "text", stringMapper())
+                           .withColumn("departure_aerodrome", "text", stringMapper())
+                           .withColumn("departure_time",
+                                       "timestamp",
+                                       dateMapper().pattern("yyyy-MM-dd HH:mm:ss"))
+                           .withColumn("arrival_time",
+                                       "timestamp",
+                                       dateMapper().pattern("yyyy-MM-dd HH:mm:ss"))
+                           .withColumn("flight_status", "text", stringMapper())
+                           .withColumn("registration", "text", stringMapper())
+                           .withColumn("target_address", "text", stringMapper())
+                           .withColumn("target_identification", "text", stringMapper())
+                           .withMapper("operation_duration",
+                                       dateRangeMapper("departure_time", "arrival_time")
+                                               .pattern("yyyy-MM-dd HH:mm:ss"))
+                           .build()
+                           .createKeyspace()
+                           .createTable()
+                           .createIndex()
+                           .refresh()
+                           .filter(dateRange("operation_duration").from("2014-01-01 00:00:00")
+                                                                  .to("2014-12-31 23:59:59")
+                                                                  .operation("intersects"))
+                           .check(0)
+                           .dropTable()
+                           .dropKeyspace();
     }
 }
