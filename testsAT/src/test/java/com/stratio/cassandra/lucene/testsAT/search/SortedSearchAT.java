@@ -27,50 +27,50 @@ public class SortedSearchAT extends AbstractSearchAT {
 
     @Test
     public void testSortIntegerAsc() {
-        sort(field("integer_1").reverse(false)).checkOrderedColumns("integer_1", Integer.class, -5, -4, -3, -2, -1);
+        sort(field("integer_1").reverse(false)).checkOrderedColumns("integer_1", -5, -4, -3, -2, -1);
     }
 
     @Test
     public void testSortIntegerDesc() {
-        sort(field("integer_1").reverse(true)).checkOrderedColumns("integer_1", Integer.class, -1, -2, -3, -4, -5);
+        sort(field("integer_1").reverse(true)).checkOrderedColumns("integer_1", -1, -2, -3, -4, -5);
     }
 
     @Test
     public void testSortIntegerDefault() {
-        sort(field("integer_1")).checkOrderedColumns("integer_1", Integer.class, -5, -4, -3, -2, -1);
+        sort(field("integer_1")).checkOrderedColumns("integer_1", -5, -4, -3, -2, -1);
     }
 
     @Test
     public void testSortDoubleAsc() {
-        sort(field("double_1").reverse(false)).checkOrderedColumns("double_1", Double.class, 1D, 2D, 3D, 3D, 3D);
+        sort(field("double_1").reverse(false)).checkOrderedColumns("double_1", 1D, 2D, 3D, 3D, 3D);
     }
 
     @Test
     public void testSortDoubleDesc() {
-        sort(field("double_1").reverse(true)).checkOrderedColumns("double_1", Double.class, 3D, 3D, 3D, 2D, 1D);
+        sort(field("double_1").reverse(true)).checkOrderedColumns("double_1", 3D, 3D, 3D, 2D, 1D);
     }
 
     @Test
     public void testSortDoubleDefault() {
-        sort(field("double_1")).checkOrderedColumns("double_1", Double.class, 1D, 2D, 3D, 3D, 3D);
+        sort(field("double_1")).checkOrderedColumns("double_1", 1D, 2D, 3D, 3D, 3D);
     }
 
     @Test
     public void testSortCombined() {
-        sort(field("double_1"), field("integer_1")).checkOrderedColumns("double_1", Double.class, 1D, 2D, 3D, 3D, 3D);
-        sort(field("double_1"), field("integer_1")).checkOrderedColumns("integer_1", Integer.class, -1, -2, -5, -4, -3);
+        sort(field("double_1"), field("integer_1")).checkOrderedColumns("double_1", 1D, 2D, 3D, 3D, 3D);
+        sort(field("double_1"), field("integer_1")).checkOrderedColumns("integer_1", -1, -2, -5, -4, -3);
     }
 
     @Test
     public void testSortWithFilter() {
         filter(all()).sort(field("integer_1").reverse(false))
-                     .checkOrderedColumns("integer_1", Integer.class, -5, -4, -3, -2, -1);
+                     .checkOrderedColumns("integer_1", -5, -4, -3, -2, -1);
     }
 
     @Test
     public void testSortWithQuery() {
         query(all()).sort(field("integer_1").reverse(false))
-                    .checkOrderedColumns("integer_1", Integer.class, -5, -4, -3, -2, -1);
+                    .checkOrderedColumns("integer_1", -5, -4, -3, -2, -1);
     }
 
     @Test
@@ -78,35 +78,35 @@ public class SortedSearchAT extends AbstractSearchAT {
         search().filter(all())
                 .query(all())
                 .sort(field("integer_1").reverse(false))
-                .checkOrderedColumns("integer_1", Integer.class, -5, -4, -3, -2, -1);
+                .checkOrderedColumns("integer_1", -5, -4, -3, -2, -1);
     }
 
     @Test
     public void testSortWithGeoDistanceFilterNotReversed() {
         search().filter(geoDistance("geo_point", -3.784519, 40.442163, "10000km"))
                 .sort(geoDistanceField("geo_point", 40.442163, -3.784519).reverse(false))
-                .checkOrderedColumns("integer_1", Integer.class, -1, -2, -3, -4, -5);
+                .checkOrderedColumns("integer_1", -1, -2, -3, -4, -5);
     }
 
     @Test
     public void testSortWithGeoDistanceQueryNotReversed() {
         search().query(geoDistance("geo_point", -3.784519, 40.442163, "10000km"))
                 .sort(geoDistanceField("geo_point", 40.442163, -3.784519).reverse(false))
-                .checkOrderedColumns("integer_1", Integer.class, -1, -2, -3, -4, -5);
+                .checkOrderedColumns("integer_1", -1, -2, -3, -4, -5);
     }
 
     @Test
     public void testSortWithGeoDistanceFilterReversed() {
         search().filter(geoDistance("geo_point", -3.784519, 40.442163, "10000km"))
                 .sort(geoDistanceField("geo_point", 40.442163, -3.784519).reverse(true))
-                .checkOrderedColumns("integer_1", Integer.class, -5, -4, -3, -2, -1);
+                .checkOrderedColumns("integer_1", -5, -4, -3, -2, -1);
     }
 
     @Test
     public void testSortWithGeoDistanceQueryReversed() {
         search().query(geoDistance("geo_point", -3.784519, 40.442163, "10000km"))
                 .sort(geoDistanceField("geo_point", 40.442163, -3.784519).reverse(true))
-                .checkOrderedColumns("integer_1", Integer.class, -5, -4, -3, -2, -1);
+                .checkOrderedColumns("integer_1", -5, -4, -3, -2, -1);
     }
 
     @Test
@@ -126,12 +126,12 @@ public class SortedSearchAT extends AbstractSearchAT {
                       .insert(new String[]{"id", "field"}, new Object[]{5, "dog"})
                       .refresh()
                       .query(match("field", "word"))
-                      .checkOrderedColumns("id", Integer.class, 1, 2, 3, 4)
+                      .checkOrderedColumns("id", 1, 2, 3, 4)
                       .filter(match("field", "word"))
-                      .checkOrderedColumns("id", Integer.class, 1, 2, 4, 3)
+                      .checkOrderedColumns("id", 1, 2, 4, 3)
                       .filter(match("field", "word"))
                       .sort(field("id").reverse(true))
-                      .checkOrderedColumns("id", Integer.class, 4, 3, 2, 1)
+                      .checkOrderedColumns("id", 4, 3, 2, 1)
                       .dropKeyspace();
     }
 }

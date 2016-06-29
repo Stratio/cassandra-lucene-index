@@ -63,17 +63,17 @@ public class ReadStaticColumnsAT extends BaseAT {
     @Test
     public void tokenReadStaticColumnTest1() {
         CassandraUtilsSelect select = utils.filter(match("key", 12));
-        select.checkUnorderedColumns("key", Long.class, 12L, 12L);
-        select.checkUnorderedColumns("cluster_key", Integer.class, 13, 14);
-        select.checkUnorderedColumns("name", String.class, "Name12-2", "Name12-2");
+        select.checkUnorderedColumns("key", 12L, 12L);
+        select.checkUnorderedColumns("cluster_key", 13, 14);
+        select.checkUnorderedColumns("name", "Name12-2", "Name12-2");
     }
 
     @Test
     public void tokenReadStaticColumnTest2() {
         CassandraUtilsSelect select = utils.filter(match("key", 15));
-        select.checkUnorderedColumns("key", Long.class, 15L, 15L);
-        select.checkUnorderedColumns("cluster_key", Integer.class, 16, 17);
-        select.checkUnorderedColumns("name", String.class, "Name15-2", "Name15-2");
+        select.checkUnorderedColumns("key", 15L, 15L);
+        select.checkUnorderedColumns("cluster_key", 16, 17);
+        select.checkUnorderedColumns("name", "Name15-2", "Name15-2");
     }
 
 }

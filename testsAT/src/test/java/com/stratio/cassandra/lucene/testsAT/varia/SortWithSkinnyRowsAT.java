@@ -58,22 +58,22 @@ public class SortWithSkinnyRowsAT extends BaseAT {
 
     @Test
     public void sortAsc() {
-        utils.sort(field("rc").reverse(false)).limit(3).checkOrderedColumns("rc", Integer.class, 0, 1, 2);
+        utils.sort(field("rc").reverse(false)).limit(3).checkOrderedColumns("rc", 0, 1, 2);
     }
 
     @Test
     public void sortDesc() {
-        utils.sort(field("rc").reverse(true)).limit(3).checkOrderedColumns("rc", Integer.class, 9, 8, 7);
+        utils.sort(field("rc").reverse(true)).limit(3).checkOrderedColumns("rc", 9, 8, 7);
     }
 
     @Test
     public void sortPartitionAsc() {
-        utils.sort(field("rc").reverse(false)).andEq("pk", 1).limit(3).checkUnorderedColumns("rc", Integer.class, 1);
+        utils.sort(field("rc").reverse(false)).andEq("pk", 1).limit(3).checkUnorderedColumns("rc", 1);
     }
 
     @Test
     public void sortPartitionDesc() {
-        utils.sort(field("rc").reverse(true)).andEq("pk", 1).limit(3).checkUnorderedColumns("rc", Integer.class, 1);
+        utils.sort(field("rc").reverse(true)).andEq("pk", 1).limit(3).checkUnorderedColumns("rc", 1);
     }
 
     @Test
@@ -81,7 +81,7 @@ public class SortWithSkinnyRowsAT extends BaseAT {
         utils.sort(field("rc").reverse(false))
              .andGt("token(pk)", 0)
              .limit(3)
-             .checkOrderedColumns("rc", Integer.class, 3, 6, 7);
+             .checkOrderedColumns("rc", 3, 6, 7);
     }
 
     @Test
@@ -89,7 +89,7 @@ public class SortWithSkinnyRowsAT extends BaseAT {
         utils.sort(field("rc").reverse(true))
              .andGt("token(pk)", 0)
              .limit(3)
-             .checkOrderedColumns("rc", Integer.class, 9, 7, 6);
+             .checkOrderedColumns("rc", 9, 7, 6);
     }
 
     @Test

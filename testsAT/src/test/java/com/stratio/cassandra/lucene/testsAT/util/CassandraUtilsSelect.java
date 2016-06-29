@@ -26,8 +26,6 @@ import com.stratio.cassandra.lucene.builder.search.Search;
 import com.stratio.cassandra.lucene.builder.search.condition.Condition;
 import com.stratio.cassandra.lucene.builder.search.sort.SortField;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -209,32 +207,31 @@ public class CassandraUtilsSelect {
     }
 
     @SuppressWarnings("unchecked")
-    private <T> CassandraUtils check(String column, Class<T> clazz, boolean ordered, T... expecteds) {
+    private <T> CassandraUtils check(String column, boolean ordered, T... expecteds) {
         List<Row> rows = get();
         assertEquals(String.format("Expected %d results!", expecteds.length), expecteds.length, rows.size());
-        List<T> values = new ArrayList<>();
-        for (Row row : rows) {
-            T value = row.get(column, clazz);
-            values.add(value);
+        if (expecteds.length > 0) {
+            Object[] actuals = new Object[rows.size()];
+            for (int i = 0; i < rows.size(); i++) {
+                actuals[i] = rows.get(i).get(column, (Class<T>) expecteds[i].getClass());
+            }
+            if (!ordered) {
+                Arrays.sort(expecteds);
+                Arrays.sort(actuals);
+            }
+            assertArrayEquals(String.format("Expected %s but found %s",
+                                            Arrays.toString(expecteds),
+                                            Arrays.toString(actuals)), expecteds, actuals);
         }
-        T[] actuals = (T[]) Array.newInstance(clazz, values.size());
-        values.toArray(actuals);
-        if (!ordered) {
-            Arrays.sort(expecteds);
-            Arrays.sort(actuals);
-        }
-        assertArrayEquals(String.format("Expected %s but found %s",
-                                        Arrays.toString(expecteds),
-                                        Arrays.toString(actuals)), expecteds, actuals);
         return parent;
     }
 
-    public <T> CassandraUtils checkOrderedColumns(String column, Class<T> clazz, T... expecteds) {
-        return check(column, clazz, true, expecteds);
+    public <T> CassandraUtils checkOrderedColumns(String column, T... expecteds) {
+        return check(column, true, expecteds);
     }
 
-    public <T> CassandraUtils checkUnorderedColumns(String column, Class<T> clazz, T... expecteds) {
-        return check(column, clazz, false, expecteds);
+    public <T> CassandraUtils checkUnorderedColumns(String column, T... expecteds) {
+        return check(column, false, expecteds);
     }
 
     public <T extends Exception> CassandraUtils check(Class<T> expectedClass, String expectedMessage) {

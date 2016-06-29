@@ -299,7 +299,7 @@ public class CassandraUtils {
                                                        Object[] values,
                                                        Class<T> expectedClass,
                                                        String expectedMessage) {
-        return check(() ->insert(names, values), expectedClass, expectedMessage);
+        return check(() -> insert(names, values), expectedClass, expectedMessage);
     }
 
     public CassandraUtils insert(String[] names, Object[] values, Integer ttl) {

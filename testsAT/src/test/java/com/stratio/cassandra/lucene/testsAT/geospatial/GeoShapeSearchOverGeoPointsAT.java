@@ -138,7 +138,7 @@ public class GeoShapeSearchOverGeoPointsAT extends BaseAT {
         utils.filter(geoShape("location",
                               "POLYGON((-3.798180 40.444563,-3.789082 40.442473,-3.796077 40.437835, " +
                               "-3.793201 40.441427,-3.798180 40.444563))").operation("intersects"))
-             .checkUnorderedColumns("place", String.class, "POINT_7", "POINT_8", "POINT_9");
+             .checkUnorderedColumns("place", "POINT_7", "POINT_8", "POINT_9");
     }
 
     @Test
@@ -149,7 +149,7 @@ public class GeoShapeSearchOverGeoPointsAT extends BaseAT {
                               "-3.7937164 40.4453468, -3.7937164 40.453054, -3.8012266 40.4384634))")
                              .operation("intersects"))
              .checkUnorderedColumns("place",
-                                    String.class,
+
                                     "POINT_7",
                                     "POINT_8",
                                     "POINT_9",
@@ -165,7 +165,7 @@ public class GeoShapeSearchOverGeoPointsAT extends BaseAT {
                               "-3.785691299999999 40.445020199999995,-3.781742999999999 40.43427419999999," +
                               "-3.7777947999999997 40.4497883,-3.8094234 40.44858,-3.8033294999999994 40.4349602))")
                              .operation("intersects"))
-             .checkUnorderedColumns("place", String.class, "POINT_3", "POINT_4", "POINT_5", "POINT_6");
+             .checkUnorderedColumns("place", "POINT_3", "POINT_4", "POINT_5", "POINT_6");
 
     }
 
@@ -202,7 +202,7 @@ public class GeoShapeSearchOverGeoPointsAT extends BaseAT {
         utils.filter(geoShape("location",
                               "POLYGON((-3.798180 40.444563,-3.789082 40.442473,-3.796077 40.437835, " +
                               "-3.793201 40.441427,-3.798180 40.444563))").operation("is_within"))
-             .checkUnorderedColumns("place", String.class, "POINT_7", "POINT_8", "POINT_9");
+             .checkUnorderedColumns("place", "POINT_7", "POINT_8", "POINT_9");
     }
 
     @Test
@@ -213,7 +213,7 @@ public class GeoShapeSearchOverGeoPointsAT extends BaseAT {
                               "-3.7937164 40.4453468, -3.7937164 40.453054, -3.8012266 40.4384634))")
                              .operation("is_within"))
              .checkUnorderedColumns("place",
-                                    String.class,
+
                                     "POINT_7",
                                     "POINT_8",
                                     "POINT_9",
@@ -229,7 +229,7 @@ public class GeoShapeSearchOverGeoPointsAT extends BaseAT {
                               "-3.785691299999999 40.445020199999995,-3.781742999999999 40.43427419999999," +
                               "-3.7777947999999997 40.4497883,-3.8094234 40.44858,-3.8033294999999994 40.4349602))")
                              .operation("is_within"))
-             .checkUnorderedColumns("place", String.class, "POINT_3", "POINT_4", "POINT_5", "POINT_6");
+             .checkUnorderedColumns("place", "POINT_3", "POINT_4", "POINT_5", "POINT_6");
 
     }
 
@@ -241,7 +241,7 @@ public class GeoShapeSearchOverGeoPointsAT extends BaseAT {
                              .operation("intersects")
                              .transform(bufferGeoTransformation().maxDistance("500m")))
              .checkUnorderedColumns("place",
-                                    String.class,
+
                                     "POINT_3",
                                     "POINT_4",
                                     "POINT_6",
