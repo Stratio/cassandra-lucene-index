@@ -26,6 +26,7 @@ import org.junit.runners.Suite.SuiteClasses;
                BoundStatementWithSortedKQuery.class,
                InOperatorWithSkinnyRowsAT.class,
                InOperatorWithWideRowsAT.class,
+               LargeFieldAT.class,
                MultiMappingAT.class,
                ReadStaticColumnsAT.class,
                SearchWithLongSkinnyRowsAT.class,
@@ -37,7 +38,6 @@ import org.junit.runners.Suite.SuiteClasses;
                TokenRangeWithSkinnyRowsAT.class,
                TokenRangeWithWideRowsMultiClusteringAT.class,
                TokenRangeWithWideRowsMultiPartitionAT.class,
-               UDFsAT.class,
-               LargeFieldAT.class})
+               UDFsAT.class})
 public class VariaSuite {
 }

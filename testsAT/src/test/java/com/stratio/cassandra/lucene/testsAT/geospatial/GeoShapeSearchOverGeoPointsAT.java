@@ -148,7 +148,8 @@ public class GeoShapeSearchOverGeoPointsAT extends BaseAT {
                               "POLYGON((-3.8012266 40.4384634, -3.7821293000000002 40.44178680000001, " +
                               "-3.7937164 40.4453468, -3.7937164 40.453054, -3.8012266 40.4384634))")
                              .operation("intersects"))
-             .checkUnorderedColumns("place", String.class,
+             .checkUnorderedColumns("place",
+                                    String.class,
                                     "POINT_7",
                                     "POINT_8",
                                     "POINT_9",
@@ -211,7 +212,8 @@ public class GeoShapeSearchOverGeoPointsAT extends BaseAT {
                               "POLYGON((-3.8012266 40.4384634, -3.7821293000000002 40.44178680000001, " +
                               "-3.7937164 40.4453468, -3.7937164 40.453054, -3.8012266 40.4384634))")
                              .operation("is_within"))
-             .checkUnorderedColumns("place", String.class,
+             .checkUnorderedColumns("place",
+                                    String.class,
                                     "POINT_7",
                                     "POINT_8",
                                     "POINT_9",
@@ -238,7 +240,8 @@ public class GeoShapeSearchOverGeoPointsAT extends BaseAT {
                               "-3.785691299999999 40.445020199999995)")
                              .operation("intersects")
                              .transform(bufferGeoTransformation().maxDistance("500m")))
-             .checkUnorderedColumns("place", String.class,
+             .checkUnorderedColumns("place",
+                                    String.class,
                                     "POINT_3",
                                     "POINT_4",
                                     "POINT_6",
@@ -248,7 +251,5 @@ public class GeoShapeSearchOverGeoPointsAT extends BaseAT {
                                     "POINT_10",
                                     "POINT_11",
                                     "POINT_12");
-
     }
-
 }

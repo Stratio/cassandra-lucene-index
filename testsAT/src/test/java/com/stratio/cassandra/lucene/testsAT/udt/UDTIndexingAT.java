@@ -373,7 +373,8 @@ public class UDTIndexingAT extends BaseAT {
                                                     .upper(7.0)
                                                     .includeLower(true)
                                                     .includeUpper(true))
-             .checkUnorderedColumns("login", String.class,
+             .checkUnorderedColumns("login",
+                                    String.class,
                                     "USER1",
                                     "USER2",
                                     "USER3",
@@ -401,7 +402,8 @@ public class UDTIndexingAT extends BaseAT {
                                                     .upper(7.0)
                                                     .includeLower(true)
                                                     .includeUpper(true))
-             .checkUnorderedColumns("login", String.class,
+             .checkUnorderedColumns("login",
+                                    String.class,
                                     "USER1",
                                     "USER2",
                                     "USER3",
