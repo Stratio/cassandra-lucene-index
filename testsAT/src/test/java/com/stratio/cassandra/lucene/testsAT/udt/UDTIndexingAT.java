@@ -252,13 +252,13 @@ public class UDTIndexingAT extends BaseAT {
     @Test
     public void testUDTInternal() {
         utils.filter(match("address.city", "Paris"))
-             .checkUnorderedStringColumns("login", "USER4", "USER5", "USER6", "USER7");
+             .checkUnorderedColumns("login", String.class, "USER4", "USER5", "USER6", "USER7");
         utils.filter(match("address.city", "San Francisco"))
-             .checkUnorderedStringColumns("login", "USER1", "USER2", "USER3");
+             .checkUnorderedColumns("login", String.class, "USER1", "USER2", "USER3");
         utils.filter(match("address.bool", true))
-             .checkUnorderedStringColumns("login", "USER1", "USER3", "USER5", "USER7");
+             .checkUnorderedColumns("login", String.class, "USER1", "USER3", "USER5", "USER7");
         utils.filter(match("address.bool", false))
-             .checkUnorderedStringColumns("login", "USER2", "USER4", "USER6");
+             .checkUnorderedColumns("login", String.class, "USER2", "USER4", "USER6");
     }
 
     @Test
@@ -270,35 +270,35 @@ public class UDTIndexingAT extends BaseAT {
     @Test
     public void testUDTList() {
         utils.filter(match("address.zips", 10))
-             .checkUnorderedStringColumns("login", "USER3", "USER4", "USER5");
+             .checkUnorderedColumns("login", String.class, "USER3", "USER4", "USER5");
         utils.filter(match("address.zips", 12))
-             .checkUnorderedStringColumns("login", "USER4", "USER5", "USER6");
+             .checkUnorderedColumns("login", String.class, "USER4", "USER5", "USER6");
         utils.filter(match("address.zips", 14))
-             .checkUnorderedStringColumns("login", "USER5", "USER6", "USER7");
+             .checkUnorderedColumns("login", String.class, "USER5", "USER6", "USER7");
         utils.filter(match("address.zips", 15)).check(0);
         utils.filter(match("address.zips", 16))
-             .checkUnorderedStringColumns("login", "USER6", "USER7");
-        utils.filter(match("address.zips", 18)).checkStringColumn("login", "USER7");
+             .checkUnorderedColumns("login", String.class, "USER6", "USER7");
+        utils.filter(match("address.zips", 18)).checkUnorderedColumns("login", String.class, "USER7");
     }
 
     @Test
     public void testUDTMap() {
         utils.filter(match("address.zips_map$1", "1A")).refresh(true)
-             .checkUnorderedStringColumns("login",
-                                          "USER1",
-                                          "USER3",
-                                          "USER5",
-                                          "USER7");
+             .checkUnorderedColumns("login", String.class,
+                                    "USER1",
+                                    "USER3",
+                                    "USER5",
+                                    "USER7");
         utils.filter(match("address.zips_map$1", "1B"))
-             .checkUnorderedStringColumns("login", "USER2", "USER4", "USER6");
+             .checkUnorderedColumns("login", String.class, "USER2", "USER4", "USER6");
         utils.filter(match("address.zips_map$2", "2A"))
-             .checkUnorderedStringColumns("login", "USER1", "USER3", "USER5", "USER7");
+             .checkUnorderedColumns("login", String.class, "USER1", "USER3", "USER5", "USER7");
         utils.filter(match("address.zips_map$2", "2B"))
-             .checkUnorderedStringColumns("login", "USER2", "USER4", "USER6");
+             .checkUnorderedColumns("login", String.class, "USER2", "USER4", "USER6");
         utils.filter(match("address.zips_map$3", "3A"))
-             .checkUnorderedStringColumns("login", "USER1", "USER3", "USER5", "USER7");
+             .checkUnorderedColumns("login", String.class, "USER1", "USER3", "USER5", "USER7");
         utils.filter(match("address.zips_map$3", "3B"))
-             .checkUnorderedStringColumns("login", "USER2", "USER4", "USER6");
+             .checkUnorderedColumns("login", String.class, "USER2", "USER4", "USER6");
     }
 
     @Test
@@ -308,113 +308,113 @@ public class UDTIndexingAT extends BaseAT {
 
     @Test
     public void testUDTSet() {
-        utils.filter(match("address.zips_set", 5)).checkStringColumn("login", "USER1");
+        utils.filter(match("address.zips_set", 5)).checkUnorderedColumns("login", String.class, "USER1");
         utils.filter(match("address.zips_set", 7))
-             .checkUnorderedStringColumns("login", "USER1", "USER2");
+             .checkUnorderedColumns("login", String.class, "USER1", "USER2");
         utils.filter(match("address.zips_set", 9))
-             .checkUnorderedStringColumns("login", "USER1", "USER2", "USER3");
+             .checkUnorderedColumns("login", String.class, "USER1", "USER2", "USER3");
         utils.filter(match("address.zips_set", 11))
-             .checkUnorderedStringColumns("login", "USER2", "USER3", "USER4");
+             .checkUnorderedColumns("login", String.class, "USER2", "USER3", "USER4");
         utils.filter(match("address.zips_set", 12)).check(0);
         utils.filter(match("address.zips_set", 13))
-             .checkUnorderedStringColumns("login", "USER3", "USER4", "USER5");
+             .checkUnorderedColumns("login", String.class, "USER3", "USER4", "USER5");
         utils.filter(match("address.zips_set", 14)).check(0);
         utils.filter(match("address.zips_set", 15))
-             .checkUnorderedStringColumns("login", "USER4", "USER5", "USER6");
+             .checkUnorderedColumns("login", String.class, "USER4", "USER5", "USER6");
         utils.filter(match("address.zips_set", 17))
-             .checkUnorderedStringColumns("login", "USER5", "USER6", "USER7");
+             .checkUnorderedColumns("login", String.class, "USER5", "USER6", "USER7");
         utils.filter(match("address.zips_set", 19))
-             .checkUnorderedStringColumns("login", "USER6", "USER7");
+             .checkUnorderedColumns("login", String.class, "USER6", "USER7");
         utils.filter(match("address.zips_set", 20)).check(0);
-        utils.filter(match("address.zips_set", 21)).checkStringColumn("login", "USER7");
+        utils.filter(match("address.zips_set", 21)).checkUnorderedColumns("login", String.class, "USER7");
     }
 
     @Test
     public void testUDTOverUDT() {
         utils.filter(match("address.point.latitude", 1.0))
-             .checkStringColumn("login", "USER1");
+             .checkUnorderedColumns("login", String.class, "USER1");
         utils.filter(match("address.point.latitude", 2.0))
-             .checkStringColumn("login", "USER2");
+             .checkUnorderedColumns("login", String.class, "USER2");
         utils.filter(match("address.point.latitude", 3.0))
-             .checkStringColumn("login", "USER3");
+             .checkUnorderedColumns("login", String.class, "USER3");
         utils.filter(match("address.point.latitude", 4.0))
-             .checkStringColumn("login", "USER4");
+             .checkUnorderedColumns("login", String.class, "USER4");
         utils.filter(match("address.point.latitude", 5.0))
-             .checkStringColumn("login", "USER5");
+             .checkUnorderedColumns("login", String.class, "USER5");
         utils.filter(match("address.point.latitude", 6.0))
-             .checkStringColumn("login", "USER6");
+             .checkUnorderedColumns("login", String.class, "USER6");
         utils.filter(match("address.point.latitude", 7.0))
-             .checkStringColumn("login", "USER7");
+             .checkUnorderedColumns("login", String.class, "USER7");
         utils.filter(match("address.point.longitude", -1.0))
-             .checkStringColumn("login", "USER1");
+             .checkUnorderedColumns("login", String.class, "USER1");
         utils.filter(match("address.point.longitude", -2.0))
-             .checkStringColumn("login", "USER2");
+             .checkUnorderedColumns("login", String.class, "USER2");
         utils.filter(match("address.point.longitude", -3.0))
-             .checkStringColumn("login", "USER3");
+             .checkUnorderedColumns("login", String.class, "USER3");
         utils.filter(match("address.point.longitude", -4.0))
-             .checkStringColumn("login", "USER4");
+             .checkUnorderedColumns("login", String.class, "USER4");
         utils.filter(match("address.point.longitude", -5.0))
-             .checkStringColumn("login", "USER5");
+             .checkUnorderedColumns("login", String.class, "USER5");
         utils.filter(match("address.point.longitude", -6.0))
-             .checkStringColumn("login", "USER6");
+             .checkUnorderedColumns("login", String.class, "USER6");
         utils.filter(match("address.point.longitude", -7.0))
-             .checkStringColumn("login", "USER7");
+             .checkUnorderedColumns("login", String.class, "USER7");
         utils.filter(range("address.point.latitude").lower(1.0)
                                                     .upper(3.0)
                                                     .includeLower(true)
                                                     .includeUpper(true))
-             .checkUnorderedStringColumns("login", "USER1", "USER2", "USER3");
+             .checkUnorderedColumns("login", String.class, "USER1", "USER2", "USER3");
         utils.filter(range("address.point.latitude").lower(2.0)
                                                     .upper(5.0)
                                                     .includeLower(true)
                                                     .includeUpper(true))
-             .checkUnorderedStringColumns("login", "USER2", "USER3", "USER4", "USER5");
+             .checkUnorderedColumns("login", String.class, "USER2", "USER3", "USER4", "USER5");
         utils.filter(range("address.point.latitude").lower(1.0)
                                                     .upper(7.0)
                                                     .includeLower(true)
                                                     .includeUpper(true))
-             .checkUnorderedStringColumns("login",
-                                          "USER1",
-                                          "USER2",
-                                          "USER3",
-                                          "USER4",
-                                          "USER5",
-                                          "USER6",
-                                          "USER7");
+             .checkUnorderedColumns("login", String.class,
+                                    "USER1",
+                                    "USER2",
+                                    "USER3",
+                                    "USER4",
+                                    "USER5",
+                                    "USER6",
+                                    "USER7");
         utils.filter(range("address.point.longitude").lower(-3.0).upper(-1.0))
-             .checkStringColumn("login", "USER2");
+             .checkUnorderedColumns("login", String.class, "USER2");
         utils.filter(range("address.point.longitude").lower(-5.0).upper(-2.0))
-             .checkUnorderedStringColumns("login", "USER3", "USER4");
+             .checkUnorderedColumns("login", String.class, "USER3", "USER4");
         utils.filter(range("address.point.longitude").lower(-7.0).upper(-1.0))
-             .checkUnorderedStringColumns("login", "USER2", "USER3", "USER4", "USER5", "USER6");
+             .checkUnorderedColumns("login", String.class, "USER2", "USER3", "USER4", "USER5", "USER6");
         utils.filter(range("address.point.latitude").lower(1.0)
                                                     .upper(3.0)
                                                     .includeLower(true)
                                                     .includeUpper(true))
-             .checkUnorderedStringColumns("login", "USER1", "USER2", "USER3");
+             .checkUnorderedColumns("login", String.class, "USER1", "USER2", "USER3");
         utils.filter(range("address.point.latitude").lower(2.0)
                                                     .upper(5.0)
                                                     .includeLower(true)
                                                     .includeUpper(true))
-             .checkUnorderedStringColumns("login", "USER2", "USER3", "USER4", "USER5");
+             .checkUnorderedColumns("login", String.class, "USER2", "USER3", "USER4", "USER5");
         utils.filter(range("address.point.latitude").lower(1.0)
                                                     .upper(7.0)
                                                     .includeLower(true)
                                                     .includeUpper(true))
-             .checkUnorderedStringColumns("login",
-                                          "USER1",
-                                          "USER2",
-                                          "USER3",
-                                          "USER4",
-                                          "USER5",
-                                          "USER6",
-                                          "USER7");
+             .checkUnorderedColumns("login", String.class,
+                                    "USER1",
+                                    "USER2",
+                                    "USER3",
+                                    "USER4",
+                                    "USER5",
+                                    "USER6",
+                                    "USER7");
         utils.filter(range("address.point.longitude").lower(-3.0).upper(-1.0))
-             .checkStringColumn("login", "USER2");
+             .checkUnorderedColumns("login", String.class, "USER2");
         utils.filter(range("address.point.longitude").lower(-5.0).upper(-2.0))
-             .checkUnorderedStringColumns("login", "USER3", "USER4");
+             .checkUnorderedColumns("login", String.class, "USER3", "USER4");
         utils.filter(range("address.point.longitude").lower(-7.0).upper(-1.0))
-             .checkUnorderedStringColumns("login", "USER2", "USER3", "USER4", "USER5", "USER6");
+             .checkUnorderedColumns("login", String.class, "USER2", "USER3", "USER4", "USER5", "USER6");
     }
 
     @Test
@@ -428,6 +428,6 @@ public class UDTIndexingAT extends BaseAT {
         utils.insert(data8)
              .refresh()
              .filter(match("address.city", "Madrid"))
-             .checkStringColumn("login", "USER8");
+             .checkUnorderedColumns("login", String.class, "USER8");
     }
 }

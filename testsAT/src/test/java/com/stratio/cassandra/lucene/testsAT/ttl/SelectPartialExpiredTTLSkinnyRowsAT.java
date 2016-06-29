@@ -75,7 +75,7 @@ public class SelectPartialExpiredTTLSkinnyRowsAT extends BaseAT {
         utils.flush();
         TimeUnit.SECONDS.sleep(15);
         utils.compact(false).refresh();
-        utils.filter(match("b", "a")).checkUnorderedIntColumns("a", 2, 4, 5, 6, 14, 15, 16, 17);
+        utils.filter(match("b", "a")).checkUnorderedColumns("a", Integer.class, 2, 4, 5, 6, 14, 15, 16, 17);
         assertEquals("NumDocs in index is not correct", 13, utils.getIndexNumDocs());
     }
 

@@ -66,47 +66,47 @@ public class InOperatorWithWideRowsAT extends BaseAT {
     public void partitionKeyInTest() {
         utils.searchAll()
              .and("AND pk IN (0, 9)")
-             .checkOrderedIntColumns("rc", 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99);
+             .checkOrderedColumns("rc", Integer.class, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99);
     }
 
     @Test
     public void reversedPartitionKeyInTest() {
         utils.searchAll()
              .and("AND pk IN (9, 0)")
-             .checkOrderedIntColumns("rc", 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99);
+             .checkOrderedColumns("rc", Integer.class, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99);
     }
 
     @Test
     public void bothKeysInTest() {
-        utils.searchAll().and("AND pk IN (0, 9) AND ck IN (0, 9)").checkOrderedIntColumns("rc", 0, 9, 90, 99);
+        utils.searchAll().and("AND pk IN (0, 9) AND ck IN (0, 9)").checkOrderedColumns("rc", Integer.class, 0, 9, 90, 99);
     }
 
     @Test
     public void reversedBothKeysInTest() {
-        utils.searchAll().and("AND pk IN (9, 0) AND ck IN (9, 0)").checkOrderedIntColumns("rc", 0, 9, 90, 99);
+        utils.searchAll().and("AND pk IN (9, 0) AND ck IN (9, 0)").checkOrderedColumns("rc", Integer.class, 0, 9, 90, 99);
     }
 
     @Test
     public void queryWithInTest() {
         utils.query(all())
              .and("AND pk IN (9, 0)")
-             .checkOrderedIntColumns("rc", 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99);
+             .checkOrderedColumns("rc", Integer.class, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99);
     }
 
     @Test
     public void queryWithInBothTest() {
-        utils.query(all()).and("AND pk IN (9, 0) AND ck IN (9, 0)").checkOrderedIntColumns("rc", 0, 9, 90, 99);
+        utils.query(all()).and("AND pk IN (9, 0) AND ck IN (9, 0)").checkOrderedColumns("rc", Integer.class, 0, 9, 90, 99);
     }
 
     @Test
     public void sortWithInTest() {
         utils.sort(field("pk"))
              .and("AND pk IN (9, 0)")
-             .checkOrderedIntColumns("rc", 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99);
+             .checkOrderedColumns("rc", Integer.class, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99);
     }
 
     @Test
     public void sortWithInBothTest() {
-        utils.sort(field("pk")).and("AND pk IN (9, 0) AND ck IN (9, 0)").checkOrderedIntColumns("rc", 0, 9, 90, 99);
+        utils.sort(field("pk")).and("AND pk IN (9, 0) AND ck IN (9, 0)").checkOrderedColumns("rc", Integer.class, 0, 9, 90, 99);
     }
 }

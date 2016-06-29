@@ -63,22 +63,22 @@ public class SortWithWideRowsAT extends BaseAT {
 
     @Test
     public void sortAsc() {
-        utils.sort(field("rc").reverse(false)).limit(3).checkOrderedIntColumns("rc", 0, 1, 2);
+        utils.sort(field("rc").reverse(false)).limit(3).checkOrderedColumns("rc", Integer.class, 0, 1, 2);
     }
 
     @Test
     public void sortDesc() {
-        utils.sort(field("rc").reverse(true)).limit(3).checkOrderedIntColumns("rc", 99, 98, 97);
+        utils.sort(field("rc").reverse(true)).limit(3).checkOrderedColumns("rc", Integer.class, 99, 98, 97);
     }
 
     @Test
     public void sortPartitionAsc() {
-        utils.sort(field("rc").reverse(false)).andEq("pk", 1).limit(3).checkOrderedIntColumns("rc", 10, 11, 12);
+        utils.sort(field("rc").reverse(false)).andEq("pk", 1).limit(3).checkOrderedColumns("rc", Integer.class, 10, 11, 12);
     }
 
     @Test
     public void sortPartitionDesc() {
-        utils.sort(field("rc").reverse(true)).andEq("pk", 1).limit(3).checkOrderedIntColumns("rc", 19, 18, 17);
+        utils.sort(field("rc").reverse(true)).andEq("pk", 1).limit(3).checkOrderedColumns("rc", Integer.class, 19, 18, 17);
     }
 
     @Test
@@ -87,7 +87,7 @@ public class SortWithWideRowsAT extends BaseAT {
              .andEq("pk", 1)
              .andGt("ck", 1)
              .limit(3)
-             .checkOrderedIntColumns("rc", 12, 13, 14);
+             .checkOrderedColumns("rc", Integer.class, 12, 13, 14);
     }
 
     @Test
@@ -96,7 +96,7 @@ public class SortWithWideRowsAT extends BaseAT {
              .andEq("pk", 1)
              .andLt("ck", 7)
              .limit(3)
-             .checkOrderedIntColumns("rc", 16, 15, 14);
+             .checkOrderedColumns("rc", Integer.class, 16, 15, 14);
     }
 
     @Test
@@ -104,7 +104,7 @@ public class SortWithWideRowsAT extends BaseAT {
         utils.sort(field("rc").reverse(false))
              .andGt("token(pk)", 0)
              .limit(3)
-             .checkOrderedIntColumns("rc", 30, 31, 32);
+             .checkOrderedColumns("rc", Integer.class, 30, 31, 32);
     }
 
     @Test
@@ -112,7 +112,7 @@ public class SortWithWideRowsAT extends BaseAT {
         utils.sort(field("rc").reverse(true))
              .andLt("token(pk)", 0)
              .limit(3)
-             .checkOrderedIntColumns("rc", 89, 88, 87);
+             .checkOrderedColumns("rc", Integer.class, 89, 88, 87);
     }
 
     @Test

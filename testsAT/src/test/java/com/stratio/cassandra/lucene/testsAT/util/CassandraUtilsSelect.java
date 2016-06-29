@@ -229,55 +229,15 @@ public class CassandraUtilsSelect {
         return parent;
     }
 
+    public <T> CassandraUtils checkOrderedColumns(String column, Class<T> clazz, T... expecteds) {
+        return check(column, clazz, true, expecteds);
+    }
+
+    public <T> CassandraUtils checkUnorderedColumns(String column, Class<T> clazz, T... expecteds) {
+        return check(column, clazz, false, expecteds);
+    }
+
     public <T extends Exception> CassandraUtils check(Class<T> expectedClass, String expectedMessage) {
         return parent.check(this::get, expectedClass, expectedMessage);
-    }
-
-    public CassandraUtils checkOrderedIntColumns(String name, Integer... expected) {
-        return check(name, Integer.class, true, expected);
-    }
-
-    public CassandraUtils checkUnorderedIntColumns(String name, Integer... expected) {
-        return check(name, Integer.class, false, expected);
-    }
-
-    public CassandraUtils checkIntColumn(String name, Integer expected) {
-        return check(name, Integer.class, false, expected);
-    }
-
-    public CassandraUtils checkOrderedDoubleColumns(String name, Double... expected) {
-        return check(name, Double.class, true, expected);
-    }
-
-    public CassandraUtils checkUnorderedDoubleColumns(String name, Double... expected) {
-        return check(name, Double.class, false, expected);
-    }
-
-    public CassandraUtils checkDoubleColumn(String name, Double expected) {
-        return check(name, Double.class, false, expected);
-    }
-
-    public CassandraUtils checkLongColumn(String name, Long expected) {
-        return check(name, Long.class, false, expected);
-    }
-
-    public CassandraUtils checkOrderedLongColumns(String name, Long... expected) {
-        return check(name, Long.class, true, expected);
-    }
-
-    public CassandraUtils checkUnorderedLongColumns(String name, Long... expected) {
-        return check(name, Long.class, false, expected);
-    }
-
-    public CassandraUtils checkStringColumn(String name, String expected) {
-        return check(name, String.class, false, expected);
-    }
-
-    public CassandraUtils checkOrderedStringColumns(String name, String... expected) {
-        return check(name, String.class, true, expected);
-    }
-
-    public CassandraUtils checkUnorderedStringColumns(String name, String... expected) {
-        return check(name, String.class, false, expected);
     }
 }

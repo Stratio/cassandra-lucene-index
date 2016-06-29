@@ -68,7 +68,7 @@ public class Issue18AT extends BaseAT {
                 .insert(data1, data2, data3, data4)
                 .refresh()
                 .filter(match("testmapcol$attb1", "row1attb1Val"))
-                .checkIntColumn("idcol", 1)
+                .checkUnorderedColumns("idcol", Integer.class, 1)
                 .dropTable()
                 .dropKeyspace();
     }

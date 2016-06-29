@@ -77,23 +77,23 @@ public class TupleIndexingAT extends BaseAT {
         cassandraUtils.filter(range("v.0").lower(2).includeLower(true).upper(3).includeUpper(true)).check(2);
         cassandraUtils.filter(range("v.0").lower(3).includeLower(true).upper(4).includeUpper(true)).check(1);
         cassandraUtils.filter(range("v.0").lower(4).includeLower(true).upper(5).includeUpper(true)).check(0);
-        cassandraUtils.sort(field("v.0").reverse(true)).checkOrderedIntColumns("k", 2, 1, 0);
+        cassandraUtils.sort(field("v.0").reverse(true)).checkOrderedColumns("k", Integer.class, 2, 1, 0);
     }
 
     @Test
     public void testSearchTuple2() {
-        cassandraUtils.filter(match("v.1", "foo")).checkIntColumn("k", 0);
-        cassandraUtils.filter(match("v.1", "bar")).checkIntColumn("k", 1);
-        cassandraUtils.filter(match("v.1", "zas")).checkIntColumn("k", 2);
-        cassandraUtils.sort(field("v.1")).checkOrderedIntColumns("k", 1, 0, 2);
+        cassandraUtils.filter(match("v.1", "foo")).checkUnorderedColumns("k", Integer.class, 0);
+        cassandraUtils.filter(match("v.1", "bar")).checkUnorderedColumns("k", Integer.class, 1);
+        cassandraUtils.filter(match("v.1", "zas")).checkUnorderedColumns("k", Integer.class, 2);
+        cassandraUtils.sort(field("v.1")).checkOrderedColumns("k", Integer.class, 1, 0, 2);
     }
 
     @Test
     public void testSearchTuple3() {
-        cassandraUtils.filter(match("v.2", 2.1)).checkIntColumn("k", 0);
-        cassandraUtils.filter(match("v.2", 2.2)).checkIntColumn("k", 1);
-        cassandraUtils.filter(match("v.2", 1.2)).checkIntColumn("k", 2);
-        cassandraUtils.sort(field("v.2")).checkOrderedIntColumns("k", 2, 0, 1);
+        cassandraUtils.filter(match("v.2", 2.1)).checkUnorderedColumns("k", Integer.class, 0);
+        cassandraUtils.filter(match("v.2", 2.2)).checkUnorderedColumns("k", Integer.class, 1);
+        cassandraUtils.filter(match("v.2", 1.2)).checkUnorderedColumns("k", Integer.class, 2);
+        cassandraUtils.sort(field("v.2")).checkOrderedColumns("k", Integer.class, 2, 0, 1);
     }
 
     @Test
@@ -128,7 +128,7 @@ public class TupleIndexingAT extends BaseAT {
                       .refresh()
                       .filter(geoDistance("geo_point", -3.784519, 40.442163, "10000km"))
                       .sort(geoDistanceField("geo_point", 40.442163, -3.784519).reverse(false))
-                      .checkOrderedIntColumns("k", 0, 1, 2, 3, 4, 5, 6)
+                      .checkOrderedColumns("k", Integer.class, 0, 1, 2, 3, 4, 5, 6)
                       .dropKeyspace();
     }
 }
