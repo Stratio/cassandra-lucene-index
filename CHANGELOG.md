@@ -6,6 +6,7 @@
 * Add separate date format patterns for parsing and indexing
 * Add Lucene-specific CQL tracing
 * Fix parsing of data with CQL "date" type (#158)
+* Fix handling of immense term insertion mapping error
 
 ## 3.0.7.1 (17 June 2016)
 
