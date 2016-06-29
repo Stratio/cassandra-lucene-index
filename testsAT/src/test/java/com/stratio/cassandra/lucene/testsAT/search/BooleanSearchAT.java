@@ -106,16 +106,16 @@ public class BooleanSearchAT extends AbstractSearchAT {
     }
 
     @Test
-    public void booleanQueryMustAndNotTest() {
-        query(bool().must(wildcard("ascii_1", "frase*"))
-                    .must(wildcard("inet_1", "127.0.*"))
-                    .not(match("inet_1", "127.0.0.1"))).check(1);
+    public void testBooleanQueryMustAndNot() {
+        filter(bool().must(wildcard("ascii_1", "frase*"))
+                     .must(wildcard("inet_1", "127.0.*"))
+                     .not(match("inet_1", "127.0.0.1"))).check(1);
     }
 
     @Test
-    public void booleanQueryShouldAndNotTest() {
-        query(bool().should(wildcard("ascii_1", "frase*"), wildcard("inet_1", "127.0.*"))
-                    .not(match("inet_1", "127.0.0.1"))).check(3);
+    public void testBooleanQueryShouldAndNot() {
+        filter(bool().should(wildcard("ascii_1", "frase*"), wildcard("inet_1", "127.0.*"))
+                     .not(match("inet_1", "127.0.0.1"))).check(3);
     }
 
 }

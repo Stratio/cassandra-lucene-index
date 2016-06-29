@@ -47,18 +47,15 @@ public class Issue132AT extends BaseAT {
                                                             .createTable()
                                                             .createIndex();
         String table = utils.getQualifiedTable();
-
         utils.execute("INSERT INTO %s (name,sec,myset) VALUES ('test1', 'continue', {'home'});", table);
-        utils.refresh();
-        utils.filter(wildcard("myset", "hom*")).check(1);
-        utils.query(wildcard("myset", "hom*")).check(1);
-
-        utils.execute("UPDATE %s SET myset = myset - {'home'} WHERE name='test1' AND sec = 'continue';", table);
-        utils.refresh();
-        utils.filter(wildcard("myset", "hom*")).check(0);
-        utils.query(wildcard("myset", "hom*")).check(0);
-
-        utils.dropKeyspace();
+        utils.refresh()
+             .filter(wildcard("myset", "hom*")).check(1)
+             .query(wildcard("myset", "hom*")).check(1)
+             .execute("UPDATE %s SET myset = myset - {'home'} WHERE name='test1' AND sec = 'continue';", table);
+        utils.refresh()
+             .filter(wildcard("myset", "hom*")).check(0)
+             .query(wildcard("myset", "hom*")).check(0)
+             .dropKeyspace();
     }
 
     @Test
@@ -77,16 +74,14 @@ public class Issue132AT extends BaseAT {
         String table = utils.getQualifiedTable();
 
         utils.execute("INSERT INTO %s (name, sec,mylist) VALUES ('test1', 'continue', ['home']);", table);
-        utils.refresh();
-        utils.filter(wildcard("mylist", "hom*")).check(1);
-        utils.query(wildcard("mylist", "hom*")).check(1);
-
-        utils.execute("UPDATE %s SET mylist = mylist - ['home'] WHERE name='test1' AND sec = 'continue';", table);
-        utils.refresh();
-        utils.filter(wildcard("mylist", "hom*")).check(0);
-        utils.query(wildcard("mylist", "hom*")).check(0);
-
-        utils.dropKeyspace();
+        utils.refresh()
+             .filter(wildcard("mylist", "hom*")).check(1)
+             .query(wildcard("mylist", "hom*")).check(1)
+             .execute("UPDATE %s SET mylist = mylist - ['home'] WHERE name='test1' AND sec = 'continue';", table);
+        utils.refresh()
+             .filter(wildcard("mylist", "hom*")).check(0)
+             .query(wildcard("mylist", "hom*")).check(0)
+             .dropKeyspace();
     }
 
     @Test
@@ -105,16 +100,14 @@ public class Issue132AT extends BaseAT {
         String table = utils.getQualifiedTable();
 
         utils.execute("INSERT INTO %s (name, sec,mymap) VALUES ('test1','continue', {'home':'home'});", table);
-        utils.refresh();
-        utils.filter(wildcard("mymap$home", "hom*")).check(1);
-        utils.query(wildcard("mymap$home", "hom*")).check(1);
-
-        utils.execute("UPDATE %s SET mymap = mymap - {'home','home'} WHERE name='test1' AND sec = 'continue';", table);
-        utils.refresh();
-        utils.filter(wildcard("mymap$home", "hom*")).check(0);
-        utils.query(wildcard("mymap$home", "hom*")).check(0);
-
-        utils.dropKeyspace();
+        utils.refresh()
+             .filter(wildcard("mymap$home", "hom*")).check(1)
+             .query(wildcard("mymap$home", "hom*")).check(1)
+             .execute("UPDATE %s SET mymap = mymap - {'home','home'} WHERE name='test1' AND sec = 'continue';", table);
+        utils.refresh()
+             .filter(wildcard("mymap$home", "hom*")).check(0)
+             .query(wildcard("mymap$home", "hom*")).check(0)
+             .dropKeyspace();
     }
 
     @Test
@@ -131,16 +124,14 @@ public class Issue132AT extends BaseAT {
         String table = utils.getQualifiedTable();
 
         utils.execute("INSERT INTO %s (name, myset) VALUES ('test1', {'home'});", table);
-        utils.refresh();
-        utils.filter(wildcard("myset", "hom*")).check(1);
-        utils.query(wildcard("myset", "hom*")).check(1);
-
-        utils.execute("UPDATE %s SET myset = myset - {'home'} WHERE name='test1';", table);
-        utils.refresh();
-        utils.filter(wildcard("myset", "hom*")).check(0);
-        utils.query(wildcard("myset", "hom*")).check(0);
-
-        utils.dropKeyspace();
+        utils.refresh()
+             .filter(wildcard("myset", "hom*")).check(1)
+             .query(wildcard("myset", "hom*")).check(1)
+             .execute("UPDATE %s SET myset = myset - {'home'} WHERE name='test1';", table);
+        utils.refresh()
+             .filter(wildcard("myset", "hom*")).check(0)
+             .query(wildcard("myset", "hom*")).check(0)
+             .dropKeyspace();
     }
 
     @Test
@@ -157,16 +148,14 @@ public class Issue132AT extends BaseAT {
         String table = utils.getQualifiedTable();
 
         utils.execute("INSERT INTO %s (name, mylist) VALUES ('test1', ['home']);", table);
-        utils.refresh();
-        utils.filter(wildcard("mylist", "hom*")).check(1);
-        utils.query(wildcard("mylist", "hom*")).check(1);
-
-        utils.execute("UPDATE %s SET mylist = mylist - ['home'] WHERE name='test1';", table);
-        utils.refresh();
-        utils.filter(wildcard("mylist", "hom*")).check(0);
-        utils.query(wildcard("mylist", "hom*")).check(0);
-
-        utils.dropKeyspace();
+        utils.refresh()
+             .filter(wildcard("mylist", "hom*")).check(1)
+             .query(wildcard("mylist", "hom*")).check(1)
+             .execute("UPDATE %s SET mylist = mylist - ['home'] WHERE name='test1';", table);
+        utils.refresh()
+             .filter(wildcard("mylist", "hom*")).check(0)
+             .query(wildcard("mylist", "hom*")).check(0)
+             .dropKeyspace();
     }
 
     @Test
@@ -183,15 +172,15 @@ public class Issue132AT extends BaseAT {
         String table = utils.getQualifiedTable();
 
         utils.execute("INSERT INTO %s (name, mymap) VALUES ('test1', {'home':'home'});", table);
-        utils.refresh();
-        utils.filter(wildcard("mymap$home", "hom*")).check(1);
-        utils.query(wildcard("mymap$home", "hom*")).check(1);
-
-        utils.execute("UPDATE %s SET mymap = mymap - {'home','home'} WHERE name='test1';", table);
-        utils.refresh();
-        utils.filter(wildcard("mymap", "hom*")).check(0);
-        utils.query(wildcard("mymap", "hom*")).check(0);
-
-        utils.dropKeyspace();
+        utils.refresh()
+             .filter(wildcard("mymap$home", "hom*"))
+             .check(1)
+             .query(wildcard("mymap$home", "hom*"))
+             .check(1)
+             .execute("UPDATE %s SET mymap = mymap - {'home','home'} WHERE name='test1';", table);
+        utils.refresh()
+             .filter(wildcard("mymap", "hom*")).check(0)
+             .query(wildcard("mymap", "hom*")).check(0)
+             .dropKeyspace();
     }
 }

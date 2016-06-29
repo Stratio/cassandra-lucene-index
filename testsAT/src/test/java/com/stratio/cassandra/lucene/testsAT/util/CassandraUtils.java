@@ -296,6 +296,13 @@ public class CassandraUtils {
         return this;
     }
 
+    public <T extends Exception> CassandraUtils insert(String[] names,
+                                                       Object[] values,
+                                                       Class<T> expectedClass,
+                                                       String expectedMessage) {
+        return check(() -> insert(names, values), expectedClass, expectedMessage);
+    }
+
     public CassandraUtils insert(String[] names, Object[] values, Integer ttl) {
         execute(QueryBuilder.insertInto(keyspace, table).values(names, values).using(QueryBuilder.ttl(ttl)));
         return this;
@@ -315,6 +322,10 @@ public class CassandraUtils {
 
     public CassandraUtilsSelect select() {
         return new CassandraUtilsSelect(this);
+    }
+
+    public CassandraUtilsSelect search() {
+        return select().search();
     }
 
     public CassandraUtilsSelect searchAll() {

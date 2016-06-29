@@ -15,144 +15,123 @@
  */
 package com.stratio.cassandra.lucene.testsAT.search;
 
+import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 import static com.stratio.cassandra.lucene.builder.Builder.*;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
 
 @RunWith(JUnit4.class)
 public class SortedSearchAT extends AbstractSearchAT {
 
     @Test
-    public void sortIntegerAsc() {
-        Integer[] returnedValues = sort(field("integer_1").reverse(false)).intColumn("integer_1");
-        assertEquals("Expected 5 results!", 5, returnedValues.length);
-        Integer[] expectedValues = new Integer[]{-5, -4, -3, -2, -1};
-        assertArrayEquals("Wrong sort!", expectedValues, returnedValues);
+    public void testSortIntegerAsc() {
+        sort(field("integer_1").reverse(false)).checkOrderedColumns("integer_1", -5, -4, -3, -2, -1);
     }
 
     @Test
-    public void sortIntegerDesc() {
-        Integer[] returnedValues = sort(field("integer_1").reverse(true)).intColumn("integer_1");
-        assertEquals("Expected 5 results!", 5, returnedValues.length);
-        Integer[] expectedValues = new Integer[]{-1, -2, -3, -4, -5};
-        assertArrayEquals("Wrong sort!", expectedValues, returnedValues);
+    public void testSortIntegerDesc() {
+        sort(field("integer_1").reverse(true)).checkOrderedColumns("integer_1", -1, -2, -3, -4, -5);
     }
 
     @Test
-    public void sortIntegerDefault() {
-        Integer[] returnedValues = sort(field("integer_1")).intColumn("integer_1");
-        assertEquals("Expected 5 results!", 5, returnedValues.length);
-        Integer[] expectedValues = new Integer[]{-5, -4, -3, -2, -1};
-        assertArrayEquals("Wrong sort!", expectedValues, returnedValues);
+    public void testSortIntegerDefault() {
+        sort(field("integer_1")).checkOrderedColumns("integer_1", -5, -4, -3, -2, -1);
     }
 
     @Test
-    public void sortDoubleAsc() {
-        Double[] returnedValues = sort(field("double_1").reverse(false)).doubleColumn("double_1");
-        assertEquals("Expected 5 results!", 5, returnedValues.length);
-        Double[] expectedValues = new Double[]{1D, 2D, 3D, 3D, 3D};
-        assertArrayEquals("Wrong sort!", expectedValues, returnedValues);
+    public void testSortDoubleAsc() {
+        sort(field("double_1").reverse(false)).checkOrderedColumns("double_1", 1D, 2D, 3D, 3D, 3D);
     }
 
     @Test
-    public void sortDoubleDesc() {
-        Double[] returnedValues = sort(field("double_1").reverse(true)).doubleColumn("double_1");
-        assertEquals("Expected 5 results!", 5, returnedValues.length);
-        Double[] expectedValues = new Double[]{3D, 3D, 3D, 2D, 1D};
-        assertArrayEquals("Wrong sort!", expectedValues, returnedValues);
+    public void testSortDoubleDesc() {
+        sort(field("double_1").reverse(true)).checkOrderedColumns("double_1", 3D, 3D, 3D, 2D, 1D);
     }
 
     @Test
-    public void sortDoubleDefault() {
-        Double[] returnedValues = sort(field("double_1")).doubleColumn("double_1");
-        assertEquals("Expected 5 results!", 5, returnedValues.length);
-        Double[] expectedValues = new Double[]{1D, 2D, 3D, 3D, 3D};
-        assertArrayEquals("Wrong sort!", expectedValues, returnedValues);
+    public void testSortDoubleDefault() {
+        sort(field("double_1")).checkOrderedColumns("double_1", 1D, 2D, 3D, 3D, 3D);
     }
 
     @Test
-    public void sortCombined() {
-        Double[] returnedDoubleValues = sort(field("double_1"), field("integer_1")).doubleColumn("double_1");
-        assertEquals("Expected 5 results!", 5, returnedDoubleValues.length);
-        Integer[] returnedIntValues = sort(field("double_1"), field("integer_1")).intColumn("integer_1");
-        assertEquals("Expected 5 results!", 5, returnedIntValues.length);
-        Double[] expectedDoubleValues = new Double[]{1D, 2D, 3D, 3D, 3D};
-        Integer[] expectedIntValues = new Integer[]{-1, -2, -5, -4, -3};
-        assertArrayEquals("Wrong doubles sort!", expectedDoubleValues, returnedDoubleValues);
-        assertArrayEquals("Wrong integers sort!", expectedIntValues, returnedIntValues);
+    public void testSortCombined() {
+        sort(field("double_1"), field("integer_1")).checkOrderedColumns("double_1", 1D, 2D, 3D, 3D, 3D);
+        sort(field("double_1"), field("integer_1")).checkOrderedColumns("integer_1", -1, -2, -5, -4, -3);
     }
 
     @Test
-    public void sortWithFilter() {
-        Integer[] returnedValues = filter(all()).sort(field("integer_1").reverse(false)).intColumn("integer_1");
-        assertEquals("Expected 5 results!", 5, returnedValues.length);
-        Integer[] expectedValues = new Integer[]{-5, -4, -3, -2, -1};
-        assertArrayEquals("Wrong sort!", expectedValues, returnedValues);
+    public void testSortWithFilter() {
+        filter(all()).sort(field("integer_1").reverse(false))
+                     .checkOrderedColumns("integer_1", -5, -4, -3, -2, -1);
     }
 
     @Test
-    public void sortWithQuery() {
-        Integer[] returnedValues = query(all()).sort(field("integer_1").reverse(false)).intColumn("integer_1");
-        assertEquals("Expected 5 results!", 5, returnedValues.length);
-        Integer[] expectedValues = new Integer[]{-5, -4, -3, -2, -1};
-        assertArrayEquals("Wrong sort!", expectedValues, returnedValues);
+    public void testSortWithQuery() {
+        query(all()).sort(field("integer_1").reverse(false))
+                    .checkOrderedColumns("integer_1", -5, -4, -3, -2, -1);
     }
 
     @Test
-    public void sortWithFilterAndQuery() {
-        Integer[] returnedValues = filter(all()).query(all())
-                                                .sort(field("integer_1").reverse(false))
-                                                .intColumn("integer_1");
-        assertEquals("Expected 5 results!", 5, returnedValues.length);
-        Integer[] expectedValues = new Integer[]{-5, -4, -3, -2, -1};
-        assertArrayEquals("Wrong sort!", expectedValues, returnedValues);
+    public void testSortWithFilterMustShouldAndNot() {
+        search().filter(all())
+                .query(all())
+                .sort(field("integer_1").reverse(false))
+                .checkOrderedColumns("integer_1", -5, -4, -3, -2, -1);
     }
 
     @Test
-    public void sortWithGeoDistanceFilterNotReversed() {
-
-        Integer[] returnedValues = filter(geoDistance("geo_point", -3.784519, 40.442163, "10000km")).sort(
-                geoDistanceField("geo_point", -3.784519, 40.442163).reverse(false)).intColumn("integer_1");
-
-        assertEquals("Expected 5 results!", 5, returnedValues.length);
-        Integer[] expectedValues = new Integer[]{-1, -2, -3, -4, -5};
-        assertArrayEquals("Wrong geoDistance sort!", expectedValues, returnedValues);
-
+    public void testSortWithGeoDistanceFilterNotReversed() {
+        search().filter(geoDistance("geo_point", -3.784519, 40.442163, "10000km"))
+                .sort(geoDistanceField("geo_point", -3.784519, 40.442163).reverse(false))
+                .checkOrderedColumns("integer_1", -1, -2, -3, -4, -5);
     }
 
     @Test
-    public void sortWithGeoDistanceQueryNotReversed() {
-        Integer[] returnedValues = query(geoDistance("geo_point", -3.784519, 40.442163, "10000km")).sort(
-                geoDistanceField("geo_point", -3.784519, 40.442163).reverse(false)).intColumn("integer_1");
-
-        assertEquals("Expected 5 results!", 5, returnedValues.length);
-        Integer[] expectedValues = new Integer[]{-1, -2, -3, -4, -5};
-        assertArrayEquals("Wrong geoDistance sort!", expectedValues, returnedValues);
+    public void testSortWithGeoDistanceQueryNotReversed() {
+        search().query(geoDistance("geo_point", -3.784519, 40.442163, "10000km"))
+                .sort(geoDistanceField("geo_point", -3.784519, 40.442163).reverse(false))
+                .checkOrderedColumns("integer_1", -1, -2, -3, -4, -5);
     }
 
     @Test
-    public void sortWithGeoDistanceFilterReversed() {
-
-        Integer[] returnedValues = filter(geoDistance("geo_point", -3.784519, 40.442163, "10000km")).sort(
-                geoDistanceField("geo_point", -3.784519, 40.442163).reverse(true)).intColumn("integer_1");
-
-        assertEquals("Expected 5 results!", 5, returnedValues.length);
-        Integer[] expectedValues = new Integer[]{-5, -4, -3, -2, -1};
-        assertArrayEquals("Wrong geoDistance sort!", expectedValues, returnedValues);
+    public void testSortWithGeoDistanceFilterReversed() {
+        search().filter(geoDistance("geo_point", -3.784519, 40.442163, "10000km"))
+                .sort(geoDistanceField("geo_point", -3.784519, 40.442163).reverse(true))
+                .checkOrderedColumns("integer_1", -5, -4, -3, -2, -1);
     }
 
     @Test
-    public void sortWithGeoDistanceQueryReversed() {
+    public void testSortWithGeoDistanceQueryReversed() {
+        search().query(geoDistance("geo_point", -3.784519, 40.442163, "10000km"))
+                .sort(geoDistanceField("geo_point", -3.784519, 40.442163).reverse(true))
+                .checkOrderedColumns("integer_1", -5, -4, -3, -2, -1);
+    }
 
-        Integer[] returnedValues = query(geoDistance("geo_point", -3.784519, 40.442163, "10000km")).sort(
-                geoDistanceField("geo_point", -3.784519, 40.442163).reverse(true)).intColumn("integer_1");
-
-        assertEquals("Expected 5 results!", 5, returnedValues.length);
-        Integer[] expectedValues = new Integer[]{-5, -4, -3, -2, -1};
-        assertArrayEquals("Wrong geoDistance sort!", expectedValues, returnedValues);
+    @Test
+    public void testSortByRelevance() {
+        CassandraUtils.builder("sort_by_relevance")
+                      .withPartitionKey("id")
+                      .withColumn("id", "int")
+                      .withColumn("field", "text")
+                      .build()
+                      .createKeyspace()
+                      .createTable()
+                      .createIndex()
+                      .insert(new String[]{"id", "field"}, new Object[]{1, "word"})
+                      .insert(new String[]{"id", "field"}, new Object[]{2, "word word"})
+                      .insert(new String[]{"id", "field"}, new Object[]{3, "word cat"})
+                      .insert(new String[]{"id", "field"}, new Object[]{4, "word cat dog"})
+                      .insert(new String[]{"id", "field"}, new Object[]{5, "dog"})
+                      .refresh()
+                      .query(match("field", "word"))
+                      .checkOrderedColumns("id", 1, 2, 3, 4)
+                      .filter(match("field", "word"))
+                      .checkOrderedColumns("id", 1, 2, 4, 3)
+                      .filter(match("field", "word"))
+                      .sort(field("id").reverse(true))
+                      .checkOrderedColumns("id", 4, 3, 2, 1)
+                      .dropKeyspace();
     }
 }

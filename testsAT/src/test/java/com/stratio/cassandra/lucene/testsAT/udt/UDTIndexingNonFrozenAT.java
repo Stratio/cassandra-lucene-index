@@ -245,12 +245,12 @@ public class UDTIndexingNonFrozenAT extends BaseAT {
     @Test
     public void testUDTInternal() {
         utils.filter(match("address.city", "Paris"))
-             .checkUnorderedStringColumns("login", "USER4", "USER5", "USER6", "USER7")
+             .checkUnorderedColumns("login", "USER4", "USER5", "USER6", "USER7")
              .filter(match("address.city", "San Francisco"))
-             .checkUnorderedStringColumns("login", "USER1", "USER2", "USER3")
+             .checkUnorderedColumns("login", "USER1", "USER2", "USER3")
              .filter(match("address.bool", true))
-             .checkUnorderedStringColumns("login", "USER1", "USER3", "USER5", "USER7")
-             .filter(match("address.bool", false)).checkUnorderedStringColumns("login", "USER2", "USER4", "USER6");
+             .checkUnorderedColumns("login", "USER1", "USER3", "USER5", "USER7")
+             .filter(match("address.bool", false)).checkUnorderedColumns("login", "USER2", "USER4", "USER6");
     }
 
     @Test
@@ -261,29 +261,29 @@ public class UDTIndexingNonFrozenAT extends BaseAT {
 
     @Test
     public void testUDTList() {
-        utils.filter(match("address.zips", 10)).checkUnorderedStringColumns("login", "USER3", "USER4", "USER5")
-             .filter(match("address.zips", 12)).checkUnorderedStringColumns("login", "USER4", "USER5", "USER6")
-             .filter(match("address.zips", 14)).checkUnorderedStringColumns("login", "USER5", "USER6", "USER7")
+        utils.filter(match("address.zips", 10)).checkUnorderedColumns("login", "USER3", "USER4", "USER5")
+             .filter(match("address.zips", 12)).checkUnorderedColumns("login", "USER4", "USER5", "USER6")
+             .filter(match("address.zips", 14)).checkUnorderedColumns("login", "USER5", "USER6", "USER7")
              .filter(match("address.zips", 15)).check(0)
-             .filter(match("address.zips", 16)).checkUnorderedStringColumns("login", "USER6", "USER7")
-             .filter(match("address.zips", 18)).checkUnorderedStringColumns("login", "USER7");
+             .filter(match("address.zips", 16)).checkUnorderedColumns("login", "USER6", "USER7")
+             .filter(match("address.zips", 18)).checkUnorderedColumns("login", "USER7");
     }
 
     @Test
     public void testUDTMap() {
         utils.refresh()
              .filter(match("address.zips_map$1", "1A"))
-             .checkUnorderedStringColumns("login", "USER1", "USER3", "USER5", "USER7")
+             .checkUnorderedColumns("login", "USER1", "USER3", "USER5", "USER7")
              .filter(match("address.zips_map$1", "1B"))
-             .checkUnorderedStringColumns("login", "USER2", "USER4", "USER6")
+             .checkUnorderedColumns("login", "USER2", "USER4", "USER6")
              .filter(match("address.zips_map$2", "2A"))
-             .checkUnorderedStringColumns("login", "USER1", "USER3", "USER5", "USER7")
+             .checkUnorderedColumns("login", "USER1", "USER3", "USER5", "USER7")
              .filter(match("address.zips_map$2", "2B"))
-             .checkUnorderedStringColumns("login", "USER2", "USER4", "USER6")
+             .checkUnorderedColumns("login", "USER2", "USER4", "USER6")
              .filter(match("address.zips_map$3", "3A"))
-             .checkUnorderedStringColumns("login", "USER1", "USER3", "USER5", "USER7")
+             .checkUnorderedColumns("login", "USER1", "USER3", "USER5", "USER7")
              .filter(match("address.zips_map$3", "3B"))
-             .checkUnorderedStringColumns("login", "USER2", "USER4", "USER6");
+             .checkUnorderedColumns("login", "USER2", "USER4", "USER6");
     }
 
     @Test
@@ -293,95 +293,95 @@ public class UDTIndexingNonFrozenAT extends BaseAT {
 
     @Test
     public void testUDTSet() {
-        utils.filter(match("address.zips_set", 5)).checkUnorderedStringColumns("login", "USER1")
-             .filter(match("address.zips_set", 7)).checkUnorderedStringColumns("login", "USER1", "USER2")
-             .filter(match("address.zips_set", 9)).checkUnorderedStringColumns("login", "USER1", "USER2", "USER3")
-             .filter(match("address.zips_set", 11)).checkUnorderedStringColumns("login", "USER2", "USER3", "USER4")
+        utils.filter(match("address.zips_set", 5)).checkUnorderedColumns("login", "USER1")
+             .filter(match("address.zips_set", 7)).checkUnorderedColumns("login", "USER1", "USER2")
+             .filter(match("address.zips_set", 9)).checkUnorderedColumns("login", "USER1", "USER2", "USER3")
+             .filter(match("address.zips_set", 11)).checkUnorderedColumns("login", "USER2", "USER3", "USER4")
              .filter(match("address.zips_set", 12)).check(0)
-             .filter(match("address.zips_set", 13)).checkUnorderedStringColumns("login", "USER3", "USER4", "USER5")
+             .filter(match("address.zips_set", 13)).checkUnorderedColumns("login", "USER3", "USER4", "USER5")
              .filter(match("address.zips_set", 14)).check(0)
-             .filter(match("address.zips_set", 15)).checkUnorderedStringColumns("login", "USER4", "USER5", "USER6")
-             .filter(match("address.zips_set", 17)).checkUnorderedStringColumns("login", "USER5", "USER6", "USER7")
-             .filter(match("address.zips_set", 19)).checkUnorderedStringColumns("login", "USER6", "USER7")
+             .filter(match("address.zips_set", 15)).checkUnorderedColumns("login", "USER4", "USER5", "USER6")
+             .filter(match("address.zips_set", 17)).checkUnorderedColumns("login", "USER5", "USER6", "USER7")
+             .filter(match("address.zips_set", 19)).checkUnorderedColumns("login", "USER6", "USER7")
              .filter(match("address.zips_set", 20)).check(0)
-             .filter(match("address.zips_set", 21)).checkUnorderedStringColumns("login", "USER7");
+             .filter(match("address.zips_set", 21)).checkUnorderedColumns("login", "USER7");
     }
 
     @Test
     public void testUDTOverUDT() {
-        utils.filter(match("address.point.latitude", 1.0)).checkUnorderedStringColumns("login", "USER1")
-             .filter(match("address.point.latitude", 2.0)).checkUnorderedStringColumns("login", "USER2")
-             .filter(match("address.point.latitude", 3.0)).checkUnorderedStringColumns("login", "USER3")
-             .filter(match("address.point.latitude", 4.0)).checkUnorderedStringColumns("login", "USER4")
+        utils.filter(match("address.point.latitude", 1.0)).checkUnorderedColumns("login", "USER1")
+             .filter(match("address.point.latitude", 2.0)).checkUnorderedColumns("login", "USER2")
+             .filter(match("address.point.latitude", 3.0)).checkUnorderedColumns("login", "USER3")
+             .filter(match("address.point.latitude", 4.0)).checkUnorderedColumns("login", "USER4")
              .filter(match("address.point.latitude", 5.0))
-             .checkUnorderedStringColumns("login", "USER5")
+             .checkUnorderedColumns("login", "USER5")
              .filter(match("address.point.latitude", 6.0))
-             .checkUnorderedStringColumns("login", "USER6")
+             .checkUnorderedColumns("login", "USER6")
              .filter(match("address.point.latitude", 7.0))
-             .checkUnorderedStringColumns("login", "USER7")
+             .checkUnorderedColumns("login", "USER7")
              .filter(match("address.point.longitude", -1.0))
-             .checkUnorderedStringColumns("login", "USER1")
+             .checkUnorderedColumns("login", "USER1")
              .filter(match("address.point.longitude", -2.0))
-             .checkUnorderedStringColumns("login", "USER2")
+             .checkUnorderedColumns("login", "USER2")
              .filter(match("address.point.longitude", -3.0))
-             .checkUnorderedStringColumns("login", "USER3")
+             .checkUnorderedColumns("login", "USER3")
              .filter(match("address.point.longitude", -4.0))
-             .checkUnorderedStringColumns("login", "USER4")
+             .checkUnorderedColumns("login", "USER4")
              .filter(match("address.point.longitude", -5.0))
-             .checkUnorderedStringColumns("login", "USER5")
+             .checkUnorderedColumns("login", "USER5")
              .filter(match("address.point.longitude", -6.0))
-             .checkUnorderedStringColumns("login", "USER6")
+             .checkUnorderedColumns("login", "USER6")
              .filter(match("address.point.longitude", -7.0))
-             .checkUnorderedStringColumns("login", "USER7")
+             .checkUnorderedColumns("login", "USER7")
              .filter(range("address.point.latitude").lower(1.0)
                                                     .upper(3.0)
                                                     .includeLower(true)
                                                     .includeUpper(true))
-             .checkUnorderedStringColumns("login", "USER1", "USER2", "USER3")
+             .checkUnorderedColumns("login", "USER1", "USER2", "USER3")
              .filter(range("address.point.latitude").lower(2.0)
                                                     .upper(5.0)
                                                     .includeLower(true)
                                                     .includeUpper(true))
-             .checkUnorderedStringColumns("login", "USER2", "USER3", "USER4", "USER5")
+             .checkUnorderedColumns("login", "USER2", "USER3", "USER4", "USER5")
              .filter(range("address.point.latitude").lower(1.0)
                                                     .upper(7.0)
                                                     .includeLower(true)
                                                     .includeUpper(true))
-             .checkUnorderedStringColumns("login",
-                                          "USER1",
-                                          "USER2",
-                                          "USER3",
-                                          "USER4",
-                                          "USER5",
-                                          "USER6",
-                                          "USER7")
+             .checkUnorderedColumns("login",
+                                    "USER1",
+                                    "USER2",
+                                    "USER3",
+                                    "USER4",
+                                    "USER5",
+                                    "USER6",
+                                    "USER7")
              .filter(range("address.point.longitude").lower(-3.0).upper(-1.0))
-             .checkUnorderedStringColumns("login", "USER2")
+             .checkUnorderedColumns("login", "USER2")
              .filter(range("address.point.longitude").lower(-5.0).upper(-2.0))
-             .checkUnorderedStringColumns("login", "USER3", "USER4")
+             .checkUnorderedColumns("login", "USER3", "USER4")
              .filter(range("address.point.longitude").lower(-7.0).upper(-1.0))
-             .checkUnorderedStringColumns("login", "USER2", "USER3", "USER4", "USER5", "USER6")
+             .checkUnorderedColumns("login", "USER2", "USER3", "USER4", "USER5", "USER6")
              .filter(range("address.point.latitude").lower(1.0)
                                                     .upper(3.0)
                                                     .includeLower(true)
                                                     .includeUpper(true))
-             .checkUnorderedStringColumns("login", "USER1", "USER2", "USER3")
+             .checkUnorderedColumns("login", "USER1", "USER2", "USER3")
              .filter(range("address.point.latitude").lower(2.0)
                                                     .upper(5.0)
                                                     .includeLower(true)
                                                     .includeUpper(true))
-             .checkUnorderedStringColumns("login", "USER2", "USER3", "USER4", "USER5")
+             .checkUnorderedColumns("login", "USER2", "USER3", "USER4", "USER5")
              .filter(range("address.point.latitude").lower(1.0)
                                                     .upper(7.0)
                                                     .includeLower(true)
                                                     .includeUpper(true))
-             .checkUnorderedStringColumns("login", "USER1", "USER2", "USER3", "USER4", "USER5", "USER6", "USER7")
+             .checkUnorderedColumns("login", "USER1", "USER2", "USER3", "USER4", "USER5", "USER6", "USER7")
              .filter(range("address.point.longitude").lower(-3.0).upper(-1.0))
-             .checkUnorderedStringColumns("login", "USER2")
+             .checkUnorderedColumns("login", "USER2")
              .filter(range("address.point.longitude").lower(-5.0).upper(-2.0))
-             .checkUnorderedStringColumns("login", "USER3", "USER4")
+             .checkUnorderedColumns("login", "USER3", "USER4")
              .filter(range("address.point.longitude").lower(-7.0).upper(-1.0))
-             .checkUnorderedStringColumns("login", "USER2", "USER3", "USER4", "USER5", "USER6");
+             .checkUnorderedColumns("login", "USER2", "USER3", "USER4", "USER5", "USER6");
     }
 
     @Test
@@ -403,6 +403,6 @@ public class UDTIndexingNonFrozenAT extends BaseAT {
 
         utils.execute(new SimpleStatement(insert));
 
-        utils.refresh().filter(match("address.city", "Madrid")).checkUnorderedStringColumns("login", "USER10");
+        utils.refresh().filter(match("address.city", "Madrid")).checkUnorderedColumns("login", "USER10");
     }
 }

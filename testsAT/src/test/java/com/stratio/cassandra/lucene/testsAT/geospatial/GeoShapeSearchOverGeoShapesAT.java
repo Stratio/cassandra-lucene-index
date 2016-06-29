@@ -109,17 +109,17 @@ public class GeoShapeSearchOverGeoShapesAT extends BaseAT {
                               .createTable()
                               .createIndex()
                               .insert(data1,
-                                               data2,
-                                               data3,
-                                               data4,
-                                               data5,
-                                               data6,
-                                               data7,
-                                               data8,
-                                               data9,
-                                               data10,
-                                               data11,
-                                               data12)
+                                      data2,
+                                      data3,
+                                      data4,
+                                      data5,
+                                      data6,
+                                      data7,
+                                      data8,
+                                      data9,
+                                      data10,
+                                      data11,
+                                      data12)
                               .refresh();
     }
 
@@ -167,13 +167,13 @@ public class GeoShapeSearchOverGeoShapesAT extends BaseAT {
     @Test
     public void testIntersectsPoint3() {
         utils.filter(geoShape("shape", "POINT(-3.789725 40.446751)").operation("intersects"))
-             .checkStringColumn("place", "SHAPE_3");
+             .checkUnorderedColumns("place", "SHAPE_3");
     }
 
     @Test
     public void testContainsPoint3() {
         utils.filter(geoShape("shape", "POINT(-3.789725 40.446751)").operation("contains"))
-             .checkStringColumn("place", "SHAPE_3");
+             .checkUnorderedColumns("place", "SHAPE_3");
     }
 
     @Test
@@ -185,13 +185,13 @@ public class GeoShapeSearchOverGeoShapesAT extends BaseAT {
     @Test
     public void testIntersectsPoint4() {
         utils.filter(geoShape("shape", "POINT(-3.792343 40.446522)").operation("intersects"))
-             .checkStringColumn("place", "SHAPE_3");
+             .checkUnorderedColumns("place", "SHAPE_3");
     }
 
     @Test
     public void testContainsPoint4() {
         utils.filter(geoShape("shape", "POINT(-3.792343 40.446522)").operation("contains"))
-             .checkStringColumn("place", "SHAPE_3");
+             .checkUnorderedColumns("place", "SHAPE_3");
     }
 
     @Test
@@ -203,13 +203,13 @@ public class GeoShapeSearchOverGeoShapesAT extends BaseAT {
     @Test
     public void testIntersectsPoint5() {
         utils.filter(geoShape("shape", "POINT(-3.804402 40.444040)").operation("intersects"))
-             .checkStringColumn("place", "SHAPE_3");
+             .checkUnorderedColumns("place", "SHAPE_3");
     }
 
     @Test
     public void testContainsPoint5() {
         utils.filter(geoShape("shape", "POINT(-3.804402 40.444040)").operation("contains"))
-             .checkStringColumn("place", "SHAPE_3");
+             .checkUnorderedColumns("place", "SHAPE_3");
     }
 
     @Test
@@ -221,13 +221,13 @@ public class GeoShapeSearchOverGeoShapesAT extends BaseAT {
     @Test
     public void testIntersectsPoint6() {
         utils.filter(geoShape("shape", "POINT(-3.803630 40.436724)").operation("intersects"))
-             .checkStringColumn("place", "SHAPE_3");
+             .checkUnorderedColumns("place", "SHAPE_3");
     }
 
     @Test
     public void testContainsPoint6() {
         utils.filter(geoShape("shape", "POINT(-3.803630 40.436724)").operation("contains"))
-             .checkStringColumn("place", "SHAPE_3");
+             .checkUnorderedColumns("place", "SHAPE_3");
     }
 
     @Test
@@ -239,13 +239,13 @@ public class GeoShapeSearchOverGeoShapesAT extends BaseAT {
     @Test
     public void testIntersectsPoint7() {
         utils.filter(geoShape("shape", "POINT(-3.792472 40.440938)").operation("intersects"))
-             .checkUnorderedStringColumns("place", "SHAPE_1", "SHAPE_2");
+             .checkUnorderedColumns("place", "SHAPE_1", "SHAPE_2");
     }
 
     @Test
     public void testContainsPoint7() {
         utils.filter(geoShape("shape", "POINT(-3.792472 40.440938)").operation("contains"))
-             .checkUnorderedStringColumns("place", "SHAPE_1", "SHAPE_2");
+             .checkUnorderedColumns("place", "SHAPE_1", "SHAPE_2");
     }
 
     @Test
@@ -257,13 +257,13 @@ public class GeoShapeSearchOverGeoShapesAT extends BaseAT {
     @Test
     public void testIntersectsPoint8() {
         utils.filter(geoShape("shape", "POINT(-3.790541 40.442113)").operation("intersects"))
-             .checkUnorderedStringColumns("place", "SHAPE_1", "SHAPE_2");
+             .checkUnorderedColumns("place", "SHAPE_1", "SHAPE_2");
     }
 
     @Test
     public void testContainsPoint8() {
         utils.filter(geoShape("shape", "POINT(-3.790541 40.442113)").operation("contains"))
-             .checkUnorderedStringColumns("place", "SHAPE_1", "SHAPE_2");
+             .checkUnorderedColumns("place", "SHAPE_1", "SHAPE_2");
     }
 
     @Test
@@ -275,13 +275,13 @@ public class GeoShapeSearchOverGeoShapesAT extends BaseAT {
     @Test
     public void testIntersectsPoint9() {
         utils.filter(geoShape("shape", "POINT(-3.794575 40.443159)").operation("intersects"))
-             .checkUnorderedStringColumns("place", "SHAPE_1", "SHAPE_2");
+             .checkUnorderedColumns("place", "SHAPE_1", "SHAPE_2");
     }
 
     @Test
     public void testContainsPoint9() {
         utils.filter(geoShape("shape", "POINT(-3.794575 40.443159)").operation("contains"))
-             .checkUnorderedStringColumns("place", "SHAPE_1", "SHAPE_2");
+             .checkUnorderedColumns("place", "SHAPE_1", "SHAPE_2");
     }
 
     @Test
@@ -293,13 +293,13 @@ public class GeoShapeSearchOverGeoShapesAT extends BaseAT {
     @Test
     public void testIntersectsPoint10() {
         utils.filter(geoShape("shape", "POINT(-3.795648 40.441264)").operation("intersects"))
-             .checkStringColumn("place", "SHAPE_2");
+             .checkUnorderedColumns("place", "SHAPE_2");
     }
 
     @Test
     public void testContainsPoint10() {
         utils.filter(geoShape("shape", "POINT(-3.795648 40.441264)").operation("contains"))
-             .checkStringColumn("place", "SHAPE_2");
+             .checkUnorderedColumns("place", "SHAPE_2");
     }
 
     @Test
@@ -311,13 +311,13 @@ public class GeoShapeSearchOverGeoShapesAT extends BaseAT {
     @Test
     public void testIntersectsPoint11() {
         utils.filter(geoShape("shape", "POINT(-3.796248 40.442342)").operation("intersects"))
-             .checkStringColumn("place", "SHAPE_2");
+             .checkUnorderedColumns("place", "SHAPE_2");
     }
 
     @Test
     public void testContainsPoint11() {
         utils.filter(geoShape("shape", "POINT(-3.796248 40.442342)").operation("contains"))
-             .checkStringColumn("place", "SHAPE_2");
+             .checkUnorderedColumns("place", "SHAPE_2");
     }
 
     @Test
@@ -329,13 +329,13 @@ public class GeoShapeSearchOverGeoShapesAT extends BaseAT {
     @Test
     public void testIntersectsPoint12() {
         utils.filter(geoShape("shape", "POINT(-3.795862 40.440676)").operation("intersects"))
-             .checkStringColumn("place", "SHAPE_2");
+             .checkUnorderedColumns("place", "SHAPE_2");
     }
 
     @Test
     public void testContainsPoint12() {
         utils.filter(geoShape("shape", "POINT(-3.795862 40.440676)").operation("contains"))
-             .checkStringColumn("place", "SHAPE_2");
+             .checkUnorderedColumns("place", "SHAPE_2");
     }
 
     @Test
@@ -347,132 +347,132 @@ public class GeoShapeSearchOverGeoShapesAT extends BaseAT {
     @Test
     public void testStarShapedIntersectsQuery() {
         utils.filter(geoShape("shape",
-                                       "POLYGON((-3.798180 40.444563,-3.789082 40.442473,-3.796077 40.437835, " +
-                                       "-3.793201 40.441427,-3.798180 40.444563))").operation("intersects"))
-             .checkUnorderedStringColumns("place", "SHAPE_1", "SHAPE_2");
+                              "POLYGON((-3.798180 40.444563,-3.789082 40.442473,-3.796077 40.437835, " +
+                              "-3.793201 40.441427,-3.798180 40.444563))").operation("intersects"))
+             .checkUnorderedColumns("place", "SHAPE_1", "SHAPE_2");
     }
 
     @Test
     public void testStarShapedIntersectsQuery2() {
         utils.filter(geoShape("shape",
-                                       "POLYGON((-3.8012266 40.4384634, -3.7821293000000002 40.44178680000001, " +
-                                       "-3.7937164 40.4453468, -3.7937164 40.453054, -3.8012266 40.4384634))")
-                                      .operation("intersects"))
-             .checkUnorderedStringColumns("place", "SHAPE_1", "SHAPE_2", "SHAPE_3");
+                              "POLYGON((-3.8012266 40.4384634, -3.7821293000000002 40.44178680000001, " +
+                              "-3.7937164 40.4453468, -3.7937164 40.453054, -3.8012266 40.4384634))")
+                             .operation("intersects"))
+             .checkUnorderedColumns("place", "SHAPE_1", "SHAPE_2", "SHAPE_3");
     }
 
     @Test
     public void testConcaveShapesIntersectsQuery() {
         utils.filter(geoShape("shape",
-                                       "POLYGON((-3.8033294999999994 40.4349602,-3.7986946 40.44511810000001," +
-                                       "-3.785691299999999 40.445020199999995,-3.781742999999999 40.43427419999999," +
-                                       "-3.7777947999999997 40.4497883,-3.8094234 40.44858,-3.8033294999999994 40.4349602))")
-                                      .operation("intersects"))
-             .checkUnorderedStringColumns("place", "SHAPE_2", "SHAPE_3");
+                              "POLYGON((-3.8033294999999994 40.4349602,-3.7986946 40.44511810000001," +
+                              "-3.785691299999999 40.445020199999995,-3.781742999999999 40.43427419999999," +
+                              "-3.7777947999999997 40.4497883,-3.8094234 40.44858,-3.8033294999999994 40.4349602))")
+                             .operation("intersects"))
+             .checkUnorderedColumns("place", "SHAPE_2", "SHAPE_3");
     }
 
     @Test
     public void testStarShapedContainsQuery() {
         utils.filter(geoShape("shape",
-                                       "POLYGON((-3.798180 40.444563,-3.789082 40.442473,-3.796077 40.437835, " +
-                                       "-3.793201 40.441427,-3.798180 40.444563))").operation("contains"))
-             .checkStringColumn("place", "SHAPE_1");
+                              "POLYGON((-3.798180 40.444563,-3.789082 40.442473,-3.796077 40.437835, " +
+                              "-3.793201 40.441427,-3.798180 40.444563))").operation("contains"))
+             .checkUnorderedColumns("place", "SHAPE_1");
     }
 
     @Test
     public void testStarShapedContainsQuery2() {
         utils.filter(geoShape("shape",
-                                       "POLYGON((-3.8012266 40.4384634, -3.7821293000000002 40.44178680000001, " +
-                                       "-3.7937164 40.4453468, -3.7937164 40.453054, -3.8012266 40.4384634))")
-                                      .operation("contains"))
-             .checkStringColumn("place", "SHAPE_2");
+                              "POLYGON((-3.8012266 40.4384634, -3.7821293000000002 40.44178680000001, " +
+                              "-3.7937164 40.4453468, -3.7937164 40.453054, -3.8012266 40.4384634))")
+                             .operation("contains"))
+             .checkUnorderedColumns("place", "SHAPE_2");
     }
 
     @Test
     public void testConcaveShapesContainsQuery() {
         utils.filter(geoShape("shape",
-                                       "POLYGON((-3.8033294999999994 40.4349602,-3.7986946 40.44511810000001," +
-                                       "-3.785691299999999 40.445020199999995,-3.781742999999999 40.43427419999999," +
-                                       "-3.7777947999999997 40.4497883,-3.8094234 40.44858,-3.8033294999999994 40.4349602))")
-                                      .operation("contains"))
-             .checkStringColumn("place", "SHAPE_3");
+                              "POLYGON((-3.8033294999999994 40.4349602,-3.7986946 40.44511810000001," +
+                              "-3.785691299999999 40.445020199999995,-3.781742999999999 40.43427419999999," +
+                              "-3.7777947999999997 40.4497883,-3.8094234 40.44858,-3.8033294999999994 40.4349602))")
+                             .operation("contains"))
+             .checkUnorderedColumns("place", "SHAPE_3");
     }
 
     @Test
     public void testStarShapedIsWithinQuery() {
         utils.filter(geoShape("shape",
-                                       "POLYGON((-3.798180 40.444563,-3.789082 40.442473,-3.796077 40.437835, " +
-                                       "-3.793201 40.441427,-3.798180 40.444563))").operation("is_within"))
+                              "POLYGON((-3.798180 40.444563,-3.789082 40.442473,-3.796077 40.437835, " +
+                              "-3.793201 40.441427,-3.798180 40.444563))").operation("is_within"))
              .check(0);
     }
 
     @Test
     public void testStarShapedIsWithinQuery2() {
         utils.filter(geoShape("shape",
-                                       "POLYGON((-3.8012266 40.4384634, -3.7821293000000002 40.44178680000001, " +
-                                       "-3.7937164 40.4453468, -3.7937164 40.453054, -3.8012266 40.4384634))")
-                                      .operation("is_within"))
+                              "POLYGON((-3.8012266 40.4384634, -3.7821293000000002 40.44178680000001, " +
+                              "-3.7937164 40.4453468, -3.7937164 40.453054, -3.8012266 40.4384634))")
+                             .operation("is_within"))
              .check(0);
     }
 
     @Test
     public void testConcaveShapesIsWithinQuery() {
         utils.filter(geoShape("shape",
-                                       "POLYGON((-3.8033294999999994 40.4349602,-3.7986946 40.44511810000001," +
-                                       "-3.785691299999999 40.445020199999995,-3.781742999999999 40.43427419999999," +
-                                       "-3.7777947999999997 40.4497883,-3.8094234 40.44858,-3.8033294999999994 40.4349602))")
-                                      .operation("is_within"))
+                              "POLYGON((-3.8033294999999994 40.4349602,-3.7986946 40.44511810000001," +
+                              "-3.785691299999999 40.445020199999995,-3.781742999999999 40.43427419999999," +
+                              "-3.7777947999999997 40.4497883,-3.8094234 40.44858,-3.8033294999999994 40.4349602))")
+                             .operation("is_within"))
              .check(0);
     }
 
     @Test
     public void testBufferIntersectsShape() {
         utils.filter(geoShape("shape",
-                                       "LINESTRING(-3.8033294999999994 40.4349602,-3.7986946 40.44511810000001," +
-                                       "-3.785691299999999 40.445020199999995)").operation("intersects")
-                                                                                .transform(bufferGeoTransformation().maxDistance(
-                                                                                        "500m")))
-             .checkUnorderedStringColumns("place", "SHAPE_1", "SHAPE_2", "SHAPE_3");
+                              "LINESTRING(-3.8033294999999994 40.4349602,-3.7986946 40.44511810000001," +
+                              "-3.785691299999999 40.445020199999995)").operation("intersects")
+                                                                       .transform(bufferGeoTransformation().maxDistance(
+                                                                               "500m")))
+             .checkUnorderedColumns("place", "SHAPE_1", "SHAPE_2", "SHAPE_3");
     }
 
     @Test
     public void testBufferContainsShape() {
         utils.filter(geoShape("shape",
-                                       "LINESTRING(-3.8033294999999994 40.4349602,-3.7986946 40.44511810000001," +
-                                       "-3.785691299999999 40.445020199999995)").operation("contains")
-                                                                                .transform(bufferGeoTransformation()
-                                                                                                   .maxDistance("500m")))
+                              "LINESTRING(-3.8033294999999994 40.4349602,-3.7986946 40.44511810000001," +
+                              "-3.785691299999999 40.445020199999995)").operation("contains")
+                                                                       .transform(bufferGeoTransformation()
+                                                                                          .maxDistance("500m")))
              .check(0);
     }
 
     @Test
     public void testBufferIsWithinShape() {
         utils.filter(geoShape("shape",
-                                       "LINESTRING(-3.8033294999999994 40.4349602,-3.7986946 40.44511810000001," +
-                                       "-3.785691299999999 40.445020199999995)").operation("is_within")
-                                                                                .transform(bufferGeoTransformation().maxDistance(
-                                                                                        "500m")))
+                              "LINESTRING(-3.8033294999999994 40.4349602,-3.7986946 40.44511810000001," +
+                              "-3.785691299999999 40.445020199999995)").operation("is_within")
+                                                                       .transform(bufferGeoTransformation().maxDistance(
+                                                                               "500m")))
              .check(0);
     }
 
     @Test
     public void testLine1Intersects() {
         utils.filter(geoShape("shape", "LINESTRING (30 10, 10 30, 40 40)").operation("intersects"))
-             .checkUnorderedStringColumns("place",
-                                                   "LINE_1",
-                                                   "LINE_2",
-                                                   "MULTILINESTRING_1",
-                                                   "MULTIPOINT_1",
-                                                   "MULTIPOINT_2",
-                                                   "MULTIPOLYGON_1",
-                                                   "MULTIPOLYGON_2",
-                                                   "POLYGON_2");
+             .checkUnorderedColumns("place",
+                                    "LINE_1",
+                                    "LINE_2",
+                                    "MULTILINESTRING_1",
+                                    "MULTIPOINT_1",
+                                    "MULTIPOINT_2",
+                                    "MULTIPOLYGON_1",
+                                    "MULTIPOLYGON_2",
+                                    "POLYGON_2");
     }
 
     @Test
     public void testLine1Contains() {
         utils.filter(geoShape("shape", "LINESTRING (30 10, 10 30, 40 40)").operation("contains"))
-             .checkUnorderedStringColumns("place", "LINE_1", "LINE_2");
+             .checkUnorderedColumns("place", "LINE_1", "LINE_2");
     }
 
     @Test
@@ -484,21 +484,21 @@ public class GeoShapeSearchOverGeoShapesAT extends BaseAT {
     @Test
     public void testLine2Intersects() {
         utils.filter(geoShape("shape", "LINEARRING(30 10, 10 30, 40 40,30 10)").operation("intersects"))
-             .checkUnorderedStringColumns("place",
-                                                   "LINE_1",
-                                                   "LINE_2",
-                                                   "MULTILINESTRING_1",
-                                                   "MULTIPOINT_1",
-                                                   "MULTIPOINT_2",
-                                                   "MULTIPOLYGON_1",
-                                                   "MULTIPOLYGON_2",
-                                                   "POLYGON_2");
+             .checkUnorderedColumns("place",
+                                    "LINE_1",
+                                    "LINE_2",
+                                    "MULTILINESTRING_1",
+                                    "MULTIPOINT_1",
+                                    "MULTIPOINT_2",
+                                    "MULTIPOLYGON_1",
+                                    "MULTIPOLYGON_2",
+                                    "POLYGON_2");
     }
 
     @Test
     public void testLine2Contains() {
         utils.filter(geoShape("shape", "LINEARRING(30 10, 10 30, 40 40,30 10)").operation("contains"))
-             .checkStringColumn("place", "LINE_2");
+             .checkUnorderedColumns("place", "LINE_2");
     }
 
     @Test
@@ -510,13 +510,13 @@ public class GeoShapeSearchOverGeoShapesAT extends BaseAT {
     @Test
     public void testPolygonIntersects() {
         utils.filter(geoShape("shape", "POLYGON((0.0 0.0,0.0 10.0,10.0 0.0,0.0 0.0))").operation("intersects"))
-             .checkStringColumn("place", "POLYGON_1");
+             .checkUnorderedColumns("place", "POLYGON_1");
     }
 
     @Test
     public void testPolygonContains() {
         utils.filter(geoShape("shape", "POLYGON((0.0 0.0,0.0 10.0,10.0 0.0,0.0 0.0))").operation("contains"))
-             .checkStringColumn("place", "POLYGON_1");
+             .checkUnorderedColumns("place", "POLYGON_1");
     }
 
     @Test
@@ -529,54 +529,55 @@ public class GeoShapeSearchOverGeoShapesAT extends BaseAT {
     public void testPolygon2Intersects() {
         utils.filter(geoShape("shape",
                               "POLYGON ((35 10, 45 45, 15 40, 10 20, 35 10), (20 30, 35 35, 30 20, 20 30))")
-                                      .operation("intersects"))
-             .checkUnorderedStringColumns("place",
-                                                   "LINE_1",
-                                                   "LINE_2",
-                                                   "MULTILINESTRING_1",
-                                                   "MULTIPOINT_1",
-                                                   "MULTIPOINT_2",
-                                                   "MULTIPOLYGON_1",
-                                                   "MULTIPOLYGON_2",
-                                                   "POLYGON_2");
+                             .operation("intersects"))
+             .checkUnorderedColumns("place",
+                                    "LINE_1",
+                                    "LINE_2",
+                                    "MULTILINESTRING_1",
+                                    "MULTIPOINT_1",
+                                    "MULTIPOINT_2",
+                                    "MULTIPOLYGON_1",
+                                    "MULTIPOLYGON_2",
+                                    "POLYGON_2");
     }
 
     @Test
     public void testPolygon2Contains() {
         utils.filter(geoShape("shape",
                               "POLYGON ((35 10, 45 45, 15 40, 10 20, 35 10), (20 30, 35 35, 30 20, 20 30))")
-                                      .operation("contains"))
-             .checkStringColumn("place", "POLYGON_2");
+                             .operation("contains"))
+
+             .checkUnorderedColumns("place", "POLYGON_2");
     }
 
     @Test
     public void testPolygon2IsWithin() {
         utils.filter(geoShape("shape",
                               "POLYGON ((35 10, 45 45, 15 40, 10 20, 35 10), (20 30, 35 35, 30 20, 20 30))")
-                                      .operation("is_within"))
+                             .operation("is_within"))
              .check(0);
     }
 
     @Test
     public void testMultipointIntersects() {
         utils.filter(geoShape("shape", "MULTIPOINT ((10 40), (40 30), (20 20), (30 10))")
-                                      .operation("intersects"))
-             .checkUnorderedStringColumns("place",
-                                                   "LINE_1",
-                                                   "LINE_2",
-                                                   "MULTILINESTRING_1",
-                                                   "MULTIPOINT_1",
-                                                   "MULTIPOINT_2",
-                                                   "MULTIPOLYGON_1",
-                                                   "MULTIPOLYGON_2",
-                                                   "POLYGON_2");
+                             .operation("intersects"))
+             .checkUnorderedColumns("place",
+                                    "LINE_1",
+                                    "LINE_2",
+                                    "MULTILINESTRING_1",
+                                    "MULTIPOINT_1",
+                                    "MULTIPOINT_2",
+                                    "MULTIPOLYGON_1",
+                                    "MULTIPOLYGON_2",
+                                    "POLYGON_2");
     }
 
     @Test
     public void testMultipointContains() {
         utils.filter(geoShape("shape",
                               "MULTIPOINT ((10 40), (40 30), (20 20), (30 10))").operation("contains"))
-             .checkUnorderedStringColumns("place", "MULTIPOINT_1", "MULTIPOINT_2");
+             .checkUnorderedColumns("place", "MULTIPOINT_1", "MULTIPOINT_2");
     }
 
     @Test
@@ -589,21 +590,21 @@ public class GeoShapeSearchOverGeoShapesAT extends BaseAT {
     @Test
     public void testMultipoint2Intersects() {
         utils.filter(geoShape("shape", "MULTIPOINT (10 40, 40 30, 20 20, 30 10)").operation("intersects"))
-             .checkUnorderedStringColumns("place",
-                                                   "LINE_1",
-                                                   "LINE_2",
-                                                   "MULTILINESTRING_1",
-                                                   "MULTIPOINT_1",
-                                                   "MULTIPOINT_2",
-                                                   "MULTIPOLYGON_1",
-                                                   "MULTIPOLYGON_2",
-                                                   "POLYGON_2");
+             .checkUnorderedColumns("place",
+                                    "LINE_1",
+                                    "LINE_2",
+                                    "MULTILINESTRING_1",
+                                    "MULTIPOINT_1",
+                                    "MULTIPOINT_2",
+                                    "MULTIPOLYGON_1",
+                                    "MULTIPOLYGON_2",
+                                    "POLYGON_2");
     }
 
     @Test
     public void testMultipoint2Contains() {
         utils.filter(geoShape("shape", "MULTIPOINT (10 40, 40 30, 20 20, 30 10)").operation("contains"))
-             .checkUnorderedStringColumns("place", "MULTIPOINT_1", "MULTIPOINT_2");
+             .checkUnorderedColumns("place", "MULTIPOINT_1", "MULTIPOINT_2");
     }
 
     @Test
@@ -616,31 +617,31 @@ public class GeoShapeSearchOverGeoShapesAT extends BaseAT {
     public void testMultilineIntersects() {
         utils.filter(geoShape("shape",
                               "MULTILINESTRING ((10 10, 20 20, 10 40),(40 40, 30 30, 40 20, 30 10))")
-                                      .operation("intersects"))
-             .checkUnorderedStringColumns("place",
-                                                   "LINE_1",
-                                                   "LINE_2",
-                                                   "MULTILINESTRING_1",
-                                                   "MULTIPOINT_1",
-                                                   "MULTIPOINT_2",
-                                                   "MULTIPOLYGON_1",
-                                                   "MULTIPOLYGON_2",
-                                                   "POLYGON_2");
+                             .operation("intersects"))
+             .checkUnorderedColumns("place",
+                                    "LINE_1",
+                                    "LINE_2",
+                                    "MULTILINESTRING_1",
+                                    "MULTIPOINT_1",
+                                    "MULTIPOINT_2",
+                                    "MULTIPOLYGON_1",
+                                    "MULTIPOLYGON_2",
+                                    "POLYGON_2");
     }
 
     @Test
     public void testMultilineContains() {
         utils.filter(geoShape("shape",
                               "MULTILINESTRING ((10 10, 20 20, 10 40),(40 40, 30 30, 40 20, 30 10))")
-                                      .operation("contains"))
-             .checkStringColumn("place", "MULTILINESTRING_1");
+                             .operation("contains"))
+             .checkUnorderedColumns("place", "MULTILINESTRING_1");
     }
 
     @Test
     public void testMultilineIsWithin() {
         utils.filter(geoShape("shape",
                               "MULTILINESTRING ((10 10, 20 20, 10 40),(40 40, 30 30, 40 20, 30 10))")
-                                      .operation("is_within"))
+                             .operation("is_within"))
              .check(0);
     }
 
@@ -648,31 +649,31 @@ public class GeoShapeSearchOverGeoShapesAT extends BaseAT {
     public void testMultipolygonIntersects() {
         utils.filter(geoShape("shape",
                               "MULTIPOLYGON (((30 20, 45 40, 10 40, 30 20)),((15 5, 40 10, 10 20, 5 10, 15 5)))")
-                                      .operation("intersects"))
-             .checkUnorderedStringColumns("place",
-                                                   "LINE_1",
-                                                   "LINE_2",
-                                                   "MULTILINESTRING_1",
-                                                   "MULTIPOINT_1",
-                                                   "MULTIPOINT_2",
-                                                   "MULTIPOLYGON_1",
-                                                   "MULTIPOLYGON_2",
-                                                   "POLYGON_2");
+                             .operation("intersects"))
+             .checkUnorderedColumns("place",
+                                    "LINE_1",
+                                    "LINE_2",
+                                    "MULTILINESTRING_1",
+                                    "MULTIPOINT_1",
+                                    "MULTIPOINT_2",
+                                    "MULTIPOLYGON_1",
+                                    "MULTIPOLYGON_2",
+                                    "POLYGON_2");
     }
 
     @Test
     public void testMultipolygonContains() {
         utils.filter(geoShape("shape",
                               "MULTIPOLYGON (((30 20, 45 40, 10 40, 30 20)),((15 5, 40 10, 10 20, 5 10, 15 5)))")
-                                      .operation("contains"))
-             .checkStringColumn("place", "MULTIPOLYGON_1");
+                             .operation("contains"))
+             .checkUnorderedColumns("place", "MULTIPOLYGON_1");
     }
 
     @Test
     public void testMultipolygonIsWithin() {
         utils.filter(geoShape("shape",
                               "MULTIPOLYGON (((30 20, 45 40, 10 40, 30 20)),((15 5, 40 10, 10 20, 5 10, 15 5)))")
-                                      .operation("is_within"))
+                             .operation("is_within"))
              .check(0);
     }
 
@@ -680,30 +681,30 @@ public class GeoShapeSearchOverGeoShapesAT extends BaseAT {
     public void testMultipolygon2Intersects() {
         utils.filter(geoShape("shape",
                               "MULTIPOLYGON (((40 40, 20 45, 45 30, 40 40)),((20 35, 10 30, 10 10, 30 5, 45 20, 20 35),(30 20, 20 15, 20 25, 30 20)))")
-                                      .operation("intersects"))
-             .checkUnorderedStringColumns("place",
-                                                   "LINE_1",
-                                                   "LINE_2",
-                                                   "MULTILINESTRING_1",
-                                                   "MULTIPOINT_1",
-                                                   "MULTIPOINT_2",
-                                                   "MULTIPOLYGON_1",
-                                                   "MULTIPOLYGON_2",
-                                                   "POLYGON_2");
+                             .operation("intersects"))
+             .checkUnorderedColumns("place",
+                                    "LINE_1",
+                                    "LINE_2",
+                                    "MULTILINESTRING_1",
+                                    "MULTIPOINT_1",
+                                    "MULTIPOINT_2",
+                                    "MULTIPOLYGON_1",
+                                    "MULTIPOLYGON_2",
+                                    "POLYGON_2");
     }
 
     @Test
     public void testMultipolygon2Contains() {
         utils.filter(geoShape("shape",
                               "MULTIPOLYGON (((40 40, 20 45, 45 30, 40 40)),((20 35, 10 30, 10 10, 30 5, 45 20, 20 35),(30 20, 20 15, 20 25, 30 20)))")
-                                      .operation("contains"))
-             .checkStringColumn("place", "MULTIPOLYGON_2");
+                             .operation("contains"))
+             .checkUnorderedColumns("place", "MULTIPOLYGON_2");
     }
 
     @Test
     public void testMultipolygon2IsWithin() {
         utils.filter(geoShape("shape",
                               "MULTIPOLYGON (((40 40, 20 45, 45 30, 40 40)),((20 35, 10 30, 10 10, 30 5, 45 20, 20 35),(30 20, 20 15, 20 25, 30 20)))")
-                                      .operation("is_within")).check(0);
+                             .operation("is_within")).check(0);
     }
 }

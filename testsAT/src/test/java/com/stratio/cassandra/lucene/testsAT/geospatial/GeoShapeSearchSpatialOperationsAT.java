@@ -128,16 +128,16 @@ public class GeoShapeSearchSpatialOperationsAT extends BaseAT {
 
     @Test
     public void testCase1() {
+        // index A, search A must return intersecs and Contains but no is_within
         GeoShapeCondition geoShape = geoShape("shape", shape_1);
         Integer search_case = 1;
-        utils
-                .filter(bool().must(geoShape.operation("contains"), match("search_case", search_case)))
-                .checkStringColumn("identity", "1")
-                .filter(bool().must(geoShape.operation("intersects"), match("search_case", search_case)))
-                .checkStringColumn("identity", "1")
-                .filter(bool().must(geoShape.operation("is_within"), match("search_case", search_case)))
-                .check(0);
-        // index A, search A must return intersecs and Contains but no is_within
+
+        utils.filter(bool().must(geoShape.operation("contains"), match("search_case", search_case)))
+             .checkUnorderedColumns("identity", "1")
+             .filter(bool().must(geoShape.operation("intersects"), match("search_case", search_case)))
+             .checkUnorderedColumns("identity", "1")
+             .filter(bool().must(geoShape.operation("is_within"), match("search_case", search_case)))
+             .check(0);
     }
 
     @Test
@@ -147,17 +147,17 @@ public class GeoShapeSearchSpatialOperationsAT extends BaseAT {
         GeoShapeCondition geoShape2 = geoShape("shape", shape_2);
         Integer search_case = 2;
         utils.filter(bool().must(geoShape.operation("contains"), match("search_case", search_case)))
-             .checkUnorderedStringColumns("identity", "1", "2")
+             .checkUnorderedColumns("identity", "1", "2")
              .filter(bool().must(geoShape.operation("intersects"), match("search_case", search_case)))
-             .checkUnorderedStringColumns("identity", "1", "2")
+             .checkUnorderedColumns("identity", "1", "2")
              .filter(bool().must(geoShape.operation("is_within"), match("search_case", search_case)))
              .check(0)
              .filter(bool().must(geoShape2.operation("contains"), match("search_case", search_case)))
-             .checkStringColumn("identity", "2")
+             .checkUnorderedColumns("identity", "2")
              .filter(bool().must(geoShape2.operation("intersects"), match("search_case", search_case)))
-             .checkUnorderedStringColumns("identity", "1", "2")
+             .checkUnorderedColumns("identity", "1", "2")
              .filter(bool().must(geoShape2.operation("is_within"), match("search_case", search_case)))
-             .checkStringColumn("identity", "1");
+             .checkUnorderedColumns("identity", "1");
     }
 
     @Test
@@ -167,15 +167,15 @@ public class GeoShapeSearchSpatialOperationsAT extends BaseAT {
         GeoShapeCondition geoShape3 = geoShape("shape", shape_3);
         Integer search_case = 3;
         utils.filter(bool().must(geoShape.operation("contains"), match("search_case", search_case)))
-             .checkStringColumn("identity", "1")
+             .checkUnorderedColumns("identity", "1")
              .filter(bool().must(geoShape.operation("intersects"), match("search_case", search_case)))
-             .checkUnorderedStringColumns("identity", "1", "3")
+             .checkUnorderedColumns("identity", "1", "3")
              .filter(bool().must(geoShape.operation("is_within"), match("search_case", search_case)))
              .check(0)
              .filter(bool().must(geoShape3.operation("contains"), match("search_case", search_case)))
-             .checkStringColumn("identity", "3")
+             .checkUnorderedColumns("identity", "3")
              .filter(bool().must(geoShape3.operation("intersects"), match("search_case", search_case)))
-             .checkUnorderedStringColumns("identity", "1", "3")
+             .checkUnorderedColumns("identity", "1", "3")
              .filter(bool().must(geoShape3.operation("is_within"), match("search_case", search_case)))
              .check(0);
     }
@@ -186,16 +186,17 @@ public class GeoShapeSearchSpatialOperationsAT extends BaseAT {
         GeoShapeCondition geoShape1 = geoShape("shape", shape_1);
         GeoShapeCondition geoShape4 = geoShape("shape", shape_4);
         Integer search_case = 4;
+
         utils.filter(bool().must(geoShape1.operation("contains"), match("search_case", search_case)))
-             .checkStringColumn("identity", "1")
+             .checkUnorderedColumns("identity", "1")
              .filter(bool().must(geoShape1.operation("intersects"), match("search_case", search_case)))
-             .checkUnorderedStringColumns("identity", "1", "4")
+             .checkUnorderedColumns("identity", "1", "4")
              .filter(bool().must(geoShape1.operation("is_within"), match("search_case", search_case)))
              .check(0)
              .filter(bool().must(geoShape4.operation("contains"), match("search_case", search_case)))
-             .checkStringColumn("identity", "4")
+             .checkUnorderedColumns("identity", "4")
              .filter(bool().must(geoShape4.operation("intersects"), match("search_case", search_case)))
-             .checkUnorderedStringColumns("identity", "1", "4")
+             .checkUnorderedColumns("identity", "1", "4")
              .filter(bool().must(geoShape4.operation("is_within"), match("search_case", search_case)))
              .check(0);
     }
@@ -207,15 +208,15 @@ public class GeoShapeSearchSpatialOperationsAT extends BaseAT {
         GeoShapeCondition geoShape5 = geoShape("shape", shape_5);
         Integer search_case = 5;
         utils.filter(bool().must(geoShape1.operation("contains"), match("search_case", search_case)))
-             .checkStringColumn("identity", "1")
+             .checkUnorderedColumns("identity", "1")
              .filter(bool().must(geoShape1.operation("intersects"), match("search_case", search_case)))
-             .checkStringColumn("identity", "1")
+             .checkUnorderedColumns("identity", "1")
              .filter(bool().must(geoShape1.operation("is_within"), match("search_case", search_case)))
              .check(0)
              .filter(bool().must(geoShape5.operation("contains"), match("search_case", search_case)))
-             .checkStringColumn("identity", "5")
+             .checkUnorderedColumns("identity", "5")
              .filter(bool().must(geoShape5.operation("intersects"), match("search_case", search_case)))
-             .checkStringColumn("identity", "5")
+             .checkUnorderedColumns("identity", "5")
              .filter(bool().must(geoShape5.operation("is_within"), match("search_case", search_case)))
              .check(0);
     }
@@ -225,9 +226,9 @@ public class GeoShapeSearchSpatialOperationsAT extends BaseAT {
         GeoShapeCondition geoShape6 = geoShape("shape", shape_6).transform(differenceGeoTransformation(shape_3));
         Integer search_case = 1;
         utils.filter(bool().must(geoShape6.operation("contains"), match("search_case", search_case)))
-             .checkStringColumn("identity", "1")
+             .checkUnorderedColumns("identity", "1")
              .filter(bool().must(geoShape6.operation("intersects"), match("search_case", search_case)))
-             .checkStringColumn("identity", "1")
+             .checkUnorderedColumns("identity", "1")
              .filter(bool().must(geoShape6.operation("is_within"), match("search_case", search_case)))
              .check(0);
     }
@@ -238,9 +239,9 @@ public class GeoShapeSearchSpatialOperationsAT extends BaseAT {
         GeoShapeCondition geoShape6 = geoShape("shape", shape_6).transform(differenceGeoTransformation(shape_3));
         Integer search_case = 2;
         utils.filter(bool().must(geoShape6.operation("contains"), match("search_case", search_case)))
-             .checkUnorderedStringColumns("identity", "1", "2")
+             .checkUnorderedColumns("identity", "1", "2")
              .filter(bool().must(geoShape6.operation("intersects"), match("search_case", search_case)))
-             .checkUnorderedStringColumns("identity", "1", "2")
+             .checkUnorderedColumns("identity", "1", "2")
              .filter(bool().must(geoShape6.operation("is_within"), match("search_case", search_case)))
              .check(0);
     }
@@ -252,15 +253,15 @@ public class GeoShapeSearchSpatialOperationsAT extends BaseAT {
         GeoShapeCondition geoShape6_1 = geoShape("shape", shape_6).transform(differenceGeoTransformation(shape_1));
         Integer search_case = 3;
         utils.filter(bool().must(geoShape6_3.operation("contains"), match("search_case", search_case)))
-             .checkStringColumn("identity", "1")
+             .checkUnorderedColumns("identity", "1")
              .filter(bool().must(geoShape6_3.operation("intersects"), match("search_case", search_case)))
-             .checkUnorderedStringColumns("identity", "1", "3")
+             .checkUnorderedColumns("identity", "1", "3")
              .filter(bool().must(geoShape6_3.operation("is_within"), match("search_case", search_case)))
              .check(0)
              .filter(bool().must(geoShape6_1.operation("contains"), match("search_case", search_case)))
-             .checkStringColumn("identity", "3")
+             .checkUnorderedColumns("identity", "3")
              .filter(bool().must(geoShape6_1.operation("intersects"), match("search_case", search_case)))
-             .checkUnorderedStringColumns("identity", "1", "3")
+             .checkUnorderedColumns("identity", "1", "3")
              .filter(bool().must(geoShape6_1.operation("is_within"), match("search_case", search_case)))
              .check(0);
     }
@@ -272,15 +273,15 @@ public class GeoShapeSearchSpatialOperationsAT extends BaseAT {
         GeoShapeCondition geoShape9_3 = geoShape("shape", shape_9).transform(differenceGeoTransformation(shape_3));
         Integer search_case = 4;
         utils.filter(bool().must(geoShape6_3.operation("contains"), match("search_case", search_case)))
-             .checkStringColumn("identity", "1")
+             .checkUnorderedColumns("identity", "1")
              .filter(bool().must(geoShape6_3.operation("intersects"), match("search_case", search_case)))
-             .checkUnorderedStringColumns("identity", "1", "4")
+             .checkUnorderedColumns("identity", "1", "4")
              .filter(bool().must(geoShape6_3.operation("is_within"), match("search_case", search_case)))
              .check(0)
              .filter(bool().must(geoShape9_3.operation("contains"), match("search_case", search_case)))
-             .checkStringColumn("identity", "4")
+             .checkUnorderedColumns("identity", "4")
              .filter(bool().must(geoShape9_3.operation("intersects"), match("search_case", search_case)))
-             .checkUnorderedStringColumns("identity", "1", "4")
+             .checkUnorderedColumns("identity", "1", "4")
              .filter(bool().must(geoShape9_3.operation("is_within"), match("search_case", search_case)))
              .check(0);
     }
@@ -290,10 +291,11 @@ public class GeoShapeSearchSpatialOperationsAT extends BaseAT {
         //shape_1 disjoint shape5
         GeoShapeCondition geoShape6_3 = geoShape("shape", shape_6).transform(differenceGeoTransformation(shape_3));
         Integer search_case = 5;
+
         utils.filter(bool().must(geoShape6_3.operation("contains"), match("search_case", search_case)))
-             .checkStringColumn("identity", "1")
+             .checkUnorderedColumns("identity", "1")
              .filter(bool().must(geoShape6_3.operation("intersects"), match("search_case", search_case)))
-             .checkStringColumn("identity", "1")
+             .checkUnorderedColumns("identity", "1")
              .filter(bool().must(geoShape6_3.operation("is_within"), match("search_case", search_case)))
              .check(0);
     }
@@ -305,16 +307,17 @@ public class GeoShapeSearchSpatialOperationsAT extends BaseAT {
         GeoShapeCondition geoShape6_8 = geoShape("shape", shape_6).transform(intersectionGeoTransformation(shape_8));
         GeoShapeCondition geoShape8_6 = geoShape("shape", shape_8).transform(intersectionGeoTransformation(shape_6));
         Integer search_case = 1;
+
         utils.filter(bool().must(geoShape6_8.operation("contains"), match("search_case", search_case)))
-             .checkStringColumn("identity", "1")
+             .checkUnorderedColumns("identity", "1")
              .filter(bool().must(geoShape6_8.operation("intersects"), match("search_case", search_case)))
-             .checkStringColumn("identity", "1")
+             .checkUnorderedColumns("identity", "1")
              .filter(bool().must(geoShape6_8.operation("is_within"), match("search_case", search_case)))
              .check(0)
              .filter(bool().must(geoShape8_6.operation("contains"), match("search_case", search_case)))
-             .checkStringColumn("identity", "1")
+             .checkUnorderedColumns("identity", "1")
              .filter(bool().must(geoShape8_6.operation("intersects"), match("search_case", search_case)))
-             .checkStringColumn("identity", "1")
+             .checkUnorderedColumns("identity", "1")
              .filter(bool().must(geoShape8_6.operation("is_within"), match("search_case", search_case)))
              .check(0);
     }
@@ -326,15 +329,15 @@ public class GeoShapeSearchSpatialOperationsAT extends BaseAT {
         GeoShapeCondition geoShape8_6 = geoShape("shape", shape_8).transform(intersectionGeoTransformation(shape_6));
         Integer search_case = 2;
         utils.filter(bool().must(geoShape6_8.operation("contains"), match("search_case", search_case)))
-             .checkUnorderedStringColumns("identity", "1", "2")
+             .checkUnorderedColumns("identity", "1", "2")
              .filter(bool().must(geoShape6_8.operation("intersects"), match("search_case", search_case)))
-             .checkUnorderedStringColumns("identity", "1", "2")
+             .checkUnorderedColumns("identity", "1", "2")
              .filter(bool().must(geoShape6_8.operation("is_within"), match("search_case", search_case)))
              .check(0)
              .filter(bool().must(geoShape8_6.operation("contains"), match("search_case", search_case)))
-             .checkUnorderedStringColumns("identity", "1", "2")
+             .checkUnorderedColumns("identity", "1", "2")
              .filter(bool().must(geoShape8_6.operation("intersects"), match("search_case", search_case)))
-             .checkUnorderedStringColumns("identity", "1", "2")
+             .checkUnorderedColumns("identity", "1", "2")
              .filter(bool().must(geoShape8_6.operation("is_within"), match("search_case", search_case)))
              .check(0);
     }
@@ -348,27 +351,27 @@ public class GeoShapeSearchSpatialOperationsAT extends BaseAT {
         GeoShapeCondition geoShape9_6 = geoShape("shape", shape_9).transform(intersectionGeoTransformation(shape_6));
         Integer search_case = 3;
         utils.filter(bool().must(geoShape6_8.operation("contains"), match("search_case", search_case)))
-             .checkStringColumn("identity", "1")
+             .checkUnorderedColumns("identity", "1")
              .filter(bool().must(geoShape6_8.operation("intersects"), match("search_case", search_case)))
-             .checkUnorderedStringColumns("identity", "1", "3")
+             .checkUnorderedColumns("identity", "1", "3")
              .filter(bool().must(geoShape6_8.operation("is_within"), match("search_case", search_case)))
              .check(0)
              .filter(bool().must(geoShape8_6.operation("contains"), match("search_case", search_case)))
-             .checkStringColumn("identity", "1")
+             .checkUnorderedColumns("identity", "1")
              .filter(bool().must(geoShape8_6.operation("intersects"), match("search_case", search_case)))
-             .checkUnorderedStringColumns("identity", "1", "3")
+             .checkUnorderedColumns("identity", "1", "3")
              .filter(bool().must(geoShape8_6.operation("is_within"), match("search_case", search_case)))
              .check(0)
              .filter(bool().must(geoShape6_9.operation("contains"), match("search_case", search_case)))
-             .checkStringColumn("identity", "3")
+             .checkUnorderedColumns("identity", "3")
              .filter(bool().must(geoShape6_9.operation("intersects"), match("search_case", search_case)))
-             .checkUnorderedStringColumns("identity", "1", "3")
+             .checkUnorderedColumns("identity", "1", "3")
              .filter(bool().must(geoShape6_9.operation("is_within"), match("search_case", search_case)))
              .check(0)
              .filter(bool().must(geoShape9_6.operation("contains"), match("search_case", search_case)))
-             .checkStringColumn("identity", "3")
+             .checkUnorderedColumns("identity", "3")
              .filter(bool().must(geoShape9_6.operation("intersects"), match("search_case", search_case)))
-             .checkUnorderedStringColumns("identity", "1", "3")
+             .checkUnorderedColumns("identity", "1", "3")
              .filter(bool().must(geoShape9_6.operation("is_within"), match("search_case", search_case)))
              .check(0);
     }
@@ -382,27 +385,27 @@ public class GeoShapeSearchSpatialOperationsAT extends BaseAT {
         GeoShapeCondition geoShape10_9 = geoShape("shape", shape_10).transform(intersectionGeoTransformation(shape_9));
         Integer search_case = 4;
         utils.filter(bool().must(geoShape6_8.operation("contains"), match("search_case", search_case)))
-             .checkStringColumn("identity", "1")
+             .checkUnorderedColumns("identity", "1")
              .filter(bool().must(geoShape6_8.operation("intersects"), match("search_case", search_case)))
-             .checkUnorderedStringColumns("identity", "1", "4")
+             .checkUnorderedColumns("identity", "1", "4")
              .filter(bool().must(geoShape6_8.operation("is_within"), match("search_case", search_case)))
              .check(0)
              .filter(bool().must(geoShape8_6.operation("contains"), match("search_case", search_case)))
-             .checkStringColumn("identity", "1")
+             .checkUnorderedColumns("identity", "1")
              .filter(bool().must(geoShape8_6.operation("intersects"), match("search_case", search_case)))
-             .checkUnorderedStringColumns("identity", "1", "4")
+             .checkUnorderedColumns("identity", "1", "4")
              .filter(bool().must(geoShape8_6.operation("is_within"), match("search_case", search_case)))
              .check(0)
              .filter(bool().must(geoShape9_10.operation("contains"), match("search_case", search_case)))
-             .checkStringColumn("identity", "4")
+             .checkUnorderedColumns("identity", "4")
              .filter(bool().must(geoShape9_10.operation("intersects"), match("search_case", search_case)))
-             .checkUnorderedStringColumns("identity", "1", "4")
+             .checkUnorderedColumns("identity", "1", "4")
              .filter(bool().must(geoShape9_10.operation("is_within"), match("search_case", search_case)))
              .check(0)
              .filter(bool().must(geoShape10_9.operation("contains"), match("search_case", search_case)))
-             .checkStringColumn("identity", "4")
+             .checkUnorderedColumns("identity", "4")
              .filter(bool().must(geoShape10_9.operation("intersects"), match("search_case", search_case)))
-             .checkUnorderedStringColumns("identity", "1", "4")
+             .checkUnorderedColumns("identity", "1", "4")
              .filter(bool().must(geoShape10_9.operation("is_within"), match("search_case", search_case)))
              .check(0);
     }
@@ -414,15 +417,15 @@ public class GeoShapeSearchSpatialOperationsAT extends BaseAT {
         GeoShapeCondition geoShape8_6 = geoShape("shape", shape_8).transform(intersectionGeoTransformation(shape_6));
         Integer search_case = 5;
         utils.filter(bool().must(geoShape6_8.operation("contains"), match("search_case", search_case)))
-             .checkStringColumn("identity", "1")
+             .checkUnorderedColumns("identity", "1")
              .filter(bool().must(geoShape6_8.operation("intersects"), match("search_case", search_case)))
-             .checkStringColumn("identity", "1")
+             .checkUnorderedColumns("identity", "1")
              .filter(bool().must(geoShape6_8.operation("is_within"), match("search_case", search_case)))
              .check(0)
              .filter(bool().must(geoShape8_6.operation("contains"), match("search_case", search_case)))
-             .checkStringColumn("identity", "1")
+             .checkUnorderedColumns("identity", "1")
              .filter(bool().must(geoShape8_6.operation("intersects"), match("search_case", search_case)))
-             .checkStringColumn("identity", "1")
+             .checkUnorderedColumns("identity", "1")
              .filter(bool().must(geoShape8_6.operation("is_within"), match("search_case", search_case)))
              .check(0);
     }
@@ -436,15 +439,15 @@ public class GeoShapeSearchSpatialOperationsAT extends BaseAT {
                                                                                intersectionGeoTransformation(shape_6));
         Integer search_case = 1;
         utils.filter(bool().must(geoShape1_3_8.operation("contains"), match("search_case", search_case)))
-             .checkStringColumn("identity", "1")
+             .checkUnorderedColumns("identity", "1")
              .filter(bool().must(geoShape1_3_8.operation("intersects"), match("search_case", search_case)))
-             .checkStringColumn("identity", "1")
+             .checkUnorderedColumns("identity", "1")
              .filter(bool().must(geoShape1_3_8.operation("is_within"), match("search_case", search_case)))
              .check(0)
              .filter(bool().must(geoShape1_7_6.operation("contains"), match("search_case", search_case)))
-             .checkStringColumn("identity", "1")
+             .checkUnorderedColumns("identity", "1")
              .filter(bool().must(geoShape1_7_6.operation("intersects"), match("search_case", search_case)))
-             .checkStringColumn("identity", "1")
+             .checkUnorderedColumns("identity", "1")
              .filter(bool().must(geoShape1_7_6.operation("is_within"), match("search_case", search_case)))
              .check(0);
     }
@@ -458,15 +461,15 @@ public class GeoShapeSearchSpatialOperationsAT extends BaseAT {
                                                                                intersectionGeoTransformation(shape_6));
         Integer search_case = 2;
         utils.filter(bool().must(geoShape1_3_8.operation("contains"), match("search_case", search_case)))
-             .checkUnorderedStringColumns("identity", "1", "2")
+             .checkUnorderedColumns("identity", "1", "2")
              .filter(bool().must(geoShape1_3_8.operation("intersects"), match("search_case", search_case)))
-             .checkUnorderedStringColumns("identity", "1", "2")
+             .checkUnorderedColumns("identity", "1", "2")
              .filter(bool().must(geoShape1_3_8.operation("is_within"), match("search_case", search_case)))
              .check(0)
              .filter(bool().must(geoShape1_7_6.operation("contains"), match("search_case", search_case)))
-             .checkUnorderedStringColumns("identity", "1", "2")
+             .checkUnorderedColumns("identity", "1", "2")
              .filter(bool().must(geoShape1_7_6.operation("intersects"), match("search_case", search_case)))
-             .checkUnorderedStringColumns("identity", "1", "2")
+             .checkUnorderedColumns("identity", "1", "2")
              .filter(bool().must(geoShape1_7_6.operation("is_within"), match("search_case", search_case)))
              .check(0);
     }
@@ -483,27 +486,27 @@ public class GeoShapeSearchSpatialOperationsAT extends BaseAT {
         GeoShapeCondition geoShape9_6 = geoShape("shape", shape_9).transform(intersectionGeoTransformation(shape_6));
         Integer search_case = 3;
         utils.filter(bool().must(geoShape1_3_8.operation("contains"), match("search_case", search_case)))
-             .checkStringColumn("identity", "1")
+             .checkUnorderedColumns("identity", "1")
              .filter(bool().must(geoShape1_3_8.operation("intersects"), match("search_case", search_case)))
-             .checkUnorderedStringColumns("identity", "1", "3")
+             .checkUnorderedColumns("identity", "1", "3")
              .filter(bool().must(geoShape1_3_8.operation("is_within"), match("search_case", search_case)))
              .check(0)
              .filter(bool().must(geoShape1_7_6.operation("contains"), match("search_case", search_case)))
-             .checkStringColumn("identity", "1")
+             .checkUnorderedColumns("identity", "1")
              .filter(bool().must(geoShape1_7_6.operation("intersects"), match("search_case", search_case)))
-             .checkUnorderedStringColumns("identity", "1", "3")
+             .checkUnorderedColumns("identity", "1", "3")
              .filter(bool().must(geoShape1_7_6.operation("is_within"), match("search_case", search_case)))
              .check(0)
              .filter(bool().must(geoShape1_3_9.operation("contains"), match("search_case", search_case)))
-             .checkStringColumn("identity", "3")
+             .checkUnorderedColumns("identity", "3")
              .filter(bool().must(geoShape1_3_9.operation("intersects"), match("search_case", search_case)))
-             .checkUnorderedStringColumns("identity", "1", "3")
+             .checkUnorderedColumns("identity", "1", "3")
              .filter(bool().must(geoShape1_3_9.operation("is_within"), match("search_case", search_case)))
              .check(0)
              .filter(bool().must(geoShape9_6.operation("contains"), match("search_case", search_case)))
-             .checkStringColumn("identity", "3")
+             .checkUnorderedColumns("identity", "3")
              .filter(bool().must(geoShape9_6.operation("intersects"), match("search_case", search_case)))
-             .checkUnorderedStringColumns("identity", "1", "3")
+             .checkUnorderedColumns("identity", "1", "3")
              .filter(bool().must(geoShape9_6.operation("is_within"), match("search_case", search_case)))
              .check(0);
     }
@@ -520,27 +523,27 @@ public class GeoShapeSearchSpatialOperationsAT extends BaseAT {
                                                                                intersectionGeoTransformation(shape_9));
         Integer search_case = 4;
         utils.filter(bool().must(geoShape1_3_8.operation("contains"), match("search_case", search_case)))
-             .checkStringColumn("identity", "1")
+             .checkUnorderedColumns("identity", "1")
              .filter(bool().must(geoShape1_3_8.operation("intersects"), match("search_case", search_case)))
-             .checkUnorderedStringColumns("identity", "1", "4")
+             .checkUnorderedColumns("identity", "1", "4")
              .filter(bool().must(geoShape1_3_8.operation("is_within"), match("search_case", search_case)))
              .check(0)
              .filter(bool().must(geoShape1_7_6.operation("contains"), match("search_case", search_case)))
-             .checkStringColumn("identity", "1")
+             .checkUnorderedColumns("identity", "1")
              .filter(bool().must(geoShape1_7_6.operation("intersects"), match("search_case", search_case)))
-             .checkUnorderedStringColumns("identity", "1", "4")
+             .checkUnorderedColumns("identity", "1", "4")
              .filter(bool().must(geoShape1_7_6.operation("is_within"), match("search_case", search_case)))
              .check(0)
              .filter(bool().must(geoShape9_10.operation("contains"), match("search_case", search_case)))
-             .checkStringColumn("identity", "4")
+             .checkUnorderedColumns("identity", "4")
              .filter(bool().must(geoShape9_10.operation("intersects"), match("search_case", search_case)))
-             .checkUnorderedStringColumns("identity", "1", "4")
+             .checkUnorderedColumns("identity", "1", "4")
              .filter(bool().must(geoShape9_10.operation("is_within"), match("search_case", search_case)))
              .check(0)
              .filter(bool().must(geoShape4_7_9.operation("contains"), match("search_case", search_case)))
-             .checkStringColumn("identity", "4")
+             .checkUnorderedColumns("identity", "4")
              .filter(bool().must(geoShape4_7_9.operation("intersects"), match("search_case", search_case)))
-             .checkUnorderedStringColumns("identity", "1", "4")
+             .checkUnorderedColumns("identity", "1", "4")
              .filter(bool().must(geoShape4_7_9.operation("is_within"), match("search_case", search_case)))
              .check(0);
     }
@@ -554,15 +557,15 @@ public class GeoShapeSearchSpatialOperationsAT extends BaseAT {
                                                                                intersectionGeoTransformation(shape_6));
         Integer search_case = 5;
         utils.filter(bool().must(geoShape1_3_8.operation("contains"), match("search_case", search_case)))
-             .checkStringColumn("identity", "1")
+             .checkUnorderedColumns("identity", "1")
              .filter(bool().must(geoShape1_3_8.operation("intersects"), match("search_case", search_case)))
-             .checkStringColumn("identity", "1")
+             .checkUnorderedColumns("identity", "1")
              .filter(bool().must(geoShape1_3_8.operation("is_within"), match("search_case", search_case)))
              .check(0)
              .filter(bool().must(geoShape1_7_6.operation("contains"), match("search_case", search_case)))
-             .checkStringColumn("identity", "1")
+             .checkUnorderedColumns("identity", "1")
              .filter(bool().must(geoShape1_7_6.operation("intersects"), match("search_case", search_case)))
-             .checkStringColumn("identity", "1")
+             .checkUnorderedColumns("identity", "1")
              .filter(bool().must(geoShape1_7_6.operation("is_within"), match("search_case", search_case)))
              .check(0);
     }

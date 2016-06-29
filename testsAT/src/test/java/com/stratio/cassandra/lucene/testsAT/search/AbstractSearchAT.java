@@ -74,6 +74,10 @@ public abstract class AbstractSearchAT extends BaseAT {
         utils.dropKeyspace();
     }
 
+    protected CassandraUtilsSelect search() {
+        return utils.search();
+    }
+
     protected CassandraUtilsSelect filter(Condition condition) {
         return utils.filter(condition);
     }

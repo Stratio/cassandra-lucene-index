@@ -48,6 +48,7 @@ public class SortWithSkinnyRowsAT extends BaseAT {
         for (int i = 0; i < 10; i++) {
             utils.insert(new String[]{"pk", "rc"}, new Object[]{i, i});
         }
+        utils.refresh();
     }
 
     @AfterClass
@@ -57,36 +58,43 @@ public class SortWithSkinnyRowsAT extends BaseAT {
 
     @Test
     public void sortAsc() {
-        utils.sort(field("rc").reverse(false)).limit(3).check("rc", Integer.class, 0, 1, 2);
+        utils.sort(field("rc").reverse(false)).limit(3).checkOrderedColumns("rc", 0, 1, 2);
     }
 
     @Test
     public void sortDesc() {
-        utils.sort(field("rc").reverse(true)).limit(3).check("rc", Integer.class, 9, 8, 7);
+        utils.sort(field("rc").reverse(true)).limit(3).checkOrderedColumns("rc", 9, 8, 7);
     }
 
     @Test
     public void sortPartitionAsc() {
-        utils.sort(field("rc").reverse(false)).andEq("pk", 1).limit(3).check("rc", Integer.class, 1);
+        utils.sort(field("rc").reverse(false)).andEq("pk", 1).limit(3).checkUnorderedColumns("rc", 1);
     }
 
     @Test
     public void sortPartitionDesc() {
-        utils.sort(field("rc").reverse(true)).andEq("pk", 1).limit(3).check("rc", Integer.class, 1);
+        utils.sort(field("rc").reverse(true)).andEq("pk", 1).limit(3).checkUnorderedColumns("rc", 1);
     }
 
     @Test
     public void sortTokenRangeAsc() {
-        utils.sort(field("rc").reverse(false)).andGt("token(pk)", 0).limit(3).check("rc", Integer.class, 3, 6, 7);
+        utils.sort(field("rc").reverse(false))
+             .andGt("token(pk)", 0)
+             .limit(3)
+             .checkOrderedColumns("rc", 3, 6, 7);
     }
 
     @Test
     public void sortTokenRangeDesc() {
-        utils.sort(field("rc").reverse(true)).andGt("token(pk)", 0).limit(3).check("rc", Integer.class, 9, 7, 6);
+        utils.sort(field("rc").reverse(true))
+             .andGt("token(pk)", 0)
+             .limit(3)
+             .checkOrderedColumns("rc", 9, 7, 6);
     }
 
     @Test
     public void sortNotExistingColumn() {
-        utils.sort(field("missing").reverse(true)).check(InvalidQueryException.class);
+        utils.sort(field("missing").reverse(true))
+             .check(InvalidQueryException.class, "No mapper found for sortFields field 'missing'");
     }
 }
