@@ -94,9 +94,9 @@ based implementation of Cassandra secondary indexes, where each node of the clus
 Cassandra indexes are one of the core modules on which `Stratio’s BigData platform <http://www.stratio.com/>`__ is based.
 
 .. image:: /doc/resources/architecture.png
-:width: 100%
+   :width: 100%
    :alt: architecture
-       :align: center
+   :align: center
 
     Index `relevance searches <http://en.wikipedia.org/wiki/Relevance_(information_retrieval)>`__ allow you to retrieve the
 *n* more relevant results satisfying a search. The coordinator node sends the search to each node in the cluster, each node
@@ -111,18 +111,18 @@ frameworks as `Apache Hadoop <http://hadoop.apache.org/>`__ or, even better, `Ap
 Adding Lucene filters in the jobs input can dramatically reduce the amount of data to be processed, avoiding full scan.
 
 .. image:: /doc/resources/spark_architecture.png
-:width: 100%
+   :width: 100%
    :alt: spark_architecture
-       :align: center
+   :align: center
 
     This project is not intended to replace Apache Cassandra denormalized tables, inverted indexes, and/or secondary
     indexes. It is just a tool to perform some kind of queries which are really hard to be addressed using Apache Cassandra
     out of the box features, filling the gap between real-time and analytics.
 
 .. image:: /doc/resources/oltp_olap.png
-:width: 100%
+   :width: 100%
    :alt: oltp_olap
-       :align: center
+   :align: center
 
 Features
 ========
@@ -456,12 +456,12 @@ It is also possible to sort the results by distance to a geographical position:
 .. code-block:: sql
 
     SELECT * FROM tweets WHERE expr(tweets_index, '{
-        filter : [ {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
+        filter: [ {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
                    {type: "prefix", field: "user", value: "a"},
                    {type: "geo_distance", field: "place", latitude: 40.3930, longitude: -3.7328, max_distance: "10km"} ],
-        query : {type: "phrase", field: "body", value: "big data gives organizations", slop: 1},
+        query :  {type: "phrase", field: "body", value: "big data gives organizations", slop: 1},
         sort : [ {field: "time", reverse: true},
-                 {field: "place", type: "geo_distance", latitude: 40.3930, longitude: -3.7328}]
+                 {field: "place", type: "geo_distance", latitude: 40.3930, longitude: -3.7328} ]
     }') limit 100;
 
 Last but not least, you can route any search to a certain token range or partition, in such a way that only a
@@ -473,9 +473,9 @@ subset of the cluster nodes will be hit, saving precious resources:
         filter : [ {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
                    {type: "prefix", field: "user", value: "a"},
                    {type: "geo_distance", field: "place", latitude: 40.3930, longitude: -3.7328, max_distance: "10km"} ],
-        query : {type: "phrase", field: "body", value: "big data gives organizations", slop: 1},
+        query :  {type: "phrase", field: "body", value: "big data gives organizations", slop: 1},
         sort : [ {field: "time", reverse: true},
-                 {field: "place", type: "geo_distance", latitude: 40.3930, longitude: -3.7328}]
+                 {field: "place", type: "geo_distance", latitude: 40.3930, longitude: -3.7328} ]
     }') AND TOKEN(id) >= TOKEN(0) AND TOKEN(id) < TOKEN(10000000) limit 100;
 
 Indexing
@@ -2250,7 +2250,7 @@ It is also possible to write the search this way:
 
     SELECT * FROM users WHERE expr(users_index, '{
         filter : [ {type : "wildcard", field : "food", value : "tu*" },
-                   { not  : {type : "wildcard", field : "name", value : "*a" } } ]
+                   { not : {type : "wildcard", field : "name", value : "*a" } } ]
     }');
 
 Using `query builder <#query-builder>`__:
