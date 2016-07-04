@@ -26,7 +26,6 @@ import java.util.regex.Pattern;
 /**
  * A cell of a CQL3 logic {@link Column}, which in most cases is different from a storage engine column.
  *
- * @param <T> The type of the column value.
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public final class Column<T> {
@@ -49,16 +48,10 @@ public final class Column<T> {
     private final List<String> mapNames;
 
     /** The column's value as {@link ByteBuffer}. */
-    private final T composedValue;
-
-    /** The column's value as {@link ByteBuffer}. */
-    private final ByteBuffer decomposedValue;
-
-    /** The column's Cassandra type. */
-    private final AbstractType<T> type;
+    private final T value;
 
     /** The deletion time in seconds. */
-    private final int deletionTime;
+    private final Integer deletionTime;
 
     /**
      * Builds a new {@link Column} with the specified name, name suffix, value, and type.
@@ -66,24 +59,18 @@ public final class Column<T> {
      * @param cellName the name of the base cell
      * @param udtNames he child UDT fields
      * @param mapNames the child map keys
-     * @param decomposedValue the decomposed value of the column to be created
-     * @param composedValue the composed value of the column to be created
-     * @param type the type/marshaller of the column to be created
+     * @param value the composed value of the column to be created
      * @param deletionTime the deletion time in seconds
      */
     Column(String cellName,
            List<String> udtNames,
            List<String> mapNames,
-           ByteBuffer decomposedValue,
-           T composedValue,
-           AbstractType<T> type,
-           int deletionTime) {
+           T value,
+           Integer deletionTime) {
         this.cellName = cellName;
         this.udtNames = udtNames;
         this.mapNames = mapNames;
-        this.composedValue = composedValue;
-        this.decomposedValue = decomposedValue;
-        this.type = type;
+        this.value = value;
         this.deletionTime = deletionTime;
     }
 
@@ -92,25 +79,11 @@ public final class Column<T> {
      *
      * @param name the column name
      * @param value the composed value
-     * @param type the type
-     * @param <T> the base class
+     * @param <T> the base type
      * @return a new column
      */
-    public static <T> Column<T> buildComposed(String name, T value, AbstractType<T> type) {
-        return builder(name).buildComposed(value, type);
-    }
-
-    /**
-     * Builds a new {@link Column} with the specified name, composed value and type.
-     *
-     * @param name the column name
-     * @param value the decomposed value
-     * @param type the type
-     * @param <T> the base class
-     * @return a new column
-     */
-    public static <T> Column<T> buildDecomposed(String name, ByteBuffer value, AbstractType<T> type) {
-        return builder(name).buildDecomposed(value, type);
+    public static <T> Column<T> build(String name, T value) {
+        return builder(name).build(value);
     }
 
     /**
@@ -234,30 +207,12 @@ public final class Column<T> {
     }
 
     /**
-     * Returns the {@link ByteBuffer} serialized value.
-     *
-     * @return the serialized value
-     */
-    public ByteBuffer getDecomposedValue() {
-        return decomposedValue;
-    }
-
-    /**
      * Returns the Java column value.
      *
      * @return the composed value
      */
-    public T getComposedValue() {
-        return composedValue;
-    }
-
-    /**
-     * Returns the Cassandra column type.
-     *
-     * @return the type
-     */
-    public AbstractType<T> getType() {
-        return type;
+    public T getValue() {
+        return value;
     }
 
     /**
@@ -268,7 +223,7 @@ public final class Column<T> {
      * @return {@code true} if the column is a deletion, {@code false} otherwise
      */
     public boolean isDeleted(int nowInSec) {
-        return composedValue == null || decomposedValue == null || nowInSec < deletionTime;
+        return value == null || deletionTime != null && nowInSec < deletionTime;
     }
 
     /** {@inheritDoc} */
@@ -277,8 +232,7 @@ public final class Column<T> {
         return MoreObjects.toStringHelper(this)
                           .add("cell", cellName)
                           .add("name", getFullName())
-                          .add("value", getComposedValue())
-                          .add("type", type.getClass().getSimpleName())
+                          .add("value", getValue())
                           .add("deletionTime", deletionTime)
                           .toString();
     }

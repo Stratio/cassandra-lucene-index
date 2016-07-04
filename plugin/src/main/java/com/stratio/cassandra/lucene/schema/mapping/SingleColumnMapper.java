@@ -85,7 +85,7 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
 
     private <K> void addFields(Document document, Column<K> c) {
         String name = column.equals(field) ? c.getFullName() : c.getFieldName(field);
-        K value = c.getComposedValue();
+        K value = c.getValue();
         if (value != null) {
             T base = base(c);
             addIndexedFields(document, name, base);
@@ -130,13 +130,13 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
      * @return the {@link Column} index value resulting from the mapping of the specified object
      */
     public final <K> T base(Column<K> column) {
-        return column == null ? null : column.getComposedValue() == null ? null : doBase(column);
+        return column == null ? null : column.getValue() == null ? null : doBase(column);
     }
 
     protected abstract T doBase(@NotNull String field, @NotNull Object value);
 
-    protected <K> T doBase(Column<K> column) {
-        return doBase(column.getFieldName(field), column.getComposedValue());
+    protected final <K> T doBase(Column<K> column) {
+        return doBase(column.getFieldName(field), column.getValue());
     }
 
     /** {@inheritDoc} */

@@ -61,9 +61,9 @@ public class DateRangeMapper extends Mapper {
      * @param validated if the field must be validated
      * @param from the name of the column containing the from date
      * @param to the name of the column containing the to date
-     * @param parser a date parser
+     * @param pattern the date pattern
      */
-    public DateRangeMapper(String field, Boolean validated, String from, String to, DateParser parser) {
+    public DateRangeMapper(String field, Boolean validated, String from, String to, String pattern) {
         super(field,
               false,
               validated,
@@ -87,7 +87,7 @@ public class DateRangeMapper extends Mapper {
 
         this.from = from;
         this.to = to;
-        this.parser = parser;
+        this.parser = new DateParser(pattern);
         tree = DateRangePrefixTree.INSTANCE;
         strategy = new NumberRangePrefixTreeStrategy(tree, field);
     }
@@ -153,7 +153,7 @@ public class DateRangeMapper extends Mapper {
         if (column == null) {
             return null;
         }
-        Date fromDate = parser.parse(column);
+        Date fromDate = parser.parse(column.getValue());
         if (to == null) {
             throw new IndexException("From date required");
         }
@@ -171,7 +171,7 @@ public class DateRangeMapper extends Mapper {
         if (column == null) {
             return null;
         }
-        Date toDate = parser.parse(column);
+        Date toDate = parser.parse(column.getValue());
         if (toDate == null) {
             throw new IndexException("To date required");
         }

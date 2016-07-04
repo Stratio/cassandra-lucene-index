@@ -34,17 +34,9 @@ public class DateRangeMapperBuilder extends MapperBuilder<DateRangeMapper, DateR
     @JsonProperty("to")
     private final String to;
 
-    /** The default date pattern */
+    /** The date pattern */
     @JsonProperty("pattern")
     private String pattern;
-
-    /** The date pattern for columns */
-    @JsonProperty("column_pattern")
-    private String columnPattern;
-
-    /** The date pattern for fields */
-    @JsonProperty("lucene_pattern")
-    private String lucenePattern;
 
     /**
      * Returns a new {@link DateRangeMapperBuilder}.
@@ -58,35 +50,13 @@ public class DateRangeMapperBuilder extends MapperBuilder<DateRangeMapper, DateR
     }
 
     /**
-     * Sets the default date pattern to be used both for columns and fields.
+     * Sets the date pattern to be used both for columns and fields.
      *
-     * @param pattern a {@link java.text.SimpleDateFormat} date pattern, or "timestamp" for UNIX time milliseconds
+     * @param pattern a {@link java.text.SimpleDateFormat} date pattern
      * @return this
      */
     public DateRangeMapperBuilder pattern(String pattern) {
         this.pattern = pattern;
-        return this;
-    }
-
-    /**
-     * Sets the date pattern for columns.
-     *
-     * @param pattern a {@link java.text.SimpleDateFormat} date pattern, or "timestamp" for UNIX time milliseconds
-     * @return this
-     */
-    public DateRangeMapperBuilder columnPattern(String pattern) {
-        columnPattern = pattern;
-        return this;
-    }
-
-    /**
-     * Sets the date pattern for fields.
-     *
-     * @param pattern a {@link java.text.SimpleDateFormat} date pattern, or "timestamp" for UNIX time milliseconds
-     * @return this
-     */
-    public DateRangeMapperBuilder lucenePattern(String pattern) {
-        lucenePattern = pattern;
         return this;
     }
 
@@ -98,7 +68,6 @@ public class DateRangeMapperBuilder extends MapperBuilder<DateRangeMapper, DateR
      */
     @Override
     public DateRangeMapper build(String field) {
-        DateParser dateParser = new DateParser(pattern, columnPattern, lucenePattern);
-        return new DateRangeMapper(field, validated, from, to, dateParser);
+        return new DateRangeMapper(field, validated, from, to, pattern);
     }
 }

@@ -141,7 +141,7 @@ public class GeoPointMapper extends Mapper {
      */
     Double readLatitude(Columns columns) {
         Column<?> column = columns.getByFullName(latitude).getFirst();
-        return column == null ? null : readLatitude(column.getComposedValue());
+        return column == null ? null : readLatitude(column.getValue());
     }
 
     /**
@@ -153,7 +153,7 @@ public class GeoPointMapper extends Mapper {
      */
     Double readLongitude(Columns columns) {
         Column<?> column = columns.getByFullName(longitude).getFirst();
-        return column == null ? null : readLongitude(column.getComposedValue());
+        return column == null ? null : readLongitude(column.getValue());
     }
 
     /**

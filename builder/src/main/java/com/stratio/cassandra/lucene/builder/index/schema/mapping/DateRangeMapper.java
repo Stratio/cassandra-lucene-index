@@ -32,17 +32,9 @@ public class DateRangeMapper extends Mapper<DateRangeMapper> {
     @JsonProperty("to")
     final String to;
 
-    /** The default date pattern */
+    /** The date pattern */
     @JsonProperty("pattern")
     private String pattern;
-
-    /** The date pattern for columns */
-    @JsonProperty("column_pattern")
-    private String columnPattern;
-
-    /** The date pattern for fields */
-    @JsonProperty("lucene_pattern")
-    private String lucenePattern;
 
     /**
      * Returns a new {@link DateRangeMapper}.
@@ -56,35 +48,13 @@ public class DateRangeMapper extends Mapper<DateRangeMapper> {
     }
 
     /**
-     * Sets the default date pattern.
+     * Sets the date pattern.
      *
      * @param pattern a {@link java.text.SimpleDateFormat} date pattern
-     * @return this with the specified default date pattern
+     * @return this with the specified date pattern
      */
     public DateRangeMapper pattern(String pattern) {
         this.pattern = pattern;
-        return this;
-    }
-
-    /**
-     * Sets the date pattern for columns.
-     *
-     * @param pattern a {@link java.text.SimpleDateFormat} date pattern
-     * @return this with the specified columns date pattern
-     */
-    public DateRangeMapper columnPattern(String pattern) {
-        columnPattern = pattern;
-        return this;
-    }
-
-    /**
-     * Sets the date pattern for fields.
-     *
-     * @param pattern a {@link java.text.SimpleDateFormat} date pattern
-     * @return this with the specified fields date pattern
-     */
-    public DateRangeMapper lucenePattern(String pattern) {
-        lucenePattern = pattern;
         return this;
     }
 }

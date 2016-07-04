@@ -16,9 +16,7 @@
 package com.stratio.cassandra.lucene.column;
 
 import com.google.common.base.MoreObjects;
-import org.apache.cassandra.db.marshal.AbstractType;
 
-import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -62,7 +60,7 @@ public class Columns implements Iterable<Column<?>> {
      * @param column the {@link Column} to be added.
      * @return this with the specified {@link Column}
      */
-    Columns add(Column<?> column) {
+    public Columns add(Column<?> column) {
         columns.add(column);
         return this;
     }
@@ -93,25 +91,11 @@ public class Columns implements Iterable<Column<?>> {
      *
      * @param name the column name
      * @param value the composed value
-     * @param type the type
      * @param <T> the base class
      * @return this with the specified {@link Column}
      */
-    public <T> Columns addComposed(String name, T value, AbstractType<T> type) {
-        return add(Column.buildComposed(name, value, type));
-    }
-
-    /**
-     * Adds a new {@link Column} with the specified name, decomposed value and type.
-     *
-     * @param name the column name
-     * @param value the decomposed value
-     * @param type the type
-     * @param <T> the base class
-     * @return this with the specified {@link Column}
-     */
-    public <T> Columns addDecomposed(String name, ByteBuffer value, AbstractType<T> type) {
-        return add(Column.buildDecomposed(name, value, type));
+    public <T> Columns add(String name, T value) {
+        return add(Column.build(name, value));
     }
 
     /**
@@ -224,7 +208,7 @@ public class Columns implements Iterable<Column<?>> {
     public String toString() {
         MoreObjects.ToStringHelper helper = MoreObjects.toStringHelper(this);
         for (Column<?> column : columns) {
-            helper.add(column.getFullName(), column.getComposedValue());
+            helper.add(column.getFullName(), column.getValue());
         }
         return helper.toString();
     }

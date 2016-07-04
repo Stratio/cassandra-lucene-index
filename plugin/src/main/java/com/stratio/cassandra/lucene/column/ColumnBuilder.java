@@ -15,9 +15,6 @@
  */
 package com.stratio.cassandra.lucene.column;
 
-import org.apache.cassandra.db.marshal.AbstractType;
-
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,7 +28,7 @@ class ColumnBuilder {
     private final String cellName;
     private final List<String> udtNames;
     private final List<String> mapNames;
-    private final int deletionTime;
+    private final Integer deletionTime;
 
     /**
      * Constructor taking the cell name.
@@ -39,7 +36,7 @@ class ColumnBuilder {
      * @param cellName the cell name
      * @param deletionTime the deletion time in seconds
      */
-    ColumnBuilder(String cellName, int deletionTime) {
+    ColumnBuilder(String cellName, Integer deletionTime) {
         this.cellName = cellName;
         this.deletionTime = deletionTime;
         udtNames = new ArrayList<>();
@@ -49,38 +46,22 @@ class ColumnBuilder {
     /**
      * Returns a new {@link Column} using the specified composed value and its type.
      *
-     * @param composedValue the decomposed value
-     * @param type the value type
+     * @param value the decomposed value
      * @param <T> the marshaller's base type
      * @return the built column
      */
-    <T> Column<T> buildComposed(T composedValue, AbstractType<T> type) {
-        ByteBuffer decomposedValue = type.decompose(composedValue);
-        return new Column<>(cellName, udtNames, mapNames, decomposedValue, composedValue, type, deletionTime);
-    }
-
-    /**
-     * Returns a new {@link Column} using the specified decomposed value and its type.
-     *
-     * @param decomposedValue the decomposed value
-     * @param type the value type
-     * @param <T> the marshaller's base type
-     * @return the built column
-     */
-    <T> Column<T> buildDecomposed(ByteBuffer decomposedValue, AbstractType<T> type) {
-        T composedValue = type.compose(decomposedValue);
-        return new Column<>(cellName, udtNames, mapNames, decomposedValue, composedValue, type, deletionTime);
+    <T> Column<T> build(T value) {
+        return new Column<>(cellName, udtNames, mapNames, value, deletionTime);
     }
 
     /**
      * Returns a new {@link Column} with {@code null} value and the specified type .
      *
-     * @param type the value type
      * @param <T> the marshaller's base type
      * @return the built column
      */
-    <T> Column<T> buildNull(AbstractType<T> type) {
-        return new Column<>(cellName, udtNames, mapNames, null, null, type, deletionTime);
+    <T> Column<T> buildNull() {
+        return new Column<>(cellName, udtNames, mapNames, null, deletionTime);
     }
 
     /**

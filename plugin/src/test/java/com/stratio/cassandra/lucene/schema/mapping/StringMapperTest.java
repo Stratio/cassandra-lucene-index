@@ -17,7 +17,6 @@ package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.schema.mapping.builder.StringMapperBuilder;
-import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.SortedSetDocValuesField;
@@ -88,7 +87,7 @@ public class StringMapperTest extends AbstractMapperTest {
     @Test
     public void testValueLong() {
         StringMapper mapper = stringMapper().caseSensitive(true).build("field");
-        String parsed = mapper.base("test", 3l);
+        String parsed = mapper.base("test", 3L);
         assertEquals("Base for longs is wrong", "3", parsed);
     }
 
@@ -223,7 +222,7 @@ public class StringMapperTest extends AbstractMapperTest {
     public void testAddFields() {
         StringMapper mapper = stringMapper().caseSensitive(true).build("field");
         Document document = new Document();
-        Columns columns = new Columns().addComposed("field", "value", UTF8Type.instance);
+        Columns columns = new Columns().add("field", "value");
         mapper.addFields(document, columns);
         IndexableField[] indexableFields = document.getFields("field");
         assertEquals("Number of created fields is wrong", 2, indexableFields.length);

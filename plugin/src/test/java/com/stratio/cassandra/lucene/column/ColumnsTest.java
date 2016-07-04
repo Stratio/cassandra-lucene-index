@@ -15,7 +15,6 @@
  */
 package com.stratio.cassandra.lucene.column;
 
-import org.apache.cassandra.db.marshal.UTF8Type;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -39,22 +38,19 @@ public class ColumnsTest {
 
     @Test
     public void testAdd() {
-        Columns columns = new Columns().addComposed("f1", "v1", UTF8Type.instance)
-                                       .addComposed("f2", "v2", UTF8Type.instance);
+        Columns columns = new Columns().add("f1", "v1").add("f2", "v2");
         assertEquals("Columns size is wrong", 2, columns.size());
     }
 
     @Test
     public void testAddAll() {
-        Columns columns = new Columns().addComposed("f1", "v1", UTF8Type.instance)
-                                       .addComposed("f2", "v2", UTF8Type.instance);
+        Columns columns = new Columns().add("f1", "v1").add("f2", "v2");
         assertEquals("Columns size is wrong", 2, columns.size());
     }
 
     @Test
     public void testIterator() {
-        Columns columns = new Columns().addComposed("f1", "v1", UTF8Type.instance)
-                                       .addComposed("f2", "v2", UTF8Type.instance);
+        Columns columns = new Columns().add("f1", "v1").add("f2", "v2");
         List<Column<?>> list = new ArrayList<>();
         for (Column<?> column : columns) {
             list.add(column);
@@ -66,9 +62,7 @@ public class ColumnsTest {
 
     @Test
     public void testStream() {
-        List<Column<?>> list = new Columns().addComposed("f1", "v1", UTF8Type.instance)
-                                            .addComposed("f2", "v2", UTF8Type.instance)
-                                            .stream().collect(Collectors.toList());
+        List<Column<?>> list = new Columns().add("f1", "v1").add("f2", "v2").stream().collect(Collectors.toList());
         assertEquals("Columns size is wrong", 2, list.size());
         assertEquals("Columns order is wrong", "f1", list.get(0).getCellName());
         assertEquals("Columns order is wrong", "f2", list.get(1).getCellName());
@@ -77,10 +71,10 @@ public class ColumnsTest {
     @Test
     public void testGetColumnsByCellName() {
         Columns columns = new Columns();
-        columns.adder("f1").addComposed("v", UTF8Type.instance)
-               .adder("f1").withUDTName("1").addComposed("v", UTF8Type.instance)
-               .adder("f1").withMapName("1").addComposed("v", UTF8Type.instance)
-               .adder("f1").withUDTName("1").withMapName("1").addComposed("v", UTF8Type.instance);
+        columns.adder("f1").add("v")
+               .adder("f1").withUDTName("1").add("v")
+               .adder("f1").withMapName("1").add("v")
+               .adder("f1").withUDTName("1").withMapName("1").add("v");
         assertEquals("Columns size is wrong", 4, columns.getByCellName("f1").size());
         assertEquals("Columns size is wrong", 4, columns.getByCellName("f1.1").size());
         assertEquals("Columns size is wrong", 4, columns.getByCellName("f1$1").size());
@@ -92,12 +86,12 @@ public class ColumnsTest {
     @Test
     public void testGetColumnsByFullName() {
         Columns columns = new Columns();
-        columns.adder("f1").addComposed("v", UTF8Type.instance)
-               .adder("f1").withUDTName("1").addComposed("v", UTF8Type.instance)
-               .adder("f1").withMapName("1").addComposed("v", UTF8Type.instance)
-               .adder("f1").withUDTName("1").withMapName("1").addComposed("v", UTF8Type.instance)
-               .adder("f1").withUDTName("1").withUDTName("1").addComposed("v", UTF8Type.instance)
-               .adder("f1").withMapName("1").withMapName("1").addComposed("v", UTF8Type.instance);
+        columns.adder("f1").add("v")
+               .adder("f1").withUDTName("1").add("v")
+               .adder("f1").withMapName("1").add("v")
+               .adder("f1").withUDTName("1").withMapName("1").add("v")
+               .adder("f1").withUDTName("1").withUDTName("1").add("v")
+               .adder("f1").withMapName("1").withMapName("1").add("v");
         assertEquals("Columns size is wrong", 1, columns.getByFullName("f1").size());
         assertEquals("Columns size is wrong", 1, columns.getByFullName("f1.1").size());
         assertEquals("Columns size is wrong", 1, columns.getByFullName("f1.1.1").size());
@@ -110,12 +104,12 @@ public class ColumnsTest {
     @Test
     public void testGetColumnsByMapperName() {
         Columns columns = new Columns();
-        columns.addComposed("f1", "v", UTF8Type.instance)
-               .adder("f1").withUDTName("1").addComposed("v", UTF8Type.instance)
-               .adder("f1").withMapName("1").addComposed("v", UTF8Type.instance)
-               .adder("f1").withUDTName("1").withMapName("1").addComposed("v", UTF8Type.instance)
-               .adder("f1").withUDTName("1").withUDTName("1").addComposed("v", UTF8Type.instance)
-               .adder("f1").withMapName("1").withMapName("1").addComposed("v", UTF8Type.instance);
+        columns.add("f1", "v")
+               .adder("f1").withUDTName("1").add("v")
+               .adder("f1").withMapName("1").add("v")
+               .adder("f1").withUDTName("1").withMapName("1").add("v")
+               .adder("f1").withUDTName("1").withUDTName("1").add("v")
+               .adder("f1").withMapName("1").withMapName("1").add("v");
         assertEquals("Columns size is wrong", 3, columns.getByMapperName("f1").size());
         assertEquals("Columns size is wrong", 2, columns.getByMapperName("f1.1").size());
         assertEquals("Columns size is wrong", 3, columns.getByMapperName("f1$1").size());
@@ -132,12 +126,12 @@ public class ColumnsTest {
     @Test
     public void testToStringWithColumns() {
         Columns columns = new Columns();
-        columns.adder("f1").addComposed("v", UTF8Type.instance)
-               .adder("f1").withUDTName("1").addComposed("v", UTF8Type.instance)
-               .adder("f1").withMapName("1").addComposed("v", UTF8Type.instance)
-               .adder("f1").withUDTName("1").withMapName("1").addComposed("v", UTF8Type.instance)
-               .adder("f1").withUDTName("1").withUDTName("1").addComposed("v", UTF8Type.instance)
-               .adder("f1").withMapName("1").withMapName("1").addComposed("v", UTF8Type.instance);
+        columns.adder("f1").add("v")
+               .adder("f1").withUDTName("1").add("v")
+               .adder("f1").withMapName("1").add("v")
+               .adder("f1").withUDTName("1").withMapName("1").add("v")
+               .adder("f1").withUDTName("1").withUDTName("1").add("v")
+               .adder("f1").withMapName("1").withMapName("1").add("v");
         assertEquals("Method #toString is wrong",
                      "Columns{f1=v, f1.1=v, f1$1=v, f1.1$1=v, f1.1.1=v, f1$1$1=v}",
                      columns.toString());
@@ -145,10 +139,10 @@ public class ColumnsTest {
 
     @Test
     public void testCleanDeleted() {
-        Columns columns = new Columns().adder("f1", 1).addComposed("v1", UTF8Type.instance)
-                                       .adder("f2", 2).addComposed("v2", UTF8Type.instance)
-                                       .adder("f3", 3).addComposed("v3", UTF8Type.instance)
-                                       .adder("f4", 4).addComposed("v4", UTF8Type.instance);
+        Columns columns = new Columns().adder("f1", 1).add("v1")
+                                       .adder("f2", 2).add("v2")
+                                       .adder("f3", 3).add("v3")
+                                       .adder("f4", 4).add("v4");
         columns = columns.cleanDeleted(3);
         assertEquals("Columns clean deleted is wrong", 1, columns.size());
         assertEquals("Columns clean deleted is wrong", 1, columns.getByMapperName("f4").size());

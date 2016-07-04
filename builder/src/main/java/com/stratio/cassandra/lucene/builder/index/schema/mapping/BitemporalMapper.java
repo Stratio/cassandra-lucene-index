@@ -41,17 +41,9 @@ public class BitemporalMapper extends Mapper<BitemporalMapper> {
     @JsonProperty("tt_to")
     final String ttTo;
 
-    /** The default date pattern */
+    /** The date pattern */
     @JsonProperty("pattern")
     private String pattern;
-
-    /** The date pattern for columns */
-    @JsonProperty("column_pattern")
-    private String columnPattern;
-
-    /** The date pattern for fields */
-    @JsonProperty("lucene_pattern")
-    private String lucenePattern;
 
     /** The NOW Value. **/
     @JsonProperty("now_value")
@@ -77,35 +69,13 @@ public class BitemporalMapper extends Mapper<BitemporalMapper> {
     }
 
     /**
-     * Sets the default date pattern.
+     * Sets the date pattern.
      *
-     * @param pattern a {@link java.text.SimpleDateFormat} date pattern, or "timestamp" for UNIX time milliseconds
-     * @return this with the specified default date pattern
+     * @param pattern a {@link java.text.SimpleDateFormat} date pattern
+     * @return this with the specified date pattern
      */
     public BitemporalMapper pattern(String pattern) {
         this.pattern = pattern;
-        return this;
-    }
-
-    /**
-     * Sets the date pattern for columns.
-     *
-     * @param pattern a {@link java.text.SimpleDateFormat} date pattern, or "timestamp" for UNIX time milliseconds
-     * @return this with the specified columns date pattern
-     */
-    public BitemporalMapper columnPattern(String pattern) {
-        columnPattern = pattern;
-        return this;
-    }
-
-    /**
-     * Sets the date pattern for fields.
-     *
-     * @param pattern a {@link java.text.SimpleDateFormat} date pattern, or "timestamp" for UNIX time milliseconds
-     * @return this with the specified fields date pattern
-     */
-    public BitemporalMapper lucenePattern(String pattern) {
-        lucenePattern = pattern;
         return this;
     }
 

@@ -17,10 +17,7 @@ package com.stratio.cassandra.lucene.column;
 
 import com.stratio.cassandra.lucene.IndexException;
 import org.apache.cassandra.config.ColumnDefinition;
-import org.apache.cassandra.db.marshal.AbstractType;
-import org.apache.cassandra.db.marshal.CollectionType;
-import org.apache.cassandra.db.marshal.TupleType;
-import org.apache.cassandra.db.marshal.UserType;
+import org.apache.cassandra.db.marshal.*;
 import org.apache.cassandra.db.rows.Cell;
 import org.apache.cassandra.db.rows.ComplexColumnData;
 import org.apache.cassandra.db.rows.Row;
@@ -30,6 +27,10 @@ import org.apache.cassandra.serializers.MapSerializer;
 import org.apache.cassandra.utils.ByteBufferUtil;
 
 import java.nio.ByteBuffer;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import static org.apache.cassandra.transport.Server.CURRENT_VERSION;
 
@@ -115,7 +116,7 @@ public class ColumnsMapper {
                 case SET: {
                     AbstractType<?> nameType = collectionType.nameComparator();
                     if (isTombstone) {
-                        adder.addNull(nameType);
+                        adder.addNull();
                     } else {
                         int colSize = CollectionSerializer.readCollectionSize(value, CURRENT_VERSION);
                         for (int j = 0; j < colSize; j++) {
@@ -128,7 +129,7 @@ public class ColumnsMapper {
                 case LIST: {
                     AbstractType<?> valueType = collectionType.valueComparator();
                     if (isTombstone) {
-                        adder.addNull(valueType);
+                        adder.addNull();
                     } else {
                         int colSize = ListSerializer.readCollectionSize(value, CURRENT_VERSION);
                         for (int j = 0; j < colSize; j++) {
@@ -142,7 +143,7 @@ public class ColumnsMapper {
                     AbstractType<?> keyType = collectionType.nameComparator();
                     AbstractType<?> valueType = collectionType.valueComparator();
                     if (isTombstone) {
-                        adder.addNull(valueType);
+                        adder.addNull();
                     } else {
                         int colSize = MapSerializer.readCollectionSize(value, CURRENT_VERSION);
                         for (int j = 0; j < colSize; j++) {
@@ -166,7 +167,7 @@ public class ColumnsMapper {
                 String itemName = userType.fieldNameAsString(i);
                 AbstractType<?> itemType = userType.fieldType(i);
                 if (isTombstone) {
-                    adder.withUDTName(itemName).addNull(itemType);
+                    adder.withUDTName(itemName).addNull();
                 } else if (values[i] != null) { // This only occurs in UDT not fully composed
                     addColumns(false, adder.withUDTName(itemName), itemType, values[i]);
                 }
@@ -178,16 +179,31 @@ public class ColumnsMapper {
                 String itemName = i.toString();
                 AbstractType<?> itemType = tupleType.type(i);
                 if (isTombstone) {
-                    adder.withUDTName(itemName).addNull(itemType);
+                    adder.withUDTName(itemName).addNull();
                 } else {
                     addColumns(false, adder.withUDTName(itemName), itemType, values[i]);
                 }
             }
         } else {
             if (value != null) {
-                adder.addDecomposed(value, type);
+                adder.add(value(value, type));
             }
         }
+    }
+
+    private static Object value(ByteBuffer bb, AbstractType<?> type) {
+        if (type instanceof SimpleDateType) {
+            Locale locale = Locale.getDefault(Locale.Category.FORMAT);
+            Calendar calendar = Calendar.getInstance(TimeZone.getDefault(), locale);
+            long timestamp = SimpleDateType.instance.toTimeInMillis(bb);
+            timestamp -= calendar.getTimeZone().getOffset(timestamp);
+            return new Date(timestamp);
+        }
+        return type.compose(bb);
+    }
+
+    public static <T> Column<?> column(String name, ByteBuffer bb, AbstractType<T> type) {
+        return Column.build(name, value(bb, type));
     }
 
 }

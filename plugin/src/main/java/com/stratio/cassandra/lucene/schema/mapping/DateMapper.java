@@ -44,9 +44,9 @@ public class DateMapper extends SingleColumnMapper.SingleFieldMapper<Long> {
      * @param field the name of the field
      * @param column the name of the column to be mapped
      * @param validated if the field must be validated
-     * @param parser a date parser
+     * @param pattern the date pattern
      */
-    public DateMapper(String field, String column, Boolean validated, DateParser parser) {
+    public DateMapper(String field, String column, Boolean validated, String pattern) {
         super(field,
               column,
               true,
@@ -61,20 +61,13 @@ public class DateMapper extends SingleColumnMapper.SingleFieldMapper<Long> {
               SimpleDateType.instance,
               TimestampType.instance,
               TimeUUIDType.instance);
-        this.parser = parser;
+        this.parser = new DateParser(pattern);
     }
 
     /** {@inheritDoc} */
     @Override
     protected Long doBase(String name, Object value) {
         Date date = parser.parse(value);
-        return date == null ? null : date.getTime();
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    protected <K> Long doBase(Column<K> column) {
-        Date date = parser.parse(column);
         return date == null ? null : date.getTime();
     }
 

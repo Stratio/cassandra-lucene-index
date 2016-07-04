@@ -16,20 +16,14 @@
 package com.stratio.cassandra.lucene.util;
 
 import com.stratio.cassandra.lucene.IndexException;
-import com.stratio.cassandra.lucene.column.Column;
-import org.apache.cassandra.db.marshal.LongType;
-import org.apache.cassandra.db.marshal.SimpleDateType;
-import org.apache.cassandra.db.marshal.TimestampType;
-import org.apache.cassandra.db.marshal.UTF8Type;
+import org.apache.cassandra.utils.UUIDGen;
 import org.joda.time.format.DateTimeFormat;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.nio.ByteBuffer;
 import java.text.ParseException;
 import java.util.Date;
-
-import static com.stratio.cassandra.lucene.util.DateParser.TIMESTAMP_PATTERN;
+import java.util.UUID;
 
 /**
  * @author Eduardo Alonso  {@literal <eduardoalonso@stratio.com>}
@@ -40,17 +34,6 @@ public class DateParserTest {
         DateParser parser = new DateParser(pattern);
         Date date = parser.parse(value);
         Assert.assertNull(String.format("%s for %s should return null", parser, value), date);
-    }
-
-    private static void assertEquals(String pattern, Column<?> column, Date expected) {
-        assertEquals(pattern, pattern, column, expected);
-    }
-
-    private static void assertEquals(String columnPattern, String lucenePattern, Column<?> column, Date expected) {
-        DateParser parser = new DateParser(columnPattern, lucenePattern);
-        Date date = parser.parse(column);
-        Assert.assertEquals(String.format("%s for %s should generate %s but get %s", parser, column, expected, date),
-                            expected, date);
     }
 
     private static void assertEquals(String pattern, Object value, Date expected) {
@@ -75,166 +58,129 @@ public class DateParserTest {
     }
 
     @Test
-    public void testWithPatternNull() {
+    public void testParseNull() {
         assertNull("yyyy/MM/dd", null);
     }
 
     @Test
-    public void testWithPatternDate() throws ParseException {
+    public void testParseDate() throws ParseException {
         Date date = date("yyyy/MM/dd", "2015/11/03");
         assertEquals("yyyy/MM/dd", date, date);
     }
 
     @Test
-    public void testWithPatternMinDate() throws ParseException {
-        Date date = new Date(Long.MIN_VALUE);
-        assertEquals("yyyy/MM/dd", date, date);
+    public void testParseMinDate() throws ParseException {
+        Date date = new Date(0);
+        assertEquals(DateParser.DEFAULT_PATTERN, date, date);
     }
 
     @Test
-    public void testWithPatternMaxDate() throws ParseException {
+    public void testParseMaxDate() throws ParseException {
         Date date = new Date(Long.MAX_VALUE);
-        assertEquals("yyyy/MM/dd", date, date);
+        assertEquals(DateParser.DEFAULT_PATTERN, date, date);
     }
 
     @Test
-    public void testWithPatternDateTruncating() throws ParseException {
+    public void testParseDateTruncating() throws ParseException {
         Date date = date("yyyy/MM/dd HH:mm:ss", "2015/11/03 01:02:03");
         Date expected = date("yyyy/MM/dd", "2015/11/03");
         assertEquals("yyyy/MM/dd", date, expected);
     }
 
     @Test
-    public void testWithPatternLong() throws ParseException {
+    public void testParseInteger() throws ParseException {
+        Date date = date("yyyyMMdd", "20151103");
+        assertEquals("yyyyMMdd", 20151103, date);
+    }
+
+    @Test
+    public void testParseIntegerInvalid() throws ParseException {
+        assertFail("yyyyMMdd", 1);
+    }
+
+    @Test
+    public void testParseIntegerNegative() throws ParseException {
+        assertFail("yyyyMMdd", -20151103);
+    }
+
+
+
+    @Test
+    public void testParseLong() throws ParseException {
         Date date = date("yyyyMMdd", "20151103");
         assertEquals("yyyyMMdd", 20151103L, date);
     }
 
     @Test
-    public void testWithPatternLongInvalid() throws ParseException {
-        assertFail("yyyyMMdd", 1);
+    public void testParseLongInvalid() throws ParseException {
+        assertFail("yyyyMMdd", 1L);
     }
 
     @Test
-    public void testWithPatternLongNegative() throws ParseException {
+    public void testParseLongNegative() throws ParseException {
         assertFail("yyyyMMdd", -20151103L);
     }
 
     @Test
-    public void testWithPatternString() throws ParseException {
+    public void testParseFloat() throws ParseException {
+        Date date = date("yyyy", "2015");
+        assertEquals("yyyy", 2015f, date);
+    }
+
+    @Test
+    public void testParseFloatWithDecimal() throws ParseException {
+        Date date = date("yyyy", "2015");
+        assertEquals("yyyy", 2015.7f, date);
+    }
+
+    @Test
+    public void testParseFloatInvalid() throws ParseException {
+        assertFail("yyMM", 1f);
+    }
+
+    @Test
+    public void testParseFloatNegative() throws ParseException {
+        assertFail("yyyy", -2015f);
+    }
+
+    @Test
+    public void testParseDouble() throws ParseException {
+        Date date = date("yyyyMM", "201511");
+        assertEquals("yyyyMM", 201511d, date);
+    }
+
+    @Test
+    public void testParseDoubleWithDecimal() throws ParseException {
+        Date date = date("yyyyMM", "201511");
+        assertEquals("yyyyMM", 201511.7d, date);
+    }
+
+    @Test
+    public void testParseDoubleInvalid() throws ParseException {
+        assertFail("yyyyMM", 1d);
+    }
+
+    @Test
+    public void testParseDoubleNegative() throws ParseException {
+        assertFail("yyyyMM", -201511d);
+    }
+
+    @Test
+    public void testParseString() throws ParseException {
         Date expected = date("yyyy/MM/dd", "2015/11/03");
         assertEquals("yyyy/MM/dd", "2015/11/03", expected);
     }
 
     @Test
-    public void testWithPatternStringInvalid() throws ParseException {
+    public void testParseStringInvalid() throws ParseException {
         assertFail("yyyy/MM/dd", "20151103");
     }
 
     @Test
-    public void testWithTimestampNull() {
-        assertNull(TIMESTAMP_PATTERN, null);
-    }
-
-    @Test
-    public void testWithTimestampMinDate() throws ParseException {
-        Date date = new Date(Long.MIN_VALUE);
-        assertEquals(TIMESTAMP_PATTERN, Long.MIN_VALUE, date);
-    }
-
-    @Test
-    public void testWithTimestampMaxDate() throws ParseException {
-        Date date = new Date(Long.MAX_VALUE);
-        assertEquals(TIMESTAMP_PATTERN, Long.MAX_VALUE, date);
-    }
-
-    @Test
-    public void testWithTimestampDate() throws ParseException {
-        Date date = date("yyyy/MM/dd", "2015/11/03");
-        assertEquals(TIMESTAMP_PATTERN, date, date);
-    }
-
-    @Test
-    public void testWithTimestampString() {
-        Long timestamp = 2635421542648178234L;
-        assertEquals(TIMESTAMP_PATTERN, timestamp.toString(), new Date(timestamp));
-    }
-
-    @Test
-    public void testWithTimestampStringInvalid() {
-        assertFail(TIMESTAMP_PATTERN, "2015/03/02");
-    }
-
-    @Test
-    public void testWithTimestampLong() {
-        Long timestamp = 2635421542648178234L;
-        assertEquals(TIMESTAMP_PATTERN, timestamp, new Date(timestamp));
-    }
-
-    @Test
-    public void testWithPatternColumnNull() {
-        Column<?> column = null;
-        assertNull("yyyy/MM/dd", column);
-    }
-
-    @Test
-    public void testWithTimestampColumnNull() {
-        Column<?> column = null;
-        assertNull(TIMESTAMP_PATTERN, column);
-    }
-
-    @Test
-    public void testColumnSimpleDateWithPattern() throws ParseException {
-        ByteBuffer bb = SimpleDateType.instance.fromString("2015-10-10");
-        Column<Integer> column = Column.buildDecomposed("date", bb, SimpleDateType.instance);
-        Date expectedDate = date("yyyy-MM-dd", "2015-10-10");
-        assertEquals("yyyy-MM-dd", column, expectedDate);
-    }
-
-    @Test
-    public void testColumnSimpleDateWithPatternTruncating() throws ParseException {
-        ByteBuffer bb = SimpleDateType.instance.fromString("2015-10-10");
-        Column<Integer> column = Column.buildDecomposed("date", bb, SimpleDateType.instance);
-        Date expectedDate = date("yyyy/MM", "2015/10");
-        assertEquals("yyyy-MM", column, expectedDate);
-    }
-
-    @Test
-    public void testColumnSimpleDateWithTimestamp() {
-        ByteBuffer bb = SimpleDateType.instance.fromString("2015-10-10");
-        Column<Integer> column = Column.buildDecomposed("date", bb, SimpleDateType.instance);
-        Date expectedDate = new Date(1444435200000L);
-        assertEquals(TIMESTAMP_PATTERN, column, expectedDate);
-    }
-
-    @Test
-    public void testColumnDateWithPattern() throws ParseException {
-        ByteBuffer bb = TimestampType.instance.fromString("2015-10-10");
-        Column<Date> column = Column.buildDecomposed("date", bb, TimestampType.instance);
-        Date expectedDate = date("yyyy-MM-dd", "2015-10-10");
-        assertEquals("yyyy-MM-dd", column, expectedDate);
-    }
-
-    @Test
-    public void testColumnDateWithPatternTruncating() throws ParseException {
-        ByteBuffer bb = TimestampType.instance.fromString("2015-10-10 01:02:03");
-        Column<Date> column = Column.buildDecomposed("date", bb, TimestampType.instance);
-        Date expectedDate = date("yyyy-MM-dd", "2015-10-10");
-        assertEquals("yyyy-MM-dd", column, expectedDate);
-    }
-
-    @Test
-    public void testColumnLongWithDifferentPatterns() throws ParseException {
-        Column<Long> column = Column.buildComposed("date", 20151127010203L, LongType.instance);
-        Date expectedDate = date("yyyy-MM-dd", "2015-11-27");
-        assertEquals("yyyyMMddHHmmss", "yyyy-MM-dd", column, expectedDate);
-    }
-
-    @Test
-    public void testColumnUTF8WithDifferentPatterns() throws ParseException {
-        Column<String> column = Column.buildComposed("date", "20151127010203", UTF8Type.instance);
-        Date expectedDate = date("yyyy-MM-dd", "2015-11-27");
-        assertEquals("yyyyMMddHHmmss", "yyyy-MM-dd", column, expectedDate);
+    public void testParseUUID() throws ParseException {
+        UUID uuid = UUIDGen.getTimeUUID(date("yyyy-MM-dd HH:mm", "2015-11-03 06:23").getTime());
+        Date expected = date("yyyyMMdd", "20151103");
+        assertEquals("yyyyMMdd", uuid, expected);
     }
 
 }

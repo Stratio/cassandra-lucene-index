@@ -38,6 +38,7 @@ import static com.stratio.cassandra.lucene.builder.Builder.index;
 import static com.stratio.cassandra.lucene.testsAT.util.CassandraConfig.*;
 import static com.stratio.cassandra.lucene.testsAT.util.CassandraConnection.*;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
@@ -150,7 +151,7 @@ public class CassandraUtils {
                                expectedMessage));
         } catch (Exception e) {
             assertEquals("Expected exception type is wrong", expectedClass, e.getClass());
-            assertEquals("Expected exception message is wrong", expectedMessage, e.getMessage());
+            assertTrue("Expected exception message is wrong", e.getMessage().contains(expectedMessage));
         }
         return this;
     }

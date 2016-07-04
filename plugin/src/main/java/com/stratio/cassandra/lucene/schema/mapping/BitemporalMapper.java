@@ -75,7 +75,7 @@ public class BitemporalMapper extends Mapper {
      * @param vtTo the name of the column containing the valid time end
      * @param ttFrom the name of the column containing the transaction time start
      * @param ttTo the name of the column containing the transaction time end
-     * @param parser a date parser
+     * @param pattern the date pattern
      * @param nowValue the value representing now
      */
     public BitemporalMapper(String field,
@@ -84,7 +84,7 @@ public class BitemporalMapper extends Mapper {
                             String vtTo,
                             String ttFrom,
                             String ttTo,
-                            DateParser parser,
+                            String pattern,
                             Object nowValue) {
 
         super(field,
@@ -120,7 +120,7 @@ public class BitemporalMapper extends Mapper {
         this.vtTo = vtTo;
         this.ttFrom = ttFrom;
         this.ttTo = ttTo;
-        this.parser = parser;
+        this.parser = new DateParser(pattern);
 
         // Validate pattern
         this.nowValue = (nowValue == null) ? Long.MAX_VALUE : parser.parse(nowValue).getTime();
@@ -187,7 +187,7 @@ public class BitemporalMapper extends Mapper {
         if (column == null) {
             return null;
         }
-        return parseBitemporalDate(column);
+        return parseBitemporalDate(column.getValue());
     }
 
     private BitemporalDateTime checkIfNow(Long in) {
@@ -233,7 +233,7 @@ public class BitemporalMapper extends Mapper {
                           .add("vtTo", vtTo)
                           .add("ttFrom", ttFrom)
                           .add("ttTo", ttTo)
-                          .add("pattern", parser)
+                          .add("pattern", parser.pattern)
                           .add("nowValue", nowValue)
                           .toString();
     }

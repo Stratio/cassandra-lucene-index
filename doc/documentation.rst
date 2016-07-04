@@ -655,10 +655,6 @@ Details and default values are listed in the table below.
 |                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | pattern         | string          | yyyy/MM/dd HH:mm:ss.SSS Z      | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
-|                                     | column_pattern  | string          | yyyy/MM/dd HH:mm:ss.SSS Z      | No        |
-|                                     +-----------------+-----------------+--------------------------------+-----------+
-|                                     | lucene_pattern  | string          | yyyy/MM/dd HH:mm:ss.SSS Z      | No        |
-|                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | now_value       | object          | Long.MAX_VALUE                 | No        |
 +-------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 | `blob <#blob-mapper>`__             | validated       | boolean         | false                          | No        |
@@ -674,10 +670,6 @@ Details and default values are listed in the table below.
 |                                     | column          | string          | mapper_name of the schema      | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | pattern         | string          | yyyy/MM/dd HH:mm:ss.SSS Z      | No        |
-|                                     +-----------------+-----------------+--------------------------------+-----------+
-|                                     | column_pattern  | string          | yyyy/MM/dd HH:mm:ss.SSS Z      | No        |
-|                                     +-----------------+-----------------+--------------------------------+-----------+
-|                                     | lucene_pattern  | string          | yyyy/MM/dd HH:mm:ss.SSS Z      | No        |
 +-------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 | `date_range <#daterange-mapper>`__  | validated       | boolean         | false                          | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
@@ -686,10 +678,6 @@ Details and default values are listed in the table below.
 |                                     | to              | string          |                                | Yes       |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | pattern         | string          | yyyy/MM/dd HH:mm:ss.SSS Z      | No        |
-|                                     +-----------------+-----------------+--------------------------------+-----------+
-|                                     | column_pattern  | string          | yyyy/MM/dd HH:mm:ss.SSS Z      | No        |
-|                                     +-----------------+-----------------+--------------------------------+-----------+
-|                                     | lucene_pattern  | string          | yyyy/MM/dd HH:mm:ss.SSS Z      | No        |
 +-------------------------------------+-----------------+-----------------+--------------------------------+-----------+
 | `double <#double-mapper>`__         | validated       | boolean         | false                          | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
@@ -857,13 +845,8 @@ Maps four columns containing the four dates defining a bitemporal fact.
 -  **tt\_from** (mandatory): the name of the column storing the beginning of the transaction date range.
 -  **tt\_to** (mandatory): the name of the column storing the end of the transaction date range.
 -  **now\_value** (default = Long.MAX_VALUE): a date representing now.
--  **pattern** (default = yyyy/MM/dd HH:mm:ss.SSS Z): the default date pattern for parsing Cassandra columns and
-   creating Lucene fields if *column_pattern* and/or *lucene_pattern* are not defined.
--  **column_pattern** (default = yyyy/MM/dd HH:mm:ss.SSS Z): the date pattern for parsing dates from Cassandra columns
-   that are not considered as dates by Cassandra, such as *text* or *bigint*.
--  **lucene_pattern** (default = yyyy/MM/dd HH:mm:ss.SSS Z): the date pattern for creating Lucene fields. This allows to
-   reduce the precision of the indexed dates, making the index smaller and faster. It is also the date format to be used
-   in searches.
+-  **pattern** (default = yyyy/MM/dd HH:mm:ss.SSS Z): the date pattern for parsing Cassandra not-date columns and
+   creating Lucene fields. Note that it can be used to index dates with reduced precision.
 
 **Supported CQL types:**
 
@@ -970,19 +953,14 @@ Maps dates using a either a pattern, an UNIX timestamp or a time UUID.
 
 -  **validated** (default = false): if mapping errors should make CQL writes fail, instead of just logging the error.
 -  **column** (default = name of the mapper): the name of the column storing the date to be indexed.
--  **pattern** (default = yyyy/MM/dd HH:mm:ss.SSS Z): the default date pattern for parsing Cassandra columns and
-   creating Lucene fields if *column_pattern* and/or *lucene_pattern* are not defined.
--  **column_pattern** (default = yyyy/MM/dd HH:mm:ss.SSS Z): the date pattern for parsing dates from Cassandra columns
-   that are not considered as dates by Cassandra, such as *text* or *bigint*.
--  **lucene_pattern** (default = yyyy/MM/dd HH:mm:ss.SSS Z): the date pattern for creating Lucene fields. This allows to
-   reduce the precision of the indexed dates, making the index smaller and faster. It is also the date format to be used
-   in searches.
+-  **pattern** (default = yyyy/MM/dd HH:mm:ss.SSS Z): the date pattern for parsing Cassandra not-date columns and
+   creating Lucene fields. Note that it can be used to index dates with reduced precision.
 
 **Supported CQL types:**
 
 -  ascii, bigint, date, int, text, timestamp, timeuuid, varchar, varint
 
-**Example 1:** Index the column *creation* using the date format pattern *yyyy/MM/dd HH:mm:ss*:
+**Example:** Index the column *creation* with a precision of minutes using the date format pattern *yyyy/MM/dd HH:mm*:
 
 .. code-block:: sql
 
@@ -994,28 +972,7 @@ Maps dates using a either a pattern, an UNIX timestamp or a time UUID.
             fields : {
                 creation : {
                     type    : "date",
-                    pattern : "yyyy/MM/dd HH:mm:ss",
-                }
-            }
-        }'
-    };
-
-**Example 2:** Index the column *creation_date* as *creation*, validating values, and using a reduced precision of days:
-
-.. code-block:: sql
-
-    CREATE CUSTOM INDEX test_idx ON test()
-    USING 'com.stratio.cassandra.lucene.Index'
-    WITH OPTIONS = {
-        'refresh_seconds' : '1',
-        'schema' : '{
-            fields : {
-                creation : {
-                    type           : "date",
-                    validated      : true,
-                    column_pattern : "yyyy/MM/dd HH:mm:ss.SSS",
-                    lucene_pattern : "yyyy/MM/dd",
-                    column         : "creation_date"
+                    pattern : "yyyy/MM/dd HH:mm",
                 }
             }
         }'
@@ -1032,13 +989,8 @@ Maps a time duration/period defined by a start date and a stop date.
 -  **validated** (default = false): if mapping errors should make CQL writes fail, instead of just logging the error.
 -  **from** (mandatory): the name of the column storing the start date of the time duration to be indexed.
 -  **to** (mandatory): the name of the column storing the stop date of the time duration to be indexed.
--  **pattern** (default = yyyy/MM/dd HH:mm:ss.SSS Z): the default date pattern for parsing Cassandra columns and
-   creating Lucene fields if *column_pattern* and/or *lucene_pattern* are not defined.
--  **column_pattern** (default = yyyy/MM/dd HH:mm:ss.SSS Z): the date pattern for parsing dates from Cassandra columns
-   that are not considered as dates by Cassandra, such as *text* or *bigint*.
--  **lucene_pattern** (default = yyyy/MM/dd HH:mm:ss.SSS Z): the date pattern for creating Lucene fields. This allows to
-   reduce the precision of the indexed dates, making the index smaller and faster. It is also the date format to be used
-   in searches.
+-  **pattern** (default = yyyy/MM/dd HH:mm:ss.SSS Z): the date pattern for parsing Cassandra not-date columns and
+   creating Lucene fields. Note that it can be used to index dates with reduced precision.
 
 **Supported CQL types:**
 
@@ -1075,12 +1027,11 @@ precision of minutes:
         'schema' : '{
             fields : {
                 duration : {
-                    type           : "date_range",
-                    validated      : true,
-                    from           : "start",
-                    to             : "stop",
-                    column_pattern : "yyyy/MM/dd HH:mm:ss.SSS",
-                    lucene_pattern : "yyyy/MM/dd HH:mm"
+                    type      : "date_range",
+                    validated : true,
+                    from      : "start",
+                    to        : "stop",
+                    pattern   : "yyyy/MM/dd HH:mm"
                 }
             }
         }'

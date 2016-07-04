@@ -15,10 +15,6 @@
  */
 package com.stratio.cassandra.lucene.column;
 
-import org.apache.cassandra.db.marshal.AbstractType;
-
-import java.nio.ByteBuffer;
-
 /**
  * Class for building and adding a {@link Column} to a {@link Columns}.
  *
@@ -43,36 +39,22 @@ class ColumnAdder {
     /**
      * Returns a new {@link Column}s with a {@link Column} using the specified composed value and its type.
      *
-     * @param composedValue the decomposed value
-     * @param type the value type
+     * @param value the decomposed value
      * @param <T> the marshaller's base type
      * @return the columns with the specified column
      */
-    <T> Columns addComposed(T composedValue, AbstractType<T> type) {
-        return columns.add(builder.buildComposed(composedValue, type));
-    }
-
-    /**
-     * Returns a new {@link Column}s with a {@link Column} using the specified decomposed value and its type.
-     *
-     * @param decomposedValue the decomposed value
-     * @param type the value type
-     * @param <T> the marshaller's base type
-     * @return the columns with the specified column
-     */
-    <T> Columns addDecomposed(ByteBuffer decomposedValue, AbstractType<T> type) {
-        return columns.add(builder.buildDecomposed(decomposedValue, type));
+    <T> Columns add(T value) {
+        return columns.add(builder.build(value));
     }
 
     /**
      * Returns a new {@link Column}s with a {@link Column} with {@code null} value and the specified type .
      *
-     * @param type the value type
      * @param <T> the marshaller's base type
      * @return the columns with the specified column
      */
-    <T> Columns addNull(AbstractType<T> type) {
-        return columns.add(builder.buildNull(type));
+    <T> Columns addNull() {
+        return columns.add(builder.buildNull());
     }
 
     /**
