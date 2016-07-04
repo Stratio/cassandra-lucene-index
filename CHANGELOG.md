@@ -6,6 +6,7 @@
 * Add Lucene-specific CQL tracing
 * Fix parsing of data with CQL "date" type (#158)
 * Fix handling of immense term insertion mapping error
+* Fix indexing of tables with descending clustering key order (#165) 
 
 ## 3.0.7.1 (17 June 2016)
 

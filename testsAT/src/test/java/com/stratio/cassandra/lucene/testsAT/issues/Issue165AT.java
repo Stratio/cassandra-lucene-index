@@ -25,7 +25,7 @@ import static com.stratio.cassandra.lucene.builder.Builder.stringMapper;
 import static com.stratio.cassandra.lucene.testsAT.util.CassandraUtils.builder;
 
 /**
- * Create an index over a tabel with ascendent and descendent clustering order(<a href="https://github.com/Stratio/cassandra-lucene-index/issues/165">issue
+ * Create an index over a table with ascendant and descendant clustering order(<a href="https://github.com/Stratio/cassandra-lucene-index/issues/165">issue
  * 165</a>)
  *
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
