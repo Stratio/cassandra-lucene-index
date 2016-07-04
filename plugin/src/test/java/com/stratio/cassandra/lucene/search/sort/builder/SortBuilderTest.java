@@ -79,7 +79,7 @@ public class SortBuilderTest {
         String json = JsonSerializer.toString(sortBuilder);
         assertEquals("Method #toString is wrong",
                      "{fields:[{type:\"simple\",field:\"field1\",reverse:true}," +
-                     "{type:\"geo_distance\",field:\"mapper2\",longitude:0.0,latitude:0.0,reverse:true}," +
+                     "{type:\"geo_distance\",field:\"mapper2\",latitude:0.0,longitude:0.0,reverse:true}," +
                      "{type:\"simple\",field:\"field3\",reverse:false}]}", json);
 
     }

@@ -216,14 +216,14 @@ public final class SearchBuilders {
      * Returns a new {@link GeoDistanceConditionBuilder} with the specified field reference point.
      *
      * @param field the name of the field to be matched
-     * @param longitude The longitude of the reference point.
      * @param latitude The latitude of the reference point.
+     * @param longitude The longitude of the reference point.
      * @param maxDistance The max allowed distance.
      * @return a new geo distance condition builder
      */
     public static GeoDistanceConditionBuilder geoDistance(String field,
-                                                          double longitude,
                                                           double latitude,
+                                                          double longitude,
                                                           String maxDistance) {
         return new GeoDistanceConditionBuilder(field, latitude, longitude, maxDistance);
     }
@@ -265,12 +265,12 @@ public final class SearchBuilders {
      * Returns a new {@link SimpleSortFieldBuilder} for the specified field.
      *
      * @param mapper the name of mapper to use to calculate distance
-     * @param longitude the longitude of the reference point
      * @param latitude the latitude of the reference point
+     * @param longitude the longitude of the reference point
      * @return a new geo distance sort field builder
      */
-    public static GeoDistanceSortFieldBuilder geoDistance(String mapper, double longitude, double latitude) {
-        return new GeoDistanceSortFieldBuilder(mapper, longitude, latitude);
+    public static GeoDistanceSortFieldBuilder geoDistance(String mapper, double latitude, double longitude) {
+        return new GeoDistanceSortFieldBuilder(mapper, latitude, longitude);
     }
 
     /**

@@ -195,7 +195,7 @@ public class GeoDistanceConditionTest extends AbstractConditionTest {
         GeoDistanceCondition condition = geoDistance("name", -1D, 9, "3km").setMinDistance("1km").boost(0.4f).build();
         assertEquals("Method #toString is wrong",
                      "GeoDistanceCondition{boost=0.4, field=name, " +
-                     "latitude=9.0, longitude=-1.0, " +
+                     "latitude=-1.0, longitude=9.0, " +
                      "minGeoDistance=GeoDistance{value=1.0, unit=KILOMETRES}, " +
                      "maxGeoDistance=GeoDistance{value=3.0, unit=KILOMETRES}}",
                      condition.toString());

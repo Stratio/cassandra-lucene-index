@@ -144,7 +144,7 @@ public class GeoDistanceSortFieldTest {
     public void testToString() {
         GeoDistanceSortField sortField = new GeoDistanceSortField("field", true, 0.0, 0.0);
         assertEquals("Method #toString is wrong",
-                     "GeoDistanceSortField{field=field, reverse=true, longitude=0.0, latitude=0.0}",
+                     "GeoDistanceSortField{field=field, reverse=true, latitude=0.0, longitude=0.0}",
                      sortField.toString());
     }
 }

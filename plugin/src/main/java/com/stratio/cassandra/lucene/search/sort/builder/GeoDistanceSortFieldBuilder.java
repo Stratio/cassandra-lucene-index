@@ -28,13 +28,13 @@ public class GeoDistanceSortFieldBuilder extends SortFieldBuilder<GeoDistanceSor
     @JsonProperty("field")
     private final String field;
 
-    /** The longitude of the center point to sort by min distance to it. */
-    @JsonProperty("longitude")
-    private final double longitude;
-
     /** The latitude of the center point to sort by min distance to it. */
     @JsonProperty("latitude")
     private final double latitude;
+
+    /** The longitude of the center point to sort by min distance to it. */
+    @JsonProperty("longitude")
+    private final double longitude;
 
     /**
      * Creates a new {@link GeoDistanceSortFieldBuilder} for the specified field.
@@ -45,17 +45,17 @@ public class GeoDistanceSortFieldBuilder extends SortFieldBuilder<GeoDistanceSor
      */
     @JsonCreator
     public GeoDistanceSortFieldBuilder(@JsonProperty("field") String field,
-                                       @JsonProperty("longitude") double longitude,
-                                       @JsonProperty("latitude") double latitude) {
+                                       @JsonProperty("latitude") double latitude,
+                                       @JsonProperty("longitude") double longitude) {
 
         this.field = field;
-        this.longitude = longitude;
         this.latitude = latitude;
+        this.longitude = longitude;
     }
 
     /** {@inheritDoc} */
     @Override
     public GeoDistanceSortField build() {
-        return new GeoDistanceSortField(field, reverse, longitude, latitude);
+        return new GeoDistanceSortField(field, reverse, latitude, longitude);
     }
 }
