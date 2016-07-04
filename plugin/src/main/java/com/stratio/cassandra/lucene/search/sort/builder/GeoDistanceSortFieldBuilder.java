@@ -45,17 +45,17 @@ public class GeoDistanceSortFieldBuilder extends SortFieldBuilder<GeoDistanceSor
      */
     @JsonCreator
     public GeoDistanceSortFieldBuilder(@JsonProperty("field") String field,
-                                       @JsonProperty("longitude") double longitude,
-                                       @JsonProperty("latitude") double latitude) {
+                                       @JsonProperty("latitude") double latitude,
+                                       @JsonProperty("longitude") double longitude) {
 
         this.field = field;
-        this.longitude = longitude;
         this.latitude = latitude;
+        this.longitude = longitude;
     }
 
     /** {@inheritDoc} */
     @Override
     public GeoDistanceSortField build() {
-        return new GeoDistanceSortField(field, reverse, longitude, latitude);
+        return new GeoDistanceSortField(field, reverse, latitude, longitude);
     }
 }

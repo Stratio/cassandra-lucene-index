@@ -77,8 +77,9 @@ public class SortBuilderTest {
         SimpleSortFieldBuilder sortFieldBuilder3 = new SimpleSortFieldBuilder("field3");
         SortBuilder sortBuilder = new SortBuilder(sortFieldBuilder1, sortFieldBuilder2, sortFieldBuilder3);
         String json = JsonSerializer.toString(sortBuilder);
-        String expected = "{fields:[{type:\"simple\",field:\"field1\",reverse:true}," +
-                          "{type:\"geo_distance\",field:\"mapper2\",longitude:0.0,latitude:0.0,reverse:true}," +
+        String expected = "{fields:[" +
+                          "{type:\"simple\",field:\"field1\",reverse:true}," +
+                          "{type:\"geo_distance\",field:\"mapper2\",latitude:0.0,longitude:0.0,reverse:true}," +
                           "{type:\"simple\",field:\"field3\",reverse:false}]}";
         assertEquals("Method #toString is wrong", expected, json);
 

@@ -46,10 +46,10 @@ public class GeoDistanceSortField extends SortField {
      */
     @JsonCreator
     public GeoDistanceSortField(@JsonProperty("field") String field,
-                                @JsonProperty("longitude") double longitude,
-                                @JsonProperty("latitude") double latitude) {
+                                @JsonProperty("latitude") double latitude,
+                                @JsonProperty("longitude") double longitude) {
         this.field = field;
-        this.longitude = longitude;
         this.latitude = latitude;
+        this.longitude = longitude;
     }
 }

@@ -453,14 +453,14 @@ public abstract class Builder {
      * Returns a new {@link GeoDistanceCondition} with the specified field reference point.
      *
      * @param field the name of the field to be matched
-     * @param longitude the longitude of the reference point
      * @param latitude the latitude of the reference point
+     * @param longitude the longitude of the reference point
      * @param maxDistance the max allowed distance
      * @return a new {@link GeoDistanceCondition}
      */
     public static GeoDistanceCondition geoDistance(String field,
-                                                   double longitude,
                                                    double latitude,
+                                                   double longitude,
                                                    String maxDistance) {
         return new GeoDistanceCondition(field, latitude, longitude, maxDistance);
     }
@@ -566,11 +566,11 @@ public abstract class Builder {
      * Returns a new {@link GeoDistanceSortField} for the specified field.
      *
      * @param mapper the name of the field to be used for sort
-     * @param longitude the longitude in degrees of the point to min distance sort by
      * @param latitude the latitude in degrees of the point to min distance sort by
+     * @param longitude the longitude in degrees of the point to min distance sort by
      * @return a new {@link GeoDistanceSortField} for the specified field
      */
-    public static GeoDistanceSortField geoDistanceSortField(String mapper, double longitude, double latitude) {
+    public static GeoDistanceSortField geoDistanceSortField(String mapper, double latitude, double longitude) {
         return new GeoDistanceSortField(mapper, longitude, latitude);
     }
 

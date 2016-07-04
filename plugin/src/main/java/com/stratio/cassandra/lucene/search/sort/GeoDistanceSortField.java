@@ -56,17 +56,17 @@ public class GeoDistanceSortField extends SortField {
      *
      * @param field the name of mapper to use to calculate distance
      * @param reverse {@code true} if natural order should be reversed
-     * @param longitude the longitude
      * @param latitude the latitude
+     * @param longitude the longitude
      */
-    public GeoDistanceSortField(String field, Boolean reverse, double longitude, double latitude) {
+    public GeoDistanceSortField(String field, Boolean reverse, double latitude, double longitude) {
         super(reverse);
         if (field == null || StringUtils.isBlank(field)) {
             throw new IndexException("Mapper name required");
         }
         this.field = field;
-        this.longitude = GeoPointMapper.checkLongitude("longitude", longitude);
         this.latitude = GeoPointMapper.checkLatitude("latitude", latitude);
+        this.longitude = GeoPointMapper.checkLongitude("longitude", longitude);
     }
 
     /**
@@ -130,8 +130,8 @@ public class GeoDistanceSortField extends SortField {
         return Objects.toStringHelper(this)
                       .add("field", field)
                       .add("reverse", reverse)
-                      .add("longitude", longitude)
                       .add("latitude", latitude)
+                      .add("longitude", longitude)
                       .toString();
     }
 
