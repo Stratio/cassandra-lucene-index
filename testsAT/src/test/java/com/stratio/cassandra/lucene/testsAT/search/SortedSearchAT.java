@@ -83,28 +83,28 @@ public class SortedSearchAT extends AbstractSearchAT {
 
     @Test
     public void testSortWithGeoDistanceFilterNotReversed() {
-        search().filter(geoDistance("geo_point", -3.784519, 40.442163, "10000km"))
+        search().filter(geoDistance("geo_point", 40.442163, -3.784519, "10000km"))
                 .sort(geoDistanceField("geo_point", 40.442163, -3.784519).reverse(false))
                 .checkOrderedColumns("integer_1", -1, -2, -3, -4, -5);
     }
 
     @Test
     public void testSortWithGeoDistanceQueryNotReversed() {
-        search().query(geoDistance("geo_point", -3.784519, 40.442163, "10000km"))
+        search().query(geoDistance("geo_point", 40.442163, -3.784519, "10000km"))
                 .sort(geoDistanceField("geo_point", 40.442163, -3.784519).reverse(false))
                 .checkOrderedColumns("integer_1", -1, -2, -3, -4, -5);
     }
 
     @Test
     public void testSortWithGeoDistanceFilterReversed() {
-        search().filter(geoDistance("geo_point", -3.784519, 40.442163, "10000km"))
+        search().filter(geoDistance("geo_point", 40.442163, -3.784519, "10000km"))
                 .sort(geoDistanceField("geo_point", 40.442163, -3.784519).reverse(true))
                 .checkOrderedColumns("integer_1", -5, -4, -3, -2, -1);
     }
 
     @Test
     public void testSortWithGeoDistanceQueryReversed() {
-        search().query(geoDistance("geo_point", -3.784519, 40.442163, "10000km"))
+        search().query(geoDistance("geo_point", 40.442163, -3.784519, "10000km"))
                 .sort(geoDistanceField("geo_point", 40.442163, -3.784519).reverse(true))
                 .checkOrderedColumns("integer_1", -5, -4, -3, -2, -1);
     }

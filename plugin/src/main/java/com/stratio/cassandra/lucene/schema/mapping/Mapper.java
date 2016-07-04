@@ -169,11 +169,12 @@ public abstract class Mapper {
     /**
      * Finds the child {@link AbstractType} by its name.
      *
-     * @param parent the parent type
+     * @param type the parent type
      * @param childName the name of the child type
      * @return the child type, or {@code null} if it doesn't exist
      */
-    private AbstractType<?> findChildType(AbstractType<?> parent, String childName) {
+    private AbstractType<?> findChildType(AbstractType<?> type, String childName) {
+        AbstractType<?> parent = (type instanceof ReversedType) ? ((ReversedType<?>) type).baseType : type;
         if (parent instanceof UserType) {
             UserType userType = (UserType) parent;
             for (int i = 0; i < userType.fieldNames().size(); i++) {
@@ -211,7 +212,6 @@ public abstract class Mapper {
      * @param column the name of the tuple column to be validated
      */
     private void validateTuple(CFMetaData metadata, String column) {
-
         String[] names = column.split(Column.UDT_PATTERN);
         int numMatches = names.length;
 

@@ -631,10 +631,10 @@ public class BuilderTest {
         String actual = geoBBox("field", 1, 2, 3, 4).build();
         String expected = "{\"type\":\"geo_bbox\"," +
                           "\"field\":\"field\"," +
-                          "\"min_latitude\":3.0," +
-                          "\"max_latitude\":4.0," +
-                          "\"min_longitude\":1.0," +
-                          "\"max_longitude\":2.0}";
+                          "\"min_latitude\":1.0," +
+                          "\"max_latitude\":2.0," +
+                          "\"min_longitude\":3.0," +
+                          "\"max_longitude\":4.0}";
         assertEquals("wildcard condition serialization is wrong", expected, actual);
     }
 
@@ -643,17 +643,17 @@ public class BuilderTest {
         String actual = geoBBox("field", 1, 2, 3, 4).boost(1).build();
         String expected = "{\"type\":\"geo_bbox\"," +
                           "\"field\":\"field\"," +
-                          "\"min_latitude\":3.0," +
-                          "\"max_latitude\":4.0," +
-                          "\"min_longitude\":1.0," +
-                          "\"max_longitude\":2.0," +
+                          "\"min_latitude\":1.0," +
+                          "\"max_latitude\":2.0," +
+                          "\"min_longitude\":3.0," +
+                          "\"max_longitude\":4.0," +
                           "\"boost\":1.0}";
         assertEquals("wildcard condition serialization is wrong", expected, actual);
     }
 
     @Test
     public void testGeoDistanceConditionDefaults() {
-        String actual = geoDistance("field", 1, 2, "1km").build();
+        String actual = geoDistance("field", 2, 1, "1km").build();
         String expected = "{\"type\":\"geo_distance\"," +
                           "\"field\":\"field\"," +
                           "\"latitude\":2.0," +
@@ -664,7 +664,7 @@ public class BuilderTest {
 
     @Test
     public void testGeoDistanceConditionFull() {
-        String actual = geoDistance("field", 1, 2, "1km").minDistance("500m").boost(0.5).build();
+        String actual = geoDistance("field", 2, 1, "1km").minDistance("500m").boost(0.5).build();
         String expected = "{\"type\":\"geo_distance\"," +
                           "\"field\":\"field\"," +
                           "\"latitude\":2.0," +
@@ -766,8 +766,8 @@ public class BuilderTest {
 
     @Test
     public void testSearchFull() {
-        String actual = search().filter(match("f1", 1),match("f2", 2)).filter(match("f3", 3))
-                                .query(match("f3", 3),match("f4", 4)).query(match("f5", 5))
+        String actual = search().filter(match("f1", 1), match("f2", 2)).filter(match("f3", 3))
+                                .query(match("f3", 3), match("f4", 4)).query(match("f5", 5))
                                 .sort(field("f1"), field("f2")).sort(field("f3"))
                                 .refresh(true)
                                 .build();
