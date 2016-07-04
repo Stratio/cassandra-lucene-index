@@ -276,11 +276,11 @@ public final class SearchBuilders {
      * Returns a new {@link SimpleSortFieldBuilder} for the specified field.
      *
      * @param mapper the name of mapper to use to calculate distance
-     * @param longitude the longitude of the reference point
      * @param latitude the latitude of the reference point
+     * @param longitude the longitude of the reference point
      * @return a new geo distance sort field builder
      */
-    public static GeoDistanceSortFieldBuilder geoDistance(String mapper, double longitude, double latitude) {
+    public static GeoDistanceSortFieldBuilder geoDistance(String mapper, double latitude, double longitude) {
         return new GeoDistanceSortFieldBuilder(mapper, latitude, longitude);
     }
 
