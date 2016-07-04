@@ -37,6 +37,9 @@ public class CassandraUtilsBuilder {
     private Map<String, Mapper> mappers;
     private List<String> partitionKey;
     private List<String> clusteringKey;
+    private String clusteringOrderColumn;
+    private boolean clusteringOrderAscending;
+
     private final Map<String, Map<String, String>> udts;
 
     CassandraUtilsBuilder(String name) {
@@ -122,6 +125,12 @@ public class CassandraUtilsBuilder {
         return this;
     }
 
+    public CassandraUtilsBuilder withClusteringOrder(String columnName, boolean ascending) {
+        clusteringOrderColumn = columnName;
+        clusteringOrderAscending = ascending;
+        return this;
+    }
+
     private SingleColumnMapper<?> defaultMapper(String name) {
         switch (name) {
             case "ascii":
@@ -176,6 +185,8 @@ public class CassandraUtilsBuilder {
                                   mappers,
                                   partitionKey,
                                   clusteringKey,
-                                  udts);
+                                  udts,
+                                  clusteringOrderColumn,
+                                  clusteringOrderAscending);
     }
 }

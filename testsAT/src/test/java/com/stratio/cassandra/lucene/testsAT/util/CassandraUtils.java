@@ -59,6 +59,8 @@ public class CassandraUtils {
     private final Map<String, Map<String, String>> udts;
     private final boolean useNewQuerySyntax;
     private final String indexBean;
+    private final String clusteringOrderColumn;
+    private final boolean clusteringOrderAscending;
 
     public static CassandraUtilsBuilder builder(String name) {
         return new CassandraUtilsBuilder(name);
@@ -73,7 +75,9 @@ public class CassandraUtils {
                           Map<String, Mapper> mappers,
                           List<String> partitionKey,
                           List<String> clusteringKey,
-                          Map<String, Map<String, String>> udts) {
+                          Map<String, Map<String, String>> udts,
+                          String clusteringOrderColumn,
+                          boolean clusteringOrderAscending) {
 
         this.keyspace = keyspace;
         this.table = table;
@@ -85,6 +89,9 @@ public class CassandraUtils {
         this.partitionKey = partitionKey;
         this.clusteringKey = clusteringKey;
         this.udts = udts;
+        this.clusteringOrderColumn = clusteringOrderColumn;
+        this.clusteringOrderAscending = clusteringOrderAscending;
+
         qualifiedTable = keyspace + "." + table;
 
         if (indexColumn != null && !columns.containsKey(indexColumn)) {
@@ -202,6 +209,13 @@ public class CassandraUtils {
             sb.append(", ").append(s);
         }
         sb.append("))");
+        if (clusteringOrderColumn != null) {
+            sb.append(" WITH CLUSTERING ORDER BY(");
+            sb.append(clusteringOrderColumn);
+            sb.append(" ");
+            sb.append(this.clusteringOrderAscending ? "ASC" : "DESC");
+            sb.append(")");
+        }
         execute(sb);
         return this;
     }
