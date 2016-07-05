@@ -1,6 +1,6 @@
- # Changelog
+# Changelog
 
-## 3.7.1 (Upcoming)
+## 3.7.1 (July 05, 2016)
 
 Merged from 3.0.7:
 * Fix parsing of data with CQL "date" type (#158)
