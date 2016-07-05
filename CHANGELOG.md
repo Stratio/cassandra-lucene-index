@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.2.6.2 (Upcoming)
+## 2.2.6.2 (5 July 2016)
 
 * Fix parsing of data with CQL "date" type (#158)
 * Fix handling of immense term insertion mapping error
