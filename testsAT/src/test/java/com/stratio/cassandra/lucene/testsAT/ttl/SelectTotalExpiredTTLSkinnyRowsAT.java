@@ -15,6 +15,7 @@
  */
 package com.stratio.cassandra.lucene.testsAT.ttl;
 
+import com.stratio.cassandra.lucene.testsAT.BaseAT;
 import com.stratio.cassandra.lucene.testsAT.util.CassandraUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -29,7 +30,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */
-public class SelectTotalExpiredTTLSkinnyRowsAT {
+public class SelectTotalExpiredTTLSkinnyRowsAT extends BaseAT {
     private static CassandraUtils utils;
 
     @BeforeClass
