@@ -15,7 +15,7 @@
  */
 package com.stratio.cassandra.lucene;
 
-import com.stratio.cassandra.lucene.column.Columns;
+import com.stratio.cassandra.lucene.core.column.Columns;
 import com.stratio.cassandra.lucene.index.DocumentIterator;
 import com.stratio.cassandra.lucene.key.PartitionMapper;
 import org.apache.cassandra.db.*;
@@ -74,10 +74,7 @@ class IndexServiceSkinny extends IndexService {
     /** {@inheritDoc} */
     @Override
     public Columns columns(DecoratedKey key, Row row) {
-        Columns columns = new Columns();
-        partitionMapper.addColumns(columns, key);
-        columnsMapper.addColumns(columns, row);
-        return columns;
+        return Columns.build().add(partitionMapper.columns(key)).add(columnsMapper.columns(row));
     }
 
     /** {@inheritDoc} */

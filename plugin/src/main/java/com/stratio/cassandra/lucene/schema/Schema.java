@@ -17,8 +17,8 @@ package com.stratio.cassandra.lucene.schema;
 
 import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.IndexException;
-import com.stratio.cassandra.lucene.column.Column;
-import com.stratio.cassandra.lucene.column.Columns;
+import com.stratio.cassandra.lucene.core.column.Column;
+import com.stratio.cassandra.lucene.core.column.Columns;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
 import com.stratio.cassandra.lucene.search.Search;
@@ -65,7 +65,7 @@ public class Schema implements Closeable {
         mappedCells = mappers.values()
                              .stream()
                              .flatMap(x -> x.mappedColumns.stream())
-                             .map(x -> x.contains(Column.UDT_SEPARATOR) ? x.split(Column.UDT_PATTERN)[0] : x)
+                             .map(x -> x.contains(Column.UDT_SEPARATOR()) ? x.split(Column.UDT_PATTERN())[0] : x)
                              .collect(Collectors.toSet());
     }
 
@@ -104,7 +104,7 @@ public class Schema implements Closeable {
      * @return the mapper, or {@code null} if not found.
      */
     public Mapper getMapper(String field) {
-        String mapperName = Column.getMapperName(field);
+        String mapperName = Column.parseMapperName(field);
         return mappers.get(mapperName);
     }
 

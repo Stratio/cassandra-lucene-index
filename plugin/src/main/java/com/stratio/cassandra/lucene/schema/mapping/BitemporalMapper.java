@@ -17,8 +17,8 @@ package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.IndexException;
-import com.stratio.cassandra.lucene.column.Column;
-import com.stratio.cassandra.lucene.column.Columns;
+import com.stratio.cassandra.lucene.core.column.Column;
+import com.stratio.cassandra.lucene.core.column.Columns;
 import com.stratio.cassandra.lucene.util.DateParser;
 import org.apache.cassandra.db.marshal.*;
 import org.apache.commons.lang3.StringUtils;
@@ -183,11 +183,11 @@ public class BitemporalMapper extends Mapper {
      * @return a bitemporal date time
      */
     BitemporalDateTime readBitemporalDate(Columns columns, String fieldName) {
-        Column<?> column = columns.getByFullName(fieldName).getFirst();
+        Column<?> column = columns.getByFullName(fieldName).head();
         if (column == null) {
             return null;
         }
-        return parseBitemporalDate(column.getValue());
+        return parseBitemporalDate(column.value().getOrElse(null));
     }
 
     private BitemporalDateTime checkIfNow(Long in) {
@@ -209,11 +209,6 @@ public class BitemporalMapper extends Mapper {
      */
     public BitemporalDateTime parseBitemporalDate(Object value) {
         Date date = parser.parse(value);
-        return date == null ? null : checkIfNow(date.getTime());
-    }
-
-    private <T> BitemporalDateTime parseBitemporalDate(Column<T> column) {
-        Date date = parser.parse(column);
         return date == null ? null : checkIfNow(date.getTime());
     }
 

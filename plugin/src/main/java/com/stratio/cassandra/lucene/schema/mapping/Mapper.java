@@ -17,8 +17,8 @@ package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.IndexException;
-import com.stratio.cassandra.lucene.column.Column;
-import com.stratio.cassandra.lucene.column.Columns;
+import com.stratio.cassandra.lucene.core.column.Column;
+import com.stratio.cassandra.lucene.core.column.Columns;
 import com.stratio.cassandra.lucene.schema.analysis.StandardAnalyzers;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
@@ -212,7 +212,7 @@ public abstract class Mapper {
      * @param column the name of the tuple column to be validated
      */
     private void validateTuple(CFMetaData metadata, String column) {
-        String[] names = column.split(Column.UDT_PATTERN);
+        String[] names = column.split(Column.UDT_PATTERN());
         int numMatches = names.length;
 
         ByteBuffer parentColName = UTF8Type.instance.decompose(names[0]);
@@ -227,7 +227,7 @@ public abstract class Mapper {
         AbstractType<?> actualType = parentCD.type;
         String columnIterator = names[0];
         for (int i = 1; i < names.length; i++) {
-            columnIterator += Column.UDT_SEPARATOR + names[i];
+            columnIterator += Column.UDT_SEPARATOR() + names[i];
             actualType = findChildType(actualType, names[i]);
             if (actualType == null) {
                 throw new IndexException("No column definition '{}' for mapper '{}'", columnIterator, field);

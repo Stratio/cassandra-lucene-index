@@ -17,7 +17,7 @@ package com.stratio.cassandra.lucene.schema;
 
 import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.IndexException;
-import com.stratio.cassandra.lucene.column.Column;
+import com.stratio.cassandra.lucene.core.column.Column;
 import com.stratio.cassandra.lucene.index.TokenLengthAnalyzer;
 import com.stratio.cassandra.lucene.schema.analysis.ClasspathAnalyzerBuilder;
 import com.stratio.cassandra.lucene.schema.analysis.StandardAnalyzers;
@@ -107,7 +107,7 @@ public class SchemaAnalyzer extends DelegatingAnalyzerWrapper {
         if (StringUtils.isBlank(fieldName)) {
             throw new IllegalArgumentException("Not empty analyzer name required");
         }
-        String name = Column.getMapperName(fieldName);
+        String name = Column.parseMapperName(fieldName);
         TokenLengthAnalyzer analyzer = fieldAnalyzers.get(name);
         if (analyzer != null) {
             return analyzer;

@@ -17,8 +17,8 @@ package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.IndexException;
-import com.stratio.cassandra.lucene.column.Column;
-import com.stratio.cassandra.lucene.column.Columns;
+import com.stratio.cassandra.lucene.core.column.Column;
+import com.stratio.cassandra.lucene.core.column.Columns;
 import com.stratio.cassandra.lucene.util.DateParser;
 import org.apache.cassandra.db.marshal.*;
 import org.apache.commons.lang3.StringUtils;
@@ -149,11 +149,11 @@ public class DateRangeMapper extends Mapper {
      * @return the start date
      */
     Date readFrom(Columns columns) {
-        Column<?> column = columns.getByFullName(from).getFirst();
+        Column<?> column = columns.getByFullName(from).head();
         if (column == null) {
             return null;
         }
-        Date fromDate = parser.parse(column.getValue());
+        Date fromDate = parser.parse(column.value().getOrElse(null));
         if (to == null) {
             throw new IndexException("From date required");
         }
@@ -167,11 +167,11 @@ public class DateRangeMapper extends Mapper {
      * @return the end date
      */
     Date readTo(Columns columns) {
-        Column<?> column = columns.getByFullName(to).getFirst();
+        Column<?> column = columns.getByFullName(to).head();
         if (column == null) {
             return null;
         }
-        Date toDate = parser.parse(column.getValue());
+        Date toDate = parser.parse(column.value().getOrElse(null));
         if (toDate == null) {
             throw new IndexException("To date required");
         }

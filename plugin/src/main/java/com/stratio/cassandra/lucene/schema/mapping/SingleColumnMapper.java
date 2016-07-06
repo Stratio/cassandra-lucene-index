@@ -17,8 +17,8 @@ package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.IndexException;
-import com.stratio.cassandra.lucene.column.Column;
-import com.stratio.cassandra.lucene.column.Columns;
+import com.stratio.cassandra.lucene.core.column.Column;
+import com.stratio.cassandra.lucene.core.column.Columns;
 import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.document.Document;
@@ -83,9 +83,9 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
         columns.getByMapperName(column).forEach(c -> addFields(document, c));
     }
 
-    private <K> void addFields(Document document, Column<K> c) {
-        String name = column.equals(field) ? c.getFullName() : c.getFieldName(field);
-        K value = c.getValue();
+    private <K> void addFields(Document document, Column<?> c) {
+        String name = column.equals(field) ? c.fullName() : c.fieldName(field);
+        K value = c.value().getOrElse(null);
         if (value != null) {
             T base = base(c);
             addIndexedFields(document, name, base);
@@ -130,13 +130,13 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
      * @return the {@link Column} index value resulting from the mapping of the specified object
      */
     public final <K> T base(Column<K> column) {
-        return column == null ? null : column.getValue() == null ? null : doBase(column);
+        return column == null ? null : column.value().getOrElse(null) == null ? null : doBase(column);
     }
 
     protected abstract T doBase(@NotNull String field, @NotNull Object value);
 
     protected final <K> T doBase(Column<K> column) {
-        return doBase(column.getFieldName(field), column.getValue());
+        return doBase(column.fieldName(field), column.value().getOrElse(null));
     }
 
     /** {@inheritDoc} */

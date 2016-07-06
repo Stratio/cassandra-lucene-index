@@ -15,8 +15,8 @@
  */
 package com.stratio.cassandra.lucene;
 
-import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.column.ColumnsMapper;
+import com.stratio.cassandra.lucene.core.column.Columns;
 import com.stratio.cassandra.lucene.index.DocumentIterator;
 import com.stratio.cassandra.lucene.index.FSIndex;
 import com.stratio.cassandra.lucene.index.RAMIndex;
@@ -54,6 +54,7 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.SortField;
 import org.slf4j.Logger;
+import com.stratio.cassandra.lucene.core.column.*;
 import org.slf4j.LoggerFactory;
 
 import javax.management.JMException;

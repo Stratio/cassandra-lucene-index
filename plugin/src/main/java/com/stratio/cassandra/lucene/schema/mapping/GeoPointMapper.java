@@ -18,8 +18,8 @@ package com.stratio.cassandra.lucene.schema.mapping;
 import com.google.common.base.MoreObjects;
 import com.spatial4j.core.shape.Point;
 import com.stratio.cassandra.lucene.IndexException;
-import com.stratio.cassandra.lucene.column.Column;
-import com.stratio.cassandra.lucene.column.Columns;
+import com.stratio.cassandra.lucene.core.column.Column;
+import com.stratio.cassandra.lucene.core.column.Columns;
 import com.stratio.cassandra.lucene.util.GeospatialUtils;
 import org.apache.cassandra.db.marshal.*;
 import org.apache.commons.lang3.StringUtils;
@@ -32,6 +32,7 @@ import org.apache.lucene.spatial.bbox.BBoxStrategy;
 import org.apache.lucene.spatial.prefix.RecursivePrefixTreeStrategy;
 import org.apache.lucene.spatial.prefix.tree.GeohashPrefixTree;
 import org.apache.lucene.spatial.prefix.tree.SpatialPrefixTree;
+import scala.Option;
 
 import java.util.Arrays;
 
@@ -140,8 +141,8 @@ public class GeoPointMapper extends Mapper {
      * @return the validated latitude
      */
     Double readLatitude(Columns columns) {
-        Column<?> column = columns.getByFullName(latitude).getFirst();
-        return column == null ? null : readLatitude(column.getValue());
+        Column<?> column = columns.getByFullName(latitude).head();
+        return column == null ? null : readLatitude(column.value());
     }
 
     /**
@@ -152,8 +153,8 @@ public class GeoPointMapper extends Mapper {
      * @return the validated longitude
      */
     Double readLongitude(Columns columns) {
-        Column<?> column = columns.getByFullName(longitude).getFirst();
-        return column == null ? null : readLongitude(column.getValue());
+        Column<?> column = columns.getByFullName(longitude).head();
+        return column == null ? null : readLongitude(column.value());
     }
 
     /**
@@ -161,14 +162,16 @@ public class GeoPointMapper extends Mapper {
      *
      * A valid latitude must in the range [-90, 90].
      *
-     * @param o the {@link Object} containing the latitude
+     * @param option the {@link Object} containing the latitude
      * @return the latitude
      */
-    private Double readLatitude(Object o) {
+    private static <T> Double readLatitude(Option<T> option) {
         Double value;
-        if (o == null) {
+        if (option == null || option.isEmpty()) {
             return null;
-        } else if (o instanceof Number) {
+        }
+        Object o = option.get();
+        if (o instanceof Number) {
             value = ((Number) o).doubleValue();
         } else {
             try {
@@ -185,14 +188,16 @@ public class GeoPointMapper extends Mapper {
      *
      * A valid longitude must in the range [-180, 180].
      *
-     * @param o the {@link Object} containing the latitude
+     * @param option the {@link Object} containing the latitude
      * @return the longitude
      */
-    private static Double readLongitude(Object o) {
+    private static <T> Double readLongitude(Option<T> option) {
         Double value;
-        if (o == null) {
+        if (option == null || option.isEmpty()) {
             return null;
-        } else if (o instanceof Number) {
+        }
+        Object o = option.get();
+        if (o instanceof Number) {
             value = ((Number) o).doubleValue();
         } else {
             try {

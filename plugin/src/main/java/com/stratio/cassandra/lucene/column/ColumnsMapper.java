@@ -31,6 +31,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
+import com.stratio.cassandra.lucene.core.column.*;
 
 import static org.apache.cassandra.transport.Server.CURRENT_VERSION;
 
@@ -42,30 +43,35 @@ import static org.apache.cassandra.transport.Server.CURRENT_VERSION;
 public class ColumnsMapper {
 
     /**
-     * Adds to the specified {@link Column} to the {@link Column}s contained in the specified {@link Row}.
+     * Returns the {@link Column}s contained in the specified {@link Row}.
      *
-     * @param columns the {@link Columns} in which the {@link Column}s are going to be added
-     * @param row aA {@link Row}
+     * @param row a {@link Row}
+     * @return the columns
      */
-    public void addColumns(Columns columns, Row row) {
+    public Columns columns(Row row) {
+        Columns columns = Columns.build();
         for (ColumnDefinition columnDefinition : row.columns()) {
             if (columnDefinition.isComplex()) {
-                addColumns(columns, row.getComplexColumnData(columnDefinition));
+                columns = columns.add(columns(row.getComplexColumnData(columnDefinition)));
             } else {
-                addColumns(columns, row.getCell(columnDefinition));
+                columns = columns.add(columns(row.getCell(columnDefinition)));
             }
         }
+        return columns;
     }
 
-    private void addColumns(Columns columns, ComplexColumnData complexColumnData) {
+    private Columns columns(ComplexColumnData complexColumnData) {
+        Columns columns = Columns.build();
         if (complexColumnData != null) {
             for (Cell cell : complexColumnData) {
-                addColumns(columns, cell);
+                columns = columns.add(columns(cell));
             }
         }
+        return columns;
     }
 
-    private void addColumns(Columns columns, Cell cell) {
+    private Columns columns(Cell cell) {
+        Columns columns = Columns.build();
         if (cell != null) {
             boolean isTombstone = cell.isTombstone();
             ColumnDefinition columnDefinition = cell.column();
@@ -79,12 +85,12 @@ public class ColumnsMapper {
                     case SET: {
                         type = collectionType.nameComparator();
                         value = cell.path().get(0);
-                        addColumns(isTombstone, adder, type, value);
+                        columns = columns.add(columns(isTombstone, adder, type, value));
                         break;
                     }
                     case LIST: {
                         type = collectionType.valueComparator();
-                        addColumns(isTombstone, adder, type, value);
+                        columns = columns.add(columns(isTombstone, adder, type, value));
                         break;
                     }
                     case MAP: {
@@ -92,7 +98,7 @@ public class ColumnsMapper {
                         ByteBuffer keyValue = cell.path().get(0);
                         AbstractType<?> keyType = collectionType.nameComparator();
                         String nameSuffix = keyType.compose(keyValue).toString();
-                        addColumns(isTombstone, adder.withMapName(nameSuffix), type, value);
+                        columns = columns.add(columns(isTombstone, adder.withMapName(nameSuffix), type, value));
                         break;
                     }
                     default: {
@@ -100,15 +106,17 @@ public class ColumnsMapper {
                     }
                 }
             } else {
-                addColumns(isTombstone, adder, type, value);
+                columns = columns.add(columns(isTombstone, adder, type, value));
             }
         }
+        return columns;
     }
 
-    private void addColumns(boolean isTombstone,
+    private Columns columns(boolean isTombstone,
                             ColumnAdder adder,
                             AbstractType type,
                             ByteBuffer value) {
+        Columns columns = Columns.build();
         if (type.isCollection()) {
             value = ByteBufferUtil.clone(value);
             CollectionType<?> collectionType = (CollectionType<?>) type;
@@ -116,12 +124,12 @@ public class ColumnsMapper {
                 case SET: {
                     AbstractType<?> nameType = collectionType.nameComparator();
                     if (isTombstone) {
-                        adder.addNull();
+                        columns = adder.add();
                     } else {
                         int colSize = CollectionSerializer.readCollectionSize(value, CURRENT_VERSION);
                         for (int j = 0; j < colSize; j++) {
                             ByteBuffer itemValue = CollectionSerializer.readValue(value, CURRENT_VERSION);
-                            addColumns(false, adder, nameType, itemValue);
+                            columns = columns.add(columns(false, adder, nameType, itemValue));
                         }
                     }
                     break;
@@ -129,12 +137,12 @@ public class ColumnsMapper {
                 case LIST: {
                     AbstractType<?> valueType = collectionType.valueComparator();
                     if (isTombstone) {
-                        adder.addNull();
+                        columns = adder.add();
                     } else {
                         int colSize = ListSerializer.readCollectionSize(value, CURRENT_VERSION);
                         for (int j = 0; j < colSize; j++) {
                             ByteBuffer itemValue = CollectionSerializer.readValue(value, CURRENT_VERSION);
-                            addColumns(false, adder, valueType, itemValue);
+                            columns = columns.add(columns(false, adder, valueType, itemValue));
                         }
                     }
                     break;
@@ -143,7 +151,7 @@ public class ColumnsMapper {
                     AbstractType<?> keyType = collectionType.nameComparator();
                     AbstractType<?> valueType = collectionType.valueComparator();
                     if (isTombstone) {
-                        adder.addNull();
+                        columns = adder.add();
                     } else {
                         int colSize = MapSerializer.readCollectionSize(value, CURRENT_VERSION);
                         for (int j = 0; j < colSize; j++) {
@@ -151,7 +159,7 @@ public class ColumnsMapper {
                             ByteBuffer mapValue = MapSerializer.readValue(value, CURRENT_VERSION);
                             String itemName = keyType.compose(mapKey).toString();
                             collectionType.nameComparator();
-                            addColumns(false, adder.withMapName(itemName), valueType, mapValue);
+                            columns = columns.add(columns(false, adder.withMapName(itemName), valueType, mapValue));
                         }
                     }
                     break;
@@ -167,9 +175,9 @@ public class ColumnsMapper {
                 String itemName = userType.fieldNameAsString(i);
                 AbstractType<?> itemType = userType.fieldType(i);
                 if (isTombstone) {
-                    adder.withUDTName(itemName).addNull();
+                    columns = adder.withUDTName(itemName).add();
                 } else if (values[i] != null) { // This only occurs in UDT not fully composed
-                    addColumns(false, adder.withUDTName(itemName), itemType, values[i]);
+                    columns = columns.add(columns(false, adder.withUDTName(itemName), itemType, values[i]));
                 }
             }
         } else if (type instanceof TupleType) {
@@ -179,19 +187,24 @@ public class ColumnsMapper {
                 String itemName = i.toString();
                 AbstractType<?> itemType = tupleType.type(i);
                 if (isTombstone) {
-                    adder.withUDTName(itemName).addNull();
+                    columns = adder.withUDTName(itemName).add();
                 } else {
-                    addColumns(false, adder.withUDTName(itemName), itemType, values[i]);
+                    columns = columns.add(columns(false, adder.withUDTName(itemName), itemType, values[i]));
                 }
             }
         } else {
             if (value != null) {
-                adder.add(value(value, type));
+                columns = adder.add(value(value, type));
             }
         }
+        return columns;
     }
 
-    private static Object value(ByteBuffer bb, AbstractType<?> type) {
+    public static <T> Column<?> column(String name, ByteBuffer bb, AbstractType<T> type) {
+        return Column.build(name, value(bb, type));
+    }
+
+    public static Object value(ByteBuffer bb, AbstractType<?> type) {
         if (type instanceof SimpleDateType) {
             Locale locale = Locale.getDefault(Locale.Category.FORMAT);
             Calendar calendar = Calendar.getInstance(TimeZone.getDefault(), locale);
@@ -200,10 +213,6 @@ public class ColumnsMapper {
             return new Date(timestamp);
         }
         return type.compose(bb);
-    }
-
-    public static <T> Column<?> column(String name, ByteBuffer bb, AbstractType<T> type) {
-        return Column.build(name, value(bb, type));
     }
 
 }

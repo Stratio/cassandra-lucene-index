@@ -15,7 +15,7 @@
  */
 package com.stratio.cassandra.lucene.schema.mapping;
 
-import com.stratio.cassandra.lucene.column.Columns;
+import com.stratio.cassandra.lucene.core.column.Columns;
 import org.apache.cassandra.db.marshal.*;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.search.SortField;

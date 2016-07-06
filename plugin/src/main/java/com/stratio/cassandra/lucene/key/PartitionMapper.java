@@ -15,9 +15,8 @@
  */
 package com.stratio.cassandra.lucene.key;
 
-import com.stratio.cassandra.lucene.column.Column;
-import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.column.ColumnsMapper;
+import com.stratio.cassandra.lucene.core.column.*;
 import com.stratio.cassandra.lucene.util.ByteBufferUtils;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
@@ -87,12 +86,13 @@ public final class PartitionMapper {
     }
 
     /**
-     * Adds to the specified {@link Column} to the {@link Column}s contained in the partition key of the specified row.
+     * Returns the {@link Column}s contained in the partition key of the specified row.
      *
-     * @param columns the {@link Columns} in which the {@link Column}s are going to be added
      * @param key the partition key
+     * @return the columns
      */
-    public void addColumns(Columns columns, DecoratedKey key) {
+    public Columns columns(DecoratedKey key) {
+        Columns columns = Columns.build();
         List<ColumnDefinition> columnDefinitions = metadata.partitionKeyColumns();
         ByteBuffer[] components = type instanceof CompositeType
                                   ? ((CompositeType) type).split(key.getKey())
@@ -101,8 +101,9 @@ public final class PartitionMapper {
             String name = columnDefinition.name.toString();
             ByteBuffer value = components[columnDefinition.position()];
             AbstractType<?> valueType = columnDefinition.cellValueType();
-            columns.add(ColumnsMapper.column(name, value, valueType));
+            columns = columns.add(ColumnsMapper.column(name, value, valueType));
         }
+        return columns;
     }
 
     /**
