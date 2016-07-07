@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.2.7.0 (Upcoming)
+## 2.2.7.0 (July 07, 2016)
 
 * Upgrade to Apache Cassandra 2.2.7
 
