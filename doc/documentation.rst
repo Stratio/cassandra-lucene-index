@@ -94,11 +94,11 @@ based implementation of Cassandra secondary indexes, where each node of the clus
 Cassandra indexes are one of the core modules on which `Stratio’s BigData platform <http://www.stratio.com/>`__ is based.
 
 .. image:: /doc/resources/architecture.png
-:width: 100%
+   :width: 100%
    :alt: architecture
-                   :align: center
+   :align: center
 
-                Index `relevance searches <http://en.wikipedia.org/wiki/Relevance_(information_retrieval)>`__ allow you to retrieve the
+                    Index `relevance searches <http://en.wikipedia.org/wiki/Relevance_(information_retrieval)>`__ allow you to retrieve the
 *n* more relevant results satisfying a search. The coordinator node sends the search to each node in the cluster, each node
 returns its *n* best results and then the coordinator combines these partial results and gives you the *n* best of them,
 avoiding full scan. You can also base the sorting in a combination of fields.
@@ -111,18 +111,18 @@ frameworks as `Apache Hadoop <http://hadoop.apache.org/>`__ or, even better, `Ap
 Adding Lucene filters in the jobs input can dramatically reduce the amount of data to be processed, avoiding full scan.
 
 .. image:: /doc/resources/spark_architecture.png
-:width: 100%
+   :width: 100%
    :alt: spark_architecture
-                   :align: center
+   :align: center
 
-                This project is not intended to replace Apache Cassandra denormalized tables, inverted indexes, and/or secondary
-                indexes. It is just a tool to perform some kind of queries which are really hard to be addressed using Apache Cassandra
-                out of the box features, filling the gap between real-time and analytics.
+                    This project is not intended to replace Apache Cassandra denormalized tables, inverted indexes, and/or secondary
+                    indexes. It is just a tool to perform some kind of queries which are really hard to be addressed using Apache Cassandra
+                    out of the box features, filling the gap between real-time and analytics.
 
 .. image:: /doc/resources/oltp_olap.png
-:width: 100%
+   :width: 100%
    :alt: oltp_olap
-                   :align: center
+   :align: center
 
 Features
 ========
@@ -300,7 +300,6 @@ compatibility matrix that states between which versions it is not needed to dele
 +-----------+---------+---------+---------+---------+----------+----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
 | 2.2.6.1   |    --   |    --   |    --   |    --   |    --    |    --    |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   YES   |
 +-----------+---------+---------+---------+---------+----------+----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-
 
 Example
 =======
@@ -1050,9 +1049,9 @@ into your Cassandra installation lib directory.
 **Example 2:** Index only the centroid of the WKT shape contained in the indexed column:
 
 .. image:: /doc/resources/geo_shape_mapper_example_2.png
-:width: 100%
-    :alt: search by shape
-                    :align: center
+   :width: 100%
+   :alt: search by shape
+   :align: center
 
 .. code-block:: sql
 
@@ -1084,9 +1083,9 @@ into your Cassandra installation lib directory.
 **Example 3:** Index a buffer 50 kilometres around the area of a city:
 
 .. image:: /doc/resources/geo_shape_mapper_example_3.png
-:width: 100%
-    :alt: search by shape
-                    :align: center
+   :width: 100%
+   :alt: search by shape
+   :align: center
 
 .. code-block:: sql
 
@@ -1118,9 +1117,9 @@ into your Cassandra installation lib directory.
 **Example 4:** Index a buffer 50 kilometres around the borders of a country:
 
 .. image:: /doc/resources/geo_shape_mapper_example_4.png
-:width: 100%
-    :alt: search by shape
-                    :align: center
+   :width: 100%
+   :alt: search by shape
+   :align: center
 
 .. code-block:: sql
 
@@ -1152,9 +1151,9 @@ into your Cassandra installation lib directory.
 **Example 5:** Index the convex hull of the WKT shape contained in the indexed column:
 
 .. image:: /doc/resources/geo_shape_mapper_example_5.png
-:width: 100%
-    :alt: search by shape
-                        :align: center
+   :width: 100%
+   :alt: search by shape
+   :align: center
 
 .. code-block:: sql
 
@@ -1183,9 +1182,9 @@ into your Cassandra installation lib directory.
 **Example 6:** Index the bounding box of the WKT shape contained in the indexed column:
 
 .. image:: /doc/resources/geo_shape_mapper_example_6.png
-:width: 100%
-    :alt: search by shape
-                    :align: center
+   :width: 100%
+   :alt: search by shape
+   :align: center
 
 .. code-block:: sql
 
@@ -2561,9 +2560,9 @@ where:
 **Example 1:** search for shapes within a polygon:
 
 .. image:: /doc/resources/geo_shape_condition_example_1.png
-:width: 100%
-    :alt: search by shape
-                    :align: center
+   :width: 100%
+   :alt: search by shape
+   :align: center
 
 .. code-block:: sql
 
@@ -2587,9 +2586,9 @@ Using `query builder <#query-builder>`__:
 Florida's coastline:
 
 .. image:: /doc/resources/geo_shape_condition_example_2.png
-:width: 100%
-    :alt: buffer transformation
-                    :align: center
+   :width: 100%
+   :alt: buffer transformation
+   :align: center
 
 .. code-block:: sql
 
@@ -3646,9 +3645,9 @@ approaches depends on the particular use case. Generally, combining Lucene index
 retrieving no more than the 25% of the stored data.
 
 .. image:: /doc/resources/spark_performance.png
-:width: 100%
+   :width: 100%
    :alt: spark_performance
-                   :align: center
+   :align: center
 
 
 JMX Interface
