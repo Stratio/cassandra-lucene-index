@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.1.15.0 (Upcoming)
+## 2.1.15.0 (July 07, 2016)
 
  * Upgrade to Apache Cassandra 2.1.15
 
