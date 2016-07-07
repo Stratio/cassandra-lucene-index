@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.2.7.0 (Upcoming)
+
+* Upgrade to Apache Cassandra 2.2.7
+
 ## 2.2.6.2 (July 05, 2016)
 
 * Fix parsing of data with CQL "date" type (#158)
