@@ -21,7 +21,7 @@ import org.scalatest.junit.JUnitRunner
 /**
   * Tests [[Column]].
   *
-  * @author Andres de la Pena {{{<adelapena@stratio.com>}}}
+  * @author Andres de la Pena `adelapena@stratio.com`
   */
 @RunWith(classOf[JUnitRunner])
 class ColumnTest extends BaseTest {
@@ -32,7 +32,7 @@ class ColumnTest extends BaseTest {
     column.mapperName shouldBe "cell"
     column.fullName shouldBe "cell"
     column.value shouldBe None
-    column.deletionTime shouldBe None
+    column.deletionTime shouldBe Column.NO_DELETION_TIME
   }
 
   test("set all attributes") {
@@ -47,7 +47,7 @@ class ColumnTest extends BaseTest {
     column.mapperName shouldBe "cell.u1.u2"
     column.fullName shouldBe "cell.u1.u2$m1$m2"
     column.value shouldBe Some(5)
-    column.deletionTime shouldBe Some(10)
+    column.deletionTime shouldBe 10
   }
 
   test("isDeleted because of value") {
@@ -57,7 +57,7 @@ class ColumnTest extends BaseTest {
     column.isDeleted(Int.MaxValue) shouldBe true
     column.withValue(7).isDeleted(0) shouldBe false
     column.withValue(7).isDeleted(Int.MinValue) shouldBe false
-    column.withValue(7).isDeleted(Int.MaxValue) shouldBe false
+    column.withValue(7).isDeleted(Int.MaxValue) shouldBe true
   }
 
   test("isDeleted because of deletion time") {
@@ -78,10 +78,10 @@ class ColumnTest extends BaseTest {
   }
 
   test("isTuple") {
-    Column.isTuple("c") shouldBe false
-    Column.isTuple("c.u") shouldBe true
-    Column.isTuple("c$m") shouldBe false
-    Column.isTuple("c.u$m") shouldBe true
+    Column.isMultiColumn("c") shouldBe false
+    Column.isMultiColumn("c.u") shouldBe true
+    Column.isMultiColumn("c$m") shouldBe false
+    Column.isMultiColumn("c.u$m") shouldBe true
   }
 
   test("parseMapperName") {
@@ -102,7 +102,7 @@ class ColumnTest extends BaseTest {
 
   test("toString with default attributes") {
     Column("cell").toString shouldBe
-      "Column{cell=cell, name=cell, value=null, deletionTime=null}"
+      s"Column{cell=cell, name=cell, value=null, deletionTime=${Column.NO_DELETION_TIME}}"
   }
 
   test("toString with all attributes") {

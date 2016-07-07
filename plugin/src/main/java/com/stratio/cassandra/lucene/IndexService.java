@@ -15,7 +15,6 @@
  */
 package com.stratio.cassandra.lucene;
 
-import com.stratio.cassandra.lucene.column.ColumnsMapper;
 import com.stratio.cassandra.lucene.core.column.Columns;
 import com.stratio.cassandra.lucene.index.DocumentIterator;
 import com.stratio.cassandra.lucene.index.FSIndex;
@@ -54,7 +53,6 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.SortField;
 import org.slf4j.Logger;
-import com.stratio.cassandra.lucene.core.column.*;
 import org.slf4j.LoggerFactory;
 
 import javax.management.JMException;
@@ -77,7 +75,6 @@ abstract class IndexService implements IndexServiceMBean {
     final String qualifiedName;
     final TokenMapper tokenMapper;
     final PartitionMapper partitionMapper;
-    final ColumnsMapper columnsMapper;
     protected final ColumnFamilyStore table;
     protected final CFMetaData metadata;
     protected final Schema schema;
@@ -93,7 +90,7 @@ abstract class IndexService implements IndexServiceMBean {
     /**
      * Constructor using the specified indexed table and index metadata.
      *
-     * @param indexedTable the indexed table
+     * @param indexedTable  the indexed table
      * @param indexMetadata the index metadata
      */
     IndexService(ColumnFamilyStore indexedTable, IndexMetadata indexMetadata) {
@@ -105,9 +102,9 @@ abstract class IndexService implements IndexServiceMBean {
         columnDefinition = columnDefinition(metadata, column);
         qualifiedName = String.format("%s.%s.%s", metadata.ksName, metadata.cfName, indexMetadata.name);
         mbeanName = String.format("com.stratio.cassandra.lucene:type=Lucene,keyspace=%s,table=%s,index=%s",
-                                  metadata.ksName,
-                                  metadata.cfName,
-                                  name);
+                metadata.ksName,
+                metadata.cfName,
+                name);
 
         // Parse options
         IndexOptions options = new IndexOptions(metadata, indexMetadata);
@@ -116,21 +113,20 @@ abstract class IndexService implements IndexServiceMBean {
         schema = options.schema;
         tokenMapper = new TokenMapper();
         partitionMapper = new PartitionMapper(metadata);
-        columnsMapper = new ColumnsMapper();
         mapsMultiCells = metadata.allColumns()
-                                 .stream()
-                                 .filter(x -> schema.getMappedCells().contains(x.name.toString()))
-                                 .anyMatch(x -> x.type.isMultiCell());
+                .stream()
+                .filter(x -> schema.getMappedCells().contains(x.name.toString()))
+                .anyMatch(x -> x.type.isMultiCell());
 
         // Setup FS index and write queue
         queue = new TaskQueue(options.indexingThreads, options.indexingQueuesSize);
         lucene = new FSIndex(name,
-                             options.path,
-                             options.schema.getAnalyzer(),
-                             options.refreshSeconds,
-                             options.ramBufferMB,
-                             options.maxMergeMB,
-                             options.maxCachedMB);
+                options.path,
+                options.schema.getAnalyzer(),
+                options.refreshSeconds,
+                options.ramBufferMB,
+                options.maxMergeMB,
+                options.maxCachedMB);
     }
 
     private static String column(IndexMetadata indexMetadata) {
@@ -159,9 +155,9 @@ abstract class IndexService implements IndexServiceMBean {
         } catch (Exception e) {
             logger.error(String.format(
                     "Initialization of Lucene FS directory for index '%s' has failed, " +
-                    "this could be caused by on-disk data corruption, " +
-                    "or by an upgrade to an incompatible version, " +
-                    "try to drop the failing index and create it again:",
+                            "this could be caused by on-disk data corruption, " +
+                            "or by an upgrade to an incompatible version, " +
+                            "try to drop the failing index and create it again:",
                     name), e);
         }
 
@@ -177,14 +173,14 @@ abstract class IndexService implements IndexServiceMBean {
     /**
      * Returns a new index service for the specified indexed table and index metadata.
      *
-     * @param table the indexed table
+     * @param table         the indexed table
      * @param indexMetadata the index metadata
      * @return the index service
      */
     static IndexService build(ColumnFamilyStore table, IndexMetadata indexMetadata) {
         return table.getComparator().subtypes().isEmpty()
-               ? new IndexServiceSkinny(table, indexMetadata)
-               : new IndexServiceWide(table, indexMetadata);
+                ? new IndexServiceSkinny(table, indexMetadata)
+                : new IndexServiceWide(table, indexMetadata);
     }
 
     /**
@@ -212,14 +208,14 @@ abstract class IndexService implements IndexServiceMBean {
      * index
      *
      * @param columnDef the expression column definition
-     * @param operator the expression operator
+     * @param operator  the expression operator
      * @return {@code true} if the expression is targeted to this index, {@code false} otherwise
      */
     boolean supportsExpression(ColumnDefinition columnDef, Operator operator) {
         return column != null &&
-               operator == Operator.EQ &&
-               column.equals(columnDef.name.toString()) &&
-               columnDef.cellValueType() instanceof UTF8Type;
+                operator == Operator.EQ &&
+                column.equals(columnDef.name.toString()) &&
+                columnDef.cellValueType() instanceof UTF8Type;
     }
 
     /**
@@ -247,8 +243,8 @@ abstract class IndexService implements IndexServiceMBean {
      */
     Search validate(RowFilter.Expression expression) {
         ByteBuffer value = expression instanceof RowFilter.CustomExpression
-                           ? ((RowFilter.CustomExpression) expression).getValue()
-                           : expression.getIndexValue();
+                ? ((RowFilter.CustomExpression) expression).getValue()
+                : expression.getIndexValue();
         String json = UTF8Type.instance.compose(value);
         Search search = SearchBuilder.fromJson(json).build();
         search.validate(schema);
@@ -280,11 +276,11 @@ abstract class IndexService implements IndexServiceMBean {
 
     /**
      * Returns the Lucene {@link Document} representing the specified {@link Row}.
-     *
+     * <p>
      * Only the fields required by the post processing phase of the specified {@link Search} will be added.
      *
-     * @param key the partition key
-     * @param row the {@link Row}
+     * @param key    the partition key
+     * @param row    the {@link Row}
      * @param search a search
      * @return a document
      */
@@ -339,7 +335,7 @@ abstract class IndexService implements IndexServiceMBean {
             return true;
         } else {
             Columns columns = columns(key, row);
-            return schema.getMappedCells().stream().anyMatch(x -> columns.getByCellName(x).isEmpty());
+            return schema.getMappedCells().stream().anyMatch(x -> columns.withCellName(x).isEmpty());
         }
     }
 
@@ -370,9 +366,9 @@ abstract class IndexService implements IndexServiceMBean {
     /**
      * Creates an new {@code IndexWriter} object for updates to a given partition.
      *
-     * @param key key of the partition being modified
-     * @param nowInSec current time of the update operation
-     * @param opGroup operation group spanning the update operation
+     * @param key             key of the partition being modified
+     * @param nowInSec        current time of the update operation
+     * @param opGroup         operation group spanning the update operation
      * @param transactionType what kind of update is being performed on the base data
      * @return the newly created {@code IndexWriter}
      */
@@ -381,12 +377,16 @@ abstract class IndexService implements IndexServiceMBean {
                                      OpOrder.Group opGroup,
                                      IndexTransaction.Type transactionType);
 
-    /** Deletes all the index contents. */
+    /**
+     * Deletes all the index contents.
+     */
     final void truncate() {
         queue.submitSynchronous(lucene::truncate);
     }
 
-    /** Closes and removes all the index files. */
+    /**
+     * Closes and removes all the index files.
+     */
     final void delete() {
         try {
             queue.shutdown();
@@ -401,14 +401,14 @@ abstract class IndexService implements IndexServiceMBean {
     /**
      * Upserts the specified {@link Row}.
      *
-     * @param key the partition key
-     * @param row the row to be upserted
+     * @param key      the partition key
+     * @param row      the row to be upserted
      * @param nowInSec now in seconds
      */
     void upsert(DecoratedKey key, Row row, int nowInSec) {
         queue.submitAsynchronous(key, () -> {
             Term term = term(key, row);
-            Columns columns = columns(key, row).cleanDeleted(nowInSec);
+            Columns columns = columns(key, row).withoutDeleted(nowInSec);
             Document document = new Document();
             schema.addFields(document, columns);
             if (document.getFields().isEmpty()) {
@@ -535,7 +535,7 @@ abstract class IndexService implements IndexServiceMBean {
      * Returns a Lucene {@link Query} to get the {@link Document}s satisfying the specified {@link DecoratedKey} and
      * {@link ClusteringIndexFilter}.
      *
-     * @param key the partition key
+     * @param key    the partition key
      * @param filter the clustering key range
      * @return a query to get the {@link Document}s satisfying the key range
      */
@@ -553,7 +553,7 @@ abstract class IndexService implements IndexServiceMBean {
      * Returns a Lucene {@link Query} to retrieve all the rows in the specified partition range.
      *
      * @param start the lower accepted partition position, {@code null} means no lower limit
-     * @param stop the upper accepted partition position, {@code null} means no upper limit
+     * @param stop  the upper accepted partition position, {@code null} means no upper limit
      * @return the query to retrieve all the rows in the specified range
      */
     Optional<Query> query(PartitionPosition start, PartitionPosition stop) {
@@ -575,7 +575,7 @@ abstract class IndexService implements IndexServiceMBean {
     /**
      * Returns a Lucene {@link Query} to retrieve the row identified by the specified paging state.
      *
-     * @param key the partition key
+     * @param key        the partition key
      * @param clustering the clustering key
      * @return the query to retrieve the row
      */
@@ -603,10 +603,10 @@ abstract class IndexService implements IndexServiceMBean {
     /**
      * Retrieves from the local storage the {@link Row}s in the specified partition slice.
      *
-     * @param key the partition key
+     * @param key         the partition key
      * @param clusterings the clustering keys
-     * @param nowInSec max allowed time in seconds
-     * @param opGroup operation group spanning the calling operation
+     * @param nowInSec    max allowed time in seconds
+     * @param opGroup     operation group spanning the calling operation
      * @return a {@link Row} iterator
      */
     UnfilteredRowIterator read(DecoratedKey key,
@@ -616,15 +616,15 @@ abstract class IndexService implements IndexServiceMBean {
         ClusteringIndexNamesFilter filter = new ClusteringIndexNamesFilter(clusterings, false);
         ColumnFilter columnFilter = ColumnFilter.all(metadata);
         return SinglePartitionReadCommand.create(metadata, nowInSec, key, columnFilter, filter)
-                                         .queryMemtableAndDisk(table, opGroup);
+                .queryMemtableAndDisk(table, opGroup);
     }
 
     /**
      * Retrieves from the local storage all the {@link Row}s in the specified partition.
      *
-     * @param key the partition key
+     * @param key      the partition key
      * @param nowInSec max allowed time in seconds
-     * @param opGroup operation group spanning the calling operation
+     * @param opGroup  operation group spanning the calling operation
      * @return a {@link Row} iterator
      */
     UnfilteredRowIterator read(DecoratedKey key, int nowInSec, OpOrder.Group opGroup) {
@@ -634,8 +634,8 @@ abstract class IndexService implements IndexServiceMBean {
     /**
      * Reads from the local SSTables the rows identified by the specified search.
      *
-     * @param documents the Lucene documents
-     * @param command the Cassandra command
+     * @param documents  the Lucene documents
+     * @param command    the Cassandra command
      * @param orderGroup the Cassandra read order group
      * @return the local {@link Row}s satisfying the search
      */
@@ -646,7 +646,7 @@ abstract class IndexService implements IndexServiceMBean {
      * all the k best node-local results.
      *
      * @param partitions the node results iterator
-     * @param group the read command group
+     * @param group      the read command group
      * @return the k globally best results
      */
     PartitionIterator postProcess(PartitionIterator partitions, SinglePartitionReadCommand.Group group) {
@@ -667,7 +667,7 @@ abstract class IndexService implements IndexServiceMBean {
      * all the k best node-local results.
      *
      * @param partitions the node results iterator
-     * @param command the read command
+     * @param command    the read command
      * @return the k globally best results
      */
     PartitionIterator postProcess(PartitionIterator partitions, ReadCommand command) {
@@ -754,12 +754,12 @@ abstract class IndexService implements IndexServiceMBean {
 
         } finally {
             Tracer.trace("Lucene post-process {} collected rows to {} result rows",
-                         collectedRows.size(),
-                         processedRows.size());
+                    collectedRows.size(),
+                    processedRows.size());
             logger.debug("Post-processed {} collected rows to {} result rows in {}",
-                         collectedRows.size(),
-                         processedRows.size(),
-                         time.stop());
+                    collectedRows.size(),
+                    processedRows.size(),
+                    time.stop());
         }
         return new SimplePartitionIterator(processedRows);
     }
@@ -791,37 +791,49 @@ abstract class IndexService implements IndexServiceMBean {
         }
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public final void commit() {
         queue.submitSynchronous(lucene::commit);
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int getNumDocs() {
         return lucene.getNumDocs();
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int getNumDeletedDocs() {
         return lucene.getNumDeletedDocs();
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void forceMerge(int maxNumSegments, boolean doWait) {
         queue.submitSynchronous(() -> lucene.forceMerge(maxNumSegments, doWait));
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void forceMergeDeletes(boolean doWait) {
         queue.submitSynchronous(() -> lucene.forceMergeDeletes(doWait));
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void refresh() {
         queue.submitSynchronous(lucene::refresh);

@@ -15,7 +15,6 @@
  */
 package com.stratio.cassandra.lucene.key;
 
-import com.stratio.cassandra.lucene.column.ColumnsMapper;
 import com.stratio.cassandra.lucene.core.column.*;
 import com.stratio.cassandra.lucene.util.ByteBufferUtils;
 import org.apache.cassandra.config.CFMetaData;
@@ -92,7 +91,7 @@ public final class PartitionMapper {
      * @return the columns
      */
     public Columns columns(DecoratedKey key) {
-        Columns columns = Columns.build();
+        Columns columns = new Columns();
         List<ColumnDefinition> columnDefinitions = metadata.partitionKeyColumns();
         ByteBuffer[] components = type instanceof CompositeType
                                   ? ((CompositeType) type).split(key.getKey())
@@ -101,7 +100,7 @@ public final class PartitionMapper {
             String name = columnDefinition.name.toString();
             ByteBuffer value = components[columnDefinition.position()];
             AbstractType<?> valueType = columnDefinition.cellValueType();
-            columns = columns.add(ColumnsMapper.column(name, value, valueType));
+            columns = columns.add(Column.apply(name).withValue(ColumnsMapper.compose(value, valueType)));
         }
         return columns;
     }

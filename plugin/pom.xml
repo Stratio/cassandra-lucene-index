@@ -35,7 +35,9 @@
     <description>Cassandra Lucene Index plugin</description>
 
     <properties>
-        <scala.version>2.11.8</scala.version>
+        <scala.version>2.10.4</scala.version>
+        <scala.binary.version>2.10</scala.binary.version>
+        <scalatest.version>2.2.5</scalatest.version>
         <cassandra.version>3.0.7</cassandra.version>
         <lucene.version>5.5.1</lucene.version>
         <jts.version>1.14.0</jts.version>
@@ -47,6 +49,12 @@
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
             <version>${scala.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.scalatest</groupId>
+            <artifactId>scalatest_${scala.binary.version}</artifactId>
+            <version>${scalatest.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.cassandra</groupId>
@@ -101,13 +109,14 @@
                             <goal>compile</goal>
                         </goals>
                     </execution>
-                    <!--<execution>-->
-                    <!--<id>scala-test-compile</id>-->
-                    <!--<phase>process-test-resources</phase>-->
-                    <!--<goals>-->
-                    <!--<goal>testCompile</goal>-->
-                    <!--</goals>-->
-                    <!--</execution>-->
+                    <execution>
+                        <id>scala-test-compile</id>
+                        <phase>process-test-resources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                            <goal>testCompile</goal>
+                        </goals>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>

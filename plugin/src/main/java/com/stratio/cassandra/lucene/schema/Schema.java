@@ -65,7 +65,7 @@ public class Schema implements Closeable {
         mappedCells = mappers.values()
                              .stream()
                              .flatMap(x -> x.mappedColumns.stream())
-                             .map(x -> x.contains(Column.UDT_SEPARATOR()) ? x.split(Column.UDT_PATTERN())[0] : x)
+                             .map(Column::parseCellName)
                              .collect(Collectors.toSet());
     }
 

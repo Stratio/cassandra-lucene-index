@@ -80,7 +80,7 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
     /** {@inheritDoc} */
     @Override
     public void addFields(Document document, Columns columns) {
-        columns.getByMapperName(column).forEach(c -> addFields(document, c));
+        columns.withMapperName(column).forEach(c -> addFields(document, c));
     }
 
     private <K> void addFields(Document document, Column<?> c) {

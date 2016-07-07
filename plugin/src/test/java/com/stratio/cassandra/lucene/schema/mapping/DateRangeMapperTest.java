@@ -106,9 +106,9 @@ public class DateRangeMapperTest extends AbstractMapperTest {
         Date date = new SimpleDateFormat(pattern).parse(expected);
         DateRangeMapper mapper = dateRangeMapper("from", "to").pattern(pattern).build("name");
         Columns columns;
-        columns = Columns.build().add("from", value);
+        columns = new Columns().add("from", value);
         assertEquals("From is not properly parsed", date, mapper.readFrom(columns));
-        columns = Columns.build().add("to", value);
+        columns = new Columns().add("to", value);
         assertEquals("To is not properly parsed", date, mapper.readTo(columns));
     }
 
@@ -156,7 +156,7 @@ public class DateRangeMapperTest extends AbstractMapperTest {
     @Test
     public void testReadFieldWithNullColumn() {
         DateRangeMapper mapper = dateRangeMapper("from", "to").build("name");
-        assertNull("From is not properly parsed", mapper.readFrom(Columns.build()));
+        assertNull("From is not properly parsed", mapper.readFrom(new Columns()));
     }
 
     @Test(expected = IndexException.class)
@@ -168,7 +168,7 @@ public class DateRangeMapperTest extends AbstractMapperTest {
     @Test
     public void testAddFields() {
         DateRangeMapper mapper = dateRangeMapper("from", "to").pattern("yyyy-MM-dd").build("name");
-        Columns columns = Columns.build().add("from", "1982-11-27").add("to", "2016-11-27");
+        Columns columns = new Columns().add("from", "1982-11-27").add("to", "2016-11-27");
 
         Document document = new Document();
         mapper.addFields(document, columns);
@@ -181,7 +181,7 @@ public class DateRangeMapperTest extends AbstractMapperTest {
     @Test
     public void testAddFieldsWithNullColumns() {
         DateRangeMapper mapper = dateRangeMapper("from", "to").build("name");
-        Columns columns = Columns.build();
+        Columns columns = new Columns();
         Document document = new Document();
         mapper.addFields(document, columns);
         assertEquals("Null columns must not produce fields", 0, document.getFields().size());
@@ -190,7 +190,7 @@ public class DateRangeMapperTest extends AbstractMapperTest {
     @Test(expected = IndexException.class)
     public void testAddFieldsWithBadSortColumns() {
         DateRangeMapper mapper = dateRangeMapper("from", "to").pattern("yyyy").build("name");
-        Columns columns = Columns.build().add("from", "1982").add("to", "1980");
+        Columns columns = new Columns().add("from", "1982").add("to", "1980");
         Document document = new Document();
         mapper.addFields(document, columns);
     }
@@ -198,7 +198,7 @@ public class DateRangeMapperTest extends AbstractMapperTest {
     @Test
     public void testAddFieldsWithSameColumns() {
         DateRangeMapper mapper = dateRangeMapper("from", "to").pattern("yyyy").build("name");
-        Columns columns = Columns.build().add("from", 2000).add("to", 2000);
+        Columns columns = new Columns().add("from", 2000).add("to", 2000);
         Document document = new Document();
         mapper.addFields(document, columns);
         IndexableField[] indexableFields = document.getFields("name");

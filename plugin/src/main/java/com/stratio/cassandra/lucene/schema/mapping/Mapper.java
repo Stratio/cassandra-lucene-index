@@ -167,6 +167,72 @@ public abstract class Mapper {
     }
 
     /**
+     * Validates this {@link Mapper} against the specified column.
+     *
+     * @param metadata the column family metadata
+     * @param column the name of the column to be validated
+     */
+    private void validate(CFMetaData metadata, String column) {
+        if (Column.isMultiColumn(column)) {
+            validateTuple(metadata, column);
+        } else {
+            ByteBuffer columnName = UTF8Type.instance.decompose(column);
+            ColumnDefinition columnDefinition = metadata.getColumnDefinition(columnName);
+            if (columnDefinition == null) {
+                throw new IndexException("No column definition '{}' for mapper '{}'", column, field);
+            }
+            validate(columnDefinition, column);
+        }
+    }
+
+    private void validate(ColumnDefinition columnDefinition, String column) {
+        if (columnDefinition.isStatic()) {
+            throw new IndexException("Lucene indexes are not allowed on static columns as '{}'", column);
+        }
+        validate(columnDefinition.type, column);
+    }
+
+    private void validate(AbstractType<?> type, String column) {
+        // Check type
+        if (!supports(type)) {
+            throw new IndexException("Type '{}' in column '{}' is not supported by mapper '{}'", type, column, field);
+        }
+    }
+
+    /**
+     * Validates this {@link Mapper} against the specified tuple type column.
+     *
+     * @param metadata the column family metadata
+     * @param columnName the name of the tuple column to be validated
+     */
+    private void validateTuple(CFMetaData metadata, String columnName) {
+        String[] names = Column.parseColumnNames(columnName);
+        int numMatches = names.length;
+
+        ByteBuffer parentColName = UTF8Type.instance.decompose(names[0]);
+        ColumnDefinition parentCD = metadata.getColumnDefinition(parentColName);
+        if (parentCD == null) {
+            throw new IndexException("No column definition '{}' for mapper '{}'", names[0], field);
+        }
+
+        if (parentCD.isStatic()) {
+            throw new IndexException("Lucene indexes are not allowed on static columns as '{}'", columnName);
+        }
+        AbstractType<?> actualType = parentCD.type;
+        Column column = Column.apply(names[0]);
+        for (int i = 1; i < names.length; i++) {
+            column = column.withUDTName(names[i]);
+            actualType = findChildType(actualType, names[i]);
+            if (actualType == null) {
+                throw new IndexException("No column definition '{}' for mapper '{}'", column.mapperName(), field);
+            }
+            if (i == (numMatches - 1)) {
+                validate(actualType, column.mapperName());
+            }
+        }
+    }
+
+    /**
      * Finds the child {@link AbstractType} by its name.
      *
      * @param type the parent type
@@ -203,72 +269,6 @@ public abstract class Mapper {
             }
         }
         return null;
-    }
-
-    /**
-     * Validates this {@link Mapper} against the specified tuple type column.
-     *
-     * @param metadata the column family metadata
-     * @param column the name of the tuple column to be validated
-     */
-    private void validateTuple(CFMetaData metadata, String column) {
-        String[] names = column.split(Column.UDT_PATTERN());
-        int numMatches = names.length;
-
-        ByteBuffer parentColName = UTF8Type.instance.decompose(names[0]);
-        ColumnDefinition parentCD = metadata.getColumnDefinition(parentColName);
-        if (parentCD == null) {
-            throw new IndexException("No column definition '{}' for mapper '{}'", names[0], field);
-        }
-
-        if (parentCD.isStatic()) {
-            throw new IndexException("Lucene indexes are not allowed on static columns as '{}'", column);
-        }
-        AbstractType<?> actualType = parentCD.type;
-        String columnIterator = names[0];
-        for (int i = 1; i < names.length; i++) {
-            columnIterator += Column.UDT_SEPARATOR() + names[i];
-            actualType = findChildType(actualType, names[i]);
-            if (actualType == null) {
-                throw new IndexException("No column definition '{}' for mapper '{}'", columnIterator, field);
-            }
-            if (i == (numMatches - 1)) {
-                validate(actualType, columnIterator);
-            }
-        }
-    }
-
-    /**
-     * Validates this {@link Mapper} against the specified column.
-     *
-     * @param metadata the column family metadata
-     * @param column the name of the column to be validated
-     */
-    private void validate(CFMetaData metadata, String column) {
-        if (Column.isTuple(column)) {
-            validateTuple(metadata, column);
-        } else {
-            ByteBuffer columnName = UTF8Type.instance.decompose(column);
-            ColumnDefinition columnDefinition = metadata.getColumnDefinition(columnName);
-            if (columnDefinition == null) {
-                throw new IndexException("No column definition '{}' for mapper '{}'", column, field);
-            }
-            validate(columnDefinition, column);
-        }
-    }
-
-    private void validate(ColumnDefinition columnDefinition, String column) {
-        if (columnDefinition.isStatic()) {
-            throw new IndexException("Lucene indexes are not allowed on static columns as '{}'", column);
-        }
-        validate(columnDefinition.type, column);
-    }
-
-    private void validate(AbstractType<?> type, String column) {
-        // Check type
-        if (!supports(type)) {
-            throw new IndexException("Type '{}' in column '{}' is not supported by mapper '{}'", type, column, field);
-        }
     }
 
     /**

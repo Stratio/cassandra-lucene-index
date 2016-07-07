@@ -16,6 +16,7 @@
 package com.stratio.cassandra.lucene;
 
 import com.stratio.cassandra.lucene.core.column.Columns;
+import com.stratio.cassandra.lucene.core.column.ColumnsMapper;
 import com.stratio.cassandra.lucene.index.DocumentIterator;
 import com.stratio.cassandra.lucene.key.KeyMapper;
 import com.stratio.cassandra.lucene.key.PartitionMapper;
@@ -93,10 +94,9 @@ class IndexServiceWide extends IndexService {
     /** {@inheritDoc} */
     @Override
     public Columns columns(DecoratedKey key, Row row) {
-        return Columns.build()
-                      .add(partitionMapper.columns(key))
-                      .add(keyMapper.columns(row.clustering()))
-                      .add(columnsMapper.columns(row));
+        return new Columns().add(partitionMapper.columns(key))
+                            .add(keyMapper.columns(row.clustering()))
+                            .add(ColumnsMapper.columns(row));
     }
 
     /** {@inheritDoc} */

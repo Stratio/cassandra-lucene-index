@@ -138,7 +138,7 @@ public class GeoShapeMapperTest extends AbstractMapperTest {
     @Test
     public void testAddFieldsWithValidPoint() {
         GeoShapeMapper mapper = geoShapeMapper().column("column").maxLevels(10).build("field");
-        Columns columns = Columns.build().add("column", "POINT(30.5 10.0)");
+        Columns columns = new Columns().add("column", "POINT(30.5 10.0)");
         Document document = new Document();
         mapper.addFields(document, columns);
         assertEquals("Fields are not properly created", 1, document.getFields("field").length);
@@ -148,7 +148,7 @@ public class GeoShapeMapperTest extends AbstractMapperTest {
     @Test
     public void testAddFieldsWithValidLineString() {
         GeoShapeMapper mapper = geoShapeMapper().column("column").maxLevels(10).build("field");
-        Columns columns = Columns.build().add("column", "LINESTRING (30 10, 10 30, 40 40)");
+        Columns columns = new Columns().add("column", "LINESTRING (30 10, 10 30, 40 40)");
         Document document = new Document();
         mapper.addFields(document, columns);
         assertEquals("Fields are not properly created", 1, document.getFields("field").length);
@@ -158,7 +158,7 @@ public class GeoShapeMapperTest extends AbstractMapperTest {
     @Test
     public void testAddFieldsWithValidLinearRing() {
         GeoShapeMapper mapper = geoShapeMapper().column("column").maxLevels(10).build("field");
-        Columns columns = Columns.build().add("column", "LINEARRING(30 10, 10 30, 40 40,30 10)");
+        Columns columns = new Columns().add("column", "LINEARRING(30 10, 10 30, 40 40,30 10)");
         Document document = new Document();
         mapper.addFields(document, columns);
         assertEquals("Fields are not properly created", 1, document.getFields("field").length);
@@ -168,7 +168,7 @@ public class GeoShapeMapperTest extends AbstractMapperTest {
     @Test
     public void testAddFieldsWithValidPolygon() {
         GeoShapeMapper mapper = geoShapeMapper().column("column").maxLevels(10).build("field");
-        Columns columns = Columns.build().add("column", "POLYGON((0.0 0.0,0.0 10.0,10.0 0.0,0.0 0.0))");
+        Columns columns = new Columns().add("column", "POLYGON((0.0 0.0,0.0 10.0,10.0 0.0,0.0 0.0))");
         Document document = new Document();
         mapper.addFields(document, columns);
         assertEquals("Fields are not properly created", 1, document.getFields("field").length);
@@ -178,7 +178,7 @@ public class GeoShapeMapperTest extends AbstractMapperTest {
     @Test
     public void testAddFieldsWithValidPolygon2() {
         GeoShapeMapper mapper = geoShapeMapper().column("column").maxLevels(10).build("field");
-        Columns columns = Columns.build()
+        Columns columns = new Columns()
                                  .add("column",
                                       "POLYGON ((35 10, 45 45, 15 40, 10 20, 35 10), (20 30, 35 35, 30 20, 20 30))");
         Document document = new Document();
@@ -190,7 +190,7 @@ public class GeoShapeMapperTest extends AbstractMapperTest {
     @Test
     public void testAddFieldsWithValidMultiPoint() {
         GeoShapeMapper mapper = geoShapeMapper().column("column").maxLevels(10).build("field");
-        Columns columns = Columns.build().add("column", "MULTIPOINT ((10 40), (40 30), (20 20), (30 10))");
+        Columns columns = new Columns().add("column", "MULTIPOINT ((10 40), (40 30), (20 20), (30 10))");
         Document document = new Document();
         mapper.addFields(document, columns);
         assertEquals("Fields are not properly created", 1, document.getFields("field").length);
@@ -200,7 +200,7 @@ public class GeoShapeMapperTest extends AbstractMapperTest {
     @Test
     public void testAddFieldsWithValidMultiPoint2() {
         GeoShapeMapper mapper = geoShapeMapper().column("column").maxLevels(10).build("field");
-        Columns columns = Columns.build().add("column", "MULTIPOINT (10 40, 40 30, 20 20, 30 10)");
+        Columns columns = new Columns().add("column", "MULTIPOINT (10 40, 40 30, 20 20, 30 10)");
         Document document = new Document();
         mapper.addFields(document, columns);
         assertEquals("Fields are not properly created", 1, document.getFields("field").length);
@@ -210,7 +210,7 @@ public class GeoShapeMapperTest extends AbstractMapperTest {
     @Test
     public void testAddFieldsWithValidMultiline() {
         GeoShapeMapper mapper = geoShapeMapper().column("column").maxLevels(10).build("field");
-        Columns columns = Columns.build()
+        Columns columns = new Columns()
                                  .add("column", "MULTILINESTRING ((10 10, 20 20, 10 40),(40 40, 30 30, 40 20, 30 10))");
         Document document = new Document();
         mapper.addFields(document, columns);
@@ -221,7 +221,7 @@ public class GeoShapeMapperTest extends AbstractMapperTest {
     @Test
     public void testAddFieldsWithValidUnionMultiPolygon() {
         GeoShapeMapper mapper = geoShapeMapper().column("column").maxLevels(10).build("field");
-        Columns columns = Columns.build()
+        Columns columns = new Columns()
                                  .add("column",
                                       "MULTIPOLYGON (((30 20, 45 40, 10 40, 30 20)),((15 5, 40 10, 10 20, 5 10, 15 5)))");
         Document document = new Document();
@@ -233,7 +233,7 @@ public class GeoShapeMapperTest extends AbstractMapperTest {
     @Test
     public void testAddFieldsWithValidUnionMultiPolygon2() {
         GeoShapeMapper mapper = geoShapeMapper().column("column").maxLevels(10).build("field");
-        Columns columns = Columns.build()
+        Columns columns = new Columns()
                                  .add("column",
                                       "MULTIPOLYGON (((40 40, 20 45, 45 30, 40 40)),((20 35, 10 30, 10 10, 30 5, 45 20, 20 35),(30 20, 20 15, 20 25, 30 20)))");
         Document document = new Document();
@@ -245,7 +245,7 @@ public class GeoShapeMapperTest extends AbstractMapperTest {
     @Test
     public void testAddFieldsWithNullColumns() {
         GeoShapeMapper mapper = geoShapeMapper().column("column").maxLevels(10).build("field");
-        Columns columns = Columns.build();
+        Columns columns = new Columns();
         Document document = new Document();
         mapper.addFields(document, columns);
         assertEquals("Fields are not properly created", 0, document.getFields().size());
@@ -254,7 +254,7 @@ public class GeoShapeMapperTest extends AbstractMapperTest {
     @Test(expected = IndexException.class)
     public void testAddFieldsWithInvalidShape() {
         GeoShapeMapper mapper = geoShapeMapper().column("column").maxLevels(10).build("field");
-        Columns columns = Columns.build().add("column",
+        Columns columns = new Columns().add("column",
                                               "POLYON((0.0 0.0,0.0 10.0,10.0 0.0,0.0 0.0))");
         Document document = new Document();
         mapper.addFields(document, columns);

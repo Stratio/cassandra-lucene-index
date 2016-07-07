@@ -20,7 +20,7 @@ import org.scalatest.{FunSuite, Matchers}
 /**
   * Base test.
   *
-  * @author Andres de la Pena { @literal <adelapena@stratio.com>}
+  * @author Andres de la Pena `adelapena@stratio.com`
   */
 class BaseTest extends FunSuite with Matchers {
 }

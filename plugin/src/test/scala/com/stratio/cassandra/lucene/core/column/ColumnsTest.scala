@@ -21,7 +21,7 @@ import org.scalatest.junit.JUnitRunner
 /**
   * Tests [[Column]].
   *
-  * @author Andres de la Pena {{{<adelapena@stratio.com>}}}
+  * @author Andres de la Pena `adelapena@stratio.com`
   */
 @RunWith(classOf[JUnitRunner])
 class ColumnsTest extends BaseTest {
@@ -48,17 +48,17 @@ class ColumnsTest extends BaseTest {
       Column("c2").withUDTName("u1"),
       Column("c2").withMapName("m1"),
       Column("c2").withUDTName("u2").withMapName("m2"))
-    columns.getByCellName("c1") shouldBe Columns(
+    columns.withCellName("c1") shouldBe Columns(
       Column("c1"),
       Column("c1").withUDTName("u1"),
       Column("c1").withMapName("m1"),
       Column("c1").withUDTName("u2").withMapName("m2"))
-    columns.getByCellName("c2") shouldBe Columns(
+    columns.withCellName("c2") shouldBe Columns(
       Column("c2"),
       Column("c2").withUDTName("u1"),
       Column("c2").withMapName("m1"),
       Column("c2").withUDTName("u2").withMapName("m2"))
-    columns.getByCellName("c3") shouldBe Columns()
+    columns.withCellName("c3") shouldBe Columns()
   }
 
   test("get by mapper name") {
@@ -71,10 +71,10 @@ class ColumnsTest extends BaseTest {
       Column("c2").withUDTName("u1"),
       Column("c2").withMapName("m1"),
       Column("c2").withUDTName("u1").withMapName("m12"))
-    columns.getByMapperName("c1") shouldBe Columns(
+    columns.withMapperName("c1") shouldBe Columns(
       Column("c1"),
       Column("c1").withMapName("m1"))
-    columns.getByMapperName("c1.u1") shouldBe Columns(
+    columns.withMapperName("c1.u1") shouldBe Columns(
       Column("c1").withUDTName("u1"),
       Column("c1").withUDTName("u1").withMapName("m1"))
   }
@@ -89,11 +89,11 @@ class ColumnsTest extends BaseTest {
       Column("c2").withUDTName("u1") +
       Column("c2").withMapName("m1") +
       Column("c2").withUDTName("u1").withMapName("m12")
-    columns.getByFullName("c1") shouldBe Columns(
+    columns.withFullName("c1") shouldBe Columns(
       Column("c1"))
-    columns.getByFullName("c1.u1") shouldBe Columns(
+    columns.withFullName("c1.u1") shouldBe Columns(
       Column("c1").withUDTName("u1"))
-    columns.getByFullName("c1.u1$m1") shouldBe Columns(
+    columns.withFullName("c1.u1$m1") shouldBe Columns(
       Column("c1").withUDTName("u1").withMapName("m1"))
   }
 
@@ -120,7 +120,7 @@ class ColumnsTest extends BaseTest {
       Column("c3").withValue(1).withDeletionTime(1),
       Column("c4").withValue(1).withDeletionTime(2),
       Column("c5").withValue(1).withDeletionTime(3))
-    columns.cleanDeleted(2) shouldBe Columns(
+    columns.withoutDeleted(2) shouldBe Columns(
       Column("c2").withValue(1),
       Column("c5").withValue(1).withDeletionTime(3))
   }
@@ -133,6 +133,6 @@ class ColumnsTest extends BaseTest {
     val columns = Columns(
       Column("c1").withDeletionTime(10),
       Column("c2").withUDTName("u1").withMapName("m1").withValue(7))
-    columns.toString() shouldBe "Columns{c1=null, c2.u1$m1=7}"
+    columns.toString shouldBe "Columns{c1=null, c2.u1$m1=7}"
   }
 }
