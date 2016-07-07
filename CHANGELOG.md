@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.0.8.0 (Upcoming)
+## 3.0.8.0 (July 07, 2016)
 
 * Upgrade to Apache Cassandra 3.0.8
 
