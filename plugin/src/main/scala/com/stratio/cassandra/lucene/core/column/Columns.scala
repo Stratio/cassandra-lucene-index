@@ -41,42 +41,30 @@ case class Columns(columns: Column[_]*) extends Traversable[Column[_]] with java
 
   /** Returns a copy of this with the specified column appended. */
   def +(column: Column[_]): Columns =
-    :+(column)
-
-  /** Returns a copy of this with the specified column appended. */
-  def :+(column: Column[_]): Columns =
     new Columns(columns :+ column)
-
-  /** Returns a copy of this with the specified column prepended. */
-  def +:(column: Column[_]): Columns =
-    new Columns(column +: columns)
 
   /** Returns a copy of this with the specified columns appended. */
   def +(columns: Columns): Columns =
-    :+(columns)
-
-  /** Returns a copy of this with the specified columns appended. */
-  def :+(columns: Columns): Columns =
     new Columns(this.columns ++ columns)
-
-  /** Returns a copy of this with the specified columns prepended. */
-  def +:(columns: Columns): Columns =
-    new Columns(columns ++ this.columns)
 
   override def head(): Column[_] =
     if (columns.isEmpty) null else columns.head // TODO: Use option
 
   /** Returns copy of this with only the columns with the specified full name. */
-  def withFullName(name: String): Columns =
-    new Columns(filter(_.fullName == name))
+  def withFieldName(name: String): Columns =
+    new Columns(filter(_.fieldName == name))
 
   /** Returns copy of this with only the columns with the specified cell name. */
-  def withCellName(name: String): Columns =
-    new Columns(filter(_.cellName == Column.parseCellName(name)))
+  def withCellName(name: String): Columns = {
+    lazy val cellName = Column.parse(name).cellName
+    new Columns(filter(_.cellName == cellName))
+  }
 
   /** Returns copy of this with only the columns with the specified mapper name. */
-  def withMapperName(name: String): Columns =
-    new Columns(filter(_.mapperName == Column.parseMapperName(name)))
+  def withMapperName(name: String): Columns = {
+    lazy val mapperName = Column.parse(name).mapperName
+    new Columns(filter(_.mapperName == mapperName))
+  }
 
   /** Returns copy of this without the columns deleted at the specified time.
     *
@@ -99,6 +87,6 @@ case class Columns(columns: Column[_]*) extends Traversable[Column[_]] with java
 
   override def toString: String =
     columns.foldLeft(MoreObjects.toStringHelper(this))((helper, column) =>
-      helper.add(column.fullName, column.value.getOrElse("null"))).toString
+      helper.add(column.fieldName, column.value.getOrElse("null"))).toString
 
 }

@@ -18,12 +18,15 @@ package com.stratio.cassandra.lucene.core.column
 import java.nio.ByteBuffer
 import java.util.Date
 
+import com.stratio.cassandra.lucene.IndexException
+import org.apache.cassandra.config.CFMetaData
 import org.apache.cassandra.db.marshal._
 import org.apache.cassandra.db.rows.{Cell, ComplexColumnData, Row}
 import org.apache.cassandra.serializers.CollectionSerializer
 import org.apache.cassandra.transport.Server._
 import org.apache.cassandra.utils.ByteBufferUtil
 
+import scala.annotation.tailrec
 import scala.collection.JavaConversions._
 
 /**
@@ -165,6 +168,66 @@ object ColumnsMapper {
   def compose(bb: ByteBuffer, t: AbstractType[_]): Any = t match {
     case sdt: SimpleDateType => new Date(sdt.toTimeInMillis(bb))
     case _ => t.compose(bb)
+  }
+
+  ///////////////////////////////////////////////////////////////////////////
+  // Validation
+  ///////////////////////////////////////////////////////////////////////////
+
+  def validate(metadata: CFMetaData, column: String, field: String, supportedTypes: Array[AbstractType[_]]) {
+
+    val cellName = Column.parse(column).cellName
+    val cellDefinition = metadata.getColumnDefinition(UTF8Type.instance.decompose(cellName))
+
+    if (cellDefinition == null) {
+      throw new IndexException("No column definition '{}' for mapper '{}'", cellName, field)
+    }
+    if (cellDefinition.isStatic) {
+      throw new IndexException("Lucene indexes are not allowed on static columns as '{}'", column)
+    }
+
+    def checkSupported(t: AbstractType[_], mapper: String) {
+      if (!supports(t, supportedTypes)) {
+        throw new IndexException("Type '{}' in column '{}' is not supported by mapper '{}'", t, mapper, field)
+      }
+    }
+
+    val cellType = cellDefinition.`type`
+    val udtNames = Column.parse(column).udtNames
+    if (udtNames.isEmpty) {
+      checkSupported(cellType, cellName)
+    } else {
+      var col = Column.apply(cellName)
+      var currentType = cellType
+      for (i <- udtNames.indices) {
+        col = col.withUDTName(udtNames(i))
+        ColumnsMapper.childType(currentType, udtNames(i)) match {
+          case None => throw new IndexException("No column definition '{}' for mapper '{}'", col.mapperName, field)
+          case Some(n) if i == udtNames.indices.last => checkSupported(n, col.mapperName)
+          case Some(n) => currentType = n
+        }
+      }
+    }
+  }
+
+  @tailrec
+  def childType(parent: AbstractType[_], child: String): Option[AbstractType[_]] = parent match {
+    case t: ReversedType[_] => childType(t.baseType, child)
+    case t: SetType[_] => childType(t.nameComparator, child)
+    case t: ListType[_] => childType(t.valueComparator, child)
+    case t: MapType[_, _] => childType(t.valueComparator, child)
+    case t: UserType => (0 until t.fieldNames.size).find(t.fieldNameAsString(_) == child).map(t.fieldType)
+    case t: TupleType => (0 until t.size).find(_.toString == child).map(t.`type`)
+    case _ => None
+  }
+
+  @tailrec
+  def supports(candidateType: AbstractType[_], supportedTypes: Seq[AbstractType[_]]): Boolean = candidateType match {
+    case t: ReversedType[_] => supports(t.baseType, supportedTypes)
+    case t: SetType[_] => supports(t.getElementsType, supportedTypes)
+    case t: ListType[_] => supports(t.getElementsType, supportedTypes)
+    case t: MapType[_, _] => supports(t.getValuesType, supportedTypes)
+    case t => supportedTypes.exists(candidateType.getClass == _.getClass)
   }
 
 }

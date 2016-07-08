@@ -141,7 +141,7 @@ public class GeoPointMapper extends Mapper {
      * @return the validated latitude
      */
     Double readLatitude(Columns columns) {
-        Column<?> column = columns.withFullName(latitude).head();
+        Column<?> column = columns.withFieldName(latitude).head();
         return column == null ? null : readLatitude(column.value());
     }
 
@@ -153,7 +153,7 @@ public class GeoPointMapper extends Mapper {
      * @return the validated longitude
      */
     Double readLongitude(Columns columns) {
-        Column<?> column = columns.withFullName(longitude).head();
+        Column<?> column = columns.withFieldName(longitude).head();
         return column == null ? null : readLongitude(column.value());
     }
 

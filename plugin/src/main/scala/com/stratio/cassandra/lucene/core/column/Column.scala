@@ -43,11 +43,13 @@ case class Column[A](cellName: String,
   private[this] lazy val udtSuffix = udtNames.foldLeft("")((a, n) => a + Column.UDT_SEPARATOR + n)
   private[this] lazy val mapSuffix = mapNames.foldLeft("")((a, n) => a + Column.MAP_SEPARATOR + n)
 
-  /** The columns full name, composed by cell name, UDT names and map names. */
-  lazy val fullName = cellName + udtSuffix + mapSuffix
+  /** The columns field name, composed by cell name, UDT names and map names. */
+  lazy val fieldName = cellName + udtSuffix + mapSuffix
 
   /** The columns mapper name, composed by cell name and UDT names, without map names. */
   lazy val mapperName = cellName + udtSuffix
+
+  lazy val mapperNames:List[String] = cellName :: udtNames
 
   /** Returns a copy of this with the specified name appended to the list of UDT names. */
   def withUDTName(name: String): Column[_] =
@@ -69,19 +71,14 @@ case class Column[A](cellName: String,
   def fieldName(field: String): String =
     field + mapSuffix
 
-  /** Returns if this is a deletion at the specified timestamp.
-    *
-    * This happens if value is not defined, or if deletionTime isn't after the specified time.
-    *
-    * @param timeInSec an UNIX timestamp in seconds
-    * @return true if this is a deletion, false otherwise
-    */
+  /** Returns true this is a deletion at the specified UNIX timestamp in seconds, false otherwise. */
   def isDeleted(timeInSec: Int): Boolean =
     value.isEmpty || deletionTime <= timeInSec
 
   /** Returns a [[Columns]] composed by this and the specified column. */
   def +(column: Column[_]): Columns =
     Columns(this, column)
+
 
   /** Returns a [[Columns]] composed by this and the specified columns. */
   def +(columns: Columns): Columns =
@@ -90,7 +87,7 @@ case class Column[A](cellName: String,
   override def toString: String =
     MoreObjects.toStringHelper(this)
       .add("cell", cellName)
-      .add("name", fullName)
+      .add("name", fieldName)
       .add("value", value.getOrElse("null"))
       .add("deletionTime", deletionTime)
       .toString
@@ -103,24 +100,18 @@ object Column {
   private val UDT_SEPARATOR: String = "."
   private val MAP_SEPARATOR: String = "$"
 
-  private[this]  val UDT_PATTERN: String = Pattern.quote(UDT_SEPARATOR)
+  private[this] val UDT_PATTERN: String = Pattern.quote(UDT_SEPARATOR)
   private[this] val MAP_PATTERN: String = Pattern.quote(MAP_SEPARATOR)
 
   def apply(cellName: String): Column[_] =
     new Column(cellName = cellName)
 
-  /** Returns true if the specified column full name corresponds to a tuple. */
-  def isMultiColumn(fullName: String): Boolean = fullName contains UDT_SEPARATOR
-
-  /** Returns the mapper name contained in the specified name. */
-  def parseMapperName(name: String): String =
-    name.split(MAP_PATTERN)(0)
-
-  /** Returns the cell name contained in the specified name. */
-  def parseCellName(name: String): String =
-    name.split(UDT_PATTERN)(0).split(MAP_PATTERN)(0)
-
-  /** Returns the columns names contained in the specified name. */
-  def parseColumnNames(name: String): Array[String] =
-    name.split(UDT_PATTERN)
+  def parse(name: String): Column[_] = {
+    val x = name.split(MAP_PATTERN)
+    val mapNames = x.drop(1).toList
+    val y = x.head.split(UDT_PATTERN)
+    val cellName = y.head
+    val udtNames = y.drop(1).toList
+    new Column(cellName, udtNames, mapNames)
+  }
 }

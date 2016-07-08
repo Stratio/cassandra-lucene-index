@@ -30,7 +30,8 @@ class ColumnTest extends BaseTest {
     val column = Column("cell")
     column.cellName shouldBe "cell"
     column.mapperName shouldBe "cell"
-    column.fullName shouldBe "cell"
+    column.mapperNames shouldBe List("cell")
+    column.fieldName shouldBe "cell"
     column.value shouldBe None
     column.deletionTime shouldBe Column.NO_DELETION_TIME
   }
@@ -45,7 +46,8 @@ class ColumnTest extends BaseTest {
       .withValue(5)
     column.cellName shouldBe "cell"
     column.mapperName shouldBe "cell.u1.u2"
-    column.fullName shouldBe "cell.u1.u2$m1$m2"
+    column.mapperNames shouldBe List("cell", "u1", "u2")
+    column.fieldName shouldBe "cell.u1.u2$m1$m2"
     column.value shouldBe Some(5)
     column.deletionTime shouldBe 10
   }
@@ -77,27 +79,25 @@ class ColumnTest extends BaseTest {
     Column("c").withUDTName("u").withMapName("m").fieldName("f") shouldBe "f$m"
   }
 
-  test("isTuple") {
-    Column.isMultiColumn("c") shouldBe false
-    Column.isMultiColumn("c.u") shouldBe true
-    Column.isMultiColumn("c$m") shouldBe false
-    Column.isMultiColumn("c.u$m") shouldBe true
+  test("parse") {
+    Column.parse("c") shouldBe Column("c")
+    Column.parse("c.u") shouldBe Column("c").withUDTName("u")
+    Column.parse("c$m") shouldBe Column("c").withMapName("m")
+    Column.parse("c.u$m") shouldBe Column("c").withUDTName("u").withMapName("m")
+    Column.parse("c.u1.u2$m1$m2") shouldBe Column("c")
+      .withUDTName("u1")
+      .withUDTName("u2")
+      .withMapName("m1")
+      .withMapName("m2")
   }
 
-  test("parseMapperName") {
-    Column.parseMapperName("c") shouldBe "c"
-    Column.parseMapperName("c.u") shouldBe "c.u"
-    Column.parseMapperName("c$m") shouldBe "c"
-    Column.parseMapperName("c.u$m") shouldBe "c.u"
-    Column.parseMapperName("c.u1.u2$m1$m2") shouldBe "c.u1.u2"
+  test("add column") {
+    Column("a") + Column("b") shouldBe Columns(Column("a"), Column("b"))
+    Column("b") + Column("a") shouldBe Columns(Column("b"), Column("a"))
   }
 
-  test("parseCellName") {
-    Column.parseCellName("c") shouldBe "c"
-    Column.parseCellName("c.u") shouldBe "c"
-    Column.parseCellName("c$m") shouldBe "c"
-    Column.parseCellName("c.u$m") shouldBe "c"
-    Column.parseCellName("c.u1.u2$m1$m2") shouldBe "c"
+  test("add columns") {
+    Column("a") + Columns(Column("b"), Column("c")) shouldBe Columns(Column("a"), Column("b"), Column("c"))
   }
 
   test("toString with default attributes") {

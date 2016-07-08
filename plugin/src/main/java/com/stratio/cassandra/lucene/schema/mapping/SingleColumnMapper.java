@@ -84,7 +84,7 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
     }
 
     private <K> void addFields(Document document, Column<?> c) {
-        String name = column.equals(field) ? c.fullName() : c.fieldName(field);
+        String name = column.equals(field) ? c.fieldName() : c.fieldName(field);
         K value = c.value().getOrElse(null);
         if (value != null) {
             T base = base(c);

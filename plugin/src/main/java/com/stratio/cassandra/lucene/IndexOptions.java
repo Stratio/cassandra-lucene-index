@@ -16,8 +16,10 @@
 package com.stratio.cassandra.lucene;
 
 import com.google.common.base.MoreObjects;
+import com.stratio.cassandra.lucene.core.column.ColumnsMapper;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.SchemaBuilder;
+import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.db.Directories;
 import org.apache.cassandra.schema.IndexMetadata;
@@ -258,7 +260,11 @@ public class IndexOptions {
             Schema schema;
             try {
                 schema = SchemaBuilder.fromJson(schemaOption).build();
-                schema.validate(tableMetadata);
+                for (Mapper mapper : schema.mappers.values()) {
+                    for (String column : mapper.mappedColumns) {
+                        ColumnsMapper.validate(tableMetadata, column, mapper.field, mapper.supportedTypes);
+                    }
+                }
                 return schema;
             } catch (Exception e) {
                 throw new IndexException(e, "'{}' is invalid : {}", SCHEMA_OPTION, e.getMessage());

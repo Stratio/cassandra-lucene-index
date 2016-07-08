@@ -183,7 +183,7 @@ public class BitemporalMapper extends Mapper {
      * @return a bitemporal date time
      */
     BitemporalDateTime readBitemporalDate(Columns columns, String fieldName) {
-        Column<?> column = columns.withFullName(fieldName).head();
+        Column<?> column = columns.withFieldName(fieldName).head();
         if (column == null) {
             return null;
         }

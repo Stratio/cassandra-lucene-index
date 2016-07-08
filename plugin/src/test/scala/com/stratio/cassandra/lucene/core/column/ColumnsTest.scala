@@ -38,7 +38,7 @@ class ColumnsTest extends BaseTest {
     columns.isEmpty shouldBe false
   }
 
-  test("get by cell name") {
+  test("with cell name") {
     val columns = Columns(
       Column("c1"),
       Column("c1").withUDTName("u1"),
@@ -61,7 +61,7 @@ class ColumnsTest extends BaseTest {
     columns.withCellName("c3") shouldBe Columns()
   }
 
-  test("get by mapper name") {
+  test("with mapper name") {
     val columns = Columns(
       Column("c1"),
       Column("c1").withUDTName("u1"),
@@ -89,11 +89,11 @@ class ColumnsTest extends BaseTest {
       Column("c2").withUDTName("u1") +
       Column("c2").withMapName("m1") +
       Column("c2").withUDTName("u1").withMapName("m12")
-    columns.withFullName("c1") shouldBe Columns(
+    columns.withFieldName("c1") shouldBe Columns(
       Column("c1"))
-    columns.withFullName("c1.u1") shouldBe Columns(
+    columns.withFieldName("c1.u1") shouldBe Columns(
       Column("c1").withUDTName("u1"))
-    columns.withFullName("c1.u1$m1") shouldBe Columns(
+    columns.withFieldName("c1.u1$m1") shouldBe Columns(
       Column("c1").withUDTName("u1").withMapName("m1"))
   }
 

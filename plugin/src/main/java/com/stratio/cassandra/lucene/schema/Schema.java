@@ -22,7 +22,6 @@ import com.stratio.cassandra.lucene.core.column.Columns;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 import com.stratio.cassandra.lucene.schema.mapping.SingleColumnMapper;
 import com.stratio.cassandra.lucene.search.Search;
-import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
@@ -43,30 +42,36 @@ public class Schema implements Closeable {
 
     private static final Logger logger = LoggerFactory.getLogger(Schema.class);
 
-    /** The {@link Columns} {@link Mapper}s. */
-    private final Map<String, Mapper> mappers;
+    /**
+     * The {@link Columns} {@link Mapper}s.
+     */
+    public final Map<String, Mapper> mappers;
 
-    /** The wrapping all-in-one {@link Analyzer}. */
+    /**
+     * The wrapping all-in-one {@link Analyzer}.
+     */
     private final SchemaAnalyzer analyzer;
 
-    /** The names of the mapped cells. */
+    /**
+     * The names of the mapped cells.
+     */
     private final Set<String> mappedCells;
 
     /**
      * Returns a new {@code Schema} for the specified {@link Mapper}s and {@link Analyzer}s.
      *
      * @param defaultAnalyzer the default {@link Analyzer} to be used
-     * @param mappers the per field {@link Mapper}s builders to be used
-     * @param analyzers the per field {@link Analyzer}s to be used
+     * @param mappers         the per field {@link Mapper}s builders to be used
+     * @param analyzers       the per field {@link Analyzer}s to be used
      */
     public Schema(Analyzer defaultAnalyzer, Map<String, Mapper> mappers, Map<String, Analyzer> analyzers) {
         this.mappers = mappers;
         this.analyzer = new SchemaAnalyzer(defaultAnalyzer, analyzers, mappers);
         mappedCells = mappers.values()
-                             .stream()
-                             .flatMap(x -> x.mappedColumns.stream())
-                             .map(Column::parseCellName)
-                             .collect(Collectors.toSet());
+                .stream()
+                .flatMap(x -> x.mappedColumns.stream())
+                .map(x -> Column.parse(x).cellName())
+                .collect(Collectors.toSet());
     }
 
     /**
@@ -104,7 +109,7 @@ public class Schema implements Closeable {
      * @return the mapper, or {@code null} if not found.
      */
     public Mapper getMapper(String field) {
-        String mapperName = Column.parseMapperName(field);
+        String mapperName = Column.parse(field).mapperName();
         return mappers.get(mapperName);
     }
 
@@ -141,11 +146,11 @@ public class Schema implements Closeable {
 
     /**
      * Adds to the specified {@link Document} the Lucene fields representing the specified {@link Columns}.
-     *
+     * <p>
      * This is done in a best-effort way, so each mapper errors are logged and ignored.
      *
      * @param document the Lucene {@link Document} where the fields are going to be added
-     * @param columns the {@link Columns} to be added
+     * @param columns  the {@link Columns} to be added
      */
     public void addFields(Document document, Columns columns) {
         for (Mapper mapper : mappers.values()) {
@@ -153,9 +158,9 @@ public class Schema implements Closeable {
                 mapper.addFields(document, columns);
             } catch (IndexException e) {
                 logger.warn("Error in Lucene index:\n\t" +
-                            "while mapping : {}\n\t" +
-                            "with mapper   : {}\n\t" +
-                            "caused by     : {}", columns, mapper, e.getMessage());
+                        "while mapping : {}\n\t" +
+                        "with mapper   : {}\n\t" +
+                        "caused by     : {}", columns, mapper, e.getMessage());
             }
         }
     }
@@ -165,8 +170,8 @@ public class Schema implements Closeable {
      * are required by the post processing phase of the specified {@link Search}.
      *
      * @param document the Lucene {@link Document} where the fields are going to be added
-     * @param columns the {@link Columns} to be added
-     * @param search a search
+     * @param columns  the {@link Columns} to be added
+     * @param search   a search
      */
     public void addPostProcessingFields(Document document, Columns columns, Search search) {
         search.postProcessingFields().stream().forEach(field -> {
@@ -175,17 +180,6 @@ public class Schema implements Closeable {
                 mapper.addFields(document, columns);
             }
         });
-    }
-
-    /**
-     * Checks if this is consistent with the specified column family metadata.
-     *
-     * @param metadata the column family metadata to be validated
-     */
-    public void validate(CFMetaData metadata) {
-        for (Mapper mapper : mappers.values()) {
-            mapper.validate(metadata);
-        }
     }
 
     /**
@@ -198,13 +192,17 @@ public class Schema implements Closeable {
         return mappers.values().stream().anyMatch(mapper -> mapper.maps(column));
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void close() {
         analyzer.close();
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this).add("mappers", mappers).add("analyzer", analyzer).toString();

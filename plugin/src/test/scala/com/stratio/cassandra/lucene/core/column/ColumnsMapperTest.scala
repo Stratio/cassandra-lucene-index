@@ -17,6 +17,7 @@ package com.stratio.cassandra.lucene.core.column
 
 import java.math.{BigDecimal, BigInteger}
 import java.text.SimpleDateFormat
+import java.util
 import java.util.{Date, UUID}
 
 import com.google.common.collect.Lists
@@ -118,11 +119,7 @@ class ColumnsMapperTest extends BaseTest {
 
   test("columns from UDT") {
     val column = Column("cell")
-    val `type` = new UserType(
-      "ks",
-      UTF8Type.instance.decompose("cell"),
-      Lists.newArrayList(UTF8Type.instance.decompose("a"), UTF8Type.instance.decompose("b")),
-      Lists.newArrayList(UTF8Type.instance, UTF8Type.instance))
+    val `type` = udt(List("a", "b"), List(UTF8Type.instance, UTF8Type.instance))
     val bb = TupleType.buildValue(Array(UTF8Type.instance.decompose("1"), UTF8Type.instance.decompose("2")))
     columns(isTombstone = false, column, `type`, bb) shouldBe
       Columns(column.withUDTName("a").withValue("1"), column.withUDTName("b").withValue("2"))
@@ -140,5 +137,122 @@ class ColumnsMapperTest extends BaseTest {
       UTF8Type.instance.decompose("a"),
       null)
     columns(cell) shouldBe Columns(Column("cell").withValue("a").withDeletionTime(Cell.NO_DELETION_TIME))
+  }
+
+  test("supports regular") {
+    supports(UTF8Type.instance, List(UTF8Type.instance)) shouldBe true
+    supports(UTF8Type.instance, List(Int32Type.instance)) shouldBe false
+    supports(UTF8Type.instance, List(UTF8Type.instance, Int32Type.instance)) shouldBe true
+    supports(UTF8Type.instance, List(Int32Type.instance, UTF8Type.instance)) shouldBe true
+  }
+
+  test("supports list") {
+    supports(ListType.getInstance(UTF8Type.instance, false), List(UTF8Type.instance)) shouldBe true
+    supports(ListType.getInstance(UTF8Type.instance, true), List(UTF8Type.instance)) shouldBe true
+    supports(ListType.getInstance(Int32Type.instance, false), List(UTF8Type.instance)) shouldBe false
+    supports(ListType.getInstance(Int32Type.instance, true), List(UTF8Type.instance)) shouldBe false
+  }
+
+  test("supports set") {
+    supports(SetType.getInstance(UTF8Type.instance, false), List(UTF8Type.instance)) shouldBe true
+    supports(SetType.getInstance(UTF8Type.instance, true), List(UTF8Type.instance)) shouldBe true
+    supports(SetType.getInstance(Int32Type.instance, false), List(UTF8Type.instance)) shouldBe false
+    supports(SetType.getInstance(Int32Type.instance, true), List(UTF8Type.instance)) shouldBe false
+  }
+
+  test("supports map") {
+    supports(MapType.getInstance(Int32Type.instance, UTF8Type.instance, false), List(UTF8Type.instance)) shouldBe true
+    supports(MapType.getInstance(Int32Type.instance, UTF8Type.instance, true), List(UTF8Type.instance)) shouldBe true
+    supports(MapType.getInstance(UTF8Type.instance, Int32Type.instance, false), List(UTF8Type.instance)) shouldBe false
+    supports(MapType.getInstance(UTF8Type.instance, Int32Type.instance, true), List(UTF8Type.instance)) shouldBe false
+  }
+
+  test("supports reversed") {
+    supports(ReversedType.getInstance(UTF8Type.instance), List(UTF8Type.instance)) shouldBe true
+    supports(ReversedType.getInstance(Int32Type.instance), List(UTF8Type.instance)) shouldBe false
+    supports(ReversedType.getInstance(UTF8Type.instance), List(UTF8Type.instance, Int32Type.instance)) shouldBe true
+    supports(ReversedType.getInstance(UTF8Type.instance), List(Int32Type.instance, UTF8Type.instance)) shouldBe true
+  }
+
+  test("child regular") {
+    childType(UTF8Type.instance, "") shouldBe None
+  }
+
+  test("child UDT") {
+    val userType = udt(List("a", "b"), List(UTF8Type.instance, Int32Type.instance))
+    childType(userType, "a") shouldBe Some(UTF8Type.instance)
+    childType(userType, "b") shouldBe Some(Int32Type.instance)
+    childType(userType, "c") shouldBe None
+  }
+
+  test("child regular set") {
+    val setType = SetType.getInstance(UTF8Type.instance, true)
+    childType(setType, "a") shouldBe None
+  }
+
+  test("child UDT set") {
+    val userType = udt(List("a", "b"), List(UTF8Type.instance, Int32Type.instance))
+    val setType = SetType.getInstance(userType, true)
+    childType(setType, "a") shouldBe Some(UTF8Type.instance)
+    childType(setType, "b") shouldBe Some(Int32Type.instance)
+    childType(setType, "c") shouldBe None
+  }
+
+  test("child frozen UDT set") {
+    val userType = udt(List("a", "b"), List(UTF8Type.instance, Int32Type.instance))
+    val setType = SetType.getInstance(userType, false)
+    childType(setType, "a") shouldBe Some(UTF8Type.instance)
+    childType(setType, "b") shouldBe Some(Int32Type.instance)
+    childType(setType, "c") shouldBe None
+  }
+
+  test("child regular list") {
+    val listType = ListType.getInstance(UTF8Type.instance, true)
+    childType(listType, "a") shouldBe None
+  }
+
+  test("child UDT list") {
+    val userType = udt(List("a", "b"), List(UTF8Type.instance, Int32Type.instance))
+    val listType = ListType.getInstance(userType, true)
+    childType(listType, "a") shouldBe Some(UTF8Type.instance)
+    childType(listType, "b") shouldBe Some(Int32Type.instance)
+    childType(listType, "c") shouldBe None
+  }
+
+  test("child frozen UDT list") {
+    val userType = udt(List("a", "b"), List(UTF8Type.instance, Int32Type.instance))
+    val listType = ListType.getInstance(userType, false)
+    childType(listType, "a") shouldBe Some(UTF8Type.instance)
+    childType(listType, "b") shouldBe Some(Int32Type.instance)
+    childType(listType, "c") shouldBe None
+  }
+
+  test("child regular map") {
+    val mapType = MapType.getInstance(UTF8Type.instance, UTF8Type.instance, true)
+    childType(mapType, "a") shouldBe None
+  }
+
+  test("child UDT map") {
+    val userType = udt(List("a", "b"), List(UTF8Type.instance, Int32Type.instance))
+    val mapType = MapType.getInstance(UTF8Type.instance, userType, true)
+    childType(mapType, "a") shouldBe Some(UTF8Type.instance)
+    childType(mapType, "b") shouldBe Some(Int32Type.instance)
+    childType(mapType, "c") shouldBe None
+  }
+
+  test("child frozen UDT map") {
+    val userType = udt(List("a", "b"), List(UTF8Type.instance, Int32Type.instance))
+    val mapType = MapType.getInstance(UTF8Type.instance, userType, false)
+    childType(mapType, "a") shouldBe Some(UTF8Type.instance)
+    childType(mapType, "b") shouldBe Some(Int32Type.instance)
+    childType(mapType, "c") shouldBe None
+  }
+
+  private def udt(names: List[String], types: List[AbstractType[_]]): UserType = {
+    new UserType(
+      "ks",
+      UTF8Type.instance.decompose("cell"),
+      Lists.newArrayList(names.map(x => UTF8Type.instance.decompose(x)).asJava),
+      Lists.newArrayList(types.asJava))
   }
 }
