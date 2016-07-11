@@ -1,3 +1,5 @@
+[![Coverage Status](https://coveralls.io/repos/github/Stratio/cassandra-lucene-index/badge.svg?branch=master)](https://coveralls.io/github/Stratio/cassandra-lucene-index?branch=master)
+
 # Changelog
 
 ## 3.0.4.1 (upcoming)
