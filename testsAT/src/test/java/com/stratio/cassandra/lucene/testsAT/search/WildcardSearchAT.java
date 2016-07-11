@@ -244,4 +244,24 @@ public class WildcardSearchAT extends AbstractSearchAT {
         query(wildcard("map_1$k1", "v*")).check(2);
     }
 
+    @Test
+    public void wildcardQueryMapFieldTestWithAlias1() {
+        query(wildcard("string_map$k1", "")).check(0);
+    }
+
+    @Test
+    public void wildcardQueryMapFieldTestWithAlias2() {
+        query(wildcard("string_map$k1", "l*")).check(0);
+    }
+
+    @Test
+    public void wildcardQueryMapFieldTestWithAlias3() {
+        query(wildcard("string_map$k1", "k*")).check(0);
+    }
+
+    @Test
+    public void wildcardQueryMapFieldTestWithAlias4() {
+        query(wildcard("string_map$k1", "v*")).check(2);
+    }
+
 }

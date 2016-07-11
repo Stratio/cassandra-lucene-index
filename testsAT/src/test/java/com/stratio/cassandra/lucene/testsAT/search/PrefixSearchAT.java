@@ -145,6 +145,26 @@ public class PrefixSearchAT extends AbstractSearchAT {
     }
 
     @Test
+    public void prefixQueryMapFieldTestWithAlias1() {
+        query(prefix("string_map$k1", "")).check(2);
+    }
+
+    @Test
+    public void prefixQueryMapFieldTestWithAlias2() {
+        query(prefix("string_map$k1", "l1")).check(0);
+    }
+
+    @Test
+    public void prefixQueryMapFieldTestWithAlias3() {
+        query(prefix("string_map$k1", "k1")).check(0);
+    }
+
+    @Test
+    public void prefixQueryMapFieldTestWithAlias4() {
+        query(prefix("string_map$k1", "v1")).check(2);
+    }
+
+    @Test
     public void prefixFilterAsciiFieldTest1() {
         filter(prefix("ascii_1", "frase ")).check(1);
     }
@@ -262,5 +282,25 @@ public class PrefixSearchAT extends AbstractSearchAT {
     @Test
     public void prefixFilterMapFieldTest4() {
         filter(prefix("map_1$k1", "v1")).check(2);
+    }
+
+    @Test
+    public void prefixFilterMapFieldTestWithAlias1() {
+        filter(prefix("string_map$k1", "")).check(2);
+    }
+
+    @Test
+    public void prefixFilterMapFieldTestWithAlias2() {
+        filter(prefix("string_map$k1", "l1")).check(0);
+    }
+
+    @Test
+    public void prefixFilterMapFieldTestWithAlias3() {
+        filter(prefix("string_map$k1", "k1")).check(0);
+    }
+
+    @Test
+    public void prefixFilterMapFieldTestWithAlias4() {
+        filter(prefix("string_map$k1", "v1")).check(2);
     }
 }
