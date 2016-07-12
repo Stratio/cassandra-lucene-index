@@ -1,0 +1,11 @@
+ATSERVICES:
+  - CASSANDRA:
+      image: stratio/cassandra-lucene-index:%%VERSION
+      sleep: 30
+      volumes:
+        - jts:1.14.0
+
+ATPARAMETERS: >
+    -Dit-embedded=false
+    -Dit.host=%%CASSANDRA
+    -DJACOCO_SERVER=%%CASSANDRA
