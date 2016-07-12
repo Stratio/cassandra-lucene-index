@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.0.8.0 (July 07, 2016)
+
+* Upgrade to Apache Cassandra 3.0.8
+
 ## 3.0.7.2 (July 05, 2016)
 
 * Modernize search syntax keeping backward compatibility
