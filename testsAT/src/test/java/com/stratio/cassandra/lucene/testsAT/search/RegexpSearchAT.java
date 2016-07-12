@@ -175,6 +175,26 @@ public class RegexpSearchAT extends AbstractSearchAT {
     }
 
     @Test
+    public void regexpQueryMapFieldTestWithAlias1() {
+        query(regexp("string_map$k1", "")).check(0);
+    }
+
+    @Test
+    public void regexpQueryMapFieldTestWithAlias2() {
+        query(regexp("string_map$k1", "l.*")).check(0);
+    }
+
+    @Test
+    public void regexpQueryMapFieldTestWithAlias3() {
+        query(regexp("string_map$k1", "k.*")).check(0);
+    }
+
+    @Test
+    public void regexpQueryMapFieldTestWithAlias4() {
+        query(regexp("string_map$k1", "v.*")).check(2);
+    }
+
+    @Test
     public void regexpFilterAsciiFieldTest1() {
         filter(regexp("ascii_1", "frase.*")).check(4);
     }
@@ -322,5 +342,25 @@ public class RegexpSearchAT extends AbstractSearchAT {
     @Test
     public void regexpFilterMapFieldTest4() {
         filter(regexp("map_1$k1", "v.*")).check(2);
+    }
+
+    @Test
+    public void regexpFilterMapFieldTestWithAlias1() {
+        filter(regexp("string_map$k1", "")).check(0);
+    }
+
+    @Test
+    public void regexpFilterMapFieldTestWithAlias2() {
+        filter(regexp("string_map$k1", "l.*")).check(0);
+    }
+
+    @Test
+    public void regexpFilterMapFieldTestWithAlias3() {
+        filter(regexp("string_map$k1", "k.*")).check(0);
+    }
+
+    @Test
+    public void regexpFilterMapFieldTestWithAlias4() {
+        filter(regexp("string_map$k1", "v.*")).check(2);
     }
 }

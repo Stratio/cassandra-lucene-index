@@ -378,6 +378,26 @@ public class MatchSearchAT extends AbstractSearchAT {
     }
 
     @Test
+    public void matchQueryMapFieldTestWithAlias1() {
+        query(match("string_map$k1", "")).check(0);
+    }
+
+    @Test
+    public void matchQueryMapFieldTestWithAlias2() {
+        query(match("string_map$k1", "l1")).check(0);
+    }
+
+    @Test
+    public void matchQueryMapFieldTestWithAlias3() {
+        query(match("string_map$k1", "k1")).check(0);
+    }
+
+    @Test
+    public void matchQueryMapFieldTestWithAlias4() {
+        query(match("string_map$k1", "v1")).check(2);
+    }
+
+    @Test
     public void matchFilterAsciiFieldTest1() {
         filter(match("ascii_1", "frase tipo ascii")).check(1);
     }
@@ -730,4 +750,40 @@ public class MatchSearchAT extends AbstractSearchAT {
     public void matchFilterMapFieldTest4() {
         filter(match("map_1$k1", "v1")).check(2);
     }
+
+    @Test
+    public void matchFilterMapFieldTestWithAlias1() {
+        filter(match("string_map$k1", "")).check(0);
+    }
+
+    @Test
+    public void matchFilterMapFieldTestWithAlias2() {
+        filter(match("string_map$k1", "l1")).check(0);
+    }
+
+    @Test
+    public void matchFilterMapFieldTestWithAlias3() {
+        filter(match("string_map$k1", "k1")).check(0);
+    }
+
+    @Test
+    public void matchFilterMapFieldTestWithAlias4() {
+        filter(match("string_map$k1", "v1")).check(2);
+    }
+
+    @Test
+    public void matchFilterMapFieldWithAliasTest() {
+        filter(match("string_map$k1", "v1")).checkUnorderedIntColumns("integer_1", -1, -2);
+    }
+
+    @Test
+    public void matchFilterMapFieldWithAliasTest2() {
+        filter(match("string_map$k2", "v2")).checkUnorderedIntColumns("integer_1", -1, -3, -4, -5);
+    }
+
+    @Test
+    public void matchFilterMapFieldWithAliasTest3() {
+        filter(match("string_map$k3", "v3")).checkUnorderedIntColumns("integer_1", -2, -3, -4, -5);
+    }
+
 }

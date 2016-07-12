@@ -292,6 +292,26 @@ public class FuzzySearchAT extends AbstractSearchAT {
     }
 
     @Test
+    public void fuzzyFilterMapFieldTestWithAlias1() {
+        filter(fuzzy("string_map$k1", "")).check(InvalidQueryException.class);
+    }
+
+    @Test
+    public void fuzzyFilterMapFieldTestWithAlias2() {
+        filter(fuzzy("string_map$k1", "l1")).check(2);
+    }
+
+    @Test
+    public void fuzzyFilterMapFieldTestWithAlias3() {
+        filter(fuzzy("string_map$k1", "k1")).check(2);
+    }
+
+    @Test
+    public void fuzzyFilterMapFieldTestWithAlias4() {
+        filter(fuzzy("string_map$k1", "v1")).check(2);
+    }
+
+    @Test
     public void fuzzyQueryAsciiFieldTest() {
         query(fuzzy("ascii_1", "frase tipo asci")).check(2);
     }
@@ -555,5 +575,25 @@ public class FuzzySearchAT extends AbstractSearchAT {
     @Test
     public void fuzzyQueryMapFieldTest4() {
         query(fuzzy("map_1$k1", "v1")).check(2);
+    }
+
+    @Test
+    public void fuzzyQueryMapFieldTestWithAlias1() {
+        query(fuzzy("string_map", "")).check(InvalidQueryException.class);
+    }
+
+    @Test
+    public void fuzzyQueryMapFieldTestWithAlias2() {
+        query(fuzzy("string_map$k1", "l1")).check(2);
+    }
+
+    @Test
+    public void fuzzyQueryMapFieldTestWithAlias3() {
+        query(fuzzy("string_map$k1", "k1")).check(2);
+    }
+
+    @Test
+    public void fuzzyQueryMapFieldTestWithAlias4() {
+        query(fuzzy("string_map$k1", "v1")).check(2);
     }
 }

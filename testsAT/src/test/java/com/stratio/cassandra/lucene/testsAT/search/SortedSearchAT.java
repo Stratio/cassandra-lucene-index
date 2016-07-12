@@ -75,6 +75,30 @@ public class SortedSearchAT extends AbstractSearchAT {
     }
 
     @Test
+    public void testSimpleSortFieldStringAsc() {
+        Integer[] returnedValues = sort(field("text_2").reverse(false)).intColumn("integer_1");
+        assertEquals("Expected 5 results!", 5, returnedValues.length);
+        Integer[] expectedValues = new Integer[]{-1, -3, -2, -5, -4};
+        assertArrayEquals("Wrong sort!", expectedValues, returnedValues);
+    }
+
+    @Test
+    public void testSimpleSortFieldStringDesc() {
+        Integer[] returnedValues = sort(field("text_2").reverse(true)).intColumn("integer_1");
+        assertEquals("Expected 5 results!", 5, returnedValues.length);
+        Integer[] expectedValues = new Integer[]{-4, -5, -2, -3, -1};
+        assertArrayEquals("Wrong sort!", expectedValues, returnedValues);
+    }
+
+    @Test
+    public void testSimpleSortFieldStringDefault() {
+        Integer[] returnedValues = sort(field("text_2")).intColumn("integer_1");
+        assertEquals("Expected 5 results!", 5, returnedValues.length);
+        Integer[] expectedValues = new Integer[]{-1, -3, -2, -5, -4};
+        assertArrayEquals("Wrong sort!", expectedValues, returnedValues);
+    }
+
+    @Test
     public void sortCombined() {
         Double[] returnedDoubleValues = sort(field("double_1"), field("integer_1")).doubleColumn("double_1");
         assertEquals("Expected 5 results!", 5, returnedDoubleValues.length);
@@ -155,5 +179,29 @@ public class SortedSearchAT extends AbstractSearchAT {
         Integer[] expectedValues = new Integer[]{-5, -4, -3, -2, -1};
         assertArrayEquals("Wrong geoDistance sort!", expectedValues, returnedValues);
 
+    }
+
+    @Test
+    public void sortAsMapValuesAsc() {
+        Integer[] returnedValues = query(all()).sort(field("string_map$k4").reverse(false)).intColumn("integer_1");
+        assertEquals("Expected 5 results!", 5, returnedValues.length);
+        Integer[] expectedValues = new Integer[]{-1, -3, -2, -5, -4};
+        assertArrayEquals("Wrong map sort!", expectedValues, returnedValues);
+    }
+
+    @Test
+    public void sortAsMapValuesDesc() {
+        Integer[] returnedValues = query(all()).sort(field("string_map$k4").reverse(true)).intColumn("integer_1");
+        assertEquals("Expected 5 results!", 5, returnedValues.length);
+        Integer[] expectedValues = new Integer[]{-4, -5, -2, -3, -1};
+        assertArrayEquals("Wrong map sort!", expectedValues, returnedValues);
+    }
+
+    @Test
+    public void testMAtchMAp() {
+        Integer[] returnedValues = query(all()).sort(field("string_map$k4").reverse(true)).intColumn("integer_1");
+        assertEquals("Expected 5 results!", 5, returnedValues.length);
+        Integer[] expectedValues = new Integer[]{-4, -5, -2, -3, -1};
+        assertArrayEquals("Wrong map sort!", expectedValues, returnedValues);
     }
 }

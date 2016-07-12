@@ -104,8 +104,10 @@ public class SimpleSortField extends SortField {
         } else if (o2 == null) {
             return -1;
         }
-
-        String column = mapper.getColumn();
+        String column = field;
+        if (field.startsWith(mapper.field)) {
+            column = field.replaceFirst(mapper.field, mapper.column);
+        }
         Column<?> column1 = o1.getColumnsByFullName(column).getFirst();
         Column<?> column2 = o2.getColumnsByFullName(column).getFirst();
         Comparable base1 = column1 == null ? null : mapper.base(column, column1.getComposedValue());

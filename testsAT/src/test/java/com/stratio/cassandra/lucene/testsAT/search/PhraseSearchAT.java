@@ -120,6 +120,26 @@ public class PhraseSearchAT extends AbstractSearchAT {
     }
 
     @Test
+    public void phraseQueryMapFieldTestWithAlias1() {
+        query(phrase("string_map$k1", "")).check(0);
+    }
+
+    @Test
+    public void phraseQueryMapFieldTestWithAlias2() {
+        query(phrase("string_map$k1", "l1")).check(0);
+    }
+
+    @Test
+    public void phraseQueryMapFieldTestWithAlias3() {
+        query(phrase("string_map$k1", ("k1"))).check(0);
+    }
+
+    @Test
+    public void phraseQueryMapFieldTestWithAlias4() {
+        query(phrase("string_map$k1", ("v1"))).check(2);
+    }
+
+    @Test
     public void phraseFilterTextFieldTest1() {
         filter(phrase("text_1", "Frase espacios")).check(0);
     }
@@ -212,5 +232,25 @@ public class PhraseSearchAT extends AbstractSearchAT {
     @Test
     public void phraseFilterMapFieldTest4() {
         filter(phrase("map_1$k1", ("v1"))).check(2);
+    }
+
+    @Test
+    public void phraseFilterMapFieldTestWithAlias1() {
+        filter(phrase("string_map$k1", "")).check(0);
+    }
+
+    @Test
+    public void phraseFilterMapFieldTestWithAlias2() {
+        filter(phrase("string_map$k1", "l1")).check(0);
+    }
+
+    @Test
+    public void phraseFilterMapFieldTestWithAlias3() {
+        filter(phrase("string_map$k1", ("k1"))).check(0);
+    }
+
+    @Test
+    public void phraseFilterMapFieldTestWithAlias4() {
+        filter(phrase("string_map$k1", ("v1"))).check(2);
     }
 }
