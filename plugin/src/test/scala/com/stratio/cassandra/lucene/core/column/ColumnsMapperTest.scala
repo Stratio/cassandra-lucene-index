@@ -17,7 +17,6 @@ package com.stratio.cassandra.lucene.core.column
 
 import java.math.{BigDecimal, BigInteger}
 import java.text.SimpleDateFormat
-import java.util
 import java.util.{Date, UUID}
 
 import com.google.common.collect.Lists
@@ -140,38 +139,38 @@ class ColumnsMapperTest extends BaseTest {
   }
 
   test("supports regular") {
-    supports(UTF8Type.instance, List(UTF8Type.instance)) shouldBe true
-    supports(UTF8Type.instance, List(Int32Type.instance)) shouldBe false
-    supports(UTF8Type.instance, List(UTF8Type.instance, Int32Type.instance)) shouldBe true
-    supports(UTF8Type.instance, List(Int32Type.instance, UTF8Type.instance)) shouldBe true
+    supports(UTF8Type.instance, List(classOf[String])) shouldBe true
+    supports(UTF8Type.instance, List(classOf[Number])) shouldBe false
+    supports(UTF8Type.instance, List(classOf[String], classOf[Number])) shouldBe true
+    supports(UTF8Type.instance, List(classOf[Number], classOf[String])) shouldBe true
   }
 
   test("supports list") {
-    supports(ListType.getInstance(UTF8Type.instance, false), List(UTF8Type.instance)) shouldBe true
-    supports(ListType.getInstance(UTF8Type.instance, true), List(UTF8Type.instance)) shouldBe true
-    supports(ListType.getInstance(Int32Type.instance, false), List(UTF8Type.instance)) shouldBe false
-    supports(ListType.getInstance(Int32Type.instance, true), List(UTF8Type.instance)) shouldBe false
+    supports(ListType.getInstance(UTF8Type.instance, false), List(classOf[String])) shouldBe true
+    supports(ListType.getInstance(UTF8Type.instance, true), List(classOf[String])) shouldBe true
+    supports(ListType.getInstance(Int32Type.instance, false), List(classOf[String])) shouldBe false
+    supports(ListType.getInstance(Int32Type.instance, true), List(classOf[String])) shouldBe false
   }
 
   test("supports set") {
-    supports(SetType.getInstance(UTF8Type.instance, false), List(UTF8Type.instance)) shouldBe true
-    supports(SetType.getInstance(UTF8Type.instance, true), List(UTF8Type.instance)) shouldBe true
-    supports(SetType.getInstance(Int32Type.instance, false), List(UTF8Type.instance)) shouldBe false
-    supports(SetType.getInstance(Int32Type.instance, true), List(UTF8Type.instance)) shouldBe false
+    supports(SetType.getInstance(UTF8Type.instance, false), List(classOf[String])) shouldBe true
+    supports(SetType.getInstance(UTF8Type.instance, true), List(classOf[String])) shouldBe true
+    supports(SetType.getInstance(Int32Type.instance, false), List(classOf[String])) shouldBe false
+    supports(SetType.getInstance(Int32Type.instance, true), List(classOf[String])) shouldBe false
   }
 
   test("supports map") {
-    supports(MapType.getInstance(Int32Type.instance, UTF8Type.instance, false), List(UTF8Type.instance)) shouldBe true
-    supports(MapType.getInstance(Int32Type.instance, UTF8Type.instance, true), List(UTF8Type.instance)) shouldBe true
-    supports(MapType.getInstance(UTF8Type.instance, Int32Type.instance, false), List(UTF8Type.instance)) shouldBe false
-    supports(MapType.getInstance(UTF8Type.instance, Int32Type.instance, true), List(UTF8Type.instance)) shouldBe false
+    supports(MapType.getInstance(Int32Type.instance, UTF8Type.instance, false), List(classOf[String])) shouldBe true
+    supports(MapType.getInstance(Int32Type.instance, UTF8Type.instance, true), List(classOf[String])) shouldBe true
+    supports(MapType.getInstance(UTF8Type.instance, Int32Type.instance, false), List(classOf[String])) shouldBe false
+    supports(MapType.getInstance(UTF8Type.instance, Int32Type.instance, true), List(classOf[String])) shouldBe false
   }
 
   test("supports reversed") {
-    supports(ReversedType.getInstance(UTF8Type.instance), List(UTF8Type.instance)) shouldBe true
-    supports(ReversedType.getInstance(Int32Type.instance), List(UTF8Type.instance)) shouldBe false
-    supports(ReversedType.getInstance(UTF8Type.instance), List(UTF8Type.instance, Int32Type.instance)) shouldBe true
-    supports(ReversedType.getInstance(UTF8Type.instance), List(Int32Type.instance, UTF8Type.instance)) shouldBe true
+    supports(ReversedType.getInstance(UTF8Type.instance), List(classOf[String])) shouldBe true
+    supports(ReversedType.getInstance(Int32Type.instance), List(classOf[String])) shouldBe false
+    supports(ReversedType.getInstance(UTF8Type.instance), List(classOf[String], classOf[Number])) shouldBe true
+    supports(ReversedType.getInstance(UTF8Type.instance), List(classOf[Number], classOf[String])) shouldBe true
   }
 
   test("child regular") {

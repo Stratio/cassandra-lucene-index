@@ -19,13 +19,13 @@ import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.core.column.Column;
 import com.stratio.cassandra.lucene.core.column.Columns;
-import org.apache.cassandra.db.marshal.AbstractType;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 
 import javax.validation.constraints.NotNull;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -51,7 +51,7 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
      * @param validated if the field must be validated
      * @param analyzer the name of the analyzer to be used
      * @param base the Lucene type for this mapper
-     * @param supportedTypes the supported Cassandra types for indexing
+     * @param supportedTypes the supported column value data types
      */
     public SingleColumnMapper(String field,
                               String column,
@@ -59,11 +59,13 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
                               Boolean validated,
                               String analyzer,
                               Class<T> base,
-                              AbstractType<?>... supportedTypes) {
-        super(field, docValues,
+                              List<Class<?>> supportedTypes) {
+        super(field,
+              docValues,
               validated,
               analyzer,
-              Collections.singletonList(column == null ? field : column), supportedTypes);
+              Collections.singletonList(column == null ? field : column),
+              supportedTypes);
 
         if (StringUtils.isWhitespace(column)) {
             throw new IndexException("Column must not be whitespace, but found '{}'", column);
@@ -167,7 +169,7 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
          * @param validated if the field must be validated
          * @param analyzer the name of the analyzer to be used
          * @param base the Lucene type for this mapper
-         * @param supportedTypes the supported Cassandra types for indexing
+         * @param supportedTypes the supported column value data types
          */
         public SingleFieldMapper(String field,
                                  String column,
@@ -175,7 +177,7 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
                                  Boolean validated,
                                  String analyzer,
                                  Class<T> base,
-                                 AbstractType<?>... supportedTypes) {
+                                 List<Class<?>> supportedTypes) {
             super(field, column, docValues, validated, analyzer, base, supportedTypes);
         }
 

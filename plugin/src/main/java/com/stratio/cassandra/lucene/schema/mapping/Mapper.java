@@ -17,13 +17,8 @@ package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.IndexException;
-import com.stratio.cassandra.lucene.core.column.Column;
 import com.stratio.cassandra.lucene.core.column.Columns;
-import com.stratio.cassandra.lucene.core.column.ColumnsMapper;
 import com.stratio.cassandra.lucene.schema.analysis.StandardAnalyzers;
-import org.apache.cassandra.config.CFMetaData;
-import org.apache.cassandra.config.ColumnDefinition;
-import org.apache.cassandra.db.marshal.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field.Store;
@@ -31,8 +26,9 @@ import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.util.BytesRef;
 
-import java.nio.ByteBuffer;
-import java.util.List;
+import java.math.BigInteger;
+import java.net.InetAddress;
+import java.util.*;
 
 /**
  * Class for mapping between Cassandra's columns and Lucene documents.
@@ -44,11 +40,24 @@ public abstract class Mapper {
     /** A no-action getAnalyzer for not tokenized {@link Mapper} implementations. */
     static final String KEYWORD_ANALYZER = StandardAnalyzers.KEYWORD.toString();
 
+    static final List<Class<?>> TEXT_TYPES = Collections.singletonList(String.class);
+
+    static final List<Class<?>> INTEGER_TYPES = Arrays.asList(
+            String.class, Byte.class, Short.class, Integer.class, Long.class, BigInteger.class);
+
+    static final List<Class<?>> NUMERIC_TYPES = Arrays.asList(String.class, Number.class);
+
+    static final List<Class<?>> DATE_TYPES = Arrays.asList(
+            String.class, Integer.class, Long.class, BigInteger.class, Date.class, UUID.class);
+
+    static final List<Class<?>> PRINTABLE_TYPES = Arrays.asList(
+            String.class, Number.class, UUID.class, Boolean.class, InetAddress.class);
+
     /** The store field in Lucene default option. */
-    public static final Store STORE = Store.NO;
+    static final Store STORE = Store.NO;
 
     /** If the field must be validated when no specified. */
-    public static final boolean DEFAULT_VALIDATED = false;
+    static final boolean DEFAULT_VALIDATED = false;
 
     /** The name of the Lucene field. */
     public final String field;
@@ -62,11 +71,12 @@ public abstract class Mapper {
     /** The name of the analyzer to be used. */
     public final String analyzer;
 
-    /** The supported Cassandra types for indexing. */
-    public final AbstractType<?>[] supportedTypes;
-
     /** The names of the columns to be mapped. */
     public final List<String> mappedColumns;
+
+    /** The supported column value data types. */
+    public final List<Class<?>> supportedTypes;
+
 
     /**
      * Builds a new {@link Mapper} supporting the specified types for indexing.
@@ -76,14 +86,14 @@ public abstract class Mapper {
      * @param validated if the field must be validated
      * @param analyzer the name of the analyzer to be used
      * @param mappedColumns the names of the columns to be mapped
-     * @param supportedTypes the supported Cassandra types for indexing
+     * @param supportedTypes the supported column value data types
      */
     protected Mapper(String field,
                      Boolean docValues,
                      Boolean validated,
                      String analyzer,
                      List<String> mappedColumns,
-                     AbstractType<?>... supportedTypes) {
+                     List<Class<?>> supportedTypes) {
         if (StringUtils.isBlank(field)) {
             throw new IndexException("Field name is required");
         }
@@ -125,14 +135,13 @@ public abstract class Mapper {
     public abstract SortField sortField(String name, boolean reverse);
 
     /**
-     * Returns if this maps the specified column definition.
+     * Returns if this maps the specified column.
      *
-     * @param column the column definition
+     * @param column the column name
      * @return {@code true} if this maps the column, {@code false} otherwise
      */
-    public boolean maps(ColumnDefinition column) {
-        String name = column.name.toString();
-        return mappedColumns.stream().anyMatch(x -> x.equals(name));
+    public boolean maps(String column) {
+        return mappedColumns.stream().anyMatch(x -> x.equals(column));
     }
 
     void validateTerm(String name, BytesRef term) {

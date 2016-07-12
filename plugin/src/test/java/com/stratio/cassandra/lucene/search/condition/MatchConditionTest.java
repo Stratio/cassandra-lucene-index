@@ -30,6 +30,8 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.junit.Test;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -248,7 +250,7 @@ public class MatchConditionTest extends AbstractConditionTest {
     private class MockedMapper extends SingleColumnMapper.SingleFieldMapper<UUID> {
 
         MockedMapper() {
-            super("field", null, true, true, null, UUID.class, UUIDType.instance);
+            super("field", null, true, true, null, UUID.class, Collections.singletonList(UUID.class));
         }
 
         @Override

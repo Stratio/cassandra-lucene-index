@@ -18,11 +18,10 @@ package com.stratio.cassandra.lucene.schema.mapping;
 import com.google.common.primitives.Longs;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.util.ByteBufferUtils;
-import org.apache.cassandra.db.marshal.TimeUUIDType;
-import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.db.marshal.UUIDType;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.UUID;
 
 /**
@@ -40,7 +39,7 @@ public class UUIDMapper extends KeywordMapper {
      * @param validated if the field must be validated
      */
     public UUIDMapper(String field, String column, Boolean validated) {
-        super(field, column, validated, UTF8Type.instance, UUIDType.instance, TimeUUIDType.instance);
+        super(field, column, validated, Arrays.asList(String.class, UUID.class));
     }
 
     /** {@inheritDoc} */

@@ -15,8 +15,10 @@
  */
 package com.stratio.cassandra.lucene.core.column
 
+import java.math.{BigDecimal, BigInteger}
+import java.net.InetAddress
 import java.nio.ByteBuffer
-import java.util.Date
+import java.util.{Date, UUID}
 
 import com.stratio.cassandra.lucene.IndexException
 import org.apache.cassandra.config.CFMetaData
@@ -174,7 +176,7 @@ object ColumnsMapper {
   // Validation
   ///////////////////////////////////////////////////////////////////////////
 
-  def validate(metadata: CFMetaData, column: String, field: String, supportedTypes: Array[AbstractType[_]]) {
+  def validate(metadata: CFMetaData, column: String, field: String, supportedTypes: java.util.List[Class[_]]) {
 
     val cellName = Column.parse(column).cellName
     val cellDefinition = metadata.getColumnDefinition(UTF8Type.instance.decompose(cellName))
@@ -222,12 +224,32 @@ object ColumnsMapper {
   }
 
   @tailrec
-  def supports(candidateType: AbstractType[_], supportedTypes: Seq[AbstractType[_]]): Boolean = candidateType match {
+  def supports(candidateType: AbstractType[_], supportedTypes: Seq[Class[_]]): Boolean = candidateType match {
     case t: ReversedType[_] => supports(t.baseType, supportedTypes)
     case t: SetType[_] => supports(t.getElementsType, supportedTypes)
     case t: ListType[_] => supports(t.getElementsType, supportedTypes)
     case t: MapType[_, _] => supports(t.getValuesType, supportedTypes)
-    case t => supportedTypes.exists(candidateType.getClass == _.getClass)
+    case _ =>
+      val native = nativeType(candidateType)
+      supportedTypes.exists(_ isAssignableFrom native)
+  }
+
+  def nativeType(validator: AbstractType[_]): Class[_] = validator match {
+    case _: UTF8Type | _: AsciiType => classOf[String]
+    case _: SimpleDateType | _: TimestampType => classOf[Date]
+    case _: UUIDType | _: LexicalUUIDType | _: TimeUUIDType => classOf[UUID]
+    case _: ShortType => classOf[java.lang.Short]
+    case _: ByteType => classOf[java.lang.Byte]
+    case _: Int32Type => classOf[Integer]
+    case _: LongType => classOf[java.lang.Long]
+    case _: IntegerType => classOf[BigInteger]
+    case _: FloatType => classOf[java.lang.Float]
+    case _: DoubleType => classOf[java.lang.Double]
+    case _: DecimalType => classOf[BigDecimal]
+    case _: BooleanType => classOf[java.lang.Boolean]
+    case _: BytesType => classOf[ByteBuffer]
+    case _: InetAddressType => classOf[InetAddress]
+    case _ => throw new IndexException(s"Unsupported Cassandra data type: ${validator.getClass}")
   }
 
 }

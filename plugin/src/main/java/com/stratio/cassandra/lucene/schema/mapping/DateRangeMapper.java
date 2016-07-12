@@ -20,7 +20,6 @@ import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.core.column.Column;
 import com.stratio.cassandra.lucene.core.column.Columns;
 import com.stratio.cassandra.lucene.util.DateParser;
-import org.apache.cassandra.db.marshal.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexableField;
@@ -64,18 +63,7 @@ public class DateRangeMapper extends Mapper {
      * @param pattern the date pattern
      */
     public DateRangeMapper(String field, Boolean validated, String from, String to, String pattern) {
-        super(field,
-              false,
-              validated,
-              null,
-              Arrays.asList(from, to),
-              AsciiType.instance,
-              UTF8Type.instance,
-              Int32Type.instance,
-              LongType.instance,
-              IntegerType.instance,
-              SimpleDateType.instance,
-              TimestampType.instance, TimeUUIDType.instance);
+        super(field, false, validated, null, Arrays.asList(from, to), DATE_TYPES);
 
         if (StringUtils.isBlank(from)) {
             throw new IndexException("from column name is required");

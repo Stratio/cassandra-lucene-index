@@ -20,8 +20,6 @@ import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.common.GeoTransformation;
 import com.stratio.cassandra.lucene.util.GeospatialUtils;
-import org.apache.cassandra.db.marshal.AsciiType;
-import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexableField;
@@ -77,7 +75,7 @@ public class GeoShapeMapper extends SingleColumnMapper<String> {
                           Boolean validated,
                           Integer maxLevels,
                           List<GeoTransformation> transformations) {
-        super(field, column, false, validated, null, String.class, AsciiType.instance, UTF8Type.instance);
+        super(field, column, false, validated, null, String.class, TEXT_TYPES);
 
         this.column = column == null ? field : column;
 

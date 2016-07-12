@@ -185,11 +185,12 @@ public class Schema implements Closeable {
     /**
      * Returns if this has any mapping for the specified column definition.
      *
-     * @param column the column definition
+     * @param columnDefinition the column definition
      * @return {@code true} if there is any mapping for the column, {@code false} otherwise
      */
-    public boolean maps(ColumnDefinition column) {
-        return mappers.values().stream().anyMatch(mapper -> mapper.maps(column));
+    public boolean maps(ColumnDefinition columnDefinition) {
+        String columnName = columnDefinition.name.toString();
+        return mappers.values().stream().anyMatch(mapper -> mapper.maps(columnName));
     }
 
     /**

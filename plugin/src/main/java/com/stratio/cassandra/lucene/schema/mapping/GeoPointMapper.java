@@ -21,7 +21,6 @@ import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.core.column.Column;
 import com.stratio.cassandra.lucene.core.column.Columns;
 import com.stratio.cassandra.lucene.util.GeospatialUtils;
-import org.apache.cassandra.db.marshal.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.StoredField;
@@ -70,19 +69,7 @@ public class GeoPointMapper extends Mapper {
      * @param maxLevels the maximum number of levels in the tree
      */
     public GeoPointMapper(String field, Boolean validated, String latitude, String longitude, Integer maxLevels) {
-        super(field,
-              false,
-              validated,
-              null,
-              Arrays.asList(latitude, longitude),
-              AsciiType.instance,
-              DecimalType.instance,
-              DoubleType.instance,
-              FloatType.instance,
-              IntegerType.instance,
-              Int32Type.instance,
-              LongType.instance,
-              ShortType.instance, UTF8Type.instance);
+        super(field, false, validated, null, Arrays.asList(latitude, longitude), NUMERIC_TYPES);
 
         if (StringUtils.isBlank(latitude)) {
             throw new IndexException("latitude column name is required");
