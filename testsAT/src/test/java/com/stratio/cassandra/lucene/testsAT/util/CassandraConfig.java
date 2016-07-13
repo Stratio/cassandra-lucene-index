@@ -19,6 +19,8 @@ import com.datastax.driver.core.ConsistencyLevel;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
@@ -44,13 +46,18 @@ public class CassandraConfig {
 
     private static String getIP(String key, String def) {
         String value = System.getProperty("it." + key, def);
-        InetAddress domainAddress = null;
-        try {
-            domainAddress = InetAddress.getByName(value);
-        } catch (UnknownHostException e) {
-            return def;
+        Pattern pattern = Pattern.compile("\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}");
+        Matcher m = pattern.matcher(value);
+        if (m.find()) {//it is an ip
+            return value;
+        } else {
+            InetAddress domainAddress = null;
+            try {
+                domainAddress = InetAddress.getByName(value);
+            } catch (UnknownHostException e) {
+                return def;
+            }
+            return domainAddress.getHostAddress();
         }
-        return domainAddress.getHostAddress();
-
     }
 }
