@@ -17,13 +17,18 @@ package com.stratio.cassandra.lucene.testsAT.util;
 
 import com.datastax.driver.core.ConsistencyLevel;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class CassandraConfig {
 
     static final boolean EMBEDDED = Boolean.parseBoolean(get("embedded", "true"));
-    static final String HOST = get("host", "127.0.0.1");
+    static final String HOST = getIP("host", "127.0.0.1");
     static final int REPLICATION = Integer.valueOf(get("replication", "1"));
     static final ConsistencyLevel CONSISTENCY = ConsistencyLevel.valueOf(get("consistency", "QUORUM"));
     static final int FETCH = Integer.parseInt(get("fetch", "100"));
@@ -37,5 +42,22 @@ public class CassandraConfig {
 
     private static String get(String key, String def) {
         return System.getProperty("it." + key, def);
+    }
+
+    private static String getIP(String key, String def) {
+        String value = System.getProperty("it." + key, def);
+        Pattern pattern = Pattern.compile("\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}");
+        Matcher m = pattern.matcher(value);
+        if (m.find()) {//it is an ip
+            return value;
+        } else {
+            InetAddress domainAddress = null;
+            try {
+                domainAddress = InetAddress.getByName(value);
+            } catch (UnknownHostException e) {
+                return def;
+            }
+            return domainAddress.getHostAddress();
+        }
     }
 }
