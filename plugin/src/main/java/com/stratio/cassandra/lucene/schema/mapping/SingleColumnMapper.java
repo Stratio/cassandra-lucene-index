@@ -20,13 +20,11 @@ import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.core.column.Column;
 import com.stratio.cassandra.lucene.core.column.Columns;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.index.IndexableField;
 
 import javax.validation.constraints.NotNull;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Class for mapping between Cassandra's columns and Lucene documents.
@@ -81,37 +79,32 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
 
     /** {@inheritDoc} */
     @Override
-    public void addFields(Document document, Columns columns) {
-        columns.withMapperName(column).forEach(c -> addFields(document, c));
+    public List<IndexableField> indexableFields(Columns columns) {
+        List<IndexableField> fields = new LinkedList<>();
+        for (Column c : columns.withMapperName(column)) {
+            fields.addAll(indexableFields(c));
+        }
+        return fields;
     }
 
-    private <K> void addFields(Document document, Column<?> c) {
+    private <K> List<IndexableField> indexableFields(Column<?> c) {
         String name = column.equals(field) ? c.fieldName() : c.fieldName(field);
         K value = c.value().getOrElse(null);
         if (value != null) {
             T base = base(c);
-            addIndexedFields(document, name, base);
-            addSortedFields(document, name, base);
+            return indexableFields(name, base);
         }
+        return Collections.emptyList();
     }
 
     /**
      * Returns the {@link Field} to search for the mapped column.
      *
-     * @param document a {@link Document}
      * @param name the name of the column
      * @param value the value of the column
+     * @return a list of indexable fields
      */
-    public abstract void addIndexedFields(Document document, String name, T value);
-
-    /**
-     * Returns the {@link Field} to sort by the mapped column.
-     *
-     * @param document a {@link Document}
-     * @param name the name of the column
-     * @param value the value of the column
-     */
-    public abstract void addSortedFields(Document document, String name, T value);
+    public abstract List<IndexableField> indexableFields(String name, T value);
 
     /**
      * Returns the {@link Column} query value resulting from the mapping of the specified object.
@@ -183,14 +176,11 @@ public abstract class SingleColumnMapper<T extends Comparable<T>> extends Mapper
 
         /** {@inheritDoc} */
         @Override
-        public void addIndexedFields(Document document, String name, T value) {
-            indexedField(name, value).ifPresent(document::add);
-        }
-
-        /** {@inheritDoc} */
-        @Override
-        public void addSortedFields(Document document, String name, T value) {
-            sortedField(name, value).ifPresent(document::add);
+        public List<IndexableField> indexableFields(String name, T value) {
+            List<IndexableField> fields = new ArrayList<>(2);
+            indexedField(name, value).ifPresent(fields::add);
+            sortedField(name, value).ifPresent(fields::add);
+            return fields;
         }
 
         /**

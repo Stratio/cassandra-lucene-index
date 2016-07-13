@@ -18,12 +18,9 @@ package com.stratio.cassandra.lucene.util;
 import com.stratio.cassandra.lucene.IndexException;
 import org.apache.cassandra.utils.UUIDGen;
 
-import java.math.BigInteger;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 import java.util.UUID;
 
 /**

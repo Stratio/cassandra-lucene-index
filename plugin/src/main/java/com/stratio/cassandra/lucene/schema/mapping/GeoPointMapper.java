@@ -21,8 +21,9 @@ import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.core.column.Column;
 import com.stratio.cassandra.lucene.core.column.Columns;
 import com.stratio.cassandra.lucene.util.GeospatialUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
 import org.apache.lucene.document.StoredField;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.search.SortField;
@@ -34,6 +35,8 @@ import org.apache.lucene.spatial.prefix.tree.SpatialPrefixTree;
 import scala.Option;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import static com.stratio.cassandra.lucene.util.GeospatialUtils.CONTEXT;
 
@@ -90,13 +93,13 @@ public class GeoPointMapper extends Mapper {
 
     /** {@inheritDoc} */
     @Override
-    public void addFields(Document document, Columns columns) {
+    public List<IndexableField> indexableFields(Columns columns) {
 
         Double lon = readLongitude(columns);
         Double lat = readLatitude(columns);
 
         if (lon == null && lat == null) {
-            return;
+            return Collections.emptyList();
         } else if (lat == null) {
             throw new IndexException("Latitude column required if there is a longitude");
         } else if (lon == null) {
@@ -105,14 +108,10 @@ public class GeoPointMapper extends Mapper {
 
         Point point = CONTEXT.makePoint(lon, lat);
 
-        for (IndexableField indexableField : distanceStrategy.createIndexableFields(point)) {
-            document.add(indexableField);
-        }
-        for (IndexableField indexableField : bboxStrategy.createIndexableFields(point)) {
-            document.add(indexableField);
-        }
-
-        document.add(new StoredField(distanceStrategy.getFieldName(), point.getX() + " " + point.getY()));
+        Field[] distanceFields = distanceStrategy.createIndexableFields(point);
+        Field[] bboxFields = bboxStrategy.createIndexableFields(point);
+        Field storedField = new StoredField(distanceStrategy.getFieldName(), point.getX() + " " + point.getY());
+        return Arrays.asList(ArrayUtils.addAll(ArrayUtils.addAll(distanceFields, bboxFields), storedField));
     }
 
     /** {@inheritDoc} */

@@ -20,9 +20,9 @@ import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.core.column.Columns;
 import com.stratio.cassandra.lucene.schema.analysis.StandardAnalyzers;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.util.BytesRef;
 
@@ -37,7 +37,7 @@ import java.util.*;
  */
 public abstract class Mapper {
 
-    /** A no-action getAnalyzer for not tokenized {@link Mapper} implementations. */
+    /** A no-action analyzer for not tokenized {@link Mapper} implementations. */
     static final String KEYWORD_ANALYZER = StandardAnalyzers.KEYWORD.toString();
 
     static final List<Class<?>> TEXT_TYPES = Collections.singletonList(String.class);
@@ -77,7 +77,6 @@ public abstract class Mapper {
     /** The supported column value data types. */
     public final List<Class<?>> supportedTypes;
 
-
     /**
      * Builds a new {@link Mapper} supporting the specified types for indexing.
      *
@@ -106,13 +105,12 @@ public abstract class Mapper {
     }
 
     /**
-     * Adds to the specified {@link Document} the Lucene {@link org.apache.lucene.document.Field}s resulting from the
-     * mapping of the specified {@link Columns}.
+     * Returns the Lucene {@link IndexableField}s resulting from the mapping of the specified {@link Columns}.
      *
-     * @param document the {@link Document} where the fields are going to be added
      * @param columns the columns
+     * @return a list of indexable fields
      */
-    public abstract void addFields(Document document, Columns columns);
+    public abstract List<IndexableField> indexableFields(Columns columns);
 
     /**
      * Validates the specified {@link Columns} if {#validated}.
@@ -121,7 +119,7 @@ public abstract class Mapper {
      */
     public final void validate(Columns columns) {
         if (validated) {
-            addFields(new Document(), columns);
+            indexableFields(columns);
         }
     }
 

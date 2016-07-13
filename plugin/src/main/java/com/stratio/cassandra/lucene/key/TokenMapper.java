@@ -23,11 +23,11 @@ import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.dht.Murmur3Partitioner;
 import org.apache.cassandra.dht.Token;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldType;
 import org.apache.lucene.document.LongField;
 import org.apache.lucene.index.DocValuesType;
 import org.apache.lucene.index.IndexOptions;
+import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.*;
 import org.apache.lucene.util.BytesRef;
@@ -70,16 +70,15 @@ public final class TokenMapper {
     }
 
     /**
-     * Adds to the specified {@link Document} the {@link Field}s associated to the token of the specified row key.
+     * Returns the Lucene {@link IndexableField} associated to the token of the specified row key.
      *
-     * @param document a {@link Document}
      * @param key the raw partition key to be added
+     * @return a indexable field
      */
-    public void addFields(Document document, DecoratedKey key) {
+    public IndexableField indexableField(DecoratedKey key) {
         Token token = key.getToken();
         Long value = value(token);
-        Field field = new LongField(FIELD_NAME, value, FIELD_TYPE);
-        document.add(field);
+        return new LongField(FIELD_NAME, value, FIELD_TYPE);
     }
 
     /**

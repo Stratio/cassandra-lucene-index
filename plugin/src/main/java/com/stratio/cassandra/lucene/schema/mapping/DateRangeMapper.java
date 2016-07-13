@@ -21,7 +21,6 @@ import com.stratio.cassandra.lucene.core.column.Column;
 import com.stratio.cassandra.lucene.core.column.Columns;
 import com.stratio.cassandra.lucene.util.DateParser;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.spatial.prefix.NumberRangePrefixTreeStrategy;
@@ -30,7 +29,9 @@ import org.apache.lucene.spatial.prefix.tree.NumberRangePrefixTree.NRShape;
 import org.apache.lucene.spatial.prefix.tree.NumberRangePrefixTree.UnitNRShape;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 /**
  * A {@link Mapper} to map 1-dimensional date ranges.
@@ -82,21 +83,19 @@ public class DateRangeMapper extends Mapper {
 
     /** {@inheritDoc} */
     @Override
-    public void addFields(Document document, Columns columns) {
+    public List<IndexableField> indexableFields(Columns columns) {
 
         Date fromDate = readFrom(columns);
         Date toDate = readTo(columns);
 
         if (fromDate == null && toDate == null) {
-            return;
+            return Collections.emptyList();
         }
 
         validate(fromDate, toDate);
 
         NRShape shape = makeShape(fromDate, toDate);
-        for (IndexableField indexableField : strategy.createIndexableFields(shape)) {
-            document.add(indexableField);
-        }
+        return Arrays.asList(strategy.createIndexableFields(shape));
     }
 
     private void validate(Date from, Date to) {

@@ -35,6 +35,7 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldType;
 import org.apache.lucene.index.DocValuesType;
 import org.apache.lucene.index.IndexOptions;
+import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
@@ -183,18 +184,16 @@ public final class KeyMapper {
     }
 
     /**
-     * Adds to the specified Lucene {@link Document} the primary key formed by the specified partition key and the
-     * clustering key.
+     * Returns the Lucene {@link IndexableField} representing the primary key formed by the specified primary key.
      *
-     * @param document the Lucene {@link Document} in which the key is going to be added
      * @param key the partition key
      * @param clustering the clustering key
+     * @return a indexable field
      */
-    public void addFields(Document document, DecoratedKey key, Clustering clustering) {
+    public IndexableField indexableField(DecoratedKey key, Clustering clustering) {
         ByteBuffer bb = byteBuffer(key, clustering);
         BytesRef bytesRef = ByteBufferUtils.bytesRef(bb);
-        Field field = new Field(FIELD_NAME, bytesRef, FIELD_TYPE);
-        document.add(field);
+        return new Field(FIELD_NAME, bytesRef, FIELD_TYPE);
     }
 
     /**

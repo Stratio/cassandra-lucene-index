@@ -16,7 +16,6 @@
 package com.stratio.cassandra.lucene.schema.mapping.builder;
 
 import com.stratio.cassandra.lucene.schema.mapping.DateRangeMapper;
-import com.stratio.cassandra.lucene.util.DateParser;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 /**

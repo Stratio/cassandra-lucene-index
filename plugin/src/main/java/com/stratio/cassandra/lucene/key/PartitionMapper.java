@@ -15,7 +15,9 @@
  */
 package com.stratio.cassandra.lucene.key;
 
-import com.stratio.cassandra.lucene.core.column.*;
+import com.stratio.cassandra.lucene.core.column.Column;
+import com.stratio.cassandra.lucene.core.column.Columns;
+import com.stratio.cassandra.lucene.core.column.ColumnsMapper;
 import com.stratio.cassandra.lucene.util.ByteBufferUtils;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
@@ -29,6 +31,7 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldType;
 import org.apache.lucene.index.DocValuesType;
 import org.apache.lucene.index.IndexOptions;
+import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.SortField;
@@ -106,15 +109,15 @@ public final class PartitionMapper {
     }
 
     /**
-     * Adds to the specified {@link Document} the {@link Field}s associated to the specified partition key.
+     * Returns the Lucene {@link IndexableField} representing to the specified partition key.
      *
-     * @param document the document in which the fields are going to be added
      * @param partitionKey the partition key to be converted
+     * @return a indexable field
      */
-    public void addFields(Document document, DecoratedKey partitionKey) {
+    public IndexableField indexableField(DecoratedKey partitionKey) {
         ByteBuffer bb = partitionKey.getKey();
         BytesRef bytesRef = ByteBufferUtils.bytesRef(bb);
-        document.add(new Field(FIELD_NAME, bytesRef, FIELD_TYPE));
+        return new Field(FIELD_NAME, bytesRef, FIELD_TYPE);
     }
 
     /**

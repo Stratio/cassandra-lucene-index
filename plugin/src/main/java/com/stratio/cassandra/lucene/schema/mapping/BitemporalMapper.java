@@ -21,12 +21,11 @@ import com.stratio.cassandra.lucene.core.column.Column;
 import com.stratio.cassandra.lucene.core.column.Columns;
 import com.stratio.cassandra.lucene.util.DateParser;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.lucene.document.Document;
 import org.apache.lucene.document.LongField;
+import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.search.SortField;
 
-import java.util.Arrays;
-import java.util.Date;
+import java.util.*;
 
 /**
  * A {@link Mapper} to map bitemporal DateRanges.
@@ -116,7 +115,7 @@ public class BitemporalMapper extends Mapper {
 
     /** {@inheritDoc} */
     @Override
-    public void addFields(Document document, Columns columns) {
+    public List<IndexableField> indexableFields(Columns columns) {
 
         BitemporalDateTime vtFromTime = readBitemporalDate(columns, vtFrom);
         BitemporalDateTime vtToTime = readBitemporalDate(columns, vtTo);
@@ -124,15 +123,17 @@ public class BitemporalMapper extends Mapper {
         BitemporalDateTime ttToTime = readBitemporalDate(columns, ttTo);
 
         if (vtFromTime == null && vtToTime == null && ttFromTime == null && ttToTime == null) {
-            return;
+            return Collections.emptyList();
         }
 
         validate(vtFromTime, vtToTime, ttFromTime, ttToTime);
 
-        document.add(new LongField(field + VT_FROM_FIELD_SUFFIX, vtFromTime.toTimestamp(), STORE));
-        document.add(new LongField(field + VT_TO_FIELD_SUFFIX, vtToTime.toTimestamp(), STORE));
-        document.add(new LongField(field + TT_FROM_FIELD_SUFFIX, ttFromTime.toTimestamp(), STORE));
-        document.add(new LongField(field + TT_TO_FIELD_SUFFIX, ttToTime.toTimestamp(), STORE));
+        List<IndexableField> fields = new ArrayList<>(4);
+        fields.add(new LongField(field + VT_FROM_FIELD_SUFFIX, vtFromTime.toTimestamp(), STORE));
+        fields.add(new LongField(field + VT_TO_FIELD_SUFFIX, vtToTime.toTimestamp(), STORE));
+        fields.add(new LongField(field + TT_FROM_FIELD_SUFFIX, ttFromTime.toTimestamp(), STORE));
+        fields.add(new LongField(field + TT_TO_FIELD_SUFFIX, ttToTime.toTimestamp(), STORE));
+        return fields;
     }
 
     private void validate(BitemporalDateTime vtFrom,

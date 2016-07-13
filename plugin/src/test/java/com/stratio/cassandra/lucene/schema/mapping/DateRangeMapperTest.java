@@ -19,7 +19,6 @@ import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.core.column.Columns;
 import com.stratio.cassandra.lucene.schema.mapping.builder.DateRangeMapperBuilder;
 import org.apache.cassandra.utils.UUIDGen;
-import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.IndexableField;
 import org.junit.Test;
@@ -27,6 +26,7 @@ import org.junit.Test;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.dateRangeMapper;
@@ -170,39 +170,33 @@ public class DateRangeMapperTest extends AbstractMapperTest {
         DateRangeMapper mapper = dateRangeMapper("from", "to").pattern("yyyy-MM-dd").build("name");
         Columns columns = new Columns().add("from", "1982-11-27").add("to", "2016-11-27");
 
-        Document document = new Document();
-        mapper.addFields(document, columns);
-        IndexableField[] indexableFields = document.getFields("name");
-        assertEquals("Indexed field is not created", 1, indexableFields.length);
-        assertTrue("Indexed field type is wrong", indexableFields[0] instanceof Field);
-        assertEquals("Indexed field name is wrong", "name", indexableFields[0].name());
+        List<IndexableField> indexableFields = mapper.indexableFields(columns);
+        assertEquals("Indexed field is not created", 1, indexableFields.size());
+        assertTrue("Indexed field type is wrong", indexableFields.get(0) instanceof Field);
+        assertEquals("Indexed field name is wrong", "name", indexableFields.get(0).name());
     }
 
     @Test
     public void testAddFieldsWithNullColumns() {
         DateRangeMapper mapper = dateRangeMapper("from", "to").build("name");
         Columns columns = new Columns();
-        Document document = new Document();
-        mapper.addFields(document, columns);
-        assertEquals("Null columns must not produce fields", 0, document.getFields().size());
+        List<IndexableField> indexableFields = mapper.indexableFields(columns);
+        assertEquals("Null columns must not produce fields", 0, indexableFields.size());
     }
 
     @Test(expected = IndexException.class)
     public void testAddFieldsWithBadSortColumns() {
         DateRangeMapper mapper = dateRangeMapper("from", "to").pattern("yyyy").build("name");
         Columns columns = new Columns().add("from", "1982").add("to", "1980");
-        Document document = new Document();
-        mapper.addFields(document, columns);
+        mapper.indexableFields(columns);
     }
 
     @Test
     public void testAddFieldsWithSameColumns() {
         DateRangeMapper mapper = dateRangeMapper("from", "to").pattern("yyyy").build("name");
         Columns columns = new Columns().add("from", 2000).add("to", 2000);
-        Document document = new Document();
-        mapper.addFields(document, columns);
-        IndexableField[] indexableFields = document.getFields("name");
-        assertEquals("Indexed field is not created", 1, indexableFields.length);
+        List<IndexableField> indexableFields = mapper.indexableFields(columns);
+        assertEquals("Indexed field is not created", 1, indexableFields.size());
     }
 
     @Test

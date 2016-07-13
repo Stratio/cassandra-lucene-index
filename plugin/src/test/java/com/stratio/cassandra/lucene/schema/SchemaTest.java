@@ -20,10 +20,11 @@ import com.stratio.cassandra.lucene.core.column.Columns;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
-import org.apache.lucene.document.Document;
+import org.apache.lucene.index.IndexableField;
 import org.junit.Test;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
@@ -39,7 +40,7 @@ public class SchemaTest {
         Map<String, Mapper> mappers = new HashMap<>();
         Map<String, Analyzer> analyzers = new HashMap<>();
         Schema schema = new Schema(new EnglishAnalyzer(), mappers, analyzers);
-        Analyzer analyzer = schema.getDefaultAnalyzer();
+        Analyzer analyzer = schema.defaultAnalyzer();
         assertEquals("Expected english analyzer", EnglishAnalyzer.class, analyzer.getClass());
         schema.close();
     }
@@ -49,7 +50,7 @@ public class SchemaTest {
         Map<String, Mapper> mappers = new HashMap<>();
         Map<String, Analyzer> analyzers = new HashMap<>();
         Schema schema = new Schema(new EnglishAnalyzer(), mappers, analyzers);
-        Analyzer analyzer = schema.getDefaultAnalyzer();
+        Analyzer analyzer = schema.defaultAnalyzer();
         assertEquals("Expected default analyzer", EnglishAnalyzer.class, analyzer.getClass());
         schema.close();
     }
@@ -59,7 +60,7 @@ public class SchemaTest {
         Map<String, Mapper> mappers = new HashMap<>();
         Map<String, Analyzer> analyzers = new HashMap<>();
         Schema schema = new Schema(new EnglishAnalyzer(), mappers, analyzers);
-        Analyzer analyzer = schema.getAnalyzer("custom");
+        Analyzer analyzer = schema.analyzer("custom");
         assertEquals("Expected default analyzer", EnglishAnalyzer.class, analyzer.getClass());
         schema.close();
     }
@@ -69,7 +70,7 @@ public class SchemaTest {
         Map<String, Mapper> mappers = new HashMap<>();
         Map<String, Analyzer> analyzers = new HashMap<>();
         Schema schema = new Schema(new EnglishAnalyzer(), mappers, analyzers);
-        schema.getAnalyzer(null);
+        schema.analyzer(null);
         schema.close();
     }
 
@@ -78,7 +79,7 @@ public class SchemaTest {
         Map<String, Mapper> mappers = new HashMap<>();
         Map<String, Analyzer> analyzers = new HashMap<>();
         Schema schema = new Schema(new EnglishAnalyzer(), mappers, analyzers);
-        schema.getAnalyzer(" \t");
+        schema.analyzer(" \t");
         schema.close();
     }
 
@@ -102,9 +103,8 @@ public class SchemaTest {
     public void testAddFields() {
         Schema schema = SchemaBuilders.schema().mapper("field1", stringMapper()).build();
         Columns columns = new Columns().add("field1", "value");
-        Document document = new Document();
-        schema.addFields(document, columns);
-        assertNotNull("Expected true", document.getField("field1"));
+        List<IndexableField> fields = schema.indexableFields(columns);
+        assertFalse("Expected true", fields.isEmpty());
         schema.close();
     }
 
@@ -112,9 +112,9 @@ public class SchemaTest {
     public void testAddFieldsFailing() {
         Schema schema = SchemaBuilders.schema().mapper("field1", integerMapper()).build();
         Columns columns = new Columns().add("field1", "value");
-        Document document = new Document();
-        schema.addFields(document, columns);
-        assertNull("Expected true", document.getField("field1"));
+        List<IndexableField> fields = schema.indexableFields(columns);
+        assertTrue("Expected true", fields.isEmpty());
+        schema.close();
     }
 
     @Test
@@ -123,10 +123,10 @@ public class SchemaTest {
                                       .mapper("field1", stringMapper())
                                       .mapper("field2.x.y.z", stringMapper())
                                       .build();
-        assertNotNull("Expected true", schema.getMapper("field1"));
-        assertNotNull("Expected true", schema.getMapper("field2.x.y.z"));
-        assertNull("Expected false", schema.getMapper("field2.x.y"));
-        assertNull("Expected false", schema.getMapper("field2.x$a.y$b"));
+        assertNotNull("Expected true", schema.mapper("field1"));
+        assertNotNull("Expected true", schema.mapper("field2.x.y.z"));
+        assertNull("Expected false", schema.mapper("field2.x.y"));
+        assertNull("Expected false", schema.mapper("field2.x$a.y$b"));
         schema.close();
     }
 
