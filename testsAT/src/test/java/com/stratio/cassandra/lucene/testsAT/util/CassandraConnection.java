@@ -57,6 +57,7 @@ public class CassandraConnection {
     }
 
     public static void connect() {
+        logger.debug("conecting to: " + HOST);
         if (cluster == null) {
             try {
                 cluster = Cluster.builder().addContactPoint(HOST).build();
