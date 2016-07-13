@@ -737,4 +737,24 @@ public class MatchSearchAT extends AbstractSearchAT {
     public void matchFilterMapFieldTest4() {
         filter(match("map_1$k1", "v1")).check(2);
     }
+
+    @Test
+    public void testMatchMapFieldWithAlias1() {
+        filter(match("string_map$k1", "")).check(0);
+    }
+
+    @Test
+    public void testMatchMapFieldWithAlias2() {
+        filter(match("string_map$k1", "l1")).check(0);
+    }
+
+    @Test
+    public void testMatchMapFieldWithAlias3() {
+        filter(match("string_map$k1", "k1")).check(0);
+    }
+
+    @Test
+    public void testMatchMapFieldWithAlias4() {
+        filter(match("string_map$k1", "v1")).check(2);
+    }
 }

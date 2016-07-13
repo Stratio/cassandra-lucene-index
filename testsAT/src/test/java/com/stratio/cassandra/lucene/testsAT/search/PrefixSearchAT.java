@@ -263,4 +263,24 @@ public class PrefixSearchAT extends AbstractSearchAT {
     public void prefixFilterMapFieldTest4() {
         filter(prefix("map_1$k1", "v1")).check(2);
     }
+
+    @Test
+    public void testPrefixMapFieldWithAlias1() {
+        filter(prefix("string_map$k1", "")).check(2);
+    }
+
+    @Test
+    public void testPrefixMapFieldWithAlias2() {
+        filter(prefix("string_map$k1", "l1")).check(0);
+    }
+
+    @Test
+    public void testPrefixMapFieldWithAlias3() {
+        filter(prefix("string_map$k1", "k1")).check(0);
+    }
+
+    @Test
+    public void testPrefixMapFieldWithAlias4() {
+        filter(prefix("string_map$k1", "v1")).check(2);
+    }
 }

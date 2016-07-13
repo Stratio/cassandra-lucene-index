@@ -56,6 +56,21 @@ public class SortedSearchAT extends AbstractSearchAT {
     }
 
     @Test
+    public void testSimpleSortFieldStringAsc() {
+        sort(field("text_2").reverse(false)).checkOrderedColumns("integer_1", -1, -3, -2, -5, -4);
+    }
+
+    @Test
+    public void testSimpleSortFieldStringDesc() {
+        sort(field("text_2").reverse(true)).checkOrderedColumns("integer_1", -4, -5, -2, -3, -1);
+    }
+
+    @Test
+    public void testSimpleSortFieldStringDefault() {
+        sort(field("text_2")).checkOrderedColumns("integer_1", -1, -3, -2, -5, -4);
+    }
+
+    @Test
     public void testSortCombined() {
         sort(field("double_1"), field("integer_1")).checkOrderedColumns("double_1", 1D, 2D, 3D, 3D, 3D);
         sort(field("double_1"), field("integer_1")).checkOrderedColumns("integer_1", -1, -2, -5, -4, -3);
@@ -134,5 +149,20 @@ public class SortedSearchAT extends AbstractSearchAT {
                       .sort(field("id").reverse(true))
                       .checkOrderedColumns("id", 4, 3, 2, 1)
                       .dropKeyspace();
+    }
+
+    @Test
+    public void sortAsMapValuesAsc() {
+        query(all()).sort(field("string_map$k4").reverse(false)).checkOrderedColumns("integer_1", -1, -3, -2, -5, -4);
+    }
+
+    @Test
+    public void sortAsMapValuesDesc() {
+        query(all()).sort(field("string_map$k4").reverse(true)).checkOrderedColumns("integer_1", -4, -5, -2, -3, -1);
+    }
+
+    @Test
+    public void testMAtchMAp() {
+        query(all()).sort(field("string_map$k4").reverse(true)).checkOrderedColumns("integer_1", -4, -5, -2, -3, -1);
     }
 }

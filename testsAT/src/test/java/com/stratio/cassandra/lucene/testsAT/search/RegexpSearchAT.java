@@ -323,4 +323,24 @@ public class RegexpSearchAT extends AbstractSearchAT {
     public void regexpFilterMapFieldTest4() {
         filter(regexp("map_1$k1", "v.*")).check(2);
     }
+
+    @Test
+    public void testRegexpMapFieldWithAlias1() {
+        filter(regexp("string_map$k1", "")).check(0);
+    }
+
+    @Test
+    public void testRegexpMapFieldWithAlias2() {
+        filter(regexp("string_map$k1", "l.*")).check(0);
+    }
+
+    @Test
+    public void testRegexpMapFieldWithAlias3() {
+        filter(regexp("string_map$k1", "k.*")).check(0);
+    }
+
+    @Test
+    public void testRegexpMapFieldWithAlias4() {
+        filter(regexp("string_map$k1", "v.*")).check(2);
+    }
 }

@@ -740,4 +740,24 @@ public class RangeSearchAT extends AbstractSearchAT {
     public void rangeFilterMapFieldTest4() {
         filter(range("map_1$k1").lower("a1").upper("k1")).check(0);
     }
+
+    @Test
+    public void testRangeMapFieldWithAlias1() {
+        filter(range("string_map$k1").lower("a").upper("z")).check(2);
+    }
+
+    @Test
+    public void testRangeMapFieldWithAlias2() {
+        filter(range("string_map$k1").lower("a1").upper("z9")).check(2);
+    }
+
+    @Test
+    public void testRangeMapFieldWithAlias3() {
+        filter(range("string_map$k1").lower("a1").upper("k9")).check(0);
+    }
+
+    @Test
+    public void testRangeMapFieldWithAlias4() {
+        filter(range("string_map$k1").lower("a1").upper("k1")).check(0);
+    }
 }

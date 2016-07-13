@@ -213,4 +213,24 @@ public class PhraseSearchAT extends AbstractSearchAT {
     public void phraseFilterMapFieldTest4() {
         filter(phrase("map_1$k1", ("v1"))).check(2);
     }
+
+    @Test
+    public void phraseMapFieldTestWithAlias1() {
+        filter(phrase("string_map$k1", "")).check(0);
+    }
+
+    @Test
+    public void phraseMapFieldTestWithAlias2() {
+        filter(phrase("string_map$k1", "l1")).check(0);
+    }
+
+    @Test
+    public void phraseMapFieldTestWithAlias3() {
+        filter(phrase("string_map$k1", ("k1"))).check(0);
+    }
+
+    @Test
+    public void phraseMapFieldTestWithAlias4() {
+        filter(phrase("string_map$k1", ("v1"))).check(2);
+    }
 }

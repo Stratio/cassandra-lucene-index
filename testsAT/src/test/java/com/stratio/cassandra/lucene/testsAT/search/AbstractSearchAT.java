@@ -49,6 +49,7 @@ public abstract class AbstractSearchAT extends BaseAT {
                               .withColumn("integer_1", "int")
                               .withColumn("inet_1", "inet")
                               .withColumn("text_1", "text")
+                              .withColumn("text_2", "text", stringMapper())
                               .withColumn("varchar_1", "varchar")
                               .withColumn("uuid_1", "uuid")
                               .withColumn("timeuuid_1", "timeuuid")
