@@ -104,10 +104,8 @@ public class GeoShapeCondition extends SingleFieldCondition {
 
         // Apply transformations
         JtsGeometry transformedGeometry = geometry;
-        if (transformations != null) {
-            for (GeoTransformation transformation : transformations) {
-                transformedGeometry = transformation.apply(transformedGeometry);
-            }
+        for (GeoTransformation transformation : transformations) {
+            transformedGeometry = transformation.apply(transformedGeometry);
         }
 
         // Build query

@@ -1,6 +1,7 @@
 # Changelog
 ## 3.0.8.1 (Upcoming)
 
+* Add geospatial shapes post filtering (ensures accuracy with any tree levels)
 Merged from 2.2.7.0:
 * Fix mapper referenced by alias in sortFields
 
