@@ -16,7 +16,7 @@
 package com.stratio.cassandra.lucene;
 
 import com.google.common.base.MoreObjects;
-import com.stratio.cassandra.lucene.core.column.ColumnsMapper;
+import com.stratio.cassandra.lucene.column.ColumnsMapper;
 import com.stratio.cassandra.lucene.schema.Schema;
 import com.stratio.cassandra.lucene.schema.SchemaBuilder;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;

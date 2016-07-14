@@ -16,9 +16,9 @@
 package com.stratio.cassandra.lucene.key;
 
 import com.stratio.cassandra.lucene.IndexException;
-import com.stratio.cassandra.lucene.core.column.Column;
-import com.stratio.cassandra.lucene.core.column.Columns;
-import com.stratio.cassandra.lucene.core.column.ColumnsMapper;
+import com.stratio.cassandra.lucene.column.Column;
+import com.stratio.cassandra.lucene.column.Columns;
+import com.stratio.cassandra.lucene.column.ColumnsMapper;
 import com.stratio.cassandra.lucene.util.ByteBufferUtils;
 import org.apache.cassandra.config.CFMetaData;
 import org.apache.cassandra.config.ColumnDefinition;
@@ -119,7 +119,7 @@ public final class KeyMapper {
      * @param clustering the clustering key
      * @return the columns
      */
-    public com.stratio.cassandra.lucene.core.column.Columns columns(Clustering clustering) {
+    public Columns columns(Clustering clustering) {
         Columns columns = new Columns();
         for (ColumnDefinition columnDefinition : metadata.clusteringColumns()) {
             String name = columnDefinition.name.toString();

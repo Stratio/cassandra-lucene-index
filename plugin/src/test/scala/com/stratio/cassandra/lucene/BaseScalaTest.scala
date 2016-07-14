@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.cassandra.lucene.core.column
+package com.stratio.cassandra.lucene
 
 import org.scalatest.{FunSuite, Matchers}
 
@@ -22,5 +22,5 @@ import org.scalatest.{FunSuite, Matchers}
   *
   * @author Andres de la Pena `adelapena@stratio.com`
   */
-class BaseTest extends FunSuite with Matchers {
+class BaseScalaTest extends FunSuite with Matchers {
 }

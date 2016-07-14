@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.cassandra.lucene.core.column
+package com.stratio.cassandra.lucene.column
 
+import com.stratio.cassandra.lucene.BaseScalaTest
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 
@@ -24,7 +25,7 @@ import org.scalatest.junit.JUnitRunner
   * @author Andres de la Pena `adelapena@stratio.com`
   */
 @RunWith(classOf[JUnitRunner])
-class ColumnTest extends BaseTest {
+class ColumnTest extends BaseScalaTest {
 
   test("set default attributes") {
     val column = Column("cell")

@@ -17,8 +17,8 @@ package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.IndexException;
-import com.stratio.cassandra.lucene.core.column.Column;
-import com.stratio.cassandra.lucene.core.column.Columns;
+import com.stratio.cassandra.lucene.column.Column;
+import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.util.DateParser;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.index.IndexableField;
@@ -141,7 +141,7 @@ public class DateRangeMapper extends Mapper {
             return null;
         }
         Date fromDate = parser.parse(column.value().getOrElse(null));
-        if (to == null) {
+        if (fromDate == null) {
             throw new IndexException("From date required");
         }
         return fromDate;

@@ -17,7 +17,7 @@ package com.stratio.cassandra.lucene.schema;
 
 import com.google.common.base.MoreObjects;
 import com.stratio.cassandra.lucene.IndexException;
-import com.stratio.cassandra.lucene.core.column.Column;
+import com.stratio.cassandra.lucene.column.Column;
 import com.stratio.cassandra.lucene.index.TokenLengthAnalyzer;
 import com.stratio.cassandra.lucene.schema.analysis.ClasspathAnalyzerBuilder;
 import com.stratio.cassandra.lucene.schema.analysis.StandardAnalyzers;

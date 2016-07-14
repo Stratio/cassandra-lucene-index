@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.cassandra.lucene.core.column
+package com.stratio.cassandra.lucene.column
+
+import java.util.stream.StreamSupport
 
 import com.google.common.base.MoreObjects
 
@@ -39,6 +41,9 @@ case class Columns(columns: Column[_]*) extends Traversable[Column[_]] with java
     columns.iterator
   }
 
+  def stream: java.util.stream.Stream[Column[_]] =
+    StreamSupport.stream(spliterator(), false)
+
   /** Returns a copy of this with the specified column appended. */
   def +(column: Column[_]): Columns =
     new Columns(columns :+ column)
@@ -47,8 +52,8 @@ case class Columns(columns: Column[_]*) extends Traversable[Column[_]] with java
   def +(columns: Columns): Columns =
     new Columns(this.columns ++ columns)
 
-  override def head(): Column[_] =
-    if (columns.isEmpty) null else columns.head // TODO: Use option
+  override def head: Column[_] =
+    if (columns.isEmpty) null else columns.head
 
   /** Returns copy of this with only the columns with the specified full name. */
   def withFieldName(name: String): Columns =

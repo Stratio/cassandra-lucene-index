@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.cassandra.lucene.core.column
+package com.stratio.cassandra.lucene.column
 
 import java.math.{BigDecimal, BigInteger}
 import java.text.SimpleDateFormat
 import java.util.{Date, UUID}
 
 import com.google.common.collect.Lists
-import com.stratio.cassandra.lucene.core.column.ColumnsMapper._
+import com.stratio.cassandra.lucene.BaseScalaTest
+import com.stratio.cassandra.lucene.column.ColumnsMapper._
 import org.apache.cassandra.config.ColumnDefinition
 import org.apache.cassandra.db.marshal._
 import org.apache.cassandra.db.rows.{BufferCell, Cell}
@@ -36,7 +37,7 @@ import scala.collection.JavaConverters._
   * @author Andres de la Pena `adelapena@stratio.com`
   */
 @RunWith(classOf[JUnitRunner])
-class ColumnsMapperTest extends BaseTest {
+class ColumnsMapperTest extends BaseScalaTest {
 
   test("compose with basic types") {
     compose(AsciiType.instance.decompose("aB"), AsciiType.instance) shouldBe "aB"

@@ -15,7 +15,7 @@
  */
 package com.stratio.cassandra.lucene;
 
-import com.stratio.cassandra.lucene.core.column.Columns;
+import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.index.DocumentIterator;
 import com.stratio.cassandra.lucene.index.FSIndex;
 import com.stratio.cassandra.lucene.index.RAMIndex;

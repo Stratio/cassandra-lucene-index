@@ -16,7 +16,7 @@
 package com.stratio.cassandra.lucene.schema;
 
 import com.stratio.cassandra.lucene.IndexException;
-import com.stratio.cassandra.lucene.core.column.Columns;
+import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.schema.mapping.Mapper;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;

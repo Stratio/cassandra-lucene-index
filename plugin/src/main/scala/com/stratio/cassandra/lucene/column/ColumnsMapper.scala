@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.stratio.cassandra.lucene.core.column
+package com.stratio.cassandra.lucene.column
 
 import java.math.{BigDecimal, BigInteger}
 import java.net.InetAddress
