@@ -16,20 +16,15 @@
 package com.stratio.cassandra.lucene.util;
 
 import com.stratio.cassandra.lucene.IndexException;
-import com.stratio.cassandra.lucene.column.Column;
 import org.apache.cassandra.utils.UUIDGen;
 
-import java.io.IOException;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.Date;
 import java.util.UUID;
 
 /**
- * Unified class for parsing {@link Date}s from {@link Object}s and {@link Column}s.
+ * Unified class for parsing {@link Date}s from {@link Object}s.
  *
  * @author Eduardo Alonso {@literal <eduardoalonso@stratio.com>}
  */

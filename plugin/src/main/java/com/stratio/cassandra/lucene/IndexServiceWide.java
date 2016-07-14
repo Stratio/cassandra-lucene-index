@@ -16,6 +16,7 @@
 package com.stratio.cassandra.lucene;
 
 import com.stratio.cassandra.lucene.column.Columns;
+import com.stratio.cassandra.lucene.column.ColumnsMapper;
 import com.stratio.cassandra.lucene.index.DocumentIterator;
 import com.stratio.cassandra.lucene.key.KeyMapper;
 import com.stratio.cassandra.lucene.key.PartitionMapper;
@@ -27,6 +28,7 @@ import org.apache.cassandra.index.transactions.IndexTransaction;
 import org.apache.cassandra.schema.IndexMetadata;
 import org.apache.cassandra.utils.concurrent.OpOrder;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
@@ -93,21 +95,17 @@ class IndexServiceWide extends IndexService {
     /** {@inheritDoc} */
     @Override
     public Columns columns(DecoratedKey key, Row row) {
-        Clustering clustering = row.clustering();
-        Columns columns = new Columns();
-        partitionMapper.addColumns(columns, key);
-        keyMapper.addColumns(columns, clustering);
-        columnsMapper.addColumns(columns, row);
-        return columns;
+        return new Columns().add(partitionMapper.columns(key))
+                            .add(keyMapper.columns(row.clustering()))
+                            .add(ColumnsMapper.columns(row));
     }
 
     /** {@inheritDoc} */
     @Override
-    protected void addKeyFields(Document document, DecoratedKey key, Row row) {
-        Clustering clustering = row.clustering();
-        tokenMapper.addFields(document, key);
-        partitionMapper.addFields(document, key);
-        keyMapper.addFields(document, key, clustering);
+    protected List<IndexableField> keyIndexableFields(DecoratedKey key, Row row) {
+        return Arrays.asList(tokenMapper.indexableField(key),
+                             partitionMapper.indexableField(key),
+                             keyMapper.indexableField(key, row.clustering()));
     }
 
     /** {@inheritDoc} */

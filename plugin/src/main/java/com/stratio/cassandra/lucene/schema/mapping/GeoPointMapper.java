@@ -21,9 +21,9 @@ import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.column.Column;
 import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.util.GeospatialUtils;
-import org.apache.cassandra.db.marshal.*;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
 import org.apache.lucene.document.StoredField;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.search.SortField;
@@ -32,8 +32,11 @@ import org.apache.lucene.spatial.bbox.BBoxStrategy;
 import org.apache.lucene.spatial.prefix.RecursivePrefixTreeStrategy;
 import org.apache.lucene.spatial.prefix.tree.GeohashPrefixTree;
 import org.apache.lucene.spatial.prefix.tree.SpatialPrefixTree;
+import scala.Option;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import static com.stratio.cassandra.lucene.util.GeospatialUtils.CONTEXT;
 
@@ -69,19 +72,7 @@ public class GeoPointMapper extends Mapper {
      * @param maxLevels the maximum number of levels in the tree
      */
     public GeoPointMapper(String field, Boolean validated, String latitude, String longitude, Integer maxLevels) {
-        super(field,
-              false,
-              validated,
-              null,
-              Arrays.asList(latitude, longitude),
-              AsciiType.instance,
-              DecimalType.instance,
-              DoubleType.instance,
-              FloatType.instance,
-              IntegerType.instance,
-              Int32Type.instance,
-              LongType.instance,
-              ShortType.instance, UTF8Type.instance);
+        super(field, false, validated, null, Arrays.asList(latitude, longitude), NUMERIC_TYPES);
 
         if (StringUtils.isBlank(latitude)) {
             throw new IndexException("latitude column name is required");
@@ -102,13 +93,13 @@ public class GeoPointMapper extends Mapper {
 
     /** {@inheritDoc} */
     @Override
-    public void addFields(Document document, Columns columns) {
+    public List<IndexableField> indexableFields(Columns columns) {
 
         Double lon = readLongitude(columns);
         Double lat = readLatitude(columns);
 
         if (lon == null && lat == null) {
-            return;
+            return Collections.emptyList();
         } else if (lat == null) {
             throw new IndexException("Latitude column required if there is a longitude");
         } else if (lon == null) {
@@ -117,14 +108,10 @@ public class GeoPointMapper extends Mapper {
 
         Point point = CONTEXT.makePoint(lon, lat);
 
-        for (IndexableField indexableField : distanceStrategy.createIndexableFields(point)) {
-            document.add(indexableField);
-        }
-        for (IndexableField indexableField : bboxStrategy.createIndexableFields(point)) {
-            document.add(indexableField);
-        }
-
-        document.add(new StoredField(distanceStrategy.getFieldName(), point.getX() + " " + point.getY()));
+        Field[] distanceFields = distanceStrategy.createIndexableFields(point);
+        Field[] bboxFields = bboxStrategy.createIndexableFields(point);
+        Field storedField = new StoredField(distanceStrategy.getFieldName(), point.getX() + " " + point.getY());
+        return Arrays.asList(ArrayUtils.addAll(ArrayUtils.addAll(distanceFields, bboxFields), storedField));
     }
 
     /** {@inheritDoc} */
@@ -140,8 +127,8 @@ public class GeoPointMapper extends Mapper {
      * @return the validated latitude
      */
     Double readLatitude(Columns columns) {
-        Column<?> column = columns.getByFullName(latitude).getFirst();
-        return column == null ? null : readLatitude(column.getValue());
+        Column<?> column = columns.withFieldName(latitude).head();
+        return column == null ? null : readLatitude(column.value());
     }
 
     /**
@@ -152,8 +139,8 @@ public class GeoPointMapper extends Mapper {
      * @return the validated longitude
      */
     Double readLongitude(Columns columns) {
-        Column<?> column = columns.getByFullName(longitude).getFirst();
-        return column == null ? null : readLongitude(column.getValue());
+        Column<?> column = columns.withFieldName(longitude).head();
+        return column == null ? null : readLongitude(column.value());
     }
 
     /**
@@ -161,14 +148,16 @@ public class GeoPointMapper extends Mapper {
      *
      * A valid latitude must in the range [-90, 90].
      *
-     * @param o the {@link Object} containing the latitude
+     * @param option the {@link Object} containing the latitude
      * @return the latitude
      */
-    private Double readLatitude(Object o) {
+    private static <T> Double readLatitude(Option<T> option) {
         Double value;
-        if (o == null) {
+        if (option == null || option.isEmpty()) {
             return null;
-        } else if (o instanceof Number) {
+        }
+        Object o = option.get();
+        if (o instanceof Number) {
             value = ((Number) o).doubleValue();
         } else {
             try {
@@ -185,14 +174,16 @@ public class GeoPointMapper extends Mapper {
      *
      * A valid longitude must in the range [-180, 180].
      *
-     * @param o the {@link Object} containing the latitude
+     * @param option the {@link Object} containing the latitude
      * @return the longitude
      */
-    private static Double readLongitude(Object o) {
+    private static <T> Double readLongitude(Option<T> option) {
         Double value;
-        if (o == null) {
+        if (option == null || option.isEmpty()) {
             return null;
-        } else if (o instanceof Number) {
+        }
+        Object o = option.get();
+        if (o instanceof Number) {
             value = ((Number) o).doubleValue();
         } else {
             try {

@@ -19,9 +19,10 @@ import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.schema.mapping.builder.GeoPointMapperBuilder;
 import com.stratio.cassandra.lucene.util.GeospatialUtils;
-import org.apache.lucene.document.Document;
+import org.apache.lucene.index.IndexableField;
 import org.junit.Test;
 
+import java.util.List;
 import java.util.UUID;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.geoPointMapper;
@@ -122,7 +123,7 @@ public class GeoPointMapperTest extends AbstractMapperTest {
     @Test
     public void testGetLatitudeFromNullColumn() {
         GeoPointMapper mapper = geoPointMapper("lat", "lon").build("field");
-        Columns columns = new Columns().add("lat", null).add("lon", 0);
+        Columns columns = new Columns().add("lat").add("lon", 0);
         assertNull("Latitude is not properly parsed", mapper.readLatitude(columns));
     }
 
@@ -212,7 +213,7 @@ public class GeoPointMapperTest extends AbstractMapperTest {
     @Test
     public void testGetLongitudeFromNullColumn() {
         GeoPointMapper mapper = geoPointMapper("lat", "lon").build("field");
-        Columns columns = new Columns().add("lat", 5).add("lon", null);
+        Columns columns = new Columns().add("lat", 5).add("lon");
         assertNull("Longitude is not properly parsed", mapper.readLongitude(columns));
     }
 
@@ -315,44 +316,32 @@ public class GeoPointMapperTest extends AbstractMapperTest {
     @Test
     public void testAddFields() {
         GeoPointMapper mapper = geoPointMapper("lat", "lon").maxLevels(10).build("field");
-
         Columns columns = new Columns().add("lat", 20).add("lon", "30");
-
-        Document document = new Document();
-        mapper.addFields(document, columns);
-        assertEquals("Fields are not properly created", 2, document.getFields("field.dist").length);
-        assertEquals("Fields are not properly created", 7, document.getFields().size());
+        List<IndexableField> fields = mapper.indexableFields(columns);
+        assertEquals("Fields are not properly created", 7, fields.size());
+        assertEquals("Dist fields are wrong", 2, fields.stream().filter(f -> f.name().equals("field.dist")).count());
     }
 
     @Test
     public void testAddFieldsWithNullColumns() {
         GeoPointMapper mapper = geoPointMapper("lat", "lon").maxLevels(10).build("field");
-
         Columns columns = new Columns();
-
-        Document document = new Document();
-        mapper.addFields(document, columns);
-        assertEquals("Fields are not properly created", 0, document.getFields().size());
+        List<IndexableField> fields = mapper.indexableFields(columns);
+        assertEquals("Fields are not properly created", 0, fields.size());
     }
 
     @Test(expected = IndexException.class)
     public void testAddFieldsWithNullLatitude() {
         GeoPointMapper mapper = geoPointMapper("lat", "lon").maxLevels(10).build("field");
-
         Columns columns = new Columns().add("lon", "30");
-
-        Document document = new Document();
-        mapper.addFields(document, columns);
+        mapper.indexableFields(columns);
     }
 
     @Test(expected = IndexException.class)
     public void testAddFieldsWithNullLongitude() {
         GeoPointMapper mapper = geoPointMapper("lat", "lon").maxLevels(10).build("field");
-
         Columns columns = new Columns().add("lat", 20);
-
-        Document document = new Document();
-        mapper.addFields(document, columns);
+        mapper.indexableFields(columns);
     }
 
     @Test

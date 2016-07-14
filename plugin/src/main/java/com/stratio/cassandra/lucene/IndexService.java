@@ -16,7 +16,6 @@
 package com.stratio.cassandra.lucene;
 
 import com.stratio.cassandra.lucene.column.Columns;
-import com.stratio.cassandra.lucene.column.ColumnsMapper;
 import com.stratio.cassandra.lucene.index.DocumentIterator;
 import com.stratio.cassandra.lucene.index.FSIndex;
 import com.stratio.cassandra.lucene.index.RAMIndex;
@@ -48,6 +47,7 @@ import org.apache.cassandra.utils.Pair;
 import org.apache.cassandra.utils.concurrent.OpOrder;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
@@ -76,7 +76,6 @@ abstract class IndexService implements IndexServiceMBean {
     final String qualifiedName;
     final TokenMapper tokenMapper;
     final PartitionMapper partitionMapper;
-    final ColumnsMapper columnsMapper;
     protected final ColumnFamilyStore table;
     protected final CFMetaData metadata;
     protected final Schema schema;
@@ -115,17 +114,16 @@ abstract class IndexService implements IndexServiceMBean {
         schema = options.schema;
         tokenMapper = new TokenMapper();
         partitionMapper = new PartitionMapper(metadata);
-        columnsMapper = new ColumnsMapper();
         mapsMultiCells = metadata.allColumns()
                                  .stream()
-                                 .filter(x -> schema.getMappedCells().contains(x.name.toString()))
+                                 .filter(x -> schema.mappedCells().contains(x.name.toString()))
                                  .anyMatch(x -> x.type.isMultiCell());
 
         // Setup FS index and write queue
         queue = new TaskQueue(options.indexingThreads, options.indexingQueuesSize);
         lucene = new FSIndex(name,
                              options.path,
-                             options.schema.getAnalyzer(),
+                             options.schema.analyzer(),
                              options.refreshSeconds,
                              options.ramBufferMB,
                              options.maxMergeMB,
@@ -278,9 +276,8 @@ abstract class IndexService implements IndexServiceMBean {
     abstract Columns columns(DecoratedKey key, Row row);
 
     /**
-     * Returns the Lucene {@link Document} representing the specified {@link Row}.
-     *
-     * Only the fields required by the post processing phase of the specified {@link Search} will be added.
+     * Returns the Lucene {@link Document} representing the specified {@link Row}. <p> Only the fields required by the
+     * post processing phase of the specified {@link Search} will be added.
      *
      * @param key the partition key
      * @param row the {@link Row}
@@ -290,12 +287,12 @@ abstract class IndexService implements IndexServiceMBean {
     private Document document(DecoratedKey key, Row row, Search search) {
         Document document = new Document();
         Columns columns = columns(key, row);
-        addKeyFields(document, key, row);
-        schema.addPostProcessingFields(document, columns, search);
+        keyIndexableFields(key, row).forEach(document::add);
+        schema.postProcessingIndexableFields(columns, search).forEach(document::add);
         return document;
     }
 
-    protected abstract void addKeyFields(Document document, DecoratedKey key, Row row);
+    protected abstract List<IndexableField> keyIndexableFields(DecoratedKey key, Row row);
 
     /**
      * Returns a Lucene {@link Term} uniquely identifying the specified {@link Row}.
@@ -338,7 +335,7 @@ abstract class IndexService implements IndexServiceMBean {
             return true;
         } else {
             Columns columns = columns(key, row);
-            return schema.getMappedCells().stream().anyMatch(x -> columns.getByCellName(x).isEmpty());
+            return schema.mappedCells().stream().anyMatch(x -> columns.withCellName(x).isEmpty());
         }
     }
 
@@ -380,12 +377,16 @@ abstract class IndexService implements IndexServiceMBean {
                                      OpOrder.Group opGroup,
                                      IndexTransaction.Type transactionType);
 
-    /** Deletes all the index contents. */
+    /**
+     * Deletes all the index contents.
+     */
     final void truncate() {
         queue.submitSynchronous(lucene::truncate);
     }
 
-    /** Closes and removes all the index files. */
+    /**
+     * Closes and removes all the index files.
+     */
     final void delete() {
         try {
             queue.shutdown();
@@ -407,13 +408,14 @@ abstract class IndexService implements IndexServiceMBean {
     void upsert(DecoratedKey key, Row row, int nowInSec) {
         queue.submitAsynchronous(key, () -> {
             Term term = term(key, row);
-            Columns columns = columns(key, row).cleanDeleted(nowInSec);
-            Document document = new Document();
-            schema.addFields(document, columns);
-            if (document.getFields().isEmpty()) {
+            Columns columns = columns(key, row).withoutDeleted(nowInSec);
+            List<IndexableField> fields = schema.indexableFields(columns);
+            if (fields.isEmpty()) {
                 lucene.delete(term);
             } else {
-                addKeyFields(document, key, row);
+                Document document = new Document();
+                fields.forEach(document::add);
+                keyIndexableFields(key, row).forEach(document::add);
                 lucene.upsert(term, document);
             }
         });
@@ -723,7 +725,7 @@ abstract class IndexService implements IndexServiceMBean {
         try {
 
             // Index collected rows in memory
-            RAMIndex index = new RAMIndex(schema.getAnalyzer());
+            RAMIndex index = new RAMIndex(schema.analyzer());
             Map<Term, SimpleRowIterator> rowsByTerm = new HashMap<>();
             for (Pair<DecoratedKey, SimpleRowIterator> pair : collectedRows) {
                 DecoratedKey key = pair.left;

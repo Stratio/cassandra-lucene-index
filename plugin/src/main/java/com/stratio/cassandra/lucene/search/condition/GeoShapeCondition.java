@@ -90,7 +90,7 @@ public class GeoShapeCondition extends SingleFieldCondition {
 
         // Get the spatial strategy from the mapper
         SpatialStrategy strategy;
-        Mapper mapper = schema.getMapper(field);
+        Mapper mapper = schema.mapper(field);
         if (mapper == null) {
             throw new IndexException("No mapper found for field '{}'", field);
         } else if (mapper instanceof GeoShapeMapper) {

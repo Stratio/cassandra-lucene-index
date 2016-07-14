@@ -17,11 +17,10 @@ package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.util.ByteBufferUtils;
-import org.apache.cassandra.db.marshal.BytesType;
-import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.cassandra.utils.Hex;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 /**
  * A {@link Mapper} to map blob values.
@@ -38,7 +37,7 @@ public class BlobMapper extends KeywordMapper {
      * @param validated if the field must be validated
      */
     public BlobMapper(String field, String column, Boolean validated) {
-        super(field, column, validated, UTF8Type.instance, BytesType.instance);
+        super(field, column, validated, Arrays.asList(String.class, ByteBuffer.class));
     }
 
     /** {@inheritDoc} */

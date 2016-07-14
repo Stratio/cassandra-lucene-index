@@ -20,16 +20,14 @@ import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.common.GeoTransformation;
 import com.stratio.cassandra.lucene.util.GeospatialUtils;
-import org.apache.cassandra.db.marshal.AsciiType;
-import org.apache.cassandra.db.marshal.UTF8Type;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.spatial.prefix.RecursivePrefixTreeStrategy;
 import org.apache.lucene.spatial.prefix.tree.GeohashPrefixTree;
 import org.apache.lucene.spatial.prefix.tree.SpatialPrefixTree;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -77,7 +75,7 @@ public class GeoShapeMapper extends SingleColumnMapper<String> {
                           Boolean validated,
                           Integer maxLevels,
                           List<GeoTransformation> transformations) {
-        super(field, column, false, validated, null, String.class, AsciiType.instance, UTF8Type.instance);
+        super(field, column, false, validated, null, String.class, TEXT_TYPES);
 
         this.column = column == null ? field : column;
 
@@ -94,7 +92,7 @@ public class GeoShapeMapper extends SingleColumnMapper<String> {
 
     /** {@inheritDoc} */
     @Override
-    public void addIndexedFields(Document document, String name, String value) {
+    public List<IndexableField> indexableFields(String name, String value) {
 
         // Parse shape
         JtsGeometry shape = geometry(value);
@@ -106,16 +104,8 @@ public class GeoShapeMapper extends SingleColumnMapper<String> {
             }
         }
 
-        // Add fields
-        for (IndexableField indexableField : strategy.createIndexableFields(shape)) {
-            document.add(indexableField);
-        }
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void addSortedFields(Document document, String name, String value) {
-        // Nothing to do here
+        // Return strategy fields
+        return Arrays.asList(strategy.createIndexableFields(shape));
     }
 
     /** {@inheritDoc} */

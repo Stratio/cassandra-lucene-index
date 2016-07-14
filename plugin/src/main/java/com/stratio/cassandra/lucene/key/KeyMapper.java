@@ -35,6 +35,7 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldType;
 import org.apache.lucene.index.DocValuesType;
 import org.apache.lucene.index.IndexOptions;
+import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
@@ -113,19 +114,21 @@ public final class KeyMapper {
     }
 
     /**
-     * Adds the {@link Column}s contained in the specified {@link Clustering} to the specified {@link Column}s.
+     * Returns the columns contained in the specified {@link Clustering}.
      *
-     * @param columns the {@link Columns} in which the {@link Clustering} {@link Column}s are going to be added
      * @param clustering the clustering key
+     * @return the columns
      */
-    public void addColumns(Columns columns, Clustering clustering) {
+    public Columns columns(Clustering clustering) {
+        Columns columns = new Columns();
         for (ColumnDefinition columnDefinition : metadata.clusteringColumns()) {
             String name = columnDefinition.name.toString();
             int position = columnDefinition.position();
             ByteBuffer value = clustering.get(position);
             AbstractType<?> valueType = columnDefinition.cellValueType();
-            columns.add(ColumnsMapper.column(name, value, valueType));
+            columns = columns.add(Column.apply(name).withValue(ColumnsMapper.compose(value, valueType)));
         }
+        return columns;
     }
 
     /**
@@ -181,18 +184,16 @@ public final class KeyMapper {
     }
 
     /**
-     * Adds to the specified Lucene {@link Document} the primary key formed by the specified partition key and the
-     * clustering key.
+     * Returns the Lucene {@link IndexableField} representing the primary key formed by the specified primary key.
      *
-     * @param document the Lucene {@link Document} in which the key is going to be added
      * @param key the partition key
      * @param clustering the clustering key
+     * @return a indexable field
      */
-    public void addFields(Document document, DecoratedKey key, Clustering clustering) {
+    public IndexableField indexableField(DecoratedKey key, Clustering clustering) {
         ByteBuffer bb = byteBuffer(key, clustering);
         BytesRef bytesRef = ByteBufferUtils.bytesRef(bb);
-        Field field = new Field(FIELD_NAME, bytesRef, FIELD_TYPE);
-        document.add(field);
+        return new Field(FIELD_NAME, bytesRef, FIELD_TYPE);
     }
 
     /**

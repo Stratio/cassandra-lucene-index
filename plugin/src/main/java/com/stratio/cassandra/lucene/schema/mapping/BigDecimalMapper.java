@@ -16,7 +16,6 @@
 package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.stratio.cassandra.lucene.IndexException;
-import org.apache.cassandra.db.marshal.*;
 import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigDecimal;
@@ -61,18 +60,7 @@ public class BigDecimalMapper extends KeywordMapper {
                             Boolean validated,
                             Integer integerDigits,
                             Integer decimalDigits) {
-        super(field,
-              column,
-              validated,
-              ByteType.instance,
-              DecimalType.instance,
-              DoubleType.instance,
-              FloatType.instance,
-              IntegerType.instance,
-              Int32Type.instance,
-              LongType.instance,
-              ShortType.instance,
-              UTF8Type.instance);
+        super(field, column, validated, NUMERIC_TYPES);
 
         // Setup integer part mapping
         if (integerDigits != null && integerDigits <= 0) {

@@ -50,7 +50,8 @@ public class GeoDistanceSortField extends SortField {
 
     /**
      * Returns a new {@link SortField}.
-     *  @param field the name of the geo point field mapper to use to calculate distance
+     *
+     * @param field the name of the geo point field mapper to use to calculate distance
      * @param reverse {@code true} if natural order should be reversed
      * @param latitude the latitude
      * @param longitude the longitude
@@ -68,7 +69,7 @@ public class GeoDistanceSortField extends SortField {
     /** {@inheritDoc} */
     @Override
     public org.apache.lucene.search.SortField sortField(Schema schema) {
-        final Mapper mapper = schema.getMapper(field);
+        final Mapper mapper = schema.mapper(field);
         if (mapper == null) {
             throw new IndexException("Field '{}' is not found", field);
         } else if (!(mapper instanceof GeoPointMapper)) {

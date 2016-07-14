@@ -16,7 +16,6 @@
 package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.stratio.cassandra.lucene.IndexException;
-import org.apache.cassandra.db.marshal.*;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.search.SortField;
@@ -39,27 +38,7 @@ public class TextMapper extends SingleColumnMapper.SingleFieldMapper<String> {
      * @param analyzer the name of the Lucene {@link org.apache.lucene.analysis.Analyzer} to be used
      */
     public TextMapper(String field, String column, Boolean validated, String analyzer) {
-        super(field,
-              column,
-              false,
-              validated,
-              analyzer,
-              String.class,
-              AsciiType.instance,
-              BooleanType.instance,
-              BytesType.instance,
-              ByteType.instance,
-              DoubleType.instance,
-              FloatType.instance,
-              InetAddressType.instance,
-              IntegerType.instance,
-              Int32Type.instance,
-              LongType.instance,
-              ShortType.instance,
-              TimestampType.instance,
-              TimeUUIDType.instance,
-              UTF8Type.instance,
-              UUIDType.instance);
+        super(field, column, false, validated, analyzer, String.class, PRINTABLE_TYPES);
     }
 
     /** {@inheritDoc} */
