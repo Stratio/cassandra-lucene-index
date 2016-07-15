@@ -48,12 +48,15 @@ class IndexWriterSkinny extends IndexWriter {
                       OpOrder.Group opGroup,
                       IndexTransaction.Type transactionType) {
         super(service, key, nowInSec, opGroup, transactionType);
+        logger.debug("IndexWriterSkinny service: {}, key: {}, nowInsecs: {}, opGroup: {} transactionType: {}",
+                     service, key, String.valueOf(nowInSec), opGroup, transactionType);
         optionalRow = Optional.empty();
     }
 
     /** {@inheritDoc} */
     @Override
     protected void delete() {
+        logger.debug("delete key: {}", key);
         service.delete(key);
         optionalRow = Optional.empty();
     }
@@ -61,15 +64,18 @@ class IndexWriterSkinny extends IndexWriter {
     /** {@inheritDoc} */
     @Override
     protected void index(Row row) {
+        logger.debug("index row: {}", row);
         optionalRow = Optional.of(row);
     }
 
     /** {@inheritDoc} */
     @Override
     public void finish() {
-        if (transactionType != IndexTransaction.Type.CLEANUP) {
+        logger.debug("finish: tt: {} optionalRow: {}", transactionType, optionalRow);
+        if ((transactionType == IndexTransaction.Type.UPDATE) ||
+            (transactionType == IndexTransaction.Type.COMPACTION)) {
             optionalRow.ifPresent(row -> {
-                if (transactionType == IndexTransaction.Type.COMPACTION || service.needsReadBeforeWrite(key, row)) {
+                if (service.needsReadBeforeWrite(key, row)) {
                     Tracer.trace("Lucene index reading before write");
                     UnfilteredRowIterator iterator = service.read(key, nowInSec, opGroup);
                     if (iterator.hasNext()) {

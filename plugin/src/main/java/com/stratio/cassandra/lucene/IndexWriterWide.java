@@ -52,6 +52,8 @@ class IndexWriterWide extends IndexWriter {
                     OpOrder.Group opGroup,
                     IndexTransaction.Type transactionType) {
         super(service, key, nowInSec, opGroup, transactionType);
+        logger.debug("IndexWriterSkinny service: {}, key: {}, nowInsecs: {}, opGroup: {} transactionType: {}",
+                     service, key, String.valueOf(nowInSec), opGroup, transactionType);
         rowsToRead = service.clusterings();
         rows = new LinkedHashMap<>();
     }
@@ -59,6 +61,7 @@ class IndexWriterWide extends IndexWriter {
     /** {@inheritDoc} */
     @Override
     protected void delete() {
+        logger.debug("delete key: {}", key);
         service.delete(key);
         rowsToRead.clear();
         rows.clear();
@@ -67,6 +70,7 @@ class IndexWriterWide extends IndexWriter {
     /** {@inheritDoc} */
     @Override
     protected void index(Row row) {
+        logger.debug("index row: {}", row);
         if (!row.isStatic()) {
             Clustering clustering = row.clustering();
             if (service.needsReadBeforeWrite(key, row)) {
@@ -83,7 +87,9 @@ class IndexWriterWide extends IndexWriter {
     /** {@inheritDoc} */
     @Override
     public void finish() {
-        if (transactionType != IndexTransaction.Type.CLEANUP) {
+        logger.debug("finish: tt: {} rowsToRead: {}", transactionType, rowsToRead);
+        if ((transactionType == IndexTransaction.Type.UPDATE) ||
+            (transactionType == IndexTransaction.Type.COMPACTION)) {
 
             // Read required rows from storage engine
             service.read(key, rowsToRead, nowInSec, opGroup).forEachRemaining(unfiltered -> {
