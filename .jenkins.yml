@@ -4,12 +4,13 @@ ATSERVICES:
       sleep: 30
       volumes:
         - jts:1.14.0
+      env:
+        - LOCAL_JMX=no
 
 ATPARAMETERS: >
     -Dit-embedded=false
     -Dit.host=%%CASSANDRA
     -DJACOCO_SERVER=%%CASSANDRA
-    -DLOCAL_JMX=no
 
 
 
