@@ -51,7 +51,7 @@ class ColumnsMapperTest extends BaseScalaTest {
   }
 
   test("compose with SimpleDateType") {
-    val expected: Date = new SimpleDateFormat("yyyy-MM-dd").parse("1982-11-27")
+    val expected: Date = new SimpleDateFormat("yyyy-MM-ddZ").parse("1982-11-27+0000")
     val bb = SimpleDateType.instance.fromTimeInMillis(expected.getTime)
     val actual = ColumnsMapper.compose(bb, SimpleDateType.instance)
     actual shouldBe a[Date]
