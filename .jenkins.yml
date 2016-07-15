@@ -9,3 +9,4 @@ ATPARAMETERS: >
     -Dit-embedded=false
     -Dit.host=%%CASSANDRA
     -DJACOCO_SERVER=%%CASSANDRA
+

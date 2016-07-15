@@ -7,6 +7,12 @@ if [ -d "/var/sds/cassandra/data/airlines_cassandra" ]; then
 else
     sed -i "s|^cluster_name.*|cluster_name: '${CLUSTER_NAME:=Stratio cluster}'|" /etc/sds/cassandra/cassandra.yaml
 fi
+
+if [ -d "/opt/sds/cassandra/lib/jts" ]; then
+    chown cassandra:stratio /opt/sds/cassandra/lib/jts/jts-core-1.14.0.jar
+    chmod 755 /opt/sds/cassandra/lib/jts/jts-core-1.14.0.jar
+fi
+
 HOST=$(hostname --ip-address)
 sed -i "s|^rpc_address.*|rpc_address: 0.0.0.0|"  /etc/sds/cassandra/cassandra.yaml
 sed -i "s|^broadcast_rpc_address.*|broadcast_rpc_address: ${HOST}|" /etc/sds/cassandra/cassandra.yaml
