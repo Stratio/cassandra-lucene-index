@@ -38,7 +38,7 @@ public class GeoShapeMapperTest extends AbstractMapperTest {
         assertEquals("Column is not properly set", "field", mapper.column);
         assertEquals("Mapped columns are not properly set", 1, mapper.mappedColumns.size());
         assertTrue("Mapped columns are not properly set", mapper.mappedColumns.contains("field"));
-        assertEquals("Max levels is not properly set", GeospatialUtils.DEFAULT_GEOHASH_MAX_LEVELS, mapper.maxLevels);
+        assertEquals("Max levels is not properly set", GeoShapeMapper.DEFAULT_MAX_LEVELS, mapper.maxLevels);
         assertNotNull("Spatial strategy for distances is not properly set", mapper.strategy);
         assertNotNull("Transformations list is not properly set", mapper.transformations);
         assertTrue("Transformations list is not properly set", mapper.transformations.isEmpty());
@@ -92,7 +92,7 @@ public class GeoShapeMapperTest extends AbstractMapperTest {
     @Test
     public void testConstructorWithNullMaxLevels() {
         GeoShapeMapper mapper = geoShapeMapper().column("column").maxLevels(null).build("field");
-        assertEquals("Max levels is not properly set", GeospatialUtils.DEFAULT_GEOHASH_MAX_LEVELS, mapper.maxLevels);
+        assertEquals("Max levels is not properly set", GeoShapeMapper.DEFAULT_MAX_LEVELS, mapper.maxLevels);
     }
 
     @Test(expected = IndexException.class)

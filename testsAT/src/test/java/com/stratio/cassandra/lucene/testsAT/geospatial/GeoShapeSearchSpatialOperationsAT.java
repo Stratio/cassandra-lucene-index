@@ -128,7 +128,7 @@ public class GeoShapeSearchSpatialOperationsAT extends BaseAT {
 
     @Test
     public void testCase1() {
-        // index A, search A must return intersecs and Contains but no is_within
+        // index A, search A must return intersects and Contains but no is_within
         GeoShapeCondition geoShape = geoShape("shape", shape_1);
         Integer search_case = 1;
         utils.filter(geoShape.operation("contains"), match("search_case", search_case))

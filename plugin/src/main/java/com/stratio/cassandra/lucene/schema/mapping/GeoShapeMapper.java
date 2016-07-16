@@ -23,7 +23,6 @@ import com.stratio.cassandra.lucene.util.GeospatialUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.search.SortField;
-import org.apache.lucene.spatial.SpatialStrategy;
 import org.apache.lucene.spatial.composite.CompositeSpatialStrategy;
 import org.apache.lucene.spatial.prefix.RecursivePrefixTreeStrategy;
 import org.apache.lucene.spatial.prefix.tree.GeohashPrefixTree;
@@ -52,6 +51,9 @@ import static com.stratio.cassandra.lucene.util.GeospatialUtilsJTS.geometry;
  */
 public class GeoShapeMapper extends SingleColumnMapper<String> {
 
+    /** The default max number of levels for geohash search trees. */
+    public static final int DEFAULT_MAX_LEVELS = 5; // ±2.4 Km
+
     /** The name of the mapped column. */
     public final String column;
 
@@ -59,7 +61,7 @@ public class GeoShapeMapper extends SingleColumnMapper<String> {
     public final int maxLevels;
 
     /** The spatial strategy for radial distance searches. */
-    public final SpatialStrategy strategy;
+    public final CompositeSpatialStrategy strategy;
 
     /** The sequence of transformations to be applied to the shape before indexing. */
     public final List<GeoTransformation> transformations;
@@ -71,8 +73,8 @@ public class GeoShapeMapper extends SingleColumnMapper<String> {
      * @param column the name of the column
      * @param validated if the field must be validated
      * @param maxLevels the maximum number of precision levels in the search tree. False positives will be discarded
-     * using stored doc values, so this doesn't mean precision lost. Higher values will produce few false positives to
-     * be post-filtered, at the expense of creating many terms in the search index, specially with large polygons.
+     * using stored doc values, so a low value doesn't mean precision lost. High values will produce few false positives
+     * to be post-filtered, at the expense of creating many terms in the search index, specially with large polygons.
      * @param transformations the sequence of operations to be applied to the indexed shapes
      */
     public GeoShapeMapper(String field,
@@ -88,7 +90,7 @@ public class GeoShapeMapper extends SingleColumnMapper<String> {
             throw new IndexException("Column must not be whitespace, but found '{}'", column);
         }
 
-        this.maxLevels = GeospatialUtils.validateGeohashMaxLevels(maxLevels);
+        this.maxLevels = GeospatialUtils.validateGeohashMaxLevels(maxLevels, DEFAULT_MAX_LEVELS);
         SpatialPrefixTree grid = new GeohashPrefixTree(CONTEXT, this.maxLevels);
 
         RecursivePrefixTreeStrategy indexStrategy = new RecursivePrefixTreeStrategy(grid, field);

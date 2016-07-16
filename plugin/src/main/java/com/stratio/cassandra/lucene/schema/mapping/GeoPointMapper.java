@@ -21,17 +21,14 @@ import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.column.Column;
 import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.util.GeospatialUtils;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.lucene.document.Field;
-import org.apache.lucene.document.StoredField;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.search.SortField;
-import org.apache.lucene.spatial.SpatialStrategy;
-import org.apache.lucene.spatial.bbox.BBoxStrategy;
+import org.apache.lucene.spatial.composite.CompositeSpatialStrategy;
 import org.apache.lucene.spatial.prefix.RecursivePrefixTreeStrategy;
 import org.apache.lucene.spatial.prefix.tree.GeohashPrefixTree;
 import org.apache.lucene.spatial.prefix.tree.SpatialPrefixTree;
+import org.apache.lucene.spatial.serialized.SerializedDVStrategy;
 import scala.Option;
 
 import java.util.Arrays;
@@ -47,6 +44,9 @@ import static com.stratio.cassandra.lucene.util.GeospatialUtils.CONTEXT;
  */
 public class GeoPointMapper extends Mapper {
 
+    /** The default max number of levels for geohash search trees. */
+    public static final int DEFAULT_MAX_LEVELS = 11;
+
     /** The name of the latitude column. */
     public final String latitude;
 
@@ -56,11 +56,8 @@ public class GeoPointMapper extends Mapper {
     /** The max number of levels in the tree. */
     public final int maxLevels;
 
-    /** The spatial strategy for radial distance searches. */
-    public final SpatialStrategy distanceStrategy;
-
-    /** The spatial strategy for bounding box searches. */
-    public final SpatialStrategy bboxStrategy;
+    /** The spatial strategy. */
+    public final CompositeSpatialStrategy strategy;
 
     /**
      * Builds a new {@link GeoPointMapper}.
@@ -69,7 +66,9 @@ public class GeoPointMapper extends Mapper {
      * @param validated if the field must be validated
      * @param latitude the name of the column containing the latitude
      * @param longitude the name of the column containing the longitude
-     * @param maxLevels the maximum number of levels in the tree
+     * @param maxLevels the maximum number of levels in the geohash search tree. False positives will be discarded using
+     * stored doc values, so a low value doesn't mean precision lost. High values will produce few false positives to be
+     * post-filtered, at the expense of creating more terms in the search index.
      */
     public GeoPointMapper(String field, Boolean validated, String latitude, String longitude, Integer maxLevels) {
         super(field, false, validated, null, Arrays.asList(latitude, longitude), NUMERIC_TYPES);
@@ -84,11 +83,12 @@ public class GeoPointMapper extends Mapper {
 
         this.latitude = latitude;
         this.longitude = longitude;
-        this.maxLevels = GeospatialUtils.validateGeohashMaxLevels(maxLevels);
+        this.maxLevels = GeospatialUtils.validateGeohashMaxLevels(maxLevels, DEFAULT_MAX_LEVELS);
 
         SpatialPrefixTree grid = new GeohashPrefixTree(CONTEXT, this.maxLevels);
-        distanceStrategy = new RecursivePrefixTreeStrategy(grid, field + ".dist");
-        bboxStrategy = new BBoxStrategy(CONTEXT, field + ".bbox");
+        RecursivePrefixTreeStrategy indexStrategy = new RecursivePrefixTreeStrategy(grid, field);
+        SerializedDVStrategy geometryStrategy = new SerializedDVStrategy(CONTEXT, field);
+        strategy = new CompositeSpatialStrategy(field, indexStrategy, geometryStrategy);
     }
 
     /** {@inheritDoc} */
@@ -108,10 +108,7 @@ public class GeoPointMapper extends Mapper {
 
         Point point = CONTEXT.makePoint(lon, lat);
 
-        Field[] distanceFields = distanceStrategy.createIndexableFields(point);
-        Field[] bboxFields = bboxStrategy.createIndexableFields(point);
-        Field storedField = new StoredField(distanceStrategy.getFieldName(), point.getX() + " " + point.getY());
-        return Arrays.asList(ArrayUtils.addAll(ArrayUtils.addAll(distanceFields, bboxFields), storedField));
+        return Arrays.asList(strategy.createIndexableFields(point));
     }
 
     /** {@inheritDoc} */

@@ -32,7 +32,7 @@ public class GeoShapeMapper extends Mapper<GeoShapeMapper> {
     @JsonProperty("column")
     String column;
 
-    /** The maximum number of levels in the tree. */
+    /** The maximum number of levels in the geohash search tree. */
     @JsonProperty("max_levels")
     Integer maxLevels;
 
@@ -52,10 +52,13 @@ public class GeoShapeMapper extends Mapper<GeoShapeMapper> {
     }
 
     /**
-     * Sets the maximum number of levels in the tree.
+     * Sets the maximum number of levels in the geohash search tree. False positives will be discarded using stored doc
+     * values, so a low value doesn't mean precision lost. High values will produce few false positives to
+     * be post-filtered, at the expense of creating many terms in the search index. This can be specially costly in
+     * large polygons, which can produce thousands of terms in case of using large geohash values.
      *
-     * @param maxLevels the maximum number of levels in the tree
-     * @return this with hte specified max number of levels
+     * @param maxLevels the maximum number of levels in the geohash search tree
+     * @return this with the specified max number of levels
      */
     public GeoShapeMapper maxLevels(Integer maxLevels) {
         this.maxLevels = maxLevels;

@@ -96,7 +96,7 @@ public class GeoShapeCondition extends SingleFieldCondition {
         } else if (mapper instanceof GeoShapeMapper) {
             strategy = ((GeoShapeMapper) mapper).strategy;
         } else if (mapper instanceof GeoPointMapper) {
-            strategy = ((GeoPointMapper) mapper).distanceStrategy;
+            strategy = ((GeoPointMapper) mapper).strategy;
         } else {
             throw new IndexException("'geo_shape' search requires a mapper of type 'geo_point' or 'geo_shape' " +
                                      "but found {}:{}", field, mapper);
