@@ -15,9 +15,13 @@
  */
 package com.stratio.cassandra.lucene.testsAT.util;
 
-import com.datastax.driver.core.*;
+import com.datastax.driver.core.Cluster;
+import com.datastax.driver.core.ResultSet;
+import com.datastax.driver.core.Session;
+import com.datastax.driver.core.Statement;
 import com.stratio.cassandra.lucene.testsAT.BaseAT;
 import org.slf4j.Logger;
+
 import static com.stratio.cassandra.lucene.testsAT.util.CassandraConfig.*;
 
 /**
@@ -63,6 +67,7 @@ public class CassandraConnection {
     }
 
     private static void connect() {
+        logger.debug("conecting to: " + HOST);
         try {
             cluster = Cluster.builder().addContactPoint(HOST).build();
             cluster.getConfiguration().getQueryOptions().setConsistencyLevel(CONSISTENCY);
