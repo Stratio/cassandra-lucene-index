@@ -4,8 +4,6 @@ ATSERVICES:
       sleep: 30
       volumes:
         - jts:1.14.0
-      env:
-        - LOCAL_JMX=no
 
 ATPARAMETERS: >
     -Dit.host=%%CASSANDRA
