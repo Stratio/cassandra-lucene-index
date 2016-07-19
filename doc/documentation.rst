@@ -236,37 +236,41 @@ and create them again with running newer version.
 If you have huge amount of data in your cluster this could be an expensive task. We have tested it and here you have a
 compatibility matrix that states between which versions it is not needed to delete the index:
 
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| From\\ To | 3.0.3.0 | 3.0.3.1 | 3.0.4.0 | 3.0.4.1 | 3.0.5.0 | 3.0.5.1 | 3.0.5.2 | 3.0.6.0 | 3.0.6.1 | 3.0.6.2 | 3.0.7.0 | 3.0.7.1 | 3.0.7.2 | 3.0.8.0 |
-+===========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+
-| 2.x       |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.3.0   |    --   |   YES   |   YES   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.3.1   |    --   |    --   |   YES   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.4.0   |    --   |    --   |    --   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.4.1   |    --   |    --   |    --   |    --   |   YES   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.5.0   |    --   |    --   |    --   |    --   |    --   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.5.1   |    --   |    --   |    --   |    --   |    --   |    --   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.5.2   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   YES   |   YES   |   YES   |   YES   |   YES   |   YES   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.6.0   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   YES   |   YES   |   YES   |   YES   |   YES   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.6.1   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   YES   |   YES   |   YES   |   YES   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.6.2   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   YES   |   YES   |   YES   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.7.0   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   YES   |   YES   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.7.1   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   YES   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.7.2   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| From\\ To | 3.0.3.0 | 3.0.3.1 | 3.0.4.0 | 3.0.4.1 | 3.0.5.0 | 3.0.5.1 | 3.0.5.2 | 3.0.6.0 | 3.0.6.1 | 3.0.6.2 | 3.0.7.0 | 3.0.7.1 | 3.0.7.2 | 3.0.8.0 | 3.0.8.1 |
++===========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+
+| 2.x       |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.3.0   |    --   |   YES   |   YES   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.3.1   |    --   |    --   |   YES   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.4.0   |    --   |    --   |    --   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.4.1   |    --   |    --   |    --   |    --   |   YES   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.5.0   |    --   |    --   |    --   |    --   |    --   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.5.1   |    --   |    --   |    --   |    --   |    --   |    --   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.5.2   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   YES   |   YES   |   YES   |   YES   |   YES   |   YES   |   (1)   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.6.0   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   YES   |   YES   |   YES   |   YES   |   YES   |   (1)   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.6.1   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   YES   |   YES   |   YES   |   YES   |   (1)   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.6.2   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   YES   |   YES   |   YES   |   (1)   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.7.0   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   YES   |   YES   |   (1)   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.7.1   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   YES   |   (1)   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.7.2   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   (1)   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.8.0   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   (1)   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+
+**(1):** Compatible only if you are not using geospatial mappers.
 
 Alternative syntaxes
 ====================
@@ -707,7 +711,7 @@ Details and default values are listed in the table below.
 |                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | column          | string          | mapper_name of the schema      | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
-|                                     | max_levels      | integer         | 11                             | No        |
+|                                     | max_levels      | integer         | 5                              | No        |
 |                                     +-----------------+-----------------+--------------------------------+-----------+
 |                                     | transformations | array           |                                | No        |
 +-------------------------------------+-----------------+-----------------+--------------------------------+-----------+
@@ -1118,13 +1122,19 @@ Geo point mapper
 ________________
 
 Maps a geospatial location (point) defined by two columns containing a latitude and a longitude.
+Indexing is based on a `composite spatial strategy <https://eng.climate.com/2014/04/16/polygons-in-lucene/>`__ that
+stores points in a doc values field and also indexes them into a geohash recursive prefix tree with a certain precision
+level. The low-accuracy prefix tree is used to quickly find results, maybe producing some false positives,
+and the doc values field is used to discard these false positives.
 
 **Parameters:**
 
 -  **validated** (default = false): if mapping errors should make CQL writes fail, instead of just logging the error.
 -  **latitude** (mandatory): the name of the column storing the latitude of the point to be indexed.
 -  **longitude** (mandatory): the name of the column storing the longitude of the point to be indexed.
--  **max_levels** (default = 11): the maximum number of levels in the underlying search tree.
+-  **max_levels** (default = 11): the maximum number of levels in the underlying geohash search tree. False positives
+   will be discarded using stored doc values, so this doesn't mean precision lost. Higher values will produce few false
+   positives to be post-filtered, at the expense of creating more terms in the search index.
 
 **Supported CQL types:**
 
@@ -1161,6 +1171,11 @@ format. The supported WKT shapes are point, linestring, polygon, multipoint, mul
 It is possible to specify a sequence of `geometrical transformations <#transformations>`__ to be applied to the shape
 before indexing it. It could be used for indexing only the centroid of the shape, or a buffer around it, etc.
 
+Indexing is based on a `composite spatial strategy <https://eng.climate.com/2014/04/16/polygons-in-lucene/>`__ that
+stores shapes in a doc values field and also indexes them into a geohash recursive prefix tree with a certain precision
+level. The low-accuracy prefix tree is used to quickly find results, maybe producing some false positives,
+and the doc values field is used to discard these false positives.
+
 This mapper depends on `Java Topology Suite (JTS) <http://www.vividsolutions.com/jts>`__.
 This library can't be distributed together with this project due to license compatibility problems, but you can add it
 by putting `jts-core-1.14.0.jar <http://search.maven.org/remotecontent?filepath=com/vividsolutions/jts-core/1.14.0/jts-core-1.14.0.jar>`__
@@ -1170,8 +1185,11 @@ into your Cassandra installation lib directory.
 
 -  **validated** (default = false): if mapping errors should make CQL writes fail, instead of just logging the error.
 -  **column** (default = name of the mapper): the name of the column storing the shape to be indexed in `WKT format <http://en.wikipedia.org/wiki/Well-known_text>`__.
--  **max_levels** (default = 11): the maximum number of levels in the underlying search tree.
--  **transformations** (optional): sequence of `geometrical transformations <#transformations>`__ to be applied to each shape before indexing it.
+-  **max_levels** (default = 5): the maximum number of levels in the underlying geohash search tree. False positives
+   will be discarded using stored doc values, so this doesn't mean precision lost. Higher values will produce few false
+   positives to be post-filtered, at the expense of creating more terms in the search index.
+-  **transformations** (optional): sequence of `geometrical transformations <#transformations>`__ to be applied to each
+   shape before indexing it.
 
 **Supported CQL types:**
 

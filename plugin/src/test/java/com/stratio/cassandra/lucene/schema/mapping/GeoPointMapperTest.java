@@ -40,9 +40,8 @@ public class GeoPointMapperTest extends AbstractMapperTest {
         assertEquals("Mapped columns are not properly set", 2, mapper.mappedColumns.size());
         assertTrue("Mapped columns are not properly set", mapper.mappedColumns.contains("lat"));
         assertTrue("Mapped columns are not properly set", mapper.mappedColumns.contains("lon"));
-        assertEquals("Max levels is not properly set", GeospatialUtils.DEFAULT_GEOHASH_MAX_LEVELS, mapper.maxLevels);
-        assertNotNull("Spatial strategy for distances is not properly set", mapper.distanceStrategy);
-        assertNotNull("Spatial strategy for bounding boxes Latitude is not properly set", mapper.bboxStrategy);
+        assertEquals("Max levels is not properly set", GeoPointMapper.DEFAULT_MAX_LEVELS, mapper.maxLevels);
+        assertNotNull("Spatial strategy is not properly set", mapper.strategy);
     }
 
     @Test
@@ -53,14 +52,13 @@ public class GeoPointMapperTest extends AbstractMapperTest {
         assertEquals("Latitude is not properly set", "lat", mapper.latitude);
         assertEquals("Longitude is not properly set", "lon", mapper.longitude);
         assertEquals("Max levels is not properly set", 5, mapper.maxLevels);
-        assertNotNull("Spatial strategy for distances is not properly set", mapper.distanceStrategy);
-        assertNotNull("Spatial strategy for bounding boxes Latitude is not properly set", mapper.bboxStrategy);
+        assertNotNull("Spatial strategy is not properly set", mapper.strategy);
     }
 
     @Test
     public void testConstructorWithNullMaxLevels() {
         GeoPointMapper mapper = geoPointMapper("lat", "lon").maxLevels(null).build("field");
-        assertEquals("Max levels is not properly set", GeospatialUtils.DEFAULT_GEOHASH_MAX_LEVELS, mapper.maxLevels);
+        assertEquals("Max levels is not properly set", GeoPointMapper.DEFAULT_MAX_LEVELS, mapper.maxLevels);
     }
 
     @Test(expected = IndexException.class)
@@ -318,8 +316,7 @@ public class GeoPointMapperTest extends AbstractMapperTest {
         GeoPointMapper mapper = geoPointMapper("lat", "lon").maxLevels(10).build("field");
         Columns columns = new Columns().add("lat", 20).add("lon", "30");
         List<IndexableField> fields = mapper.indexableFields(columns);
-        assertEquals("Fields are not properly created", 7, fields.size());
-        assertEquals("Dist fields are wrong", 2, fields.stream().filter(f -> f.name().equals("field.dist")).count());
+        assertEquals("Fields are not properly created", 2, fields.size());
     }
 
     @Test

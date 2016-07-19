@@ -79,7 +79,6 @@ case class Column[A](cellName: String,
   def +(column: Column[_]): Columns =
     Columns(this, column)
 
-
   /** Returns a [[Columns]] composed by this and the specified columns. */
   def +(columns: Columns): Columns =
     Columns(this) + columns
