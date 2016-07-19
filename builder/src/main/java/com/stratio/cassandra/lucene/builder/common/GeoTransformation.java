@@ -15,10 +15,10 @@
  */
 package com.stratio.cassandra.lucene.builder.common;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.stratio.cassandra.lucene.builder.JSONBuilder;
-import org.codehaus.jackson.annotate.JsonProperty;
-import org.codehaus.jackson.annotate.JsonSubTypes;
-import org.codehaus.jackson.annotate.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}

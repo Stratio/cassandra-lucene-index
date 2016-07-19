@@ -1,6 +1,7 @@
 # Changelog
 ## 3.0.8.1 (Upcoming)
 
+* Upgrade query builder JSON serializer to Jackson 2.8.0
 * Add geospatial post filtering (ensures accuracy with any tree levels)
 Merged from 2.2.7.1:
 * Fix mapper referenced by alias in sortFields

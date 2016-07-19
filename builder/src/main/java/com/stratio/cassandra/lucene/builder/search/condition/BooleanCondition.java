@@ -15,7 +15,7 @@
  */
 package com.stratio.cassandra.lucene.builder.search.condition;
 
-import org.codehaus.jackson.annotate.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 

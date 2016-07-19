@@ -16,8 +16,8 @@
 package com.stratio.cassandra.lucene.builder.search.condition;
 
 import com.stratio.cassandra.lucene.builder.common.GeoTransformation;
-import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Arrays;
 import java.util.List;

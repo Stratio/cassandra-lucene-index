@@ -16,7 +16,7 @@
 package com.stratio.cassandra.lucene.builder.index.schema.mapping;
 
 import com.stratio.cassandra.lucene.builder.common.GeoTransformation;
-import org.codehaus.jackson.annotate.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Arrays;
 import java.util.List;

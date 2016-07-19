@@ -15,9 +15,9 @@
  */
 package com.stratio.cassandra.lucene.builder.index.schema.analysis;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.stratio.cassandra.lucene.builder.JSONBuilder;
-import org.codehaus.jackson.annotate.JsonSubTypes;
-import org.codehaus.jackson.annotate.JsonTypeInfo;
 
 /**
  * A Lucene {@code Analyzer}.

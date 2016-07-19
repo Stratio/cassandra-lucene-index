@@ -15,7 +15,7 @@
  */
 package com.stratio.cassandra.lucene.builder;
 
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 
 import static com.stratio.cassandra.lucene.builder.Builder.*;
@@ -57,23 +57,14 @@ public class BuilderTest {
                                                    .build();
         String expected = "CREATE CUSTOM INDEX idx ON keyspace.table(lucene) " +
                           "USING 'com.stratio.cassandra.lucene.Index' " +
-                          "WITH OPTIONS = {" +
-                          "'refresh_seconds':'10.0'," +
-                          "'directory_path':'path'," +
-                          "'ram_buffer_mb':'64'," +
-                          "'max_merge_mb':'16'," +
-                          "'max_cached_mb':'32'," +
-                          "'indexing_threads':'4'," +
-                          "'indexing_queues_size':'100'," +
-                          "'excluded_data_centers':'DC1,DC2'," +
-                          "'schema':'{" +
-                          "\"analyzers\":{" +
+                          "WITH OPTIONS = {'refresh_seconds':'10.0','directory_path':'path','ram_buffer_mb':'64'," +
+                          "'max_merge_mb':'16','max_cached_mb':'32','indexing_threads':'4'," +
+                          "'indexing_queues_size':'100','excluded_data_centers':'DC1,DC2','schema':'{" +
+                          "\"default_analyzer\":\"my_analyzer\",\"analyzers\":{" +
                           "\"my_analyzer\":{\"type\":\"classpath\",\"class\":\"my_class\"}," +
                           "\"snow\":{\"type\":\"snowball\",\"language\":\"tartar\",\"stopwords\":\"a,b,c\"}}," +
-                          "\"default_analyzer\":\"my_analyzer\"," +
                           "\"fields\":{" +
-                          "\"uuid\":{\"type\":\"uuid\",\"validated\":true}," +
-                          "\"string\":{\"type\":\"string\"}}}'}";
+                          "\"uuid\":{\"type\":\"uuid\",\"validated\":true},\"string\":{\"type\":\"string\"}}}'}";
         assertEquals("index serialization is wrong", expected, actual);
     }
 
@@ -256,14 +247,12 @@ public class BuilderTest {
                                                    unionGeoTransformation("my_union_shape"),
                                                    bufferGeoTransformation().maxDistance("10km").minDistance("5km"))
                                         .build();
-        String expected = "{\"type\":\"geo_shape\",\"column\":\"shape\",\"transformations\":[" +
-                          "{\"type\":\"centroid\"}," +
-                          "{\"type\":\"convex_hull\"}," +
+        String expected = "{\"type\":\"geo_shape\",\"column\":\"shape\",\"max_levels\":7,\"transformations\":" +
+                          "[{\"type\":\"centroid\"},{\"type\":\"convex_hull\"}," +
                           "{\"type\":\"difference\",\"shape\":\"my_difference_shape\"}," +
                           "{\"type\":\"intersection\",\"shape\":\"my_intersection_shape\"}," +
                           "{\"type\":\"union\",\"shape\":\"my_union_shape\"}," +
-                          "{\"type\":\"buffer\",\"max_distance\":\"10km\",\"min_distance\":\"5km\"}]," +
-                          "\"max_levels\":7}";
+                          "{\"type\":\"buffer\",\"max_distance\":\"10km\",\"min_distance\":\"5km\"}]}";
         assertEquals("geo shape mapper serialization is wrong", expected, actual);
     }
 
@@ -486,14 +475,8 @@ public class BuilderTest {
                                                .transpositions(true)
                                                .boost(2)
                                                .build();
-        String expected = "{\"type\":\"fuzzy\"," +
-                          "\"field\":\"field\"," +
-                          "\"value\":\"value\"," +
-                          "\"boost\":2.0," +
-                          "\"transpositions\":true," +
-                          "\"max_edits\":1," +
-                          "\"prefix_length\":3," +
-                          "\"max_expansions\":2}";
+        String expected = "{\"type\":\"fuzzy\",\"field\":\"field\",\"value\":\"value\",\"boost\":2.0," +
+                          "\"max_edits\":1,\"prefix_length\":3,\"max_expansions\":2,\"transpositions\":true}";
         assertEquals("fuzzy condition serialization is wrong", expected, actual);
     }
 
@@ -826,16 +809,11 @@ public class BuilderTest {
                                                      .mapper("message", textMapper().analyzer("danish"))
                                                      .mapper("date", dateMapper().pattern("yyyyMMdd"))
                                                      .build();
-        String expected = "CREATE CUSTOM INDEX my_index ON messages() " +
-                          "USING 'com.stratio.cassandra.lucene.Index' WITH OPTIONS = {" +
-                          "'refresh_seconds':'10'," +
-                          "'schema':'{" +
-                          "\"analyzers\":{" +
-                          "\"danish\":{\"type\":\"snowball\",\"language\":\"danish\"}}," +
-                          "\"default_analyzer\":\"english\"," +
-                          "\"fields\":{" +
-                          "\"id\":{\"type\":\"uuid\"}," +
-                          "\"user\":{\"type\":\"string\",\"case_sensitive\":false}," +
+        String expected = "CREATE CUSTOM INDEX my_index ON messages() USING 'com.stratio.cassandra.lucene.Index' " +
+                          "WITH OPTIONS = {'refresh_seconds':'10','schema':'{\"default_analyzer\":\"english\"," +
+                          "\"analyzers\":{\"danish\":{\"type\":\"snowball\",\"language\":\"danish\"}},\"fields\":" +
+                          "{\"id\":{\"type\":\"uuid\"},\"user\":" +
+                          "{\"type\":\"string\",\"case_sensitive\":false}," +
                           "\"message\":{\"type\":\"text\",\"analyzer\":\"danish\"}," +
                           "\"date\":{\"type\":\"date\",\"pattern\":\"yyyyMMdd\"}}}'}";
         assertEquals("index serialization is wrong", expected, actual);
