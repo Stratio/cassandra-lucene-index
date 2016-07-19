@@ -38,7 +38,7 @@ public class CassandraConnection {
     private static List<CassandraJMXClient> jmxClients;
 
     public static void connect() {
-        logger.debug("conecting to: " + HOST);
+        logger.debug("Connecting to: " + HOST);
         if (cluster == null) {
             try {
 
