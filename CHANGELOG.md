@@ -1,5 +1,6 @@
 # Changelog
-## 3.0.8.1 (Upcoming)
+
+## 3.7.2 (Upcoming)
 
 Merged from 2.2.7.1:
 * Fix mapper referenced by alias in sortFields
