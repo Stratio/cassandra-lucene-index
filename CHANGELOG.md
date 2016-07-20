@@ -5,6 +5,7 @@
 * Add geospatial post filtering (ensures accuracy with any tree levels)
 Merged from 2.2.7.1:
 * Fix mapper referenced by alias in sortFields
+* Fix mapping of timestamp and date by the underlying numeric value (#177)
 
 ## 3.0.8.0 (July 07, 2016)
 

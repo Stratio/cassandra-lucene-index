@@ -16,6 +16,7 @@
 package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.stratio.cassandra.lucene.IndexException;
+import org.apache.cassandra.serializers.SimpleDateSerializer;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.IntField;
 import org.apache.lucene.document.SortedNumericDocValuesField;
@@ -23,6 +24,7 @@ import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.SortField.Type;
 import org.apache.lucene.search.SortedNumericSortField;
 
+import java.util.Date;
 import java.util.Optional;
 
 /**
@@ -47,7 +49,7 @@ public class IntegerMapper extends SingleColumnMapper.SingleFieldMapper<Integer>
      * @param boost the boost
      */
     public IntegerMapper(String field, String column, Boolean validated, Float boost) {
-        super(field, column, true, validated, null, Integer.class, NUMERIC_TYPES);
+        super(field, column, true, validated, null, Integer.class, NUMERIC_TYPES_WITH_DATE);
         this.boost = boost == null ? DEFAULT_BOOST : boost;
     }
 
@@ -56,6 +58,8 @@ public class IntegerMapper extends SingleColumnMapper.SingleFieldMapper<Integer>
     protected Integer doBase(String name, Object value) {
         if (value instanceof Number) {
             return ((Number) value).intValue();
+        } else if (value instanceof Date) {
+            return SimpleDateSerializer.timeInMillisToDay(((Date) value).getTime());
         } else if (value instanceof String) {
             try {
                 return Double.valueOf((String) value).intValue();

@@ -50,6 +50,8 @@ public abstract class Mapper {
     static final List<Class<?>> DATE_TYPES = Arrays.asList(
             String.class, Integer.class, Long.class, BigInteger.class, Date.class, UUID.class);
 
+    static final List<Class<?>> NUMERIC_TYPES_WITH_DATE = Arrays.asList(String.class, Number.class, Date.class);
+
     static final List<Class<?>> PRINTABLE_TYPES = Arrays.asList(
             String.class, Number.class, UUID.class, Boolean.class, InetAddress.class);
 
