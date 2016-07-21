@@ -21,7 +21,7 @@ Stratio's Cassandra Lucene Index
         - `Blob mapper <#blob-mapper>`__
         - `Boolean mapper <#boolean-mapper>`__
         - `Date mapper <#date-mapper>`__
-        - `Date range mapper <#daterange-mapper>`__
+        - `Date range mapper <#date-range-mapper>`__
         - `Double mapper <#double-mapper>`__
         - `Float mapper <#float-mapper>`__
         - `Geo point mapper <#geo-point-mapper>`__
@@ -2393,7 +2393,10 @@ Using `query builder <#query-builder>`__:
 Date range search
 =================
 
-Searches for rows within a specified date range.
+Searches for date ranges/durations indexed by a `date range mapper <#date-range-mapper>`__, using a spatial approach.
+This allows you to use spatial operators such as *intersects*, *contains* and *is\_within*.
+If you just want to search for single-column dates (points in time) within a certain time range, you should index them
+use a `range search <#range-search>`__.
 
 **Syntax:**
 
