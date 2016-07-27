@@ -52,7 +52,7 @@ public class IndexOptions {
     public static final int DEFAULT_MAX_CACHED_MB = 30;
 
     public static final String INDEXING_THREADS_OPTION = "indexing_threads";
-    public static final int DEFAULT_INDEXING_THREADS = 0;
+    public static final int DEFAULT_INDEXING_THREADS = Runtime.getRuntime().availableProcessors();
 
     public static final String INDEXING_QUEUES_SIZE_OPTION = "indexing_queues_size";
     public static final int DEFAULT_INDEXING_QUEUES_SIZE = 50;

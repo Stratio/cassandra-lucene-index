@@ -527,7 +527,7 @@ All options take a value enclosed in single quotes:
 -  **max\_merge\_mb**: defaults to '5'.
 -  **max\_cached\_mb**: defaults to '30'.
 -  **indexing\_threads**: number of asynchronous indexing threads. ’0’
-   means synchronous indexing. Defaults to ’0’.
+   means synchronous indexing. Defaults to number of processors available to the JVM.
 -  **indexing\_queues\_size**: max number of queued documents per
    asynchronous indexing thread. Defaults to ’50’.
 -  **directory\_path**: The path of the directory where the  Lucene index
