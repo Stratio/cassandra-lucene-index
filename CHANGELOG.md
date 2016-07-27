@@ -3,9 +3,9 @@
 
 * Upgrade query builder JSON serializer to Jackson 2.8.0
 * Add geospatial post filtering (ensures accuracy with any tree levels)
+* Fix mapping of timestamps and dates by their underlying numeric value (#177)
 Merged from 2.2.7.1:
 * Fix mapper referenced by alias in sortFields
-* Fix mapping of timestamps and dates by their underlying numeric value (#177)
 
 ## 3.0.8.0 (July 07, 2016)
 
