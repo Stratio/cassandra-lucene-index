@@ -35,7 +35,7 @@ class CassandraConfig {
     // static final String[] JMX_SERVICES = getStringArray("jmx_services", "127.0.0.1:7100,127.0.0.1:7200,127.0.0.1:7300");
     static final int REPLICATION = getInt("replication", 1);
     static final ConsistencyLevel CONSISTENCY = ConsistencyLevel.valueOf(getString("consistency", "QUORUM"));
-    static final int FETCH = getInt("fetch", 6);
+    static final int FETCH = getInt("fetch", 100);
     static final int THREADS = getInt("threads", Runtime.getRuntime().availableProcessors());
     static final int REFRESH = getInt("refresh", 1);
     static final String TABLE = getString("table", "test_table");
