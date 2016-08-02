@@ -1,5 +1,5 @@
 # Changelog
-## 3.0.8.1 (Upcoming)
+## 3.0.8.1
 
 * Upgrade query builder JSON serializer to Jackson 2.8.0
 * Add geospatial post filtering (ensures accuracy with any tree levels)
