@@ -44,13 +44,11 @@ public class DocumentIterator implements CloseableIterator<Pair<Document, ScoreD
     private final Query query;
     final int page;
     private final Deque<Pair<Document, ScoreDoc>> documents = new LinkedList<>();
-    private final Sort sort, indexSort;
+    private final Sort sort;
     private final Set<String> fields;
     private ScoreDoc after = null;
     private boolean finished = false;
     private IndexSearcher searcher;
-    private int numReadDocuments = 0;
-    private final Query startQuery;
 
     /**
      * Builds a new iterator over the {@link Document}s satisfying the specified {@link Query}.
@@ -62,7 +60,6 @@ public class DocumentIterator implements CloseableIterator<Pair<Document, ScoreD
      * @param fields the names of the document fields to be loaded
      */
     DocumentIterator(SearcherManager manager,
-                     Sort indexSort,
                      Query after,
                      Query query,
                      Sort sort,
@@ -70,9 +67,7 @@ public class DocumentIterator implements CloseableIterator<Pair<Document, ScoreD
                      Set<String> fields) {
         this.manager = manager;
         this.query = query;
-        this.indexSort = indexSort;
         this.fields = fields;
-        this.startQuery = after;
         this.page = Math.min(page, MAX_PAGE_SIZE) + 1;
         TimeCounter time = TimeCounter.create().start();
         try {
@@ -101,19 +96,10 @@ public class DocumentIterator implements CloseableIterator<Pair<Document, ScoreD
 
             TimeCounter time = TimeCounter.create().start();
 
-            TopDocs topDocs;
-            if (startQuery == null && EarlyTerminatingSortingCollector.canEarlyTerminate(sort, indexSort)) {
-                FieldDoc fieldDoc = after == null ? null : (FieldDoc) after;
-                TopFieldCollector collector = TopFieldCollector.create(sort, page, fieldDoc, true, false, false);
-                int hits = numReadDocuments + page;
-                searcher.search(query, new EarlyTerminatingSortingCollector(collector, sort, hits, indexSort));
-                topDocs = collector.topDocs();
-            } else {
-                topDocs = searcher.searchAfter(after, query, page, sort);
-            }
+            // TODO: Check if EarlyTerminatingSortingCollector is required
+            TopDocs topDocs = searcher.searchAfter(after, query, page, sort);
 
             ScoreDoc[] scoreDocs = topDocs.scoreDocs;
-            numReadDocuments += scoreDocs.length;
             finished = scoreDocs.length < page;
             for (ScoreDoc scoreDoc : scoreDocs) {
                 after = scoreDoc;

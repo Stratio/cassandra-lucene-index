@@ -15,7 +15,7 @@
  */
 package com.stratio.cassandra.lucene.search.condition;
 
-import com.spatial4j.core.shape.jts.JtsGeometry;
+import  org.locationtech.spatial4j.shape.jts.JtsGeometry;
 import com.stratio.cassandra.lucene.common.GeoDistance;
 import com.stratio.cassandra.lucene.common.GeoTransformation;
 import com.stratio.cassandra.lucene.util.JsonSerializer;
@@ -28,6 +28,7 @@ import static com.stratio.cassandra.lucene.common.GeoDistanceUnit.KILOMETRES;
 import static com.stratio.cassandra.lucene.common.GeoDistanceUnit.METRES;
 import static com.stratio.cassandra.lucene.common.GeoTransformation.Buffer;
 import static com.stratio.cassandra.lucene.util.GeospatialUtilsJTS.CONTEXT;
+import static com.stratio.cassandra.lucene.util.GeospatialUtilsJTS.SHAPE_FACTORY;
 import static com.stratio.cassandra.lucene.util.GeospatialUtilsJTS.geometry;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -47,10 +48,10 @@ public class GeoTransformationBufferTest extends AbstractConditionTest {
         JtsGeometry geometry = geometry("POLYGON((1 1,5 1,5 5,1 5,1 1),(2 2, 3 2, 3 3, 2 3,2 2))");
         JtsGeometry transformedGeometry = transformation.apply(geometry);
 
-        JtsGeometry max = CONTEXT.makeShape(geometry.getGeom());
+        JtsGeometry max = SHAPE_FACTORY.makeShape(geometry.getGeom());
         JtsGeometry minGeometry = geometry.getBuffered(min.getDegrees(), CONTEXT);
         Geometry difference = max.getGeom().difference(minGeometry.getGeom());
-        JtsGeometry desiredGeometry = CONTEXT.makeShape(difference);
+        JtsGeometry desiredGeometry = SHAPE_FACTORY.makeShape(difference);
 
         assertEquals("Failed applied BufferTransformation", desiredGeometry, transformedGeometry);
     }
@@ -89,7 +90,7 @@ public class GeoTransformationBufferTest extends AbstractConditionTest {
         JtsGeometry maxGeometry = geometry.getBuffered(max.getDegrees(), CONTEXT);
         JtsGeometry minGeometry = geometry.getBuffered(min.getDegrees(), CONTEXT);
         Geometry difference = maxGeometry.getGeom().difference(minGeometry.getGeom());
-        JtsGeometry desiredGeometry = CONTEXT.makeShape(difference);
+        JtsGeometry desiredGeometry = SHAPE_FACTORY.makeShape(difference);
 
         assertEquals("Failed applied BufferTransformation WithPositiveDistances", desiredGeometry, transformedGeometry);
     }
@@ -106,7 +107,7 @@ public class GeoTransformationBufferTest extends AbstractConditionTest {
         JtsGeometry maxGeometry = geometry.getBuffered(max.getDegrees(), CONTEXT);
         JtsGeometry minGeometry = geometry.getBuffered(min.getDegrees(), CONTEXT);
         Geometry difference = maxGeometry.getGeom().difference(minGeometry.getGeom());
-        JtsGeometry desiredGeometry = CONTEXT.makeShape(difference);
+        JtsGeometry desiredGeometry = SHAPE_FACTORY.makeShape(difference);
 
         assertEquals("Failed applied BufferTransformation WithNegativeDistances", desiredGeometry, transformedGeometry);
     }
@@ -123,7 +124,7 @@ public class GeoTransformationBufferTest extends AbstractConditionTest {
         JtsGeometry maxGeometry = geometry.getBuffered(max.getDegrees(), CONTEXT);
         JtsGeometry minGeometry = geometry.getBuffered(min.getDegrees(), CONTEXT);
         Geometry difference = maxGeometry.getGeom().difference(minGeometry.getGeom());
-        JtsGeometry desiredGeometry = CONTEXT.makeShape(difference);
+        JtsGeometry desiredGeometry = SHAPE_FACTORY.makeShape(difference);
 
         assertEquals("Failed applied BufferTransformation WithInvertedPositiveDistances",
                      desiredGeometry,
@@ -142,7 +143,7 @@ public class GeoTransformationBufferTest extends AbstractConditionTest {
         JtsGeometry maxGeometry = geometry.getBuffered(max.getDegrees(), CONTEXT);
         JtsGeometry minGeometry = geometry.getBuffered(min.getDegrees(), CONTEXT);
         Geometry difference = maxGeometry.getGeom().difference(minGeometry.getGeom());
-        JtsGeometry desiredGeometry = CONTEXT.makeShape(difference);
+        JtsGeometry desiredGeometry = SHAPE_FACTORY.makeShape(difference);
 
         assertEquals("Failed applied BufferTransformation WithInvertedNegativeDistances",
                      desiredGeometry,

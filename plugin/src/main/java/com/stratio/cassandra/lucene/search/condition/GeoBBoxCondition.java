@@ -16,7 +16,7 @@
 package com.stratio.cassandra.lucene.search.condition;
 
 import com.google.common.base.MoreObjects;
-import com.spatial4j.core.shape.Rectangle;
+import org.locationtech.spatial4j.shape.Rectangle;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.schema.mapping.GeoPointMapper;
 import com.stratio.cassandra.lucene.util.GeospatialUtils;
@@ -26,6 +26,7 @@ import org.apache.lucene.spatial.query.SpatialArgs;
 import org.apache.lucene.spatial.query.SpatialOperation;
 
 import static com.stratio.cassandra.lucene.util.GeospatialUtils.CONTEXT;
+import static com.stratio.cassandra.lucene.util.GeospatialUtils.SHAPE_FACTORY;
 
 /**
  * A {@link Condition} that matches documents containing a shape contained in a certain bounding box.
@@ -82,7 +83,7 @@ public class GeoBBoxCondition extends SingleMapperCondition<GeoPointMapper> {
     /** {@inheritDoc} */
     @Override
     public Query doQuery(GeoPointMapper mapper, Analyzer analyzer) {
-        Rectangle rectangle = CONTEXT.makeRectangle(minLongitude, maxLongitude, minLatitude, maxLatitude);
+        Rectangle rectangle = SHAPE_FACTORY.rect(minLongitude, maxLongitude, minLatitude, maxLatitude);
         SpatialArgs args = new SpatialArgs(SpatialOperation.Intersects, rectangle);
         return mapper.strategy.makeQuery(args);
     }

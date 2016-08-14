@@ -70,7 +70,7 @@ public class SchemaBuilderTest {
                                 .mapper("big_dec", bigDecimalMapper())
                                 .mapper("double", doubleMapper())
                                 .mapper("float", floatMapper())
-                                .mapper("int", integerMapper().boost(0.3f))
+                                .mapper("int", integerMapper())
                                 .mapper("long", longMapper())
                                 .build();
         assertEquals("Failed schema building", EnglishAnalyzer.class, schema.defaultAnalyzer().getClass());
@@ -118,7 +118,7 @@ public class SchemaBuilderTest {
                               .mapper("float", floatMapper())
                               .mapper("geo", geoPointMapper("lat", "lon"))
                               .mapper("inet", inetMapper())
-                              .mapper("int", integerMapper().boost(0.3f))
+                              .mapper("int", integerMapper())
                               .mapper("long", longMapper())
                               .mapper("string", stringMapper())
                               .mapper("text", textMapper())
@@ -141,7 +141,7 @@ public class SchemaBuilderTest {
                               "float:{type:\"float\"}," +
                               "geo:{type:\"geo_point\",latitude:\"lat\",longitude:\"lon\"}," +
                               "inet:{type:\"inet\"}," +
-                              "int:{type:\"integer\",boost:0.3}," +
+                              "int:{type:\"integer\"}," +
                               "long:{type:\"long\"}," +
                               "string:{type:\"string\"}," +
                               "text:{type:\"text\"}," +

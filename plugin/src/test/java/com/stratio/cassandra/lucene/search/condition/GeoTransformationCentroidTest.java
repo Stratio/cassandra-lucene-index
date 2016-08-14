@@ -15,7 +15,7 @@
  */
 package com.stratio.cassandra.lucene.search.condition;
 
-import com.spatial4j.core.shape.jts.JtsGeometry;
+import  org.locationtech.spatial4j.shape.jts.JtsGeometry;
 import com.stratio.cassandra.lucene.common.GeoTransformation;
 import com.stratio.cassandra.lucene.util.JsonSerializer;
 import org.junit.Test;

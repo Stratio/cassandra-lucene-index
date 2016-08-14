@@ -16,7 +16,7 @@
 package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.stratio.cassandra.lucene.IndexException;
-import org.apache.lucene.document.DoubleField;
+import org.apache.lucene.document.DoublePoint;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.SortedNumericDocValuesField;
 import org.apache.lucene.search.SortField;
@@ -33,23 +33,15 @@ import java.util.Optional;
  */
 public class DoubleMapper extends SingleColumnMapper.SingleFieldMapper<Double> {
 
-    /** The default boost. */
-    public static final float DEFAULT_BOOST = 1.0f;
-
-    /** The boost. */
-    public final Float boost;
-
     /**
      * Builds a new {@link DoubleMapper} using the specified boost.
      *
      * @param field the name of the field
      * @param column the name of the column to be mapped
      * @param validated if the field must be validated
-     * @param boost the boost
      */
-    public DoubleMapper(String field, String column, Boolean validated, Float boost) {
+    public DoubleMapper(String field, String column, Boolean validated) {
         super(field, column, true, validated, null, Double.class, NUMERIC_TYPES);
-        this.boost = boost == null ? DEFAULT_BOOST : boost;
     }
 
     /** {@inheritDoc} */
@@ -70,9 +62,7 @@ public class DoubleMapper extends SingleColumnMapper.SingleFieldMapper<Double> {
     /** {@inheritDoc} */
     @Override
     public Optional<Field> indexedField(String name, Double value) {
-        DoubleField doubleField = new DoubleField(name, value, STORE);
-        doubleField.setBoost(boost);
-        return Optional.of(doubleField);
+        return Optional.of(new DoublePoint(name, value));
     }
 
     /** {@inheritDoc} */
@@ -91,6 +81,6 @@ public class DoubleMapper extends SingleColumnMapper.SingleFieldMapper<Double> {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return toStringHelper(this).add("boost", boost).toString();
+        return toStringHelper(this).toString();
     }
 }

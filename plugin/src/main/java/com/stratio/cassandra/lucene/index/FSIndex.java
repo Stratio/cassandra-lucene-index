@@ -48,7 +48,6 @@ public class FSIndex {
     private final int maxMergeMB;
     private final int maxCachedMB;
 
-    private Sort mergeSort;
     private Set<String> fields;
     private Directory directory;
     private IndexWriter indexWriter;
@@ -90,11 +89,10 @@ public class FSIndex {
     /**
      * Initializes this index with the specified merge sort and fields to be loaded.
      *
-     * @param mergeSort the sort to be applied to the index during merges
+     * @param indexSort the sort to be applied to the index during merges
      * @param fields the names of the document fields to be loaded
      */
-    public void init(Sort mergeSort, Set<String> fields) {
-        this.mergeSort = mergeSort;
+    public void init(Sort indexSort, Set<String> fields) {
         this.fields = fields;
         try {
 
@@ -102,15 +100,12 @@ public class FSIndex {
             FSDirectory fsDirectory = FSDirectory.open(path);
             directory = new NRTCachingDirectory(fsDirectory, maxMergeMB, maxCachedMB);
 
-            TieredMergePolicy tieredMergePolicy = new TieredMergePolicy();
-            SortingMergePolicy sortingMergePolicy = new SortingMergePolicy(tieredMergePolicy, mergeSort);
-
             // Setup index writer
             IndexWriterConfig indexWriterConfig = new IndexWriterConfig(analyzer);
             indexWriterConfig.setRAMBufferSizeMB(ramBufferMB);
             indexWriterConfig.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
             indexWriterConfig.setUseCompoundFile(true);
-            indexWriterConfig.setMergePolicy(sortingMergePolicy);
+            indexWriterConfig.setIndexSort(indexSort);
             indexWriter = new IndexWriter(directory, indexWriterConfig);
 
             // Setup NRT search
@@ -122,9 +117,8 @@ public class FSIndex {
                     return searcher;
                 }
             };
-            TrackingIndexWriter trackingWriter = new TrackingIndexWriter(indexWriter);
-            searcherManager = new SearcherManager(indexWriter, true, searcherFactory);
-            searcherReopener = new ControlledRealTimeReopenThread<>(trackingWriter, searcherManager, refresh, refresh);
+            searcherManager = new SearcherManager(indexWriter, searcherFactory);
+            searcherReopener = new ControlledRealTimeReopenThread<>(indexWriter, searcherManager, refresh, refresh);
             searcherReopener.start();
 
         } catch (Exception e) {
@@ -260,7 +254,7 @@ public class FSIndex {
                      "query: {}\n" +
                      " sort: {}\n" +
                      "count: {}", name, after, query, sort, count);
-        return new DocumentIterator(searcherManager, mergeSort, after, query, sort, count, fields);
+        return new DocumentIterator(searcherManager, after, query, sort, count, fields);
     }
 
     /**

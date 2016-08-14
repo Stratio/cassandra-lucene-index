@@ -131,7 +131,7 @@ public class IndexPagingState {
      * Adds this paging state to the specified {@link ReadQuery}.
      *
      * @param query a CQL query using the Lucene index
-     * @throws ReflectiveOperationException
+     * @throws ReflectiveOperationException if there are reflection errors
      */
     void rewrite(ReadQuery query) throws ReflectiveOperationException {
         if (query instanceof Group) {
@@ -330,7 +330,6 @@ public class IndexPagingState {
         int remaining = readShortLength(bb);
         IndexPagingState state = new IndexPagingState(remaining);
         Arrays.asList(decompose(bb))
-              .stream()
               .forEach(bbe -> {
                   ByteBuffer[] values = decompose(bbe);
                   DecoratedKey key = DatabaseDescriptor.getPartitioner().decorateKey(values[0]);

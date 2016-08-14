@@ -16,7 +16,7 @@
 package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.google.common.base.MoreObjects;
-import com.spatial4j.core.shape.Point;
+import org.locationtech.spatial4j.shape.Point;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.column.Column;
 import com.stratio.cassandra.lucene.column.Columns;
@@ -36,6 +36,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.stratio.cassandra.lucene.util.GeospatialUtils.CONTEXT;
+import static com.stratio.cassandra.lucene.util.GeospatialUtils.SHAPE_FACTORY;
 
 /**
  * A {@link Mapper} to map geographical points.
@@ -106,7 +107,7 @@ public class GeoPointMapper extends Mapper {
             throw new IndexException("Longitude column required if there is a latitude");
         }
 
-        Point point = CONTEXT.makePoint(lon, lat);
+        Point point = SHAPE_FACTORY.pointXY(lon, lat);
 
         return Arrays.asList(strategy.createIndexableFields(point));
     }

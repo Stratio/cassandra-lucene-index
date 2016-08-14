@@ -39,7 +39,7 @@
         <scala.binary.version>2.10</scala.binary.version>
         <scalatest.version>2.2.5</scalatest.version>
         <cassandra.version>3.0.8</cassandra.version>
-        <lucene.version>5.5.1</lucene.version>
+        <lucene.version>6.2.0-SNAPSHOT</lucene.version>
         <jts.version>1.14.0</jts.version>
         <mockito.version>1.10.19</mockito.version>
     </properties>
@@ -74,6 +74,11 @@
         <dependency>
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-spatial</artifactId>
+            <version>${lucene.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-spatial-extras</artifactId>
             <version>${lucene.version}</version>
         </dependency>
         <dependency>
@@ -128,13 +133,23 @@
                         <includes>
                             <include>org.scala-lang:*</include>
                             <include>org.apache.lucene:*</include>
-                            <include>com.spatial4j:*</include>
+                            <include>org.locationtech.spatial4j:*</include>
                         </includes>
                         <excludes>
                             <exclude>org.apache.cassandra:*</exclude>
                         </excludes>
                     </artifactSet>
                     <createDependencyReducedPom>false</createDependencyReducedPom>
+                    <filters>
+                        <filter>
+                            <artifact>*:*</artifact>
+                            <excludes>
+                                <exclude>META-INF/*.SF</exclude>
+                                <exclude>META-INF/*.DSA</exclude>
+                                <exclude>META-INF/*.RSA</exclude>
+                            </excludes>
+                        </filter>
+                    </filters>
                 </configuration>
                 <executions>
                     <execution>

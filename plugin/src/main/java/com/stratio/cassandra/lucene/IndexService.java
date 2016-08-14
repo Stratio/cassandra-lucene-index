@@ -149,10 +149,8 @@ abstract class IndexService implements IndexServiceMBean {
     void init() {
 
         // Initialize index
-        List<SortField> keySortFields = keySortFields();
-        Sort keySort = new Sort(keySortFields.toArray(new SortField[keySortFields.size()]));
         try {
-            lucene.init(keySort, fieldsToLoad());
+            lucene.init(new Sort(tokenMapper.sortField()), fieldsToLoad());
         } catch (Exception e) {
             logger.error(String.format(
                     "Initialization of Lucene FS directory for index '%s' has failed, " +

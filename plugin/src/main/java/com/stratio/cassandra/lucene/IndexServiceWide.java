@@ -103,9 +103,11 @@ class IndexServiceWide extends IndexService {
     /** {@inheritDoc} */
     @Override
     protected List<IndexableField> keyIndexableFields(DecoratedKey key, Row row) {
-        return Arrays.asList(tokenMapper.indexableField(key),
-                             partitionMapper.indexableField(key),
-                             keyMapper.indexableField(key, row.clustering()));
+        List<IndexableField> fields = new LinkedList<>();
+        fields.addAll(tokenMapper.indexableFields(key));
+        fields.add(partitionMapper.indexableField(key));
+        fields.add(keyMapper.indexableField(key, row.clustering()));
+        return fields;
     }
 
     /** {@inheritDoc} */

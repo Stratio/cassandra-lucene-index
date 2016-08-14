@@ -15,7 +15,7 @@
  */
 package com.stratio.cassandra.lucene.search.condition;
 
-import com.spatial4j.core.shape.jts.JtsGeometry;
+import  org.locationtech.spatial4j.shape.jts.JtsGeometry;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.common.GeoDistance;
 import com.stratio.cassandra.lucene.common.GeoOperation;

@@ -17,7 +17,7 @@ package com.stratio.cassandra.lucene.schema.mapping;
 
 import com.stratio.cassandra.lucene.IndexException;
 import org.apache.lucene.document.Field;
-import org.apache.lucene.document.FloatField;
+import org.apache.lucene.document.FloatPoint;
 import org.apache.lucene.document.SortedNumericDocValuesField;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.SortField.Type;
@@ -34,24 +34,16 @@ import java.util.Optional;
  */
 public class FloatMapper extends SingleColumnMapper.SingleFieldMapper<Float> {
 
-    /** The default boost. */
-    public static final Float DEFAULT_BOOST = 1.0f;
-
-    /** The boost. */
-    public final Float boost;
-
     /**
      * Builds a new {@link FloatMapper} using the specified boost.
      *
      * @param field the name of the field
      * @param column the name of the column to be mapped
      * @param validated if the field must be validated
-     * @param boost the boost
      */
     @JsonCreator
-    public FloatMapper(String field, String column, Boolean validated, Float boost) {
+    public FloatMapper(String field, String column, Boolean validated) {
         super(field, column, true, validated, null, Float.class, NUMERIC_TYPES);
-        this.boost = boost == null ? DEFAULT_BOOST : boost;
     }
 
     /** {@inheritDoc} */
@@ -72,9 +64,7 @@ public class FloatMapper extends SingleColumnMapper.SingleFieldMapper<Float> {
     /** {@inheritDoc} */
     @Override
     public Optional<Field> indexedField(String name, Float value) {
-        FloatField floatField = new FloatField(name, value, STORE);
-        floatField.setBoost(boost);
-        return Optional.of(floatField);
+        return Optional.of(new FloatPoint(name, value));
     }
 
     /** {@inheritDoc} */
@@ -93,7 +83,7 @@ public class FloatMapper extends SingleColumnMapper.SingleFieldMapper<Float> {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return toStringHelper(this).add("boost", boost).toString();
+        return toStringHelper(this).toString();
     }
 
 }

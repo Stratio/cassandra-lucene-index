@@ -16,7 +16,6 @@
 package com.stratio.cassandra.lucene.schema.mapping.builder;
 
 import com.stratio.cassandra.lucene.schema.mapping.IntegerMapper;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * {@link SingleColumnMapperBuilder} to build a new {@link IntegerMapper}.
@@ -24,20 +23,6 @@ import org.codehaus.jackson.annotate.JsonProperty;
  * @author Andres de la Pena {@literal <adelapena@stratio.com>}
  */
 public class IntegerMapperBuilder extends SingleColumnMapperBuilder<IntegerMapper, IntegerMapperBuilder> {
-
-    @JsonProperty("boost")
-    private Float boost;
-
-    /**
-     * Sets the boost to be used.
-     *
-     * @param boost the boost to be used
-     * @return this
-     */
-    public IntegerMapperBuilder boost(Float boost) {
-        this.boost = boost;
-        return this;
-    }
 
     /**
      * Returns the {@link IntegerMapper} represented by this {@link MapperBuilder}.
@@ -47,6 +32,6 @@ public class IntegerMapperBuilder extends SingleColumnMapperBuilder<IntegerMappe
      */
     @Override
     public IntegerMapper build(String field) {
-        return new IntegerMapper(field, column, validated, boost);
+        return new IntegerMapper(field, column, validated);
     }
 }

@@ -196,8 +196,8 @@ public class BuilderTest {
 
     @Test
     public void testDoubleMapperFull() {
-        String actual = doubleMapper().validated(true).boost(2.1f).column("column").build();
-        String expected = "{\"type\":\"double\",\"validated\":true,\"column\":\"column\",\"boost\":2.1}";
+        String actual = doubleMapper().validated(true).column("column").build();
+        String expected = "{\"type\":\"double\",\"validated\":true,\"column\":\"column\"}";
         assertEquals("double mapper serialization is wrong", expected, actual);
     }
 
@@ -210,8 +210,8 @@ public class BuilderTest {
 
     @Test
     public void testFloatMapperFull() {
-        String actual = floatMapper().validated(true).boost(2.1f).column("column").build();
-        String expected = "{\"type\":\"float\",\"validated\":true,\"column\":\"column\",\"boost\":2.1}";
+        String actual = floatMapper().validated(true).column("column").build();
+        String expected = "{\"type\":\"float\",\"validated\":true,\"column\":\"column\"}";
         assertEquals("float mapper serialization is wrong", expected, actual);
     }
 
@@ -279,8 +279,8 @@ public class BuilderTest {
 
     @Test
     public void testIntegerMapperFull() {
-        String actual = integerMapper().validated(true).boost(2.1f).build();
-        String expected = "{\"type\":\"integer\",\"validated\":true,\"boost\":2.1}";
+        String actual = integerMapper().validated(true).build();
+        String expected = "{\"type\":\"integer\",\"validated\":true}";
         assertEquals("integer mapper serialization is wrong", expected, actual);
     }
 
@@ -293,8 +293,8 @@ public class BuilderTest {
 
     @Test
     public void testLongMapperFull() {
-        String actual = longMapper().validated(true).boost(2.1f).build();
-        String expected = "{\"type\":\"long\",\"validated\":true,\"boost\":2.1}";
+        String actual = longMapper().validated(true).build();
+        String expected = "{\"type\":\"long\",\"validated\":true}";
         assertEquals("long mapper serialization is wrong", expected, actual);
     }
 

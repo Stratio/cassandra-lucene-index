@@ -82,7 +82,10 @@ class IndexServiceSkinny extends IndexService {
     /** {@inheritDoc} */
     @Override
     protected List<IndexableField> keyIndexableFields(DecoratedKey key, Row row) {
-        return Arrays.asList(tokenMapper.indexableField(key), partitionMapper.indexableField(key));
+        List<IndexableField> fields = new LinkedList<>();
+        fields.addAll(tokenMapper.indexableFields(key));
+        fields.add(partitionMapper.indexableField(key));
+        return fields;
     }
 
     /** {@inheritDoc} */
