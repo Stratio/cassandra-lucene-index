@@ -31,10 +31,10 @@ import java.io.IOException;
  */
 public final class JsonSerializer {
 
-    private static final JsonSerializer INSTANCE = new JsonSerializer();
+    public static final JsonSerializer INSTANCE = new JsonSerializer();
 
     /** The embedded JSON serializer. */
-    private final ObjectMapper mapper = new ObjectMapper();
+    public final ObjectMapper mapper = new ObjectMapper();
 
     /** Private constructor to hide the implicit public one. */
     private JsonSerializer() {

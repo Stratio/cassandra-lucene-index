@@ -24,7 +24,6 @@ import org.junit.Test;
 
 import java.util.Date;
 
-import static com.stratio.cassandra.lucene.schema.SchemaBuilders.integerMapper;
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.longMapper;
 import static org.junit.Assert.*;
 

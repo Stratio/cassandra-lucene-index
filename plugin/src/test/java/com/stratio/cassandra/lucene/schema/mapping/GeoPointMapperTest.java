@@ -18,7 +18,6 @@ package com.stratio.cassandra.lucene.schema.mapping;
 import com.stratio.cassandra.lucene.IndexException;
 import com.stratio.cassandra.lucene.column.Columns;
 import com.stratio.cassandra.lucene.schema.mapping.builder.GeoPointMapperBuilder;
-import com.stratio.cassandra.lucene.util.GeospatialUtils;
 import org.apache.lucene.index.IndexableField;
 import org.junit.Test;
 

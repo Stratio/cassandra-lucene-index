@@ -15,11 +15,9 @@
  */
 package com.stratio.cassandra.lucene.search.condition;
 
-import com.spatial4j.core.shape.jts.JtsGeometry;
 import com.stratio.cassandra.lucene.IndexException;
-import com.stratio.cassandra.lucene.common.GeoDistance;
 import com.stratio.cassandra.lucene.common.GeoOperation;
-import com.stratio.cassandra.lucene.common.GeoTransformation;
+import com.stratio.cassandra.lucene.common.GeoShape;
 import com.stratio.cassandra.lucene.schema.Schema;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.spatial.composite.CompositeVerifyQuery;
@@ -27,8 +25,6 @@ import org.apache.lucene.spatial.composite.IntersectsRPTVerifyQuery;
 import org.junit.Test;
 
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.List;
 
 import static com.stratio.cassandra.lucene.schema.SchemaBuilders.*;
 import static com.stratio.cassandra.lucene.search.SearchBuilders.geoShape;
@@ -41,66 +37,54 @@ import static org.junit.Assert.*;
 public class GeoShapeConditionTest extends AbstractConditionTest {
 
     private static final String WKT = "POLYGON((1 1,5 1,5 5,1 5,1 1),(2 2, 3 2, 3 3, 2 3,2 2))";
+    private static final GeoShape SHAPE = new GeoShape.WKT(WKT);
 
     @Test
     public void testConstructor() throws ParseException {
-        List<GeoTransformation> transformationList = new ArrayList<>();
-        transformationList.add(new GeoTransformation.Buffer(GeoDistance.parse("1m"), GeoDistance.parse("2m")));
+        GeoShapeCondition condition = new GeoShapeCondition(0.1f, "geo_point", SHAPE, GeoOperation.IS_WITHIN);
 
-        GeoShapeCondition condition = new GeoShapeCondition(0.1f,
-                                                            "geo_point",
-                                                            WKT,
-                                                            GeoOperation.IS_WITHIN,
-                                                            transformationList);
-
-        JtsGeometry geo = geometry(WKT);
         assertEquals("Boost is not set", 0.1f, condition.boost, 0);
         assertEquals("Field is not set", "geo_point", condition.field);
-        assertEquals("Geometry is not set", geo, condition.geometry);
+        assertEquals("Geometry is not set", geometry(WKT), condition.shape.apply());
         assertEquals("Operation is not set", GeoOperation.IS_WITHIN, condition.operation);
-        assertEquals("Transformations is not set", transformationList, condition.transformations);
     }
 
     @Test
     public void testConstructorWithDefaults() throws ParseException {
-        GeoShapeCondition condition = new GeoShapeCondition(null, "geo_point", WKT, null, null);
+        GeoShapeCondition condition = new GeoShapeCondition(null, "geo_point", SHAPE, null);
 
         assertNull("Boost is not set to default", condition.boost);
         assertEquals("Field is not set", "geo_point", condition.field);
-
-        JtsGeometry geo = geometry(WKT);
-
-        assertEquals("Geometry is not set", geo, condition.geometry);
+        assertEquals("Geometry is not set", geometry(WKT), condition.shape.apply());
         assertEquals("Operation is not set", GeoShapeCondition.DEFAULT_OPERATION, condition.operation);
-        assertEquals("Transformations is not set", new ArrayList(), condition.transformations);
 
     }
 
     @Test(expected = IndexException.class)
     public void testConstructorWithNullField() {
-        new GeoShapeCondition(null, null, WKT, null, null);
+        new GeoShapeCondition(null, null, SHAPE, null);
     }
 
     @Test(expected = IndexException.class)
     public void testConstructorWithEmptyField() {
-        new GeoShapeCondition(null, "", WKT, null, null);
+        new GeoShapeCondition(null, "", SHAPE, null);
 
     }
 
     @Test(expected = IndexException.class)
     public void testConstructorWithBlankField() {
-        new GeoShapeCondition(null, " ", WKT, null, null);
+        new GeoShapeCondition(null, " ", SHAPE, null);
 
     }
 
     @Test(expected = IndexException.class)
-    public void testConstructorWithNullGeometry() {
-        new GeoShapeCondition(null, "geo_point", null, null, null);
+    public void testConstructorWithNullShape() {
+        new GeoShapeCondition(null, "geo_point", null, null);
     }
 
     @Test(expected = IndexException.class)
     public void testConstructorWithInvalidGeometry() {
-        new GeoShapeCondition(null, "geo_point", "POLYGONS((1 1,5 1,5 5,1 5,1 1))", null, null);
+        new GeoShapeCondition(null, "geo_point", new GeoShape.WKT("POLYGONS((1 1,5 1,5 5,1 5,1 1))"), null);
 
     }
 
@@ -108,10 +92,7 @@ public class GeoShapeConditionTest extends AbstractConditionTest {
     public void testQueryIsWithIn() {
         Schema schema = schema().mapper("geo_point", geoPointMapper("lat", "lon").maxLevels(8)).build();
 
-        List<GeoTransformation> transformations = new ArrayList<>();
-        transformations.add(new GeoTransformation.Buffer(GeoDistance.parse("1m"), GeoDistance.parse("2m")));
-
-        Condition condition = new GeoShapeCondition(0.1f, "geo_point", WKT, GeoOperation.IS_WITHIN, transformations);
+        Condition condition = new GeoShapeCondition(0.1f, "geo_point", SHAPE, GeoOperation.IS_WITHIN);
 
         Query query = condition.doQuery(schema);
         assertNotNull("Query is not built", query);
@@ -126,10 +107,7 @@ public class GeoShapeConditionTest extends AbstractConditionTest {
     public void testQueryIntersects() {
         Schema schema = schema().mapper("geo_point", geoPointMapper("lat", "lon").maxLevels(8)).build();
 
-        List<GeoTransformation> transformations = new ArrayList<>();
-        transformations.add(new GeoTransformation.Buffer(GeoDistance.parse("1m"), GeoDistance.parse("2m")));
-
-        Condition condition = new GeoShapeCondition(0.1f, "geo_point", WKT, GeoOperation.INTERSECTS, transformations);
+        Condition condition = new GeoShapeCondition(0.1f, "geo_point", SHAPE, GeoOperation.INTERSECTS);
 
         Query query = condition.doQuery(schema);
         assertNotNull("Query is not built", query);
@@ -143,10 +121,7 @@ public class GeoShapeConditionTest extends AbstractConditionTest {
     public void testQueryContains() {
         Schema schema = schema().mapper("geo_point", geoPointMapper("lat", "lon").maxLevels(8)).build();
 
-        List<GeoTransformation> transformations = new ArrayList<>();
-        transformations.add(new GeoTransformation.Buffer(GeoDistance.parse("1m"), GeoDistance.parse("2m")));
-
-        Condition condition = new GeoShapeCondition(0.1f, "geo_point", WKT, GeoOperation.CONTAINS, transformations);
+        Condition condition = new GeoShapeCondition(0.1f, "geo_point", SHAPE, GeoOperation.CONTAINS);
 
         Query query = condition.doQuery(schema);
         assertNotNull("Query is not built", query);
@@ -161,17 +136,17 @@ public class GeoShapeConditionTest extends AbstractConditionTest {
     @Test(expected = IndexException.class)
     public void testQueryWithoutValidMapper() {
         Schema schema = schema().mapper("name", uuidMapper()).build();
-        String wkt = "POLYGON((1 1,5 1,5 5,1 5,1 1),(2 2, 3 2, 3 3, 2 3,2 2))";
-        GeoShapeCondition condition = new GeoShapeCondition(0.1f, "geo_point", wkt, GeoOperation.CONTAINS, null);
+        GeoShapeCondition condition = new GeoShapeCondition(0.1f, "geo_point", SHAPE, GeoOperation.CONTAINS);
         condition.query(schema);
     }
 
     @Test
     public void testToString() {
         String wkt = "POLYGON((1 1,5 1,5 5,1 5,1 1),(2 2, 3 2, 3 3, 2 3,2 2))";
-        GeoShapeCondition condition = geoShape("name", wkt).operation("intersects").transformations(null).build();
-        assertEquals("Method #toString is wrong", "GeoShapeCondition{boost=null, field=name, geometry=" +
-                                                  "POLYGON ((1 1, 5 1, 5 5, 1 5, 1 1), (2 2, 3 2, 3 3, 2 3, 2 2)), " +
-                                                  "operation=INTERSECTS, transformations=[]}", condition.toString());
+        GeoShapeCondition condition = geoShape("name", SHAPE).operation(GeoOperation.INTERSECTS).build();
+        assertEquals("Method #toString is wrong",
+                     "GeoShapeCondition{boost=null, field=name, shape=WKT{" +
+                     "value=POLYGON((1 1,5 1,5 5,1 5,1 1),(2 2, 3 2, 3 3, 2 3,2 2))}, operation=INTERSECTS}",
+                     condition.toString());
     }
 }

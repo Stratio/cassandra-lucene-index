@@ -52,7 +52,7 @@ Stratio's Cassandra Lucene Index
     - `Wildcard search <#wildcard-search>`__
 - `Geographical elements <#geographical-elements>`__
     - `Distance <#distance>`__
-    - `Transformations <#tranformations>`__
+    - `Transformations <#transformations>`__
         - `Bounding box <#bounding-box>`__
         - `Buffer <#buffer>`__
         - `Centroid <#centroid>`__
@@ -236,39 +236,41 @@ and create them again with running newer version.
 If you have huge amount of data in your cluster this could be an expensive task. We have tested it and here you have a
 compatibility matrix that states between which versions it is not needed to delete the index:
 
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| From\\ To | 3.0.3.0 | 3.0.3.1 | 3.0.4.0 | 3.0.4.1 | 3.0.5.0 | 3.0.5.1 | 3.0.5.2 | 3.0.6.0 | 3.0.6.1 | 3.0.6.2 | 3.0.7.0 | 3.0.7.1 | 3.0.7.2 | 3.0.8.0 | 3.0.8.1 |
-+===========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+
-| 2.x       |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.3.0   |    --   |   YES   |   YES   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.3.1   |    --   |    --   |   YES   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.4.0   |    --   |    --   |    --   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.4.1   |    --   |    --   |    --   |    --   |   YES   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.5.0   |    --   |    --   |    --   |    --   |    --   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.5.1   |    --   |    --   |    --   |    --   |    --   |    --   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.5.2   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   YES   |   YES   |   YES   |   YES   |   YES   |   YES   |   (1)   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.6.0   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   YES   |   YES   |   YES   |   YES   |   YES   |   (1)   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.6.1   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   YES   |   YES   |   YES   |   YES   |   (1)   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.6.2   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   YES   |   YES   |   YES   |   (1)   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.7.0   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   YES   |   YES   |   (1)   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.7.1   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   YES   |   (1)   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.7.2   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   (1)   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
-| 3.0.8.0   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   (1)   |
-+-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| From\\ To | 3.0.3.0 | 3.0.3.1 | 3.0.4.0 | 3.0.4.1 | 3.0.5.0 | 3.0.5.1 | 3.0.5.2 | 3.0.6.0 | 3.0.6.1 | 3.0.6.2 | 3.0.7.0 | 3.0.7.1 | 3.0.7.2 | 3.0.8.0 | 3.0.8.1 | 3.0.8.2 |
++===========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+=========+
+| 2.x       |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.3.0   |    --   |   YES   |   YES   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.3.1   |    --   |    --   |   YES   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.4.0   |    --   |    --   |    --   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.4.1   |    --   |    --   |    --   |    --   |   YES   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.5.0   |    --   |    --   |    --   |    --   |    --   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.5.1   |    --   |    --   |    --   |    --   |    --   |    --   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |    NO   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.5.2   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   YES   |   YES   |   YES   |   YES   |   YES   |   YES   |   (1)   |   (1)   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.6.0   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   YES   |   YES   |   YES   |   YES   |   YES   |   (1)   |   (1)   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.6.1   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   YES   |   YES   |   YES   |   YES   |   (1)   |   (1)   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.6.2   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   YES   |   YES   |   YES   |   (1)   |   (1)   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.7.0   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   YES   |   YES   |   (1)   |   (1)   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.7.1   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   YES   |   (1)   |   (1)   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.7.2   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |   (1)   |   (1)   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.8.0   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   (1)   |   (1)   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
+| 3.0.8.1   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |    --   |   YES   |
++-----------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+---------+
 
 **(1):** Compatible only if you are not using geospatial mappers.
 
@@ -380,12 +382,12 @@ Now you can create a custom Lucene index on it with the following statement:
     WITH OPTIONS = {
         'refresh_seconds' : '1',
         'schema' : '{
-            fields : {
-                id    : {type : "integer"},
-                user  : {type : "string"},
-                body  : {type : "text", analyzer : "english"},
-                time  : {type : "date", pattern : "yyyy/MM/dd"},
-                place : {type : "geo_point", latitude:"latitude", longitude:"longitude"}
+            fields: {
+                id: {type: "integer"},
+                user: {type: "string"},
+                body: {type: "text", analyzer : "english"},
+                time: {type: "date", pattern: "yyyy/MM/dd"},
+                place: {type: "geo_point", latitude: "latitude", longitude: "longitude"}
             }
         }'
     };
@@ -404,7 +406,7 @@ Now, to search for tweets within a certain date range:
 .. code-block:: sql
 
     SELECT * FROM tweets WHERE expr(tweets_index, '{
-        filter : {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"}
+        filter: {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"}
     }');
 
 The same search can be performed forcing an explicit refresh of the involved index shards:
@@ -412,8 +414,8 @@ The same search can be performed forcing an explicit refresh of the involved ind
 .. code-block:: sql
 
     SELECT * FROM tweets WHERE expr(tweets_index, '{
-        filter : {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
-        refresh : true
+        filter: {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
+        refresh: true
     }') limit 100;
 
 Now, to search the top 100 more relevant tweets where *body* field contains the phrase “big data gives organizations”
@@ -422,8 +424,8 @@ within the aforementioned date range:
 .. code-block:: sql
 
     SELECT * FROM tweets WHERE expr(tweets_index, '{
-        filter : {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
-        query : {type: "phrase", field: "body", value: "big data gives organizations", slop: 1}
+        filter: {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
+        query: {type: "phrase", field: "body", value: "big data gives organizations", slop: 1}
     }') LIMIT 100;
 
 To refine the search to get only the tweets written by users whose names start with "a":
@@ -431,9 +433,9 @@ To refine the search to get only the tweets written by users whose names start w
 .. code-block:: sql
 
     SELECT * FROM tweets WHERE expr(tweets_index, '{
-        filter : [ {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
+        filter: [ {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
                    {type: "prefix", field: "user", value: "a"} ],
-        query : {type: "phrase", field: "body", value: "big data gives organizations", slop: 1}
+        query: {type: "phrase", field: "body", value: "big data gives organizations", slop: 1}
     }') LIMIT 100;
 
 To get the 100 more recent filtered results you can use the *sort* option:
@@ -441,9 +443,9 @@ To get the 100 more recent filtered results you can use the *sort* option:
 .. code-block:: sql
 
     SELECT * FROM tweets WHERE expr(tweets_index, '{
-        filter : [ {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
+        filter: [ {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
                    {type: "prefix", field: "user", value: "a"} ],
-        query : {type: "phrase", field: "body", value: "big data gives organizations", slop: 1},
+        query: {type: "phrase", field: "body", value: "big data gives organizations", slop: 1},
         sort : {field: "time", reverse: true}
     }') limit 100;
 
@@ -452,10 +454,10 @@ The previous search can be restricted to tweets created close to a geographical 
 .. code-block:: sql
 
     SELECT * FROM tweets WHERE expr(tweets_index, '{
-        filter : [ {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
-                   {type: "prefix", field: "user", value: "a"},
-                   {type: "geo_distance", field: "place", latitude: 40.3930, longitude: -3.7328, max_distance: "10km"} ],
-        query : {type: "phrase", field: "body", value: "big data gives organizations", slop: 1},
+        filter: [ {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
+                  {type: "prefix", field: "user", value: "a"},
+                  {type: "geo_distance", field: "place", latitude: 40.3930, longitude: -3.7328, max_distance: "10km"} ],
+        query: {type: "phrase", field: "body", value: "big data gives organizations", slop: 1},
         sort : {field: "time", reverse: true}
     }') limit 100;
 
@@ -465,9 +467,9 @@ It is also possible to sort the results by distance to a geographical position:
 
     SELECT * FROM tweets WHERE expr(tweets_index, '{
         filter: [ {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
-                   {type: "prefix", field: "user", value: "a"},
-                   {type: "geo_distance", field: "place", latitude: 40.3930, longitude: -3.7328, max_distance: "10km"} ],
-        query :  {type: "phrase", field: "body", value: "big data gives organizations", slop: 1},
+                  {type: "prefix", field: "user", value: "a"},
+                  {type: "geo_distance", field: "place", latitude: 40.3930, longitude: -3.7328, max_distance: "10km"} ],
+        query:  {type: "phrase", field: "body", value: "big data gives organizations", slop: 1},
         sort : [ {field: "time", reverse: true},
                  {field: "place", type: "geo_distance", latitude: 40.3930, longitude: -3.7328} ]
     }') limit 100;
@@ -478,10 +480,10 @@ subset of the cluster nodes will be hit, saving precious resources:
 .. code-block:: sql
 
     SELECT * FROM tweets WHERE expr(tweets_index, '{
-        filter : [ {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
-                   {type: "prefix", field: "user", value: "a"},
-                   {type: "geo_distance", field: "place", latitude: 40.3930, longitude: -3.7328, max_distance: "10km"} ],
-        query :  {type: "phrase", field: "body", value: "big data gives organizations", slop: 1},
+        filter: [ {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
+                  {type: "prefix", field: "user", value: "a"},
+                  {type: "geo_distance", field: "place", latitude: 40.3930, longitude: -3.7328, max_distance: "10km"} ],
+        query:  {type: "phrase", field: "body", value: "big data gives organizations", slop: 1},
         sort : [ {field: "time", reverse: true},
                  {field: "place", type: "geo_distance", latitude: 40.3930, longitude: -3.7328} ]
     }') AND TOKEN(id) >= TOKEN(0) AND TOKEN(id) < TOKEN(10000000) limit 100;
@@ -542,7 +544,7 @@ All options take a value enclosed in single quotes:
     <schema_definition> := {
         (analyzers : { <analyzer_definition> (, <analyzer_definition>)* } ,)?
         (default_analyzer : "<analyzer_name>",)?
-        fields : { <mapper_definition> (, <mapper_definition>)* }
+        fields: { <mapper_definition> (, <mapper_definition>)* }
     }
 
 Where default\_analyzer defaults to ‘org.apache.lucene.analysis.standard.StandardAnalyzer’.
@@ -592,7 +594,7 @@ present in classpath.
         'schema' : '{
             analyzers : {
                 an_analyzer : {
-                    type  : "classpath",
+                    type: "classpath",
                     class : "org.apache.lucene.analysis.en.EnglishAnalyzer"
                 }
             }
@@ -616,9 +618,9 @@ Analyzer using a `http://snowball.tartarus.org/ <http://snowball.tartarus.org/>`
         'schema' : '{
             analyzers : {
                 an_analyzer : {
-                    type  : "snowball",
-                    language : "English",
-                    stopwords : "a,an,the,this,that"
+                    type: "snowball",
+                    language: "English",
+                    stopwords: "a,an,the,this,that"
                 }
             }
         }'
@@ -792,13 +794,13 @@ Maps arbitrary precision signed decimal values.
     WITH OPTIONS = {
         'refresh_seconds' : '1',
         'schema' : '{
-            fields : {
+            fields: {
                 bigdecimal : {
-                    type           : "bigdec",
-                    integer_digits : 2,
-                    decimal_digits : 2,
-                    validated      : true,
-                    column         : "column_name"
+                    type: "bigdec",
+                    integer_digits: 2,
+                    decimal_digits: 2,
+                    validated: true,
+                    column: "column_name"
                 }
             }
         }'
@@ -828,12 +830,12 @@ Maps arbitrary precision signed integer values.
     WITH OPTIONS = {
         'refresh_seconds' : '1',
         'schema' : '{
-            fields : {
-                biginteger : {
-                    type      : "bigint",
-                    digits    : 10,
-                    validated : true,
-                    column    : "column_name"
+            fields: {
+                biginteger: {
+                    type: "bigint",
+                    digits: 10,
+                    validated: true,
+                    column: "column_name"
                 }
             }
         }'
@@ -869,16 +871,16 @@ Maps four columns containing the four dates defining a bitemporal fact.
     WITH OPTIONS = {
         'refresh_seconds' : '1',
         'schema' : '{
-            fields : {
+            fields: {
                 bitemporal : {
-                    type      : "bitemporal",
-                    vt_from   : "vt_from",
-                    vt_to     : "vt_to",
-                    tt_from   : "tt_from",
-                    tt_to     : "tt_to",
-                    validated : true,
-                    pattern   : "yyyy/MM/dd HH:mm:ss.SSS";,
-                    now_value : "3000/01/01 00:00:00.000",
+                    type: "bitemporal",
+                    vt_from: "vt_from",
+                    vt_to: "vt_to",
+                    tt_from: "tt_from",
+                    tt_to: "tt_to",
+                    validated: true,
+                    pattern: "yyyy/MM/dd HH:mm:ss.SSS";,
+                    now_value: "3000/01/01 00:00:00.000",
                 }
             }
         }'
@@ -908,7 +910,7 @@ Maps a blob value.
     WITH OPTIONS = {
         'refresh_seconds' : '1',
         'schema' : '{
-            fields : {
+            fields: {
                 blob : {
                     type    : "bytes",
                     column  : "column_name"
@@ -941,11 +943,11 @@ Maps a boolean value.
     WITH OPTIONS = {
         'refresh_seconds' : '1',
         'schema' : '{
-            fields : {
+            fields: {
                 bool : {
-                    type      : "boolean",
-                    validated : true,
-                    column    : "column_name"
+                    type: "boolean",
+                    validated: true,
+                    column: "column_name"
                 }
             }
         }'
@@ -977,10 +979,10 @@ Maps dates using a either a pattern, an UNIX timestamp or a time UUID.
     WITH OPTIONS = {
         'refresh_seconds' : '1',
         'schema' : '{
-            fields : {
-                creation : {
-                    type    : "date",
-                    pattern : "yyyy/MM/dd HH:mm",
+            fields: {
+                creation: {
+                    type: "date",
+                    pattern: "yyyy/MM/dd HH:mm",
                 }
             }
         }'
@@ -1013,11 +1015,11 @@ Maps a time duration/period defined by a start date and a stop date.
     WITH OPTIONS = {
         'refresh_seconds' : '1',
         'schema' : '{
-            fields : {
-                duration : {
-                    type    : "date_range",
-                    from    : "start",
-                    to      : "stop"
+            fields: {
+                duration: {
+                    type: "date_range",
+                    from: "start",
+                    to: "stop"
                 }
             }
         }'
@@ -1033,13 +1035,13 @@ precision of minutes:
     WITH OPTIONS = {
         'refresh_seconds' : '1',
         'schema' : '{
-            fields : {
-                duration : {
-                    type      : "date_range",
-                    validated : true,
-                    from      : "start",
-                    to        : "stop",
-                    pattern   : "yyyy/MM/dd HH:mm"
+            fields: {
+                duration: {
+                    type: "date_range",
+                    validated: true,
+                    from: "start",
+                    to: "stop",
+                    pattern: "yyyy/MM/dd HH:mm"
                 }
             }
         }'
@@ -1070,12 +1072,12 @@ Maps a 64-bit decimal number.
     WITH OPTIONS = {
         'refresh_seconds' : '1',
         'schema' : '{
-            fields : {
+            fields: {
                 double : {
-                    type      : "double",
-                    boost     : 2.0,
-                    validated : true,
-                    column    : "column_name"
+                    type: "double",
+                    boost: 2.0,
+                    validated: true,
+                    column: "column_name"
                 }
             }
         }'
@@ -1106,12 +1108,12 @@ Maps a 32-bit decimal number.
     WITH OPTIONS = {
         'refresh_seconds' : '1',
         'schema' : '{
-            fields : {
+            fields: {
                 float : {
-                    type      : "float",
-                    boost     : 2.0,
-                    validated : true,
-                    column    : "column_name"
+                    type: "float",
+                    boost: 2.0,
+                    validated: true,
+                    column: "column_name"
                 }
             }
         }'
@@ -1149,13 +1151,13 @@ and the doc values field is used to discard these false positives.
     WITH OPTIONS = {
         'refresh_seconds' : '1',
         'schema' : '{
-            fields : {
+            fields: {
                 geo_point : {
-                    type       : "geo_point",
-                    validated  : true,
-                    latitude   : "lat",
-                    longitude  : "long",
-                    max_levels : 15
+                    type: "geo_point",
+                    validated: true,
+                    latitude: "lat",
+                    longitude: "long",
+                    max_levels: 15
                 }
             }
         }'
@@ -1220,10 +1222,10 @@ into your Cassandra installation lib directory.
     WITH OPTIONS = {
         'refresh_seconds' : '1',
         'schema' : '{
-            fields : {
-                shape : {
-                    type       : "geo_shape",
-                    max_levels : 15
+            fields: {
+                shape: {
+                    type: "geo_shape",
+                    max_levels: 15
                 }
             }
         }'
@@ -1253,11 +1255,11 @@ into your Cassandra installation lib directory.
     WITH OPTIONS = {
         'refresh_seconds' : '1',
         'schema' : '{
-            fields : {
+            fields: {
                 shape : {
-                    type            : "geo_shape",
-                    max_levels      : 15,
-                    transformations : [{type:"centroid"}]
+                    type: "geo_shape",
+                    max_levels: 15,
+                    transformations: [{type:"centroid"}]
                 }
             }
         }'
@@ -1287,11 +1289,11 @@ into your Cassandra installation lib directory.
     WITH OPTIONS = {
         'refresh_seconds' : '1',
         'schema' : '{
-            fields : {
+            fields: {
                 shape : {
-                    type            : "geo_shape",
-                    max_levels      : 15,
-                    transformations : [{type:"buffer", min_distance:"50km"}]
+                    type: "geo_shape",
+                    max_levels: 15,
+                    transformations: [{type: "buffer", min_distance: "50km"}]
                 }
             }
         }'
@@ -1320,11 +1322,11 @@ into your Cassandra installation lib directory.
     WITH OPTIONS = {
         'refresh_seconds' : '1',
         'schema' : '{
-            fields : {
+            fields: {
                 shape : {
-                    type            : "geo_shape",
-                    max_levels      : 15,
-                    transformations : [{type:"buffer", max_distance:"50km"}]
+                    type: "geo_shape",
+                    max_levels: 15,
+                    transformations: [{type: "buffer", max_distance: "50km"}]
                 }
             }
         }'
@@ -1351,11 +1353,11 @@ into your Cassandra installation lib directory.
     WITH OPTIONS = {
         'refresh_seconds' : '1',
         'schema' : '{
-            fields : {
-                shape : {
-                    type            : "geo_shape",
-                    max_levels      : 15,
-                    transformations : [{type:"convex_hull"}]
+            fields: {
+                shape: {
+                    type: "geo_shape",
+                    max_levels: 15,
+                    transformations: [{type: "convex_hull"}]
                 }
             }
         }'
@@ -1382,11 +1384,11 @@ into your Cassandra installation lib directory.
     WITH OPTIONS = {
         'refresh_seconds' : '1',
         'schema' : '{
-            fields : {
-                shape : {
-                    type            : "geo_shape",
-                    max_levels      : 15,
-                    transformations : [{type:"bbox"}]
+            fields: {
+                shape: {
+                    type: "geo_shape",
+                    max_levels: 15,
+                    transformations: [{type: "bbox"}]
                 }
             }
         }'
@@ -1416,11 +1418,11 @@ Maps an IP address. Either IPv4 and IPv6 are supported.
     WITH OPTIONS = {
         'refresh_seconds' : '1',
         'schema' : '{
-            fields : {
-                inet : {
-                    type      : "inet",
-                    validated : true,
-                    column    : "column_name"
+            fields: {
+                inet: {
+                    type: "inet",
+                    validated: true,
+                    column: "column_name"
                 }
             }
         }'
@@ -1451,12 +1453,12 @@ Maps a 32-bit integer number.
     WITH OPTIONS = {
         'refresh_seconds' : '1',
         'schema' : '{
-            fields : {
+            fields: {
                 integer : {
-                    type      : "integer",
-                    validated : true,
-                    column    : "column_name"
-                    boost     : 2.0,
+                    type: "integer",
+                    validated: true,
+                    column: "column_name"
+                    boost: 2.0,
                 }
             }
         }'
@@ -1487,12 +1489,12 @@ Maps a 64-bit integer number.
     WITH OPTIONS = {
         'refresh_seconds' : '1',
         'schema' : '{
-            fields : {
+            fields: {
                 long : {
-                    type      : "long",
-                    validated : true,
-                    column    : "column_name"
-                    boost     : 2.0,
+                    type: "long",
+                    validated: true,
+                    column: "column_name"
+                    boost: 2.0,
                 }
             }
         }'
@@ -1523,12 +1525,12 @@ Maps a not-analyzed text value.
     WITH OPTIONS = {
         'refresh_seconds' : '1',
         'schema' : '{
-            fields : {
+            fields: {
                 string : {
-                    type           : "string",
-                    validated      : true,
-                    column         : "column_name"
-                    case_sensitive : false,
+                    type: "string",
+                    validated: true,
+                    column: "column_name"
+                    case_sensitive: false,
                 }
             }
         }'
@@ -1561,17 +1563,17 @@ Maps a language-aware text value analyzed according to the specified analyzer.
         'schema' : '{
             analyzers : {
                 my_custom_analyzer : {
-                      type      : "snowball",
-                      language  : "Spanish",
-                      stopwords : "el,la,lo,loas,las,a,ante,bajo,cabe,con,contra"
+                      type: "snowball",
+                      language: "Spanish",
+                      stopwords: "el,la,lo,loas,las,a,ante,bajo,cabe,con,contra"
                 }
             },
-            fields : {
+            fields: {
                 text : {
-                    type      : "text",
-                    validated : true,
-                    column    : "column_name"
-                    analyzer  : "my_custom_analyzer",
+                    type: "text",
+                    validated: true,
+                    column: "column_name"
+                    analyzer: "my_custom_analyzer",
                 }
             }
         }'
@@ -1601,11 +1603,11 @@ Maps an UUID value.
     WITH OPTIONS = {
         'refresh_seconds' : '1',
         'schema' : '{
-            fields : {
+            fields: {
                 id : {
-                    type      : "uuid",
-                    validated : true,
-                    column    : "column_name"
+                    type: "uuid",
+                    validated: true,
+                    column: "column_name"
                 }
             }
         }'
@@ -1634,21 +1636,21 @@ Cassandra shell:
         'schema' : '{
             analyzers : {
                 my_custom_analyzer : {
-                    type      : "snowball",
-                    language  : "Spanish",
-                    stopwords : "el,la,lo,loas,las,a,ante,bajo,cabe,con,contra"
+                    type: "snowball",
+                    language: "Spanish",
+                    stopwords: "el,la,lo,loas,las,a,ante,bajo,cabe,con,contra"
                 }
             },
-            default_analyzer : "english",
-            fields : {
+            default_analyzer: "english",
+            fields: {
                 name     : {type : "string"},
-                gender   : {type : "string", validated : true},
+                gender   : {type : "string", validated: true},
                 animal   : {type : "string"},
                 age      : {type : "integer"},
                 food     : {type : "string"},
                 number   : {type : "integer"},
                 bool     : {type : "boolean"},
-                date     : {type : "date", validated : true, pattern : "yyyy/MM/dd"},
+                date     : {type : "date", validated: true, pattern: "yyyy/MM/dd"},
                 duration : {type : "date_range", from : "start_date", to : "stop_date"},
                 place    : {type : "geo_point", latitude : "latitude", longitude : "longitude"},
                 mapz     : {type : "string"},
@@ -1672,7 +1674,7 @@ Lucene indexes are queried using a custom JSON syntax defining the kind of searc
         (   filter  : ( <filter> )* )?
         ( , query   : ( <query>  )* )?
         ( , sort    : ( <sort>   )* )?
-        ( , refresh : ( true | false ) )?
+        ( , refresh: ( true | false ) )?
     }');
 
 where <filter> and <query> are a JSON object:
@@ -1687,12 +1689,12 @@ and <sort> is another JSON object:
 .. code-block:: sql
 
         <sort> := <simple_sort_field> | <geo_distance_sort_field>
-        <simple_sort_field> := {(type: "simple",)? field : <field> (, reverse : <reverse> )? }
+        <simple_sort_field> := {(type: "simple",)? field: <field> (, reverse: <reverse> )? }
         <geo_distance_sort_field> := {  type: "geo_distance",
-                                        field : <field>,
+                                        field: <field>,
                                         latitude : <Double>,
                                         longitude: <Double>
-                                        (, reverse : <reverse> )? }
+                                        (, reverse: <reverse> )? }
 
 When searching by ``filter``, without any ``query`` or ``sort`` defined,
 then the results are returned in the Cassandra’s natural order, which is
@@ -1861,7 +1863,7 @@ Search for all the indexed rows.
 .. code-block:: sql
 
     SELECT ( <fields> | * ) FROM <table> WHERE expr(<index_name>, '{
-        (filter | query) : { type  : "all"}
+        (filter | query) : {type: "all"}
     }');
 
 **Example:** search for all the indexed rows:
@@ -1869,7 +1871,7 @@ Search for all the indexed rows.
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '
-        {filter : { type  : "all" }
+        {filter: {type: "all" }
     }');
 
 Using `query builder <#query-builder>`__:
@@ -1896,12 +1898,12 @@ transaction time and valid time ranges.
 
     SELECT ( <fields> | * ) FROM <table> WHERE expr(<index_name>, '{
         (filter | query) : {
-            type       : "bitemporal",
-            (vt_from   : <vt_from> ,)?
-            (vt_to     : <vt_to> ,)?
-            (tt_from   : <tt_from> ,)?
-            (tt_to     : <tt_to> ,)?
-            (operation : <operation> )? }
+            type: "bitemporal",
+            (vt_from: <vt_from> ,)?
+            (vt_to: <vt_to> ,)?
+            (tt_from: <tt_from> ,)?
+            (tt_to: <tt_to> ,)?
+            (operation: <operation> )? }
     }');
 
 where:
@@ -1944,15 +1946,15 @@ Second, we create the index:
     WITH OPTIONS = {
         'refresh_seconds' : '1',
         'schema' : '{
-            fields : {
+            fields: {
                 bitemporal : {
-                    type      : "bitemporal",
-                    tt_from   : "tt_from",
-                    tt_to     : "tt_to",
-                    vt_from   : "vt_from",
-                    vt_to     : "vt_to",
-                    pattern   : "yyyy/MM/dd",
-                    now_value : "2200/12/31"}
+                    type: "bitemporal",
+                    tt_from: "tt_from",
+                    tt_to: "tt_to",
+                    vt_from: "vt_from",
+                    vt_to: "vt_to",
+                    pattern: "yyyy/MM/dd",
+                    now_value: "2200/12/31"}
             }
     }'};
 
@@ -2011,13 +2013,13 @@ If you want to know what is the last info about where John resides, you perform 
 .. code-block:: sql
 
     SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM census WHERE expr(tweets_index, '{
-        filter : {
-            type    : "bitemporal",
-            field   : "bitemporal",
-            vt_from : 0,
-            vt_to   : "2200/12/31",
-            tt_from : "2200/12/31",
-            tt_to   : "2200/12/31"
+        filter: {
+            type: "bitemporal",
+            field: "bitemporal",
+            vt_from: 0,
+            vt_to: "2200/12/31",
+            tt_from: "2200/12/31",
+            tt_to: "2200/12/31"
         }
     }') AND name='John';
 
@@ -2041,13 +2043,13 @@ If you want to know what is the last info about where John resides now, you perf
 .. code-block:: sql
 
     SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM census WHERE expr(census_index, '{
-        filter : {
-            type    : "bitemporal",
-            field   : "bitemporal",
-            vt_from : "2200/12/31",
-            vt_to   : "2200/12/31",
-            tt_from : "2200/12/31",
-            tt_to   : "2200/12/31"
+        filter: {
+            type: "bitemporal",
+            field: "bitemporal",
+            vt_from: "2200/12/31",
+            vt_to: "2200/12/31",
+            tt_from: "2200/12/31",
+            tt_to: "2200/12/31"
         }
     }') AND name='John';
 
@@ -2070,13 +2072,13 @@ If the test case needs to know what the system was thinking at '2015/03/01' abou
 .. code-block:: sql
 
     SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM census WHERE expr(census_index, '{
-        filter : {
-            type    : "bitemporal",
-            field   : "bitemporal",
-            vt_from : "2015/03/01",
-            vt_to   : "2015/03/01",
-            tt_from : "2015/03/01",
-            tt_to   : "2015/03/01"
+        filter: {
+            type: "bitemporal",
+            field: "bitemporal",
+            vt_from: "2015/03/01",
+            vt_to: "2015/03/01",
+            tt_from: "2015/03/01",
+            tt_to: "2015/03/01"
         }
     }') AND name = 'John';
 
@@ -2098,11 +2100,11 @@ If the test case needs to know what the system was thinking at '2015/07/05' abou
 .. code-block:: sql
 
     SELECT name, city, vt_from, vt_to, tt_from, tt_to FROM census WHERE expr(census_index,'{
-        filter : {
-            type    : "bitemporal",
-            field   : "bitemporal",
-            tt_from : "2015/07/05",
-            tt_to   : "2015/07/05"
+        filter: {
+            type: "bitemporal",
+            field: "bitemporal",
+            tt_from: "2015/07/05",
+            tt_to: "2015/07/05"
         }
     }') AND name='John';
 
@@ -2130,10 +2132,10 @@ Searches for rows matching boolean combinations of other searches.
 
     SELECT ( <fields> | * ) FROM <table> WHERE expr(<index_name>, '{
         (filter | query) : {
-            type     : "boolean",
-            ( must   : [(search,)?] , )?
-            ( should : [(search,)?] , )?
-            ( not    : [(search,)?] , )? }
+            type: "boolean",
+            ( must: [(search,)?] , )?
+            ( should: [(search,)?] , )?
+            ( not: [(search,)?] , )? }
     }');
 
 where:
@@ -2152,10 +2154,10 @@ with “tu”:
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
-            type : "boolean",
-            must : [ {type : "wildcard", field : "name", value : "*a"},
-                     {type : "wildcard", field : "food", value : "tu*"} ]}
+        filter: {
+            type: "boolean",
+            must: [ {type : "wildcard", field: "name", value: "*a"},
+                    {type : "wildcard", field: "food", value: "tu*"} ]}
     }');
 
 You can also write this search without the ``type`` attribute:
@@ -2163,9 +2165,9 @@ You can also write this search without the ``type`` attribute:
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
-            must : [ {type : "wildcard", field : "name", value : "*a"},
-                     {type : "wildcard", field : "food", value : "tu*"} ]}
+        filter: {
+            must: [ {type : "wildcard", field: "name", value: "*a"},
+                    {type : "wildcard", field: "food", value: "tu*"} ]}
     }');
 
 Or inside the base filter path:
@@ -2173,8 +2175,8 @@ Or inside the base filter path:
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : [ {type : "wildcard", field : "name", value : "*a"},
-                   {type : "wildcard", field : "food", value : "tu*"} ]
+        filter: [ {type : "wildcard", field: "name", value: "*a"},
+                  {type : "wildcard", field: "food", value: "tu*"} ]
     }');
 
 Using `query builder <#query-builder>`__:
@@ -2201,10 +2203,10 @@ Using `query builder <#query-builder>`__:
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
-            type : "boolean",
-            not  : [ {type : "wildcard", field : "name", value : "*a" } ],
-            must : [ {type : "wildcard", field : "food", value : "tu*" } ] }
+        filter: {
+            type: "boolean",
+            not: [{type: "wildcard", field: "name", value: "*a"}],
+            must: [{type: "wildcard", field: "food", value: "tu*"}] }
     }');
 
 You can also write this search without the ``type`` attribute:
@@ -2212,9 +2214,9 @@ You can also write this search without the ``type`` attribute:
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
-            not  : [ {type : "wildcard", field : "name", value : "*a" } ],
-            must : [ {type : "wildcard", field : "food", value : "tu*" } ] }
+        filter: {
+            not: [{type: "wildcard", field: "name", value: "*a"}],
+            must: [{type: "wildcard", field: "food", value: "tu*"}] }
     }');
 
 It is also possible to write the search this way:
@@ -2222,8 +2224,10 @@ It is also possible to write the search this way:
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : [ {type : "wildcard", field : "food", value : "tu*" },
-                   { not : {type : "wildcard", field : "name", value : "*a" } } ]
+        filter: [
+           {type: "wildcard", field: "food", value: "tu*"},
+           {not: {type: "wildcard", field: "name", value: "*a"}}
+        ]
     }');
 
 Using `query builder <#query-builder>`__:
@@ -2251,10 +2255,13 @@ Using `query builder <#query-builder>`__:
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
-            type   : "boolean",
-            should : [ { type : "wildcard", field : "name", value : "*a" },
-                       { type : "wildcard", field : "food", value : "tu*" } ] }
+        filter: {
+            type: "boolean",
+            should: [
+               {type: "wildcard", field: "name", value: "*a"},
+               {type: "wildcard", field: "food", value: "tu*"}
+            ]
+         }
     }');
 
 You can also write this search without the ``type`` attribute:
@@ -2262,9 +2269,12 @@ You can also write this search without the ``type`` attribute:
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
-            should : [ { type : "wildcard", field : "name", value : "*a" },
-                       { type : "wildcard", field : "food", value : "tu*" } ] }
+        filter: {
+            should: [
+               {type: "wildcard", field: "name", value: "*a"},
+               {type: "wildcard", field: "food", value: "tu*"}
+            ]
+        }
     }');
 
 Using `query builder <#query-builder>`__:
@@ -2287,7 +2297,7 @@ Using `query builder <#query-builder>`__:
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : { type : "boolean" }
+        filter: {type: "boolean" }
     }');
 
 Using `query builder <#query-builder>`__:
@@ -2307,9 +2317,7 @@ a resource-intensive pure negation search:
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
-            not  : [ {
-                type : "wildcard", field : "name", value : "*a" } ] }
+        filter: {not: [{type: "wildcard", field: "name", value: "*a"}]}
     }');
 
 Using `query builder <#query-builder>`__:
@@ -2350,10 +2358,11 @@ where:
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
-            type   : "contains",
-            field  : "name",
-            values : [ "Alicia", "mancha" ] }
+        filter: {
+            type: "contains",
+            field: "name",
+            values: ["Alicia", "mancha"]
+        }
     }');
 
 Using `query builder <#query-builder>`__:
@@ -2373,10 +2382,11 @@ Using `query builder <#query-builder>`__:
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
-            type   : "contains",
-            field  : "date",
-            values : [ "2014/01/01", "2014/01/02", "2014/01/03" ] }
+        filter: {
+            type: "contains",
+            field: "date",
+            values: ["2014/01/01", "2014/01/02", "2014/01/03"]
+        }
     }');
 
 Using `query builder <#query-builder>`__:
@@ -2404,10 +2414,11 @@ use a `range search <#range-search>`__.
 
     SELECT ( <fields> | * ) FROM <table> WHERE expr(<index_name>, '{
         (filter | query) : {
-            type  : "date_range",
+            type: "date_range",
             (from : <from> ,)?
             (to   : <to> ,)?
-            (operation: <operation> )? }
+            (operation: <operation> )?
+        }
     }');
 
 where:
@@ -2424,12 +2435,13 @@ where:
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
-            type      : "date_range",
-            field     : "duration",
-            from      : "2014/01/01",
-            to        : "2014/12/31",
-            operation : "intersects" }
+        filter: {
+            type: "date_range",
+            field: "duration",
+            from: "2014/01/01",
+            to: "2014/12/31",
+            operation: "intersects"
+        }
     }');
 
 Using `query builder <#query-builder>`__:
@@ -2449,12 +2461,13 @@ Using `query builder <#query-builder>`__:
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
-            type      : "date_range",
-            field     : "duration",
-            from      : "2014/06/01",
-            to        : "2014/06/02",
-            operation : "contains" }
+        filter: {
+            type: "date_range",
+            field: "duration",
+            from: "2014/06/01",
+            to: "2014/06/02",
+            operation: "contains"
+        }
     }');
 
 Using `query builder <#query-builder>`__:
@@ -2474,12 +2487,13 @@ Using `query builder <#query-builder>`__:
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
-            type      : "date_range",
-            field     : "duration",
-            from      : "2014/01/01",
-            to        : "2014/12/31",
-            operation : "is_within" }
+        filter: {
+            type: "date_range",
+            field: "duration",
+            from: "2014/01/01",
+            to: "2014/12/31",
+            operation: "is_within"
+        }
     }');
 
 
@@ -2506,13 +2520,14 @@ Searches for rows matching a term using similarity based on
 
     SELECT ( <fields> | * ) FROM <table> WHERE expr(<index_name>, '{
         (filter | query) : {
-            type  : "fuzzy",
-            field : <field_name> ,
-            value : <value>
-            (, max_edits      : <max_edits> )?
-            (, prefix_length  : <prefix_length> )?
-            (, max_expansions : <max_expansion> )?
-            (, transpositions : <transposition> )? }
+            type: "fuzzy",
+            field: <field_name> ,
+            value: <value>
+            (, max_edits: <max_edits> )?
+            (, prefix_length: <prefix_length> )?
+            (, max_expansions: <max_expansion> )?
+            (, transpositions: <transposition> )?
+        }
     }');
 
 where:
@@ -2537,11 +2552,12 @@ differs in one edit operation from “puma”, such as “pumas”:
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
-            type      : "fuzzy",
-            field     : "phrase",
-            value     : "puma",
-            max_edits : 1 }
+        filter: {
+            type: "fuzzy",
+            field: "phrase",
+            value: "puma",
+            max_edits: 1
+        }
     }');
 
 
@@ -2562,12 +2578,13 @@ phrase contains a word that starts with “pu”:
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
-            type          : "fuzzy",
-            field         : "phrase",
-            value         : "puma",
-            max_edits     : 1,
-            prefix_length : 2 }
+        filter: {
+            type: "fuzzy",
+            field: "phrase",
+            value: "puma",
+            max_edits: 1,
+            prefix_length: 2
+        }
     }');
 
 Using `query builder <#query-builder>`__:
@@ -2593,12 +2610,13 @@ contained in the specified bounding box.
 
     SELECT ( <fields> | * ) FROM <table> WHERE expr(<index_name>, '{
         (filter | query) : {
-            type          : "geo_bbox",
-            field         : <field_name>,
-            min_latitude  : <min_latitude> ,
-            max_latitude  : <max_latitude> ,
-            min_longitude : <min_longitude> ,
-            max_longitude : <max_longitude> }
+            type: "geo_bbox",
+            field: <field_name>,
+            min_latitude: <min_latitude> ,
+            max_latitude: <max_latitude> ,
+            min_longitude: <min_longitude> ,
+            max_longitude: <max_longitude>
+        }
     }');
 
 where:
@@ -2619,13 +2637,14 @@ between -90.0 and 90.0, and a longitude between -180.0 and
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
-            type          : "geo_bbox",
-            field         : "place",
-            min_latitude  : -90.0,
-            max_latitude  : 90.0,
-            min_longitude : -180.0,
-            max_longitude : 180.0 }
+        filter: {
+            type: "geo_bbox",
+            field: "place",
+            min_latitude: -90.0,
+            max_latitude: 90.0,
+            min_longitude: -180.0,
+            max_longitude: 180.0
+        }
     }');
 
 Using `query builder <#query-builder>`__:
@@ -2646,7 +2665,7 @@ between -90.0 and 90.0, and a longitude between 0.0 and
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
+        filter: {
             type          : "geo_bbox",
             field         : "place",
             min_latitude  : -90.0,
@@ -2674,7 +2693,7 @@ between 0.0 and 10.0, and a longitude between -180.0 and
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
+        filter: {
             type          : "geo_bbox",
             field         : "place",
             min_latitude  : 0.0,
@@ -2682,7 +2701,7 @@ between 0.0 and 10.0, and a longitude between -180.0 and
             min_longitude : -180.0,
             max_longitude : 180.0 },
         sort : {
-            type      : "geo_distance",
+            type: "geo_distance",
             field     : "geo_point",
             reverse   : false,
             latitude  : 0.0,
@@ -2736,7 +2755,7 @@ where:
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
+        filter: {
             type         : "geo_distance",
             field        : "place",
             latitude     : 40.225479,
@@ -2761,7 +2780,7 @@ yards from the geo point (40.225479, -3.999278) sorted by min distance to point 
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
+        filter: {
             type          : "geo_distance",
             field         : "place",
             latitude      : 40.225479,
@@ -2770,7 +2789,7 @@ yards from the geo point (40.225479, -3.999278) sorted by min distance to point 
             min_distance  : "1yd" },
         sort   : {
             fields: [ {
-                type      : "geo_distance",
+                type: "geo_distance",
                 field     : "geo_point",
                 reverse   : false,
                 latitude  : 40.225479,
@@ -2811,16 +2830,13 @@ into your Cassandra installation lib directory.
             field              : <fieldname> ,
             shape              : <shape>
             (, operation       : <operation>)?
-            (, transformations : [(<transformation>,)?])?
     }}');
 
 where:
 
--  **shape** : a double value between -90 and 90 being the latitude
-   of the reference point.
+-  **shape** : a geospatial shape.
 -  **operation** : the type of spatial operation to be performed. The possible values are "intersects", "is_within" and
 "contains". Defaults to "is_within".
--  **transformation** : a list of `geometrical transformations <#transformations>`__ to be applied to the shape before using it for searching.
 
 **Example 1:** search for shapes within a polygon:
 
@@ -2832,10 +2848,14 @@ where:
 .. code-block:: sql
 
     SELECT * FROM test WHERE expr(test_index, '{
-        filter : {
-            type  : "geo_shape",
-            field : "place",
-            shape : "POLYGON((-0.07 51.63, 0.03 51.54, 0.05 51.65, -0.07 51.63))" }
+        filter: {
+            type: "geo_shape",
+            field: "place",
+            shape : {
+               type: "wkt",
+               value: "POLYGON((-0.07 51.63, 0.03 51.54, 0.05 51.65, -0.07 51.63))"
+            }
+        }
     }';
 
 Using `query builder <#query-builder>`__:
@@ -2859,12 +2879,19 @@ Florida's coastline:
 .. code-block:: sql
 
     SELECT * FROM test WHERE expr(test_index, '{
-        filter : {
-            type            : "geo_shape",
-            field           : "place",
-            relation        : "intersects",
-            shape           : "LINESTRING(-80.90 29.05, -80.51 28.47, -80.60 28.12, -80.00 26.85, -80.05 26.37)",
-            transformations : [{type:"buffer", max_distance:"10km"}] }
+        filter: {
+            type: "geo_shape",
+            field: "place",
+            relation: "intersects",
+            shape: {
+               type: "buffer",
+               max_distance: "10km",
+               shape: {
+                  type: "wkt",
+                  value: "LINESTRING(-80.90 29.05, -80.51 28.47, -80.60 28.12, -80.00 26.85, -80.05 26.37)"
+               }
+            }
+        }
     }';
 
 Using `query builder <#query-builder>`__:
@@ -2873,10 +2900,10 @@ Using `query builder <#query-builder>`__:
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
+    String shape = "POLYGON((-0.07 51.63, 0.03 51.54, 0.05 51.65, -0.07 51.63))";
     ResultSet rs = session.execute(
         "SELECT * FROM TABLE test WHERE expr(test_index, ?)",
-        search().filter(geoShape("place", "POLYGON((-0.07 51.63, 0.03 51.54, 0.05 51.65, -0.07 51.63))")
-             .operation("intersects").transform(bufferGeoTransformation().maxDistance("10km"))).build());
+        search().filter(geoShape("place", buffer(shape).maxDistance("10km")).operation("intersects")).build());
 
 
 Match search
@@ -2890,9 +2917,9 @@ Searches for rows with columns containing the specified term. The matching depen
 
     SELECT ( <fields> | * ) FROM <table> WHERE expr(<index_name>, '{
         (filter | query) : {
-            type  : "match",
-            field : <field_name> ,
-            value : <value> }
+            type: "match",
+            field: <field_name> ,
+            value: <value> }
             (, doc_values : <doc_values> )? }
     }');
 
@@ -2906,10 +2933,10 @@ where:
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
-            type  : "match",
-            field : "name",
-            value : "Alicia" }
+        filter: {
+            type: "match",
+            field: "name",
+            value: "Alicia" }
     }');
 
 Using `query builder <#query-builder>`__:
@@ -2928,10 +2955,10 @@ Using `query builder <#query-builder>`__:
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
-            type  : "match",
-            field : "phrase",
-            value : "mancha" }
+        filter: {
+            type: "match",
+            field: "phrase",
+            value: "mancha" }
     }');
 
 Using `query builder <#query-builder>`__:
@@ -2950,7 +2977,7 @@ Using `query builder <#query-builder>`__:
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
+        filter: {
             type       : "match",
             field      : "date",
             value      : "2014/01/01",
@@ -2978,7 +3005,7 @@ Returns no results.
 .. code-block:: sql
 
     SELECT ( <fields> | * ) FROM <table> WHERE expr(<index_name>, '{
-        (filter | query) : { type  : "none"}
+        (filter | query) : {type: "none"}
     }');
 
 **Example:** will return no one of the indexed rows:
@@ -2986,7 +3013,7 @@ Returns no results.
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : { type  : "none" }
+        filter: {type: "none" }
     }');
 
 Using `query builder <#query-builder>`__:
@@ -3027,7 +3054,7 @@ followed by the word “manchada”:
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
+        filter: {
         type   : "phrase",
         field  : "phrase",
         values : "camisa manchada" }
@@ -3049,7 +3076,7 @@ followed by the word “camisa” having 0 to 2 words in between:
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
+        filter: {
             type   : "phrase",
             field  : "phrase",
             values : "mancha camisa",
@@ -3077,9 +3104,9 @@ Searches for rows with columns with terms starting with the specified prefix.
 
     SELECT ( <fields> | * ) FROM <table> WHERE expr(<index_name>, '{
         (filter | query) : {
-            type  : "prefix",
-            field : <field_name> ,
-            value : <value> }
+            type: "prefix",
+            field: <field_name> ,
+            value: <value> }
     }');
 
 **Example:** search for rows where “phrase” contains a word starting with
@@ -3089,10 +3116,10 @@ ignored by the analyzer will not be retrieved:
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
-            type  : "prefix",
-            field : "phrase",
-            value : "lu" }
+        filter: {
+            type: "prefix",
+            field: "phrase",
+            value: "lu" }
     }');
 
 Using `query builder <#query-builder>`__:
@@ -3118,10 +3145,10 @@ Searches for rows with columns with terms within the specified term range.
         (filter | query) : {
             type     : "range",
             field    : <field_name>
-            (, lower : <lower>)?
-            (, upper : <upper>)?
-            (, include_lower : <include_lower> )?
-            (, include_upper : <include_upper> )?
+            (, lower: <lower>)?
+            (, upper: <upper>)?
+            (, include_lower: <include_lower> )?
+            (, include_upper: <include_upper> )?
             (, doc_values : <doc_values> )? }
     }');
 
@@ -3149,11 +3176,11 @@ be returned.
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
+        filter: {
             type          : "range",
             field         : "age",
             lower         : 65,
-            include_lower : true }
+            include_lower: true }
     }');
 
 Using `query builder <#query-builder>`__:
@@ -3171,11 +3198,11 @@ Using `query builder <#query-builder>`__:
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
+        filter: {
             type          : "range",
             field         : "age",
             upper         : 0,
-            include_upper : true,
+            include_upper: true,
             doc_values    : true}
     }');
 
@@ -3194,13 +3221,13 @@ Using `query builder <#query-builder>`__:
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
+        filter: {
             type          : "range",
             field         : "age",
             lower         : -1,
             upper         : 1,
-            include_lower : true,
-            include_upper : true,
+            include_lower: true,
+            include_upper: true,
             doc_values    : false }
     }');
 
@@ -3222,13 +3249,13 @@ Using `query builder <#query-builder>`__:
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
+        filter: {
             type          : "range",
             field         : "date",
             lower         : "2014/01/01",
             upper         : "2014/01/02",
-            include_lower : true,
-            include_upper : true }
+            include_lower: true,
+            include_upper: true }
     }');
 
 Using `query builder <#query-builder>`__:
@@ -3255,9 +3282,9 @@ Searches for rows with columns with terms satisfying the specified regular expre
 
     SELECT * FROM users WHERE expr(users_index, '{
         (filter | query) : {
-            type  : "regexp",
-            field : <field_name>,
-            value : <regexp> }
+            type: "regexp",
+            field: <field_name>,
+            value: <regexp> }
     }');
 
 where:
@@ -3272,10 +3299,10 @@ where:
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
-            type  : "regexp",
-            field : "name",
-            value : "[J][aeiou]{2}.*" }
+        filter: {
+            type: "regexp",
+            field: "name",
+            value: "[J][aeiou]{2}.*" }
     }');
 
 Using `query builder <#query-builder>`__:
@@ -3299,9 +3326,9 @@ Searches for rows with columns with terms satisfying the specified wildcard patt
 
     SELECT * FROM users WHERE expr(users_index, '{
         (filter | query) : {
-            type  : "wildcard" ,
-            field : <field_name> ,
-            value : <wildcard_exp> }
+            type: "wildcard" ,
+            field: <field_name> ,
+            value: <wildcard_exp> }
     }');
 
 where:
@@ -3315,10 +3342,10 @@ where:
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(users_index, '{
-        filter : {
-            type  : "wildcard",
-            field : "food",
-            value : "tu*" }
+        filter: {
+            type: "wildcard",
+            field: "food",
+            value: "tu*" }
     }');
 
 
@@ -3378,7 +3405,7 @@ one kilometer from the geo point (40.225479, -3.999278). The distance is express
 .. code-block:: sql
 
     SELECT * FROM test.users WHERE stratio_col = '{
-        filter : {
+        filter: {
             type         : "geo_distance",
             field        : "place",
             latitude     : 40.225479,
@@ -3404,7 +3431,7 @@ that is, the minimum rectangle containing the shape.
 
 .. code-block:: sql
 
-    { type : "bbox" }
+    {type: "bbox" }
 
 **Example:** The following `geo shape mapper <#geo-shape-mapper>`__ will index only the bounding box of the WKT shape
 contained in the indexed column:
@@ -3416,7 +3443,7 @@ contained in the indexed column:
     WITH OPTIONS = {
         'refresh_seconds' : '1',
         'schema' : '{
-            fields : {
+            fields: {
                 shape : {
                     type            : "geo_shape",
                     max_levels      : 15,
@@ -3435,7 +3462,7 @@ Buffer transformation returns a buffer around a shape.
 
 .. code-block:: sql
 
-    { type : "buffer"
+    {type: "buffer"
       (, min_distance : <distance> )?
       (, max_distance : <distance> )?
     }
@@ -3451,12 +3478,18 @@ defined by a buffer 10 kilometers around a segment of the Florida's coastline:
 .. code-block:: sql
 
     SELECT * FROM test WHERE expr(test_idx,'{
-        filter : {
-            type            : "geo_shape",
-            field           : "place",
-            relation        : "intersects",
-            shape           : "LINESTRING(-80.90 29.05, -80.51 28.47, -80.60 28.12, -80.00 26.85, -80.05 26.37)",
-            transformations : [{type:"buffer", max_distance:"10km"}] }
+        filter: {
+            type: "geo_shape",
+            field: "place",
+            relation: "intersects",
+            shape: {
+               type: "buffer",
+               max_distance: "10km",
+               shape: {
+                  type: "wkt",
+                  value: "LINESTRING(-80.90 29.05, -80.51 28.47, -80.60 28.12, -80.00 26.85, -80.05 26.37)"}
+               }
+            }
     }');
 
 Centroid
@@ -3468,7 +3501,7 @@ Centroid transformation returns the geometric center of a shape.
 
 .. code-block:: sql
 
-    { type : "centroid" }
+    {type: "centroid" }
 
 **Example:** The following `geo shape mapper <#geo-shape-mapper>`__ will index only the centroid of the WKT shape
 contained in the indexed column:
@@ -3480,11 +3513,11 @@ contained in the indexed column:
     WITH OPTIONS = {
         'refresh_seconds' : '1',
         'schema' : '{
-            fields : {
-                shape : {
-                    type            : "geo_shape",
-                    max_levels      : 15,
-                    transformations : [{type:"centroid"}]
+            fields: {
+                shape: {
+                    type: "geo_shape",
+                    max_levels: 15,
+                    transformations: [{type: "centroid"}]
                 }
             }
         }'
@@ -3499,7 +3532,7 @@ Convex hull transformation returns the `convex envelope <https://en.wikipedia.or
 
 .. code-block:: sql
 
-    { type : "convex_hull" }
+    {type: "convex_hull" }
 
 **Example:** The following `geo shape mapper <#geo-shape-mapper>`__ will index only the convex hull of the WKT shape
 contained in the indexed column:
@@ -3511,11 +3544,11 @@ contained in the indexed column:
     WITH OPTIONS = {
         'refresh_seconds' : '1',
         'schema' : '{
-            fields : {
-                shape : {
-                    type            : "geo_shape",
-                    max_levels      : 15,
-                    transformations : [{type:"convex_hull"}]
+            fields: {
+                shape: {
+                    type: "geo_shape",
+                    max_levels: 15,
+                    transformations: [{type: "convex_hull"}]
                 }
             }
         }'
@@ -3531,8 +3564,8 @@ Difference transformation subtracts the specified shape.
 .. code-block:: sql
 
     {
-      type : "difference",
-      shape : "<shape>"
+      type: "difference",
+      shape: "<shape>"
     }
 
 where:
@@ -3549,8 +3582,8 @@ Intersection transformation intersects the specified shape.
 .. code-block:: sql
 
     {
-      type : "intersection",
-      shape : "<shape>"
+      type: "intersection",
+      shape: "<shape>"
     }
 
 where:
@@ -3567,8 +3600,8 @@ Union transformation adds the specified shape.
 .. code-block:: sql
 
     {
-      type : "union",
-      shape : "<shape>"
+      type: "union",
+      shape: "<shape>"
     }
 
 where:
@@ -3601,27 +3634,27 @@ You can index, search and sort tuples this way:
     'refresh_seconds':'1',
     'schema':'{
         fields:{
-            "v.0":{type:"integer"},
-            "v.1":{type:"string"},
-            "v.2":{type:"float"} }
+            "v.0": {type: "integer"},
+            "v.1": {type: "string"},
+            "v.2": {type: "float"} }
      }'};
 
     SELECT * FROM collect_things WHERE expr(tweets_index, '{
-        filter : {
-            type  : "match",
-            field : "v.0",
-            value : 1 }
+        filter: {
+            type: "match",
+            field: "v.0",
+            value: 1 }
     }');
 
     SELECT * FROM collect_things WHERE expr(tweets_index, '{
-        filter : {
-            type  : "match",
-            field : "v.1",
-            value : "bar" }
+        filter: {
+            type: "match",
+            field: "v.1",
+            value: "bar" }
     }');
 
     SELECT * FROM collect_things WHERE expr(tweets_index, '{
-        sort : {field : "v.2"}
+        sort: {field: "v.2"}
     }');
 
 
@@ -3654,27 +3687,27 @@ The components of UDTs can be indexed, searched and sorted this way :
     WITH OPTIONS = {
         'refresh_seconds' : '1',
         'schema' : '{
-            fields : {
-                "address.city" : { type : "string"},
-                "address.zip"  : { type : "integer"}
+            fields: {
+                "address.city": {type: "string"},
+                "address.zip": {type: "integer"}
             }
         }'
     };
 
     SELECT * FROM user_profiles WHERE expr(tweets_index,'{
-        filter : {
-            type  : "match",
-            field : "address.city",
-            value : "San Fransisco"
+        filter: {
+            type: "match",
+            field: "address.city",
+            value: "San Fransisco"
         }
     }');
 
     SELECT * FROM user_profiles WHERE expr(tweets_index,'{
-        filter : {
-            type  : "range",
-            field : "address.zip",
-            lower : 0,
-            upper : 10
+        filter: {
+            type: "range",
+            field: "address.zip",
+            lower: 0,
+            upper: 10
         }
     }');
 
@@ -3699,8 +3732,8 @@ List ans sets are indexed in the same way as regular columns, using their base t
     WITH OPTIONS = {
         'refresh_seconds' : '1',
         'schema' : '{
-            fields : {
-                cities : { type : "string"}
+            fields: {
+                cities: {type: "string"}
             }
         }'
     };
@@ -3710,10 +3743,10 @@ Searches are also done in the same way as with regular columns:
 .. code-block:: sql
 
     SELECT * FROM user_profiles WHERE expr(tweets_index,'{
-        filter : {
-            type  : "match",
-            field : "cities",
-            value : "San Francisco"
+        filter: {
+            type: "match",
+            field: "cities",
+            value: "San Francisco"
         }
     }');
 
@@ -3733,8 +3766,8 @@ Maps are indexed associating values to their keys:
     WITH OPTIONS = {
         'refresh_seconds' : '1',
         'schema' : '{
-            fields : {
-                addresses : { type : "string"}
+            fields: {
+                addresses: {type: "string"}
             }
         }'
     };
@@ -3748,10 +3781,10 @@ For searching map values under a certain key you should use '$' as field-key sep
                 {'San Francisco':'Market street 2', 'Madrid': 'Calle Velazquez' })
 
     SELECT * FROM user_profiles WHERE expr(tweets_index,'{
-        filter : {
-            type  : "match",
-            field : "cities$Madrid",
-            value : "San Francisco" }
+        filter: {
+            type: "match",
+            field: "cities$Madrid",
+            value: "San Francisco" }
     }');
 
 Please don't use map keys containing the separator chars, which are '.' and '$'.
@@ -3778,9 +3811,9 @@ UDTs can be indexed even while being inside collections. It is done so using '.'
     WITH OPTIONS = {
         'refresh_seconds' : '1',
         'schema' : '{
-            fields : {
-                "addresses.city" : { type : "string"},
-                "addresses.zip"  : { type : "integer"}
+            fields: {
+                "addresses.city": {type: "string"},
+                "addresses.zip": {type: "integer"}
             }
         }'
     };
@@ -3857,7 +3890,7 @@ tokens is applied first and then the condition of the filter clause.
 .. code-block:: sql
 
     SELECT name, gender FROM test.users
-    WHERE lucene = '{filter : {type : "match", field : "food", value : "chips"}}')
+    WHERE lucene = '{filter: {type : "match", field: "food", value: "chips"}}')
     AND token(name, gender) > token('Alicia', 'female');
 
 Paging
@@ -3870,7 +3903,7 @@ the rows starting from a certain key. For example, if the primary key is
 .. code-block:: sql
 
     SELECT * FROM tweets
-    WHERE lucene = ‘{filter : {type:”match",  field:”text", value:”cassandra”}}'
+    WHERE lucene = ‘{filter: {type:”match",  field:”text", value:”cassandra”}}'
     AND userid = 3543534 AND createdAt > 2011-02-03 04:05+0000 LIMIT 5000;
 
 Examples
@@ -3945,10 +3978,10 @@ For example, the following search could be more efficiently addressed using a de
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(tweets_index, '{
-        filter : {
-            type  : "match",
-            field : "name",
-            value : "Alice" }
+        filter: {
+            type: "match",
+            field: "name",
+            value: "Alice" }
     }');
 
 However, this search could be a good use case for Lucene just because there is no easy counterpart:
@@ -3956,12 +3989,12 @@ However, this search could be a good use case for Lucene just because there is n
 .. code-block:: sql
 
     SELECT * FROM users WHERE expr(tweets_index, '{
-        filter : [
-            { type  : "regexp", field : "name", value : "[J][aeiou]{2}.*" },
-            { type  : "range", field : "birthday", lower : "2014/04/25" } ],
+        filter: [
+            {type: "regexp", field: "name", value: "[J][aeiou]{2}.*" },
+            {type: "range", field: "birthday", lower: "2014/04/25" } ],
         sort : [
-            { field : "birthday", reverse : true },
-            { field : "name" } ]
+            {field: "birthday", reverse: true },
+            {field: "name" } ]
     }') LIMIT 20;
 
 Lucene indexes are intended to be used in those cases that can't be efficiently addressed
