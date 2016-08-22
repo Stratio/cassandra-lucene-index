@@ -1890,7 +1890,7 @@ Search for all the indexed rows.
         {filter: {type: "all" }
     }');
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -2039,7 +2039,7 @@ If you want to know what is the last info about where John resides, you perform 
         }
     }') AND name='John';
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -2069,7 +2069,7 @@ If you want to know what is the last info about where John resides now, you perf
         }
     }') AND name='John';
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -2098,7 +2098,7 @@ If the test case needs to know what the system was thinking at '2015/03/01' abou
         }
     }') AND name = 'John';
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -2124,7 +2124,7 @@ If the test case needs to know what the system was thinking at '2015/07/05' abou
         }
     }') AND name='John';
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -2195,7 +2195,7 @@ Or inside the base filter path:
                   {type: "wildcard", field: "food", value: "tu*"} ]
     }');
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -2246,7 +2246,7 @@ It is also possible to write the search this way:
         ]
     }');
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -2293,7 +2293,7 @@ You can also write this search without the ``type`` attribute:
         }
     }');
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -2316,7 +2316,7 @@ Using `query builder <#query-builder>`__:
         filter: {type: "boolean" }
     }');
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -2336,7 +2336,7 @@ a resource-intensive pure negation search:
         filter: {not: [{type: "wildcard", field: "name", value: "*a"}]}
     }');
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -2381,7 +2381,7 @@ where:
         }
     }');
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -2405,7 +2405,7 @@ Using `query builder <#query-builder>`__:
         }
     }');
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -2460,7 +2460,7 @@ where:
         }
     }');
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -2486,7 +2486,7 @@ Using `query builder <#query-builder>`__:
         }
     }');
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -2513,7 +2513,7 @@ Using `query builder <#query-builder>`__:
     }');
 
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -2577,7 +2577,7 @@ differs in one edit operation from “puma”, such as “pumas”:
     }');
 
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -2603,7 +2603,7 @@ phrase contains a word that starts with “pu”:
         }
     }');
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -2663,7 +2663,7 @@ between -90.0 and 90.0, and a longitude between -180.0 and
         }
     }');
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -2691,7 +2691,7 @@ between -90.0 and 90.0, and a longitude between 0.0 and
     }');
 
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -2725,7 +2725,7 @@ between 0.0 and 10.0, and a longitude between -180.0 and
     }');
 
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -2779,7 +2779,7 @@ where:
             max_distance: "1km" }
     }');
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -2812,7 +2812,7 @@ yards from the geo point (40.225479, -3.999278) sorted by min distance to point 
                 longitude: -3.999278} ] }
     }');
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -2874,7 +2874,7 @@ where:
         }
     }';
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -2910,7 +2910,7 @@ Florida's coastline:
         }
     }';
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -2955,7 +2955,7 @@ where:
             value: "Alicia" }
     }');
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -2977,7 +2977,7 @@ Using `query builder <#query-builder>`__:
             value: "mancha" }
     }');
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -3000,7 +3000,7 @@ Using `query builder <#query-builder>`__:
             doc_values: true}
     }');
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -3032,7 +3032,7 @@ Returns no results.
         filter: {type: "none" }
     }');
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -3076,7 +3076,7 @@ followed by the word “manchada”:
         values: "camisa manchada" }
     }');
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -3099,7 +3099,7 @@ followed by the word “camisa” having 0 to 2 words in between:
             slop: 2 }
     }');
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -3138,7 +3138,7 @@ ignored by the analyzer will not be retrieved:
             value: "lu" }
     }');
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -3199,7 +3199,7 @@ be returned.
             include_lower: true }
     }');
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -3222,7 +3222,7 @@ Using `query builder <#query-builder>`__:
             doc_values: true}
     }');
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -3247,7 +3247,7 @@ Using `query builder <#query-builder>`__:
             doc_values: false }
     }');
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -3274,7 +3274,7 @@ Using `query builder <#query-builder>`__:
             include_upper: true }
     }');
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -3321,7 +3321,7 @@ where:
             value: "[J][aeiou]{2}.*" }
     }');
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
@@ -3365,7 +3365,7 @@ where:
     }');
 
 
-Using `query builder <#query-builder>`__:
+Using the `Java query builder <#query-builder>`__:
 
 .. code-block:: java
 
