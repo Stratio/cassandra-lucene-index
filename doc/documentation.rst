@@ -1,6 +1,5 @@
-++++++++++++++++++++++++++++++++
 Stratio's Cassandra Lucene Index
-++++++++++++++++++++++++++++++++
+********************************
 
 - `Overview <#overview>`__
     - `Features <#features>`__
