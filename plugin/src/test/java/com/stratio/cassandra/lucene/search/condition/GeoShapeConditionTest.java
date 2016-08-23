@@ -83,9 +83,11 @@ public class GeoShapeConditionTest extends AbstractConditionTest {
     }
 
     @Test(expected = IndexException.class)
-    public void testConstructorWithInvalidGeometry() {
-        new GeoShapeCondition(null, "geo_point", new GeoShape.WKT("POLYGONS((1 1,5 1,5 5,1 5,1 1))"), null);
-
+    public void testQueryWithInvalidGeometry() {
+        Schema schema = schema().mapper("geo_point", geoPointMapper("lat", "lon").maxLevels(8)).build();
+        GeoShape shape = new GeoShape.WKT("POLYGONS((1 1,5 1,5 5,1 5,1 1))");
+        Condition condition = new GeoShapeCondition(null, "geo_point", shape, null);
+        condition.doQuery(schema);
     }
 
     @Test
