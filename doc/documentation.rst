@@ -2859,7 +2859,8 @@ Geo shape search
 ================
 
 Searches for rows with `geographical points <#geo-point-mapper>`__ or `geographical shapes <#geo-shape-mapper>`__
-related to a specified shape with `Well Known Text (WKT) <http://en.wikipedia.org/wiki/Well-known_text>`__ format.
+related to a specified `shape <#shapes>`__. Search shapes can be either shapes with
+`Well Known Text (WKT) <http://en.wikipedia.org/wiki/Well-known_text>`__ format or transformations over WKT shapes.
 The supported WKT shapes are point, linestring, polygon, multipoint, multilinestring and multipolygon.
 
 This search type depends on `Java Topology Suite (JTS) <http://www.vividsolutions.com/jts>`__.
@@ -2882,7 +2883,7 @@ into your Cassandra installation lib directory.
 
 where:
 
--  **shape**: a geospatial shape.
+-  **shape**: a geospatial `shape <#shapes>`__.
 -  **operation**: the type of spatial operation to be performed. The possible values are "intersects", "is_within" and
 "contains". Defaults to "is_within".
 
@@ -3671,7 +3672,7 @@ that is, the minimum rectangle containing the shape.
 
 where:
 
--  **shape**: The shape to be transformed, could be a WKT shape or other transformations. Mandatory.
+-  **shape**: the `shape <#shapes>`__ to be transformed. Mandatory.
 
 **Example:** The following `geo shape mapper <#geo-shape-mapper>`__ will retrieve shapes intersecting the bounding box
 of a WKT shape:
@@ -3711,7 +3712,7 @@ Buffer transformation returns a buffer around a shape.
 
 where:
 
--  **shape**: The shape to be transformed, could be a WKT shape or other transformations. Mandatory.
+-  **shape**: the `shape <#shapes>`__ to be transformed. Mandatory.
 -  **min_distance**: the inside buffer `distance <#distance>`__. Optional.
 -  **max_distance**: the outside buffer `distance <#distance>`__. Optional.
 
@@ -3749,7 +3750,7 @@ Centroid transformation returns the geometric center of a shape.
 
 where:
 
--  **shape**: The shape to be transformed, could be a WKT shape or other transformations. Mandatory.
+-  **shape**: the `shape <#shapes>`__ to be transformed. Mandatory.
 
 **Example:** The following `geo shape mapper <#geo-shape-mapper>`__ will retrieve shapes intersecting the centroid of a
 WKT shape:
@@ -3784,7 +3785,7 @@ Convex hull transformation returns the `convex envelope <https://en.wikipedia.or
 
 where:
 
--  **shape**: The shape to be transformed, could be a WKT shape or other transformations. Mandatory.
+-  **shape**: the `shape <#shapes>`__ to be transformed. Mandatory.
 
 **Example:** The following `geo shape mapper <#geo-shape-mapper>`__ will retrieve shapes intersecting the convex hull of
 a WKT shape:
@@ -3819,7 +3820,7 @@ Difference transformation subtracts the specified shapes.
 
 where:
 
--  **shapes**: The shapes to be subtracted, could be WKT shapes or other transformations. Mandatory.
+-  **shapes**: the `shapes <#shapes>`__ to be subtracted. Mandatory.
 
 Intersection shape
 __________________
@@ -3834,7 +3835,7 @@ Intersection transformation intersects the specified shapes.
 
 where:
 
--  **shapes**: The shapes to be subtracted, could be WKT shapes or other transformations. Mandatory.
+-  **shapes**: the `shapes <#shapes>`__ to be intersected. Mandatory.
 
 Union shape
 ___________
@@ -3849,7 +3850,7 @@ Union transformation adds the specified shapes.
 
 where:
 
--  **shapes**: The shapes to be subtracted, could be WKT shapes or other transformations. Mandatory.
+-  **shapes**: the `shapes <#shapes>`__ to be added. Mandatory.
 
 
 Complex data types
