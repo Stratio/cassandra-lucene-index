@@ -3647,7 +3647,7 @@ where:
 
 -  **value**: A string containing the WKT shape. Mandatory.
 
-**Example:** The following `geo shape mapper <#geo-shape-mapper>`__ will retrieve shapes intersecting a WKT shape:
+**Example:** The following `geo shape search <#geo-shape-search>`__ will retrieve shapes intersecting a WKT shape:
 
 .. code-block:: sql
 
@@ -3679,7 +3679,7 @@ where:
 
 -  **shape**: the `shape <#shapes>`__ to be transformed. Mandatory.
 
-**Example:** The following `geo shape mapper <#geo-shape-mapper>`__ will retrieve shapes intersecting the bounding box
+**Example:** The following `geo shape search <#geo-shape-search>`__ will retrieve shapes intersecting the bounding box
 of a WKT shape:
 
 .. code-block:: sql
@@ -3757,7 +3757,7 @@ where:
 
 -  **shape**: the `shape <#shapes>`__ to be transformed. Mandatory.
 
-**Example:** The following `geo shape mapper <#geo-shape-mapper>`__ will retrieve shapes intersecting the centroid of a
+**Example:** The following `geo shape search <#geo-shape-search>`__ will retrieve shapes intersecting the centroid of a
 WKT shape:
 
 .. code-block:: sql
@@ -3792,7 +3792,7 @@ where:
 
 -  **shape**: the `shape <#shapes>`__ to be transformed. Mandatory.
 
-**Example:** The following `geo shape mapper <#geo-shape-mapper>`__ will retrieve shapes intersecting the convex hull of
+**Example:** The following `geo shape search <#geo-shape-search>`__ will retrieve shapes intersecting the convex hull of
 a WKT shape:
 
 .. code-block:: sql
