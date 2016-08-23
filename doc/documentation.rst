@@ -2913,9 +2913,10 @@ Using the `Java query builder <#query-builder>`__:
 
     import static com.stratio.cassandra.lucene.builder.Builder.*;
     (...)
+    String shape = "POLYGON((-0.07 51.63, 0.03 51.54, 0.05 51.65, -0.07 51.63))";
     ResultSet rs = session.execute(
       "SELECT * FROM TABLE test WHERE expr(test_index, ?)",
-      search().filter(geoShape("place", "POLYGON((-0.07 51.63, 0.03 51.54, 0.05 51.65, -0.07 51.63))")).build());
+      search().filter(geoShape("place", wkt(shape))).build());
 
 **Example 2:** search for shapes intersecting with a shape defined by a buffer 10 kilometers around a segment of the
 Florida's coastline:
