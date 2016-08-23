@@ -244,7 +244,7 @@ The previous search can be restricted to tweets created close to a geographical 
        filter: [
           {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
           {type: "prefix", field: "user", value: "a"},
-          {type: "geo_distance", field: "place", latitude: 40.3930, longitude: -3.7328, max_distance: "10km"}
+          {type: "geo_distance", field: "place", latitude: 40.3930, longitude: -3.7328, max_distance: "1km"}
        ],
        query: {type: "phrase", field: "body", value: "big data gives organizations", slop: 1},
        sort: {field: "time", reverse: true}
@@ -258,7 +258,7 @@ It is also possible to sort the results by distance to a geographical position:
        filter: [
           {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
           {type: "prefix", field: "user", value: "a"},
-          {type: "geo_distance", field: "place", latitude: 40.3930, longitude: -3.7328, max_distance: "10km"}
+          {type: "geo_distance", field: "place", latitude: 40.3930, longitude: -3.7328, max_distance: "1km"}
        ],
        query: {type: "phrase", field: "body", value: "big data gives organizations", slop: 1},
        sort: [
@@ -276,7 +276,7 @@ subset of the cluster nodes will be hit, saving precious resources:
        filter: [
           {type: "range", field: "time", lower: "2014/04/25", upper: "2014/05/01"},
           {type: "prefix", field: "user", value: "a"},
-          {type: "geo_distance", field: "place", latitude: 40.3930, longitude: -3.7328, max_distance: "10km"}
+          {type: "geo_distance", field: "place", latitude: 40.3930, longitude: -3.7328, max_distance: "1km"}
        ],
        query: {type: "phrase", field: "body", value: "big data gives organizations", slop: 1},
        sort: [
