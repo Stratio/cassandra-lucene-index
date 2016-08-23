@@ -52,7 +52,12 @@ Stratio's Cassandra Lucene Index
     - `Wildcard search <#wildcard-search>`__
 - `Geographical elements <#geographical-elements>`__
     - `Distance <#distance>`__
-    - `Transformations <#transformations>`__
+    - `Index-time transformations <#index-time-transformations>`__
+        - `Bounding box <#bounding-box>`__
+        - `Buffer <#buffer>`__
+        - `Centroid <#centroid>`__
+        - `Convex hull <#convex-hull>`__
+    - `Search-time transformations <#search-time-transformations>`__
         - `Bounding box <#bounding-box>`__
         - `Buffer <#buffer>`__
         - `Centroid <#centroid>`__
@@ -3474,18 +3479,17 @@ one kilometer from the geo point (40.225479, -3.999278). The distance is express
     }';
 
 
-Transformations
-===============
+Index-time ransformations
+=========================
 
-Both `geo shape mapper <#geo-shape-mapper>`__ and `geo shape search <#geo-shape-search>`__ take a  list of geometrical
-transformations as argument. These transformations are sequentially applied to the shape that is going to be indexed or
-searched.
+`Geo shape mapper <#geo-shape-mapper>`__ taks a  list of geometrical transformations as argument. These transformations
+are sequentially applied to the shape that is going to be indexed or searched.
 
 Bounding box
 ____________
 
-Buffer transformation returns the `minimum bounding box <https://en.wikipedia.org/wiki/Minimum_bounding_box>`__ a shape,
-that is, the minimum rectangle containing the shape.
+Buffer transformation returns the `minimum bounding box <https://en.wikipedia.org/wiki/Minimum_bounding_box>`__ of a
+shape, that is, the minimum rectangle containing the shape.
 
 **Syntax:**
 
@@ -3498,7 +3502,7 @@ contained in the indexed column:
 
 .. code-block:: sql
 
-    CREATE CUSTOM INDEX cities_index on cities()
+    CREATE CUSTOM INDEX places_index on places()
     USING 'com.stratio.cassandra.lucene.Index'
     WITH OPTIONS = {
        'refresh_seconds': '1',
@@ -3506,7 +3510,7 @@ contained in the indexed column:
           fields: {
              shape: {
                 type: "geo_shape",
-                max_levels: 15,
+                max_levels: 8,
                  transformations: [{type: "bbox"}]
              }
           }
@@ -3529,6 +3533,153 @@ Buffer transformation returns a buffer around a shape.
 
 where:
 
+-  **min_distance**: the inside buffer `distance <#distance>`__. Optional.
+-  **max_distance**: the outside buffer `distance <#distance>`__. Optional.
+
+**Example:** the following `geo shape mapper <#geo-shape-mapper>`__ will index a buffer 10 kilometers around the WKT
+shape contained in the indexed column:
+
+.. code-block:: sql
+
+    CREATE CUSTOM INDEX places_index on places()
+    USING 'com.stratio.cassandra.lucene.Index'
+    WITH OPTIONS = {
+       'refresh_seconds': '1',
+       'schema': '{
+          fields: {
+             shape: {
+                type: "geo_shape",
+                max_levels: 8,
+                 transformations: [{type: "buffer", max_distance: "10km"}]
+             }
+          }
+       }'
+    };
+
+Centroid
+________
+
+Centroid transformation returns the geometric center of a shape.
+
+**Syntax:**
+
+.. code-block:: sql
+
+    {type: "centroid"}
+
+**Example:** The following `geo shape mapper <#geo-shape-mapper>`__ will index only the centroid of the WKT shape
+contained in the indexed column:
+
+.. code-block:: sql
+
+    CREATE CUSTOM INDEX places_index on places()
+    USING 'com.stratio.cassandra.lucene.Index'
+    WITH OPTIONS = {
+       'refresh_seconds': '1',
+       'schema': '{
+          fields: {
+             shape: {
+                type: "geo_shape",
+                max_levels: 8,
+                transformations: [{type: "centroid"}]
+             }
+          }
+       }'
+    };
+
+Convex hull
+___________
+
+Convex hull transformation returns the `convex envelope <https://en.wikipedia.org/wiki/Convex_hull>`__ of a shape.
+
+**Syntax:**
+
+.. code-block:: sql
+
+    {type: "convex_hull"}
+
+**Example:** The following `geo shape mapper <#geo-shape-mapper>`__ will index only the convex hull of the WKT shape
+contained in the indexed column:
+
+.. code-block:: sql
+
+    CREATE CUSTOM INDEX places_index on places()
+    USING 'com.stratio.cassandra.lucene.Index'
+    WITH OPTIONS = {
+       'refresh_seconds': '1',
+       'schema': '{
+          fields: {
+             shape: {
+                type: "geo_shape",
+                max_levels: 8,
+                transformations: [{type: "convex_hull"}]
+             }
+          }
+       }'
+    };
+
+
+Search-time transformations
+===========================
+
+`Geo shape search <#geo-shape-search>`__ allows the recursive definition of the search shape as a group of
+transformations over WKT shapes.
+
+Bounding box
+____________
+
+Buffer transformation returns the `minimum bounding box <https://en.wikipedia.org/wiki/Minimum_bounding_box>`__ a shape,
+that is, the minimum rectangle containing the shape.
+
+**Syntax:**
+
+.. code-block:: sql
+
+    {type: "bbox", shape: <shape>}
+
+where:
+
+-  **shape**: The shape to be transformed, could be a WKT shape or other transformations. Mandatory.
+
+**Example:** The following `geo shape mapper <#geo-shape-mapper>`__ will retrieve shapes intersecting the bounding box
+of a WKT shape:
+
+.. code-block:: sql
+
+    SELECT * FROM places WHERE expr(places_idx,'{
+       filter: {
+          type: "geo_shape",
+          field: "place",
+          relation: "intersects",
+          shape: {
+             type: "bbox",
+             shape: {
+                type: "wkt",
+                value: "LINESTRING(-80.90 29.05, -80.51 28.47, -80.60 28.12, -80.00 26.85, -80.05 26.37)"
+             }
+          }
+       }
+    }');
+
+Buffer
+______
+
+Buffer transformation returns a buffer around a shape.
+
+**Syntax:**
+
+.. code-block:: sql
+
+    {
+       type: "buffer"
+       shape: <shape>
+       (, min_distance: <distance> )?
+       (, max_distance: <distance> )?
+    }
+
+where:
+
+-  **shape**: The shape to be transformed, could be a WKT shape or other transformations. Mandatory.
 -  **min_distance**: the inside buffer `distance <#distance>`__. Optional.
 -  **max_distance**: the outside buffer `distance <#distance>`__. Optional.
 
@@ -3562,27 +3713,31 @@ Centroid transformation returns the geometric center of a shape.
 
 .. code-block:: sql
 
-    {type: "centroid"}
+    {type: "centroid", shape: <shape>}
 
-**Example:** The following `geo shape mapper <#geo-shape-mapper>`__ will index only the centroid of the WKT shape
-contained in the indexed column:
+where:
+
+-  **shape**: The shape to be transformed, could be a WKT shape or other transformations. Mandatory.
+
+**Example:** The following `geo shape mapper <#geo-shape-mapper>`__ will retrieve shapes intersecting the centroid of a
+WKT shape:
 
 .. code-block:: sql
 
-    CREATE CUSTOM INDEX cities_index on cities()
-    USING 'com.stratio.cassandra.lucene.Index'
-    WITH OPTIONS = {
-       'refresh_seconds': '1',
-       'schema': '{
-          fields: {
+    SELECT * FROM places WHERE expr(places_idx,'{
+       filter: {
+          type: "geo_shape",
+          field: "place",
+          relation: "intersects",
+          shape: {
+             type: "centroid",
              shape: {
-                type: "geo_shape",
-                max_levels: 15,
-                transformations: [{type: "centroid"}]
+                type: "wkt",
+                value: "LINESTRING(-80.90 29.05, -80.51 28.47, -80.60 28.12, -80.00 26.85, -80.05 26.37)"
              }
           }
-       }'
-    };
+       }
+    }');
 
 Convex hull
 ___________
@@ -3593,81 +3748,76 @@ Convex hull transformation returns the `convex envelope <https://en.wikipedia.or
 
 .. code-block:: sql
 
-    {type: "convex_hull"}
+    {type: "convex_hull", shape: <shape>}
 
-**Example:** The following `geo shape mapper <#geo-shape-mapper>`__ will index only the convex hull of the WKT shape
-contained in the indexed column:
+where:
+
+-  **shape**: The shape to be transformed, could be a WKT shape or other transformations. Mandatory.
+
+**Example:** The following `geo shape mapper <#geo-shape-mapper>`__ will retrieve shapes intersecting the convex hull of
+a WKT shape:
 
 .. code-block:: sql
 
-    CREATE CUSTOM INDEX cities_index on cities()
-    USING 'com.stratio.cassandra.lucene.Index'
-    WITH OPTIONS = {
-       'refresh_seconds': '1',
-       'schema': '{
-          fields: {
+    SELECT * FROM places WHERE expr(places_idx,'{
+       filter: {
+          type: "geo_shape",
+          field: "place",
+          relation: "intersects",
+          shape: {
+             type: "convex_hull",
              shape: {
-                type: "geo_shape",
-                max_levels: 15,
-                transformations: [{type: "convex_hull"}]
+                type: "wkt",
+                value: "LINESTRING(-80.90 29.05, -80.51 28.47, -80.60 28.12, -80.00 26.85, -80.05 26.37)"
              }
           }
-       }'
-    };
+       }
+    }');
 
 Difference
 __________
 
-Difference transformation subtracts the specified shape.
+Difference transformation subtracts the specified shapes.
 
 **Syntax:**
 
 .. code-block:: sql
 
-    {
-       type: "difference",
-       shape: "<shape>"
-    }
+    {type: "difference", shapes: [ <shape> (, <shape>)* ] }
 
 where:
 
--  **shape**: The shape to be subtracted as a `Well Known Text (WKT) <http://en.wikipedia.org/wiki/Well-known_text>`__ string. Mandatory.
+-  **shapes**: The shapes to be subtracted, could be WKT shapes or other transformations. Mandatory.
 
 Intersection
 ____________
 
-Intersection transformation intersects the specified shape.
+Intersection transformation intersects the specified shapes.
 
 **Syntax:**
 
 .. code-block:: sql
 
-    {
-       type: "intersection",
-       shape: "<shape>"
-    }
+    {type: "intersection", shapes: [ <shape> (, <shape>)* ] }
 
 where:
 
--  **shape**: The shape to be intersected as a `Well Known Text (WKT) <http://en.wikipedia.org/wiki/Well-known_text>`__ string. Mandatory.
+-  **shapes**: The shapes to be subtracted, could be WKT shapes or other transformations. Mandatory.
 
 Union
 _____
 
-Union transformation adds the specified shape.
+Union transformation adds the specified shapes.
 
 **Syntax:**
 
 .. code-block:: sql
 
-    {
-       type: "union",
-       shape: "<shape>"
-    }
+    {type: "union", shapes: [ <shape> (, <shape>)* ] }
 
 where:
 
--  **shape**: The shape to be added as a `Well Known Text (WKT) <http://en.wikipedia.org/wiki/Well-known_text>`__ string. Mandatory.
+-  **shapes**: The shapes to be subtracted, could be WKT shapes or other transformations. Mandatory.
 
 
 Complex data types
