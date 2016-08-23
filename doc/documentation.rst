@@ -518,8 +518,7 @@ Lucene indexes are an extension of the Cassandra secondary indexes. As such, the
 qualified class name and a list of configuration options that are specified in this section.
 
 
-Syntax
-~~~~~~
+**Syntax:**
 
 .. code-block:: sql
 
@@ -608,8 +607,7 @@ __________________
 Analyzer which instances a Lucene's `analyzer <https://lucene.apache.org/core/5_3_0/core/org/apache/lucene/analysis/Analyzer.html>`__
 present in classpath.
 
-Example
-~~~~~~~
+**Example:**
 
 .. code-block:: sql
 
@@ -633,8 +631,8 @@ _________________
 Analyzer using a `http://snowball.tartarus.org/ <http://snowball.tartarus.org/>`__ snowball filter
 `SnowballFilter <https://lucene.apache.org/core/5_3_0/analyzers-common/org/apache/lucene/analysis/snowball/SnowballFilter.html>`__
 
-Example
-~~~~~~~
+Example:
+~~~~~~~~
 .. code-block:: sql
 
     CREATE CUSTOM INDEX census_index on census()
@@ -800,8 +798,7 @@ __________________
 
 Maps arbitrary precision signed decimal values.
 
-Parameters
-~~~~~~~~~~
+**Parameters:**
 
 -  **validated** (default = false): if mapping errors should make CQL writes fail, instead of just logging the error.
 -  **column** (default = name of the mapper): the name of the column storing the big decimal to be indexed.
@@ -812,8 +809,7 @@ Parameters
 
 -  ascii, bigint, decimal, double, float, int, smallint, text, tinyint, varchar, varint
 
-Example
-~~~~~~~
+**Example:**
 
 .. code-block:: sql
 
@@ -839,8 +835,7 @@ __________________
 
 Maps arbitrary precision signed integer values.
 
-Parameters
-~~~~~~~~~~
+**Parameters:**
 
 -  **validated** (default = false): if mapping errors should make CQL writes fail, instead of just logging the error.
 -  **column** (default = name of the mapper): the name of the column storing the big integer to be indexed.
@@ -850,8 +845,7 @@ Parameters
 
 -  ascii, bigint, int, smallint, text, tinyint, varchar, varint
 
-Example
-~~~~~~~
+**Example:**
 
 .. code-block:: sql
 
@@ -877,8 +871,7 @@ _________________
 
 Maps four columns containing the four dates defining a bitemporal fact.
 
-Parameters
-~~~~~~~~~~
+**Parameters:**
 
 -  **validated** (default = false): if mapping errors should make CQL writes fail, instead of just logging the error.
 -  **vt\_from** (mandatory): the name of the column storing the beginning of the valid date range.
@@ -893,8 +886,7 @@ Parameters
 
 -  ascii, bigint, date, int, text, timestamp, timeuuid, varchar, varint
 
-Example
-~~~~~~~
+**Example:**
 
 .. code-block:: sql
 
@@ -924,8 +916,7 @@ ___________
 
 Maps a blob value.
 
-Parameters
-~~~~~~~~~~
+**Parameters:**
 
 -  **validated** (default = false): if mapping errors should make CQL writes fail, instead of just logging the error.
 -  **column** (default = name of the mapper): the name of the column storing blob to be indexed.
@@ -934,8 +925,7 @@ Parameters
 
 -  ascii, blob,  text, varchar
 
-Example
-~~~~~~~
+**Example:**
 
 .. code-block:: sql
 
@@ -959,8 +949,7 @@ ______________
 
 Maps a boolean value.
 
-Parameters
-~~~~~~~~~~
+**Parameters:**
 
 -  **validated** (default = false): if mapping errors should make CQL writes fail, instead of just logging the error.
 -  **column** (default = name of the mapper): the name of the column storing boolean value to be indexed.
@@ -969,8 +958,7 @@ Parameters
 
 -  ascii, boolean , text, varchar
 
-Example
-~~~~~~~
+**Example:**
 
 .. code-block:: sql
 
@@ -995,8 +983,7 @@ ___________
 
 Maps dates using a either a pattern, an UNIX timestamp or a time UUID.
 
-Parameters
-~~~~~~~~~~
+**Parameters:**
 
 -  **validated** (default = false): if mapping errors should make CQL writes fail, instead of just logging the error.
 -  **column** (default = name of the mapper): the name of the column storing the date to be indexed.
@@ -1007,10 +994,7 @@ Parameters
 
 -  ascii, bigint, date, int, text, timestamp, timeuuid, varchar, varint
 
-Example
-~~~~~~~
-
-Index the column *creation* with a precision of minutes using the date format pattern *yyyy/MM/dd HH:mm*:
+**Example:** Index the column *creation* with a precision of minutes using the date format pattern *yyyy/MM/dd HH:mm*:
 
 .. code-block:: sql
 
@@ -1034,8 +1018,7 @@ _________________
 
 Maps a time duration/period defined by a start date and a stop date.
 
-Parameters
-~~~~~~~~~~
+**Parameters:**
 
 -  **validated** (default = false): if mapping errors should make CQL writes fail, instead of just logging the error.
 -  **from** (mandatory): the name of the column storing the start date of the time duration to be indexed.
@@ -1047,10 +1030,7 @@ Parameters
 
 -  ascii, bigint, date, int, text, timestamp, timeuuid, varchar, varint
 
-Example 1
-~~~~~~~~~
-
-Index the column time period defined by the columns *start* and *stop*, using the default date pattern:
+**Example 1:** Index the column time period defined by the columns *start* and *stop*, using the default date pattern:
 
 .. code-block:: sql
 
@@ -1069,10 +1049,7 @@ Index the column time period defined by the columns *start* and *stop*, using th
        }'
     };
 
-Example 2
-~~~~~~~~~
-
-Index the column time period defined by the columns *start* and *stop*, validating values, and using a
+**Example 2:** Index the column time period defined by the columns *start* and *stop*, validating values, and using a
 precision of minutes:
 
 .. code-block:: sql
@@ -1100,8 +1077,7 @@ _____________
 
 Maps a 64-bit decimal number.
 
-Parameters
-~~~~~~~~~~
+**Parameters:**
 
 -  **validated** (default = false): if mapping errors should make CQL writes fail, instead of just logging the error.
 -  **column** (default = name of the mapper): the name of the column storing the double to be indexed.
@@ -1111,8 +1087,7 @@ Parameters
 
 -  ascii, bigint, decimal, double, float, int, smallint, text, tinyint, varchar, varint
 
-Example
-~~~~~~~
+**Example:**
 
 .. code-block:: sql
 
@@ -1138,8 +1113,7 @@ ____________
 
 Maps a 32-bit decimal number.
 
-Parameters
-~~~~~~~~~~
+**Parameters:**
 
 -  **validated** (default = false): if mapping errors should make CQL writes fail, instead of just logging the error.
 -  **column** (default = name of the mapper): the name of the column storing the float to be indexed.
@@ -1149,8 +1123,7 @@ Parameters
 
 -  ascii, bigint, decimal, double, float, int, smallint, tinyint, varchar, varint
 
-Example
-~~~~~~~
+**Example:**
 
 .. code-block:: sql
 
@@ -1180,8 +1153,7 @@ stores points in a doc values field and also indexes them into a geohash recursi
 level. The low-accuracy prefix tree is used to quickly find results, maybe producing some false positives,
 and the doc values field is used to discard these false positives.
 
-Parameters
-~~~~~~~~~~
+**Parameters:**
 
 -  **validated** (default = false): if mapping errors should make CQL writes fail, instead of just logging the error.
 -  **latitude** (mandatory): the name of the column storing the latitude of the point to be indexed.
@@ -1194,8 +1166,7 @@ Parameters
 
 -  ascii, bigint, decimal, double, float, int, smallint, text, timestamp, varchar, varint
 
-Example
-~~~~~~~
+**Example:**
 
 .. code-block:: sql
 
@@ -1236,8 +1207,7 @@ This library can't be distributed together with this project due to license comp
 by putting `jts-core-1.14.0.jar <http://search.maven.org/remotecontent?filepath=com/vividsolutions/jts-core/1.14.0/jts-core-1.14.0.jar>`__
 into your Cassandra installation lib directory.
 
-Parameters
-~~~~~~~~~~
+**Parameters:**
 
 -  **validated** (default = false): if mapping errors should make CQL writes fail, instead of just logging the error.
 -  **column** (default = name of the mapper): the name of the column storing the shape to be indexed in `WKT format <http://en.wikipedia.org/wiki/Well-known_text>`__.
@@ -1251,8 +1221,7 @@ Parameters
 
 -  ascii, text, varchar
 
-Example 1
-~~~~~~~~~
+**Example 1:**
 
 .. code-block:: sql
 
@@ -1286,10 +1255,7 @@ Example 1
        }'
     };
 
-Example 2 
-~~~~~~~~~
-
-Index only the centroid of the WKT shape contained in the indexed column:
+**Example 2:** Index only the centroid of the WKT shape contained in the indexed column:
 
 .. image:: /doc/resources/geo_shape_mapper_example_2.png
    :width: 100%
@@ -1323,10 +1289,7 @@ Index only the centroid of the WKT shape contained in the indexed column:
        }'
     };
 
-Example 3
-~~~~~~~~~
-
-Index a buffer 50 kilometres around the area of a city:
+**Example 3:** Index a buffer 50 kilometres around the area of a city:
 
 .. image:: /doc/resources/geo_shape_mapper_example_3.png
    :width: 100%
@@ -1360,10 +1323,7 @@ Index a buffer 50 kilometres around the area of a city:
        }'
     };
 
-Example 4 
-~~~~~~~~~
-
-Index a buffer 50 kilometres around the borders of a country:
+**Example 4:** Index a buffer 50 kilometres around the borders of a country:
 
 .. image:: /doc/resources/geo_shape_mapper_example_4.png
    :width: 100%
@@ -1396,10 +1356,7 @@ Index a buffer 50 kilometres around the borders of a country:
        }'
     };
 
-Example 5
-~~~~~~~~~
-
-Index the convex hull of the WKT shape contained in the indexed column:
+**Example 5:** Index the convex hull of the WKT shape contained in the indexed column:
 
 .. image:: /doc/resources/geo_shape_mapper_example_5.png
    :width: 100%
@@ -1430,10 +1387,7 @@ Index the convex hull of the WKT shape contained in the indexed column:
        }'
     };
 
-Example 6
-~~~~~~~~~
-
-Index the bounding box of the WKT shape contained in the indexed column:
+**Example 6:** Index the bounding box of the WKT shape contained in the indexed column:
 
 .. image:: /doc/resources/geo_shape_mapper_example_6.png
    :width: 100%
@@ -1470,8 +1424,7 @@ ___________
 
 Maps an IP address. Either IPv4 and IPv6 are supported.
 
-Parameters
-~~~~~~~~~~
+**Parameters:**
 
 -  **validated** (default = false): if mapping errors should make CQL writes fail, instead of just logging the error.
 -  **column** (default = name of the mapper): the name of the column storing the IP address to be indexed.
@@ -1480,8 +1433,7 @@ Parameters
 
 -  ascii, inet, text, varchar
 
-Example
-~~~~~~~
+**Example:**
 
 .. code-block:: sql
 
@@ -1506,8 +1458,7 @@ ______________
 
 Maps a 32-bit integer number.
 
-Parameters
-~~~~~~~~~~
+**Parameters:**
 
 -  **validated** (default = false): if mapping errors should make CQL writes fail, instead of just logging the error.
 -  **column** (default = name of the mapper): the name of the column storing the integer to be indexed.
@@ -1517,8 +1468,7 @@ Parameters
 
 -  ascii, bigint, date, decimal, double, float, int, smallint, text, timestamp, tinyint, varchar, varint
 
-Example
-~~~~~~~
+**Example:**
 
 .. code-block:: sql
 
@@ -1544,8 +1494,7 @@ ___________
 
 Maps a 64-bit integer number.
 
-Parameters
-~~~~~~~~~~
+**Parameters:**
 
 -  **validated** (default = false): if mapping errors should make CQL writes fail, instead of just logging the error.
 -  **column** (default = name of the mapper): the name of the column storing the double to be indexed.
@@ -1555,8 +1504,7 @@ Parameters
 
 -  ascii, bigint, date, decimal, double, float, int, smallint, text, timestamp, tinyint, varchar, varint
 
-Example
-~~~~~~~
+**Example:**
 
 .. code-block:: sql
 
@@ -1582,8 +1530,7 @@ _____________
 
 Maps a not-analyzed text value.
 
-Parameters
-~~~~~~~~~~
+**Parameters:**
 
 -  **validated** (default = false): if mapping errors should make CQL writes fail, instead of just logging the error.
 -  **column** (default = name of the mapper): the name of the column storing the IP address to be indexed.
@@ -1593,8 +1540,7 @@ Parameters
 
 -  ascii, bigint, blob, boolean, double, float, inet, int, smallint, text, timestamp, timeuuid, tinyint, uuid, varchar, varint
 
-Example
-~~~~~~~
+**Example:**
 
 .. code-block:: sql
 
@@ -1620,8 +1566,7 @@ ___________
 
 Maps a language-aware text value analyzed according to the specified analyzer.
 
-Parameters
-~~~~~~~~~~
+**Parameters:**
 
 -  **validated** (default = false): if mapping errors should make CQL writes fail, instead of just logging the error.
 -  **column** (default = name of the mapper): the name of the column storing the IP address to be indexed.
@@ -1631,8 +1576,7 @@ Parameters
 
 -  ascii, bigint, blob, boolean, double, float, inet, int, smallint, text, timestamp, timeuuid, tinyint, uuid, varchar, varint
 
-Example
-~~~~~~~
+**Example:**
 
 .. code-block:: sql
 
@@ -1665,8 +1609,7 @@ ___________
 
 Maps an UUID value.
 
-Parameters
-~~~~~~~~~~
+**Parameters:**
 
 -  **validated** (default = false): if mapping errors should make CQL writes fail, instead of just logging the error.
 -  **column** (default = name of the mapper): the name of the column storing the IP address to be indexed.
@@ -1675,8 +1618,7 @@ Parameters
 
 -  ascii, text, timeuuid, uuid, varchar
 
-Example
-~~~~~~~
+**Example:**
 
 .. code-block:: sql
 
@@ -1749,8 +1691,7 @@ Searching
 
 Lucene indexes are queried using a custom JSON syntax defining the kind of search to be done.
 
-Syntax
-~~~~~~
+**Syntax:**
 
 .. code-block:: sql
 
@@ -1948,8 +1889,7 @@ All search
 
 Search for all the indexed rows.
 
-Syntax
-~~~~~~
+**Syntax:**
 
 .. code-block:: sql
 
@@ -1957,10 +1897,7 @@ Syntax
        (filter | query): {type: "all"}
     }');
 
-Example
-~~~~~~~
-
-Search for all the indexed rows:
+**Example:** search for all the indexed rows:
 
 .. code-block:: sql
 
@@ -1986,8 +1923,7 @@ Bitemporal search
 Search for `bitemporally-indexed <https://en.wikipedia.org/wiki/Temporal_database>`__ rows according to the specified
 transaction time and valid time ranges.
 
-Syntax
-~~~~~~
+**Syntax:**
 
 .. code-block:: sql
 
@@ -2224,8 +2160,7 @@ Boolean search
 
 Searches for rows matching boolean combinations of other searches.
 
-Syntax
-~~~~~~
+**Syntax:**
 
 .. code-block:: sql
 
@@ -2248,10 +2183,8 @@ where:
    NOT(search_1 OR search_2 OR … OR search_n)
 
 
-Example 1
-~~~~~~~~~
- 
-Search for rows where name ends with “a” AND food starts with “tu”:
+**Example 1:** search for rows where name ends with “a” AND food starts
+with “tu”:
 
 .. code-block:: sql
 
@@ -2308,10 +2241,7 @@ Using the `Java query builder <#query-builder>`__:
         search().filter(wildcard("name", "*a"), wildcard("food", "tu*")).build());
 
 
-Example 2
-~~~~~~~~~
-
-Search for rows where food starts with “tu” but name does not end with “a”:
+**Example 2:** search for rows where food starts with “tu” but name does not end with “a”:
 
 .. code-block:: sql
 
@@ -2364,10 +2294,8 @@ Using the `Java query builder <#query-builder>`__:
         search().filter(wildcard("food", "tu*"), not(wildcard("name", "*a"))).build());
 
 
-Example 3
-~~~~~~~~~
-
-Search for rows where name ends with “a” or food starts with “tu”:
+**Example 3:** search for rows where name ends with “a” or food starts with
+“tu”:
 
 .. code-block:: sql
 
@@ -2409,10 +2337,7 @@ Using the `Java query builder <#query-builder>`__:
        search().filter(should(wildcard("name", "*a"), wildcard("food", "tu*"))).build());
 
 
-Example 4
-~~~~~~~~~
-
-Will return zero rows independently of the index contents:
+**Example 4:** will return zero rows independently of the index contents:
 
 .. code-block:: sql
 
@@ -2431,10 +2356,8 @@ Using the `Java query builder <#query-builder>`__:
        search().filter(bool()).build());
 
 
-Example 5
-~~~~~~~~~
-
-Search for rows where name does not end with “a”, which is a resource-intensive pure negation search:
+**Example 5:** search for rows where name does not end with “a”, which is
+a resource-intensive pure negation search:
 
 .. code-block:: sql
 
@@ -2458,8 +2381,7 @@ Contains search
 
 Searches for rows matching one or more of the specified terms.
 
-Syntax
-~~~~~~
+**Syntax:**
 
 .. code-block:: sql
 
@@ -2477,10 +2399,7 @@ where:
 -  **doc\_values** (default = false): if the generated Lucene query should use doc values instead of inverted index.
    Doc values searches are typically slower, but they can be faster in the dense case where most rows match the search.
 
-Example 1
-~~~~~~~~~
-
-Search for rows where name matches “Alicia” or “mancha”:
+**Example 1:** search for rows where name matches “Alicia” or “mancha”:
 
 .. code-block:: sql
 
@@ -2503,10 +2422,7 @@ Using the `Java query builder <#query-builder>`__:
        search().filter(contains("name", "Alicia", "mancha").build());
 
 
-Example 2
-~~~~~~~~~
-
-Search for rows where date matches “2014/01/01″,
+**Example 2:** search for rows where date matches “2014/01/01″,
 “2014/01/02″ or “2014/01/03″:
 
 .. code-block:: sql
@@ -2538,8 +2454,7 @@ This allows you to use spatial operators such as *intersects*, *contains* and *i
 If you just want to search for single-column dates (points in time) within a certain time range, you should index them
 use a `range search <#range-search>`__.
 
-Syntax
-~~~~~~
+**Syntax:**
 
 .. code-block:: sql
 
@@ -2560,10 +2475,7 @@ where:
 -  **operation**: the spatial operation to be performed, it can be
    **intersects**, **contains** and **is\_within**.
 
-Example 1
-~~~~~~~~~
-
-Will return rows where duration intersects "2014/01/01" and
+**Example 1:** will return rows where duration intersects "2014/01/01" and
 "2014/12/31":
 
 .. code-block:: sql
@@ -2589,10 +2501,7 @@ Using the `Java query builder <#query-builder>`__:
        search().filter(dateRange("duration").from("2014/01/01").to("2014/12/31").operation("intersects")).build());
 
 
-Example 2
-~~~~~~~~~
-
-Search for rows where duration contains "2014/06/01" and
+**Example 2:** search for rows where duration contains "2014/06/01" and
 "2014/06/02":
 
 .. code-block:: sql
@@ -2618,10 +2527,7 @@ Using the `Java query builder <#query-builder>`__:
        search().filter(dateRange("duration").from("2014/06/01").to("2014/06/02").operation("contains")).build());
 
 
-Example 3
-~~~~~~~~~
-
-Search for rows where duration is within "2014/01/01" and
+**Example 3:** search for rows where duration is within "2014/01/01" and
 "2014/12/31":
 
 .. code-block:: sql
@@ -2654,8 +2560,7 @@ Fuzzy search
 Searches for rows matching a term using similarity based on
 `Damerau-Levenshtein distance <http://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance>`__ edit distance.
 
-Syntax
-~~~~~~
+**Syntax:**
 
 .. code-block:: sql
 
@@ -2687,10 +2592,7 @@ where:
    When false, comparisons will implement the classic `Levenshtein
    distance <http://en.wikipedia.org/wiki/Levenshtein_distance>`__.
 
-Example 1
-~~~~~~~~~
-
-Search for any rows where “phrase” contains a word that
+**Example 1:** search for any rows where “phrase” contains a word that
 differs in one edit operation from “puma”, such as “pumas”:
 
 .. code-block:: sql
@@ -2716,10 +2618,7 @@ Using the `Java query builder <#query-builder>`__:
        search().filter(fuzzy("phrase", "puma").maxEdits(1)).build());
 
 
-Example 2
-~~~~~~~~~
-
-Same as example 1 but will limit the results to rows where
+**Example 2:** same as example 1 but will limit the results to rows where
 phrase contains a word that starts with “pu”:
 
 .. code-block:: sql
@@ -2751,8 +2650,7 @@ Geo bbox search
 Searches for rows with `geographical points <#geo-point-mapper>`__ or `geographical shapes <#geo-shape-mapper>`__
 contained in the specified bounding box.
 
-Syntax
-~~~~~~
+**Syntax:**
 
 .. code-block:: sql
 
@@ -2778,10 +2676,7 @@ where:
 -  **max\_longitude**: a double value between -180 and 180 being the
    max allowed longitude.
 
-Example 1
-~~~~~~~~~
-
-Search for any rows where “place” is formed by a latitude
+**Example 1:** search for any rows where “place” is formed by a latitude
 between -90.0 and 90.0, and a longitude between -180.0 and
 180.0:
 
@@ -2809,10 +2704,7 @@ Using the `Java query builder <#query-builder>`__:
        search().filter(geoBBox("place", -180.0, 180.0, -90.0, 90.0)).build());
 
 
-Example 2
-~~~~~~~~~
-
-Search for any rows where “place” is formed by a latitude
+**Example 2:** search for any rows where “place” is formed by a latitude
 between -90.0 and 90.0, and a longitude between 0.0 and
 10.0:
 
@@ -2840,10 +2732,7 @@ Using the `Java query builder <#query-builder>`__:
        search().filter(geoBBox("place", 0.0, 10.0, -90.0, 90.0)).build());
 
 
-Example 3
-~~~~~~~~~
-
-Search for any rows where “place” is formed by a latitude
+**Example 3:** search for any rows where “place” is formed by a latitude
 between 0.0 and 10.0, and a longitude between -180.0 and
 180.0 sorted by min distance to point [0.0, 0.0]:
 
@@ -2884,8 +2773,7 @@ Geo distance search
 Searches for rows with `geographical points <#geo-point-mapper>`__ or `geographical shapes <#geo-shape-mapper>`__
 within a distance range from a specified point.
 
-Syntax
-~~~~~~
+**Syntax:**
 
 .. code-block:: sql
 
@@ -2908,10 +2796,7 @@ where:
 -  **max\_distance**: a string value being the max allowed `distance <#distance>`__ from the reference point.
 -  **min\_distance**: a string value being the min allowed `distance <#distance>`__ from the reference point.
 
-Example 1
-~~~~~~~~~
-
-Search for any rows where “place” is within one kilometer from the geo point (40.225479, -3.999278):
+**Example 1:** search for any rows where “place” is within one kilometer from the geo point (40.225479, -3.999278):
 
 .. code-block:: sql
 
@@ -2936,10 +2821,7 @@ Using the `Java query builder <#query-builder>`__:
        search().filter(geoDistance("place", -3.999278d, 40.225479d, "1km").build());
 
 
-Example 2
-~~~~~~~~~
-
-Search for any rows where “place” is within one yard and ten
+**Example 2:** search for any rows where “place” is within one yard and ten
 yards from the geo point (40.225479, -3.999278) sorted by min distance to point (40.225479, -3.999278):
 
 .. code-block:: sql
@@ -2989,8 +2871,7 @@ This library can't be distributed together with this project due to license comp
 by putting `jts-core-1.14.0.jar <http://search.maven.org/remotecontent?filepath=com/vividsolutions/jts-core/1.14.0/jts-core-1.14.0.jar>`__
 into your Cassandra installation lib directory.
 
-Syntax
-~~~~~~
+**Syntax:**
 
 .. code-block:: sql
 
@@ -3009,10 +2890,7 @@ where:
 -  **operation**: the type of spatial operation to be performed. The possible values are "intersects", "is_within" and
 "contains". Defaults to "is_within".
 
-Example 1
-~~~~~~~~~
-
-Search for shapes within a polygon:
+**Example 1:** search for shapes within a polygon:
 
 .. image:: /doc/resources/geo_shape_condition_example_1.png
    :width: 100%
@@ -3043,10 +2921,7 @@ Using the `Java query builder <#query-builder>`__:
       "SELECT * FROM TABLE test WHERE expr(test_index, ?)",
       search().filter(geoShape("place", wkt(shape))).build());
 
-Example 2
-~~~~~~~~~
-
-Search for shapes intersecting with a shape defined by a buffer 10 kilometers around a segment of the
+**Example 2:** search for shapes intersecting with a shape defined by a buffer 10 kilometers around a segment of the
 Florida's coastline:
 
 .. image:: /doc/resources/geo_shape_condition_example_2.png
@@ -3089,8 +2964,7 @@ Match search
 
 Searches for rows with columns containing the specified term. The matching depends on the used analyzer.
 
-Syntax
-~~~~~~
+**Syntax:**
 
 .. code-block:: sql
 
@@ -3108,10 +2982,7 @@ where:
 -  **doc\_values** (default = false): if the generated Lucene query should use doc values instead of inverted index.
    Doc values searches are typically slower, but they can be faster in the dense case where most rows match the search.
 
-Example 1
-~~~~~~~~~
-
-Search for rows where name matches “Alicia”:
+**Example 1:** search for rows where name matches “Alicia”:
 
 .. code-block:: sql
 
@@ -3134,10 +3005,7 @@ Using the `Java query builder <#query-builder>`__:
        search().filter(match("name", "Alicia")).build());
 
 
-Example 2
-~~~~~~~~~
-
-Search for any rows where phrase contains “mancha”:
+**Example 2:** search for any rows where phrase contains “mancha”:
 
 .. code-block:: sql
 
@@ -3160,10 +3028,7 @@ Using the `Java query builder <#query-builder>`__:
        search().filter(match("phrase", "mancha").build());
 
 
-Example 3
-~~~~~~~~~
-
-Search for rows where date matches “2014/01/01″:
+**Example 3:** search for rows where date matches “2014/01/01″:
 
 .. code-block:: sql
 
@@ -3192,8 +3057,7 @@ None search
 
 Returns no results.
 
-Syntax
-~~~~~~
+**Syntax:**
 
 .. code-block:: sql
 
@@ -3201,10 +3065,7 @@ Syntax
        (filter | query): {type: "none"}
     }');
 
-Example
-~~~~~~~
-
-Will return no one of the indexed rows:
+**Example:** will return no one of the indexed rows:
 
 .. code-block:: sql
 
@@ -3227,8 +3088,7 @@ Phrase search
 
 Searches for rows with columns containing a particular sequence of terms.
 
-Syntax
-~~~~~~
+**Syntax:**
 
 .. code-block:: sql
 
@@ -3245,10 +3105,7 @@ where:
 -  **values**: an ordered list of values.
 -  **slop** (default = 0): number of words permitted between words.
 
-Example 1
-~~~~~~~~~
-
-Search for rows where “phrase” contains the word “camisa”
+**Example 1:** search for rows where “phrase” contains the word “camisa”
 followed by the word “manchada”:
 
 .. code-block:: sql
@@ -3271,10 +3128,7 @@ Using the `Java query builder <#query-builder>`__:
         "SELECT * FROM users WHERE expr(users_index, ?)",
         search().filter(phrase("phrase", "camisa manchada")).build());
 
-Example 2
-~~~~~~~~~
-
-Search for rows where “phrase” contains the word “mancha”
+**Example 2:** search for rows where “phrase” contains the word “mancha”
 followed by the word “camisa” having 0 to 2 words in between:
 
 .. code-block:: sql
@@ -3303,8 +3157,7 @@ Prefix search
 
 Searches for rows with columns with terms starting with the specified prefix.
 
-Syntax
-~~~~~~
+**Syntax:**
 
 .. code-block:: sql
 
@@ -3316,10 +3169,7 @@ Syntax
        }
     }');
 
-Example
-~~~~~~~
-
-Search for rows where “phrase” contains a word starting with
+**Example:** search for rows where “phrase” contains a word starting with
 “lu”. If the column is indexed as “text” and uses an analyzer, words
 ignored by the analyzer will not be retrieved:
 
@@ -3348,8 +3198,7 @@ Range search
 
 Searches for rows with columns with terms within the specified term range.
 
-Syntax
-~~~~~~
+**Syntax:**
 
 .. code-block:: sql
 
@@ -3384,10 +3233,7 @@ returned. If only “upper” is specified then all rows with field values
 up to “upper” will be returned. If both are omitted than all rows will
 be returned.
 
-Example 1
-~~~~~~~~~
-
-Search for rows where *age* is in [65, ∞):
+**Example 1:** search for rows where *age* is in [65, ∞):
 
 .. code-block:: sql
 
@@ -3410,10 +3256,7 @@ Using the `Java query builder <#query-builder>`__:
        "SELECT * FROM users WHERE expr(users_index, ?)",
        search().filter(range("age").lower(1).includeLower(true)).build());
 
-Example 2
-~~~~~~~~~
-
-Search for rows where *age* is in (-∞, 0]:
+**Example 2:** search for rows where *age* is in (-∞, 0]:
 
 .. code-block:: sql
 
@@ -3437,10 +3280,7 @@ Using the `Java query builder <#query-builder>`__:
        "SELECT * FROM users WHERE expr(users_index, ?)",
        search().filter(range("age").upper(0).includeUpper(true).docValues(true)).build());
 
-Example 3
-~~~~~~~~~
-
-Search for rows where *age* is in [-1, 1]:
+**Example 3:** search for rows where *age* is in [-1, 1]:
 
 .. code-block:: sql
 
@@ -3469,10 +3309,7 @@ Using the `Java query builder <#query-builder>`__:
                                    .includeUpper(true)
                                    .docValues(true)).build());
 
-Example 4
-~~~~~~~~~
-
-Search for rows where *date* is in [2014/01/01, 2014/01/02]:
+**Example 4:** search for rows where *date* is in [2014/01/01, 2014/01/02]:
 
 .. code-block:: sql
 
@@ -3505,8 +3342,7 @@ Regexp search
 
 Searches for rows with columns with terms satisfying the specified regular expression.
 
-Syntax
-~~~~~~
+**Syntax:**
 
 .. code-block:: sql
 
@@ -3524,10 +3360,7 @@ where:
    `org.apache.lucene.util.automaton.RegExp <http://lucene.apache.org/core/4_6_1/core/org/apache/lucene/util/automaton/RegExp.html>`__
    for syntax reference.
 
-Example
-~~~~~~~
-
-Search for rows where name contains a word that starts with
+**Example:** search for rows where name contains a word that starts with
 “p” and a vowel repeated twice (e.g. “pape”):
 
 .. code-block:: sql
@@ -3555,8 +3388,7 @@ Wildcard search
 
 Searches for rows with columns with terms satisfying the specified wildcard pattern.
 
-Syntax
-~~~~~~
+**Syntax:**
 
 .. code-block:: sql
 
@@ -3574,10 +3406,7 @@ where:
    matches any character sequence (including the empty one), and ?,
    which matches any single character. ” is the escape character.
 
-Example
-~~~~~~~
-
-Search for rows where food starts with or is “tu”:
+**Example:** search for rows where food starts with or is “tu”:
 
 .. code-block:: sql
 
@@ -3641,10 +3470,7 @@ options for distance units. The default distance unit is metre.
 | M, NM, mil, nautical_miles | nautical mile |
 +----------------------------+---------------+
 
-Example
-~~~~~~~
-
-The following `geo distance search <#geo-distance-search>`__ search for any rows where “place” is within
+**Example:** the following `geo distance search <#geo-distance-search>`__ search for any rows where “place” is within
 one kilometer from the geo point (40.225479, -3.999278). The distance is expressed in kilometers.
 
 .. code-block:: sql
@@ -3672,17 +3498,13 @@ ___________________________
 Buffer transformation returns the `minimum bounding box <https://en.wikipedia.org/wiki/Minimum_bounding_box>`__ of a
 shape, that is, the minimum rectangle containing the shape.
 
-Syntax
-~~~~~~
+**Syntax:**
 
 .. code-block:: sql
 
     {type: "bbox"}
 
-Example
-~~~~~~~
-
-The following `geo shape mapper <#geo-shape-mapper>`__ will index only the bounding box of the WKT shape
+**Example:** The following `geo shape mapper <#geo-shape-mapper>`__ will index only the bounding box of the WKT shape
 contained in the indexed column:
 
 .. code-block:: sql
@@ -3707,8 +3529,7 @@ _____________________
 
 Buffer transformation returns a buffer around a shape.
 
-Syntax
-~~~~~~
+**Syntax:**
 
 .. code-block:: sql
 
@@ -3722,10 +3543,7 @@ where:
 -  **min_distance**: the inside buffer `distance <#distance>`__. Optional.
 -  **max_distance**: the outside buffer `distance <#distance>`__. Optional.
 
-Example
-~~~~~~~
-
-The following `geo shape mapper <#geo-shape-mapper>`__ will index a buffer 10 kilometers around the WKT
+**Example:** the following `geo shape mapper <#geo-shape-mapper>`__ will index a buffer 10 kilometers around the WKT
 shape contained in the indexed column:
 
 .. code-block:: sql
@@ -3750,17 +3568,13 @@ _______________________
 
 Centroid transformation returns the geometric center of a shape.
 
-Syntax
-~~~~~~
+**Syntax:**
 
 .. code-block:: sql
 
     {type: "centroid"}
 
-Example
-~~~~~~~
-
-The following `geo shape mapper <#geo-shape-mapper>`__ will index only the centroid of the WKT shape
+**Example:** The following `geo shape mapper <#geo-shape-mapper>`__ will index only the centroid of the WKT shape
 contained in the indexed column:
 
 .. code-block:: sql
@@ -3785,17 +3599,13 @@ __________________________
 
 Convex hull transformation returns the `convex envelope <https://en.wikipedia.org/wiki/Convex_hull>`__ of a shape.
 
-Syntax
-~~~~~~
+**Syntax:**
 
 .. code-block:: sql
 
     {type: "convex_hull"}
 
-Example
-~~~~~~~
-
-The following `geo shape mapper <#geo-shape-mapper>`__ will index only the convex hull of the WKT shape
+**Example:** The following `geo shape mapper <#geo-shape-mapper>`__ will index only the convex hull of the WKT shape
 contained in the indexed column:
 
 .. code-block:: sql
@@ -3827,8 +3637,7 @@ _________
 
 A shape defined in `Well Known Text (WKT) <http://en.wikipedia.org/wiki/Well-known_text>`__ format.
 
-Syntax
-~~~~~~
+**Syntax:**
 
 .. code-block:: sql
 
@@ -3838,10 +3647,7 @@ where:
 
 -  **value**: A string containing the WKT shape. Mandatory.
 
-Example
-~~~~~~~
-
-The following `geo shape mapper <#geo-shape-mapper>`__ will retrieve shapes intersecting a WKT shape:
+**Example:** The following `geo shape mapper <#geo-shape-mapper>`__ will retrieve shapes intersecting a WKT shape:
 
 .. code-block:: sql
 
@@ -3863,8 +3669,7 @@ __________________
 Buffer transformation returns the `minimum bounding box <https://en.wikipedia.org/wiki/Minimum_bounding_box>`__ a shape,
 that is, the minimum rectangle containing the shape.
 
-Syntax
-~~~~~~
+**Syntax:**
 
 .. code-block:: sql
 
@@ -3874,10 +3679,7 @@ where:
 
 -  **shape**: the `shape <#shapes>`__ to be transformed. Mandatory.
 
-Example
-~~~~~~~
-
-The following `geo shape mapper <#geo-shape-mapper>`__ will retrieve shapes intersecting the bounding box
+**Example:** The following `geo shape mapper <#geo-shape-mapper>`__ will retrieve shapes intersecting the bounding box
 of a WKT shape:
 
 .. code-block:: sql
@@ -3902,8 +3704,7 @@ ____________
 
 Buffer transformation returns a buffer around a shape.
 
-Syntax
-~~~~~~
+**Syntax:**
 
 .. code-block:: sql
 
@@ -3920,10 +3721,7 @@ where:
 -  **min_distance**: the inside buffer `distance <#distance>`__. Optional.
 -  **max_distance**: the outside buffer `distance <#distance>`__. Optional.
 
-Example
-~~~~~~~
-
-the following `geo shape search <#geo-shape-search>`__ will retrieve shapes intersecting with a shape
+**Example:** the following `geo shape search <#geo-shape-search>`__ will retrieve shapes intersecting with a shape
 defined by a buffer 10 kilometers around a segment of the Florida's coastline:
 
 .. code-block:: sql
@@ -3949,8 +3747,7 @@ ______________
 
 Centroid transformation returns the geometric center of a shape.
 
-Syntax
-~~~~~~
+**Syntax:**
 
 .. code-block:: sql
 
@@ -3960,10 +3757,7 @@ where:
 
 -  **shape**: the `shape <#shapes>`__ to be transformed. Mandatory.
 
-Example
-~~~~~~~
-
-The following `geo shape mapper <#geo-shape-mapper>`__ will retrieve shapes intersecting the centroid of a
+**Example:** The following `geo shape mapper <#geo-shape-mapper>`__ will retrieve shapes intersecting the centroid of a
 WKT shape:
 
 .. code-block:: sql
@@ -3988,8 +3782,7 @@ _________________
 
 Convex hull transformation returns the `convex envelope <https://en.wikipedia.org/wiki/Convex_hull>`__ of a shape.
 
-Syntax
-~~~~~~
+**Syntax:**
 
 .. code-block:: sql
 
@@ -3999,10 +3792,7 @@ where:
 
 -  **shape**: the `shape <#shapes>`__ to be transformed. Mandatory.
 
-Example
-~~~~~~~
-
-The following `geo shape mapper <#geo-shape-mapper>`__ will retrieve shapes intersecting the convex hull of
+**Example:** The following `geo shape mapper <#geo-shape-mapper>`__ will retrieve shapes intersecting the convex hull of
 a WKT shape:
 
 .. code-block:: sql
@@ -4027,8 +3817,7 @@ ________________
 
 Difference transformation subtracts the specified shapes.
 
-Syntax
-~~~~~~
+**Syntax:**
 
 .. code-block:: sql
 
@@ -4043,8 +3832,7 @@ __________________
 
 Intersection transformation intersects the specified shapes.
 
-Syntax
-~~~~~~
+**Syntax:**
 
 .. code-block:: sql
 
@@ -4059,8 +3847,7 @@ ___________
 
 Union transformation adds the specified shapes.
 
-Syntax
-~~~~~~
+**Syntax:**
 
 .. code-block:: sql
 
@@ -4349,10 +4136,7 @@ age) where (name, gender) is the partition key. When combining the token
 function and a Lucene-based filter in a where clause, the filter on
 tokens is applied first and then the condition of the filter clause.
 
-Example
-~~~~~~~
-
-Search for rows which tokens are greater than (‘Alicia’,
+**Example:** search for rows which tokens are greater than (‘Alicia’,
 ‘female’) and then test them against the match condition:
 
 .. code-block:: sql
