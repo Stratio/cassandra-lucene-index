@@ -1,5 +1,6 @@
+================================
 Stratio's Cassandra Lucene Index
-********************************
+================================
 
 - `Overview <#overview>`__
     - `Features <#features>`__
@@ -88,8 +89,9 @@ Stratio's Cassandra Lucene Index
     - `Try doc values <#try-doc-values>`__
     - `Force segments merge <#force-segments-merge>`__
 
+--------
 Overview
-********
+--------
 
 Stratio’s Cassandra Lucene Index, derived from `Stratio Cassandra <https://github.com/Stratio/stratio-cassandra>`__, is
 a plugin for `Apache Cassandra <http://cassandra.apache.org/>`__ that extends its index functionality to provide near
@@ -507,8 +509,9 @@ subset of the cluster nodes will be hit, saving precious resources:
        ]
     }') AND TOKEN(id) >= TOKEN(0) AND TOKEN(id) < TOKEN(10000000) limit 100;
 
+--------
 Indexing
-********
+--------
 
 Lucene indexes are an extension of the Cassandra secondary indexes. As such, they are created through CQL
 `CREATE CUSTOM INDEX statement <https://cassandra.apache.org/doc/cql3/CQL.html#createIndexStmt>`__, specifying the full
@@ -1682,8 +1685,9 @@ Cassandra shell:
       }'
     };
 
+---------
 Searching
-*********
+---------
 
 Lucene indexes are queried using a custom JSON syntax defining the kind of search to be done.
 
@@ -3425,8 +3429,9 @@ Using the `Java query builder <#query-builder>`__:
        "SELECT * FROM users WHERE expr(users_index, ?)",
        search().filter(wildcard("food", "tu*")).build());
 
+---------------------
 Geographical elements
-*********************
+---------------------
 
 Geographical indexing and search make use of some common elements that are described in this section.
 
@@ -3852,9 +3857,9 @@ where:
 
 -  **shapes**: the `shapes <#shapes>`__ to be added. Mandatory.
 
-
+------------------
 Complex data types
-******************
+------------------
 
 Tuples
 ======
@@ -4065,9 +4070,9 @@ UDTs can be indexed even while being inside collections. It is done so using '.'
        }'
     };
 
-
+-------------
 Query Builder
-*************
+-------------
 
 There is a separate module named "builder" that can be included in client applications
 to ease the building of the JSON statements used by the index.
@@ -4111,9 +4116,9 @@ And you can also build searches in a similar fashion:
                .refresh(true)
                .build());
 
-
+----------------
 Spark and Hadoop
-****************
+----------------
 
 Spark and Hadoop integrations are fully supported because Lucene searches
 can be combined with token range restrictions and paging, which are the
@@ -4178,8 +4183,9 @@ retrieving no more than the 25% of the stored data.
 :alt: spark_performance
 :align: center
 
+-------------
 JMX Interface
-*************
+-------------
 
 The existing Lucene indexes expose some attributes and operations
 through JMX, using the same MBean server as Apache Cassandra. The MBeans
@@ -4205,8 +4211,9 @@ distributed index.
 | forceMergeDeletes | Operation | Optimizes the index forcing merge segments containing deletions, leaving the specified number of segments. It also includes a boolean parameter to block until all merging completes. |
 +-------------------+-----------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 
+----------------
 Performance tips
-****************
+----------------
 
 Lucene index plugin performance varies depending upon several factors
 regarding to the use case and you should probably do some tuning work.
